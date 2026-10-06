@@ -1,0 +1,15 @@
+{
+    "name": "centres/commandes",
+    "description": "Progiciel interne de commandes pour centres de santé",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "anthropic-ai/sdk": "^0.54.0",
+        "guzzlehttp/guzzle": "^8.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
