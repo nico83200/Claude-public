@@ -26,6 +26,9 @@
   </a>
 </div>
 
+<?php if ($n = pending_suggestions_count()): ?>
+<div class="flash flash-info"><?= icon('sparkles') ?><div><strong><?= plural($n, 'article hors catalogue proposé', 'articles hors catalogue proposés') ?></strong> par les centres. <a href="<?= url('admin/suggestions') ?>">Examiner →</a></div></div>
+<?php endif; ?>
 <?php if ($kpi['pending_users']): ?>
 <div class="flash flash-info"><?= icon('users') ?><div><strong><?= plural($kpi['pending_users'], 'compte attend', 'comptes attendent') ?></strong> votre validation. <a href="<?= url('admin/users', ['status' => 'pending']) ?>">Valider maintenant →</a></div></div>
 <?php endif; ?>

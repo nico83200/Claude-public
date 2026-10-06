@@ -1,13 +1,17 @@
 <div class="page-head">
   <div><h1>Mon panier</h1><p>Demande pour <strong><?= e($center['name']) ?></strong> — les articles sont automatiquement classés par fournisseur.</p></div>
-  <a class="btn" href="<?= url('catalog') ?>"><?= icon('plus', 18) ?> Ajouter des articles</a>
+  <div class="row row-wrap">
+    <a class="btn" href="<?= url('suggest', ['from' => 'cart']) ?>"><?= icon('sparkles', 18) ?> Article hors catalogue</a>
+    <a class="btn" href="<?= url('catalog') ?>"><?= icon('plus', 18) ?> Ajouter des articles</a>
+  </div>
 </div>
 
-<?php if (!$groups): ?>
+<?php if (!$groups && !$offCatalog): ?>
   <div class="card"><div class="empty">
     <?= icon('cart') ?><h3>Votre panier est vide</h3>
     <p>Utilisez la recherche pour trouver ce dont vous avez besoin.</p>
     <a class="btn btn-primary" href="<?= url('catalog') ?>"><?= icon('search', 18) ?> Parcourir le catalogue</a>
+    <p class="mt-2"><small>Introuvable au catalogue ? <a href="<?= url('suggest', ['from' => 'cart']) ?>">Proposez un article hors catalogue</a>.</small></p>
   </div></div>
 <?php else: ?>
 <form method="post" action="<?= url('cart/update') ?>">
@@ -42,6 +46,26 @@
         </table></div>
       </div>
       <?php endforeach; ?>
+      <?php if ($offCatalog): ?>
+      <div class="card supplier-block" style="border-left-color:#ec4899">
+        <div class="card-head"><h3><?= icon('sparkles', 18) ?> Articles hors catalogue</h3><span class="badge badge-pink">À valider par le service achats</span></div>
+        <div class="table-wrap"><table class="table"><tbody>
+        <?php foreach ($offCatalog as $o): ?>
+          <tr>
+            <td style="width:56px"><div class="thumb" style="width:44px;height:44px;background:linear-gradient(135deg,#ec4899,#8b5cf6)"><?php if ($o['image']): ?><img src="<?= e(product_image_url($o['image'])) ?>" alt=""><?php else: ?><?= icon('sparkles', 20) ?><?php endif; ?></div></td>
+            <td>
+              <div class="strong"><?= e($o['name']) ?></div>
+              <small><?= e(implode(' · ', array_filter([$o['brand'], $o['reference'] ? 'Réf. ' . $o['reference'] : null, $o['unit'], $o['supplier_hint'] ? 'Fournisseur : ' . $o['supplier_hint'] : null, $o['barcode'] ? 'EAN ' . $o['barcode'] : null]))) ?></small>
+              <?php if ($o['url']): ?><div><small><a href="<?= e($o['url']) ?>" target="_blank" rel="noopener noreferrer">Voir le lien</a></small></div><?php endif; ?>
+            </td>
+            <td class="nowrap"><input class="qty-input" type="number" min="1" max="9999" name="off_qty[<?= (int)$o['id'] ?>]" value="<?= max(1, (int)$o['qty']) ?>"></td>
+            <?php if (show_prices()): ?><td class="num"><?= $o['estimated_price'] ? '<small class="muted">≈ ' . money($o['estimated_price'] * max(1, $o['qty'])) . '</small>' : '<small class="muted">prix à confirmer</small>' ?></td><?php endif; ?>
+            <td><button class="btn btn-ghost btn-icon btn-danger" type="submit" formaction="<?= url('suggest/cart', ['id' => $o['id'], 'remove' => 1]) ?>" title="Retirer"><?= icon('trash', 18) ?></button></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody></table></div>
+      </div>
+      <?php endif; ?>
       <button class="btn" type="submit"><?= icon('repeat', 18) ?> Mettre à jour les quantités</button>
     </div>
 
@@ -50,6 +74,7 @@
         <div class="card-head"><h2>Récapitulatif</h2></div>
         <div class="card-body">
           <div class="row mb-1"><span class="muted">Lignes</span><span class="spacer"></span><strong><?= $count ?></strong></div>
+          <?php if ($offCatalog): ?><div class="row mb-1"><span class="muted">Hors catalogue</span><span class="spacer"></span><strong><?= count($offCatalog) ?></strong></div><?php endif; ?>
           <div class="row mb-1"><span class="muted">Fournisseurs</span><span class="spacer"></span><strong><?= count($groups) ?></strong></div>
           <?php if (show_prices()): $bud = budget_status((int)$center['id']); if ($bud['defined']): ?>
             <div class="mb-2" style="padding:.7rem;border-radius:12px;background:var(--surface-2)"><small class="muted"><?= icon('wallet', 14) ?> Budget <?= date('Y') ?> du centre</small><?php partial('budget_gauge', ['b' => $bud]); ?>

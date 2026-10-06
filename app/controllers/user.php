@@ -63,8 +63,17 @@ function user_requests(): void
 {
     $u = require_login();
     $center = require_center();
-    $scope = input('scope', 'mine') === 'center' ? 'center' : 'mine';
+    $scope = in_array(input('scope'), ['center', 'suggestions'], true) ? input('scope') : 'mine';
     $status = (string)input('status', '');
+    if ($scope === 'suggestions') {
+        render('user/requests', [
+            'title' => 'Suivi des demandes', 'center' => $center, 'requests' => [], 'scope' => $scope, 'status' => '',
+            'suggestions' => all('SELECT ps.*, c.name AS center_name, p.name AS product_name FROM product_suggestions ps
+                                  JOIN centers c ON c.id = ps.center_id LEFT JOIN products p ON p.id = ps.product_id
+                                  WHERE ps.user_id = ? AND ps.in_cart = 0 ORDER BY ps.created_at DESC', [$u['id']]),
+        ]);
+        return;
+    }
 
     $sql = 'SELECT r.*, u.first_name, u.last_name, u.job FROM requests r JOIN users u ON u.id = r.user_id WHERE r.center_id = ?';
     $params = [$center['id']];
@@ -83,6 +92,7 @@ function user_requests(): void
                            LEFT JOIN purchase_orders po ON po.id = rl.purchase_order_id
                            LEFT JOIN purchase_order_lines pol ON pol.purchase_order_id = rl.purchase_order_id AND pol.product_id = rl.product_id
                            WHERE rl.request_id = ? ORDER BY s.name, p.name', [$r['id']]);
+        $r['off'] = all("SELECT * FROM product_suggestions WHERE request_id = ? AND status IN ('pending','rejected')", [$r['id']]);
         if ($status !== '') {
             $r['lines'] = array_values(array_filter($r['lines'], function ($l) use ($status) {
                 $ps = $l['po_status'] ?? null;
@@ -93,7 +103,7 @@ function user_requests(): void
                     default => true,
                 };
             }));
-            if (!$r['lines']) {
+            if (!$r['lines'] && !($status === 'pending' && $r['off'])) {
                 unset($requests[$i]);
             }
         }

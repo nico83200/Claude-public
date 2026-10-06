@@ -149,7 +149,8 @@ function cart_submit(int $userId, int $centerId, string $comment, bool $urgent):
 {
     return tx(function () use ($userId, $centerId, $comment, $urgent) {
         $items = cart_items($userId, $centerId);
-        if (!$items) {
+        $offCatalog = cart_suggestions($userId, $centerId);
+        if (!$items && !$offCatalog) {
             throw new RuntimeException('Le panier est vide.');
         }
         $requestId = insert('requests', [
@@ -165,6 +166,9 @@ function cart_submit(int $userId, int $centerId, string $comment, bool $urgent):
             ]);
         }
         q('DELETE FROM cart_items WHERE user_id = ? AND center_id = ?', [$userId, $centerId]);
+        // Les articles hors catalogue partent avec la demande, en attente d'examen par le service achats
+        q('UPDATE product_suggestions SET in_cart = 0, request_id = ? WHERE user_id = ? AND center_id = ? AND in_cart = 1',
+            [$requestId, $userId, $centerId]);
         return $requestId;
     });
 }
@@ -359,4 +363,28 @@ function pending_groups(?int $centerFilter = null): array
         $groups[$k]['oldest'] = min($groups[$k]['oldest'], $l['created_at']);
     }
     return array_values($groups);
+}
+
+// ---------------------------------------------------------------- Articles hors catalogue
+
+const SUGGESTION_STATUSES = [
+    'pending'  => ['label' => 'En examen',            'color' => 'amber'],
+    'added'    => ['label' => 'Ajouté au catalogue',  'color' => 'green'],
+    'linked'   => ['label' => 'Article existant',     'color' => 'blue'],
+    'rejected' => ['label' => 'Refusé',               'color' => 'gray'],
+];
+
+function cart_suggestions(int $userId, int $centerId): array
+{
+    return all('SELECT * FROM product_suggestions WHERE user_id = ? AND center_id = ? AND in_cart = 1 ORDER BY created_at', [$userId, $centerId]);
+}
+
+/** Propositions transmises au service achats (hors paniers non envoyés). */
+function pending_suggestions_count(): int
+{
+    try {
+        return (int)val("SELECT COUNT(*) FROM product_suggestions WHERE status = 'pending' AND in_cart = 0");
+    } catch (Throwable) {
+        return 0;
+    }
 }

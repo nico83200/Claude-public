@@ -9,6 +9,9 @@
   </form>
 </div>
 
+<?php if ($n = pending_suggestions_count()): ?>
+  <div class="flash flash-info"><?= icon('sparkles') ?><div>Il y a aussi <strong><?= plural($n, 'article hors catalogue', 'articles hors catalogue') ?></strong> à examiner : une fois ajoutés au catalogue, ils apparaîtront ici. <a href="<?= url('admin/suggestions') ?>">Voir les propositions →</a></div></div>
+<?php endif; ?>
 <?php if (!$bySupplier): ?>
   <div class="card"><div class="empty"><?= icon('check-circle') ?><h3>Aucune demande en attente</h3><p>Tout est traité ! Les nouvelles demandes des centres apparaîtront ici.</p></div></div>
 <?php endif; ?>

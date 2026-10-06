@@ -256,6 +256,34 @@ function schema_statements(string $driver): array
             user_id {FK} NULL,
             created_at DATETIME NOT NULL",
 
+        'product_suggestions' => "
+            id {PK},
+            center_id {FK} NOT NULL,
+            user_id {FK} NOT NULL,
+            source VARCHAR(10) NOT NULL DEFAULT 'cart',
+            barcode VARCHAR(64) NULL,
+            name VARCHAR(200) NOT NULL,
+            brand VARCHAR(120) NULL,
+            reference VARCHAR(80) NULL,
+            description TEXT NULL,
+            unit VARCHAR(80) NULL,
+            supplier_hint VARCHAR(200) NULL,
+            url VARCHAR(500) NULL,
+            estimated_price DECIMAL(10,2) NULL,
+            qty INT NOT NULL DEFAULT 0,
+            image VARCHAR(255) NULL,
+            in_cart TINYINT NOT NULL DEFAULT 0,
+            request_id {FK} NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            product_id {FK} NULL,
+            admin_note VARCHAR(255) NULL,
+            handled_by {FK} NULL,
+            handled_at DATETIME NULL,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL",
+
         'ai_cache' => "
             id {PK},
             cache_key VARCHAR(64) NOT NULL UNIQUE,
@@ -286,6 +314,7 @@ function schema_statements(string $driver): array
         'idx_products_barcode'    => 'products(barcode)',
         'idx_moves_center_prod'   => 'stock_movements(center_id, product_id)',
         'idx_notif_user'          => 'notifications(user_id, read_at)',
+        'idx_sugg_status'         => 'product_suggestions(status, in_cart)',
     ];
     foreach ($indexes as $n => $def) {
         $sql[] = $driver === 'sqlite'

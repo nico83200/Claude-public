@@ -17,6 +17,7 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 
 - **Inventaire** du centre : le stock augmente automatiquement à chaque réception ; on le corrige par un **inventaire** (quantité comptée) ou une **sortie** déclarée (consommation, périmé…). Seuils d'alerte, articles en commande, bouton « recommander » sur les stocks bas, historique de tous les mouvements.
 - **Scan de codes-barres** avec la caméra du smartphone ou de la tablette : recherche d'un article, inventaire (la ligne de l'article s'affiche directement), sortie de stock. Les douchettes USB/Bluetooth fonctionnent aussi (saisie dans la recherche).
+- **Articles hors catalogue** : depuis le panier, ou automatiquement quand un code-barres scanné est inconnu, le salarié propose un article avec le plus d'informations possible (nom, marque, référence, conditionnement, fournisseur connu, lien, prix constaté, **photo prise avec la caméra**, quantité souhaitée). La proposition part avec sa demande ; son avancement est visible dans « Suivi des demandes → Mes articles proposés ».
 - **Notifications** dans l'application (cloche) et, en option, par e-mail à chaque étape : demande validée, commandée, livrée, refusée, stock bas. Chacun choisit ses notifications dans « Mon profil ».
 
 ### Espace administrateur (service achats)
@@ -27,6 +28,12 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 - **Articles** : photo optionnelle, descriptif, conditionnement, **tarif catalogue et tarif négocié**, TVA, mots-clés de recherche, duplication, **import/export CSV** du catalogue.
 - **Catégories**, **centres** (adresse et consignes de livraison reprises sur les bons), **comptes** (validation des inscriptions, centres autorisés, rôle, réinitialisation du mot de passe).
 - **Dates limites de commande** : par fournisseur et/ou par centre, avec répétition (hebdomadaire, toutes les deux semaines, mensuelle), affichées dans les tableaux de bord des centres concernés et dans le catalogue.
+- **Articles proposés** : fiche pré-remplie avec les informations du salarié, fournisseur reconnu automatiquement, articles ressemblants du catalogue pour éviter les doublons. Trois actions :
+  - **ajouter au catalogue** : la quantité demandée rejoint alors « Demandes à traiter » ;
+  - **rattacher à un article existant** : le code-barres scanné complète la fiche s'il manquait ;
+  - **refuser** avec un motif.
+
+  Le salarié est notifié dans tous les cas.
 - **Budgets annuels par centre**, avec un seuil d'alerte. La jauge distingue le commandé (bons passés) de l'engagé (bons à commander) ; elle apparaît sur les tableaux de bord, le panier et les demandes à traiter (avertissement en cas de dépassement).
 - **Stocks des centres** : vue consolidée, articles sous le seuil, plus fortes consommations.
 - **Notifications & e-mails** : activation par événement, envoi par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), e-mail de test.

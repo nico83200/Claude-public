@@ -54,6 +54,10 @@
     <?= icon('search') ?>
     <h3>Aucun article trouvé</h3>
     <p>Essayez avec d'autres mots, ou décrivez simplement l'usage (« pour nettoyer… », « pour le bureau… »).<br>
-    Si l'article n'existe pas au catalogue, indiquez-le en commentaire d'une demande ou contactez le service achats.</p>
+    L'article n'existe pas au catalogue ? Proposez-le au service achats :</p>
+    <a class="btn btn-primary" href="<?= url('suggest', ['from' => 'cart', 'name' => $query]) ?>"><?= icon('sparkles', 18) ?> Proposer « <?= e(mb_substr($query, 0, 40)) ?> »</a>
   </div></div>
+<?php endif; ?>
+<?php if ($products && $query !== ''): ?>
+  <p class="text-center muted mt-3">Vous ne trouvez pas votre article ? <a href="<?= url('suggest', ['from' => 'cart', 'name' => $query]) ?>">Proposez un article hors catalogue</a>.</p>
 <?php endif; ?>

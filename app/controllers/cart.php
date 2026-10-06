@@ -19,7 +19,7 @@ function cart_index(): void
     }
     render('user/cart', [
         'title' => 'Mon panier', 'center' => $center, 'groups' => $bySupplier, 'total' => $total,
-        'count' => count($items), 'deadlinesBySupplier' => supplier_deadlines((int)$center['id']),
+        'count' => count($items), 'offCatalog' => cart_suggestions((int)$u['id'], (int)$center['id']), 'deadlinesBySupplier' => supplier_deadlines((int)$center['id']),
     ]);
 }
 
@@ -55,6 +55,9 @@ function cart_update_action(): void
             update('cart_items', ['qty' => min($qty, 9999)], 'id = ? AND user_id = ?', [(int)$id, $u['id']]);
         }
     }
+    foreach ((array)($_POST['off_qty'] ?? []) as $id => $qty) {
+        update('product_suggestions', ['qty' => max(1, min(9999, (int)$qty))], 'id = ? AND user_id = ? AND in_cart = 1', [(int)$id, $u['id']]);
+    }
     foreach ((array)($_POST['comment'] ?? []) as $id => $c) {
         update('cart_items', ['comment' => mb_substr(trim((string)$c), 0, 255) ?: null], 'id = ? AND user_id = ?', [(int)$id, $u['id']]);
     }
@@ -80,11 +83,19 @@ function cart_submit_action(): void
     try {
         $id = cart_submit((int)$u['id'], (int)$center['id'], (string)input('request_comment', ''), input('urgent') === '1');
         $n = (int)val('SELECT COUNT(*) FROM request_lines WHERE request_id = ?', [$id]);
-        notify(admin_ids(), 'request_new',
-            (input('urgent') === '1' ? '[URGENT] ' : '') . 'Nouvelle demande — ' . $center['name'],
-            $u['first_name'] . ' ' . $u['last_name'] . ($u['job'] ? ' (' . $u['job'] . ')' : '') . ' a demandé ' . plural($n, 'article', 'articles') . '.'
-                . (input('request_comment') ? "\nCommentaire : " . input('request_comment') : ''),
-            url('admin/requests', ['center' => $center['id']]));
+        $off = all('SELECT name, qty FROM product_suggestions WHERE request_id = ?', [$id]);
+        if ($off) {
+            notify(admin_ids(), 'suggestion_new', plural(count($off), 'article hors catalogue proposé', 'articles hors catalogue proposés') . ' — ' . $center['name'],
+                $u['first_name'] . ' ' . $u['last_name'] . ' demande : ' . implode(', ', array_map(fn($o) => $o['name'] . ($o['qty'] ? ' (× ' . $o['qty'] . ')' : ''), $off)) . '.',
+                url('admin/suggestions'));
+        }
+        if ($n) {
+            notify(admin_ids(), 'request_new',
+                (input('urgent') === '1' ? '[URGENT] ' : '') . 'Nouvelle demande — ' . $center['name'],
+                $u['first_name'] . ' ' . $u['last_name'] . ($u['job'] ? ' (' . $u['job'] . ')' : '') . ' a demandé ' . plural($n, 'article', 'articles') . '.'
+                    . (input('request_comment') ? "\nCommentaire : " . input('request_comment') : ''),
+                url('admin/requests', ['center' => $center['id']]));
+        }
         flash('success', 'Votre demande n°' . $id . ' a bien été transmise au service achats. Merci !');
         redirect('requests');
     } catch (RuntimeException $e) {

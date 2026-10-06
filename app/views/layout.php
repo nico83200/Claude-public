@@ -10,6 +10,7 @@ if (is_admin()) {
     $pendingN = (int)val("SELECT COUNT(*) FROM request_lines WHERE status = 'pending'");
     $toOrderN = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE status = 'a_commander'");
     $usersN = (int)val("SELECT COUNT(*) FROM users WHERE status = 'pending'");
+    $suggN = pending_suggestions_count();
 }
 $lowN = $center ? stock_low_count((int)$center['id']) : 0;
 $notifN = $u ? unread_notifications((int)$u['id']) : 0;
@@ -49,7 +50,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <div class="nav-title">Mon centre</div>
       <a class="<?= $active('dashboard') ?>" href="<?= url('dashboard') ?>"><?= icon('home') ?> Tableau de bord</a>
       <a class="<?= $active('catalog', 'product') ?>" href="<?= url('catalog') ?>"><?= icon('search') ?> Catalogue</a>
-      <a class="<?= $active('cart') ?>" href="<?= url('cart') ?>"><?= icon('cart') ?> Mon panier <span class="count soft" id="cart-count" <?= $cartN ? '' : 'style="display:none"' ?>><?= $cartN ?></span></a>
+      <a class="<?= $active('cart', 'suggest') ?>" href="<?= url('cart') ?>"><?= icon('cart') ?> Mon panier <span class="count soft" id="cart-count" <?= $cartN ? '' : 'style="display:none"' ?>><?= $cartN ?></span></a>
       <a class="<?= $active('requests') ?>" href="<?= url('requests') ?>"><?= icon('clipboard') ?> Suivi des demandes</a>
       <a class="<?= $active('receptions', 'reception') ?>" href="<?= url('receptions') ?>"><?= icon('package-check') ?> Réceptions <?php if ($toReceiveN): ?><span class="count"><?= $toReceiveN ?></span><?php endif; ?></a>
       <a class="<?= $active('stock', 'stock/history') ?>" href="<?= url('stock') ?>"><?= icon('layers') ?> Inventaire <?php if ($lowN): ?><span class="count" title="Articles sous le seuil d'alerte"><?= $lowN ?></span><?php endif; ?></a>
@@ -59,6 +60,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin') ?>" href="<?= url('admin') ?>"><?= icon('chart') ?> Pilotage</a>
       <a class="<?= $active('admin/requests') ?>" href="<?= url('admin/requests') ?>"><?= icon('inbox') ?> Demandes à traiter <?php if ($pendingN): ?><span class="count"><?= $pendingN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/orders', 'admin/order') ?>" href="<?= url('admin/orders', ['status' => 'open']) ?>"><?= icon('file') ?> Bons de commande <?php if ($toOrderN): ?><span class="count soft"><?= $toOrderN ?></span><?php endif; ?></a>
+      <a class="<?= $active('admin/suggestions', 'admin/suggestion') ?>" href="<?= url('admin/suggestions') ?>"><?= icon('sparkles') ?> Articles proposés <?php if ($suggN): ?><span class="count"><?= $suggN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/suppliers', 'admin/supplier') ?>" href="<?= url('admin/suppliers') ?>"><?= icon('truck') ?> Fournisseurs</a>
       <a class="<?= $active('admin/products', 'admin/product', 'admin/products/import') ?>" href="<?= url('admin/products') ?>"><?= icon('box') ?> Articles</a>
       <a class="<?= $active('admin/categories') ?>" href="<?= url('admin/categories') ?>"><?= icon('tag') ?> Catégories</a>

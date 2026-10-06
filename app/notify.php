@@ -14,6 +14,8 @@ const NOTIFY_EVENTS = [
     'po_ordered'      => ['label' => 'Commande passée chez le fournisseur',      'for' => 'user'],
     'po_received'     => ['label' => 'Commande réceptionnée (partielle ou totale)', 'for' => 'both'],
     'po_cancelled'    => ['label' => 'Bon de commande annulé',                    'for' => 'user'],
+    'suggestion_new'  => ['label' => 'Article hors catalogue proposé',          'for' => 'admin'],
+    'suggestion_done' => ['label' => 'Réponse à un article proposé',             'for' => 'user'],
     'budget_alert'    => ['label' => 'Seuil de budget atteint',                  'for' => 'admin'],
     'stock_low'       => ['label' => 'Stock sous le seuil d\'alerte',            'for' => 'both'],
 ];

@@ -212,7 +212,7 @@
   $$('[data-toggle-target]').forEach((r) => {
     r.addEventListener('change', () => {
       const t = $(r.dataset.toggleTarget);
-      t && t.classList.toggle('hidden', r.hasAttribute('data-toggle-hide'));
+      t && t.classList.toggle('hidden', r.type === 'checkbox' ? !r.checked : r.hasAttribute('data-toggle-hide'));
     });
   });
   $$('input[type=file][data-preview]').forEach((inp) => {
@@ -364,6 +364,11 @@
     })();
   };
 
+  const suggestUrl = (code) => 'index.php?r=suggest&from=scan&barcode=' + encodeURIComponent(code);
+  function offerSuggest(code) {
+    if (confirm('Le code ' + code + ' ne correspond à aucun article du catalogue.\n\nVoulez-vous proposer cet article au service achats ?')) location.href = suggestUrl(code);
+  }
+
   async function lookup(code) {
     const r = await fetch('index.php?r=api/barcode&code=' + encodeURIComponent(code), { headers: { 'X-Requested-With': 'fetch' } });
     return r.json();
@@ -379,7 +384,7 @@
       openScanner(async (code) => {
         const d = await lookup(code);
         if (d.found) location.href = d.product.url;
-        else { toast('Code ' + code + ' inconnu au catalogue de ce centre.', true); location.href = 'index.php?r=catalog&q=' + encodeURIComponent(code); }
+        else location.href = suggestUrl(code);
       }, 'Rechercher un article');
     } else if (mode.startsWith('fill:')) {
       openScanner((code) => { const i = $(mode.slice(5)); if (i) { i.value = code; i.dispatchEvent(new Event('input')); } }, 'Lire le code-barres de l\'article');
@@ -387,12 +392,13 @@
       openScanner(async (code) => {
         const sel = $(mode.slice(12)); const d = await lookup(code);
         if (d.found && sel && sel.querySelector('option[value="' + d.product.id + '"]')) { sel.value = d.product.id; toast(d.product.name); }
-        else toast(d.found ? '« ' + d.product.name + ' » n\'est pas dans cette liste.' : 'Code ' + code + ' inconnu.', true);
+        else if (d.found) toast('« ' + d.product.name + ' » n\'est pas dans cette liste.', true);
+        else offerSuggest(code);
       }, 'Scanner l\'article');
     } else if (mode === 'stock') {
       openScanner(async (code) => {
         const d = await lookup(code);
-        if (!d.found) { toast('Code ' + code + ' inconnu au catalogue.', true); return; }
+        if (!d.found) { offerSuggest(code); return; }
         const row = $('[data-stock-row="' + d.product.id + '"]');
         if (row) {
           row.scrollIntoView({ behavior: 'smooth', block: 'center' });

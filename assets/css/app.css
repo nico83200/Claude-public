@@ -312,7 +312,7 @@ tr.is-done td { opacity: .6; }
 .list > li { display: flex; align-items: center; gap: .85rem; padding: .8rem 1.4rem; border-bottom: 1px solid var(--border); }
 .list > li:last-child { border-bottom: 0; }
 .list .grow { flex: 1; min-width: 0; }
-.list .title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list .title { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
 .empty .ic { width: 46px; height: 46px; color: var(--primary); opacity: .55; margin-bottom: .5rem; }
 
