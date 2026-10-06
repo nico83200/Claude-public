@@ -442,3 +442,48 @@ tr.is-done td { opacity: .6; }
   .product-foot { flex-wrap: wrap; }
   h1 { font-size: 1.35rem; }
 }
+
+/* ------------------------------------------------------------- v1.1 : scanner, notifications, stock, budget */
+.search-box.compact .scan-btn { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); padding: .35rem; }
+.search-box.compact input { padding-right: 2.6rem; }
+.scan-mobile { display: none; }
+.bell-wrap { position: relative; }
+.bell { position: relative; }
+.bell-count { position: absolute; top: 2px; right: 2px; background: var(--pink); color: #fff; font-size: .65rem; font-weight: 800; min-width: 17px; height: 17px; border-radius: 999px; display: grid; place-items: center; padding: 0 4px; }
+.notif-pop { position: absolute; right: 0; top: calc(100% + 8px); width: 360px; max-width: 92vw; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); z-index: 60; overflow: hidden; }
+.notif-pop a.item { display: block; padding: .7rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); }
+.notif-pop a.item:hover { background: var(--primary-soft); text-decoration: none; }
+.notif-pop a.item.unread { border-left: 3px solid var(--primary); }
+.notif-pop .foot { display: block; text-align: center; padding: .6rem; font-weight: 600; font-size: .85rem; background: var(--surface-2); }
+.notif { display: flex; gap: .9rem; padding: .9rem 1.4rem; border-bottom: 1px solid var(--border); }
+.notif.unread { background: color-mix(in srgb, var(--primary-soft) 55%, transparent); }
+.notif-ic { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+
+/* Scanner */
+.scanner { position: fixed; inset: 0; z-index: 200; background: rgba(10,12,30,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; color: #fff; }
+.scanner-box { position: relative; width: min(560px, 100%); aspect-ratio: 4/3; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.scanner-box video { width: 100%; height: 100%; object-fit: cover; }
+.scanner-aim { position: absolute; left: 10%; right: 10%; top: 32%; bottom: 32%; border: 3px solid rgba(255,255,255,.9); border-radius: 14px; box-shadow: 0 0 0 999px rgba(0,0,0,.35); }
+.scanner-aim::after { content: ""; position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; background: #ec4899; box-shadow: 0 0 12px #ec4899; animation: scanline 1.6s ease-in-out infinite; }
+@keyframes scanline { 0%, 100% { transform: translateY(-28px); } 50% { transform: translateY(28px); } }
+.scanner-bar { width: min(560px, 100%); display: flex; gap: .5rem; margin-top: 1rem; }
+.scanner-bar input { flex: 1; }
+.scanner-status { margin-top: .8rem; opacity: .85; text-align: center; font-size: .92rem; }
+.scanner h3 { color: #fff; margin-bottom: .8rem; display: flex; gap: .5rem; align-items: center; }
+
+/* Inventaire */
+.stock-qty { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stock-low td { background: color-mix(in srgb, var(--red-soft) 70%, transparent); }
+tr.flash-row td { animation: rowflash 1.6s ease; }
+@keyframes rowflash { 0%, 40% { background: #fde68a; } }
+.count-input { width: 90px !important; text-align: center; font-weight: 700; }
+.count-input.changed { border-color: var(--primary); background: var(--primary-soft); }
+.gauge { height: 14px; background: var(--gray-soft); border-radius: 999px; overflow: hidden; display: flex; }
+.gauge > span { display: block; height: 100%; }
+.gauge .g-spent { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+.gauge .g-committed { background: repeating-linear-gradient(45deg, #f59e0b, #f59e0b 6px, #fbbf24 6px, #fbbf24 12px); }
+.gauge.over .g-spent { background: linear-gradient(90deg, #ef4444, #ec4899); }
+.legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: .3rem; vertical-align: -1px; }
+.version-pill { font-family: ui-monospace, monospace; background: var(--primary-soft); color: var(--primary); padding: .15rem .55rem; border-radius: 8px; font-weight: 700; font-size: .85rem; }
+@media (max-width: 900px) { .scan-mobile { display: inline-flex; } }

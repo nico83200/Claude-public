@@ -229,3 +229,236 @@
     }
   });
 })();
+
+/* =====================================================================
+   v1.1 — Scanner de codes-barres, notifications, inventaire, mises à jour
+   ===================================================================== */
+(function () {
+  'use strict';
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const toast = (msg, err) => {
+    const z = $('#toasts'); if (!z) return;
+    const t = document.createElement('div'); t.className = 'toast'; if (err) t.style.background = '#b91c1c';
+    t.textContent = msg; z.appendChild(t); setTimeout(() => t.remove(), 3200);
+  };
+
+  // --------------------------------------------------------- Scanner caméra
+  let zxingLoading = null;
+  function loadZXing() {
+    if (window.ZXing) return Promise.resolve(window.ZXing);
+    zxingLoading = zxingLoading || new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'assets/vendor/zxing/zxing.min.js';
+      s.onload = () => res(window.ZXing); s.onerror = rej;
+      document.head.appendChild(s);
+    });
+    return zxingLoading;
+  }
+
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.frequency.value = 1150; o.connect(g); g.connect(ctx.destination); g.gain.value = 0.08;
+      o.start(); setTimeout(() => { o.stop(); ctx.close(); }, 120);
+    } catch (e) { /* ignoré */ }
+    if (navigator.vibrate) navigator.vibrate(80);
+  }
+
+  /** Ouvre le scanner ; onCode(code) est appelé avec le code lu (ou saisi). */
+  window.openScanner = function (onCode, title) {
+    const ov = document.createElement('div');
+    ov.className = 'scanner';
+    ov.innerHTML = `
+      <h3>📷 ${esc(title || 'Scanner un code-barres')}</h3>
+      <div class="scanner-box"><video playsinline muted></video><div class="scanner-aim"></div></div>
+      <div class="scanner-status">Placez le code-barres dans le cadre…</div>
+      <form class="scanner-bar">
+        <input type="text" inputmode="numeric" placeholder="ou saisissez le code (douchette, clavier)" autocomplete="off">
+        <button class="btn btn-primary" type="submit">Valider</button>
+        <button class="btn" type="button" data-close>Fermer</button>
+      </form>`;
+    document.body.appendChild(ov);
+    const video = $('video', ov), status = $('.scanner-status', ov), input = $('input', ov);
+    let stream = null, done = false, timer = null;
+
+    const stop = () => {
+      done = true; clearTimeout(timer);
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      ov.remove();
+    };
+    const found = (code) => {
+      if (done || !code) return;
+      beep(); stop(); onCode(String(code).trim());
+    };
+    $('[data-close]', ov).addEventListener('click', stop);
+    ov.addEventListener('keydown', (e) => { if (e.key === 'Escape') stop(); });
+    $('form', ov).addEventListener('submit', (e) => { e.preventDefault(); found(input.value); });
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      status.innerHTML = 'Caméra indisponible : l\'application doit être ouverte en <strong>HTTPS</strong>. Vous pouvez saisir le code ci-dessous.';
+      input.focus();
+      return;
+    }
+    const constraints = { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
+    const formats = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'qr_code', 'data_matrix'];
+
+    // Capture d'une image de la vidéo toutes les 200 ms puis décodage
+    const canvas = document.createElement('canvas');
+    const ctx2d = canvas.getContext('2d', { willReadFrequently: true });
+    const startCamera = async () => {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+      await video.play();
+    };
+    const loop = (decodeFrame) => {
+      const tick = async () => {
+        if (done) return;
+        if (video.readyState >= 2 && video.videoWidth) {
+          try {
+            const code = await decodeFrame();
+            if (code) return found(code);
+          } catch (e) { /* aucun code sur cette image */ }
+        }
+        timer = setTimeout(tick, 200);
+      };
+      tick();
+    };
+    const useNative = async () => {
+      const supported = await window.BarcodeDetector.getSupportedFormats();
+      const det = new window.BarcodeDetector({ formats: formats.filter((f) => supported.includes(f)) });
+      await startCamera();
+      loop(async () => { const codes = await det.detect(video); return codes.length ? codes[0].rawValue : null; });
+    };
+    const useZXing = async () => {
+      const ZX = await loadZXing();
+      const hints = new Map();
+      hints.set(ZX.DecodeHintType.TRY_HARDER, true);
+      const mfr = new ZX.MultiFormatReader();
+      mfr.setHints(hints);
+      await startCamera();
+      loop(async () => {
+        // Le décodage sur une image réduite reste rapide sur les tablettes modestes
+        const scale = Math.min(1, 960 / video.videoWidth);
+        canvas.width = Math.round(video.videoWidth * scale);
+        canvas.height = Math.round(video.videoHeight * scale);
+        ctx2d.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const bmp = new ZX.BinaryBitmap(new ZX.HybridBinarizer(new ZX.HTMLCanvasElementLuminanceSource(canvas)));
+        try { return mfr.decodeWithState(bmp).getText(); } finally { mfr.reset(); }
+      });
+    };
+    (async () => {
+      try {
+        if ('BarcodeDetector' in window) {
+          try { await useNative(); return; } catch (e) { if (stream) stream.getTracks().forEach((t) => t.stop()); stream = null; }
+        }
+        await useZXing();
+      } catch (e) {
+        status.innerHTML = e && e.name === 'NotAllowedError'
+          ? 'Accès à la caméra refusé. Autorisez la caméra pour ce site dans les réglages du navigateur, ou saisissez le code.'
+          : 'Impossible de démarrer la caméra (' + esc(e && e.message || e) + '). Saisissez le code ci-dessous.';
+        input.focus();
+      }
+    })();
+  };
+
+  async function lookup(code) {
+    const r = await fetch('index.php?r=api/barcode&code=' + encodeURIComponent(code), { headers: { 'X-Requested-With': 'fetch' } });
+    return r.json();
+  }
+
+  // Actions des boutons [data-scan]
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-scan]');
+    if (!b) return;
+    e.preventDefault();
+    const mode = b.dataset.scan;
+    if (mode === 'search') {
+      openScanner(async (code) => {
+        const d = await lookup(code);
+        if (d.found) location.href = d.product.url;
+        else { toast('Code ' + code + ' inconnu au catalogue de ce centre.', true); location.href = 'index.php?r=catalog&q=' + encodeURIComponent(code); }
+      }, 'Rechercher un article');
+    } else if (mode.startsWith('fill:')) {
+      openScanner((code) => { const i = $(mode.slice(5)); if (i) { i.value = code; i.dispatchEvent(new Event('input')); } }, 'Lire le code-barres de l\'article');
+    } else if (mode.startsWith('fill-select:')) {
+      openScanner(async (code) => {
+        const sel = $(mode.slice(12)); const d = await lookup(code);
+        if (d.found && sel && sel.querySelector('option[value="' + d.product.id + '"]')) { sel.value = d.product.id; toast(d.product.name); }
+        else toast(d.found ? '« ' + d.product.name + ' » n\'est pas dans cette liste.' : 'Code ' + code + ' inconnu.', true);
+      }, 'Scanner l\'article');
+    } else if (mode === 'stock') {
+      openScanner(async (code) => {
+        const d = await lookup(code);
+        if (!d.found) { toast('Code ' + code + ' inconnu au catalogue.', true); return; }
+        const row = $('[data-stock-row="' + d.product.id + '"]');
+        if (row) {
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          row.classList.remove('flash-row'); void row.offsetWidth; row.classList.add('flash-row');
+          const inp = $('.count-input', row); if (inp) setTimeout(() => inp.focus(), 350);
+          toast(d.product.name + ' — en stock : ' + (d.stock ? d.stock.qty : 0));
+        } else {
+          const sel = $('#add-product');
+          if (sel && sel.querySelector('option[value="' + d.product.id + '"]')) {
+            sel.value = d.product.id; sel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            toast('« ' + d.product.name + ' » n\'est pas encore suivi : indiquez son stock puis ajoutez-le.');
+          } else toast(d.product.name, true);
+        }
+      }, 'Inventaire : scanner un article');
+    }
+  });
+
+  // --------------------------------------------------------- Inventaire
+  $$('.count-input').forEach((i) => i.addEventListener('input', () => {
+    i.classList.toggle('changed', i.value !== '' && i.value !== i.dataset.current);
+  }));
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-exit]');
+    if (!b) return;
+    const sel = $('#exit-product');
+    if (sel) { sel.value = b.dataset.exit; const f = $('#exit-form'); f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('input[name=qty]', f).select(), 300); }
+  });
+  const sf = $('#stock-form');
+  sf && window.addEventListener('beforeunload', (e) => {
+    if (!sf.dataset.submitting && $$('.count-input.changed', sf).length) { e.preventDefault(); e.returnValue = ''; }
+  });
+  sf && sf.addEventListener('submit', () => { sf.dataset.submitting = '1'; });
+
+  // --------------------------------------------------------- Cloche de notifications
+  const bell = $('[data-bell]');
+  if (bell) {
+    let pop = null;
+    bell.addEventListener('click', async (e) => {
+      if (window.innerWidth < 600) return; // sur mobile : page complète
+      e.preventDefault();
+      if (pop) { pop.remove(); pop = null; return; }
+      const d = await (await fetch('index.php?r=api/notifications', { headers: { 'X-Requested-With': 'fetch' } })).json();
+      pop = document.createElement('div');
+      pop.className = 'notif-pop';
+      pop.innerHTML = (d.items.length ? d.items.map((n) => `<a class="item ${n.read ? '' : 'unread'}" href="${esc(n.url)}"><div class="strong">${esc(n.title)}</div>${n.body ? `<small>${esc(n.body)}</small><br>` : ''}<small class="muted">${esc(n.when)}</small></a>`).join('')
+        : '<div class="empty" style="padding:1.5rem">Aucune notification.</div>') + '<a class="foot" href="index.php?r=notifications">Tout voir</a>';
+      bell.parentNode.appendChild(pop);
+    });
+    document.addEventListener('click', (e) => { if (pop && !e.target.closest('.bell-wrap')) { pop.remove(); pop = null; } });
+    // Rafraîchissement du compteur toutes les 2 minutes
+    setInterval(async () => {
+      try {
+        const d = await (await fetch('index.php?r=api/notifications', { headers: { 'X-Requested-With': 'fetch' } })).json();
+        const c = $('.bell-count', bell); c.textContent = d.unread; c.style.display = d.unread ? '' : 'none';
+      } catch (e) { /* ignoré */ }
+    }, 120000);
+  }
+
+  // --------------------------------------------------------- Retour arrière (mises à jour)
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rollback]');
+    if (!b) return;
+    const f = $('#rollback-form');
+    $('input[name=file]', f).value = b.dataset.rollback;
+    $('[data-rb-version]', f).textContent = 'v' + b.dataset.version;
+    f.classList.remove('hidden');
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();

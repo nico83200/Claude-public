@@ -24,7 +24,7 @@ function admin_dashboard(): void
     $groups = pending_groups();
     usort($groups, fn($a, $b) => [$b['urgent'], $a['oldest']] <=> [$a['urgent'], $b['oldest']]);
 
-    $byCenter = all("SELECT c.name, c.color, COALESCE(SUM(l.qty*l.unit_price),0) total
+    $byCenter = all("SELECT c.id, c.name, c.color, COALESCE(SUM(l.qty*l.unit_price),0) total
                      FROM centers c
                      LEFT JOIN purchase_orders po ON po.center_id = c.id AND po.status IN ('commande','partiel','recu') AND po.ordered_at >= ?
                      LEFT JOIN purchase_order_lines l ON l.purchase_order_id = po.id

@@ -77,6 +77,7 @@ function product_json(array $p, array $favIds = []): array
         'id' => (int)$p['id'],
         'name' => $p['name'],
         'reference' => $p['reference'],
+        'barcode' => $p['barcode'] ?? null,
         'unit' => $p['unit'],
         'description' => mb_substr((string)$p['description'], 0, 160),
         'image' => product_image_url($p['image']),

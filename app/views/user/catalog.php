@@ -13,6 +13,7 @@
   <span class="ic-left"><?= icon('search', 20) ?></span>
   <input type="search" name="q" value="<?= e($query) ?>" placeholder="Décrivez votre besoin : « de quoi nettoyer les tables d'examen », « gants M »…" autocomplete="off" autofocus>
   <button class="btn btn-primary" type="submit"><?= icon('sparkles', 16) ?> Rechercher</button>
+  <button class="btn btn-ghost btn-icon" type="button" data-scan="search" title="Scanner un code-barres" style="position:absolute;right:140px;top:50%;transform:translateY(-50%)"><?= icon('barcode', 20) ?></button>
 </form>
 
 <div class="chips mb-1">

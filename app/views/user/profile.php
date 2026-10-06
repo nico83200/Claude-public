@@ -25,4 +25,20 @@
     </div>
     <div class="card-foot"><button class="btn btn-primary" type="submit">Changer le mot de passe</button></div>
   </form>
+  <form method="post" class="card" style="grid-column:1/-1">
+    <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
+    <div class="card-head"><h2><?= icon('bell') ?> Notifications</h2></div>
+    <div class="card-body">
+      <label class="check"><input type="checkbox" name="notify_email" value="1" <?= (int)($u['notify_email'] ?? 1) ? 'checked' : '' ?>> Recevoir aussi les notifications par e-mail (<?= e($u['email']) ?>)</label>
+      <?php if (setting('mail_enabled', '0') !== '1'): ?><small class="muted">L'envoi d'e-mails n'est pas encore activé par le service achats : seules les notifications dans l'application sont actives.</small><?php endif; ?>
+      <hr>
+      <p class="muted">Événements qui vous intéressent :</p>
+      <div class="check-grid">
+        <?php $prefs = user_notify_prefs($u); foreach (NOTIFY_EVENTS as $k => $ev): if ($ev['for'] === 'admin' && $u['role'] !== 'admin') continue; if (!notify_event_enabled($k)) continue; ?>
+          <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= ($prefs[$k] ?? true) ? 'checked' : '' ?>> <?= e($ev['label']) ?></label>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <div class="card-foot"><button class="btn btn-primary" type="submit">Enregistrer mes préférences</button></div>
+  </form>
 </div>

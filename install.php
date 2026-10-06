@@ -22,6 +22,8 @@ if ($hasConfig) {
     require APP . '/auth.php';
     require APP . '/domain.php';
     require APP . '/schema.php';
+    require APP . '/stock.php';
+    require APP . '/notify.php';
     if (session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
         session_start();
     }

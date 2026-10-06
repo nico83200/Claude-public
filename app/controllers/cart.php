@@ -79,6 +79,12 @@ function cart_submit_action(): void
     $center = require_center();
     try {
         $id = cart_submit((int)$u['id'], (int)$center['id'], (string)input('request_comment', ''), input('urgent') === '1');
+        $n = (int)val('SELECT COUNT(*) FROM request_lines WHERE request_id = ?', [$id]);
+        notify(admin_ids(), 'request_new',
+            (input('urgent') === '1' ? '[URGENT] ' : '') . 'Nouvelle demande — ' . $center['name'],
+            $u['first_name'] . ' ' . $u['last_name'] . ($u['job'] ? ' (' . $u['job'] . ')' : '') . ' a demandé ' . plural($n, 'article', 'articles') . '.'
+                . (input('request_comment') ? "\nCommentaire : " . input('request_comment') : ''),
+            url('admin/requests', ['center' => $center['id']]));
         flash('success', 'Votre demande n°' . $id . ' a bien été transmise au service achats. Merci !');
         redirect('requests');
     } catch (RuntimeException $e) {

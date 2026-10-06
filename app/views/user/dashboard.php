@@ -129,6 +129,18 @@ foreach ($deadlines as $d) {
       <?php endif; ?>
     </div>
 
+    <?php $lowN = stock_low_count((int)$center['id']); if ($lowN): ?>
+    <a class="stat c-pink" href="<?= url('stock', ['filter' => 'low']) ?>">
+      <div class="stat-icon g-pink"><?= icon('layers', 24) ?></div>
+      <div><div class="stat-value"><?= $lowN ?></div><div class="stat-label">Article(s) en stock bas — à recommander</div></div>
+    </a>
+    <?php endif; ?>
+    <?php if (show_prices()): $b = budget_status((int)$center['id']); ?>
+    <div class="card card-body">
+      <h3><?= icon('wallet', 18) ?> Budget <?= date('Y') ?></h3>
+      <?php partial('budget_gauge', ['b' => $b]); ?>
+    </div>
+    <?php endif; ?>
     <?php if (show_prices()): ?>
     <div class="stat c-violet">
       <div class="stat-icon g-violet"><?= icon('euro', 24) ?></div>

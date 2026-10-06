@@ -31,7 +31,13 @@ function admin_refuse_line(): void
     $reason = mb_substr((string)input('reason', ''), 0, 255) ?: 'Refusée par le service achats';
     $n = 0;
     foreach ($ids as $id) {
-        $n += update('request_lines', ['status' => 'cancelled', 'cancel_reason' => $reason], "id = ? AND status = 'pending'", [$id]);
+        $l = one('SELECT rl.*, r.user_id, p.name, c.name AS center_name FROM request_lines rl JOIN requests r ON r.id = rl.request_id
+                  JOIN products p ON p.id = rl.product_id JOIN centers c ON c.id = rl.center_id WHERE rl.id = ?', [$id]);
+        if ($l && update('request_lines', ['status' => 'cancelled', 'cancel_reason' => $reason], "id = ? AND status = 'pending'", [$id])) {
+            $n++;
+            notify([(int)$l['user_id']], 'request_refused', 'Demande refusée : ' . $l['name'],
+                'Votre demande de ' . $l['qty'] . ' × ' . $l['name'] . ' (' . $l['center_name'] . ') n\'a pas été retenue. Motif : ' . $reason, url('requests'));
+        }
     }
     flash('success', plural($n, 'ligne refusée', 'lignes refusées') . '.');
     redirect_back('admin/requests');
@@ -43,6 +49,7 @@ function admin_po_create(): void
     $ids = array_map('intval', (array)($_POST['lines'] ?? []));
     try {
         $poId = po_create(input_int('center_id'), input_int('supplier_id'), $ids, (string)input('notes', ''));
+        notify_po($poId, 'po_created');
         flash('success', 'Bon de commande créé en statut « À commander ».');
         redirect('admin/order', ['id' => $poId]);
     } catch (RuntimeException $e) {
@@ -251,6 +258,8 @@ function admin_order_status(): void
                     'expected_date' => input('expected_date') ?: null,
                 ], 'id = ?', [$po['id']]);
                 po_log((int)$po['id'], 'Commandé', trim('Réf. fournisseur : ' . (input('supplier_reference') ?: '—')));
+                notify_po((int)$po['id'], 'po_ordered');
+                budget_check_alert((int)$po['center_id']);
                 $ok = true;
             }
             break;
@@ -263,6 +272,9 @@ function admin_order_status(): void
             break;
         case 'annule':
             if (in_array($po['status'], ['a_commander', 'commande'], true)) {
+                if (input('requeue') !== '1') {
+                    notify_po((int)$po['id'], 'po_cancelled');
+                }
                 tx(function () use ($po) {
                     update('purchase_orders', ['status' => 'annule'], 'id = ?', [$po['id']]);
                     if (input('requeue') === '1') {
@@ -275,10 +287,15 @@ function admin_order_status(): void
             break;
         case 'recu':
             if (in_array($po['status'], ['commande', 'partiel'], true)) {
-                q('UPDATE purchase_order_lines SET qty_received = qty, received_at = ?, received_by = ? WHERE purchase_order_id = ? AND qty_received < qty',
-                    [now(), user()['id'], $po['id']]);
-                po_log((int)$po['id'], 'Réception totale (administrateur)');
+                tx(function () use ($po) {
+                    foreach (all('SELECT * FROM purchase_order_lines WHERE purchase_order_id = ? AND qty_received < qty', [$po['id']]) as $l) {
+                        update('purchase_order_lines', ['qty_received' => $l['qty'], 'received_at' => now(), 'received_by' => user()['id']], 'id = ?', [$l['id']]);
+                        stock_from_reception($po, $l, (int)$l['qty_received'], (int)$l['qty']);
+                    }
+                    po_log((int)$po['id'], 'Réception totale (administrateur)');
+                });
                 po_refresh_reception_status((int)$po['id']);
+                notify_po((int)$po['id'], 'po_received');
                 $ok = true;
             }
             break;

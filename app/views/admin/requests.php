@@ -42,6 +42,7 @@
           <div class="progress <?= $reached ? 'ok' : 'warn' ?>"><span style="width:<?= $pct ?>%"></span></div>
         </div>
         <span class="spacer"></span>
+        <?php $bud = $budgetCache[$g['center_id']] ??= budget_status($g['center_id']); if ($bud['defined'] && $bud['remaining'] < $g['total']): ?><span class="badge badge-red" title="Budget <?= date('Y') ?> du centre"><?= icon('wallet', 13) ?> Budget dépassé (reste <?= money($bud['remaining']) ?>)</span><?php endif; ?>
         <?php if (!$reached): ?><span class="badge badge-amber" title="Vous pouvez attendre d'autres demandes ou créer le bon quand même"><?= icon('alert', 13) ?> Minimum non atteint (<?= money($min - $g['total']) ?> manquants)</span><?php endif; ?>
         <button class="btn btn-primary btn-sm" type="submit" <?= !$reached ? 'data-confirm="Le minimum de commande n\'est pas atteint. Créer le bon quand même ?"' : '' ?>><?= icon('file', 16) ?> Créer le bon de commande</button>
       </div>

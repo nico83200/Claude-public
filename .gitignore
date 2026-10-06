@@ -5,3 +5,4 @@
 /uploads/products/*
 !/uploads/products/.htaccess
 .DS_Store
+/dist/

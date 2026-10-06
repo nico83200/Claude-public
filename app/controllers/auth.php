@@ -75,6 +75,8 @@ function auth_register(): void
                 'role' => 'user', 'status' => 'pending',
                 'requested_centers' => implode(',', $wanted), 'created_at' => now(),
             ]);
+            notify(admin_ids(), 'account_pending', 'Compte à valider : ' . $old['first_name'] . ' ' . $old['last_name'],
+                ($old['job'] ?: 'Fonction non précisée') . ' — ' . $old['email'], url('admin/users', ['status' => 'pending']));
             flash('success', 'Demande de compte envoyée ! Un administrateur va la valider très prochainement.');
             redirect('login');
         }
@@ -93,7 +95,14 @@ function auth_profile(): void
     $u = require_login();
     if (is_post()) {
         $action = input('action');
-        if ($action === 'password') {
+        if ($action === 'notifications') {
+            $prefs = [];
+            foreach (NOTIFY_EVENTS as $k => $ev) {
+                $prefs[$k] = isset($_POST['events'][$k]);
+            }
+            update('users', ['notify_email' => input('notify_email') === '1' ? 1 : 0, 'notify_prefs' => json_encode($prefs)], 'id = ?', [$u['id']]);
+            flash('success', 'Préférences de notification enregistrées.');
+        } elseif ($action === 'password') {
             $current = (string)($_POST['current'] ?? '');
             $new = (string)($_POST['new'] ?? '');
             if (!password_verify($current, $u['password_hash'])) {

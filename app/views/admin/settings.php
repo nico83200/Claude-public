@@ -55,4 +55,35 @@
       <p class="muted" style="font-size:.9rem">Pour des raisons de sécurité, la clé n'est pas saisie ici. Renseignez <code>'anthropic_api_key'</code> dans le fichier <code>config.php</code> du serveur, ou la variable d'environnement <code>ANTHROPIC_API_KEY</code>. Une clé se crée sur console.anthropic.com.</p>
     </div>
   </div>
+  <form method="post" class="card" style="grid-column:1/-1">
+    <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
+    <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>
+    <div class="card-body grid grid-2">
+      <div>
+        <h3>Événements notifiés</h3>
+        <p class="muted" style="font-size:.88rem">Décochez un événement pour ne plus le notifier à personne. Chaque utilisateur peut ensuite affiner dans son profil.</p>
+        <?php foreach (NOTIFY_EVENTS as $k => $ev): ?>
+          <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= notify_event_enabled($k) ? 'checked' : '' ?>> <?= e($ev['label']) ?> <small class="muted">— <?= ['admin' => 'administrateurs', 'user' => 'demandeur', 'both' => 'administrateurs et salariés'][$ev['for']] ?></small></label>
+        <?php endforeach; ?>
+      </div>
+      <div>
+        <h3>Envoi des e-mails</h3>
+        <label class="check"><input type="checkbox" name="mail_enabled" value="1" <?= setting('mail_enabled', '0') === '1' ? 'checked' : '' ?>> Envoyer aussi les notifications par e-mail</label>
+        <div class="form-grid mt-1">
+          <div class="field"><label>Adresse d'expédition</label><input type="email" name="mail_from" value="<?= e(setting('mail_from')) ?>" placeholder="achats@votre-groupe.fr"></div>
+          <div class="field"><label>Nom d'expéditeur</label><input type="text" name="mail_from_name" value="<?= e(setting('mail_from_name')) ?>" placeholder="<?= e(app_name()) ?>"></div>
+          <div class="field full"><label>Adresse de l'application (liens dans les e-mails)</label><input type="url" name="app_url" value="<?= e(setting('app_url')) ?>" placeholder="<?= e(app_base_url()) ?>"></div>
+          <div class="field"><label>Serveur SMTP (optionnel)</label><input type="text" name="smtp_host" value="<?= e(setting('smtp_host')) ?>" placeholder="vide = fonction mail() de l'hébergeur"></div>
+          <div class="field"><label>Port</label><input type="number" name="smtp_port" value="<?= e(setting('smtp_port', '587')) ?>"></div>
+          <div class="field"><label>Utilisateur SMTP</label><input type="text" name="smtp_user" value="<?= e(setting('smtp_user')) ?>" autocomplete="off"></div>
+          <div class="field"><label>Mot de passe SMTP</label><input type="password" name="smtp_pass" placeholder="<?= setting('smtp_pass') ? '•••••••• (inchangé)' : '' ?>" autocomplete="new-password"></div>
+          <div class="field"><label>Sécurité</label><select name="smtp_secure"><?php foreach (['tls' => 'STARTTLS (587)', 'ssl' => 'SSL (465)', 'none' => 'Aucune'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('smtp_secure', 'tls') === $k ? 'selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-foot row">
+      <button class="btn btn-primary" type="submit"><?= icon('check', 18) ?> Enregistrer</button>
+      <button class="btn" type="submit" name="action" value="test_mail"><?= icon('mail', 18) ?> M'envoyer un e-mail de test</button>
+    </div>
+  </form>
 </div>

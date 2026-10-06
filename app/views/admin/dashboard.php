@@ -92,12 +92,17 @@
       <div class="card-head"><h2><?= icon('building') ?> Par centre (<?= date('Y') ?>)</h2></div>
       <div class="card-body">
         <?php $maxC = max(1, ...array_map(fn($c) => (float)$c['total'], $byCenter ?: [['total' => 1]])); ?>
-        <?php foreach ($byCenter as $c): ?>
+        <?php foreach ($byCenter as $c): $b = budget_status((int)$c['id']); ?>
           <div class="hbar">
             <div class="hbar-head"><span><span class="dot" style="background:<?= e($c['color']) ?>"></span><?= e($c['name']) ?></span><strong><?= money($c['total']) ?></strong></div>
-            <div class="progress"><span style="width:<?= (float)$c['total'] / $maxC * 100 ?>%;background:<?= e($c['color']) ?>"></span></div>
+            <?php if ($b['defined']): ?>
+              <?php partial('budget_gauge', ['b' => $b]); ?>
+            <?php else: ?>
+              <div class="progress"><span style="width:<?= (float)$c['total'] / $maxC * 100 ?>%;background:<?= e($c['color']) ?>"></span></div>
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
+        <a class="btn btn-sm mt-1" href="<?= url('admin/budgets') ?>"><?= icon('wallet', 15) ?> Gérer les budgets</a>
         <?php if (!$byCenter): ?><p class="muted">Aucun centre.</p><?php endif; ?>
       </div>
     </div>

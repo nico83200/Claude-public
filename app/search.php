@@ -172,6 +172,12 @@ function search_local(array $products, string $query, array $popularity = []): a
         $score = 0.0;
         $matched = 0;
 
+        $bc = (string)($p['barcode'] ?? '');
+        if ($bc !== '' && $bc === preg_replace('/\s+/', '', $query)) {
+            $scores[(int)$p['id']] = 1000.0;
+            $coverages[(int)$p['id']] = 1.0;
+            continue;
+        }
         $ref = str_replace(' ', '', search_normalize($p['reference'] ?? ''));
         if ($ref !== '' && strlen($qNorm) >= 3 && ($ref === $qNorm || str_starts_with($ref, $qNorm))) {
             $score += $ref === $qNorm ? 40 : 20;

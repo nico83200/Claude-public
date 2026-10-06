@@ -21,6 +21,7 @@ function install_base_data(): void
             insert('categories', ['name' => $n, 'icon' => $ic, 'color' => $c, 'position' => $i + 1]);
         }
     }
+    set_setting('db_version', trim((string)@file_get_contents(dirname(__DIR__) . '/VERSION')) ?: '1.0.0');
     foreach (['show_prices' => '1', 'allow_registration' => '1', 'ai_enabled' => '1', 'ai_model' => 'claude-opus-5-5', 'ai_max_products' => '1500'] as $k => $v) {
         if (val('SELECT COUNT(*) FROM settings WHERE skey = ?', [$k]) == 0) {
             insert('settings', ['skey' => $k, 'svalue' => $v]);
@@ -112,8 +113,17 @@ function install_demo_data(int $adminId): void
         ['cafe', 'Accueil & salle de pause', 'SUC-1KG', 'Sucre en morceaux 1 kg', '', 'Boîte', 2.10, null, 'sucre café thé'],
     ];
     $pid = [];
-    foreach ($products as [$s, $c, $ref, $n, $d, $u, $cp, $np, $kw]) {
+    $ean = function (int $i): string {
+        $base = '376' . str_pad((string)(4521000 + $i * 37), 9, '0', STR_PAD_LEFT);
+        $sum = 0;
+        foreach (str_split($base) as $k => $d) {
+            $sum += (int)$d * ($k % 2 ? 3 : 1);
+        }
+        return $base . ((10 - $sum % 10) % 10);
+    };
+    foreach ($products as $i => [$s, $c, $ref, $n, $d, $u, $cp, $np, $kw]) {
         $pid[$ref] = insert('products', [
+            'barcode' => $ean($i),
             'supplier_id' => $sup[$s], 'category_id' => $cat[$c] ?? null, 'reference' => $ref, 'name' => $n,
             'description' => $d ?: null, 'unit' => $u, 'catalog_price' => $cp, 'negotiated_price' => $np,
             'vat_rate' => in_array($c, ['Accueil & salle de pause'], true) ? 5.5 : 20, 'keywords' => $kw,
@@ -222,6 +232,19 @@ function install_demo_data(int $adminId): void
     foreach ($dl as [$t, $when, $s, $c, $d]) {
         insert('deadlines', ['title' => $t, 'deadline_at' => date('Y-m-d H:i:s', strtotime($when)), 'supplier_id' => $s, 'center_id' => $c, 'description' => $d, 'created_by' => $adminId, 'created_at' => $now]);
     }
+    // Stocks (centre Les Tilleuls) et budgets de l'année
+    $_SESSION['uid'] = $uid[0];
+    foreach (['GN-S' => [6, 3], 'GN-M' => [2, 4], 'GN-L' => [5, 3], 'COMP-7.5' => [8, 4], 'SHA-500' => [3, 4], 'LING-DES' => [5, 2],
+              'DRAP-50' => [1, 2], 'A4-80' => [4, 2], 'SER-2.5' => [3, 1], 'BISEP-250' => [0, 2], 'ABL-100' => [6, 2], 'MSQ-IIR' => [7, 3]] as $ref => [$q, $alert]) {
+        stock_set_alert($centerIds[0], $pid[$ref], $alert);
+        stock_count($centerIds[0], $pid[$ref], $q, 'Inventaire initial');
+    }
+    stock_move($centerIds[0], $pid['GN-S'], -2, 'sortie', 'Salle de soins');
+    stock_move($centerIds[0], $pid['COMP-7.5'], -3, 'sortie', 'Cabinet 2');
+    foreach ([[$centerIds[0], 1500], [$centerIds[1], 900], [$centerIds[2], 600]] as [$cid, $amount]) {
+        insert('budgets', ['center_id' => $cid, 'year' => (int)date('Y'), 'amount' => $amount, 'alert_pct' => 80, 'alert_sent' => 0]);
+    }
+    q('DELETE FROM notifications');
     insert('settings', ['skey' => 'company_name', 'svalue' => 'Groupe de Centres de Santé (démo)']);
     insert('settings', ['skey' => 'company_address', 'svalue' => "Service achats\n1 place de la Liberté\n83000 Toulon"]);
     unset($_SESSION['uid']);

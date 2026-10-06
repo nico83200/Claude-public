@@ -84,6 +84,7 @@ function reception_save(): void
                     'received_at' => $qty > 0 ? now() : null,
                     'received_by' => $qty > 0 ? $u['id'] : null,
                 ], 'id = ?', [$id]);
+                stock_from_reception($po, $l, (int)$l['qty_received'], $qty);
                 $changes[] = $l['label'] . ' : ' . $qty . '/' . $l['qty'];
             }
         }
@@ -92,10 +93,13 @@ function reception_save(): void
         }
     });
     $status = po_refresh_reception_status((int)$po['id']);
+    if ($changes && in_array($status, ['partiel', 'recu'], true)) {
+        notify_po((int)$po['id'], 'po_received');
+    }
     if (!$changes) {
         flash('info', 'Aucune modification.');
     } else {
-        flash('success', $status === 'recu' ? 'Commande entièrement reçue. Merci !' : 'Réception enregistrée (livraison partielle).');
+        flash('success', ($status === 'recu' ? 'Commande entièrement reçue. Merci !' : 'Réception enregistrée (livraison partielle).') . ' Le stock du centre a été mis à jour.');
     }
     redirect('reception', ['id' => $po['id']]);
 }

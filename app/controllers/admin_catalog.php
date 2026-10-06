@@ -137,6 +137,7 @@ function admin_product_edit(): void
             'supplier_id' => input_int('supplier_id'),
             'category_id' => input_int('category_id') ?: null,
             'reference' => (string)input('reference') ?: null,
+            'barcode' => preg_replace('/\s+/', '', (string)input('barcode')) ?: null,
             'name' => (string)input('name'),
             'description' => (string)input('description') ?: null,
             'unit' => (string)input('unit') ?: null,
@@ -151,6 +152,9 @@ function admin_product_edit(): void
         $errors = [];
         if ($data['name'] === '') {
             $errors[] = 'La désignation est obligatoire.';
+        }
+        if ($data['barcode'] && val('SELECT COUNT(*) FROM products WHERE barcode = ? AND id <> ?', [$data['barcode'], $id])) {
+            $errors[] = 'Ce code-barres est déjà attribué à un autre article.';
         }
         if (!val('SELECT COUNT(*) FROM suppliers WHERE id = ?', [$data['supplier_id']])) {
             $errors[] = 'Choisissez un fournisseur.';
@@ -203,7 +207,7 @@ function admin_product_toggle(): void
     redirect_back('admin/products');
 }
 
-const IMPORT_COLUMNS = ['fournisseur', 'reference', 'designation', 'description', 'categorie', 'conditionnement', 'prix_catalogue', 'prix_negocie', 'mots_cles', 'tva'];
+const IMPORT_COLUMNS = ['fournisseur', 'reference', 'designation', 'description', 'categorie', 'conditionnement', 'prix_catalogue', 'prix_negocie', 'mots_cles', 'tva', 'code_barre'];
 
 /** Import en masse d'un catalogue fournisseur (CSV séparateur « ; »). */
 function admin_products_import(): void
@@ -280,7 +284,13 @@ function admin_products_import(): void
                     'vat_rate' => $num($r['tva'] ?? null) ?? 20,
                     'updated_at' => now(),
                 ];
+                if (!empty($r['code_barre'])) {
+                    $data['barcode'] = preg_replace('/\s+/', '', $r['code_barre']);
+                }
                 $existing = $data['reference'] ? val('SELECT id FROM products WHERE supplier_id = ? AND reference = ?', [$supId, $data['reference']]) : null;
+                if (!$existing && !empty($data['barcode'])) {
+                    $existing = val('SELECT id FROM products WHERE barcode = ?', [$data['barcode']]);
+                }
                 if ($existing) {
                     update('products', $data, 'id = ?', [$existing]);
                     $report['updated']++;
@@ -314,7 +324,7 @@ function admin_products_export(): void
             $p['supplier_name'], $p['reference'], $p['name'], $p['description'], $p['category_name'], $p['unit'],
             number_format((float)$p['catalog_price'], 2, ',', ''),
             $p['negotiated_price'] !== null ? number_format((float)$p['negotiated_price'], 2, ',', '') : '',
-            $p['keywords'], number_format((float)$p['vat_rate'], 2, ',', ''),
+            $p['keywords'], number_format((float)$p['vat_rate'], 2, ',', ''), $p['barcode'],
         ], ';', '"', '');
     }
     fclose($out);

@@ -15,6 +15,9 @@
           <select name="category_id"><option value="">—</option><?php foreach ($categories as $c): ?><option value="<?= $c['id'] ?>" <?= (int)($p['category_id'] ?? 0) === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?></select>
         </div>
         <div class="field"><label>Référence fournisseur</label><input type="text" name="reference" value="<?= $v('reference') ?>"></div>
+        <div class="field"><label>Code-barres (EAN / GTIN)</label>
+          <div class="input-group"><input type="text" name="barcode" id="barcode" value="<?= $v('barcode') ?>" inputmode="numeric" placeholder="Scanner ou saisir"><button class="btn" type="button" data-scan="fill:#barcode" title="Scanner avec la caméra"><?= icon('camera', 18) ?></button></div>
+        </div>
         <div class="field"><label>Conditionnement</label><input type="text" name="unit" value="<?= $v('unit') ?>" placeholder="ex : boîte de 100"></div>
         <div class="field full"><label>Descriptif</label><textarea name="description" rows="4"><?= $v('description') ?></textarea></div>
         <div class="field full"><label>Mots-clés de recherche</label><input type="text" name="keywords" value="<?= $v('keywords') ?>" placeholder="synonymes, marques, usages : ex. latex free, examen, soins"><small>Aident le moteur de recherche à trouver l'article même avec d'autres mots.</small></div>

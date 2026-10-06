@@ -34,6 +34,8 @@ function schema_statements(string $driver): array
             role VARCHAR(20) NOT NULL DEFAULT 'user',
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
             requested_centers VARCHAR(255) NULL,
+            notify_email TINYINT NOT NULL DEFAULT 1,
+            notify_prefs TEXT NULL,
             last_login DATETIME NULL,
             created_at DATETIME NOT NULL",
 
@@ -82,6 +84,7 @@ function schema_statements(string $driver): array
             supplier_id {FK} NOT NULL,
             category_id {FK} NULL,
             reference VARCHAR(80) NULL,
+            barcode VARCHAR(64) NULL,
             name VARCHAR(200) NOT NULL,
             description TEXT NULL,
             unit VARCHAR(80) NULL,
@@ -198,6 +201,61 @@ function schema_statements(string $driver): array
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
 
+        'stock' => "
+            center_id {FK} NOT NULL,
+            product_id {FK} NOT NULL,
+            qty INT NOT NULL DEFAULT 0,
+            alert_qty INT NOT NULL DEFAULT 0,
+            counted_at DATETIME NULL,
+            updated_at DATETIME NOT NULL,
+            PRIMARY KEY (center_id, product_id),
+            FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
+
+        'stock_movements' => "
+            id {PK},
+            center_id {FK} NOT NULL,
+            product_id {FK} NOT NULL,
+            type VARCHAR(20) NOT NULL,
+            delta INT NOT NULL,
+            qty_after INT NOT NULL,
+            purchase_order_id {FK} NULL,
+            user_id {FK} NULL,
+            note VARCHAR(255) NULL,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
+
+        'budgets' => "
+            center_id {FK} NOT NULL,
+            year INT NOT NULL,
+            amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+            alert_pct INT NOT NULL DEFAULT 80,
+            alert_sent TINYINT NOT NULL DEFAULT 0,
+            PRIMARY KEY (center_id, year),
+            FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE",
+
+        'notifications' => "
+            id {PK},
+            user_id {FK} NOT NULL,
+            type VARCHAR(40) NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            body TEXT NULL,
+            link VARCHAR(255) NULL,
+            read_at DATETIME NULL,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+
+        'update_history' => "
+            id {PK},
+            action VARCHAR(20) NOT NULL,
+            from_version VARCHAR(20) NULL,
+            to_version VARCHAR(20) NULL,
+            backup_file VARCHAR(255) NULL,
+            notes TEXT NULL,
+            user_id {FK} NULL,
+            created_at DATETIME NOT NULL",
+
         'ai_cache' => "
             id {PK},
             cache_key VARCHAR(64) NOT NULL UNIQUE,
@@ -225,6 +283,9 @@ function schema_statements(string $driver): array
         'idx_po_status'           => 'purchase_orders(status, center_id)',
         'idx_pol_po'              => 'purchase_order_lines(purchase_order_id)',
         'idx_deadlines_date'      => 'deadlines(deadline_at)',
+        'idx_products_barcode'    => 'products(barcode)',
+        'idx_moves_center_prod'   => 'stock_movements(center_id, product_id)',
+        'idx_notif_user'          => 'notifications(user_id, read_at)',
     ];
     foreach ($indexes as $n => $def) {
         $sql[] = $driver === 'sqlite'
@@ -248,4 +309,43 @@ function schema_install(): void
             throw $e;
         }
     }
+}
+
+/**
+ * Colonnes ajoutées après la version 1.0 (installations existantes).
+ * Les migrations sont uniquement additives : une version antérieure du code
+ * reste compatible avec un schéma plus récent, ce qui sécurise le retour arrière.
+ */
+function schema_added_columns(): array
+{
+    return [
+        'products' => ['barcode' => 'VARCHAR(64) NULL'],
+        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL'],
+    ];
+}
+
+function column_exists(string $table, string $column): bool
+{
+    if (db_driver() === 'sqlite') {
+        foreach (all("PRAGMA table_info($table)") as $c) {
+            if ($c['name'] === $column) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return (bool)one("SHOW COLUMNS FROM $table LIKE " . db()->quote($column));
+}
+
+/** Met le schéma au niveau de la version du code (idempotent). */
+function schema_migrate(): void
+{
+    foreach (schema_added_columns() as $table => $cols) {
+        foreach ($cols as $col => $def) {
+            if (!column_exists($table, $col)) {
+                db()->exec("ALTER TABLE $table ADD COLUMN $col $def");
+            }
+        }
+    }
+    schema_install();
 }

@@ -51,6 +51,10 @@
         <div class="card-body">
           <div class="row mb-1"><span class="muted">Lignes</span><span class="spacer"></span><strong><?= $count ?></strong></div>
           <div class="row mb-1"><span class="muted">Fournisseurs</span><span class="spacer"></span><strong><?= count($groups) ?></strong></div>
+          <?php if (show_prices()): $bud = budget_status((int)$center['id']); if ($bud['defined']): ?>
+            <div class="mb-2" style="padding:.7rem;border-radius:12px;background:var(--surface-2)"><small class="muted"><?= icon('wallet', 14) ?> Budget <?= date('Y') ?> du centre</small><?php partial('budget_gauge', ['b' => $bud]); ?>
+            <?php if ($bud['remaining'] < $total): ?><small style="color:var(--red)">Cette demande dépasse le budget restant : le service achats la validera au cas par cas.</small><?php endif; ?></div>
+          <?php endif; endif; ?>
           <?php if (show_prices()): ?><div class="row mb-2"><span class="muted">Total estimé HT</span><span class="spacer"></span><strong style="font-size:1.3rem"><?= money($total) ?></strong></div><?php endif; ?>
           <div class="field">
             <label for="rc">Commentaire pour le service achats</label>

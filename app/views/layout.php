@@ -11,6 +11,8 @@ if (is_admin()) {
     $toOrderN = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE status = 'a_commander'");
     $usersN = (int)val("SELECT COUNT(*) FROM users WHERE status = 'pending'");
 }
+$lowN = $center ? stock_low_count((int)$center['id']) : 0;
+$notifN = $u ? unread_notifications((int)$u['id']) : 0;
 ?><!doctype html>
 <html lang="fr">
 <head>
@@ -20,7 +22,7 @@ if (is_admin()) {
 <title><?= e(($title ?? '') ? $title . ' · ' : '') ?><?= e(app_name()) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/app.css?v=1">
+<link rel="stylesheet" href="assets/css/app.css?v=<?= e(APP_VERSION) ?>">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%236366f1'/><path d='M7 9h10l-1 8H8z' stroke='white' stroke-width='2' fill='none'/></svg>">
 </head>
 <body>
@@ -50,6 +52,7 @@ if (is_admin()) {
       <a class="<?= $active('cart') ?>" href="<?= url('cart') ?>"><?= icon('cart') ?> Mon panier <span class="count soft" id="cart-count" <?= $cartN ? '' : 'style="display:none"' ?>><?= $cartN ?></span></a>
       <a class="<?= $active('requests') ?>" href="<?= url('requests') ?>"><?= icon('clipboard') ?> Suivi des demandes</a>
       <a class="<?= $active('receptions', 'reception') ?>" href="<?= url('receptions') ?>"><?= icon('package-check') ?> Réceptions <?php if ($toReceiveN): ?><span class="count"><?= $toReceiveN ?></span><?php endif; ?></a>
+      <a class="<?= $active('stock', 'stock/history') ?>" href="<?= url('stock') ?>"><?= icon('layers') ?> Inventaire <?php if ($lowN): ?><span class="count" title="Articles sous le seuil d'alerte"><?= $lowN ?></span><?php endif; ?></a>
 
       <?php if (is_admin()): ?>
       <div class="nav-title">Service achats</div>
@@ -60,10 +63,13 @@ if (is_admin()) {
       <a class="<?= $active('admin/products', 'admin/product', 'admin/products/import') ?>" href="<?= url('admin/products') ?>"><?= icon('box') ?> Articles</a>
       <a class="<?= $active('admin/categories') ?>" href="<?= url('admin/categories') ?>"><?= icon('tag') ?> Catégories</a>
       <a class="<?= $active('admin/deadlines') ?>" href="<?= url('admin/deadlines') ?>"><?= icon('calendar') ?> Dates limites</a>
+      <a class="<?= $active('admin/budgets') ?>" href="<?= url('admin/budgets') ?>"><?= icon('wallet') ?> Budgets</a>
+      <a class="<?= $active('admin/stocks') ?>" href="<?= url('admin/stocks') ?>"><?= icon('layers') ?> Stocks des centres</a>
       <div class="nav-title">Organisation</div>
       <a class="<?= $active('admin/centers', 'admin/center') ?>" href="<?= url('admin/centers') ?>"><?= icon('building') ?> Centres</a>
       <a class="<?= $active('admin/users', 'admin/user') ?>" href="<?= url('admin/users') ?>"><?= icon('users') ?> Comptes <?php if ($usersN): ?><span class="count"><?= $usersN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/settings') ?>" href="<?= url('admin/settings') ?>"><?= icon('settings') ?> Paramètres</a>
+      <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
       <?php endif; ?>
     </nav>
 
@@ -85,12 +91,17 @@ if (is_admin()) {
         <input type="hidden" name="r" value="catalog">
         <span class="ic-left"><?= icon('search', 18) ?></span>
         <input type="search" name="q" placeholder="Rechercher un article… (ex : gants nitrile M, de quoi désinfecter)" autocomplete="off" value="<?= e($r === 'catalog' ? ($_GET['q'] ?? '') : '') ?>">
+        <button type="button" class="btn btn-ghost btn-icon scan-btn" data-scan="search" title="Scanner un code-barres"><?= icon('barcode', 18) ?></button>
       </form>
+      <button type="button" class="btn btn-ghost btn-icon scan-mobile" data-scan="search" title="Scanner un code-barres"><?= icon('camera') ?></button>
       <?php endif; ?>
       <div class="topbar-actions">
         <?php if ($center): ?>
           <span class="badge badge-violet" title="Centre courant"><span class="dot" style="background:<?= e($center['color']) ?>"></span><?= e($center['name']) ?></span>
         <?php endif; ?>
+        <div class="bell-wrap">
+          <a class="btn btn-ghost btn-icon bell" href="<?= url('notifications') ?>" title="Notifications" data-bell><?= icon('bell') ?><span class="bell-count" <?= $notifN ? '' : 'style="display:none"' ?>><?= $notifN ?></span></a>
+        </div>
         <a class="btn btn-ghost btn-icon" href="<?= url('cart') ?>" title="Panier"><?= icon('cart') ?></a>
       </div>
     </header>
@@ -105,6 +116,6 @@ if (is_admin()) {
 </div>
 <div class="toast-zone" id="toasts"></div>
 <script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?> };</script>
-<script src="assets/js/app.js?v=1"></script>
+<script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>
 </html>

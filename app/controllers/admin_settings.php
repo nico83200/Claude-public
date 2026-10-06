@@ -218,6 +218,25 @@ function admin_settings(): void
             $test = $r === null
                 ? ['ok' => false, 'msg' => 'Échec de l\'appel à l\'IA : vérifiez la clé API, l\'installation (composer install) et les journaux d\'erreurs PHP.']
                 : ['ok' => true, 'msg' => sprintf('Réponse en %.1f s — %d article(s) proposé(s). « %s »', microtime(true) - $t0, count($r['ids']), $r['message'])];
+        } elseif (input('action') === 'test_mail') {
+            $ok = send_mail((string)user()['email'], 'Test d\'envoi — ' . app_name(),
+                mail_template(user(), 'Test d\'envoi réussi', 'Si vous lisez ce message, les notifications par e-mail fonctionnent.', url('admin/settings')));
+            flash($ok ? 'success' : 'error', $ok ? 'E-mail de test envoyé à ' . user()['email'] . '. Vérifiez aussi les courriers indésirables.' : 'Échec de l\'envoi : vérifiez la configuration SMTP ou la fonction mail() de l\'hébergement (voir journaux PHP).');
+            redirect('admin/settings');
+        } elseif (input('action') === 'notifications') {
+            set_setting('mail_enabled', input('mail_enabled') === '1' ? '1' : '0');
+            foreach (['mail_from', 'mail_from_name', 'smtp_host', 'smtp_port', 'smtp_user', 'app_url'] as $k) {
+                set_setting($k, (string)input($k));
+            }
+            set_setting('smtp_secure', in_array(input('smtp_secure'), ['tls', 'ssl', 'none'], true) ? input('smtp_secure') : 'tls');
+            if ((string)($_POST['smtp_pass'] ?? '') !== '') {
+                set_setting('smtp_pass', (string)$_POST['smtp_pass']);
+            }
+            foreach (NOTIFY_EVENTS as $k => $ev) {
+                set_setting('notif_' . $k, isset($_POST['events'][$k]) ? '1' : '0');
+            }
+            flash('success', 'Paramètres de notification enregistrés.');
+            redirect('admin/settings');
         } elseif (input('action') === 'clear_ai_cache') {
             q('DELETE FROM ai_cache');
             flash('success', 'Cache de l\'assistant IA vidé.');
