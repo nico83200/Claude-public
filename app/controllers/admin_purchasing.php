@@ -172,6 +172,10 @@ function admin_order_send(): void
     $pos = array_map(fn($id) => one('SELECT po.*, s.name AS supplier_name, s.email AS supplier_email, s.contact_name, s.customer_number FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id WHERE po.id = ?', [$id]), $ids);
     $first = $pos[0] ?? null;
     $back = input('ref') ? ['admin/order-group', ['ref' => input('ref')]] : ['admin/order', ['id' => $ids[0]]];
+    if (!mail_case_enabled('supplier_po')) {
+        flash('error', 'L\'envoi des bons aux fournisseurs par e-mail est désactivé (Paramètres → Notifications & e-mails).');
+        redirect(...$back);
+    }
     $to = trim((string)input('to', '')) ?: (string)($first['supplier_email'] ?? '');
     if (!$first || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         flash('error', 'Adresse e-mail du fournisseur manquante ou invalide (renseignez-la dans la fiche fournisseur).');
@@ -191,7 +195,7 @@ function admin_order_send(): void
     $html = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#1e2335;line-height:1.5">' . nl2br(e($message)) . '</div>';
     send_mail($to, 'Commande ' . $label . ' — ' . (setting('company_name') ?: app_name()), $html,
         [['path' => $path, 'name' => $label . '.pdf', 'type' => 'application/pdf']]);
-    if (input('cc_me') === '1') {
+    if (input('cc_me') === '1' && mail_case_enabled('supplier_copy')) {
         send_mail((string)$me['email'], '[Copie] Commande ' . $label, $html, [['path' => $path, 'name' => $label . '.pdf', 'type' => 'application/pdf']]);
     }
     foreach ($pos as $po) {

@@ -108,15 +108,19 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
       <div class="card-body">
         <?php if ($po['status'] === 'a_commander'): ?>
           <?php if ($po['group_ref']): ?><div class="flash flash-info" style="font-size:.85rem"><?= icon('layers', 18) ?><div>Ce bon fait partie de la commande groupée <a href="<?= url('admin/order-group', ['ref' => $po['group_ref']]) ?>"><?= e($po['group_ref']) ?></a> : envoyez-la depuis la page du groupe.</div></div><?php endif; ?>
+          <?php if (!mail_case_enabled('supplier_po')): ?>
+            <div class="flash flash-info" style="font-size:.85rem"><?= icon('mail', 16) ?><div>Envoi des bons par e-mail désactivé. <a href="<?= url('admin/settings') ?>">Paramètres</a> · <a href="<?= url('admin/order/pdf', ['id' => $po['id'], 'dl' => 1]) ?>">Télécharger le PDF</a></div></div>
+          <?php else: ?>
           <form method="post" action="<?= url('admin/order/send', ['id' => $po['id']]) ?>" class="mb-2" style="padding-bottom:1rem;border-bottom:1px solid var(--border)">
             <?= csrf_field() ?>
             <label><?= icon('send', 15) ?> Envoyer le bon (PDF) au fournisseur</label>
             <input type="email" name="to" value="<?= e($po['supplier_email']) ?>" required placeholder="adresse de commande du fournisseur" class="mb-1">
             <label class="check" style="font-weight:500"><input type="checkbox" name="mark_ordered" value="1" checked> et passer le bon en « Commandé »</label>
-            <label class="check" style="font-weight:500"><input type="checkbox" name="cc_me" value="1"> m'envoyer une copie</label>
+            <?php if (mail_case_enabled('supplier_copy')): ?><label class="check" style="font-weight:500"><input type="checkbox" name="cc_me" value="1"> m'envoyer une copie</label><?php endif; ?>
             <button class="btn btn-blue" style="width:100%" type="submit"><?= icon('send', 16) ?> Envoyer par e-mail</button>
             <?php if ($po['sent_to_supplier_at']): ?><small class="muted">Déjà envoyé le <?= date_fr($po['sent_to_supplier_at'], true) ?></small><?php endif; ?>
           </form>
+          <?php endif; ?>
           <?php if (!$minOk): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 18) ?><div>Minimum de commande fournisseur : <?= money($po['min_order_amount']) ?> (il manque <?= money((float)$po['min_order_amount'] - $totals['total']) ?>).</div></div><?php endif; ?>
           <form method="post" action="<?= url('admin/order/status', ['id' => $po['id']]) ?>">
             <?= csrf_field() ?><input type="hidden" name="to" value="commande">

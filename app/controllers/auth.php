@@ -139,7 +139,7 @@ function auth_forgot(): void
         // Limite : 3 demandes par 15 minutes et par adresse IP
         $recent = (int)val("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND email LIKE 'reset:%' AND created_at >= ?", [client_ip(), date('Y-m-d H:i:s', time() - 900)]);
         insert('login_attempts', ['email' => 'reset:' . mb_substr($email, 0, 180), 'ip' => client_ip(), 'success' => 0, 'created_at' => now()]);
-        $u = $recent < 3 ? one("SELECT * FROM users WHERE email = ? AND status = 'active'", [$email]) : null;
+        $u = ($recent < 3 && mail_case_enabled('password_reset')) ? one("SELECT * FROM users WHERE email = ? AND status = 'active'", [$email]) : null;
         if ($u) {
             $token = password_reset_create($u);
             $link = url('reset', ['token' => $token]);
@@ -149,7 +149,7 @@ function auth_forgot(): void
         }
         $sent = true; // même message que le compte existe ou non
     }
-    render('auth/forgot', ['sent' => $sent, 'mailOn' => setting('mail_enabled', '0') === '1'], 'layout_auth');
+    render('auth/forgot', ['sent' => $sent, 'mailOn' => mail_case_enabled('password_reset')], 'layout_auth');
 }
 
 function auth_reset(): void

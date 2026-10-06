@@ -53,7 +53,8 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 - **Journal d'audit** : qui a modifié un prix, un budget, un compte, un statut de bon, un paramètre ou installé une mise à jour.
 - **Budgets annuels par centre**, avec un seuil d'alerte. La jauge distingue le commandé (bons passés) de l'engagé (bons à commander) ; elle apparaît sur les tableaux de bord, le panier et les demandes à traiter (avertissement en cas de dépassement).
 - **Stocks des centres** : vue consolidée, articles sous le seuil, plus fortes consommations.
-- **Notifications & e-mails** : activation par événement, envoi par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), e-mail de test.
+- **Notifications & e-mails, au cas par cas** : un interrupteur général pour les e-mails. Pour chaque situation, la notification dans l'application et l'e-mail se règlent séparément : demande, validation, commande, livraison, refus, retard, rappel, stock bas, budget, hausse de prix, mot de passe oublié, envoi des bons aux fournisseurs, copie à l'expéditeur. L'envoi se fait par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), avec un e-mail de test.
+- **Clé API de l'assistant IA** saisie, remplacée ou supprimée depuis les paramètres. Elle est chiffrée en base avec une clé propre à l'installation (`storage/secret.key`, à conserver avec les sauvegardes), affichée masquée et tracée dans le journal d'audit. Le mot de passe SMTP est chiffré de la même façon.
 - **Mises à jour depuis l'interface** : envoi d'un paquet .zip, analyse puis confirmation par mot de passe, sauvegarde automatique (code et base) avant installation, puis **retour à la version précédente en un clic** (avec ou sans restauration des données).
 - **Paramètres** : nom, raison sociale et facturation pour les bons, affichage des prix, inscriptions ouvertes, assistant IA (activation, modèle, test).
 
@@ -71,7 +72,7 @@ SQLite est aussi pris en charge, pour les tests ou une petite structure sans ser
 
 1. Déposez les fichiers sur l'hébergement (FTP), par exemple dans un sous-domaine `commandes.votre-groupe.fr`.
 2. Créez une base MySQL/MariaDB (utf8mb4), puis copiez `config.sample.php` en `config.php` et renseignez les accès.
-3. **Assistant IA (optionnel)** : sur votre poste, lancez `composer install --no-dev` puis envoyez le dossier `vendor/` sur le serveur. Créez une clé API sur console.anthropic.com et indiquez-la dans `config.php` (`anthropic_api_key`). Sans clé, la recherche intelligente locale fonctionne seule.
+3. **Assistant IA (optionnel)** : sur votre poste, lancez `composer install --no-dev` puis envoyez le dossier `vendor/` sur le serveur. Créez une clé API sur console.anthropic.com puis collez-la dans *Paramètres → Assistant de recherche IA*. Elle y est chiffrée et n'est jamais réaffichée en clair. Une clé dans `config.php` (`anthropic_api_key`) reste possible ; celle des paramètres est prioritaire. Sans clé, la recherche intelligente locale fonctionne seule.
 4. Ouvrez `https://…/install.php` : créez le compte administrateur (et, si vous le souhaitez, chargez les données de démonstration).
 5. **Supprimez `install.php`** du serveur.
 6. Vérifiez que le dossier `uploads/products/` est accessible en écriture (photos).
@@ -95,7 +96,7 @@ Les e-mails passent par une file d'attente : un serveur de messagerie momentané
 
 ## Tests automatiques
 
-`php tests/run.php` rejoue 44 vérifications des règles métier sur une base temporaire :
+`php tests/run.php` rejoue 55 vérifications des règles métier sur une base temporaire :
 - recherche ;
 - validation par le responsable, commande, réception et stock ;
 - factures, budgets, comparateur et commandes groupées ;

@@ -26,8 +26,21 @@
       <h3><?= icon('sparkles', 18) ?> Assistant de recherche IA (Claude)</h3>
       <div class="chips mb-2">
         <span class="badge <?= $sdk ? 'badge-green' : 'badge-red' ?>">SDK <?= $sdk ? 'installé' : 'absent (lancer composer install)' ?></span>
-        <span class="badge <?= $hasKey ? 'badge-green' : 'badge-amber' ?>">Clé API <?= $hasKey ? 'configurée' : 'non configurée (config.php)' ?></span>
+        <span class="badge <?= $hasKey ? 'badge-green' : 'badge-amber' ?>">Clé API <?= $hasKey ? 'configurée' : 'non configurée' ?></span>
         <span class="badge badge-gray"><?= $cacheCount ?> réponse(s) en cache</span>
+      </div>
+      <div class="field">
+        <label for="ai_api_key">Clé API Anthropic</label>
+        <input type="password" id="ai_api_key" name="ai_api_key" autocomplete="new-password" spellcheck="false"
+               placeholder="<?= $keyInfo['source'] === 'settings' ? e(mask_secret($keyInfo['key'])) . ' — saisir une nouvelle clé pour la remplacer' : 'sk-ant-…' ?>">
+        <small>
+          <?php if ($keyInfo['source'] === 'settings'): ?>Clé enregistrée ici (<?= e(mask_secret($keyInfo['key'])) ?>), chiffrée dans la base.
+          <?php elseif ($keyInfo['source'] === 'config'): ?>Clé actuellement lue dans <code>config.php</code> (<?= e(mask_secret($keyInfo['key'])) ?>). Une clé saisie ici sera prioritaire.
+          <?php elseif ($keyInfo['source'] === 'env'): ?>Clé actuellement lue dans la variable d'environnement <code>ANTHROPIC_API_KEY</code>. Une clé saisie ici sera prioritaire.
+          <?php else: ?>Créez une clé sur console.anthropic.com (rubrique API Keys) et collez-la ici.<?php endif; ?>
+          Laissez vide pour conserver la clé actuelle.
+        </small>
+        <?php if ($keyInfo['source'] === 'settings'): ?><label class="check mt-1" style="font-weight:500"><input type="checkbox" name="ai_api_key_remove" value="1"> Supprimer la clé enregistrée</label><?php endif; ?>
       </div>
       <label class="check"><input type="checkbox" name="ai_enabled" value="1" <?= setting('ai_enabled', '1') === '1' ? 'checked' : '' ?>> Activer l'assistant IA dans le catalogue</label>
       <div class="form-grid mt-1">
@@ -60,24 +73,19 @@
       <button class="btn btn-sm" type="submit">Vider le cache</button>
     </form>
     <div class="card card-body">
-      <h3><?= icon('info', 18) ?> Configuration de la clé API</h3>
-      <p class="muted" style="font-size:.9rem">Pour des raisons de sécurité, la clé n'est pas saisie ici. Renseignez <code>'anthropic_api_key'</code> dans le fichier <code>config.php</code> du serveur, ou la variable d'environnement <code>ANTHROPIC_API_KEY</code>. Une clé se crée sur console.anthropic.com.</p>
+      <h3><?= icon('lock', 18) ?> Sécurité de la clé API</h3>
+      <p class="muted" style="font-size:.9rem">La clé saisie dans « Général » est chiffrée dans la base de données avec une clé propre à votre installation (<code>storage/secret.key</code>, hors d'atteinte depuis le web) et n'est jamais réaffichée en clair. Chaque modification est tracée dans le journal d'audit. Ordre de priorité : clé des paramètres, puis <code>config.php</code>, puis variable d'environnement <code>ANTHROPIC_API_KEY</code>.</p>
+      <p class="muted mb-0" style="font-size:.9rem">⚠️ Conservez une copie de <code>storage/secret.key</code> avec vos sauvegardes : sans elle, les clés enregistrées devront être ressaisies après une restauration sur un autre serveur.</p>
     </div>
   </div>
   <form method="post" class="card" style="grid-column:1/-1">
     <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>
-    <div class="card-body grid grid-2">
-      <div>
-        <h3>Événements notifiés</h3>
-        <p class="muted" style="font-size:.88rem">Décochez un événement pour ne plus le notifier à personne. Chaque utilisateur peut ensuite affiner dans son profil.</p>
-        <?php foreach (NOTIFY_EVENTS as $k => $ev): ?>
-          <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= notify_event_enabled($k) ? 'checked' : '' ?>> <?= e($ev['label']) ?> <small class="muted">— <?= ['admin' => 'administrateurs', 'user' => 'demandeur', 'both' => 'administrateurs et salariés', 'manager' => 'responsables de centre'][$ev['for']] ?? '' ?></small></label>
-        <?php endforeach; ?>
-      </div>
-      <div>
+    <div class="card-body">
+      <div style="max-width:900px">
         <h3>Envoi des e-mails</h3>
-        <label class="check"><input type="checkbox" name="mail_enabled" value="1" <?= setting('mail_enabled', '0') === '1' ? 'checked' : '' ?>> Envoyer aussi les notifications par e-mail</label>
+        <label class="check"><input type="checkbox" name="mail_enabled" value="1" <?= setting('mail_enabled', '0') === '1' ? 'checked' : '' ?>> <strong>Activer l'envoi d'e-mails</strong> <small class="muted">(interrupteur général)</small></label>
+        <small class="muted" style="display:block;margin:-.2rem 0 .6rem 1.7rem">Désactivé : aucun e-mail ne part, quels que soient les réglages ci-dessous. Les notifications dans l'application continuent.</small>
         <div class="form-grid mt-1">
           <div class="field"><label>Adresse d'expédition</label><input type="email" name="mail_from" value="<?= e(setting('mail_from')) ?>" placeholder="achats@votre-groupe.fr"></div>
           <div class="field"><label>Nom d'expéditeur</label><input type="text" name="mail_from_name" value="<?= e(setting('mail_from_name')) ?>" placeholder="<?= e(app_name()) ?>"></div>
@@ -89,6 +97,31 @@
           <div class="field"><label>Sécurité</label><select name="smtp_secure"><?php foreach (['tls' => 'STARTTLS (587)', 'ssl' => 'SSL (465)', 'none' => 'Aucune'] as $k => $l): ?><option value="<?= $k ?>" <?= setting('smtp_secure', 'tls') === $k ? 'selected' : '' ?>><?= $l ?></option><?php endforeach; ?></select></div>
         </div>
       </div>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--border)">
+      <h3>Réglage au cas par cas</h3>
+      <p class="muted" style="font-size:.88rem">Pour chaque situation, choisissez la notification dans l'application et/ou l'e-mail. Chaque utilisateur peut ensuite désactiver ce qui ne l'intéresse pas dans « Mon profil ».</p>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Situation</th><th>Destinataires</th><th class="text-center">Dans l'application</th><th class="text-center">Par e-mail</th></tr></thead>
+        <tbody>
+        <?php foreach (NOTIFY_EVENTS as $k => $ev): ?>
+          <tr>
+            <td class="strong"><?= e($ev['label']) ?></td>
+            <td><small class="muted"><?= ['admin' => 'Administrateurs', 'user' => 'Demandeur', 'both' => 'Administrateurs et salariés', 'manager' => 'Responsables de centre'][$ev['for']] ?? '' ?></small></td>
+            <td class="text-center"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= notify_event_enabled($k) ? 'checked' : '' ?> aria-label="Notification dans l'application"></td>
+            <td class="text-center"><input type="checkbox" name="mails[<?= $k ?>]" value="1" <?= setting('mailev_' . $k, '1') === '1' ? 'checked' : '' ?> aria-label="E-mail"></td>
+          </tr>
+        <?php endforeach; ?>
+        <?php foreach (MAIL_CASES as $k => $label): ?>
+          <tr>
+            <td class="strong"><?= e($label) ?></td>
+            <td><small class="muted"><?= $k === 'password_reset' ? 'Salarié concerné' : ($k === 'supplier_po' ? 'Fournisseur' : 'Administrateur qui envoie') ?></small></td>
+            <td class="text-center"><small class="muted">—</small></td>
+            <td class="text-center"><input type="checkbox" name="mails[<?= $k ?>]" value="1" <?= setting('mailev_' . $k, '1') === '1' ? 'checked' : '' ?> aria-label="E-mail"></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table></div>
     </div>
     <div class="card-foot row">
       <button class="btn btn-primary" type="submit"><?= icon('check', 18) ?> Enregistrer</button>

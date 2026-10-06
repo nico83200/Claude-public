@@ -25,6 +25,19 @@ const NOTIFY_EVENTS = [
     'stock_low'       => ['label' => 'Stock sous le seuil d\'alerte',            'for' => 'both'],
 ];
 
+/** E-mails envoyés en dehors des notifications, activables un par un. */
+const MAIL_CASES = [
+    'password_reset' => 'Mot de passe oublié (lien de réinitialisation)',
+    'supplier_po'    => 'Envoi des bons de commande aux fournisseurs',
+    'supplier_copy'  => 'Copie à l\'expéditeur des bons envoyés aux fournisseurs',
+];
+
+/** L'envoi d'e-mails est-il activé (interrupteur général + interrupteur du cas) ? */
+function mail_case_enabled(string $case): bool
+{
+    return setting('mail_enabled', '0') === '1' && setting('mailev_' . $case, '1') === '1';
+}
+
 function admin_ids(): array
 {
     return array_map('intval', array_column(all("SELECT id FROM users WHERE role = 'admin' AND status = 'active'"), 'id'));
@@ -52,7 +65,7 @@ function notify(array $userIds, string $type, string $title, string $body = '', 
         return;
     }
     $me = (int)(user()['id'] ?? 0);
-    $mailOn = setting('mail_enabled', '0') === '1';
+    $mailOn = mail_case_enabled($type);
     foreach (all('SELECT * FROM users WHERE status = \'active\' AND id IN ' . in_list($userIds), $userIds) as $u) {
         if ((int)$u['id'] === $me && $type !== 'stock_low') {
             continue; // on ne se notifie pas de sa propre action
@@ -178,7 +191,7 @@ function mail_template(array $u, string $title, string $body, string $link): str
  */
 function send_mail(string $to, string $subject, string $html, array $attachments = []): bool
 {
-    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL) || setting('mail_enabled', '0') !== '1') {
         return false;
     }
     try {
@@ -308,7 +321,7 @@ function smtp_send(string $from, string $to, string $subject, array $headers, st
     if (setting('smtp_user')) {
         $cmd('AUTH LOGIN', [334]);
         $cmd(base64_encode((string)setting('smtp_user')), [334]);
-        $cmd(base64_encode((string)setting('smtp_pass')), [235]);
+        $cmd(base64_encode(decrypt_secret(setting('smtp_pass'))), [235]);
     }
     $cmd('MAIL FROM:<' . $from . '>', [250]);
     $cmd('RCPT TO:<' . $to . '>', [250, 251]);

@@ -190,6 +190,37 @@ check((int)val("SELECT COUNT(*) FROM deadlines WHERE title = 'Test rappel' AND r
 update('purchase_orders', ['ordered_at' => date('Y-m-d H:i:s', strtotime('-20 days')), 'late_notified_at' => null], 'id = ?', [$po]);
 check(cron_late_deliveries() >= 1, 'livraison en retard signalée');
 
+section('E-mails au cas par cas');
+as_user('admin@test.fr');
+set_setting('mail_enabled', '1');
+set_setting('mailev_po_ordered', '0');
+$mq = (int)val('SELECT COUNT(*) FROM mail_queue');
+$nb = (int)val("SELECT COUNT(*) FROM notifications WHERE type = 'po_ordered'");
+notify([(int)$claire['id']], 'po_ordered', 'Cas désactivé', '', '');
+check((int)val('SELECT COUNT(*) FROM mail_queue') === $mq, 'e-mail désactivé pour ce cas : aucun envoi');
+check((int)val("SELECT COUNT(*) FROM notifications WHERE type = 'po_ordered'") === $nb + 1, '… mais la notification dans l\'application est créée');
+set_setting('mailev_po_ordered', '1');
+notify([(int)$claire['id']], 'po_ordered', 'Cas activé', '', '');
+check((int)val('SELECT COUNT(*) FROM mail_queue') === $mq + 1, 'e-mail activé pour ce cas : mis en file');
+set_setting('mail_enabled', '0');
+check(!mail_case_enabled('po_ordered') && !send_mail('x@test.fr', 'a', 'b'), 'interrupteur général coupé : aucun e-mail, quel que soit le cas');
+set_setting('mail_enabled', '1');
+set_setting('mailev_supplier_po', '0');
+check(!mail_case_enabled('supplier_po') && mail_case_enabled('password_reset'), 'envoi aux fournisseurs désactivable indépendamment');
+set_setting('mail_enabled', '0');
+
+section('Clé API et secrets chiffrés');
+$GLOBALS['config']['anthropic_api_key'] = 'sk-ant-depuis-config-0000000000000000';
+$plain = 'sk-ant-api03-TEST-' . bin2hex(random_bytes(12));
+$enc = encrypt_secret($plain);
+check(str_starts_with($enc, 'enc:') && !str_contains($enc, $plain), 'secret chiffré (illisible en base)');
+check(decrypt_secret($enc) === $plain, 'déchiffrement fidèle');
+check(decrypt_secret('enc:' . base64_encode(str_repeat('x', 60))) === '', 'secret altéré rejeté');
+check(decrypt_secret('ancien-mot-de-passe') === 'ancien-mot-de-passe', 'ancienne valeur non chiffrée toujours lisible');
+set_setting('ai_api_key', $enc);
+check(ai_key_info()['source'] === 'settings' && ai_api_key() === $plain, 'la clé des paramètres est prioritaire sur config.php');
+check(mask_secret($plain) === 'sk-ant-…' . substr($plain, -4), 'clé affichée masquée');
+
 section('Mises à jour et sauvegardes');
 check(update_path_allowed('app/domain.php') && !update_path_allowed('../evil.php') && !update_path_allowed('config.php') && !update_path_allowed('uploads/products/x.php'), 'chemins dangereux refusés dans un paquet');
 $bk = "$tmp/base.zip";

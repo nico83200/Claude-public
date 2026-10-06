@@ -236,7 +236,34 @@ function search_local(array $products, string $query, array $popularity = []): a
 
 function ai_api_key(): string
 {
-    return (string)(cfg('anthropic_api_key') ?: getenv('ANTHROPIC_API_KEY') ?: '');
+    return ai_key_info()['key'];
+}
+
+/** Clé API utilisée et son origine : paramètres (chiffrée en base), config.php ou variable d'environnement. */
+function ai_key_info(): array
+{
+    static $info = null;
+    if ($info !== null) {
+        return $info;
+    }
+    $stored = setting('ai_api_key');
+    if ($stored) {
+        try {
+            $key = decrypt_secret($stored);
+            if ($key !== '') {
+                return $info = ['key' => $key, 'source' => 'settings'];
+            }
+        } catch (Throwable $e) {
+            error_log('[ai] ' . $e->getMessage());
+        }
+    }
+    if ($k = (string)cfg('anthropic_api_key', '')) {
+        return $info = ['key' => $k, 'source' => 'config'];
+    }
+    if ($k = (string)getenv('ANTHROPIC_API_KEY')) {
+        return $info = ['key' => $k, 'source' => 'env'];
+    }
+    return $info = ['key' => '', 'source' => 'none'];
 }
 
 function ai_sdk_installed(): bool

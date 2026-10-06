@@ -232,10 +232,15 @@ function admin_settings(): void
             }
             set_setting('smtp_secure', in_array(input('smtp_secure'), ['tls', 'ssl', 'none'], true) ? input('smtp_secure') : 'tls');
             if ((string)($_POST['smtp_pass'] ?? '') !== '') {
-                set_setting('smtp_pass', (string)$_POST['smtp_pass']);
+                set_setting('smtp_pass', encrypt_secret((string)$_POST['smtp_pass']));
             }
+            // Chaque cas se règle séparément : notification dans l'application et/ou e-mail
             foreach (NOTIFY_EVENTS as $k => $ev) {
                 set_setting('notif_' . $k, isset($_POST['events'][$k]) ? '1' : '0');
+                set_setting('mailev_' . $k, isset($_POST['mails'][$k]) ? '1' : '0');
+            }
+            foreach (MAIL_CASES as $k => $label) {
+                set_setting('mailev_' . $k, isset($_POST['mails'][$k]) ? '1' : '0');
             }
             audit('Paramètres de notification modifiés', 'settings');
             flash('success', 'Paramètres de notification enregistrés.');
@@ -252,6 +257,21 @@ function admin_settings(): void
             set_setting('show_prices', input('show_prices') === '1' ? '1' : '0');
             set_setting('allow_registration', input('allow_registration') === '1' ? '1' : '0');
             set_setting('ai_enabled', input('ai_enabled') === '1' ? '1' : '0');
+            // Clé API Anthropic : chiffrée en base, jamais réaffichée en clair
+            $newKey = trim((string)($_POST['ai_api_key'] ?? ''));
+            if (input('ai_api_key_remove') === '1') {
+                set_setting('ai_api_key', null);
+                q('DELETE FROM ai_cache');
+                audit('Clé API IA supprimée', 'settings');
+            } elseif ($newKey !== '') {
+                if (!preg_match('/^sk-[A-Za-z0-9_\-]{20,}$/', $newKey)) {
+                    flash('error', 'Clé API non enregistrée : format inattendu (une clé Anthropic commence par « sk-ant- »).');
+                } else {
+                    set_setting('ai_api_key', encrypt_secret($newKey));
+                    audit('Clé API IA modifiée', 'settings', null, mask_secret($newKey));
+                    flash('info', 'Nouvelle clé API enregistrée (' . mask_secret($newKey) . '). Utilisez « Tester l\'assistant » pour la vérifier.');
+                }
+            }
             set_setting('ai_model', (string)input('ai_model') ?: 'claude-opus-5-5');
             set_setting('ai_max_products', (string)max(50, input_int('ai_max_products', 1500)));
             set_setting('welcome_message', (string)input('welcome_message'));
@@ -267,7 +287,7 @@ function admin_settings(): void
     }
     render('admin/settings', [
         'title' => 'Paramètres', 'test' => $test,
-        'hasKey' => ai_api_key() !== '', 'sdk' => ai_sdk_installed(),
+        'hasKey' => ai_api_key() !== '', 'sdk' => ai_sdk_installed(), 'keyInfo' => ai_key_info(),
         'cacheCount' => (int)val('SELECT COUNT(*) FROM ai_cache'),
     ]);
 }

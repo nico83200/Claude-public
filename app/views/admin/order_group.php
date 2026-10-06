@@ -25,14 +25,18 @@
   </div>
   <div class="stack">
     <?php if ($toOrder): ?>
+    <?php if (!mail_case_enabled('supplier_po')): ?>
+    <div class="card card-body"><h3><?= icon('mail', 18) ?> Envoi par e-mail désactivé</h3><p class="muted mb-0">Activez « Envoi des bons de commande aux fournisseurs » dans les <a href="<?= url('admin/settings') ?>">paramètres</a>, ou <a href="<?= url('admin/order/pdf', ['ref' => $ref, 'dl' => 1]) ?>">téléchargez le PDF groupé</a>.</p></div>
+    <?php else: ?>
     <form method="post" action="<?= url('admin/order/send', ['ref' => $ref]) ?>" class="card card-body">
       <?= csrf_field() ?>
       <h3><?= icon('send', 18) ?> Envoyer au fournisseur</h3>
       <div class="field"><label>Destinataire</label><input type="email" name="to" value="<?= e($first['supplier_email']) ?>" required></div>
       <label class="check"><input type="checkbox" name="mark_ordered" value="1" checked> Passer tous les bons en « Commandé »</label>
-      <label class="check"><input type="checkbox" name="cc_me" value="1"> M'envoyer une copie</label>
+      <?php if (mail_case_enabled('supplier_copy')): ?><label class="check"><input type="checkbox" name="cc_me" value="1"> M'envoyer une copie</label><?php endif; ?>
       <button class="btn btn-blue mt-1" type="submit"><?= icon('send', 16) ?> Envoyer le PDF groupé</button>
     </form>
+    <?php endif; ?>
     <form method="post" action="<?= url('admin/order-group/ordered', ['ref' => $ref]) ?>" class="card card-body">
       <?= csrf_field() ?>
       <h3><?= icon('check', 18) ?> Commandé par un autre moyen</h3>

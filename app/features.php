@@ -393,3 +393,59 @@ function handle_invoice_upload(string $field): ?string
     }
     return $name;
 }
+
+// ---------------------------------------------------------------- Secrets chiffrés (clé API, mot de passe SMTP)
+
+/** Clé de chiffrement propre à l'installation, stockée hors zone web (storage/secret.key). */
+function app_secret_key(): string
+{
+    static $key = null;
+    if ($key !== null) {
+        return $key;
+    }
+    $file = ROOT . '/storage/secret.key';
+    if (!is_file($file)) {
+        $raw = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+        if (@file_put_contents($file, base64_encode($raw), LOCK_EX) === false) {
+            throw new RuntimeException('Impossible de créer storage/secret.key (droits d\'écriture).');
+        }
+        @chmod($file, 0600);
+    }
+    $key = base64_decode(trim((string)file_get_contents($file)), true) ?: '';
+    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+        throw new RuntimeException('Fichier storage/secret.key invalide.');
+    }
+    return $key;
+}
+
+function encrypt_secret(string $plain): string
+{
+    $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+    return 'enc:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, app_secret_key()));
+}
+
+function decrypt_secret(?string $stored): string
+{
+    if (!$stored || !str_starts_with($stored, 'enc:')) {
+        return (string)$stored;
+    }
+    $raw = base64_decode(substr($stored, 4), true);
+    if ($raw === false || strlen($raw) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES) {
+        return '';
+    }
+    try {
+        $plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), app_secret_key());
+    } catch (Throwable) {
+        return '';
+    }
+    return $plain === false ? '' : $plain;
+}
+
+/** Affichage masqué d'un secret : sk-ant-…a1b2 */
+function mask_secret(string $s): string
+{
+    if ($s === '') {
+        return '';
+    }
+    return mb_substr($s, 0, 7) . '…' . mb_substr($s, -4);
+}
