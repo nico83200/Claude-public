@@ -20,6 +20,16 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 - **Articles hors catalogue** : depuis le panier, ou automatiquement quand un code-barres scanné est inconnu, le salarié propose un article avec le plus d'informations possible (nom, marque, référence, conditionnement, fournisseur connu, lien, prix constaté, **photo prise avec la caméra**, quantité souhaitée). La proposition part avec sa demande ; son avancement est visible dans « Suivi des demandes → Mes articles proposés ».
 - **Notifications** dans l'application (cloche) et, en option, par e-mail à chaque étape : demande validée, commandée, livrée, refusée, stock bas. Chacun choisit ses notifications dans « Mon profil ».
 
+- **Listes types** : « kit salle de soins », « commande mensuelle accueil »… ajoutées au panier en un clic, quantités modifiables. Le service achats partage des listes ; chacun peut enregistrer son panier comme liste personnelle.
+- **Réapprovisionnement suggéré** : les stocks bas non couverts par une commande sont proposés dans le panier avec une quantité calculée.
+- **Mode réserve (tablette)** : écran plein écran à gros boutons. On scanne, puis on fait une sortie, une entrée ou un inventaire en deux gestes.
+- **Application installable** sur l'écran d'accueil du téléphone ou de la tablette (bouton « Installer »), avec une page hors ligne.
+- **Mot de passe oublié** : lien de réinitialisation par e-mail, valable une heure et utilisable une seule fois.
+- **Rappels automatiques** la veille d'une date limite, et relance des livraisons en retard.
+
+### Responsable de centre
+- Rôle intermédiaire entre salarié et administrateur. Au-delà d'un montant paramétrable, les demandes de son centre attendent sa **validation** avant de partir au service achats. Il peut ajuster les quantités, valider ou refuser avec un message, et voit le budget du centre au moment de décider.
+
 ### Espace administrateur (service achats)
 - **Pilotage** : indicateurs, dépenses mensuelles, répartition par centre et par fournisseur, **économies réalisées grâce aux tarifs négociés**, livraisons en retard, comptes à valider.
 - **Demandes à traiter** : regroupées par fournisseur puis par centre, avec une **jauge de progression vers le minimum de commande** et le franco de port. Sélection des lignes, refus motivé d'une ligne, création du bon de commande.
@@ -34,6 +44,13 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
   - **refuser** avec un motif.
 
   Le salarié est notifié dans tous les cas.
+- **Comparateur fournisseurs** : les articles de même code-barres ou de même « groupe d'équivalence » sont comparés, avec le surcoût payé sur 12 mois. Sur les demandes à traiter, un bouton bascule une ligne (ou toutes) vers l'équivalent le moins cher.
+- **Historique des prix** de chaque article, avec alerte en cas de hausse (fiche article, import CSV) et liste des hausses récentes sur le pilotage.
+- **Commandes groupées multi-centres** : une seule commande chez le fournisseur, mais un bon par centre (chaque commande reste attachée à un seul centre). Le minimum et le franco sont appréciés sur le total.
+- **Envoi du bon de commande en PDF** au fournisseur par e-mail (copie possible), avec passage automatique en « Commandé ». Le PDF est généré par l'application, sans dépendance.
+- **Rapprochement des factures** : numéro, date, montant et justificatif (PDF ou photo), comparés aux marchandises réellement reçues, avec détection des écarts.
+- **Exports comptables CSV** : détail des lignes (HT, TVA, TTC, n° de facture), dépenses par centre, fournisseur, catégorie, mois ou centre × mois, et rapprochement des factures.
+- **Journal d'audit** : qui a modifié un prix, un budget, un compte, un statut de bon, un paramètre ou installé une mise à jour.
 - **Budgets annuels par centre**, avec un seuil d'alerte. La jauge distingue le commandé (bons passés) de l'engagé (bons à commander) ; elle apparaît sur les tableaux de bord, le panier et les demandes à traiter (avertissement en cas de dépassement).
 - **Stocks des centres** : vue consolidée, articles sous le seuil, plus fortes consommations.
 - **Notifications & e-mails** : activation par événement, envoi par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), e-mail de test.
@@ -67,6 +84,27 @@ Données de démonstration : comptes salariés `claire.secretaire@demo.fr`, `dr.
 Séparateur `;` (ou `,`), encodage UTF-8, première ligne d'en-têtes :
 `fournisseur;reference;designation;description;categorie;conditionnement;prix_catalogue;prix_negocie;mots_cles;tva;code_barre`
 Un article existant (même fournisseur et même référence) est mis à jour. L'export du catalogue sert de modèle.
+
+## Tâches planifiées
+
+Les e-mails, rappels, relances, la sauvegarde quotidienne et le nettoyage sont exécutés :
+- **automatiquement pendant l'utilisation** de l'application (option activée par défaut, rien à configurer) ;
+- ou, plus régulièrement, par une **tâche cron** chez l'hébergeur, toutes les 5 à 15 minutes : `php /chemin/cron.php`, ou l'appel de l'URL `https://…/cron.php?key=CLÉ`. La commande exacte et la clé sont affichées dans *Paramètres → Tâches planifiées*.
+
+Les e-mails passent par une file d'attente : un serveur de messagerie momentanément indisponible ne bloque pas l'application, et l'envoi est retenté jusqu'à 5 fois.
+
+## Tests automatiques
+
+`php tests/run.php` rejoue 44 vérifications des règles métier sur une base temporaire :
+- recherche ;
+- validation par le responsable, commande, réception et stock ;
+- factures, budgets, comparateur et commandes groupées ;
+- PDF ;
+- sécurité ;
+- file d'e-mails et tâches planifiées ;
+- sauvegarde et restauration.
+
+À lancer avant de fabriquer un paquet de mise à jour.
 
 ## Mises à jour du progiciel
 
@@ -102,18 +140,24 @@ app/                 code (protégé par .htaccess)
   stock.php          inventaire et budgets
   notify.php         notifications (application, e-mail, SMTP)
   updater.php        mises à jour, sauvegardes, retour arrière
+  features.php       audit, sécurité, prix, équivalences, listes types, validations, groupes, factures
+  pdf.php            générateur PDF des bons de commande
+  cron.php           tâches planifiées (e-mails, rappels, sauvegardes)
   schema.php         schéma de base (MySQL / SQLite)
 assets/              CSS / JS (+ ZXing pour le scanner, licence Apache 2.0)
 tools/               fabrication des paquets de mise à jour
+tests/               tests automatiques (php tests/run.php)
+cron.php             point d'entrée des tâches planifiées
+sw.js, manifest.webmanifest, offline.html   application installable
 VERSION, CHANGELOG.md
 uploads/products/    photos des articles (exécution de scripts interdite)
 ```
 
 ## Pistes d'évolution
 
-- Rappel automatique la veille d'une date limite (tâche planifiée cron).
 - Budgets par catégorie en plus du budget par centre.
-- Suggestion automatique de réapprovisionnement à partir des consommations.
+- Seuils d'alerte calculés automatiquement à partir des consommations réelles.
+- Connexion directe aux portails de commande des fournisseurs (EDI / API) quand ils le proposent.
 - Validation hiérarchique (un responsable de centre valide les demandes avant le service achats).
 - Gestion de stock simplifiée et seuils de réapprovisionnement.
 - Rapprochement avec les factures et export comptable.

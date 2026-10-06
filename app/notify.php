@@ -16,6 +16,11 @@ const NOTIFY_EVENTS = [
     'po_cancelled'    => ['label' => 'Bon de commande annulé',                    'for' => 'user'],
     'suggestion_new'  => ['label' => 'Article hors catalogue proposé',          'for' => 'admin'],
     'suggestion_done' => ['label' => 'Réponse à un article proposé',             'for' => 'user'],
+    'approval_needed' => ['label' => 'Demande à valider (responsable de centre)', 'for' => 'manager'],
+    'approval_done'   => ['label' => 'Décision du responsable sur une demande',  'for' => 'user'],
+    'deadline_reminder' => ['label' => 'Rappel la veille d\'une date limite',    'for' => 'user'],
+    'delivery_late'   => ['label' => 'Livraison en retard',                      'for' => 'both'],
+    'price_increase'  => ['label' => 'Hausse de prix d\'un article',             'for' => 'admin'],
     'budget_alert'    => ['label' => 'Seuil de budget atteint',                  'for' => 'admin'],
     'stock_low'       => ['label' => 'Stock sous le seuil d\'alerte',            'for' => 'both'],
 ];
@@ -167,8 +172,31 @@ function mail_template(array $u, string $title, string $body, string $link): str
       </div></body></html>';
 }
 
-/** Envoie un e-mail HTML (SMTP si configuré, sinon fonction mail() de l'hébergement). */
-function send_mail(string $to, string $subject, string $html): bool
+/**
+ * Met un e-mail en file d'attente : il est envoyé en arrière-plan (fin de requête ou tâche planifiée),
+ * avec nouvelles tentatives en cas d'échec. $attachments : [['path' => ..., 'name' => ..., 'type' => ...]].
+ */
+function send_mail(string $to, string $subject, string $html, array $attachments = []): bool
+{
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    try {
+        insert('mail_queue', [
+            'to_email' => $to, 'subject' => mb_substr($subject, 0, 255), 'html' => $html,
+            'attachments' => $attachments ? json_encode($attachments, JSON_UNESCAPED_UNICODE) : null,
+            'attempts' => 0, 'created_at' => now(),
+        ]);
+        $GLOBALS['mail_pending'] = true;
+        return true;
+    } catch (Throwable $e) {
+        error_log('[mail] ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Envoi immédiat d'un e-mail HTML (SMTP si configuré, sinon fonction mail() de l'hébergement). */
+function send_mail_now(string $to, string $subject, string $html, array $attachments = []): bool
 {
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
@@ -178,22 +206,61 @@ function send_mail(string $to, string $subject, string $html): bool
     $encSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
     $headers = [
         'MIME-Version: 1.0',
-        'Content-Type: text/html; charset=UTF-8',
-        'Content-Transfer-Encoding: base64',
         'From: =?UTF-8?B?' . base64_encode($fromName) . '?= <' . $fromEmail . '>',
         'Date: ' . date('r'),
         'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . (explode('@', $fromEmail)[1] ?? 'localhost') . '>',
     ];
-    $body = chunk_split(base64_encode($html));
-    try {
-        if (setting('smtp_host')) {
-            return smtp_send($fromEmail, $to, $encSubject, $headers, $body);
+    $htmlPart = chunk_split(base64_encode($html));
+    $files = array_filter($attachments, fn($a) => !empty($a['path']) && is_file($a['path']));
+    if ($files) {
+        $boundary = 'b_' . bin2hex(random_bytes(10));
+        $headers[] = 'Content-Type: multipart/mixed; boundary="' . $boundary . '"';
+        $body = "--$boundary\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . $htmlPart;
+        foreach ($files as $a) {
+            $name = '=?UTF-8?B?' . base64_encode((string)($a['name'] ?? basename($a['path']))) . '?=';
+            $body .= "--$boundary\r\nContent-Type: " . ($a['type'] ?? 'application/octet-stream') . '; name="' . $name . "\"\r\n"
+                . 'Content-Disposition: attachment; filename="' . $name . "\"\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+                . chunk_split(base64_encode((string)file_get_contents($a['path'])));
         }
-        return @mail($to, $encSubject, $body, implode("\r\n", $headers), '-f' . $fromEmail);
-    } catch (Throwable $e) {
-        error_log('[mail] ' . $e->getMessage());
-        return false;
+        $body .= "--$boundary--\r\n";
+    } else {
+        $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        $headers[] = 'Content-Transfer-Encoding: base64';
+        $body = $htmlPart;
     }
+    if (setting('smtp_host')) {
+        return smtp_send($fromEmail, $to, $encSubject, $headers, $body);
+    }
+    if (!@mail($to, $encSubject, $body, implode("\r\n", $headers), '-f' . $fromEmail)) {
+        throw new RuntimeException('La fonction mail() a refusé l\'envoi.');
+    }
+    return true;
+}
+
+/** Traite la file d'attente (jusqu'à $max e-mails) ; 5 tentatives espacées au maximum. */
+function mail_queue_process(int $max = 20): int
+{
+    $sent = 0;
+    $rows = all('SELECT * FROM mail_queue WHERE sent_at IS NULL AND attempts < 5 ORDER BY id LIMIT ' . (int)$max);
+    foreach ($rows as $m) {
+        // délai croissant entre deux tentatives (0, 5, 15, 45, 135 minutes)
+        if ($m['attempts'] > 0 && strtotime((string)$m['created_at']) + 300 * (3 ** ($m['attempts'] - 1)) > time()) {
+            continue;
+        }
+        $claimed = q('UPDATE mail_queue SET attempts = attempts + 1 WHERE id = ? AND attempts = ? AND sent_at IS NULL', [$m['id'], $m['attempts']])->rowCount();
+        if (!$claimed) {
+            continue; // déjà pris par un autre processus
+        }
+        try {
+            send_mail_now($m['to_email'], $m['subject'], $m['html'], json_decode((string)$m['attachments'], true) ?: []);
+            update('mail_queue', ['sent_at' => now(), 'last_error' => null], 'id = ?', [$m['id']]);
+            $sent++;
+        } catch (Throwable $e) {
+            update('mail_queue', ['last_error' => mb_substr($e->getMessage(), 0, 255)], 'id = ?', [$m['id']]);
+            error_log('[mail] ' . $e->getMessage());
+        }
+    }
+    return $sent;
 }
 
 /** Client SMTP minimal (SSL 465 ou STARTTLS 587, authentification LOGIN). */

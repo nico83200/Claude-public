@@ -9,6 +9,8 @@ $routes = [
     'login'                 => ['auth', 'auth_login'],
     'register'              => ['auth', 'auth_register'],
     'logout'                => ['auth', 'auth_logout'],
+    'forgot'                => ['auth', 'auth_forgot'],
+    'reset'                 => ['auth', 'auth_reset'],
     'profile'               => ['auth', 'auth_profile'],
 
     // Espace salarié (par centre)
@@ -38,6 +40,17 @@ $routes = [
     'api/notifications'     => ['stock', 'api_notifications'],
     'suggest'               => ['suggestions', 'suggest_form'],
     'suggest/cart'          => ['suggestions', 'suggest_update_cart'],
+    'approvals'             => ['manager', 'approvals_index'],
+    'approvals/decide'      => ['manager', 'approval_decide'],
+    'kits'                  => ['kits', 'kits_index'],
+    'kit'                   => ['kits', 'kit_view'],
+    'kit/save'              => ['kits', 'kit_save'],
+    'kit/to-cart'           => ['kits', 'kit_to_cart'],
+    'kit/delete'            => ['kits', 'kit_delete'],
+    'kit/from-cart'         => ['kits', 'kit_from_cart'],
+    'stock/reorder'         => ['kits', 'stock_reorder'],
+    'stock/quick'           => ['kits', 'stock_quick'],
+    'stock/count-one'       => ['kits', 'stock_count_one'],
     'receptions'            => ['reception', 'reception_index'],
     'reception'             => ['reception', 'reception_view'],
     'reception/save'        => ['reception', 'reception_save'],
@@ -73,6 +86,22 @@ $routes = [
     'admin/suggestion/add'  => ['suggestions', 'admin_suggestion_add'],
     'admin/suggestion/link' => ['suggestions', 'admin_suggestion_link'],
     'admin/suggestion/reject' => ['suggestions', 'admin_suggestion_reject'],
+    'admin/compare'         => ['admin_purchasing', 'admin_compare'],
+    'admin/requests/switch' => ['admin_purchasing', 'admin_request_switch'],
+    'admin/requests/optimize' => ['admin_purchasing', 'admin_requests_optimize'],
+    'admin/po/create-group' => ['admin_purchasing', 'admin_po_create_group'],
+    'admin/order-group'     => ['admin_purchasing', 'admin_order_group'],
+    'admin/order-group/ordered' => ['admin_purchasing', 'admin_order_group_ordered'],
+    'admin/order/pdf'       => ['admin_purchasing', 'admin_order_pdf'],
+    'admin/order/send'      => ['admin_purchasing', 'admin_order_send'],
+    'admin/order/invoice'   => ['admin_purchasing', 'admin_order_invoice'],
+    'admin/order/invoice-file' => ['admin_purchasing', 'admin_order_invoice_file'],
+    'admin/invoices'        => ['admin_purchasing', 'admin_invoices'],
+    'admin/exports'         => ['admin_purchasing', 'admin_exports'],
+    'admin/exports/download' => ['admin_purchasing', 'admin_exports_download'],
+    'admin/audit'           => ['admin_purchasing', 'admin_audit'],
+    'admin/backup-daily'    => ['admin_purchasing', 'admin_backup_daily'],
+    'admin/mail-queue'      => ['admin_purchasing', 'admin_mail_queue'],
     'admin/budgets'         => ['admin_tools', 'admin_budgets'],
     'admin/stocks'          => ['admin_tools', 'admin_stocks'],
     'admin/updates'         => ['admin_tools', 'admin_updates'],
@@ -95,6 +124,9 @@ if (is_post()) {
     csrf_check();
 }
 
+// Tâches de fond (e-mails, rappels, sauvegarde) exécutées après l'envoi de la page
+cron_after_request();
+
 [$file, $fn] = $routes[$route];
-require APP . '/controllers/' . $file . '.php';
+require_once APP . '/controllers/' . $file . '.php';
 $fn();

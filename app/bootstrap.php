@@ -4,12 +4,14 @@ declare(strict_types=1);
 define('ROOT', dirname(__DIR__));
 define('APP', __DIR__);
 
-if (!is_file(ROOT . '/config.php')) {
+// Fichier de configuration (CMD_CONFIG permet de pointer une autre configuration, ex. pour les tests)
+$configFile = getenv('CMD_CONFIG') ?: ROOT . '/config.php';
+if (!is_file($configFile)) {
     header('Location: install.php');
     exit;
 }
 
-$GLOBALS['config'] = require ROOT . '/config.php';
+$GLOBALS['config'] = require $configFile;
 date_default_timezone_set($GLOBALS['config']['timezone'] ?? 'Europe/Paris');
 mb_internal_encoding('UTF-8');
 
@@ -26,10 +28,13 @@ require_once APP . '/schema.php';
 require_once APP . '/stock.php';
 require_once APP . '/notify.php';
 require_once APP . '/updater.php';
+require_once APP . '/features.php';
+require_once APP . '/pdf.php';
+require_once APP . '/cron.php';
 
 define('APP_VERSION', trim((string)@file_get_contents(ROOT . '/VERSION')) ?: '1.0.0');
 
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
     session_name('cmdcentres');
     session_set_cookie_params([
@@ -53,7 +58,17 @@ if (is_file(ROOT . '/storage/maintenance.flag') && filemtime(ROOT . '/storage/ma
 if (setting('db_version') !== APP_VERSION) {
     try {
         schema_migrate();
+        // Fichiers racine livrés dans app/root/ par le paquet de mise à jour
+        foreach (glob(APP . '/root/*') ?: [] as $src) {
+            $dest = ROOT . '/' . basename($src);
+            if (!is_file($dest) || md5_file($dest) !== md5_file($src)) {
+                @copy($src, $dest);
+            }
+        }
         set_setting('db_version', APP_VERSION);
+        if (!setting('cron_key')) {
+            set_setting('cron_key', bin2hex(random_bytes(16)));
+        }
     } catch (Throwable $e) {
         error_log('[migration] ' . $e->getMessage());
     }

@@ -252,14 +252,7 @@ function admin_order_status(): void
                     flash('error', 'Le bon est vide.');
                     break;
                 }
-                update('purchase_orders', [
-                    'status' => 'commande', 'ordered_at' => now(), 'ordered_by' => user()['id'],
-                    'supplier_reference' => (string)input('supplier_reference', '') ?: null,
-                    'expected_date' => input('expected_date') ?: null,
-                ], 'id = ?', [$po['id']]);
-                po_log((int)$po['id'], 'Commandé', trim('Réf. fournisseur : ' . (input('supplier_reference') ?: '—')));
-                notify_po((int)$po['id'], 'po_ordered');
-                budget_check_alert((int)$po['center_id']);
+                po_mark_ordered($po, (string)input('supplier_reference', ''), input('expected_date') ?: null);
                 $ok = true;
             }
             break;
@@ -307,6 +300,9 @@ function admin_order_status(): void
             $ok = true;
             break;
     }
+    if ($ok && $to !== 'commande') {
+        audit('Bon : ' . (PO_STATUSES[$to]['label'] ?? $to), 'purchase_order', (int)$po['id'], $po['po_number']);
+    }
     flash($ok ? 'success' : 'error', $ok ? 'Bon de commande mis à jour.' : 'Action impossible dans le statut actuel.');
     redirect('admin/order', ['id' => $po['id']]);
 }
@@ -337,4 +333,17 @@ function admin_order_csv(): void
     }
     fclose($out);
     exit;
+}
+
+/** Passe un bon « à commander » en « commandé » (journal, audit, notifications, budget). */
+function po_mark_ordered(array $po, string $supplierRef = '', ?string $expected = null): void
+{
+    update('purchase_orders', [
+        'status' => 'commande', 'ordered_at' => now(), 'ordered_by' => user()['id'] ?? null,
+        'supplier_reference' => $supplierRef ?: null, 'expected_date' => $expected ?: null,
+    ], 'id = ?', [$po['id']]);
+    po_log((int)$po['id'], 'Commandé', 'Réf. fournisseur : ' . ($supplierRef ?: '—'));
+    audit('Bon commandé', 'purchase_order', (int)$po['id'], $po['po_number']);
+    notify_po((int)$po['id'], 'po_ordered');
+    budget_check_alert((int)$po['center_id']);
 }

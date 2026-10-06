@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 function user(): ?array
 {
-    static $u = false;
-    if ($u !== false) {
-        return $u;
+    static $cache = [];
+    $id = (int)($_SESSION['uid'] ?? 0);
+    if (!$id) {
+        return null;
     }
-    $id = $_SESSION['uid'] ?? null;
-    $u = $id ? one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$id]) : null;
-    if ($id && !$u) {
-        unset($_SESSION['uid']);
+    if (!array_key_exists($id, $cache)) {
+        $cache[$id] = one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$id]);
+        if (!$cache[$id]) {
+            unset($_SESSION['uid']);
+        }
     }
-    return $u;
+    return $cache[$id];
 }
 
 function is_admin(): bool

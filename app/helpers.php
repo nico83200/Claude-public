@@ -238,6 +238,9 @@ function handle_image_upload(string $field): ?string
         return null;
     }
     $f = $_FILES[$field];
+    if (in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        throw new RuntimeException('La photo dépasse la taille acceptée par le serveur. Réessayez : elle sera réduite automatiquement par votre navigateur.');
+    }
     if ($f['error'] !== UPLOAD_ERR_OK) {
         throw new RuntimeException('Échec de l\'envoi de la photo.');
     }
@@ -254,7 +257,60 @@ function handle_image_upload(string $field): ?string
     if (!move_uploaded_file($f['tmp_name'], $dest)) {
         throw new RuntimeException('Impossible d\'enregistrer la photo.');
     }
-    return $name;
+    return image_shrink($dest) ?? $name;
+}
+
+/**
+ * Réduit une photo trop grande (1600 px max, JPEG qualité 85) et corrige l'orientation des photos
+ * de smartphone. Renvoie le nouveau nom de fichier si l'image a été réécrite.
+ */
+function image_shrink(string $path, int $max = 1600): ?string
+{
+    if (!function_exists('imagecreatetruecolor')) {
+        return null;
+    }
+    $info = @getimagesize($path);
+    if (!$info || $info[2] === IMAGETYPE_GIF) {
+        return null;
+    }
+    [$w, $h] = $info;
+    $orientation = 1;
+    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($path);
+        $orientation = (int)($exif['Orientation'] ?? 1);
+    }
+    if ($w <= $max && $h <= $max && filesize($path) < 600 * 1024 && $orientation === 1) {
+        return null;
+    }
+    $src = match ($info[2]) {
+        IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
+        IMAGETYPE_PNG => @imagecreatefrompng($path),
+        IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+        default => false,
+    };
+    if (!$src) {
+        return null;
+    }
+    $src = match ($orientation) {
+        3 => imagerotate($src, 180, 0), 6 => imagerotate($src, -90, 0), 8 => imagerotate($src, 90, 0), default => $src,
+    };
+    $w = imagesx($src);
+    $h = imagesy($src);
+    $ratio = min(1, $max / max($w, $h));
+    $nw = (int)round($w * $ratio);
+    $nh = (int)round($h * $ratio);
+    $dst = imagecreatetruecolor($nw, $nh);
+    imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255)); // fond blanc pour les PNG transparents
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+    $newName = preg_replace('/\.\w+$/', '.jpg', basename($path));
+    $newPath = dirname($path) . '/' . $newName;
+    if (!imagejpeg($dst, $newPath, 85)) {
+        return null;
+    }
+    if ($newPath !== $path) {
+        @unlink($path);
+    }
+    return $newName;
 }
 
 function delete_image(?string $name): void

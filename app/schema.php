@@ -284,6 +284,72 @@ function schema_statements(string $driver): array
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL",
 
+        'password_resets' => "
+            id {PK},
+            user_id {FK} NOT NULL,
+            token_hash VARCHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            used_at DATETIME NULL,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+
+        'login_attempts' => "
+            id {PK},
+            email VARCHAR(190) NOT NULL,
+            ip VARCHAR(45) NOT NULL,
+            success TINYINT NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL",
+
+        'mail_queue' => "
+            id {PK},
+            to_email VARCHAR(190) NOT NULL,
+            subject VARCHAR(255) NOT NULL,
+            html {LONGTEXT} NOT NULL,
+            attachments TEXT NULL,
+            attempts INT NOT NULL DEFAULT 0,
+            last_error VARCHAR(255) NULL,
+            sent_at DATETIME NULL,
+            created_at DATETIME NOT NULL",
+
+        'kits' => "
+            id {PK},
+            name VARCHAR(150) NOT NULL,
+            description VARCHAR(255) NULL,
+            center_id {FK} NULL,
+            user_id {FK} NULL,
+            shared TINYINT NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+
+        'kit_items' => "
+            kit_id {FK} NOT NULL,
+            product_id {FK} NOT NULL,
+            qty INT NOT NULL DEFAULT 1,
+            PRIMARY KEY (kit_id, product_id),
+            FOREIGN KEY (kit_id) REFERENCES kits(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
+
+        'price_history' => "
+            id {PK},
+            product_id {FK} NOT NULL,
+            catalog_price DECIMAL(10,2) NOT NULL,
+            negotiated_price DECIMAL(10,2) NULL,
+            source VARCHAR(30) NULL,
+            user_id {FK} NULL,
+            created_at DATETIME NOT NULL,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
+
+        'audit_log' => "
+            id {PK},
+            user_id {FK} NULL,
+            action VARCHAR(60) NOT NULL,
+            entity VARCHAR(40) NULL,
+            entity_id INT NULL,
+            details TEXT NULL,
+            ip VARCHAR(45) NULL,
+            created_at DATETIME NOT NULL",
+
         'ai_cache' => "
             id {PK},
             cache_key VARCHAR(64) NOT NULL UNIQUE,
@@ -292,8 +358,8 @@ function schema_statements(string $driver): array
     ];
 
     $map = $driver === 'sqlite'
-        ? ['{PK}' => 'INTEGER PRIMARY KEY AUTOINCREMENT', '{FK}' => 'INTEGER']
-        : ['{PK}' => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', '{FK}' => 'INT UNSIGNED'];
+        ? ['{PK}' => 'INTEGER PRIMARY KEY AUTOINCREMENT', '{FK}' => 'INTEGER', '{LONGTEXT}' => 'TEXT']
+        : ['{PK}' => 'INT UNSIGNED AUTO_INCREMENT PRIMARY KEY', '{FK}' => 'INT UNSIGNED', '{LONGTEXT}' => 'MEDIUMTEXT'];
     $suffix = $driver === 'sqlite' ? '' : ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
     $sql = [];
@@ -315,6 +381,13 @@ function schema_statements(string $driver): array
         'idx_moves_center_prod'   => 'stock_movements(center_id, product_id)',
         'idx_notif_user'          => 'notifications(user_id, read_at)',
         'idx_sugg_status'         => 'product_suggestions(status, in_cart)',
+        'idx_login_email'         => 'login_attempts(email, created_at)',
+        'idx_login_ip'            => 'login_attempts(ip, created_at)',
+        'idx_mailq_sent'          => 'mail_queue(sent_at, attempts)',
+        'idx_price_prod'          => 'price_history(product_id, created_at)',
+        'idx_audit_date'          => 'audit_log(created_at)',
+        'idx_po_group'            => 'purchase_orders(group_ref)',
+        'idx_products_compare'    => 'products(compare_group)',
     ];
     foreach ($indexes as $n => $def) {
         $sql[] = $driver === 'sqlite'
@@ -327,7 +400,18 @@ function schema_statements(string $driver): array
 function schema_install(): void
 {
     $driver = db_driver();
-    foreach (schema_statements($driver) as $stmt) {
+    $stmts = schema_statements($driver);
+    // 1) tables, 2) colonnes ajoutées par les versions ultérieures, 3) index
+    foreach ($stmts as $stmt) {
+        if (str_starts_with($stmt, 'CREATE TABLE')) {
+            db()->exec($stmt);
+        }
+    }
+    schema_add_columns();
+    foreach ($stmts as $stmt) {
+        if (str_starts_with($stmt, 'CREATE TABLE')) {
+            continue;
+        }
         try {
             db()->exec($stmt);
         } catch (PDOException $e) {
@@ -348,8 +432,15 @@ function schema_install(): void
 function schema_added_columns(): array
 {
     return [
-        'products' => ['barcode' => 'VARCHAR(64) NULL'],
+        'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
         'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL'],
+        'deadlines' => ['reminded_at' => 'DATETIME NULL'],
+        'requests' => ['approval_status' => 'VARCHAR(20) NULL', 'approved_by' => 'INT NULL', 'approved_at' => 'DATETIME NULL', 'approval_note' => 'VARCHAR(255) NULL'],
+        'purchase_orders' => [
+            'group_ref' => 'VARCHAR(40) NULL', 'late_notified_at' => 'DATETIME NULL', 'sent_to_supplier_at' => 'DATETIME NULL',
+            'invoice_number' => 'VARCHAR(80) NULL', 'invoice_date' => 'DATE NULL', 'invoice_amount' => 'DECIMAL(10,2) NULL',
+            'invoice_file' => 'VARCHAR(255) NULL', 'invoice_status' => 'VARCHAR(20) NULL',
+        ],
     ];
 }
 
@@ -366,8 +457,8 @@ function column_exists(string $table, string $column): bool
     return (bool)one("SHOW COLUMNS FROM $table LIKE " . db()->quote($column));
 }
 
-/** Met le schéma au niveau de la version du code (idempotent). */
-function schema_migrate(): void
+/** Ajoute les colonnes apparues dans les versions ultérieures (installations existantes). */
+function schema_add_columns(): void
 {
     foreach (schema_added_columns() as $table => $cols) {
         foreach ($cols as $col => $def) {
@@ -376,5 +467,10 @@ function schema_migrate(): void
             }
         }
     }
+}
+
+/** Met le schéma au niveau de la version du code (idempotent). */
+function schema_migrate(): void
+{
     schema_install();
 }

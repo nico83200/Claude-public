@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 
 /** Chemins que le paquet peut remplacer (fichier exact ou dossier se terminant par /). */
-const UPDATE_ALLOWED = ['index.php', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app/', 'assets/', 'vendor/', 'tools/'];
+const UPDATE_ALLOWED = ['index.php', 'cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app/', 'assets/', 'vendor/', 'tools/', 'tests/'];
 
 function backups_dir(): string
 {

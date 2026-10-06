@@ -22,7 +22,8 @@ function install_base_data(): void
         }
     }
     set_setting('db_version', trim((string)@file_get_contents(dirname(__DIR__) . '/VERSION')) ?: '1.0.0');
-    foreach (['show_prices' => '1', 'allow_registration' => '1', 'ai_enabled' => '1', 'ai_model' => 'claude-opus-5-5', 'ai_max_products' => '1500'] as $k => $v) {
+    foreach (['show_prices' => '1', 'allow_registration' => '1', 'ai_enabled' => '1', 'ai_model' => 'claude-opus-5-5', 'ai_max_products' => '1500',
+              'cron_key' => bin2hex(random_bytes(16)), 'late_days' => '10', 'invoice_tolerance' => '1', 'backup_keep_days' => '30', 'pseudo_cron' => '1'] as $k => $v) {
         if (val('SELECT COUNT(*) FROM settings WHERE skey = ?', [$k]) == 0) {
             insert('settings', ['skey' => $k, 'svalue' => $v]);
         }
@@ -243,6 +244,43 @@ function install_demo_data(int $adminId): void
     stock_move($centerIds[0], $pid['COMP-7.5'], -3, 'sortie', 'Cabinet 2');
     foreach ([[$centerIds[0], 1500], [$centerIds[1], 900], [$centerIds[2], 600]] as [$cid, $amount]) {
         insert('budgets', ['center_id' => $cid, 'year' => (int)date('Y'), 'amount' => $amount, 'alert_pct' => 80, 'alert_sent' => 0]);
+    }
+    // v1.3 : responsable de centre, équivalences, listes types, historique des prix, factures
+    $managerId = insert('users', ['email' => 'sophie.responsable@demo.fr', 'password_hash' => $hash, 'first_name' => 'Sophie', 'last_name' => 'Martin',
+        'job' => 'Responsable de centre', 'role' => 'manager', 'status' => 'active', 'created_at' => $now]);
+    insert('user_centers', ['user_id' => $managerId, 'center_id' => $centerIds[0]]);
+    set_setting('approval_threshold', '150');
+    foreach ([['hyg', 'Protection (EPI)', 'HPS-GNM', 'Gants nitrile non poudrés taille M — boîte de 100', 'Boîte de 100', 7.20, 5.95, 'gants-nitrile-m'],
+              ['medi', 'Hygiène & désinfection', 'GEL-500', 'Gel hydroalcoolique 500 ml', 'Flacon pompe', 6.20, 5.40, 'gel-hydroalcoolique-500'],
+              ['hyg', 'Impression & papeterie', 'HPS-A4', 'Ramettes A4 80 g (carton de 5)', 'Carton de 5 ramettes', 23.00, 18.40, 'ramette-a4-carton']] as [$s, $c, $ref, $n, $u, $cp, $np, $grp]) {
+        $pid[$ref] = insert('products', ['supplier_id' => $sup[$s], 'category_id' => $cat[$c] ?? null, 'reference' => $ref, 'name' => $n, 'unit' => $u,
+            'catalog_price' => $cp, 'negotiated_price' => $np, 'vat_rate' => 20, 'compare_group' => $grp, 'min_qty' => 1, 'active' => 1, 'created_at' => $now]);
+    }
+    update('products', ['compare_group' => 'gants-nitrile-m'], 'id = ?', [$pid['GN-M']]);
+    update('products', ['compare_group' => 'gel-hydroalcoolique-500'], 'id = ?', [$pid['SHA-500']]);
+    update('products', ['compare_group' => 'ramette-a4-carton'], 'id = ?', [$pid['A4-80']]);
+    $_SESSION['uid'] = $adminId;
+    foreach (all('SELECT id, catalog_price, negotiated_price FROM products') as $p) {
+        insert('price_history', ['product_id' => $p['id'], 'catalog_price' => $p['catalog_price'], 'negotiated_price' => $p['negotiated_price'],
+            'source' => 'Catalogue initial', 'user_id' => $adminId, 'created_at' => date('Y-m-d H:i:s', strtotime('-6 months'))]);
+    }
+    update('products', ['catalog_price' => 8.40, 'negotiated_price' => 6.30], 'id = ?', [$pid['SPRAY-DES']]);
+    price_record($pid['SPRAY-DES'], 8.40, 6.30, 'Import CSV');
+    $kit = insert('kits', ['name' => 'Kit salle de soins', 'description' => 'Réassort hebdomadaire de la salle de soins', 'shared' => 1, 'user_id' => $adminId, 'created_at' => $now]);
+    foreach (['GN-M' => 2, 'COMP-7.5' => 2, 'BISEP-250' => 1, 'DRAP-50' => 1, 'SER-2.5' => 1] as $ref => $q) {
+        insert('kit_items', ['kit_id' => $kit, 'product_id' => $pid[$ref], 'qty' => $q]);
+    }
+    $kit = insert('kits', ['name' => 'Commande mensuelle accueil', 'description' => 'Papeterie et fournitures du secrétariat', 'shared' => 1, 'user_id' => $adminId, 'created_at' => $now]);
+    foreach (['A4-80' => 2, 'BIC-BL' => 1, 'ENV-C5' => 1, 'POST-IT' => 1] as $ref => $q) {
+        insert('kit_items', ['kit_id' => $kit, 'product_id' => $pid[$ref], 'qty' => $q]);
+    }
+    // Factures des derniers bons reçus : une conforme, une avec écart
+    $received = all("SELECT * FROM purchase_orders WHERE status = 'recu' ORDER BY received_at DESC LIMIT 2");
+    foreach ($received as $i => $po) {
+        $exp = invoice_check($po)['expected'];
+        $amount = $i === 0 ? $exp : $exp + 12.40;
+        update('purchase_orders', ['invoice_number' => 'F' . (2026100 + $i), 'invoice_date' => date('Y-m-d', strtotime($po['received_at'])), 'invoice_amount' => $amount,
+            'invoice_status' => $i === 0 ? 'ok' : 'ecart'], 'id = ?', [$po['id']]);
     }
     q('DELETE FROM notifications');
     insert('settings', ['skey' => 'company_name', 'svalue' => 'Groupe de Centres de Santé (démo)']);

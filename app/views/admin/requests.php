@@ -1,6 +1,7 @@
 <div class="page-head">
   <div><h1>Demandes à traiter</h1><p>Les demandes sont classées par fournisseur puis par centre. Sélectionnez les lignes et créez le bon de commande.</p></div>
   <form method="get" class="row">
+    <a class="btn" href="<?= url('admin/compare') ?>"><?= icon('layers', 16) ?> Comparateur</a>
     <input type="hidden" name="r" value="admin/requests">
     <select name="center" onchange="this.form.submit()" style="width:auto">
       <option value="">Tous les centres</option>
@@ -24,6 +25,13 @@
     <div class="card-head">
       <h2><?= icon('truck') ?> <?= e($s['name']) ?></h2>
       <div class="row">
+        <?php if (count($s['groups']) > 1): ?>
+          <form method="post" action="<?= url('admin/po/create-group') ?>" onsubmit="return confirm('Créer une seule commande fournisseur pour les <?= count($s['groups']) ?> centres (un bon par centre) ?')">
+            <?= csrf_field() ?><input type="hidden" name="supplier_id" value="<?= (int)$sid ?>">
+            <?php foreach ($s['groups'] as $gg) { foreach ($gg['lines'] as $ll) { echo '<input type="hidden" name="lines[]" value="' . (int)$ll['id'] . '">'; } } ?>
+            <button class="btn btn-sm btn-blue" type="submit" title="Une seule commande chez le fournisseur, un bon par centre"><?= icon('layers', 15) ?> Commande groupée (<?= count($s['groups']) ?> centres<?= (float)$s['min'] > 0 ? ', ' . round(min(100, $s['total'] / $s['min'] * 100)) . ' % du minimum' : '' ?>)</button>
+          </form>
+        <?php endif; ?>
         <?php foreach (array_slice($supDeadlines, 0, 1) as $d): $cd = countdown($d['deadline_at']); ?><span class="countdown <?= e($cd['level']) ?>"><?= icon('clock', 14) ?> <?= e($d['title']) ?> : <?= date_fr($d['deadline_at']) ?></span><?php endforeach; ?>
         <span class="badge badge-violet">Total <?= money($s['total']) ?></span>
         <a class="btn btn-ghost btn-sm" href="<?= url('admin/supplier', ['id' => $sid]) ?>"><?= icon('settings', 15) ?></a>
@@ -55,7 +63,11 @@
         <?php foreach ($g['lines'] as $l): ?>
           <tr>
             <td><input type="checkbox" name="lines[]" value="<?= (int)$l['id'] ?>" checked data-amount="<?= (float)$l['qty'] * (float)$l['unit_price'] ?>"></td>
-            <td><div class="row"><?php partial('thumb', ['p' => $l + ['supplier_color' => $l['supplier_color']], 'size' => 36]); ?><div><div class="strong"><?= e($l['product_name']) ?></div><small><?= $l['reference'] ? 'Réf. ' . e($l['reference']) . ' · ' : '' ?><?= e($l['unit']) ?><?= $l['comment'] ? ' · « ' . e($l['comment']) . ' »' : '' ?></small></div></div></td>
+            <td><div class="row"><?php partial('thumb', ['p' => $l + ['supplier_color' => $l['supplier_color']], 'size' => 36]); ?><div><div class="strong"><?= e($l['product_name']) ?></div><small><?= $l['reference'] ? 'Réf. ' . e($l['reference']) . ' · ' : '' ?><?= e($l['unit']) ?><?= $l['comment'] ? ' · « ' . e($l['comment']) . ' »' : '' ?></small>
+              <?php $eq = cheaper_equivalent(one('SELECT * FROM products WHERE id = ?', [$l['product_id']]), (int)$l['center_id']); if ($eq): ?>
+                <div><button class="btn btn-sm btn-ghost" style="padding:.15rem .4rem;color:#047857" type="submit" formaction="<?= url('admin/requests/switch', ['line_id' => $l['id'], 'product_id' => $eq['id']]) ?>" formnovalidate title="Basculer vers l'équivalent">
+                  <?= icon('sparkles', 13) ?> Moins cher chez <?= e($eq['supplier_name']) ?> : <?= money(effective_price($eq)) ?> (−<?= money($eq['saving'] * $l['qty']) ?>)</button></div>
+              <?php endif; ?></div></div></td>
             <td><div><?= e($l['first_name'] . ' ' . $l['last_name']) ?> <?= $l['urgent'] ? '<span class="badge badge-red">Urgent</span>' : '' ?></div><small><?= e($l['job']) ?> · <?= date_fr($l['created_at']) ?></small><?php if ($l['request_comment']): ?><div><small class="muted" title="Commentaire de la demande">💬 <?= e($l['request_comment']) ?></small></div><?php endif; ?></td>
             <td class="num"><?= (int)$l['qty'] ?></td>
             <td class="num"><?= money($l['unit_price']) ?></td>

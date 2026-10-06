@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e(app_name()) ?></title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="assets/css/app.css?v=1">
+<link rel="stylesheet" href="assets/css/app.css?v=<?= e(defined('APP_VERSION') ? APP_VERSION : '1') ?>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6366f1">
 </head>
 <body>
 <div class="auth-wrap">

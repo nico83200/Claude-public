@@ -215,6 +215,9 @@ function admin_suggestion_add(): void
             'handled_by' => user()['id'], 'handled_at' => now(),
         ], 'id = ?', [$s['id']]);
     });
+    $np = one('SELECT * FROM products WHERE id = ?', [$productId]);
+    price_record($productId, (float)$np['catalog_price'], $np['negotiated_price'] !== null ? (float)$np['negotiated_price'] : null, 'Proposition');
+    audit('Proposition ajoutée au catalogue', 'product', $productId, $name);
     notify([(int)$s['user_id']], 'suggestion_done', 'Article ajouté au catalogue : ' . $name,
         'Merci pour votre proposition ! L\'article est désormais disponible dans le catalogue'
             . ($lineAdded ? ' et votre demande de ' . (int)$s['qty'] . ' unité(s) est en cours de traitement.' : '.'),
@@ -259,6 +262,7 @@ function admin_suggestion_reject(): void
     $s = admin_suggestion_or_fail(input_int('id'));
     if ($s['status'] === 'pending') {
         $reason = mb_substr(trim((string)input('admin_note', '')), 0, 255) ?: 'Article non retenu par le service achats';
+        audit('Proposition refusée', 'suggestion', (int)$s['id'], $s['name'] . ' — ' . $reason);
         update('product_suggestions', ['status' => 'rejected', 'admin_note' => $reason, 'handled_by' => user()['id'], 'handled_at' => now()], 'id = ?', [$s['id']]);
         notify([(int)$s['user_id']], 'suggestion_done', 'Proposition non retenue : ' . $s['name'], 'Motif : ' . $reason, url('requests', ['scope' => 'suggestions']));
         flash('success', 'Proposition refusée, le demandeur a été prévenu.');

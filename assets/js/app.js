@@ -468,3 +468,135 @@
     f.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 })();
+
+/* =====================================================================
+   v1.3 — Photos allégées, application installable, mode réserve
+   ===================================================================== */
+(function () {
+  'use strict';
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const csrf = (window.APP && window.APP.csrf) || '';
+  const toast = (msg, err) => {
+    const z = $('#toasts'); if (!z) return;
+    const t = document.createElement('div'); t.className = 'toast'; if (err) t.style.background = '#b91c1c';
+    t.textContent = msg; z.appendChild(t); setTimeout(() => t.remove(), 3200);
+  };
+
+  // --------------------------------------------------------- Réduction des photos avant envoi
+  // Une photo de smartphone (3 à 8 Mo) est ramenée à 1600 px / ~300 Ko : envoi rapide et sous la limite du serveur.
+  async function shrink(file, max = 1600, quality = 0.85) {
+    if (!file || !/^image\/(jpeg|png|webp|heic|heif)/i.test(file.type) || (file.size < 700 * 1024)) return file;
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => null);
+    if (!bmp) return file;
+    const ratio = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * ratio); c.height = Math.round(bmp.height * ratio);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', quality));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+  }
+  document.addEventListener('change', async (e) => {
+    const inp = e.target;
+    if (!(inp instanceof HTMLInputElement) || inp.type !== 'file' || !inp.files.length || inp.dataset.shrunk === '1') return;
+    if (!/image/.test(inp.accept || '')) return;
+    const f = inp.files[0];
+    if (!f.type.startsWith('image/')) return;
+    const form = inp.form; const btns = form ? $$('button[type=submit]', form) : [];
+    btns.forEach((b) => (b.disabled = true));
+    try {
+      const small = await shrink(f);
+      if (small !== f && window.DataTransfer) {
+        const dt = new DataTransfer(); dt.items.add(small);
+        inp.dataset.shrunk = '1'; inp.files = dt.files; inp.dataset.shrunk = '';
+      }
+    } catch (err) { /* on garde l'original */ }
+    btns.forEach((b) => (b.disabled = false));
+  }, true);
+
+  // --------------------------------------------------------- Application installable (PWA)
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferred = e;
+    $$('[data-install]').forEach((b) => b.classList.remove('hidden'));
+  });
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-install]');
+    if (!b || !deferred) return;
+    deferred.prompt();
+    await deferred.userChoice.catch(() => null);
+    deferred = null; b.classList.add('hidden');
+  });
+
+  // --------------------------------------------------------- Restauration d'une sauvegarde quotidienne
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-restore-db]');
+    if (!b) return;
+    const f = $('#restore-db-form');
+    $('input[name=file]', f).value = b.dataset.restoreDb;
+    $('[data-restore-name]', f).textContent = '(' + b.dataset.restoreDb + ')';
+    f.classList.remove('hidden'); f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // --------------------------------------------------------- Mode réserve (tablette)
+  const q = $('#quick');
+  if (q) {
+    let mode = 'out', product = null;
+    const card = $('[data-quick-card]', q), qty = $('[data-q-qty]', q), go = $('[data-q-go]', q), log = $('[data-quick-log]', q);
+    const labels = { out: 'Valider la sortie', in: 'Valider l\'entrée', count: 'Enregistrer le stock compté' };
+    const setMode = (m) => {
+      mode = m;
+      $$('[data-mode]', q).forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
+      go.textContent = labels[m]; go.className = 'quick-go quick-' + m;
+      if (product) qty.value = m === 'count' ? (product.stock ?? 0) : 1;
+    };
+    $$('[data-mode]', q).forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+    $$('[data-step]', q).forEach((b) => b.addEventListener('click', () => { qty.value = Math.max(0, (parseInt(qty.value || '0', 10) + parseInt(b.dataset.step, 10))); }));
+    const show = (d) => {
+      product = { id: d.product.id, name: d.product.name, stock: d.stock ? d.stock.qty : 0 };
+      $('[data-q-name]', q).textContent = d.product.name;
+      $('[data-q-meta]', q).textContent = [d.product.unit, d.product.supplier].filter(Boolean).join(' · ');
+      $('[data-q-stock]', q).textContent = d.stock ? d.stock.qty : 'non suivi';
+      $('[data-q-img]', q).innerHTML = d.product.image ? '<img src="' + esc(d.product.image) + '" alt="">' : '';
+      card.classList.remove('hidden');
+      setMode(mode);
+      qty.focus(); qty.select();
+    };
+    const lookup = async (code) => {
+      const d = await (await fetch('index.php?r=api/barcode&code=' + encodeURIComponent(code), { headers: { 'X-Requested-With': 'fetch' } })).json();
+      if (d.found) show(d);
+      else if (confirm('Code ' + code + ' inconnu au catalogue.\nProposer cet article au service achats ?')) location.href = 'index.php?r=suggest&from=scan&barcode=' + encodeURIComponent(code);
+    };
+    $('[data-quick-scan]', q).addEventListener('click', () => window.openScanner && window.openScanner(lookup, 'Mode réserve : scanner l\'article'));
+    $('[data-quick-search]', q).addEventListener('submit', (e) => { e.preventDefault(); const v = $('input', e.target).value.trim(); if (v) lookup(v); });
+    go.addEventListener('click', async () => {
+      if (!product) return;
+      const n = Math.max(0, parseInt(qty.value || '0', 10));
+      if (mode !== 'count' && n <= 0) return toast('Indiquez une quantité.', true);
+      const body = new URLSearchParams({ _token: csrf, product_id: product.id, qty: n, note: $('[data-q-note]', q).value });
+      let url = 'index.php?r=stock/exit';
+      if (mode === 'in') body.append('mode', 'in');
+      if (mode === 'count') url = 'index.php?r=stock/count-one';
+      go.disabled = true;
+      try {
+        const r = await (await fetch(url, { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } })).json();
+        if (!r.ok) throw new Error(r.error || 'Erreur');
+        const verb = { out: 'Sortie de ' + n, in: 'Entrée de ' + n, count: 'Stock compté : ' + n }[mode];
+        const li = document.createElement('li');
+        li.innerHTML = '<strong>' + esc(product.name) + '</strong> — ' + esc(verb) + ' · reste <strong>' + r.qty + '</strong>';
+        log.prepend(li);
+        if (navigator.vibrate) navigator.vibrate(60);
+        toast(mode === 'count' ? 'Inventaire enregistré : ' + n : verb + ' enregistrée');
+        card.classList.add('hidden'); product = null; $('[data-q-note]', q).value = '';
+      } catch (err) { toast(err.message, true); }
+      go.disabled = false;
+    });
+  }
+})();

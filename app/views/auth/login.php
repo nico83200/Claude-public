@@ -16,4 +16,4 @@
 <?php if (setting('allow_registration', '1') === '1'): ?>
 <p class="text-center mt-2">Pas encore de compte ? <a href="<?= url('register') ?>">Demander un accès</a></p>
 <?php endif; ?>
-<p class="text-center muted" style="font-size:.85rem">Mot de passe oublié ? Contactez le service achats qui pourra le réinitialiser.</p>
+<p class="text-center" style="font-size:.9rem"><a href="<?= url('forgot') ?>">Mot de passe oublié ?</a></p>

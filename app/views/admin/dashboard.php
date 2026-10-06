@@ -135,6 +135,17 @@
       <?php endforeach; else: ?><div class="empty"><p>Aucune date limite programmée.</p></div><?php endif; ?>
     </div>
 
+    <?php $incr = recent_price_increases(90, 6); if ($incr): ?>
+    <div class="card">
+      <div class="card-head"><h2><?= icon('chart') ?> Hausses de prix (90 j)</h2><a class="btn btn-sm" href="<?= url('admin/compare') ?>">Comparateur</a></div>
+      <ul class="list"><?php foreach ($incr as $h): ?>
+        <li><div class="grow"><a class="title" href="<?= url('admin/product', ['id' => $h['product_id']]) ?>"><?= e($h['name']) ?></a><small><?= e($h['supplier_name']) ?> · <?= money($h['old']) ?> → <?= money($h['new']) ?></small></div><span class="badge badge-red">+<?= $h['pct'] ?> %</span></li>
+      <?php endforeach; ?></ul>
+    </div>
+    <?php endif; ?>
+    <?php $invTodo = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE invoice_amount IS NULL AND status IN ('partiel','recu')"); $invGap = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE invoice_status = 'ecart'"); if ($invTodo || $invGap): ?>
+    <a class="stat c-amber" href="<?= url('admin/invoices', ['filter' => $invGap ? 'ecart' : 'todo']) ?>"><div class="stat-icon g-amber"><?= icon('euro', 24) ?></div><div><div class="stat-value"><?= $invTodo ?></div><div class="stat-label">Facture(s) à rapprocher<?= $invGap ? ' · <strong style="color:#dc2626">' . $invGap . ' écart(s)</strong>' : '' ?></div></div></a>
+    <?php endif; ?>
     <?php if ($lateOrders): ?>
     <div class="card">
       <div class="card-head"><h2><?= icon('alert') ?> Livraisons en retard (&gt; 10 j)</h2></div>

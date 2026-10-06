@@ -69,6 +69,32 @@
       <?php else: ?><div class="empty"><?= icon('archive') ?><p>Aucune sauvegarde. Une sauvegarde est créée automatiquement avant chaque mise à jour.</p></div><?php endif; ?>
     </div>
 
+    <div class="card">
+      <div class="card-head"><h2><?= icon('archive') ?> Sauvegardes quotidiennes de la base</h2>
+        <form method="post" action="<?= url('admin/backup-daily') ?>"><?= csrf_field() ?><button class="btn btn-sm" type="submit" name="action" value="now"><?= icon('archive', 15) ?> Sauvegarder maintenant</button></form></div>
+      <?php $daily = daily_backups_list(); if ($daily): ?>
+      <div class="table-wrap"><table class="table"><tbody>
+        <?php foreach (array_slice($daily, 0, 14) as $d): ?>
+          <tr><td><?= e($d['file']) ?></td><td class="nowrap"><small><?= date('d/m/Y H:i', $d['mtime']) ?></small></td><td class="num"><small><?= round($d['size'] / 1024) ?> Ko</small></td>
+            <td class="nowrap text-right">
+              <a class="btn btn-sm btn-ghost btn-icon" href="<?= url('admin/backup-daily', ['action' => 'download', 'file' => $d['file']]) ?>" title="Télécharger"><?= icon('download', 15) ?></a>
+              <button class="btn btn-sm btn-amber" type="button" data-restore-db="<?= e($d['file']) ?>"><?= icon('repeat', 15) ?> Restaurer</button>
+            </td></tr>
+        <?php endforeach; ?>
+      </tbody></table></div>
+      <small class="muted" style="display:block;padding:0 1.4rem 1rem">Conservées <?= (int)setting('backup_keep_days', '30') ?> jours. Pensez à télécharger régulièrement une copie hors du serveur.</small>
+      <?php else: ?><div class="empty"><p>Aucune sauvegarde quotidienne pour l'instant (créée automatiquement chaque jour).</p></div><?php endif; ?>
+    </div>
+    <form method="post" action="<?= url('admin/backup-daily') ?>" class="card hidden" id="restore-db-form">
+      <?= csrf_field() ?><input type="hidden" name="action" value="restore"><input type="hidden" name="file" value="">
+      <div class="card-body">
+        <h3><?= icon('repeat', 18) ?> Restaurer la base <span data-restore-name></span></h3>
+        <p class="muted">⚠️ Toutes les saisies postérieures à cette sauvegarde seront perdues. L'état actuel est sauvegardé avant restauration.</p>
+        <div class="field"><label>Confirmez avec votre mot de passe</label><input type="password" name="password" required autocomplete="current-password"></div>
+        <div class="row"><button class="btn btn-amber" type="submit">Restaurer</button><button class="btn btn-ghost" type="button" onclick="this.closest('form').classList.add('hidden')">Annuler</button></div>
+      </div>
+    </form>
+
     <form method="post" action="<?= url('admin/updates/rollback') ?>" class="card hidden" id="rollback-form">
       <?= csrf_field() ?><input type="hidden" name="file" value="">
       <div class="card-head"><h2><?= icon('repeat') ?> Revenir à la version <span class="version-pill" data-rb-version></span></h2></div>

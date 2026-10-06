@@ -96,7 +96,7 @@ function admin_user_edit(): void
             'email' => mb_strtolower((string)input('email')),
             'job' => (string)input('job') ?: null,
             'phone' => (string)input('phone') ?: null,
-            'role' => input('role') === 'admin' ? 'admin' : 'user',
+            'role' => in_array(input('role'), ['admin', 'manager'], true) ? input('role') : 'user',
             'status' => in_array(input('status'), ['pending', 'active', 'disabled'], true) ? input('status') : 'active',
         ];
         $centerIds = array_map('intval', (array)($_POST['centers'] ?? []));
@@ -137,6 +137,8 @@ function admin_user_edit(): void
                     insert('user_centers', ['user_id' => $id, 'center_id' => $cid]);
                 }
             });
+            audit($u ? 'Compte modifié' : 'Compte créé', 'user', $id, $data['email'] . ' — rôle ' . $data['role'] . ', statut ' . $data['status'] . ', centres ' . implode(',', $centerIds)
+                . (($_POST['password'] ?? '') !== '' ? ', mot de passe réinitialisé' : ''));
             flash('success', 'Compte enregistré' . ($data['status'] === 'active' ? ' et actif.' : '.')
                 . ($tempPassword ? ' Mot de passe provisoire à transmettre : ' . $tempPassword : ''));
             redirect('admin/users');
@@ -235,6 +237,7 @@ function admin_settings(): void
             foreach (NOTIFY_EVENTS as $k => $ev) {
                 set_setting('notif_' . $k, isset($_POST['events'][$k]) ? '1' : '0');
             }
+            audit('Paramètres de notification modifiés', 'settings');
             flash('success', 'Paramètres de notification enregistrés.');
             redirect('admin/settings');
         } elseif (input('action') === 'clear_ai_cache') {
@@ -252,6 +255,12 @@ function admin_settings(): void
             set_setting('ai_model', (string)input('ai_model') ?: 'claude-opus-5-5');
             set_setting('ai_max_products', (string)max(50, input_int('ai_max_products', 1500)));
             set_setting('welcome_message', (string)input('welcome_message'));
+            set_setting('approval_threshold', (string)(input_money('approval_threshold', 0.0) ?? 0));
+            set_setting('late_days', (string)max(1, input_int('late_days', 10)));
+            set_setting('invoice_tolerance', (string)(input_money('invoice_tolerance', 1.0) ?? 1));
+            set_setting('backup_keep_days', (string)max(3, input_int('backup_keep_days', 30)));
+            set_setting('pseudo_cron', input('pseudo_cron') === '1' ? '1' : '0');
+            audit('Paramètres généraux modifiés', 'settings');
             flash('success', 'Paramètres enregistrés.');
             redirect('admin/settings');
         }

@@ -97,7 +97,7 @@ function user_requests(): void
             $r['lines'] = array_values(array_filter($r['lines'], function ($l) use ($status) {
                 $ps = $l['po_status'] ?? null;
                 return match ($status) {
-                    'pending' => $l['status'] === 'pending' || ($l['status'] === 'in_po' && $ps === 'a_commander'),
+                    'pending' => in_array($l['status'], ['pending', 'awaiting'], true) || ($l['status'] === 'in_po' && $ps === 'a_commander'),
                     'ordered' => $l['status'] === 'in_po' && in_array($ps, ['commande', 'partiel'], true),
                     'received' => $l['status'] === 'in_po' && $ps === 'recu',
                     default => true,
@@ -123,7 +123,7 @@ function user_cancel_line(): void
     if (!$line || !can_access_center((int)$line['center_id']) || ((int)$line['user_id'] !== (int)$u['id'] && !is_admin())) {
         abort(403);
     }
-    if ($line['status'] !== 'pending') {
+    if (!in_array($line['status'], ['pending', 'awaiting'], true)) {
         flash('error', 'Cette ligne est déjà prise en charge par le service achats et ne peut plus être annulée.');
     } else {
         update('request_lines', ['status' => 'cancelled', 'cancel_reason' => 'Annulée par le demandeur'], 'id = ?', [$line['id']]);

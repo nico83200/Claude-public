@@ -5,6 +5,8 @@
   </div>
   <div class="row row-wrap">
     <a class="btn" href="<?= url('stock/history') ?>"><?= icon('clock', 18) ?> Mouvements</a>
+    <a class="btn" href="<?= url('stock/quick') ?>"><?= icon('layers', 18) ?> Mode réserve (tablette)</a>
+    <?php if ($lowCount): ?><form method="post" action="<?= url('stock/reorder') ?>"><?= csrf_field() ?><button class="btn btn-amber" type="submit"><?= icon('cart', 18) ?> Réapprovisionner les stocks bas</button></form><?php endif; ?>
     <button class="btn btn-primary" type="button" data-scan="stock"><?= icon('camera', 18) ?> Scanner un article</button>
   </div>
 </div>

@@ -21,6 +21,7 @@ function admin_budgets(): void
                 insert('budgets', ['center_id' => $cid, 'year' => $year, 'amount' => $v, 'alert_pct' => $pct, 'alert_sent' => 0]);
             }
         }
+        audit('Budgets ' . $year . ' modifiés', 'budget', null, array_map(fn($v) => (string)$v, (array)($_POST['amount'] ?? [])));
         flash('success', 'Budgets ' . $year . ' enregistrés.');
         redirect('admin/budgets', ['year' => $year]);
     }
@@ -100,6 +101,7 @@ function admin_updates_upload(): void
             $r = update_apply($staging, input('allow_downgrade') === '1');
             @unlink($staging);
             unset($_SESSION['update_preview']);
+            audit('Mise à jour installée', null, null, 'v' . $r['version']);
             flash('success', 'Mise à jour vers la version ' . $r['version'] . ' appliquée (' . $r['written'] . ' fichiers). Sauvegarde de la version précédente : ' . $r['backup']);
         } catch (Throwable $e) {
             flash('error', $e->getMessage());
@@ -141,6 +143,7 @@ function admin_updates_rollback(): void
     }
     try {
         $m = update_rollback((string)input('file'), input('restore_db') === '1');
+        audit('Retour à une version antérieure', null, null, 'v' . ($m['version'] ?? '?') . (input('restore_db') === '1' ? ' (avec la base)' : ''));
         flash('success', 'Retour à la version ' . ($m['version'] ?? '?') . ' effectué' . (input('restore_db') === '1' ? ' (code et base de données).' : ' (code).')
             . ' L\'état précédent a été sauvegardé : ' . $m['safety']);
     } catch (Throwable $e) {

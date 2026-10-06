@@ -55,6 +55,11 @@ function admin_supplier_edit(): void
         } else {
             tx(function () use (&$id, $data, $centerIds) {
                 if ($id) {
+                    $before = one('SELECT * FROM suppliers WHERE id = ?', [$id]);
+                    if ($diff = audit_diff($before, $data, ['min_order_amount' => 'Minimum', 'shipping_fee' => 'Frais de port', 'free_shipping_from' => 'Franco',
+                        'email' => 'E-mail', 'all_centers' => 'Tous centres', 'active' => 'Actif'])) {
+                        audit('Fournisseur modifié', 'supplier', $id, $data['name'] . ' — ' . $diff);
+                    }
                     update('suppliers', $data, 'id = ?', [$id]);
                 } else {
                     $id = insert('suppliers', $data + ['created_at' => now()]);
@@ -138,6 +143,7 @@ function admin_product_edit(): void
             'category_id' => input_int('category_id') ?: null,
             'reference' => (string)input('reference') ?: null,
             'barcode' => preg_replace('/\s+/', '', (string)input('barcode')) ?: null,
+            'compare_group' => mb_substr(trim((string)input('compare_group')), 0, 80) ?: null,
             'name' => (string)input('name'),
             'description' => (string)input('description') ?: null,
             'unit' => (string)input('unit') ?: null,
@@ -173,10 +179,17 @@ function admin_product_edit(): void
         }
         if (!$errors) {
             if ($id) {
+                $before = one('SELECT * FROM products WHERE id = ?', [$id]);
                 update('products', $data, 'id = ?', [$id]);
+                if ($diff = audit_diff($before, $data, ['name' => 'Désignation', 'supplier_id' => 'Fournisseur', 'catalog_price' => 'Tarif catalogue',
+                    'negotiated_price' => 'Tarif négocié', 'barcode' => 'Code-barres', 'active' => 'Actif', 'compare_group' => 'Groupe d\'équivalence'])) {
+                    audit('Article modifié', 'product', $id, $data['name'] . ' — ' . $diff);
+                }
             } else {
                 $id = insert('products', $data + ['created_at' => now()]);
+                audit('Article créé', 'product', $id, $data['name']);
             }
+            price_record($id, (float)$data['catalog_price'], $data['negotiated_price'] !== null ? (float)$data['negotiated_price'] : null, 'Fiche article');
             flash('success', 'Article « ' . $data['name'] . ' » enregistré.');
             if (input('then') === 'new') {
                 redirect('admin/product', ['supplier_id' => $data['supplier_id']]);
@@ -207,7 +220,7 @@ function admin_product_toggle(): void
     redirect_back('admin/products');
 }
 
-const IMPORT_COLUMNS = ['fournisseur', 'reference', 'designation', 'description', 'categorie', 'conditionnement', 'prix_catalogue', 'prix_negocie', 'mots_cles', 'tva', 'code_barre'];
+const IMPORT_COLUMNS = ['fournisseur', 'reference', 'designation', 'description', 'categorie', 'conditionnement', 'prix_catalogue', 'prix_negocie', 'mots_cles', 'tva', 'code_barre', 'groupe_equivalence'];
 
 /** Import en masse d'un catalogue fournisseur (CSV séparateur « ; »). */
 function admin_products_import(): void
@@ -284,6 +297,9 @@ function admin_products_import(): void
                     'vat_rate' => $num($r['tva'] ?? null) ?? 20,
                     'updated_at' => now(),
                 ];
+                if (!empty($r['groupe_equivalence'])) {
+                    $data['compare_group'] = mb_substr($r['groupe_equivalence'], 0, 80);
+                }
                 if (!empty($r['code_barre'])) {
                     $data['barcode'] = preg_replace('/\s+/', '', $r['code_barre']);
                 }
@@ -293,9 +309,11 @@ function admin_products_import(): void
                 }
                 if ($existing) {
                     update('products', $data, 'id = ?', [$existing]);
+                    price_record((int)$existing, (float)$data['catalog_price'], $data['negotiated_price'], 'Import CSV');
                     $report['updated']++;
                 } else {
-                    insert('products', $data + ['active' => 1, 'created_at' => now()]);
+                    $newId = insert('products', $data + ['active' => 1, 'created_at' => now()]);
+                    price_record($newId, (float)$data['catalog_price'], $data['negotiated_price'], 'Import CSV');
                     $report['created']++;
                 }
             }
@@ -324,7 +342,7 @@ function admin_products_export(): void
             $p['supplier_name'], $p['reference'], $p['name'], $p['description'], $p['category_name'], $p['unit'],
             number_format((float)$p['catalog_price'], 2, ',', ''),
             $p['negotiated_price'] !== null ? number_format((float)$p['negotiated_price'], 2, ',', '') : '',
-            $p['keywords'], number_format((float)$p['vat_rate'], 2, ',', ''), $p['barcode'],
+            $p['keywords'], number_format((float)$p['vat_rate'], 2, ',', ''), $p['barcode'], $p['compare_group'],
         ], ';', '"', '');
     }
     fclose($out);

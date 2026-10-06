@@ -13,6 +13,7 @@ if (is_admin()) {
     $suggN = pending_suggestions_count();
 }
 $lowN = $center ? stock_low_count((int)$center['id']) : 0;
+$approvalN = approvals_pending_count();
 $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 ?><!doctype html>
 <html lang="fr">
@@ -24,6 +25,11 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="assets/css/app.css?v=<?= e(APP_VERSION) ?>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6366f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="<?= e(app_name()) ?>">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%236366f1'/><path d='M7 9h10l-1 8H8z' stroke='white' stroke-width='2' fill='none'/></svg>">
 </head>
 <body>
@@ -51,8 +57,12 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('dashboard') ?>" href="<?= url('dashboard') ?>"><?= icon('home') ?> Tableau de bord</a>
       <a class="<?= $active('catalog', 'product') ?>" href="<?= url('catalog') ?>"><?= icon('search') ?> Catalogue</a>
       <a class="<?= $active('cart', 'suggest') ?>" href="<?= url('cart') ?>"><?= icon('cart') ?> Mon panier <span class="count soft" id="cart-count" <?= $cartN ? '' : 'style="display:none"' ?>><?= $cartN ?></span></a>
+      <a class="<?= $active('kits', 'kit') ?>" href="<?= url('kits') ?>"><?= icon('star') ?> Listes types</a>
       <a class="<?= $active('requests') ?>" href="<?= url('requests') ?>"><?= icon('clipboard') ?> Suivi des demandes</a>
       <a class="<?= $active('receptions', 'reception') ?>" href="<?= url('receptions') ?>"><?= icon('package-check') ?> Réceptions <?php if ($toReceiveN): ?><span class="count"><?= $toReceiveN ?></span><?php endif; ?></a>
+      <?php if (is_manager() || (is_admin() && $approvalN)): ?>
+      <a class="<?= $active('approvals') ?>" href="<?= url('approvals') ?>"><?= icon('check-circle') ?> Validations <?php if ($approvalN): ?><span class="count"><?= $approvalN ?></span><?php endif; ?></a>
+      <?php endif; ?>
       <a class="<?= $active('stock', 'stock/history') ?>" href="<?= url('stock') ?>"><?= icon('layers') ?> Inventaire <?php if ($lowN): ?><span class="count" title="Articles sous le seuil d'alerte"><?= $lowN ?></span><?php endif; ?></a>
 
       <?php if (is_admin()): ?>
@@ -65,12 +75,16 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/products', 'admin/product', 'admin/products/import') ?>" href="<?= url('admin/products') ?>"><?= icon('box') ?> Articles</a>
       <a class="<?= $active('admin/categories') ?>" href="<?= url('admin/categories') ?>"><?= icon('tag') ?> Catégories</a>
       <a class="<?= $active('admin/deadlines') ?>" href="<?= url('admin/deadlines') ?>"><?= icon('calendar') ?> Dates limites</a>
+      <a class="<?= $active('admin/compare') ?>" href="<?= url('admin/compare') ?>"><?= icon('layers') ?> Comparateur</a>
+      <a class="<?= $active('admin/invoices') ?>" href="<?= url('admin/invoices') ?>"><?= icon('euro') ?> Factures</a>
+      <a class="<?= $active('admin/exports') ?>" href="<?= url('admin/exports') ?>"><?= icon('download') ?> Exports comptables</a>
       <a class="<?= $active('admin/budgets') ?>" href="<?= url('admin/budgets') ?>"><?= icon('wallet') ?> Budgets</a>
       <a class="<?= $active('admin/stocks') ?>" href="<?= url('admin/stocks') ?>"><?= icon('layers') ?> Stocks des centres</a>
       <div class="nav-title">Organisation</div>
       <a class="<?= $active('admin/centers', 'admin/center') ?>" href="<?= url('admin/centers') ?>"><?= icon('building') ?> Centres</a>
       <a class="<?= $active('admin/users', 'admin/user') ?>" href="<?= url('admin/users') ?>"><?= icon('users') ?> Comptes <?php if ($usersN): ?><span class="count"><?= $usersN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/settings') ?>" href="<?= url('admin/settings') ?>"><?= icon('settings') ?> Paramètres</a>
+      <a class="<?= $active('admin/audit') ?>" href="<?= url('admin/audit') ?>"><?= icon('shield') ?> Journal d'audit</a>
       <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
       <?php endif; ?>
     </nav>
@@ -79,7 +93,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <div class="avatar"><?= e(initials($u['first_name'], $u['last_name'])) ?></div>
       <div style="flex:1;min-width:0">
         <a href="<?= url('profile') ?>" style="color:#fff;font-weight:600"><?= e($u['first_name'] . ' ' . $u['last_name']) ?></a>
-        <div style="font-size:.78rem;opacity:.7"><?= e($u['job'] ?: ($u['role'] === 'admin' ? 'Administrateur' : 'Salarié')) ?></div>
+        <div style="font-size:.78rem;opacity:.7"><?= e($u['job'] ?: ['admin' => 'Administrateur', 'manager' => 'Responsable de centre'][$u['role']] ?? 'Salarié') ?></div>
       </div>
       <a href="<?= url('logout') ?>" title="Se déconnecter"><?= icon('logout') ?></a>
     </div>
@@ -101,6 +115,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
         <?php if ($center): ?>
           <span class="badge badge-violet" title="Centre courant"><span class="dot" style="background:<?= e($center['color']) ?>"></span><?= e($center['name']) ?></span>
         <?php endif; ?>
+        <button type="button" class="btn btn-ghost btn-sm hidden" data-install title="Installer l'application sur cet appareil"><?= icon('download', 16) ?> Installer</button>
         <div class="bell-wrap">
           <a class="btn btn-ghost btn-icon bell" href="<?= url('notifications') ?>" title="Notifications" data-bell><?= icon('bell') ?><span class="bell-count" <?= $notifN ? '' : 'style="display:none"' ?>><?= $notifN ?></span></a>
         </div>

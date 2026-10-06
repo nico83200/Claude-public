@@ -34,7 +34,7 @@
       <hr>
       <p class="muted">Événements qui vous intéressent :</p>
       <div class="check-grid">
-        <?php $prefs = user_notify_prefs($u); foreach (NOTIFY_EVENTS as $k => $ev): if ($ev['for'] === 'admin' && $u['role'] !== 'admin') continue; if (!notify_event_enabled($k)) continue; ?>
+        <?php $prefs = user_notify_prefs($u); foreach (NOTIFY_EVENTS as $k => $ev): if ($ev['for'] === 'admin' && $u['role'] !== 'admin') continue; if ($ev['for'] === 'manager' && !in_array($u['role'], ['manager', 'admin'], true)) continue; if (!notify_event_enabled($k)) continue; ?>
           <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= ($prefs[$k] ?? true) ? 'checked' : '' ?>> <?= e($ev['label']) ?></label>
         <?php endforeach; ?>
       </div>

@@ -24,7 +24,7 @@
     </div>
     <div class="card card-body">
       <div class="field"><label>Rôle</label>
-        <select name="role"><option value="user" <?= ($u['role'] ?? 'user') === 'user' ? 'selected' : '' ?>>Salarié (commandes &amp; réceptions)</option><option value="admin" <?= ($u['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateur (service achats)</option></select>
+        <select name="role"><option value="user" <?= ($u['role'] ?? 'user') === 'user' ? 'selected' : '' ?>>Salarié (commandes &amp; réceptions)</option><option value="manager" <?= ($u['role'] ?? '') === 'manager' ? 'selected' : '' ?>>Responsable de centre (valide les demandes de ses centres)</option><option value="admin" <?= ($u['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateur (service achats)</option></select>
       </div>
       <div class="field"><label>Statut</label>
         <select name="status">

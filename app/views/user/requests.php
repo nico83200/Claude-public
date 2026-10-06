@@ -61,7 +61,7 @@
           <td class="nowrap">× <?= (int)$l['qty'] ?></td>
           <td><?= badge($st) ?><?php if ($l['po_number']): ?><div><small><?= e($l['po_number']) ?></small></div><?php endif; ?></td>
           <td class="text-right">
-            <?php if ($l['status'] === 'pending' && ((int)$r['user_id'] === (int)user()['id'] || is_admin())): ?>
+            <?php if (in_array($l['status'], ['pending', 'awaiting'], true) && ((int)$r['user_id'] === (int)user()['id'] || is_admin())): ?>
               <form method="post" action="<?= url('request/cancel-line', ['id' => $l['id']]) ?>" onsubmit="return confirm('Annuler cette ligne ?')"><?= csrf_field() ?><button class="btn btn-ghost btn-sm btn-danger" type="submit"><?= icon('x', 16) ?> Annuler</button></form>
             <?php elseif (in_array($l['po_status'], ['commande', 'partiel'], true)): ?>
               <a class="btn btn-sm btn-success" href="<?= url('reception', ['id' => $l['purchase_order_id']]) ?>"><?= icon('check', 16) ?> Réception</a>

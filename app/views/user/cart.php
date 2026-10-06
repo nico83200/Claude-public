@@ -6,6 +6,19 @@
   </div>
 </div>
 
+<?php $reorder = reorder_suggestions((int)user()['id'], (int)$center['id']); if ($reorder): ?>
+<form method="post" action="<?= url('stock/reorder') ?>" class="card mb-2" style="border-left:5px solid #f59e0b">
+  <?= csrf_field() ?>
+  <div class="card-head"><h3><?= icon('layers', 18) ?> Stocks bas à réapprovisionner</h3><button class="btn btn-amber btn-sm" type="submit"><?= icon('cart', 15) ?> Ajouter la sélection</button></div>
+  <div class="table-wrap"><table class="table"><tbody>
+  <?php foreach ($reorder as $s): ?>
+    <tr><td style="width:36px"><input type="checkbox" name="pick[<?= (int)$s['product_id'] ?>]" value="1" checked></td>
+      <td><strong><?= e($s['name']) ?></strong><div><small>En stock : <?= (int)$s['qty'] ?> · seuil <?= (int)$s['alert_qty'] ?><?= (int)$s['on_order'] ? ' · déjà en commande : ' . (int)$s['on_order'] : '' ?></small></div></td>
+      <td class="nowrap">Suggéré : <input class="qty-input" type="number" min="0" name="qty[<?= (int)$s['product_id'] ?>]" value="<?= (int)$s['suggested'] ?>"></td></tr>
+  <?php endforeach; ?>
+  </tbody></table></div>
+</form>
+<?php endif; ?>
 <?php if (!$groups && !$offCatalog): ?>
   <div class="card"><div class="empty">
     <?= icon('cart') ?><h3>Votre panier est vide</h3>
@@ -87,6 +100,9 @@
           </div>
           <label class="check"><input type="checkbox" name="urgent" value="1"> <span>Demande <strong>urgente</strong></span></label>
           <button class="btn btn-primary btn-lg mt-1" style="width:100%" type="submit" name="then" value="submit"><?= icon('send', 18) ?> Envoyer ma demande</button>
+          <details class="mt-1"><summary class="muted" style="cursor:pointer;font-size:.85rem"><?= icon('star', 14) ?> Enregistrer ce panier comme liste type</summary>
+            <div class="row mt-1"><input type="text" name="kit_name" placeholder="Nom de la liste" form="kit-from-cart"><button class="btn btn-sm" type="submit" form="kit-from-cart">OK</button></div>
+          </details>
           <p class="muted mt-1" style="font-size:.82rem">Votre demande sera regroupée avec celles de vos collègues par fournisseur avant l'émission du bon de commande.</p>
         </div>
       </div>
@@ -94,3 +110,4 @@
   </div>
 </form>
 <?php endif; ?>
+<form method="post" action="<?= url('kit/from-cart') ?>" id="kit-from-cart" class="hidden"><?= csrf_field() ?></form>

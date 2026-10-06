@@ -9,6 +9,8 @@ declare(strict_types=1);
  *
  * La version est lue dans le fichier VERSION ; les notes dans la première section de CHANGELOG.md.
  */
+const ROOT_FILES = ['cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html'];
+
 if (PHP_SAPI !== 'cli') {
     exit("À lancer en ligne de commande.\n");
 }
@@ -22,7 +24,7 @@ $notes = '';
 if (is_file("$root/CHANGELOG.md") && preg_match('/^##[^\n]*\n(.*?)(?=^## |\z)/ms', (string)file_get_contents("$root/CHANGELOG.md"), $m)) {
     $notes = trim($m[1]);
 }
-$include = ['index.php', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app', 'assets', 'tools'];
+$include = ['index.php', 'cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app', 'assets', 'tools', 'tests'];
 if ($withVendor) {
     $include[] = 'vendor';
 }
@@ -46,6 +48,14 @@ foreach ($include as $item) {
                 $n++;
             }
         }
+    }
+}
+// Copie des fichiers racine dans app/root/ : une version antérieure du module de mise à jour,
+// qui ne connaît pas ces fichiers, les installe quand même ; ils sont remis à la racine au chargement suivant.
+foreach (ROOT_FILES as $f) {
+    if (is_file("$root/$f")) {
+        $zip->addFile("$root/$f", "app/root/$f");
+        $n++;
     }
 }
 $zip->close();

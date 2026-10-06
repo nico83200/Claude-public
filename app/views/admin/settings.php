@@ -12,6 +12,15 @@
       <div class="field"><label>Message d'accueil des centres</label><input type="text" name="welcome_message" value="<?= e(setting('welcome_message')) ?>" placeholder="De quoi avez-vous besoin aujourd'hui ?"></div>
       <label class="check"><input type="checkbox" name="show_prices" value="1" <?= setting('show_prices', '1') === '1' ? 'checked' : '' ?>> Afficher les prix aux salariés</label>
       <label class="check"><input type="checkbox" name="allow_registration" value="1" <?= setting('allow_registration', '1') === '1' ? 'checked' : '' ?>> Autoriser les demandes de compte en ligne</label>
+      <hr>
+      <h3><?= icon('activity', 18) ?> Règles de gestion</h3>
+      <div class="form-grid">
+        <div class="field"><label>Validation par le responsable au-delà de (€ HT)</label><input type="text" name="approval_threshold" value="<?= e(str_replace('.', ',', setting('approval_threshold', '0'))) ?>"><small>0 = pas de validation. Ne s'applique qu'aux centres ayant un « responsable de centre ».</small></div>
+        <div class="field"><label>Livraison en retard après (jours)</label><input type="number" min="1" name="late_days" value="<?= e(setting('late_days', '10')) ?>"><small>Ou dès la date de livraison prévue dépassée.</small></div>
+        <div class="field"><label>Tolérance d'écart facture (€)</label><input type="text" name="invoice_tolerance" value="<?= e(str_replace('.', ',', setting('invoice_tolerance', '1'))) ?>"></div>
+        <div class="field"><label>Conservation des sauvegardes (jours)</label><input type="number" min="3" name="backup_keep_days" value="<?= e(setting('backup_keep_days', '30')) ?>"></div>
+      </div>
+      <label class="check"><input type="checkbox" name="pseudo_cron" value="1" <?= setting('pseudo_cron', '1') === '1' ? 'checked' : '' ?>> Exécuter les tâches de fond pendant l'utilisation de l'application (si aucune tâche cron n'est programmée)</label>
 
       <hr>
       <h3><?= icon('sparkles', 18) ?> Assistant de recherche IA (Claude)</h3>
@@ -63,7 +72,7 @@
         <h3>Événements notifiés</h3>
         <p class="muted" style="font-size:.88rem">Décochez un événement pour ne plus le notifier à personne. Chaque utilisateur peut ensuite affiner dans son profil.</p>
         <?php foreach (NOTIFY_EVENTS as $k => $ev): ?>
-          <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= notify_event_enabled($k) ? 'checked' : '' ?>> <?= e($ev['label']) ?> <small class="muted">— <?= ['admin' => 'administrateurs', 'user' => 'demandeur', 'both' => 'administrateurs et salariés'][$ev['for']] ?></small></label>
+          <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= notify_event_enabled($k) ? 'checked' : '' ?>> <?= e($ev['label']) ?> <small class="muted">— <?= ['admin' => 'administrateurs', 'user' => 'demandeur', 'both' => 'administrateurs et salariés', 'manager' => 'responsables de centre'][$ev['for']] ?? '' ?></small></label>
         <?php endforeach; ?>
       </div>
       <div>
@@ -86,4 +95,33 @@
       <button class="btn" type="submit" name="action" value="test_mail"><?= icon('mail', 18) ?> M'envoyer un e-mail de test</button>
     </div>
   </form>
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-head"><h2><?= icon('clock') ?> Tâches planifiées &amp; file d'e-mails</h2></div>
+    <div class="card-body grid grid-2">
+      <div>
+        <p class="muted" style="font-size:.9rem">Envoi des e-mails, rappels la veille des dates limites, relance des livraisons en retard, sauvegarde quotidienne et nettoyage. Pour une exécution régulière, programmez chez votre hébergeur (toutes les 5 à 15 minutes) :</p>
+        <div class="field"><label>Commande (cron)</label><input type="text" readonly value="php <?= e(ROOT) ?>/cron.php" onclick="this.select()"></div>
+        <div class="field"><label>ou URL à appeler</label><input type="text" readonly value="<?= e(app_base_url() . 'cron.php?key=' . setting('cron_key')) ?>" onclick="this.select()"></div>
+        <ul class="list" style="font-size:.88rem">
+          <?php foreach (CRON_TASKS as $k => $t): $last = cron_last($k); ?>
+            <li style="padding:.4rem 0"><div class="grow"><?= e($t['label']) ?></div><small class="muted"><?= $last ? 'dernière exécution ' . date('d/m H:i', $last) : 'jamais' ?></small></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+      <div>
+        <?php $mq = one('SELECT SUM(CASE WHEN sent_at IS NULL AND attempts < 5 THEN 1 ELSE 0 END) AS waiting, SUM(CASE WHEN sent_at IS NULL AND attempts >= 5 THEN 1 ELSE 0 END) AS failed, SUM(CASE WHEN sent_at IS NOT NULL THEN 1 ELSE 0 END) AS sent FROM mail_queue'); ?>
+        <div class="chips mb-2">
+          <span class="badge badge-amber"><?= (int)$mq['waiting'] ?> e-mail(s) en attente</span>
+          <span class="badge <?= (int)$mq['failed'] ? 'badge-red' : 'badge-gray' ?>"><?= (int)$mq['failed'] ?> en échec</span>
+          <span class="badge badge-green"><?= (int)$mq['sent'] ?> envoyé(s) (30 j)</span>
+        </div>
+        <?php $err = one('SELECT last_error, to_email FROM mail_queue WHERE sent_at IS NULL AND last_error IS NOT NULL ORDER BY id DESC LIMIT 1'); if ($err): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 16) ?><div>Dernière erreur (<?= e($err['to_email']) ?>) : <?= e($err['last_error']) ?></div></div><?php endif; ?>
+        <form method="post" action="<?= url('admin/mail-queue') ?>" class="row row-wrap">
+          <?= csrf_field() ?>
+          <button class="btn" type="submit" name="action" value="retry"><?= icon('repeat', 16) ?> Relancer les e-mails en attente</button>
+          <button class="btn" type="submit" name="action" value="run"><?= icon('activity', 16) ?> Exécuter toutes les tâches maintenant</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

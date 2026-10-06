@@ -61,6 +61,9 @@ function stock_exit(): void
     }
     $after = stock_move((int)$center['id'], $pid, $mode === 'sortie' ? -$qty : $qty, $mode, (string)input('note', '') ?: null);
     $name = (string)val('SELECT name FROM products WHERE id = ?', [$pid]);
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        json_response(['ok' => true, 'qty' => $after, 'name' => $name]);
+    }
     flash('success', ($mode === 'sortie' ? 'Sortie' : 'Entrée') . ' de ' . $qty . ' × ' . $name . ' enregistrée. Stock restant : ' . $after . '.');
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
         json_response(['ok' => true, 'qty' => $after]);

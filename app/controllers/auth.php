@@ -12,14 +12,14 @@ function auth_login(): void
         $email = mb_strtolower((string)input('email'));
         $password = (string)($_POST['password'] ?? '');
 
-        // Anti-force brute simple : 5 essais puis temporisation
-        $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
-        if ($_SESSION['login_attempts'] > 5 && (time() - ($_SESSION['login_last'] ?? 0)) < 60) {
-            $error = 'Trop de tentatives. Patientez une minute avant de réessayer.';
+        // Anti-force brute : échecs comptés en base, par compte et par adresse IP (15 minutes)
+        if (login_blocked($email)) {
+            $error = 'Trop de tentatives infructueuses. Réessayez dans 15 minutes ou utilisez « Mot de passe oublié ».';
+            audit('Connexion bloquée', 'user', null, $email);
         } else {
-            $_SESSION['login_last'] = time();
             $u = one('SELECT * FROM users WHERE email = ?', [$email]);
             if (!$u || !password_verify($password, $u['password_hash'])) {
+                login_record($email, false);
                 $error = 'Identifiants incorrects.';
             } elseif ($u['status'] === 'pending') {
                 $error = 'Votre compte est en attente de validation par un administrateur.';
@@ -29,7 +29,7 @@ function auth_login(): void
                 if (password_needs_rehash($u['password_hash'], PASSWORD_DEFAULT)) {
                     update('users', ['password_hash' => password_hash($password, PASSWORD_DEFAULT)], 'id = ?', [$u['id']]);
                 }
-                unset($_SESSION['login_attempts']);
+                login_record($email, true);
                 login_user($u);
                 redirect($u['role'] === 'admin' ? 'admin' : 'dashboard');
             }
@@ -127,4 +127,50 @@ function auth_profile(): void
         redirect('profile');
     }
     render('user/profile', ['u' => $u, 'title' => 'Mon profil']);
+}
+
+// ---------------------------------------------------------------- Mot de passe oublié
+
+function auth_forgot(): void
+{
+    $sent = false;
+    if (is_post()) {
+        $email = mb_strtolower(trim((string)input('email')));
+        // Limite : 3 demandes par 15 minutes et par adresse IP
+        $recent = (int)val("SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND email LIKE 'reset:%' AND created_at >= ?", [client_ip(), date('Y-m-d H:i:s', time() - 900)]);
+        insert('login_attempts', ['email' => 'reset:' . mb_substr($email, 0, 180), 'ip' => client_ip(), 'success' => 0, 'created_at' => now()]);
+        $u = $recent < 3 ? one("SELECT * FROM users WHERE email = ? AND status = 'active'", [$email]) : null;
+        if ($u) {
+            $token = password_reset_create($u);
+            $link = url('reset', ['token' => $token]);
+            send_mail($u['email'], 'Réinitialisation de votre mot de passe', mail_template($u, 'Réinitialisation de votre mot de passe',
+                "Vous avez demandé à réinitialiser votre mot de passe. Ce lien est valable une heure.\nSi vous n'êtes pas à l'origine de cette demande, ignorez simplement ce message.", $link));
+            audit('Mot de passe oublié', 'user', (int)$u['id']);
+        }
+        $sent = true; // même message que le compte existe ou non
+    }
+    render('auth/forgot', ['sent' => $sent, 'mailOn' => setting('mail_enabled', '0') === '1'], 'layout_auth');
+}
+
+function auth_reset(): void
+{
+    $token = (string)input('token', '');
+    $reset = password_reset_find($token);
+    $error = null;
+    if ($reset && is_post()) {
+        $p1 = (string)($_POST['password'] ?? '');
+        if (mb_strlen($p1) < 8) {
+            $error = 'Le mot de passe doit contenir au moins 8 caractères.';
+        } elseif ($p1 !== (string)($_POST['confirm'] ?? '')) {
+            $error = 'La confirmation ne correspond pas.';
+        } else {
+            update('users', ['password_hash' => password_hash($p1, PASSWORD_DEFAULT)], 'id = ?', [$reset['user_id']]);
+            update('password_resets', ['used_at' => now()], 'id = ?', [$reset['id']]);
+            q('DELETE FROM login_attempts WHERE email = ? AND success = 0', [$reset['email']]);
+            audit('Mot de passe réinitialisé', 'user', (int)$reset['user_id']);
+            flash('success', 'Mot de passe modifié. Vous pouvez vous connecter.');
+            redirect('login');
+        }
+    }
+    render('auth/reset', ['reset' => $reset, 'token' => $token, 'error' => $error], 'layout_auth');
 }

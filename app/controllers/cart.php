@@ -89,6 +89,14 @@ function cart_submit_action(): void
                 $u['first_name'] . ' ' . $u['last_name'] . ' demande : ' . implode(', ', array_map(fn($o) => $o['name'] . ($o['qty'] ? ' (× ' . $o['qty'] . ')' : ''), $off)) . '.',
                 url('admin/suggestions'));
         }
+        $req = one('SELECT * FROM requests WHERE id = ?', [$id]);
+        if ($n && $req['approval_status'] === 'pending') {
+            notify(center_manager_ids((int)$center['id'], (int)$u['id']), 'approval_needed', 'Demande à valider — ' . $u['first_name'] . ' ' . $u['last_name'],
+                'Demande n°' . $id . ' (' . $center['name'] . ') : ' . plural($n, 'article', 'articles') . ', '
+                    . money(val('SELECT SUM(qty*unit_price) FROM request_lines WHERE request_id = ?', [$id])) . ' HT.', url('approvals'));
+            flash('success', 'Votre demande n°' . $id . ' a été transmise à votre responsable de centre pour validation, puis partira au service achats.');
+            redirect('requests');
+        }
         if ($n) {
             notify(admin_ids(), 'request_new',
                 (input('urgent') === '1' ? '[URGENT] ' : '') . 'Nouvelle demande — ' . $center['name'],

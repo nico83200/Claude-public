@@ -20,7 +20,7 @@
           <?php if ($u['status'] === 'pending' && $u['requested_centers']): ?><small class="muted">Demandé : <?= e(implode(', ', array_filter(array_map(fn($id) => $centerNames[(int)$id] ?? null, explode(',', $u['requested_centers']))))) ?></small><?php endif; ?>
           <?php if ($u['role'] === 'admin'): ?><small class="muted">Tous (administrateur)</small><?php endif; ?>
         </div></td>
-        <td><?= $u['role'] === 'admin' ? '<span class="badge badge-violet">Administrateur</span>' : '<span class="badge badge-gray">Salarié</span>' ?></td>
+        <td><?= ['admin' => '<span class="badge badge-violet">Administrateur</span>', 'manager' => '<span class="badge badge-blue">Responsable</span>'][$u['role']] ?? '<span class="badge badge-gray">Salarié</span>' ?></td>
         <td><?= ['pending' => '<span class="badge badge-pink">À valider</span>', 'active' => '<span class="badge badge-green">Actif</span>', 'disabled' => '<span class="badge badge-gray">Désactivé</span>'][$u['status']] ?? e($u['status']) ?></td>
         <td class="nowrap"><small><?= date_fr($u['last_login'], true) ?></small></td>
         <td><a class="btn btn-sm <?= $u['status'] === 'pending' ? 'btn-primary' : '' ?>" href="<?= url('admin/user', ['id' => $u['id']]) ?>"><?= $u['status'] === 'pending' ? 'Valider' : 'Modifier' ?></a></td>

@@ -12,7 +12,9 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
     <p><strong><?= e($po['supplier_name']) ?></strong> → <?= e($po['center_name']) ?> · créé le <?= date_fr($po['created_at'], true) ?><?= $po['creator_first'] ? ' par ' . e($po['creator_first'] . ' ' . $po['creator_last']) : '' ?></p>
   </div>
   <div class="row row-wrap">
-    <a class="btn" href="<?= url('admin/order/print', ['id' => $po['id']]) ?>" target="_blank"><?= icon('printer', 18) ?> Imprimer / PDF</a>
+    <?php if ($po['group_ref']): ?><a class="btn" href="<?= url('admin/order-group', ['ref' => $po['group_ref']]) ?>"><?= icon('layers', 18) ?> Groupe <?= e($po['group_ref']) ?></a><?php endif; ?>
+    <a class="btn" href="<?= url('admin/order/pdf', ['id' => $po['id']]) ?>" target="_blank"><?= icon('file', 18) ?> PDF</a>
+    <a class="btn" href="<?= url('admin/order/print', ['id' => $po['id']]) ?>" target="_blank"><?= icon('printer', 18) ?> Imprimer</a>
     <a class="btn" href="<?= url('admin/order/csv', ['id' => $po['id']]) ?>"><?= icon('download', 18) ?> CSV</a>
     <?php if ($po['supplier_email']): ?>
       <a class="btn" href="mailto:<?= e($po['supplier_email']) ?>?subject=<?= rawurlencode('Commande ' . $po['po_number'] . ' — ' . $po['center_name']) ?>&body=<?= rawurlencode("Bonjour,\n\nVeuillez trouver ci-joint notre bon de commande " . $po['po_number'] . ($po['customer_number'] ? ' (n° client ' . $po['customer_number'] . ')' : '') . " pour une livraison à :\n" . $po['center_name'] . "\n" . $po['center_address'] . ' ' . $po['center_city'] . "\n\nCordialement,\n" . user()['first_name'] . ' ' . user()['last_name']) ?>"><?= icon('mail', 18) ?> E-mail</a>
@@ -105,12 +107,22 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
       <div class="card-head"><h3><?= icon('activity', 18) ?> Actions</h3></div>
       <div class="card-body">
         <?php if ($po['status'] === 'a_commander'): ?>
+          <?php if ($po['group_ref']): ?><div class="flash flash-info" style="font-size:.85rem"><?= icon('layers', 18) ?><div>Ce bon fait partie de la commande groupée <a href="<?= url('admin/order-group', ['ref' => $po['group_ref']]) ?>"><?= e($po['group_ref']) ?></a> : envoyez-la depuis la page du groupe.</div></div><?php endif; ?>
+          <form method="post" action="<?= url('admin/order/send', ['id' => $po['id']]) ?>" class="mb-2" style="padding-bottom:1rem;border-bottom:1px solid var(--border)">
+            <?= csrf_field() ?>
+            <label><?= icon('send', 15) ?> Envoyer le bon (PDF) au fournisseur</label>
+            <input type="email" name="to" value="<?= e($po['supplier_email']) ?>" required placeholder="adresse de commande du fournisseur" class="mb-1">
+            <label class="check" style="font-weight:500"><input type="checkbox" name="mark_ordered" value="1" checked> et passer le bon en « Commandé »</label>
+            <label class="check" style="font-weight:500"><input type="checkbox" name="cc_me" value="1"> m'envoyer une copie</label>
+            <button class="btn btn-blue" style="width:100%" type="submit"><?= icon('send', 16) ?> Envoyer par e-mail</button>
+            <?php if ($po['sent_to_supplier_at']): ?><small class="muted">Déjà envoyé le <?= date_fr($po['sent_to_supplier_at'], true) ?></small><?php endif; ?>
+          </form>
           <?php if (!$minOk): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 18) ?><div>Minimum de commande fournisseur : <?= money($po['min_order_amount']) ?> (il manque <?= money((float)$po['min_order_amount'] - $totals['total']) ?>).</div></div><?php endif; ?>
           <form method="post" action="<?= url('admin/order/status', ['id' => $po['id']]) ?>">
             <?= csrf_field() ?><input type="hidden" name="to" value="commande">
             <div class="field"><label>Réf. de commande fournisseur (optionnel)</label><input type="text" name="supplier_reference" placeholder="N° de confirmation, de panier web…"></div>
             <div class="field"><label>Livraison prévue le</label><input type="date" name="expected_date"></div>
-            <button class="btn btn-blue btn-lg" style="width:100%" type="submit"><?= icon('send', 18) ?> Marquer « Commandé »</button>
+            <button class="btn btn-lg" style="width:100%" type="submit"><?= icon('check', 18) ?> Commandé par un autre moyen</button>
           </form>
           <p class="muted mt-1" style="font-size:.82rem">Une fois commandé, le centre pourra cocher les articles reçus.</p>
         <?php elseif (in_array($po['status'], ['commande', 'partiel'], true)): ?>
@@ -145,6 +157,26 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
         <?php endif; ?>
       </div>
     </div>
+
+    <?php if (in_array($po['status'], ['commande', 'partiel', 'recu'], true)): $inv = invoice_check($po); ?>
+    <form method="post" action="<?= url('admin/order/invoice', ['id' => $po['id']]) ?>" enctype="multipart/form-data" class="card" id="facture">
+      <?= csrf_field() ?>
+      <div class="card-head"><h3><?= icon('euro', 18) ?> Facture</h3><?= invoice_badge($inv['status']) ?></div>
+      <div class="card-body">
+        <div class="row mb-1" style="justify-content:space-between;font-size:.85rem"><span class="muted">Commandé</span><strong><?= money($inv['ordered']) ?></strong></div>
+        <div class="row mb-2" style="justify-content:space-between;font-size:.85rem"><span class="muted">Reçu (attendu sur facture)</span><strong><?= money($inv['expected']) ?></strong></div>
+        <?php if ($inv['diff'] !== null && $inv['status'] === 'ecart'): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 16) ?><div>Écart de <?= money($inv['diff']) ?> : vérifiez les quantités livrées et les prix facturés.</div></div><?php endif; ?>
+        <div class="form-grid">
+          <div class="field"><label>N° de facture</label><input type="text" name="invoice_number" value="<?= e($po['invoice_number']) ?>"></div>
+          <div class="field"><label>Date</label><input type="date" name="invoice_date" value="<?= e($po['invoice_date']) ?>"></div>
+        </div>
+        <div class="field"><label>Montant HT facturé (€)</label><input type="text" name="invoice_amount" value="<?= $po['invoice_amount'] !== null ? e(number_format((float)$po['invoice_amount'], 2, ',', '')) : '' ?>" inputmode="decimal" placeholder="<?= e(number_format($inv['expected'], 2, ',', '')) ?>"></div>
+        <div class="field"><label>Justificatif (PDF ou photo)</label><input type="file" name="invoice_file" accept="application/pdf,image/*">
+          <?php if ($po['invoice_file']): ?><small><a href="<?= url('admin/order/invoice-file', ['id' => $po['id']]) ?>" target="_blank"><?= icon('file', 13) ?> Voir la facture enregistrée</a></small><?php endif; ?></div>
+        <button class="btn btn-primary" type="submit"><?= icon('check', 16) ?> Enregistrer et rapprocher</button>
+      </div>
+    </form>
+    <?php endif; ?>
 
     <div class="card">
       <div class="card-head"><h3><?= icon('truck', 18) ?> Fournisseur</h3></div>

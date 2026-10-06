@@ -14,6 +14,7 @@ const PO_STATUSES = [
 ];
 
 const LINE_STATUSES = [
+    'awaiting'  => ['label' => 'À valider (responsable)', 'color' => 'pink'],
     'pending'   => ['label' => 'En attente',     'color' => 'amber'],
     'in_po'     => ['label' => 'Bon de commande', 'color' => 'blue'],
     'cancelled' => ['label' => 'Refusée',        'color' => 'gray'],
@@ -30,6 +31,9 @@ function request_line_status(array $l): array
 {
     if ($l['status'] === 'cancelled') {
         return ['label' => 'Refusée', 'color' => 'gray'];
+    }
+    if ($l['status'] === 'awaiting') {
+        return ['label' => 'À valider par le responsable', 'color' => 'pink'];
     }
     if ($l['status'] === 'pending' || empty($l['po_status'])) {
         return ['label' => 'En attente', 'color' => 'amber'];
@@ -153,16 +157,20 @@ function cart_submit(int $userId, int $centerId, string $comment, bool $urgent):
         if (!$items && !$offCatalog) {
             throw new RuntimeException('Le panier est vide.');
         }
+        // Au-delà du seuil paramétré, la demande passe d'abord par le responsable du centre
+        $total = array_sum(array_map(fn($it) => effective_price($it) * (int)$it['qty'], $items));
+        $approval = $items && request_needs_approval($centerId, $userId, $total);
         $requestId = insert('requests', [
             'center_id' => $centerId, 'user_id' => $userId,
             'comment' => $comment ?: null, 'urgent' => $urgent ? 1 : 0, 'created_at' => now(),
+            'approval_status' => $approval ? 'pending' : null,
         ]);
         foreach ($items as $it) {
             insert('request_lines', [
                 'request_id' => $requestId, 'center_id' => $centerId,
                 'product_id' => $it['product_id'], 'supplier_id' => $it['supplier_id'],
                 'qty' => $it['qty'], 'unit_price' => effective_price($it),
-                'comment' => $it['comment'], 'status' => 'pending', 'created_at' => now(),
+                'comment' => $it['comment'], 'status' => $approval ? 'awaiting' : 'pending', 'created_at' => now(),
             ]);
         }
         q('DELETE FROM cart_items WHERE user_id = ? AND center_id = ?', [$userId, $centerId]);

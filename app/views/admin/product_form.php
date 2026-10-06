@@ -20,6 +20,9 @@
         </div>
         <div class="field"><label>Conditionnement</label><input type="text" name="unit" value="<?= $v('unit') ?>" placeholder="ex : boîte de 100"></div>
         <div class="field full"><label>Descriptif</label><textarea name="description" rows="4"><?= $v('description') ?></textarea></div>
+        <div class="field full"><label>Groupe d'équivalence (comparateur)</label><input type="text" name="compare_group" value="<?= $v('compare_group') ?>" placeholder="ex : gants-nitrile-m — même valeur pour le même produit chez d'autres fournisseurs" list="compare-groups">
+          <datalist id="compare-groups"><?php foreach (all("SELECT DISTINCT compare_group FROM products WHERE compare_group IS NOT NULL AND compare_group <> '' ORDER BY compare_group") as $cg): ?><option value="<?= e($cg['compare_group']) ?>"><?php endforeach; ?></datalist>
+          <small>Les articles d'un même groupe (ou de même code-barres) sont comparés et les demandes peuvent basculer vers le moins cher.</small></div>
         <div class="field full"><label>Mots-clés de recherche</label><input type="text" name="keywords" value="<?= $v('keywords') ?>" placeholder="synonymes, marques, usages : ex. latex free, examen, soins"><small>Aident le moteur de recherche à trouver l'article même avec d'autres mots.</small></div>
       </div>
     </div>
@@ -51,3 +54,25 @@
     </div>
   </div>
 </form>
+<?php if (!empty($p['id'])): $hist = all('SELECT h.*, u.first_name, u.last_name FROM price_history h LEFT JOIN users u ON u.id = h.user_id WHERE h.product_id = ? ORDER BY h.created_at DESC, h.id DESC LIMIT 20', [$p['id']]); $eqs = product_equivalents($p); ?>
+<div class="grid grid-2 mt-3">
+  <div class="card">
+    <div class="card-head"><h3><?= icon('chart', 18) ?> Historique des prix</h3></div>
+    <?php if ($hist): ?><div class="table-wrap"><table class="table">
+      <thead><tr><th>Date</th><th class="num">Catalogue</th><th class="num">Négocié</th><th>Origine</th></tr></thead>
+      <tbody><?php foreach ($hist as $i => $h): $prev = $hist[$i + 1] ?? null; $eff = fn($r) => $r['negotiated_price'] !== null && (float)$r['negotiated_price'] > 0 ? (float)$r['negotiated_price'] : (float)$r['catalog_price']; $up = $prev && $eff($h) > $eff($prev) + 0.004; $down = $prev && $eff($h) < $eff($prev) - 0.004; ?>
+        <tr><td class="nowrap"><small><?= date_fr($h['created_at'], true) ?></small></td><td class="num"><?= money($h['catalog_price']) ?></td>
+          <td class="num strong" style="color:<?= $up ? 'var(--red)' : ($down ? 'var(--green)' : 'inherit') ?>"><?= $h['negotiated_price'] !== null ? money($h['negotiated_price']) : '—' ?> <?= $up ? '▲' : ($down ? '▼' : '') ?></td>
+          <td><small><?= e($h['source']) ?><?= $h['first_name'] ? ' · ' . e($h['first_name']) : '' ?></small></td></tr>
+      <?php endforeach; ?></tbody>
+    </table></div><?php else: ?><div class="empty"><p>Pas encore d'historique.</p></div><?php endif; ?>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3><?= icon('layers', 18) ?> Équivalents chez d'autres fournisseurs</h3></div>
+    <?php if ($eqs): ?><ul class="list"><?php foreach ($eqs as $q): ?>
+      <li><span class="dot" style="background:<?= e($q['supplier_color']) ?>"></span><div class="grow"><a class="title" href="<?= url('admin/product', ['id' => $q['id']]) ?>"><?= e($q['name']) ?></a><small><?= e($q['supplier_name']) ?> · <?= e($q['unit']) ?></small></div>
+        <strong style="color:<?= effective_price($q) < effective_price($p) ? 'var(--green)' : 'inherit' ?>"><?= money(effective_price($q)) ?></strong></li>
+    <?php endforeach; ?></ul><?php else: ?><div class="card-body"><small class="muted">Aucun équivalent : renseignez un groupe d'équivalence pour comparer.</small></div><?php endif; ?>
+  </div>
+</div>
+<?php endif; ?>
