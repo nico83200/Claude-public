@@ -23,26 +23,84 @@ function admin_center_edit(): void
         abort(404);
     }
     if (is_post()) {
+        $txt = fn(string $k, int $max = 255) => mb_substr(trim((string)input($k, '')), 0, $max) ?: null;
         $data = [
-            'name' => (string)input('name'),
-            'code' => (string)input('code') ?: null,
-            'address' => (string)input('address') ?: null,
-            'city' => (string)input('city') ?: null,
-            'phone' => (string)input('phone') ?: null,
-            'delivery_info' => (string)input('delivery_info') ?: null,
+            'name' => (string)$txt('name', 150),
+            'code' => $txt('code', 20),
+            'legal_name' => $txt('legal_name', 200),
+            'contact_name' => $txt('contact_name', 150),
+            'email' => $txt('email', 190),
+            'phone' => $txt('phone', 40),
+            'address' => $txt('address'),
+            'address2' => $txt('address2'),
+            'city' => $txt('city', 120),
+            'delivery_info' => $txt('delivery_info', 2000),
+            'billing_same' => input('billing_same') === '1' ? 1 : 0,
+            'billing_name' => $txt('billing_name', 200),
+            'billing_address' => $txt('billing_address'),
+            'billing_city' => $txt('billing_city', 120),
+            'billing_email' => $txt('billing_email', 190),
+            'billing_notes' => $txt('billing_notes', 2000),
+            'siren' => digits_only(input('siren')) ?: null,
+            'siret' => digits_only(input('siret')) ?: null,
+            'finess' => strtoupper(preg_replace('/\s+/', '', (string)input('finess'))) ?: null,
+            'vat_number' => strtoupper(preg_replace('/\s+/', '', (string)input('vat_number'))) ?: null,
             'color' => preg_match('/^#[0-9a-f]{6}$/i', (string)input('color')) ? input('color') : '#6366f1',
             'active' => input('active') === '1' ? 1 : 0,
         ];
+        // SIREN déduit du SIRET, TVA calculée à partir du SIREN si non renseignés
+        if (!$data['siren'] && $data['siret'] && strlen($data['siret']) === 14) {
+            $data['siren'] = substr($data['siret'], 0, 9);
+        }
+        if (!$data['vat_number'] && $data['siren'] && siren_valid($data['siren'])) {
+            $data['vat_number'] = vat_from_siren($data['siren']);
+        }
+        $errors = [];
         if ($data['name'] === '') {
-            flash('error', 'Le nom du centre est obligatoire.');
-        } else {
-            if ($id) {
-                update('centers', $data, 'id = ?', [$id]);
-            } else {
-                insert('centers', $data + ['created_at' => now()]);
+            $errors[] = 'Le nom du centre est obligatoire.';
+        }
+        foreach (['email' => 'E-mail du centre', 'billing_email' => 'E-mail de facturation'] as $k => $l) {
+            if ($data[$k] && !filter_var($data[$k], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = $l . ' invalide.';
             }
-            flash('success', 'Centre enregistré.');
+        }
+        if ($data['siren'] && !siren_valid($data['siren'])) {
+            $errors[] = 'SIREN invalide (9 chiffres, clé de contrôle incorrecte).';
+        }
+        if ($data['siret'] && !siret_valid($data['siret'])) {
+            $errors[] = 'SIRET invalide (14 chiffres, clé de contrôle incorrecte).';
+        } elseif ($data['siret'] && $data['siren'] && !str_starts_with($data['siret'], $data['siren'])) {
+            $errors[] = 'Le SIRET doit commencer par le SIREN.';
+        }
+        if ($data['finess'] && !finess_valid($data['finess'])) {
+            $errors[] = 'N° FINESS invalide (9 caractères : département puis 7 chiffres).';
+        }
+        if ($data['vat_number'] && !preg_match('/^[A-Z]{2}[0-9A-Z]{2,13}$/', $data['vat_number'])) {
+            $errors[] = 'N° de TVA intracommunautaire invalide.';
+        } elseif ($data['vat_number'] && $data['siren'] && str_starts_with($data['vat_number'], 'FR') && $data['vat_number'] !== vat_from_siren($data['siren'])) {
+            $errors[] = 'Le n° de TVA ne correspond pas au SIREN (attendu : ' . vat_from_siren($data['siren']) . ').';
+        }
+        if (!$data['billing_same'] && (!$data['billing_address'] || !$data['billing_city'])) {
+            $errors[] = 'Adresse de facturation incomplète (ou cochez « identique à l\'adresse de livraison »).';
+        }
+        if (!$errors) {
+            if ($id) {
+                $before = one('SELECT * FROM centers WHERE id = ?', [$id]);
+                update('centers', $data, 'id = ?', [$id]);
+                if ($diff = audit_diff($before, $data, ['name' => 'Nom', 'legal_name' => 'Raison sociale', 'siren' => 'SIREN', 'siret' => 'SIRET',
+                    'finess' => 'FINESS', 'vat_number' => 'TVA', 'address' => 'Adresse', 'city' => 'Ville', 'billing_address' => 'Adresse de facturation',
+                    'billing_city' => 'Ville de facturation', 'billing_email' => 'E-mail facturation', 'email' => 'E-mail', 'phone' => 'Téléphone', 'active' => 'Actif'])) {
+                    audit('Centre modifié', 'center', $id, $data['name'] . ' — ' . $diff);
+                }
+            } else {
+                $id = insert('centers', $data + ['created_at' => now()]);
+                audit('Centre créé', 'center', $id, $data['name']);
+            }
+            flash('success', 'Centre « ' . $data['name'] . ' » enregistré.');
             redirect('admin/centers');
+        }
+        foreach ($errors as $err) {
+            flash('error', $err);
         }
         $c = array_merge($c ?? [], $data);
     }
@@ -250,6 +308,18 @@ function admin_settings(): void
             flash('success', 'Cache de l\'assistant IA vidé.');
             redirect('admin/settings');
         } else {
+            try {
+                if (input('logo_remove') === '1') {
+                    brand_logo_delete();
+                    audit('Logo supprimé', 'settings');
+                }
+                if (!empty($_FILES['logo']['name'])) {
+                    brand_logo_save('logo');
+                    audit('Logo modifié', 'settings');
+                }
+            } catch (RuntimeException $e) {
+                flash('error', $e->getMessage());
+            }
             set_setting('app_name', (string)input('app_name') ?: 'Commandes Centres');
             set_setting('company_name', (string)input('company_name'));
             set_setting('company_address', (string)input('company_address'));

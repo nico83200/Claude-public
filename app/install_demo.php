@@ -282,6 +282,26 @@ function install_demo_data(int $adminId): void
         update('purchase_orders', ['invoice_number' => 'F' . (2026100 + $i), 'invoice_date' => date('Y-m-d', strtotime($po['received_at'])), 'invoice_amount' => $amount,
             'invoice_status' => $i === 0 ? 'ok' : 'ecart'], 'id = ?', [$po['id']]);
     }
+    // v1.4 : identité légale des centres (numéros fictifs au format valide)
+    $luhnKey = function (string $base): string {
+        for ($k = 0; $k <= 9; $k++) {
+            if (luhn_valid($base . $k)) {
+                return $base . $k;
+            }
+        }
+        return $base . '0';
+    };
+    $siren = $luhnKey('99112233');
+    foreach ([[0, '00011', 'Sophie Martin', 'tilleuls@demo.fr', 0], [1, '00029', 'Nadia Haddad', 'port@demo.fr', 1], [2, '00037', 'Marc Lopez', 'lagarde@demo.fr', 1]] as [$i, $nic, $contact, $mail, $same]) {
+        $siret = $luhnKey($siren . substr($nic, 0, 4));
+        update('centers', [
+            'legal_name' => 'Groupe de Centres de Santé (démo)', 'contact_name' => $contact, 'email' => $mail,
+            'siren' => $siren, 'siret' => $siret, 'vat_number' => vat_from_siren($siren), 'finess' => '83' . str_pad((string)(1000001 + $i * 17), 7, '0', STR_PAD_LEFT),
+            'billing_same' => $same, 'billing_name' => $same ? null : 'Groupe de Centres de Santé — Service comptabilité',
+            'billing_address' => $same ? null : '1 place de la Liberté', 'billing_city' => $same ? null : '83000 Toulon',
+            'billing_email' => 'compta@demo.fr', 'billing_notes' => 'Rappeler le numéro du bon de commande sur la facture',
+        ], 'id = ?', [$centerIds[$i]]);
+    }
     q('DELETE FROM notifications');
     insert('settings', ['skey' => 'company_name', 'svalue' => 'Groupe de Centres de Santé (démo)']);
     insert('settings', ['skey' => 'company_address', 'svalue' => "Service achats\n1 place de la Liberté\n83000 Toulon"]);

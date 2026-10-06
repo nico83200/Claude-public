@@ -1,10 +1,21 @@
 <h1 class="mb-2">Paramètres</h1>
 <?php if ($test): ?><div class="flash flash-<?= $test['ok'] ? 'success' : 'error' ?>"><?= icon($test['ok'] ? 'sparkles' : 'alert') ?><div><?= e($test['msg']) ?></div></div><?php endif; ?>
 <div class="grid grid-2">
-  <form method="post" class="card">
+  <form method="post" class="card" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <div class="card-head"><h2><?= icon('settings') ?> Général</h2></div>
     <div class="card-body">
+      <div class="field">
+        <label>Logo de l'entreprise</label>
+        <div class="logo-setting">
+          <div class="logo-preview"><?php if ($logo = brand_logo_url()): ?><img src="<?= e($logo) ?>" alt="Logo actuel" id="logo-preview"><?php else: ?><img id="logo-preview" class="hidden" alt=""><span class="muted" id="logo-empty">Aucun logo</span><?php endif; ?></div>
+          <div style="flex:1">
+            <input type="file" name="logo" accept="image/png,image/jpeg,image/webp" data-preview="#logo-preview" data-no-shrink>
+            <small>PNG à fond transparent recommandé (JPEG ou WEBP acceptés). Affiché dans le menu, sur la page de connexion, les bons de commande et les e-mails.</small>
+            <?php if (brand_logo_url()): ?><label class="check mt-1" style="font-weight:500"><input type="checkbox" name="logo_remove" value="1"> Supprimer le logo</label><?php endif; ?>
+          </div>
+        </div>
+      </div>
       <div class="field"><label>Nom de l'application</label><input type="text" name="app_name" value="<?= e(app_name()) ?>"></div>
       <div class="field"><label>Raison sociale (bons de commande)</label><input type="text" name="company_name" value="<?= e(setting('company_name')) ?>"></div>
       <div class="field"><label>Adresse du siège</label><textarea name="company_address" rows="2"><?= e(setting('company_address')) ?></textarea></div>

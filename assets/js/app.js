@@ -212,13 +212,14 @@
   $$('[data-toggle-target]').forEach((r) => {
     r.addEventListener('change', () => {
       const t = $(r.dataset.toggleTarget);
-      t && t.classList.toggle('hidden', r.type === 'checkbox' ? !r.checked : r.hasAttribute('data-toggle-hide'));
+      const hide = r.type === 'checkbox' ? (r.hasAttribute('data-invert') ? r.checked : !r.checked) : r.hasAttribute('data-toggle-hide');
+      t && t.classList.toggle('hidden', hide);
     });
   });
   $$('input[type=file][data-preview]').forEach((inp) => {
     inp.addEventListener('change', () => {
       const img = $(inp.dataset.preview);
-      if (img && inp.files[0]) { img.src = URL.createObjectURL(inp.files[0]); img.classList.remove('hidden'); }
+      if (img && inp.files[0]) { img.src = URL.createObjectURL(inp.files[0]); img.classList.remove('hidden'); const em = document.getElementById('logo-empty'); em && em.remove(); }
     });
   });
 
@@ -503,7 +504,7 @@
   document.addEventListener('change', async (e) => {
     const inp = e.target;
     if (!(inp instanceof HTMLInputElement) || inp.type !== 'file' || !inp.files.length || inp.dataset.shrunk === '1') return;
-    if (!/image/.test(inp.accept || '')) return;
+    if (!/image/.test(inp.accept || '') || inp.hasAttribute('data-no-shrink')) return;
     const f = inp.files[0];
     if (!f.type.startsWith('image/')) return;
     const form = inp.form; const btns = form ? $$('button[type=submit]', form) : [];
@@ -599,4 +600,42 @@
       go.disabled = false;
     });
   }
+})();
+
+/* =====================================================================
+   v1.4 — Fiche centre : contrôle des SIREN / SIRET / TVA pendant la saisie
+   ===================================================================== */
+(function () {
+  'use strict';
+  const siret = document.getElementById('siret');
+  if (!siret) return;
+  const siren = document.getElementById('siren');
+  const vat = document.getElementById('vat_number');
+  const digits = (s) => (s || '').replace(/\D+/g, '');
+  const luhn = (d) => { let sum = 0, alt = false; for (let i = d.length - 1; i >= 0; i--) { let n = +d[i]; if (alt) { n *= 2; if (n > 9) n -= 9; } sum += n; alt = !alt; } return sum % 10 === 0; };
+  const vatFrom = (s) => 'FR' + String((12 + 3 * (Number(s) % 97)) % 97).padStart(2, '0') + s;
+  const msg = (k, ok, text) => { const m = document.querySelector('[data-legal-msg="' + k + '"]'); if (m) { m.textContent = text; m.style.color = ok ? 'var(--green)' : 'var(--red)'; } };
+  const checkSiret = () => {
+    const d = digits(siret.value);
+    if (!d) return msg('siret', true, '');
+    if (d.length !== 14) return msg('siret', false, d.length + ' chiffres sur 14');
+    const ok = (d.startsWith('356000000') && [...d].reduce((a, c) => a + +c, 0) % 5 === 0) || luhn(d);
+    msg('siret', ok, ok ? '✓ SIRET valide' : '✗ clé de contrôle incorrecte');
+    if (ok && !digits(siren.value)) { siren.value = d.slice(0, 9); checkSiren(); }
+  };
+  const checkSiren = () => {
+    const d = digits(siren.value);
+    if (!d) return msg('siren', true, '');
+    if (d.length !== 9) return msg('siren', false, d.length + ' chiffres sur 9');
+    const ok = luhn(d);
+    msg('siren', ok, ok ? '✓ SIREN valide' : '✗ clé de contrôle incorrecte');
+    if (ok && !vat.value) vat.value = vatFrom(d);
+  };
+  siret.addEventListener('input', checkSiret);
+  siren.addEventListener('input', checkSiren);
+  checkSiret(); checkSiren();
+  document.querySelector('[data-vat-from-siren]').addEventListener('click', () => {
+    const d = digits(siren.value);
+    if (d.length === 9 && luhn(d)) vat.value = vatFrom(d); else msg('siren', false, 'Saisissez d\'abord un SIREN valide');
+  });
 })();

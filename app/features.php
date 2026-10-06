@@ -449,3 +449,160 @@ function mask_secret(string $s): string
     }
     return mb_substr($s, 0, 7) . '…' . mb_substr($s, -4);
 }
+
+// ---------------------------------------------------------------- Identifiants légaux (SIREN, SIRET, FINESS, TVA)
+
+function digits_only(?string $s): string
+{
+    return preg_replace('/\D+/', '', (string)$s) ?? '';
+}
+
+/** Clé de Luhn (utilisée par les numéros SIREN et SIRET). */
+function luhn_valid(string $digits): bool
+{
+    $sum = 0;
+    $alt = false;
+    for ($i = strlen($digits) - 1; $i >= 0; $i--) {
+        $d = (int)$digits[$i];
+        if ($alt) {
+            $d *= 2;
+            if ($d > 9) {
+                $d -= 9;
+            }
+        }
+        $sum += $d;
+        $alt = !$alt;
+    }
+    return $sum % 10 === 0;
+}
+
+function siren_valid(string $siren): bool
+{
+    return (bool)preg_match('/^\d{9}$/', $siren) && luhn_valid($siren);
+}
+
+function siret_valid(string $siret): bool
+{
+    if (!preg_match('/^\d{14}$/', $siret)) {
+        return false;
+    }
+    // Exception La Poste : ses établissements ont une somme de chiffres multiple de 5 (le siège suit la clé de Luhn)
+    if (str_starts_with($siret, '356000000') && array_sum(str_split($siret)) % 5 === 0) {
+        return true;
+    }
+    return luhn_valid($siret);
+}
+
+/** N° FINESS : 9 caractères, département (dont 2A/2B) puis 7 chiffres. */
+function finess_valid(string $f): bool
+{
+    return (bool)preg_match('/^(\d{2}|2A|2B)\d{7}$/', strtoupper($f));
+}
+
+/** N° de TVA intracommunautaire français calculé à partir du SIREN. */
+function vat_from_siren(string $siren): string
+{
+    return 'FR' . str_pad((string)((12 + 3 * ((int)$siren % 97)) % 97), 2, '0', STR_PAD_LEFT) . $siren;
+}
+
+/** Coordonnées de facturation d'un centre (adresse de livraison si identique). */
+function center_billing(array $c): array
+{
+    $same = (int)($c['billing_same'] ?? 1) === 1;
+    return [
+        'name' => ($same ? null : ($c['billing_name'] ?? null)) ?: ($c['legal_name'] ?? null) ?: $c['name'],
+        'address' => $same ? trim(($c['address'] ?? '') . ' ' . ($c['address2'] ?? '')) : (string)($c['billing_address'] ?? ''),
+        'city' => $same ? (string)($c['city'] ?? '') : (string)($c['billing_city'] ?? ''),
+        'email' => ($c['billing_email'] ?? null) ?: ($c['email'] ?? null),
+        'notes' => $c['billing_notes'] ?? null,
+        'siret' => $c['siret'] ?? null, 'vat' => $c['vat_number'] ?? null, 'finess' => $c['finess'] ?? null,
+        'same' => $same,
+    ];
+}
+
+// ---------------------------------------------------------------- Logo de l'entreprise
+
+function brand_dir(): string
+{
+    $d = ROOT . '/uploads/brand';
+    if (!is_dir($d)) {
+        @mkdir($d, 0755, true);
+    }
+    if (!is_file($d . '/.htaccess') && is_file(ROOT . '/uploads/products/.htaccess')) {
+        @copy(ROOT . '/uploads/products/.htaccess', $d . '/.htaccess');
+    }
+    return $d;
+}
+
+/** URL relative du logo (ou null s'il n'y en a pas). */
+function brand_logo_url(): ?string
+{
+    $f = setting('brand_logo');
+    return ($f && is_file(ROOT . '/uploads/brand/' . basename($f))) ? 'uploads/brand/' . rawurlencode(basename($f)) . '?v=' . substr(md5($f), 0, 6) : null;
+}
+
+/** Version JPEG du logo (fond blanc) pour les documents PDF. */
+function brand_logo_pdf_path(): ?string
+{
+    $f = setting('brand_logo_pdf');
+    $p = $f ? ROOT . '/uploads/brand/' . basename($f) : null;
+    return $p && is_file($p) ? $p : null;
+}
+
+/** Enregistre un nouveau logo (PNG, JPEG, WEBP) et prépare sa version PDF. */
+function brand_logo_save(string $field): void
+{
+    $f = $_FILES[$field] ?? null;
+    if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) {
+        return;
+    }
+    if ($f['error'] !== UPLOAD_ERR_OK || $f['size'] > 3 * 1024 * 1024) {
+        throw new RuntimeException('Envoi du logo impossible (3 Mo maximum).');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    $ext = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp'][$mime] ?? null;
+    $info = @getimagesize($f['tmp_name']);
+    if (!$ext || !$info) {
+        throw new RuntimeException('Format de logo non pris en charge : utilisez un PNG (idéalement à fond transparent), un JPEG ou un WEBP.');
+    }
+    $src = match ($ext) {
+        'png' => @imagecreatefrompng($f['tmp_name']),
+        'jpg' => @imagecreatefromjpeg($f['tmp_name']),
+        default => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($f['tmp_name']) : false,
+    };
+    if (!$src) {
+        throw new RuntimeException('Logo illisible.');
+    }
+    $dir = brand_dir();
+    $id = date('Ymd-His') . '-' . bin2hex(random_bytes(3));
+    // Version écran : PNG transparent, 800 px de large au maximum
+    [$w, $h] = [imagesx($src), imagesy($src)];
+    $ratio = min(1, 800 / max($w, $h));
+    $nw = max(1, (int)round($w * $ratio));
+    $nh = max(1, (int)round($h * $ratio));
+    $screen = imagecreatetruecolor($nw, $nh);
+    imagealphablending($screen, false);
+    imagesavealpha($screen, true);
+    imagefill($screen, 0, 0, imagecolorallocatealpha($screen, 255, 255, 255, 127));
+    imagecopyresampled($screen, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+    imagepng($screen, "$dir/logo-$id.png", 9);
+    // Version PDF : JPEG sur fond blanc
+    $pdf = imagecreatetruecolor($nw, $nh);
+    imagefill($pdf, 0, 0, imagecolorallocate($pdf, 255, 255, 255));
+    imagecopyresampled($pdf, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+    imageinterlace($pdf, false);
+    imagejpeg($pdf, "$dir/logo-$id-pdf.jpg", 92);
+    brand_logo_delete();
+    set_setting('brand_logo', "logo-$id.png");
+    set_setting('brand_logo_pdf', "logo-$id-pdf.jpg");
+}
+
+function brand_logo_delete(): void
+{
+    foreach (['brand_logo', 'brand_logo_pdf'] as $k) {
+        if ($f = setting($k)) {
+            @unlink(ROOT . '/uploads/brand/' . basename($f));
+        }
+        set_setting($k, null);
+    }
+}

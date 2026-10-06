@@ -6,3 +6,5 @@
 !/uploads/products/.htaccess
 .DS_Store
 /dist/
+/uploads/brand/*
+!/uploads/brand/.htaccess

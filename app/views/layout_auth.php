@@ -12,10 +12,14 @@
 <body>
 <div class="auth-wrap">
   <section class="auth-side">
+    <?php if (function_exists('brand_logo_url') && ($logo = brand_logo_url())): ?>
+    <div class="auth-logo"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></div>
+    <?php else: ?>
     <div class="brand" style="padding:0;position:relative;z-index:1">
       <div class="brand-logo" style="background:rgba(255,255,255,.25);box-shadow:none"><?= icon('cart', 20) ?></div>
       <div><?= e(app_name()) ?></div>
     </div>
+    <?php endif; ?>
     <div>
       <h1>Les commandes de vos centres, simplement.</h1>
       <p style="opacity:.9;max-width:440px;position:relative;z-index:1">Trouvez le bon produit en quelques secondes, suivez vos demandes et confirmez vos livraisons.</p>
@@ -29,6 +33,7 @@
   </section>
   <main class="auth-main">
     <div class="auth-card">
+      <?php if (function_exists('brand_logo_url') && ($logo = brand_logo_url())): ?><img class="auth-logo-mobile" src="<?= e($logo) ?>" alt=""><?php endif; ?>
       <?php foreach (flashes() as $f): ?>
         <div class="flash flash-<?= e($f['type']) ?>"><?= e($f['message']) ?></div>
       <?php endforeach; ?>

@@ -26,6 +26,7 @@
     <div>Date : <?= date_fr($po['ordered_at'] ?: $po['created_at']) ?></div>
   </div>
   <div style="text-align:right">
+    <?php if ($logo = brand_logo_url()): ?><img src="<?= e($logo) ?>" alt="" style="max-height:70px;max-width:180px;margin-bottom:6px"><br><?php endif; ?>
     <strong style="font-size:16px"><?= e(setting('company_name') ?: app_name()) ?></strong><br>
     <?= nl2br(e(setting('company_address') ?: '')) ?>
   </div>
@@ -41,10 +42,22 @@
   <div class="box">
     <div class="label">Adresse de livraison</div>
     <strong><?= e($po['center_name']) ?></strong><br>
-    <?= e($po['center_address']) ?><br><?= e($po['center_city']) ?><br>
+    <?php $cx = one('SELECT address2, contact_name, email FROM centers WHERE id = ?', [$po['center_id']]); ?>
+    <?= e($po['center_address']) ?><br>
+    <?php if ($cx['address2']): ?><?= e($cx['address2']) ?><br><?php endif; ?>
+    <?= e($po['center_city']) ?><br>
+    <?php if ($cx['contact_name']): ?>Contact : <?= e($cx['contact_name']) ?><br><?php endif; ?>
     <?= $po['center_phone'] ? 'Tél. ' . e($po['center_phone']) . '<br>' : '' ?>
     <?= $po['delivery_info'] ? '<em>' . nl2br(e($po['delivery_info'])) . '</em>' : '' ?>
   </div>
+</div>
+<?php $c = one('SELECT * FROM centers WHERE id = ?', [$po['center_id']]); $bill = center_billing($c); ?>
+<div class="box" style="width:100%;margin-bottom:20px">
+  <div class="label">Facturation</div>
+  <strong><?= e($bill['name']) ?></strong> — <?= e(trim($bill['address'] . ', ' . $bill['city'], ', ')) ?>
+  <?= $bill['email'] ? ' · factures à ' . e($bill['email']) : '' ?>
+  <?php $legal = array_filter([$bill['siret'] ? 'SIRET ' . $bill['siret'] : null, $bill['vat'] ? 'TVA ' . $bill['vat'] : null, $bill['finess'] ? 'FINESS ' . $bill['finess'] : null]); if ($legal): ?><br><span style="color:#6b7290"><?= e(implode(' · ', $legal)) ?></span><?php endif; ?>
+  <?= $bill['notes'] ? '<br><em>' . e($bill['notes']) . '</em>' : '' ?>
 </div>
 <table>
   <thead><tr><th>Référence</th><th>Désignation</th><th>Conditionnement</th><th class="num">Qté</th><th class="num">P.U. HT</th><th class="num">Total HT</th></tr></thead>

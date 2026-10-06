@@ -435,6 +435,13 @@ function schema_added_columns(): array
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
         'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
+        'centers'  => [
+            'legal_name' => 'VARCHAR(200) NULL', 'contact_name' => 'VARCHAR(150) NULL', 'email' => 'VARCHAR(190) NULL',
+            'address2' => 'VARCHAR(255) NULL', 'siren' => 'VARCHAR(9) NULL', 'siret' => 'VARCHAR(14) NULL', 'finess' => 'VARCHAR(9) NULL',
+            'vat_number' => 'VARCHAR(20) NULL', 'billing_same' => 'TINYINT NOT NULL DEFAULT 1', 'billing_name' => 'VARCHAR(200) NULL',
+            'billing_address' => 'VARCHAR(255) NULL', 'billing_city' => 'VARCHAR(120) NULL', 'billing_email' => 'VARCHAR(190) NULL',
+            'billing_notes' => 'TEXT NULL',
+        ],
         'requests' => ['approval_status' => 'VARCHAR(20) NULL', 'approved_by' => 'INT NULL', 'approved_at' => 'DATETIME NULL', 'approval_note' => 'VARCHAR(255) NULL'],
         'purchase_orders' => [
             'group_ref' => 'VARCHAR(40) NULL', 'late_notified_at' => 'DATETIME NULL', 'sent_to_supplier_at' => 'DATETIME NULL',

@@ -221,6 +221,35 @@ set_setting('ai_api_key', $enc);
 check(ai_key_info()['source'] === 'settings' && ai_api_key() === $plain, 'la clé des paramètres est prioritaire sur config.php');
 check(mask_secret($plain) === 'sk-ant-…' . substr($plain, -4), 'clé affichée masquée');
 
+section('Centres : identifiants légaux et facturation');
+check(siren_valid('732829320') && !siren_valid('732829321'), 'SIREN : clé de Luhn contrôlée');
+check(siret_valid('73282932000074') && !siret_valid('73282932000075'), 'SIRET : clé de Luhn contrôlée');
+check(siret_valid('35600000000048') && siret_valid('35600000049837'), 'SIRET : exception La Poste prise en compte (siège et établissements)');
+check(vat_from_siren('732829320') === 'FR44732829320', 'TVA intracommunautaire calculée à partir du SIREN');
+check(finess_valid('830100001') && finess_valid('2A0001234') && !finess_valid('83010000'), 'FINESS : format contrôlé (dont Corse 2A/2B)');
+$tilleuls = one('SELECT * FROM centers WHERE id = ?', [$c1]);
+$b = center_billing($tilleuls);
+check(!$b['same'] && str_contains($b['address'], 'Liberté') && $b['email'] === 'compta@demo.fr', 'adresse de facturation distincte de la livraison');
+$port = one('SELECT * FROM centers WHERE id = ?', [$c2]);
+check(center_billing($port)['same'] && center_billing($port)['address'] === trim($port['address'] . ' ' . ($port['address2'] ?? '')), 'facturation identique à la livraison par défaut');
+check(siret_valid((string)$tilleuls['siret']) && str_starts_with((string)$tilleuls['siret'], (string)$tilleuls['siren']), 'données de démonstration cohérentes (SIRET ⊃ SIREN)');
+
+section('Logo de l\'entreprise');
+$png = imagecreatetruecolor(300, 120);
+imagesavealpha($png, true);
+imagefill($png, 0, 0, imagecolorallocatealpha($png, 0, 0, 0, 127));
+imagefilledrectangle($png, 20, 20, 280, 100, imagecolorallocate($png, 20, 30, 80));
+imagepng($png, "$tmp/logo.png");
+$_FILES['logo'] = ['name' => 'logo.png', 'tmp_name' => "$tmp/logo.png", 'error' => UPLOAD_ERR_OK, 'size' => filesize("$tmp/logo.png")];
+brand_logo_save('logo');
+check(brand_logo_url() !== null && brand_logo_pdf_path() !== null, 'logo enregistré (version écran et version PDF)');
+check(getimagesize(brand_logo_pdf_path())[2] === IMAGETYPE_JPEG, 'version PDF au format JPEG (fond blanc)');
+$pdfLogo = po_pdf([$po]);
+check(str_contains($pdfLogo, '/Subtype /Image') && str_contains($pdfLogo, '/DCTDecode') && str_contains($pdfLogo, '%%EOF'), 'logo intégré au PDF du bon de commande');
+$old = setting('brand_logo');
+brand_logo_delete();
+check(brand_logo_url() === null && !is_file(ROOT . '/uploads/brand/' . $old), 'logo supprimé (fichiers effacés)');
+
 section('Mises à jour et sauvegardes');
 check(update_path_allowed('app/domain.php') && !update_path_allowed('../evil.php') && !update_path_allowed('config.php') && !update_path_allowed('uploads/products/x.php'), 'chemins dangereux refusés dans un paquet');
 $bk = "$tmp/base.zip";

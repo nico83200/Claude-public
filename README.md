@@ -56,6 +56,15 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 - **Notifications & e-mails, au cas par cas** : un interrupteur général pour les e-mails. Pour chaque situation, la notification dans l'application et l'e-mail se règlent séparément : demande, validation, commande, livraison, refus, retard, rappel, stock bas, budget, hausse de prix, mot de passe oublié, envoi des bons aux fournisseurs, copie à l'expéditeur. L'envoi se fait par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), avec un e-mail de test.
 - **Clé API de l'assistant IA** saisie, remplacée ou supprimée depuis les paramètres. Elle est chiffrée en base avec une clé propre à l'installation (`storage/secret.key`, à conserver avec les sauvegardes), affichée masquée et tracée dans le journal d'audit. Le mot de passe SMTP est chiffré de la même façon.
 - **Mises à jour depuis l'interface** : envoi d'un paquet .zip, analyse puis confirmation par mot de passe, sauvegarde automatique (code et base) avant installation, puis **retour à la version précédente en un clic** (avec ou sans restauration des données).
+- **Logo de l'entreprise** : un PNG à fond transparent, de préférence, envoyé dans les Paramètres. Il s'affiche dans le menu, sur la page de connexion, sur les bons de commande (PDF et impression) et dans les e-mails. Une version JPEG sur fond blanc est préparée automatiquement pour les PDF.
+- **Fiche centre complète** :
+  - raison sociale ;
+  - personne à contacter, e-mail et téléphone ;
+  - adresse de livraison avec complément (bâtiment, quai) et consignes ;
+  - adresse de facturation identique ou distincte, avec e-mail de comptabilité et mentions ;
+  - SIREN, SIRET, FINESS et TVA intracommunautaire.
+
+  Les numéros sont contrôlés (clé de Luhn, cohérence SIREN / SIRET / TVA). Le SIREN et la TVA se déduisent automatiquement du SIRET. Ces informations sont reprises sur les bons de commande.
 - **Paramètres** : nom, raison sociale et facturation pour les bons, affichage des prix, inscriptions ouvertes, assistant IA (activation, modèle, test).
 
 ## Choix techniques
@@ -96,7 +105,7 @@ Les e-mails passent par une file d'attente : un serveur de messagerie momentané
 
 ## Tests automatiques
 
-`php tests/run.php` rejoue 55 vérifications des règles métier sur une base temporaire :
+`php tests/run.php` rejoue 67 vérifications des règles métier sur une base temporaire :
 - recherche ;
 - validation par le responsable, commande, réception et stock ;
 - factures, budgets, comparateur et commandes groupées ;

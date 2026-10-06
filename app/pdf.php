@@ -9,6 +9,7 @@ final class SimplePdf
 {
     private array $pages = [];
     private string $cur = '';
+    private array $images = [];
     private const K = 2.834645669; // mm -> points
     private const H = 297.0;        // hauteur A4 en mm
     private const W = [
@@ -65,6 +66,26 @@ final class SimplePdf
             self::rgb($color), $bold ? 'F2' : 'F1', $size, $x * self::K, (self::H - $y) * self::K, self::enc($s));
     }
 
+    /** Image JPEG (logo) : $x, $y = coin supérieur gauche en mm ; hauteur calculée si $h = 0. */
+    public function image(string $jpegPath, float $x, float $y, float $w, float $h = 0): float
+    {
+        $info = @getimagesize($jpegPath);
+        if (!$info || $info[2] !== IMAGETYPE_JPEG) {
+            return 0;
+        }
+        $key = md5($jpegPath);
+        if (!isset($this->images[$key])) {
+            $this->images[$key] = ['name' => 'Im' . (count($this->images) + 1), 'w' => $info[0], 'h' => $info[1],
+                'channels' => $info['channels'] ?? 3, 'data' => (string)file_get_contents($jpegPath)];
+        }
+        $img = $this->images[$key];
+        if ($h <= 0) {
+            $h = $w * $img['h'] / $img['w'];
+        }
+        $this->cur .= sprintf("q %.2F 0 0 %.2F %.2F %.2F cm /%s Do Q\n", $w * self::K, $h * self::K, $x * self::K, (self::H - $y - $h) * self::K, $img['name']);
+        return $h;
+    }
+
     public function rect(float $x, float $y, float $w, float $h, array $fill): void
     {
         $this->cur .= sprintf("%s rg %.2F %.2F %.2F %.2F re f\n", self::rgb($fill), $x * self::K, (self::H - $y - $h) * self::K, $w * self::K, $h * self::K);
@@ -106,11 +127,20 @@ final class SimplePdf
         $objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
         $kids = [];
         $n = 5;
+        $xobjects = '';
+        foreach ($this->images as $img) {
+            $id = $n++;
+            $objs[$id] = sprintf('<< /Type /XObject /Subtype /Image /Width %d /Height %d /ColorSpace /%s /BitsPerComponent 8 /Filter /DCTDecode /Length %d >>',
+                $img['w'], $img['h'], $img['channels'] === 1 ? 'DeviceGray' : ($img['channels'] === 4 ? 'DeviceCMYK' : 'DeviceRGB'), strlen($img['data']))
+                . "\nstream\n" . $img['data'] . "\nendstream";
+            $xobjects .= '/' . $img['name'] . " $id 0 R ";
+        }
+        $resources = '/Font << /F1 3 0 R /F2 4 0 R >>' . ($xobjects ? ' /XObject << ' . $xobjects . '>>' : '');
         foreach ($pages as $content) {
             $pageId = $n++;
             $contentId = $n++;
             $kids[] = "$pageId 0 R";
-            $objs[$pageId] = sprintf('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents %d 0 R >>', $contentId);
+            $objs[$pageId] = sprintf('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << %s >> /Contents %d 0 R >>', $resources, $contentId);
             $stream = gzcompress($content);
             $objs[$contentId] = '<< /Filter /FlateDecode /Length ' . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream";
         }
@@ -141,7 +171,9 @@ function po_pdf(array $poIds): string
     $pos = [];
     foreach ($poIds as $id) {
         $po = one('SELECT po.*, s.name AS supplier_name, s.email AS supplier_email, s.phone AS supplier_phone, s.contact_name, s.customer_number,
-                          c.name AS center_name, c.address AS center_address, c.city AS center_city, c.phone AS center_phone, c.delivery_info
+                          c.name AS center_name, c.address AS center_address, c.city AS center_city, c.phone AS center_phone, c.delivery_info,
+                          c.address2 AS center_address2, c.contact_name AS center_contact, c.email AS center_email, c.legal_name, c.billing_same, c.billing_name,
+                          c.billing_address, c.billing_city, c.billing_email, c.billing_notes, c.siret, c.vat_number, c.finess
                    FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id JOIN centers c ON c.id = po.center_id WHERE po.id = ?', [$id]);
         if ($po) {
             $po['lines'] = all('SELECT * FROM purchase_order_lines WHERE purchase_order_id = ? ORDER BY label', [$id]);
@@ -165,6 +197,20 @@ function po_pdf(array $poIds): string
         $pdf->text(15, 30, $grouped ? (string)$first['group_ref'] : (string)$first['po_number'], 22, true, $violet);
         $pdf->text(15, 37, 'Date : ' . date_fr($first['ordered_at'] ?: $first['created_at']), 10, false, $muted);
         $company = setting('company_name') ?: app_name();
+        if ($logo = brand_logo_pdf_path()) {
+            // Logo à droite, 32 mm de large au maximum et 20 mm de haut
+            $info = getimagesize($logo);
+            $lw = min(32, 20 * $info[0] / $info[1]);
+            $pdf->image($logo, 195 - $lw, 10, $lw);
+            $pdf->text(110, 35, $company, 9, true, [30, 35, 53], 'R', 85);
+            $yy = 39.5;
+            foreach (array_slice(preg_split('/\R/', (string)setting('company_address', '')), 0, 1) as $l) {
+                $pdf->text(110, $yy, trim($l), 8, false, $muted, 'R', 85);
+            }
+            $pdf->line(15, 44, 195, 44, $violet, 0.8);
+            $y = 52;
+            return;
+        }
         $pdf->text(110, 20, $company, 12, true, [30, 35, 53], 'R', 85);
         $yy = 26;
         foreach (array_slice(preg_split('/\R/', (string)setting('company_address', '')), 0, 4) as $l) {
@@ -198,12 +244,31 @@ function po_pdf(array $poIds): string
         $pdf->rect(15, $y - 4, 180, 7, [244, 246, 251]);
         $pdf->text(17, $y + 1, 'LIVRAISON : ' . mb_strtoupper((string)$po['center_name']) . ($grouped ? '   —   bon ' . $po['po_number'] : ''), 9, true, $violet);
         $y += 8;
-        $addr = trim($po['center_address'] . ', ' . $po['center_city'], ', ');
-        $pdf->text(17, $y, $addr . ($po['center_phone'] ? '   Tél. ' . $po['center_phone'] : ''), 9);
+        $addr = trim(implode(', ', array_filter([$po['center_address'], $po['center_address2'], $po['center_city']])), ', ');
+        $pdf->text(17, $y, $addr, 9);
         $y += 4.5;
+        $contact = implode('   ', array_filter([$po['center_contact'] ? 'Contact : ' . $po['center_contact'] : null,
+            $po['center_phone'] ? 'Tél. ' . $po['center_phone'] : null, $po['center_email']]));
+        if ($contact) {
+            $pdf->text(17, $y, $contact, 8.5, false, $muted);
+            $y += 4.5;
+        }
         if ($po['delivery_info']) {
             foreach ($pdf->wrap((string)$po['delivery_info'], 175, 8.5) as $l) {
                 $pdf->text(17, $y, $l, 8.5, false, $muted);
+                $y += 4;
+            }
+        }
+        // Facturation (si différente, ou pour les identifiants légaux)
+        $bill = center_billing(['name' => $po['center_name'], 'address' => $po['center_address'], 'address2' => $po['center_address2'], 'city' => $po['center_city'],
+            'email' => $po['center_email']] + $po);
+        $legal = implode('   ', array_filter([$bill['siret'] ? 'SIRET ' . $bill['siret'] : null, $bill['vat'] ? 'TVA ' . $bill['vat'] : null, $bill['finess'] ? 'FINESS ' . $bill['finess'] : null]));
+        if (!$bill['same'] || $legal || $po['legal_name']) {
+            $pdf->text(17, $y + 1, 'FACTURATION :', 8, true, $violet);
+            $pdf->text(41, $y + 1, $bill['name'] . ($bill['same'] ? '' : ' — ' . trim($bill['address'] . ', ' . $bill['city'], ', ')), 8.5);
+            $y += 5;
+            foreach (array_filter([$legal, implode('   ', array_filter([$bill['email'] ? 'Factures à : ' . $bill['email'] : null, $bill['notes']]))]) as $l) {
+                $pdf->text(41, $y, $l, 8, false, $muted);
                 $y += 4;
             }
         }

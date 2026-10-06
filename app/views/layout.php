@@ -35,10 +35,17 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar">
+    <?php if ($logo = brand_logo_url()): ?>
+    <a class="brand brand-with-logo" href="index.php">
+      <span class="brand-logo-box"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></span>
+      <span class="brand-sub"><?= e(app_name()) ?></span>
+    </a>
+    <?php else: ?>
     <div class="brand">
       <div class="brand-logo"><?= icon('cart', 20) ?></div>
       <div><?= e(app_name()) ?><small>Achats &amp; approvisionnement</small></div>
     </div>
+    <?php endif; ?>
 
     <?php if ($centers): ?>
     <form class="center-switch" method="get">

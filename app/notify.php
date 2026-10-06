@@ -175,7 +175,8 @@ function mail_template(array $u, string $title, string $body, string $link): str
     $btn = $link ? '<p style="margin:24px 0"><a href="' . e(app_base_url() . $link) . '" style="background:#6366f1;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:600">Ouvrir dans l\'application</a></p>' : '';
     return '<!doctype html><html><body style="margin:0;background:#f4f6fb;font-family:Arial,sans-serif;color:#1e2335">
       <div style="max-width:560px;margin:24px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e6e9f2">
-        <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);padding:20px 24px;color:#fff;font-weight:700;font-size:18px">' . e(app_name()) . '</div>
+        ' . (($logo = brand_logo_url()) ? '<div style="padding:18px 24px;border-bottom:4px solid #6366f1"><img src="' . e(app_base_url() . $logo) . '" alt="' . e(setting('company_name') ?: app_name()) . '" style="max-height:56px;max-width:200px"></div>'
+            : '<div style="background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);padding:20px 24px;color:#fff;font-weight:700;font-size:18px">' . e(app_name()) . '</div>') . '
         <div style="padding:24px">
           <p style="margin:0 0 8px;color:#6b7290">Bonjour ' . e($u['first_name']) . ',</p>
           <h2 style="margin:0 0 12px;font-size:18px">' . e($title) . '</h2>
