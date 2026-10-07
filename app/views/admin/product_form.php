@@ -1,6 +1,7 @@
 <?php $p ??= []; $v = fn($k, $d = '') => e($p[$k] ?? $d); $fmt = fn($k) => isset($p[$k]) && $p[$k] !== null && $p[$k] !== '' ? e(number_format((float)$p[$k], 2, ',', '')) : ''; ?>
 <div class="breadcrumb"><a href="<?= url('admin/products') ?>">Articles</a> <?= icon('chevron-right', 14) ?> <?= e($p['name'] ?? 'Nouveau') ?></div>
-<h1 class="mb-2"><?= e($title) ?></h1>
+<div class="page-head"><h1><?= e($title) ?></h1>
+  <?php if (!empty($p['id'])): ?><a class="btn" href="<?= url('labels', ['ids' => $p['id']]) ?>" target="_blank" rel="noopener"><?= icon('printer', 18) ?> Imprimer l'étiquette</a><?php endif; ?></div>
 <form method="post" enctype="multipart/form-data" class="grid grid-main">
   <?= csrf_field() ?>
   <div class="stack">

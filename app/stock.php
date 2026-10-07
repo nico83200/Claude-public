@@ -67,6 +67,18 @@ function stock_set_alert(int $centerId, int $productId, int $alert): void
     }
 }
 
+/** Emplacement de rangement d'un article dans un centre (lieu, étagère…). */
+function stock_set_location(int $centerId, int $productId, ?string $location): void
+{
+    $location = trim(preg_replace('/\s+/', ' ', (string)$location));
+    $location = $location === '' ? null : mb_substr($location, 0, 80);
+    if (stock_row($centerId, $productId)) {
+        update('stock', ['location' => $location], 'center_id = ? AND product_id = ?', [$centerId, $productId]);
+    } else {
+        insert('stock', ['center_id' => $centerId, 'product_id' => $productId, 'qty' => 0, 'alert_qty' => 0, 'location' => $location, 'updated_at' => now()]);
+    }
+}
+
 /** Articles suivis en stock dans un centre. */
 function stock_list(int $centerId, string $filter = ''): array
 {

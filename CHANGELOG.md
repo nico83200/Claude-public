@@ -1,5 +1,14 @@
 # Journal des versions
 
+## 1.11.0
+- **Étiquettes d'étagère** pour la salle de stock : nom de l'article, fournisseur, référence, conditionnement, emplacement et **code-barres scannable** (EAN-13 / EAN-8 de l'article, ou Code 128 de sa référence ; vérifiés avec le lecteur de l'application). Bouton « Imprimer l'étiquette » sur la fiche article (et dans la fiche admin), « Étiquettes » dans l'inventaire (tous les articles suivis du centre) et dans la sélection multiple de la liste des articles.
+  - Formats : planches A4 de 24 (70 × 37 mm), 14 (99 × 38 mm) ou 8 grandes étiquettes (105 × 74 mm), rouleaux 100 × 50 mm et 62 × 29 mm (imprimantes d'étiquettes Brother, Dymo…).
+  - Nombre d'exemplaires, départ à la n-ième étiquette pour réutiliser une planche entamée, bande de couleur de la catégorie, aperçu à taille réelle.
+- **Emplacement de rangement** des articles suivis en stock (lieu, étagère, bac…), propre à chaque centre :
+  - affiché aux salariés sur la fiche article (« Dans votre centre : rangé à … », avec la quantité en stock), lors d'un scan et dans l'historique ;
+  - saisi depuis la fiche article ou dans l'inventaire, sous le nom de chaque article ;
+  - repris automatiquement sur les étiquettes.
+
 ## 1.10.0
 - **Corrections de stock par l'administrateur**, depuis l'historique des mouvements (Inventaire → article ou « Mouvements ») :
   - **suppression** d'une entrée, d'une sortie ou de tout autre mouvement, ou de plusieurs à la fois (cases à cocher) ; son effet sur le stock est annulé ;

@@ -66,6 +66,7 @@ function catalog_product(): void
     render('user/product', [
         'title' => $p['name'], 'center' => $center, 'p' => $p, 'similar' => $similar, 'history' => $history,
         'isFav' => in_array((int)$p['id'], user_favorites((int)$u['id']), true),
+        'stock' => stock_row((int)$center['id'], (int)$p['id']),
     ]);
 }
 
@@ -173,3 +174,48 @@ function favorite_toggle(): void
     }
     redirect_back('catalog');
 }
+
+/**
+ * Étiquettes d'étagère (salle de stock) : nom, fournisseur, référence et code-barres scannable.
+ * Articles : ?ids=1,2,3 (ou ids[] envoyés depuis la liste des articles), ou ?stock=1 pour tous les articles suivis en stock du centre.
+ */
+function product_labels(): void
+{
+    require_login();
+    $center = require_center();
+    if (input('stock')) {
+        $ids = array_map('intval', array_column(stock_list((int)$center['id']), 'product_id'));
+    } else {
+        $raw = $_POST['ids'] ?? $_GET['ids'] ?? '';
+        $ids = array_map('intval', is_array($raw) ? $raw : explode(',', (string)$raw));
+    }
+    $ids = array_values(array_unique(array_filter($ids)));
+    $products = [];
+    if ($ids) {
+        $rows = all('SELECT p.*, s.name AS supplier_name, c.name AS category_name, c.color AS category_color, st.location AS stock_location
+                     FROM products p JOIN suppliers s ON s.id = p.supplier_id LEFT JOIN categories c ON c.id = p.category_id
+                     LEFT JOIN stock st ON st.product_id = p.id AND st.center_id = ?
+                     WHERE p.id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')', [(int)$center['id'], ...$ids]);
+        $byId = array_column($rows, null, 'id');
+        foreach ($ids as $id) { // ordre demandé conservé
+            if (isset($byId[$id]) && (is_admin() || product_visible_for_center($id, (int)$center['id']))) {
+                $products[] = $byId[$id];
+            }
+        }
+    }
+    $format = isset(LABEL_FORMATS[(string)input('format')]) ? (string)input('format') : (string)setting('label_format', 'a4-24');
+    $format = isset(LABEL_FORMATS[$format]) ? $format : 'a4-24';
+    if (input('format') && $format !== setting('label_format', 'a4-24') && is_admin()) {
+        set_setting('label_format', $format); // le dernier format choisi devient celui proposé par défaut
+    }
+    $f = LABEL_FORMATS[$format];
+    $copies = max(1, min(200, input_int('copies', 1)));
+    $skip = empty($f['roll']) ? max(0, min($f['cols'] * $f['rows'] - 1, input_int('skip'))) : 0;
+    render('labels', [
+        'products' => $products, 'ids' => array_column($products, 'id'), 'format' => $format, 'f' => $f, 'copies' => $copies, 'skip' => $skip,
+        'location' => mb_substr(trim((string)input('location', '')), 0, 40), 'band' => input('band', '1') === '1',
+        'back' => input('stock') ? url('stock') : (count($products) === 1 ? url('product', ['id' => $products[0]['id']]) : url(is_admin() ? 'admin/products' : 'catalog')),
+        'stockMode' => (bool)input('stock'),
+    ], null);
+}
+

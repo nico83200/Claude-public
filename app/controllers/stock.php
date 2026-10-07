@@ -35,6 +35,12 @@ function stock_save(): void
                 update('stock', ['alert_qty' => max(0, (int)$alert)], 'center_id = ? AND product_id = ?', [$cid, (int)$pid]);
             }
         }
+        foreach ((array)($_POST['location'] ?? []) as $pid => $loc) {
+            $row = stock_row($cid, (int)$pid);
+            if ($row && trim((string)$loc) !== (string)$row['location']) {
+                stock_set_location($cid, (int)$pid, (string)$loc);
+            }
+        }
         foreach ((array)($_POST['counted'] ?? []) as $pid => $counted) {
             if ($counted === '' || !is_numeric($counted) || !stock_row($cid, (int)$pid)) {
                 continue; // champ laissé vide : article non compté
@@ -43,7 +49,7 @@ function stock_save(): void
             $n++;
         }
     });
-    flash('success', $n ? 'Inventaire enregistré : ' . plural($n, 'article compté', 'articles comptés') . '.' : 'Seuils d\'alerte enregistrés.');
+    flash('success', $n ? 'Inventaire enregistré : ' . plural($n, 'article compté', 'articles comptés') . '.' : 'Seuils d\'alerte et emplacements enregistrés.');
     redirect('stock', ['filter' => input('filter') ?: null]);
 }
 
@@ -117,7 +123,7 @@ function stock_history(): void
         $params[] = $pid;
     }
     $sql .= ' ORDER BY m.created_at DESC, m.id DESC LIMIT 300';
-    $product = $pid ? one('SELECT p.*, st.qty, st.alert_qty FROM products p LEFT JOIN stock st ON st.product_id = p.id AND st.center_id = ? WHERE p.id = ?', [$center['id'], $pid]) : null;
+    $product = $pid ? one('SELECT p.*, st.qty, st.alert_qty, st.location FROM products p LEFT JOIN stock st ON st.product_id = p.id AND st.center_id = ? WHERE p.id = ?', [$center['id'], $pid]) : null;
     render('user/stock_history', ['title' => 'Mouvements de stock', 'center' => $center, 'moves' => all($sql, $params), 'product' => $product,
         'isAdmin' => is_admin(), 'centers' => is_admin() ? user_centers() : []]);
 }
@@ -218,6 +224,20 @@ function stock_transfer_action(): void
     redirect('stock/history', ['c' => $to, 'product_id' => $pid]);
 }
 
+/** Emplacement de rangement saisi depuis la fiche article. */
+function stock_location(): void
+{
+    require_login();
+    $center = require_center();
+    $pid = input_int('product_id');
+    if (!is_post() || !$pid || !one('SELECT id FROM products WHERE id = ?', [$pid])) {
+        redirect('stock');
+    }
+    stock_set_location((int)$center['id'], $pid, (string)input('location', ''));
+    flash('success', input('location') ? 'Emplacement enregistré : « ' . mb_substr(trim((string)input('location')), 0, 80) . ' ».' : 'Emplacement effacé.');
+    redirect('product', ['id' => $pid]);
+}
+
 /** Recherche d'un article par code-barres (scan caméra ou douchette). */
 function api_barcode(): void
 {
@@ -237,7 +257,7 @@ function api_barcode(): void
     require_once APP . '/controllers/catalog.php';
     $st = stock_row((int)$center['id'], (int)$p['id']);
     json_response(['found' => true, 'code' => $code, 'product' => product_json($p, user_favorites((int)$u['id'])),
-        'stock' => $st ? ['qty' => (int)$st['qty'], 'alert' => (int)$st['alert_qty']] : null]);
+        'stock' => $st ? ['qty' => (int)$st['qty'], 'alert' => (int)$st['alert_qty'], 'location' => $st['location']] : null]);
 }
 
 // ---------------------------------------------------------------- Notifications

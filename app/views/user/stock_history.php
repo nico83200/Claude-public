@@ -3,7 +3,7 @@
 <div class="page-head">
   <div>
     <h1><?= $product ? e($product['name']) : 'Mouvements de stock' ?></h1>
-    <p><?= e($center['name']) ?><?php if ($product): ?> · en stock : <strong><?= (int)$product['qty'] ?></strong><?= (int)$product['alert_qty'] ? ' · seuil ' . (int)$product['alert_qty'] : '' ?><?php endif; ?></p>
+    <p><?= e($center['name']) ?><?php if ($product): ?> · en stock : <strong><?= (int)$product['qty'] ?></strong><?= (int)$product['alert_qty'] ? ' · seuil ' . (int)$product['alert_qty'] : '' ?><?= $product['location'] ? ' · rangé : <strong>' . e($product['location']) . '</strong>' : '' ?><?php endif; ?></p>
   </div>
   <?php if ($product): ?>
   <form method="post" action="<?= url('stock/remove', ['product_id' => $product['id']]) ?>" onsubmit="return confirm('Ne plus suivre cet article dans ce centre ?')"><?= csrf_field() ?><button class="btn btn-danger btn-sm" type="submit"><?= icon('trash', 15) ?> Ne plus suivre</button></form>

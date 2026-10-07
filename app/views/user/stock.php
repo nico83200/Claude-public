@@ -5,6 +5,7 @@
   </div>
   <div class="row row-wrap">
     <a class="btn" href="<?= url('stock/history') ?>"><?= icon('clock', 18) ?> Mouvements</a>
+    <a class="btn" href="<?= url('labels', ['stock' => 1]) ?>" target="_blank" rel="noopener" title="Étiquettes d'étagère de tous les articles suivis"><?= icon('printer', 18) ?> Étiquettes</a>
     <a class="btn" href="<?= url('stock/quick') ?>"><?= icon('layers', 18) ?> Mode réserve (tablette)</a>
     <?php if ($lowCount): ?><form method="post" action="<?= url('stock/reorder') ?>"><?= csrf_field() ?><button class="btn btn-amber" type="submit"><?= icon('cart', 18) ?> Réapprovisionner les stocks bas</button></form><?php endif; ?>
     <button class="btn btn-primary" type="button" data-scan="stock"><?= icon('camera', 18) ?> Scanner un article</button>
@@ -83,6 +84,7 @@
             <a class="strong" href="<?= url('stock/history', ['product_id' => $it['product_id']]) ?>"><?= e($it['name']) ?></a>
             <div><small><?= e($it['unit']) ?> · <?= e($it['supplier_name']) ?><?= $it['counted_at'] ? ' · compté le ' . date_fr($it['counted_at']) : '' ?></small></div>
             <?php if ($it['barcode']): ?><div><small class="muted"><?= icon('barcode', 12) ?> <?= e($it['barcode']) ?></small></div><?php endif; ?>
+            <label class="loc-input" title="Emplacement de rangement (lieu, étagère…)"><?= icon('map-pin', 13) ?><input type="text" name="location[<?= (int)$it['product_id'] ?>]" value="<?= e($it['location']) ?>" maxlength="80" placeholder="Emplacement (ex : Réserve · étagère B2)"></label>
           </div></div></td>
           <td class="num"><span class="stock-qty" style="color:<?= (int)$it['qty'] === 0 ? 'var(--red)' : ($low ? '#d97706' : 'inherit') ?>"><?= (int)$it['qty'] ?></span><?= $low ? '<div><span class="badge badge-red">Stock bas</span></div>' : '' ?></td>
           <td class="num"><?= (int)$it['on_order'] ? '<span class="badge badge-blue">+' . (int)$it['on_order'] . '</span>' : '<small class="muted">—</small>' ?></td>

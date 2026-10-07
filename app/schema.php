@@ -207,6 +207,7 @@ function schema_statements(string $driver): array
             qty INT NOT NULL DEFAULT 0,
             alert_qty INT NOT NULL DEFAULT 0,
             counted_at DATETIME NULL,
+            location VARCHAR(80) NULL,
             updated_at DATETIME NOT NULL,
             PRIMARY KEY (center_id, product_id),
             FOREIGN KEY (center_id) REFERENCES centers(id) ON DELETE CASCADE,
@@ -459,6 +460,7 @@ function schema_added_columns(): array
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
         'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
+        'stock'    => ['location' => 'VARCHAR(80) NULL'],
         'suppliers' => ['order_url' => 'VARCHAR(255) NULL', 'order_note' => 'VARCHAR(255) NULL'],
         'centers'  => [
             'legal_name' => 'VARCHAR(200) NULL', 'contact_name' => 'VARCHAR(150) NULL', 'email' => 'VARCHAR(190) NULL',

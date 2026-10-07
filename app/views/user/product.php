@@ -31,13 +31,37 @@
       </div>
       <?php if ($p['delivery_delay']): ?><small class="muted mt-1"><?= icon('truck', 14) ?> Délai fournisseur indicatif : <?= e($p['delivery_delay']) ?></small><?php endif; ?>
     </form>
+    <?php if ($stock): ?>
+    <div class="card stock-place">
+      <div class="card-head"><h3><?= icon('map-pin', 18) ?> Dans votre centre</h3><a class="btn btn-sm btn-ghost" href="<?= url('stock/history', ['product_id' => $p['id']]) ?>"><?= icon('clock', 15) ?> Mouvements</a></div>
+      <div class="card-body">
+        <div class="stock-place-row">
+          <div><small class="muted">Rangé à</small>
+            <?php if ($stock['location']): ?><div class="stock-place-loc"><?= e($stock['location']) ?></div>
+            <?php else: ?><div class="muted">Emplacement non renseigné</div><?php endif; ?></div>
+          <div class="text-right"><small class="muted">En stock</small><div class="stock-place-qty" style="color:<?= (int)$stock['qty'] === 0 ? 'var(--red)' : ((int)$stock['alert_qty'] > 0 && (int)$stock['qty'] <= (int)$stock['alert_qty'] ? '#d97706' : 'inherit') ?>"><?= (int)$stock['qty'] ?></div></div>
+        </div>
+        <details class="mt-1" <?= $stock['location'] ? '' : 'open' ?>>
+          <summary class="muted" style="cursor:pointer;font-size:.88rem"><?= icon('edit', 14) ?> <?= $stock['location'] ? 'Modifier l\'emplacement' : 'Indiquer où il est rangé' ?></summary>
+          <form method="post" action="<?= url('stock/location') ?>" class="row row-wrap mt-1">
+            <?= csrf_field() ?><input type="hidden" name="product_id" value="<?= (int)$p['id'] ?>">
+            <input type="text" name="location" value="<?= e($stock['location']) ?>" maxlength="80" placeholder="ex : Réserve 1 · étagère B2 · bac 3" style="flex:1;min-width:200px">
+            <button class="btn btn-sm btn-primary" type="submit"><?= icon('check', 15) ?> Enregistrer</button>
+          </form>
+        </details>
+      </div>
+    </div>
+    <?php endif; ?>
     <?php if ($history): ?>
     <div class="card">
       <div class="card-head"><h3><?= icon('repeat', 18) ?> Dernières demandes dans ce centre</h3></div>
       <ul class="list"><?php foreach ($history as $h): ?><li><div class="grow"><?= e($h['first_name'] . ' ' . $h['last_name']) ?></div><span class="badge badge-gray">× <?= (int)$h['qty'] ?></span><small><?= date_fr($h['created_at']) ?></small></li><?php endforeach; ?></ul>
     </div>
     <?php endif; ?>
-    <?php if (is_admin()): ?><a class="btn btn-sm" href="<?= url('admin/product', ['id' => $p['id']]) ?>"><?= icon('edit', 16) ?> Modifier l'article</a><?php endif; ?>
+    <div class="row row-wrap">
+      <a class="btn btn-sm" href="<?= url('labels', ['ids' => $p['id']]) ?>" target="_blank" rel="noopener" title="Étiquette d'étagère avec code-barres scannable"><?= icon('printer', 16) ?> Imprimer l'étiquette</a>
+      <?php if (is_admin()): ?><a class="btn btn-sm" href="<?= url('admin/product', ['id' => $p['id']]) ?>"><?= icon('edit', 16) ?> Modifier l'article</a><?php endif; ?>
+    </div>
   </div>
 </div>
 <?php if ($similar): ?>

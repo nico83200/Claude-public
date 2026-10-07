@@ -405,7 +405,7 @@
           row.scrollIntoView({ behavior: 'smooth', block: 'center' });
           row.classList.remove('flash-row'); void row.offsetWidth; row.classList.add('flash-row');
           const inp = $('.count-input', row); if (inp) setTimeout(() => inp.focus(), 350);
-          toast(d.product.name + ' — en stock : ' + (d.stock ? d.stock.qty : 0));
+          toast(d.product.name + ' — en stock : ' + (d.stock ? d.stock.qty : 0) + (d.stock && d.stock.location ? ' · rangé : ' + d.stock.location : ''));
         } else {
           const sel = $('#add-product');
           if (sel && sel.querySelector('option[value="' + d.product.id + '"]')) {
@@ -565,6 +565,7 @@
       $('[data-q-name]', q).textContent = d.product.name;
       $('[data-q-meta]', q).textContent = [d.product.unit, d.product.supplier].filter(Boolean).join(' · ');
       $('[data-q-stock]', q).textContent = d.stock ? d.stock.qty : 'non suivi';
+      const ql = $('[data-q-loc]', q); if (ql) { ql.textContent = d.stock && d.stock.location ? '📍 ' + d.stock.location : ''; ql.hidden = !(d.stock && d.stock.location); }
       $('[data-q-img]', q).innerHTML = d.product.image ? '<img src="' + esc(d.product.image) + '" alt="">' : '';
       card.classList.remove('hidden');
       setMode(mode);

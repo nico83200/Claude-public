@@ -39,6 +39,7 @@ require APP . '/cleanup.php';
 require APP . '/spreadsheet.php';
 require APP . '/import.php';
 require APP . '/support.php';
+require APP . '/barcode.php';
 require APP . '/pdf.php';
 require APP . '/cron.php';
 define('APP_VERSION', trim((string)file_get_contents(ROOT . '/VERSION')));
@@ -149,6 +150,26 @@ check(stock_transfer($c1, $c2, $sp2) === 'moved' && !stock_row($c1, $sp2) && (in
     && (int)val('SELECT COUNT(*) FROM stock_movements WHERE product_id = ? AND center_id = ?', [$sp2, $c2]) === 1, 'stock saisi dans le mauvais centre : déplacé avec son historique');
 stock_move($c1, $sp2, 3, 'ajout');
 check(stock_transfer($c1, $c2, $sp2) === 'merged' && !stock_row($c1, $sp2) && (int)stock_row($c2, $sp2)['qty'] === 7, 'article déjà suivi dans le centre de destination : quantités additionnées');
+
+section('Étiquettes et codes-barres');
+check(ean_valid('4006381333931') && !ean_valid('4006381333932') && ean_valid('96385074') && ean_valid('036000291452'), 'clé de contrôle EAN-13 / EAN-8 / UPC vérifiée');
+$e13 = barcode_encode('4006381333931');
+check($e13['type'] === 'EAN-13' && strlen($e13['bits']) === 95 && str_starts_with($e13['bits'], '101') && substr($e13['bits'], 45, 5) === '01010', 'EAN-13 : 95 modules, gardes début / milieu / fin');
+check(barcode_encode('96385074')['type'] === 'EAN-8' && strlen(barcode_encode('96385074')['bits']) === 67, 'EAN-8 : 67 modules');
+$c128 = barcode_encode('GN-S');
+check($c128['type'] === 'Code 128' && strlen($c128['bits']) === 11 * 6 + 13, 'référence non numérique → Code 128 (départ, 4 caractères, clé, arrêt)');
+check(strlen(code128_bits('12345678')) === 11 * 6 + 13, 'code numérique → Code 128 jeu C compact (2 chiffres par caractère)');
+check(barcode_encode('3401579804419')['type'] === 'Code 128', 'EAN à clé invalide → Code 128 (le code reste scannable tel quel)');
+$svg = barcode_svg('4006381333931', 65, 9);
+check($svg['readable'] && abs($svg['module'] - 0.33) < 0.001 && str_contains($svg['svg'], '<rect'), 'code-barres SVG à la taille nominale sur une étiquette 70 × 37 mm');
+check(!barcode_svg(str_repeat('AB-', 20), 50, 7)['readable'], 'code trop long pour l\'étiquette signalé');
+
+section('Emplacement de rangement');
+stock_set_location($c1, $pid('THERM-IR'), '  Réserve 1   ·  étagère B2 ');
+check(stock_row($c1, $pid('THERM-IR'))['location'] === 'Réserve 1 · étagère B2' && (int)stock_row($c1, $pid('THERM-IR'))['qty'] === 10, 'emplacement enregistré (espaces nettoyés), stock inchangé');
+stock_set_location($c1, $pid('THERM-IR'), '');
+check(stock_row($c1, $pid('THERM-IR'))['location'] === null, 'emplacement effacé');
+stock_set_location($c1, $pid('THERM-IR'), 'Réserve 1 · étagère B2');
 
 section('Factures');
 $po2 = one('SELECT * FROM purchase_orders WHERE id = ?', [$po]);

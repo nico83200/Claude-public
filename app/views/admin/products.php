@@ -22,6 +22,7 @@
     <?= csrf_field() ?><input type="hidden" name="state" value="<?= e($state) ?>">
     <div class="bulk-bar" id="bulk-bar" hidden>
       <span><strong data-bulk-count>0</strong> article(s) sélectionné(s)</span>
+      <button class="btn btn-sm" type="submit" formaction="<?= url('labels') ?>" formtarget="_blank"><?= icon('printer', 16) ?> Étiquettes</button>
       <button class="btn btn-sm btn-danger" type="submit" data-confirm="Supprimer les articles sélectionnés ? Ceux qui figurent déjà dans des demandes ou des bons de commande seront seulement masqués."><?= icon('trash', 16) ?> Supprimer la sélection</button>
     </div>
   </form>

@@ -13,6 +13,7 @@
   <div class="quick-card hidden" data-quick-card>
     <div class="quick-product"><div class="quick-img" data-q-img></div><div><div class="quick-name" data-q-name></div><div class="quick-meta" data-q-meta></div></div></div>
     <div class="quick-stock">En stock : <strong data-q-stock>—</strong></div>
+    <div class="quick-loc" data-q-loc hidden></div>
     <div class="quick-qty"><button type="button" data-step="-1">−</button><input type="number" min="0" value="1" data-q-qty inputmode="numeric"><button type="button" data-step="1">+</button></div>
     <input type="text" placeholder="Motif (optionnel)" data-q-note class="quick-note">
     <button type="button" class="quick-go" data-q-go>Valider la sortie</button>
