@@ -13,7 +13,28 @@
         <div class="field"><label>E-mail de commande</label><input type="email" name="email" value="<?= $v('email') ?>"></div>
         <div class="field"><label>Téléphone</label><input type="tel" name="phone" value="<?= $v('phone') ?>"></div>
         <div class="field"><label>Site web / espace client</label><input type="url" name="website" value="<?= $v('website') ?>" placeholder="https://"></div>
-        <div class="field"><label>Mode de commande</label><input type="text" name="order_method" value="<?= $v('order_method') ?>" placeholder="Site web, e-mail, téléphone, commercial…"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2><?= icon('send') ?> Passage des commandes</h2></div>
+      <div class="card-body">
+        <?php $om = supplier_order_method($s); ?>
+        <div class="method-choice">
+          <?php foreach (ORDER_METHODS as $k => $lbl): ?>
+            <label class="method-opt"><input type="radio" name="order_method" value="<?= $k ?>" <?= $om === $k ? 'checked' : '' ?> data-method-radio>
+              <span><?= icon(['online' => 'cart', 'email' => 'mail', 'phone' => 'phone', 'other' => 'clipboard'][$k], 18) ?> <?= e($lbl) ?></span></label>
+          <?php endforeach; ?>
+        </div>
+        <div class="form-grid mt-1">
+          <div class="field" data-method-show="online"><label>Adresse de commande en ligne</label><input type="url" name="order_url" value="<?= $v('order_url') ?>" placeholder="https://… (page de connexion ou de commande rapide)"><small>Ouverte au moment de passer chaque bon. À défaut, le site web ci-dessus est utilisé.</small></div>
+          <div class="field"><label>Précision (optionnel)</label><input type="text" name="order_note" value="<?= e($s['order_note'] ?? (!isset(ORDER_METHODS[$s['order_method'] ?? '']) ? ($s['order_method'] ?? '') : '')) ?>" placeholder="ex : identifiant achats@…, commercial le lundi, fax…"></div>
+        </div>
+        <p class="muted mb-0" style="font-size:.85rem"><strong>En ligne</strong> : le site s'ouvre dès la création du bon, avec la liste des références à copier. <strong>PDF par e-mail</strong> : envoi par l'application, ou e-mail pré-rédigé dans votre messagerie si l'envoi automatique est désactivé.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2><?= icon('info') ?> Notes</h2></div>
+      <div class="card-body form-grid">
         <div class="field full"><label>Notes internes</label><textarea name="notes"><?= $v('notes') ?></textarea></div>
       </div>
     </div>

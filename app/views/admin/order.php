@@ -16,9 +16,6 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
     <a class="btn" href="<?= url('admin/order/pdf', ['id' => $po['id']]) ?>" target="_blank"><?= icon('file', 18) ?> PDF</a>
     <a class="btn" href="<?= url('admin/order/print', ['id' => $po['id']]) ?>" target="_blank"><?= icon('printer', 18) ?> Imprimer</a>
     <a class="btn" href="<?= url('admin/order/csv', ['id' => $po['id']]) ?>"><?= icon('download', 18) ?> CSV</a>
-    <?php if ($po['supplier_email']): ?>
-      <a class="btn" href="mailto:<?= e($po['supplier_email']) ?>?subject=<?= rawurlencode('Commande ' . $po['po_number'] . ' — ' . $po['center_name']) ?>&body=<?= rawurlencode("Bonjour,\n\nVeuillez trouver ci-joint notre bon de commande " . $po['po_number'] . ($po['customer_number'] ? ' (n° client ' . $po['customer_number'] . ')' : '') . " pour une livraison à :\n" . $po['center_name'] . "\n" . $po['center_address'] . ' ' . $po['center_city'] . "\n\nCordialement,\n" . user()['first_name'] . ' ' . user()['last_name']) ?>"><?= icon('mail', 18) ?> E-mail</a>
-    <?php endif; ?>
   </div>
 </div>
 
@@ -108,25 +105,16 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
       <div class="card-body">
         <?php if ($po['status'] === 'a_commander'): ?>
           <?php if ($po['group_ref']): ?><div class="flash flash-info" style="font-size:.85rem"><?= icon('layers', 18) ?><div>Ce bon fait partie de la commande groupée <a href="<?= url('admin/order-group', ['ref' => $po['group_ref']]) ?>"><?= e($po['group_ref']) ?></a> : envoyez-la depuis la page du groupe.</div></div><?php endif; ?>
-          <?php if (!mail_case_enabled('supplier_po')): ?>
-            <div class="flash flash-info" style="font-size:.85rem"><?= icon('mail', 16) ?><div>Envoi des bons par e-mail désactivé. <a href="<?= url('admin/settings') ?>">Paramètres</a> · <a href="<?= url('admin/order/pdf', ['id' => $po['id'], 'dl' => 1]) ?>">Télécharger le PDF</a></div></div>
-          <?php else: ?>
-          <form method="post" action="<?= url('admin/order/send', ['id' => $po['id']]) ?>" class="mb-2" style="padding-bottom:1rem;border-bottom:1px solid var(--border)">
-            <?= csrf_field() ?>
-            <label><?= icon('send', 15) ?> Envoyer le bon (PDF) au fournisseur</label>
-            <input type="email" name="to" value="<?= e($po['supplier_email']) ?>" required placeholder="adresse de commande du fournisseur" class="mb-1">
-            <label class="check" style="font-weight:500"><input type="checkbox" name="mark_ordered" value="1" checked> et passer le bon en « Commandé »</label>
-            <?php if (mail_case_enabled('supplier_copy')): ?><label class="check" style="font-weight:500"><input type="checkbox" name="cc_me" value="1"> m'envoyer une copie</label><?php endif; ?>
-            <button class="btn btn-blue" style="width:100%" type="submit"><?= icon('send', 16) ?> Envoyer par e-mail</button>
-            <?php if ($po['sent_to_supplier_at']): ?><small class="muted">Déjà envoyé le <?= date_fr($po['sent_to_supplier_at'], true) ?></small><?php endif; ?>
-          </form>
-          <?php endif; ?>
+          <?php if (!$po['group_ref']): partial('po_send', [
+              'sup' => $po, 'q' => ['id' => $po['id']], 'created' => input('created') === '1',
+              'copyText' => implode("\n", array_map(fn($l) => trim(($l['reference'] ?: '') . "\t" . $l['qty'] . "\t" . $l['label']), $lines)),
+          ]); endif; ?>
           <?php if (!$minOk): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 18) ?><div>Minimum de commande fournisseur : <?= money($po['min_order_amount']) ?> (il manque <?= money((float)$po['min_order_amount'] - $totals['total']) ?>).</div></div><?php endif; ?>
           <form method="post" action="<?= url('admin/order/status', ['id' => $po['id']]) ?>">
             <?= csrf_field() ?><input type="hidden" name="to" value="commande">
-            <div class="field"><label>Réf. de commande fournisseur (optionnel)</label><input type="text" name="supplier_reference" placeholder="N° de confirmation, de panier web…"></div>
+            <div class="field"><label><?= supplier_order_method($po) === 'online' ? 'N° de commande sur le site' : 'Réf. de commande fournisseur' ?> (optionnel)</label><input type="text" name="supplier_reference" placeholder="N° de confirmation, de panier web…"></div>
             <div class="field"><label>Livraison prévue le</label><input type="date" name="expected_date"></div>
-            <button class="btn btn-lg" style="width:100%" type="submit"><?= icon('check', 18) ?> Commandé par un autre moyen</button>
+            <button class="btn btn-lg" style="width:100%" type="submit"><?= icon('check', 18) ?> <?= supplier_order_method($po) === 'online' ? 'Commande passée sur le site' : 'Marquer « Commandé »' ?></button>
           </form>
           <p class="muted mt-1" style="font-size:.82rem">Une fois commandé, le centre pourra cocher les articles reçus.</p>
         <?php elseif (in_array($po['status'], ['commande', 'partiel'], true)): ?>
@@ -191,7 +179,7 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
         <?php if ($po['supplier_email']): ?><div><?= icon('mail', 14) ?> <a href="mailto:<?= e($po['supplier_email']) ?>"><?= e($po['supplier_email']) ?></a></div><?php endif; ?>
         <?php if ($po['website']): ?><div><a href="<?= e($po['website']) ?>" target="_blank" rel="noopener"><?= e($po['website']) ?></a></div><?php endif; ?>
         <?php if ($po['customer_number']): ?><div class="mt-1"><span class="badge badge-gray">N° client : <?= e($po['customer_number']) ?></span></div><?php endif; ?>
-        <?php if ($po['order_method']): ?><div class="mt-1"><small class="muted">Mode de commande : <?= e($po['order_method']) ?></small></div><?php endif; ?>
+        <div class="mt-1"><small class="muted">Mode de commande : <?= e(ORDER_METHODS[supplier_order_method($po)]) ?><?= $po['order_note'] ? ' — ' . e($po['order_note']) : '' ?></small></div>
       </div>
     </div>
 

@@ -51,7 +51,7 @@ function admin_po_create(): void
         $poId = po_create(input_int('center_id'), input_int('supplier_id'), $ids, (string)input('notes', ''));
         notify_po($poId, 'po_created');
         flash('success', 'Bon de commande créé en statut « À commander ».');
-        redirect('admin/order', ['id' => $poId]);
+        redirect('admin/order', ['id' => $poId, 'created' => 1]);
     } catch (RuntimeException $e) {
         flash('error', $e->getMessage());
         redirect('admin/requests');
@@ -105,7 +105,7 @@ function admin_orders(): void
 function admin_po_or_fail(int $id): array
 {
     $po = one('SELECT po.*, s.name AS supplier_name, s.color AS supplier_color, s.email AS supplier_email, s.phone AS supplier_phone,
-                      s.contact_name, s.customer_number, s.min_order_amount, s.free_shipping_from, s.order_method, s.website,
+                      s.contact_name, s.customer_number, s.min_order_amount, s.free_shipping_from, s.order_method, s.website, s.order_url, s.order_note,
                       c.name AS center_name, c.address AS center_address, c.city AS center_city, c.phone AS center_phone, c.delivery_info,
                       u.first_name AS creator_first, u.last_name AS creator_last
                FROM purchase_orders po

@@ -435,6 +435,7 @@ function schema_added_columns(): array
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
         'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
+        'suppliers' => ['order_url' => 'VARCHAR(255) NULL', 'order_note' => 'VARCHAR(255) NULL'],
         'centers'  => [
             'legal_name' => 'VARCHAR(200) NULL', 'contact_name' => 'VARCHAR(150) NULL', 'email' => 'VARCHAR(190) NULL',
             'address2' => 'VARCHAR(255) NULL', 'siren' => 'VARCHAR(9) NULL', 'siret' => 'VARCHAR(14) NULL', 'finess' => 'VARCHAR(9) NULL',

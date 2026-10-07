@@ -96,6 +96,7 @@ $routes = [
     'admin/order-group'     => ['admin_purchasing', 'admin_order_group'],
     'admin/order-group/ordered' => ['admin_purchasing', 'admin_order_group_ordered'],
     'admin/order/pdf'       => ['admin_purchasing', 'admin_order_pdf'],
+    'admin/order/eml'       => ['admin_purchasing', 'admin_order_eml'],
     'admin/order/send'      => ['admin_purchasing', 'admin_order_send'],
     'admin/order/invoice'   => ['admin_purchasing', 'admin_order_invoice'],
     'admin/order/invoice-file' => ['admin_purchasing', 'admin_order_invoice_file'],

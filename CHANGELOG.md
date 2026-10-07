@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.7.0
+- Fiche fournisseur : choix du mode de commande (commande en ligne, bon PDF par e-mail, téléphone, autre) avec l'adresse de commande en ligne et une précision libre. Les anciennes saisies libres (« Site web », « E-mail »…) sont reconnues automatiquement.
+- Commande en ligne : dès la création du bon (simple ou groupé), bouton « Ouvrir le site du fournisseur » (nouvel onglet), rappel du n° client et copie en un clic des références et quantités à coller sur le site ; on note ensuite le n° de commande web.
+- PDF par e-mail sans envoi automatique : e-mail prêt à envoyer avec le PDF joint (fichier .eml pour Outlook ou Courrier Windows), ou téléchargement du PDF et e-mail pré-rempli dans n'importe quelle messagerie.
+- Le mode de commande s'affiche sur les cartes fournisseurs, avec un raccourci vers le site de commande.
+
 ## 1.6.1
 - Suppression d'articles, un par un (bas de la fiche article) ou en lot (cases à cocher dans la liste des articles). Un article jamais commandé est effacé avec son stock et son historique de prix ; un article présent dans des demandes ou des bons de commande est masqué du catalogue (et retiré des paniers, favoris et listes types) pour conserver l'historique.
 - La barre d'actions groupées (articles, comptes) reste visible en bas de l'écran pendant le défilement.

@@ -16,6 +16,7 @@
       </div>
       <div class="chips mt-2">
         <span class="badge badge-violet"><?= (int)$s['nb_products'] ?> articles</span>
+        <?php $om = supplier_order_method($s); ?><span class="badge badge-gray"><?= icon(['online' => 'cart', 'email' => 'mail', 'phone' => 'phone', 'other' => 'clipboard'][$om], 12) ?> <?= ['online' => 'En ligne', 'email' => 'PDF par e-mail', 'phone' => 'Téléphone', 'other' => 'Autre'][$om] ?></span>
         <span class="badge badge-amber">Min. <?= money($s['min_order_amount']) ?></span>
         <?php if ((float)$s['free_shipping_from'] > 0): ?><span class="badge badge-green">Franco <?= money($s['free_shipping_from']) ?></span><?php endif; ?>
         <?php if ($s['all_centers']): ?><span class="badge badge-blue">Tous les centres</span><?php else: ?><span class="badge badge-pink" title="<?= e(implode(', ', $restricted[(int)$s['id']] ?? [])) ?>"><?= icon('lock', 12) ?> <?= count($restricted[(int)$s['id']] ?? []) ?> centre(s)</span><?php endif; ?>
@@ -31,6 +32,7 @@
       <a class="btn btn-sm" href="<?= url('admin/supplier', ['id' => $s['id']]) ?>"><?= icon('edit', 15) ?> Modifier</a>
       <a class="btn btn-sm btn-ghost" href="<?= url('admin/products', ['sup' => $s['id']]) ?>"><?= icon('box', 15) ?> Articles</a>
       <span class="spacer"></span>
+      <?php if ($u = supplier_order_url($s)): ?><a class="btn btn-sm btn-ghost btn-icon" href="<?= e($u) ?>" target="_blank" rel="noopener" title="Site de commande"><?= icon('cart', 16) ?></a><?php endif; ?>
       <?php if ($s['email']): ?><a class="btn btn-sm btn-ghost btn-icon" href="mailto:<?= e($s['email']) ?>" title="<?= e($s['email']) ?>"><?= icon('mail', 16) ?></a><?php endif; ?>
       <?php if ($s['phone']): ?><a class="btn btn-sm btn-ghost btn-icon" href="tel:<?= e($s['phone']) ?>" title="<?= e($s['phone']) ?>"><?= icon('phone', 16) ?></a><?php endif; ?>
     </div>

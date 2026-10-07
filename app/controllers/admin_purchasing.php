@@ -94,7 +94,7 @@ function admin_po_create_group(): void
         }
         audit('Commande groupée créée', 'group', null, $ref);
         flash('success', 'Commande groupée ' . $ref . ' créée (un bon par centre).');
-        redirect('admin/order-group', ['ref' => $ref]);
+        redirect('admin/order-group', ['ref' => $ref, 'created' => 1]);
     } catch (RuntimeException $e) {
         flash('error', $e->getMessage());
         redirect('admin/requests');
@@ -103,7 +103,8 @@ function admin_po_create_group(): void
 
 function group_or_fail(string $ref): array
 {
-    $pos = all('SELECT po.*, c.name AS center_name, c.color AS center_color, s.name AS supplier_name, s.email AS supplier_email, s.min_order_amount, s.free_shipping_from
+    $pos = all('SELECT po.*, c.name AS center_name, c.color AS center_color, s.name AS supplier_name, s.email AS supplier_email, s.min_order_amount, s.free_shipping_from,
+                       s.order_method, s.website, s.order_url, s.order_note, s.customer_number, s.phone AS supplier_phone, s.contact_name
                 FROM purchase_orders po JOIN centers c ON c.id = po.center_id JOIN suppliers s ON s.id = po.supplier_id WHERE po.group_ref = ? ORDER BY c.name', [$ref]);
     if (!$pos) {
         abort(404, 'Commande groupée introuvable.');
@@ -122,7 +123,13 @@ function admin_order_group(): void
         $total += $po['totals']['total'];
     }
     unset($po);
-    render('admin/order_group', ['title' => 'Commande groupée ' . $ref, 'ref' => $ref, 'pos' => $pos, 'total' => $total,
+    $copy = [];
+    foreach ($pos as $po) {
+        foreach (all('SELECT reference, qty, label FROM purchase_order_lines WHERE purchase_order_id = ? ORDER BY label', [$po['id']]) as $l) {
+            $copy[] = trim(($l['reference'] ?: '') . "\t" . $l['qty'] . "\t" . $l['label'] . "\t" . $po['center_name']);
+        }
+    }
+    render('admin/order_group', ['title' => 'Commande groupée ' . $ref, 'ref' => $ref, 'pos' => $pos, 'total' => $total, 'copyText' => implode("\n", $copy),
         'shipping' => array_sum(array_map(fn($p) => (float)$p['shipping_fee'], $pos))]);
 }
 
@@ -185,15 +192,14 @@ function admin_order_send(): void
     if (!is_dir($dir)) {
         @mkdir($dir, 0750, true);
     }
-    $label = input('ref') ? (string)input('ref') : $first['po_number'];
+    $draft = po_mail_draft($ids, (string)input('message', ''));
+    $label = $draft['label'];
     $path = $dir . '/' . $label . '-' . bin2hex(random_bytes(4)) . '.pdf';
     file_put_contents($path, po_pdf($ids));
     $me = user();
-    $message = trim((string)input('message', '')) ?: ("Bonjour" . ($first['contact_name'] ? ' ' . $first['contact_name'] : '') . ",\n\nVeuillez trouver ci-joint notre commande " . $label
-        . ($first['customer_number'] ? ' (n° client ' . $first['customer_number'] . ')' : '') . ".\nMerci de nous confirmer sa bonne réception et le délai de livraison.\n\nCordialement,\n"
-        . $me['first_name'] . ' ' . $me['last_name'] . "\n" . (setting('company_name') ?: app_name()));
+    $message = $draft['body'];
     $html = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#1e2335;line-height:1.5">' . nl2br(e($message)) . '</div>';
-    send_mail($to, 'Commande ' . $label . ' — ' . (setting('company_name') ?: app_name()), $html,
+    send_mail($to, $draft['subject'], $html,
         [['path' => $path, 'name' => $label . '.pdf', 'type' => 'application/pdf']]);
     if (input('cc_me') === '1' && mail_case_enabled('supplier_copy')) {
         send_mail((string)$me['email'], '[Copie] Commande ' . $label, $html, [['path' => $path, 'name' => $label . '.pdf', 'type' => 'application/pdf']]);
@@ -208,6 +214,23 @@ function admin_order_send(): void
     audit('Bon envoyé au fournisseur', 'purchase_order', (int)$ids[0], $label . ' → ' . $to);
     flash('success', 'Bon ' . $label . ' envoyé à ' . $to . ' (PDF joint).');
     redirect(...$back);
+}
+
+/** Brouillon d'e-mail (.eml) avec le PDF joint, à ouvrir dans la messagerie de l'ordinateur. */
+function admin_order_eml(): void
+{
+    require_admin();
+    $ids = po_ids_from_input();
+    $eml = po_eml($ids);
+    $d = po_mail_draft($ids);
+    foreach ($ids as $id) {
+        po_log($id, 'E-mail préparé', 'brouillon avec PDF pour la messagerie de l\'ordinateur');
+    }
+    header('Content-Type: message/rfc822');
+    header('Content-Length: ' . strlen($eml));
+    header('Content-Disposition: attachment; filename="' . $d['label'] . '.eml"');
+    echo $eml;
+    exit;
 }
 
 // ---------------------------------------------------------------- Factures

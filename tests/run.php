@@ -272,6 +272,20 @@ audit('Test audit', 'test', 1, ['a' => 1]);
 check((int)val("SELECT COUNT(*) FROM audit_log WHERE action = 'Test audit'") === 1, 'entrée d\'audit enregistrée');
 check(audit_diff(['p' => '1.00'], ['p' => '1.5'], ['p' => 'Prix']) === 'Prix : 1.00 → 1.5', 'différences décrites lisiblement');
 
+section('Mode de commande fournisseur');
+check(supplier_order_method(['order_method' => 'Site web']) === 'online' && supplier_order_method(['order_method' => 'E-mail']) === 'email'
+    && supplier_order_method(['order_method' => 'Téléphone']) === 'phone' && supplier_order_method(['order_method' => 'Commercial']) === 'other'
+    && supplier_order_method(['order_method' => 'online']) === 'online' && supplier_order_method(['order_method' => '', 'email' => 'a@b.fr']) === 'email', 'anciennes saisies libres reconnues');
+check(supplier_order_url(['order_url' => '', 'website' => 'www.fournisseur.fr']) === 'https://www.fournisseur.fr'
+    && supplier_order_url(['order_url' => 'https://shop.x.fr/commande', 'website' => 'https://x.fr']) === 'https://shop.x.fr/commande'
+    && supplier_order_url(['website' => '']) === null, 'adresse de commande en ligne (dédiée, sinon site web)');
+$poE = (int)val('SELECT id FROM purchase_orders ORDER BY id LIMIT 1');
+$eml = po_eml([$poE]);
+$draftE = po_mail_draft([$poE]);
+check(str_starts_with($eml, 'X-Unsent: 1') && str_contains($eml, 'Content-Type: application/pdf; name="' . $draftE['filename'] . '"')
+    && str_contains(base64_decode(preg_replace('/\s+/', '', explode("\r\n\r\n", explode('--cmd-', $eml)[2])[1])), '%PDF'), 'brouillon .eml : message non envoyé avec le PDF joint');
+check(str_contains($draftE['body'], $draftE['label']) && str_starts_with($draftE['subject'], 'Commande '), 'texte de l\'e-mail pré-rédigé');
+
 section('Suppression d\'articles');
 $supT = (int)val('SELECT id FROM suppliers LIMIT 1');
 $solo = insert('products', ['supplier_id' => $supT, 'reference' => 'DEL1', 'name' => 'Article jetable', 'unit' => 'U', 'catalog_price' => 3, 'vat_rate' => 20, 'min_qty' => 1, 'active' => 1, 'created_at' => now()]);

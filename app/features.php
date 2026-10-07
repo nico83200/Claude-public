@@ -632,3 +632,82 @@ function brand_logo_delete(): void
         set_setting($k, null);
     }
 }
+
+// ---------------------------------------------------------------- Mode de commande fournisseur
+
+const ORDER_METHODS = [
+    'online' => 'Commande en ligne (site du fournisseur)',
+    'email'  => 'Bon de commande PDF par e-mail',
+    'phone'  => 'Par téléphone',
+    'other'  => 'Autre (commercial, fax, EDI…)',
+];
+
+/** Mode de commande normalisé (les anciennes saisies libres « Site web », « E-mail »… sont reconnues). */
+function supplier_order_method(array $s): string
+{
+    $m = (string)($s['order_method'] ?? '');
+    if (isset(ORDER_METHODS[$m])) {
+        return $m;
+    }
+    $n = search_normalize($m);
+    return match (true) {
+        $m === '' => !empty($s['email'] ?? $s['supplier_email'] ?? null) ? 'email' : 'other',
+        (bool)preg_match('/site|web|ligne|internet|portail|extranet/', $n) => 'online',
+        (bool)preg_match('/mail|courriel|pdf/', $n) => 'email',
+        (bool)preg_match('/tel|phone/', $n) => 'phone',
+        default => 'other',
+    };
+}
+
+/** Page où passer la commande en ligne (adresse dédiée, sinon site web du fournisseur). */
+function supplier_order_url(array $s): ?string
+{
+    $u = trim((string)($s['order_url'] ?? '')) ?: trim((string)($s['website'] ?? ''));
+    if ($u === '') {
+        return null;
+    }
+    return preg_match('#^https?://#i', $u) ? $u : 'https://' . $u;
+}
+
+/** Destinataire, objet et texte de l'e-mail de commande (envoi par l'application ou par la messagerie de l'ordinateur). */
+function po_mail_draft(array $ids, ?string $customMessage = null): array
+{
+    $first = one('SELECT po.*, s.name AS supplier_name, s.email AS supplier_email, s.contact_name, s.customer_number, c.name AS center_name
+                  FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id JOIN centers c ON c.id = po.center_id WHERE po.id = ?', [$ids[0]]) ?? abort(404);
+    $label = count($ids) > 1 && $first['group_ref'] ? $first['group_ref'] : $first['po_number'];
+    $me = user();
+    $company = setting('company_name') ?: app_name();
+    $body = trim((string)$customMessage) ?: ("Bonjour" . ($first['contact_name'] ? ' ' . $first['contact_name'] : '') . ",\n\nVeuillez trouver ci-joint notre commande " . $label
+        . ($first['customer_number'] ? ' (n° client ' . $first['customer_number'] . ')' : '') . ".\nMerci de nous confirmer sa bonne réception et le délai de livraison.\n\nCordialement,\n"
+        . trim(($me['first_name'] ?? '') . ' ' . ($me['last_name'] ?? '')) . "\n" . $company);
+    return [
+        'to' => (string)$first['supplier_email'], 'subject' => 'Commande ' . $label . ' — ' . $company,
+        'body' => $body, 'label' => $label, 'filename' => $label . '.pdf', 'first' => $first,
+    ];
+}
+
+/** En-tête MIME encodé (accents). */
+function mime_header(string $s): string
+{
+    return preg_match('/[^\x20-\x7e]/', $s) ? '=?UTF-8?B?' . base64_encode($s) . '?=' : $s;
+}
+
+/**
+ * Brouillon d'e-mail (.eml) avec le PDF joint : ouvert par Outlook ou la messagerie Windows,
+ * il apparaît comme un nouveau message prêt à envoyer (en-tête X-Unsent).
+ */
+function po_eml(array $ids): string
+{
+    $d = po_mail_draft($ids);
+    $b = 'cmd-' . bin2hex(random_bytes(8));
+    $me = user();
+    $from = $me['email'] ? 'From: ' . mime_header(trim($me['first_name'] . ' ' . $me['last_name'])) . ' <' . $me['email'] . ">\r\n" : '';
+    return "X-Unsent: 1\r\n" . $from
+        . ($d['to'] ? 'To: ' . $d['to'] . "\r\n" : '')
+        . 'Subject: ' . mime_header($d['subject']) . "\r\n"
+        . "MIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"$b\"\r\n\r\n"
+        . "--$b\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+        . chunk_split(base64_encode($d['body'])) . "\r\n"
+        . "--$b\r\nContent-Type: application/pdf; name=\"{$d['filename']}\"\r\nContent-Disposition: attachment; filename=\"{$d['filename']}\"\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+        . chunk_split(base64_encode(po_pdf($ids))) . "\r\n--$b--\r\n";
+}

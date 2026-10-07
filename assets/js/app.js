@@ -678,3 +678,25 @@ document.querySelectorAll('[data-map-select]').forEach((sel) => {
     if (cell) cell.textContent = (window.IMPORT_SAMPLES || {})[sel.value] || '';
   });
 });
+
+// Copie dans le presse-papiers (n° client, références à coller sur le site du fournisseur)
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-copy]');
+  if (!b) return;
+  try {
+    await navigator.clipboard.writeText(b.dataset.copy);
+    const old = b.innerHTML; b.textContent = 'Copié ✓'; setTimeout(() => { b.innerHTML = old; }, 1500);
+  } catch (err) { window.prompt('Copiez le texte :', b.dataset.copy); }
+});
+
+// Fiche fournisseur : champs propres au mode de commande choisi
+(function () {
+  const radios = document.querySelectorAll('[data-method-radio]');
+  if (!radios.length) return;
+  const sync = () => {
+    const v = (document.querySelector('[data-method-radio]:checked') || {}).value;
+    document.querySelectorAll('[data-method-show]').forEach((el) => { el.hidden = el.dataset.methodShow !== v; });
+  };
+  radios.forEach((r) => r.addEventListener('change', sync));
+  sync();
+})();

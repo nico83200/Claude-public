@@ -47,18 +47,20 @@ function install_demo_data(int $adminId): void
     }
 
     $suppliers = [
-        'medi' => ['MédiDistrib', 'Sophie Martin', 'commandes@medidistrib.example', '04 91 11 22 33', 150, 12.9, 300, '48 h', 'Site web', '#6366f1', 1],
-        'hyg'  => ['Hygiène Pro Sud', 'Karim Benali', 'contact@hygienepro.example', '04 91 22 33 44', 100, 9.5, 200, '3 jours ouvrés', 'E-mail', '#06b6d4', 1],
-        'bur'  => ['Bureau Express', 'Service client', 'pro@bureauexpress.example', '09 70 00 00 00', 50, 6.9, 89, '24 h', 'Site web', '#3b82f6', 1],
-        'kine' => ['KinéSport Équipement', 'Julien Roux', 'julien@kinesport.example', '04 94 55 66 77', 200, 15, 400, '5 jours', 'Commercial', '#f97316', 0],
-        'cafe' => ['Pause Café Services', 'Agence Var', 'var@pausecafe.example', '04 94 88 99 00', 80, 0, 0, '1 semaine', 'Téléphone', '#f59e0b', 1],
+        'medi' => ['MédiDistrib', 'Sophie Martin', 'commandes@medidistrib.example', '04 91 11 22 33', 150, 12.9, 300, '48 h', 'online', '#6366f1', 1],
+        'hyg'  => ['Hygiène Pro Sud', 'Karim Benali', 'contact@hygienepro.example', '04 91 22 33 44', 100, 9.5, 200, '3 jours ouvrés', 'email', '#06b6d4', 1],
+        'bur'  => ['Bureau Express', 'Service client', 'pro@bureauexpress.example', '09 70 00 00 00', 50, 6.9, 89, '24 h', 'online', '#3b82f6', 1],
+        'kine' => ['KinéSport Équipement', 'Julien Roux', 'julien@kinesport.example', '04 94 55 66 77', 200, 15, 400, '5 jours', 'other', '#f97316', 0],
+        'cafe' => ['Pause Café Services', 'Agence Var', 'var@pausecafe.example', '04 94 88 99 00', 80, 0, 0, '1 semaine', 'phone', '#f59e0b', 1],
     ];
     $sup = [];
     foreach ($suppliers as $k => [$n, $contact, $mail, $tel, $min, $ship, $franco, $delay, $method, $col, $all]) {
         $sup[$k] = insert('suppliers', [
             'name' => $n, 'contact_name' => $contact, 'email' => $mail, 'phone' => $tel, 'customer_number' => 'CL-' . random_int(10000, 99999),
             'min_order_amount' => $min, 'shipping_fee' => $ship, 'free_shipping_from' => $franco, 'delivery_delay' => $delay,
-            'order_method' => $method, 'all_centers' => $all, 'color' => $col, 'active' => 1, 'created_at' => $now,
+            'order_method' => $method, 'all_centers' => $all,
+            'website' => in_array($k, ['medi', 'bur'], true) ? 'https://www.' . ['medi' => 'medidistrib', 'bur' => 'bureauexpress'][$k] . '.example/commande' : null,
+            'order_note' => $k === 'kine' ? 'Passer par Julien Roux (commercial), commande dictée le lundi' : null, 'color' => $col, 'active' => 1, 'created_at' => $now,
         ]);
     }
     // Le fournisseur kiné ne dessert que 2 centres

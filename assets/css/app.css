@@ -563,3 +563,23 @@ details summary::-webkit-details-marker { display: none; }
 .busy-overlay div { background: var(--surface); padding: 1.4rem 1.8rem; border-radius: 16px; font-weight: 600; display: flex; gap: .8rem; align-items: center; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
 .busy-overlay i { width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Passage de commande au fournisseur */
+.send-block { border: 1px solid var(--border); border-radius: 13px; padding: .9rem 1rem; margin-bottom: 1rem; background: var(--surface-2); }
+.send-online { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); background: color-mix(in srgb, var(--primary) 6%, var(--surface)); }
+.send-title { font-weight: 700; display: flex; align-items: center; gap: .45rem; margin-bottom: .6rem; cursor: default; }
+details.send-block > summary { cursor: pointer; list-style: none; margin-bottom: 0; }
+details.send-block > summary::-webkit-details-marker { display: none; }
+details.send-block[open] > summary { margin-bottom: .4rem; }
+.send-meta { display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: center; margin: .7rem 0 .5rem; font-size: .88rem; }
+.send-or { text-align: center; color: var(--muted); font-size: .8rem; margin: .6rem 0 .4rem; }
+.send-steps { display: grid; grid-template-columns: 1fr; gap: .4rem; margin-bottom: .4rem; }
+.send-steps .btn { justify-content: flex-start; }
+.btn-xs { padding: .1rem .45rem; font-size: .75rem; min-height: 0; }
+.method-choice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.method-opt { position: relative; cursor: pointer; margin: 0; }
+.method-opt input { position: absolute; opacity: 0; }
+.method-opt span { display: flex; align-items: center; gap: .5rem; padding: .7rem .85rem; border: 1.5px solid var(--border); border-radius: 12px; font-weight: 600; font-size: .9rem; height: 100%; }
+.method-opt input:checked + span { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--surface)); color: var(--primary); }
+.method-opt input:focus-visible + span { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 640px) { .method-choice { grid-template-columns: 1fr; } }

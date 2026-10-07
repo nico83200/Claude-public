@@ -41,15 +41,26 @@ function admin_supplier_edit(): void
             'shipping_fee' => input_money('shipping_fee', 0.0),
             'free_shipping_from' => input_money('free_shipping_from', 0.0),
             'delivery_delay' => (string)input('delivery_delay') ?: null,
-            'order_method' => (string)input('order_method') ?: null,
+            'order_method' => isset(ORDER_METHODS[(string)input('order_method')]) ? (string)input('order_method') : 'other',
+            'order_url' => (string)input('order_url') ?: null,
+            'order_note' => mb_substr((string)input('order_note'), 0, 255) ?: null,
             'notes' => (string)input('notes') ?: null,
             'all_centers' => input('all_centers') === '1' ? 1 : 0,
             'color' => preg_match('/^#[0-9a-f]{6}$/i', (string)input('color')) ? input('color') : '#0ea5e9',
             'active' => input('active') === '1' ? 1 : 0,
         ];
         $centerIds = array_map('intval', (array)($_POST['centers'] ?? []));
+        foreach (['website', 'order_url'] as $k) {
+            if ($data[$k] && !preg_match('#^https?://#i', $data[$k])) {
+                $data[$k] = 'https://' . $data[$k];
+            }
+        }
         if ($data['name'] === '') {
             flash('error', 'Le nom du fournisseur est obligatoire.');
+        } elseif ($data['order_method'] === 'online' && !$data['order_url'] && !$data['website']) {
+            flash('error', 'Commande en ligne : indiquez l\'adresse du site de commande.');
+        } elseif ($data['order_method'] === 'email' && !$data['email']) {
+            flash('error', 'Envoi du PDF par e-mail : indiquez l\'e-mail de commande du fournisseur.');
         } elseif (!$data['all_centers'] && !$centerIds) {
             flash('error', 'Sélectionnez au moins un centre, ou rendez le fournisseur disponible pour tous les centres.');
         } else {
@@ -57,7 +68,7 @@ function admin_supplier_edit(): void
                 if ($id) {
                     $before = one('SELECT * FROM suppliers WHERE id = ?', [$id]);
                     if ($diff = audit_diff($before, $data, ['min_order_amount' => 'Minimum', 'shipping_fee' => 'Frais de port', 'free_shipping_from' => 'Franco',
-                        'email' => 'E-mail', 'all_centers' => 'Tous centres', 'active' => 'Actif'])) {
+                        'email' => 'E-mail', 'order_method' => 'Mode de commande', 'order_url' => 'Site de commande', 'all_centers' => 'Tous centres', 'active' => 'Actif'])) {
                         audit('Fournisseur modifié', 'supplier', $id, $data['name'] . ' — ' . $diff);
                     }
                     update('suppliers', $data, 'id = ?', [$id]);
