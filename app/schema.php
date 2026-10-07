@@ -355,6 +355,18 @@ function schema_statements(string $driver): array
             cache_key VARCHAR(64) NOT NULL UNIQUE,
             response TEXT NOT NULL,
             created_at DATETIME NOT NULL",
+
+        'support_requests' => "
+            id {PK},
+            user_id {FK} NULL,
+            center_id {FK} NULL,
+            category VARCHAR(20) NOT NULL DEFAULT 'question',
+            subject VARCHAR(200) NOT NULL,
+            message TEXT NOT NULL,
+            page VARCHAR(255) NULL,
+            bot_question TEXT NULL,
+            sent_by VARCHAR(20) NULL,
+            created_at DATETIME NOT NULL",
     ];
 
     $map = $driver === 'sqlite'

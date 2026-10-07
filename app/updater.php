@@ -45,7 +45,7 @@ function update_inspect(string $zipPath): array
     if ($zip->open($zipPath) !== true) {
         throw new RuntimeException('Archive ZIP illisible.');
     }
-    // Le paquet peut contenir un dossier racine unique (ex : commandes-centres-1.2.0/)
+    // Le paquet peut contenir un dossier racine unique (ex : scanappro-1.8.0/)
     $prefix = '';
     $manifestIdx = $zip->locateName('version.json');
     if ($manifestIdx === false) {

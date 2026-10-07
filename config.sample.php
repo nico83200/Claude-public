@@ -16,7 +16,7 @@ return [
     // 'db' => ['driver' => 'sqlite', 'path' => __DIR__ . '/storage/app.sqlite'],
 
     // Nom affiché de l'application
-    'app_name' => 'Commandes Centres',
+    'app_name' => 'ScanAppro',
 
     // Fuseau horaire
     'timezone' => 'Europe/Paris',
@@ -25,6 +25,10 @@ return [
     // Laisser vide pour n'utiliser que la recherche intelligente locale.
     // La variable d'environnement ANTHROPIC_API_KEY est aussi prise en compte.
     'anthropic_api_key' => '',
+
+    // Assistance de l'éditeur (bulle d'aide, page Assistance) — valeurs par défaut : NLapps
+    // 'support_editor' => 'NLapps', 'support_site' => 'https://nlapps.fr', 'support_email' => 'contact@nlapps.fr',
+    // 'support_whatsapp' => '33652436747', 'support_phone' => '+33 6 52 43 67 47',
 
     // Taille max des photos produits (octets)
     'max_upload' => 4 * 1024 * 1024,

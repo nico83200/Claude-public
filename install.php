@@ -42,7 +42,7 @@ if (!is_file(ROOT . '/config.php') && ($_SERVER['REQUEST_METHOD'] ?? '') === 'PO
         'user'   => trim((string)($_POST['db_user'] ?? '')),
         'pass'   => (string)($_POST['db_pass'] ?? ''),
     ];
-    $appName = trim((string)($_POST['app_name'] ?? '')) ?: 'Commandes Centres';
+    $appName = trim((string)($_POST['app_name'] ?? '')) ?: 'ScanAppro';
     try {
         $pdo = new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $db['host'], $db['port'], $db['name']),
             $db['user'], $db['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
@@ -169,7 +169,7 @@ function h(string $s): string
           <div class="field"><label>Serveur</label><input type="text" name="db_host" value="<?= h($_POST['db_host'] ?? 'localhost') ?>"></div>
           <div class="field"><label>Port</label><input type="number" name="db_port" value="<?= h((string)($_POST['db_port'] ?? '3306')) ?>"></div>
         </div>
-        <div class="field"><label>Nom de l'application</label><input type="text" name="app_name" value="<?= h($_POST['app_name'] ?? 'Commandes Centres') ?>"></div>
+        <div class="field"><label>Nom de l'application</label><input type="text" name="app_name" value="<?= h($_POST['app_name'] ?? 'ScanAppro') ?>"></div>
         <button class="btn btn-primary btn-lg mt-1" type="submit"<?= $blocking ? ' disabled' : '' ?>>Tester la connexion et continuer</button>
       </form>
     <?php elseif ($step === 'installed'): ?>

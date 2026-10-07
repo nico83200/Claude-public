@@ -187,7 +187,7 @@ function set_setting(string $key, ?string $value): void
 
 function app_name(): string
 {
-    return setting('app_name') ?: (string)cfg('app_name', 'Commandes Centres');
+    return setting('app_name') ?: (string)cfg('app_name', 'ScanAppro');
 }
 
 // ---------------------------------------------------------------- Vues

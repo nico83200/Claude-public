@@ -1,6 +1,6 @@
 {
-  "name": "Commandes Centres",
-  "short_name": "Commandes",
+  "name": "ScanAppro",
+  "short_name": "ScanAppro",
   "description": "Commandes, réceptions et inventaire des centres de santé",
   "lang": "fr",
   "start_url": "index.php",

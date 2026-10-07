@@ -1,4 +1,4 @@
-/* Commandes Centres — interactions */
+/* ScanAppro — interactions */
 (function () {
   'use strict';
   const csrf = (window.APP && window.APP.csrf) || '';
@@ -699,4 +699,53 @@ document.addEventListener('click', async (e) => {
   };
   radios.forEach((r) => r.addEventListener('change', sync));
   sync();
+})();
+
+// Assistance : chatbot de premier niveau, puis relais vers l'équipe (WhatsApp ou formulaire)
+(function () {
+  const panel = document.querySelector('[data-help-panel]');
+  if (!panel) return;
+  const fab = document.querySelector('[data-help-open]');
+  const log = panel.querySelector('[data-help-log]');
+  const form = panel.querySelector('[data-help-form]');
+  const input = form.querySelector('input');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const open = () => { panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50); };
+  const close = () => { panel.hidden = true; fab.hidden = false; };
+  fab.addEventListener('click', open);
+  panel.querySelector('[data-help-close]').addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) close(); });
+  const add = (html, who) => { const d = document.createElement('div'); d.className = 'msg ' + who; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };
+  const escalate = (r, intro) => {
+    const a = document.createElement('div');
+    a.className = 'help-actions';
+    a.innerHTML = (intro ? '' : '') + '<a class="wa" target="_blank" rel="noopener" href="' + esc(r.whatsapp) + '">💬 WhatsApp</a><a class="form" href="' + esc(r.form) + '">✉️ Formulaire</a>';
+    log.appendChild(a); log.scrollTop = log.scrollHeight;
+  };
+  async function ask(q) {
+    add(esc(q), 'me');
+    const t = document.createElement('div'); t.className = 'help-typing'; t.textContent = 'L\'assistant écrit…'; log.appendChild(t);
+    let r;
+    try {
+      const body = new URLSearchParams({ q, page: document.title + ' (' + location.search + ')', _token: (window.APP && window.APP.csrf) || '' });
+      r = await (await fetch('index.php?r=api/support', { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } })).json();
+    } catch (err) { r = { answer: 'Connexion impossible pour le moment.', links: [], confident: false, whatsapp: panel.querySelector('footer a').href, form: 'index.php?r=support' }; }
+    t.remove();
+    let html = esc(r.answer);
+    if (r.links && r.links.length) html += '<div class="msg-links">' + r.links.map((l) => '<a href="' + esc(l.url) + '">→ ' + esc(l.label) + '</a>').join('') + '</div>';
+    if (r.others && r.others.length) html += '<small>Voir aussi : ' + r.others.map((o) => '<a href="#" data-help-ask="' + esc(o) + '">' + esc(o) + '</a>').join(' · ') + '</small>';
+    add(html, 'bot');
+    if (r.source === 'none' || !r.confident) {
+      add('Pour une réponse personnalisée, contactez l\'équipe :', 'bot');
+      escalate(r);
+    } else {
+      const f = document.createElement('div'); f.className = 'help-actions';
+      f.innerHTML = '<button type="button" data-ok>👍 C\'est résolu</button><button type="button" data-ko>Ce n\'est pas ça</button>';
+      log.appendChild(f); log.scrollTop = log.scrollHeight;
+      f.querySelector('[data-ok]').addEventListener('click', () => { f.remove(); add('Parfait ! N\'hésitez pas si vous avez une autre question.', 'bot'); });
+      f.querySelector('[data-ko]').addEventListener('click', () => { f.remove(); add('Désolé. L\'équipe peut vous aider directement :', 'bot'); escalate(r); });
+    }
+  }
+  form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; ask(q); });
+  log.addEventListener('click', (e) => { const b = e.target.closest('[data-help-ask]'); if (!b) return; e.preventDefault(); ask(b.dataset.helpAsk); });
 })();

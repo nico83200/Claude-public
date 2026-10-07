@@ -95,7 +95,10 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/cleanup') ?>" href="<?= url('admin/cleanup') ?>"><?= icon('trash') ?> Nettoyage des données<?php if (demo_present()): ?> <span class="count">démo</span><?php endif; ?></a>
       <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
       <?php endif; ?>
+      <div class="nav-title">Aide</div>
+      <a class="<?= $active('support') ?>" href="<?= url('support') ?>"><?= icon('info') ?> Assistance</a>
     </nav>
+    <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">ScanAppro · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
 
     <div class="sidebar-foot">
       <div class="avatar"><?= e(initials($u['first_name'], $u['last_name'])) ?></div>
@@ -140,6 +143,26 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
   </div>
 </div>
 <div class="toast-zone" id="toasts"></div>
+<?php if ($r !== 'support'): ?>
+<button type="button" class="help-fab" data-help-open aria-label="Besoin d'aide ?" title="Besoin d'aide ?"><?= icon('info', 22) ?><span>Aide</span></button>
+<section class="help-panel" data-help-panel hidden aria-label="Assistance">
+  <header>
+    <div><strong>Assistance ScanAppro</strong><small>Réponses immédiates · équipe <?= e(support_contact()['editor']) ?> si besoin</small></div>
+    <button type="button" class="btn btn-ghost btn-icon" data-help-close aria-label="Fermer"><?= icon('x', 18) ?></button>
+  </header>
+  <div class="help-log" data-help-log>
+    <div class="msg bot">Bonjour <?= e($u['first_name']) ?> 👋 Posez votre question : je réponds tout de suite aux questions courantes, et je vous mets en relation avec l'équipe <?= e(support_contact()['editor']) ?> si besoin.</div>
+    <div class="help-chips">
+      <?php foreach (array_slice(array_filter(support_faq(), fn($f) => !$f[4] || is_admin()), 0, 4) as $f): ?><button type="button" data-help-ask="<?= e($f[0]) ?>"><?= e($f[0]) ?></button><?php endforeach; ?>
+    </div>
+  </div>
+  <form class="help-input" data-help-form>
+    <input type="text" placeholder="Votre question…" autocomplete="off" maxlength="600" required>
+    <button class="btn btn-primary btn-icon" type="submit" aria-label="Envoyer"><?= icon('send', 18) ?></button>
+  </form>
+  <footer><a href="<?= e(support_whatsapp_url("Bonjour NLapps, j'ai besoin d'aide sur ScanAppro.\n\n" . support_context($u, $center ?? null))) ?>" target="_blank" rel="noopener">WhatsApp</a> · <a href="<?= url('support') ?>">Formulaire de contact</a></footer>
+</section>
+<?php endif; ?>
 <script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?>, version: <?= json_encode(APP_VERSION) ?> };</script>
 <script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>

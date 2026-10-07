@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * Fabrique un paquet de mise à jour à installer depuis l'interface d'administration.
  *
- *   php tools/build-update.php            → dist/commandes-centres-<version>.zip (sans vendor/)
+ *   php tools/build-update.php            → dist/scanappro-<version>.zip (sans vendor/)
  *   php tools/build-update.php --vendor   → inclut les dépendances (assistant IA)
  *   php tools/build-update.php --install  → paquet de première installation (avec install.php et vendor/),
  *                                           à décompresser tel quel chez l'hébergeur (ex. Hostinger)
@@ -39,7 +39,7 @@ if ($forInstall) {
     array_push($include, 'install.php', 'storage/.htaccess', 'uploads/products/.htaccess', 'uploads/brand/.htaccess');
 }
 @mkdir("$root/dist", 0755, true);
-$out = "$root/dist/commandes-centres-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
+$out = "$root/dist/scanappro-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
 $zip = new ZipArchive();
 $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 $zip->addFromString('version.json', json_encode(['version' => $version, 'date' => date('Y-m-d'), 'notes' => $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

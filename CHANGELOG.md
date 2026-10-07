@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.8.0
+- L'application devient **ScanAppro**, éditée et maintenue par NLapps (nom par défaut des nouvelles installations, application installable, mention dans le menu).
+- **Assistance intégrée** : bulle d'aide sur toutes les pages avec un chatbot qui répond immédiatement aux questions courantes (commande, scanner, caméra, réception, inventaire, budgets, import…), avec réponses plus fines si l'option assistant IA est activée.
+- Si la réponse ne suffit pas : contact de l'équipe NLapps par **WhatsApp** (message pré-rempli avec le contexte : client, utilisateur, centre, version, page) ou par **formulaire** (demande enregistrée et envoyée par e-mail, ou transmise en un clic par WhatsApp / e-mail si l'envoi automatique est désactivé). Page « Assistance » avec l'historique des demandes et les coordonnées NLapps.
+
 ## 1.7.3
 - Affichage sur smartphone : l'icône du panier n'est plus coupée (nom du centre tronqué si nécessaire) et plus aucune page ne déborde en largeur (colonnes, boutons, onglets et liens longs s'adaptent).
 

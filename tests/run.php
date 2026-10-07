@@ -38,6 +38,7 @@ require APP . '/features.php';
 require APP . '/cleanup.php';
 require APP . '/spreadsheet.php';
 require APP . '/import.php';
+require APP . '/support.php';
 require APP . '/pdf.php';
 require APP . '/cron.php';
 define('APP_VERSION', trim((string)file_get_contents(ROOT . '/VERSION')));
@@ -285,6 +286,18 @@ $draftE = po_mail_draft([$poE]);
 check(str_starts_with($eml, 'X-Unsent: 1') && str_contains($eml, 'Content-Type: application/pdf; name="' . $draftE['filename'] . '"')
     && str_contains(base64_decode(preg_replace('/\s+/', '', explode("\r\n\r\n", explode('--cmd-', $eml)[2])[1])), '%PDF'), 'brouillon .eml : message non envoyé avec le PDF joint');
 check(str_contains($draftE['body'], $draftE['label']) && str_starts_with($draftE['subject'], 'Commande '), 'texte de l\'e-mail pré-rédigé');
+
+section('Assistance (chatbot et contact NLapps)');
+$m = support_match('la caméra marche pas sur ma tablette', false);
+check($m && $m[0]['title'] === 'La caméra ne s\'ouvre pas', 'question courante : bonne réponse (caméra)');
+check(support_match('ou en est ma commande', false)[0]['title'] === 'Où en est ma demande ?', 'tournure « où en est » → suivi des demandes');
+check(!support_match('importer un fichier excel', false) && support_match('importer un fichier excel', true)[0]['title'] === 'Comment importer un catalogue ?', 'réponses réservées aux administrateurs');
+$r = support_answer('facture erronée du mois dernier', false);
+check($r['source'] === 'none' && $r['confident'] === false, 'question hors base : relais vers l\'équipe');
+$wa = support_whatsapp_url("Bonjour\nTest é");
+check(str_starts_with($wa, 'https://wa.me/33652436747?text=') && str_contains($wa, '%0A') && str_contains($wa, '%C3%A9'), 'lien WhatsApp pré-rempli (numéro NLapps, texte encodé)');
+check(support_contact()['email'] === 'contact@nlapps.fr' && support_contact()['editor'] === 'NLapps', 'coordonnées NLapps par défaut');
+check(app_name() !== '' && str_contains((string)file_get_contents(ROOT . '/manifest.webmanifest'), 'ScanAppro'), 'nom commercial ScanAppro');
 
 section('Suppression d\'articles');
 $supT = (int)val('SELECT id FROM suppliers LIMIT 1');
