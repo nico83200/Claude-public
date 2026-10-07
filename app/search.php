@@ -273,7 +273,7 @@ function ai_sdk_installed(): bool
 
 function ai_available(): bool
 {
-    return setting('ai_enabled', '1') === '1' && ai_api_key() !== '' && ai_sdk_installed();
+    return setting('ai_enabled', '1') === '1' && ai_api_key() !== '' && ai_sdk_installed() && licence_ai_allowed();
 }
 
 function ai_model(): string
@@ -336,6 +336,7 @@ function ai_json(string $system, string $user, array $schema, int $maxTokens = 8
         ai_last_error(match (true) {
             !ai_sdk_installed() => 'Bibliothèque Anthropic absente : le dossier vendor/ manque sur le serveur (utilisez le paquet d\'installation complet).',
             ai_api_key() === '' => 'Aucune clé API enregistrée (ou clé illisible : fichier storage/secret.key changé ?). Ressaisissez-la.',
+            !licence_ai_allowed() => 'L\'option assistant IA n\'est pas incluse dans votre abonnement Approvia : contactez ' . support_contact()['editor'] . ' pour l\'activer.',
             default => 'Assistant IA désactivé dans les paramètres.',
         });
         return null;

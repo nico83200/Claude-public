@@ -1,9 +1,14 @@
-# Centre d'assistance NLapps : données et configuration protégées
+# Centre d'assistance NLapps : données, code interne et configuration protégés
 Options -Indexes
 <FilesMatch "^(config\.php|config\.sample\.php|lib\.php|.*\.md|.*\.sqlite)$">
   Require all denied
 </FilesMatch>
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^data(/|$) - [F,L]
+  RewriteRule ^(data|views|vendor|tests)(/|$) - [F,L]
+</IfModule>
+<IfModule mod_headers.c>
+  <Files "sw.js">
+    Header set Cache-Control "no-cache"
+  </Files>
 </IfModule>

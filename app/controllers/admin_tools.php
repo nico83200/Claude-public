@@ -76,6 +76,8 @@ function admin_updates(): void
         'writable' => is_writable(ROOT . '/app') && is_writable(ROOT . '/storage'),
         'maxUpload' => $maxUpload,
         'preview' => $_SESSION['update_preview'] ?? null,
+        'remote' => licence_managed() ? (licence_check()['latest'] ?? null) : null,
+        'remoteOk' => licence_updates_allowed(),
     ]);
 }
 
@@ -86,6 +88,32 @@ function ini_bytes(string|false $v): int
     return match (strtolower(substr($v, -1))) {
         'g' => $n * 1024 ** 3, 'm' => $n * 1024 ** 2, 'k' => $n * 1024, default => $n,
     };
+}
+
+/** Télécharge la version publiée par NLapps et la prépare : l'installation se confirme ensuite comme pour un paquet envoyé. */
+function admin_updates_remote(): void
+{
+    require_admin();
+    if (!is_post()) {
+        redirect('admin/updates');
+    }
+    $staging = ROOT . '/storage/update-pending.zip';
+    try {
+        licence_check(true);
+        $l = licence_download_update($staging);
+        $info = update_inspect($staging);
+        $_SESSION['update_preview'] = [
+            'version' => $info['version'], 'notes' => $info['notes'] ?: (string)($l['notes'] ?? ''), 'date' => $info['date'],
+            'count' => count($info['files']), 'skipped' => array_slice($info['skipped'], 0, 20),
+            'vendor' => $info['vendor'], 'name' => 'Téléchargée depuis ' . support_contact()['editor'],
+            'newer' => version_compare($info['version'], APP_VERSION, '>'),
+        ];
+        flash('success', 'Version ' . $info['version'] . ' téléchargée et vérifiée : confirmez l\'installation ci-dessous.');
+    } catch (Throwable $e) {
+        @unlink($staging);
+        flash('error', $e->getMessage());
+    }
+    redirect('admin/updates');
 }
 
 /** Étape 1 : envoi et analyse du paquet. Étape 2 : application après confirmation. */

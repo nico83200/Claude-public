@@ -118,6 +118,7 @@ $routes = [
     'admin/stocks'          => ['admin_tools', 'admin_stocks'],
     'admin/updates'         => ['admin_tools', 'admin_updates'],
     'admin/updates/upload'  => ['admin_tools', 'admin_updates_upload'],
+    'admin/updates/remote'  => ['admin_tools', 'admin_updates_remote'],
     'admin/updates/rollback'=> ['admin_tools', 'admin_updates_rollback'],
     'admin/updates/backup'  => ['admin_tools', 'admin_updates_backup'],
     'admin/updates/download'=> ['admin_tools', 'admin_updates_download'],
@@ -134,6 +135,13 @@ if (!isset($routes[$route])) {
 
 if (is_post()) {
     csrf_check();
+}
+
+// Licence suspendue par NLapps : seuls les administrateurs accèdent encore aux paramètres, mises à jour et à l'assistance
+if (user() && licence_blocked() && !in_array($route, ['logout', 'support', 'api/support', 'api/support/live', 'admin/settings', 'admin/updates', 'admin/updates/remote', 'admin/updates/upload'], true)) {
+    http_response_code(403);
+    render('licence_blocked', ['title' => 'Accès suspendu', 'notice' => licence_notice()], 'layout_auth');
+    exit;
 }
 
 // Tâches de fond (e-mails, rappels, sauvegarde) exécutées après l'envoi de la page

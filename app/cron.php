@@ -16,6 +16,7 @@ const CRON_TASKS = [
     'backup'    => ['label' => 'Sauvegarde quotidienne de la base',  'every' => 86400],
     'cleanup'   => ['label' => 'Nettoyage des données techniques',   'every' => 86400],
     'support'   => ['label' => 'Réponses de l\'assistance NLapps',    'every' => 120],
+    'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 21600],
 ];
 
 function cron_last(string $task): int
@@ -46,6 +47,7 @@ function cron_run(bool $force = false): array
                     'backup' => cron_daily_backup($force),
                     'cleanup' => cron_cleanup(),
                     'support' => support_sync(),
+                    'licence' => licence_managed() ? (licence_check(true)['status'] ?? '?') : 'sans clé NLapps',
                 };
                 set_setting('cron_last_' . $task, (string)time());
             } catch (Throwable $e) {

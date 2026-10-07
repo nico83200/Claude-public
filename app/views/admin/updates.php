@@ -11,6 +11,22 @@
 
 <div class="grid grid-main">
   <div class="stack">
+    <?php if (!$preview && $remote && version_compare($remote['version'], APP_VERSION, '>')): ?>
+    <div class="card" style="border:2px solid var(--primary)">
+      <div class="card-head"><h2><?= icon('sparkles') ?> Nouvelle version disponible : <span class="version-pill">v<?= e($remote['version']) ?></span></h2><small class="muted">publiée par <?= e(support_contact()['editor']) ?><?= !empty($remote['date']) ? ' le ' . date_fr($remote['date']) : '' ?></small></div>
+      <div class="card-body">
+        <?php if (!empty($remote['notes'])): ?><div class="card card-body mb-2" style="background:var(--surface-2)"><strong>Nouveautés</strong><div style="white-space:pre-line;font-size:.9rem;max-height:320px;overflow:auto"><?= e($remote['notes']) ?></div></div><?php endif; ?>
+        <?php if ($remoteOk): ?>
+          <form method="post" action="<?= url('admin/updates/remote') ?>" data-busy="Téléchargement de la mise à jour…"><?= csrf_field() ?>
+            <button class="btn btn-primary" type="submit"><?= icon('download', 18) ?> Télécharger et préparer l'installation</button>
+            <small class="muted" style="display:block;margin-top:.4rem">Le paquet est vérifié (empreinte), puis vous confirmez l'installation : sauvegarde automatique et retour arrière possible.</small>
+          </form>
+        <?php else: ?><div class="flash flash-error"><?= icon('alert') ?><div>Abonnement non à jour : téléchargement indisponible. Contactez <?= e(support_contact()['editor']) ?>.</div></div><?php endif; ?>
+      </div>
+    </div>
+    <?php elseif (!$preview && $remote): ?>
+      <div class="flash flash-success"><?= icon('check-circle') ?><div>Votre version est à jour (dernière version publiée : v<?= e($remote['version']) ?>).</div></div>
+    <?php endif; ?>
     <?php if ($preview): ?>
     <div class="card" style="border:2px solid var(--primary)">
       <div class="card-head"><h2><?= icon('sparkles') ?> Paquet prêt : <span class="version-pill">v<?= e($preview['version']) ?></span></h2><small class="muted"><?= e($preview['name']) ?></small></div>

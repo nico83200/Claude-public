@@ -10,6 +10,12 @@ declare(strict_types=1);
  *   POST api.php?a=send   {id, token, text}
  *   GET  api.php?a=poll&id=&token=&after=
  *   POST api.php?a=close  {id, token}
+ *   POST api.php?a=check  {app, version, url, php, stats:{users,centers}, faq_hash}  → licence, dernière version, FAQ partagée
+ *   GET  api.php?a=download&v=1.2.3                                                  → paquet de mise à jour (licence valide)
+ *   POST api.php?a=attach {id, token, data (image en base64), text}                   → capture d'écran jointe
+ *   GET  api.php?a=file&id=&token=&f=                                                 → image d'une conversation
+ *   POST api.php?a=rate   {id, token, rating (1-5), comment}                          → satisfaction après clôture
+ *   GET  api.php?a=faq                                                                → FAQ partagée seule
  */
 require __DIR__ . '/lib.php';
 
@@ -83,13 +89,84 @@ switch ($a) {
 
     case 'poll':
         $c = conv_or_fail($client, $_GET['id'] ?? 0, $_GET['token'] ?? '');
-        out(['status' => $c['status'], 'availability' => hub_status(), 'messages' => hub_messages((int)$c['id'], (int)($_GET['after'] ?? 0))]);
+        out(['status' => $c['status'], 'rated' => $c['rating'] !== null, 'availability' => hub_status(), 'messages' => hub_messages((int)$c['id'], (int)($_GET['after'] ?? 0))]);
 
     case 'close':
         $c = conv_or_fail($client, $in['id'] ?? 0, $in['token'] ?? '');
         hq("UPDATE conversations SET status = 'closed', updated_at = ? WHERE id = ?", [hnow(), $c['id']]);
         hub_add_message((int)$c['id'], 'system', 'Conversation terminée par l\'utilisateur.');
         out(['ok' => true]);
+
+    case 'attach':
+        $c = conv_or_fail($client, $in['id'] ?? 0, $in['token'] ?? '');
+        try {
+            $file = hub_store_image((string)base64_decode((string)($in['data'] ?? ''), true));
+        } catch (RuntimeException $e) {
+            out(['error' => $e->getMessage()], 422);
+        }
+        $mid = hub_add_message((int)$c['id'], 'user', $str($in['text'] ?? '', 1000) ?: 'Capture d\'écran', $file);
+        hub_alert($c, 'Capture d\'écran — ' . $client['name'], ($c['user_name'] ?: 'Utilisateur') . ' a envoyé une image.');
+        out(['ok' => true, 'id' => $mid]);
+
+    case 'file':
+        $c = conv_or_fail($client, $_GET['id'] ?? 0, $_GET['token'] ?? '');
+        $f = hone('SELECT file FROM messages WHERE conversation_id = ? AND file = ?', [$c['id'], basename((string)($_GET['f'] ?? ''))]);
+        $path = $f ? hub_files_dir() . '/' . $f['file'] : '';
+        if (!$f || !is_file($path)) {
+            out(['error' => 'Fichier introuvable.'], 404);
+        }
+        header('Content-Type: ' . (getimagesize($path)['mime'] ?? 'application/octet-stream'));
+        header('Cache-Control: private, max-age=86400');
+        readfile($path);
+        exit;
+
+    case 'rate':
+        $c = conv_or_fail($client, $in['id'] ?? 0, $in['token'] ?? '');
+        $rating = max(1, min(5, (int)($in['rating'] ?? 0)));
+        hq('UPDATE conversations SET rating = ?, rating_comment = ? WHERE id = ?', [$rating, $str($in['comment'] ?? '', 500) ?: null, $c['id']]);
+        hub_add_message((int)$c['id'], 'system', 'Satisfaction : ' . str_repeat('★', $rating) . str_repeat('☆', 5 - $rating) . (($in['comment'] ?? '') ? ' — « ' . $str($in['comment'], 500) . ' »' : ''));
+        out(['ok' => true]);
+
+    case 'faq':
+        out(['items' => hub_faq_for((string)($client['app'] ?: 'approvia'))]);
+
+    case 'check':
+        // Inventaire du parc : version installée, adresse, statistiques d'usage (sans donnée personnelle)
+        $app = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($in['app'] ?? $client['app'] ?? 'approvia'))) ?: 'approvia';
+        hq('UPDATE clients SET app = ?, app_version = ?, instance_url = ?, php_version = ?, stats = ?, last_check = ? WHERE id = ?', [
+            $app, $str($in['version'] ?? '', 30), $str($in['url'] ?? '', 255), $str($in['php'] ?? '', 20),
+            json_encode(array_map('intval', array_slice((array)($in['stats'] ?? []), 0, 10))), hnow(), $client['id'],
+        ]);
+        $client = hone('SELECT * FROM clients WHERE id = ?', [$client['id']]);
+        $lic = hub_licence($client);
+        $latest = hub_latest_release($app);
+        $faq = hub_faq_for($app);
+        $faqHash = substr(sha1(json_encode($faq)), 0, 16);
+        out([
+            'licence' => $lic,
+            'latest' => $latest ? ['version' => $latest['version'], 'notes' => $latest['notes'], 'date' => substr($latest['created_at'], 0, 10),
+                'size' => (int)$latest['size'], 'sha256' => $latest['sha256'], 'downloadable' => in_array($lic['status'], ['active', 'grace'], true)] : null,
+            'faq' => ['hash' => $faqHash] + (($in['faq_hash'] ?? '') !== $faqHash ? ['items' => $faq] : []),
+            'status' => hub_status(),
+        ]);
+
+    case 'download':
+        $lic = hub_licence($client);
+        if (!in_array($lic['status'], ['active', 'grace'], true)) {
+            out(['error' => 'Licence ' . ($lic['status'] === 'suspended' ? 'suspendue' : 'expirée') . ' : mise à jour indisponible. Contactez ' . hcfg('operator_name') . '.'], 402);
+        }
+        $r = hone('SELECT * FROM releases WHERE app = ? AND version = ? AND published = 1', [$client['app'] ?: 'approvia', (string)($_GET['v'] ?? '')]);
+        $path = $r ? hub_releases_dir() . '/' . basename($r['file']) : '';
+        if (!$r || !is_file($path)) {
+            out(['error' => 'Version introuvable.'], 404);
+        }
+        header_remove('Content-Type');
+        header('Content-Type: application/zip');
+        header('Content-Length: ' . filesize($path));
+        header('X-Sha256: ' . $r['sha256']);
+        header('Content-Disposition: attachment; filename="' . $r['app'] . '-' . $r['version'] . '.zip"');
+        readfile($path);
+        exit;
 
     default:
         out(['error' => 'Action inconnue.'], 400);

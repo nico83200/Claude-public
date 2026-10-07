@@ -1,0 +1,282 @@
+<?php
+/** Actions de la console (formulaires POST et appels AJAX avec l'en-tête X-CSRF). */
+defined('HUB') || exit;
+
+$action = (string)($_POST['action'] ?? '');
+$ajax = !empty($_SERVER['HTTP_X_CSRF']);
+$cid = (int)($_POST['c'] ?? 0);
+
+switch ($action) {
+    // ------------------------------------------------------------ Conversations
+    case 'reply':
+        $text = trim((string)($_POST['text'] ?? ''));
+        $file = null;
+        if (!empty($_FILES['image']['tmp_name']) && is_uploaded_file($_FILES['image']['tmp_name'])) {
+            try {
+                $file = hub_store_image((string)file_get_contents($_FILES['image']['tmp_name']));
+            } catch (RuntimeException $e) {
+                $ajax ? json_out(['error' => $e->getMessage()], 422) : flash($e->getMessage(), true);
+                go('index.php?c=' . $cid);
+            }
+        }
+        if (($text !== '' || $file) && hone('SELECT id FROM conversations WHERE id = ?', [$cid])) {
+            $id = hub_add_message($cid, 'agent', $text !== '' ? $text : 'Image', $file);
+            hq("UPDATE conversations SET unread = 0, status = CASE WHEN status = 'closed' THEN 'open' ELSE status END WHERE id = ?", [$cid]);
+            if ($ajax) {
+                json_out(['ok' => true, 'id' => $id]);
+            }
+        }
+        go('index.php?c=' . $cid);
+
+    case 'ai_suggest':
+        $conv = hone('SELECT c.*, cl.name AS client, cl.app FROM conversations c JOIN clients cl ON cl.id = c.client_id WHERE c.id = ?', [$cid]);
+        if (!$conv) {
+            json_out(['error' => 'Conversation introuvable.'], 404);
+        }
+        try {
+            json_out(['text' => hub_ai_suggest($conv)]);
+        } catch (Throwable $e) {
+            json_out(['error' => $e instanceof RuntimeException ? $e->getMessage() : 'Suggestion indisponible pour le moment.'], 502);
+        }
+
+    case 'set_status':
+        $status = in_array($_POST['status'] ?? '', ['open', 'pending', 'closed'], true) ? $_POST['status'] : 'open';
+        $conv = hone('SELECT * FROM conversations WHERE id = ?', [$cid]);
+        if ($conv) {
+            hq('UPDATE conversations SET status = ?, unread = 0 WHERE id = ?', [$status, $cid]);
+            $labels = ['open' => 'Conversation rouverte', 'pending' => 'En attente de votre réponse', 'closed' => 'Conversation résolue et clôturée par ' . hcfg('operator_name')];
+            hub_add_message($cid, 'system', $labels[$status] . '.');
+            if ($status === 'closed') {
+                $sent = !empty($_POST['transcript']) && hub_send_transcript($conv);
+                flash('Conversation résolue.' . ($sent ? ' Transcription envoyée à ' . $conv['user_email'] . '.' : (!empty($_POST['transcript']) ? ' La transcription n\'a pas pu être envoyée (envoi d\'e-mails indisponible sur ce serveur).' : '')), !$sent && !empty($_POST['transcript']));
+            }
+        }
+        go('index.php?c=' . $cid);
+
+    case 'availability':
+        if (hsetting('availability_mode', 'manual') === 'auto') {
+            hset('availability_mode', 'manual'); // un clic sur le bouton reprend la main sur les horaires
+        }
+        hset('online', ($_POST['online'] ?? '') === '1' ? '1' : '0');
+        go((string)($_POST['back'] ?? 'index.php'));
+
+    // ------------------------------------------------------------ Parc clients et licences
+    case 'client_add':
+        $name = trim((string)($_POST['name'] ?? ''));
+        if ($name !== '') {
+            $key = hub_create_client($name, (string)($_POST['site'] ?? ''));
+            $id = (int)hdb()->lastInsertId();
+            hq('UPDATE clients SET app = ?, contact_email = ?, paid_until = ?, ai_option = ?, plan = ? WHERE id = ?', [
+                preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['app'] ?? 'approvia'))) ?: 'approvia',
+                trim((string)($_POST['contact_email'] ?? '')) ?: null, ($_POST['paid_until'] ?? '') ?: null, !empty($_POST['ai_option']) ? 1 : 0,
+                trim((string)($_POST['plan'] ?? '')) ?: 'Abonnement', $id,
+            ]);
+            $_SESSION['new_key'] = ['name' => $name, 'key' => $key];
+        }
+        go('index.php?p=clients');
+
+    case 'client_save':
+        $id = (int)($_POST['id'] ?? 0);
+        $until = (string)($_POST['paid_until'] ?? '');
+        hq('UPDATE clients SET name = ?, site = ?, contact_email = ?, plan = ?, paid_until = ?, ai_option = ?, status = ?, licence_note = ? WHERE id = ?', [
+            mb_substr(trim((string)$_POST['name']), 0, 120) ?: 'Client', mb_substr(trim((string)($_POST['site'] ?? '')), 0, 200),
+            trim((string)($_POST['contact_email'] ?? '')) ?: null, mb_substr(trim((string)($_POST['plan'] ?? '')), 0, 60) ?: 'Abonnement',
+            preg_match('/^\d{4}-\d{2}-\d{2}$/', $until) ? $until : null, !empty($_POST['ai_option']) ? 1 : 0,
+            ($_POST['status'] ?? '') === 'suspended' ? 'suspended' : 'active', mb_substr(trim((string)($_POST['licence_note'] ?? '')), 0, 300) ?: null, $id,
+        ]);
+        flash('Licence mise à jour : elle est transmise à l\'installation du client à sa prochaine vérification (toutes les 6 heures, ou immédiatement depuis ses paramètres).');
+        go('index.php?p=clients');
+
+    case 'client_extend':
+        $c = hone('SELECT * FROM clients WHERE id = ?', [(int)$_POST['id']]);
+        if ($c) {
+            $base = $c['paid_until'] && $c['paid_until'] > date('Y-m-d') ? $c['paid_until'] : date('Y-m-d');
+            $months = max(1, min(36, (int)($_POST['months'] ?? 1)));
+            hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime($base . ' +' . $months . ' months')), $c['id']]);
+            flash('Abonnement de « ' . $c['name'] . ' » prolongé de ' . $months . ' mois.');
+        }
+        go('index.php?p=clients');
+
+    case 'client_toggle':
+        hq('UPDATE clients SET active = 1 - active WHERE id = ?', [(int)$_POST['id']]);
+        go('index.php?p=clients');
+
+    case 'client_rotate':
+        $c = hone('SELECT * FROM clients WHERE id = ?', [(int)$_POST['id']]);
+        if ($c) {
+            $_SESSION['new_key'] = ['name' => $c['name'], 'key' => hub_rotate_key((int)$c['id']), 'rotated' => true];
+        }
+        go('index.php?p=clients');
+
+    // ------------------------------------------------------------ Versions publiées
+    case 'release_upload':
+        $f = $_FILES['package'] ?? null;
+        if (!$f || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+            flash('Envoi impossible' . ($f && in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? ' : fichier trop volumineux pour la configuration PHP du serveur.' : '.'), true);
+            go('index.php?p=releases');
+        }
+        try {
+            $info = hub_inspect_package($f['tmp_name']);
+            $app = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['app'] ?? 'approvia'))) ?: 'approvia';
+            if (hone('SELECT id FROM releases WHERE app = ? AND version = ?', [$app, $info['version']])) {
+                throw new RuntimeException('La version ' . $info['version'] . ' de ' . $app . ' est déjà publiée.');
+            }
+            $file = $app . '-' . $info['version'] . '-' . bin2hex(random_bytes(6)) . '.zip';
+            if (!move_uploaded_file($f['tmp_name'], hub_releases_dir() . '/' . $file)) {
+                throw new RuntimeException('Impossible d\'enregistrer le paquet (droits d\'écriture du dossier data/ ?).');
+            }
+            $path = hub_releases_dir() . '/' . $file;
+            hq('INSERT INTO releases (app, version, notes, file, sha256, size, published, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
+                $app, $info['version'], mb_substr($info['notes'], 0, 8000), $file, hash_file('sha256', $path), filesize($path), !empty($_POST['publish']) ? 1 : 0, hnow(),
+            ]);
+            flash('Version ' . $info['version'] . ' ' . (!empty($_POST['publish']) ? 'publiée : les installations la proposeront à leurs administrateurs.' : 'enregistrée (non publiée).'));
+        } catch (RuntimeException $e) {
+            flash($e->getMessage(), true);
+        }
+        go('index.php?p=releases');
+
+    case 'release_toggle':
+        hq('UPDATE releases SET published = 1 - published WHERE id = ?', [(int)$_POST['id']]);
+        go('index.php?p=releases');
+
+    case 'release_delete':
+        $r = hone('SELECT * FROM releases WHERE id = ?', [(int)$_POST['id']]);
+        if ($r) {
+            @unlink(hub_releases_dir() . '/' . basename($r['file']));
+            hq('DELETE FROM releases WHERE id = ?', [$r['id']]);
+            flash('Version ' . $r['version'] . ' supprimée.');
+        }
+        go('index.php?p=releases');
+
+    // ------------------------------------------------------------ FAQ partagée
+    case 'faq_save':
+        $id = (int)($_POST['id'] ?? 0);
+        $data = [
+            preg_replace('/[^a-z0-9_*-]/', '', strtolower((string)($_POST['app'] ?? '*'))) ?: '*',
+            mb_substr(trim((string)$_POST['question']), 0, 200), mb_substr(trim((string)($_POST['keywords'] ?? '')), 0, 300),
+            mb_substr(trim((string)$_POST['answer']), 0, 2000), mb_substr(trim((string)($_POST['link_label'] ?? '')), 0, 60) ?: null,
+            preg_replace('#[^a-z0-9/_-]#', '', strtolower((string)($_POST['link_route'] ?? ''))) ?: null,
+            !empty($_POST['admin_only']) ? 1 : 0, isset($_POST['active']) || !$id ? 1 : 0, hnow(),
+        ];
+        if ($data[1] === '' || $data[3] === '') {
+            flash('Indiquez la question et la réponse.', true);
+        } elseif ($id) {
+            hq('UPDATE faq SET app = ?, question = ?, keywords = ?, answer = ?, link_label = ?, link_route = ?, admin_only = ?, active = ?, updated_at = ? WHERE id = ?', [...$data, $id]);
+            flash('Question mise à jour : le chatbot de vos clients la connaîtra à leur prochaine synchronisation.');
+        } else {
+            hq('INSERT INTO faq (app, question, keywords, answer, link_label, link_route, admin_only, active, updated_at, source_conv, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                [...$data, (int)($_POST['source_conv'] ?? 0) ?: null, hnow()]);
+            flash('Question ajoutée à la FAQ partagée : le chatbot de vos clients y répondra désormais.');
+        }
+        go('index.php?p=faq');
+
+    case 'faq_delete':
+        hq('DELETE FROM faq WHERE id = ?', [(int)$_POST['id']]);
+        go('index.php?p=faq');
+
+    // ------------------------------------------------------------ Réponses rapides
+    case 'quick_save':
+        $title = mb_substr(trim((string)($_POST['title'] ?? '')), 0, 80);
+        $body = mb_substr(trim((string)($_POST['body'] ?? '')), 0, 2000);
+        if ($title !== '' && $body !== '') {
+            if ($id = (int)($_POST['id'] ?? 0)) {
+                hq('UPDATE quick_replies SET title = ?, body = ? WHERE id = ?', [$title, $body, $id]);
+            } else {
+                hq('INSERT INTO quick_replies (title, body, position) VALUES (?, ?, ?)', [$title, $body, (int)(hone('SELECT MAX(position) m FROM quick_replies')['m'] ?? 0) + 1]);
+            }
+        }
+        go('index.php?p=settings#quick');
+
+    case 'quick_delete':
+        hq('DELETE FROM quick_replies WHERE id = ?', [(int)$_POST['id']]);
+        go('index.php?p=settings#quick');
+
+    // ------------------------------------------------------------ Réglages
+    case 'schedule_save':
+        hset('availability_mode', ($_POST['mode'] ?? '') === 'auto' ? 'auto' : 'manual');
+        $sched = [];
+        foreach (range(1, 7) as $d) {
+            $slots = [];
+            foreach (preg_split('/[,;]/', (string)($_POST['day'][$d] ?? '')) as $slot) {
+                if (preg_match('/(\d{1,2})[:h](\d{2})\s*-\s*(\d{1,2})[:h](\d{2})/', $slot, $m)) {
+                    $slots[] = [sprintf('%02d:%s', $m[1], $m[2]), sprintf('%02d:%s', $m[3], $m[4])];
+                }
+            }
+            if ($slots) {
+                $sched[$d] = $slots;
+            }
+        }
+        hset('schedule', json_encode($sched));
+        hset('away_message', mb_substr(trim((string)($_POST['away_message'] ?? '')), 0, 300));
+        flash('Disponibilité enregistrée.');
+        go('index.php?p=settings');
+
+    case 'ai_save':
+        if (trim((string)($_POST['api_key'] ?? '')) !== '') {
+            hset('anthropic_api_key', trim((string)$_POST['api_key']));
+        }
+        if (!empty($_POST['remove_key'])) {
+            hset('anthropic_api_key', null);
+        }
+        hset('anthropic_model', preg_replace('/[^a-z0-9.-]/', '', (string)($_POST['model'] ?? '')) ?: 'claude-opus-5-5');
+        flash('Réglages de l\'IA enregistrés.');
+        go('index.php?p=settings#ai');
+
+    case 'password_change':
+        if (!password_verify((string)($_POST['current'] ?? ''), (string)hsetting('password_hash'))) {
+            flash('Mot de passe actuel incorrect.', true);
+        } elseif (mb_strlen((string)$_POST['new']) < 10 || $_POST['new'] !== ($_POST['new2'] ?? '')) {
+            flash('Nouveau mot de passe : 10 caractères minimum, saisi deux fois à l\'identique.', true);
+        } else {
+            hset('password_hash', password_hash((string)$_POST['new'], PASSWORD_DEFAULT));
+            flash('Mot de passe modifié.');
+        }
+        go('index.php?p=settings#security');
+
+    case 'totp_start':
+        $_SESSION['totp_new'] = base32_encode(random_bytes(20));
+        go('index.php?p=settings#security');
+
+    case 'totp_enable':
+        $secret = (string)($_SESSION['totp_new'] ?? '');
+        if ($secret && totp_verify($secret, (string)($_POST['code'] ?? ''))) {
+            hset('totp_secret', $secret);
+            unset($_SESSION['totp_new']);
+            flash('Double authentification activée : un code vous sera demandé à chaque connexion.');
+        } else {
+            flash('Code incorrect : vérifiez l\'heure de votre téléphone et réessayez.', true);
+        }
+        go('index.php?p=settings#security');
+
+    case 'totp_disable':
+        if (password_verify((string)($_POST['current'] ?? ''), (string)hsetting('password_hash')) && totp_verify((string)hsetting('totp_secret'), (string)($_POST['code'] ?? ''))) {
+            hset('totp_secret', null);
+            flash('Double authentification désactivée.');
+        } else {
+            flash('Mot de passe ou code incorrect.', true);
+        }
+        go('index.php?p=settings#security');
+
+    case 'push_subscribe':
+        $sub = json_decode((string)($_POST['sub'] ?? ''), true);
+        if (!is_array($sub) || empty($sub['endpoint']) || empty($sub['keys']['p256dh']) || empty($sub['keys']['auth']) || !str_starts_with((string)$sub['endpoint'], 'https://')) {
+            json_out(['error' => 'Abonnement invalide.'], 422);
+        }
+        hq('INSERT INTO push_subs (endpoint, p256dh, auth, label, created_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(endpoint) DO UPDATE SET p256dh = excluded.p256dh, auth = excluded.auth',
+            [$sub['endpoint'], $sub['keys']['p256dh'], $sub['keys']['auth'], mb_substr((string)($_POST['label'] ?? ''), 0, 120), hnow()]);
+        json_out(['ok' => true]);
+
+    case 'push_unsubscribe':
+        hq('DELETE FROM push_subs WHERE id = ? OR endpoint = ?', [(int)($_POST['id'] ?? 0), (string)($_POST['endpoint'] ?? '')]);
+        $ajax ? json_out(['ok' => true]) : go('index.php?p=settings#notif');
+
+    case 'push_test':
+        $n = hub_push_all('Test Assistance NLapps', 'Les notifications fonctionnent sur cet appareil.', hub_base_url());
+        flash($n ? 'Notification envoyée à ' . $n . ' appareil(s).' : 'Aucun appareil n\'a reçu la notification : activez-les depuis votre téléphone.', !$n);
+        go('index.php?p=settings#notif');
+
+    case 'logout':
+        session_destroy();
+        go('index.php');
+}
+go('index.php');

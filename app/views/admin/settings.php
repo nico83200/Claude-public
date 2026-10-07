@@ -91,10 +91,18 @@
   </div>
   <form method="post" class="card" style="grid-column:1/-1" id="assistance">
     <?= csrf_field() ?><input type="hidden" name="action" value="support_hub">
-    <div class="card-head"><h2><?= icon('send') ?> Assistance NLapps · conversation en direct</h2>
+    <div class="card-head"><h2><?= icon('send') ?> Licence et assistance NLapps</h2>
       <?php if ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
     <div class="card-body">
-      <p class="muted" style="font-size:.9rem;margin-top:0">Avec l'accès fourni par NLapps, le bouton « Parler à un conseiller » de la bulle d'aide ouvre une conversation en direct avec l'équipe. Collez simplement les deux lignes reçues.</p>
+      <p class="muted" style="font-size:.9rem;margin-top:0">La clé fournie par NLapps active votre licence, les mises à jour en un clic, les réponses partagées du chatbot et la conversation en direct avec l'équipe (« Parler à un conseiller »). Collez simplement les deux lignes reçues.</p>
+      <?php $li = licence_info(); if (($li['status'] ?? '') !== 'unmanaged'): $lt = ['active' => ['Active', 'green'], 'grace' => ['Échue · délai de grâce', 'amber'], 'expired' => ['Expirée', 'red'], 'suspended' => ['Suspendue', 'red'], 'invalid' => ['Clé refusée', 'red'], 'unknown' => ['Pas encore vérifiée', 'gray']][$li['status'] ?? 'unknown'] ?? ['?', 'gray']; ?>
+        <div class="licence-box mb-2">
+          <div><small class="muted">Licence</small><div><span class="badge badge-<?= $lt[1] ?>"><?= $lt[0] ?></span> <?= !empty($li['plan']) ? e($li['plan']) : '' ?></div></div>
+          <div><small class="muted">Échéance</small><div class="strong"><?= !empty($li['paid_until']) ? date_fr($li['paid_until']) : '—' ?></div></div>
+          <div><small class="muted">Assistant IA</small><div class="strong"><?= !empty($li['ai']) ? 'Inclus' : 'Non souscrit' ?></div></div>
+          <div><small class="muted">Dernière vérification</small><div><?= !empty($li['checked_at']) ? date_fr($li['checked_at'], true) : '—' ?><?= !empty($li['last_error']) ? '<br><small style="color:var(--red)">' . e($li['last_error']) . '</small>' : '' ?></div></div>
+        </div>
+      <?php endif; ?>
       <div class="grid grid-2">
         <div class="field mb-0"><label>Lignes fournies par NLapps</label>
           <textarea name="hub_paste" rows="3" spellcheck="false" style="font-family:monospace;font-size:.82rem" placeholder="'support_hub_url' => 'https://nlapps.fr/assistance/api.php',&#10;'support_hub_key' => 'nlh_…',"></textarea>
@@ -108,7 +116,7 @@
       </div>
       <div class="row row-wrap mt-1">
         <button class="btn btn-primary" type="submit" name="hub_do" value="save"><?= icon('check', 16) ?> Enregistrer et tester</button>
-        <?php if ($hub['source'] !== 'none'): ?><button class="btn" type="submit" name="hub_do" value="test" formnovalidate><?= icon('check-circle', 16) ?> Tester la connexion</button><?php endif; ?>
+        <?php if ($hub['source'] !== 'none'): ?><button class="btn" type="submit" name="hub_do" value="test" formnovalidate><?= icon('check-circle', 16) ?> Vérifier maintenant</button><?php endif; ?>
         <?php if ($hub['source'] === 'settings'): ?><button class="btn btn-danger" type="submit" name="hub_do" value="remove" formnovalidate data-confirm="Supprimer l'accès au centre d'assistance ? La conversation en direct sera désactivée."><?= icon('trash', 16) ?> Supprimer l'accès</button><?php endif; ?>
       </div>
     </div>

@@ -366,6 +366,7 @@ function schema_statements(string $driver): array
             status VARCHAR(10) NOT NULL DEFAULT 'open',
             seen_id INT NOT NULL DEFAULT 0,
             notified_id INT NOT NULL DEFAULT 0,
+            rated TINYINT NOT NULL DEFAULT 0,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL",
 
@@ -461,6 +462,7 @@ function schema_added_columns(): array
         'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
         'stock'    => ['location' => 'VARCHAR(80) NULL'],
+        'support_chats' => ['rated' => 'TINYINT NOT NULL DEFAULT 0'],
         'suppliers' => ['order_url' => 'VARCHAR(255) NULL', 'order_note' => 'VARCHAR(255) NULL'],
         'centers'  => [
             'legal_name' => 'VARCHAR(200) NULL', 'contact_name' => 'VARCHAR(150) NULL', 'email' => 'VARCHAR(190) NULL',

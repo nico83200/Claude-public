@@ -135,6 +135,12 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     </header>
 
     <main class="content">
+      <?php if (is_admin() && ($ln = licence_notice())): ?>
+        <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a></div></div>
+      <?php endif; ?>
+      <?php if (is_admin() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
+        <div class="flash flash-info"><?= icon('sparkles') ?><div>Nouvelle version <strong><?= e($up['version']) ?></strong> disponible. <a href="<?= url('admin/updates') ?>">Voir les nouveautés et l'installer</a></div></div>
+      <?php endif; ?>
       <?php foreach (flashes() as $f): ?>
         <div class="flash flash-<?= e($f['type']) ?>"><?= icon($f['type'] === 'success' ? 'check-circle' : ($f['type'] === 'error' ? 'alert' : 'info')) ?><div><?= e($f['message']) ?></div></div>
       <?php endforeach; ?>
@@ -158,7 +164,8 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     </div>
   </div>
   <form class="help-input" data-help-form>
-    <input type="text" placeholder="Votre question…" autocomplete="off" maxlength="2000" required>
+    <?php if ($liveOn): ?><label class="btn btn-ghost btn-icon help-attach" title="Joindre une capture d'écran au conseiller" hidden data-help-attach><?= icon('camera', 18) ?><input type="file" accept="image/png,image/jpeg,image/webp" hidden></label><?php endif; ?>
+    <input type="text" placeholder="Votre question…" autocomplete="off" maxlength="2000">
     <button class="btn btn-primary btn-icon" type="submit" aria-label="Envoyer"><?= icon('send', 18) ?></button>
   </form>
   <footer><?php if ($liveOn): ?><a href="#" data-help-live>Parler à un conseiller</a> · <?php endif; ?><a href="<?= url('support') ?>">Formulaire de contact</a><span data-help-end hidden> · <a href="#" data-help-close-chat>Terminer la conversation</a></span></footer>

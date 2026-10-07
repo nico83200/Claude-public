@@ -20,6 +20,36 @@ function api_support_ask(): void
     json_response($r);
 }
 
+/** Ouvre une conversation sur le centre d'assistance et l'enregistre. Renvoie la conversation locale, ou null si le centre ne répond pas. */
+function support_chat_start(array $u, ?array $center, string $message, array $transcript = []): ?array
+{
+    $r = support_hub('open', [], [
+        'user' => ['name' => $u['first_name'] . ' ' . $u['last_name'], 'email' => $u['email'],
+            'role' => ['admin' => 'Administrateur', 'manager' => 'Responsable de centre'][$u['role']] ?? 'Salarié', 'center' => $center['name'] ?? ''],
+        'context' => support_context($u, $center, (string)input('page', '')),
+        'transcript' => array_slice($transcript, -12),
+        'message' => $message,
+    ]);
+    if ($r === null || empty($r['id'])) {
+        return null;
+    }
+    insert('support_chats', ['user_id' => $u['id'], 'center_id' => $center['id'] ?? null, 'hub_id' => (int)$r['id'], 'token' => (string)$r['token'],
+        'created_at' => now(), 'updated_at' => now()]);
+    audit('Conversation avec l\'assistance', 'support', (int)$r['id']);
+    return support_open_chat((int)$u['id']);
+}
+
+/** Conversation inconnue du centre d'assistance (clé NLapps changée, conversation supprimée) : on la clôt pour en ouvrir une nouvelle. */
+function support_chat_orphan(?array &$chat): bool
+{
+    if ($chat && support_hub_last_code() === 404) {
+        update('support_chats', ['status' => 'closed', 'rated' => 1, 'updated_at' => now()], 'id = ?', [$chat['id']]);
+        $chat = null;
+        return true;
+    }
+    return false;
+}
+
 /**
  * Conversation en direct avec l'équipe NLapps, relayée par le serveur de l'application
  * (la clé du centre d'assistance n'est jamais exposée au navigateur).
@@ -35,6 +65,51 @@ function api_support_live(): void
     $action = (string)input('action', 'poll');
     $center = current_center();
 
+    // Image d'une conversation (capture envoyée par l'utilisateur ou le conseiller), relayée sans exposer la clé
+    if ($action === 'file') {
+        $c = $chat ?: one('SELECT * FROM support_chats WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$u['id']]);
+        $f = preg_replace('/[^a-z0-9.]/', '', (string)input('f', ''));
+        $code = $c && $f !== '' ? support_hub_download('file', ['id' => $c['hub_id'], 'token' => $c['token'], 'f' => $f], null, $type, $body) : 404;
+        if ($code !== 200 || !preg_match('#^image/(png|jpeg|webp)#', (string)$type)) {
+            http_response_code(404);
+            exit;
+        }
+        header('Content-Type: ' . $type);
+        header('Cache-Control: private, max-age=86400');
+        header('X-Content-Type-Options: nosniff');
+        echo $body;
+        exit;
+    }
+    // Note de satisfaction après la clôture
+    if ($action === 'rate') {
+        $c = one('SELECT * FROM support_chats WHERE user_id = ? ORDER BY id DESC LIMIT 1', [$u['id']]);
+        $ok = $c && support_hub('rate', [], ['id' => $c['hub_id'], 'token' => $c['token'], 'rating' => max(1, min(5, input_int('rating'))),
+            'comment' => mb_substr(trim((string)input('comment', '')), 0, 500)]) !== null;
+        if ($c) {
+            update('support_chats', ['rated' => 1], 'id = ?', [$c['id']]); // proposé une seule fois, même si l'envoi échoue
+        }
+        json_response(['ok' => $ok]);
+    }
+    // Capture d'écran jointe (ouvre la conversation si besoin)
+    if ($action === 'attach') {
+        $f = $_FILES['image'] ?? null;
+        $data = $f && $f['error'] === UPLOAD_ERR_OK && is_uploaded_file($f['tmp_name']) ? (string)file_get_contents($f['tmp_name']) : '';
+        $mime = $data !== '' ? (getimagesizefromstring($data)['mime'] ?? '') : '';
+        if (!in_array($mime, ['image/png', 'image/jpeg', 'image/webp'], true) || strlen($data) > 4 * 1024 * 1024) {
+            json_response(['error' => 'Envoyez une image JPEG, PNG ou WebP de 4 Mo maximum.'], 422);
+        }
+        $text = mb_substr(trim((string)input('text', '')), 0, 1000);
+        $sent = $chat ? support_hub('attach', [], ['id' => $chat['hub_id'], 'token' => $chat['token'], 'data' => base64_encode($data), 'text' => $text]) : null;
+        if ($sent === null && (!$chat || support_chat_orphan($chat))) {
+            $chat = support_chat_start($u, $center, $text ?: 'Capture d\'écran jointe');
+            $sent = $chat ? support_hub('attach', [], ['id' => $chat['hub_id'], 'token' => $chat['token'], 'data' => base64_encode($data), 'text' => '']) : null;
+        }
+        if ($sent === null) {
+            json_response(['error' => 'Envoi de l\'image impossible pour le moment. Réessayez ou utilisez le formulaire.'], 502);
+        }
+        $action = 'poll';
+    }
+
     if ($action === 'open') {
         $text = trim((string)input('text', ''));
         if ($text === '') {
@@ -42,51 +117,47 @@ function api_support_live(): void
         }
         if ($chat) { // une conversation est déjà ouverte : on y ajoute le message
             $r = support_hub('send', [], ['id' => $chat['hub_id'], 'token' => $chat['token'], 'text' => $text]);
-            if ($r === null) {
+            if ($r === null && !support_chat_orphan($chat)) {
                 json_response(['error' => 'Le centre d\'assistance ne répond pas. Réessayez ou utilisez le formulaire.'], 502);
             }
-        } else {
+        }
+        if (!$chat) {
             $transcript = json_decode((string)input('transcript', '[]'), true);
-            $r = support_hub('open', [], [
-                'user' => ['name' => $u['first_name'] . ' ' . $u['last_name'], 'email' => $u['email'],
-                    'role' => ['admin' => 'Administrateur', 'manager' => 'Responsable de centre'][$u['role']] ?? 'Salarié', 'center' => $center['name'] ?? ''],
-                'context' => support_context($u, $center, (string)input('page', '')),
-                'transcript' => is_array($transcript) ? array_slice($transcript, -12) : [],
-                'message' => $text,
-            ]);
-            if ($r === null || empty($r['id'])) {
+            $chat = support_chat_start($u, $center, $text, is_array($transcript) ? $transcript : []);
+            if (!$chat) {
                 json_response(['error' => 'Le centre d\'assistance ne répond pas. Réessayez ou utilisez le formulaire.'], 502);
             }
-            insert('support_chats', ['user_id' => $u['id'], 'center_id' => $center['id'] ?? null, 'hub_id' => (int)$r['id'], 'token' => (string)$r['token'],
-                'created_at' => now(), 'updated_at' => now()]);
-            audit('Conversation avec l\'assistance', 'support', (int)$r['id']);
-            $chat = support_open_chat((int)$u['id']);
         }
     }
     if (!$chat) {
         $st = support_hub('status');
-        json_response(['chat' => false, 'availability' => $st, 'messages' => []]);
+        // Conversation clôturée par le conseiller et pas encore notée : la bulle propose de la noter
+        $lastChat = one("SELECT * FROM support_chats WHERE user_id = ? AND status = 'closed' AND updated_at >= ? ORDER BY id DESC LIMIT 1", [$u['id'], date('Y-m-d H:i:s', strtotime('-2 days'))]);
+        json_response(['chat' => false, 'availability' => $st, 'messages' => [], 'rate' => $lastChat && !$lastChat['rated'] ? (int)$lastChat['id'] : null]);
     }
     if ($action === 'close') {
         support_hub('close', [], ['id' => $chat['hub_id'], 'token' => $chat['token']]);
         update('support_chats', ['status' => 'closed', 'updated_at' => now()], 'id = ?', [$chat['id']]);
-        json_response(['chat' => false, 'closed' => true]);
+        json_response(['chat' => false, 'closed' => true, 'rate' => (int)$chat['id']]);
     }
     $after = $action === 'resume' ? 0 : max(0, input_int('after'));
     $r = support_hub('poll', ['id' => $chat['hub_id'], 'token' => $chat['token'], 'after' => $after]);
+    if ($r === null && support_chat_orphan($chat)) {
+        json_response(['chat' => false, 'availability' => support_hub('status'), 'messages' => []]);
+    }
     if ($r === null) {
         json_response(['error' => 'Connexion au centre d\'assistance perdue, nouvel essai dans un instant.', 'chat' => true], 502);
     }
     // Messages visibles par l'utilisateur (l'échange avec le chatbot reste côté NLapps)
     $msgs = array_values(array_filter($r['messages'] ?? [], fn($m) => in_array($m['from'], ['user', 'agent', 'system'], true)));
     $maxId = max([0, ...array_map(fn($m) => (int)$m['id'], $r['messages'] ?? [])]);
-    $upd = ['updated_at' => now(), 'status' => ($r['status'] ?? 'open') === 'closed' ? 'closed' : 'open'];
+    $upd = ['updated_at' => now(), 'status' => ($r['status'] ?? 'open') === 'closed' ? 'closed' : 'open', 'rated' => !empty($r['rated']) ? 1 : 0];
     if ($maxId > (int)$chat['seen_id']) {
         $upd['seen_id'] = $maxId;
         $upd['notified_id'] = max($maxId, (int)$chat['notified_id']); // déjà vu dans la bulle : pas de notification en double
     }
     update('support_chats', $upd, 'id = ?', [$chat['id']]);
-    json_response(['chat' => true, 'status' => $upd['status'], 'availability' => $r['availability'] ?? null, 'messages' => $msgs, 'last' => $maxId,
+    json_response(['chat' => true, 'status' => $upd['status'], 'rated' => !empty($r['rated']), 'availability' => $r['availability'] ?? null, 'messages' => $msgs, 'last' => $maxId,
         'operator' => support_contact()['editor']]);
 }
 

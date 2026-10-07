@@ -665,3 +665,13 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .stock-place-qty { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
 .quick-loc { font-weight: 600; margin-top: .25rem; }
 .stock-cell { white-space: nowrap; }
+
+/* Bulle d'aide : captures d'écran et note de satisfaction */
+.help-img { display: block; max-width: 100%; max-height: 220px; border-radius: 8px; margin-top: .35rem; }
+.help-attach { flex: none; }
+.help-rate { display: flex; flex-direction: column; gap: .3rem; font-size: .85rem; }
+.help-stars { display: flex; gap: .15rem; }
+.help-stars button { border: 0; background: none; font-size: 1.6rem; line-height: 1; color: #d1d5db; cursor: pointer; padding: 0 .1rem; }
+.help-stars:hover button { color: #f59e0b; }
+.help-stars button:hover ~ button { color: #d1d5db; }
+.licence-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .8rem; padding: .8rem 1rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }

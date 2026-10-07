@@ -31,6 +31,29 @@ const SUPPORT_CATEGORIES = [
  */
 function support_faq(): array
 {
+    return array_merge(support_faq_builtin(), support_faq_remote());
+}
+
+/** Questions partagées par NLapps depuis le centre d'assistance (synchronisées avec la licence). */
+function support_faq_remote(): array
+{
+    $items = json_decode((string)setting('faq_remote', ''), true);
+    if (!is_array($items)) {
+        return [];
+    }
+    $out = [];
+    foreach ($items as $f) {
+        if (!empty($f['q']) && !empty($f['a'])) {
+            $link = is_array($f['link'] ?? null) && count($f['link']) === 2 ? [(string)$f['link'][0], (string)$f['link'][1]] : null;
+            $out[] = [(string)$f['q'], (string)($f['k'] ?? ''), (string)$f['a'], $link, !empty($f['admin'])];
+        }
+    }
+    return $out;
+}
+
+/** Questions intégrées à l'application. */
+function support_faq_builtin(): array
+{
     return [
         ['Comment commander un article ?', 'commander commande article panier demande ajouter acheter besoin',
             "Cherchez l'article (barre de recherche en haut ou Catalogue), indiquez la quantité puis « Ajouter ». Ouvrez ensuite « Mon panier » et cliquez sur « Envoyer la demande » : le service achats la reçoit, classée par fournisseur.", ['Ouvrir le catalogue', 'catalog'], false],
@@ -236,12 +259,63 @@ function support_hub(string $action, array $query = [], ?array $body = null): ?a
         $raw = @file_get_contents($url, false, $ctx);
         $code = (int)preg_replace('/^HTTP\/\S+ (\d+).*/', '$1', $http_response_header[0] ?? 'HTTP/1.1 0');
     }
+    $GLOBALS['support_hub_code'] = $code;
     $data = is_string($raw) ? json_decode($raw, true) : null;
     if (!is_array($data) || $code >= 400) {
         error_log('[support-hub] ' . $action . ' : HTTP ' . $code . ' ' . mb_substr((string)$raw, 0, 200));
         return null;
     }
     return $data;
+}
+
+/** Code HTTP du dernier appel au centre d'assistance (0 = injoignable). */
+function support_hub_last_code(): int
+{
+    return (int)($GLOBALS['support_hub_code'] ?? 0);
+}
+
+/**
+ * Appel du centre d'assistance renvoyant un contenu binaire (paquet de mise à jour, image) :
+ * écrit dans $dest si fourni. Renvoie le code HTTP ; $type reçoit le type de contenu.
+ */
+function support_hub_download(string $action, array $query, ?string $dest = null, ?string &$type = null, ?string &$body = null): int
+{
+    if (!support_live_enabled()) {
+        return 0;
+    }
+    $hub = support_hub_config();
+    $url = $hub['url'] . (str_contains($hub['url'], '?') ? '&' : '?') . http_build_query(['a' => $action] + $query);
+    $headers = ['X-Api-Key: ' . $hub['key']];
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        $fh = $dest ? fopen($dest, 'wb') : null;
+        curl_setopt_array($ch, [CURLOPT_HTTPHEADER => $headers, CURLOPT_TIMEOUT => 120, CURLOPT_CONNECTTIMEOUT => 6, CURLOPT_FOLLOWLOCATION => false]
+            + ($fh ? [CURLOPT_FILE => $fh] : [CURLOPT_RETURNTRANSFER => true]));
+        $out = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $type = (string)curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+        if ($fh) {
+            fclose($fh);
+        } else {
+            $body = is_string($out) ? $out : '';
+        }
+        return $code;
+    }
+    $ctx = stream_context_create(['http' => ['method' => 'GET', 'header' => implode("\r\n", $headers), 'timeout' => 120, 'ignore_errors' => true]]);
+    $out = @file_get_contents($url, false, $ctx);
+    $code = (int)preg_replace('/^HTTP\/\S+ (\d+).*/', '$1', $http_response_header[0] ?? 'HTTP/1.1 0');
+    foreach ($http_response_header ?? [] as $h) {
+        if (stripos($h, 'Content-Type:') === 0) {
+            $type = trim(substr($h, 13));
+        }
+    }
+    if ($dest) {
+        file_put_contents($dest, (string)$out);
+    } else {
+        $body = (string)$out;
+    }
+    return $code;
 }
 
 /** Conversation ouverte de l'utilisateur (une seule à la fois). */
@@ -263,6 +337,9 @@ function support_sync(): int
     foreach (all("SELECT * FROM support_chats WHERE status = 'open' AND updated_at >= ?", [date('Y-m-d H:i:s', strtotime('-30 days'))]) as $c) {
         $r = support_hub('poll', ['id' => $c['hub_id'], 'token' => $c['token'], 'after' => max((int)$c['notified_id'], (int)$c['seen_id'])]);
         if ($r === null) {
+            if (support_hub_last_code() === 404) { // conversation inconnue du centre d'assistance (clé changée) : close
+                update('support_chats', ['status' => 'closed', 'rated' => 1, 'updated_at' => now()], 'id = ?', [$c['id']]);
+            }
             continue;
         }
         $agent = array_values(array_filter($r['messages'] ?? [], fn($m) => $m['from'] === 'agent'));

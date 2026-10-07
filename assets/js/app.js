@@ -709,9 +709,10 @@ document.addEventListener('click', async (e) => {
   const fab = document.querySelector('[data-help-open]');
   const log = panel.querySelector('[data-help-log]');
   const form = panel.querySelector('[data-help-form]');
-  const input = form.querySelector('input');
+  const input = form.querySelector('input[type=text]');
   const title = panel.querySelector('[data-help-title]'), sub = panel.querySelector('[data-help-sub]');
   const endLink = panel.querySelector('[data-help-end]');
+  const attach = panel.querySelector('[data-help-attach]');
   const LIVE = panel.dataset.live === '1', OP = panel.dataset.operator || 'NLapps';
   const token = (window.APP && window.APP.csrf) || '';
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -764,14 +765,42 @@ document.addEventListener('click', async (e) => {
     title.textContent = 'Conversation avec ' + OP;
     sub.textContent = av && av.online === false ? 'Conseillers absents · réponse dès que possible' : 'Un conseiller vous répond ici';
   };
+  const img = (m) => (m.file ? '<a href="index.php?r=api/support/live&action=file&f=' + encodeURIComponent(m.file) + '" target="_blank"><img class="help-img" src="index.php?r=api/support/live&action=file&f=' + encodeURIComponent(m.file) + '" alt="Image"></a>' : '');
   function renderLive(msgs) {
     msgs.forEach((m) => {
       if (shown.has(m.id)) return; shown.add(m.id); last = Math.max(last, m.id);
-      if (m.from === 'agent') add(esc(m.text) + '<small>' + esc(OP) + ' · ' + esc((m.at || '').slice(11, 16)) + '</small>', 'agent');
-      else if (m.from === 'user') add(esc(m.text), 'me');
+      if (m.from === 'agent') add(esc(m.text) + img(m) + '<small>' + esc(OP) + ' · ' + esc((m.at || '').slice(11, 16)) + '</small>', 'agent');
+      else if (m.from === 'user') add(esc(m.text) + img(m), 'me');
       else add(esc(m.text), 'sys');
     });
   }
+  // Note de satisfaction proposée une fois la conversation terminée
+  let rated = false;
+  function askRating() {
+    if (rated || log.querySelector('.help-rate')) return;
+    const a = actions('<div class="help-rate"><span>Votre avis sur cette conversation :</span><div class="help-stars">' + [1, 2, 3, 4, 5].map((n) => '<button type="button" data-rate="' + n + '" aria-label="' + n + ' sur 5">★</button>').join('') + '</div></div>');
+    a.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-rate]'); if (!b) return;
+      rated = true; a.remove();
+      const n = +b.dataset.rate;
+      add('Merci pour votre note ' + '★'.repeat(n) + '☆'.repeat(5 - n) + ' !', 'sys');
+      try { await post('index.php?r=api/support/live', { action: 'rate', rating: n }); } catch (err) {}
+    });
+  }
+  if (attach) attach.querySelector('input').addEventListener('change', async (e) => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    if (f.size > 4 * 1024 * 1024) { add('Image trop lourde (4 Mo maximum).', 'sys'); return; }
+    const pending = add('📷 Envoi de la capture…', 'me pending');
+    const fd = new FormData(); fd.append('_token', token); fd.append('action', 'attach'); fd.append('image', f); fd.append('text', input.value.trim()); fd.append('page', document.title + ' (' + location.search + ')');
+    input.value = '';
+    let r;
+    try { r = await (await fetch('index.php?r=api/support/live', { method: 'POST', body: fd, headers: { 'X-Requested-With': 'fetch' } })).json(); } catch (err) { r = { error: 'Envoi impossible.' }; }
+    pending.remove();
+    if (r.error) { add(esc(r.error), 'sys'); return; }
+    panel.dataset.hasChat = '1'; fab.classList.add('has-chat');
+    renderLive(r.messages || []); startPolling();
+  });
   async function goLive(firstQuestion) {
     if (!LIVE) { location.href = 'index.php?r=support'; return; }
     if (mode !== 'live') {
@@ -779,11 +808,13 @@ document.addEventListener('click', async (e) => {
       log.querySelectorAll('.help-actions, .help-chips').forEach((x) => x.remove());
       input.placeholder = 'Votre message au conseiller…';
       endLink.hidden = false;
+      if (attach) attach.hidden = false;
     }
     let r;
     try { r = await post('index.php?r=api/support/live', { action: 'resume' }); } catch (e) { r = { error: 'Connexion impossible.' }; }
     if (r.error) { add(esc(r.error), 'sys'); return; }
     setLiveHeader(r.availability);
+    if (r.rate && !r.chat) askRating();
     if (r.chat) { renderLive(r.messages || []); }
     else {
       const av = r.availability || {};
@@ -810,7 +841,7 @@ document.addEventListener('click', async (e) => {
       const r = await (await fetch('index.php?r=api/support/live&action=poll&after=' + last, { headers: { 'X-Requested-With': 'fetch' } })).json();
       if (r.messages) { const before = last; renderLive(r.messages); if (last > before && r.messages.some((m) => m.from === 'agent')) beep(); }
       if (r.availability) setLiveHeader(r.availability);
-      if (r.status === 'closed') { add('La conversation a été clôturée. Vous pouvez en ouvrir une nouvelle en écrivant ci-dessous.', 'sys'); panel.dataset.hasChat = '0'; stopPolling(); }
+      if (r.status === 'closed') { add('Vous pouvez ouvrir une nouvelle conversation en écrivant ci-dessous.', 'sys'); panel.dataset.hasChat = '0'; fab.classList.remove('has-chat'); stopPolling(); if (!r.rated) askRating(); }
     } catch (e) {}
   }
   const beep = () => { try { const a = new AudioContext(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value = 760; g.gain.value = .05; o.start(); o.stop(a.currentTime + .15); } catch (e) {} };
@@ -822,8 +853,10 @@ document.addEventListener('click', async (e) => {
     if (!confirm('Terminer la conversation avec le conseiller ?')) return;
     await post('index.php?r=api/support/live', { action: 'close' });
     stopPolling(); mode = 'bot'; panel.dataset.hasChat = '0'; fab.classList.remove('has-chat'); endLink.hidden = true;
+    if (attach) attach.hidden = true;
     title.textContent = 'Assistance Approvia'; input.placeholder = 'Votre question…';
     add('Conversation terminée. Merci ! Le chatbot reste à votre disposition.', 'sys');
+    askRating();
   });
 
   form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; mode === 'live' ? sendLive(q) : ask(q); });

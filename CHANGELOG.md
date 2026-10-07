@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.12.0
+- **Licence NLapps** : la clé fournie par NLapps (Paramètres → Licence et assistance) active l'abonnement. L'état est vérifié toutes les 6 heures : échéance, option assistant IA (coupée si non souscrite), bandeau pour l'administrateur avant l'échéance, délai de grâce de 15 jours, puis coupure de l'IA et des mises à jour ; accès suspendu possible par NLapps. Une coupure réseau ne bloque jamais l'application.
+- **Mises à jour en un clic** : les nouvelles versions publiées par NLapps sont annoncées à l'administrateur (bandeau + page Mises à jour avec les nouveautés), téléchargées et vérifiées (empreinte SHA-256) puis installées avec sauvegarde automatique et retour arrière possible.
+- **FAQ partagée** : le chatbot connaît aussi les questions publiées par NLapps depuis son centre d'assistance, sans mise à jour.
+- **Conversation avec un conseiller** : envoi de captures d'écran (bouton appareil photo), images du conseiller affichées dans la bulle, note de satisfaction (1 à 5 étoiles) à la clôture.
+
 ## 1.11.1
 - **Demandes à traiter : stock du centre** pour chaque article suivi en stock dans le centre demandeur (colonne « Stock centre ») : quantité disponible, repères « Rupture », « Sous le seuil » ou « Couvre la demande », quantité déjà en commande, emplacement au survol et lien vers l'historique des mouvements. « — » pour les articles non suivis.
 

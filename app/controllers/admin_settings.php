@@ -460,12 +460,13 @@ function admin_support_hub_save(): void
         }
         audit('Accès assistance NLapps modifié', 'settings', null, ($url ?: setting('support_hub_url')) . ($key ? ' · clé ' . mask_secret($key) : ''));
     }
-    // Test de la connexion (après enregistrement, ou bouton « Tester »)
-    $st = support_hub('status');
-    if ($st === null) {
+    // Test de la connexion et vérification de la licence (après enregistrement, ou bouton « Tester »)
+    $lic = licence_check(true);
+    if (support_hub_last_code() !== 200) {
         flash('error', 'Le centre d\'assistance ne répond pas ou refuse la clé : vérifiez l\'adresse et la clé fournies par NLapps.');
     } else {
-        flash('success', ($do === 'save' ? 'Accès enregistré. ' : '') . 'Connexion réussie : ' . ($st['operator'] ?? 'NLapps') . ' est '
-            . (!empty($st['online']) ? 'disponible' : 'actuellement absent') . '. Le bouton « Parler à un conseiller » est actif dans la bulle d\'aide.');
+        $labels = ['active' => 'licence active', 'grace' => 'abonnement échu (délai de grâce)', 'expired' => 'abonnement expiré', 'suspended' => 'accès suspendu'];
+        flash('success', ($do === 'save' ? 'Clé enregistrée. ' : '') . 'Connexion réussie : ' . ($labels[$lic['status']] ?? $lic['status'])
+            . (!empty($lic['ai']) ? ', option IA incluse' : '') . '. Le bouton « Parler à un conseiller » est actif dans la bulle d\'aide.');
     }
 }

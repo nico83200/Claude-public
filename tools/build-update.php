@@ -28,9 +28,21 @@ if (in_array('--hub', $argv, true)) {
     $n = 0;
     foreach ($it as $f) {
         $rel = 'assistance/' . ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen("$root/support-hub"))), '/');
-        // Données et configuration locales jamais livrées
-        if ($f->isFile() && !preg_match('#^assistance/(config\.php|data/(?!\.htaccess$).*)$#', $rel)) {
+        // Données, configuration locale et tests jamais livrés
+        if ($f->isFile() && !preg_match('#^assistance/(config\.php|vendor/.*|tests/.*|data/(?!\.htaccess$).*)$#', $rel)) {
             $zip->addFile($f->getPathname(), $rel);
+            $n++;
+        }
+    }
+    // Bibliothèque Anthropic (suggestion de réponse par l'IA), la même que celle d'Approvia
+    if (is_dir("$root/vendor") && !in_array('--no-vendor', $argv, true)) {
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/vendor", FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            $rel = ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen($root))), '/');
+            if (!$f->isFile() || preg_match('#/(\.git|\.github|tests?|docs?|examples?)/#i', '/' . $rel) || preg_match('#^vendor/standard-webhooks/standard-webhooks/libraries/(?!php/)#', $rel)) {
+                continue;
+            }
+            $zip->addFile($f->getPathname(), 'assistance/' . $rel);
             $n++;
         }
     }
