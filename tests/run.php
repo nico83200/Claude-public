@@ -35,6 +35,7 @@ require APP . '/stock.php';
 require APP . '/notify.php';
 require APP . '/updater.php';
 require APP . '/features.php';
+require APP . '/cleanup.php';
 require APP . '/pdf.php';
 require APP . '/cron.php';
 define('APP_VERSION', trim((string)file_get_contents(ROOT . '/VERSION')));
@@ -268,6 +269,50 @@ section('Journal d\'audit');
 audit('Test audit', 'test', 1, ['a' => 1]);
 check((int)val("SELECT COUNT(*) FROM audit_log WHERE action = 'Test audit'") === 1, 'entrée d\'audit enregistrée');
 check(audit_diff(['p' => '1.00'], ['p' => '1.5'], ['p' => 'Prix']) === 'Prix : 1.00 → 1.5', 'différences décrites lisiblement');
+
+section('Suppression de comptes');
+$adminId = (int)val("SELECT id FROM users WHERE role = 'admin' ORDER BY id LIMIT 1");
+$fresh = insert('users', ['email' => 'jetable@test.fr', 'password_hash' => 'x', 'first_name' => 'Jean', 'last_name' => 'Jetable', 'role' => 'user', 'status' => 'active', 'created_at' => now()]);
+insert('user_centers', ['user_id' => $fresh, 'center_id' => (int)val('SELECT id FROM centers LIMIT 1')]);
+check(user_delete($fresh, $adminId) === 'deleted' && !one('SELECT id FROM users WHERE id = ?', [$fresh]), 'compte sans historique effacé définitivement');
+$withHist = (int)val('SELECT user_id FROM requests ORDER BY id LIMIT 1');
+$nbReq = (int)val('SELECT COUNT(*) FROM requests WHERE user_id = ?', [$withHist]);
+check(user_delete($withHist, $adminId) === 'anonymized', 'compte avec commandes anonymisé');
+$anon = one('SELECT * FROM users WHERE id = ?', [$withHist]);
+check($anon['deleted_at'] !== null && $anon['status'] === 'disabled' && str_ends_with($anon['email'], '@compte.invalid') && $anon['first_name'] === 'Ancien compte', 'nom et e-mail effacés, connexion impossible');
+check((int)val('SELECT COUNT(*) FROM requests WHERE user_id = ?', [$withHist]) === $nbReq && (int)val('SELECT COUNT(*) FROM user_centers WHERE user_id = ?', [$withHist]) === 0, 'historique des demandes conservé, accès aux centres retiré');
+check(user_delete($adminId, $adminId) !== 'deleted', 'impossible de supprimer son propre compte');
+$otherAdmin = insert('users', ['email' => 'admin2@test.fr', 'password_hash' => 'x', 'first_name' => 'A', 'last_name' => 'B', 'role' => 'admin', 'status' => 'active', 'created_at' => now()]);
+q("UPDATE users SET status = 'disabled' WHERE id = ?", [$adminId]);
+check(user_delete($otherAdmin, $adminId) === 'Impossible de supprimer le dernier administrateur.', 'le dernier administrateur est protégé');
+q("UPDATE users SET status = 'active' WHERE id = ?", [$adminId]);
+check(user_delete($otherAdmin, $adminId) === 'deleted', 'un autre administrateur peut être supprimé');
+
+section('Suppression des données de démonstration');
+// Un centre, un fournisseur et un article « réels » qui doivent survivre
+$realCenter = insert('centers', ['name' => 'Centre IMSS Réel', 'code' => 'IMSS', 'color' => '#000000', 'active' => 1, 'created_at' => now()]);
+$realSup = insert('suppliers', ['name' => 'Fournisseur réel', 'email' => 'achats@reel.fr', 'min_order_amount' => 0, 'all_centers' => 1, 'color' => '#111111', 'active' => 1, 'created_at' => now()]);
+$realProd = insert('products', ['supplier_id' => $realSup, 'reference' => 'R1', 'name' => 'Article réel', 'unit' => 'Unité', 'catalog_price' => 10, 'vat_rate' => 20, 'min_qty' => 1, 'active' => 1, 'created_at' => now()]);
+$realUser = insert('users', ['email' => 'salarie@imss.fr', 'password_hash' => 'x', 'first_name' => 'Réel', 'last_name' => 'Salarié', 'role' => 'user', 'status' => 'active', 'created_at' => now()]);
+// Une demande réelle qui contient aussi un article de démonstration
+$demoProd = (int)val("SELECT p.id FROM products p JOIN suppliers s ON s.id = p.supplier_id WHERE s.name = 'MédiDistrib' LIMIT 1");
+$rq = insert('requests', ['center_id' => $realCenter, 'user_id' => $realUser, 'urgent' => 0, 'created_at' => now()]);
+foreach ([[$realProd, $realSup], [$demoProd, (int)val('SELECT supplier_id FROM products WHERE id = ?', [$demoProd])]] as [$p, $sp]) {
+    insert('request_lines', ['request_id' => $rq, 'center_id' => $realCenter, 'product_id' => $p, 'supplier_id' => $sp, 'qty' => 1, 'unit_price' => 5, 'status' => 'pending', 'created_at' => now()]);
+}
+check(demo_present() && demo_summary()['centres'] === 3 && demo_summary()['fournisseurs'] === 5, 'jeu de démonstration détecté');
+demo_purge();
+check(!demo_present(), 'plus aucune donnée de démonstration');
+check((int)val("SELECT COUNT(*) FROM users WHERE email LIKE '%@demo.fr'") === 0 && (int)val("SELECT COUNT(*) FROM users WHERE role = 'admin'") >= 1, 'comptes de démo supprimés, administrateur conservé');
+check((bool)one('SELECT id FROM centers WHERE id = ?', [$realCenter]) && (bool)one('SELECT id FROM products WHERE id = ?', [$realProd]) && (bool)one('SELECT id FROM users WHERE id = ?', [$realUser]), 'centre, article et compte réels conservés');
+check((int)val('SELECT COUNT(*) FROM request_lines WHERE request_id = ?', [$rq]) === 1, 'demande réelle conservée, ligne sur article de démo retirée');
+$orphans = (int)val('SELECT COUNT(*) FROM request_lines l LEFT JOIN products p ON p.id = l.product_id WHERE p.id IS NULL')
+    + (int)val('SELECT COUNT(*) FROM purchase_orders po LEFT JOIN centers c ON c.id = po.center_id WHERE c.id IS NULL')
+    + (int)val('SELECT COUNT(*) FROM stock s LEFT JOIN products p ON p.id = s.product_id WHERE p.id IS NULL')
+    + (int)val('SELECT COUNT(*) FROM requests r LEFT JOIN users u ON u.id = r.user_id WHERE u.id IS NULL');
+check($orphans === 0, 'aucune donnée orpheline');
+activity_purge();
+check((int)val('SELECT COUNT(*) FROM requests') === 0 && (int)val('SELECT COUNT(*) FROM purchase_orders') === 0 && (bool)one('SELECT id FROM products WHERE id = ?', [$realProd]), 'effacement de l\'activité : demandes et bons vidés, catalogue conservé');
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));

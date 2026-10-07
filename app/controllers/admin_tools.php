@@ -191,3 +191,55 @@ function admin_updates_delete(): void
     }
     redirect('admin/updates');
 }
+
+// ---------------------------------------------------------------- Nettoyage des données
+
+function admin_cleanup(): void
+{
+    require_admin();
+    if (is_post()) {
+        $action = (string)input('action');
+        if (!in_array($action, ['demo', 'activity'], true) || !admin_check_password()) {
+            redirect('admin/cleanup');
+        }
+        // Sauvegarde préalable : l'opération peut être annulée depuis Mises à jour → Restaurer
+        $backup = null;
+        try {
+            $backup = backup_create($action === 'demo' ? 'Avant suppression des données de démonstration' : 'Avant effacement de l\'activité', false);
+        } catch (Throwable $e) {
+            if (input('without_backup') !== '1') {
+                flash('error', 'Sauvegarde préalable impossible (' . $e->getMessage() . ') : rien n\'a été supprimé. Cochez « continuer sans sauvegarde » pour forcer.');
+                redirect('admin/cleanup');
+            }
+        }
+        if ($action === 'demo') {
+            $done = demo_purge();
+            $parts = [];
+            foreach ($done as $k => $n) {
+                if ($n) {
+                    $parts[] = $n . ' ' . $k;
+                }
+            }
+            audit('Données de démonstration supprimées', 'settings', null, implode(', ', $parts) ?: 'rien à supprimer');
+            flash('success', 'Données de démonstration supprimées' . ($parts ? ' : ' . implode(', ', $parts) : '') . '.'
+                . ($backup ? ' Une sauvegarde a été faite au préalable (Mises à jour → Sauvegardes).' : ''));
+        } else {
+            activity_purge();
+            audit('Activité effacée (demandes, bons, stocks, notifications)', 'settings');
+            flash('success', 'Toute l\'activité a été effacée : le catalogue, les centres, les comptes et les paramètres sont conservés.'
+                . ($backup ? ' Une sauvegarde a été faite au préalable.' : ''));
+        }
+        redirect('admin/cleanup');
+    }
+    render('admin/cleanup', [
+        'title' => 'Nettoyage des données',
+        'demo' => demo_summary(),
+        'activity' => [
+            'demandes' => (int)val('SELECT COUNT(*) FROM requests'),
+            'bons de commande' => (int)val('SELECT COUNT(*) FROM purchase_orders'),
+            'mouvements de stock' => (int)val('SELECT COUNT(*) FROM stock_movements'),
+            'paniers en cours' => (int)val('SELECT COUNT(*) FROM cart_items'),
+            'notifications' => (int)val('SELECT COUNT(*) FROM notifications'),
+        ],
+    ]);
+}

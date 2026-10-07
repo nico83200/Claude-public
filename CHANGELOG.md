@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.5.0
+- Nettoyage des données (menu Service achats) : suppression en un clic des données de démonstration (centres, fournisseurs, articles, comptes @demo.fr, demandes et bons associés), ou effacement de toute l'activité de test en conservant catalogue, centres, comptes et paramètres. Sauvegarde automatique avant chaque nettoyage et confirmation par mot de passe. Bandeau sur le tableau de bord tant que la démo est présente.
+- Suppression de comptes, un par un (fiche du compte) ou en lot (cases à cocher dans la liste). Un compte sans historique est effacé ; un compte qui a passé des demandes est anonymisé pour conserver l'historique des commandes. Son propre compte et le dernier administrateur sont protégés.
+- Réception : après « Enregistrer la réception », le service achats revient sur la fiche du bon de commande concerné.
+
 ## 1.4.2
 - « Tester l'assistant » affiche désormais la cause précise d'un échec de l'IA, avec la piste de correction : clé refusée, crédit API insuffisant, modèle introuvable, connexion sortante bloquée, bibliothèque absente, clé illisible…
 - Si le compte n'accepte pas le repli automatique côté serveur, la recherche IA est relancée sans cette option au lieu d'échouer.

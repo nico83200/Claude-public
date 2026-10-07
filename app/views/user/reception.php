@@ -1,5 +1,5 @@
 <?php $editable = in_array($po['status'], ['commande', 'partiel', 'recu'], true); ?>
-<div class="breadcrumb"><a href="<?= url('receptions') ?>">Réceptions</a> <?= icon('chevron-right', 14) ?> <?= e($po['po_number']) ?></div>
+<div class="breadcrumb"><?php if (is_admin()): ?><a href="<?= url('admin/orders') ?>">Bons de commande</a> <?= icon('chevron-right', 14) ?> <a href="<?= url('admin/order', ['id' => $po['id']]) ?>"><?= e($po['po_number']) ?></a> <?= icon('chevron-right', 14) ?> Réception<?php else: ?><a href="<?= url('receptions') ?>">Réceptions</a> <?= icon('chevron-right', 14) ?> <?= e($po['po_number']) ?><?php endif; ?></div>
 <div class="page-head">
   <div>
     <h1><?= e($po['supplier_name']) ?> <?= po_status_badge($po['status']) ?></h1>

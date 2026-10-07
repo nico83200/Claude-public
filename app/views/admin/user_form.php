@@ -37,3 +37,14 @@
     </div>
   </div>
 </form>
+<?php if (!empty($u['id']) && (int)$u['id'] !== $me): ?>
+<form method="post" action="<?= url('admin/users/delete') ?>" class="card card-body mt-2 danger-zone">
+  <?= csrf_field() ?><input type="hidden" name="ids[]" value="<?= (int)$u['id'] ?>">
+  <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div><strong>Supprimer ce compte</strong><br><small class="muted"><?= $hasHistory
+        ? 'Ce compte a passé ' . (int)$hasHistory . ' demande(s) : il sera anonymisé (nom, e-mail et téléphone effacés, connexion impossible) et l\'historique des commandes restera consultable.'
+        : 'Ce compte n\'a passé aucune demande : il sera effacé définitivement.' ?></small></div>
+    <button class="btn btn-danger" type="submit" data-confirm="Supprimer le compte de <?= e(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? '')) ?> ?"><?= icon('trash', 18) ?> Supprimer le compte</button>
+  </div>
+</form>
+<?php endif; ?>

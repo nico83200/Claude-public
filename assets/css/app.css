@@ -533,3 +533,12 @@ details summary::-webkit-details-marker { display: none; }
 .logo-preview { width: 150px; height: 90px; border: 1px dashed var(--border); border-radius: 12px; display: grid; place-items: center; background: #fff; flex-shrink: 0; padding: .4rem; }
 .logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
 @media (max-width: 900px) { .auth-logo-mobile { display: block; } }
+
+/* Sélection multiple et nettoyage */
+.col-check { width: 2.4rem; text-align: center; }
+.col-check input { width: 1.05rem; height: 1.05rem; cursor: pointer; }
+.bulk-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 1.1rem; background: var(--red-soft); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 2; }
+.bulk-bar[hidden] { display: none; }
+.danger-zone { border: 1px solid var(--red-soft); }
+.cleanup-list { margin: .3rem 0 1rem; padding-left: 1.2rem; }
+.cleanup-list li { margin: .15rem 0; }

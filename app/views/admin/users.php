@@ -7,12 +7,18 @@
     <a class="<?= $status === $k ? 'active' : '' ?>" href="<?= url('admin/users', ['status' => $k]) ?>"><?= $l ?><?php if ($k && !empty($counts[$k])): ?> <span class="badge <?= $k === 'pending' ? 'badge-pink' : 'badge-gray' ?>"><?= (int)$counts[$k] ?></span><?php endif; ?></a>
   <?php endforeach; ?>
 </div>
-<div class="card">
+<form method="post" action="<?= url('admin/users/delete') ?>" class="card" id="users-form">
+  <?= csrf_field() ?>
+  <div class="bulk-bar" id="bulk-bar" hidden>
+    <span><strong data-bulk-count>0</strong> compte(s) sélectionné(s)</span>
+    <button class="btn btn-sm btn-danger" type="submit" data-confirm="Supprimer les comptes sélectionnés ? Les comptes qui ont déjà passé des commandes seront anonymisés pour conserver l'historique."><?= icon('trash', 16) ?> Supprimer la sélection</button>
+  </div>
   <div class="table-wrap"><table class="table">
-    <thead><tr><th>Nom</th><th>Fonction</th><th>Centres</th><th>Rôle</th><th>Statut</th><th>Dernière connexion</th><th></th></tr></thead>
+    <thead><tr><th class="col-check"><input type="checkbox" data-check-all="ids[]" title="Tout sélectionner" aria-label="Tout sélectionner"></th><th>Nom</th><th>Fonction</th><th>Centres</th><th>Rôle</th><th>Statut</th><th>Dernière connexion</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($users as $u): ?>
       <tr>
+        <td class="col-check"><?php if ((int)$u['id'] !== $me): ?><input type="checkbox" name="ids[]" value="<?= (int)$u['id'] ?>" aria-label="Sélectionner <?= e($u['first_name'] . ' ' . $u['last_name']) ?>"><?php endif; ?></td>
         <td><div class="row"><div class="avatar sm"><?= e(initials($u['first_name'], $u['last_name'])) ?></div><div><div class="strong"><?= e($u['first_name'] . ' ' . $u['last_name']) ?></div><small><?= e($u['email']) ?></small></div></div></td>
         <td><?= e($u['job']) ?></td>
         <td><div class="chips">
@@ -29,4 +35,4 @@
     </tbody>
   </table></div>
   <?php if (!$users): ?><div class="empty"><p>Aucun compte.</p></div><?php endif; ?>
-</div>
+</form>

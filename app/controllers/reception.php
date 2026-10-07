@@ -101,5 +101,9 @@ function reception_save(): void
     } else {
         flash('success', ($status === 'recu' ? 'Commande entièrement reçue. Merci !' : 'Réception enregistrée (livraison partielle).') . ' Le stock du centre a été mis à jour.');
     }
+    // Retour au bon de commande concerné (fiche du bon pour le service achats)
+    if (is_admin()) {
+        redirect('admin/order', ['id' => $po['id']]);
+    }
     redirect('reception', ['id' => $po['id']]);
 }

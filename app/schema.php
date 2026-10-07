@@ -433,7 +433,7 @@ function schema_added_columns(): array
 {
     return [
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
-        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL'],
+        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
         'centers'  => [
             'legal_name' => 'VARCHAR(200) NULL', 'contact_name' => 'VARCHAR(150) NULL', 'email' => 'VARCHAR(190) NULL',

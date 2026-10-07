@@ -113,10 +113,10 @@ function admin_users(): void
 {
     require_admin();
     $status = (string)input('status', '');
-    $sql = 'SELECT * FROM users';
+    $sql = 'SELECT * FROM users WHERE deleted_at IS NULL';
     $params = [];
     if (in_array($status, ['pending', 'active', 'disabled'], true)) {
-        $sql .= ' WHERE status = ?';
+        $sql .= ' AND status = ?';
         $params[] = $status;
     }
     $sql .= " ORDER BY CASE status WHEN 'pending' THEN 0 WHEN 'active' THEN 1 ELSE 2 END, last_name, first_name";
@@ -128,15 +128,48 @@ function admin_users(): void
     $centerNames = array_column(all('SELECT id, name FROM centers'), 'name', 'id');
     render('admin/users', [
         'title' => 'Comptes utilisateurs', 'users' => $users, 'userCenters' => $uc, 'status' => $status, 'centerNames' => $centerNames,
-        'counts' => array_column(all('SELECT status, COUNT(*) n FROM users GROUP BY status'), 'n', 'status'),
+        'counts' => array_column(all('SELECT status, COUNT(*) n FROM users WHERE deleted_at IS NULL GROUP BY status'), 'n', 'status'),
+        'me' => (int)user()['id'],
     ]);
+}
+
+/** Suppression d'un ou plusieurs comptes (les comptes avec historique de commandes sont anonymisés). */
+function admin_users_delete(): void
+{
+    $me = require_admin();
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($_POST['ids'] ?? [])))));
+    if (!$ids) {
+        flash('error', 'Aucun compte sélectionné.');
+        redirect('admin/users');
+    }
+    $deleted = $anonymized = 0;
+    $errors = [];
+    foreach ($ids as $id) {
+        $email = (string)val('SELECT email FROM users WHERE id = ?', [$id]);
+        $r = user_delete($id, (int)$me['id']);
+        if ($r === 'deleted' || $r === 'anonymized') {
+            $r === 'deleted' ? $deleted++ : $anonymized++;
+            audit($r === 'deleted' ? 'Compte supprimé' : 'Compte supprimé (anonymisé)', 'user', $id, $email);
+        } else {
+            $errors[$r] = true;
+        }
+    }
+    if ($deleted || $anonymized) {
+        flash('success', plural($deleted + $anonymized, 'compte supprimé', 'comptes supprimés') . '.'
+            . ($anonymized ? ' ' . plural($anonymized, 'compte avait', 'comptes avaient') . ' passé des commandes : '
+                . 'nom et e-mail ont été effacés, l\'historique des commandes est conservé de façon anonyme.' : ''));
+    }
+    foreach (array_keys($errors) as $err) {
+        flash('error', $err);
+    }
+    redirect('admin/users');
 }
 
 function admin_user_edit(): void
 {
     $me = require_admin();
     $id = input_int('id');
-    $u = $id ? one('SELECT * FROM users WHERE id = ?', [$id]) : null;
+    $u = $id ? one('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL', [$id]) : null;
     if ($id && !$u) {
         abort(404);
     }
@@ -207,7 +240,8 @@ function admin_user_edit(): void
         $u = array_merge($u ?? [], $data);
         $selected = $centerIds;
     }
-    render('admin/user_form', ['title' => $u ? $u['first_name'] . ' ' . $u['last_name'] : 'Nouveau compte', 'u' => $u, 'centers' => $centers, 'selected' => $selected]);
+    render('admin/user_form', ['title' => $u ? $u['first_name'] . ' ' . $u['last_name'] : 'Nouveau compte', 'u' => $u, 'centers' => $centers, 'selected' => $selected,
+        'me' => (int)$me['id'], 'hasHistory' => $id ? (int)val('SELECT COUNT(*) FROM requests WHERE user_id = ?', [$id]) : 0]);
 }
 
 // ---------------------------------------------------------------- Dates limites de commande

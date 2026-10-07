@@ -7,6 +7,10 @@
   </div>
 </div>
 
+<?php if (demo_present()): ?>
+  <div class="flash flash-info mb-2"><?= icon('info') ?><div style="flex:1">Les <strong>données de démonstration</strong> sont encore présentes (centres, fournisseurs et comptes fictifs). Retirez-les avant la mise en service.</div>
+    <a class="btn btn-sm" href="<?= url('admin/cleanup') ?>"><?= icon('trash', 16) ?> Supprimer les données de démo</a></div>
+<?php endif; ?>
 <div class="grid grid-4 mb-2">
   <a class="stat c-pink" href="<?= url('admin/requests') ?>">
     <div class="stat-icon g-pink"><?= icon('inbox', 24) ?></div>

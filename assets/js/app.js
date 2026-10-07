@@ -639,3 +639,22 @@
     if (d.length === 9 && luhn(d)) vat.value = vatFrom(d); else msg('siren', false, 'Saisissez d\'abord un SIREN valide');
   });
 })();
+
+// Sélection multiple (cases à cocher) avec barre d'actions groupées
+(function () {
+  document.querySelectorAll('[data-check-all]').forEach((all) => {
+    const form = all.closest('form');
+    const name = all.dataset.checkAll;
+    const boxes = () => [...form.querySelectorAll('input[type=checkbox][name="' + name + '"]')];
+    const bar = form.querySelector('.bulk-bar');
+    const refresh = () => {
+      const n = boxes().filter((b) => b.checked).length;
+      if (bar) { bar.hidden = n === 0; const c = bar.querySelector('[data-bulk-count]'); if (c) c.textContent = n; }
+      all.checked = n > 0 && n === boxes().length;
+      all.indeterminate = n > 0 && n < boxes().length;
+    };
+    all.addEventListener('change', () => { boxes().forEach((b) => { b.checked = all.checked; }); refresh(); });
+    form.addEventListener('change', (e) => { if (e.target.name === name) refresh(); });
+    refresh();
+  });
+})();
