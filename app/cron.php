@@ -16,7 +16,7 @@ const CRON_TASKS = [
     'backup'    => ['label' => 'Sauvegarde quotidienne de la base',  'every' => 86400],
     'cleanup'   => ['label' => 'Nettoyage des données techniques',   'every' => 86400],
     'support'   => ['label' => 'Réponses de l\'assistance NLapps',    'every' => 120],
-    'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 21600],
+    'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 600],
     'cycle'     => ['label' => 'Inventaire tournant de la semaine',   'every' => 21600],
     'report'    => ['label' => 'Rapport achats mensuel (PDF)',        'every' => 21600],
 ];

@@ -20,34 +20,38 @@ if (PHP_SAPI !== 'cli') {
 $root = dirname(__DIR__);
 $forInstall = in_array('--install', $argv, true);
 if (in_array('--hub', $argv, true)) {
+    // Deux paquets : complet (avec la bibliothèque de l'IA) et allégé pour les mises à jour (sans vendor/)
     @mkdir("$root/dist", 0755, true);
-    $out = "$root/dist/nlapps-assistance.zip";
-    $zip = new ZipArchive();
-    $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/support-hub", FilesystemIterator::SKIP_DOTS));
-    $n = 0;
-    foreach ($it as $f) {
-        $rel = 'assistance/' . ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen("$root/support-hub"))), '/');
-        // Données, configuration locale et tests jamais livrés
-        if ($f->isFile() && !preg_match('#^assistance/(config\.php|vendor/.*|tests/.*|data/(?!\.htaccess$).*)$#', $rel)) {
-            $zip->addFile($f->getPathname(), $rel);
-            $n++;
-        }
-    }
-    // Bibliothèque Anthropic (suggestion de réponse par l'IA), la même que celle d'Approvia
-    if (is_dir("$root/vendor") && !in_array('--no-vendor', $argv, true)) {
-        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/vendor", FilesystemIterator::SKIP_DOTS));
+    $hubVersion = trim((string)@file_get_contents("$root/support-hub/VERSION")) ?: '0.0.0';
+    foreach (['nlapps-assistance.zip' => true, 'nlapps-assistance-maj.zip' => false] as $name => $withVendorHub) {
+        $out = "$root/dist/$name";
+        $zip = new ZipArchive();
+        $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/support-hub", FilesystemIterator::SKIP_DOTS));
+        $n = 0;
         foreach ($it as $f) {
-            $rel = ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen($root))), '/');
-            if (!$f->isFile() || preg_match('#/(\.git|\.github|tests?|docs?|examples?)/#i', '/' . $rel) || preg_match('#^vendor/standard-webhooks/standard-webhooks/libraries/(?!php/)#', $rel)) {
-                continue;
+            $rel = 'assistance/' . ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen("$root/support-hub"))), '/');
+            // Données, configuration locale et tests jamais livrés
+            if ($f->isFile() && !preg_match('#^assistance/(config\.php|vendor/.*|tests/.*|data/(?!\.htaccess$).*)$#', $rel)) {
+                $zip->addFile($f->getPathname(), $rel);
+                $n++;
             }
-            $zip->addFile($f->getPathname(), 'assistance/' . $rel);
-            $n++;
         }
+        // Bibliothèque Anthropic (suggestion de réponse par l'IA), la même que celle d'Approvia
+        if ($withVendorHub && is_dir("$root/vendor")) {
+            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/vendor", FilesystemIterator::SKIP_DOTS));
+            foreach ($it as $f) {
+                $rel = ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen($root))), '/');
+                if (!$f->isFile() || preg_match('#/(\.git|\.github|tests?|docs?|examples?)/#i', '/' . $rel) || preg_match('#^vendor/standard-webhooks/standard-webhooks/libraries/(?!php/)#', $rel)) {
+                    continue;
+                }
+                $zip->addFile($f->getPathname(), 'assistance/' . $rel);
+                $n++;
+            }
+        }
+        $zip->close();
+        printf("Centre d'assistance v%s : %s (%d fichiers, %.1f Mo)\n", $hubVersion, $out, $n, filesize($out) / 1048576);
     }
-    $zip->close();
-    printf("Centre d'assistance : %s (%d fichiers)\n", $out, $n);
     exit;
 }
 $withVendor = $forInstall || in_array('--vendor', $argv, true);

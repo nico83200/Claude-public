@@ -145,10 +145,18 @@ if (is_post()) {
     csrf_check();
 }
 
-// Licence suspendue par NLapps : seuls les administrateurs accèdent encore aux paramètres, mises à jour et à l'assistance
-if (user() && licence_blocked() && !in_array($route, ['logout', 'support', 'api/support', 'api/support/live', 'admin/settings', 'admin/updates', 'admin/updates/remote', 'admin/updates/upload'], true)) {
+// Licence expirée ou suspendue : accès coupé immédiatement, déconnexion forcée de tous les utilisateurs
+if (user() && licence_blocked_now()) {
+    audit('Déconnexion forcée (licence ' . (licence_status() === 'suspended' ? 'suspendue' : 'expirée') . ')', 'user', (int)user()['id']);
+    logout_user();
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        json_response(['error' => 'Licence ' . (licence_status() === 'suspended' ? 'suspendue' : 'expirée') . ' : vous avez été déconnecté.', 'logout' => true], 401);
+    }
+    redirect('login');
+}
+if (!user() && $route === 'login' && licence_blocked_now()) {
     http_response_code(403);
-    render('licence_blocked', ['title' => 'Accès suspendu', 'notice' => licence_notice()], 'layout_auth');
+    render('licence_blocked', ['title' => 'Accès coupé', 'notice' => licence_notice(), 'status' => licence_status()], 'layout_auth');
     exit;
 }
 

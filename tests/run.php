@@ -199,7 +199,13 @@ check(licence_ai_allowed() && (licence_notice()['level'] ?? '') === 'info', 'éc
 $setLic(['status' => 'grace', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-3 days')), 'grace_until' => date('Y-m-d', strtotime('+12 days'))]);
 check(licence_ai_allowed() && licence_updates_allowed() && (licence_notice()['level'] ?? '') === 'warn', 'délai de grâce : tout reste actif, avertissement');
 $setLic(['status' => 'expired', 'ai' => true]);
-check(!licence_ai_allowed() && !licence_updates_allowed() && !licence_blocked(), 'abonnement expiré : IA et mises à jour coupées, application utilisable');
+check(!licence_ai_allowed() && !licence_updates_allowed() && licence_blocked(), 'licence expirée : accès au logiciel coupé');
+$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-1 day')), 'grace_until' => date('Y-m-d', strtotime('-1 day'))]);
+check(licence_status() === 'expired' && licence_blocked(), 'échéance dépassée détectée localement, sans attendre la vérification (coupure immédiate)');
+$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d'), 'grace_until' => date('Y-m-d')]);
+check(licence_status() === 'active' && !licence_blocked(), 'jour de l\'échéance encore couvert');
+$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-2 days')), 'grace_until' => date('Y-m-d', strtotime('+3 days'))]);
+check(licence_status() === 'grace' && !licence_blocked(), 'délai de grâce accordé par NLapps respecté');
 $setLic(['status' => 'suspended']);
 check(licence_blocked() && (licence_notice()['level'] ?? '') === 'danger', 'accès suspendu par NLapps');
 $setLic(['status' => 'active', 'ai' => true, 'latest' => ['version' => '99.0.0', 'sha256' => 'x']]);

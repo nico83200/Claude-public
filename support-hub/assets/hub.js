@@ -121,4 +121,20 @@
     s.onload = () => new window.QRCode(qr, { text: qr.dataset.qr, width: 180, height: 180, correctLevel: window.QRCode.CorrectLevel.M });
     document.head.appendChild(s);
   }
+  // ------------------------------------------------------------ Installation comme application
+  let deferred = null;
+  const installBtns = [...document.querySelectorAll('[data-install], [data-install-btn]')];
+  const installState = $('[data-install-state]');
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone && installState) installState.textContent = 'Déjà installée sur cet appareil ✓';
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); deferred = e;
+    installBtns.forEach((b) => { b.hidden = false; b.disabled = false; });
+  });
+  window.addEventListener('appinstalled', () => { deferred = null; installBtns.forEach((b) => { if (b.dataset.install !== undefined) b.hidden = true; }); if (installState) installState.textContent = 'Installée ✓'; });
+  installBtns.forEach((b) => b.addEventListener('click', async () => {
+    if (deferred) { deferred.prompt(); const r = await deferred.userChoice; deferred = null; if (installState) installState.textContent = r.outcome === 'accepted' ? 'Installée ✓' : 'Installation annulée'; return; }
+    if (installState) installState.textContent = /iPhone|iPad/.test(navigator.userAgent) ? 'Sur iPhone/iPad : Safari → Partager → « Sur l\'écran d\'accueil ».' : (standalone ? 'Déjà installée ✓' : 'Utilisez le menu du navigateur : « Installer l\'application ».');
+  }));
 })();
+

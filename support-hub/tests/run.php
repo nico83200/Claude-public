@@ -26,8 +26,11 @@ check(hub_licence($c)['status'] === 'active' && !hub_licence($c)['ai'], 'nouveau
 hq('UPDATE clients SET paid_until = ?, ai_option = 1 WHERE id = ?', [date('Y-m-d', strtotime('+10 days')), $c['id']]);
 $l = hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]));
 check($l['status'] === 'active' && $l['ai'] && $l['days_left'] === 10, 'abonnement payé : actif, option IA, 10 jours restants');
+hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-1 day')), $c['id']]);
+check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'expired', 'sans délai de grâce : expirée dès le lendemain de l\'échéance');
+hset('grace_days', '15');
 hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-5 days')), $c['id']]);
-check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'grace', 'échu depuis 5 jours : délai de grâce');
+check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'grace', 'délai de grâce de 15 jours réglé : échue depuis 5 jours → grâce');
 hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-20 days')), $c['id']]);
 $l = hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]));
 check($l['status'] === 'expired' && !$l['ai'], 'échu depuis 20 jours : expiré, option IA coupée');
@@ -100,6 +103,21 @@ foreach (['1.9.0', '1.10.0', '1.2.0'] as $ver) {
     hq("INSERT INTO releases (app, version, notes, file, sha256, size, published, created_at) VALUES ('approvia', ?, '', 'x.zip', 'h', 1, 1, ?)", [$ver, hnow()]);
 }
 check(hub_latest_release('approvia')['version'] === '1.10.0', 'dernière version selon la numérotation (1.10.0 > 1.9.0)');
+
+echo "Mise à jour du centre\n";
+check(hub_update_allowed('views/inbox.php') && hub_update_allowed('vendor/autoload.php') && !hub_update_allowed('config.php') && !hub_update_allowed('data/x.sqlite') && !hub_update_allowed('../index.php'), 'fichiers remplaçables : code oui, config.php et data/ jamais');
+$pk = $tmp . '/maj.zip';
+$z = new ZipArchive();
+$z->open($pk, ZipArchive::CREATE);
+foreach (['VERSION' => '9.9.9', 'lib.php' => '<?php', 'api.php' => '<?php', 'config.php' => 'PIEGE', 'data/hub.sqlite' => 'PIEGE', 'views/inbox.php' => '<?php'] as $n => $c) {
+    $z->addFromString('assistance/' . $n, $c);
+}
+$z->close();
+$info = hub_update_inspect($pk);
+check($info['version'] === '9.9.9' && in_array('views/inbox.php', $info['files'], true) && !in_array('config.php', $info['files'], true) && !in_array('data/hub.sqlite', $info['files'], true), 'paquet analysé : version lue, config.php et data/ écartés');
+$bad = $tmp . '/bad.zip';
+$z = new ZipArchive(); $z->open($bad, ZipArchive::CREATE); $z->addFromString('readme.txt', 'x'); $z->close();
+try { hub_update_inspect($bad); check(false, 'archive étrangère refusée'); } catch (RuntimeException) { check(true, 'archive étrangère refusée'); }
 
 echo "Pièces jointes\n";
 $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');

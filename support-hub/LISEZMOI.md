@@ -24,7 +24,9 @@ Sur ordinateur ou téléphone (console installable, notifications push).
    Cette clé sert à la fois de licence, d'accès aux mises à jour, de FAQ partagée et de conversation en direct.
 4. (Facultatif) `config.php`, à partir de `config.sample.php` : e-mail d'alerte, nom affiché, notification via **ntfy**.
 
-**Mettre à jour le centre d'assistance** : remplacez les fichiers par ceux du nouveau paquet en gardant `config.php` et le dossier `data/` (base, versions publiées, images).
+**Mettre à jour le centre d'assistance** : **Réglages → Mise à jour du centre**, déposez le paquet (`nlapps-assistance-maj.zip`, ou le paquet complet) et confirmez avec votre mot de passe. Sauvegarde automatique, retour à la version précédente en un clic ; `config.php` et `data/` ne sont jamais touchés. (Pour passer d'une version 2.0 à 2.1, copiez une fois les fichiers par FTP : la page de mise à jour arrive avec la 2.1.)
+
+**Installer la console sur vos appareils** : Réglages → « Installer sur cet appareil » (ordinateur, Android), ou sur iPhone/iPad : Safari → Partager → « Sur l'écran d'accueil ». Elle s'ouvre alors comme une application, avec notifications.
 
 ## Au quotidien
 
@@ -41,11 +43,11 @@ Sur ordinateur ou téléphone (console installable, notifications push).
 | État | Effet dans l'application du client |
 |---|---|
 | Active | Tout fonctionne. Bandeau d'information pour l'administrateur 15 jours avant l'échéance. |
-| Échue (délai de grâce, 15 jours) | Tout fonctionne, bandeau d'avertissement. |
-| Expirée | Assistant IA et mises à jour coupés ; l'application reste utilisable. |
-| Suspendue (manuel) | Les utilisateurs ne peuvent plus utiliser l'application (page « accès suspendu » avec vos coordonnées) ; l'administrateur garde l'accès aux paramètres, aux mises à jour et à l'assistance. |
+| Échue, délai de grâce (si vous en réglez un dans Réglages → Licences) | Tout fonctionne, bandeau d'avertissement avec la date de coupure. |
+| Expirée (le lendemain de l'échéance, ou après le délai de grâce) | **Accès coupé immédiatement** : tous les utilisateurs sont déconnectés et ne peuvent plus se connecter (page « Licence expirée » avec vos coordonnées). Les données sont conservées. |
+| Suspendue (manuel) | Même effet, à tout moment. |
 
-« Prolonger » ajoute 1, 3 ou 12 mois. Sans date d'échéance, la licence est permanente. L'installation vérifie sa licence toutes les 6 heures (ou immédiatement via « Vérifier maintenant ») ; une coupure réseau ne bloque jamais l'application.
+« Prolonger » ajoute 1, 3 ou 12 mois ; l'accès revient dès que le client clique sur « Vérifier à nouveau » (ou dans les 10 minutes). Sans date d'échéance, la licence est permanente. L'installation vérifie sa licence toutes les 10 minutes et contrôle aussi elle-même la date d'échéance ; une coupure réseau ne coupe pas l'accès d'une licence à jour.
 
 ## Versions
 

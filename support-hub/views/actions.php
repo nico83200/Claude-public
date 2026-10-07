@@ -84,7 +84,7 @@ switch ($action) {
             preg_match('/^\d{4}-\d{2}-\d{2}$/', $until) ? $until : null, !empty($_POST['ai_option']) ? 1 : 0,
             ($_POST['status'] ?? '') === 'suspended' ? 'suspended' : 'active', mb_substr(trim((string)($_POST['licence_note'] ?? '')), 0, 300) ?: null, $id,
         ]);
-        flash('Licence mise à jour : elle est transmise à l\'installation du client à sa prochaine vérification (toutes les 6 heures, ou immédiatement depuis ses paramètres).');
+        flash('Licence mise à jour : elle est transmise à l\'installation du client en moins de 10 minutes (expiration ou suspension : utilisateurs déconnectés).');
         go('index.php?p=clients');
 
     case 'client_extend':
@@ -274,6 +274,36 @@ switch ($action) {
         $n = hub_push_all('Test Assistance NLapps', 'Les notifications fonctionnent sur cet appareil.', hub_base_url());
         flash($n ? 'Notification envoyée à ' . $n . ' appareil(s).' : 'Aucun appareil n\'a reçu la notification : activez-les depuis votre téléphone.', !$n);
         go('index.php?p=settings#notif');
+
+    // ------------------------------------------------------------ Licences : délai de grâce
+    case 'grace_save':
+        hset('grace_days', (string)max(0, min(60, (int)($_POST['grace_days'] ?? 0))));
+        flash(hub_grace_days() ? 'Délai de grâce : ' . hub_grace_days() . ' jour(s) après l\'échéance.' : 'Coupure immédiate à l\'échéance : les utilisateurs d\'un client dont la licence expire sont déconnectés.');
+        go('index.php?p=settings#licences');
+
+    // ------------------------------------------------------------ Mise à jour du centre d'assistance
+    case 'hub_update':
+    case 'hub_rollback':
+        if (!password_verify((string)($_POST['password'] ?? ''), (string)hsetting('password_hash'))) {
+            flash('Mot de passe incorrect : opération annulée.', true);
+            go('index.php?p=update');
+        }
+        try {
+            if ($action === 'hub_update') {
+                $f = $_FILES['package'] ?? null;
+                if (!$f || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+                    throw new RuntimeException('Envoi impossible' . ($f && in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? ' : fichier trop volumineux pour la configuration PHP (utilisez le paquet sans vendor/).' : '.'));
+                }
+                $r = hub_update_apply($f['tmp_name'], !empty($_POST['allow_same']));
+                flash('Centre d\'assistance mis à jour : ' . $r['from'] . ' → ' . $r['version'] . ' (' . $r['files'] . ' fichiers). Sauvegarde de la version précédente : ' . $r['backup'] . '.');
+            } else {
+                $r = hub_rollback((string)($_POST['backup'] ?? ''));
+                flash('Version ' . $r['version'] . ' restaurée (' . $r['files'] . ' fichiers).');
+            }
+        } catch (RuntimeException $e) {
+            flash($e->getMessage(), true);
+        }
+        go('index.php?p=update');
 
     case 'logout':
         session_destroy();

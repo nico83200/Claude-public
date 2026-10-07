@@ -109,7 +109,7 @@ if (isset($_GET['feed'])) {
 
 $st = hub_status();
 $p = (string)($_GET['p'] ?? '');
-$pages = ['' => 'Conversations', 'clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ partagée', 'settings' => 'Réglages'];
+$pages = ['' => 'Conversations', 'clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ partagée', 'settings' => 'Réglages', 'update' => 'Mise à jour'];
 if (!isset($pages[$p])) {
     $p = '';
 }
@@ -124,14 +124,15 @@ page_head($pages[$p]);
     <?php $auto = hsetting('availability_mode', 'manual') === 'auto'; ?>
     <button name="online" value="<?= $st['online'] ? '0' : '1' ?>" class="pill <?= $st['online'] ? 'on' : 'off' ?> <?= $auto ? 'auto' : '' ?>" title="<?= $auto ? 'Mode horaires : cliquez pour passer en mode manuel' : 'Changer de disponibilité' ?>"><?= $st['online'] ? '● Disponible' : '○ Absent' ?><?= $auto ? ' · horaires' : '' ?></button>
   </form>
-  <nav><?php foreach ($pages as $k => $label): ?><a href="index.php<?= $k !== '' ? '?p=' . $k : '' ?>" class="<?= $p === $k ? 'act' : '' ?>"><?= h($label) ?></a><?php endforeach; ?></nav>
+  <nav><?php foreach ($pages as $k => $label): if ($k === 'update') continue; ?><a href="index.php<?= $k !== '' ? '?p=' . $k : '' ?>" class="<?= $p === $k || ($k === 'settings' && $p === 'update') ? 'act' : '' ?>"><?= h($label) ?></a><?php endforeach; ?></nav>
+  <button type="button" class="pill install" data-install hidden title="Installer la console comme une application">⬇ Installer</button>
 </header>
 <?php
 $flashHtml = $flashMsg ? '<div class="flash ' . ($flashMsg['err'] ? 'err' : '') . '">' . h($flashMsg['msg']) . '</div>' : '';
 require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
 ?>
 <script>window.HUB = <?= json_encode(['csrf' => $csrf, 'vapid' => (function () { try { return hub_vapid()['public']; } catch (Throwable) { return null; } })()]) ?>;</script>
-<script src="assets/hub.js?v=2"></script>
+<script src="assets/hub.js?v=3"></script>
 <?php
 page_foot();
 
@@ -141,7 +142,7 @@ function page_head(string $title): void
 <title><?= h($title) ?> · Assistance NLapps</title>
 <link rel="icon" href="assets/nlapps-mark.svg"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-192.png">
 <meta name="theme-color" content="#1e1b4b"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/hub.css?v=2"></head><body><?php
+<link rel="stylesheet" href="assets/hub.css?v=3"></head><body><?php
 }
 
 function page_foot(): void

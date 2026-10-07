@@ -30,6 +30,25 @@ $totpNew = $_SESSION['totp_new'] ?? null;
     <button class="btn primary">Enregistrer</button>
   </form>
 
+  <form method="post" class="card" id="licences">
+    <?= csrf_input() ?><input type="hidden" name="action" value="grace_save">
+    <h2>Licences</h2>
+    <p class="muted" style="margin-top:0">À l'échéance d'un abonnement non renouvelé, l'accès au logiciel du client est coupé et tous ses utilisateurs sont déconnectés (page avec vos coordonnées). Vous pouvez laisser un délai de grâce.</p>
+    <div class="row"><label style="margin:0">Délai de grâce après l'échéance</label><input type="number" name="grace_days" min="0" max="60" value="<?= hub_grace_days() ?>" style="max-width:90px"><span>jour(s) — 0 = coupure immédiate</span><button class="btn">Enregistrer</button></div>
+  </form>
+
+  <div class="card" id="install">
+    <h2>Application sur vos appareils</h2>
+    <p class="muted" style="margin-top:0">La console s'installe comme une application (icône sur l'écran d'accueil ou le bureau, fenêtre dédiée, notifications) :</p>
+    <ul style="margin:.3rem 0 .8rem;padding-left:1.2rem;line-height:1.6">
+      <li><b>Ordinateur (Chrome, Edge)</b> : bouton ci-dessous, ou icône ⊕ dans la barre d'adresse.</li>
+      <li><b>Android</b> : bouton ci-dessous, ou menu ⋮ → « Installer l'application ».</li>
+      <li><b>iPhone / iPad</b> : dans Safari, bouton Partager → « Sur l'écran d'accueil ».</li>
+    </ul>
+    <div class="row"><button class="btn primary" type="button" data-install-btn>⬇ Installer sur cet appareil</button><span class="muted" data-install-state></span>
+      <a class="btn" href="index.php?p=update">Mise à jour du centre (v<?= h(hub_version()) ?>)</a></div>
+  </div>
+
   <div class="card" id="notif">
     <h2>Notifications</h2>
     <p style="margin-top:0">Installez cette console sur votre téléphone (menu du navigateur → « Ajouter à l'écran d'accueil »), puis activez les notifications : vous êtes prévenu à chaque nouveau message, même console fermée.</p>

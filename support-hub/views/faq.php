@@ -36,7 +36,7 @@ function faq_form(array $f, string $submit): void
 <main class="wrap">
   <?= $flashHtml ?>
   <h1>FAQ partagée</h1>
-  <p class="muted">Ces questions s'ajoutent à celles intégrées au chatbot de chaque installation, sans mise à jour : elles sont transmises à la prochaine synchronisation (toutes les 6 heures). Depuis une conversation, « ＋ FAQ » prépare la question et votre réponse.</p>
+  <p class="muted">Ces questions s'ajoutent à celles intégrées au chatbot de chaque installation, sans mise à jour : elles sont transmises à la prochaine synchronisation (moins de 10 minutes). Depuis une conversation, « ＋ FAQ » prépare la question et votre réponse.</p>
   <form method="post" class="card">
     <h2><?= $prefill['source'] ? 'Nouvelle question, d\'après la conversation #' . $prefill['source'] : 'Nouvelle question' ?></h2>
     <?php faq_form(['question' => $prefill['question'], 'answer' => $prefill['answer'], 'source_conv' => $prefill['source']], 'Ajouter à la FAQ'); ?>

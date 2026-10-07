@@ -1,5 +1,14 @@
 # Journal des versions
 
+## 1.15.0
+- **Licence expirée = accès coupé** : dès le lendemain de l'échéance (ou à la fin d'un délai de grâce si NLapps en accorde un), et à tout moment en cas de suspension, **tous les utilisateurs sont déconnectés** et la connexion est refusée (page « Licence expirée » avec les coordonnées de NLapps). Les données sont conservées. L'échéance est contrôlée localement chaque jour et la licence est revérifiée auprès de NLapps toutes les 10 minutes ; après renouvellement, « Vérifier à nouveau » rétablit l'accès aussitôt. La déconnexion forcée est inscrite au journal d'activité.
+- Bandeau administrateur : rappel 15 jours avant l'échéance avec la date de coupure.
+
+### Centre d'assistance NLapps 2.1.0
+- **Mise à jour par paquet ZIP** depuis la console (Réglages → Mise à jour du centre), comme dans Approvia : confirmation par mot de passe, sauvegarde automatique, retour arrière en un clic ; `config.php` et `data/` jamais modifiés. Paquet allégé `nlapps-assistance-maj.zip` (sans la bibliothèque de l'IA) pour les hébergements limités en taille d'envoi.
+- **Console installable** sur ordinateur, Android et iPhone/iPad (bouton « Installer », raccourcis, page hors connexion).
+- **Délai de grâce réglable** (0 par défaut : coupure immédiate à l'échéance).
+
 ## 1.14.1
 - **Inventaire tablette** (ex-« Mode réserve ») : une seule saisie, le **stock actuel**. Après le scan, la quantité théorique est proposée ; on saisit ce qui est réellement présent et l'écart est enregistré automatiquement comme **sortie** (consommation, prise en compte dans les seuils conseillés) ou **entrée**, avec l'écart affiché avant validation.
 - Après « Valider le stock », **le scanner se relance automatiquement** pour l'article suivant (avec une douchette, la zone de saisie reprend la main ; Entrée valide). La même boîte encore devant la caméra n'est pas recomptée.

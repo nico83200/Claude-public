@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Statuts : unmanaged (pas de clé), active, grace (échéance passée, délai de grâce), expired, suspended, invalid (clé refusée).
  */
 
-const LICENCE_CHECK_EVERY = 21600; // 6 heures
+const LICENCE_CHECK_EVERY = 600; // 10 minutes : une licence expirée ou suspendue est appliquée sans délai
 
 function licence_managed(): bool
 {
@@ -25,9 +25,20 @@ function licence_info(): array
     return is_array($c) ? $c : ['status' => 'unknown'];
 }
 
-function licence_status(): string
+/**
+ * Statut effectif : l'échéance est contrôlée localement chaque jour, sans attendre la prochaine vérification
+ * auprès du centre d'assistance (le lendemain de la date « payé jusqu'au », ou après le délai de grâce s'il y en a un).
+ */
+function licence_status(?string $today = null): string
 {
-    return (string)(licence_info()['status'] ?? 'unknown');
+    $i = licence_info();
+    $status = (string)($i['status'] ?? 'unknown');
+    $today ??= date('Y-m-d');
+    if (in_array($status, ['active', 'grace'], true) && !empty($i['paid_until']) && $today > $i['paid_until']) {
+        $grace = (string)($i['grace_until'] ?? '');
+        $status = $grace !== '' && $grace > $i['paid_until'] && $today <= $grace ? 'grace' : 'expired';
+    }
+    return $status;
 }
 
 /** Statistiques d'usage transmises au centre d'assistance (aucune donnée personnelle). */
@@ -103,7 +114,7 @@ function licence_check(bool $force = false): array
 function licence_ai_allowed(): bool
 {
     $i = licence_info();
-    return match ($i['status'] ?? 'unknown') {
+    return match (licence_status()) {
         'unmanaged', 'unknown' => true,
         'active', 'grace' => !empty($i['ai']),
         default => false,
@@ -118,7 +129,23 @@ function licence_updates_allowed(): bool
 /** Accès suspendu par NLapps : seuls les administrateurs peuvent encore se connecter (pour régulariser). */
 function licence_blocked(): bool
 {
-    return licence_status() === 'suspended';
+    return in_array(licence_status(), ['expired', 'suspended'], true);
+}
+
+/**
+ * Accès coupé : avant de refuser, on revérifie auprès du centre d'assistance (au plus une fois par minute),
+ * pour que le renouvellement fait par NLapps soit pris en compte aussitôt.
+ */
+function licence_blocked_now(): bool
+{
+    if (!licence_blocked()) {
+        return false;
+    }
+    if ((int)setting('licence_recheck_at', '0') < time() - 60) {
+        set_setting('licence_recheck_at', (string)time());
+        licence_check(true);
+    }
+    return licence_blocked();
 }
 
 /** Version publiée plus récente que celle installée, téléchargeable. */
@@ -134,12 +161,13 @@ function licence_notice(): ?array
     $i = licence_info();
     $contact = 'Contactez ' . (support_contact()['editor']) . ' (' . support_contact()['email'] . ').';
     $msg = !empty($i['message']) ? ' ' . $i['message'] : '';
+    $i['status'] = licence_status();
     $date = fn($d) => $d ? date('d/m/Y', strtotime((string)$d)) : '';
     return match ($i['status'] ?? 'unknown') {
-        'active' => isset($i['days_left']) && $i['days_left'] !== null && $i['days_left'] <= 15
-            ? ['level' => 'info', 'text' => 'Votre abonnement Approvia arrive à échéance le ' . $date($i['paid_until']) . '.' . $msg . ' ' . $contact] : ($msg ? ['level' => 'info', 'text' => trim($msg)] : null),
-        'grace' => ['level' => 'warn', 'text' => 'Abonnement échu le ' . $date($i['paid_until']) . ' : l\'application reste utilisable jusqu\'au ' . $date($i['grace_until']) . ', puis l\'assistant IA et les mises à jour seront coupés.' . $msg . ' ' . $contact],
-        'expired' => ['level' => 'danger', 'text' => 'Abonnement expiré : assistant IA et mises à jour désactivés.' . $msg . ' ' . $contact],
+        'active' => !empty($i['paid_until']) && (strtotime((string)$i['paid_until']) - strtotime(date('Y-m-d'))) / 86400 <= 15
+            ? ['level' => 'info', 'text' => 'Votre abonnement Approvia arrive à échéance le ' . $date($i['paid_until']) . ' : sans renouvellement, l\'accès sera coupé le lendemain.' . $msg . ' ' . $contact] : ($msg ? ['level' => 'info', 'text' => trim($msg)] : null),
+        'grace' => ['level' => 'warn', 'text' => 'Abonnement échu le ' . $date($i['paid_until']) . ' : l\'accès au logiciel sera coupé le ' . $date(date('Y-m-d', strtotime((string)$i['grace_until'] . ' +1 day'))) . ' (tous les utilisateurs seront déconnectés).' . $msg . ' ' . $contact],
+        'expired' => ['level' => 'danger', 'text' => 'Licence expirée : l\'accès au logiciel est coupé.' . $msg . ' ' . $contact],
         'suspended' => ['level' => 'danger', 'text' => 'Accès suspendu par ' . support_contact()['editor'] . ' : les utilisateurs ne peuvent plus se connecter.' . $msg . ' ' . $contact],
         'invalid' => ['level' => 'warn', 'text' => 'La clé NLapps (Paramètres → Licence et assistance) est refusée par le centre d\'assistance. ' . $contact],
         default => null,

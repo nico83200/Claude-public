@@ -228,7 +228,16 @@ function hub_rotate_key(int $clientId): string
     return $key;
 }
 
-const LICENCE_GRACE_DAYS = 15;
+/** Délai de grâce après l'échéance (jours), réglable dans la console. 0 = coupure immédiate. */
+function hub_grace_days(): int
+{
+    return max(0, min(60, (int)hsetting('grace_days', '0')));
+}
+
+function hub_version(): string
+{
+    return trim((string)@file_get_contents(HUB . '/VERSION')) ?: '2.0.0';
+}
 
 /**
  * Licence d'un client : active (payée ou sans échéance), grace (échéance passée depuis moins de 15 jours),
@@ -242,7 +251,7 @@ function hub_licence(array $c): array
         $status = 'suspended';
     } elseif (!$until || $today <= $until) {
         $status = 'active';
-    } elseif ($today <= date('Y-m-d', strtotime($until . ' +' . LICENCE_GRACE_DAYS . ' days'))) {
+    } elseif (hub_grace_days() > 0 && $today <= date('Y-m-d', strtotime($until . ' +' . hub_grace_days() . ' days'))) {
         $status = 'grace';
     } else {
         $status = 'expired';
@@ -251,7 +260,7 @@ function hub_licence(array $c): array
     return [
         'status' => $status, 'plan' => (string)$c['plan'], 'paid_until' => $until, 'days_left' => $days,
         'ai' => (bool)(int)$c['ai_option'] && in_array($status, ['active', 'grace'], true),
-        'grace_until' => $until ? date('Y-m-d', strtotime($until . ' +' . LICENCE_GRACE_DAYS . ' days')) : null,
+        'grace_until' => $until ? date('Y-m-d', strtotime($until . ' +' . hub_grace_days() . ' days')) : null,
         'message' => (string)($c['licence_note'] ?? ''),
         'contact' => ['email' => (string)hcfg('notify_email'), 'name' => (string)hcfg('operator_name')],
     ];
@@ -629,3 +638,186 @@ function hub_ai_suggest(array $conv): string
     }
     return trim($text);
 }
+
+// ---------------------------------------------------------------- Mise à jour du centre d'assistance par paquet ZIP
+
+const HUB_UPDATE_ALLOWED = ['index.php', 'api.php', 'lib.php', 'sw.js', 'manifest.webmanifest', 'offline.html', '.htaccess', 'config.sample.php', 'LISEZMOI.md', 'VERSION',
+    'assets/', 'views/', 'sdk/', 'tests/', 'vendor/'];
+
+function hub_update_allowed(string $rel): bool
+{
+    if ($rel === '' || str_contains($rel, '..') || str_starts_with($rel, '/') || str_contains($rel, "\0")) {
+        return false;
+    }
+    foreach (HUB_UPDATE_ALLOWED as $a) {
+        if ($rel === $a || (str_ends_with($a, '/') && str_starts_with($rel, $a))) {
+            return true;
+        }
+    }
+    return false; // config.php et data/ ne sont jamais remplacés
+}
+
+function hub_backups_dir(): string
+{
+    $d = dirname((string)hcfg('db_path')) . '/backups';
+    @mkdir($d, 0750, true);
+    return $d;
+}
+
+/** Analyse un paquet (dossier racine « assistance/ » ou fichiers à la racine). */
+function hub_update_inspect(string $zipPath): array
+{
+    if (!class_exists(ZipArchive::class)) {
+        throw new RuntimeException('Extension PHP zip absente sur ce serveur.');
+    }
+    $zip = new ZipArchive();
+    if ($zip->open($zipPath) !== true) {
+        throw new RuntimeException('Archive ZIP illisible.');
+    }
+    $prefix = '';
+    if ($zip->locateName('VERSION') === false) {
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            if (preg_match('#^([^/]+/)VERSION$#', (string)$zip->getNameIndex($i), $m)) {
+                $prefix = $m[1];
+                break;
+            }
+        }
+    }
+    $version = trim((string)$zip->getFromName($prefix . 'VERSION'));
+    if (!preg_match('/^\d+\.\d+\.\d+$/', $version) || $zip->locateName($prefix . 'lib.php') === false || $zip->locateName($prefix . 'api.php') === false) {
+        $zip->close();
+        throw new RuntimeException('Ce fichier n\'est pas un paquet du centre d\'assistance (VERSION, lib.php ou api.php absent).');
+    }
+    $files = [];
+    $vendor = false;
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $n = (string)$zip->getNameIndex($i);
+        if (str_ends_with($n, '/') || ($prefix !== '' && !str_starts_with($n, $prefix))) {
+            continue;
+        }
+        $rel = substr($n, strlen($prefix));
+        if (hub_update_allowed($rel)) {
+            $files[$i] = $rel;
+            $vendor = $vendor || str_starts_with($rel, 'vendor/');
+        }
+    }
+    $zip->close();
+    return ['version' => $version, 'files' => $files, 'vendor' => $vendor];
+}
+
+/** Sauvegarde des fichiers de code actuels (sans config.php ni data/). */
+function hub_backup(string $reason, bool $withVendor): string
+{
+    $name = 'hub-' . hub_version() . '-' . date('Ymd-His') . '-' . bin2hex(random_bytes(2)) . '.zip';
+    $zip = new ZipArchive();
+    $zip->open(hub_backups_dir() . '/' . $name, ZipArchive::CREATE);
+    $zip->setArchiveComment(json_encode(['version' => hub_version(), 'reason' => $reason, 'at' => hnow()], JSON_UNESCAPED_UNICODE));
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(HUB, FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        $rel = ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen(HUB))), '/');
+        if ($f->isFile() && hub_update_allowed($rel) && ($withVendor || !str_starts_with($rel, 'vendor/'))) {
+            $zip->addFile($f->getPathname(), $rel);
+        }
+    }
+    $zip->close();
+    // On garde les 5 dernières sauvegardes
+    $all = glob(hub_backups_dir() . '/hub-*.zip') ?: [];
+    usort($all, fn($a, $b) => filemtime($b) <=> filemtime($a));
+    foreach (array_slice($all, 5) as $old) {
+        @unlink($old);
+    }
+    return $name;
+}
+
+function hub_write_file(string $rel, string $content): void
+{
+    $dest = HUB . '/' . $rel;
+    if (!is_dir(dirname($dest)) && !@mkdir(dirname($dest), 0755, true)) {
+        throw new RuntimeException('Impossible de créer le dossier de ' . $rel);
+    }
+    $tmp = $dest . '.tmp-' . bin2hex(random_bytes(4));
+    if (@file_put_contents($tmp, $content) === false || !@rename($tmp, $dest)) {
+        @unlink($tmp);
+        throw new RuntimeException('Impossible d\'écrire ' . $rel . ' (droits d\'écriture ?).');
+    }
+}
+
+/** Copie les fichiers d'une archive (paquet ou sauvegarde) ; VERSION en dernier. */
+function hub_extract(string $zipPath, array $files): int
+{
+    $zip = new ZipArchive();
+    $zip->open($zipPath);
+    uasort($files, fn($a, $b) => ($a === 'VERSION') <=> ($b === 'VERSION'));
+    $n = 0;
+    try {
+        foreach ($files as $idx => $rel) {
+            $c = $zip->getFromIndex((int)$idx);
+            if ($c === false) {
+                throw new RuntimeException('Lecture impossible : ' . $rel);
+            }
+            hub_write_file($rel, $c);
+            $n++;
+        }
+    } finally {
+        $zip->close();
+    }
+    if (function_exists('opcache_reset')) {
+        @opcache_reset();
+    }
+    return $n;
+}
+
+/** Installe une nouvelle version : sauvegarde, copie des fichiers, retour automatique en cas d'échec. */
+function hub_update_apply(string $zipPath, bool $allowSame = false): array
+{
+    @set_time_limit(300);
+    $info = hub_update_inspect($zipPath);
+    if (!$allowSame && version_compare($info['version'], hub_version(), '<=')) {
+        throw new RuntimeException('La version ' . $info['version'] . ' n\'est pas plus récente que la version installée (' . hub_version() . ').');
+    }
+    $from = hub_version();
+    $backup = hub_backup('Avant mise à jour vers ' . $info['version'], $info['vendor']);
+    try {
+        $n = hub_extract($zipPath, $info['files']);
+    } catch (Throwable $e) {
+        hub_rollback($backup);
+        throw new RuntimeException('Échec de la mise à jour, version précédente restaurée : ' . $e->getMessage());
+    }
+    hset('last_update', json_encode(['from' => $from, 'to' => $info['version'], 'at' => hnow(), 'files' => $n, 'backup' => $backup], JSON_UNESCAPED_UNICODE));
+    return ['version' => $info['version'], 'files' => $n, 'backup' => $backup, 'from' => $from];
+}
+
+/** Restaure une sauvegarde (code uniquement ; la base et la configuration ne sont jamais touchées). */
+function hub_rollback(string $backup): array
+{
+    $path = hub_backups_dir() . '/' . basename($backup);
+    if (!is_file($path)) {
+        throw new RuntimeException('Sauvegarde introuvable.');
+    }
+    $zip = new ZipArchive();
+    $zip->open($path);
+    $files = [];
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $rel = (string)$zip->getNameIndex($i);
+        if (!str_ends_with($rel, '/') && hub_update_allowed($rel)) {
+            $files[$i] = $rel;
+        }
+    }
+    $meta = json_decode((string)$zip->getArchiveComment(), true) ?: [];
+    $zip->close();
+    return ['files' => hub_extract($path, $files), 'version' => $meta['version'] ?? '?'];
+}
+
+function hub_backups(): array
+{
+    $out = [];
+    foreach (glob(hub_backups_dir() . '/hub-*.zip') ?: [] as $f) {
+        $z = new ZipArchive();
+        $meta = $z->open($f) === true ? (json_decode((string)$z->getArchiveComment(), true) ?: []) : [];
+        $z->close();
+        $out[] = ['file' => basename($f), 'size' => filesize($f), 'at' => $meta['at'] ?? date('Y-m-d H:i:s', filemtime($f)), 'version' => $meta['version'] ?? '?', 'reason' => $meta['reason'] ?? ''];
+    }
+    usort($out, fn($a, $b) => strcmp($b['at'], $a['at']));
+    return $out;
+}
+

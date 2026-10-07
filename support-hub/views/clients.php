@@ -105,5 +105,5 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
       <?php if (!$clients): ?><tr><td colspan="5" class="muted">Aucun client pour l'instant.</td></tr><?php endif; ?>
     </table>
   </div>
-  <p class="muted"><small>Licence échue : l'application reste utilisable pendant <?= LICENCE_GRACE_DAYS ?> jours (délai de grâce, bandeau d'alerte), puis l'option IA et les mises à jour sont coupées. « Suspendue » bloque l'accès des utilisateurs (l'administrateur voit le message et vos coordonnées).</small></p>
+  <p class="muted"><small><?= hub_grace_days() ? 'Licence échue : l\'application reste utilisable pendant ' . hub_grace_days() . ' jour(s) (délai de grâce, bandeau d\'alerte), puis' : 'Licence échue :' ?> l'accès au logiciel est coupé immédiatement et tous les utilisateurs sont déconnectés (message avec vos coordonnées). « Suspendue » a le même effet, à tout moment. Délai de grâce réglable dans Réglages.</small></p>
 </main>
