@@ -12,6 +12,7 @@ const STOCK_MOVE_TYPES = [
     'sortie'     => ['label' => 'Sortie',     'color' => 'amber'],
     'ajout'      => ['label' => 'Entrée manuelle', 'color' => 'violet'],
     'correction' => ['label' => 'Correction réception', 'color' => 'gray'],
+    'transfert'  => ['label' => 'Transfert', 'color' => 'pink'],
 ];
 
 function stock_row(int $centerId, int $productId): ?array
@@ -102,6 +103,152 @@ function stock_from_reception(array $po, array $line, int $oldReceived, int $new
     $delta = $newReceived - $oldReceived;
     stock_move((int)$po['center_id'], (int)$line['product_id'], $delta, $delta > 0 ? 'reception' : 'correction',
         $po['po_number'] . ' — ' . $po['supplier_name'], (int)$po['id']);
+}
+
+// ---------------------------------------------------------------- Corrections de l'historique (administrateur)
+
+/** Mouvements d'un article dans un centre situés après une position (date, id) de l'historique, du plus ancien au plus récent. */
+function stock_moves_after(int $centerId, int $productId, string $at, int $id): array
+{
+    return all('SELECT * FROM stock_movements WHERE center_id = ? AND product_id = ? AND (created_at > ? OR (created_at = ? AND id > ?))
+                ORDER BY created_at, id', [$centerId, $productId, $at, $at, $id]);
+}
+
+/**
+ * Répercute une variation $d apparue à une position de l'historique : les « stock après » suivants sont décalés
+ * jusqu'au prochain inventaire (la quantité comptée reste la référence, seul son écart change) ;
+ * sans inventaire ultérieur, c'est le stock actuel qui est corrigé.
+ */
+function stock_ripple(int $centerId, int $productId, string $at, int $id, int $d): void
+{
+    if ($d === 0) {
+        return;
+    }
+    foreach (stock_moves_after($centerId, $productId, $at, $id) as $m) {
+        if ($m['type'] === 'inventaire') {
+            update('stock_movements', ['delta' => (int)$m['delta'] - $d], 'id = ?', [$m['id']]);
+            return;
+        }
+        update('stock_movements', ['qty_after' => max(0, (int)$m['qty_after'] + $d)], 'id = ?', [$m['id']]);
+    }
+    $row = stock_row($centerId, $productId);
+    if ($row) {
+        update('stock', ['qty' => max(0, (int)$row['qty'] + $d), 'updated_at' => now()], 'center_id = ? AND product_id = ?', [$centerId, $productId]);
+    } elseif ($d > 0) {
+        insert('stock', ['center_id' => $centerId, 'product_id' => $productId, 'qty' => $d, 'alert_qty' => 0, 'updated_at' => now()]);
+    }
+}
+
+/** Supprime un mouvement et annule son effet sur le stock. Renvoie le mouvement supprimé. */
+function stock_move_delete(int $id): ?array
+{
+    return tx(function () use ($id) {
+        $m = one('SELECT * FROM stock_movements WHERE id = ?', [$id]);
+        if (!$m) {
+            return null;
+        }
+        q('DELETE FROM stock_movements WHERE id = ?', [$id]);
+        stock_ripple((int)$m['center_id'], (int)$m['product_id'], (string)$m['created_at'], (int)$m['id'], -(int)$m['delta']);
+        return $m;
+    });
+}
+
+/**
+ * Insère un mouvement à sa date dans l'historique (centre, article, type, date, note…) et met à jour la suite.
+ * $qty : quantité du mouvement (signée), ou quantité comptée pour un inventaire.
+ */
+function stock_move_insert(array $m, int $qty): int
+{
+    return tx(function () use ($m, $qty) {
+        $cid = (int)$m['center_id'];
+        $pid = (int)$m['product_id'];
+        $at = (string)$m['created_at'];
+        $prev = one('SELECT qty_after FROM stock_movements WHERE center_id = ? AND product_id = ? AND created_at <= ? ORDER BY created_at DESC, id DESC LIMIT 1', [$cid, $pid, $at]);
+        if ($prev) {
+            $before = (int)$prev['qty_after'];
+        } else {
+            $next = stock_moves_after($cid, $pid, $at, PHP_INT_MAX)[0] ?? null;
+            $before = $next ? max(0, (int)$next['qty_after'] - (int)$next['delta']) : (int)(stock_row($cid, $pid)['qty'] ?? 0);
+        }
+        $after = max(0, $m['type'] === 'inventaire' ? $qty : $before + $qty);
+        $id = insert('stock_movements', [
+            'center_id' => $cid, 'product_id' => $pid, 'type' => $m['type'], 'delta' => $after - $before, 'qty_after' => $after,
+            'purchase_order_id' => $m['purchase_order_id'] ?? null, 'user_id' => $m['user_id'] ?? null,
+            'note' => isset($m['note']) && $m['note'] !== '' ? mb_substr((string)$m['note'], 0, 255) : null, 'created_at' => $at,
+        ]);
+        if (!stock_row($cid, $pid)) { // article pas encore suivi dans ce centre
+            insert('stock', ['center_id' => $cid, 'product_id' => $pid, 'qty' => 0, 'alert_qty' => 0, 'updated_at' => now()]);
+            if (!stock_moves_after($cid, $pid, $at, $id)) {
+                update('stock', ['qty' => $after], 'center_id = ? AND product_id = ?', [$cid, $pid]);
+                return $id;
+            }
+        }
+        stock_ripple($cid, $pid, $at, $id, $after - $before);
+        return $id;
+    });
+}
+
+/**
+ * Corrige un mouvement : centre, quantité (positive ; le sens dépend du type, quantité comptée pour un inventaire) et motif.
+ * Renvoie l'identifiant du mouvement corrigé.
+ */
+function stock_move_update(int $id, int $centerId, int $qty, ?string $note): int
+{
+    return tx(function () use ($id, $centerId, $qty, $note) {
+        $m = one('SELECT * FROM stock_movements WHERE id = ?', [$id]);
+        if (!$m) {
+            throw new RuntimeException('Mouvement introuvable.');
+        }
+        $qty = abs($qty);
+        $isCount = $m['type'] === 'inventaire';
+        $signed = $isCount ? $qty : (($m['type'] === 'sortie' || (int)$m['delta'] < 0) ? -$qty : $qty);
+        if ($centerId !== (int)$m['center_id']) { // erreur de centre : retiré d'un centre, appliqué à l'autre à la même date
+            stock_move_delete($id);
+            return stock_move_insert(['center_id' => $centerId, 'note' => $note] + $m, $signed);
+        }
+        // Même centre : correction sur place, la position dans l'historique est conservée
+        $before = (int)$m['qty_after'] - (int)$m['delta'];
+        $after = max(0, $isCount ? $signed : $before + $signed);
+        update('stock_movements', ['delta' => $after - $before, 'qty_after' => $after, 'note' => $note !== null && $note !== '' ? mb_substr($note, 0, 255) : null], 'id = ?', [$id]);
+        stock_ripple((int)$m['center_id'], (int)$m['product_id'], (string)$m['created_at'], $id, $after - (int)$m['qty_after']);
+        return $id;
+    });
+}
+
+/**
+ * Rattache le stock d'un article à un autre centre (erreur de centre).
+ * Si l'article n'est pas encore suivi dans le centre de destination, le stock et tout son historique sont déplacés ;
+ * sinon les quantités sont additionnées par deux mouvements « Transfert ». Renvoie 'moved' ou 'merged'.
+ */
+function stock_transfer(int $fromCenter, int $toCenter, int $productId): string
+{
+    return tx(function () use ($fromCenter, $toCenter, $productId) {
+        $src = stock_row($fromCenter, $productId);
+        if (!$src || $fromCenter === $toCenter) {
+            throw new RuntimeException('Rien à transférer.');
+        }
+        $names = [
+            $fromCenter => (string)val('SELECT name FROM centers WHERE id = ?', [$fromCenter]),
+            $toCenter => (string)val('SELECT name FROM centers WHERE id = ?', [$toCenter]),
+        ];
+        $hasHistory = (int)val('SELECT COUNT(*) FROM stock_movements WHERE center_id = ? AND product_id = ?', [$toCenter, $productId]) > 0;
+        if (!stock_row($toCenter, $productId) && !$hasHistory) {
+            update('stock', ['center_id' => $toCenter, 'updated_at' => now()], 'center_id = ? AND product_id = ?', [$fromCenter, $productId]);
+            update('stock_movements', ['center_id' => $toCenter], 'center_id = ? AND product_id = ?', [$fromCenter, $productId]);
+            return 'moved';
+        }
+        $qty = (int)$src['qty'];
+        if ($qty > 0) {
+            stock_move($fromCenter, $productId, -$qty, 'transfert', 'Transféré vers ' . $names[$toCenter]);
+            stock_move($toCenter, $productId, $qty, 'transfert', 'Transféré depuis ' . $names[$fromCenter]);
+        }
+        $dst = stock_row($toCenter, $productId);
+        if ($dst && (int)$dst['alert_qty'] === 0 && (int)$src['alert_qty'] > 0) {
+            update('stock', ['alert_qty' => (int)$src['alert_qty']], 'center_id = ? AND product_id = ?', [$toCenter, $productId]);
+        }
+        q('DELETE FROM stock WHERE center_id = ? AND product_id = ?', [$fromCenter, $productId]);
+        return 'merged';
+    });
 }
 
 // ---------------------------------------------------------------- Budgets

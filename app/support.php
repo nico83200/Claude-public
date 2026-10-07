@@ -47,6 +47,8 @@ function support_faq(): array
             "Ouvrez « Réceptions », choisissez le bon livré, cochez les articles reçus (ou saisissez la quantité réellement livrée) puis « Enregistrer la réception ». Le stock du centre est mis à jour automatiquement.", ['Réceptions', 'receptions'], false],
         ['Comment faire l\'inventaire ou une sortie de stock ?', 'stock inventaire sortie entree comptage quantite reserve mode reserve consommation',
             "« Inventaire » permet de compter ou d'enregistrer une sortie. Sur tablette, le « Mode réserve » est le plus rapide : on scanne, on ajuste la quantité, on valide.", ['Inventaire', 'stock'], false],
+        ['Comment corriger une erreur de stock ?', 'erreur stock mouvement supprimer corriger modifier annuler sortie entree ajout mauvais centre trompe transferer deplacer',
+            "Ouvrez « Inventaire » puis l'article (ou « Mouvements ») : sur chaque ligne, le crayon corrige la quantité, le motif ou le centre, la corbeille supprime le mouvement ; le stock est recalculé. Plusieurs lignes peuvent être cochées et supprimées en une fois. Si tout le stock d'un article a été saisi dans le mauvais centre, utilisez « Changer de centre » en haut de la page de l'article.", ['Mouvements de stock', 'stock/history'], true],
         ['Comment changer de centre ?', 'changer centre site autre centre selection basculer plusieurs centres',
             "Utilisez le sélecteur « Centre / site » en haut du menu. Si un centre manque, demandez à l'administrateur de vous y rattacher.", null, false],
         ['J\'ai oublié mon mot de passe', 'mot de passe oublie perdu connexion connecter identifiant reinitialiser',

@@ -120,6 +120,36 @@ stock_move($c1, $pid('THERM-IR'), -1, 'sortie', 'test');
 stock_count($c1, $pid('THERM-IR'), 10, 'inventaire test');
 check((int)stock_row($c1, $pid('THERM-IR'))['qty'] === 10, 'inventaire : le stock compté remplace le stock théorique');
 
+section('Corrections de stock (administrateur)');
+$sp = (int)val('SELECT id FROM products WHERE id NOT IN (SELECT product_id FROM stock) AND id NOT IN (SELECT product_id FROM stock_movements) ORDER BY id LIMIT 1');
+$hist = fn(int $c) => array_map(fn($m) => [$m['type'], (int)$m['delta'], (int)$m['qty_after']], all('SELECT * FROM stock_movements WHERE center_id = ? AND product_id = ? ORDER BY created_at, id', [$c, $sp]));
+$qty = fn(int $c) => (int)(stock_row($c, $sp)['qty'] ?? -1);
+stock_move($c1, $sp, 10, 'ajout', 'livraison');
+$mOut = (int)val('SELECT MAX(id) FROM stock_movements');
+stock_move($c1, $sp, -3, 'sortie', 'soins');
+$mOut = (int)val('SELECT MAX(id) FROM stock_movements');
+stock_move($c1, $sp, -2, 'sortie', 'cabinet');
+check($qty($c1) === 5, 'stock de départ : 10 − 3 − 2 = 5');
+stock_move_delete($mOut);
+check($qty($c1) === 8 && $hist($c1) === [['ajout', 10, 10], ['sortie', -2, 8]], 'suppression d\'une sortie : stock et « stock après » recalculés');
+$mAdd = (int)val("SELECT id FROM stock_movements WHERE product_id = ? AND type = 'ajout'", [$sp]);
+$newId = stock_move_update($mAdd, $c1, 12, 'livraison corrigée');
+check($qty($c1) === 10 && $hist($c1) === [['ajout', 12, 12], ['sortie', -2, 10]], 'quantité d\'une entrée corrigée : la suite est recalculée');
+stock_count($c1, $sp, 7, 'comptage');
+stock_move($c1, $sp, -1, 'sortie');
+$mOut2 = (int)val("SELECT id FROM stock_movements WHERE product_id = ? AND type = 'sortie' AND delta = -2", [$sp]);
+stock_move_delete($mOut2);
+check($qty($c1) === 6 && $hist($c1)[1] === ['inventaire', -5, 7], 'suppression avant un inventaire : la quantité comptée reste la référence');
+$newId = stock_move_update($newId, $c2, 12, 'livraison corrigée');
+check($qty($c2) === 12 && $hist($c2) === [['ajout', 12, 12]] && $hist($c1)[0] === ['inventaire', 7, 7] && $qty($c1) === 6, 'mouvement rattaché à un autre centre : retiré du premier, appliqué au second');
+$sp2 = (int)val('SELECT id FROM products WHERE id NOT IN (SELECT product_id FROM stock) AND id NOT IN (SELECT product_id FROM stock_movements) ORDER BY id LIMIT 1');
+stock_move($c1, $sp2, 4, 'ajout');
+stock_set_alert($c1, $sp2, 2);
+check(stock_transfer($c1, $c2, $sp2) === 'moved' && !stock_row($c1, $sp2) && (int)stock_row($c2, $sp2)['qty'] === 4 && (int)stock_row($c2, $sp2)['alert_qty'] === 2
+    && (int)val('SELECT COUNT(*) FROM stock_movements WHERE product_id = ? AND center_id = ?', [$sp2, $c2]) === 1, 'stock saisi dans le mauvais centre : déplacé avec son historique');
+stock_move($c1, $sp2, 3, 'ajout');
+check(stock_transfer($c1, $c2, $sp2) === 'merged' && !stock_row($c1, $sp2) && (int)stock_row($c2, $sp2)['qty'] === 7, 'article déjà suivi dans le centre de destination : quantités additionnées');
+
 section('Factures');
 $po2 = one('SELECT * FROM purchase_orders WHERE id = ?', [$po]);
 $expected = invoice_check($po2)['expected'];

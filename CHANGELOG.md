@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 1.10.0
+- **Corrections de stock par l'administrateur**, depuis l'historique des mouvements (Inventaire → article ou « Mouvements ») :
+  - **suppression** d'une entrée, d'une sortie ou de tout autre mouvement, ou de plusieurs à la fois (cases à cocher) ; son effet sur le stock est annulé ;
+  - **correction** d'un mouvement : quantité, motif et **centre** (mouvement saisi dans le mauvais centre : il est retiré de ce centre et appliqué au bon, à la même date) ;
+  - **« Changer de centre »** pour le stock complet d'un article : stock, seuil d'alerte et historique sont rattachés au bon centre (si l'article y est déjà suivi, les quantités sont additionnées par des mouvements « Transfert »).
+  - Le stock et les « stock après » sont recalculés automatiquement ; un inventaire postérieur reste la référence. Chaque correction est tracée dans le journal d'activité.
+
 ## 1.9.1
 - **Accès à l'assistance NLapps dans les paramètres** : l'administrateur colle les deux lignes fournies par NLapps (adresse et clé `nlh_…`) dans *Paramètres → Assistance NLapps*. Les champs se remplissent automatiquement, la clé est chiffrée et la connexion est testée à l'enregistrement. Boutons « Tester la connexion » et « Supprimer l'accès ». Plus besoin de modifier `config.php`, qui reste utilisé si rien n'est saisi.
 

@@ -118,7 +118,104 @@ function stock_history(): void
     }
     $sql .= ' ORDER BY m.created_at DESC, m.id DESC LIMIT 300';
     $product = $pid ? one('SELECT p.*, st.qty, st.alert_qty FROM products p LEFT JOIN stock st ON st.product_id = p.id AND st.center_id = ? WHERE p.id = ?', [$center['id'], $pid]) : null;
-    render('user/stock_history', ['title' => 'Mouvements de stock', 'center' => $center, 'moves' => all($sql, $params), 'product' => $product]);
+    render('user/stock_history', ['title' => 'Mouvements de stock', 'center' => $center, 'moves' => all($sql, $params), 'product' => $product,
+        'isAdmin' => is_admin(), 'centers' => is_admin() ? user_centers() : []]);
+}
+
+/** Correction d'un mouvement de stock par un administrateur : centre, quantité, motif. */
+function stock_move_edit(): void
+{
+    require_admin();
+    $m = one('SELECT m.*, p.name, p.unit, c.name AS center_name, po.po_number, u.first_name, u.last_name FROM stock_movements m
+              JOIN products p ON p.id = m.product_id JOIN centers c ON c.id = m.center_id
+              LEFT JOIN purchase_orders po ON po.id = m.purchase_order_id LEFT JOIN users u ON u.id = m.user_id WHERE m.id = ?', [input_int('id')]);
+    if (!$m) {
+        abort(404);
+    }
+    if (is_post()) {
+        $centerIds = array_map('intval', array_column(user_centers(), 'id'));
+        $cid = input_int('center_id', (int)$m['center_id']);
+        $qty = input_int('qty', -1);
+        if (!in_array($cid, $centerIds, true) && $cid !== (int)$m['center_id']) {
+            flash('error', 'Centre invalide.');
+            redirect('stock/move/edit', ['id' => $m['id']]);
+        }
+        if ($qty < 0 || ($qty === 0 && $m['type'] !== 'inventaire')) {
+            flash('error', $m['type'] === 'inventaire' ? 'Indiquez la quantité comptée.' : 'Indiquez une quantité d\'au moins 1 (ou supprimez le mouvement).');
+            redirect('stock/move/edit', ['id' => $m['id']]);
+        }
+        $note = mb_substr(trim((string)input('note', '')), 0, 255);
+        stock_move_update((int)$m['id'], $cid, $qty, $note !== '' ? $note : null);
+        $changes = [];
+        if ($cid !== (int)$m['center_id']) {
+            $changes[] = 'centre ' . $m['center_name'] . ' → ' . val('SELECT name FROM centers WHERE id = ?', [$cid]);
+        }
+        if ($qty !== abs((int)($m['type'] === 'inventaire' ? $m['qty_after'] : $m['delta']))) {
+            $changes[] = 'quantité ' . abs((int)($m['type'] === 'inventaire' ? $m['qty_after'] : $m['delta'])) . ' → ' . $qty;
+        }
+        if ($note !== (string)$m['note']) {
+            $changes[] = 'motif';
+        }
+        audit('Mouvement de stock corrigé', 'stock', (int)$m['product_id'], $m['name'] . ($changes ? ' : ' . implode(', ', $changes) : ''));
+        flash('success', 'Mouvement corrigé' . ($changes ? ' (' . implode(', ', $changes) . ')' : '') . ' : le stock a été recalculé.');
+        redirect('stock/history', ['c' => $cid, 'product_id' => $m['product_id']]);
+    }
+    render('user/stock_move_edit', ['title' => 'Corriger un mouvement', 'm' => $m, 'centers' => user_centers()]);
+}
+
+/** Suppression d'un ou plusieurs mouvements de stock (administrateur) : leur effet sur le stock est annulé. */
+function stock_move_delete_action(): void
+{
+    require_admin();
+    if (!is_post()) {
+        redirect('stock/history');
+    }
+    $ids = input_int('id') ? [input_int('id')] : array_map('intval', (array)($_POST['ids'] ?? []));
+    $n = 0;
+    $names = [];
+    foreach (array_unique(array_filter($ids)) as $id) {
+        if ($m = stock_move_delete($id)) {
+            $n++;
+            $names[(int)$m['product_id']] = (string)val('SELECT name FROM products WHERE id = ?', [$m['product_id']]);
+        }
+    }
+    if ($n) {
+        audit('Mouvements de stock supprimés', 'stock', count($names) === 1 ? (int)array_key_first($names) : null, $n . ' mouvement(s) : ' . implode(', ', $names));
+        flash('success', $n === 1 ? 'Mouvement supprimé : le stock a été recalculé.' : $n . ' mouvements supprimés : les stocks ont été recalculés.');
+    } else {
+        flash('error', 'Aucun mouvement sélectionné.');
+    }
+    $back = ['c' => input_int('c') ?: null, 'product_id' => input_int('product_id') ?: null];
+    redirect('stock/history', array_filter($back));
+}
+
+/** Rattache le stock d'un article à un autre centre (saisi dans le mauvais centre). */
+function stock_transfer_action(): void
+{
+    require_admin();
+    if (!is_post()) {
+        redirect('stock/history');
+    }
+    $from = input_int('from');
+    $to = input_int('to');
+    $pid = input_int('product_id');
+    if (!in_array($to, array_map('intval', array_column(user_centers(), 'id')), true)) {
+        flash('error', 'Choisissez le centre de destination.');
+        redirect('stock/history', ['c' => $from, 'product_id' => $pid]);
+    }
+    try {
+        $mode = stock_transfer($from, $to, $pid);
+    } catch (RuntimeException $e) {
+        flash('error', $e->getMessage());
+        redirect('stock/history', ['c' => $from, 'product_id' => $pid]);
+    }
+    $name = (string)val('SELECT name FROM products WHERE id = ?', [$pid]);
+    $centerName = fn(int $id) => (string)val('SELECT name FROM centers WHERE id = ?', [$id]);
+    audit('Stock rattaché à un autre centre', 'stock', $pid, $name . ' : ' . $centerName($from) . ' → ' . $centerName($to));
+    flash('success', $mode === 'moved'
+        ? 'Le stock de « ' . $name . ' » et son historique sont maintenant rattachés à ' . $centerName($to) . '.'
+        : 'Article déjà suivi à ' . $centerName($to) . ' : les quantités ont été additionnées (mouvements « Transfert » enregistrés).');
+    redirect('stock/history', ['c' => $to, 'product_id' => $pid]);
 }
 
 /** Recherche d'un article par code-barres (scan caméra ou douchette). */
