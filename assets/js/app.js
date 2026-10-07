@@ -521,7 +521,7 @@
 
   // --------------------------------------------------------- Application installable (PWA)
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js?v=' + ((window.APP && window.APP.version) || '1'), { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {}));
   }
   let deferred = null;
   window.addEventListener('beforeinstallprompt', (e) => {

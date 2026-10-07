@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.7.2
+- Correctif : après une mise à jour, le navigateur pouvait continuer d'utiliser d'anciennes feuilles de style et d'anciens scripts gardés par l'application installable (service worker). Styles et scripts sont désormais toujours chargés depuis le serveur, les anciens caches sont supprimés et les pages ouvertes rechargées automatiquement. Le service worker n'est plus mis en cache par le serveur.
+
 ## 1.7.1
 - Correctif : sur le tableau de bord, les suggestions de la recherche n'étaient plus coupées par le bandeau d'accueil ; elles s'affichent en entier par-dessus la page (ordinateur et mobile).
 

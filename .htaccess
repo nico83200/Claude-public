@@ -11,3 +11,10 @@ DirectoryIndex index.php
 <FilesMatch "^(config\.php|config\.sample\.php|composer\.(json|lock)|.*\.md)$">
   Require all denied
 </FilesMatch>
+
+# Service worker et manifeste jamais mis en cache : les mises à jour s'appliquent tout de suite
+<IfModule mod_headers.c>
+  <FilesMatch "^(sw\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+</IfModule>

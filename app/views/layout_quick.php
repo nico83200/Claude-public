@@ -12,7 +12,7 @@
 <body class="quick-body">
 <?= $content ?>
 <div class="toast-zone" id="toasts"></div>
-<script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: false };</script>
+<script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: false, version: <?= json_encode(APP_VERSION) ?> };</script>
 <script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>
 </html>

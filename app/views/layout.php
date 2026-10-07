@@ -140,7 +140,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
   </div>
 </div>
 <div class="toast-zone" id="toasts"></div>
-<script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?> };</script>
+<script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?>, version: <?= json_encode(APP_VERSION) ?> };</script>
 <script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>
 </html>
