@@ -23,6 +23,7 @@ const NOTIFY_EVENTS = [
     'price_increase'  => ['label' => 'Hausse de prix d\'un article',             'for' => 'admin'],
     'budget_alert'    => ['label' => 'Seuil de budget atteint',                  'for' => 'admin'],
     'stock_low'       => ['label' => 'Stock sous le seuil d\'alerte',            'for' => 'both'],
+    'support_reply'   => ['label' => 'Réponse de l\'assistance NLapps',          'for' => 'both'],
 ];
 
 /** E-mails envoyés en dehors des notifications, activables un par un. */
@@ -67,7 +68,7 @@ function notify(array $userIds, string $type, string $title, string $body = '', 
     $me = (int)(user()['id'] ?? 0);
     $mailOn = mail_case_enabled($type);
     foreach (all('SELECT * FROM users WHERE status = \'active\' AND id IN ' . in_list($userIds), $userIds) as $u) {
-        if ((int)$u['id'] === $me && $type !== 'stock_low') {
+        if ((int)$u['id'] === $me && !in_array($type, ['stock_low', 'support_reply'], true)) {
             continue; // on ne se notifie pas de sa propre action
         }
         $prefs = user_notify_prefs($u);

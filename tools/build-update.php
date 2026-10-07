@@ -4,8 +4,9 @@ declare(strict_types=1);
 /**
  * Fabrique un paquet de mise à jour à installer depuis l'interface d'administration.
  *
- *   php tools/build-update.php            → dist/scanappro-<version>.zip (sans vendor/)
+ *   php tools/build-update.php            → dist/approvia-<version>.zip (sans vendor/)
  *   php tools/build-update.php --vendor   → inclut les dépendances (assistant IA)
+ *   php tools/build-update.php --hub      → paquet du centre d'assistance NLapps (dossier support-hub/, à installer sur nlapps.fr)
  *   php tools/build-update.php --install  → paquet de première installation (avec install.php et vendor/),
  *                                           à décompresser tel quel chez l'hébergeur (ex. Hostinger)
  *
@@ -18,6 +19,25 @@ if (PHP_SAPI !== 'cli') {
 }
 $root = dirname(__DIR__);
 $forInstall = in_array('--install', $argv, true);
+if (in_array('--hub', $argv, true)) {
+    @mkdir("$root/dist", 0755, true);
+    $out = "$root/dist/nlapps-assistance.zip";
+    $zip = new ZipArchive();
+    $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/support-hub", FilesystemIterator::SKIP_DOTS));
+    $n = 0;
+    foreach ($it as $f) {
+        $rel = 'assistance/' . ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen("$root/support-hub"))), '/');
+        // Données et configuration locales jamais livrées
+        if ($f->isFile() && !preg_match('#^assistance/(config\.php|data/(?!\.htaccess$).*)$#', $rel)) {
+            $zip->addFile($f->getPathname(), $rel);
+            $n++;
+        }
+    }
+    $zip->close();
+    printf("Centre d'assistance : %s (%d fichiers)\n", $out, $n);
+    exit;
+}
 $withVendor = $forInstall || in_array('--vendor', $argv, true);
 $version = trim((string)file_get_contents("$root/VERSION"));
 if (!preg_match('/^\d+\.\d+\.\d+/', $version)) {
@@ -39,7 +59,7 @@ if ($forInstall) {
     array_push($include, 'install.php', 'storage/.htaccess', 'uploads/products/.htaccess', 'uploads/brand/.htaccess');
 }
 @mkdir("$root/dist", 0755, true);
-$out = "$root/dist/scanappro-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
+$out = "$root/dist/approvia-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
 $zip = new ZipArchive();
 $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 $zip->addFromString('version.json', json_encode(['version' => $version, 'date' => date('Y-m-d'), 'notes' => $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

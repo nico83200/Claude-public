@@ -1,4 +1,4 @@
-/* ScanAppro — interactions */
+/* Approvia — interactions */
 (function () {
   'use strict';
   const csrf = (window.APP && window.APP.csrf) || '';
@@ -701,7 +701,7 @@ document.addEventListener('click', async (e) => {
   sync();
 })();
 
-// Assistance : chatbot de premier niveau, puis relais vers l'équipe (WhatsApp ou formulaire)
+// Assistance : chatbot de premier niveau, puis conversation en direct avec l'équipe NLapps (ou formulaire)
 (function () {
   const panel = document.querySelector('[data-help-panel]');
   if (!panel) return;
@@ -709,43 +709,128 @@ document.addEventListener('click', async (e) => {
   const log = panel.querySelector('[data-help-log]');
   const form = panel.querySelector('[data-help-form]');
   const input = form.querySelector('input');
+  const title = panel.querySelector('[data-help-title]'), sub = panel.querySelector('[data-help-sub]');
+  const endLink = panel.querySelector('[data-help-end]');
+  const LIVE = panel.dataset.live === '1', OP = panel.dataset.operator || 'NLapps';
+  const token = (window.APP && window.APP.csrf) || '';
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const open = () => { panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50); };
-  const close = () => { panel.hidden = true; fab.hidden = false; };
-  fab.addEventListener('click', open);
+  const transcript = [];          // échange avec le chatbot, transmis au conseiller
+  let mode = 'bot', last = 0, timer = null, shown = new Set();
+
+  const open = () => { panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50); if (mode === 'live') startPolling(); };
+  const close = () => { panel.hidden = true; fab.hidden = false; stopPolling(); };
+  fab.addEventListener('click', () => { open(); if (panel.dataset.hasChat === '1' && mode === 'bot') goLive(); });
   panel.querySelector('[data-help-close]').addEventListener('click', close);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) close(); });
+
   const add = (html, who) => { const d = document.createElement('div'); d.className = 'msg ' + who; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };
-  const escalate = (r, intro) => {
-    const a = document.createElement('div');
-    a.className = 'help-actions';
-    a.innerHTML = (intro ? '' : '') + '<a class="wa" target="_blank" rel="noopener" href="' + esc(r.whatsapp) + '">💬 WhatsApp</a><a class="form" href="' + esc(r.form) + '">✉️ Formulaire</a>';
-    log.appendChild(a); log.scrollTop = log.scrollHeight;
-  };
+  const actions = (html) => { const a = document.createElement('div'); a.className = 'help-actions'; a.innerHTML = html; log.appendChild(a); log.scrollTop = log.scrollHeight; return a; };
+  const offer = (r) => actions((LIVE ? '<button type="button" class="live" data-help-live>👤 Discuter avec un conseiller</button>' : '') + '<a class="form" href="' + esc(r.form || 'index.php?r=support') + '">✉️ Formulaire</a>');
+
+  async function post(url, data) {
+    const body = new URLSearchParams(Object.assign({ _token: token }, data));
+    const res = await fetch(url, { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } });
+    return res.json();
+  }
+
+  // ----- Chatbot
   async function ask(q) {
     add(esc(q), 'me');
+    transcript.push({ from: 'user', text: q });
     const t = document.createElement('div'); t.className = 'help-typing'; t.textContent = 'L\'assistant écrit…'; log.appendChild(t);
     let r;
-    try {
-      const body = new URLSearchParams({ q, page: document.title + ' (' + location.search + ')', _token: (window.APP && window.APP.csrf) || '' });
-      r = await (await fetch('index.php?r=api/support', { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } })).json();
-    } catch (err) { r = { answer: 'Connexion impossible pour le moment.', links: [], confident: false, whatsapp: panel.querySelector('footer a').href, form: 'index.php?r=support' }; }
+    try { r = await post('index.php?r=api/support', { q, page: document.title + ' (' + location.search + ')' }); }
+    catch (err) { r = { answer: 'Connexion impossible pour le moment.', links: [], confident: false, live: LIVE }; }
     t.remove();
+    transcript.push({ from: 'bot', text: r.answer });
     let html = esc(r.answer);
     if (r.links && r.links.length) html += '<div class="msg-links">' + r.links.map((l) => '<a href="' + esc(l.url) + '">→ ' + esc(l.label) + '</a>').join('') + '</div>';
     if (r.others && r.others.length) html += '<small>Voir aussi : ' + r.others.map((o) => '<a href="#" data-help-ask="' + esc(o) + '">' + esc(o) + '</a>').join(' · ') + '</small>';
     add(html, 'bot');
-    if (r.source === 'none' || !r.confident) {
-      add('Pour une réponse personnalisée, contactez l\'équipe :', 'bot');
-      escalate(r);
+    if (r.human && LIVE) { goLive(q); return; }
+    if (r.human || r.source === 'none' || !r.confident) {
+      add(LIVE ? 'Un conseiller ' + esc(OP) + ' peut vous répondre directement ici :' : 'Pour une réponse personnalisée, contactez l\'équipe :', 'bot');
+      offer(r);
     } else {
-      const f = document.createElement('div'); f.className = 'help-actions';
-      f.innerHTML = '<button type="button" data-ok>👍 C\'est résolu</button><button type="button" data-ko>Ce n\'est pas ça</button>';
-      log.appendChild(f); log.scrollTop = log.scrollHeight;
+      const f = actions('<button type="button" data-ok>👍 C\'est résolu</button><button type="button" data-ko>Ce n\'est pas ça</button>');
       f.querySelector('[data-ok]').addEventListener('click', () => { f.remove(); add('Parfait ! N\'hésitez pas si vous avez une autre question.', 'bot'); });
-      f.querySelector('[data-ko]').addEventListener('click', () => { f.remove(); add('Désolé. L\'équipe peut vous aider directement :', 'bot'); escalate(r); });
+      f.querySelector('[data-ko]').addEventListener('click', () => { f.remove(); add('Désolé. ' + (LIVE ? 'Un conseiller ' + esc(OP) + ' peut prendre le relais :' : 'L\'équipe peut vous aider directement :'), 'bot'); offer(r); });
     }
   }
-  form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; ask(q); });
-  log.addEventListener('click', (e) => { const b = e.target.closest('[data-help-ask]'); if (!b) return; e.preventDefault(); ask(b.dataset.helpAsk); });
+
+  // ----- Conversation en direct
+  const setLiveHeader = (av) => {
+    title.textContent = 'Conversation avec ' + OP;
+    sub.textContent = av && av.online === false ? 'Conseillers absents · réponse dès que possible' : 'Un conseiller vous répond ici';
+  };
+  function renderLive(msgs) {
+    msgs.forEach((m) => {
+      if (shown.has(m.id)) return; shown.add(m.id); last = Math.max(last, m.id);
+      if (m.from === 'agent') add(esc(m.text) + '<small>' + esc(OP) + ' · ' + esc((m.at || '').slice(11, 16)) + '</small>', 'agent');
+      else if (m.from === 'user') add(esc(m.text), 'me');
+      else add(esc(m.text), 'sys');
+    });
+  }
+  async function goLive(firstQuestion) {
+    if (!LIVE) { location.href = 'index.php?r=support'; return; }
+    if (mode !== 'live') {
+      mode = 'live';
+      log.querySelectorAll('.help-actions, .help-chips').forEach((x) => x.remove());
+      input.placeholder = 'Votre message au conseiller…';
+      endLink.hidden = false;
+    }
+    let r;
+    try { r = await post('index.php?r=api/support/live', { action: 'resume' }); } catch (e) { r = { error: 'Connexion impossible.' }; }
+    if (r.error) { add(esc(r.error), 'sys'); return; }
+    setLiveHeader(r.availability);
+    if (r.chat) { renderLive(r.messages || []); }
+    else {
+      const av = r.availability || {};
+      add(av.online === false ? esc(av.away_message || 'Nos conseillers sont absents : laissez votre message, nous vous répondrons dès que possible.')
+        : 'Écrivez votre message : un conseiller ' + esc(OP) + ' vous répond ici. Votre échange avec l\'assistant lui est transmis.', 'sys');
+      if (firstQuestion) { input.value = firstQuestion; input.focus(); }
+    }
+    startPolling();
+  }
+  async function sendLive(text) {
+    const pending = add(esc(text), 'me pending');
+    let r;
+    try { r = await post('index.php?r=api/support/live', { action: 'open', text, transcript: JSON.stringify(transcript), page: document.title + ' (' + location.search + ')' }); }
+    catch (e) { r = { error: 'Envoi impossible, vérifiez la connexion.' }; }
+    pending.remove();
+    if (r.error) { add(esc(r.error), 'sys'); input.value = text; return; }
+    panel.dataset.hasChat = '1'; fab.classList.add('has-chat');
+    renderLive(r.messages || []);
+    startPolling();
+  }
+  async function poll() {
+    if (panel.hidden || mode !== 'live') return;
+    try {
+      const r = await (await fetch('index.php?r=api/support/live&action=poll&after=' + last, { headers: { 'X-Requested-With': 'fetch' } })).json();
+      if (r.messages) { const before = last; renderLive(r.messages); if (last > before && r.messages.some((m) => m.from === 'agent')) beep(); }
+      if (r.availability) setLiveHeader(r.availability);
+      if (r.status === 'closed') { add('La conversation a été clôturée. Vous pouvez en ouvrir une nouvelle en écrivant ci-dessous.', 'sys'); panel.dataset.hasChat = '0'; stopPolling(); }
+    } catch (e) {}
+  }
+  const beep = () => { try { const a = new AudioContext(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value = 760; g.gain.value = .05; o.start(); o.stop(a.currentTime + .15); } catch (e) {} };
+  function startPolling() { stopPolling(); timer = setInterval(poll, 4000); }
+  function stopPolling() { if (timer) clearInterval(timer); timer = null; }
+
+  panel.querySelector('[data-help-close-chat]').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!confirm('Terminer la conversation avec le conseiller ?')) return;
+    await post('index.php?r=api/support/live', { action: 'close' });
+    stopPolling(); mode = 'bot'; panel.dataset.hasChat = '0'; fab.classList.remove('has-chat'); endLink.hidden = true;
+    title.textContent = 'Assistance Approvia'; input.placeholder = 'Votre question…';
+    add('Conversation terminée. Merci ! Le chatbot reste à votre disposition.', 'sys');
+  });
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; mode === 'live' ? sendLive(q) : ask(q); });
+  document.addEventListener('click', (e) => {
+    const lv = e.target.closest('[data-help-live]');
+    if (lv) { e.preventDefault(); open(); goLive(); return; }
+    const b = e.target.closest('[data-help-ask]');
+    if (b && panel.contains(b)) { e.preventDefault(); ask(b.dataset.helpAsk); }
+  });
+  if (panel.dataset.autoopen === '1' || (panel.dataset.hasChat === '1' && /[?&]r=support/.test(location.search))) { open(); goLive(); }
 })();

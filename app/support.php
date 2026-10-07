@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Assistance de l'éditeur (NLapps) : chatbot de premier niveau, formulaire de contact et relais WhatsApp.
+ * Assistance de l'éditeur (NLapps) : chatbot de premier niveau, conversation en direct avec l'équipe
+ * (via le centre d'assistance NLapps) et formulaire de contact.
  * Coordonnées modifiables dans config.php (clés support_*), sans exposition dans l'interface.
  */
 
@@ -12,7 +13,6 @@ function support_contact(): array
         'editor'   => (string)cfg('support_editor', 'NLapps'),
         'site'     => (string)cfg('support_site', 'https://nlapps.fr'),
         'email'    => (string)cfg('support_email', 'contact@nlapps.fr'),
-        'whatsapp' => preg_replace('/\D+/', '', (string)cfg('support_whatsapp', '33652436747')),
         'phone'    => (string)cfg('support_phone', '+33 6 52 43 67 47'),
     ];
 }
@@ -126,10 +126,10 @@ function support_answer(string $question, bool $isAdmin, string $page = ''): arr
                 $faq[] = '- ' . $title . ' → ' . $answer . ($link ? ' (page : ' . $link[0] . ')' : '');
             }
         }
-        $system = "Tu es l'assistant d'aide de ScanAppro, logiciel de commandes pour centres de santé édité par NLapps. "
+        $system = "Tu es l'assistant d'aide de Approvia, logiciel de commandes pour centres de santé édité par NLapps. "
             . "Réponds en français, en 2 à 4 phrases simples, uniquement à partir de la documentation ci-dessous et du bon sens d'utilisation. "
             . "Si la question sort de ce cadre (bug, erreur technique, facturation, demande spécifique) ou si tu n'es pas sûr, dis-le et mets confident à false : "
-            . "l'utilisateur pourra contacter l'équipe NLapps. N'invente jamais de fonctionnalité.\n"
+            . "l'utilisateur pourra discuter avec l'équipe NLapps. N'invente jamais de fonctionnalité.\n"
             . "Profil de l'utilisateur : " . ($isAdmin ? 'administrateur (service achats)' : 'salarié d\'un centre') . ".\n\nDOCUMENTATION :\n" . implode("\n", $faq);
         $r = ai_json($system, 'Page actuelle : ' . mb_substr($page, 0, 80) . "\nQuestion : " . mb_substr($question, 0, 600), [
             'type' => 'object',
@@ -142,7 +142,7 @@ function support_answer(string $question, bool $isAdmin, string $page = ''): arr
         }
     }
     if (!$matches) {
-        return ['answer' => "Je n'ai pas trouvé de réponse toute faite à cette question. L'équipe NLapps peut vous aider directement : par WhatsApp ou par le formulaire ci-dessous.",
+        return ['answer' => "Je n'ai pas trouvé de réponse toute faite à cette question. L'équipe NLapps peut vous aider directement.",
             'links' => [], 'source' => 'none', 'confident' => false, 'others' => []];
     }
     $best = $matches[0];
@@ -151,12 +151,6 @@ function support_answer(string $question, bool $isAdmin, string $page = ''): arr
         'source' => 'faq', 'confident' => $best['score'] >= 0.55,
         'others' => array_map(fn($m) => $m['title'], array_slice($matches, 1)),
     ];
-}
-
-/** Lien WhatsApp avec un message pré-rempli (contexte utile au support). */
-function support_whatsapp_url(string $message): string
-{
-    return 'https://wa.me/' . support_contact()['whatsapp'] . '?text=' . rawurlencode($message);
 }
 
 /** Contexte joint à chaque demande d'assistance. */
@@ -168,4 +162,81 @@ function support_context(?array $u, ?array $center, string $page = ''): string
         . ($u ? "Utilisateur : " . $u['first_name'] . ' ' . $u['last_name'] . ' (' . $u['email'] . ', ' . $u['role'] . ")\n" : '')
         . ($center ? "Centre : " . $center['name'] . "\n" : '')
         . ($page !== '' ? "Page : " . $page . "\n" : '');
+}
+
+// ---------------------------------------------------------------- Conversation en direct avec NLapps (centre d'assistance)
+
+/** Conversation en direct disponible : adresse et clé du centre d'assistance renseignées dans config.php. */
+function support_live_enabled(): bool
+{
+    return (string)cfg('support_hub_url', '') !== '' && (string)cfg('support_hub_key', '') !== '';
+}
+
+/** Appel du centre d'assistance NLapps (serveur à serveur). Renvoie la réponse décodée, ou null si indisponible. */
+function support_hub(string $action, array $query = [], ?array $body = null): ?array
+{
+    if (!support_live_enabled()) {
+        return null;
+    }
+    $url = (string)cfg('support_hub_url') . (str_contains((string)cfg('support_hub_url'), '?') ? '&' : '?') . http_build_query(['a' => $action] + $query);
+    $headers = ['X-Api-Key: ' . cfg('support_hub_key'), 'Accept: application/json'];
+    $payload = $body !== null ? json_encode($body, JSON_UNESCAPED_UNICODE) : null;
+    if ($payload !== null) {
+        $headers[] = 'Content-Type: application/json';
+    }
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 8, CURLOPT_CONNECTTIMEOUT => 4, CURLOPT_HTTPHEADER => $headers]);
+        if ($payload !== null) {
+            curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload]);
+        }
+        $raw = curl_exec($ch);
+        $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+    } else {
+        $ctx = stream_context_create(['http' => ['method' => $payload !== null ? 'POST' : 'GET', 'header' => implode("\r\n", $headers),
+            'content' => (string)$payload, 'timeout' => 8, 'ignore_errors' => true]]);
+        $raw = @file_get_contents($url, false, $ctx);
+        $code = (int)preg_replace('/^HTTP\/\S+ (\d+).*/', '$1', $http_response_header[0] ?? 'HTTP/1.1 0');
+    }
+    $data = is_string($raw) ? json_decode($raw, true) : null;
+    if (!is_array($data) || $code >= 400) {
+        error_log('[support-hub] ' . $action . ' : HTTP ' . $code . ' ' . mb_substr((string)$raw, 0, 200));
+        return null;
+    }
+    return $data;
+}
+
+/** Conversation ouverte de l'utilisateur (une seule à la fois). */
+function support_open_chat(int $userId): ?array
+{
+    return one("SELECT * FROM support_chats WHERE user_id = ? AND status = 'open' ORDER BY id DESC LIMIT 1", [$userId]);
+}
+
+/**
+ * Tâche planifiée : relève les réponses de l'équipe NLapps pour les conversations ouvertes
+ * et prévient l'utilisateur (notification dans l'application et e-mail selon ses réglages).
+ */
+function support_sync(): int
+{
+    if (!support_live_enabled()) {
+        return 0;
+    }
+    $n = 0;
+    foreach (all("SELECT * FROM support_chats WHERE status = 'open' AND updated_at >= ?", [date('Y-m-d H:i:s', strtotime('-30 days'))]) as $c) {
+        $r = support_hub('poll', ['id' => $c['hub_id'], 'token' => $c['token'], 'after' => max((int)$c['notified_id'], (int)$c['seen_id'])]);
+        if ($r === null) {
+            continue;
+        }
+        $agent = array_values(array_filter($r['messages'] ?? [], fn($m) => $m['from'] === 'agent'));
+        $maxId = max([(int)$c['notified_id'], ...array_map(fn($m) => (int)$m['id'], $r['messages'] ?? [])]);
+        if ($agent) {
+            $last = end($agent);
+            notify([(int)$c['user_id']], 'support_reply', 'Réponse de l\'assistance ' . support_contact()['editor'],
+                mb_substr($last['text'], 0, 300), url('support', ['chat' => 1]));
+            $n++;
+        }
+        update('support_chats', ['notified_id' => $maxId, 'status' => ($r['status'] ?? 'open') === 'closed' ? 'closed' : 'open', 'updated_at' => now()], 'id = ?', [$c['id']]);
+    }
+    return $n;
 }

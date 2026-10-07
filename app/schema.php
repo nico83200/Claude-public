@@ -356,6 +356,18 @@ function schema_statements(string $driver): array
             response TEXT NOT NULL,
             created_at DATETIME NOT NULL",
 
+        'support_chats' => "
+            id {PK},
+            user_id {FK} NOT NULL,
+            center_id {FK} NULL,
+            hub_id INT NOT NULL,
+            token VARCHAR(64) NOT NULL,
+            status VARCHAR(10) NOT NULL DEFAULT 'open',
+            seen_id INT NOT NULL DEFAULT 0,
+            notified_id INT NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL",
+
         'support_requests' => "
             id {PK},
             user_id {FK} NULL,

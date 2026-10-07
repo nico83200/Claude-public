@@ -1,12 +1,12 @@
 <div class="page-head">
-  <div><h1>Assistance</h1><p>ScanAppro est créé et maintenu par <strong><?= e($contact['editor']) ?></strong>. Une question, un souci, une idée ? Nous vous répondons.</p></div>
+  <div><h1>Assistance</h1><p>Approvia est créé et maintenu par <strong><?= e($contact['editor']) ?></strong>. Une question, un souci, une idée ? Nous vous répondons.</p></div>
 </div>
 
 <?php if ($pending): ?>
   <div class="flash flash-info"><?= icon('info') ?><div style="flex:1">
-    <strong>Demande n°<?= (int)$pending['id'] ?> enregistrée.</strong> L'envoi automatique d'e-mails n'est pas activé sur votre installation : transmettez-la en un clic.
-    <div class="row mt-1"><a class="btn btn-sm btn-success" href="<?= e($pending['whatsapp']) ?>" target="_blank" rel="noopener"><?= icon('send', 15) ?> Envoyer par WhatsApp</a>
-    <a class="btn btn-sm" href="<?= e($pending['mailto']) ?>"><?= icon('mail', 15) ?> Envoyer par e-mail</a></div>
+    <strong>Demande n°<?= (int)$pending['id'] ?> enregistrée.</strong> L'envoi automatique d'e-mails n'est pas activé sur votre installation : transmettez-la en un clic depuis votre messagerie<?= $live ? ', ou écrivez-nous directement dans la conversation' : '' ?>.
+    <div class="row mt-1"><a class="btn btn-sm" href="<?= e($pending['mailto']) ?>"><?= icon('mail', 15) ?> Envoyer par e-mail</a>
+    <?php if ($live): ?><button type="button" class="btn btn-sm btn-success" data-help-live><?= icon('send', 15) ?> Discuter avec un conseiller</button><?php endif; ?></div>
   </div></div>
 <?php endif; ?>
 
@@ -46,11 +46,13 @@
   </div>
 
   <div class="stack">
+    <?php if ($live): ?>
     <div class="card card-body support-direct">
-      <h3><?= icon('send', 18) ?> Réponse rapide</h3>
-      <p class="muted">Discutez directement avec l'équipe <?= e($contact['editor']) ?> sur WhatsApp : le contexte de votre demande est pré-rempli.</p>
-      <a class="btn btn-success" style="width:100%" href="<?= e($whatsapp) ?>" target="_blank" rel="noopener"><?= icon('send', 16) ?> Ouvrir WhatsApp</a>
+      <h3><?= icon('send', 18) ?> Discuter en direct</h3>
+      <p class="muted">Écrivez à l'équipe <?= e($contact['editor']) ?> ici même : la réponse s'affiche dans la conversation, et vous êtes prévenu(e) si vous avez quitté la page.</p>
+      <button type="button" class="btn btn-success" style="width:100%" data-help-live><?= icon('send', 16) ?> <?= $openChat ? 'Reprendre la conversation' : 'Discuter avec un conseiller' ?></button>
     </div>
+    <?php endif; ?>
     <div class="card card-body">
       <h3><?= icon('info', 18) ?> Coordonnées</h3>
       <ul class="contact-list">

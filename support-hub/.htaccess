@@ -1,0 +1,9 @@
+# Centre d'assistance NLapps : données et configuration protégées
+Options -Indexes
+<FilesMatch "^(config\.php|config\.sample\.php|lib\.php|.*\.md|.*\.sqlite)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^data(/|$) - [F,L]
+</IfModule>

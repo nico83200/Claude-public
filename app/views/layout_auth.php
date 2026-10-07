@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="assets/css/app.css?v=<?= e(defined('APP_VERSION') ? APP_VERSION : '1') ?>">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#6366f1">
+<meta name="theme-color" content="#2a1fc4">
+<link rel="icon" type="image/svg+xml" href="assets/brand/approvia-mark.svg">
 </head>
 <body>
 <div class="auth-wrap">
@@ -16,7 +17,7 @@
     <div class="auth-logo"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></div>
     <?php else: ?>
     <div class="brand" style="padding:0;position:relative;z-index:1">
-      <div class="brand-logo" style="background:rgba(255,255,255,.25);box-shadow:none"><?= icon('cart', 20) ?></div>
+      <img class="brand-mark" src="assets/brand/approvia-mark.svg" alt="" width="40" height="40">
       <div><?= e(app_name()) ?></div>
     </div>
     <?php endif; ?>

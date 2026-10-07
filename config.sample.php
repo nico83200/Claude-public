@@ -16,7 +16,7 @@ return [
     // 'db' => ['driver' => 'sqlite', 'path' => __DIR__ . '/storage/app.sqlite'],
 
     // Nom affiché de l'application
-    'app_name' => 'ScanAppro',
+    'app_name' => 'Approvia',
 
     // Fuseau horaire
     'timezone' => 'Europe/Paris',
@@ -28,7 +28,9 @@ return [
 
     // Assistance de l'éditeur (bulle d'aide, page Assistance) — valeurs par défaut : NLapps
     // 'support_editor' => 'NLapps', 'support_site' => 'https://nlapps.fr', 'support_email' => 'contact@nlapps.fr',
-    // 'support_whatsapp' => '33652436747', 'support_phone' => '+33 6 52 43 67 47',
+    // 'support_phone' => '+33 6 52 43 67 47',
+    // Conversation en direct avec NLapps (bouton « Parler à un conseiller ») : clé fournie par NLapps
+    // 'support_hub_url' => 'https://nlapps.fr/assistance/api.php', 'support_hub_key' => 'nlh_…',
 
     // Taille max des photos produits (octets)
     'max_upload' => 4 * 1024 * 1024,

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64">
+  <defs><linearGradient id="ap-w" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a9cf7"/><stop offset=".55" stop-color="#7b2ff2"/><stop offset="1" stop-color="#ff3d9a"/></linearGradient>
+    <linearGradient id="ap-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a9cf7"/><stop offset=".45" stop-color="#2a1fc4"/><stop offset=".72" stop-color="#4a1aa8"/><stop offset="1" stop-color="#ff3d9a"/>
+    </linearGradient>
+    <linearGradient id="ap-a" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8ecff"/><stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="ap-r" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c7dcff"/><stop offset="1" stop-color="#8fb3ff"/>
+    </linearGradient>
+    <linearGradient id="ap-v" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9b4dff"/><stop offset=".6" stop-color="#e44cf0"/><stop offset="1" stop-color="#ff4fa8"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#ap-bg)"/>
+  <path d="M30.5 14.5 42 33" stroke="url(#ap-r)" stroke-width="11" stroke-linecap="round" opacity=".85"/>
+  <path d="M13 47 30.5 14.5" stroke="url(#ap-a)" stroke-width="11" stroke-linecap="round"/>
+  <path d="M23 32.5c1.6-1.6 3.6-1.4 5 .3l4.8 12.6c.4 1 1.6 1.2 2.3.4L50.5 25" fill="none" stroke="url(#ap-v)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="76" y="47" font-family="Inter, 'DejaVu Sans', sans-serif" font-size="42" font-weight="800" letter-spacing="-1.4" fill="#0d1240">Approvı<tspan fill="url(#ap-w)">a</tspan></text>
+  <circle cx="226.3" cy="13.5" r="5.6" fill="url(#ap-w)"/>
+</svg>

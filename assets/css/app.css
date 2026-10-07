@@ -1,5 +1,5 @@
 /* =====================================================================
-   ScanAppro — interface
+   Approvia — interface
    ===================================================================== */
 :root {
   --bg: #f4f6fb;
@@ -629,7 +629,12 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .help-chips button, .help-actions button, .help-actions a { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: .32rem .7rem; font-size: .8rem; cursor: pointer; text-decoration: none; }
 .help-chips button:hover, .help-actions button:hover { border-color: var(--primary); color: var(--primary); }
 .help-actions { display: flex; flex-wrap: wrap; gap: .35rem; align-self: flex-start; }
-.help-actions .wa { background: #25d366; border-color: #25d366; color: #fff; font-weight: 700; }
+.help-actions .live { background: #16a34a; border-color: #16a34a; color: #fff; font-weight: 700; }
+.help-log .msg.agent { background: #ecfdf5; border: 1px solid #a7f3d0; border-bottom-left-radius: 4px; align-self: flex-start; }
+.help-log .msg.sys { align-self: center; max-width: 95%; background: transparent; color: var(--muted); font-size: .8rem; text-align: center; padding: .2rem .4rem; }
+.help-log .msg.sep { display: none; }
+.help-log .msg.pending { opacity: .6; }
+.help-fab.has-chat { background: linear-gradient(135deg, #16a34a, #0d9488); }
 .help-actions .form { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
 .help-typing { align-self: flex-start; color: var(--muted); font-size: .82rem; }
 .help-input { display: flex; gap: .4rem; padding: .7rem; border-top: 1px solid var(--border); background: var(--surface); }
@@ -646,3 +651,7 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
   .support-cats { grid-template-columns: 1fr; }
 }
 @media print { .help-fab, .help-panel { display: none !important; } }
+
+/* Logo Approvia */
+.brand-mark { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; box-shadow: 0 6px 18px rgba(42, 31, 196, .35); display: block; }
+.brand-sub img { width: 16px; height: 16px; border-radius: 4px; vertical-align: -3px; margin-right: 2px; }

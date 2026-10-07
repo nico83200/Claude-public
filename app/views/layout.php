@@ -26,11 +26,11 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="assets/css/app.css?v=<?= e(APP_VERSION) ?>">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#6366f1">
+<meta name="theme-color" content="#2a1fc4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="<?= e(app_name()) ?>">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%236366f1'/><path d='M7 9h10l-1 8H8z' stroke='white' stroke-width='2' fill='none'/></svg>">
+<link rel="icon" type="image/svg+xml" href="assets/brand/approvia-mark.svg">
 </head>
 <body>
 <div class="app">
@@ -38,11 +38,11 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     <?php if ($logo = brand_logo_url()): ?>
     <a class="brand brand-with-logo" href="index.php">
       <span class="brand-logo-box"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></span>
-      <span class="brand-sub"><?= e(app_name()) ?></span>
+      <span class="brand-sub"><img src="assets/brand/approvia-mark.svg" alt="" width="16" height="16"> <?= e(app_name()) ?></span>
     </a>
     <?php else: ?>
     <div class="brand">
-      <div class="brand-logo"><?= icon('cart', 20) ?></div>
+      <img class="brand-mark" src="assets/brand/approvia-mark.svg" alt="" width="40" height="40">
       <div><?= e(app_name()) ?><small>Achats &amp; approvisionnement</small></div>
     </div>
     <?php endif; ?>
@@ -98,7 +98,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <div class="nav-title">Aide</div>
       <a class="<?= $active('support') ?>" href="<?= url('support') ?>"><?= icon('info') ?> Assistance</a>
     </nav>
-    <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">ScanAppro · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
+    <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Approvia · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
 
     <div class="sidebar-foot">
       <div class="avatar"><?= e(initials($u['first_name'], $u['last_name'])) ?></div>
@@ -143,26 +143,26 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
   </div>
 </div>
 <div class="toast-zone" id="toasts"></div>
-<?php if ($r !== 'support'): ?>
-<button type="button" class="help-fab" data-help-open aria-label="Besoin d'aide ?" title="Besoin d'aide ?"><?= icon('info', 22) ?><span>Aide</span></button>
-<section class="help-panel" data-help-panel hidden aria-label="Assistance">
+<?php $liveOn = support_live_enabled(); $hasChat = $liveOn && support_open_chat((int)$u['id']); ?>
+<button type="button" class="help-fab<?= $hasChat ? ' has-chat' : '' ?>" data-help-open aria-label="Besoin d'aide ?" title="Besoin d'aide ?"><?= icon('info', 22) ?><span><?= $hasChat ? 'Conversation' : 'Aide' ?></span></button>
+<section class="help-panel" data-help-panel hidden aria-label="Assistance" data-live="<?= $liveOn ? '1' : '0' ?>" data-has-chat="<?= $hasChat ? '1' : '0' ?>" data-operator="<?= e(support_contact()['editor']) ?>" data-autoopen="<?= ($r === 'support' && (input('chat') === '1')) ? '1' : '0' ?>">
   <header>
-    <div><strong>Assistance ScanAppro</strong><small>Réponses immédiates · équipe <?= e(support_contact()['editor']) ?> si besoin</small></div>
+    <div><strong data-help-title>Assistance Approvia</strong><small data-help-sub>Réponses immédiates · équipe <?= e(support_contact()['editor']) ?> si besoin</small></div>
     <button type="button" class="btn btn-ghost btn-icon" data-help-close aria-label="Fermer"><?= icon('x', 18) ?></button>
   </header>
   <div class="help-log" data-help-log>
-    <div class="msg bot">Bonjour <?= e($u['first_name']) ?> 👋 Posez votre question : je réponds tout de suite aux questions courantes, et je vous mets en relation avec l'équipe <?= e(support_contact()['editor']) ?> si besoin.</div>
+    <div class="msg bot">Bonjour <?= e($u['first_name']) ?> 👋 Posez votre question : je réponds tout de suite aux questions courantes, et je vous mets en relation avec un conseiller <?= e(support_contact()['editor']) ?> si besoin.</div>
     <div class="help-chips">
       <?php foreach (array_slice(array_filter(support_faq(), fn($f) => !$f[4] || is_admin()), 0, 4) as $f): ?><button type="button" data-help-ask="<?= e($f[0]) ?>"><?= e($f[0]) ?></button><?php endforeach; ?>
+      <?php if ($liveOn): ?><button type="button" data-help-live>👤 Parler à un conseiller</button><?php endif; ?>
     </div>
   </div>
   <form class="help-input" data-help-form>
-    <input type="text" placeholder="Votre question…" autocomplete="off" maxlength="600" required>
+    <input type="text" placeholder="Votre question…" autocomplete="off" maxlength="2000" required>
     <button class="btn btn-primary btn-icon" type="submit" aria-label="Envoyer"><?= icon('send', 18) ?></button>
   </form>
-  <footer><a href="<?= e(support_whatsapp_url("Bonjour NLapps, j'ai besoin d'aide sur ScanAppro.\n\n" . support_context($u, $center ?? null))) ?>" target="_blank" rel="noopener">WhatsApp</a> · <a href="<?= url('support') ?>">Formulaire de contact</a></footer>
+  <footer><?php if ($liveOn): ?><a href="#" data-help-live>Parler à un conseiller</a> · <?php endif; ?><a href="<?= url('support') ?>">Formulaire de contact</a><span data-help-end hidden> · <a href="#" data-help-close-chat>Terminer la conversation</a></span></footer>
 </section>
-<?php endif; ?>
 <script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?>, version: <?= json_encode(APP_VERSION) ?> };</script>
 <script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>

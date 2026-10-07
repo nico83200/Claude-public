@@ -53,6 +53,7 @@ $routes = [
     'stock/count-one'       => ['kits', 'stock_count_one'],
     'support'               => ['support', 'support_page'],
     'api/support'           => ['support', 'api_support_ask'],
+    'api/support/live'      => ['support', 'api_support_live'],
     'receptions'            => ['reception', 'reception_index'],
     'reception'             => ['reception', 'reception_view'],
     'reception/save'        => ['reception', 'reception_save'],

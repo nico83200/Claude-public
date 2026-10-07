@@ -15,6 +15,7 @@ const CRON_TASKS = [
     'late'      => ['label' => 'Relance des livraisons en retard',   'every' => 3600],
     'backup'    => ['label' => 'Sauvegarde quotidienne de la base',  'every' => 86400],
     'cleanup'   => ['label' => 'Nettoyage des données techniques',   'every' => 86400],
+    'support'   => ['label' => 'Réponses de l\'assistance NLapps',    'every' => 120],
 ];
 
 function cron_last(string $task): int
@@ -44,6 +45,7 @@ function cron_run(bool $force = false): array
                     'late' => cron_late_deliveries(),
                     'backup' => cron_daily_backup($force),
                     'cleanup' => cron_cleanup(),
+                    'support' => support_sync(),
                 };
                 set_setting('cron_last_' . $task, (string)time());
             } catch (Throwable $e) {

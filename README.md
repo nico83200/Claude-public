@@ -1,6 +1,8 @@
-# ScanAppro
+# Approvia
 
 Logiciel de commandes et d'approvisionnement pour centres de santé, avec lecteur de codes-barres intégré. Édité et maintenu par **NLapps** — https://nlapps.fr · contact@nlapps.fr · +33 6 52 43 67 47.
+
+Le dossier `support-hub/` contient le **centre d'assistance NLapps** (console de conversation en direct pour toutes les installations clientes) : voir `support-hub/LISEZMOI.md`.
 
 Progiciel interne de **commandes pour un groupe de centres de santé** : les salariés (secrétaires, médecins, kinés, infirmiers…) font leurs demandes par centre, le service achats les regroupe par fournisseur, émet les bons de commande et suit les livraisons jusqu'à la réception sur site.
 
@@ -58,7 +60,7 @@ Progiciel interne de **commandes pour un groupe de centres de santé** : les sal
 - **Notifications & e-mails, au cas par cas** : un interrupteur général pour les e-mails. Pour chaque situation, la notification dans l'application et l'e-mail se règlent séparément : demande, validation, commande, livraison, refus, retard, rappel, stock bas, budget, hausse de prix, mot de passe oublié, envoi des bons aux fournisseurs, copie à l'expéditeur. L'envoi se fait par la fonction mail() de l'hébergement ou par SMTP (OVH, Office 365, Gmail…), avec un e-mail de test.
 - **Clé API de l'assistant IA** saisie, remplacée ou supprimée depuis les paramètres. Elle est chiffrée en base avec une clé propre à l'installation (`storage/secret.key`, à conserver avec les sauvegardes), affichée masquée et tracée dans le journal d'audit. Le mot de passe SMTP est chiffré de la même façon.
 - **Mises à jour depuis l'interface** : envoi d'un paquet .zip, analyse puis confirmation par mot de passe, sauvegarde automatique (code et base) avant installation, puis **retour à la version précédente en un clic** (avec ou sans restauration des données).
-- **Assistance NLapps intégrée** : bulle d'aide avec chatbot (réponses immédiates aux questions courantes, enrichies par l'IA si l'option est active), puis contact par WhatsApp ou formulaire, contexte joint automatiquement. Coordonnées réglables dans `config.php` (`support_email`, `support_whatsapp`, `support_phone`, `support_site`, `support_editor`).
+- **Assistance NLapps intégrée** : bulle d'aide avec chatbot (réponses immédiates aux questions courantes, enrichies par l'IA si l'option est active), puis **conversation en direct avec un conseiller NLapps** (via le centre d'assistance, clés `support_hub_url` / `support_hub_key` dans `config.php`) ou formulaire, contexte joint automatiquement. Coordonnées réglables dans `config.php` (`support_email`, `support_phone`, `support_site`, `support_editor`).
 - **Mode de commande par fournisseur** : en ligne (le site s'ouvre à la création du bon, références prêtes à coller), PDF par e-mail (envoyé par l'application, ou e-mail prêt avec PDF joint dans votre messagerie), téléphone ou autre.
 - **Import assisté du catalogue** : un fichier fournisseur CSV, Excel ou OpenDocument, tel quel. L'IA associe les colonnes, rapproche fournisseurs et familles de vos catégories et classe les articles ; vous vérifiez ligne à ligne. Les articles déjà présents sont mis à jour, sans doublon.
 - **Nettoyage des données** : suppression en un clic des données de démonstration, ou de toute l'activité de test (le catalogue, les centres, les comptes et les paramètres sont conservés), avec sauvegarde automatique au préalable.
@@ -86,7 +88,7 @@ SQLite est aussi pris en charge, pour les tests ou une petite structure sans ser
 
 ## Installation
 
-Le plus simple est d'utiliser le **paquet d'installation complet** (`scanappro-<version>-installation.zip`, fabriqué par `php tools/build-update.php --install`). Il contient déjà les dépendances de l'assistant IA (`vendor/`) : aucun Composer ni ligne de commande n'est nécessaire.
+Le plus simple est d'utiliser le **paquet d'installation complet** (`approvia-<version>-installation.zip`, fabriqué par `php tools/build-update.php --install`). Il contient déjà les dépendances de l'assistant IA (`vendor/`) : aucun Composer ni ligne de commande n'est nécessaire.
 
 1. Créez une base MySQL/MariaDB et son utilisateur chez l'hébergeur.
 2. Déposez le .zip à la racine du site, puis décompressez-le, par exemple avec le gestionnaire de fichiers de l'hébergeur.
@@ -144,7 +146,7 @@ Les e-mails passent par une file d'attente : un serveur de messagerie momentané
 
 ## Mises à jour du progiciel
 
-1. **Fabriquer le paquet** (sur le poste de développement) : `php tools/build-update.php` crée `dist/scanappro-<version>.zip` à partir du fichier `VERSION` et des notes de `CHANGELOG.md`. Avec `--vendor`, les dépendances sont incluses (paquet plus lourd).
+1. **Fabriquer le paquet** (sur le poste de développement) : `php tools/build-update.php` crée `dist/approvia-<version>.zip` à partir du fichier `VERSION` et des notes de `CHANGELOG.md`. Avec `--vendor`, les dépendances sont incluses (paquet plus lourd).
 2. **Installer** : *Mises à jour → Installer une mise à jour*. Le paquet est d'abord analysé (version, notes, fichiers) ; l'installation ne démarre qu'après confirmation par mot de passe.
 3. **Pendant l'installation**, le progiciel :
    - sauvegarde automatiquement le code et la base de données dans `storage/backups/` ;

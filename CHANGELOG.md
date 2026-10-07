@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.9.0
+- L'application devient **Approvia** : nouveau logo dans le menu, la page de connexion, l'onglet du navigateur et l'icône de l'application installable.
+- **Conversation en direct avec NLapps** dans la bulle d'aide, à la place de WhatsApp : si le chatbot ne trouve pas de réponse, ou dès que l'utilisateur demande à parler à un conseiller, la conversation s'ouvre dans la même fenêtre. L'échange avec le chatbot et le contexte (centre, version, page) sont transmis au conseiller. Disponibilité affichée, message d'absence, conversation reprise d'une page à l'autre, notification dans l'application quand une réponse arrive fenêtre fermée.
+- Nouveau **centre d'assistance NLapps** (dossier `support-hub/`, à installer sur nlapps.fr) : console unique pour toutes les installations clientes, clés d'accès par client, alertes e-mail et notification sur téléphone (ntfy).
+
 ## 1.8.0
 - L'application devient **ScanAppro**, éditée et maintenue par NLapps (nom par défaut des nouvelles installations, application installable, mention dans le menu).
 - **Assistance intégrée** : bulle d'aide sur toutes les pages avec un chatbot qui répond immédiatement aux questions courantes (commande, scanner, caméra, réception, inventaire, budgets, import…), avec réponses plus fines si l'option assistant IA est activée.

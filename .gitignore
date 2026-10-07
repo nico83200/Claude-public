@@ -8,3 +8,6 @@
 /dist/
 /uploads/brand/*
 !/uploads/brand/.htaccess
+/support-hub/config.php
+/support-hub/data/*
+!/support-hub/data/.htaccess
