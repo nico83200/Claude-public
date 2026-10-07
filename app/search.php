@@ -285,9 +285,58 @@ function ai_model(): string
  * Interroge Claude avec la requête et le catalogue du centre.
  * Renvoie ['ids' => int[], 'message' => string, 'related' => string[]] ou null en cas d'indisponibilité.
  */
+/** Dernière erreur de l'assistant IA, en clair (affichée par « Tester l'assistant »). */
+function ai_last_error(?string $set = null): string
+{
+    static $err = '';
+    if ($set !== null) {
+        $err = $set;
+    }
+    return $err;
+}
+
+/** Traduit une erreur de l'API en message compréhensible, avec la piste de correction. */
+function ai_error_message(Throwable $e): string
+{
+    $raw = trim(preg_replace('/\s+/', ' ', $e->getMessage()) ?? '');
+    if (preg_match('/"message"\s*:\s*"((?:[^"\\\\]|\\\\.)*)"/', $raw, $m)) {
+        $raw = stripcslashes($m[1]);   // message de l'API, sans l'enveloppe JSON
+    }
+    $low = mb_strtolower($raw);
+    $hint = match (true) {
+        str_contains($low, 'credit balance') || str_contains($low, 'billing')
+            => 'Crédit API insuffisant : ajoutez du crédit sur console.anthropic.com → Billing (le crédit est distinct d\'un abonnement Claude.ai).',
+        $e instanceof \Anthropic\Core\Exceptions\AuthenticationException
+            => 'Clé API refusée : elle est invalide, incomplète ou a été révoquée. Recopiez-la depuis console.anthropic.com → API Keys.',
+        $e instanceof \Anthropic\Core\Exceptions\PermissionDeniedException
+            => 'Cette clé n\'a pas accès au modèle ou à l\'organisation demandés.',
+        $e instanceof \Anthropic\Core\Exceptions\NotFoundException
+            => 'Modèle « ' . ai_model() . ' » introuvable pour ce compte : choisissez un autre modèle dans les paramètres.',
+        $e instanceof \Anthropic\Core\Exceptions\RateLimitException
+            => 'Limite de débit atteinte : réessayez dans une minute.',
+        $e instanceof \Anthropic\Core\Exceptions\APITimeoutException
+            => 'Délai dépassé : le serveur Anthropic n\'a pas répondu à temps.',
+        $e instanceof \Anthropic\Core\Exceptions\APIConnectionException
+            => 'Connexion impossible depuis l\'hébergement vers api.anthropic.com (pare-feu sortant, certificats SSL ou extension curl).',
+        $e instanceof \Anthropic\Core\Exceptions\InternalServerException
+            => 'Service Anthropic momentanément indisponible : réessayez plus tard.',
+        default => 'Erreur inattendue.',
+    };
+    return $hint . ($raw !== '' ? ' — Détail : ' . mb_substr($raw, 0, 400) : '') . ' [' . (new ReflectionClass($e))->getShortName() . ']';
+}
+
 function ai_search(array $products, string $query): ?array
 {
-    if (!ai_available() || mb_strlen($query) < 2) {
+    ai_last_error('');
+    if (mb_strlen($query) < 2) {
+        return null;
+    }
+    if (!ai_available()) {
+        ai_last_error(match (true) {
+            !ai_sdk_installed() => 'Bibliothèque Anthropic absente : le dossier vendor/ manque sur le serveur (utilisez le paquet d\'installation complet).',
+            ai_api_key() === '' => 'Aucune clé API enregistrée (ou clé illisible : fichier storage/secret.key changé ?). Ressaisissez-la.',
+            default => 'Assistant IA désactivé dans les paramètres.',
+        });
         return null;
     }
     // Catalogue compact, trié par id pour rester stable (et profiter du cache de prompt).
@@ -327,56 +376,57 @@ function ai_search(array $products, string $query): ?array
         . "- « related » : jusqu'à 3 recherches complémentaires courtes que le salarié pourrait vouloir faire.\n\n"
         . "CATALOGUE (#id | nom | catégorie | conditionnement | mots-clés | description) :\n" . $catalog;
 
-    try {
-        $client = new \Anthropic\Client(apiKey: ai_api_key(), baseUrl: cfg('anthropic_base_url') ?: null);
-        $message = $client->beta->messages->create(
-            model: $model,
-            maxTokens: 8000,
-            system: [
-                ['type' => 'text', 'text' => $system, 'cacheControl' => ['type' => 'ephemeral']],
-            ],
-            messages: [
-                ['role' => 'user', 'content' => 'Besoin du salarié : ' . mb_substr($query, 0, 500)],
-            ],
-            outputConfig: [
-                'effort' => 'low',
-                'format' => [
-                    'type' => 'json_schema',
-                    'schema' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'product_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
-                            'message'     => ['type' => 'string'],
-                            'related'     => ['type' => 'array', 'items' => ['type' => 'string']],
-                        ],
-                        'required' => ['product_ids', 'message', 'related'],
-                        'additionalProperties' => false,
+    $client = new \Anthropic\Client(apiKey: ai_api_key(), baseUrl: cfg('anthropic_base_url') ?: null);
+    $params = [
+        'model' => $model,
+        'maxTokens' => 8000,
+        'system' => [
+            ['type' => 'text', 'text' => $system, 'cacheControl' => ['type' => 'ephemeral']],
+        ],
+        'messages' => [
+            ['role' => 'user', 'content' => 'Besoin du salarié : ' . mb_substr($query, 0, 500)],
+        ],
+        'outputConfig' => [
+            'effort' => 'low',
+            'format' => [
+                'type' => 'json_schema',
+                'schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'product_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                        'message'     => ['type' => 'string'],
+                        'related'     => ['type' => 'array', 'items' => ['type' => 'string']],
                     ],
+                    'required' => ['product_ids', 'message', 'related'],
+                    'additionalProperties' => false,
                 ],
             ],
-            // Si le modèle décline une requête, l'API bascule automatiquement sur un modèle de repli.
-            fallbacks: 'default',
-            betas: ['server-side-fallback-2026-07-01'],
-            requestOptions: ['timeout' => 45, 'maxRetries' => 1],
-        );
-    } catch (\Anthropic\Core\Exceptions\RateLimitException $e) {
-        error_log('[ai_search] limite de débit atteinte : ' . $e->getMessage());
-        return null;
-    } catch (\Anthropic\Core\Exceptions\AuthenticationException $e) {
-        error_log('[ai_search] clé API invalide : ' . $e->getMessage());
-        return null;
-    } catch (\Anthropic\Core\Exceptions\APIStatusException $e) {
-        error_log('[ai_search] erreur API : ' . $e->getMessage());
-        return null;
-    } catch (\Anthropic\Core\Exceptions\APIConnectionException $e) {
-        error_log('[ai_search] connexion impossible : ' . $e->getMessage());
-        return null;
+        ],
+        // Si le modèle décline une requête, l'API bascule automatiquement sur un modèle de repli.
+        'fallbacks' => 'default',
+        'betas' => ['server-side-fallback-2026-07-01'],
+        'requestOptions' => ['timeout' => 45, 'maxRetries' => 1],
+    ];
+    try {
+        try {
+            $message = $client->beta->messages->create(...$params);
+        } catch (\Anthropic\Core\Exceptions\BadRequestException $e) {
+            // Compte ou modèle sans repli côté serveur : on retente sans cette option
+            if (!preg_match('/fallback|beta/i', $e->getMessage())) {
+                throw $e;
+            }
+            error_log('[ai_search] repli serveur refusé, nouvel essai sans : ' . $e->getMessage());
+            unset($params['fallbacks'], $params['betas']);
+            $message = $client->beta->messages->create(...$params);
+        }
     } catch (\Throwable $e) {
+        ai_last_error(ai_error_message($e));
         error_log('[ai_search] ' . get_class($e) . ' : ' . $e->getMessage());
         return null;
     }
 
     if ($message->stopReason === 'refusal') {
+        ai_last_error('Le modèle a décliné cette demande (refus de sécurité). Essayez une autre formulation.');
         return null;
     }
     $data = null;
@@ -387,6 +437,7 @@ function ai_search(array $products, string $query): ?array
         }
     }
     if (!is_array($data)) {
+        ai_last_error('Réponse illisible du modèle (arrêt : ' . $message->stopReason . ').');
         return null;
     }
     $ids = [];

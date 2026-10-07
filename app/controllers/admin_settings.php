@@ -276,7 +276,7 @@ function admin_settings(): void
             $t0 = microtime(true);
             $r = ai_search($products, (string)input('test_query', 'de quoi désinfecter la table d\'examen'));
             $test = $r === null
-                ? ['ok' => false, 'msg' => 'Échec de l\'appel à l\'IA : vérifiez la clé API, l\'installation (composer install) et les journaux d\'erreurs PHP.']
+                ? ['ok' => false, 'msg' => 'Échec de l\'appel à l\'IA : ' . (ai_last_error() ?: 'cause inconnue, voir storage/logs/php-errors.log.')]
                 : ['ok' => true, 'msg' => sprintf('Réponse en %.1f s — %d article(s) proposé(s). « %s »', microtime(true) - $t0, count($r['ids']), $r['message'])];
         } elseif (input('action') === 'test_mail') {
             $ok = send_mail((string)user()['email'], 'Test d\'envoi — ' . app_name(),
