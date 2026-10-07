@@ -290,7 +290,11 @@ function admin_settings(): void
             }
             set_setting('smtp_secure', in_array(input('smtp_secure'), ['tls', 'ssl', 'none'], true) ? input('smtp_secure') : 'tls');
             if ((string)($_POST['smtp_pass'] ?? '') !== '') {
-                set_setting('smtp_pass', encrypt_secret((string)$_POST['smtp_pass']));
+                try {
+                    set_setting('smtp_pass', encrypt_secret((string)$_POST['smtp_pass']));
+                } catch (Throwable $e) {
+                    flash('error', 'Mot de passe SMTP non enregistré : ' . $e->getMessage());
+                }
             }
             // Chaque cas se règle séparément : notification dans l'application et/ou e-mail
             foreach (NOTIFY_EVENTS as $k => $ev) {
@@ -337,9 +341,14 @@ function admin_settings(): void
                 if (!preg_match('/^sk-[A-Za-z0-9_\-]{20,}$/', $newKey)) {
                     flash('error', 'Clé API non enregistrée : format inattendu (une clé Anthropic commence par « sk-ant- »).');
                 } else {
-                    set_setting('ai_api_key', encrypt_secret($newKey));
-                    audit('Clé API IA modifiée', 'settings', null, mask_secret($newKey));
-                    flash('info', 'Nouvelle clé API enregistrée (' . mask_secret($newKey) . '). Utilisez « Tester l\'assistant » pour la vérifier.');
+                    try {
+                        set_setting('ai_api_key', encrypt_secret($newKey));
+                        audit('Clé API IA modifiée', 'settings', null, mask_secret($newKey));
+                        flash('info', 'Nouvelle clé API enregistrée (' . mask_secret($newKey) . '). Utilisez « Tester l\'assistant » pour la vérifier.');
+                    } catch (Throwable $e) {
+                        error_log('[ai-key] ' . $e->getMessage());
+                        flash('error', 'Clé API non enregistrée : ' . $e->getMessage());
+                    }
                 }
             }
             set_setting('ai_model', (string)input('ai_model') ?: 'claude-opus-5-5');

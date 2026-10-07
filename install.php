@@ -23,7 +23,7 @@ function install_checks(): array
         ['Extension mbstring', extension_loaded('mbstring'), true],
         ['Extension gd (photos et logo)', extension_loaded('gd'), false],
         ['Extension zip (mises à jour depuis l\'interface)', class_exists('ZipArchive'), false],
-        ['Extension sodium (chiffrement de la clé IA et du mot de passe SMTP)', function_exists('sodium_crypto_secretbox'), false],
+        ['Extension sodium ou openssl (chiffrement de la clé IA et du mot de passe SMTP)', function_exists('sodium_crypto_secretbox') || function_exists('openssl_encrypt'), false],
         ['Extension curl (assistant IA)', extension_loaded('curl'), false],
         ['Dossier vendor/ présent (assistant IA)', is_file(ROOT . '/vendor/autoload.php'), false],
         ['Dossier de l\'application accessible en écriture (config.php)', is_writable(ROOT) || is_file(ROOT . '/config.php'), true],

@@ -12,6 +12,46 @@ if (!is_file($configFile)) {
 }
 
 $GLOBALS['config'] = require $configFile;
+
+// Erreurs : journal dans storage/logs/ et page explicite plutôt qu'une erreur 500 muette
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+if (is_dir(ROOT . '/storage') && (is_dir(ROOT . '/storage/logs') || @mkdir(ROOT . '/storage/logs', 0755))) {
+    ini_set('error_log', ROOT . '/storage/logs/php-errors.log');
+}
+function app_error_page(string $message): void
+{
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, $message . "\n");
+        return;
+    }
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: text/html; charset=utf-8');
+    }
+    // Le détail n'est montré qu'aux administrateurs connectés (sinon : journal uniquement)
+    $isAdmin = false;
+    try {
+        $isAdmin = function_exists('is_admin') && session_status() === PHP_SESSION_ACTIVE && is_admin();
+    } catch (Throwable) {
+    }
+    echo '<!doctype html><meta charset="utf-8"><title>Erreur</title><body style="font-family:system-ui;background:#f4f6fb;display:grid;place-items:center;min-height:100vh;margin:0">'
+        . '<div style="background:#fff;border-radius:14px;padding:2rem;max-width:640px;box-shadow:0 4px 20px rgba(0,0,0,.08)"><h1 style="margin-top:0">Une erreur est survenue</h1>'
+        . '<p>L\'opération n\'a pas pu aboutir. Le détail a été enregistré dans <code>storage/logs/php-errors.log</code>.</p>'
+        . ($isAdmin ? '<pre style="white-space:pre-wrap;background:#fff4f4;color:#a40000;padding:1rem;border-radius:8px">' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</pre>' : '')
+        . '<p><a href="javascript:history.back()">← Revenir à la page précédente</a></p></div>';
+}
+set_exception_handler(function (Throwable $e) {
+    $msg = get_class($e) . ' : ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
+    error_log('[exception] ' . $msg);
+    app_error_page($msg);
+});
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        app_error_page($err['message'] . ' (' . basename($err['file']) . ':' . $err['line'] . ')');
+    }
+});
 date_default_timezone_set($GLOBALS['config']['timezone'] ?? 'Europe/Paris');
 mb_internal_encoding('UTF-8');
 

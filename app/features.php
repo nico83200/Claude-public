@@ -405,37 +405,63 @@ function app_secret_key(): string
     }
     $file = ROOT . '/storage/secret.key';
     if (!is_file($file)) {
-        $raw = random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
-        if (@file_put_contents($file, base64_encode($raw), LOCK_EX) === false) {
-            throw new RuntimeException('Impossible de créer storage/secret.key (droits d\'écriture).');
+        @mkdir(dirname($file), 0755, true);
+        if (@file_put_contents($file, base64_encode(random_bytes(32)), LOCK_EX) === false) {
+            throw new RuntimeException('Impossible de créer storage/secret.key : donnez les droits d\'écriture au dossier storage/ (755).');
         }
         @chmod($file, 0600);
     }
     $key = base64_decode(trim((string)file_get_contents($file)), true) ?: '';
-    if (strlen($key) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+    if (strlen($key) !== 32) {
         throw new RuntimeException('Fichier storage/secret.key invalide.');
     }
     return $key;
 }
 
-function encrypt_secret(string $plain): string
+/**
+ * Chiffre un secret avec la clé de l'installation : sodium (enc:) si l'extension est présente,
+ * sinon OpenSSL AES-256-GCM (enc2:), courant sur les hébergements mutualisés.
+ */
+function encrypt_secret(string $plain, ?string $method = null): string
 {
-    $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    return 'enc:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, app_secret_key()));
+    $method ??= function_exists('sodium_crypto_secretbox') ? 'sodium' : 'openssl';
+    if ($method === 'sodium') {
+        $nonce = random_bytes(24);
+        return 'enc:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, app_secret_key()));
+    }
+    if (!function_exists('openssl_encrypt')) {
+        throw new RuntimeException('Chiffrement indisponible : activez l\'extension PHP « sodium » ou « openssl » chez l\'hébergeur.');
+    }
+    $iv = random_bytes(12);
+    $tag = '';
+    $cipher = openssl_encrypt($plain, 'aes-256-gcm', app_secret_key(), OPENSSL_RAW_DATA, $iv, $tag);
+    if ($cipher === false) {
+        throw new RuntimeException('Échec du chiffrement OpenSSL.');
+    }
+    return 'enc2:' . base64_encode($iv . $tag . $cipher);
 }
 
 function decrypt_secret(?string $stored): string
 {
-    if (!$stored || !str_starts_with($stored, 'enc:')) {
+    if (!$stored || !preg_match('/^enc2?:/', $stored)) {
         return (string)$stored;
     }
-    $raw = base64_decode(substr($stored, 4), true);
-    if ($raw === false || strlen($raw) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES) {
-        return '';
-    }
     try {
-        $plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), app_secret_key());
-    } catch (Throwable) {
+        if (str_starts_with($stored, 'enc2:')) {
+            $raw = base64_decode(substr($stored, 5), true);
+            if ($raw === false || strlen($raw) <= 28 || !function_exists('openssl_decrypt')) {
+                return '';
+            }
+            $plain = openssl_decrypt(substr($raw, 28), 'aes-256-gcm', app_secret_key(), OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16));
+        } else {
+            $raw = base64_decode(substr($stored, 4), true);
+            if ($raw === false || strlen($raw) <= 24 || !function_exists('sodium_crypto_secretbox_open')) {
+                return '';
+            }
+            $plain = sodium_crypto_secretbox_open(substr($raw, 24), substr($raw, 0, 24), app_secret_key());
+        }
+    } catch (Throwable $e) {
+        error_log('[secret] ' . $e->getMessage());
         return '';
     }
     return $plain === false ? '' : $plain;
