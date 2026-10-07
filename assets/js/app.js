@@ -173,6 +173,24 @@
       cb.addEventListener('change', () => { qty.value = cb.checked ? full : 0; sync(); });
       qty.addEventListener('input', () => { cb.checked = parseInt(qty.value || '0', 10) >= full; sync(); });
     });
+    // Réception par scan : chaque code lu ajoute une unité à la ligne correspondante
+    const onRecvCode = (code) => {
+      code = String(code || '').replace(/\s+/g, '');
+      if (!code) return;
+      const line = $$('[data-line]', recv).find((l) => (l.dataset.codes || '').split('|').some((c) => c && c.replace(/\s+/g, '') === code));
+      if (!line) { toast('Code ' + code + ' : article absent de ce bon de commande.', true); return; }
+      const qty = $('input[type=number]', line), cb = $('input[type=checkbox]', line);
+      const max = parseInt(qty.max || '0', 10), cur = parseInt(qty.value || '0', 10);
+      line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      line.classList.remove('flash-row'); void line.offsetWidth; line.classList.add('flash-row');
+      if (cur >= max) { toast(line.dataset.label + ' : déjà ' + max + '/' + max + ' (complet).', true); return; }
+      qty.value = cur + 1; qty.dispatchEvent(new Event('input'));
+      toast(line.dataset.label + ' : ' + (cur + 1) + '/' + max);
+    };
+    const scanBtn = $('[data-recv-scan]', recv);
+    scanBtn && scanBtn.addEventListener('click', () => window.openScanner && window.openScanner(onRecvCode, 'Réception : scannez chaque article livré', { continuous: true }));
+    const codeIn = $('[data-recv-code]', recv);
+    codeIn && codeIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); onRecvCode(codeIn.value); codeIn.value = ''; } });
     const all = $('[data-check-all]', recv);
     all && all.addEventListener('click', () => {
       $$('[data-line]', recv).forEach((line) => {
@@ -269,7 +287,8 @@
   }
 
   /** Ouvre le scanner ; onCode(code) est appelé avec le code lu (ou saisi). */
-  window.openScanner = function (onCode, title) {
+  window.openScanner = function (onCode, title, opts) {
+    opts = opts || {};
     const ov = document.createElement('div');
     ov.className = 'scanner';
     ov.innerHTML = `
@@ -290,9 +309,20 @@
       if (stream) stream.getTracks().forEach((t) => t.stop());
       ov.remove();
     };
+    let lastCode = '', lastAt = 0;
     const found = (code) => {
       if (done || !code) return;
-      beep(); stop(); onCode(String(code).trim());
+      code = String(code).trim();
+      if (opts.continuous) {
+        // Mode continu (réception) : on garde la caméra ouverte ; un même code n'est compté qu'une fois toutes les 1,5 s
+        if (code === lastCode && Date.now() - lastAt < 1500) return;
+        lastCode = code; lastAt = Date.now();
+        beep(); onCode(code);
+        status.textContent = '✓ ' + code + ' — scannez l\'article suivant (Fermer quand c\'est fini)';
+        input.value = '';
+        return;
+      }
+      beep(); stop(); onCode(code);
     };
     $('[data-close]', ov).addEventListener('click', stop);
     ov.addEventListener('keydown', (e) => { if (e.key === 'Escape') stop(); });
@@ -881,3 +911,24 @@ document.addEventListener('click', async (e) => {
     if (key) { const k = ta.form.querySelector('[name=hub_key]'); k.value = key; k.type = 'text'; setTimeout(() => { k.type = 'password'; }, 1500); }
   });
 })();
+
+// Inventaire : seuil conseillé en un clic ; inventaire tournant : écart calculé pendant la saisie
+(function () {
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-advised]');
+    if (!b) return;
+    const inp = b.closest('td').querySelector('input[name^="alert["]');
+    if (inp) { inp.value = b.dataset.advised; inp.dispatchEvent(new Event('input')); b.parentElement.remove(); }
+  });
+  const fmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+  document.querySelectorAll('input[data-expected]').forEach((inp) => {
+    const cell = inp.closest('tr').querySelector('[data-gap]');
+    inp.addEventListener('input', () => {
+      if (inp.value === '') { cell.textContent = ''; cell.className = 'cycle-gap'; return; }
+      const g = parseInt(inp.value, 10) - parseInt(inp.dataset.expected, 10);
+      cell.className = 'cycle-gap ' + (g > 0 ? 'pos' : g < 0 ? 'neg' : '');
+      cell.innerHTML = (g > 0 ? '+' : '') + g + (g ? '<br><small>' + fmt.format(g * parseFloat(inp.dataset.price || 0)) + '</small>' : ' ✓');
+    });
+  });
+})();
+

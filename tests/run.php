@@ -209,6 +209,50 @@ check(!support_match('export comptable', false) || support_match('export comptab
 check(licence_stats()['centers'] > 0 && isset(licence_stats()['users']), 'statistiques d\'usage sans donnée personnelle');
 set_setting('support_hub_url', null); set_setting('support_hub_key', null); set_setting('licence_cache', null); set_setting('faq_remote', null);
 
+section('Pilotage du stock');
+check(supplier_lead_days('48 h') === 2 && supplier_lead_days('3 jours') === 3 && supplier_lead_days('2 à 4 jours') === 4 && supplier_lead_days('1 semaine') === 7 && supplier_lead_days('') === 3, 'délai fournisseur lu dans le texte (48 h, 3 jours, 2 à 4 jours, 1 semaine)');
+check(stock_advised_threshold(90, 3) === 10 && stock_advised_threshold(0, 3) === null && stock_advised_threshold(1, 2) === 1, 'seuil conseillé = consommation/jour × (délai + 7 j)');
+check(stock_reorder_qty(2, 5, 0) === 8 && stock_reorder_qty(2, 5, 8) === 0 && stock_reorder_qty(0, 1, 0, 5) === 5, 'quantité de réapprovisionnement (double du seuil, en commande déduite, minimum de commande)');
+$ap = (int)val('SELECT id FROM products WHERE id NOT IN (SELECT product_id FROM stock) AND id NOT IN (SELECT product_id FROM request_lines) AND active = 1 ORDER BY id LIMIT 1');
+stock_move($c1, $ap, 10, 'ajout');
+stock_set_alert($c1, $ap, 4);
+$reqBefore = (int)val('SELECT COUNT(*) FROM request_lines WHERE product_id = ?', [$ap]);
+stock_move($c1, $ap, -7, 'sortie', 'soins');
+$auto = one("SELECT rl.*, r.comment AS rcomment FROM request_lines rl JOIN requests r ON r.id = rl.request_id WHERE rl.product_id = ? AND rl.center_id = ? AND rl.status = 'pending'", [$ap, $c1]);
+check($reqBefore === 0 && $auto && (int)$auto['qty'] === 5 && str_contains($auto['rcomment'], 'automatique'), 'passage sous le seuil : demande de réapprovisionnement créée automatiquement (8 − 3 = 5)');
+stock_move($c1, $ap, 5, 'ajout'); stock_move($c1, $ap, -6, 'sortie');
+check((int)val("SELECT COUNT(*) FROM request_lines WHERE product_id = ? AND center_id = ? AND status = 'pending'", [$ap, $c1]) === 1, 'pas de doublon tant qu\'une demande est en cours');
+set_setting('auto_reorder', '0');
+q("UPDATE request_lines SET status = 'cancelled' WHERE product_id = ?", [$ap]);
+stock_move($c1, $ap, 6, 'ajout'); stock_move($c1, $ap, -6, 'sortie');
+check((int)val("SELECT COUNT(*) FROM request_lines WHERE product_id = ? AND status = 'pending'", [$ap]) === 0, 'réapprovisionnement automatique désactivable');
+set_setting('auto_reorder', '1');
+$adv = stock_advice($c1)[$ap] ?? null;
+check($adv && $adv['out90'] === 19 && $adv['advised'] >= 1, 'conseil calculé à partir des sorties réelles du centre');
+// Transfert entre centres
+stock_move($c2, $ap, 30, 'ajout');
+stock_set_alert($c2, $ap, 5);
+$offers = stock_transfer_offers([$ap])[$ap] ?? [];
+check(count($offers) >= 1 && $offers[0]['center_id'] === $c2 && $offers[0]['spare'] === 25, 'excédent du centre du Port proposé (30 en stock, seuil 5)');
+$u4 = as_user('claire.secretaire@demo.fr');
+cart_add((int)$u4['id'], $c1, $ap, 6);
+cart_submit((int)$u4['id'], $c1, '', false);
+as_user('admin@test.fr');
+$line = (int)val("SELECT id FROM request_lines WHERE product_id = ? AND center_id = ? ORDER BY id DESC LIMIT 1", [$ap, $c1]);
+q("UPDATE request_lines SET status = 'pending' WHERE id = ?", [$line]); // validée par le responsable
+$before1 = (int)stock_row($c1, $ap)['qty'];
+request_line_transfer($line, $c2);
+check((int)stock_row($c2, $ap)['qty'] === 24 && (int)stock_row($c1, $ap)['qty'] === $before1 + 6 && val('SELECT status FROM request_lines WHERE id = ?', [$line]) === 'transferred', 'demande servie par transfert : stocks des deux centres ajustés, ligne « transférée »');
+try { request_line_transfer($line, $c2); check(false, 'ligne déjà servie refusée'); } catch (RuntimeException) { check(true, 'ligne déjà servie refusée'); }
+// Inventaire tournant
+$list = cycle_count_list($c1, '2099-W01');
+check(count($list) >= 1 && count($list) <= CYCLE_COUNT_SIZE && cycle_count_list($c1, '2099-W01') === $list, 'liste de la semaine stable (au plus 10 articles)');
+$first = $list[0];
+$r = cycle_count_save($c1, [$first['product_id'] => (int)$first['qty'] - 1], '2099-W01');
+check($r['counted'] === 1 && $r['gaps'] === 1 && $r['value'] < 0, 'comptage enregistré, écart chiffré en euros');
+$hist = cycle_count_history($c1, 5000);
+check(($hist[0]['week'] ?? '') === '2099-W01' && $hist[0]['gaps'] === 1, 'historique des écarts par semaine');
+
 section('Factures');
 $po2 = one('SELECT * FROM purchase_orders WHERE id = ?', [$po]);
 $expected = invoice_check($po2)['expected'];

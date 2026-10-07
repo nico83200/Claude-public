@@ -23,8 +23,15 @@
       <h2><?= icon('package-check') ?> Articles livrés</h2>
       <?php if ($editable): ?><button class="btn btn-sm" type="button" data-check-all><?= icon('check', 16) ?> Tout cocher</button><?php endif; ?>
     </div>
+    <?php if ($editable): ?>
+    <div class="recv-scan">
+      <button class="btn btn-primary btn-sm" type="button" data-recv-scan><?= icon('camera', 16) ?> Scanner les articles livrés</button>
+      <input type="text" data-recv-code placeholder="ou douchette : scannez ici" autocomplete="off" inputmode="numeric" aria-label="Code-barres scanné">
+      <small class="muted">Chaque scan ajoute une unité à l'article correspondant.</small>
+    </div>
+    <?php endif; ?>
     <?php foreach ($lines as $l): $full = (int)$l['qty_received'] >= (int)$l['qty']; ?>
-      <div class="recv-line <?= $full ? 'ok' : '' ?>" data-line>
+      <div class="recv-line <?= $full ? 'ok' : '' ?>" data-line data-codes="<?= e(implode('|', array_filter([$l['barcode'] ?? '', $l['product_reference'] ?? '', $l['reference'] ?? '']))) ?>" data-label="<?= e($l['label']) ?>">
         <input class="big-check" type="checkbox" data-full="<?= (int)$l['qty'] ?>" <?= $full ? 'checked' : '' ?> <?= $editable ? '' : 'disabled' ?> aria-label="Reçu en totalité">
         <?php partial('thumb', ['p' => $l, 'size' => 44]); ?>
         <div class="grow">

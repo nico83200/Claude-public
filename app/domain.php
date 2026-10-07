@@ -18,6 +18,7 @@ const LINE_STATUSES = [
     'pending'   => ['label' => 'En attente',     'color' => 'amber'],
     'in_po'     => ['label' => 'Bon de commande', 'color' => 'blue'],
     'cancelled' => ['label' => 'Refusée',        'color' => 'gray'],
+    'transferred' => ['label' => 'Transférée d\'un autre centre', 'color' => 'green'],
 ];
 
 function po_status_badge(string $s): string
@@ -34,6 +35,9 @@ function request_line_status(array $l): array
     }
     if ($l['status'] === 'awaiting') {
         return ['label' => 'À valider par le responsable', 'color' => 'pink'];
+    }
+    if ($l['status'] === 'transferred') {
+        return ['label' => $l['cancel_reason'] ? 'Transférée · ' . mb_strtolower(mb_substr($l['cancel_reason'], 0, 1)) . mb_substr($l['cancel_reason'], 1) : 'Transférée d\'un autre centre', 'color' => 'green'];
     }
     if ($l['status'] === 'pending' || empty($l['po_status'])) {
         return ['label' => 'En attente', 'color' => 'amber'];

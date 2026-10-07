@@ -37,7 +37,7 @@ function reception_view(): void
     require_login();
     $po = reception_po_or_fail(input_int('id'));
     $_SESSION['center_id'] = (int)$po['center_id'];
-    $lines = all('SELECT l.*, p.image, u.first_name, u.last_name FROM purchase_order_lines l
+    $lines = all('SELECT l.*, p.image, p.barcode, p.reference AS product_reference, u.first_name, u.last_name FROM purchase_order_lines l
                   LEFT JOIN products p ON p.id = l.product_id
                   LEFT JOIN users u ON u.id = l.received_by
                   WHERE l.purchase_order_id = ? ORDER BY l.label', [$po['id']]);

@@ -15,13 +15,37 @@ function admin_requests(): void
         $bySupplier[$g['supplier_id']]['groups'][] = $g;
         $bySupplier[$g['supplier_id']]['total'] = ($bySupplier[$g['supplier_id']]['total'] ?? 0) + $g['total'];
     }
+    $pids = [];
+    foreach ($groups as $g) {
+        foreach ($g['lines'] as $l) {
+            $pids[] = (int)$l['product_id'];
+        }
+    }
     render('admin/requests', [
         'title' => 'Demandes à traiter',
+        'offers' => stock_transfer_offers($pids),
         'bySupplier' => $bySupplier,
         'centers' => all('SELECT id, name FROM centers WHERE active = 1 ORDER BY name'),
         'centerFilter' => $centerFilter,
         'deadlines' => upcoming_deadlines(null, 20, false),
     ]);
+}
+
+/** Sert une ligne par transfert depuis un centre qui a le stock en excédent. */
+function admin_request_transfer(): void
+{
+    require_admin();
+    if (!is_post()) {
+        redirect('admin/requests');
+    }
+    try {
+        $l = request_line_transfer(input_int('line_id'), input_int('from'));
+        audit('Demande servie par transfert', 'request', (int)$l['request_id'], $l['qty'] . ' × ' . $l['name'] . ' : ' . $l['from_name'] . ' → ' . $l['center_name']);
+        flash('success', $l['qty'] . ' × ' . $l['name'] . ' transféré(s) de ' . $l['from_name'] . ' vers ' . $l['center_name'] . ' : la demande est servie sans commande.');
+    } catch (RuntimeException $e) {
+        flash('error', $e->getMessage());
+    }
+    redirect('admin/requests', ['center' => input_int('center') ?: null]);
 }
 
 function admin_refuse_line(): void

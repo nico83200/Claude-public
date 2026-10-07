@@ -23,6 +23,7 @@ const NOTIFY_EVENTS = [
     'price_increase'  => ['label' => 'Hausse de prix d\'un article',             'for' => 'admin'],
     'budget_alert'    => ['label' => 'Seuil de budget atteint',                  'for' => 'admin'],
     'stock_low'       => ['label' => 'Stock sous le seuil d\'alerte',            'for' => 'both'],
+    'cycle_count'     => ['label' => 'Inventaire tournant de la semaine',         'for' => 'both'],
     'support_reply'   => ['label' => 'Réponse de l\'assistance NLapps',          'for' => 'both'],
 ];
 

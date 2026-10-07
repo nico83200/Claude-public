@@ -35,6 +35,8 @@ $routes = [
     'stock/add'             => ['stock', 'stock_add'],
     'stock/remove'          => ['stock', 'stock_remove'],
     'stock/history'         => ['stock', 'stock_history'],
+    'stock/advice/apply'    => ['stock', 'stock_advice_apply'],
+    'stock/cycle'           => ['stock', 'stock_cycle'],
     'stock/location'        => ['stock', 'stock_location'],
     'stock/move/edit'       => ['stock', 'stock_move_edit'],
     'stock/move/delete'     => ['stock', 'stock_move_delete_action'],
@@ -66,6 +68,7 @@ $routes = [
     // Espace administrateur
     'admin'                 => ['admin_dashboard', 'admin_dashboard'],
     'admin/requests'        => ['admin_orders', 'admin_requests'],
+    'admin/requests/transfer' => ['admin_orders', 'admin_request_transfer'],
     'admin/requests/refuse' => ['admin_orders', 'admin_refuse_line'],
     'admin/po/create'       => ['admin_orders', 'admin_po_create'],
     'admin/orders'          => ['admin_orders', 'admin_orders'],

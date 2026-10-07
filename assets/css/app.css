@@ -675,3 +675,11 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .help-stars:hover button { color: #f59e0b; }
 .help-stars button:hover ~ button { color: #d1d5db; }
 .licence-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .8rem; padding: .8rem 1rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+
+/* Pilotage du stock */
+.link-btn { border: 0; background: none; padding: 0; color: var(--primary); font: inherit; font-size: .78rem; cursor: pointer; text-decoration: underline dotted; }
+.transfer-btn { padding: .15rem .45rem; font-size: .76rem; color: #047857; margin-top: .25rem; white-space: normal; text-align: right; max-width: 190px; }
+.cycle-gap.pos { color: var(--green, #16a34a); } .cycle-gap.neg { color: var(--red, #dc2626); }
+.recv-scan { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; padding: .7rem 1.2rem; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+.recv-scan input { max-width: 260px; }
+.recv-line.flash-row { animation: rowflash 1.2s ease; }

@@ -78,6 +78,10 @@
                 <?php elseif ($sq >= (int)$l['qty']): ?><div><span class="badge badge-green" title="Le stock du centre couvre déjà la quantité demandée">Couvre la demande</span></div><?php endif; ?>
                 <?php if ((int)$l['stock_on_order'] > 0): ?><div><small class="muted">+<?= (int)$l['stock_on_order'] ?> en commande</small></div><?php endif; ?>
               <?php endif; ?>
+              <?php foreach (array_slice(array_filter($offers[(int)$l['product_id']] ?? [], fn($o) => $o['center_id'] !== (int)$l['center_id'] && $o['spare'] >= (int)$l['qty']), 0, 2) as $o): ?>
+                <div><button class="btn btn-sm btn-ghost transfer-btn" type="submit" formnovalidate formaction="<?= url('admin/requests/transfer', ['line_id' => $l['id'], 'from' => $o['center_id'], 'center' => $centerFilter ?: null]) ?>"
+                  data-confirm="Servir cette demande par un transfert de <?= (int)$l['qty'] ?> depuis <?= e($o['center_name']) ?> (stock <?= $o['qty'] ?>) plutôt que par une commande ?" title="Stock disponible au-delà du seuil d'alerte : <?= $o['spare'] ?>"><?= icon('truck', 13) ?> Transférer depuis <?= e($o['center_name']) ?> (<?= $o['qty'] ?> en stock)</button></div>
+              <?php endforeach; ?>
             </td>
             <td class="num"><?= (int)$l['qty'] ?></td>
             <td class="num"><?= money($l['unit_price']) ?></td>

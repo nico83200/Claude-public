@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 1.13.0
+- **Réapprovisionnement automatique** : dès qu'un article suivi passe sous son seuil d'alerte, une demande est créée dans « Demandes à traiter » (quantité = double du seuil, déduction faite de ce qui est déjà en commande ; urgente en cas de rupture ; jamais en double). Activable / désactivable dans *Stocks des centres*.
+- **Seuils conseillés** dans l'inventaire : consommation des 90 derniers jours × (délai du fournisseur + 7 jours de sécurité). Un clic sur « conseillé : n » reprend la valeur ; « Appliquer les seuils conseillés » les met tous à jour.
+- **Transferts entre centres** : dans « Demandes à traiter », quand un autre centre a l'article en excédent (au-delà de son seuil), le bouton « Transférer depuis… » sert la demande sans commande (stocks des deux centres ajustés, demandeur prévenu, ligne « Transférée »).
+- **Réception par scan** : sur un bon à réceptionner, « Scanner les articles livrés » (caméra en continu) ou douchette : chaque code lu ajoute une unité à la bonne ligne ; alerte si l'article est complet ou absent du bon.
+- **Inventaire tournant** : chaque semaine, une dizaine d'articles à compter par centre (jamais comptés depuis longtemps, coûteux ou très consommés), écart affiché pendant la saisie et chiffré en euros, historique des écarts par semaine ; rappel le lundi aux responsables.
+
 ## 1.12.0
 - **Licence NLapps** : la clé fournie par NLapps (Paramètres → Licence et assistance) active l'abonnement. L'état est vérifié toutes les 6 heures : échéance, option assistant IA (coupée si non souscrite), bandeau pour l'administrateur avant l'échéance, délai de grâce de 15 jours, puis coupure de l'IA et des mises à jour ; accès suspendu possible par NLapps. Une coupure réseau ne bloque jamais l'application.
 - **Mises à jour en un clic** : les nouvelles versions publiées par NLapps sont annoncées à l'administrateur (bandeau + page Mises à jour avec les nouveautés), téléchargées et vérifiées (empreinte SHA-256) puis installées avec sauvegarde automatique et retour arrière possible.

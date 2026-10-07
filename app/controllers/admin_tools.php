@@ -38,6 +38,12 @@ function admin_budgets(): void
 function admin_stocks(): void
 {
     require_admin();
+    if (is_post()) {
+        set_setting('auto_reorder', input('auto_reorder') === '1' ? '1' : '0');
+        audit('Réapprovisionnement automatique ' . (input('auto_reorder') === '1' ? 'activé' : 'désactivé'), 'settings');
+        flash('success', input('auto_reorder') === '1' ? 'Réapprovisionnement automatique activé : une demande est créée dès qu\'un article passe sous son seuil.' : 'Réapprovisionnement automatique désactivé.');
+        redirect('admin/stocks');
+    }
     $rows = all('SELECT c.id, c.name, c.color,
                    (SELECT COUNT(*) FROM stock st WHERE st.center_id = c.id) AS nb,
                    (SELECT COUNT(*) FROM stock st WHERE st.center_id = c.id AND st.alert_qty > 0 AND st.qty <= st.alert_qty) AS low,

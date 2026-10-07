@@ -17,6 +17,7 @@ const CRON_TASKS = [
     'cleanup'   => ['label' => 'Nettoyage des données techniques',   'every' => 86400],
     'support'   => ['label' => 'Réponses de l\'assistance NLapps',    'every' => 120],
     'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 21600],
+    'cycle'     => ['label' => 'Inventaire tournant de la semaine',   'every' => 21600],
 ];
 
 function cron_last(string $task): int
@@ -47,6 +48,7 @@ function cron_run(bool $force = false): array
                     'backup' => cron_daily_backup($force),
                     'cleanup' => cron_cleanup(),
                     'support' => support_sync(),
+                    'cycle' => cron_cycle_count(),
                     'licence' => licence_managed() ? (licence_check(true)['status'] ?? '?') : 'sans clé NLapps',
                 };
                 set_setting('cron_last_' . $task, (string)time());
@@ -194,3 +196,30 @@ function cron_cleanup(): int
     }
     return $n;
 }
+
+/**
+ * Chaque lundi : prépare l'inventaire tournant de chaque centre et prévient ses responsables
+ * (à défaut, les administrateurs). Une seule fois par semaine.
+ */
+function cron_cycle_count(): int
+{
+    $week = cycle_week();
+    if ((int)date('N') !== 1 || setting('cycle_notified') === $week) {
+        return 0;
+    }
+    set_setting('cycle_notified', $week);
+    $n = 0;
+    foreach (all('SELECT c.id, c.name FROM centers c WHERE c.active = 1 AND EXISTS (SELECT 1 FROM stock st WHERE st.center_id = c.id)') as $c) {
+        $items = cycle_count_list((int)$c['id'], $week);
+        if (!$items) {
+            continue;
+        }
+        $to = center_manager_ids((int)$c['id']) ?: array_map('intval', array_column(all("SELECT id FROM users WHERE role = 'admin' AND status = 'active'"), 'id'));
+        notify($to, 'cycle_count', 'Inventaire tournant : ' . count($items) . ' articles à compter (' . $c['name'] . ')',
+            'Quelques minutes suffisent : ' . implode(', ', array_slice(array_column($items, 'name'), 0, 4)) . (count($items) > 4 ? '…' : '') . '.',
+            url('stock/cycle', ['c' => $c['id']]));
+        $n++;
+    }
+    return $n;
+}
+

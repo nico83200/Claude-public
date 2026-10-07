@@ -18,7 +18,48 @@ function stock_index(): void
         'value' => $value,
         'catalog' => array_values(array_filter(catalog_products((int)$center['id']), fn($p) => !in_array((int)$p['id'], $tracked, true))),
         'lastCount' => val('SELECT MAX(counted_at) FROM stock WHERE center_id = ?', [$center['id']]),
+        'advice' => stock_advice((int)$center['id']),
+        'cycleDone' => (int)val("SELECT COUNT(*) FROM stock_movements WHERE center_id = ? AND type = 'inventaire' AND note = ?", [$center['id'], 'Inventaire tournant ' . cycle_week()]),
     ]);
+}
+
+/** Applique les seuils d'alerte conseillés (consommation des 90 derniers jours et délai fournisseur). */
+function stock_advice_apply(): void
+{
+    require_login();
+    $center = require_center();
+    if (!is_post()) {
+        redirect('stock');
+    }
+    $only = array_map('intval', (array)($_POST['pids'] ?? []));
+    $n = 0;
+    foreach (stock_advice((int)$center['id']) as $pid => $a) {
+        if ($a['advised'] !== null && (!$only || in_array($pid, $only, true))) {
+            update('stock', ['alert_qty' => $a['advised']], 'center_id = ? AND product_id = ? AND alert_qty <> ?', [$center['id'], $pid, $a['advised']]) && $n++;
+        }
+    }
+    audit('Seuils d\'alerte conseillés appliqués', 'stock', null, $center['name'] . ' : ' . $n . ' article(s)');
+    flash('success', $n ? plural($n, 'seuil d\'alerte mis à jour', 'seuils d\'alerte mis à jour') . ' d\'après la consommation des 90 derniers jours et les délais fournisseurs.' : 'Les seuils sont déjà ceux conseillés.');
+    redirect('stock');
+}
+
+/** Inventaire tournant : une dizaine d'articles à compter chaque semaine, écart chiffré en euros. */
+function stock_cycle(): void
+{
+    require_login();
+    $center = require_center();
+    $week = cycle_week();
+    if (is_post()) {
+        $r = cycle_count_save((int)$center['id'], (array)($_POST['counted'] ?? []), $week);
+        audit('Inventaire tournant', 'stock', null, $center['name'] . ' ' . $week . ' : ' . $r['counted'] . ' article(s), écart ' . money($r['value']));
+        flash($r['gaps'] ? 'info' : 'success', $r['counted'] ? 'Inventaire tournant enregistré : ' . plural($r['counted'], 'article compté', 'articles comptés') . ', '
+            . ($r['gaps'] ? plural($r['gaps'], 'écart', 'écarts') . ' pour ' . money($r['value']) . '.' : 'aucun écart. Bravo !') : 'Aucune quantité saisie.');
+        redirect('stock/cycle');
+    }
+    $items = cycle_count_list((int)$center['id'], $week);
+    $done = array_column(all("SELECT product_id, delta, qty_after FROM stock_movements WHERE center_id = ? AND type = 'inventaire' AND note = ?", [$center['id'], 'Inventaire tournant ' . $week]), null, 'product_id');
+    render('user/stock_cycle', ['title' => 'Inventaire tournant', 'center' => $center, 'items' => $items, 'done' => $done, 'week' => $week,
+        'history' => cycle_count_history((int)$center['id'])]);
 }
 
 /** Enregistre un inventaire (quantités comptées) et les seuils d'alerte. */

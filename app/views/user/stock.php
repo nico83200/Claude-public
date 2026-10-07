@@ -6,6 +6,7 @@
   <div class="row row-wrap">
     <a class="btn" href="<?= url('stock/history') ?>"><?= icon('clock', 18) ?> Mouvements</a>
     <a class="btn" href="<?= url('labels', ['stock' => 1]) ?>" target="_blank" rel="noopener" title="Étiquettes d'étagère de tous les articles suivis"><?= icon('printer', 18) ?> Étiquettes</a>
+    <a class="btn <?= $cycleDone ? '' : 'btn-amber' ?>" href="<?= url('stock/cycle') ?>" title="Une dizaine d'articles à compter cette semaine"><?= icon('repeat', 18) ?> Inventaire tournant<?= $cycleDone ? ' ✓' : '' ?></a>
     <a class="btn" href="<?= url('stock/quick') ?>"><?= icon('layers', 18) ?> Mode réserve (tablette)</a>
     <?php if ($lowCount): ?><form method="post" action="<?= url('stock/reorder') ?>"><?= csrf_field() ?><button class="btn btn-amber" type="submit"><?= icon('cart', 18) ?> Réapprovisionner les stocks bas</button></form><?php endif; ?>
     <button class="btn btn-primary" type="button" data-scan="stock"><?= icon('camera', 18) ?> Scanner un article</button>
@@ -69,6 +70,9 @@
     <?= csrf_field() ?><input type="hidden" name="filter" value="<?= e($filter) ?>">
     <div class="card-head">
       <h2><?= icon('clipboard') ?> État du stock</h2>
+      <?php $alerts = array_map('intval', array_column($items, 'alert_qty', 'product_id'));
+        $toApply = array_filter($advice, fn($a, $pid) => $a['advised'] !== null && isset($alerts[$pid]) && $alerts[$pid] !== $a['advised'], ARRAY_FILTER_USE_BOTH); ?>
+      <?php if ($toApply): ?><button class="btn btn-sm" type="submit" formaction="<?= url('stock/advice/apply') ?>" formnovalidate title="Seuil = consommation moyenne × (délai fournisseur + 7 jours de sécurité)" data-confirm="Appliquer les seuils d'alerte conseillés à <?= count($toApply) ?> article(s) ?"><?= icon('sparkles', 15) ?> Appliquer les seuils conseillés (<?= count($toApply) ?>)</button><?php endif; ?>
       <div class="chips">
         <?php foreach (['' => 'Tous', 'low' => 'Stock bas', 'empty' => 'Rupture'] as $k => $l): ?><a class="chip <?= $filter === $k ? 'active' : '' ?>" href="<?= url('stock', ['filter' => $k ?: null]) ?>"><?= $l ?></a><?php endforeach; ?>
       </div>
@@ -89,7 +93,10 @@
           <td class="num"><span class="stock-qty" style="color:<?= (int)$it['qty'] === 0 ? 'var(--red)' : ($low ? '#d97706' : 'inherit') ?>"><?= (int)$it['qty'] ?></span><?= $low ? '<div><span class="badge badge-red">Stock bas</span></div>' : '' ?></td>
           <td class="num"><?= (int)$it['on_order'] ? '<span class="badge badge-blue">+' . (int)$it['on_order'] . '</span>' : '<small class="muted">—</small>' ?></td>
           <td class="num"><input class="count-input" type="number" min="0" name="counted[<?= (int)$it['product_id'] ?>]" placeholder="—" inputmode="numeric" data-current="<?= (int)$it['qty'] ?>"></td>
-          <td class="num"><input class="qty-input" type="number" min="0" name="alert[<?= (int)$it['product_id'] ?>]" value="<?= (int)$it['alert_qty'] ?>" style="width:70px!important"></td>
+          <td class="num"><input class="qty-input" type="number" min="0" name="alert[<?= (int)$it['product_id'] ?>]" value="<?= (int)$it['alert_qty'] ?>" style="width:70px!important">
+            <?php $ad = $advice[(int)$it['product_id']] ?? null; if ($ad && $ad['advised'] !== null && $ad['advised'] !== (int)$it['alert_qty']): ?>
+              <div><button type="button" class="link-btn" data-advised="<?= $ad['advised'] ?>" title="<?= (int)$ad['out90'] ?> sorti(s) en 90 jours, délai fournisseur <?= (int)$ad['lead'] ?> j + 7 j de sécurité">conseillé : <?= $ad['advised'] ?></button></div>
+            <?php endif; ?></td>
           <td class="nowrap text-right">
             <button class="btn btn-sm" type="button" data-exit="<?= (int)$it['product_id'] ?>" data-name="<?= e($it['name']) ?>" title="Déclarer une sortie"><?= icon('minus', 15) ?> Sortie</button>
             <?php if ($low): ?>

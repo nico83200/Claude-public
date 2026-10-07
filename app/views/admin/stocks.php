@@ -1,4 +1,10 @@
-<div class="page-head"><div><h1>Stocks des centres</h1><p>Vue consolidée des inventaires. Ouvrez un centre pour le détail.</p></div></div>
+<div class="page-head"><div><h1>Stocks des centres</h1><p>Vue consolidée des inventaires. Ouvrez un centre pour le détail.</p></div>
+  <form method="post" class="card card-body row" style="padding:.7rem 1rem;gap:.7rem">
+    <?= csrf_field() ?><?php $auto = setting('auto_reorder', '1') === '1'; ?>
+    <div><strong><?= icon('repeat', 16) ?> Réapprovisionnement automatique</strong><br><small class="muted"><?= $auto ? 'Une demande est créée dès qu\'un article passe sous son seuil.' : 'Désactivé : les stocks bas sont seulement signalés.' ?></small></div>
+    <button class="btn btn-sm <?= $auto ? '' : 'btn-primary' ?>" name="auto_reorder" value="<?= $auto ? '0' : '1' ?>"><?= $auto ? 'Désactiver' : 'Activer' ?></button>
+  </form>
+</div>
 <div class="grid grid-3 mb-2">
 <?php foreach ($rows as $r): ?>
   <div class="card" style="border-top:5px solid <?= e($r['color']) ?>">
