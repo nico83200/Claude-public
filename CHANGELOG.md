@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.7.1
+- Correctif : sur le tableau de bord, les suggestions de la recherche n'étaient plus coupées par le bandeau d'accueil ; elles s'affichent en entier par-dessus la page (ordinateur et mobile).
+
 ## 1.7.0
 - Fiche fournisseur : choix du mode de commande (commande en ligne, bon PDF par e-mail, téléphone, autre) avec l'adresse de commande en ligne et une précision libre. Les anciennes saisies libres (« Site web », « E-mail »…) sont reconnues automatiquement.
 - Commande en ligne : dès la création du bon (simple ou groupé), bouton « Ouvrir le site du fournisseur » (nouvel onglet), rappel du n° client et copie en un clic des références et quantités à coller sur le site ; on note ensuite le n° de commande web.

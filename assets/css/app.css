@@ -158,16 +158,18 @@ a.stat { transition: transform .15s, box-shadow .15s; }
 .stat > div { color: var(--text); }
 
 /* Bandeau d'accueil */
+/* Cercles décoratifs dessinés en arrière-plan : pas de overflow:hidden, pour que les suggestions de recherche puissent déborder */
 .hero {
-  border-radius: 22px; padding: 1.75rem 2rem; color: #fff; background: var(--grad); position: relative; overflow: hidden;
+  border-radius: 22px; padding: 1.75rem 2rem; color: #fff; position: relative; z-index: 5;
+  background:
+    radial-gradient(circle 130px at calc(100% - 70px) 20px, rgba(255,255,255,.12) 99%, transparent 100%),
+    radial-gradient(circle 80px at calc(100% - 220px) calc(100% + 10px), rgba(255,255,255,.12) 99%, transparent 100%),
+    var(--grad);
   box-shadow: 0 12px 40px rgba(99,102,241,.3);
 }
-.hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,.12); }
-.hero::before { width: 260px; height: 260px; right: -60px; top: -110px; }
-.hero::after { width: 160px; height: 160px; right: 140px; bottom: -90px; }
 .hero h1 { color: #fff; font-size: 1.75rem; }
 .hero p { opacity: .92; margin: 0; max-width: 640px; }
-.hero .hero-search { margin-top: 1.2rem; max-width: 640px; position: relative; z-index: 1; }
+.hero .hero-search { margin-top: 1.2rem; max-width: 640px; position: relative; z-index: 30; }
 .hero-tag { display: inline-flex; align-items: center; gap: .4rem; background: rgba(255,255,255,.2); padding: .25rem .7rem; border-radius: 999px; font-size: .8rem; font-weight: 600; margin-bottom: .6rem; }
 
 /* Boutons */
