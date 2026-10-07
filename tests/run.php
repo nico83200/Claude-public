@@ -36,6 +36,8 @@ require APP . '/notify.php';
 require APP . '/updater.php';
 require APP . '/features.php';
 require APP . '/cleanup.php';
+require APP . '/spreadsheet.php';
+require APP . '/import.php';
 require APP . '/pdf.php';
 require APP . '/cron.php';
 define('APP_VERSION', trim((string)file_get_contents(ROOT . '/VERSION')));
@@ -313,6 +315,60 @@ $orphans = (int)val('SELECT COUNT(*) FROM request_lines l LEFT JOIN products p O
 check($orphans === 0, 'aucune donnée orpheline');
 activity_purge();
 check((int)val('SELECT COUNT(*) FROM requests') === 0 && (int)val('SELECT COUNT(*) FROM purchase_orders') === 0 && (bool)one('SELECT id FROM products WHERE id = ?', [$realProd]), 'effacement de l\'activité : demandes et bons vidés, catalogue conservé');
+
+section('Import assisté : lecture des fichiers');
+check(parse_number('1 234,56 €') === 1234.56 && parse_number('1,234.56') === 1234.56 && parse_number('12,5') === 12.5 && parse_number('8.90') === 8.9 && parse_number('') === null && parse_number('n/c') === null, 'nombres français et anglais');
+// CSV Windows-1252 avec lignes de titre, séparateur « ; »
+file_put_contents("$tmp/f.csv", mb_convert_encoding("TARIF 2026 - Médi Fournitures;;;\n;;;\nRéf.;Libellé article;Prix public TTC;EAN\nA1;Compresses stériles 7,5 cm;7,20 €;3401234567893\nA2;Gants nitrile taille M;10,80 €;\n", 'Windows-1252', 'UTF-8'));
+$rows = spreadsheet_read("$tmp/f.csv", 'tarif.csv');
+$h = sheet_header_row($rows);
+check($h === 1 && $rows[$h][1] === 'Libellé article' && $rows[$h + 1][1] === 'Compresses stériles 7,5 cm', 'CSV Windows-1252 : accents, ligne de titre ignorée');
+// XLSX minimal (chaînes partagées + nombres)
+$z = new ZipArchive();
+$z->open("$tmp/f.xlsx", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+$z->addFromString('[Content_Types].xml', '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>');
+$z->addFromString('xl/workbook.xml', '<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Tarif" sheetId="1" r:id="rId1"/></sheets></workbook>');
+$z->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
+$z->addFromString('xl/sharedStrings.xml', '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>Désignation</t></si><si><t>Prix net HT</t></si><si><r><t>Spray </t></r><r><t>désinfectant</t></r></si></sst>');
+$z->addFromString('xl/worksheets/sheet1.xml', '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1" t="s"><v>1</v></c></row><row r="2"><c r="A2" t="s"><v>2</v></c><c r="C2"><v>5.9000000000000004</v></c></row></sheetData></worksheet>');
+$z->close();
+$rows = spreadsheet_read("$tmp/f.xlsx", 'tarif.xlsx');
+check($rows[0] === ['Désignation', '', 'Prix net HT'] && $rows[1] === ['Spray désinfectant', '', '5.9'], 'Excel .xlsx : cellules, colonnes vides et texte enrichi');
+file_put_contents("$tmp/f.xls", '<html><body><table><tr><th>Code</th><th>Produit</th></tr><tr><td>Z9</td><td>Savon doux 1 L</td></tr></table></body></html>');
+check(spreadsheet_read("$tmp/f.xls", 'export.xls')[1] === ['Z9', 'Savon doux 1 L'], '.xls exporté au format HTML');
+file_put_contents("$tmp/bin.xls", "\xD0\xCF\x11\xE0" . str_repeat("\0", 100));
+try { spreadsheet_read("$tmp/bin.xls", 'vieux.xls'); $okBin = false; } catch (RuntimeException $e) { $okBin = str_contains($e->getMessage(), '.xlsx'); }
+check($okBin, '.xls binaire : message clair (enregistrer en .xlsx)');
+
+section('Import assisté : correspondances et import');
+$map = import_guess_mapping(['Réf.', 'Libellé article', 'Prix public TTC', 'EAN', 'Prix net', 'Famille', 'Marque']);
+check(($map['reference'] ?? null) === 0 && ($map['name'] ?? null) === 1 && ($map['catalog_price'] ?? null) === 2 && ($map['barcode'] ?? null) === 3 && ($map['negotiated_price'] ?? null) === 4 && ($map['category'] ?? null) === 5 && ($map['brand'] ?? null) === 6, 'colonnes reconnues par leurs intitulés');
+$legacy = import_guess_mapping(IMPORT_COLUMNS);
+check(count($legacy) === 12 && $legacy['name'] === 2 && $legacy['catalog_price'] === 6, 'ancien modèle CSV (export du catalogue) toujours reconnu');
+$sup = insert('suppliers', ['name' => 'Médi Fournitures', 'email' => 'x@medi.fr', 'min_order_amount' => 0, 'all_centers' => 1, 'color' => '#123456', 'active' => 1, 'created_at' => now()]);
+$existing = insert('products', ['supplier_id' => $sup, 'reference' => 'A1', 'name' => 'Compresses (ancien nom)', 'unit' => 'Boîte', 'catalog_price' => 5, 'vat_rate' => 20, 'min_qty' => 1, 'active' => 1, 'created_at' => now()]);
+$hyg = (int)val("SELECT id FROM categories WHERE name LIKE 'Hygi%' LIMIT 1");
+$_SESSION['uid'] = (int)val("SELECT id FROM users WHERE role = 'admin' AND deleted_at IS NULL LIMIT 1");
+file_put_contents("$tmp/g.csv", "Réf;Désignation;Prix public TTC;Prix net TTC;Famille;Marque;TVA\nA1;Compresses stériles;12,00;9,60;Hygiène & Désinfection;Hartmann;20\nA2;Gants nitrile M;10,80;;Gants;;20\nA2;Gants nitrile M;10,80;;Gants;;20\n;Sous-total;;;;;\nA3;Sans prix;;;;;\n");
+$st = import_start("$tmp/g.csv", 'g.csv', (int)$_SESSION['uid']);
+$st['mapping'] = import_guess_mapping($st['headers']);
+$st['prices_ttc'] = true;
+$st['default_supplier'] = $sup;
+import_match_values($st, false);
+check(($st['category_map']['Hygiène & Désinfection'] ?? 0) === $hyg && ($st['category_map']['Gants'] ?? -1) === 0, 'famille du fichier rapprochée d\'une catégorie existante (sans accents/majuscules)');
+$prep = import_prepare($st);
+$byLine = array_column($prep, null, 'line');
+check(count($prep) === 4, 'lignes sans désignation (sous-totaux) écartées');
+check($byLine[0]['status'] === 'update' && $byLine[0]['existing_id'] === $existing, 'article existant reconnu (même fournisseur + référence)');
+check($byLine[0]['catalog_price'] === 10.0 && $byLine[0]['negotiated_price'] === 8.0, 'prix TTC convertis en HT');
+check($byLine[2]['status'] === 'error' && str_contains((string)$byLine[2]['error'], 'doublon'), 'doublon dans le fichier signalé');
+check($byLine[4]['status'] === 'error', 'ligne sans prix signalée');
+$st['create_categories'] = true;
+$rep = import_apply($st, [0 => 1, 1 => 1], true);
+check($rep['created'] === 1 && $rep['updated'] === 1 && $rep['categories'] === 1, 'import : 1 créé, 1 mis à jour, catégorie « Gants » créée');
+$upd = one('SELECT * FROM products WHERE id = ?', [$existing]);
+check($upd['name'] === 'Compresses stériles' && (float)$upd['catalog_price'] === 10.0 && str_contains((string)$upd['keywords'], 'Hartmann') && (int)$upd['category_id'] === $hyg, 'article mis à jour (nom, prix, marque en mot-clé, catégorie)');
+check((int)val("SELECT COUNT(*) FROM price_history WHERE product_id = ? AND source = 'Import fichier'", [$existing]) === 1, 'historique des prix alimenté');
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));

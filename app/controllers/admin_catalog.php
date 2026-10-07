@@ -220,110 +220,138 @@ function admin_product_toggle(): void
     redirect_back('admin/products');
 }
 
-const IMPORT_COLUMNS = ['fournisseur', 'reference', 'designation', 'description', 'categorie', 'conditionnement', 'prix_catalogue', 'prix_negocie', 'mots_cles', 'tva', 'code_barre', 'groupe_equivalence'];
 
 /** Import en masse d'un catalogue fournisseur (CSV séparateur « ; »). */
+/**
+ * Import assisté : 1. fichier → 2. correspondance des colonnes (IA) → 3. fournisseurs, catégories et aperçu → import.
+ */
 function admin_products_import(): void
 {
-    require_admin();
-    $report = null;
-    if (is_post()) {
-        if (empty($_FILES['csv']['tmp_name']) || !is_uploaded_file($_FILES['csv']['tmp_name'])) {
-            flash('error', 'Choisissez un fichier CSV.');
+    $me = require_admin();
+    $step = (string)input('step', '');
+    $state = ($t = (string)input('token', '')) !== '' ? import_load($t) : null;
+    if ($t !== '' && !$state) {
+        flash('error', 'Import expiré ou introuvable : envoyez à nouveau le fichier.');
+        redirect('admin/products/import');
+    }
+
+    if (is_post() && $step === 'upload') {
+        $f = $_FILES['file'] ?? null;
+        if (!$f || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+            flash('error', 'Choisissez un fichier (CSV, Excel .xlsx ou OpenDocument .ods).');
             redirect('admin/products/import');
         }
-        $fh = fopen($_FILES['csv']['tmp_name'], 'r');
-        $first = fgets($fh) ?: '';
-        $sep = substr_count($first, ';') >= substr_count($first, ',') ? ';' : ',';
-        rewind($fh);
-        $header = fgetcsv($fh, 0, $sep, '"', '');
-        $header = array_map(fn($h) => str_replace(' ', '_', search_normalize(preg_replace('/^\xEF\xBB\xBF/', '', (string)$h))), $header ?: []);
-        $report = ['created' => 0, 'updated' => 0, 'errors' => []];
-        $suppliers = array_change_key_case(array_column(all('SELECT id, name FROM suppliers'), 'id', 'name'), CASE_LOWER);
-        $categories = array_change_key_case(array_column(all('SELECT id, name FROM categories'), 'id', 'name'), CASE_LOWER);
-        $defaultSupplier = input_int('supplier_id');
-        $line = 1;
-        tx(function () use ($fh, $sep, $header, &$report, &$suppliers, &$categories, $defaultSupplier, &$line) {
-            while (($row = fgetcsv($fh, 0, $sep, '"', '')) !== false) {
-                $line++;
-                if (count(array_filter($row, fn($v) => trim((string)$v) !== '')) === 0) {
-                    continue;
-                }
-                $r = [];
-                foreach ($header as $i => $h) {
-                    $r[$h] = trim((string)($row[$i] ?? ''));
-                }
-                $name = $r['designation'] ?? $r['nom'] ?? '';
-                if ($name === '') {
-                    $report['errors'][] = "Ligne $line : désignation manquante.";
-                    continue;
-                }
-                $supId = $defaultSupplier;
-                if (!empty($r['fournisseur'])) {
-                    $key = mb_strtolower($r['fournisseur']);
-                    if (!isset($suppliers[$key])) {
-                        $suppliers[$key] = insert('suppliers', ['name' => $r['fournisseur'], 'all_centers' => 1, 'active' => 1, 'created_at' => now()]);
+        try {
+            $state = import_start($f['tmp_name'], (string)$f['name'], (int)$me['id']);
+        } catch (Throwable $e) {
+            flash('error', 'Lecture impossible : ' . $e->getMessage());
+            redirect('admin/products/import');
+        }
+        $state['default_supplier'] = input_int('supplier_id');
+        $state['mapping'] = import_guess_mapping($state['headers']);
+        if (input('use_ai') === '1') {
+            @set_time_limit(180);
+            $ai = import_ai_mapping($state['headers'], $state['rows']);
+            if ($ai) {
+                // L'IA décide ; les règles locales complètent les champs qu'elle a laissés vides (sans réutiliser une colonne)
+                $merged = $ai['mapping'];
+                $usedCols = array_flip($merged);
+                foreach ($state['mapping'] as $field => $col) {
+                    if (!isset($merged[$field]) && !isset($usedCols[$col])) {
+                        $merged[$field] = $col;
+                        $usedCols[$col] = true;
                     }
-                    $supId = (int)$suppliers[$key];
                 }
-                if (!$supId) {
-                    $report['errors'][] = "Ligne $line : fournisseur manquant.";
-                    continue;
-                }
-                $catId = null;
-                if (!empty($r['categorie'])) {
-                    $key = mb_strtolower($r['categorie']);
-                    if (!isset($categories[$key])) {
-                        $categories[$key] = insert('categories', ['name' => $r['categorie'], 'icon' => 'box', 'color' => palette()[count($categories) % 12], 'position' => 99]);
-                    }
-                    $catId = (int)$categories[$key];
-                }
-                $num = function (?string $v): ?float {
-                    if ($v === null || $v === '') {
-                        return null;
-                    }
-                    $v = str_replace([' ', "\u{00A0}", '€'], '', $v);
-                    $v = str_replace(',', '.', $v);
-                    return is_numeric($v) ? round((float)$v, 2) : null;
-                };
-                $data = [
-                    'supplier_id' => $supId, 'category_id' => $catId,
-                    'reference' => ($r['reference'] ?? '') ?: null, 'name' => $name,
-                    'description' => ($r['description'] ?? '') ?: null,
-                    'unit' => ($r['conditionnement'] ?? '') ?: null,
-                    'catalog_price' => $num($r['prix_catalogue'] ?? null) ?? 0,
-                    'negotiated_price' => $num($r['prix_negocie'] ?? null),
-                    'keywords' => ($r['mots_cles'] ?? '') ?: null,
-                    'vat_rate' => $num($r['tva'] ?? null) ?? 20,
-                    'updated_at' => now(),
-                ];
-                if (!empty($r['groupe_equivalence'])) {
-                    $data['compare_group'] = mb_substr($r['groupe_equivalence'], 0, 80);
-                }
-                if (!empty($r['code_barre'])) {
-                    $data['barcode'] = preg_replace('/\s+/', '', $r['code_barre']);
-                }
-                $existing = $data['reference'] ? val('SELECT id FROM products WHERE supplier_id = ? AND reference = ?', [$supId, $data['reference']]) : null;
-                if (!$existing && !empty($data['barcode'])) {
-                    $existing = val('SELECT id FROM products WHERE barcode = ?', [$data['barcode']]);
-                }
-                if ($existing) {
-                    update('products', $data, 'id = ?', [$existing]);
-                    price_record((int)$existing, (float)$data['catalog_price'], $data['negotiated_price'], 'Import CSV');
-                    $report['updated']++;
-                } else {
-                    $newId = insert('products', $data + ['active' => 1, 'created_at' => now()]);
-                    price_record($newId, (float)$data['catalog_price'], $data['negotiated_price'], 'Import CSV');
-                    $report['created']++;
-                }
+                $state['mapping'] = $merged;
+                [$state['mapping_source'], $state['prices_ttc'], $state['mapping_notes']] = ['ai', $ai['prices_ttc'], $ai['notes']];
+            } else {
+                $state['ai_error'] = ai_last_error();
             }
-        });
-        fclose($fh);
+        }
+        $state['use_ai'] = input('use_ai') === '1';
+        import_save($state);
+        redirect('admin/products/import', ['token' => $state['token'], 'step' => 'map']);
     }
-    render('admin/products_import', [
-        'title' => 'Importer des articles', 'report' => $report,
-        'suppliers' => all('SELECT id, name FROM suppliers ORDER BY name'),
-    ]);
+
+    if (is_post() && $step === 'map' && $state) {
+        $map = [];
+        foreach ((array)($_POST['map'] ?? []) as $field => $col) {
+            if (isset(IMPORT_FIELDS[$field]) && $col !== '' && isset($state['headers'][(int)$col])) {
+                $map[$field] = (int)$col;
+            }
+        }
+        if (!isset($map['name'])) {
+            flash('error', 'Indiquez au moins la colonne qui contient la désignation des articles.');
+            redirect('admin/products/import', ['token' => $state['token'], 'step' => 'map']);
+        }
+        $state['mapping'] = $map;
+        $state['prices_ttc'] = input('prices_ttc') === '1';
+        $state['default_supplier'] = input_int('supplier_id');
+        $state['row_overrides'] = [];
+        import_match_values($state, !empty($state['use_ai']));
+        import_save($state);
+        redirect('admin/products/import', ['token' => $state['token'], 'step' => 'preview']);
+    }
+
+    if (is_post() && $step === 'preview' && $state) {
+        // Corrections de l'acheteur : fournisseurs, catégories (valeurs du fichier puis article par article)
+        foreach ((array)($_POST['sup'] ?? []) as $k => $id) {
+            $v = $state['supplier_values'][(int)$k] ?? null;
+            if ($v !== null) {
+                $state['supplier_map'][$v] = (int)$id;
+            }
+        }
+        foreach ((array)($_POST['cat'] ?? []) as $k => $id) {
+            $v = $state['category_values'][(int)$k] ?? null;
+            if ($v !== null) {
+                $state['category_map'][$v] = (int)$id;
+            }
+        }
+        $state['row_overrides'] = [];
+        foreach ((array)($_POST['rowcat'] ?? []) as $line => $id) {
+            if ((int)$id > 0) {
+                $state['row_overrides'][(int)$line] = (int)$id;
+            }
+        }
+        $state['default_supplier'] = input_int('supplier_id', (int)$state['default_supplier']);
+        $state['create_categories'] = input('create_categories') === '1';
+        import_save($state);
+        if (input('do') !== 'import') {
+            redirect('admin/products/import', ['token' => $state['token'], 'step' => 'preview']);
+        }
+        $selected = array_flip(array_map('intval', (array)($_POST['rows'] ?? [])));
+        $report = import_apply($state, $selected, input('update_existing') === '1');
+        @unlink(import_dir() . '/' . $state['token'] . '.json');
+        audit('Import d\'articles', 'product', null, $state['file'] . ' : ' . $report['created'] . ' créés, ' . $report['updated'] . ' mis à jour');
+        flash('success', sprintf('Import terminé : %s, %s%s%s%s.',
+            plural($report['created'], 'article créé', 'articles créés'), plural($report['updated'], 'article mis à jour', 'articles mis à jour'),
+            $report['skipped'] ? ', ' . plural($report['skipped'], 'ligne ignorée', 'lignes ignorées') : '',
+            $report['suppliers'] ? ', ' . plural($report['suppliers'], 'fournisseur créé', 'fournisseurs créés') : '',
+            $report['categories'] ? ', ' . plural($report['categories'], 'catégorie créée', 'catégories créées') : ''));
+        redirect('admin/products');
+    }
+
+    $suppliers = all('SELECT id, name FROM suppliers WHERE active = 1 ORDER BY name');
+    $categories = all('SELECT id, name, color FROM categories ORDER BY position, name');
+    if ($state && $step === 'map') {
+        $samples = [];
+        foreach ($state['headers'] as $i => $h) {
+            $samples[$i] = array_values(array_filter(array_map(fn($r) => (string)($r[$i] ?? ''), array_slice($state['rows'], 0, 30)), fn($v) => $v !== ''));
+        }
+        render('admin/products_import_map', ['title' => 'Importer des articles — colonnes', 'state' => $state, 'samples' => $samples, 'suppliers' => $suppliers]);
+        return;
+    }
+    if ($state && $step === 'preview') {
+        $state['supplier_values'] = array_keys($state['supplier_map']);
+        $state['category_values'] = array_keys($state['category_map']);
+        import_save($state);
+        $rows = import_prepare($state);
+        $counts = array_count_values(array_column($rows, 'status')) + ['new' => 0, 'update' => 0, 'error' => 0];
+        render('admin/products_import_preview', ['title' => 'Importer des articles — aperçu', 'state' => $state, 'rows' => $rows,
+            'counts' => $counts, 'suppliers' => $suppliers, 'categories' => $categories]);
+        return;
+    }
+    render('admin/products_import', ['title' => 'Importer des articles', 'suppliers' => $suppliers, 'aiReady' => ai_available()]);
 }
 
 function admin_products_export(): void

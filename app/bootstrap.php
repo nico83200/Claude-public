@@ -70,6 +70,8 @@ require_once APP . '/notify.php';
 require_once APP . '/updater.php';
 require_once APP . '/features.php';
 require_once APP . '/cleanup.php';
+require_once APP . '/spreadsheet.php';
+require_once APP . '/import.php';
 require_once APP . '/pdf.php';
 require_once APP . '/cron.php';
 

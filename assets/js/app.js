@@ -658,3 +658,22 @@
     refresh();
   });
 })();
+
+// Formulaires longs (analyse IA, import) : indicateur d'attente
+document.addEventListener('submit', (e) => {
+  const f = e.target.closest('form[data-busy]');
+  if (!f || e.defaultPrevented) return;
+  const o = document.createElement('div');
+  o.className = 'busy-overlay';
+  o.innerHTML = '<div><i></i><span></span></div>';
+  o.querySelector('span').textContent = f.dataset.busy;
+  setTimeout(() => document.body.appendChild(o), 150);
+});
+
+// Import : exemples de valeurs de la colonne choisie
+document.querySelectorAll('[data-map-select]').forEach((sel) => {
+  sel.addEventListener('change', () => {
+    const cell = sel.closest('tr').querySelector('[data-samples]');
+    if (cell) cell.textContent = (window.IMPORT_SAMPLES || {})[sel.value] || '';
+  });
+});

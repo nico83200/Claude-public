@@ -325,6 +325,77 @@ function ai_error_message(Throwable $e): string
     return $hint . ($raw !== '' ? ' — Détail : ' . mb_substr($raw, 0, 400) : '') . ' [' . (new ReflectionClass($e))->getShortName() . ']';
 }
 
+/**
+ * Appel à Claude avec réponse JSON structurée (schéma imposé). Renvoie le tableau décodé,
+ * ou null en cas d'échec (cause lisible via ai_last_error()). Le prompt système est mis en cache.
+ */
+function ai_json(string $system, string $user, array $schema, int $maxTokens = 8000, int $timeout = 60): ?array
+{
+    ai_last_error('');
+    if (!ai_available()) {
+        ai_last_error(match (true) {
+            !ai_sdk_installed() => 'Bibliothèque Anthropic absente : le dossier vendor/ manque sur le serveur (utilisez le paquet d\'installation complet).',
+            ai_api_key() === '' => 'Aucune clé API enregistrée (ou clé illisible : fichier storage/secret.key changé ?). Ressaisissez-la.',
+            default => 'Assistant IA désactivé dans les paramètres.',
+        });
+        return null;
+    }
+    $client = new \Anthropic\Client(apiKey: ai_api_key(), baseUrl: cfg('anthropic_base_url') ?: null);
+    $params = [
+        'model' => ai_model(),
+        'maxTokens' => $maxTokens,
+        'system' => [
+            ['type' => 'text', 'text' => $system, 'cacheControl' => ['type' => 'ephemeral']],
+        ],
+        'messages' => [
+            ['role' => 'user', 'content' => $user],
+        ],
+        'outputConfig' => [
+            'effort' => 'low',
+            'format' => ['type' => 'json_schema', 'schema' => $schema],
+        ],
+        // Si le modèle décline une requête, l'API bascule automatiquement sur un modèle de repli.
+        'fallbacks' => 'default',
+        'betas' => ['server-side-fallback-2026-07-01'],
+        'requestOptions' => ['timeout' => $timeout, 'maxRetries' => 1],
+    ];
+    try {
+        try {
+            $message = $client->beta->messages->create(...$params);
+        } catch (\Anthropic\Core\Exceptions\BadRequestException $e) {
+            // Compte ou modèle sans repli côté serveur : on retente sans cette option
+            if (!preg_match('/fallback|beta/i', $e->getMessage())) {
+                throw $e;
+            }
+            error_log('[ai] repli serveur refusé, nouvel essai sans : ' . $e->getMessage());
+            unset($params['fallbacks'], $params['betas']);
+            $message = $client->beta->messages->create(...$params);
+        }
+    } catch (\Throwable $e) {
+        ai_last_error(ai_error_message($e));
+        error_log('[ai] ' . get_class($e) . ' : ' . $e->getMessage());
+        return null;
+    }
+    if ($message->stopReason === 'refusal') {
+        ai_last_error('Le modèle a décliné cette demande (refus de sécurité). Essayez une autre formulation.');
+        return null;
+    }
+    if ($message->stopReason === 'max_tokens') {
+        ai_last_error('Réponse de l\'IA tronquée (trop de données en une fois).');
+        return null;
+    }
+    foreach ($message->content as $block) {
+        if ($block->type === 'text') {
+            $data = json_decode($block->text, true);
+            if (is_array($data)) {
+                return $data;
+            }
+        }
+    }
+    ai_last_error('Réponse illisible du modèle (arrêt : ' . $message->stopReason . ').');
+    return null;
+}
+
 function ai_search(array $products, string $query): ?array
 {
     ai_last_error('');
@@ -332,11 +403,7 @@ function ai_search(array $products, string $query): ?array
         return null;
     }
     if (!ai_available()) {
-        ai_last_error(match (true) {
-            !ai_sdk_installed() => 'Bibliothèque Anthropic absente : le dossier vendor/ manque sur le serveur (utilisez le paquet d\'installation complet).',
-            ai_api_key() === '' => 'Aucune clé API enregistrée (ou clé illisible : fichier storage/secret.key changé ?). Ressaisissez-la.',
-            default => 'Assistant IA désactivé dans les paramètres.',
-        });
+        ai_json('', '', []);   // renseigne la cause dans ai_last_error()
         return null;
     }
     // Catalogue compact, trié par id pour rester stable (et profiter du cache de prompt).
@@ -376,68 +443,17 @@ function ai_search(array $products, string $query): ?array
         . "- « related » : jusqu'à 3 recherches complémentaires courtes que le salarié pourrait vouloir faire.\n\n"
         . "CATALOGUE (#id | nom | catégorie | conditionnement | mots-clés | description) :\n" . $catalog;
 
-    $client = new \Anthropic\Client(apiKey: ai_api_key(), baseUrl: cfg('anthropic_base_url') ?: null);
-    $params = [
-        'model' => $model,
-        'maxTokens' => 8000,
-        'system' => [
-            ['type' => 'text', 'text' => $system, 'cacheControl' => ['type' => 'ephemeral']],
+    $data = ai_json($system, 'Besoin du salarié : ' . mb_substr($query, 0, 500), [
+        'type' => 'object',
+        'properties' => [
+            'product_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+            'message'     => ['type' => 'string'],
+            'related'     => ['type' => 'array', 'items' => ['type' => 'string']],
         ],
-        'messages' => [
-            ['role' => 'user', 'content' => 'Besoin du salarié : ' . mb_substr($query, 0, 500)],
-        ],
-        'outputConfig' => [
-            'effort' => 'low',
-            'format' => [
-                'type' => 'json_schema',
-                'schema' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'product_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
-                        'message'     => ['type' => 'string'],
-                        'related'     => ['type' => 'array', 'items' => ['type' => 'string']],
-                    ],
-                    'required' => ['product_ids', 'message', 'related'],
-                    'additionalProperties' => false,
-                ],
-            ],
-        ],
-        // Si le modèle décline une requête, l'API bascule automatiquement sur un modèle de repli.
-        'fallbacks' => 'default',
-        'betas' => ['server-side-fallback-2026-07-01'],
-        'requestOptions' => ['timeout' => 45, 'maxRetries' => 1],
-    ];
-    try {
-        try {
-            $message = $client->beta->messages->create(...$params);
-        } catch (\Anthropic\Core\Exceptions\BadRequestException $e) {
-            // Compte ou modèle sans repli côté serveur : on retente sans cette option
-            if (!preg_match('/fallback|beta/i', $e->getMessage())) {
-                throw $e;
-            }
-            error_log('[ai_search] repli serveur refusé, nouvel essai sans : ' . $e->getMessage());
-            unset($params['fallbacks'], $params['betas']);
-            $message = $client->beta->messages->create(...$params);
-        }
-    } catch (\Throwable $e) {
-        ai_last_error(ai_error_message($e));
-        error_log('[ai_search] ' . get_class($e) . ' : ' . $e->getMessage());
-        return null;
-    }
-
-    if ($message->stopReason === 'refusal') {
-        ai_last_error('Le modèle a décliné cette demande (refus de sécurité). Essayez une autre formulation.');
-        return null;
-    }
-    $data = null;
-    foreach ($message->content as $block) {
-        if ($block->type === 'text') {
-            $data = json_decode($block->text, true);
-            break;
-        }
-    }
-    if (!is_array($data)) {
-        ai_last_error('Réponse illisible du modèle (arrêt : ' . $message->stopReason . ').');
+        'required' => ['product_ids', 'message', 'related'],
+        'additionalProperties' => false,
+    ], 8000, 45);
+    if ($data === null) {
         return null;
     }
     $ids = [];

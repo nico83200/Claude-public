@@ -2,7 +2,7 @@
   <div><h1>Articles</h1><p><?= plural(count($products), 'article', 'articles') ?> · base commune à tous les centres</p></div>
   <div class="row row-wrap">
     <a class="btn" href="<?= url('admin/products/export') ?>"><?= icon('download', 18) ?> Exporter</a>
-    <a class="btn" href="<?= url('admin/products/import') ?>"><?= icon('upload', 18) ?> Importer (CSV)</a>
+    <a class="btn" href="<?= url('admin/products/import') ?>"><?= icon('upload', 18) ?> Importer (CSV, Excel)</a>
     <a class="btn btn-primary" href="<?= url('admin/product', ['supplier_id' => $sup]) ?>"><?= icon('plus', 18) ?> Nouvel article</a>
   </div>
 </div>
