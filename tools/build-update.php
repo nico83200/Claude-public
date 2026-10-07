@@ -6,6 +6,8 @@ declare(strict_types=1);
  *
  *   php tools/build-update.php            → dist/commandes-centres-<version>.zip (sans vendor/)
  *   php tools/build-update.php --vendor   → inclut les dépendances (assistant IA)
+ *   php tools/build-update.php --install  → paquet de première installation (avec install.php et vendor/),
+ *                                           à décompresser tel quel chez l'hébergeur (ex. Hostinger)
  *
  * La version est lue dans le fichier VERSION ; les notes dans la première section de CHANGELOG.md.
  */
@@ -15,7 +17,8 @@ if (PHP_SAPI !== 'cli') {
     exit("À lancer en ligne de commande.\n");
 }
 $root = dirname(__DIR__);
-$withVendor = in_array('--vendor', $argv, true);
+$forInstall = in_array('--install', $argv, true);
+$withVendor = $forInstall || in_array('--vendor', $argv, true);
 $version = trim((string)file_get_contents("$root/VERSION"));
 if (!preg_match('/^\d+\.\d+\.\d+/', $version)) {
     exit("Fichier VERSION invalide.\n");
@@ -26,10 +29,17 @@ if (is_file("$root/CHANGELOG.md") && preg_match('/^##[^\n]*\n(.*?)(?=^## |\z)/ms
 }
 $include = ['index.php', 'cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app', 'assets', 'tools', 'tests'];
 if ($withVendor) {
+    if (!is_file("$root/vendor/autoload.php")) {
+        exit("Dossier vendor/ absent : lancez d'abord composer install --no-dev.\n");
+    }
     $include[] = 'vendor';
 }
+if ($forInstall) {
+    // Assistant d'installation et protections des dossiers de données (vides)
+    array_push($include, 'install.php', 'storage/.htaccess', 'uploads/products/.htaccess', 'uploads/brand/.htaccess');
+}
 @mkdir("$root/dist", 0755, true);
-$out = "$root/dist/commandes-centres-$version" . ($withVendor ? '-complet' : '') . '.zip';
+$out = "$root/dist/commandes-centres-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
 $zip = new ZipArchive();
 $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 $zip->addFromString('version.json', json_encode(['version' => $version, 'date' => date('Y-m-d'), 'notes' => $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -43,6 +53,13 @@ foreach ($include as $item) {
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS));
         foreach ($it as $f) {
             $rel = ltrim(str_replace('\\', '/', substr($f->getPathname(), strlen($root))), '/');
+            // Dépendances : on écarte l'historique git et les fichiers de développement
+            if ($item === 'vendor' && preg_match('#/(\.git|\.github|tests?|docs?|examples?)/#i', '/' . $rel)) {
+                continue;
+            }
+            if ($item === 'vendor' && preg_match('#^vendor/standard-webhooks/standard-webhooks/libraries/(?!php/)#', $rel)) {
+                continue;
+            }
             if ($f->isFile()) {
                 $zip->addFile($f->getPathname(), $rel);
                 $n++;

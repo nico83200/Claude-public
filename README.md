@@ -79,12 +79,31 @@ SQLite est aussi pris en charge, pour les tests ou une petite structure sans ser
 
 ## Installation
 
-1. Déposez les fichiers sur l'hébergement (FTP), par exemple dans un sous-domaine `commandes.votre-groupe.fr`.
-2. Créez une base MySQL/MariaDB (utf8mb4), puis copiez `config.sample.php` en `config.php` et renseignez les accès.
-3. **Assistant IA (optionnel)** : sur votre poste, lancez `composer install --no-dev` puis envoyez le dossier `vendor/` sur le serveur. Créez une clé API sur console.anthropic.com puis collez-la dans *Paramètres → Assistant de recherche IA*. Elle y est chiffrée et n'est jamais réaffichée en clair. Une clé dans `config.php` (`anthropic_api_key`) reste possible ; celle des paramètres est prioritaire. Sans clé, la recherche intelligente locale fonctionne seule.
-4. Ouvrez `https://…/install.php` : créez le compte administrateur (et, si vous le souhaitez, chargez les données de démonstration).
-5. **Supprimez `install.php`** du serveur.
-6. Vérifiez que le dossier `uploads/products/` est accessible en écriture (photos).
+Le plus simple est d'utiliser le **paquet d'installation complet** (`commandes-centres-<version>-installation.zip`, fabriqué par `php tools/build-update.php --install`). Il contient déjà les dépendances de l'assistant IA (`vendor/`) : aucun Composer ni ligne de commande n'est nécessaire.
+
+1. Créez une base MySQL/MariaDB et son utilisateur chez l'hébergeur.
+2. Déposez le .zip à la racine du site, puis décompressez-le, par exemple avec le gestionnaire de fichiers de l'hébergeur.
+3. Ouvrez `https://…/install.php`. L'assistant :
+   - vérifie l'hébergement (version PHP, extensions, droits d'écriture) ;
+   - demande les accès à la base, teste la connexion et écrit `config.php` ;
+   - crée le compte administrateur, avec des données de démonstration si vous le souhaitez ;
+   - **se supprime de lui-même** à la fin. Si l'hébergement l'en empêche, supprimez `install.php` à la main.
+4. **Assistant IA (optionnel)** : créez une clé API sur console.anthropic.com et collez-la dans *Paramètres → Assistant de recherche IA*. Elle y est chiffrée et n'est jamais réaffichée en clair. Une clé dans `config.php` (`anthropic_api_key`) reste possible ; celle des paramètres est prioritaire. Sans clé, la recherche intelligente locale fonctionne seule.
+5. Programmez la tâche planifiée `cron.php` toutes les 5 à 15 minutes (voir plus bas).
+
+Depuis les sources du dépôt, lancez d'abord `composer install --no-dev` pour l'assistant IA.
+
+### Hostinger, pas à pas
+
+1. **Site** : dans *hPanel → Domaines → Sous-domaines*, créez par exemple `commandes.votre-groupe.fr`. Le dossier du site est alors `public_html/commandes` ou `domains/…/public_html`.
+2. **HTTPS** : dans *Sécurité → SSL*, installez le certificat gratuit. La caméra (scanner) en a besoin.
+3. **PHP** : dans *Avancé → Configuration PHP*, choisissez PHP 8.2 ou 8.3. Les extensions requises (pdo_mysql, mbstring, gd, zip, sodium, curl) sont actives par défaut ; l'assistant d'installation le vérifie.
+4. **Base** : dans *Bases de données → Gestion*, créez la base, l'utilisateur et le mot de passe. Notez les noms complets, préfixés (`u123456789_…`). Le serveur est `localhost`.
+5. **Fichiers** : dans *Fichiers → Gestionnaire de fichiers*, ouvrez le dossier du site et envoyez le .zip. Clic droit → *Extraire* dans le dossier courant, puis supprimez le .zip.
+6. Ouvrez `https://commandes.votre-groupe.fr/install.php` et suivez l'assistant.
+7. **Tâche planifiée** : dans *Avancé → Tâches Cron*, choisissez « PHP », la commande `domains/votre-groupe.fr/public_html/commandes/cron.php` (adaptez le chemin) et une fréquence de 10 minutes. Sans cron, les tâches tournent quand même après chaque visite, mais moins régulièrement.
+8. **E-mails** : créez une adresse (*E-mails → Comptes de messagerie*, par ex. `achats@votre-groupe.fr`). Dans *Paramètres → E-mails* de l'application, choisissez SMTP avec le serveur `smtp.hostinger.com`, le port 465 en SSL et cette adresse comme identifiant. Envoyez-vous l'e-mail de test.
+9. **Logo et centres** : chargez votre logo dans *Paramètres → Général*, puis complétez les fiches centres.
 
 Données de démonstration : comptes salariés `claire.secretaire@demo.fr`, `dr.morel@demo.fr`, `lea.kine@demo.fr`, `nadia.idec@demo.fr` et `marc.accueil@demo.fr`, tous avec le mot de passe `demo1234`.
 
