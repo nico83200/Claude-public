@@ -59,6 +59,23 @@ function stock_count(int $centerId, int $productId, int $counted, ?string $note 
     return stock_move($centerId, $productId, max(0, $counted) - $before, 'inventaire', $note);
 }
 
+/**
+ * Mode tablette : on saisit le stock réellement présent ; l'écart est enregistré comme une sortie
+ * (consommation) ou une entrée, calculée automatiquement. Renvoie ['qty' => stock, 'delta' => écart, 'type' => …].
+ */
+function stock_set_counted(int $centerId, int $productId, int $counted, string $note = 'Calculée au comptage (tablette)'): array
+{
+    return tx(function () use ($centerId, $productId, $counted, $note) {
+        $before = (int)(stock_row($centerId, $productId)['qty'] ?? 0);
+        $counted = max(0, $counted);
+        $delta = $counted - $before;
+        $type = $delta < 0 ? 'sortie' : ($delta > 0 ? 'ajout' : 'inventaire');
+        $after = stock_move($centerId, $productId, $delta, $type, $delta ? $note : 'Stock confirmé (tablette)');
+        update('stock', ['counted_at' => now()], 'center_id = ? AND product_id = ?', [$centerId, $productId]);
+        return ['qty' => $after, 'delta' => $after - $before, 'type' => $type];
+    });
+}
+
 function stock_set_alert(int $centerId, int $productId, int $alert): void
 {
     if (stock_row($centerId, $productId)) {

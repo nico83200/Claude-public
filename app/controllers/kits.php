@@ -150,7 +150,7 @@ function stock_quick(): void
 {
     require_login();
     $center = require_center();
-    render('user/stock_quick', ['title' => 'Mode réserve', 'center' => $center], 'layout_quick');
+    render('user/stock_quick', ['title' => 'Inventaire tablette', 'center' => $center], 'layout_quick');
 }
 
 /** Inventaire d'un seul article (mode tablette, appel AJAX). */
@@ -162,6 +162,6 @@ function stock_count_one(): void
     if (!product_visible_for_center($pid, (int)$center['id'])) {
         json_response(['error' => 'Article indisponible pour ce centre.'], 404);
     }
-    $after = stock_count((int)$center['id'], $pid, max(0, input_int('qty')), 'Inventaire (mode réserve)');
-    json_response(['ok' => true, 'qty' => $after]);
+    $r = stock_set_counted((int)$center['id'], $pid, max(0, input_int('qty')));
+    json_response(['ok' => true] + $r);
 }

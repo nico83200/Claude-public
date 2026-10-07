@@ -576,60 +576,70 @@
     f.classList.remove('hidden'); f.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
-  // --------------------------------------------------------- Mode réserve (tablette)
+  // --------------------------------------------------------- Inventaire tablette : stock actuel uniquement
   const q = $('#quick');
   if (q) {
-    let mode = 'out', product = null;
-    const card = $('[data-quick-card]', q), qty = $('[data-q-qty]', q), go = $('[data-q-go]', q), log = $('[data-quick-log]', q);
-    const labels = { out: 'Valider la sortie', in: 'Valider l\'entrée', count: 'Enregistrer le stock compté' };
-    const setMode = (m) => {
-      mode = m;
-      $$('[data-mode]', q).forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
-      go.textContent = labels[m]; go.className = 'quick-go quick-' + m;
-      if (product) qty.value = m === 'count' ? (product.stock ?? 0) : 1;
+    let product = null, viaCamera = false, busy = false, lastCode = '', lastAt = 0;
+    const card = $('[data-quick-card]', q), qty = $('[data-q-qty]', q), go = $('[data-q-go]', q), log = $('[data-quick-log]', q), diff = $('[data-q-diff]', q);
+    const search = $('[data-quick-search] input', q);
+    const showDiff = () => {
+      if (!product) return;
+      const d = Math.max(0, parseInt(qty.value || '0', 10)) - product.stock;
+      diff.className = 'quick-diff ' + (d < 0 ? 'out' : d > 0 ? 'in' : '');
+      diff.textContent = d < 0 ? 'Sortie calculée : ' + (-d) : d > 0 ? 'Entrée calculée : +' + d : 'Stock conforme';
     };
-    $$('[data-mode]', q).forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
-    $$('[data-step]', q).forEach((b) => b.addEventListener('click', () => { qty.value = Math.max(0, (parseInt(qty.value || '0', 10) + parseInt(b.dataset.step, 10))); }));
+    $$('[data-step]', q).forEach((b) => b.addEventListener('click', () => { qty.value = Math.max(0, (parseInt(qty.value || '0', 10) + parseInt(b.dataset.step, 10))); showDiff(); }));
+    qty.addEventListener('input', showDiff);
+    qty.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } });
     const show = (d) => {
-      product = { id: d.product.id, name: d.product.name, stock: d.stock ? d.stock.qty : 0 };
+      product = { id: d.product.id, name: d.product.name, stock: d.stock ? d.stock.qty : 0, code: d.code || '' };
       $('[data-q-name]', q).textContent = d.product.name;
       $('[data-q-meta]', q).textContent = [d.product.unit, d.product.supplier].filter(Boolean).join(' · ');
-      $('[data-q-stock]', q).textContent = d.stock ? d.stock.qty : 'non suivi';
+      $('[data-q-stock]', q).textContent = d.stock ? d.stock.qty : 'non suivi (0)';
       const ql = $('[data-q-loc]', q); if (ql) { ql.textContent = d.stock && d.stock.location ? '📍 ' + d.stock.location : ''; ql.hidden = !(d.stock && d.stock.location); }
       $('[data-q-img]', q).innerHTML = d.product.image ? '<img src="' + esc(d.product.image) + '" alt="">' : '';
+      qty.value = product.stock;
       card.classList.remove('hidden');
-      setMode(mode);
+      showDiff();
       qty.focus(); qty.select();
     };
     const lookup = async (code) => {
-      const d = await (await fetch('index.php?r=api/barcode&code=' + encodeURIComponent(code), { headers: { 'X-Requested-With': 'fetch' } })).json();
-      if (d.found) show(d);
+      // Caméra relancée encore pointée sur l'article qu'on vient de valider : on l'ignore et on continue
+      if (viaCamera && code === lastCode && Date.now() - lastAt < 5000) { setTimeout(startScan, 300); return; }
+      busy = true; card.classList.add('hidden'); product = null;
+      let d;
+      try { d = await (await fetch('index.php?r=api/barcode&code=' + encodeURIComponent(code), { headers: { 'X-Requested-With': 'fetch' } })).json(); }
+      finally { busy = false; }
+      if (d.found) { d.code = code; show(d); }
       else if (confirm('Code ' + code + ' inconnu au catalogue.\nProposer cet article au service achats ?')) location.href = 'index.php?r=suggest&from=scan&barcode=' + encodeURIComponent(code);
+      else if (viaCamera) startScan();
     };
-    $('[data-quick-scan]', q).addEventListener('click', () => window.openScanner && window.openScanner(lookup, 'Mode réserve : scanner l\'article'));
-    $('[data-quick-search]', q).addEventListener('submit', (e) => { e.preventDefault(); const v = $('input', e.target).value.trim(); if (v) lookup(v); });
+    const startScan = () => { viaCamera = true; window.openScanner && window.openScanner(lookup, 'Inventaire : scanner l\'article'); };
+    $('[data-quick-scan]', q).addEventListener('click', startScan);
+    $('[data-quick-search]', q).addEventListener('submit', (e) => { e.preventDefault(); const v = search.value.trim(); if (v) { viaCamera = false; search.value = ''; lookup(v); } });
     go.addEventListener('click', async () => {
-      if (!product) return;
+      if (!product || go.disabled || busy) return;
+      const cur = product; // l'article affiché au moment de la validation
       const n = Math.max(0, parseInt(qty.value || '0', 10));
-      if (mode !== 'count' && n <= 0) return toast('Indiquez une quantité.', true);
-      const body = new URLSearchParams({ _token: csrf, product_id: product.id, qty: n, note: $('[data-q-note]', q).value });
-      let url = 'index.php?r=stock/exit';
-      if (mode === 'in') body.append('mode', 'in');
-      if (mode === 'count') url = 'index.php?r=stock/count-one';
+      const body = new URLSearchParams({ _token: csrf, product_id: cur.id, qty: n });
       go.disabled = true;
       try {
-        const r = await (await fetch(url, { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } })).json();
+        const r = await (await fetch('index.php?r=stock/count-one', { method: 'POST', body, headers: { 'X-Requested-With': 'fetch' } })).json();
         if (!r.ok) throw new Error(r.error || 'Erreur');
-        const verb = { out: 'Sortie de ' + n, in: 'Entrée de ' + n, count: 'Stock compté : ' + n }[mode];
+        const what = r.delta < 0 ? 'sortie de ' + (-r.delta) : r.delta > 0 ? 'entrée de ' + r.delta : 'conforme';
         const li = document.createElement('li');
-        li.innerHTML = '<strong>' + esc(product.name) + '</strong> — ' + esc(verb) + ' · reste <strong>' + r.qty + '</strong>';
+        li.innerHTML = '<strong>' + esc(cur.name) + '</strong> — stock <strong>' + r.qty + '</strong> · <span class="' + (r.delta < 0 ? 'out' : r.delta > 0 ? 'in' : '') + '">' + esc(what) + '</span>';
         log.prepend(li);
         if (navigator.vibrate) navigator.vibrate(60);
-        toast(mode === 'count' ? 'Inventaire enregistré : ' + n : verb + ' enregistrée');
-        card.classList.add('hidden'); product = null; $('[data-q-note]', q).value = '';
+        toast(cur.name + ' : stock ' + r.qty + ' (' + what + ')');
+        lastCode = cur.code; lastAt = Date.now();
+        if (product === cur) { card.classList.add('hidden'); product = null; }
+        // Article suivant : le scanner se relance (ou la saisie douchette reprend la main)
+        if (viaCamera) setTimeout(startScan, 350); else search.focus();
       } catch (err) { toast(err.message, true); }
       go.disabled = false;
     });
+    search.focus();
   }
 })();
 

@@ -69,7 +69,7 @@ function support_faq_builtin(): array
         ['Comment enregistrer une livraison ?', 'reception reçu livraison livre colis cocher arrive bon recu receptionner',
             "Ouvrez « Réceptions », choisissez le bon livré, cochez les articles reçus (ou saisissez la quantité réellement livrée) puis « Enregistrer la réception ». Le stock du centre est mis à jour automatiquement.", ['Réceptions', 'receptions'], false],
         ['Comment faire l\'inventaire ou une sortie de stock ?', 'stock inventaire sortie entree comptage quantite reserve mode reserve consommation',
-            "« Inventaire » permet de compter ou d'enregistrer une sortie. Sur tablette, le « Mode réserve » est le plus rapide : on scanne, on ajuste la quantité, on valide.", ['Inventaire', 'stock'], false],
+            "« Inventaire » permet de compter ou d'enregistrer une sortie. Sur tablette, « Inventaire tablette » est le plus rapide : on scanne, on saisit le stock présent, on valide ; l'entrée ou la sortie est calculée et le scanner se relance pour l'article suivant.", ['Inventaire', 'stock'], false],
         ['Comment activer la double authentification ?', 'double authentification 2fa code securite telephone authenticator authy connexion securiser compte',
             "Dans « Mon profil », carte « Double authentification » : « Configurer », scannez le QR code avec Google Authenticator, Microsoft Authenticator ou Authy, puis saisissez le code affiché. Téléphone perdu : un administrateur peut la réinitialiser depuis votre fiche utilisateur.", ['Mon profil', 'profile'], false],
         ['Où voir les dépenses et les économies ?', 'depenses economies direction tableau bord rapport mensuel pdf budget statistiques pilotage', 

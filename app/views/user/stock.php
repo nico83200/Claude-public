@@ -7,7 +7,7 @@
     <a class="btn" href="<?= url('stock/history') ?>"><?= icon('clock', 18) ?> Mouvements</a>
     <a class="btn" href="<?= url('labels', ['stock' => 1]) ?>" target="_blank" rel="noopener" title="Étiquettes d'étagère de tous les articles suivis"><?= icon('printer', 18) ?> Étiquettes</a>
     <a class="btn <?= $cycleDone ? '' : 'btn-amber' ?>" href="<?= url('stock/cycle') ?>" title="Une dizaine d'articles à compter cette semaine"><?= icon('repeat', 18) ?> Inventaire tournant<?= $cycleDone ? ' ✓' : '' ?></a>
-    <a class="btn" href="<?= url('stock/quick') ?>"><?= icon('layers', 18) ?> Mode réserve (tablette)</a>
+    <a class="btn" href="<?= url('stock/quick') ?>"><?= icon('layers', 18) ?> Inventaire tablette</a>
     <?php if ($lowCount): ?><form method="post" action="<?= url('stock/reorder') ?>"><?= csrf_field() ?><button class="btn btn-amber" type="submit"><?= icon('cart', 18) ?> Réapprovisionner les stocks bas</button></form><?php endif; ?>
     <button class="btn btn-primary" type="button" data-scan="stock"><?= icon('camera', 18) ?> Scanner un article</button>
   </div>

@@ -14,6 +14,7 @@ if (PHP_SAPI !== 'cli') {
 $tmp = sys_get_temp_dir() . '/cmd-tests-' . getmypid();
 @mkdir($tmp);
 $db = "$tmp/test.sqlite";
+@unlink($db); // base neuve à chaque exécution (un numéro de processus peut être réutilisé)
 file_put_contents("$tmp/config.php", "<?php return ['db' => ['driver' => 'sqlite', 'path' => " . var_export($db, true) . "], 'app_name' => 'Tests', 'timezone' => 'Europe/Paris', 'anthropic_api_key' => ''];");
 putenv("CMD_CONFIG=$tmp/config.php");
 $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -278,6 +279,18 @@ check(user_has_2fa($adm) && !str_contains((string)$adm['totp_secret'], $sec), 's
 $code = totp_code($sec);
 check(user_totp_verify($adm, $code) && !user_totp_verify(one('SELECT * FROM users WHERE id = ?', [$adm['id']]), $code), 'code accepté une seule fois (pas de rejeu)');
 update('users', ['totp_secret' => null, 'totp_last' => null], 'id = ?', [$adm['id']]);
+
+section('Inventaire tablette : stock actuel uniquement');
+$tp = (int)val('SELECT id FROM products WHERE id NOT IN (SELECT product_id FROM stock) AND active = 1 ORDER BY id DESC LIMIT 1');
+stock_move($c1, $tp, 10, 'ajout');
+$r1 = stock_set_counted($c1, $tp, 7);
+$m1 = one('SELECT * FROM stock_movements WHERE product_id = ? AND center_id = ? ORDER BY id DESC LIMIT 1', [$tp, $c1]);
+check($r1 === ['qty' => 7, 'delta' => -3, 'type' => 'sortie'] && $m1['type'] === 'sortie' && (int)$m1['delta'] === -3, 'stock saisi inférieur : sortie de 3 calculée');
+$r2 = stock_set_counted($c1, $tp, 12);
+check($r2['delta'] === 5 && $r2['type'] === 'ajout' && (int)stock_row($c1, $tp)['qty'] === 12, 'stock saisi supérieur : entrée de 5 calculée');
+$r3 = stock_set_counted($c1, $tp, 12);
+check($r3['delta'] === 0 && one('SELECT type FROM stock_movements WHERE product_id = ? ORDER BY id DESC LIMIT 1', [$tp])['type'] === 'inventaire' && stock_row($c1, $tp)['counted_at'] !== null, 'stock confirmé : pas de mouvement de quantité, date de comptage mise à jour');
+check((stock_usage_map($c1)[$tp] ?? 0) === 3, 'la sortie calculée compte dans la consommation (seuils conseillés)');
 
 section('Factures');
 $po2 = one('SELECT * FROM purchase_orders WHERE id = ?', [$po]);

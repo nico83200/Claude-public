@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#141833">
 <link rel="icon" type="image/svg+xml" href="assets/brand/approvia-mark.svg">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Mode réserve · <?= e(app_name()) ?></title>
+<title>Inventaire tablette · <?= e(app_name()) ?></title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="assets/css/app.css?v=<?= e(APP_VERSION) ?>">
 </head>

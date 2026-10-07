@@ -709,3 +709,9 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 @media (max-width: 640px) { .hbar-row { grid-template-columns: 1fr auto; } .hbar-track { grid-column: 1 / -1; grid-row: 2; } .mchart { gap: 3px; height: 160px; } }
 .ai-filled { box-shadow: 0 0 0 2px #c4b5fd inset; }
 .qr-box { background: #fff; padding: 8px; border: 1px solid var(--border); border-radius: 10px; min-width: 196px; min-height: 196px; }
+
+/* Inventaire tablette */
+.quick-label { display: block; font-weight: 700; margin: .6rem 0 .3rem; text-align: center; }
+.quick-diff { text-align: center; font-weight: 700; min-height: 1.4em; margin: .4rem 0 .2rem; color: var(--muted); }
+.quick-diff.out, .quick-log .out { color: #b45309; } .quick-diff.in, .quick-log .in { color: #047857; }
+.quick-hint { display: block; text-align: center; color: var(--muted); margin-top: .5rem; }

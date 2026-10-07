@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.14.1
+- **Inventaire tablette** (ex-« Mode réserve ») : une seule saisie, le **stock actuel**. Après le scan, la quantité théorique est proposée ; on saisit ce qui est réellement présent et l'écart est enregistré automatiquement comme **sortie** (consommation, prise en compte dans les seuils conseillés) ou **entrée**, avec l'écart affiché avant validation.
+- Après « Valider le stock », **le scanner se relance automatiquement** pour l'article suivant (avec une douchette, la zone de saisie reprend la main ; Entrée valide). La même boîte encore devant la caméra n'est pas recomptée.
+
 ## 1.14.0
 - **Tableau de bord direction** (menu *Direction*) : dépenses engagées, économies obtenues grâce aux tarifs négociés, nombre de bons et panier moyen, valeur des stocks, comparaison avec la période précédente ; dépenses mensuelles sur 12 mois ; répartition par centre, catégorie, fournisseur et articles les plus achetés ; suivi des budgets. Filtres par période et par centre.
 - **Rapport PDF mensuel** créé automatiquement chaque début de mois, téléchargeable et envoyé par e-mail aux destinataires choisis (direction, DAF).
