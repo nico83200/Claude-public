@@ -267,6 +267,49 @@ function admin_order_invoice(): void
     redirect('admin/order', ['id' => $po['id']]);
 }
 
+/** Lecture de la facture par l'IA (appel AJAX) : renvoie les champs à pré-remplir et les écarts avec le bon. */
+function admin_order_invoice_ai(): void
+{
+    require_admin();
+    $po = one('SELECT po.*, s.name AS supplier_name FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id WHERE po.id = ?', [input_int('id')]) ?? abort(404);
+    if (!ai_available()) {
+        json_response(['error' => 'Assistant IA indisponible : ' . (licence_ai_allowed() ? 'renseignez la clé API dans les paramètres.' : 'option non incluse dans votre abonnement.')], 422);
+    }
+    try {
+        $file = handle_invoice_upload('invoice_file');
+    } catch (RuntimeException $e) {
+        json_response(['error' => $e->getMessage()], 422);
+    }
+    $file ??= $po['invoice_file'];
+    if (!$file || !is_file(invoices_dir() . '/' . basename($file))) {
+        json_response(['error' => 'Choisissez d\'abord le fichier de la facture (PDF ou photo).'], 422);
+    }
+    if ($file !== $po['invoice_file']) { // le justificatif est conservé tout de suite
+        if ($po['invoice_file']) {
+            @unlink(invoices_dir() . '/' . basename($po['invoice_file']));
+        }
+        update('purchase_orders', ['invoice_file' => $file], 'id = ?', [$po['id']]);
+    }
+    @set_time_limit(120);
+    $r = invoice_ai_read(invoices_dir() . '/' . basename($file), $po);
+    if ($r === null) {
+        json_response(['error' => ai_last_error() ?: 'Lecture impossible.'], 502);
+    }
+    if (empty($r['is_invoice'])) {
+        json_response(['error' => 'Ce document ne ressemble pas à une facture.'], 422);
+    }
+    $check = $r['total_ht'] !== null ? invoice_check(array_merge($po, ['invoice_amount' => (float)$r['total_ht']])) : null;
+    audit('Facture lue par l\'IA', 'purchase_order', (int)$po['id'], trim(($r['invoice_number'] ?? '') . ' ' . ($r['total_ht'] !== null ? money((float)$r['total_ht']) : '')));
+    json_response([
+        'invoice_number' => mb_substr((string)$r['invoice_number'], 0, 80),
+        'invoice_date' => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$r['invoice_date']) ? $r['invoice_date'] : '',
+        'invoice_amount' => $r['total_ht'] !== null ? number_format((float)$r['total_ht'], 2, ',', '') : '',
+        'total_ttc' => $r['total_ttc'], 'supplier' => $r['supplier_name'],
+        'check' => $check ? ['status' => $check['status'], 'expected' => money($check['expected']), 'diff' => $check['diff'] !== null ? money($check['diff']) : null] : null,
+        'remarks' => array_slice(array_map('strval', (array)$r['remarks']), 0, 8),
+    ]);
+}
+
 function admin_order_invoice_file(): void
 {
     require_admin();

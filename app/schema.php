@@ -459,7 +459,7 @@ function schema_added_columns(): array
 {
     return [
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
-        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL'],
+        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL', 'totp_secret' => 'VARCHAR(255) NULL', 'totp_last' => 'VARCHAR(20) NULL'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
         'stock'    => ['location' => 'VARCHAR(80) NULL'],
         'support_chats' => ['rated' => 'TINYINT NOT NULL DEFAULT 0'],

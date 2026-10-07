@@ -73,6 +73,8 @@ require_once APP . '/cleanup.php';
 require_once APP . '/spreadsheet.php';
 require_once APP . '/barcode.php';
 require_once APP . '/licence.php';
+require_once APP . '/reports.php';
+require_once APP . '/security.php';
 require_once APP . '/import.php';
 require_once APP . '/support.php';
 require_once APP . '/pdf.php';

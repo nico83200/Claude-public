@@ -356,7 +356,7 @@ function import_prepare(array $state): array
             'supplier_id' => $supId, 'supplier_text' => $supText, 'supplier_name' => $supId ? ($supNames[$supId] ?? '') : ($supText !== '' ? $supText . ' (nouveau)' : ''),
             'category_id' => $catId, 'category_text' => $catText, 'category_name' => $catId ? ($catNames[$catId] ?? '') : '',
             'category_ai' => $catId && $catText === '' && isset($state['row_categories'][(string)$i]),
-            'status' => 'new', 'existing_id' => null, 'error' => null,
+            'status' => 'new', 'existing_id' => null, 'error' => null, 'old_price' => null, 'price_pct' => null,
         ];
         if (!$supId && $supText === '') {
             [$row['status'], $row['error']] = ['error', 'fournisseur manquant (choisissez un fournisseur par défaut)'];
@@ -371,6 +371,11 @@ function import_prepare(array $state): array
             }
             if ($existing) {
                 [$row['status'], $row['existing_id']] = ['update', $existing];
+                $cur = one('SELECT catalog_price, negotiated_price FROM products WHERE id = ?', [$existing]);
+                $old = $cur ? effective_price($cur) : 0.0;
+                $new = $nego !== null && $nego > 0 ? $nego : (float)$catalog;
+                $row['old_price'] = $old;
+                $row['price_pct'] = $old > 0 ? round(($new / $old - 1) * 100, 1) : null;
             }
             $key = ($supId ?: $supText) . '|' . ($ref ?: import_norm($name));
             if (isset($seen[$key])) {
@@ -386,7 +391,7 @@ function import_prepare(array $state): array
 /** Applique l'import. $selected : lignes cochées ; $updateExisting : mettre à jour les articles déjà présents. */
 function import_apply(array $state, array $selected, bool $updateExisting): array
 {
-    $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'suppliers' => 0, 'categories' => 0];
+    $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'suppliers' => 0, 'categories' => 0, 'increases' => []];
     $rows = import_prepare($state);
     tx(function () use ($rows, $state, $selected, $updateExisting, &$report) {
         $newSup = [];
@@ -433,7 +438,10 @@ function import_apply(array $state, array $selected, bool $updateExisting): arra
                     unset($data['category_id']);
                 }
                 update('products', $data, 'id = ?', [$r['existing_id']]);
-                price_record((int)$r['existing_id'], (float)$data['catalog_price'], $data['negotiated_price'], 'Import fichier');
+                price_record((int)$r['existing_id'], (float)$data['catalog_price'], $data['negotiated_price'], 'Import fichier', false);
+                if ($r['price_pct'] !== null && $r['price_pct'] > price_alert_pct()) {
+                    $report['increases'][] = ['id' => (int)$r['existing_id'], 'name' => $r['name'], 'pct' => $r['price_pct'], 'old' => $r['old_price']];
+                }
                 $report['updated']++;
             } else {
                 $id = insert('products', $data + ['active' => 1, 'created_at' => now()]);
@@ -443,5 +451,12 @@ function import_apply(array $state, array $selected, bool $updateExisting): arra
         }
     });
     q('DELETE FROM ai_cache');
+    // Une seule notification récapitulative pour les hausses au-delà du seuil (au lieu d'une par article)
+    if ($report['increases']) {
+        usort($report['increases'], fn($a, $b) => $b['pct'] <=> $a['pct']);
+        $top = array_slice($report['increases'], 0, 5);
+        notify(admin_ids(), 'price_increase', count($report['increases']) . ' hausse(s) de prix de plus de ' . rtrim(rtrim(number_format(price_alert_pct(), 1, ',', ''), '0'), ',') . ' % à l\'import',
+            implode(' · ', array_map(fn($i) => $i['name'] . ' +' . $i['pct'] . ' %', $top)) . (count($report['increases']) > 5 ? '…' : ''), url('admin/products'));
+    }
     return $report;
 }

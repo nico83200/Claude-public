@@ -29,6 +29,12 @@ function auth_login(): void
                 if (password_needs_rehash($u['password_hash'], PASSWORD_DEFAULT)) {
                     update('users', ['password_hash' => password_hash($password, PASSWORD_DEFAULT)], 'id = ?', [$u['id']]);
                 }
+                if (user_has_2fa($u)) { // deuxième étape : code de l'application d'authentification
+                    session_regenerate_id(true);
+                    $_SESSION['2fa_uid'] = (int)$u['id'];
+                    $_SESSION['2fa_at'] = time();
+                    redirect('login/2fa');
+                }
                 login_record($email, true);
                 login_user($u);
                 redirect($u['role'] === 'admin' ? 'admin' : 'dashboard');
@@ -36,6 +42,33 @@ function auth_login(): void
         }
     }
     render('auth/login', ['error' => $error, 'email' => $email], 'layout_auth');
+}
+
+/** Deuxième étape de connexion : code à 6 chiffres (5 minutes après le mot de passe). */
+function auth_2fa(): void
+{
+    $uid = (int)($_SESSION['2fa_uid'] ?? 0);
+    if (!$uid || (int)($_SESSION['2fa_at'] ?? 0) < time() - 300) {
+        unset($_SESSION['2fa_uid'], $_SESSION['2fa_at']);
+        flash('error', 'Session expirée : reconnectez-vous.');
+        redirect('login');
+    }
+    $u = one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$uid]);
+    $error = null;
+    if ($u && is_post()) {
+        if (login_blocked($u['email'])) {
+            $error = 'Trop de tentatives infructueuses. Réessayez dans 15 minutes.';
+        } elseif (user_totp_verify($u, (string)input('code', ''))) {
+            unset($_SESSION['2fa_uid'], $_SESSION['2fa_at']);
+            login_record($u['email'], true);
+            login_user($u);
+            redirect($u['role'] === 'admin' ? 'admin' : 'dashboard');
+        } else {
+            login_record($u['email'], false);
+            $error = 'Code incorrect. Vérifiez l\'heure de votre téléphone et saisissez le code affiché actuellement.';
+        }
+    }
+    render('auth/login_2fa', ['error' => $error], 'layout_auth');
 }
 
 function auth_register(): void
@@ -102,6 +135,31 @@ function auth_profile(): void
             }
             update('users', ['notify_email' => input('notify_email') === '1' ? 1 : 0, 'notify_prefs' => json_encode($prefs)], 'id = ?', [$u['id']]);
             flash('success', 'Préférences de notification enregistrées.');
+        } elseif ($action === '2fa_start') {
+            $_SESSION['2fa_new'] = base32_encode(random_bytes(20));
+            redirect('profile', ['_' => 'security']);
+        } elseif ($action === '2fa_enable') {
+            $secret = (string)($_SESSION['2fa_new'] ?? '');
+            if ($secret !== '' && ($slot = totp_match($secret, (string)input('code', ''))) !== null) {
+                update('users', ['totp_secret' => encrypt_secret($secret), 'totp_last' => (string)$slot], 'id = ?', [$u['id']]);
+                unset($_SESSION['2fa_new']);
+                audit('Double authentification activée', 'user', (int)$u['id']);
+                flash('success', 'Double authentification activée : un code vous sera demandé à chaque connexion.');
+            } else {
+                flash('error', 'Code incorrect : vérifiez l\'heure de votre téléphone et réessayez.');
+            }
+            redirect('profile', ['_' => 'security']);
+        } elseif ($action === '2fa_disable') {
+            if (admin_2fa_required() && $u['role'] === 'admin') {
+                flash('error', 'La double authentification est obligatoire pour les administrateurs.');
+            } elseif (password_verify((string)($_POST['current'] ?? ''), $u['password_hash']) && user_totp_verify($u, (string)input('code', ''))) {
+                update('users', ['totp_secret' => null, 'totp_last' => null], 'id = ?', [$u['id']]);
+                audit('Double authentification désactivée', 'user', (int)$u['id']);
+                flash('success', 'Double authentification désactivée.');
+            } else {
+                flash('error', 'Mot de passe ou code incorrect.');
+            }
+            redirect('profile', ['_' => 'security']);
         } elseif ($action === 'password') {
             $current = (string)($_POST['current'] ?? '');
             $new = (string)($_POST['new'] ?? '');

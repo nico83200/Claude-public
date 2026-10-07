@@ -180,6 +180,14 @@ function admin_user_edit(): void
     }
     $tempPassword = null;
 
+    // Téléphone perdu : un autre administrateur réinitialise la double authentification
+    if (is_post() && input('action') === 'reset_2fa' && $u && (int)$u['id'] !== (int)$me['id']) {
+        update('users', ['totp_secret' => null, 'totp_last' => null], 'id = ?', [$u['id']]);
+        audit('Double authentification réinitialisée', 'user', (int)$u['id'], $u['email']);
+        flash('success', 'Double authentification réinitialisée : ' . $u['first_name'] . ' pourra la reconfigurer depuis son profil.');
+        redirect('admin/user', ['id' => $u['id']]);
+    }
+
     if (is_post()) {
         $data = [
             'first_name' => (string)input('first_name'),
@@ -367,6 +375,7 @@ function admin_settings(): void
             set_setting('billing_info', (string)input('billing_info'));
             set_setting('show_prices', input('show_prices') === '1' ? '1' : '0');
             set_setting('allow_registration', input('allow_registration') === '1' ? '1' : '0');
+            set_setting('admin_2fa_required', input('admin_2fa_required') === '1' ? '1' : '0');
             set_setting('ai_enabled', input('ai_enabled') === '1' ? '1' : '0');
             // Clé API Anthropic : chiffrée en base, jamais réaffichée en clair
             $newKey = trim((string)($_POST['ai_api_key'] ?? ''));

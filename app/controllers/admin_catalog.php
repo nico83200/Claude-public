@@ -337,6 +337,9 @@ function admin_products_import(): void
     }
 
     if (is_post() && $step === 'preview' && $state) {
+        if (is_numeric(input('price_alert_pct'))) {
+            set_setting('price_alert_pct', (string)max(0, min(100, (float)input('price_alert_pct'))));
+        }
         // Corrections de l'acheteur : fournisseurs, catégories (valeurs du fichier puis article par article)
         foreach ((array)($_POST['sup'] ?? []) as $k => $id) {
             $v = $state['supplier_values'][(int)$k] ?? null;
@@ -364,6 +367,7 @@ function admin_products_import(): void
         }
         $selected = array_flip(array_map('intval', (array)($_POST['rows'] ?? [])));
         $report = import_apply($state, $selected, input('update_existing') === '1');
+        $inc = $report['increases'];
         @unlink(import_dir() . '/' . $state['token'] . '.json');
         audit('Import d\'articles', 'product', null, $state['file'] . ' : ' . $report['created'] . ' créés, ' . $report['updated'] . ' mis à jour');
         flash('success', sprintf('Import terminé : %s, %s%s%s%s.',
@@ -371,6 +375,10 @@ function admin_products_import(): void
             $report['skipped'] ? ', ' . plural($report['skipped'], 'ligne ignorée', 'lignes ignorées') : '',
             $report['suppliers'] ? ', ' . plural($report['suppliers'], 'fournisseur créé', 'fournisseurs créés') : '',
             $report['categories'] ? ', ' . plural($report['categories'], 'catégorie créée', 'catégories créées') : ''));
+        if ($inc) {
+            flash('error', plural(count($inc), 'hausse de prix', 'hausses de prix') . ' de plus de ' . price_alert_pct() . ' % : '
+                . implode(', ', array_map(fn($i) => $i['name'] . ' (+' . $i['pct'] . ' %)', array_slice($inc, 0, 6))) . (count($inc) > 6 ? '…' : '') . '. Pensez à comparer avec les autres fournisseurs (Comparateur).');
+        }
         redirect('admin/products');
     }
 

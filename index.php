@@ -12,6 +12,7 @@ $routes = [
     'forgot'                => ['auth', 'auth_forgot'],
     'reset'                 => ['auth', 'auth_reset'],
     'profile'               => ['auth', 'auth_profile'],
+    'login/2fa'             => ['auth', 'auth_2fa'],
 
     // Espace salarié (par centre)
     'dashboard'             => ['user', 'user_dashboard'],
@@ -67,6 +68,9 @@ $routes = [
 
     // Espace administrateur
     'admin'                 => ['admin_dashboard', 'admin_dashboard'],
+    'admin/direction'       => ['admin_dashboard', 'admin_direction'],
+    'admin/rgpd'            => ['admin_dashboard', 'admin_rgpd'],
+    'admin/direction/pdf'   => ['admin_dashboard', 'admin_direction_pdf'],
     'admin/requests'        => ['admin_orders', 'admin_requests'],
     'admin/requests/transfer' => ['admin_orders', 'admin_request_transfer'],
     'admin/requests/refuse' => ['admin_orders', 'admin_refuse_line'],
@@ -111,6 +115,7 @@ $routes = [
     'admin/order/send'      => ['admin_purchasing', 'admin_order_send'],
     'admin/order/invoice'   => ['admin_purchasing', 'admin_order_invoice'],
     'admin/order/invoice-file' => ['admin_purchasing', 'admin_order_invoice_file'],
+    'admin/order/invoice-ai' => ['admin_purchasing', 'admin_order_invoice_ai'],
     'admin/invoices'        => ['admin_purchasing', 'admin_invoices'],
     'admin/exports'         => ['admin_purchasing', 'admin_exports'],
     'admin/exports/download' => ['admin_purchasing', 'admin_exports_download'],
@@ -145,6 +150,12 @@ if (user() && licence_blocked() && !in_array($route, ['logout', 'support', 'api/
     http_response_code(403);
     render('licence_blocked', ['title' => 'Accès suspendu', 'notice' => licence_notice()], 'layout_auth');
     exit;
+}
+
+// Double authentification exigée des administrateurs : configuration obligatoire avant toute autre page
+if (is_admin() && admin_2fa_required() && !user_has_2fa(user()) && !in_array($route, ['profile', 'logout'], true)) {
+    flash('info', 'Par sécurité, la double authentification est obligatoire pour les administrateurs : configurez-la ci-dessous (2 minutes).');
+    redirect('profile', ['_' => 'security']);
 }
 
 // Tâches de fond (e-mails, rappels, sauvegarde) exécutées après l'envoi de la page

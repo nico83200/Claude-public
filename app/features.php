@@ -87,7 +87,7 @@ function password_reset_find(string $token): ?array
 
 // ---------------------------------------------------------------- Historique des prix
 
-function price_record(int $productId, float $catalog, ?float $negotiated, string $source): void
+function price_record(int $productId, float $catalog, ?float $negotiated, string $source, bool $notify = true): void
 {
     $last = one('SELECT * FROM price_history WHERE product_id = ? ORDER BY created_at DESC, id DESC LIMIT 1', [$productId]);
     $same = $last && abs((float)$last['catalog_price'] - $catalog) < 0.001
@@ -103,13 +103,19 @@ function price_record(int $productId, float $catalog, ?float $negotiated, string
     if ($last) {
         $old = ($last['negotiated_price'] !== null && (float)$last['negotiated_price'] > 0) ? (float)$last['negotiated_price'] : (float)$last['catalog_price'];
         $new = ($negotiated !== null && $negotiated > 0) ? $negotiated : $catalog;
-        if ($old > 0 && $new > $old * 1.005) {
+        if ($notify && $old > 0 && $new > $old * 1.005) {
             $p = one('SELECT p.name, s.name AS supplier_name FROM products p JOIN suppliers s ON s.id = p.supplier_id WHERE p.id = ?', [$productId]);
             notify(admin_ids(), 'price_increase', 'Hausse de prix : ' . $p['name'],
                 $p['supplier_name'] . ' : ' . money($old) . ' → ' . money($new) . ' (+' . round(($new / $old - 1) * 100, 1) . ' %).',
                 url('admin/product', ['id' => $productId]));
         }
     }
+}
+
+/** Seuil (en %) au-delà duquel une hausse de prix est signalée lors d'un import de tarifs. */
+function price_alert_pct(): float
+{
+    return max(0.0, (float)setting('price_alert_pct', '5'));
 }
 
 /** Hausses de prix récentes (prix appliqué supérieur au précédent). */
@@ -373,6 +379,48 @@ function invoices_dir(): string
 }
 
 /** Enregistre un justificatif de facture (PDF ou image) hors de la zone web. */
+/**
+ * Lecture d'une facture (PDF ou photo) par l'assistant IA : numéro, date, montants, lignes.
+ * Le résultat est comparé au bon de commande ; l'administrateur valide avant enregistrement.
+ */
+function invoice_ai_read(string $path, array $po): ?array
+{
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
+    $data = base64_encode((string)file_get_contents($path));
+    $block = $mime === 'application/pdf'
+        ? ['type' => 'document', 'source' => ['type' => 'base64', 'mediaType' => 'application/pdf', 'data' => $data]]
+        : (in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) ? ['type' => 'image', 'source' => ['type' => 'base64', 'mediaType' => $mime, 'data' => $data]] : null);
+    if (!$block) {
+        ai_last_error('Format non pris en charge (PDF, JPG, PNG, WebP).');
+        return null;
+    }
+    $lines = all('SELECT label, reference, qty, qty_received, unit_price FROM purchase_order_lines WHERE purchase_order_id = ?', [$po['id']]);
+    $expected = implode("\n", array_map(fn($l) => '- ' . $l['label'] . ($l['reference'] ? ' (réf. ' . $l['reference'] . ')' : '') . ' : commandé ' . $l['qty'] . ', reçu ' . $l['qty_received'] . ', ' . number_format((float)$l['unit_price'], 2, ',', '') . ' € HT', $lines));
+    $schema = [
+        'type' => 'object', 'additionalProperties' => false,
+        'required' => ['is_invoice', 'supplier_name', 'invoice_number', 'invoice_date', 'total_ht', 'total_ttc', 'shipping_ht', 'lines', 'remarks'],
+        'properties' => [
+            'is_invoice' => ['type' => 'boolean'],
+            'supplier_name' => ['type' => 'string'],
+            'invoice_number' => ['type' => 'string'],
+            'invoice_date' => ['type' => 'string', 'description' => 'AAAA-MM-JJ, vide si absente'],
+            'total_ht' => ['type' => ['number', 'null']],
+            'total_ttc' => ['type' => ['number', 'null']],
+            'shipping_ht' => ['type' => ['number', 'null']],
+            'lines' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false, 'required' => ['label', 'qty', 'unit_price_ht', 'matches_order'],
+                'properties' => ['label' => ['type' => 'string'], 'qty' => ['type' => ['number', 'null']], 'unit_price_ht' => ['type' => ['number', 'null']],
+                    'matches_order' => ['type' => 'string', 'description' => 'libellé de la ligne du bon correspondante, ou vide si absente du bon']]]],
+            'remarks' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'écarts constatés avec le bon (prix, quantités, articles non commandés), en français, phrases courtes'],
+        ],
+    ];
+    return ai_json(
+        'Tu lis des factures fournisseurs pour le service achats d\'un groupe de centres de santé. Extrais fidèlement les informations de la facture, '
+        . 'montants hors taxes en euros (nombres, point décimal). Compare ensuite avec le bon de commande fourni et liste les écarts concrets. N\'invente rien : laisse vide ou null si illisible.',
+        [$block, ['type' => 'text', 'text' => 'Bon de commande ' . $po['po_number'] . ' (fournisseur : ' . ($po['supplier_name'] ?? '') . ', frais de port ' . number_format((float)$po['shipping_fee'], 2, ',', '') . " € HT) :\n" . $expected . "\n\nLis la facture jointe."]],
+        $schema, 6000, 90
+    );
+}
+
 function handle_invoice_upload(string $field): ?string
 {
     if (empty($_FILES[$field]) || $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {

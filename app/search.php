@@ -329,7 +329,7 @@ function ai_error_message(Throwable $e): string
  * Appel à Claude avec réponse JSON structurée (schéma imposé). Renvoie le tableau décodé,
  * ou null en cas d'échec (cause lisible via ai_last_error()). Le prompt système est mis en cache.
  */
-function ai_json(string $system, string $user, array $schema, int $maxTokens = 8000, int $timeout = 60): ?array
+function ai_json(string $system, string|array $user, array $schema, int $maxTokens = 8000, int $timeout = 60): ?array
 {
     ai_last_error('');
     if (!ai_available()) {

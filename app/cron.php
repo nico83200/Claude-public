@@ -18,6 +18,7 @@ const CRON_TASKS = [
     'support'   => ['label' => 'Réponses de l\'assistance NLapps',    'every' => 120],
     'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 21600],
     'cycle'     => ['label' => 'Inventaire tournant de la semaine',   'every' => 21600],
+    'report'    => ['label' => 'Rapport achats mensuel (PDF)',        'every' => 21600],
 ];
 
 function cron_last(string $task): int
@@ -49,6 +50,7 @@ function cron_run(bool $force = false): array
                     'cleanup' => cron_cleanup(),
                     'support' => support_sync(),
                     'cycle' => cron_cycle_count(),
+                    'report' => (report_monthly_run() ? 'rapport créé' : 'à jour'),
                     'licence' => licence_managed() ? (licence_check(true)['status'] ?? '?') : 'sans clé NLapps',
                 };
                 set_setting('cron_last_' . $task, (string)time());
