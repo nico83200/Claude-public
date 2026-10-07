@@ -664,3 +664,4 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .stock-place-loc { font-size: 1.25rem; font-weight: 700; color: var(--primary, #6366f1); line-height: 1.25; word-break: break-word; }
 .stock-place-qty { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
 .quick-loc { font-weight: 600; margin-top: .25rem; }
+.stock-cell { white-space: nowrap; }

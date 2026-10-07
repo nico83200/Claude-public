@@ -58,7 +58,7 @@
         <button class="btn btn-primary btn-sm" type="submit" <?= !$reached ? 'data-confirm="Le minimum de commande n\'est pas atteint. Créer le bon quand même ?"' : '' ?>><?= icon('file', 16) ?> Créer le bon de commande</button>
       </div>
       <div class="table-wrap"><table class="table">
-        <thead><tr><th style="width:36px"><input type="checkbox" checked data-toggle-all></th><th>Article</th><th>Demandeur</th><th class="num">Qté</th><th class="num">Prix u.</th><th class="num">Total</th><th></th></tr></thead>
+        <thead><tr><th style="width:36px"><input type="checkbox" checked data-toggle-all></th><th>Article</th><th>Demandeur</th><th class="num" title="Stock disponible dans le centre (articles suivis en stock)">Stock centre</th><th class="num">Qté</th><th class="num">Prix u.</th><th class="num">Total</th><th></th></tr></thead>
         <tbody>
         <?php foreach ($g['lines'] as $l): ?>
           <tr>
@@ -68,7 +68,17 @@
                 <div><button class="btn btn-sm btn-ghost" style="padding:.15rem .4rem;color:#047857" type="submit" formaction="<?= url('admin/requests/switch', ['line_id' => $l['id'], 'product_id' => $eq['id']]) ?>" formnovalidate title="Basculer vers l'équivalent">
                   <?= icon('sparkles', 13) ?> Moins cher chez <?= e($eq['supplier_name']) ?> : <?= money(effective_price($eq)) ?> (−<?= money($eq['saving'] * $l['qty']) ?>)</button></div>
               <?php endif; ?></div></div></td>
-            <td><div><?= e($l['first_name'] . ' ' . $l['last_name']) ?> <?= $l['urgent'] ? '<span class="badge badge-red">Urgent</span>' : '' ?></div><small><?= e($l['job']) ?> · <?= date_fr($l['created_at']) ?></small><?php if ($l['request_comment']): ?><div><small class="muted" title="Commentaire de la demande">💬 <?= e($l['request_comment']) ?></small></div><?php endif; ?></td>
+            <td style="min-width:160px"><div><?= e($l['first_name'] . ' ' . $l['last_name']) ?> <?= $l['urgent'] ? '<span class="badge badge-red">Urgent</span>' : '' ?></div><small><?= e($l['job']) ?> · <?= date_fr($l['created_at']) ?></small><?php if ($l['request_comment']): ?><div><small class="muted" title="Commentaire de la demande">💬 <?= e($l['request_comment']) ?></small></div><?php endif; ?></td>
+            <td class="num stock-cell">
+              <?php if ($l['stock_qty'] === null): ?><small class="muted" title="Article non suivi en stock dans ce centre">—</small>
+              <?php else: $sq = (int)$l['stock_qty']; $sa = (int)$l['stock_alert']; ?>
+                <a class="strong" href="<?= url('stock/history', ['c' => $l['center_id'], 'product_id' => $l['product_id']]) ?>" style="color:<?= $sq === 0 ? 'var(--red)' : ($sa > 0 && $sq <= $sa ? '#d97706' : 'inherit') ?>" title="<?= e(($l['stock_location'] ? 'Rangé : ' . $l['stock_location'] . ' · ' : '') . 'voir les mouvements') ?>"><?= $sq ?></a>
+                <?php if ($sq === 0): ?><div><span class="badge badge-red">Rupture</span></div>
+                <?php elseif ($sa > 0 && $sq <= $sa): ?><div><span class="badge badge-amber">Sous le seuil (<?= $sa ?>)</span></div>
+                <?php elseif ($sq >= (int)$l['qty']): ?><div><span class="badge badge-green" title="Le stock du centre couvre déjà la quantité demandée">Couvre la demande</span></div><?php endif; ?>
+                <?php if ((int)$l['stock_on_order'] > 0): ?><div><small class="muted">+<?= (int)$l['stock_on_order'] ?> en commande</small></div><?php endif; ?>
+              <?php endif; ?>
+            </td>
             <td class="num"><?= (int)$l['qty'] ?></td>
             <td class="num"><?= money($l['unit_price']) ?></td>
             <td class="num strong"><?= money($l['qty'] * $l['unit_price']) ?></td>

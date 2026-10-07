@@ -339,13 +339,17 @@ function pending_groups(?int $centerFilter = null): array
     $sql = "SELECT rl.*, p.name AS product_name, p.reference, p.unit, p.image,
                    s.name AS supplier_name, s.color AS supplier_color, s.min_order_amount, s.free_shipping_from, s.shipping_fee,
                    c.name AS center_name, c.color AS center_color,
-                   u.first_name, u.last_name, u.job, r.urgent, r.comment AS request_comment
+                   u.first_name, u.last_name, u.job, r.urgent, r.comment AS request_comment,
+                   st.qty AS stock_qty, st.alert_qty AS stock_alert, st.location AS stock_location,
+                   (SELECT COALESCE(SUM(pl.qty - pl.qty_received), 0) FROM purchase_order_lines pl JOIN purchase_orders po ON po.id = pl.purchase_order_id
+                     WHERE po.center_id = rl.center_id AND pl.product_id = rl.product_id AND po.status IN ('a_commander','commande','partiel')) AS stock_on_order
             FROM request_lines rl
             JOIN products p ON p.id = rl.product_id
             JOIN suppliers s ON s.id = rl.supplier_id
             JOIN centers c ON c.id = rl.center_id
             JOIN requests r ON r.id = rl.request_id
             JOIN users u ON u.id = r.user_id
+            LEFT JOIN stock st ON st.center_id = rl.center_id AND st.product_id = rl.product_id
             WHERE rl.status = 'pending'";
     $params = [];
     if ($centerFilter) {

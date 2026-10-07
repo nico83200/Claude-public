@@ -171,6 +171,18 @@ stock_set_location($c1, $pid('THERM-IR'), '');
 check(stock_row($c1, $pid('THERM-IR'))['location'] === null, 'emplacement effacé');
 stock_set_location($c1, $pid('THERM-IR'), 'Réserve 1 · étagère B2');
 
+section('Stock du centre dans les demandes à traiter');
+$sp3 = (int)val('SELECT id FROM products WHERE id NOT IN (SELECT product_id FROM stock) AND active = 1 ORDER BY id LIMIT 1');
+$u3 = as_user('claire.secretaire@demo.fr');
+cart_add((int)$u3['id'], $c1, $sp3, 2);
+cart_submit((int)$u3['id'], $c1, '', false);
+as_user('admin@test.fr');
+$findLine = function () use ($sp3, $c1) { foreach (pending_groups($c1) as $g) { foreach ($g['lines'] as $l) { if ((int)$l['product_id'] === $sp3) return $l; } } return null; };
+check(($l3 = $findLine()) && $l3['stock_qty'] === null, 'article non suivi : pas de stock affiché');
+stock_move($c1, $sp3, 5, 'ajout');
+stock_set_alert($c1, $sp3, 2);
+check(($l3 = $findLine()) && (int)$l3['stock_qty'] === 5 && (int)$l3['stock_alert'] === 2, 'article suivi : stock et seuil du centre joints à la ligne');
+
 section('Factures');
 $po2 = one('SELECT * FROM purchase_orders WHERE id = ?', [$po]);
 $expected = invoice_check($po2)['expected'];

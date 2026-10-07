@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.11.1
+- **Demandes à traiter : stock du centre** pour chaque article suivi en stock dans le centre demandeur (colonne « Stock centre ») : quantité disponible, repères « Rupture », « Sous le seuil » ou « Couvre la demande », quantité déjà en commande, emplacement au survol et lien vers l'historique des mouvements. « — » pour les articles non suivis.
+
 ## 1.11.0
 - **Étiquettes d'étagère** pour la salle de stock : nom de l'article, fournisseur, référence, conditionnement, emplacement et **code-barres scannable** (EAN-13 / EAN-8 de l'article, ou Code 128 de sa référence ; vérifiés avec le lecteur de l'application). Bouton « Imprimer l'étiquette » sur la fiche article (et dans la fiche admin), « Étiquettes » dans l'inventaire (tous les articles suivis du centre) et dans la sélection multiple de la liste des articles.
   - Formats : planches A4 de 24 (70 × 37 mm), 14 (99 × 38 mm) ou 8 grandes étiquettes (105 × 74 mm), rouleaux 100 × 50 mm et 62 × 29 mm (imprimantes d'étiquettes Brother, Dymo…).
