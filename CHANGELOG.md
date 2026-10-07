@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.7.3
+- Affichage sur smartphone : l'icône du panier n'est plus coupée (nom du centre tronqué si nécessaire) et plus aucune page ne déborde en largeur (colonnes, boutons, onglets et liens longs s'adaptent).
+
 ## 1.7.2
 - Correctif : après une mise à jour, le navigateur pouvait continuer d'utiliser d'anciennes feuilles de style et d'anciens scripts gardés par l'application installable (service worker). Styles et scripts sont désormais toujours chargés depuis le serveur, les anciens caches sont supprimés et les pages ouvertes rechargées automatiquement. Le service worker n'est plus mis en cache par le serveur.
 

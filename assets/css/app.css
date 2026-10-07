@@ -585,3 +585,23 @@ details.send-block[open] > summary { margin-bottom: .4rem; }
 .method-opt input:checked + span { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--surface)); color: var(--primary); }
 .method-opt input:focus-visible + span { outline: 2px solid var(--primary); outline-offset: 2px; }
 @media (max-width: 640px) { .method-choice { grid-template-columns: 1fr; } }
+
+/* Petit écran : le nom du centre est tronqué pour laisser la place aux icônes (panier, notifications) */
+@media (max-width: 560px) {
+  .topbar { gap: .4rem; }
+  .topbar-actions { min-width: 0; gap: .25rem; }
+  .topbar-actions > .badge { min-width: 0; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+}
+/* Les colonnes de grille peuvent rétrécir sous la largeur de leur contenu (sinon débordement horizontal sur mobile) */
+.grid > *, .stack > * { min-width: 0; }
+@media (max-width: 560px) {
+  .list li, .row, .card-foot { flex-wrap: wrap; }
+  .card-head { flex-wrap: wrap; gap: .5rem; }
+  .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .tabs > * { flex-shrink: 0; }
+  .badge { white-space: normal; }
+  .flash, .group-head, .logo-setting { flex-wrap: wrap; }
+  .btn { white-space: normal; max-width: 100%; }
+  .card-body a, .flash a { overflow-wrap: anywhere; }
+  .row > * { min-width: 0; max-width: 100%; }
+}
