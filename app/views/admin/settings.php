@@ -1,4 +1,4 @@
-<h1 class="mb-2">Paramètres</h1>
+<div class="page-head"><h1>Paramètres</h1><a class="btn" href="<?= url('admin/rgpd') ?>"><?= icon('lock', 18) ?> Fiche RGPD et sécurité</a></div>
 <?php if ($test): ?><div class="flash flash-<?= $test['ok'] ? 'success' : 'error' ?>"><?= icon($test['ok'] ? 'sparkles' : 'alert') ?><div><?= e($test['msg']) ?></div></div><?php endif; ?>
 <div class="grid grid-2">
   <form method="post" class="card" enctype="multipart/form-data">
@@ -23,6 +23,7 @@
       <div class="field"><label>Message d'accueil des centres</label><input type="text" name="welcome_message" value="<?= e(setting('welcome_message')) ?>" placeholder="De quoi avez-vous besoin aujourd'hui ?"></div>
       <label class="check"><input type="checkbox" name="show_prices" value="1" <?= setting('show_prices', '1') === '1' ? 'checked' : '' ?>> Afficher les prix aux salariés</label>
       <label class="check"><input type="checkbox" name="allow_registration" value="1" <?= setting('allow_registration', '1') === '1' ? 'checked' : '' ?>> Autoriser les demandes de compte en ligne</label>
+      <label class="check"><input type="checkbox" name="admin_2fa_required" value="1" <?= admin_2fa_required() ? 'checked' : '' ?>> Exiger la double authentification pour les administrateurs</label>
       <hr>
       <h3><?= icon('activity', 18) ?> Règles de gestion</h3>
       <div class="form-grid">

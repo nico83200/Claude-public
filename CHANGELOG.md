@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.14.0
+- **Tableau de bord direction** (menu *Direction*) : dépenses engagées, économies obtenues grâce aux tarifs négociés, nombre de bons et panier moyen, valeur des stocks, comparaison avec la période précédente ; dépenses mensuelles sur 12 mois ; répartition par centre, catégorie, fournisseur et articles les plus achetés ; suivi des budgets. Filtres par période et par centre.
+- **Rapport PDF mensuel** créé automatiquement chaque début de mois, téléchargeable et envoyé par e-mail aux destinataires choisis (direction, DAF).
+- **Lecture des factures par l'IA** (option assistant IA) : depuis le bon de commande, « Lire la facture avec l'IA » reconnaît le numéro, la date et le montant HT d'une facture PDF ou photo, pré-remplit le formulaire et signale les écarts avec le bon (prix, quantités, articles non commandés).
+- **Alerte hausse de prix à l'import** : l'aperçu affiche la variation de prix de chaque article mis à jour, signale en rouge les hausses au-delà d'un seuil réglable (5 % par défaut) avec un bouton pour ne pas les importer ; un seul récapitulatif est notifié aux administrateurs.
+- **Double authentification** (code à 6 chiffres, Google Authenticator, Microsoft Authenticator, Authy…) depuis « Mon profil » ; peut être rendue obligatoire pour les administrateurs (Paramètres) ; réinitialisation par un autre administrateur en cas de téléphone perdu.
+- **Fiche RGPD et sécurité** (Paramètres) : document prêt à imprimer ou enregistrer en PDF pour la direction ou le DPO, établi d'après la configuration réelle (données traitées, absence de données patient donc pas d'hébergement HDS requis, durées de conservation, sous-traitants, mesures de sécurité).
+
 ## 1.13.0
 - **Réapprovisionnement automatique** : dès qu'un article suivi passe sous son seuil d'alerte, une demande est créée dans « Demandes à traiter » (quantité = double du seuil, déduction faite de ce qui est déjà en commande ; urgente en cas de rupture ; jamais en double). Activable / désactivable dans *Stocks des centres*.
 - **Seuils conseillés** dans l'inventaire : consommation des 90 derniers jours × (délai du fournisseur + 7 jours de sécurité). Un clic sur « conseillé : n » reprend la valeur ; « Appliquer les seuils conseillés » les met tous à jour.

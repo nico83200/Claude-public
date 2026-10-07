@@ -25,6 +25,33 @@
     </div>
     <div class="card-foot"><button class="btn btn-primary" type="submit">Changer le mot de passe</button></div>
   </form>
+  <div class="card" id="security" style="grid-column:1/-1">
+    <div class="card-head"><h2><?= icon('lock') ?> Double authentification</h2><?= user_has_2fa($u) ? '<span class="badge badge-green">Activée</span>' : '<span class="badge badge-amber">Désactivée</span>' ?></div>
+    <div class="card-body">
+      <?php if (user_has_2fa($u)): ?>
+        <p class="muted" style="margin-top:0">Un code de votre application d'authentification est demandé à chaque connexion.</p>
+        <?php if (!(admin_2fa_required() && $u['role'] === 'admin')): ?>
+        <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="action" value="2fa_disable">
+          <input type="password" name="current" placeholder="Mot de passe" required autocomplete="current-password" style="max-width:220px">
+          <input type="text" name="code" placeholder="Code à 6 chiffres" inputmode="numeric" autocomplete="one-time-code" required style="max-width:180px">
+          <button class="btn btn-danger" type="submit">Désactiver</button></form>
+        <?php endif; ?>
+      <?php elseif (!empty($_SESSION['2fa_new'])): $secret = $_SESSION['2fa_new']; ?>
+        <div class="row" style="align-items:flex-start;gap:1.5rem">
+          <div data-qr="<?= e(totp_uri($secret, $u['email'])) ?>" class="qr-box"></div>
+          <div style="flex:1;min-width:240px">
+            <p style="margin-top:0">1. Dans <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong> ou <strong>Authy</strong>, ajoutez un compte en scannant ce QR code (ou saisissez la clé <code><?= e(trim(chunk_split($secret, 4, ' '))) ?></code>).</p>
+            <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="action" value="2fa_enable">
+              <span>2. Code affiché :</span><input type="text" name="code" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" required style="max-width:160px" autofocus>
+              <button class="btn btn-primary" type="submit"><?= icon('check', 16) ?> Activer</button></form>
+          </div>
+        </div>
+      <?php else: ?>
+        <p class="muted" style="margin-top:0">Protégez votre compte : en plus du mot de passe, un code à 6 chiffres généré par une application sur votre téléphone vous sera demandé à la connexion.<?= $u['role'] === 'admin' ? ' Fortement conseillé pour les administrateurs.' : '' ?></p>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="2fa_start"><button class="btn btn-primary" type="submit"><?= icon('lock', 16) ?> Configurer</button></form>
+      <?php endif; ?>
+    </div>
+  </div>
   <form method="post" class="card" style="grid-column:1/-1">
     <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications</h2></div>

@@ -932,3 +932,48 @@ document.addEventListener('click', async (e) => {
   });
 })();
 
+// Import : décocher d'un clic les lignes en forte hausse de prix
+(function () {
+  const b = document.querySelector('[data-uncheck-hikes]');
+  if (!b) return;
+  b.addEventListener('click', () => {
+    document.querySelectorAll('input[data-hike]').forEach((c) => { c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); });
+    b.textContent = 'Hausses décochées ✓';
+  });
+})();
+
+// Facture : lecture par l'IA (numéro, date, montant HT) et écarts avec le bon de commande
+(function () {
+  const btn = document.querySelector('[data-invoice-ai]');
+  if (!btn) return;
+  const form = btn.closest('form'), out = form.querySelector('[data-invoice-ai-result]');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  btn.addEventListener('click', async () => {
+    const fd = new FormData(form);
+    const old = btn.innerHTML; btn.disabled = true; btn.textContent = 'Lecture de la facture…';
+    out.innerHTML = '';
+    let r;
+    try { r = await (await fetch(btn.dataset.invoiceAi, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'fetch' } })).json(); }
+    catch (e) { r = { error: 'Lecture impossible pour le moment.' }; }
+    btn.disabled = false; btn.innerHTML = old;
+    if (r.error) { out.innerHTML = '<div class="flash flash-error" style="font-size:.85rem"><div>' + esc(r.error) + '</div></div>'; return; }
+    for (const k of ['invoice_number', 'invoice_date', 'invoice_amount']) { const f = form.querySelector('[name=' + k + ']'); if (f && r[k]) { f.value = r[k]; f.classList.add('ai-filled'); } }
+    const ok = r.check && r.check.status === 'ok';
+    out.innerHTML = '<div class="flash ' + (r.check && !ok ? 'flash-error' : 'flash-success') + '" style="font-size:.85rem"><div><strong>'
+      + (r.check ? (ok ? 'Montant conforme aux marchandises reçues' : 'Écart de ' + esc(r.check.diff) + ' (attendu ' + esc(r.check.expected) + ')') : 'Montant HT non lu')
+      + '</strong>' + (r.supplier ? '<br><small>Fournisseur lu : ' + esc(r.supplier) + (r.total_ttc ? ' · TTC ' + esc(String(r.total_ttc).replace('.', ',')) + ' €' : '') + '</small>' : '')
+      + (r.remarks && r.remarks.length ? '<ul style="margin:.4rem 0 0;padding-left:1.1rem">' + r.remarks.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '')
+      + '<br><small class="muted">Champs pré-remplis : vérifiez puis « Enregistrer et rapprocher ».</small></div></div>';
+  });
+})();
+
+// Profil : QR code de configuration de la double authentification
+(function () {
+  const qr = document.querySelector('[data-qr]');
+  if (!qr) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  s.onload = () => new window.QRCode(qr, { text: qr.dataset.qr, width: 180, height: 180, correctLevel: window.QRCode.CorrectLevel.M });
+  document.head.appendChild(s);
+})();
+

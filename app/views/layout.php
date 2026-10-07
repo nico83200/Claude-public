@@ -75,6 +75,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <?php if (is_admin()): ?>
       <div class="nav-title">Service achats</div>
       <a class="<?= $active('admin') ?>" href="<?= url('admin') ?>"><?= icon('chart') ?> Pilotage</a>
+      <a class="<?= $active('admin/direction') ?>" href="<?= url('admin/direction') ?>"><?= icon('euro') ?> Direction</a>
       <a class="<?= $active('admin/requests') ?>" href="<?= url('admin/requests') ?>"><?= icon('inbox') ?> Demandes à traiter <?php if ($pendingN): ?><span class="count"><?= $pendingN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/orders', 'admin/order') ?>" href="<?= url('admin/orders', ['status' => 'open']) ?>"><?= icon('file') ?> Bons de commande <?php if ($toOrderN): ?><span class="count soft"><?= $toOrderN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/suggestions', 'admin/suggestion') ?>" href="<?= url('admin/suggestions') ?>"><?= icon('sparkles') ?> Articles proposés <?php if ($suggN): ?><span class="count"><?= $suggN ?></span><?php endif; ?></a>

@@ -165,6 +165,10 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
         <div class="field"><label>Montant HT facturé (€)</label><input type="text" name="invoice_amount" value="<?= $po['invoice_amount'] !== null ? e(number_format((float)$po['invoice_amount'], 2, ',', '')) : '' ?>" inputmode="decimal" placeholder="<?= e(number_format($inv['expected'], 2, ',', '')) ?>"></div>
         <div class="field"><label>Justificatif (PDF ou photo)</label><input type="file" name="invoice_file" accept="application/pdf,image/*">
           <?php if ($po['invoice_file']): ?><small><a href="<?= url('admin/order/invoice-file', ['id' => $po['id']]) ?>" target="_blank"><?= icon('file', 13) ?> Voir la facture enregistrée</a></small><?php endif; ?></div>
+        <?php if (ai_available()): ?>
+          <button class="btn btn-sm mb-1" type="button" data-invoice-ai="<?= url('admin/order/invoice-ai', ['id' => $po['id']]) ?>" title="L'IA lit le numéro, la date, les montants et compare avec le bon"><?= icon('sparkles', 15) ?> Lire la facture avec l'IA</button>
+          <div data-invoice-ai-result></div>
+        <?php endif; ?>
         <button class="btn btn-primary" type="submit"><?= icon('check', 16) ?> Enregistrer et rapprocher</button>
       </div>
     </form>

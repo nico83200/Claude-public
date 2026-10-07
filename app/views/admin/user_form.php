@@ -37,6 +37,15 @@
     </div>
   </div>
 </form>
+<?php if (!empty($u['id']) && (int)$u['id'] !== $me && user_has_2fa($u)): ?>
+<form method="post" class="card card-body mt-2">
+  <?= csrf_field() ?><input type="hidden" name="action" value="reset_2fa">
+  <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div><strong><?= icon('lock', 16) ?> Double authentification activée</strong><br><small class="muted">Si l'utilisateur a perdu son téléphone, réinitialisez-la : il se connectera avec son seul mot de passe puis la reconfigurera.</small></div>
+    <button class="btn" type="submit" data-confirm="Réinitialiser la double authentification de ce compte ?">Réinitialiser</button>
+  </div>
+</form>
+<?php endif; ?>
 <?php if (!empty($u['id']) && (int)$u['id'] !== $me): ?>
 <form method="post" action="<?= url('admin/users/delete') ?>" class="card card-body mt-2 danger-zone">
   <?= csrf_field() ?><input type="hidden" name="ids[]" value="<?= (int)$u['id'] ?>">
