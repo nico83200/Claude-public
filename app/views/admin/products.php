@@ -18,11 +18,19 @@
 </form>
 <div class="card">
   <?php if ($products): ?>
+  <form method="post" action="<?= url('admin/products/delete') ?>" id="products-bulk">
+    <?= csrf_field() ?><input type="hidden" name="state" value="<?= e($state) ?>">
+    <div class="bulk-bar" id="bulk-bar" hidden>
+      <span><strong data-bulk-count>0</strong> article(s) sélectionné(s)</span>
+      <button class="btn btn-sm btn-danger" type="submit" data-confirm="Supprimer les articles sélectionnés ? Ceux qui figurent déjà dans des demandes ou des bons de commande seront seulement masqués."><?= icon('trash', 16) ?> Supprimer la sélection</button>
+    </div>
+  </form>
   <div class="table-wrap"><table class="table">
-    <thead><tr><th></th><th>Article</th><th>Fournisseur</th><th>Catégorie</th><th class="num">Tarif catalogue</th><th class="num">Tarif négocié</th><th class="num">Remise</th><th></th></tr></thead>
+    <thead><tr><th class="col-check"><input type="checkbox" form="products-bulk" data-check-all="ids[]" aria-label="Tout sélectionner"></th><th></th><th>Article</th><th>Fournisseur</th><th>Catégorie</th><th class="num">Tarif catalogue</th><th class="num">Tarif négocié</th><th class="num">Remise</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($products as $p): $neg = $p['negotiated_price'] !== null && (float)$p['negotiated_price'] > 0; ?>
       <tr class="<?= $p['active'] ? '' : 'is-done' ?>">
+        <td class="col-check"><input type="checkbox" form="products-bulk" name="ids[]" value="<?= (int)$p['id'] ?>" aria-label="Sélectionner <?= e($p['name']) ?>"></td>
         <td style="width:52px"><?php partial('thumb', ['p' => $p, 'size' => 40]); ?></td>
         <td><a class="strong" href="<?= url('admin/product', ['id' => $p['id']]) ?>"><?= e($p['name']) ?></a><div><small><?= $p['reference'] ? 'Réf. ' . e($p['reference']) . ' · ' : '' ?><?= e($p['unit']) ?></small></div></td>
         <td><span class="dot" style="background:<?= e($p['supplier_color']) ?>"></span> <?= e($p['supplier_name']) ?></td>

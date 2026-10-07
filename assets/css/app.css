@@ -537,7 +537,7 @@ details summary::-webkit-details-marker { display: none; }
 /* Sélection multiple et nettoyage */
 .col-check { width: 2.4rem; text-align: center; }
 .col-check input { width: 1.05rem; height: 1.05rem; cursor: pointer; }
-.bulk-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 1.1rem; background: var(--red-soft); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 2; }
+.bulk-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; padding: .7rem .8rem .7rem 1.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 10px 30px rgba(15, 23, 42, .18); position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); z-index: 40; width: max-content; max-width: calc(100vw - 2rem); animation: slidein .25s ease; }
 .bulk-bar[hidden] { display: none; }
 .danger-zone { border: 1px solid var(--red-soft); }
 .cleanup-list { margin: .3rem 0 1rem; padding-left: 1.2rem; }

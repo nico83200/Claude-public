@@ -76,3 +76,14 @@
   </div>
 </div>
 <?php endif; ?>
+<?php if (!empty($p['id'])): ?>
+<form method="post" action="<?= url('admin/products/delete') ?>" class="card card-body mt-2 danger-zone">
+  <?= csrf_field() ?><input type="hidden" name="ids[]" value="<?= (int)$p['id'] ?>">
+  <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div><strong>Supprimer cet article</strong><br><small class="muted"><?= $usedInOrders
+        ? 'Il figure dans ' . (int)$usedInOrders . ' ligne(s) de demandes ou de bons de commande : il sera masqué du catalogue (et retiré des paniers et listes types), l\'historique restant intact.'
+        : 'Il n\'a jamais été commandé : il sera effacé définitivement, avec son stock et son historique de prix.' ?></small></div>
+    <button class="btn btn-danger" type="submit" data-confirm="<?= $usedInOrders ? 'Masquer' : 'Supprimer définitivement' ?> l'article « <?= e($p['name']) ?> » ?"><?= icon('trash', 18) ?> <?= $usedInOrders ? 'Masquer l\'article' : 'Supprimer l\'article' ?></button>
+  </div>
+</form>
+<?php endif; ?>

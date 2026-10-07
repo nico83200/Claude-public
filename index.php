@@ -73,6 +73,7 @@ $routes = [
     'admin/product'         => ['admin_catalog', 'admin_product_edit'],
     'admin/product/toggle'  => ['admin_catalog', 'admin_product_toggle'],
     'admin/products/import' => ['admin_catalog', 'admin_products_import'],
+    'admin/products/delete' => ['admin_catalog', 'admin_products_delete'],
     'admin/products/export' => ['admin_catalog', 'admin_products_export'],
     'admin/categories'      => ['admin_catalog', 'admin_categories'],
     'admin/centers'         => ['admin_settings', 'admin_centers'],

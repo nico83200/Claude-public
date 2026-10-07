@@ -272,6 +272,25 @@ audit('Test audit', 'test', 1, ['a' => 1]);
 check((int)val("SELECT COUNT(*) FROM audit_log WHERE action = 'Test audit'") === 1, 'entrée d\'audit enregistrée');
 check(audit_diff(['p' => '1.00'], ['p' => '1.5'], ['p' => 'Prix']) === 'Prix : 1.00 → 1.5', 'différences décrites lisiblement');
 
+section('Suppression d\'articles');
+$supT = (int)val('SELECT id FROM suppliers LIMIT 1');
+$solo = insert('products', ['supplier_id' => $supT, 'reference' => 'DEL1', 'name' => 'Article jetable', 'unit' => 'U', 'catalog_price' => 3, 'vat_rate' => 20, 'min_qty' => 1, 'active' => 1, 'created_at' => now()]);
+price_record($solo, 3.0, null, 'test');
+$someUser = (int)val("SELECT id FROM users WHERE status = 'active' LIMIT 1");
+$someCenter = (int)val('SELECT id FROM centers LIMIT 1');
+insert('favorites', ['user_id' => $someUser, 'product_id' => $solo]);
+insert('stock', ['center_id' => $someCenter, 'product_id' => $solo, 'qty' => 4, 'updated_at' => now()]);
+check(product_delete($solo) === 'deleted' && !one('SELECT id FROM products WHERE id = ?', [$solo])
+    && (int)val('SELECT COUNT(*) FROM price_history WHERE product_id = ?', [$solo]) === 0
+    && (int)val('SELECT COUNT(*) FROM favorites WHERE product_id = ?', [$solo]) === 0, 'article jamais commandé : effacé avec ses favoris, stock et prix');
+$ordered = (int)val('SELECT product_id FROM request_lines WHERE product_id IS NOT NULL LIMIT 1');
+if ($ordered) {
+    insert('cart_items', ['user_id' => $someUser, 'center_id' => $someCenter, 'product_id' => $ordered, 'qty' => 1, 'created_at' => now()]);
+    check(product_delete($ordered) === 'archived' && (int)val('SELECT active FROM products WHERE id = ?', [$ordered]) === 0
+        && (int)val('SELECT COUNT(*) FROM cart_items WHERE product_id = ?', [$ordered]) === 0, 'article déjà commandé : masqué et retiré des paniers, historique intact');
+}
+check(product_delete(999999) === 'Article introuvable.', 'article inexistant : message');
+
 section('Suppression de comptes');
 $adminId = (int)val("SELECT id FROM users WHERE role = 'admin' ORDER BY id LIMIT 1");
 $fresh = insert('users', ['email' => 'jetable@test.fr', 'password_hash' => 'x', 'first_name' => 'Jean', 'last_name' => 'Jetable', 'role' => 'user', 'status' => 'active', 'created_at' => now()]);

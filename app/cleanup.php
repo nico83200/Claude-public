@@ -210,3 +210,36 @@ function user_delete(int $id, int $byAdminId): string
         return 'anonymized';
     });
 }
+
+/**
+ * Supprime un article. S'il figure dans des demandes ou des bons de commande, il est seulement
+ * masqué (désactivé) pour préserver l'historique. Renvoie 'deleted', 'archived' ou un message d'erreur.
+ */
+function product_delete(int $id): string
+{
+    $p = one('SELECT id, image FROM products WHERE id = ?', [$id]);
+    if (!$p) {
+        return 'Article introuvable.';
+    }
+    $used = (int)val('SELECT COUNT(*) FROM request_lines WHERE product_id = ?', [$id])
+        + (int)val('SELECT COUNT(*) FROM purchase_order_lines WHERE product_id = ?', [$id]);
+    if ($used) {
+        update('products', ['active' => 0, 'updated_at' => now()], 'id = ?', [$id]);
+        q('DELETE FROM cart_items WHERE product_id = ?', [$id]);
+        q('DELETE FROM favorites WHERE product_id = ?', [$id]);
+        q('DELETE FROM kit_items WHERE product_id = ?', [$id]);
+        return 'archived';
+    }
+    tx(function () use ($id) {
+        foreach (['cart_items', 'favorites', 'stock', 'stock_movements', 'kit_items', 'price_history'] as $t) {
+            q("DELETE FROM $t WHERE product_id = ?", [$id]);
+        }
+        q('UPDATE product_suggestions SET product_id = NULL WHERE product_id = ?', [$id]);
+        q('DELETE FROM products WHERE id = ?', [$id]);
+    });
+    // Photo effacée seulement si aucun autre article ni proposition ne l'utilise
+    if ($p['image'] && !val('SELECT COUNT(*) FROM products WHERE image = ?', [$p['image']]) && !val('SELECT COUNT(*) FROM product_suggestions WHERE image = ?', [$p['image']])) {
+        delete_image($p['image']);
+    }
+    return 'deleted';
+}

@@ -121,6 +121,37 @@ function admin_products(): void
     ]);
 }
 
+/** Suppression d'un ou plusieurs articles (masqués seulement s'ils ont un historique de commandes). */
+function admin_products_delete(): void
+{
+    require_admin();
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($_POST['ids'] ?? [])))));
+    if (!$ids) {
+        flash('error', 'Aucun article sélectionné.');
+        redirect('admin/products');
+    }
+    $deleted = $archived = 0;
+    foreach ($ids as $id) {
+        $name = (string)val('SELECT name FROM products WHERE id = ?', [$id]);
+        $r = product_delete($id);
+        if ($r === 'deleted' || $r === 'archived') {
+            $r === 'deleted' ? $deleted++ : $archived++;
+            audit($r === 'deleted' ? 'Article supprimé' : 'Article masqué (historique conservé)', 'product', $id, $name);
+        }
+    }
+    q('DELETE FROM ai_cache');
+    $msg = [];
+    if ($deleted) {
+        $msg[] = plural($deleted, 'article supprimé', 'articles supprimés');
+    }
+    if ($archived) {
+        $msg[] = plural($archived, 'article figurait', 'articles figuraient') . ' dans des commandes : '
+            . ($archived > 1 ? 'ils ont été masqués' : 'il a été masqué') . ' du catalogue pour conserver l\'historique (filtre « Inactifs »)';
+    }
+    flash('success', ucfirst(implode('. ', $msg)) . '.');
+    redirect('admin/products', ['state' => (string)input('state', 'active')]);
+}
+
 function admin_product_edit(): void
 {
     require_admin();
@@ -202,6 +233,7 @@ function admin_product_edit(): void
         $p = array_merge($p ?? [], $data);
     }
     render('admin/product_form', [
+        'usedInOrders' => !empty($p['id']) ? (int)val('SELECT COUNT(*) FROM request_lines WHERE product_id = ?', [$p['id']]) + (int)val('SELECT COUNT(*) FROM purchase_order_lines WHERE product_id = ?', [$p['id']]) : 0,
         'title' => $id ? 'Modifier l\'article' : 'Nouvel article', 'p' => $p,
         'suppliers' => all('SELECT id, name FROM suppliers ORDER BY active DESC, name'),
         'categories' => all('SELECT id, name FROM categories ORDER BY position, name'),

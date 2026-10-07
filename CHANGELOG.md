@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.6.1
+- Suppression d'articles, un par un (bas de la fiche article) ou en lot (cases à cocher dans la liste des articles). Un article jamais commandé est effacé avec son stock et son historique de prix ; un article présent dans des demandes ou des bons de commande est masqué du catalogue (et retiré des paniers, favoris et listes types) pour conserver l'historique.
+- La barre d'actions groupées (articles, comptes) reste visible en bas de l'écran pendant le défilement.
+
 ## 1.6.0
 - Import assisté d'articles (Articles → Importer) à partir d'un fichier CSV, Excel (.xlsx, et .xls exporté au format HTML/XML) ou OpenDocument (.ods), sans modèle imposé : lignes de titre, encodage Windows, prix « 12,50 € » ou TTC gérés.
 - Correspondance par l'IA : colonnes du fichier → champs du catalogue, fournisseurs et familles du fichier → fournisseurs et catégories existants, catégorie proposée pour les articles qui n'en ont pas. Tout est modifiable avant l'import ; sans IA, reconnaissance par les intitulés des colonnes.

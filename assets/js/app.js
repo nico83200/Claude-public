@@ -643,9 +643,10 @@
 // Sélection multiple (cases à cocher) avec barre d'actions groupées
 (function () {
   document.querySelectorAll('[data-check-all]').forEach((all) => {
-    const form = all.closest('form');
+    const form = all.form || all.closest('form');
+    if (!form) return;
     const name = all.dataset.checkAll;
-    const boxes = () => [...form.querySelectorAll('input[type=checkbox][name="' + name + '"]')];
+    const boxes = () => Array.from(form.elements).filter((b) => b.type === 'checkbox' && b.name === name);
     const bar = form.querySelector('.bulk-bar');
     const refresh = () => {
       const n = boxes().filter((b) => b.checked).length;
@@ -654,7 +655,7 @@
       all.indeterminate = n > 0 && n < boxes().length;
     };
     all.addEventListener('change', () => { boxes().forEach((b) => { b.checked = all.checked; }); refresh(); });
-    form.addEventListener('change', (e) => { if (e.target.name === name) refresh(); });
+    document.addEventListener('change', (e) => { if (e.target.form === form && e.target.name === name) refresh(); });
     refresh();
   });
 })();
