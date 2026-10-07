@@ -8,8 +8,9 @@ Les utilisateurs écrivent depuis la bulle d'aide de l'application ; vous répon
 1. Déposez le contenu de ce dossier dans un sous-dossier du site, par exemple `public_html/assistance` → `https://nlapps.fr/assistance/`.
    PHP 8.1+ avec l'extension SQLite (présente par défaut chez Hostinger). Aucune base MySQL n'est nécessaire.
 2. Ouvrez `https://nlapps.fr/assistance/` : à la première visite, choisissez le mot de passe de la console.
-3. *Applications clientes* → **Créer une clé** pour chaque installation cliente. Copiez les deux lignes affichées dans le
-   `config.php` de l'installation du client :
+3. *Applications clientes* → **Créer une clé** pour chaque installation cliente. Copiez les deux lignes affichées et collez-les dans
+   Approvia, **Administration → Paramètres → Assistance NLapps**, puis « Enregistrer et tester »
+   (ou, au choix, dans le `config.php` de l'installation) :
    ```php
    'support_hub_url' => 'https://nlapps.fr/assistance/api.php',
    'support_hub_key' => 'nlh_…',

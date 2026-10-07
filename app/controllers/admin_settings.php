@@ -341,6 +341,9 @@ function admin_settings(): void
             audit('Paramètres de notification modifiés', 'settings');
             flash('success', 'Paramètres de notification enregistrés.');
             redirect('admin/settings');
+        } elseif (input('action') === 'support_hub') {
+            admin_support_hub_save();
+            redirect('admin/settings');
         } elseif (input('action') === 'clear_ai_cache') {
             q('DELETE FROM ai_cache');
             flash('success', 'Cache de l\'assistant IA vidé.');
@@ -402,5 +405,67 @@ function admin_settings(): void
         'title' => 'Paramètres', 'test' => $test,
         'hasKey' => ai_api_key() !== '', 'sdk' => ai_sdk_installed(), 'keyInfo' => ai_key_info(),
         'cacheCount' => (int)val('SELECT COUNT(*) FROM ai_cache'),
+        'hub' => support_hub_config(),
     ]);
+}
+
+/**
+ * Accès au centre d'assistance NLapps (conversation en direct) : enregistrement, test ou suppression.
+ * Les deux lignes fournies par NLapps peuvent être collées telles quelles.
+ */
+function admin_support_hub_save(): void
+{
+    $do = (string)input('hub_do', 'save');
+    if ($do === 'remove') {
+        set_setting('support_hub_url', null);
+        set_setting('support_hub_key', null);
+        audit('Accès assistance NLapps supprimé', 'settings');
+        flash('success', 'Accès au centre d\'assistance supprimé' . (support_live_enabled() ? ' (celui de config.php reste utilisé).' : ' : la conversation en direct est désactivée.'));
+        return;
+    }
+    if ($do === 'save') {
+        $parsed = support_hub_parse((string)($_POST['hub_paste'] ?? ''));
+        $url = trim((string)input('hub_url', '')) ?: (string)$parsed['url'];
+        $key = trim((string)($_POST['hub_key'] ?? '')) ?: (string)$parsed['key'];
+        if ($url === '' && $key === '') {
+            flash('error', 'Collez les lignes fournies par NLapps, ou renseignez l\'adresse et la clé.');
+            return;
+        }
+        if ($url !== '' && !preg_match('#^https?://[^\s]+$#i', $url)) {
+            flash('error', 'Adresse du centre d\'assistance invalide (elle commence par https://).');
+            return;
+        }
+        if ($key !== '' && !preg_match('/^nlh_[a-f0-9]{20,}$/i', $key)) {
+            flash('error', 'Clé d\'accès invalide : elle commence par « nlh_ ».');
+            return;
+        }
+        if ($url === '' && (string)setting('support_hub_url', '') === '') {
+            flash('error', 'Indiquez aussi l\'adresse du centre d\'assistance.');
+            return;
+        }
+        if ($key === '' && (string)setting('support_hub_key', '') === '') {
+            flash('error', 'Indiquez aussi la clé d\'accès.');
+            return;
+        }
+        try {
+            if ($url !== '') {
+                set_setting('support_hub_url', $url);
+            }
+            if ($key !== '') {
+                set_setting('support_hub_key', encrypt_secret($key));
+            }
+        } catch (Throwable $e) {
+            flash('error', 'Enregistrement impossible : ' . $e->getMessage());
+            return;
+        }
+        audit('Accès assistance NLapps modifié', 'settings', null, ($url ?: setting('support_hub_url')) . ($key ? ' · clé ' . mask_secret($key) : ''));
+    }
+    // Test de la connexion (après enregistrement, ou bouton « Tester »)
+    $st = support_hub('status');
+    if ($st === null) {
+        flash('error', 'Le centre d\'assistance ne répond pas ou refuse la clé : vérifiez l\'adresse et la clé fournies par NLapps.');
+    } else {
+        flash('success', ($do === 'save' ? 'Accès enregistré. ' : '') . 'Connexion réussie : ' . ($st['operator'] ?? 'NLapps') . ' est '
+            . (!empty($st['online']) ? 'disponible' : 'actuellement absent') . '. Le bouton « Parler à un conseiller » est actif dans la bulle d\'aide.');
+    }
 }

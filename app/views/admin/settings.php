@@ -89,6 +89,30 @@
       <p class="muted mb-0" style="font-size:.9rem">⚠️ Conservez une copie de <code>storage/secret.key</code> avec vos sauvegardes : sans elle, les clés enregistrées devront être ressaisies après une restauration sur un autre serveur.</p>
     </div>
   </div>
+  <form method="post" class="card" style="grid-column:1/-1" id="assistance">
+    <?= csrf_field() ?><input type="hidden" name="action" value="support_hub">
+    <div class="card-head"><h2><?= icon('send') ?> Assistance NLapps · conversation en direct</h2>
+      <?php if ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
+    <div class="card-body">
+      <p class="muted" style="font-size:.9rem;margin-top:0">Avec l'accès fourni par NLapps, le bouton « Parler à un conseiller » de la bulle d'aide ouvre une conversation en direct avec l'équipe. Collez simplement les deux lignes reçues.</p>
+      <div class="grid grid-2">
+        <div class="field mb-0"><label>Lignes fournies par NLapps</label>
+          <textarea name="hub_paste" rows="3" spellcheck="false" style="font-family:monospace;font-size:.82rem" placeholder="'support_hub_url' => 'https://nlapps.fr/assistance/api.php',&#10;'support_hub_key' => 'nlh_…',"></textarea>
+          <small>Les champs ci-contre se remplissent automatiquement.</small></div>
+        <div>
+          <div class="field"><label>Adresse du centre d'assistance</label><input type="url" name="hub_url" value="<?= e($hub['source'] === 'settings' ? $hub['url'] : '') ?>" placeholder="<?= e($hub['source'] === 'config' ? $hub['url'] . ' (config.php)' : 'https://nlapps.fr/assistance/api.php') ?>"></div>
+          <div class="field mb-0"><label>Clé d'accès</label><input type="password" name="hub_key" autocomplete="new-password" spellcheck="false"
+            placeholder="<?= $hub['source'] !== 'none' ? e(mask_secret($hub['key'])) . ' — saisir une nouvelle clé pour la remplacer' : 'nlh_…' ?>">
+            <small>Chiffrée dans la base, jamais réaffichée en clair.</small></div>
+        </div>
+      </div>
+      <div class="row row-wrap mt-1">
+        <button class="btn btn-primary" type="submit" name="hub_do" value="save"><?= icon('check', 16) ?> Enregistrer et tester</button>
+        <?php if ($hub['source'] !== 'none'): ?><button class="btn" type="submit" name="hub_do" value="test" formnovalidate><?= icon('check-circle', 16) ?> Tester la connexion</button><?php endif; ?>
+        <?php if ($hub['source'] === 'settings'): ?><button class="btn btn-danger" type="submit" name="hub_do" value="remove" formnovalidate data-confirm="Supprimer l'accès au centre d'assistance ? La conversation en direct sera désactivée."><?= icon('trash', 16) ?> Supprimer l'accès</button><?php endif; ?>
+      </div>
+    </div>
+  </form>
   <form method="post" class="card" style="grid-column:1/-1">
     <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>
@@ -163,7 +187,7 @@
         <form method="post" action="<?= url('admin/mail-queue') ?>" class="row row-wrap">
           <?= csrf_field() ?>
           <button class="btn" type="submit" name="action" value="retry"><?= icon('repeat', 16) ?> Relancer les e-mails en attente</button>
-          <button class="btn" type="submit" name="action" value="run"><?= icon('activity', 16) ?> Exécuter toutes les tâches maintenant</button>
+          <button class="btn" type="submit" name="action" value="run"><?= icon('check-circle', 16) ?> Exécuter toutes les tâches maintenant</button>
         </form>
       </div>
     </div>

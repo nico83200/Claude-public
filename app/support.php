@@ -166,10 +166,40 @@ function support_context(?array $u, ?array $center, string $page = ''): string
 
 // ---------------------------------------------------------------- Conversation en direct avec NLapps (centre d'assistance)
 
-/** Conversation en direct disponible : adresse et clé du centre d'assistance renseignées dans config.php. */
+/**
+ * Accès au centre d'assistance NLapps : paramètres de l'application (clé chiffrée en base) en priorité, sinon config.php.
+ * Renvoie ['url', 'key', 'source' => 'settings'|'config'|'none'].
+ */
+function support_hub_config(): array
+{
+    $url = (string)setting('support_hub_url', '');
+    $key = decrypt_secret(setting('support_hub_key'));
+    if ($url !== '' && $key !== '') {
+        return ['url' => $url, 'key' => $key, 'source' => 'settings'];
+    }
+    if ((string)cfg('support_hub_url', '') !== '' && (string)cfg('support_hub_key', '') !== '') {
+        return ['url' => (string)cfg('support_hub_url'), 'key' => (string)cfg('support_hub_key'), 'source' => 'config'];
+    }
+    return ['url' => '', 'key' => '', 'source' => 'none'];
+}
+
+/**
+ * Lit les deux lignes fournies par NLapps (format config.php), ou une adresse et une clé collées telles quelles.
+ * Renvoie ['url' => ?string, 'key' => ?string].
+ */
+function support_hub_parse(string $text): array
+{
+    $url = preg_match("/support_hub_url'?\s*=>\s*'([^']+)'/", $text, $m) ? $m[1] : null;
+    $key = preg_match("/support_hub_key'?\s*=>\s*'([^']+)'/", $text, $m) ? $m[1] : null;
+    $url ??= preg_match('#https?://\S+?api\.php#i', $text, $m) ? $m[0] : null;
+    $key ??= preg_match('/\bnlh_[a-f0-9]{20,}\b/i', $text, $m) ? $m[0] : null;
+    return ['url' => $url, 'key' => $key];
+}
+
+/** Conversation en direct disponible : adresse et clé du centre d'assistance renseignées (paramètres ou config.php). */
 function support_live_enabled(): bool
 {
-    return (string)cfg('support_hub_url', '') !== '' && (string)cfg('support_hub_key', '') !== '';
+    return support_hub_config()['source'] !== 'none';
 }
 
 /** Appel du centre d'assistance NLapps (serveur à serveur). Renvoie la réponse décodée, ou null si indisponible. */
@@ -178,8 +208,9 @@ function support_hub(string $action, array $query = [], ?array $body = null): ?a
     if (!support_live_enabled()) {
         return null;
     }
-    $url = (string)cfg('support_hub_url') . (str_contains((string)cfg('support_hub_url'), '?') ? '&' : '?') . http_build_query(['a' => $action] + $query);
-    $headers = ['X-Api-Key: ' . cfg('support_hub_key'), 'Accept: application/json'];
+    $hub = support_hub_config();
+    $url = $hub['url'] . (str_contains($hub['url'], '?') ? '&' : '?') . http_build_query(['a' => $action] + $query);
+    $headers = ['X-Api-Key: ' . $hub['key'], 'Accept: application/json'];
     $payload = $body !== null ? json_encode($body, JSON_UNESCAPED_UNICODE) : null;
     if ($payload !== null) {
         $headers[] = 'Content-Type: application/json';

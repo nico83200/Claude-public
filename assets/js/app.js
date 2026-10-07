@@ -834,3 +834,16 @@ document.addEventListener('click', async (e) => {
   });
   if (panel.dataset.autoopen === '1' || (panel.dataset.hasChat === '1' && /[?&]r=support/.test(location.search))) { open(); goLive(); }
 })();
+
+// Paramètres : les lignes collées depuis NLapps remplissent l'adresse et la clé du centre d'assistance
+(function () {
+  const ta = document.querySelector('textarea[name=hub_paste]');
+  if (!ta) return;
+  ta.addEventListener('input', () => {
+    const t = ta.value;
+    const url = (t.match(/support_hub_url'?\s*=>\s*'([^']+)'/) || t.match(/https?:\/\/\S+?api\.php/i) || [])[1] || (t.match(/https?:\/\/\S+?api\.php/i) || [])[0];
+    const key = (t.match(/support_hub_key'?\s*=>\s*'([^']+)'/) || [])[1] || (t.match(/\bnlh_[a-f0-9]{20,}\b/i) || [])[0];
+    if (url) ta.form.querySelector('[name=hub_url]').value = url;
+    if (key) { const k = ta.form.querySelector('[name=hub_key]'); k.value = key; k.type = 'text'; setTimeout(() => { k.type = 'password'; }, 1500); }
+  });
+})();

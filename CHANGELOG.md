@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.9.1
+- **Accès à l'assistance NLapps dans les paramètres** : l'administrateur colle les deux lignes fournies par NLapps (adresse et clé `nlh_…`) dans *Paramètres → Assistance NLapps*. Les champs se remplissent automatiquement, la clé est chiffrée et la connexion est testée à l'enregistrement. Boutons « Tester la connexion » et « Supprimer l'accès ». Plus besoin de modifier `config.php`, qui reste utilisé si rien n'est saisi.
+
 ## 1.9.0
 - L'application devient **Approvia** : nouveau logo dans le menu, la page de connexion, l'onglet du navigateur et l'icône de l'application installable.
 - **Conversation en direct avec NLapps** dans la bulle d'aide, à la place de WhatsApp : si le chatbot ne trouve pas de réponse, ou dès que l'utilisateur demande à parler à un conseiller, la conversation s'ouvre dans la même fenêtre. L'échange avec le chatbot et le contexte (centre, version, page) sont transmis au conseiller. Disponibilité affichée, message d'absence, conversation reprise d'une page à l'autre, notification dans l'application quand une réponse arrive fenêtre fermée.
