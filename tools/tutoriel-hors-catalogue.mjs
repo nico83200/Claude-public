@@ -53,7 +53,7 @@ await say(11, 'Ce qu\'a indiqué le salarié', 'La proposition reprend tout ce q
 await say(12, 'Existe-t-il déjà ?', 'L\'article existe déjà sous un autre nom ? « Existe-t-il déjà ? » permet de le rattacher au lieu d\'en créer un nouveau.', { hl: '.card:has-text("Existe-t-il déjà")' });
 const f = 'form[action*="suggestion/add"]';
 await say(13, 'Compléter la fiche', 'Sinon, complétez la fiche : fournisseur, catégorie et prix. Vous pouvez laisser un message au salarié.', { hl: f });
-await moveTo(L(`${f} select[name=supplier_id]`)); await L(`${f} select[name=supplier_id]`).selectOption({ index: 1 }); await wait(500);
+await moveTo(L(`${f} select[name=supplier_id]`)); const sup = L(`${f} select[name=supplier_id]`); await sup.selectOption(await sup.evaluate((s) => [...s.options].find((o) => /MédiDistrib/i.test(o.text))?.value || s.options[1].value)); await wait(500);
 const cat = L(`${f} select[name=category_id]`); await moveTo(cat);
 const catVal = await cat.evaluate((s) => [...s.options].find((o) => /médical/i.test(o.text))?.value || s.options[1]?.value);
 await cat.selectOption(catVal); await wait(500);
