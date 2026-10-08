@@ -314,9 +314,11 @@
       if (done || !code) return;
       code = String(code).trim();
       if (opts.continuous) {
-        // Mode continu (réception) : on garde la caméra ouverte ; un même code n'est compté qu'une fois toutes les 1,5 s
-        if (code === lastCode && Date.now() - lastAt < 1500) return;
+        // Mode continu (réception) : on garde la caméra ouverte ; un code resté sous la caméra n'est compté qu'une fois,
+        // il doit quitter le cadre (1,2 s) avant d'être compté à nouveau (boîte suivante du même article)
+        const seen = code === lastCode && Date.now() - lastAt < 1200;
         lastCode = code; lastAt = Date.now();
+        if (seen) return;
         beep(); onCode(code);
         status.textContent = '✓ ' + code + ' — scannez l\'article suivant (Fermer quand c\'est fini)';
         input.value = '';
@@ -350,7 +352,7 @@
         if (video.readyState >= 2 && video.videoWidth) {
           try {
             const code = await decodeFrame();
-            if (code) return found(code);
+            if (code) { found(code); if (done) return; }
           } catch (e) { /* aucun code sur cette image */ }
         }
         timer = setTimeout(tick, 200);

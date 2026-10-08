@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.15.1
+- **Réception par scan** : correction, la caméra ne lisait plus que le premier code-barres ; elle enchaîne maintenant tous les articles livrés sans se refermer. Une boîte restée devant la caméra n'est comptée qu'une fois : il suffit de la retirer du cadre puis de présenter la suivante, même s'il s'agit du même article.
+- Vidéo tutoriel « version salarié » enrichie (demande d'articles et réception détaillées), avec le texte des sous-titres pour une voix off (`tools/tutoriel-salarie.mjs`).
+
 ## 1.15.0
 - **Licence expirée = accès coupé** : dès le lendemain de l'échéance (ou à la fin d'un délai de grâce si NLapps en accorde un), et à tout moment en cas de suspension, **tous les utilisateurs sont déconnectés** et la connexion est refusée (page « Licence expirée » avec les coordonnées de NLapps). Les données sont conservées. L'échéance est contrôlée localement chaque jour et la licence est revérifiée auprès de NLapps toutes les 10 minutes ; après renouvellement, « Vérifier à nouveau » rétablit l'accès aussitôt. La déconnexion forcée est inscrite au journal d'activité.
 - Bandeau administrateur : rappel 15 jours avant l'échéance avec la date de coupure.

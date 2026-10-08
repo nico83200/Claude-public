@@ -1,22 +1,51 @@
 /*
  * Vidéo tutoriel « version salarié » d'Approvia, enregistrée depuis l'application réelle (données de démonstration).
  *
- *   PWPATH=/chemin/vers/playwright node tools/tutoriel-salarie.mjs <dossier-sortie> <camera.y4m> [url] [email] [mot-de-passe]
+ *   PWPATH=/chemin/vers/playwright node tools/tutoriel-salarie.mjs <dossier-sortie> <dossier-images> [url] [email] [mot-de-passe]
+ *   → la vidéo .webm, Approvia-tutoriel-salarie.srt et Approvia-tutoriel-salarie-voix-off.txt (texte minuté pour la voix off)
  *   puis : ffmpeg -i <video>.webm -vf format=yuv420p -c:v libx264 -crf 22 -movflags +faststart Approvia-tutoriel-salarie.mp4
  *
- * <camera.y4m> : vidéo simulant la caméra (un code-barres d'article du catalogue), pour les étapes de scan.
- * Le compte utilisé doit être un salarié avec un panier vide, une livraison « commandée » à réceptionner et des articles suivis en stock.
+ * <dossier-images> : images PNG de la caméra simulée (empty.png = étagère, puis une étiquette par article :
+ * lingettes.png, gel.png pour la commande, gants.png et masques.png pour la réception), avec un code-barres EAN-13 lisible.
+ * Le compte utilisé doit être un salarié avec un panier vide, une livraison « Commandée » (gants S, masques IIR, thermomètre…)
+ * à réceptionner et des articles suivis en stock.
  */
 import { createRequire } from 'module'; const require = createRequire(import.meta.url); const { chromium } = require(process.env.PWPATH || 'playwright');
 import fs from 'fs';
 import path from 'path';
-const OUT = process.argv[2], Y4M = process.argv[3];
+import { writeCaptions } from './tutoriel-sous-titres.mjs';
+const OUT = process.argv[2], IMG = process.argv[3];
 const APP = (process.argv[4] || 'http://127.0.0.1:8096/') + 'index.php?r=';
 const EMAIL = process.argv[5] || 'claire.secretaire@demo.fr', PASS = process.argv[6] || 'demo1234';
 const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/approvia-logo-blanc.svg'), 'utf8');
 const W = 1280, H = 720;
-const b = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + Y4M] });
-const ctx = await b.newContext({ viewport: { width: W, height: H }, permissions: ['camera'], recordVideo: { dir: OUT, size: { width: W, height: H } } });
+const cam = Object.fromEntries(['empty', 'lingettes', 'gel', 'gants', 'masques'].map((n) => [n, 'data:image/png;base64,' + fs.readFileSync(path.join(IMG, n + '.png')).toString('base64')]));
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: OUT, size: { width: W, height: H } } });
+// Caméra simulée : une étagère, sur laquelle on présente des étiquettes l'une après l'autre (window.__cam('gel'), window.__cam(null))
+await ctx.addInitScript((imgs) => {
+  const load = (src) => { const i = new Image(); i.src = src; return i; };
+  const pics = Object.fromEntries(Object.entries(imgs).map(([k, v]) => [k, load(v)]));
+  const st = { cur: null, prev: null, t0: 0 };
+  window.__cam = (name) => { st.prev = st.cur; st.cur = name; st.t0 = performance.now(); };
+  const fake = async () => {
+    const c = document.createElement('canvas'); c.width = 640; c.height = 480;
+    const g = c.getContext('2d');
+    const ease = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
+    const draw = () => {
+      const now = performance.now(), k = ease((now - st.t0) / 550);
+      g.drawImage(pics.empty, 0, 0, 640, 480);
+      const lab = (name, x) => { const im = pics[name]; if (!im) return; const y = 90 + Math.sin(now / 420) * 1.5; g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 18; g.drawImage(im, x, y, 420, 300); g.restore(); };
+      if (st.prev && k < 1) lab(st.prev, 110 - k * 620);
+      if (st.cur) lab(st.cur, 110 + (1 - k) * 600);
+      requestAnimationFrame(draw);
+    };
+    draw();
+    return c.captureStream(20);
+  };
+  if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = fake;
+  try { delete window.BarcodeDetector; } catch (e) {}
+}, cam);
 // Calque du tutoriel : légende, numéro d'étape, curseur visible, effet de clic (réinjecté à chaque page)
 await ctx.addInitScript(() => {
   const install = () => {
@@ -44,110 +73,184 @@ await ctx.addInitScript(() => {
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', install) : install();
 });
 const p = await ctx.newPage();
+const tStart = Date.now(), cues = []; // minutage des sous-titres (fichier .srt et texte de voix off)
+const cue = (kind, n, t, x) => { const at = (Date.now() - tStart) / 1000; const last = cues[cues.length - 1]; if (last && last.end == null) last.end = at; if (x) cues.push({ kind, n, title: t, text: x, start: at, end: null }); };
 p.on('pageerror', e => console.log('PAGEERR', e.message)); p.on('dialog', d => d.accept());
 const wait = (ms) => p.waitForTimeout(ms);
-let mx = W / 2, my = H / 2;
-const say = async (n, t, x, ms = 3500) => { await p.evaluate(([n, t, x]) => window.__tuto && window.__tuto(n, t, x), [String(n), t, x]); if (ms) await wait(ms); };
+// Temps de lecture : 2 s + 62 ms par caractère (au moins 5 s) — on laisse au salarié le temps de lire et de regarder l'écran
+const readMs = (x) => Math.max(5000, 2000 + x.length * 62);
+const say = async (n, t, x, ms) => { cue('step', n, t, x); await p.evaluate(([n, t, x]) => window.__tuto && window.__tuto(n, t, x), [String(n), t, x]); if (ms !== 0) await wait(ms ?? readMs(x)); };
 const moveTo = async (loc) => {
   await loc.scrollIntoViewIfNeeded(); const bb = await loc.boundingBox(); if (!bb) return;
   const tx = bb.x + Math.min(bb.width / 2, 60), ty = bb.y + bb.height / 2;
-  await p.mouse.move(tx, ty, { steps: 22 }); mx = tx; my = ty; await wait(250);
+  await p.mouse.move(tx, ty, { steps: 28 }); await wait(350);
 };
-const click = async (sel, opts = {}) => { const loc = typeof sel === 'string' ? p.locator(sel).first() : sel; await moveTo(loc); if (opts.nav) { await Promise.all([p.waitForNavigation(), loc.click()]); } else { await loc.click(); } await wait(opts.after ?? 600); };
-const type = async (sel, text) => { const loc = p.locator(sel).first(); await moveTo(loc); await loc.click(); await loc.pressSequentially(text, { delay: 70 }); await wait(300); };
-const hl = async (sel, on = true) => p.locator(sel).first().evaluate((el, on) => el.classList.toggle('tuto-hl', on), on).catch(() => {});
+const L = (sel) => typeof sel === 'string' ? p.locator(sel).first() : sel;
+const click = async (sel, opts = {}) => { const loc = L(sel); await moveTo(loc); await wait(250); if (opts.nav) { await Promise.all([p.waitForNavigation(), loc.click()]); } else { await loc.click(); } await wait(opts.after ?? 900); };
+const type = async (sel, text) => { const loc = L(sel); await moveTo(loc); await loc.click(); await loc.pressSequentially(text, { delay: 85 }); await wait(400); };
+const setQty = async (sel, v) => { const loc = L(sel); await moveTo(loc); await loc.click({ clickCount: 3 }); await loc.pressSequentially(String(v), { delay: 120 }); await loc.dispatchEvent('input'); await wait(500); };
+const hl = async (sel, on = true) => L(sel).evaluate((el, on) => el.classList.toggle('tuto-hl', on), on).catch(() => {});
+const focus = async (sel, n, t, x, ms) => { await hl(sel); await moveTo(L(sel)); await say(n, t, x, ms); await hl(sel, false); };
 const card = async (title, sub, ms) => {
+  cue('card', '', title.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), sub.replace(/<br>/g, ' — ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
   await p.setContent(`<html><head><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;800&display=swap"></head><body style="margin:0;width:${W}px;height:${H}px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:linear-gradient(135deg,#1e1b4b,#4c1d95 60%,#9d174d);font-family:Inter,system-ui,sans-serif;color:#fff;text-align:center;overflow:hidden">
-    <div style="width:320px;height:90px">${LOGO.replace('<svg', '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"')}</div><div style="font-size:52px;font-weight:800;letter-spacing:-.02em">${title}</div><div style="font-size:23px;opacity:.88;line-height:1.55;max-width:900px">${sub}</div></body></html>`);
-  await p.waitForTimeout(500);
-  await wait(ms);
+    <div style="width:320px;height:90px">${LOGO.replace('<svg', '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"')}</div><div style="font-size:52px;font-weight:800;letter-spacing:-.02em">${title}</div><div style="font-size:23px;opacity:.88;line-height:1.55;max-width:960px">${sub}</div></body></html>`);
+  await wait(500); await wait(ms);
 };
+const part = (k, title, sub) => card(`<span style="display:block;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:#c4b5fd;margin-bottom:10px">Partie ${k}</span>${title}`, sub, 5500);
+const scannerOpen = () => p.waitForSelector('.scanner video', { timeout: 10000 }).then(() => wait(1200));
 const t0 = Date.now();
 
-// ---------------------------------------------------------------- Intro
-await card('Tutoriel salarié', 'Commander · Scanner · Suivre · Réceptionner · Compter le stock<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps</span>', 5000);
+// ================================================================ Introduction
+await card('Tutoriel salarié', 'Faire une demande d\'articles · Scanner · Suivre sa demande · Réceptionner une livraison<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps · environ 10 minutes</span>', 7000);
 
-// 1. Connexion
+// ================================================================ Partie 1 : se repérer
+await part(1, 'Se connecter et se repérer', 'Votre compte, votre centre, le menu');
 await p.goto(APP + 'login');
-await say(1, 'Se connecter', 'Ouvrez Approvia et connectez-vous avec votre adresse e-mail professionnelle et votre mot de passe.', 1500);
+await say(1, 'Se connecter', 'Ouvrez Approvia dans votre navigateur (ordinateur, tablette ou téléphone) et connectez-vous avec votre adresse e-mail professionnelle et votre mot de passe.', 5500);
 await type('input[name=email]', EMAIL);
 await type('input[name=password]', PASS);
-await click('button[type=submit]', { nav: true, after: 400 });
+await click('button[type=submit]', { nav: true, after: 600 });
+await say(2, 'Le tableau de bord', 'Voici votre page d\'accueil. Elle rassemble les livraisons attendues dans votre centre, vos articles favoris et vos dernières demandes.');
+await focus('.sidebar .nav', 2, 'Le menu', 'Le menu à gauche donne accès à tout : Catalogue pour chercher, Mon panier, Suivi des demandes, Réceptions des livraisons et Inventaire du stock.');
+await focus('.center-switch', 2, 'Votre centre', 'Vous travaillez sur plusieurs sites ? Choisissez ici le centre pour lequel vous commandez : le catalogue, le stock et les demandes s\'adaptent.');
 
-// 2. Tableau de bord, centre
-await say(2, 'Votre tableau de bord', 'L\'accueil rassemble vos livraisons attendues, vos favoris et les dernières demandes de votre centre.', 4500);
-await hl('.center-switch'); await moveTo(p.locator('.center-switch'));
-await say(2, 'Votre centre', 'Vous travaillez sur plusieurs sites ? Choisissez le centre ici : tout l\'écran s\'adapte (catalogue, stock, demandes).', 4500);
-await hl('.center-switch', false);
-
-// 3. Recherche
-await say(3, 'Trouver un article', 'Tapez simplement ce que vous cherchez, même approximativement : « gants M », « de quoi désinfecter »…', 1200);
+// ================================================================ Partie 2 : faire une demande
+await part(2, 'Faire une demande d\'articles', 'Rechercher · Scanner deux articles à la suite · Vérifier le panier · Envoyer');
+await p.goto(APP + 'dashboard'); await wait(600);
+await say(3, 'Rechercher un article', 'Dans la barre de recherche en haut, tapez ce dont vous avez besoin, avec vos mots : « gants M », « de quoi désinfecter »…', 0);
+await wait(4500);
 await type('.topbar input[type=search], header input[name=q]', 'gants nitrile M');
-await wait(1800);
-await say(3, 'Suggestions immédiates', 'Les articles correspondants s\'affichent pendant la frappe. Validez pour voir tous les résultats.', 2500);
+await wait(1500);
+await say(3, 'Suggestions pendant la frappe', 'Les articles correspondants apparaissent dès les premières lettres. Appuyez sur Entrée pour afficher tous les résultats.');
 await p.keyboard.press('Enter'); await p.waitForLoadState(); await wait(1200);
-await say(4, 'Ajouter au panier', 'Indiquez la quantité puis « Ajouter ». Le panier se remplit sans quitter la page.', 1500);
-const addBtn = p.locator('form[data-add-cart] button[type=submit]').first();
-await click(addBtn, { after: 1800 });
+const prod = p.locator('article.product').first();
+await focus(prod, 3, 'La fiche résumée', 'Chaque carte indique le nom de l\'article, le fournisseur, la référence, le conditionnement (ici une boîte de 100) et le prix négocié hors taxes.');
+await setQty(prod.locator('.qty-input'), 2);
+await say(3, 'Choisir la quantité', 'Indiquez le nombre de boîtes ou d\'unités voulu, ici 2 boîtes, puis cliquez sur « Ajouter ».', 0); await wait(4500);
+await click(prod.locator('button[type=submit]'), { after: 1200 });
+await focus('#cart-count', 3, 'Ajouté au panier', 'Un message confirme l\'ajout et le compteur du panier, dans le menu, augmente. Vous pouvez continuer vos recherches : rien n\'est envoyé pour l\'instant.');
 
-// 5. Scanner un code-barres
-await say(5, 'Scanner un code-barres', 'Encore plus rapide : touchez l\'icône code-barres et visez l\'étiquette de l\'article avec la caméra.', 1500);
-await click('[data-scan="search"]:visible', { after: 3500 });
-await p.waitForLoadState(); await wait(800);
-await say(5, 'Fiche de l\'article', 'L\'article s\'ouvre directement : prix, conditionnement, emplacement dans votre réserve, stock du centre.', 4500);
-const pAdd = p.locator('form[data-add-cart] button[type=submit]').first();
-if (await pAdd.count()) await click(pAdd, { after: 1500 });
+// --- Scanner deux articles à la suite
+await say(4, 'Scanner un code-barres', 'Plus rapide encore : vous avez l\'article sous la main ? Touchez l\'icône code-barres à côté de la recherche, la caméra s\'ouvre.', 0);
+await wait(5500);
+await click('[data-scan="search"]:visible', { after: 0 }); await scannerOpen();
+await say(4, 'Viser l\'étiquette', 'Présentez le code-barres de l\'emballage dans le cadre, à 15-20 cm. Inutile d\'appuyer sur un bouton : la lecture est automatique.', 0);
+await wait(5500);
+await Promise.all([p.waitForNavigation({ timeout: 15000 }), p.evaluate(() => window.__cam('lingettes'))]);
+await wait(1200);
+await say(4, '1er article : la fiche s\'ouvre', 'Un bip, et la fiche de l\'article scanné s\'ouvre : lingettes désinfectantes, boîte de 100, avec le prix, le fournisseur et le stock de votre centre.');
+const pq = 'form[data-add-cart] .qty-input';
+await setQty(pq, 3);
+await say(4, 'Quantité puis « Ajouter au panier »', 'Saisissez la quantité (ici 3 boîtes) et ajoutez au panier.', 0); await wait(3500);
+await click('form[data-add-cart] button[type=submit]', { after: 2500 });
+await say(4, '2e article, à la suite', 'On enchaîne avec l\'article suivant : rouvrez le scanner et présentez le deuxième code-barres.', 0);
+await wait(4500);
+await click('[data-scan="search"]:visible', { after: 0 }); await scannerOpen(); await wait(1500);
+await Promise.all([p.waitForNavigation({ timeout: 15000 }), p.evaluate(() => window.__cam('gel'))]);
+await wait(1200);
+await say(4, '2e article reconnu', 'Le gel hydroalcoolique 500 ml est reconnu à son tour. Même geste : la quantité, puis « Ajouter au panier ».', 0);
+await wait(4500);
+await setQty(pq, 2);
+await click('form[data-add-cart] button[type=submit]', { after: 2500 });
+await say(4, 'Code inconnu ?', 'Si un code-barres n\'est pas au catalogue, Approvia vous propose de suggérer l\'article au service achats, avec sa photo.');
 
-// 6. Panier et envoi
-await say(6, 'Envoyer la demande', 'Ouvrez « Mon panier » pour vérifier les quantités et ajouter une précision si besoin.', 1200);
-await click('a[href*="r=cart"]', { nav: true, after: 1200 });
-await say(6, 'Commentaire et urgence', 'Ajoutez un commentaire pour le service achats et cochez « urgente » si nécessaire, puis envoyez.', 1200);
-await type('#rc', 'Pour la salle de soins n°2');
-await wait(600);
+// --- Panier
+await click('a[href*="r=cart"]', { nav: true, after: 1000 });
+await say(5, 'Vérifier le panier', 'Ouvrez « Mon panier ». Les articles sont automatiquement classés par fournisseur : vous n\'avez pas à vous en occuper.');
+if (await p.locator('form[action*="stock/reorder"]').count()) await focus('form[action*="stock/reorder"]', 5, 'Stocks bas : suggestions', 'Si des articles suivis en stock sont sous leur seuil, Approvia propose de les ajouter. Décochez ce qui n\'est pas utile, ou ignorez simplement ce cadre.');
+await focus('.supplier-block', 5, 'Une ligne par article', 'Pour chaque article : le conditionnement, la quantité modifiable, le prix et la corbeille pour le retirer.');
+const firstLine = p.locator('.supplier-block tr').first();
+await setQty(firstLine.locator('.qty-input'), 3);
+await click('button:has-text("Mettre à jour les quantités")', { nav: true, after: 900 });
+await say(5, 'Modifier une quantité', 'Changez le chiffre puis cliquez sur « Mettre à jour les quantités » : le total est recalculé.');
+await type(p.locator('.supplier-block input[name^="comment"]').first(), 'Taille M uniquement');
+await say(5, 'Une précision sur un article', 'Le champ sous l\'article permet une précision pour cette ligne : taille, couleur, modèle…');
+await focus('.card:has(#rc)', 5, 'Le récapitulatif', 'À droite : le nombre de lignes, le budget de votre centre et le total estimé hors taxes.');
+await type('#rc', 'Pour la salle de soins n°2, avant jeudi');
+await say(5, 'Commentaire et urgence', 'Ajoutez si besoin un commentaire pour le service achats. Cochez « Demande urgente » seulement en cas de vraie urgence : elle sera traitée en priorité.');
 await click('button[name=then][value=submit]', { nav: true, after: 1500 });
-await say(6, 'C\'est envoyé !', 'Le service achats reçoit votre demande, classée par fournisseur. Vous n\'avez rien d\'autre à faire.', 3500);
+await say(5, 'Demande envoyée', 'C\'est envoyé ! Le service achats regroupe votre demande avec celles de vos collègues, fournisseur par fournisseur, puis passe la commande.');
 
-// 7. Suivi
-await click('a[href*="r=requests"]', { nav: true, after: 800 });
-await say(7, 'Suivre vos demandes', '« Suivi des demandes » indique pour chaque article : en attente, commandé, reçu… Une notification vous prévient à chaque étape.', 5000);
+// --- Suivi
+if (!p.url().includes('r=requests')) await click('a[href*="r=requests"]', { nav: true, after: 900 });
+const reqCards = p.locator('.stack > .card');
+await focus(reqCards.first(), 6, 'Suivre votre demande', '« Suivi des demandes » liste vos demandes. La nouvelle apparaît en haut, chaque article est « En attente » : le service achats ne l\'a pas encore commandé.');
+await say(6, 'Les étapes d\'un article', 'Le statut de chaque article évolue tout seul : En attente → Commandée → Livraison partielle → Reçue. Vous pouvez aussi annuler une ligne tant qu\'elle est en attente.');
+const older = p.locator('.stack > .card:has-text("BC-2026-0021")').first();
+await focus(older, 6, 'Une demande déjà commandée', 'Plus bas, une demande précédente est « Commandée » : le numéro du bon de commande s\'affiche, et un bouton « Réception » permet de valider la livraison quand elle arrive.');
 await moveTo(p.locator('[data-bell]'));
-await say(7, 'Notifications', 'La cloche affiche vos nouvelles notifications (commande passée, livraison reçue…).', 3500);
+await say(6, 'Les notifications', 'La cloche vous prévient à chaque étape : demande commandée, livraison reçue, article refusé avec son motif. Vous pouvez aussi les recevoir par e-mail.');
 
-// 8. Réception
-await click('a[href*="r=receptions"]', { nav: true, after: 800 });
-await say(8, 'Réceptionner une livraison', 'À l\'arrivée des colis, ouvrez la livraison attendue.', 2500);
-await click('a[href*="r=reception&"], a[href*="r=reception&id"]', { nav: true, after: 800 });
-await say(8, 'Scanner les colis', '« Scanner les articles livrés » : chaque code-barres lu coche une unité sur la bonne ligne.', 1200);
-await click('[data-recv-scan]', { after: 3500 });
-await p.locator('.scanner [data-close]').click().catch(() => {}); await wait(800);
-await say(8, 'Enregistrer la réception', 'Vérifiez les quantités puis « Enregistrer la réception » : le stock du centre est mis à jour automatiquement.', 4500);
+// ================================================================ Partie 3 : réceptionner
+await part(3, 'Réceptionner une livraison', 'Scanner les colis · Corriger les quantités · Enregistrer');
+await p.goto(APP + 'receptions'); await wait(800);
+await say(7, 'Les livraisons attendues', 'Les colis sont arrivés ? Ouvrez « Réceptions » : la liste montre les commandes attendues dans votre centre, avec leur avancement.');
+const row21 = p.locator('li:has-text("BC-2026-0021")').first();
+await focus(row21, 7, 'Repérer le bon de commande', 'Retrouvez la livraison grâce au fournisseur et au numéro du bon de commande, puis cliquez sur « Réceptionner ».');
+await click(row21.locator('a:has-text("Réceptionner")'), { nav: true, after: 1000 });
+await say(8, 'Le bon de livraison', 'En haut : le fournisseur, le numéro du bon et la barre d\'avancement (0 article reçu sur 12). Dessous, chaque article commandé, avec la personne qui l\'a demandé.');
+await focus('.recv-line', 8, 'Une ligne par article', 'À droite de chaque ligne : la quantité reçue sur la quantité commandée. Il y a trois façons de la remplir : scanner, cocher ou saisir.');
+await click('[data-recv-scan]', { after: 0 }); await scannerOpen();
+await say(8, 'Scanner les colis', 'Le plus simple : « Scanner les articles livrés ». La caméra reste ouverte et chaque code-barres lu compte une boîte sur la bonne ligne.', 0);
+await wait(6000);
+await p.evaluate(() => window.__cam('gants')); await wait(1600);
+await say(8, '1er code : gants nitrile S', 'Bip : la boîte de gants est comptée. Le message en bas confirme « 1/3 » : 1 boîte reçue sur les 3 commandées.', 0);
+await wait(6500);
+await p.evaluate(() => window.__cam(null)); await wait(1600);
+await p.evaluate(() => window.__cam('gants')); await wait(1600);
+await say(8, 'Boîte suivante du même article', 'Retirez la boîte du cadre et présentez la suivante : deuxième boîte de gants, 2/3. Une boîte restée devant la caméra n\'est comptée qu\'une seule fois.', 0);
+await wait(6500);
+await p.evaluate(() => window.__cam(null)); await wait(1600);
+await p.evaluate(() => window.__cam('masques')); await wait(1600);
+await say(8, '2e code : masques chirurgicaux', 'On passe à un autre article : le code des masques est reconnu et compté sur sa ligne (1/4). Un article absent du bon est signalé en rouge.', 0);
+await wait(6500);
+await say(8, 'Fermer le scanner', 'Quand tous les colis sont scannés, touchez « Fermer ».', 0); await wait(2500);
+await click('.scanner [data-close]', { after: 1200 });
+const lineOf = (txt) => p.locator('.recv-line', { hasText: txt }).first();
+await focus(lineOf('Gants d\'examen nitrile non poudrés — taille S'), 9, 'Le résultat du scan', 'Les quantités scannées sont reportées : 2 boîtes de gants S sur 3, 1 boîte de masques sur 4.');
+await click(lineOf('Thermomètre').locator('.big-check'), { after: 800 });
+await say(9, 'Cocher : reçu en totalité', 'Sans scanner, cochez la case d\'un article reçu en totalité : la quantité se remplit d\'un coup (ici le thermomètre, 1/1).');
+await setQty(lineOf('Masques').locator('.qty-input'), 4);
+await say(9, 'Saisir la quantité réelle', 'Vous avez compté les boîtes à la main ? Tapez directement la quantité livrée : ici 4 boîtes de masques sur 4, la ligne passe au vert.');
+await focus(lineOf('Abaisse-langues'), 9, 'Article manquant', 'Les abaisse-langues ne sont pas dans le colis : laissez 0. Ils restent attendus et pourront être réceptionnés à la prochaine livraison.');
+await moveTo(p.locator('#recv-form button[type=submit]'));
+await say(9, 'Enregistrer la réception', 'Vérifiez une dernière fois puis cliquez sur « Enregistrer la réception ».', 0); await wait(4000);
+await click('#recv-form button[type=submit]', { nav: true, after: 1500 });
+await say(10, 'Réception enregistrée', 'La livraison passe en « Livraison partielle » et la barre d\'avancement est à jour. Le stock de votre centre a été augmenté automatiquement des quantités reçues.');
+await focus('.timeline', 10, 'Tout est tracé', 'L\'historique garde la trace de chaque réception : date, heure et personne. Les demandeurs sont prévenus que leurs articles sont arrivés.');
+await p.goto(APP + 'requests'); await wait(800);
+const older2 = p.locator('.stack > .card:has-text("BC-2026-0021")').first();
+await focus(older2, 10, 'Côté suivi des demandes', 'Dans « Suivi des demandes », la demande affiche désormais « Livraison partielle ». Quand le reste arrivera, refaites une réception : elle passera à « Reçue ».');
 
-// 9. Inventaire tablette
-await p.goto(APP + 'stock'); await wait(600);
-await say(9, 'L\'inventaire du centre', 'La page « Inventaire » montre le stock de chaque article, son emplacement et les stocks bas.', 4000);
-await click('a[href*="r=stock/quick"]', { nav: true, after: 600 });
-await say(9, 'Inventaire tablette', 'Sur tablette : scannez un article, saisissez la quantité présente sur l\'étagère, validez.', 1500);
-await click('[data-quick-scan]', { after: 0 });
-await p.waitForSelector('[data-quick-card]:not(.hidden)', { timeout: 15000 }); await wait(800);
+// ================================================================ Partie 4 : stock et aide
+await part(4, 'Inventaire et aide', 'Compter le stock sur tablette · Poser une question');
+await p.goto(APP + 'stock/quick'); await wait(800);
+await say(11, 'Inventaire tablette', 'Pour compter le stock, ouvrez Inventaire puis « Inventaire tablette » : scannez un article et saisissez la quantité présente sur l\'étagère.', 0);
+await wait(6000);
+await click('[data-quick-scan]', { after: 0 }); await scannerOpen();
+await p.evaluate(() => window.__cam('gants'));
+await p.waitForSelector('[data-quick-card]:not(.hidden)', { timeout: 15000 }); await wait(1000);
 const qty = p.locator('[data-q-qty]'); const cur = parseInt(await qty.inputValue(), 10) || 0;
-await moveTo(qty); await qty.fill(String(cur + 3)); await qty.dispatchEvent('input'); await wait(900);
-await say(9, 'Entrées et sorties calculées', 'Inutile de compter ce qui est sorti : l\'écart est calculé tout seul (ici une entrée de 3).', 3500);
-await click('[data-q-go]', { after: 0 });
-await say(9, 'Article suivant', 'Le scanner se relance aussitôt pour l\'article suivant. Un historique s\'affiche en bas de l\'écran.', 2200);
-await p.locator('.scanner [data-close]').click().catch(() => {}); await wait(400);
-await moveTo(p.locator('[data-quick-log] li').first()); await wait(2200);
-
-// 10. Aide
-await p.goto(APP + 'dashboard'); await wait(500);
-await say(10, 'Besoin d\'aide ?', 'Le bouton « Aide » répond tout de suite aux questions courantes.', 1200);
-await click('[data-help-open]', { after: 800 });
-await type('[data-help-form] input[type=text]', 'comment scanner un code-barres ?');
+await p.evaluate(() => window.__cam(null));
+await setQty(qty, cur + 1);
+await say(11, 'Seulement le stock réel', 'Saisissez seulement ce que vous voyez sur l\'étagère : l\'écart avec le stock théorique est calculé tout seul et enregistré comme entrée ou sortie.');
+await click('[data-q-go]', { after: 1500 });
+await say(11, 'Article suivant', 'Après validation, le scanner se relance pour l\'article suivant. Fermez-le quand l\'inventaire est terminé.');
+if (await p.locator('.scanner [data-close]').count()) await click('.scanner [data-close]', { after: 600 });
+await p.goto(APP + 'dashboard'); await wait(600);
+await say(12, 'Besoin d\'aide ?', 'Le bouton « Aide », en bas à droite de chaque page, répond tout de suite aux questions courantes.', 0); await wait(3500);
+await click('[data-help-open]', { after: 900 });
+await type('[data-help-form] input[type=text]', 'comment réceptionner une livraison ?');
 await p.keyboard.press('Enter'); await wait(2500);
-await say(10, 'Un conseiller si besoin', 'Pas de réponse ? « Parler à un conseiller » ouvre une conversation directe avec l\'équipe NLapps.', 5000);
+await say(12, 'Un conseiller si besoin', 'Pas de réponse ? « Parler à un conseiller » ouvre une conversation directe avec l\'équipe NLapps, aux heures d\'ouverture.');
 await say(0, '', '', 0);
 
-// ---------------------------------------------------------------- Fin
-await card('À vous de jouer !', 'Rechercher ou scanner → Ajouter → Envoyer la demande<br>Suivre · Réceptionner · Compter le stock<br><span style="font-size:17px;opacity:.75">Une question ? Bouton « Aide » en bas à droite de l\'écran</span>', 6000);
+// ================================================================ Fin
+await card('À vous de jouer !', 'Rechercher ou scanner → Ajouter → Vérifier le panier → Envoyer<br>Suivre la demande → Réceptionner (scanner, cocher ou saisir) → Enregistrer<br><span style="font-size:17px;opacity:.75">Une question ? Bouton « Aide » en bas à droite de l\'écran</span>', 8000);
+cue('end');
+fs.writeFileSync(path.join(OUT, 'sous-titres.json'), JSON.stringify(cues, null, 1));
+writeCaptions(cues, OUT); // .srt et texte de voix off
 console.log('durée ~', Math.round((Date.now() - t0) / 1000), 's');
 const vid = await p.video().path();
 await ctx.close(); await b.close();
