@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 1.16.0
+- **Tutoriels vidéo** (menu *Aide → Tutoriels vidéo*) : lecteur avec chapitres cliquables (le chapitre en cours est mis en évidence), avance rapide, lecture sur ordinateur, tablette et téléphone. Les vidéos publiées par NLapps arrivent automatiquement (téléchargées en arrière-plan, empreinte vérifiée) ; un administrateur peut aussi ajouter ses propres vidéos (procédures internes), avec titre, mots-clés, chapitres et visibilité (tous / administrateurs).
+- **L'aide en ligne propose la bonne vidéo** : à une question comme « comment réceptionner un colis ? », le chatbot répond et ajoute « Voir le tutoriel vidéo », qui ouvre la vidéo directement au chapitre concerné. Si aucune réponse écrite ne convient, c'est la vidéo qui répond. Raccourci « 🎬 Tutoriels vidéo » dans la bulle d'aide.
+
+### Centre d'assistance NLapps 2.2.0
+- Page **Vidéos** : publiez un tutoriel (MP4) une seule fois, avec ses chapitres et mots-clés ; il est transmis à toutes les installations à jour de leur licence et proposé par leur chatbot. Modification des chapitres sans renvoyer la vidéo ; retrait en un clic.
+
 ## 1.15.1
 - **Réception par scan** : correction, la caméra ne lisait plus que le premier code-barres ; elle enchaîne maintenant tous les articles livrés sans se refermer. Une boîte restée devant la caméra n'est comptée qu'une fois : il suffit de la retirer du cadre puis de présenter la suivante, même s'il s'agit du même article.
 - Vidéo tutoriel « version salarié » enrichie (demande d'articles et réception détaillées), avec le texte des sous-titres pour une voix off (`tools/tutoriel-salarie.mjs`).

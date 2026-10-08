@@ -63,6 +63,9 @@ function hub_migrate(PDO $pdo): void
     $pdo->exec("CREATE TABLE IF NOT EXISTS faq (id INTEGER PRIMARY KEY AUTOINCREMENT, app TEXT NOT NULL DEFAULT '*', question TEXT NOT NULL, keywords TEXT,
         answer TEXT NOT NULL, link_label TEXT, link_route TEXT, admin_only INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1,
         source_conv INTEGER, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS videos (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT NOT NULL UNIQUE, app TEXT NOT NULL DEFAULT '*', title TEXT NOT NULL,
+        description TEXT, keywords TEXT, chapters TEXT, audience TEXT NOT NULL DEFAULT 'all', file TEXT NOT NULL, sha256 TEXT NOT NULL, size INTEGER NOT NULL,
+        duration INTEGER, position INTEGER NOT NULL DEFAULT 0, published INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS quick_replies (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, body TEXT NOT NULL, position INTEGER NOT NULL DEFAULT 0)");
     $pdo->exec("CREATE TABLE IF NOT EXISTS push_subs (id INTEGER PRIMARY KEY AUTOINCREMENT, endpoint TEXT NOT NULL UNIQUE, p256dh TEXT NOT NULL, auth TEXT NOT NULL,
         label TEXT, created_at TEXT NOT NULL, last_ok TEXT)");
@@ -317,6 +320,43 @@ function hub_keywords(string $text): string
         'comment', 'pour', 'par', 'sur', 'dans', 'avec', 'mon', 'ma', 'mes', 'ce', 'cet', 'cette', 'se', 's', 'l', 'd', 'n', 'y', 'vous', 'nous', 'faire', 'peut', 'puis', 'bonjour', 'merci'];
     $words = array_filter(preg_split('/[^a-z0-9]+/', $t), fn($w) => strlen($w) > 1 && !in_array($w, $stop, true));
     return implode(' ', array_slice(array_values(array_unique($words)), 0, 20));
+}
+
+function hub_videos_dir(): string
+{
+    $d = dirname((string)hcfg('db_path')) . '/videos';
+    @mkdir($d, 0750, true);
+    return $d;
+}
+
+/** « 4:12 Titre | mots-clés » par ligne → [['t' => 252, 'title' => 'Titre', 'k' => 'mots-clés'], …] (même format que dans Approvia). */
+function hub_chapters_parse(string $text): array
+{
+    $out = [];
+    foreach (preg_split('/\R/', $text) as $line) {
+        if (preg_match('/^\s*(?:(\d+):)?(\d{1,3}):(\d{2})\s+(.+?)\s*(?:\|\s*(.*))?$/u', $line, $m)) {
+            $out[] = ['t' => (int)$m[1] * 3600 + (int)$m[2] * 60 + (int)$m[3], 'title' => mb_substr(trim($m[4]), 0, 120), 'k' => mb_substr(trim($m[5] ?? ''), 0, 300)];
+        }
+    }
+    usort($out, fn($a, $b) => $a['t'] <=> $b['t']);
+    return $out;
+}
+
+function hub_chapters_text(array $chapters): string
+{
+    return implode("\n", array_map(fn($c) => ($c['t'] >= 3600 ? sprintf('%d:%02d:%02d', intdiv($c['t'], 3600), intdiv($c['t'] % 3600, 60), $c['t'] % 60) : sprintf('%d:%02d', intdiv($c['t'], 60), $c['t'] % 60))
+        . ' ' . $c['title'] . ($c['k'] !== '' ? ' | ' . $c['k'] : ''), $chapters));
+}
+
+/** Tutoriels vidéo publiés pour une application, au format attendu par les installations (sans le chemin du fichier). */
+function hub_videos_for(string $app): array
+{
+    $rows = hall("SELECT * FROM videos WHERE published = 1 AND (app = '*' OR app = ?) ORDER BY position, id", [$app]);
+    return array_map(fn($v) => [
+        'uid' => $v['uid'], 'title' => $v['title'], 'desc' => (string)$v['description'], 'k' => trim(($v['keywords'] ?: '') . ' ' . hub_keywords($v['title'])),
+        'chapters' => json_decode((string)$v['chapters'], true) ?: [], 'audience' => $v['audience'], 'size' => (int)$v['size'], 'sha256' => $v['sha256'],
+        'duration' => (int)$v['duration'], 'position' => (int)$v['position'],
+    ], $rows);
 }
 
 /** FAQ d'une application, au format attendu par le chatbot des applications. */

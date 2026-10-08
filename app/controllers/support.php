@@ -14,7 +14,27 @@ function api_support_ask(): void
         json_response(['answer' => 'Bien sûr, je vous mets en relation avec l\'équipe ' . support_contact()['editor'] . '.', 'links' => [], 'source' => 'human',
             'confident' => false, 'human' => true, 'live' => support_live_enabled(), 'form' => url('support', ['q' => mb_substr($q, 0, 300)])]);
     }
-    $r = support_answer($q, ($u['role'] ?? '') === 'admin', (string)input('page', ''));
+    $isAdmin = ($u['role'] ?? '') === 'admin';
+    $r = support_answer($q, $isAdmin, (string)input('page', ''));
+    // Tutoriel vidéo : la vidéo (et le chapitre) qui correspond le mieux à la question
+    if ($vm = video_match($q, $isAdmin)) {
+        $r['video'] = ['url' => $vm['url'], 'title' => $vm['chapter'] ? $vm['chapter']['title'] : $vm['video']['title'],
+            'sub' => $vm['chapter'] ? '« ' . $vm['video']['title'] . ' » · à partir de ' . video_time((int)$vm['chapter']['t']) : 'Tutoriel vidéo'];
+        if ($r['source'] === 'none') {
+            // Pas de réponse écrite : c'est la vidéo qui répond
+            $r = ['answer' => 'Ce tutoriel vidéo vous montre comment faire, étape par étape :', 'links' => [], 'source' => 'video', 'confident' => true,
+                'others' => [], 'video' => $r['video']];
+        } elseif ($r['source'] === 'faq' && !$r['confident']) {
+            $r['confident'] = true; // réponse écrite approximative, mais complétée par le bon passage de la vidéo
+        }
+    } elseif (preg_match('/\b(video|videos|tuto|tutos|tutoriel|tutoriels)\b/', search_normalize($q)) && video_list($isAdmin)) {
+        $r['links'][] = ['label' => 'Tous les tutoriels vidéo', 'url' => url('videos')];
+        if ($r['source'] === 'none') {
+            $r['answer'] = 'Retrouvez tous les tutoriels vidéo, découpés en chapitres, dans le menu « Tutoriels vidéo » :';
+            $r['source'] = 'video';
+            $r['confident'] = true;
+        }
+    }
     $r['live'] = support_live_enabled();
     $r['form'] = url('support', ['q' => mb_substr($q, 0, 300), 'page' => mb_substr((string)input('page', ''), 0, 120)]);
     json_response($r);

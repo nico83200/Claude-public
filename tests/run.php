@@ -40,6 +40,7 @@ require APP . '/cleanup.php';
 require APP . '/spreadsheet.php';
 require APP . '/import.php';
 require APP . '/support.php';
+require APP . '/videos.php';
 require APP . '/barcode.php';
 require APP . '/licence.php';
 require APP . '/reports.php';
@@ -607,6 +608,43 @@ check(count($rep['increases']) === 1 && $rep['increases'][0]['pct'] === 60.0, 'h
 $upd = one('SELECT * FROM products WHERE id = ?', [$existing]);
 check($upd['name'] === 'Compresses stériles' && (float)$upd['catalog_price'] === 10.0 && str_contains((string)$upd['keywords'], 'Hartmann') && (int)$upd['category_id'] === $hyg, 'article mis à jour (nom, prix, marque en mot-clé, catégorie)');
 check((int)val("SELECT COUNT(*) FROM price_history WHERE product_id = ? AND source = 'Import fichier'", [$existing]) === 1, 'historique des prix alimenté');
+
+section('Tutoriels vidéo');
+$ch = video_chapters_parse("0:00 Se connecter | connexion\n4:12 Réceptionner une livraison | réception colis livré\n1:02:05 Très long\nligne ignorée\n2:05 Scanner un code-barres");
+check(count($ch) === 4 && $ch[1]['t'] === 125 && $ch[2]['t'] === 252 && $ch[2]['k'] === 'réception colis livré' && $ch[3]['t'] === 3725, 'chapitres lus (m:ss et h:mm:ss), triés, lignes invalides ignorées');
+check(video_time(252) === '4:12' && video_time(3725) === '1:02:05', 'durées affichées en m:ss / h:mm:ss');
+check(video_chapters_parse(video_chapters_text($ch)) === $ch, 'chapitres : aller-retour texte ↔ données');
+file_put_contents(videos_dir() . '/test-tuto.mp4', str_repeat('x', 4096));
+$vid = insert('videos', ['uid' => 'test-tuto', 'source' => 'local', 'title' => 'Tutoriel salarié', 'keywords' => 'commander demande panier inventaire', 'description' => 'Faire une demande, réceptionner, compter le stock.',
+    'chapters' => json_encode(video_chapters_parse("0:00 Se connecter | connexion mot de passe\n2:05 Scanner deux articles à la suite | code-barres scan caméra\n4:12 Réceptionner une livraison | réception colis livré carton\n6:20 Inventaire tablette | stock comptage")),
+    'audience' => 'all', 'file' => 'test-tuto.mp4', 'active' => 1, 'created_at' => now()]);
+insert('videos', ['uid' => 'test-admin', 'source' => 'local', 'title' => 'Créer un bon de commande', 'keywords' => 'bon commande fournisseur', 'chapters' => '[]',
+    'audience' => 'admin', 'file' => 'test-tuto.mp4', 'active' => 1, 'created_at' => now()]);
+$m = video_match('comment réceptionner un colis ?', false);
+check($m && $m['video']['uid'] === 'test-tuto' && $m['chapter']['t'] === 252 && str_contains($m['url'], 't=252'), 'aide : « réceptionner un colis » → tutoriel, chapitre « Réceptionner une livraison » (4:12)');
+$m = video_match('je veux voir la vidéo pour scanner', false);
+check($m && $m['chapter']['t'] === 125, 'aide : demande de vidéo sur le scan → chapitre « Scanner »');
+$m = video_match('montre-moi en vidéo comment faire l\'inventaire', false);
+check($m && $m['chapter']['t'] === 380, 'aide : « montre-moi en vidéo comment faire l\'inventaire » → chapitre « Inventaire tablette » plutôt que toute la vidéo');
+check(video_match('quelle est la météo demain', false) === null, 'aide : question hors sujet → pas de vidéo proposée');
+check((video_match('créer un bon de commande fournisseur', false)['video']['uid'] ?? null) !== 'test-admin', 'vidéo réservée aux administrateurs jamais proposée à un salarié');
+check(video_match('créer un bon de commande fournisseur', true)['video']['uid'] === 'test-admin', 'vidéo administrateur proposée à un administrateur');
+check(count(video_list(false)) === 1 && count(video_list(true)) === 2, 'liste des vidéos selon le profil');
+update('videos', ['file' => 'absent.mp4'], 'id = ?', [$vid]);
+check(count(video_list(false)) === 0 && video_match('réceptionner un colis', false) === null, 'vidéo dont le fichier manque : ni listée ni proposée');
+q("DELETE FROM videos WHERE uid IN ('test-tuto', 'test-admin')");
+// Vidéos publiées par NLapps : création, mise à jour (nouveau fichier → retéléchargement), retrait
+videos_sync_remote([['uid' => 'nl-abc', 'title' => 'Tutoriel salarié', 'k' => 'commander', 'chapters' => [['t' => 252, 'title' => 'Réceptionner', 'k' => 'colis']], 'sha256' => str_repeat('a', 64), 'size' => 10]]);
+$r = one("SELECT * FROM videos WHERE uid = 'nl-abc'");
+check($r && $r['source'] === 'hub' && $r['file'] === null && (json_decode($r['chapters'], true)[0]['t'] ?? 0) === 252, 'vidéo NLapps enregistrée, en attente de téléchargement');
+copy(videos_dir() . '/test-tuto.mp4', videos_dir() . '/nl-abc-1.mp4');
+update('videos', ['file' => 'nl-abc-1.mp4', 'active' => 0], 'id = ?', [$r['id']]);
+videos_sync_remote([['uid' => 'nl-abc', 'title' => 'Tutoriel salarié (v2)', 'sha256' => str_repeat('b', 64)]]);
+$r = one("SELECT * FROM videos WHERE uid = 'nl-abc'");
+check($r['title'] === 'Tutoriel salarié (v2)' && $r['file'] === null && !is_file(videos_dir() . '/nl-abc-1.mp4') && (int)$r['active'] === 0, 'nouvelle version : ancien fichier supprimé, à retélécharger ; vidéo masquée par l\'administrateur reste masquée');
+videos_sync_remote([]);
+check(!one("SELECT id FROM videos WHERE uid = 'nl-abc'"), 'vidéo retirée par NLapps supprimée de l\'installation');
+@unlink(videos_dir() . '/test-tuto.mp4');
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));

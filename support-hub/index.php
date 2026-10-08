@@ -109,7 +109,7 @@ if (isset($_GET['feed'])) {
 
 $st = hub_status();
 $p = (string)($_GET['p'] ?? '');
-$pages = ['' => 'Conversations', 'clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ partagée', 'settings' => 'Réglages', 'update' => 'Mise à jour'];
+$pages = ['' => 'Conversations', 'clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ partagée', 'videos' => 'Vidéos', 'settings' => 'Réglages', 'update' => 'Mise à jour'];
 if (!isset($pages[$p])) {
     $p = '';
 }

@@ -97,6 +97,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
       <?php endif; ?>
       <div class="nav-title">Aide</div>
+      <a class="<?= $active('videos', 'admin/videos') ?>" href="<?= url('videos') ?>"><?= icon('play') ?> Tutoriels vidéo</a>
       <a class="<?= $active('support') ?>" href="<?= url('support') ?>"><?= icon('info') ?> Assistance</a>
     </nav>
     <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Approvia · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
@@ -161,6 +162,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     <div class="msg bot">Bonjour <?= e($u['first_name']) ?> 👋 Posez votre question : je réponds tout de suite aux questions courantes, et je vous mets en relation avec un conseiller <?= e(support_contact()['editor']) ?> si besoin.</div>
     <div class="help-chips">
       <?php foreach (array_slice(array_filter(support_faq(), fn($f) => !$f[4] || is_admin()), 0, 4) as $f): ?><button type="button" data-help-ask="<?= e($f[0]) ?>"><?= e($f[0]) ?></button><?php endforeach; ?>
+      <?php if (video_list(is_admin())): ?><a class="help-chip-link" href="<?= url('videos') ?>">🎬 Tutoriels vidéo</a><?php endif; ?>
       <?php if ($liveOn): ?><button type="button" data-help-live>👤 Parler à un conseiller</button><?php endif; ?>
     </div>
   </div>

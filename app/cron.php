@@ -19,6 +19,7 @@ const CRON_TASKS = [
     'licence'   => ['label' => 'Licence, mises à jour et FAQ NLapps', 'every' => 600],
     'cycle'     => ['label' => 'Inventaire tournant de la semaine',   'every' => 21600],
     'report'    => ['label' => 'Rapport achats mensuel (PDF)',        'every' => 21600],
+    'videos'    => ['label' => 'Tutoriels vidéo NLapps',              'every' => 900],
 ];
 
 function cron_last(string $task): int
@@ -51,6 +52,7 @@ function cron_run(bool $force = false): array
                     'support' => support_sync(),
                     'cycle' => cron_cycle_count(),
                     'report' => (report_monthly_run() ? 'rapport créé' : 'à jour'),
+                    'videos' => videos_download_pending(),
                     'licence' => licence_managed() ? (licence_check(true)['status'] ?? '?') : 'sans clé NLapps',
                 };
                 set_setting('cron_last_' . $task, (string)time());

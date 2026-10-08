@@ -357,6 +357,24 @@ function schema_statements(string $driver): array
             response TEXT NOT NULL,
             created_at DATETIME NOT NULL",
 
+        'videos' => "
+            id {PK},
+            uid VARCHAR(40) NOT NULL,
+            source VARCHAR(10) NOT NULL DEFAULT 'local',
+            title VARCHAR(150) NOT NULL,
+            description TEXT NULL,
+            keywords VARCHAR(400) NULL,
+            chapters TEXT NULL,
+            audience VARCHAR(10) NOT NULL DEFAULT 'all',
+            file VARCHAR(120) NULL,
+            size INT NULL,
+            sha256 VARCHAR(64) NULL,
+            duration INT NULL,
+            position INT NOT NULL DEFAULT 0,
+            active TINYINT NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NULL",
+
         'support_chats' => "
             id {PK},
             user_id {FK} NOT NULL,
@@ -414,6 +432,7 @@ function schema_statements(string $driver): array
         'idx_audit_date'          => 'audit_log(created_at)',
         'idx_po_group'            => 'purchase_orders(group_ref)',
         'idx_products_compare'    => 'products(compare_group)',
+        'idx_videos_uid'          => 'videos(uid)',
     ];
     foreach ($indexes as $n => $def) {
         $sql[] = $driver === 'sqlite'

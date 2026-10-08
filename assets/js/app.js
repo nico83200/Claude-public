@@ -789,6 +789,7 @@ document.addEventListener('click', async (e) => {
     transcript.push({ from: 'bot', text: r.answer });
     let html = esc(r.answer);
     if (r.links && r.links.length) html += '<div class="msg-links">' + r.links.map((l) => '<a href="' + esc(l.url) + '">→ ' + esc(l.label) + '</a>').join('') + '</div>';
+    if (r.video) html += '<a class="msg-video" href="' + esc(r.video.url) + '"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor"/></svg><span>' + esc(r.video.title) + '<small>' + esc(r.video.sub) + '</small></span></a>';
     if (r.others && r.others.length) html += '<small>Voir aussi : ' + r.others.map((o) => '<a href="#" data-help-ask="' + esc(o) + '">' + esc(o) + '</a>').join(' · ') + '</small>';
     add(html, 'bot');
     if (r.human && LIVE) { goLive(q); return; }
@@ -989,3 +990,41 @@ document.addEventListener('click', async (e) => {
   document.head.appendChild(s);
 })();
 
+
+/* =====================================================================
+   Tutoriels vidéo : chapitres cliquables, départ au bon moment, durée à l'envoi
+   ===================================================================== */
+(function () {
+  'use strict';
+  const box = document.querySelector('[data-video-player]');
+  if (box) {
+    const video = box.querySelector('video');
+    const chapters = Array.from(box.querySelectorAll('[data-t]'));
+    const start = parseInt(box.dataset.start || '0', 10);
+    const go = (t, play) => { video.currentTime = t; if (play) video.play().catch(() => {}); };
+    if (start > 0) {
+      // Ouverte depuis l'aide sur un chapitre précis : on démarre au bon passage
+      video.addEventListener('loadedmetadata', () => go(start, false), { once: true });
+      box.scrollIntoView({ block: 'start' });
+    }
+    chapters.forEach((b) => b.addEventListener('click', () => { go(parseInt(b.dataset.t, 10), true); video.scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+    video.addEventListener('timeupdate', () => {
+      let cur = null;
+      chapters.forEach((b) => { if (video.currentTime + 0.5 >= parseInt(b.dataset.t, 10)) cur = b; });
+      chapters.forEach((b) => b.classList.toggle('on', b === cur));
+    });
+  }
+  // Envoi d'une vidéo : la durée est lue par le navigateur
+  const up = document.querySelector('[data-video-upload]');
+  if (up) {
+    const file = up.querySelector('input[type=file]');
+    file.addEventListener('change', () => {
+      const f = file.files[0]; if (!f) return;
+      const title = up.querySelector('input[name=title]');
+      if (title && !title.value) title.value = f.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+      const v = document.createElement('video'); v.preload = 'metadata';
+      v.onloadedmetadata = () => { up.querySelector('input[name=duration]').value = Math.round(v.duration || 0); URL.revokeObjectURL(v.src); };
+      v.src = URL.createObjectURL(f);
+    });
+  }
+})();

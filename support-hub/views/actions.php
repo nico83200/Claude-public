@@ -148,6 +148,64 @@ switch ($action) {
         }
         go('index.php?p=releases');
 
+    // ------------------------------------------------------------ Tutoriels vidéo
+    case 'video_upload':
+    case 'video_save':
+        $id = (int)($_POST['id'] ?? 0);
+        $meta = [
+            'title' => mb_substr(trim((string)($_POST['title'] ?? '')), 0, 150),
+            'description' => mb_substr(trim((string)($_POST['description'] ?? '')), 0, 2000) ?: null,
+            'keywords' => mb_substr(trim((string)($_POST['keywords'] ?? '')), 0, 400) ?: null,
+            'chapters' => json_encode(hub_chapters_parse((string)($_POST['chapters'] ?? '')), JSON_UNESCAPED_UNICODE),
+            'audience' => ($_POST['audience'] ?? '') === 'admin' ? 'admin' : 'all',
+            'app' => preg_replace('/[^a-z0-9_*-]/', '', strtolower((string)($_POST['app'] ?? '*'))) ?: '*',
+            'position' => (int)($_POST['position'] ?? 0),
+        ];
+        if ($meta['title'] === '') {
+            flash('Indiquez le titre de la vidéo.', true);
+            go('index.php?p=videos');
+        }
+        if ($action === 'video_save') {
+            hq('UPDATE videos SET title = ?, description = ?, keywords = ?, chapters = ?, audience = ?, app = ?, position = ?, updated_at = ? WHERE id = ?', [...array_values($meta), hnow(), $id]);
+            flash('Vidéo mise à jour : les installations reçoivent les changements à leur prochaine synchronisation.');
+            go('index.php?p=videos');
+        }
+        $f = $_FILES['video'] ?? null;
+        if (!$f || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+            flash('Envoi impossible' . ($f && in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? ' : vidéo trop volumineuse pour la configuration PHP du serveur.' : '.'), true);
+            go('index.php?p=videos');
+        }
+        $mime = (string)(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+        if (!in_array($mime, ['video/mp4', 'video/x-m4v', 'video/quicktime', 'application/mp4'], true)) {
+            flash('Format non pris en charge (' . $mime . ') : envoyez une vidéo MP4 (H.264).', true);
+            go('index.php?p=videos');
+        }
+        $uid = 'nl-' . bin2hex(random_bytes(5));
+        $file = $uid . '.mp4';
+        if (!move_uploaded_file($f['tmp_name'], hub_videos_dir() . '/' . $file)) {
+            flash('Impossible d\'enregistrer la vidéo (droits d\'écriture du dossier data/ ?).', true);
+            go('index.php?p=videos');
+        }
+        $path = hub_videos_dir() . '/' . $file;
+        hq('INSERT INTO videos (uid, title, description, keywords, chapters, audience, app, position, file, sha256, size, duration, published, created_at, updated_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [$uid, ...array_values($meta), $file, hash_file('sha256', $path), filesize($path),
+            (int)($_POST['duration'] ?? 0) ?: null, !empty($_POST['publish']) ? 1 : 0, hnow(), hnow()]);
+        flash('Vidéo « ' . $meta['title'] . ' » ' . (!empty($_POST['publish']) ? 'publiée : elle arrivera dans les installations à leur prochaine synchronisation.' : 'enregistrée (non publiée).'));
+        go('index.php?p=videos');
+
+    case 'video_toggle':
+        hq('UPDATE videos SET published = 1 - published, updated_at = ? WHERE id = ?', [hnow(), (int)$_POST['id']]);
+        go('index.php?p=videos');
+
+    case 'video_delete':
+        $v = hone('SELECT * FROM videos WHERE id = ?', [(int)$_POST['id']]);
+        if ($v) {
+            @unlink(hub_videos_dir() . '/' . basename($v['file']));
+            hq('DELETE FROM videos WHERE id = ?', [$v['id']]);
+            flash('Vidéo supprimée : elle disparaîtra des installations à leur prochaine synchronisation.');
+        }
+        go('index.php?p=videos');
+
     // ------------------------------------------------------------ FAQ partagée
     case 'faq_save':
         $id = (int)($_POST['id'] ?? 0);

@@ -5,7 +5,8 @@ Console unique pour gérer toutes les installations de vos applications NLapps (
 - **Conversations en direct** avec les utilisateurs (bulle d'aide de l'application), captures d'écran, réponses rapides, suggestion de réponse par l'IA, suivi « à traiter / en attente / résolue », note de satisfaction ;
 - **Parc clients et licences** : abonnement, échéance, option assistant IA, suspension, version installée, usage, revenu mensuel estimé ;
 - **Versions** : vous publiez une mise à jour, chaque installation la propose en un clic à son administrateur ;
-- **FAQ partagée** : les questions publiées ici enrichissent le chatbot de toutes les installations, sans mise à jour.
+- **FAQ partagée** : les questions publiées ici enrichissent le chatbot de toutes les installations, sans mise à jour ;
+- **Tutoriels vidéo** : une vidéo publiée ici arrive dans toutes les installations (menu « Tutoriels vidéo ») et le chatbot la propose, au bon chapitre.
 
 Sur ordinateur ou téléphone (console installable, notifications push).
 
@@ -52,6 +53,17 @@ Sur ordinateur ou téléphone (console installable, notifications push).
 ## Versions
 
 **Versions → Publier** : déposez le paquet de mise à jour (ex. `approvia-1.12.0.zip`, produit par `php tools/build-update.php`). La version et les notes sont lues dans le paquet. Les installations sous licence active la voient dans un bandeau et la page *Mises à jour*, la téléchargent (empreinte SHA-256 vérifiée) et l'installent avec sauvegarde automatique et retour arrière possible. « Retirer » la rend invisible.
+
+## Tutoriels vidéo
+
+**Vidéos → Publier une vidéo** : déposez le fichier MP4 (H.264), un titre, des mots-clés et les chapitres, un par ligne :
+
+```
+0:00 Se connecter et se repérer | connexion menu centre
+4:12 Réceptionner une livraison | réception colis livré scanner
+```
+
+Les installations reçoivent la liste à leur prochaine vérification de licence (moins de 10 minutes) et téléchargent la vidéo en arrière-plan (empreinte vérifiée). Le chatbot propose ensuite la vidéo et ouvre directement le chapitre qui répond à la question. Les chapitres et mots-clés se modifient à tout moment sans renvoyer la vidéo. Taille d'envoi : limitée par `upload_max_filesize` et `post_max_size` (à augmenter chez l'hébergeur au besoin).
 
 ## Brancher vos autres applications NLapps
 

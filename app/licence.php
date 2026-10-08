@@ -80,7 +80,7 @@ function licence_check(bool $force = false): array
     }
     $r = support_hub('check', [], [
         'app' => 'approvia', 'version' => APP_VERSION, 'url' => licence_instance_url(), 'php' => PHP_VERSION,
-        'stats' => licence_stats(), 'faq_hash' => (string)setting('faq_remote_hash', ''),
+        'stats' => licence_stats(), 'faq_hash' => (string)setting('faq_remote_hash', ''), 'videos_hash' => videos_remote_hash(),
     ]);
     if ($r === null) {
         $code = support_hub_last_code();
@@ -106,6 +106,11 @@ function licence_check(bool $force = false): array
     if (isset($r['faq']['items']) && is_array($r['faq']['items'])) {
         set_setting('faq_remote', json_encode($r['faq']['items'], JSON_UNESCAPED_UNICODE));
         set_setting('faq_remote_hash', (string)($r['faq']['hash'] ?? ''));
+    }
+    // Tutoriels vidéo publiés par NLapps : liste mise à jour ici, fichiers téléchargés par la tâche planifiée « videos »
+    if (isset($r['videos']['items']) && is_array($r['videos']['items'])) {
+        videos_sync_remote($r['videos']['items']);
+        set_setting('videos_remote_hash', (string)($r['videos']['hash'] ?? ''));
     }
     return $state;
 }

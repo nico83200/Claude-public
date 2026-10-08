@@ -335,6 +335,8 @@ function icon(string $name, int $size = 20, string $class = ''): string
         'check-circle' => '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
         'x' => '<path d="M6 6l12 12M18 6 6 18"/>',
         'plus' => '<path d="M12 5v14M5 12h14"/>',
+        'list' => '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+        'play' => '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/>',
         'minus' => '<path d="M5 12h14"/>',
         'edit' => '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/>',
         'trash' => '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>',

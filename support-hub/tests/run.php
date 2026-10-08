@@ -129,6 +129,20 @@ try {
     check(true, 'fichier non image refusé');
 }
 
+// Tutoriels vidéo
+$ch = hub_chapters_parse("0:00 Se connecter | connexion\n4:12 Réceptionner une livraison | colis\nbruit\n1:00:00 Fin");
+check(count($ch) === 3 && $ch[1]['t'] === 252 && $ch[1]['k'] === 'colis' && $ch[2]['t'] === 3600, 'chapitres de vidéo lus (m:ss, h:mm:ss)');
+check(hub_chapters_parse(hub_chapters_text($ch)) === $ch, 'chapitres : aller-retour texte ↔ données');
+hq('INSERT INTO videos (uid, app, title, keywords, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+    ['nl-1', '*', 'Tutoriel salarié', 'commander', json_encode($ch), 'all', 'nl-1.mp4', str_repeat('a', 64), 1000, 0, 1, hnow(), hnow()]);
+hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+    ['nl-2', 'autreappli', 'Autre application', '[]', 'all', 'nl-2.mp4', str_repeat('b', 64), 1000, 0, 1, hnow(), hnow()]);
+hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+    ['nl-3', 'approvia', 'Brouillon', '[]', 'all', 'nl-3.mp4', str_repeat('c', 64), 1000, 0, 0, hnow(), hnow()]);
+$vids = hub_videos_for('approvia');
+check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel'),
+    'vidéos transmises : publiées, de l\'application, avec chapitres et mots-clés, sans chemin de fichier');
+
 $rm = function (string $d) use (&$rm): void {
     foreach (glob($d . '/*') ?: [] as $f) {
         is_dir($f) ? $rm($f) : unlink($f);

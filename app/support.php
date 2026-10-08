@@ -66,6 +66,8 @@ function support_faq_builtin(): array
         ['Où en est ma demande ?', 'suivi suivre statut etat demande attente livree commandee commande quand recu ou en est arrive',
             "« Suivi des demandes » indique pour chaque article : en attente, validé, commandé (avec le n° de bon) ou reçu. Vous recevez aussi une notification à chaque étape.", ['Suivi des demandes', 'requests'], false,
             '/\\bou en (est|sont)\\b|\\bsuivi\\b|\\bquand\\b.*\\b(arrive|livre|recu)/'],
+        ['Comment annuler une demande ?', 'annuler annulation supprimer retirer demande ligne erreur trompe plus besoin',
+            "Dans « Suivi des demandes », cliquez sur « Annuler » sur la ligne concernée : c'est possible tant qu'elle est « En attente » (pas encore commandée). Ensuite, prévenez le service achats.", ['Suivi des demandes', 'requests'], false],
         ['Comment enregistrer une livraison ?', 'reception reçu livraison livre colis cocher arrive bon recu receptionner',
             "Ouvrez « Réceptions », choisissez le bon livré, cochez les articles reçus (ou saisissez la quantité réellement livrée) puis « Enregistrer la réception ». Le stock du centre est mis à jour automatiquement.", ['Réceptions', 'receptions'], false],
         ['Comment faire l\'inventaire ou une sortie de stock ?', 'stock inventaire sortie entree comptage quantite reserve mode reserve consommation',
@@ -286,7 +288,7 @@ function support_hub_last_code(): int
  * Appel du centre d'assistance renvoyant un contenu binaire (paquet de mise à jour, image) :
  * écrit dans $dest si fourni. Renvoie le code HTTP ; $type reçoit le type de contenu.
  */
-function support_hub_download(string $action, array $query, ?string $dest = null, ?string &$type = null, ?string &$body = null): int
+function support_hub_download(string $action, array $query, ?string $dest = null, ?string &$type = null, ?string &$body = null, int $timeout = 120): int
 {
     if (!support_live_enabled()) {
         return 0;
@@ -297,7 +299,7 @@ function support_hub_download(string $action, array $query, ?string $dest = null
     if (function_exists('curl_init')) {
         $ch = curl_init($url);
         $fh = $dest ? fopen($dest, 'wb') : null;
-        curl_setopt_array($ch, [CURLOPT_HTTPHEADER => $headers, CURLOPT_TIMEOUT => 120, CURLOPT_CONNECTTIMEOUT => 6, CURLOPT_FOLLOWLOCATION => false]
+        curl_setopt_array($ch, [CURLOPT_HTTPHEADER => $headers, CURLOPT_TIMEOUT => $timeout, CURLOPT_CONNECTTIMEOUT => 6, CURLOPT_FOLLOWLOCATION => false]
             + ($fh ? [CURLOPT_FILE => $fh] : [CURLOPT_RETURNTRANSFER => true]));
         $out = curl_exec($ch);
         $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -310,7 +312,7 @@ function support_hub_download(string $action, array $query, ?string $dest = null
         }
         return $code;
     }
-    $ctx = stream_context_create(['http' => ['method' => 'GET', 'header' => implode("\r\n", $headers), 'timeout' => 120, 'ignore_errors' => true]]);
+    $ctx = stream_context_create(['http' => ['method' => 'GET', 'header' => implode("\r\n", $headers), 'timeout' => $timeout, 'ignore_errors' => true]]);
     $out = @file_get_contents($url, false, $ctx);
     $code = (int)preg_replace('/^HTTP\/\S+ (\d+).*/', '$1', $http_response_header[0] ?? 'HTTP/1.1 0');
     foreach ($http_response_header ?? [] as $h) {

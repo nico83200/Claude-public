@@ -10,11 +10,12 @@ declare(strict_types=1);
  *   POST api.php?a=send   {id, token, text}
  *   GET  api.php?a=poll&id=&token=&after=
  *   POST api.php?a=close  {id, token}
- *   POST api.php?a=check  {app, version, url, php, stats:{users,centers}, faq_hash}  → licence, dernière version, FAQ partagée
+ *   POST api.php?a=check  {app, version, url, php, stats:{users,centers}, faq_hash}  → licence, dernière version, FAQ partagée, tutoriels vidéo
  *   GET  api.php?a=download&v=1.2.3                                                  → paquet de mise à jour (licence valide)
  *   POST api.php?a=attach {id, token, data (image en base64), text}                   → capture d'écran jointe
  *   GET  api.php?a=file&id=&token=&f=                                                 → image d'une conversation
  *   POST api.php?a=rate   {id, token, rating (1-5), comment}                          → satisfaction après clôture
+ *   GET  api.php?a=video&id=…                                                         → fichier d'un tutoriel vidéo (licence à jour)
  *   GET  api.php?a=faq                                                                → FAQ partagée seule
  */
 require __DIR__ . '/lib.php';
@@ -142,11 +143,14 @@ switch ($a) {
         $latest = hub_latest_release($app);
         $faq = hub_faq_for($app);
         $faqHash = substr(sha1(json_encode($faq)), 0, 16);
+        $videos = hub_videos_for($app);
+        $videosHash = substr(sha1(json_encode($videos)), 0, 16);
         out([
             'licence' => $lic,
             'latest' => $latest ? ['version' => $latest['version'], 'notes' => $latest['notes'], 'date' => substr($latest['created_at'], 0, 10),
                 'size' => (int)$latest['size'], 'sha256' => $latest['sha256'], 'downloadable' => in_array($lic['status'], ['active', 'grace'], true)] : null,
             'faq' => ['hash' => $faqHash] + (($in['faq_hash'] ?? '') !== $faqHash ? ['items' => $faq] : []),
+            'videos' => ['hash' => $videosHash] + (($in['videos_hash'] ?? '') !== $videosHash ? ['items' => $videos] : []),
             'status' => hub_status(),
         ]);
 
@@ -165,6 +169,28 @@ switch ($a) {
         header('Content-Length: ' . filesize($path));
         header('X-Sha256: ' . $r['sha256']);
         header('Content-Disposition: attachment; filename="' . $r['app'] . '-' . $r['version'] . '.zip"');
+        readfile($path);
+        exit;
+
+    case 'video':
+        // Tutoriel vidéo, téléchargé une fois par chaque installation (en arrière-plan)
+        $lic = hub_licence($client);
+        if (!in_array($lic['status'], ['active', 'grace'], true)) {
+            out(['error' => 'Licence non à jour.'], 402);
+        }
+        $v = hone("SELECT * FROM videos WHERE uid = ? AND published = 1 AND (app = '*' OR app = ?)", [(string)($_GET['id'] ?? ''), $client['app'] ?: 'approvia']);
+        $path = $v ? hub_videos_dir() . '/' . basename($v['file']) : '';
+        if (!$v || !is_file($path)) {
+            out(['error' => 'Vidéo introuvable.'], 404);
+        }
+        @set_time_limit(0);
+        header_remove('Content-Type');
+        header('Content-Type: video/mp4');
+        header('Content-Length: ' . filesize($path));
+        header('X-Sha256: ' . $v['sha256']);
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         readfile($path);
         exit;
 
