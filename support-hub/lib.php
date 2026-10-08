@@ -74,7 +74,7 @@ function hub_migrate(PDO $pdo): void
             'paid_until' => 'TEXT', 'ai_option' => 'INTEGER NOT NULL DEFAULT 0', 'licence_note' => 'TEXT', 'app_version' => 'TEXT', 'instance_url' => 'TEXT',
             'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT'],
         'conversations' => ['rating' => 'INTEGER', 'rating_comment' => 'TEXT', 'transcript_sent' => 'INTEGER NOT NULL DEFAULT 0'],
-        'messages' => ['file' => 'TEXT'],
+        'messages' => ['file' => 'TEXT', 'author' => 'TEXT'],
     ];
     foreach ($cols as $table => $defs) {
         $have = array_column($pdo->query("PRAGMA table_info($table)")->fetchAll(PDO::FETCH_ASSOC), 'name');
@@ -84,6 +84,74 @@ function hub_migrate(PDO $pdo): void
             }
         }
     }
+    // 3.0 : comptes nominatifs (identifiant + mot de passe) et applications gérées
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE COLLATE NOCASE, name TEXT NOT NULL,
+        email TEXT, password_hash TEXT NOT NULL, totp_secret TEXT, role TEXT NOT NULL DEFAULT 'admin', active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL, last_login TEXT)");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS apps (slug TEXT PRIMARY KEY, name TEXT NOT NULL, color TEXT NOT NULL DEFAULT '#4f46e5',
+        price_base REAL NOT NULL DEFAULT 0, price_ai REAL NOT NULL DEFAULT 0, position INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)");
+    $now = date('Y-m-d H:i:s');
+    if (!(int)$pdo->query('SELECT COUNT(*) FROM apps')->fetchColumn()) {
+        $pdo->prepare('INSERT INTO apps (slug, name, color, price_base, price_ai, position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute(['approvia', 'Approvia', '#6366f1', 39, 15, 0, $now]);
+    }
+    // Applications déjà présentes dans le parc (versions antérieures : champ libre)
+    foreach ($pdo->query("SELECT app FROM clients UNION SELECT app FROM releases UNION SELECT app FROM faq UNION SELECT app FROM videos")->fetchAll(PDO::FETCH_COLUMN) as $slug) {
+        if ($slug && $slug !== '*') {
+            $pdo->prepare('INSERT OR IGNORE INTO apps (slug, name, created_at, position) VALUES (?, ?, ?, 99)')->execute([$slug, ucfirst($slug), $now]);
+        }
+    }
+    // Ancien accès par mot de passe seul → compte « admin » (même mot de passe, même double authentification)
+    if (!(int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn()) {
+        $get = fn($k) => ($r = $pdo->query('SELECT v FROM settings WHERE k = ' . $pdo->quote($k))->fetchColumn()) !== false ? $r : null;
+        if ($hash = $get('password_hash')) {
+            $pdo->prepare("INSERT INTO users (username, name, password_hash, totp_secret, role, created_at) VALUES ('admin', ?, ?, ?, 'admin', ?)")
+                ->execute([(string)(hcfg('operator_name') ?: 'Administrateur'), $hash, $get('totp_secret'), $now]);
+            $pdo->exec("INSERT INTO settings (k, v) VALUES ('legacy_login', '1') ON CONFLICT(k) DO UPDATE SET v = '1'");
+            $pdo->exec("DELETE FROM settings WHERE k IN ('password_hash', 'totp_secret')");
+        }
+    }
+}
+
+// ---------------------------------------------------------------- Comptes et applications (3.0)
+
+/** Applications gérées par la console, dans l'ordre du menu. */
+function hub_apps(): array
+{
+    static $apps = null;
+    return $apps ??= hall('SELECT * FROM apps ORDER BY position, name');
+}
+
+function hub_app(?string $slug): ?array
+{
+    foreach (hub_apps() as $a) {
+        if ($a['slug'] === $slug) {
+            return $a;
+        }
+    }
+    return null;
+}
+
+function hub_app_name(string $slug): string
+{
+    return $slug === '*' ? 'Toutes les applications' : (hub_app($slug)['name'] ?? $slug);
+}
+
+function hub_slug(string $s): string
+{
+    $s = strtolower(strtr($s, ['à' => 'a', 'â' => 'a', 'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e', 'î' => 'i', 'ï' => 'i', 'ô' => 'o', 'ù' => 'u', 'û' => 'u', 'ç' => 'c']));
+    return trim(preg_replace('/[^a-z0-9]+/', '-', $s), '-');
+}
+
+function hub_user(int $id): ?array
+{
+    return $id ? hone('SELECT * FROM users WHERE id = ? AND active = 1', [$id]) : null;
+}
+
+/** Identifiant valide : lettres, chiffres, point, tiret, souligné, @ (3 à 60 caractères). */
+function hub_valid_username(string $u): bool
+{
+    return (bool)preg_match('/^[A-Za-z0-9._@-]{3,60}$/', $u);
 }
 
 function hq(string $sql, array $p = []): PDOStatement
@@ -371,13 +439,13 @@ function hub_faq_for(string $app): array
 
 function hub_messages(int $convId, int $after = 0): array
 {
-    return array_map(fn($m) => ['id' => (int)$m['id'], 'from' => $m['sender'], 'text' => $m['body'], 'at' => $m['created_at'], 'file' => $m['file'] ?? null],
+    return array_map(fn($m) => ['id' => (int)$m['id'], 'from' => $m['sender'], 'text' => $m['body'], 'at' => $m['created_at'], 'file' => $m['file'] ?? null, 'author' => $m['author'] ?? null],
         hall('SELECT * FROM messages WHERE conversation_id = ? AND id > ? ORDER BY id', [$convId, $after]));
 }
 
-function hub_add_message(int $convId, string $sender, string $body, ?string $file = null): int
+function hub_add_message(int $convId, string $sender, string $body, ?string $file = null, ?string $author = null): int
 {
-    hq('INSERT INTO messages (conversation_id, sender, body, file, created_at) VALUES (?, ?, ?, ?, ?)', [$convId, $sender, mb_substr($body, 0, 4000), $file, hnow()]);
+    hq('INSERT INTO messages (conversation_id, sender, body, file, author, created_at) VALUES (?, ?, ?, ?, ?, ?)', [$convId, $sender, mb_substr($body, 0, 4000), $file, $author, hnow()]);
     $id = (int)hdb()->lastInsertId();
     if ($sender === 'user') {
         hq("UPDATE conversations SET updated_at = ?, unread = unread + 1, status = 'open' WHERE id = ?", [hnow(), $convId]);

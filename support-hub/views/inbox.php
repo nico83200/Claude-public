@@ -16,12 +16,16 @@ $first = $conv ? explode(' ', trim((string)$conv['user_name']))[0] : '';
 ?>
 <main class="inbox <?= $conv ? 'has-conv' : '' ?>">
   <aside class="list">
-    <div class="tabs" data-tabs><?php foreach ($tabs as $k => $label): ?><a href="index.php?tab=<?= $k ?>" class="<?= $tab === $k ? 'act' : '' ?>" data-tab="<?= $k ?>"><?= h($label) ?><?= $k !== 'all' && !empty($counts[$k]) ? ' (' . (int)$counts[$k] . ')' : '' ?></a><?php endforeach; ?></div>
-    <div data-list data-tab="<?= h($tab) ?>">
-      <?php $list = conv_list($tab); foreach ($list as $c): ?>
+    <?php $multi = count(hub_apps()) > 1; $af = $app['slug'] ?? ''; $q = fn(array $x) => 'index.php?' . http_build_query(array_filter($x + ['tab' => $tab, 'app' => $af], fn($v) => $v !== '')); ?>
+    <?php if ($multi): // Conversations mutualisées : filtre facultatif par application ?>
+      <div class="appchips"><a href="<?= h($q(['app' => ''])) ?>" class="<?= $af === '' ? 'act' : '' ?>">Toutes</a><?php foreach (hub_apps() as $a): ?><a href="<?= h($q(['app' => $a['slug']])) ?>" class="<?= $af === $a['slug'] ? 'act' : '' ?>"><span class="dot" style="background:<?= h($a['color']) ?>"></span><?= h($a['name']) ?></a><?php endforeach; ?></div>
+    <?php endif; ?>
+    <div class="tabs" data-tabs><?php foreach ($tabs as $k => $label): ?><a href="<?= h($q(['tab' => $k])) ?>" class="<?= $tab === $k ? 'act' : '' ?>" data-tab="<?= $k ?>"><?= h($label) ?><?= $k !== 'all' && !empty($counts[$k]) ? ' (' . (int)$counts[$k] . ')' : '' ?></a><?php endforeach; ?></div>
+    <div data-list data-tab="<?= h($tab) ?>" data-app="<?= h($af) ?>" <?= $multi ? 'data-multi="1"' : '' ?>>
+      <?php $list = conv_list($tab, $af); foreach ($list as $c): ?>
         <a href="index.php?c=<?= (int)$c['id'] ?>" class="item <?= (int)$c['id'] === $cid ? 'sel' : '' ?>">
           <span class="who"><?= h($c['user_name'] ?: 'Utilisateur') ?><?php if ($c['unread']): ?><i class="badge"><?= (int)$c['unread'] ?></i><?php endif; ?></span>
-          <small><?= h($c['client']) ?><?= $c['center'] ? ' · ' . h($c['center']) : '' ?></small>
+          <small><?php if ($multi): ?><span class="dot" style="background:<?= h(hub_app($c['app'])['color'] ?? '#94a3b8') ?>"></span> <?= h(hub_app_name($c['app'])) ?> · <?php endif; ?><?= h($c['client']) ?><?= $c['center'] ? ' · ' . h($c['center']) : '' ?></small>
           <span class="last"><?= h(mb_substr((string)$c['last'], 0, 70)) ?></span>
         </a>
       <?php endforeach; ?>
@@ -34,8 +38,8 @@ $first = $conv ? explode(' ', trim((string)$conv['user_name']))[0] : '';
         <a href="index.php?tab=<?= h($tab) ?>" class="back">←</a>
         <div><b><?= h($conv['user_name'] ?: 'Utilisateur') ?></b> <small class="muted"><?= h($conv['user_role']) ?></small> <span class="tag <?= $stt[1] ?>" data-status-tag><?= h($stt[0]) ?></span>
           <?php if ($conv['rating'] !== null): ?><span class="stars" title="<?= h((string)$conv['rating_comment']) ?>"><?= str_repeat('★', (int)$conv['rating']) . str_repeat('☆', 5 - (int)$conv['rating']) ?></span><?php endif; ?><br>
-          <small><?= h($conv['client']) ?><?= $conv['center'] ? ' · ' . h($conv['center']) : '' ?><?= $conv['user_email'] ? ' · ' . h($conv['user_email']) : '' ?></small></div>
-        <a class="btn sm" href="index.php?p=faq&from=<?= $cid ?>" title="Transformer la réponse en question de la FAQ partagée">＋ FAQ</a>
+          <small><?= count(hub_apps()) > 1 ? h(hub_app_name((string)$conv['app'])) . ' · ' : '' ?><?= h($conv['client']) ?><?= $conv['center'] ? ' · ' . h($conv['center']) : '' ?><?= $conv['user_email'] ? ' · ' . h($conv['user_email']) : '' ?></small></div>
+        <a class="btn sm" href="index.php?p=faq&app=<?= h(rawurlencode((string)$conv['app'])) ?>&from=<?= $cid ?>" title="Transformer la réponse en question de la FAQ partagée">＋ FAQ</a>
         <form method="post" class="row" style="gap:.4rem">
           <?= csrf_input() ?><input type="hidden" name="c" value="<?= $cid ?>"><input type="hidden" name="action" value="set_status">
           <?php if ($conv['status'] !== 'pending' && $conv['status'] !== 'closed'): ?><button class="btn sm" name="status" value="pending" title="Vous attendez une réponse ou une action de l'utilisateur">En attente</button><?php endif; ?>
@@ -48,7 +52,7 @@ $first = $conv ? explode(' ', trim((string)$conv['user_name']))[0] : '';
       <?php if ($conv['context']): ?><details class="ctx"><summary>Contexte technique</summary><pre><?= h($conv['context']) ?></pre></details><?php endif; ?>
       <div class="msgs" data-msgs data-c="<?= $cid ?>">
         <?php $last = 0; foreach (hub_messages($cid) as $m): $last = $m['id']; ?>
-          <div class="m <?= h($m['from']) ?>"><div><?= nl2br(h($m['text'])) ?></div><?php if ($m['file']): ?><a href="index.php?file=<?= h($m['file']) ?>" target="_blank"><img src="index.php?file=<?= h($m['file']) ?>" alt="Image jointe" loading="lazy"></a><?php endif; ?><small><?= ['bot' => 'Chatbot', 'user_bot' => 'Question au chatbot', 'user' => 'Utilisateur', 'agent' => 'Vous', 'system' => ''][$m['from']] ?? '' ?> · <?= h(substr($m['at'], 0, 10) === date('Y-m-d') ? substr($m['at'], 11, 5) : date('d/m H:i', strtotime($m['at']))) ?></small></div>
+          <div class="m <?= h($m['from']) ?>"><div><?= nl2br(h($m['text'])) ?></div><?php if ($m['file']): ?><a href="index.php?file=<?= h($m['file']) ?>" target="_blank"><img src="index.php?file=<?= h($m['file']) ?>" alt="Image jointe" loading="lazy"></a><?php endif; ?><small><?= $m['from'] === 'agent' && !empty($m['author']) ? h($m['author']) : (['bot' => 'Chatbot', 'user_bot' => 'Question au chatbot', 'user' => 'Utilisateur', 'agent' => 'Vous', 'system' => ''][$m['from']] ?? '') ?> · <?= h(substr($m['at'], 0, 10) === date('Y-m-d') ? substr($m['at'], 11, 5) : date('d/m H:i', strtotime($m['at']))) ?></small></div>
         <?php endforeach; ?>
       </div>
       <form class="reply" method="post" enctype="multipart/form-data" data-reply data-last="<?= $last ?>" data-first="<?= h($first) ?>">

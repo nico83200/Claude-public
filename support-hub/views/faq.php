@@ -13,7 +13,7 @@ if ($from = (int)($_GET['from'] ?? 0)) {
         $prefill['question'] = $userMsgs[0]['text'];
     }
 }
-$faq = hall('SELECT * FROM faq ORDER BY active DESC, updated_at DESC');
+$faq = hall("SELECT * FROM faq WHERE app IN (?, '*') ORDER BY active DESC, updated_at DESC", [$app['slug']]);
 
 function faq_form(array $f, string $submit): void
 {
@@ -23,7 +23,7 @@ function faq_form(array $f, string $submit): void
     <label>Réponse du chatbot</label><textarea name="answer" rows="4" required maxlength="2000"><?= h($f['answer'] ?? '') ?></textarea>
     <div class="grid2">
       <div><label>Mots-clés supplémentaires <small class="muted">(synonymes, fautes courantes)</small></label><input name="keywords" value="<?= h($f['keywords'] ?? '') ?>" placeholder="ex : imprimante impression pdf"></div>
-      <div><label>Application</label><select name="app"><option value="*">Toutes</option><option value="approvia" <?= ($f['app'] ?? '') === 'approvia' ? 'selected' : '' ?>>Approvia</option></select></div>
+      <div><label>Visible dans</label><select name="app"><option value="<?= h($GLOBALS['app']['slug']) ?>"><?= h($GLOBALS['app']['name']) ?> uniquement</option><option value="*" <?= ($f['app'] ?? '') === '*' ? 'selected' : '' ?>>Toutes les applications</option></select></div>
       <div><label>Bouton vers une page <small class="muted">(facultatif)</small></label><input name="link_label" value="<?= h($f['link_label'] ?? '') ?>" placeholder="ex : Inventaire"></div>
       <div><label>Page de l'application</label><input name="link_route" value="<?= h($f['link_route'] ?? '') ?>" placeholder="ex : stock"></div>
     </div>
@@ -35,7 +35,7 @@ function faq_form(array $f, string $submit): void
 ?>
 <main class="wrap">
   <?= $flashHtml ?>
-  <h1>FAQ partagée</h1>
+  <h1><span class="dot" style="background:<?= h($app['color']) ?>;width:14px;height:14px"></span> FAQ · <?= h($app['name']) ?></h1>
   <p class="muted">Ces questions s'ajoutent à celles intégrées au chatbot de chaque installation, sans mise à jour : elles sont transmises à la prochaine synchronisation (moins de 10 minutes). Depuis une conversation, « ＋ FAQ » prépare la question et votre réponse.</p>
   <form method="post" class="card">
     <h2><?= $prefill['source'] ? 'Nouvelle question, d\'après la conversation #' . $prefill['source'] : 'Nouvelle question' ?></h2>
@@ -44,7 +44,7 @@ function faq_form(array $f, string $submit): void
   <?php foreach ($faq as $f): ?>
     <div class="card <?= $f['active'] ? '' : 'dim' ?>">
       <div class="row"><b style="flex:1"><?= h($f['question']) ?></b>
-        <?= $f['admin_only'] ? '<span class="tag violet">admin</span>' : '' ?><span class="tag"><?= h($f['app'] === '*' ? 'toutes applis' : $f['app']) ?></span>
+        <?= $f['admin_only'] ? '<span class="tag violet">admin</span>' : '' ?><?= $f['app'] === '*' ? '<span class="tag blue">toutes les applications</span>' : '' ?>
         <form method="post" onsubmit="return confirm('Supprimer cette question ?')"><?= csrf_input() ?><input type="hidden" name="action" value="faq_delete"><input type="hidden" name="id" value="<?= (int)$f['id'] ?>"><button class="btn sm danger">Supprimer</button></form>
       </div>
       <p style="margin:.4rem 0 0;white-space:pre-line"><?= h($f['answer']) ?></p>

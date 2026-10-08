@@ -8,15 +8,15 @@ Console unique pour gérer toutes les installations de vos applications NLapps (
 - **FAQ partagée** : les questions publiées ici enrichissent le chatbot de toutes les installations, sans mise à jour ;
 - **Tutoriels vidéo** : une vidéo publiée ici arrive dans toutes les installations (menu « Tutoriels vidéo ») et le chatbot la propose, au bon chapitre.
 
-Sur ordinateur ou téléphone (console installable, notifications push).
+Une seule console pour toutes vos applications : les **conversations** sont communes (avec un filtre par application), et chaque application a son **sous-menu** (parc clients, versions, FAQ, vidéos). Même interface sur ordinateur, tablette et téléphone (menu latéral, en tiroir sur petit écran), installable comme une application, avec notifications push. Chaque personne de l'équipe a son **compte** (identifiant + mot de passe, double authentification).
 
 ## Installation (5 minutes, sur nlapps.fr)
 
 1. Déposez le contenu du paquet `nlapps-assistance.zip` (dossier `assistance/`) dans le site, par exemple `public_html/assistance` → `https://nlapps.fr/assistance/`.
    PHP 8.1+ avec les extensions SQLite, OpenSSL et Zip (présentes par défaut chez Hostinger). Aucune base MySQL n'est nécessaire.
-2. Ouvrez `https://nlapps.fr/assistance/` : à la première visite, choisissez le mot de passe de la console.
-   Puis **Réglages → Sécurité → Double authentification** (fortement conseillé).
-3. **Parc clients → Nouveau client** pour chaque installation : nom, formule, date « payé jusqu'au », option IA.
+2. Ouvrez `https://nlapps.fr/assistance/` : à la première visite, créez le compte administrateur (nom, identifiant, mot de passe).
+   Puis **Mon compte → Double authentification** (fortement conseillé).
+3. **Approvia → Parc clients → Nouveau client** pour chaque installation : nom, formule, date « payé jusqu'au », option IA.
    Copiez les deux lignes affichées et collez-les dans Approvia, **Administration → Paramètres → Licence et assistance NLapps**, puis « Enregistrer et tester » :
    ```php
    'support_hub_url' => 'https://nlapps.fr/assistance/api.php',
@@ -25,9 +25,16 @@ Sur ordinateur ou téléphone (console installable, notifications push).
    Cette clé sert à la fois de licence, d'accès aux mises à jour, de FAQ partagée et de conversation en direct.
 4. (Facultatif) `config.php`, à partir de `config.sample.php` : e-mail d'alerte, nom affiché, notification via **ntfy**.
 
-**Mettre à jour le centre d'assistance** : **Réglages → Mise à jour du centre**, déposez le paquet (`nlapps-assistance-maj.zip`, ou le paquet complet) et confirmez avec votre mot de passe. Sauvegarde automatique, retour à la version précédente en un clic ; `config.php` et `data/` ne sont jamais touchés. (Pour passer d'une version 2.0 à 2.1, copiez une fois les fichiers par FTP : la page de mise à jour arrive avec la 2.1.)
+**Mettre à jour le centre d'assistance** : **Administration → Mise à jour**, déposez le paquet (`nlapps-assistance-maj.zip`, ou le paquet complet) et confirmez avec votre mot de passe. Sauvegarde automatique, retour à la version précédente en un clic ; `config.php` et `data/` ne sont jamais touchés. (Pour passer d'une version 2.0 à 2.1, copiez une fois les fichiers par FTP : la page de mise à jour arrive avec la 2.1.)
 
 **Installer la console sur vos appareils** : Réglages → « Installer sur cet appareil » (ordinateur, Android), ou sur iPhone/iPad : Safari → Partager → « Sur l'écran d'accueil ». Elle s'ouvre alors comme une application, avec notifications.
+
+## Comptes et applications (version 3.0)
+
+- **Passage à la 3.0** : l'ancien accès par mot de passe seul devient le compte **admin** — identifiant `admin`, même mot de passe, même double authentification. Changez l'identifiant dans **Mon compte**.
+- **Comptes** (administrateurs) : un compte par personne. *Administrateur* : toute la console. *Conseiller* : conversations, FAQ, vidéos et sa disponibilité. Les réponses sont signées du nom de la personne. Mot de passe oublié ou téléphone perdu : un administrateur définit un mot de passe provisoire ou réinitialise la double authentification.
+- **Applications** : **Gérer les applications → Ajouter** (nom, couleur, tarifs). L'application obtient son sous-menu ; son identifiant technique est celui que l'application envoie au centre (kit `sdk/`). FAQ et vidéos peuvent être réservées à une application ou partagées avec toutes.
+- Sécurité : blocage 15 minutes après 5 échecs de connexion depuis une même adresse, avec alerte.
 
 ## Au quotidien
 
@@ -78,6 +85,6 @@ Créez ensuite un client avec le nom de l'application (champ « Application »),
 
 - Les applications clientes s'authentifient par leur clé (stockée hachée). « Renouveler la clé » en crée une nouvelle ; l'ancienne reste acceptée 14 jours.
 - Le navigateur des utilisateurs ne contacte jamais directement ce centre : c'est le serveur de l'application qui relaie.
-- Console : mot de passe haché, double authentification (TOTP), verrouillage 15 minutes après 5 échecs avec alerte.
+- Console : comptes nominatifs (identifiant + mot de passe haché), double authentification (TOTP) par compte, rôles administrateur / conseiller, blocage 15 minutes après 5 échecs avec alerte.
 - Données dans `data/` (protégé par `.htaccess`, base sous un nom aléatoire) ; images contrôlées (JPEG, PNG, WebP, 4 Mo max).
 - Tests : `php tests/run.php` (en ligne de commande).

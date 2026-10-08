@@ -143,6 +143,23 @@ $vids = hub_videos_for('approvia');
 check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel'),
     'vidéos transmises : publiées, de l\'application, avec chapitres et mots-clés, sans chemin de fichier');
 
+echo "Comptes et applications (3.0)\n";
+check((bool)hub_app('approvia') && hub_app('approvia')['price_base'] == 39, 'application Approvia créée d\'office (tarifs 39 € + 15 €)');
+check(hub_slug('Planning Soins à domicile') === 'planning-soins-a-domicile', 'identifiant technique déduit du nom');
+check(hub_valid_username('nicolas') && hub_valid_username('j.martin@nlapps.fr') && !hub_valid_username('ab') && !hub_valid_username('nom avec espace'), 'identifiants valides / refusés');
+hq('DELETE FROM users');
+$legacy = password_hash('AncienMotDePasse', PASSWORD_DEFAULT);
+hset('password_hash', $legacy); hset('totp_secret', 'JBSWY3DPEHPK3PXP');
+hub_migrate(hdb());
+$adm = hone("SELECT * FROM users WHERE username = 'admin'");
+check($adm && $adm['role'] === 'admin' && password_verify('AncienMotDePasse', $adm['password_hash']) && $adm['totp_secret'] === 'JBSWY3DPEHPK3PXP',
+    'mise à jour : l\'ancien accès devient le compte « admin » (même mot de passe, même double authentification)');
+check(hsetting('legacy_login') === '1' && hsetting('password_hash') === null, 'ancien mot de passe unique retiré, message de connexion activé');
+hub_migrate(hdb());
+check((int)hone('SELECT COUNT(*) n FROM users')['n'] === 1, 'migration rejouée sans effet (pas de doublon)');
+check((bool)hone("SELECT slug FROM apps WHERE slug = 'autreappli'"), 'application déjà utilisée par une vidéo ou un client ajoutée au menu');
+check(hone("SELECT id FROM users WHERE username = 'ADMIN'") !== null, 'identifiant insensible à la casse');
+
 $rm = function (string $d) use (&$rm): void {
     foreach (glob($d . '/*') ?: [] as $f) {
         is_dir($f) ? $rm($f) : unlink($f);

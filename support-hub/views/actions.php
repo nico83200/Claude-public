@@ -5,6 +5,13 @@ defined('HUB') || exit;
 $action = (string)($_POST['action'] ?? '');
 $ajax = !empty($_SERVER['HTTP_X_CSRF']);
 $cid = (int)($_POST['c'] ?? 0);
+// Comptes « conseiller » : conversations, FAQ, vidéos, réglages de disponibilité et leur propre compte ; le reste est réservé aux administrateurs
+$adminActions = ['client_add', 'client_save', 'client_toggle', 'client_delete', 'client_extend', 'client_rotate', 'release_upload', 'release_toggle', 'release_delete',
+    'grace_save', 'hub_update', 'hub_rollback', 'ai_save', 'app_save', 'app_delete', 'user_add', 'user_save', 'user_password', 'user_totp_reset'];
+if (in_array($action, $adminActions, true) && $hubUser['role'] !== 'admin') {
+    flash('Action réservée aux administrateurs de la console.', true);
+    go('index.php');
+}
 
 switch ($action) {
     // ------------------------------------------------------------ Conversations
@@ -20,7 +27,7 @@ switch ($action) {
             }
         }
         if (($text !== '' || $file) && hone('SELECT id FROM conversations WHERE id = ?', [$cid])) {
-            $id = hub_add_message($cid, 'agent', $text !== '' ? $text : 'Image', $file);
+            $id = hub_add_message($cid, 'agent', $text !== '' ? $text : 'Image', $file, $hubUser['name']);
             hq("UPDATE conversations SET unread = 0, status = CASE WHEN status = 'closed' THEN 'open' ELSE status END WHERE id = ?", [$cid]);
             if ($ajax) {
                 json_out(['ok' => true, 'id' => $id]);
@@ -67,7 +74,7 @@ switch ($action) {
             $key = hub_create_client($name, (string)($_POST['site'] ?? ''));
             $id = (int)hdb()->lastInsertId();
             hq('UPDATE clients SET app = ?, contact_email = ?, paid_until = ?, ai_option = ?, plan = ? WHERE id = ?', [
-                preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['app'] ?? 'approvia'))) ?: 'approvia',
+                hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'approvia',
                 trim((string)($_POST['contact_email'] ?? '')) ?: null, ($_POST['paid_until'] ?? '') ?: null, !empty($_POST['ai_option']) ? 1 : 0,
                 trim((string)($_POST['plan'] ?? '')) ?: 'Abonnement', $id,
             ]);
@@ -117,7 +124,7 @@ switch ($action) {
         }
         try {
             $info = hub_inspect_package($f['tmp_name']);
-            $app = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($_POST['app'] ?? 'approvia'))) ?: 'approvia';
+            $app = hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'approvia';
             if (hone('SELECT id FROM releases WHERE app = ? AND version = ?', [$app, $info['version']])) {
                 throw new RuntimeException('La version ' . $info['version'] . ' de ' . $app . ' est déjà publiée.');
             }
@@ -280,40 +287,138 @@ switch ($action) {
         flash('Réglages de l\'IA enregistrés.');
         go('index.php?p=settings#ai');
 
+    // ------------------------------------------------------------ Mon compte (identifiant, nom, mot de passe, double authentification)
+    case 'account_save':
+        $username = trim((string)($_POST['username'] ?? ''));
+        $name = mb_substr(trim((string)($_POST['name'] ?? '')), 0, 80);
+        if (!hub_valid_username($username) || $name === '') {
+            flash('Indiquez votre nom et un identifiant valide (3 caractères minimum : lettres, chiffres, point, tiret, @).', true);
+        } elseif (hone('SELECT id FROM users WHERE username = ? AND id <> ?', [$username, $hubUser['id']])) {
+            flash('Cet identifiant est déjà utilisé.', true);
+        } else {
+            hq('UPDATE users SET username = ?, name = ?, email = ? WHERE id = ?', [$username, $name, mb_substr(trim((string)($_POST['email'] ?? '')), 0, 190) ?: null, $hubUser['id']]);
+            hset('legacy_login', null);
+            flash('Compte mis à jour. Identifiant de connexion : ' . $username . '.');
+        }
+        go('index.php?p=account');
+
     case 'password_change':
-        if (!password_verify((string)($_POST['current'] ?? ''), (string)hsetting('password_hash'))) {
+        if (!password_verify((string)($_POST['current'] ?? ''), (string)$hubUser['password_hash'])) {
             flash('Mot de passe actuel incorrect.', true);
         } elseif (mb_strlen((string)$_POST['new']) < 10 || $_POST['new'] !== ($_POST['new2'] ?? '')) {
             flash('Nouveau mot de passe : 10 caractères minimum, saisi deux fois à l\'identique.', true);
         } else {
-            hset('password_hash', password_hash((string)$_POST['new'], PASSWORD_DEFAULT));
+            hq('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash((string)$_POST['new'], PASSWORD_DEFAULT), $hubUser['id']]);
             flash('Mot de passe modifié.');
         }
-        go('index.php?p=settings#security');
+        go('index.php?p=account');
 
     case 'totp_start':
         $_SESSION['totp_new'] = base32_encode(random_bytes(20));
-        go('index.php?p=settings#security');
+        go('index.php?p=account#security');
 
     case 'totp_enable':
         $secret = (string)($_SESSION['totp_new'] ?? '');
         if ($secret && totp_verify($secret, (string)($_POST['code'] ?? ''))) {
-            hset('totp_secret', $secret);
+            hq('UPDATE users SET totp_secret = ? WHERE id = ?', [$secret, $hubUser['id']]);
             unset($_SESSION['totp_new']);
             flash('Double authentification activée : un code vous sera demandé à chaque connexion.');
         } else {
             flash('Code incorrect : vérifiez l\'heure de votre téléphone et réessayez.', true);
         }
-        go('index.php?p=settings#security');
+        go('index.php?p=account#security');
 
     case 'totp_disable':
-        if (password_verify((string)($_POST['current'] ?? ''), (string)hsetting('password_hash')) && totp_verify((string)hsetting('totp_secret'), (string)($_POST['code'] ?? ''))) {
-            hset('totp_secret', null);
+        if (password_verify((string)($_POST['current'] ?? ''), (string)$hubUser['password_hash']) && totp_verify((string)$hubUser['totp_secret'], (string)($_POST['code'] ?? ''))) {
+            hq('UPDATE users SET totp_secret = NULL WHERE id = ?', [$hubUser['id']]);
             flash('Double authentification désactivée.');
         } else {
             flash('Mot de passe ou code incorrect.', true);
         }
-        go('index.php?p=settings#security');
+        go('index.php?p=account#security');
+
+    // ------------------------------------------------------------ Comptes de la console (administrateurs)
+    case 'user_add':
+        $username = trim((string)($_POST['username'] ?? ''));
+        $pw = (string)($_POST['password'] ?? '');
+        if (!hub_valid_username($username) || trim((string)($_POST['name'] ?? '')) === '') {
+            flash('Indiquez le nom et un identifiant valide (3 caractères minimum : lettres, chiffres, point, tiret, @).', true);
+        } elseif (hone('SELECT id FROM users WHERE username = ?', [$username])) {
+            flash('Cet identifiant est déjà utilisé.', true);
+        } elseif (mb_strlen($pw) < 10) {
+            flash('Mot de passe provisoire : 10 caractères minimum.', true);
+        } else {
+            hq('INSERT INTO users (username, name, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)', [$username, mb_substr(trim((string)$_POST['name']), 0, 80),
+                mb_substr(trim((string)($_POST['email'] ?? '')), 0, 190) ?: null, password_hash($pw, PASSWORD_DEFAULT), ($_POST['role'] ?? '') === 'agent' ? 'agent' : 'admin', hnow()]);
+            flash('Compte « ' . $username . ' » créé. Communiquez-lui son identifiant et son mot de passe provisoire : il pourra le changer dans « Mon compte ».');
+        }
+        go('index.php?p=users');
+
+    case 'user_save':
+        $u = hone('SELECT * FROM users WHERE id = ?', [(int)($_POST['id'] ?? 0)]);
+        $role = ($_POST['role'] ?? '') === 'agent' ? 'agent' : 'admin';
+        $active = !empty($_POST['active']) ? 1 : 0;
+        $admins = (int)hone("SELECT COUNT(*) n FROM users WHERE role = 'admin' AND active = 1 AND id <> ?", [(int)($u['id'] ?? 0)])['n'];
+        if (!$u) {
+            break;
+        }
+        if (($role !== 'admin' || !$active) && $admins === 0) {
+            flash('Il doit rester au moins un administrateur actif.', true);
+        } else {
+            hq('UPDATE users SET name = ?, email = ?, role = ?, active = ? WHERE id = ?', [mb_substr(trim((string)($_POST['name'] ?? $u['name'])), 0, 80) ?: $u['name'],
+                mb_substr(trim((string)($_POST['email'] ?? '')), 0, 190) ?: null, $role, $active, $u['id']]);
+            flash('Compte « ' . $u['username'] . ' » mis à jour.');
+        }
+        go('index.php?p=users');
+
+    case 'user_password':
+        $pw = (string)($_POST['password'] ?? '');
+        if (mb_strlen($pw) < 10) {
+            flash('Mot de passe provisoire : 10 caractères minimum.', true);
+        } else {
+            hq('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash($pw, PASSWORD_DEFAULT), (int)($_POST['id'] ?? 0)]);
+            flash('Nouveau mot de passe enregistré : communiquez-le à la personne concernée.');
+        }
+        go('index.php?p=users');
+
+    case 'user_totp_reset':
+        hq('UPDATE users SET totp_secret = NULL WHERE id = ?', [(int)($_POST['id'] ?? 0)]);
+        flash('Double authentification réinitialisée : la personne pourra la reconfigurer dans « Mon compte ».');
+        go('index.php?p=users');
+
+    // ------------------------------------------------------------ Applications gérées
+    case 'app_save':
+        $orig = (string)($_POST['orig'] ?? '');
+        $name = mb_substr(trim((string)($_POST['name'] ?? '')), 0, 60);
+        $slug = $orig !== '' ? $orig : hub_slug((string)($_POST['slug'] ?? '') ?: $name);
+        $color = preg_match('/^#[0-9a-f]{6}$/i', (string)($_POST['color'] ?? '')) ? (string)$_POST['color'] : '#4f46e5';
+        $prices = [max(0, (float)str_replace(',', '.', (string)($_POST['price_base'] ?? '0'))), max(0, (float)str_replace(',', '.', (string)($_POST['price_ai'] ?? '0')))];
+        if ($name === '' || $slug === '') {
+            flash('Indiquez le nom de l\'application.', true);
+        } elseif ($orig !== '') {
+            hq('UPDATE apps SET name = ?, color = ?, price_base = ?, price_ai = ?, position = ? WHERE slug = ?', [$name, $color, ...$prices, (int)($_POST['position'] ?? 0), $orig]);
+            flash('Application « ' . $name . ' » mise à jour.');
+        } elseif (hub_app($slug)) {
+            flash('L\'identifiant « ' . $slug . ' » est déjà utilisé par une autre application.', true);
+        } else {
+            hq('INSERT INTO apps (slug, name, color, price_base, price_ai, position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)', [$slug, $name, $color, ...$prices, count(hub_apps()), hnow()]);
+            flash('Application « ' . $name . ' » ajoutée : elle a désormais son sous-menu (clients, versions, FAQ, vidéos). Identifiant technique : ' . $slug . '.');
+            go('index.php?p=clients&app=' . rawurlencode($slug));
+        }
+        go('index.php?p=apps');
+
+    case 'app_delete':
+        $slug = (string)($_POST['slug'] ?? '');
+        $used = (int)hone('SELECT COUNT(*) n FROM clients WHERE app = ?', [$slug])['n'] + (int)hone('SELECT COUNT(*) n FROM releases WHERE app = ?', [$slug])['n'];
+        if ($used) {
+            flash('Cette application a encore des clients ou des versions : supprimez-les d\'abord.', true);
+        } elseif (count(hub_apps()) <= 1) {
+            flash('Gardez au moins une application.', true);
+        } else {
+            hq('DELETE FROM apps WHERE slug = ?', [$slug]);
+            flash('Application supprimée.');
+        }
+        go('index.php?p=apps');
 
     case 'push_subscribe':
         $sub = json_decode((string)($_POST['sub'] ?? ''), true);
@@ -342,7 +447,7 @@ switch ($action) {
     // ------------------------------------------------------------ Mise à jour du centre d'assistance
     case 'hub_update':
     case 'hub_rollback':
-        if (!password_verify((string)($_POST['password'] ?? ''), (string)hsetting('password_hash'))) {
+        if (!password_verify((string)($_POST['password'] ?? ''), (string)$hubUser['password_hash'])) {
             flash('Mot de passe incorrect : opération annulée.', true);
             go('index.php?p=update');
         }

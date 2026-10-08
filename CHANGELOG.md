@@ -1,5 +1,10 @@
 # Journal des versions
 
+## Centre d'assistance NLapps 3.0.0
+- **Comptes avec identifiant et mot de passe** : un compte par personne (administrateur ou conseiller), double authentification par compte, réponses signées du nom du conseiller. L'ancien accès devient le compte `admin` (même mot de passe).
+- **Plusieurs applications** : un sous-menu par application (parc clients, versions, FAQ, vidéos) ; les conversations restent communes, avec un filtre par application. Ajout d'une application en un formulaire (nom, couleur, tarifs).
+- **Même interface partout** : menu latéral sur ordinateur, en tiroir sur tablette et téléphone, tableaux lisibles en fiches sur petit écran.
+
 ## 1.16.0
 - **Tutoriels vidéo** (menu *Aide → Tutoriels vidéo*) : lecteur avec chapitres cliquables (le chapitre en cours est mis en évidence), avance rapide, lecture sur ordinateur, tablette et téléphone. Les vidéos publiées par NLapps arrivent automatiquement (téléchargées en arrière-plan, empreinte vérifiée) ; un administrateur peut aussi ajouter ses propres vidéos (procédures internes), avec titre, mots-clés, chapitres et visibilité (tous / administrateurs).
 - **L'aide en ligne propose la bonne vidéo** : à une question comme « comment réceptionner un colis ? », le chatbot répond et ajoute « Voir le tutoriel vidéo », qui ouvre la vidéo directement au chapitre concerné. Si aucune réponse écrite ne convient, c'est la vidéo qui répond. Raccourci « 🎬 Tutoriels vidéo » dans la bulle d'aide.

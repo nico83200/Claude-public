@@ -8,8 +8,6 @@ $mode = hsetting('availability_mode', 'manual');
 $subs = hall('SELECT * FROM push_subs ORDER BY created_at DESC');
 $quick = hall('SELECT * FROM quick_replies ORDER BY position, id');
 $key = (string)hsetting('anthropic_api_key', '');
-$totpOn = (bool)hsetting('totp_secret');
-$totpNew = $_SESSION['totp_new'] ?? null;
 ?>
 <main class="wrap">
   <?= $flashHtml ?>
@@ -30,12 +28,14 @@ $totpNew = $_SESSION['totp_new'] ?? null;
     <button class="btn primary">Enregistrer</button>
   </form>
 
+<?php if ($hubUser['role'] === 'admin'): ?>
   <form method="post" class="card" id="licences">
     <?= csrf_input() ?><input type="hidden" name="action" value="grace_save">
     <h2>Licences</h2>
     <p class="muted" style="margin-top:0">À l'échéance d'un abonnement non renouvelé, l'accès au logiciel du client est coupé et tous ses utilisateurs sont déconnectés (page avec vos coordonnées). Vous pouvez laisser un délai de grâce.</p>
     <div class="row"><label style="margin:0">Délai de grâce après l'échéance</label><input type="number" name="grace_days" min="0" max="60" value="<?= hub_grace_days() ?>" style="max-width:90px"><span>jour(s) — 0 = coupure immédiate</span><button class="btn">Enregistrer</button></div>
   </form>
+<?php endif; ?>
 
   <div class="card" id="install">
     <h2>Application sur vos appareils</h2>
@@ -83,6 +83,7 @@ $totpNew = $_SESSION['totp_new'] ?? null;
       <button class="btn">＋ Ajouter</button></form>
   </div>
 
+<?php if ($hubUser['role'] === 'admin'): ?>
   <form method="post" class="card" id="ai">
     <?= csrf_input() ?><input type="hidden" name="action" value="ai_save">
     <h2>Suggestion de réponse par l'IA</h2>
@@ -95,27 +96,10 @@ $totpNew = $_SESSION['totp_new'] ?? null;
     <?php if (!is_file(HUB . '/vendor/autoload.php')): ?><p class="err">Dossier <code>vendor/</code> absent : utilisez le paquet complet du centre d'assistance.</p><?php endif; ?>
     <div class="row" style="margin-top:.8rem"><button class="btn primary">Enregistrer</button><?php if ($key): ?><label class="check" style="margin:0"><input type="checkbox" name="remove_key" value="1"> supprimer la clé</label><?php endif; ?></div>
   </form>
+<?php endif; ?>
 
   <div class="card" id="security">
     <h2>Sécurité</h2>
-    <h3>Double authentification <?= $totpOn ? '<span class="tag green">activée</span>' : '<span class="tag amber">désactivée</span>' ?></h3>
-    <?php if ($totpOn): ?>
-      <form method="post" class="row"><?= csrf_input() ?><input type="hidden" name="action" value="totp_disable">
-        <input type="password" name="current" placeholder="Mot de passe" required autocomplete="current-password"><input name="code" placeholder="Code à 6 chiffres" inputmode="numeric" required><button class="btn danger">Désactiver</button></form>
-    <?php elseif ($totpNew): $uri = 'otpauth://totp/' . rawurlencode('Assistance NLapps') . '?secret=' . $totpNew . '&issuer=NLapps&digits=6&period=30'; ?>
-      <p>1. Dans Google Authenticator, Microsoft Authenticator ou Authy, ajoutez un compte en scannant ce code (ou saisissez la clé <code><?= h(trim(chunk_split($totpNew, 4, ' '))) ?></code>) :</p>
-      <div data-qr="<?= h($uri) ?>" style="background:#fff;padding:8px;display:inline-block;border:1px solid var(--line);border-radius:10px"></div>
-      <form method="post" class="row" style="margin-top:.6rem"><?= csrf_input() ?><input type="hidden" name="action" value="totp_enable">
-        <span>2. Code affiché :</span><input name="code" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" required style="max-width:160px"><button class="btn primary">Activer</button></form>
-    <?php else: ?>
-      <p class="muted" style="margin-top:0">Un code à 6 chiffres, généré par une application sur votre téléphone, sera demandé à chaque connexion en plus du mot de passe.</p>
-      <form method="post"><?= csrf_input() ?><input type="hidden" name="action" value="totp_start"><button class="btn primary">Configurer</button></form>
-    <?php endif; ?>
-    <h3 style="margin-top:1.2rem">Mot de passe</h3>
-    <form method="post" class="row"><?= csrf_input() ?><input type="hidden" name="action" value="password_change">
-      <input type="password" name="current" placeholder="Actuel" required autocomplete="current-password"><input type="password" name="new" placeholder="Nouveau (10 caractères min.)" required autocomplete="new-password"><input type="password" name="new2" placeholder="Confirmation" required autocomplete="new-password"><button class="btn">Modifier</button></form>
-    <p class="muted"><small>Après 5 échecs de connexion, la console est verrouillée 15 minutes et vous êtes alerté. Les clés des clients se renouvellent depuis « Parc clients ».</small></p>
+    <p class="muted" style="margin-top:0">Identifiant, mot de passe et double authentification se règlent dans <a href="index.php?p=account">Mon compte</a><?= $hubUser['role'] === 'admin' ? ', les accès de votre équipe dans <a href="index.php?p=users">Comptes</a>' : '' ?>. Les clés des clients se renouvellent depuis le parc clients de chaque application.</p>
   </div>
-
-  <form method="post"><?= csrf_input() ?><input type="hidden" name="action" value="logout"><button class="btn">Se déconnecter</button></form>
 </main>

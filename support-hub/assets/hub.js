@@ -9,6 +9,9 @@
     return fetch('index.php', { method: 'POST', body, headers: { 'X-CSRF': H.csrf } }).then((r) => r.json().catch(() => ({})));
   };
 
+  // ------------------------------------------------------------ Menu (tiroir sur téléphone et tablette)
+  document.querySelectorAll('[data-menu]').forEach((b) => b.addEventListener('click', () => document.body.classList.toggle('menu-open')));
+
   // ------------------------------------------------------------ Application installable + service worker
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
@@ -24,7 +27,7 @@
     d.className = 'm ' + m.from;
     d.innerHTML = '<div>' + esc(m.text).replace(/\n/g, '<br>') + '</div>'
       + (m.file ? '<a href="index.php?file=' + esc(m.file) + '" target="_blank"><img src="index.php?file=' + esc(m.file) + '" alt="Image jointe"></a>' : '')
-      + '<small>' + label[m.from] + ' · ' + time(m.at) + '</small>';
+      + '<small>' + (m.from === 'agent' && m.author ? esc(m.author) : label[m.from]) + ' · ' + time(m.at) + '</small>';
     msgs.appendChild(d);
     msgs.scrollTop = msgs.scrollHeight;
   };
@@ -35,20 +38,23 @@
   async function tick() {
     try {
       const tab = list ? list.dataset.tab : 'open';
-      const r = await (await fetch('index.php?feed=1&tab=' + tab + (msgs ? '&c=' + msgs.dataset.c + '&after=' + last : ''), { cache: 'no-store' })).json();
+      const app = list ? (list.dataset.app || '') : '';
+      const r = await (await fetch('index.php?feed=1&tab=' + tab + '&app=' + encodeURIComponent(app) + (msgs ? '&c=' + msgs.dataset.c + '&after=' + last : ''), { cache: 'no-store' })).json();
+      document.querySelectorAll('[data-unread]').forEach((el) => { el.textContent = r.unread; el.hidden = !r.unread; });
+      const pill = $('[data-unread-pill]'); if (pill) pill.hidden = !r.unread;
       if (msgs && r.messages) r.messages.forEach((m) => { if (m.id > last) { last = m.id; add(m); if (m.from === 'user') { beep(); notifyMe('Nouveau message', m.text); } } });
       document.title = (r.unread ? '(' + r.unread + ') ' : '') + 'Assistance NLapps';
       if (unreadBefore !== null && r.unread > unreadBefore && !msgs) { beep(); notifyMe('Nouveau message', 'Une conversation attend votre réponse.'); }
       unreadBefore = r.unread;
       if (list && r.list) {
         list.innerHTML = r.list.map((c) => '<a href="index.php?c=' + c.id + '" class="item' + (msgs && +msgs.dataset.c === c.id ? ' sel' : '') + '"><span class="who">' + esc(c.user_name || 'Utilisateur')
-          + (c.unread > 0 ? '<i class="badge">' + c.unread + '</i>' : '') + '</span><small>' + esc(c.client) + (c.center ? ' · ' + esc(c.center) : '') + '</small><span class="last">' + esc((c.last || '').slice(0, 70)) + '</span></a>').join('')
+          + (c.unread > 0 ? '<i class="badge">' + c.unread + '</i>' : '') + '</span><small>' + (list.dataset.multi ? '<span class="dot" style="background:' + esc(c.app_color) + '"></span> ' + esc(c.app_name) + ' · ' : '') + esc(c.client) + (c.center ? ' · ' + esc(c.center) : '') + '</small><span class="last">' + esc((c.last || '').slice(0, 70)) + '</span></a>').join('')
           || '<p class="muted pad">Aucune conversation.</p>';
       }
       if (r.counts) document.querySelectorAll('[data-tabs] a').forEach((a) => { const k = a.dataset.tab; const base = a.textContent.replace(/\s*\(\d+\)$/, ''); a.textContent = base + (k !== 'all' && r.counts[k] ? ' (' + r.counts[k] + ')' : ''); });
     } catch (e) {}
   }
-  if (list || msgs) setInterval(tick, 4000);
+  setInterval(tick, list || msgs ? 4000 : 15000);
   if ('Notification' in window && Notification.permission === 'default') document.addEventListener('click', () => Notification.requestPermission(), { once: true });
 
   if (form) {

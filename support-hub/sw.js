@@ -1,5 +1,5 @@
 /* Service worker de la console d'assistance NLapps : application installable, page hors connexion, notifications push. */
-const CACHE = 'nlapps-hub-v2';
+const CACHE = 'nlapps-hub-v3';
 const SHELL = ['offline.html', 'assets/hub.css', 'assets/icon-192.png', 'assets/nlapps-mark.svg'];
 
 self.addEventListener('install', (e) => {

@@ -2,7 +2,7 @@
 /** Parc clients : installations, versions, usage et licences (abonnement, option IA, échéance). */
 defined('HUB') || exit;
 
-$clients = hall('SELECT * FROM clients ORDER BY active DESC, name');
+$clients = hall('SELECT * FROM clients WHERE app = ? ORDER BY active DESC, name', [$app['slug']]);
 $latestByApp = [];
 $kpi = ['active' => 0, 'ai' => 0, 'soon' => 0, 'late' => 0, 'outdated' => 0];
 foreach ($clients as &$c) {
@@ -29,11 +29,11 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
 ?>
 <main class="wrap">
   <?= $flashHtml ?>
-  <h1>Parc clients</h1>
+  <h1><span class="dot" style="background:<?= h($app['color']) ?>;width:14px;height:14px"></span> Parc clients · <?= h($app['name']) ?></h1>
   <div class="stats">
     <div class="stat"><b><?= $kpi['active'] ?></b><span>licences actives</span></div>
     <div class="stat"><b><?= $kpi['ai'] ?></b><span>avec option IA</span></div>
-    <div class="stat"><b><?= number_format($kpi['active'] * PRICE_BASE + $kpi['ai'] * PRICE_AI, 0, ',', ' ') ?> €</b><span>revenu mensuel estimé (HT)</span></div>
+    <div class="stat"><b><?= number_format($kpi['active'] * (float)$app['price_base'] + $kpi['ai'] * (float)$app['price_ai'], 0, ',', ' ') ?> €</b><span>revenu mensuel estimé (HT)</span></div>
     <div class="stat"><b style="color:<?= $kpi['soon'] + $kpi['late'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['soon'] ?> / <?= $kpi['late'] ?></b><span>échéance &lt; 30 j / impayés</span></div>
     <div class="stat"><b style="color:<?= $kpi['outdated'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['outdated'] ?></b><span>installation(s) à mettre à jour</span></div>
   </div>
@@ -42,7 +42,7 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
     <div class="card keybox"><b><?= !empty($nk['rotated']) ? 'Nouvelle clé' : 'Clé' ?> de « <?= h($nk['name']) ?> »</b> (affichée une seule fois) :
       <pre>'support_hub_url' => '<?= h($apiUrl) ?>',
 'support_hub_key' => '<?= h($nk['key']) ?>',</pre>
-      <small class="muted">À coller dans Approvia : <b>Administration → Paramètres → Assistance NLapps</b>. <?= !empty($nk['rotated']) ? 'L\'ancienne clé reste acceptée 14 jours, le temps que le client colle la nouvelle.' : 'Elle sert à la fois de licence, d\'accès aux mises à jour et à l\'assistance en direct.' ?></small></div>
+      <small class="muted">À coller dans <?= h($app['name']) ?><?= $app['slug'] === 'approvia' ? ' : <b>Administration → Paramètres → Licence et assistance NLapps</b>' : ' (configuration du kit NLapps)' ?>. <?= !empty($nk['rotated']) ? 'L\'ancienne clé reste acceptée 14 jours, le temps que le client colle la nouvelle.' : 'Elle sert à la fois de licence, d\'accès aux mises à jour et à l\'assistance en direct.' ?></small></div>
   <?php endif; ?>
 
   <details class="card edit" <?= $clients ? '' : 'open' ?>>
@@ -51,23 +51,23 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
       <?= csrf_input() ?><input type="hidden" name="action" value="client_add">
       <div class="grid2">
         <div><label>Nom du client</label><input name="name" placeholder="ex : Groupe IMSS" required></div>
-        <div><label>Application</label><input name="app" value="approvia"></div>
+        <input type="hidden" name="app" value="<?= h($app['slug']) ?>">
         <div><label>Adresse du site</label><input name="site" placeholder="https://achats.client.fr"></div>
         <div><label>E-mail du contact</label><input type="email" name="contact_email"></div>
         <div><label>Formule</label><input name="plan" value="Abonnement"></div>
         <div><label>Payé jusqu'au</label><input type="date" name="paid_until" value="<?= date('Y-m-d', strtotime('+1 month')) ?>"></div>
       </div>
-      <label class="check"><input type="checkbox" name="ai_option" value="1"> Option assistant IA (<?= PRICE_AI ?> € / mois)</label>
+      <label class="check"><input type="checkbox" name="ai_option" value="1"> Option assistant IA (<?= h(number_format((float)$app['price_ai'], 0, ',', ' ')) ?> € / mois)</label>
       <button class="btn primary">Créer le client et sa clé</button>
     </form>
   </details>
 
   <div class="card table-wrap" style="padding:.4rem .8rem">
-    <table>
+    <table class="cards">
       <tr><th>Client</th><th>Version</th><th class="hide-sm">Usage</th><th>Licence</th><th></th></tr>
       <?php foreach ($clients as $c): $lt = $licTag[$c['lic']['status']]; $stats = json_decode((string)$c['stats'], true) ?: []; ?>
         <tr class="<?= $c['active'] ? '' : 'dim' ?>">
-          <td><b><?= h($c['name']) ?></b> <span class="tag"><?= h($c['app']) ?></span><br>
+          <td><b><?= h($c['name']) ?></b><br>
             <small class="muted"><?= $c['instance_url'] ? '<a href="' . h($c['instance_url']) . '" target="_blank" rel="noopener">' . h(preg_replace('#^https?://#', '', $c['instance_url'])) . '</a>' : h($c['site'] ?: '—') ?></small><br>
             <small class="muted">Clé <code><?= h($c['key_hint']) ?></code></small></td>
           <td><?php if ($c['app_version']): ?><b><?= h($c['app_version']) ?></b> <?= $c['outdated'] ? '<span class="tag amber">→ ' . h($c['latest']) . '</span>' : '<span class="tag green">à jour</span>' ?><?php else: ?><span class="muted">—</span><?php endif; ?><br>
