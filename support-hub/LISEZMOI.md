@@ -74,7 +74,7 @@ Les installations reçoivent la liste à leur prochaine vérification de licence
 
 ## Brancher vos autres applications NLapps
 
-Le dossier `sdk/` contient :
+Le dossier `sdk/` contient **`INTEGRATION.md`**, le guide complet du protocole (à donner tel quel à un développeur ou à une IA de développement), et :
 - `NlappsSupport.php` : classe PHP à copier dans l'application (licence, versions, FAQ, conversation, images, notes) ;
 - `nlapps-chat.js` : widget de conversation autonome, à inclure dans les pages ;
 - `examples/relay.php` : relais serveur entre le widget et ce centre (la clé reste côté serveur).
