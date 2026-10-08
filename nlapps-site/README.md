@@ -25,6 +25,7 @@ npx http-server nlapps-site -p 8080   # ou : python3 -m http.server -d nlapps-si
 - **Formulaire** : renseigner `data-endpoint` sur `#contact-form` (Formspree, Basin, backend…). Sans endpoint, la demande s'ouvre dans la messagerie vers `data-mailto` (`contact@nlapps.fr`).
 - **Mentions légales / confidentialité** : compléter les champs surlignés `[…]` (forme juridique, SIREN, adresse, hébergeur…).
 - **Image de partage** : ajouter `assets/img/og-image.png` (1200×630).
+- **Bulle d'aide** : renseigner l'adresse réelle de l'application Assistance NLapps dans `data-assist-url` (`#help-widget`, en bas de `index.html`) — `https://assistance.nlapps.fr/` est provisoire. Le délai d'ouverture se règle avec `data-delay` (ms).
 - **LinkedIn** : remplacer le lien générique dans le footer.
 - **Couleurs** : la palette est dérivée du logo (indigo `#4F46E5`, dégradé `#1A9BEA → #4F46E5 → #7C3AED`, accent cyan `#67E8F9`). Pour coller exactement à l'interface Approvia, ajuster les variables `--brand*` dans `styles.css`.
 - **Logo** : `logo-mark.svg` est une reconstitution vectorielle du logo fourni ; le remplacer par le fichier source officiel si disponible.
@@ -37,6 +38,8 @@ La grille s'adapte automatiquement. Une solution importante pourra ensuite avoir
 (ex. `/approvia/index.html`) en réutilisant les mêmes styles.
 
 ## Notes
+
+- Bulle d'aide : s'ouvre seule après 6 s, une fois par session (sur mobile, simple invitation « Besoin d'aide ? » pour ne pas masquer la page) ; jamais pendant une saisie dans le formulaire. Fermeture par la croix ou Échap.
 
 - Mockups Approvia construits en HTML/CSS (nets à toutes les tailles, aucune image à charger), données fictives.
 - Accessibilité : lien d'évitement, navigation clavier, `prefers-reduced-motion` respecté.
