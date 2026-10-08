@@ -11,3 +11,4 @@
 /support-hub/config.php
 /support-hub/data/*
 !/support-hub/data/.htaccess
+__pycache__/
