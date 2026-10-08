@@ -110,8 +110,8 @@ await card('Tutoriel service achats', 'Traiter les demandes · Passer les comman
 await part(1, 'Le pilotage des achats', 'Tableau de bord · Budgets · Dates limites');
 await login();
 await say(1, 'Le menu « Service achats »', 'Connecté avec un compte du service achats, le menu affiche la rubrique « Service achats », en plus des pages de votre centre.', { hl: '.sidebar .nav' });
-for (const r of ['admin', 'admin/direction', 'admin/requests', 'admin/orders']) { await moveTo(L(`.sidebar a[href$="r=${r.replace('/', '%2F')}"], .sidebar a[href$="r=${r}"]`)); await wait(600); }
-await at(0.9); await click('.sidebar a[href$="r=admin"]', { nav: true, after: 300 });
+for (const r of ['admin/requests', 'admin/orders']) { await moveTo(L(`.sidebar a[href$="r=${r.replace('/', '%2F')}"], .sidebar a[href$="r=${r}"]`)); await wait(300); }
+await at(0.8); await click('.sidebar a[href$="r=admin"]', { nav: true, after: 200 });
 await say(2, 'Le tableau de bord', 'La page « Pilotage » est votre point de départ : lignes de demande à traiter, bons à commander, livraisons en cours et dépenses du mois.', { hl: '.grid-4' });
 await say(3, 'Demandes par fournisseur', 'Les demandes en attente sont regroupées par fournisseur. La jauge indique si le minimum de commande du fournisseur est atteint.', { hl: '.card:has-text("Demandes en attente par fournisseur")' });
 await say(4, 'Budgets et dates limites', 'À droite, le budget de chaque centre, vos principaux fournisseurs et les prochaines dates limites de commande.', { hl: '.card:has(h2:has-text("Par centre"))' });
