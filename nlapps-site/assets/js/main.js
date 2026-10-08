@@ -157,56 +157,6 @@
       });
     }
 
-    /* Bulle d'aide — Assistance NLapps */
-    var help = document.getElementById('help-widget');
-    if (help) {
-      var panel = help.querySelector('.help-panel');
-      var launcher = help.querySelector('.help-launcher');
-      var teaser = help.querySelector('.help-teaser');
-      var KEY = 'nlapps-help-seen';
-      var store = {
-        get: function () { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } },
-        set: function () { try { sessionStorage.setItem(KEY, '1'); } catch (e) {} }
-      };
-      var assistUrl = help.getAttribute('data-assist-url');
-      if (assistUrl) help.querySelectorAll('[data-assist-link]').forEach(function (a) { a.href = assistUrl; });
-
-      var setHelp = function (open, focus) {
-        panel.hidden = !open;
-        teaser.hidden = true;
-        help.classList.toggle('is-open', open);
-        help.classList.remove('has-dot');
-        launcher.setAttribute('aria-expanded', String(open));
-        launcher.setAttribute('aria-label', open ? "Fermer l'assistance NLapps" : "Ouvrir l'assistance NLapps");
-        if (open) { store.set(); if (focus) panel.querySelector('.help-action').focus(); }
-        else if (focus) launcher.focus();
-      };
-      launcher.addEventListener('click', function () { setHelp(panel.hidden, true); });
-      teaser.addEventListener('click', function () { setHelp(true, true); });
-      help.querySelector('.help-close').addEventListener('click', function () { setHelp(false, true); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) setHelp(false, true); });
-      panel.querySelectorAll('a[href^="#"]').forEach(function (a) { a.addEventListener('click', function () { setHelp(false); }); });
-
-      /* Ouverture automatique : une fois par session, sans interrompre une saisie */
-      if (!store.get()) {
-        var delay = parseInt(help.getAttribute('data-delay'), 10) || 6000;
-        setTimeout(function () {
-          if (store.get() || !panel.hidden) return;
-          var active = document.activeElement;
-          if (active && /INPUT|TEXTAREA|SELECT/.test(active.tagName)) return;
-          store.set();
-          if (window.matchMedia('(min-width: 600px)').matches) {
-            setHelp(true, false);
-          } else {
-            /* Sur mobile : simple invitation, le panneau ne masque pas la page */
-            teaser.hidden = false;
-            help.classList.add('has-dot');
-            setTimeout(function () { teaser.hidden = true; }, 8000);
-          }
-        }, delay);
-      }
-    }
-
     var year = document.querySelector('[data-year]');
     if (year) year.textContent = new Date().getFullYear();
   });
