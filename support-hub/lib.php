@@ -75,6 +75,7 @@ function hub_migrate(PDO $pdo): void
             'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT'],
         'conversations' => ['rating' => 'INTEGER', 'rating_comment' => 'TEXT', 'transcript_sent' => 'INTEGER NOT NULL DEFAULT 0'],
         'messages' => ['file' => 'TEXT', 'author' => 'TEXT'],
+        'videos' => ['welcome' => 'INTEGER NOT NULL DEFAULT 0'],
     ];
     foreach ($cols as $table => $defs) {
         $have = array_column($pdo->query("PRAGMA table_info($table)")->fetchAll(PDO::FETCH_ASSOC), 'name');
@@ -423,7 +424,7 @@ function hub_videos_for(string $app): array
     return array_map(fn($v) => [
         'uid' => $v['uid'], 'title' => $v['title'], 'desc' => (string)$v['description'], 'k' => trim(($v['keywords'] ?: '') . ' ' . hub_keywords($v['title'])),
         'chapters' => json_decode((string)$v['chapters'], true) ?: [], 'audience' => $v['audience'], 'size' => (int)$v['size'], 'sha256' => $v['sha256'],
-        'duration' => (int)$v['duration'], 'position' => (int)$v['position'],
+        'duration' => (int)$v['duration'], 'position' => (int)$v['position'], 'welcome' => (bool)(int)($v['welcome'] ?? 0),
     ], $rows);
 }
 

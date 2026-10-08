@@ -372,6 +372,7 @@ function schema_statements(string $driver): array
             duration INT NULL,
             position INT NOT NULL DEFAULT 0,
             active TINYINT NOT NULL DEFAULT 1,
+            welcome TINYINT NOT NULL DEFAULT 0,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NULL",
 
@@ -478,7 +479,8 @@ function schema_added_columns(): array
 {
     return [
         'products' => ['barcode' => 'VARCHAR(64) NULL', 'compare_group' => 'VARCHAR(80) NULL'],
-        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL', 'totp_secret' => 'VARCHAR(255) NULL', 'totp_last' => 'VARCHAR(20) NULL'],
+        'users'    => ['notify_email' => 'TINYINT NOT NULL DEFAULT 1', 'notify_prefs' => 'TEXT NULL', 'deleted_at' => 'DATETIME NULL', 'totp_secret' => 'VARCHAR(255) NULL', 'totp_last' => 'VARCHAR(20) NULL', 'welcome_video_off' => 'TINYINT NOT NULL DEFAULT 0'],
+        'videos'   => ['welcome' => 'TINYINT NOT NULL DEFAULT 0'],
         'deadlines' => ['reminded_at' => 'DATETIME NULL'],
         'stock'    => ['location' => 'VARCHAR(80) NULL'],
         'support_chats' => ['rated' => 'TINYINT NOT NULL DEFAULT 0'],

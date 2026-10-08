@@ -19,6 +19,7 @@ function video_form(array $v, bool $new): void
       <div><label>Visible par</label><select name="audience"><option value="all">Tous les utilisateurs</option><option value="admin" <?= ($v['audience'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateurs seulement</option></select></div>
       <div><label>Ordre d'affichage</label><input type="number" name="position" value="<?= (int)($v['position'] ?? 0) ?>"></div>
     </div>
+    <label class="check"><input type="checkbox" name="welcome" value="1" <?= !empty($v['welcome']) ? 'checked' : '' ?>> Vidéo d'accueil des salariés : s'ouvre en fenêtre à leur première connexion (jusqu'à « Ne plus afficher »)</label>
     <label>Chapitres <small class="muted">(le chatbot ouvre la vidéo directement au bon chapitre)</small></label>
     <textarea name="chapters" rows="<?= $new ? 6 : 10 ?>" placeholder="<?= h($help) ?>"><?= h(isset($v['chapters']) ? hub_chapters_text(json_decode((string)$v['chapters'], true) ?: []) : '') ?></textarea>
     <?php
@@ -45,7 +46,7 @@ function video_form(array $v, bool $new): void
         <b style="flex:1"><?= h($v['title']) ?></b>
         <?= $v['published'] ? '<span class="tag green">publiée</span>' : '<span class="tag">brouillon</span>' ?>
         <?= $v['app'] === '*' ? '<span class="tag blue">toutes les applications</span>' : '' ?>
-        <?= $v['audience'] === 'admin' ? '<span class="tag violet">admin</span>' : '' ?>
+        <?= $v['audience'] === 'admin' ? '<span class="tag violet">admin</span>' : '' ?><?= !empty($v['welcome']) ? '<span class="tag blue">accueil</span>' : '' ?>
         <form method="post"><?= csrf_input() ?><input type="hidden" name="action" value="video_toggle"><input type="hidden" name="id" value="<?= (int)$v['id'] ?>"><button class="btn sm"><?= $v['published'] ? 'Retirer' : 'Publier' ?></button></form>
         <form method="post" onsubmit="return confirm('Supprimer cette vidéo ? Elle disparaîtra aussi des installations.')"><?= csrf_input() ?><input type="hidden" name="action" value="video_delete"><input type="hidden" name="id" value="<?= (int)$v['id'] ?>"><button class="btn sm danger">Supprimer</button></form>
       </div>

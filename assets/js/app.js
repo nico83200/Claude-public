@@ -1028,3 +1028,33 @@ document.addEventListener('click', async (e) => {
     });
   }
 })();
+
+/* =====================================================================
+   Fenêtre d'accueil : vidéo tutoriel à la connexion, « Ne plus afficher »
+   ===================================================================== */
+(function () {
+  'use strict';
+  const box = document.querySelector('[data-welcome-video]');
+  if (!box) return;
+  const video = box.querySelector('video');
+  // Aperçu sur l'écran titre (la première image est un fondu au noir), lecture depuis le tout début
+  if (video) {
+    let started = false;
+    video.addEventListener('loadeddata', () => { if (!started && video.currentTime < 0.1) video.currentTime = 2; }, { once: true });
+    video.addEventListener('play', () => { if (!started) { started = true; video.currentTime = 0; } });
+  }
+  const close = () => {
+    const off = box.querySelector('[data-welcome-off]').checked;
+    if (video) video.pause();
+    box.remove();
+    document.removeEventListener('keydown', onKey);
+    if (off) fetch('index.php?r=api/welcome-video', { method: 'POST', body: new URLSearchParams({ _token: window.APP.csrf, off: '1' }), headers: { 'X-Requested-With': 'fetch' } }).catch(() => {});
+  };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  box.querySelectorAll('[data-welcome-close]').forEach((b) => b.addEventListener('click', close));
+  box.addEventListener('click', (e) => { if (e.target === box) close(); });
+  document.addEventListener('keydown', onKey);
+  // « Tous les tutoriels » : on enregistre aussi le choix avant de quitter la page
+  const all = box.querySelector('a[href*="r=videos"]');
+  if (all) all.addEventListener('click', () => { if (box.querySelector('[data-welcome-off]').checked) navigator.sendBeacon('index.php?r=api/welcome-video', new URLSearchParams({ _token: window.APP.csrf, off: '1' })); });
+})();

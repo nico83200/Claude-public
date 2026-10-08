@@ -35,6 +35,16 @@ function video_file(): void
     video_stream(videos_dir() . '/' . basename((string)$v['file']));
 }
 
+/** Fenêtre d'accueil : « Ne plus afficher » coché à la fermeture. */
+function api_welcome_video(): void
+{
+    $u = require_login();
+    if (input('off') === '1') {
+        update('users', ['welcome_video_off' => 1], 'id = ?', [$u['id']]);
+    }
+    json_response(['ok' => true]);
+}
+
 /** Plus petite des limites d'envoi de fichier de PHP, en octets. */
 function upload_limit(): int
 {
@@ -120,6 +130,15 @@ function admin_videos(): void
                 }
                 break;
 
+            case 'welcome':
+                $w = (string)input('welcome_video', '');
+                set_setting('welcome_video', $w === 'none' || $w === '' || video_find($w) ? $w : '');
+                if (input('reset')) {
+                    q("UPDATE users SET welcome_video_off = 0 WHERE role <> 'admin'");
+                }
+                flash('success', $w === 'none' ? 'Aucune vidéo ne s\'ouvrira à la connexion des salariés.' : 'Vidéo d\'accueil enregistrée' . (input('reset') ? ' : elle s\'ouvrira à la prochaine connexion de chaque salarié.' : '.'));
+                break;
+
             case 'fetch':
                 if (licence_managed()) {
                     licence_check(true);
@@ -134,5 +153,7 @@ function admin_videos(): void
         'videos' => array_map('video_decode', all('SELECT * FROM videos ORDER BY position, id')),
         'limit' => upload_limit(),
         'managed' => licence_managed(),
+        'welcome' => (string)setting('welcome_video', ''),
+        'welcomeAuto' => (function () { foreach (video_list(false) as $v) { if ((int)$v['welcome'] === 1) { return $v; } } return null; })(),
     ]);
 }

@@ -57,6 +57,24 @@ $chapHelp = 'Un chapitre par ligne : minutes:secondes, titre, puis | et des mots
     <?php endforeach; ?>
   </div>
 
+  <div class="stack">
+  <form method="post" class="card" id="welcome">
+    <?= csrf_field() ?><input type="hidden" name="action" value="welcome">
+    <div class="card-head"><h2><?= icon('play') ?> Vidéo d'accueil des salariés</h2></div>
+    <div class="card-body">
+      <p class="muted" style="margin-top:0">S'ouvre en fenêtre à la connexion des salariés, jusqu'à ce qu'ils cochent « Ne plus afficher ». Elle reste disponible dans « Tutoriels vidéo ».</p>
+      <div class="field"><label>Vidéo</label>
+        <select name="welcome_video">
+          <option value="">Automatique<?= $welcomeAuto ? ' : « ' . e($welcomeAuto['title']) . ' » (choisie par ' . e(support_contact()['editor']) . ')' : ' (aucune vidéo désignée pour l\'instant)' ?></option>
+          <?php foreach (array_filter($videos, fn($v) => $v['ready'] && $v['active'] && $v['audience'] !== 'admin') as $v): ?>
+            <option value="<?= e($v['uid']) ?>" <?= $welcome === $v['uid'] ? 'selected' : '' ?>><?= e($v['title']) ?></option>
+          <?php endforeach; ?>
+          <option value="none" <?= $welcome === 'none' ? 'selected' : '' ?>>Aucune fenêtre d'accueil</option>
+        </select></div>
+      <label class="check"><input type="checkbox" name="reset" value="1"> La montrer à nouveau à tous les salariés (y compris ceux qui l'ont masquée)</label>
+      <button class="btn btn-primary" type="submit">Enregistrer</button>
+    </div>
+  </form>
   <form method="post" enctype="multipart/form-data" class="card" data-busy="Envoi de la vidéo… (cela peut prendre quelques minutes)" data-video-upload>
     <?= csrf_field() ?><input type="hidden" name="action" value="upload"><input type="hidden" name="duration" value="">
     <div class="card-head"><h2><?= icon('plus') ?> Ajouter une vidéo</h2></div>
@@ -72,4 +90,5 @@ $chapHelp = 'Un chapitre par ligne : minutes:secondes, titre, puis | et des mots
       <button class="btn btn-primary" type="submit"><?= icon('download', 18) ?> Publier la vidéo</button>
     </div>
   </form>
+</div>
 </div>

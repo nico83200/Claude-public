@@ -173,6 +173,22 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
   </form>
   <footer><?php if ($liveOn): ?><a href="#" data-help-live>Parler à un conseiller</a> · <?php endif; ?><a href="<?= url('support') ?>">Formulaire de contact</a><span data-help-end hidden> · <a href="#" data-help-close-chat>Terminer la conversation</a></span></footer>
 </section>
+<?php if ($wv = video_welcome_due($u)): ?>
+<div class="welcome-video" data-welcome-video role="dialog" aria-modal="true" aria-labelledby="wv-title">
+  <div class="welcome-box">
+    <div class="welcome-head"><div><h2 id="wv-title">Bienvenue sur <?= e(app_name()) ?>, <?= e($u['first_name']) ?>&nbsp;!</h2><p class="muted">Découvrez en quelques minutes comment demander des articles, suivre vos demandes et réceptionner les livraisons.</p></div>
+      <button type="button" class="btn btn-ghost btn-icon" data-welcome-close aria-label="Fermer"><?= icon('x', 20) ?></button></div>
+    <video controls playsinline preload="metadata" src="<?= url('video/file', ['v' => $wv['uid']]) ?>"></video>
+    <div class="welcome-foot">
+      <label class="check mb-0"><input type="checkbox" data-welcome-off> <span>Ne plus afficher</span></label>
+      <span class="spacer"></span>
+      <a class="btn btn-ghost" href="<?= url('videos', ['v' => $wv['uid']]) ?>"><?= icon('play', 16) ?> Tous les tutoriels</a>
+      <button type="button" class="btn btn-primary" data-welcome-close>Fermer</button>
+    </div>
+    <small class="muted">La vidéo reste disponible à tout moment dans le menu « Tutoriels vidéo ».</small>
+  </div>
+</div>
+<?php endif; ?>
 <script>window.APP = { csrf: <?= json_encode(csrf_token()) ?>, showPrices: <?= show_prices() ? 'true' : 'false' ?>, version: <?= json_encode(APP_VERSION) ?> };</script>
 <script src="assets/js/app.js?v=<?= e(APP_VERSION) ?>"></script>
 </body>

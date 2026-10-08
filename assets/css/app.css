@@ -731,3 +731,12 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .msg-video { display: flex; gap: .6rem; align-items: center; margin-top: .55rem; padding: .55rem .7rem; border-radius: 12px; background: linear-gradient(135deg, #4f46e5, #a855f7); color: #fff !important; text-decoration: none; font-weight: 600; font-size: .88rem; line-height: 1.3; }
 .msg-video small, .help-log .msg-video small { display: block; font-weight: 500; color: #ede9fe; opacity: 1; }
 .msg-video .ic { flex: none; }
+
+/* Fenêtre d'accueil (vidéo tutoriel à la première connexion) */
+.welcome-video { position: fixed; inset: 0; z-index: 90; background: rgba(15, 12, 40, .62); display: grid; place-items: center; padding: 1rem; animation: wv-in .25s ease-out; }
+.welcome-box { background: var(--surface); border-radius: 20px; width: min(920px, 100%); max-height: calc(100dvh - 2rem); overflow: auto; padding: 1.2rem 1.3rem 1rem; box-shadow: 0 30px 80px rgba(0,0,0,.35); display: grid; gap: .8rem; }
+.welcome-head { display: flex; gap: .8rem; align-items: flex-start; }
+.welcome-head > div { flex: 1; } .welcome-head h2 { margin: 0 0 .2rem; } .welcome-head p { margin: 0; }
+.welcome-box video { width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #0b0a1f; display: block; }
+.welcome-foot { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+@keyframes wv-in { from { opacity: 0; } to { opacity: 1; } }

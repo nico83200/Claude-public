@@ -200,7 +200,7 @@ function videos_sync_remote(array $items): void
             'keywords' => mb_substr((string)($it['k'] ?? ''), 0, 400) ?: null, 'chapters' => json_encode($chapters, JSON_UNESCAPED_UNICODE),
             'audience' => ($it['audience'] ?? '') === 'admin' ? 'admin' : 'all', 'size' => (int)($it['size'] ?? 0) ?: null,
             'sha256' => preg_replace('/[^a-f0-9]/', '', strtolower((string)($it['sha256'] ?? ''))) ?: null, 'duration' => (int)($it['duration'] ?? 0) ?: null,
-            'position' => (int)($it['position'] ?? 0), 'updated_at' => now(),
+            'position' => (int)($it['position'] ?? 0), 'welcome' => !empty($it['welcome']) ? 1 : 0, 'updated_at' => now(),
         ];
         $cur = one("SELECT * FROM videos WHERE uid = ? AND source = 'hub'", [$uid]);
         if ($cur) {
@@ -248,6 +248,37 @@ function videos_download_pending(int $max = 1): string
     }
     $left = count($todo) - $done;
     return $done ? $done . ' vidéo(s) téléchargée(s)' . ($left ? ', ' . $left . ' en attente' : '') : ($left ? $left . ' en attente' : 'à jour');
+}
+
+/**
+ * Vidéo d'accueil montrée en fenêtre à la première connexion des salariés (jusqu'à « Ne plus afficher »).
+ * Réglage « welcome_video » : '' = automatique (vidéo désignée par NLapps), 'none' = aucune, sinon l'identifiant d'une vidéo.
+ */
+function video_welcome(): ?array
+{
+    $choice = (string)setting('welcome_video', '');
+    if ($choice === 'none') {
+        return null;
+    }
+    foreach (video_list(false) as $v) {
+        if ($choice !== '' ? $v['uid'] === $choice : (int)$v['welcome'] === 1) {
+            return $v;
+        }
+    }
+    return null;
+}
+
+/** La fenêtre d'accueil doit-elle s'ouvrir pour cet utilisateur (une fois par connexion, tant qu'il ne l'a pas désactivée) ? */
+function video_welcome_due(array $u): ?array
+{
+    if (($u['role'] ?? '') === 'admin' || !empty($u['welcome_video_off']) || !empty($_SESSION['welcome_shown'])) {
+        return null;
+    }
+    $v = video_welcome();
+    if ($v) {
+        $_SESSION['welcome_shown'] = 1;
+    }
+    return $v;
 }
 
 /** Empreinte de la liste NLapps déjà reçue (le centre d'assistance n'envoie la liste que si elle a changé). */

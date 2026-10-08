@@ -70,7 +70,7 @@ Une seule console pour toutes vos applications : les **conversations** sont comm
 4:12 Réceptionner une livraison | réception colis livré scanner
 ```
 
-Les installations reçoivent la liste à leur prochaine vérification de licence (moins de 10 minutes) et téléchargent la vidéo en arrière-plan (empreinte vérifiée). Le chatbot propose ensuite la vidéo et ouvre directement le chapitre qui répond à la question. Les chapitres et mots-clés se modifient à tout moment sans renvoyer la vidéo. Taille d'envoi : limitée par `upload_max_filesize` et `post_max_size` (à augmenter chez l'hébergeur au besoin).
+Les installations reçoivent la liste à leur prochaine vérification de licence (moins de 10 minutes) et téléchargent la vidéo en arrière-plan (empreinte vérifiée). Le chatbot propose ensuite la vidéo et ouvre directement le chapitre qui répond à la question. Les chapitres et mots-clés se modifient à tout moment sans renvoyer la vidéo. Cochez **« Vidéo d'accueil des salariés »** pour qu'elle s'ouvre en fenêtre à la connexion des salariés de chaque installation (jusqu'à ce qu'ils cochent « Ne plus afficher »). Taille d'envoi : limitée par `upload_max_filesize` et `post_max_size` (à augmenter chez l'hébergeur au besoin).
 
 ## Brancher vos autres applications NLapps
 

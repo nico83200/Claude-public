@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 1.17.0
+- **Vidéo d'accueil des salariés** : à la connexion d'un salarié, le tutoriel s'ouvre en fenêtre, avec une case « Ne plus afficher ». Tant qu'elle n'est pas cochée, la fenêtre revient à la connexion suivante (une seule fois par connexion) ; la vidéo reste disponible dans « Tutoriels vidéo ». Jamais montrée aux administrateurs.
+- Réglage (Tutoriels vidéo → Vidéo d'accueil des salariés) : automatique (vidéo désignée par NLapps), une vidéo au choix ou aucune ; bouton pour la montrer à nouveau à tous les salariés.
+
+### Centre d'assistance NLapps 3.1.0
+- Case « Vidéo d'accueil des salariés » sur chaque vidéo : transmise aux installations, qui l'ouvrent à la connexion de leurs salariés.
+
 ## Centre d'assistance NLapps 3.0.0
 - **Comptes avec identifiant et mot de passe** : un compte par personne (administrateur ou conseiller), double authentification par compte, réponses signées du nom du conseiller. L'ancien accès devient le compte `admin` (même mot de passe).
 - **Plusieurs applications** : un sous-menu par application (parc clients, versions, FAQ, vidéos) ; les conversations restent communes, avec un filtre par application. Ajout d'une application en un formulaire (nom, couleur, tarifs).

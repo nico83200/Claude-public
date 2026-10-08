@@ -64,6 +64,7 @@ $routes = [
     'api/support/live'      => ['support', 'api_support_live'],
     'videos'                => ['videos', 'videos_page'],
     'video/file'            => ['videos', 'video_file'],
+    'api/welcome-video'     => ['videos', 'api_welcome_video'],
     'receptions'            => ['reception', 'reception_index'],
     'reception'             => ['reception', 'reception_view'],
     'reception/save'        => ['reception', 'reception_save'],

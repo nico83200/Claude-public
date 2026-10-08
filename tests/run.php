@@ -644,6 +644,26 @@ $r = one("SELECT * FROM videos WHERE uid = 'nl-abc'");
 check($r['title'] === 'Tutoriel salarié (v2)' && $r['file'] === null && !is_file(videos_dir() . '/nl-abc-1.mp4') && (int)$r['active'] === 0, 'nouvelle version : ancien fichier supprimé, à retélécharger ; vidéo masquée par l\'administrateur reste masquée');
 videos_sync_remote([]);
 check(!one("SELECT id FROM videos WHERE uid = 'nl-abc'"), 'vidéo retirée par NLapps supprimée de l\'installation');
+// Vidéo d'accueil des salariés
+insert('videos', ['uid' => 'w-tuto', 'source' => 'hub', 'title' => 'Tutoriel salarié', 'chapters' => '[]', 'audience' => 'all', 'file' => 'test-tuto.mp4', 'active' => 1, 'welcome' => 1, 'created_at' => now()]);
+insert('videos', ['uid' => 'w-autre', 'source' => 'local', 'title' => 'Autre vidéo', 'chapters' => '[]', 'audience' => 'all', 'file' => 'test-tuto.mp4', 'active' => 1, 'created_at' => now()]);
+set_setting('welcome_video', '');
+check((video_welcome()['uid'] ?? '') === 'w-tuto', 'vidéo d\'accueil automatique : celle désignée par NLapps');
+set_setting('welcome_video', 'w-autre');
+check((video_welcome()['uid'] ?? '') === 'w-autre', 'vidéo d\'accueil choisie par l\'administrateur');
+set_setting('welcome_video', 'none');
+check(video_welcome() === null, 'aucune fenêtre d\'accueil si l\'administrateur l\'a désactivée');
+set_setting('welcome_video', '');
+unset($_SESSION['welcome_shown']);
+check(video_welcome_due(['role' => 'admin', 'welcome_video_off' => 0]) === null, 'jamais montrée aux administrateurs');
+check((video_welcome_due(['role' => 'user', 'welcome_video_off' => 0])['uid'] ?? '') === 'w-tuto', 'montrée au salarié à sa connexion');
+check(video_welcome_due(['role' => 'user', 'welcome_video_off' => 0]) === null, 'une seule fois par connexion (pas à chaque page)');
+unset($_SESSION['welcome_shown']);
+check(video_welcome_due(['role' => 'user', 'welcome_video_off' => 1]) === null, '« Ne plus afficher » respecté');
+videos_sync_remote([['uid' => 'nl-acc', 'title' => 'Accueil', 'welcome' => true, 'sha256' => str_repeat('c', 64)]]);
+check((int)val("SELECT welcome FROM videos WHERE uid = 'nl-acc'") === 1, 'indication « vidéo d\'accueil » reçue du centre d\'assistance');
+q("DELETE FROM videos WHERE uid IN ('w-tuto', 'w-autre', 'nl-acc')");
+unset($_SESSION['welcome_shown']);
 @unlink(videos_dir() . '/test-tuto.mp4');
 
 // Nettoyage

@@ -139,8 +139,9 @@ hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size,
     ['nl-2', 'autreappli', 'Autre application', '[]', 'all', 'nl-2.mp4', str_repeat('b', 64), 1000, 0, 1, hnow(), hnow()]);
 hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
     ['nl-3', 'approvia', 'Brouillon', '[]', 'all', 'nl-3.mp4', str_repeat('c', 64), 1000, 0, 0, hnow(), hnow()]);
+hq("UPDATE videos SET welcome = 1 WHERE uid = 'nl-1'");
 $vids = hub_videos_for('approvia');
-check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel'),
+check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel') && $vids[0]['welcome'] === true,
     'vidéos transmises : publiées, de l\'application, avec chapitres et mots-clés, sans chemin de fichier');
 
 echo "Comptes et applications (3.0)\n";

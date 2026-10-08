@@ -167,13 +167,14 @@ switch ($action) {
             'audience' => ($_POST['audience'] ?? '') === 'admin' ? 'admin' : 'all',
             'app' => preg_replace('/[^a-z0-9_*-]/', '', strtolower((string)($_POST['app'] ?? '*'))) ?: '*',
             'position' => (int)($_POST['position'] ?? 0),
+            'welcome' => !empty($_POST['welcome']) ? 1 : 0,
         ];
         if ($meta['title'] === '') {
             flash('Indiquez le titre de la vidéo.', true);
             go('index.php?p=videos');
         }
         if ($action === 'video_save') {
-            hq('UPDATE videos SET title = ?, description = ?, keywords = ?, chapters = ?, audience = ?, app = ?, position = ?, updated_at = ? WHERE id = ?', [...array_values($meta), hnow(), $id]);
+            hq('UPDATE videos SET title = ?, description = ?, keywords = ?, chapters = ?, audience = ?, app = ?, position = ?, welcome = ?, updated_at = ? WHERE id = ?', [...array_values($meta), hnow(), $id]);
             flash('Vidéo mise à jour : les installations reçoivent les changements à leur prochaine synchronisation.');
             go('index.php?p=videos');
         }
@@ -194,8 +195,8 @@ switch ($action) {
             go('index.php?p=videos');
         }
         $path = hub_videos_dir() . '/' . $file;
-        hq('INSERT INTO videos (uid, title, description, keywords, chapters, audience, app, position, file, sha256, size, duration, published, created_at, updated_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [$uid, ...array_values($meta), $file, hash_file('sha256', $path), filesize($path),
+        hq('INSERT INTO videos (uid, title, description, keywords, chapters, audience, app, position, welcome, file, sha256, size, duration, published, created_at, updated_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [$uid, ...array_values($meta), $file, hash_file('sha256', $path), filesize($path),
             (int)($_POST['duration'] ?? 0) ?: null, !empty($_POST['publish']) ? 1 : 0, hnow(), hnow()]);
         flash('Vidéo « ' . $meta['title'] . ' » ' . (!empty($_POST['publish']) ? 'publiée : elle arrivera dans les installations à leur prochaine synchronisation.' : 'enregistrée (non publiée).'));
         go('index.php?p=videos');
