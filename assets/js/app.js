@@ -1058,3 +1058,18 @@ document.addEventListener('click', async (e) => {
   const all = box.querySelector('a[href*="r=videos"]');
   if (all) all.addEventListener('click', () => { if (box.querySelector('[data-welcome-off]').checked) navigator.sendBeacon('index.php?r=api/welcome-video', new URLSearchParams({ _token: window.APP.csrf, off: '1' })); });
 })();
+
+// Fenêtres d'information (<dialog>) : bouton [data-dialog-open="id"], fermeture par la croix, Échap ou clic à côté
+document.addEventListener('click', (e) => {
+  const open = e.target.closest('[data-dialog-open]');
+  if (open) {
+    const d = document.getElementById(open.dataset.dialogOpen);
+    if (d && d.showModal) { e.preventDefault(); d.showModal(); }
+    return;
+  }
+  if (e.target.closest('[data-dialog-close]')) { e.target.closest('dialog').close(); return; }
+  if (e.target.tagName === 'DIALOG' && e.target.open) {
+    const r = e.target.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+  }
+});

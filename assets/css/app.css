@@ -740,3 +740,27 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .welcome-box video { width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #0b0a1f; display: block; }
 .welcome-foot { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 @keyframes wv-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Bulle « ? » et tableau comparatif des droits par rôle */
+.rh-bubble { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; margin-left: .3rem; border-radius: 50%; border: 0; background: var(--primary-soft); color: var(--primary); font: 700 .75rem/1 inherit; cursor: pointer; vertical-align: middle; text-transform: none; letter-spacing: 0; transition: transform .15s, background .15s; }
+.rh-bubble:hover, .rh-bubble:focus-visible { background: var(--primary); color: #fff; transform: scale(1.1); }
+.rh-dialog { width: min(920px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); padding: 0; border: 0; border-radius: 16px; box-shadow: 0 20px 60px rgba(15, 12, 40, .35); background: var(--surface, #fff); color: inherit; }
+.rh-dialog::backdrop { background: rgba(15, 12, 40, .55); }
+.rh-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: inherit; z-index: 1; }
+.rh-head h2 { margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: .5rem; }
+.rh-table th:not(:first-child), .rh-cell { text-align: center; }
+.rh-table th { white-space: normal; }
+.rh-table td:first-child { min-width: 240px; }
+.rh-table .rh-group td { background: var(--surface-2); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); }
+.rh-table tbody tr.rh-group:hover td { background: var(--surface-2); }
+.rh-yes { color: #059669; font-weight: 800; font-size: 1.05rem; }
+.rh-no { color: var(--muted); opacity: .6; }
+.rh-foot { margin: 0; padding: .75rem 1.25rem 1rem; }
+.rh-short, .rh-legend { display: none; }
+.rh-short { text-decoration: none; }
+@media (max-width: 640px) {
+  .rh-long { display: none; } .rh-short { display: inline; } .rh-legend { display: block; margin: 0; padding: .5rem .75rem 0; }
+  .rh-head { padding: .75rem; } .rh-head h2 { font-size: 1rem; }
+  .rh-table { font-size: .82rem; } .rh-table td, .rh-table th { padding: .5rem .35rem; } .rh-table td:first-child { min-width: 0; padding-left: .75rem; }
+  .rh-table .rh-cell small { font-size: .72rem; }
+}

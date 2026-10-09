@@ -1,6 +1,6 @@
 <div class="page-head">
   <div><h1>Comptes utilisateurs</h1><p>Validez les demandes d'accès et attribuez les centres de chaque salarié.</p></div>
-  <a class="btn btn-primary" href="<?= url('admin/user') ?>"><?= icon('plus', 18) ?> Créer un compte</a>
+  <div class="row"><button type="button" class="btn" data-dialog-open="roles-help"><?= icon('users', 18) ?> Droits des rôles</button><a class="btn btn-primary" href="<?= url('admin/user') ?>"><?= icon('plus', 18) ?> Créer un compte</a></div>
 </div>
 <div class="tabs">
   <?php foreach (['' => 'Tous', 'pending' => 'À valider', 'active' => 'Actifs', 'disabled' => 'Désactivés'] as $k => $l): ?>
@@ -14,7 +14,7 @@
     <button class="btn btn-sm btn-danger" type="submit" data-confirm="Supprimer les comptes sélectionnés ? Les comptes qui ont déjà passé des commandes seront anonymisés pour conserver l'historique."><?= icon('trash', 16) ?> Supprimer la sélection</button>
   </div>
   <div class="table-wrap"><table class="table">
-    <thead><tr><th class="col-check"><input type="checkbox" data-check-all="ids[]" title="Tout sélectionner" aria-label="Tout sélectionner"></th><th>Nom</th><th>Fonction</th><th>Centres</th><th>Rôle</th><th>Statut</th><th>Dernière connexion</th><th></th></tr></thead>
+    <thead><tr><th class="col-check"><input type="checkbox" data-check-all="ids[]" title="Tout sélectionner" aria-label="Tout sélectionner"></th><th>Nom</th><th>Fonction</th><th>Centres</th><th>Rôle <?php partial('roles_help'); ?></th><th>Statut</th><th>Dernière connexion</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($users as $u): ?>
       <tr>
@@ -36,3 +36,4 @@
   </table></div>
   <?php if (!$users): ?><div class="empty"><p>Aucun compte.</p></div><?php endif; ?>
 </form>
+<?php partial('roles_help', ['dialog' => true]); ?>

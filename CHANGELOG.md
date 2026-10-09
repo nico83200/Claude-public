@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.18.1
+- **Comparaison des droits par rôle** : une bulle « ? » à côté du rôle (fiche d'un compte et colonne « Rôle » de la liste), ainsi qu'un bouton « Droits des rôles » sur la page Comptes, ouvrent un tableau comparant salarié, responsable de centre, acheteur et administrateur : commander et recevoir, service achats, organisation et paramètres. Lisible aussi sur téléphone.
+
 ## 1.18.0
 - **Nouveau rôle « Acheteur »** : il dispose de tout le service achats (pilotage, direction, demandes à traiter, bons de commande, articles proposés, fournisseurs, articles, catégories, dates limites, comparateur, factures, exports comptables, budgets, stocks des centres) et voit tous les centres, mais pas l'**organisation** (centres, comptes) ni les **paramètres** (paramètres, fiche RGPD, journal d'audit, nettoyage des données, mises à jour et sauvegardes, file d'e-mails, gestion des vidéos). Ces pages sont retirées de son menu et refusées s'il tente d'y accéder directement.
 - L'acheteur reçoit les notifications du service achats (nouvelles demandes, articles proposés, hausses de prix, budgets…), mais pas les comptes à valider ; la double authentification exigée des administrateurs s'applique aussi à lui.
