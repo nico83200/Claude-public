@@ -4,7 +4,17 @@ DirectoryIndex index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^(app|storage|vendor|tools|dist|tests)(/|$) - [F,L]
+  RewriteRule ^(app|storage|instances|vendor|tools|dist|tests)(/|$) - [F,L]
+
+  # Espaces clients à une même adresse : centriva.fr/<espace>/… sert l'application, qui lit l'espace dans l'adresse
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([a-z0-9][a-z0-9-]{0,38}[a-z0-9]?)/(.*)$ $2 [L,QSA]
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^([a-z0-9][a-z0-9-]{0,38}[a-z0-9]?)$ index.php [L,QSA]
   RewriteRule ^(config\.php|config\.sample\.php|composer\.(json|lock))$ - [F,L]
 </IfModule>
 

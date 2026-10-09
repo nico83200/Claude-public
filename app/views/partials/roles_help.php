@@ -24,7 +24,7 @@ $groups = [
         ['Centres', $n, $n, $n, $y],
         ['Comptes, rôles et validation des inscriptions', $n, $n, $n, $y],
         ['Paramètres (e-mails, assistant IA, seuil de validation, sécurité, RGPD)', $n, $n, $n, $y],
-        ['Journal d\'audit et nettoyage des données', $n, $n, $n, $y],
+        ['Journal d\'audit, nettoyage, export et import des données', $n, $n, $n, $y],
         ['Mises à jour et sauvegardes', $n, $n, $n, $y],
         ['Gestion des tutoriels vidéo et de la vidéo d\'accueil', $n, $n, $n, $y],
     ],

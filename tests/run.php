@@ -45,6 +45,7 @@ require APP . '/videos.php';
 require APP . '/contracts.php';
 require APP . '/demo.php';
 require APP . '/onboarding.php';
+require APP . '/transfer.php';
 require APP . '/barcode.php';
 require APP . '/licence.php';
 require APP . '/reports.php';
@@ -715,6 +716,13 @@ $ip = instance_paths('imss');
 check(str_ends_with($ip['config'], '/instances/imss/config.php') && $ip['uploads_url'] === 'uploads/i/imss', 'chemins propres au client');
 check(instance_paths(null)['storage'] === ROOT . '/storage' && storage_path('x') === ROOT . '/storage/x', 'installation simple inchangée');
 check(uploads_url('products/a.png') === 'uploads/products/a.png', 'photos de l\'installation simple');
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+check(instance_from_path('/imss/index.php?r=admin') === ['imss', '/index.php'] && instance_from_path('/imss') === ['imss', ''], 'espace lu dans l\'adresse : centriva.fr/imss/…');
+check(instance_from_path('/assets/css/app.css') === null && instance_from_path('/index.php') === null && instance_from_path('/') === null, 'dossiers de l\'application jamais pris pour un espace');
+check(!instance_valid_slug('admin') && !instance_valid_slug('uploads') && instance_valid_slug('demo'), 'identifiants réservés refusés');
+$_SERVER['SCRIPT_NAME'] = '/centriva/index.php';
+check(instance_from_path('/centriva/imss/index.php') === ['imss', '/index.php'], 'installation dans un sous-dossier');
+unset($_SERVER['SCRIPT_NAME']);
 
 section('Démarrage guidé');
 [$inv, $badInv] = invite_parse("claire.dubois@ex.fr\nAntoine Morel <a.morel@ex.fr>\nLéa;Fabre;lea.fabre@ex.fr\nJean\tMartin\tjean.martin@ex.fr\nsans adresse\nCLAIRE.DUBOIS@ex.fr");
@@ -732,6 +740,35 @@ check(app_name() === 'Centriva', 'ancien nom enregistré : affiché « Centriva 
 set_setting('app_name', 'Achats IMSS');
 check(app_name() === 'Achats IMSS', 'nom personnalisé conservé');
 set_setting('app_name', null);
+
+section('Export et import complets');
+$secret = encrypt_secret('motdepasse-smtp');
+set_setting('smtp_pass', $secret);
+set_setting('support_hub_key', encrypt_secret('nlh_cle_de_cette_installation'));
+$nbProducts = (int)val('SELECT COUNT(*) FROM products');
+$exp = transfer_export('Archive-Test-2026', true);
+check(is_file($exp) && filesize($exp) > 1000, 'archive d\'export créée');
+$z = new ZipArchive(); $z->open($exp);
+check($z->getFromName('database.jsonl') === false, 'archive illisible sans son mot de passe');
+$z->close();
+$okInspect = false;
+try { transfer_inspect($exp, 'mauvais-mot-de-passe'); } catch (RuntimeException $e) { $okInspect = str_contains($e->getMessage(), 'Mot de passe'); }
+check($okInspect, 'mauvais mot de passe refusé');
+$mf = transfer_inspect($exp, 'Archive-Test-2026');
+check(($mf['counts']['articles'] ?? 0) === $nbProducts && $mf['app_version'] === APP_VERSION, 'manifeste : version et chiffres clés');
+$z->open($exp); $z->setPassword('Archive-Test-2026'); $dump = (string)$z->getFromName('database.jsonl'); $z->close();
+check(!str_contains($dump, 'nlh_cle') && !str_contains($dump, '"skey":"support_hub_key"') && str_contains($dump, 'plain:'), 'licence non exportée, secrets transportés sous le chiffrement de l\'archive');
+q("DELETE FROM products WHERE id = (SELECT MIN(id) FROM products)");
+q("INSERT INTO categories (name, icon, color, position) VALUES ('Catégorie de destination', 'box', '#000', 99)");
+set_setting('support_hub_key', $localKey = encrypt_secret('nlh_cle_destination'));
+$res = transfer_import($exp, 'Archive-Test-2026');
+check((int)val('SELECT COUNT(*) FROM products') === $nbProducts && !val("SELECT COUNT(*) FROM categories WHERE name = 'Catégorie de destination'"), 'import : les données de l\'archive remplacent celles de l\'installation');
+check(decrypt_secret(setting('smtp_pass')) === 'motdepasse-smtp' && setting('smtp_pass') !== $secret, 'secrets re-chiffrés avec la clé de l\'installation de destination');
+check(decrypt_secret(setting('support_hub_key')) === 'nlh_cle_destination', 'licence de l\'installation de destination conservée');
+check(is_file(storage_path('backups/' . $res['backup'])), 'sauvegarde de la base faite avant l\'import');
+@unlink($exp); @unlink(storage_path('backups/' . $res['backup']));
+set_setting('smtp_pass', null); set_setting('support_hub_key', null);
+as_user('admin@test.fr');
 
 section('Démo publique');
 check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');

@@ -9,12 +9,24 @@ require_once APP . '/instances.php';
 // Console NLapps (console.php) : aucun client chargé au départ, elle bascule de l'un à l'autre
 $console = defined('NL_CONSOLE');
 
-// Client servi : CMD_INSTANCE (ligne de commande), sinon l'adresse appelée quand plusieurs clients sont installés
+// Client servi : CMD_INSTANCE (ligne de commande), sinon, quand plusieurs clients sont installés,
+// l'adresse dédiée du client (imss.exemple.fr) ou le début du chemin (centriva.fr/imss/…)
 $slug = $console ? null : (getenv('CMD_INSTANCE') ?: null);
 if (!$console && $slug === null && !getenv('CMD_CONFIG') && instances_enabled() && PHP_SAPI !== 'cli') {
     $slug = instance_for_host((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($slug === null && ($fromPath = instance_from_path((string)($_SERVER['REQUEST_URI'] ?? '/')))) {
+        if (!isset(instances_registry()[$fromPath[0]])) {
+            instance_unavailable('Espace introuvable', 'Aucun espace Centriva ne porte l\'identifiant « ' . htmlspecialchars($fromPath[0]) . ' ». <a href="' . instance_web_dir() . '/?changer=1">Saisir un autre identifiant</a>');
+        }
+        $slug = $fromPath[0];
+        $GLOBALS['instance_by_path'] = true;
+        if ($fromPath[1] === '') { // centriva.fr/imss → centriva.fr/imss/ (les liens de l'application sont relatifs)
+            header('Location: ' . instance_web_dir() . '/' . $slug . '/', true, 301);
+            exit;
+        }
+    }
     if ($slug === null && !is_file(ROOT . '/config.php')) {
-        instance_unavailable('Espace introuvable', 'Aucun espace Centriva ne correspond à cette adresse. Vérifiez le lien reçu de votre service achats.');
+        instance_chooser();
     }
 }
 if ($slug !== null) {
@@ -104,6 +116,7 @@ require_once APP . '/videos.php';
 require_once APP . '/contracts.php';
 require_once APP . '/demo.php';
 require_once APP . '/onboarding.php';
+require_once APP . '/transfer.php';
 require_once APP . '/pdf.php';
 require_once APP . '/cron.php';
 
@@ -114,7 +127,7 @@ if (!$console && session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
     session_name('cmdcentres' . ($slug ? '_' . str_replace('-', '_', $slug) : ''));
     session_set_cookie_params([
         'lifetime' => 0,
-        'path'     => '/',
+        'path'     => !empty($GLOBALS['instance_by_path']) ? instance_web_dir() . '/' . $slug . '/' : '/', // cookie limité à l'espace
         'secure'   => $secure,
         'httponly' => true,
         'samesite' => 'Lax',
@@ -126,6 +139,10 @@ if (!$console && session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
         session_regenerate_id(true);
     }
     $_SESSION['instance'] = $slug;
+    // Espace servi par son chemin : mémorisé sur l'appareil (centriva.fr mène directement à l'espace)
+    if (!empty($GLOBALS['instance_by_path']) && ($_COOKIE['centriva_espace'] ?? '') !== $slug) {
+        setcookie('centriva_espace', (string)$slug, ['expires' => time() + 400 * 86400, 'path' => instance_web_dir() . '/', 'samesite' => 'Lax', 'secure' => $secure, 'httponly' => true]);
+    }
 }
 
 // Mode maintenance pendant l'application d'une mise à jour
@@ -153,6 +170,11 @@ if (!$console && setting('db_version') !== APP_VERSION) {
     } catch (Throwable $e) {
         error_log('[migration] ' . $e->getMessage());
     }
+}
+
+// Adresse publique de l'espace (centriva.fr/imss/) retenue pour les liens des e-mails envoyés par les tâches planifiées
+if (!$console && ($pub = instance_public_url()) && setting('app_url') !== $pub) {
+    set_setting('app_url', $pub);
 }
 
 header('Permissions-Policy: camera=(self)');

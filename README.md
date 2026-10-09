@@ -127,9 +127,9 @@ Un article existant (même fournisseur et même référence) est mis à jour. L'
 
 ## Plusieurs clients sur un même serveur
 
-Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (ex. `imss.centriva.fr`, `sante-var.centriva.fr`).
+Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (`centriva.fr/imss/`, ou une adresse dédiée). Les sessions sont limitées à leur espace : être connecté chez un client ne donne aucun accès aux autres.
 
-1. Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique `*.centriva.fr`) vers le dossier de Centriva, avec HTTPS.
+1. **Tous les clients se connectent à la même adresse**, suivie de l'identifiant de leur espace : `centriva.fr/imss/`, `centriva.fr/sante-var/`… Le fichier `.htaccess` fourni fait le nécessaire sur un hébergement Apache (mod_rewrite). Sur nginx : `location / { try_files $uri $uri/ @espace; } location @espace { rewrite ^/([a-z0-9][a-z0-9-]*)/(.*)$ /$2 last; rewrite ^/([a-z0-9][a-z0-9-]*)$ /index.php last; }`. L'adresse seule (`centriva.fr`) affiche « Accéder à votre espace » : chacun saisit l'identifiant de son établissement, mémorisé ensuite sur l'appareil. Une adresse dédiée par client (`achats.imss.fr`) reste possible.
 2. Ouvrez `https://…/console.php`. Au premier accès, recopiez le code du fichier `storage/console-code.txt` (FTP ou gestionnaire de fichiers) et choisissez le mot de passe de la console.
 3. **Reprendre l'installation actuelle** : l'installation existante devient le premier client, sans modifier sa base (comptes, commandes, réglages, licence conservés).
 4. **Nouveau client** : nom, identifiant, adresse(s), base SQLite (un fichier, rien à créer) ou MySQL (base vide créée chez l'hébergeur), premier administrateur, clé de licence NLapps, données de démonstration en option.

@@ -64,7 +64,7 @@ function instance_parse_hosts(string $text, ?string $exceptSlug = null): array
             continue;
         }
         if (!preg_match('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d+)?$/', $h)) {
-            throw new RuntimeException('Adresse invalide : ' . $h . ' (exemple attendu : imss.centriva.fr).');
+            throw new RuntimeException('Adresse invalide : ' . $h . ' (exemple attendu : achats.imss.fr).');
         }
         foreach (instances_registry() as $s => $i) {
             if ($s !== $exceptSlug && in_array($h, array_map('instance_normalize_host', (array)$i['hosts']), true)) {
@@ -73,10 +73,7 @@ function instance_parse_hosts(string $text, ?string $exceptSlug = null): array
         }
         $hosts[] = $h;
     }
-    if (!$hosts) {
-        throw new RuntimeException('Indiquez au moins une adresse (ex. imss.centriva.fr).');
-    }
-    return array_values(array_unique($hosts));
+    return array_values(array_unique($hosts)); // facultatif : sans adresse dédiée, l'espace est servi à centriva.fr/<identifiant>/
 }
 
 /**
@@ -89,7 +86,7 @@ function instance_create(array $in): string
     $name = trim((string)($in['name'] ?? ''));
     $registry = instances_registry();
     if (!instance_valid_slug($slug)) {
-        throw new RuntimeException('Identifiant invalide : lettres minuscules, chiffres et tirets (ex. imss, sante-var).');
+        throw new RuntimeException('Identifiant invalide : lettres minuscules, chiffres et tirets (ex. imss, sante-var), hors noms réservés (app, assets, admin…).');
     }
     if (isset($registry[$slug]) || is_dir(instances_dir() . '/' . $slug)) {
         throw new RuntimeException('L\'identifiant « ' . $slug . ' » est déjà pris.');

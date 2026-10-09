@@ -56,7 +56,7 @@ function licence_stats(): array
 function licence_instance_url(): string
 {
     if (!empty($_SERVER['HTTP_HOST'])) {
-        $u = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/') . '/';
+        $u = instance_public_url() ?? ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/') . '/');
         if (setting('instance_url') !== $u) {
             set_setting('instance_url', $u);
         }

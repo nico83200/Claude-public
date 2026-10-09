@@ -34,7 +34,7 @@ function demo_blocked(string $route): ?string
     }
     $rules = [
         '#^(profile|register|forgot|reset)$#' => 'Sur la démo, les mots de passe, la double authentification et les inscriptions sont désactivés.',
-        '#^admin/(settings|rgpd|cleanup|updates.*|backup-daily|mail-queue|videos)$#' => 'Sur la démo, les paramètres, sauvegardes et suppressions de données sont en lecture seule.',
+        '#^admin/(settings|rgpd|cleanup|updates.*|backup-daily|mail-queue|videos|transfer)$#' => 'Sur la démo, les paramètres, sauvegardes et suppressions de données sont en lecture seule.',
         '#^admin/(user|users/delete)$#' => 'Sur la démo, les comptes de démonstration ne peuvent pas être modifiés : utilisez les connexions en un clic.',
     ];
     foreach ($rules as $re => $msg) {

@@ -11,6 +11,7 @@ $routes = [
     'logout'                => ['auth', 'auth_logout'],
     'demo/login'            => ['auth', 'demo_login'],
     'admin/invite'          => ['onboarding', 'admin_invite'],
+    'admin/transfer'        => ['transfer', 'admin_transfer'],
     'admin/onboarding'      => ['onboarding', 'admin_onboarding'],
     'forgot'                => ['auth', 'auth_forgot'],
     'reset'                 => ['auth', 'auth_reset'],
@@ -193,7 +194,7 @@ if (current_instance() && str_starts_with($route, 'admin/updates')) {
 }
 
 // Organisation et paramètres : réservés à l'administrateur (l'acheteur gère tout le reste du service achats)
-if (preg_match('#^admin/(centers?|users?(/delete)?|invite|onboarding|settings|rgpd|audit|cleanup|updates(/.*)?|backup-daily|mail-queue|videos)$#', $route)) {
+if (preg_match('#^admin/(centers?|users?(/delete)?|invite|onboarding|transfer|settings|rgpd|audit|cleanup|updates(/.*)?|backup-daily|mail-queue|videos)$#', $route)) {
     require_superadmin();
 }
 

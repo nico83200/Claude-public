@@ -24,6 +24,16 @@ const CONSOLE_AUTH = ROOT . '/storage/console-auth.json';
 const CONSOLE_CODE = ROOT . '/storage/console-code.txt';
 const CONSOLE_ATTEMPTS = ROOT . '/storage/console-attempts.json';
 
+/** Adresse d'un espace : son adresse dédiée s'il en a une, sinon https://<ce serveur>/<identifiant>/. */
+function console_space_url(string $slug, array $i): string
+{
+    if (!empty($i['hosts'][0])) {
+        return 'https://' . $i['hosts'][0] . '/';
+    }
+    $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    return ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'centriva.fr') . instance_web_dir() . '/' . $slug . '/';
+}
+
 function console_auth(): array
 {
     return is_file(CONSOLE_AUTH) ? (json_decode((string)file_get_contents(CONSOLE_AUTH), true) ?: []) : [];
@@ -124,7 +134,7 @@ if ($logged && $post) {
                     'db' => ['driver' => $_POST['db_driver'] ?? 'sqlite', 'host' => $_POST['db_host'] ?? '', 'port' => $_POST['db_port'] ?? '',
                         'name' => $_POST['db_name'] ?? '', 'user' => $_POST['db_user'] ?? '', 'pass' => $_POST['db_pass'] ?? ''],
                 ]);
-                console_flash('ok', 'Espace « ' . instances_registry()[$s]['name'] . ' » créé. L\'administrateur peut se connecter à https://' . instances_registry()[$s]['hosts'][0] . '/');
+                console_flash('ok', 'Espace « ' . instances_registry()[$s]['name'] . ' » créé. L\'administrateur se connecte à ' . console_space_url($s, instances_registry()[$s]) . ' (identifiant de l\'espace : ' . $s . ').');
                 console_go();
 
             case 'adopt':
@@ -328,8 +338,10 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
       <div><label>Nom du client</label><input name="name" value="<?= $f('name') ?>" required placeholder="ex : Groupe Santé Var"></div>
       <div><label>Identifiant <small class="muted">(minuscules, chiffres, tirets — définitif)</small></label><input name="slug" value="<?= $f('slug') ?>" required pattern="[a-z0-9][a-z0-9\-]{0,38}[a-z0-9]?" placeholder="ex : sante-var"></div>
     </div>
-    <label>Adresse(s) de l'espace <small class="muted">(une par ligne ; à faire pointer vers ce dossier chez l'hébergeur)</small></label>
-    <textarea name="hosts" rows="2" required placeholder="sante-var.centriva.fr"><?= $f('hosts') ?></textarea>
+    <p class="muted" style="margin:.6rem 0 0">L'espace sera accessible à <b><?= e(preg_replace('#^https?://#', '', console_space_url('identifiant', []))) ?></b> (l'identifiant choisi ci-dessus). Les données de chaque espace sont séparées : base, fichiers, comptes et sessions.</p>
+    <details style="margin-top:.4rem"><summary class="muted">Adresse dédiée (facultatif)</summary>
+      <label>Adresse(s) propre(s) au client <small class="muted">(une par ligne ; à faire pointer vers ce dossier chez l'hébergeur)</small></label>
+      <textarea name="hosts" rows="2" placeholder="achats.groupe-sante-var.fr"><?= $f('hosts') ?></textarea></details>
     <label>Nom affiché de l'application</label><input name="app_name" value="<?= $f('app_name', 'Centriva') ?>">
 
     <h2 style="margin-top:1.4rem">Base de données</h2>
@@ -370,8 +382,9 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
       <div><label>Nom du client</label><input name="name" value="<?= $f('name', (string)((require ROOT . '/config.php')['app_name'] ?? '')) ?>" required></div>
       <div><label>Identifiant</label><input name="slug" value="<?= $f('slug') ?>" required placeholder="ex : imss"></div>
     </div>
-    <label>Adresse(s) actuelle(s) de l'installation <small class="muted">(une par ligne)</small></label>
-    <textarea name="hosts" rows="2" required><?= $f('hosts', instance_normalize_host((string)($_SERVER['HTTP_HOST'] ?? ''))) ?></textarea>
+    <p class="muted" style="margin:.6rem 0 0">L'espace sera accessible à <b><?= e(preg_replace('#^https?://#', '', console_space_url('identifiant', []))) ?></b>. Si les utilisateurs se connectent aujourd'hui à une autre adresse, indiquez-la ci-dessous pour qu'elle continue de fonctionner.</p>
+    <label>Adresse(s) actuelle(s) de l'installation <small class="muted">(facultatif, une par ligne)</small></label>
+    <textarea name="hosts" rows="2"><?= $f('hosts') ?></textarea>
     <p><button class="btn primary">Reprendre comme client</button></p>
   </form>
 
@@ -411,14 +424,14 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
   </div>
   <?php if (!$registry): ?>
     <div class="card"><p>Aucun client pour l'instant.</p>
-      <p class="muted"><small>Chaque client aura sa base, ses fichiers, ses comptes et sa licence, à sa propre adresse (ex. <code>imss.centriva.fr</code>). Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique <code>*.centriva.fr</code>) vers ce dossier.<?= $single ? ' L\'installation actuelle peut devenir le premier client sans rien perdre.' : '' ?></small></p></div>
+      <p class="muted"><small>Chaque client aura sa base, ses fichiers, ses comptes et sa licence. Tous se connectent à la même adresse, suivie de l'identifiant de leur espace (ex. <code><?= e(preg_replace('#^https?://#', '', console_space_url('imss', []))) ?></code>) ; une adresse dédiée reste possible.<?= $single ? ' L\'installation actuelle peut devenir le premier client sans rien perdre.' : '' ?></small></p></div>
   <?php endif; ?>
   <div class="clients">
   <?php foreach ($registry as $slug => $i): $st = instance_stats($slug); $edit = ($_GET['edit'] ?? '') === $slug; ?>
     <div class="card client">
       <h2><?= e($i['name']) ?> <?= !empty($i['suspended']) ? '<span class="tag red">suspendu</span>' : '<span class="tag green">actif</span>' ?><?= !empty($i['public_demo']) ? ' <span class="tag amber">démo publique</span>' : (!empty($i['demo']) ? ' <span class="tag amber">démo</span>' : '') ?></h2>
       <small class="muted"><?= e($slug) ?> · <?= e($st['driver'] ?? '?') ?> · base v<?= e($st['db_version'] ?? '?') ?><?= ($st['db_version'] ?? '') !== APP_VERSION ? ' <span class="tag amber">à migrer</span>' : '' ?></small>
-      <div class="row" style="margin-top:.35rem"><?php foreach ((array)$i['hosts'] as $h): ?><a href="https://<?= e($h) ?>/" target="_blank" rel="noopener"><small><?= e($h) ?></small></a><?php endforeach; ?></div>
+      <div class="row" style="margin-top:.35rem"><?php $pathUrl = console_space_url($slug, []); ?><a href="<?= e($pathUrl) ?>" target="_blank" rel="noopener"><small><?= e(preg_replace('#^https?://#', '', $pathUrl)) ?></small></a><?php foreach ((array)$i['hosts'] as $h): ?><a href="https://<?= e($h) ?>/" target="_blank" rel="noopener"><small><?= e($h) ?></small></a><?php endforeach; ?></div>
       <?php if ($st['ok']): ?>
         <div class="kpis">
           <div><b><?= (int)$st['users'] ?></b><span>comptes</span></div>
@@ -439,10 +452,10 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
         <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="demo_reset"><button class="btn sm" onclick="return confirm('Effacer toutes les données de la démo et repartir des données de départ ?')">Remettre à zéro</button></form>
         <?php endif; ?>
       </div>
-      <details <?= $edit ? 'open' : '' ?>><summary>Nom et adresses</summary>
+      <details <?= $edit ? 'open' : '' ?>><summary>Nom et adresse dédiée</summary>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="hosts"><input type="hidden" name="slug" value="<?= e($slug) ?>">
           <label>Nom</label><input name="name" value="<?= e($i['name']) ?>">
-          <label>Adresses (une par ligne)</label><textarea name="hosts" rows="2"><?= e(implode("\n", (array)$i['hosts'])) ?></textarea>
+          <label>Adresses dédiées <small class="muted">(facultatif, une par ligne)</small></label><textarea name="hosts" rows="2"><?= e(implode("\n", (array)$i['hosts'])) ?></textarea>
           <p><button class="btn sm primary">Enregistrer</button></p></form>
       </details>
       <details><summary class="muted">Supprimer l'espace</summary>

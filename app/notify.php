@@ -164,6 +164,9 @@ function notify_stock_low(int $centerId, int $productId, int $qty, int $alert): 
 
 function app_base_url(): string
 {
+    if ($pub = instance_public_url()) {
+        return $pub;
+    }
     $u = setting('app_url');
     if ($u) {
         return rtrim($u, '/') . '/';
