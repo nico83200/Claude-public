@@ -75,11 +75,17 @@ function hub_migrate(PDO $pdo): void
             'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT',
             // 3.2 : encaissement automatique (Stripe)
             'billing_token' => 'TEXT', 'stripe_customer' => 'TEXT', 'stripe_subscription' => 'TEXT', 'billing_status' => 'TEXT', 'billing_method' => 'TEXT',
-            'billing_next' => 'TEXT', 'billing_amount' => 'INTEGER'],
+            'billing_next' => 'TEXT', 'billing_amount' => 'INTEGER',
+            // 3.5 : clients créés par la console de la plateforme Centriva (identifiant de leur espace)
+            'console_slug' => 'TEXT'],
         'conversations' => ['rating' => 'INTEGER', 'rating_comment' => 'TEXT', 'transcript_sent' => 'INTEGER NOT NULL DEFAULT 0'],
         'messages' => ['file' => 'TEXT', 'author' => 'TEXT'],
         'videos' => ['welcome' => 'INTEGER NOT NULL DEFAULT 0'],
     ];
+    $pdo->exec("CREATE TABLE IF NOT EXISTS apps (slug TEXT PRIMARY KEY, name TEXT NOT NULL, color TEXT NOT NULL DEFAULT '#4f46e5',
+        price_base REAL NOT NULL DEFAULT 0, price_ai REAL NOT NULL DEFAULT 0, position INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)");
+    // 3.5 : application gérée par sa propre console (clients, licences, paiements, versions, vidéos, FAQ) : seules les conversations restent ici
+    $cols['apps'] = ['console_url' => 'TEXT'];
     foreach ($cols as $table => $defs) {
         $have = array_column($pdo->query("PRAGMA table_info($table)")->fetchAll(PDO::FETCH_ASSOC), 'name');
         foreach ($defs as $col => $def) {
@@ -145,6 +151,26 @@ function hub_migrate(PDO $pdo): void
 // ---------------------------------------------------------------- Comptes et applications (3.0)
 
 /** Identifiant d'application envoyé par une installation : « approvia » (avant le changement de nom) vaut « centriva ». */
+/** Adresse de la console qui gère l'application (null si elle est gérée ici). */
+function hub_app_console(?string $slug): ?string
+{
+    $a = $slug ? hub_app($slug) : null;
+    return $a && !empty($a['console_url']) ? (string)$a['console_url'] : null;
+}
+
+/** Applications encore gérées ici (parc clients, versions, FAQ, vidéos, abonnements). */
+function hub_apps_local(): array
+{
+    return array_values(array_filter(hub_apps(), fn($a) => empty($a['console_url'])));
+}
+
+/** Clé de liaison d'une console (en-tête X-Console-Key), créée dans Réglages → Console Centriva. */
+function hub_console_key_ok(string $key): bool
+{
+    $hash = (string)hsetting('console_key_hash', '');
+    return $hash !== '' && $key !== '' && hash_equals($hash, hash('sha256', $key));
+}
+
 function hub_app_slug(string $slug): string
 {
     return $slug === 'approv' . 'ia' ? 'centriva' : $slug;

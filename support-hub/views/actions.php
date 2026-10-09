@@ -7,7 +7,7 @@ $ajax = !empty($_SERVER['HTTP_X_CSRF']);
 $cid = (int)($_POST['c'] ?? 0);
 // Comptes « conseiller » : conversations, FAQ, vidéos, réglages de disponibilité et leur propre compte ; le reste est réservé aux administrateurs
 $adminActions = ['client_add', 'client_save', 'client_toggle', 'client_delete', 'client_extend', 'client_rotate', 'release_upload', 'release_toggle', 'release_delete',
-    'grace_save', 'stripe_save', 'stripe_test', 'client_paylink', 'hub_update', 'hub_rollback', 'ai_save', 'app_save', 'app_delete', 'user_add', 'user_save', 'user_password', 'user_totp_reset'];
+    'grace_save', 'stripe_save', 'stripe_test', 'client_paylink', 'hub_update', 'hub_rollback', 'ai_save', 'app_save', 'app_delete', 'user_add', 'user_save', 'user_password', 'user_totp_reset', 'console_key', 'console_unlink'];
 if (in_array($action, $adminActions, true) && $hubUser['role'] !== 'admin') {
     flash('Action réservée aux administrateurs de la console.', true);
     go('index.php');
@@ -438,6 +438,19 @@ switch ($action) {
         $n = hub_push_all('Test Assistance NLapps', 'Les notifications fonctionnent sur cet appareil.', hub_base_url());
         flash($n ? 'Notification envoyée à ' . $n . ' appareil(s).' : 'Aucun appareil n\'a reçu la notification : activez-les depuis votre téléphone.', !$n);
         go('index.php?p=settings#notif');
+
+    // ------------------------------------------------------------ Console de la plateforme Centriva
+    case 'console_key':
+        $k = 'nlc_' . bin2hex(random_bytes(24));
+        hset('console_key_hash', hash('sha256', $k));
+        flash('Clé de liaison (affichée une seule fois) : ' . $k . ' — collez-la dans la console Centriva, menu Assistance, avec l\'adresse ' . preg_replace('/index\.php$/', 'api.php', hub_base_url()) . '.');
+        go('index.php?p=settings#console');
+
+    case 'console_unlink':
+        hset('console_key_hash', null);
+        hq('UPDATE apps SET console_url = NULL');
+        flash('Console déliée : les pages de gestion sont de nouveau disponibles ici.');
+        go('index.php?p=settings#console');
 
     // ------------------------------------------------------------ Licences : délai de grâce
     case 'grace_save':

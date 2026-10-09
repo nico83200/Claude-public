@@ -6,6 +6,7 @@ define('APP', __DIR__);
 
 require_once APP . '/instances.php';
 require_once APP . '/central.php';
+require_once APP . '/platform.php';
 
 // Console NLapps (console.php) : aucun client chargé au départ, elle bascule de l'un à l'autre
 $console = defined('NL_CONSOLE');
@@ -186,6 +187,6 @@ header('Referrer-Policy: same-origin');
 
 // centriva.fr sans espace : connexion commune (e-mail + mot de passe), qui ouvre la session dans l'espace du bon client
 if (!empty($GLOBALS['central_login'])) {
-    require APP . '/central_login.php';
+    require APP . (isset($_GET['paiement']) || isset($_GET['webhook']) ? '/paiement.php' : '/central_login.php'); // abonnements en ligne (Stripe)
     exit;
 }

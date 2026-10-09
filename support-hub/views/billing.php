@@ -7,7 +7,8 @@ $apps = [];
 foreach (hub_apps() as $a) {
     $apps[$a['slug']] = $a;
 }
-$clients = hall('SELECT * FROM clients ORDER BY active DESC, name');
+// Les clients des applications gérées par leur propre console n'apparaissent pas ici
+$clients = array_values(array_filter(hall('SELECT * FROM clients ORDER BY active DESC, name'), fn($c) => !hub_app_console((string)$c['app'])));
 $eur = fn(int $cents) => number_format($cents / 100, 2, ',', ' ') . ' €';
 $k = ['mrr' => 0, 'auto' => 0, 'autoAmount' => 0, 'late' => 0, 'soon' => 0, 'active' => 0];
 foreach ($clients as &$c) {

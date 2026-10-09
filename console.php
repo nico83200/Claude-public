@@ -33,6 +33,12 @@ function console_space_url(string $slug, array $i): string
     return ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'centriva.fr') . instance_web_dir() . '/' . $slug . '/';
 }
 
+function console_licence_tag(string $status): string
+{
+    [$label, $cls] = ['active' => ['licence active', 'green'], 'grace' => ['délai de grâce', 'amber'], 'expired' => ['licence expirée', 'red'], 'suspended' => ['licence suspendue', 'red']][$status] ?? [$status, ''];
+    return '<span class="tag ' . $cls . '">' . e($label) . '</span>';
+}
+
 function console_flash(string $type, string $msg): void
 {
     $_SESSION['flash'][] = [$type, $msg];
@@ -144,7 +150,17 @@ if ($logged && $post) {
                     'db' => ['driver' => $_POST['db_driver'] ?? 'sqlite', 'host' => $_POST['db_host'] ?? '', 'port' => $_POST['db_port'] ?? '',
                         'name' => $_POST['db_name'] ?? '', 'user' => $_POST['db_user'] ?? '', 'pass' => $_POST['db_pass'] ?? ''],
                 ]);
-                console_flash('ok', 'Espace « ' . instances_registry()[$s]['name'] . ' » créé. L\'administrateur se connecte à ' . console_space_url($s, instances_registry()[$s]) . ' (identifiant de l\'espace : ' . $s . ').');
+                platform_licence_save($s, ['contact_email' => mb_strtolower(trim((string)($_POST['admin_email'] ?? ''))), 'ai' => !empty($_POST['ai'])]);
+                $hubMsg = '';
+                if (platform_hub_linked() && empty($_POST['public_demo'])) {
+                    try {
+                        platform_hub_provision($s);
+                        $hubMsg = ' Conversation en direct avec l\'assistance activée.';
+                    } catch (Throwable $e) {
+                        $hubMsg = ' Assistance non reliée (' . $e->getMessage() . ') : bouton « Relier à l\'assistance » sur sa fiche.';
+                    }
+                }
+                console_flash('ok', 'Espace « ' . instances_registry()[$s]['name'] . ' » créé. L\'administrateur se connecte à ' . console_space_url($s, instances_registry()[$s]) . ' (identifiant de l\'espace : ' . $s . ').' . $hubMsg);
                 console_go();
 
             case 'adopt':
@@ -160,6 +176,7 @@ if ($logged && $post) {
                 $reg[$slug]['hosts'] = instance_parse_hosts((string)($_POST['hosts'] ?? ''), $slug);
                 $reg[$slug]['name'] = trim((string)($_POST['name'] ?? '')) ?: $reg[$slug]['name'];
                 instances_save($reg);
+                platform_hub_client_state($slug, empty($reg[$slug]['suspended']), $reg[$slug]['name']);
                 console_flash('ok', 'Espace « ' . $reg[$slug]['name'] . ' » mis à jour.');
                 console_go();
 
@@ -171,6 +188,7 @@ if ($logged && $post) {
                 }
                 $reg[$slug]['suspended'] = $action === 'suspend';
                 instances_save($reg);
+                platform_hub_client_state($slug, $action !== 'suspend');
                 console_flash('ok', $action === 'suspend' ? 'Espace « ' . $reg[$slug]['name'] . ' » suspendu : plus personne ne peut s\'y connecter.' : 'Espace « ' . $reg[$slug]['name'] . ' » rétabli.');
                 console_go();
 
@@ -200,7 +218,9 @@ if ($logged && $post) {
                 if (trim((string)($_POST['confirm'] ?? '')) !== $slug) {
                     throw new RuntimeException('Pour supprimer, saisissez exactement l\'identifiant du client (' . $slug . ').');
                 }
+                platform_hub_client_state($slug, false);
                 $archive = instance_delete($slug);
+                platform_licence_delete($slug);
                 console_flash('ok', 'Espace supprimé. Archive (base et fichiers) : storage/clients-supprimes/' . $archive . '. Une base MySQL dédiée reste à supprimer chez l\'hébergeur.');
                 console_go();
 
@@ -212,6 +232,7 @@ if ($logged && $post) {
                 $tmp = ROOT . '/storage/console-update.zip';
                 move_uploaded_file($f['tmp_name'], $tmp);
                 $info = instances_update_code($tmp);
+                platform_release_from_package($tmp, update_inspect($tmp), $me['name']);
                 @unlink($tmp);
                 console_flash('ok', 'Code mis à jour en version ' . $info['version'] . ' (sauvegarde : ' . $info['code_backup'] . ', bases sauvegardées dans chaque espace).');
                 console_go('migrate'); // nouvelle requête : la migration s'exécute avec le nouveau code
@@ -340,6 +361,100 @@ if ($logged && $post) {
                 central_videos_save($list);
                 console_flash('ok', $action === 'video_delete' ? 'Vidéo supprimée de tous les clients.' : 'Visibilité de la vidéo modifiée.');
                 console_go('videos');
+
+            // ----------------------------------------------------- Licences et abonnements
+            case 'licence_save':
+                if (!isset(instances_registry()[$slug])) {
+                    throw new RuntimeException('Client inconnu.');
+                }
+                $num = fn($k) => trim((string)($_POST[$k] ?? '')) === '' ? null : max(0, (float)str_replace(',', '.', (string)$_POST[$k]));
+                $until = trim((string)($_POST['paid_until'] ?? ''));
+                if ($until !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $until)) {
+                    throw new RuntimeException('Échéance invalide.');
+                }
+                $email = mb_strtolower(trim((string)($_POST['contact_email'] ?? '')));
+                if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new RuntimeException('E-mail de facturation invalide.');
+                }
+                platform_licence_save($slug, ['plan' => mb_substr(trim((string)($_POST['plan'] ?? '')), 0, 60) ?: 'Abonnement', 'price_base' => $num('price_base'),
+                    'price_ai' => $num('price_ai'), 'ai' => !empty($_POST['ai']), 'paid_until' => $until ?: null, 'status' => !empty($_POST['suspended']) ? 'suspended' : 'active',
+                    'note' => mb_substr(trim((string)($_POST['note'] ?? '')), 0, 300), 'contact_email' => $email]);
+                console_flash('ok', 'Licence de « ' . instances_registry()[$slug]['name'] . ' » enregistrée : appliquée immédiatement dans son espace.');
+                console_go((string)($_POST['back'] ?? '') === 'billing' ? 'billing' : '', ['edit' => $slug]);
+
+            case 'licence_extend':
+                $until = platform_licence_extend($slug, (int)($_POST['months'] ?? 1), $me['name']);
+                console_flash('ok', 'Paiement enregistré : licence de « ' . instances_registry()[$slug]['name'] . ' » prolongée jusqu\'au ' . date('d/m/Y', strtotime($until)) . '.');
+                console_go((string)($_POST['back'] ?? '') === 'billing' ? 'billing' : '');
+
+            case 'billing_settings':
+                $num = fn($k, $max) => max(0, min($max, (float)str_replace(',', '.', (string)($_POST[$k] ?? 0))));
+                $email = trim((string)($_POST['operator_email'] ?? ''));
+                if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new RuntimeException('E-mail des alertes invalide.');
+                }
+                $sk = trim((string)($_POST['stripe_secret_key'] ?? ''));
+                $wh = trim((string)($_POST['stripe_webhook_secret'] ?? ''));
+                if ($sk !== '' && !preg_match('/^(sk|rk)_(test|live)_\w+$/', $sk)) {
+                    throw new RuntimeException('Clé secrète Stripe invalide (sk_live_… ou sk_test_…).');
+                }
+                if ($wh !== '' && !str_starts_with($wh, 'whsec_')) {
+                    throw new RuntimeException('Secret du webhook invalide (whsec_…).');
+                }
+                platform_settings_save(['operator_name' => trim((string)($_POST['operator_name'] ?? '')) ?: 'NLapps', 'operator_email' => $email,
+                    'price_base' => $num('price_base', 100000), 'price_ai' => $num('price_ai', 100000), 'vat' => $num('vat', 30), 'grace_days' => (int)$num('grace_days', 60)]
+                    + ($sk !== '' ? ['stripe_secret_key' => $sk] : []) + ($wh !== '' ? ['stripe_webhook_secret' => $wh] : [])
+                    + (!empty($_POST['stripe_remove']) ? ['stripe_secret_key' => '', 'stripe_webhook_secret' => ''] : []));
+                console_flash('ok', 'Réglages des abonnements enregistrés.');
+                console_go('billing');
+
+            case 'stripe_test':
+                $b = platform_stripe('GET', '/v1/balance');
+                console_flash('ok', 'Stripe répond (' . (platform_stripe_test_mode() ? 'mode test' : 'mode réel') . ', ' . count((array)($b['available'] ?? [])) . ' solde(s)).');
+                console_go('billing');
+
+            // ----------------------------------------------------- Versions
+            case 'release_notes':
+                platform_release_record(['version' => (string)($_POST['version'] ?? ''), 'notes' => trim((string)($_POST['notes'] ?? ''))]);
+                console_flash('ok', 'Notes de la version ' . ($_POST['version'] ?? '') . ' enregistrées.');
+                console_go('versions');
+
+            // ----------------------------------------------------- FAQ
+            case 'faq_save':
+                $q = mb_substr(trim((string)($_POST['question'] ?? '')), 0, 200);
+                $a = mb_substr(trim((string)($_POST['answer'] ?? '')), 0, 3000);
+                if ($q === '' || $a === '') {
+                    throw new RuntimeException('Question et réponse obligatoires.');
+                }
+                platform_faq_save(['id' => (int)($_POST['id'] ?? 0) ?: null, 'question' => $q, 'answer' => $a, 'keywords' => mb_substr(trim((string)($_POST['keywords'] ?? '')), 0, 400),
+                    'link_label' => mb_substr(trim((string)($_POST['link_label'] ?? '')), 0, 60), 'link_route' => preg_replace('/[^a-z0-9\/_=&?-]/i', '', (string)($_POST['link_route'] ?? '')),
+                    'admin_only' => !empty($_POST['admin_only']), 'active' => !empty($_POST['active']), 'position' => (int)($_POST['position'] ?? 0), 'updated_at' => date('Y-m-d H:i:s')]);
+                console_flash('ok', 'Question enregistrée : le chatbot de tous les clients la propose aussitôt.');
+                console_go('faq');
+
+            case 'faq_delete':
+                platform_faq_delete((int)($_POST['id'] ?? 0));
+                console_flash('ok', 'Question supprimée.');
+                console_go('faq');
+
+            // ----------------------------------------------------- Centre d'assistance
+            case 'hub_link':
+                $key = trim((string)($_POST['hub_console_key'] ?? '')) ?: (string)platform_setting('hub_console_key');
+                $r = platform_hub_link((string)($_POST['hub_url'] ?? ''), $key);
+                console_flash('ok', 'Console reliée au centre d\'assistance' . (!empty($r['hub_version']) ? ' (version ' . $r['hub_version'] . ')' : '') . ' : il ne garde plus que les conversations.');
+                console_go('assistance');
+
+            case 'hub_import':
+                $rep = platform_hub_import(!empty($_POST['packages']));
+                $_SESSION['import_report'] = $rep;
+                console_flash($rep['errors'] ? 'error' : 'ok', 'Reprise terminée : ' . $rep['releases'] . ' version(s), ' . $rep['videos'] . ' vidéo(s), ' . $rep['faq'] . ' question(s), '
+                    . count($rep['clients']) . ' client(s), ' . $rep['events'] . ' paiement(s)' . ($rep['errors'] ? ' — ' . count($rep['errors']) . ' anomalie(s), voir le détail.' : '.'));
+                console_go('assistance');
+
+            case 'hub_provision':
+                $res = platform_hub_provision($slug, !empty($_POST['new_key']));
+                console_flash('ok', '« ' . instances_registry()[$slug]['name'] . ' » : ' . $res . ' (conversation en direct avec l\'assistance).');
+                console_go((string)($_POST['back'] ?? '') === 'assistance' ? 'assistance' : '');
         }
     } catch (Throwable $e) {
         console_flash('error', $e->getMessage());
@@ -347,7 +462,9 @@ if ($logged && $post) {
         $back = match (true) {
             $action === 'create' => 'new', $action === 'adopt' => 'adopt',
             in_array($action, ['password', 'totp_enable', 'totp_disable'], true) => 'account',
-            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', default => '',
+            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', str_starts_with($action, 'faq_') => 'faq',
+            str_starts_with($action, 'hub_') => 'assistance', $action === 'release_notes' || $action === 'update' => 'versions',
+            in_array($action, ['billing_settings', 'stripe_test'], true) || ($_POST['back'] ?? '') === 'billing' => 'billing', default => '',
         };
         console_go($back, $action === 'hosts' ? ['edit' => $slug] : []);
     }
@@ -355,10 +472,30 @@ if ($logged && $post) {
 
 // Migration automatique après une mise à jour du code
 if ($logged && $page === 'migrate') {
+    platform_release_current();
     $res = instances_migrate_all();
     $ko = array_filter($res, fn($r) => $r !== 'ok');
     console_flash($ko ? 'error' : 'ok', $ko ? 'Migration en échec : ' . implode(' · ', array_map(fn($k, $v) => "$k : $v", array_keys($ko), $ko)) : plural(count($res), 'base migrée', 'bases migrées') . ' en version ' . APP_VERSION . '.');
     console_go();
+}
+
+// Paquet d'une version de l'historique
+if ($logged && $page === 'versions' && isset($_GET['dl'])) {
+    foreach (platform_releases() as $r) {
+        $path = !empty($r['file']) ? platform_releases_dir() . '/' . basename((string)$r['file']) : '';
+        if ($r['version'] === $_GET['dl'] && $path !== '' && is_file($path)) {
+            header('Content-Type: application/zip');
+            header('Content-Length: ' . filesize($path));
+            header('Content-Disposition: attachment; filename="' . basename($path) . '"');
+            readfile($path);
+            exit;
+        }
+    }
+    console_flash('error', 'Paquet introuvable pour cette version.');
+    console_go('versions');
+}
+if ($page === 'update') {
+    $page = 'versions'; // ancienne adresse
 }
 
 $flash = $_SESSION['flash'] ?? [];
@@ -405,6 +542,11 @@ input, select, textarea { width:100%; padding:.6rem .7rem; border:1px solid var(
 details summary { cursor:pointer; font-weight:600; font-size:.9rem; margin-top:.5rem; }
 code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-size:.85rem; word-break:break-all; }
 .auth { max-width:420px; margin:3rem auto; }
+.licence { margin-top:.6rem; padding:.55rem .7rem; border-radius:10px; background:var(--soft); }
+table.list { width:100%; border-collapse:collapse; font-size:.92rem; } table.list th { text-align:left; font-size:.78rem; color:var(--muted); font-weight:600; padding:.4rem .5rem; border-bottom:1px solid var(--border); }
+table.list td { padding:.55rem .5rem; border-bottom:1px solid var(--border); vertical-align:top; } .scroll { overflow-x:auto; }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem; margin-bottom:1rem; } .stats .card { margin:0; } .stats b { display:block; font-size:1.4rem; }
+pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 0; color:var(--text); }
 </style>
 </head>
 <body>
@@ -412,10 +554,12 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
   <b>Centriva · Administration de la plateforme</b><small style="opacity:.8">v<?= e(APP_VERSION) ?></small>
   <?php if ($logged): ?>
   <nav>
-    <a class="<?= $page === '' ? 'on' : '' ?>" href="console.php">Clients</a>
-    <a class="<?= $page === 'new' ? 'on' : '' ?>" href="console.php?p=new">Nouveau client</a>
+    <a class="<?= in_array($page, ['', 'new', 'adopt'], true) ? 'on' : '' ?>" href="console.php">Clients</a>
+    <a class="<?= $page === 'billing' ? 'on' : '' ?>" href="console.php?p=billing">Abonnements</a>
+    <a class="<?= $page === 'versions' ? 'on' : '' ?>" href="console.php?p=versions">Versions</a>
     <a class="<?= $page === 'videos' ? 'on' : '' ?>" href="console.php?p=videos">Vidéos</a>
-    <a class="<?= $page === 'update' ? 'on' : '' ?>" href="console.php?p=update">Mise à jour</a>
+    <a class="<?= $page === 'faq' ? 'on' : '' ?>" href="console.php?p=faq">FAQ</a>
+    <a class="<?= $page === 'assistance' ? 'on' : '' ?>" href="console.php?p=assistance">Assistance</a>
     <a class="<?= $page === 'admins' ? 'on' : '' ?>" href="console.php?p=admins">Super administrateurs</a>
     <a class="<?= $page === 'account' ? 'on' : '' ?>" href="console.php?p=account" title="Mon compte"><?= e($me['name']) ?></a>
     <a href="console.php?p=logout">Déconnexion</a>
@@ -502,12 +646,9 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
       <div><label>Mot de passe provisoire <small class="muted">(10 caractères min., à transmettre au client)</small></label><input name="admin_password" minlength="10" required value="<?= e(substr(str_replace(['/', '+', '='], '', base64_encode(random_bytes(12))), 0, 12)) ?>"></div>
     </div>
 
-    <h2 style="margin-top:1.4rem">Licence et assistance NLapps</h2>
-    <p class="muted" style="margin:0"><small>Clé de l'installation créée dans le parc clients du centre d'assistance (licence, conversations, vidéos, mises à jour). Facultatif : elle peut aussi être collée plus tard dans Paramètres → Assistance.</small></p>
-    <div class="grid2">
-      <div><label>Adresse de l'API</label><input name="hub_url" value="<?= $f('hub_url', 'https://nlapps.fr/assistance/api.php') ?>"></div>
-      <div><label>Clé</label><input name="hub_key" value="<?= $f('hub_key') ?>" placeholder="nlh_…"></div>
-    </div>
+    <h2 style="margin-top:1.4rem">Licence</h2>
+    <p class="muted" style="margin:0"><small>Abonnement mensuel au tarif de la plateforme (<?= e(number_format((float)platform_setting('price_base'), 2, ',', ' ')) ?> € HT ; réglable ensuite sur la fiche du client), sans échéance tant qu'aucune n'est fixée. <?= platform_hub_linked() ? 'L\'accès à la conversation en direct avec l\'assistance est créé automatiquement.' : 'Reliez le centre d\'assistance (menu Assistance) pour activer la conversation en direct.' ?></small></p>
+    <label class="check"><input type="checkbox" name="ai" value="1" <?= !empty($form['ai']) ? 'checked' : '' ?>> Option assistant IA (+<?= e(number_format((float)platform_setting('price_ai'), 2, ',', ' ')) ?> € HT / mois)</label>
     <label class="check" style="margin-top:1rem"><input type="checkbox" name="demo" value="1" <?= !empty($form['demo']) ? 'checked' : '' ?>> Remplir avec les données de démonstration (centres, fournisseurs, articles et comptes fictifs)</label>
     <label class="check"><input type="checkbox" name="public_demo" value="1" <?= !empty($form['public_demo']) ? 'checked' : '' ?>> Démo publique pour vos prospects : connexion en un clic avec chaque rôle, données remises à zéro chaque nuit, paramètres et e-mails désactivés</label>
     <p><button class="btn primary">Créer l'espace</button></p>
@@ -527,24 +668,8 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
     <p><button class="btn primary">Reprendre comme client</button></p>
   </form>
 
-<?php elseif ($page === 'update'): ?>
-  <h1>Mise à jour de tous les clients</h1>
-  <div class="card">
-    <p>Version installée : <strong><?= e(APP_VERSION) ?></strong>. Le code est commun : une mise à jour s'applique à tous les espaces en une fois.</p>
-    <ol class="muted"><li>Sauvegarde de la base de chaque client (dans son espace) et du code.</li><li>Remplacement des fichiers ; en cas d'échec, l'ancienne version est remise automatiquement.</li><li>Migration de la base de chaque client.</li></ol>
-    <form method="post" enctype="multipart/form-data" class="row"><?= csrf_field() ?><input type="hidden" name="action" value="update">
-      <input type="file" name="package" accept=".zip" required style="max-width:340px"><button class="btn primary">Installer pour tous les clients</button></form>
-  </div>
-  <div class="card">
-    <h2>Bases des clients</h2>
-    <p class="muted"><small>Si un espace affiche une version de base différente du code (après un incident), relancez la migration.</small></p>
-    <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="migrate"><button class="btn">Migrer toutes les bases en v<?= e(APP_VERSION) ?></button></form>
-  </div>
-  <div class="card">
-    <h2>Tâches planifiées</h2>
-    <p class="muted"><small>Programmez chez l'hébergeur, toutes les 5 à 15 minutes : <code>php <?= e(ROOT) ?>/cron.php</code> — il traite chaque client à son tour (e-mails, rappels, sauvegardes, licence…).</small></p>
-    <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="action" value="cron"><label class="check" style="margin:0"><input type="checkbox" name="force" value="1"> tout forcer</label><button class="btn">Lancer maintenant pour tous</button></form>
-  </div>
+<?php elseif (in_array($page, ['versions', 'billing', 'faq', 'assistance'], true)): ?>
+  <?php require APP . '/views/console/' . $page . '.php'; ?>
 
 <?php elseif ($page === 'account'): ?>
   <h1>Mon compte</h1>
@@ -660,8 +785,16 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
           <div><b><?= (int)$st['orders_month'] ?></b><span>bons ce mois</span></div>
         </div>
         <?php if (!empty($i['public_demo'])): ?><small class="muted">Dernière remise à zéro : <?= !empty($st['demo_reset_at']) ? e(date('d/m/Y H:i', strtotime((string)$st['demo_reset_at']))) : '—' ?></small><br><?php endif; ?>
-        <small class="muted">Licence : <?= e(['unmanaged' => 'non reliée à NLapps', 'active' => 'active', 'grace' => 'période de grâce', 'expired' => 'expirée', 'suspended' => 'suspendue'][$st['licence']] ?? ($st['licence'] ?: '—')) ?> · dernière connexion : <?= $st['last_login'] ? e(date('d/m/Y H:i', strtotime((string)$st['last_login']))) : 'jamais' ?></small>
+        <small class="muted">Dernière connexion : <?= $st['last_login'] ? e(date('d/m/Y H:i', strtotime((string)$st['last_login']))) : 'jamais' ?></small>
       <?php else: ?><p class="flash error"><small><?= e($st['error']) ?></small></p><?php endif; ?>
+      <?php $lic = platform_licence($slug); $lr = platform_licence_row($slug); ?>
+      <div class="licence">
+        <div><?= console_licence_tag($lic['status']) ?> <b><?= e($lic['plan']) ?></b><?= $lic['ai'] ? ' <span class="tag">IA</span>' : '' ?>
+          <small class="muted"> · <?= e(number_format(platform_monthly_ttc($slug) / 100, 2, ',', ' ')) ?> € TTC / mois</small></div>
+        <small class="muted"><?= !empty($i['demo']) ? 'Espace de démonstration : licence permanente' : ($lic['paid_until'] ? 'Payé jusqu\'au ' . e(date('d/m/Y', strtotime($lic['paid_until']))) . ($lic['days_left'] !== null && $lic['days_left'] >= 0 ? ' (J-' . $lic['days_left'] . ')' : '') : 'Sans échéance') ?>
+          · <?= e(platform_billing_active($slug) ? ($lr['billing_method'] === 'sepa_debit' ? 'prélèvement SEPA' : 'paiement automatique') . ($lr['billing_status'] !== 'active' ? ' — ' . platform_billing_status_label($lr['billing_status']) : '') : ($lr['billing_status'] === 'canceled' ? 'abonnement en ligne résilié' : 'paiement manuel')) ?>
+          · assistance : <?= $lr['hub_client'] ? 'reliée' : 'non reliée' ?></small>
+      </div>
       <div class="row" style="margin-top:.75rem">
         <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="<?= !empty($i['suspended']) ? 'resume' : 'suspend' ?>">
           <button class="btn sm" onclick="return confirm('<?= !empty($i['suspended']) ? 'Rétablir l\\\'accès à cet espace ?' : 'Suspendre cet espace ? Plus personne ne pourra s\\\'y connecter.' ?>')"><?= !empty($i['suspended']) ? 'Rétablir' : 'Suspendre' ?></button></form>
@@ -672,7 +805,10 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
         <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="demo_reset"><button class="btn sm" onclick="return confirm('Effacer toutes les données de la démo et repartir des données de départ ?')">Remettre à zéro</button></form>
         <?php endif; ?>
       </div>
-      <details <?= $edit ? 'open' : '' ?>><summary>Nom et adresse dédiée</summary>
+      <details <?= $edit ? 'open' : '' ?>><summary>Licence et abonnement</summary>
+        <?php require APP . '/views/console/licence_form.php'; ?>
+      </details>
+      <details><summary>Nom et adresse dédiée</summary>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="hosts"><input type="hidden" name="slug" value="<?= e($slug) ?>">
           <label>Nom</label><input name="name" value="<?= e($i['name']) ?>">
           <label>Adresses dédiées <small class="muted">(facultatif, une par ligne)</small></label><textarea name="hosts" rows="2"><?= e(implode("\n", (array)$i['hosts'])) ?></textarea>

@@ -95,9 +95,9 @@
   <form method="post" class="card" style="grid-column:1/-1" id="assistance">
     <?= csrf_field() ?><input type="hidden" name="action" value="support_hub">
     <div class="card-head"><h2><?= icon('send') ?> Licence et assistance NLapps</h2>
-      <?php if ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
+      <?php if (licence_platform()): ?><span class="badge badge-green">Gérée par NLapps</span><?php elseif ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
     <div class="card-body">
-      <p class="muted" style="font-size:.9rem;margin-top:0">La clé fournie par NLapps active votre licence, les mises à jour en un clic, les réponses partagées du chatbot et la conversation en direct avec l'équipe (« Parler à un conseiller »). Collez simplement les deux lignes reçues.</p>
+      <p class="muted" style="font-size:.9rem;margin-top:0<?= licence_platform() ? ';display:none' : '' ?>">La clé fournie par NLapps active votre licence, les mises à jour en un clic, les réponses partagées du chatbot et la conversation en direct avec l'équipe (« Parler à un conseiller »). Collez simplement les deux lignes reçues.</p>
       <?php $li = licence_info(); if (($li['status'] ?? '') !== 'unmanaged'): $lt = ['active' => ['Active', 'green'], 'grace' => ['Échue · délai de grâce', 'amber'], 'expired' => ['Expirée', 'red'], 'suspended' => ['Suspendue', 'red'], 'invalid' => ['Clé refusée', 'red'], 'unknown' => ['Pas encore vérifiée', 'gray']][$li['status'] ?? 'unknown'] ?? ['?', 'gray']; ?>
         <div class="licence-box mb-2">
           <div><small class="muted">Licence</small><div><span class="badge badge-<?= $lt[1] ?>"><?= $lt[0] ?></span> <?= !empty($li['plan']) ? e($li['plan']) : '' ?></div></div>
@@ -111,6 +111,11 @@
           <div><small class="muted">Dernière vérification</small><div><?= !empty($li['checked_at']) ? date_fr($li['checked_at'], true) : '—' ?><?= !empty($li['last_error']) ? '<br><small style="color:var(--red)">' . e($li['last_error']) . '</small>' : '' ?></div></div>
         </div>
       <?php endif; ?>
+      <?php if (licence_platform()): ?>
+        <p class="muted mb-0" style="font-size:.9rem">Licence, abonnement et accès à l'assistance sont gérés par <?= e(support_contact()['editor']) ?> pour votre espace : rien à configurer.<?= support_live_enabled() ? ' La conversation en direct avec l\'équipe est active.' : '' ?></p>
+    </div>
+  </form>
+      <?php else: ?>
       <div class="grid grid-2">
         <div class="field mb-0"><label>Lignes fournies par NLapps</label>
           <textarea name="hub_paste" rows="3" spellcheck="false" style="font-family:monospace;font-size:.82rem" placeholder="'support_hub_url' => 'https://nlapps.fr/assistance/api.php',&#10;'support_hub_key' => 'nlh_…',"></textarea>
@@ -129,6 +134,7 @@
       </div>
     </div>
   </form>
+      <?php endif; ?>
   <form method="post" class="card" style="grid-column:1/-1" id="mail">
     <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>

@@ -19,6 +19,12 @@ declare(strict_types=1);
  *   GET  api.php?a=faq                                                                → FAQ partagée seule
  *   POST api.php?a=billing                                                            → lien de la page de paiement (abonnement en ligne)
  *   POST api.php?a=stripe                                                             → webhook Stripe (signature vérifiée, sans clé)
+ *
+ * Console de la plateforme Centriva (en-tête X-Console-Key, clé de liaison créée dans Réglages → Console Centriva) :
+ *   POST api.php?a=console_link    {app, console_url}         → l'application est désormais gérée par la console (pages masquées ici)
+ *   GET  api.php?a=console_export&app=centriva                → historique à reprendre : versions, vidéos, FAQ, clients, paiements, tarifs
+ *   GET  api.php?a=console_file&kind=release|video&id=        → paquet d'une version ou fichier d'une vidéo
+ *   POST api.php?a=console_client  {app, slug, name, url, active, hub_id, new_key} → crée ou met à jour l'accès d'un espace (clé en clair si créée)
  */
 require __DIR__ . '/lib.php';
 
@@ -36,6 +42,85 @@ function out(array $data, int $code = 200): never
     http_response_code($code);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+// Console de la plateforme Centriva : gestion des clients et reprise de l'historique
+if (str_starts_with((string)($_GET['a'] ?? ''), 'console_')) {
+    if (!hub_console_key_ok((string)($_SERVER['HTTP_X_CONSOLE_KEY'] ?? ''))) {
+        out(['error' => 'Clé de liaison invalide.'], 401);
+    }
+    $in = json_decode((string)file_get_contents('php://input'), true) ?: [];
+    $app = hub_app_slug(preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($in['app'] ?? $_GET['app'] ?? 'centriva'))) ?: 'centriva');
+    switch ((string)$_GET['a']) {
+        case 'console_link':
+            $url = (string)($in['console_url'] ?? '');
+            if (!preg_match('#^https?://#', $url)) {
+                out(['error' => 'Adresse de la console invalide.'], 422);
+            }
+            if (!hub_app($app)) {
+                hq('INSERT INTO apps (slug, name, created_at) VALUES (?, ?, ?)', [$app, ucfirst($app), hnow()]);
+            }
+            hq('UPDATE apps SET console_url = ? WHERE slug = ?', [mb_substr($url, 0, 255), $app]);
+            out(['ok' => true, 'hub_version' => hub_version(), 'operator' => hcfg('operator_name')]);
+
+        case 'console_export':
+            $a = hub_app($app) ?? ['price_base' => 0, 'price_ai' => 0];
+            $clients = hall('SELECT * FROM clients WHERE app = ? ORDER BY id', [$app]);
+            foreach ($clients as &$c) {
+                $c['events'] = hall('SELECT id, stripe_id, type, amount, label, url, created_at FROM billing_events WHERE client_id = ? ORDER BY id', [$c['id']]);
+                unset($c['prev_key_hash'], $c['prev_key_until']);
+            }
+            unset($c);
+            out([
+                'settings' => ['price_base' => (float)$a['price_base'], 'price_ai' => (float)$a['price_ai'], 'vat' => hub_vat_rate(), 'grace_days' => hub_grace_days(),
+                    'operator_name' => (string)hcfg('operator_name'), 'operator_email' => (string)hcfg('notify_email'), 'stripe_secret_key' => hub_stripe_key()],
+                'releases' => hall('SELECT id, version, notes, sha256, size, published, created_at FROM releases WHERE app = ? ORDER BY id', [$app]),
+                'videos' => hall("SELECT id, uid, title, description, keywords, chapters, audience, sha256, size, duration, position, published, welcome, created_at FROM videos WHERE app IN ('*', ?) ORDER BY position, id", [$app]),
+                'faq' => hall("SELECT id, question, keywords, answer, link_label, link_route, admin_only, active FROM faq WHERE app IN ('*', ?) ORDER BY id", [$app]),
+                'clients' => $clients,
+            ]);
+
+        case 'console_file':
+            $kind = (string)($_GET['kind'] ?? '');
+            $row = $kind === 'release' ? hone('SELECT file FROM releases WHERE id = ?', [(int)($_GET['id'] ?? 0)])
+                : ($kind === 'video' ? hone('SELECT file FROM videos WHERE id = ?', [(int)($_GET['id'] ?? 0)]) : null);
+            $path = $row ? ($kind === 'release' ? hub_releases_dir() : hub_videos_dir()) . '/' . basename((string)$row['file']) : '';
+            if (!$row || !is_file($path)) {
+                out(['error' => 'Fichier introuvable.'], 404);
+            }
+            @set_time_limit(0);
+            header_remove('Content-Type');
+            header('Content-Type: application/octet-stream');
+            header('Content-Length: ' . filesize($path));
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            readfile($path);
+            exit;
+
+        case 'console_client':
+            $slug = preg_replace('/[^a-z0-9-]/', '', (string)($in['slug'] ?? ''));
+            $c = !empty($in['hub_id']) ? hone('SELECT * FROM clients WHERE id = ? AND app = ?', [(int)$in['hub_id'], $app]) : null;
+            $c ??= $slug !== '' ? hone('SELECT * FROM clients WHERE console_slug = ? AND app = ?', [$slug, $app]) : null;
+            $key = null;
+            if (!$c) {
+                if (trim((string)($in['name'] ?? '')) === '') {
+                    out(['error' => 'Nom du client manquant.'], 422);
+                }
+                $key = hub_create_client((string)$in['name'], (string)($in['url'] ?? ''));
+                $c = hone('SELECT * FROM clients WHERE id = ?', [(int)hdb()->lastInsertId()]);
+                hq('UPDATE clients SET app = ? WHERE id = ?', [$app, $c['id']]);
+            } elseif (!empty($in['new_key'])) {
+                $key = hub_rotate_key((int)$c['id']);
+            }
+            hq('UPDATE clients SET console_slug = ?, active = ?, name = COALESCE(?, name), site = COALESCE(?, site), instance_url = COALESCE(?, instance_url) WHERE id = ?', [
+                $slug ?: $c['console_slug'], array_key_exists('active', $in) ? (int)(bool)$in['active'] : (int)$c['active'],
+                trim((string)($in['name'] ?? '')) !== '' ? mb_substr((string)$in['name'], 0, 120) : null,
+                !empty($in['url']) ? mb_substr((string)$in['url'], 0, 200) : null, !empty($in['url']) ? mb_substr((string)$in['url'], 0, 255) : null, $c['id'],
+            ]);
+            out(['ok' => true, 'id' => (int)$c['id']] + ($key ? ['key' => $key] : []));
+    }
+    out(['error' => 'Action inconnue.'], 400);
 }
 
 $client = hub_client_from_key((string)($_SERVER['HTTP_X_API_KEY'] ?? ''));

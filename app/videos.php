@@ -241,6 +241,9 @@ function videos_download_pending(int $max = 1): string
     if (!licence_managed()) {
         return 'sans clé NLapps';
     }
+    if (licence_platform()) {
+        return 'vidéos communes de la plateforme';
+    }
     $todo = all("SELECT * FROM videos WHERE source = 'hub' AND active = 1 AND (file IS NULL OR file = '') ORDER BY position, id");
     $done = 0;
     foreach (array_slice($todo, 0, $max) as $v) {

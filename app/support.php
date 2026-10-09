@@ -37,6 +37,9 @@ function support_faq(): array
 /** Questions partagées par NLapps depuis le centre d'assistance (synchronisées avec la licence). */
 function support_faq_remote(): array
 {
+    if (licence_platform()) {
+        return platform_faq_for_chatbot(); // FAQ partagée gérée dans la console de la plateforme
+    }
     $items = json_decode((string)setting('faq_remote', ''), true);
     if (!is_array($items)) {
         return [];

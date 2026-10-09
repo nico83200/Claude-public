@@ -1,5 +1,19 @@
 # Journal des versions
 
+## 1.27.0
+- **Toute la gestion de Centriva dans la console des super administrateurs** (le centre d'assistance ne garde que les conversations en direct) :
+  - **Abonnements** : licence de chaque client (formule, prix propre ou tarif de la plateforme, option IA, échéance « payé jusqu'au », suspension, message aux administrateurs), prolongation après un paiement reçu hors ligne, revenu mensuel, clients en paiement automatique, encaissé du mois, retards et échéances proches, journal des paiements avec les factures. Les espaces lisent leur licence directement, sans appel réseau : un changement s'applique immédiatement.
+  - **Paiement en ligne (Stripe)** : lien de paiement personnel (`centriva.fr/?paiement=…`) par carte ou prélèvement SEPA, espace client Stripe, webhook `centriva.fr/?webhook=stripe` (paiement reçu → échéance prolongée, échec signalé par e-mail). Les anciens liens de paiement du centre d'assistance redirigent vers la plateforme.
+  - **Versions** : installation pour tous les clients et **historique des versions** (notes modifiables, paquets téléchargeables).
+  - **FAQ partagée** : questions proposées par le chatbot de tous les clients, dès l'enregistrement.
+  - **Assistance** : liaison au centre d'assistance par une clé ; l'accès de chaque espace à la conversation en direct est créé automatiquement (nouveau client), coupé à la suspension ou la suppression.
+- **Reprise de l'historique du centre d'assistance** en un clic : versions (notes et paquets), vidéos (fichiers compris, désormais communes), FAQ, tarifs, délai de grâce et clé Stripe, puis pour chaque espace sa licence, son abonnement en ligne et ses paiements (client reconnu par sa clé, son adresse ou son nom ; relançable sans doublon). Les copies des vidéos et de la FAQ reçues autrefois par chaque espace sont retirées.
+- Espaces de la plateforme : Paramètres → Licence et assistance affiche la licence gérée par NLapps (plus de clé à coller) ; les mises à jour ne s'installent plus depuis un espace.
+
+### Centre d'assistance NLapps 3.5.0
+- **Réglages → Console Centriva** : clé de liaison pour la console de la plateforme. Une fois reliée, l'application n'affiche plus que « Console de gestion ↗ » dans le menu : parc clients, versions, FAQ, vidéos, abonnements et réglages de paiement de Centriva ne sont plus gérés ici. Le centre d'assistance garde les conversations, les réponses rapides, l'IA, les comptes et les notifications. « Délier » rétablit les pages.
+- API réservée à la console (clé de liaison) : reprise de l'historique, fichiers, création et mise à jour de l'accès de chaque espace.
+
 ## 1.26.0
 - **Plateforme multi-clients** : un seul Centriva pour tous les clients, chacun avec sa propre base de données, ses fichiers, ses utilisateurs et sa licence.
 - **Connexion unique sur centriva.fr** : e-mail et mot de passe, sans identifiant d'espace à connaître ; Centriva retrouve le client du compte et ouvre la session dans son espace (jeton à usage unique signé avec la clé de ce client ; la double authentification du compte reste demandée). Compte présent chez plusieurs clients : choix de l'espace. « Mot de passe oublié » depuis la même page.

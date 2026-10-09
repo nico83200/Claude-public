@@ -215,6 +215,15 @@ check(hub_app_slug($old) === 'centriva' && hub_app_slug('autre') === 'autre', 'u
 hub_migrate(hdb());
 check((int)hone("SELECT COUNT(*) n FROM apps WHERE slug = 'centriva'")['n'] === 1, 'migration rejouée sans effet');
 
+echo "Console de la plateforme Centriva (3.5)\n";
+check(!hub_console_key_ok('nlc_x'), 'sans clé de liaison créée : refusé');
+hset('console_key_hash', hash('sha256', 'nlc_bonne'));
+check(hub_console_key_ok('nlc_bonne') && !hub_console_key_ok('nlc_autre') && !hub_console_key_ok(''), 'clé de liaison vérifiée');
+check(count(hub_apps_local()) === count(hub_apps()), 'avant liaison : toutes les applications sont gérées ici');
+hq("UPDATE apps SET console_url = 'https://centriva.test/console.php' WHERE slug = 'centriva'");
+check(hdb()->query("SELECT console_url FROM apps WHERE slug = 'centriva'")->fetchColumn() === 'https://centriva.test/console.php', 'application rattachée à sa console');
+check((bool)array_filter(hall('PRAGMA table_info(clients)'), fn($c) => $c['name'] === 'console_slug'), 'clients : identifiant de l\'espace de la console');
+
 $rm = function (string $d) use (&$rm): void {
     foreach (glob($d . '/*') ?: [] as $f) {
         is_dir($f) ? $rm($f) : unlink($f);

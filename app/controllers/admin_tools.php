@@ -73,6 +73,7 @@ function admin_check_password(): bool
 function admin_updates(): void
 {
     require_admin();
+    updates_platform_guard();
     $maxUpload = min(ini_bytes(ini_get('upload_max_filesize')), ini_bytes(ini_get('post_max_size')));
     render('admin/updates', [
         'title' => 'Mises à jour',
@@ -100,6 +101,7 @@ function ini_bytes(string|false $v): int
 function admin_updates_remote(): void
 {
     require_admin();
+    updates_platform_guard();
     if (!is_post()) {
         redirect('admin/updates');
     }
@@ -126,6 +128,7 @@ function admin_updates_remote(): void
 function admin_updates_upload(): void
 {
     require_admin();
+    updates_platform_guard();
     $staging = storage_path('update-pending.zip');
     if (input('step') === 'apply') {
         if (!admin_check_password() || !is_file($staging)) {
@@ -172,6 +175,7 @@ function admin_updates_upload(): void
 function admin_updates_rollback(): void
 {
     require_admin();
+    updates_platform_guard();
     if (!admin_check_password()) {
         redirect('admin/updates');
     }
@@ -189,6 +193,7 @@ function admin_updates_rollback(): void
 function admin_updates_backup(): void
 {
     require_admin();
+    updates_platform_guard();
     try {
         $f = backup_create('Sauvegarde manuelle', input('vendor') === '1');
         update_log('backup', APP_VERSION, APP_VERSION, $f, null);
@@ -202,6 +207,7 @@ function admin_updates_backup(): void
 function admin_updates_download(): void
 {
     require_admin();
+    updates_platform_guard();
     try {
         $path = backup_path((string)input('file'));
     } catch (Throwable) {
@@ -276,4 +282,13 @@ function admin_cleanup(): void
             'notifications' => (int)val('SELECT COUNT(*) FROM notifications'),
         ],
     ]);
+}
+
+/** Plateforme multi-clients : le code est commun, les mises à jour s'installent depuis la console des super administrateurs. */
+function updates_platform_guard(): void
+{
+    if (current_instance() !== null) {
+        flash('info', 'Les mises à jour de Centriva sont installées par ' . support_contact()['editor'] . ' pour tous les espaces : rien à faire de votre côté.');
+        redirect('admin');
+    }
 }

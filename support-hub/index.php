@@ -6,6 +6,12 @@ require __DIR__ . '/lib.php';
 
 // Page de paiement d'un client (lien personnel, sans connexion à la console)
 if (isset($_GET['pay'])) {
+    // Client d'une application gérée par sa console : la page de paiement y est servie (même lien personnel)
+    $pc = preg_match('/^[a-f0-9]{40}$/', (string)$_GET['pay']) ? hone('SELECT app FROM clients WHERE billing_token = ?', [(string)$_GET['pay']]) : null;
+    if ($pc && ($cu = hub_app_console((string)$pc['app']))) {
+        header('Location: ' . preg_replace('#/console\.php$#', '', $cu) . '/?paiement=' . rawurlencode((string)$_GET['pay']), true, 302);
+        exit;
+    }
     require HUB . '/views/pay.php';
     exit;
 }
@@ -133,9 +139,15 @@ if ($app) {
 if (isset($appPages[$p]) && !$app) {
     $p = 'apps';
 }
+// Application gérée par sa propre console : ses pages de gestion ne sont plus ici
+$managed = isset($appPages[$p]) && $app && hub_app_console($app['slug']);
+$hasLocal = (bool)hub_apps_local();
+if ($p === 'billing' && !$hasLocal) {
+    $p = '';
+}
 $flashMsg = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
-$title = isset($appPages[$p]) ? $appPages[$p] . ' · ' . $app['name'] : $generalPages[$p];
+$title = $managed ? $app['name'] : (isset($appPages[$p]) ? $appPages[$p] . ' · ' . $app['name'] : $generalPages[$p]);
 page_head($title);
 $unread = (int)(hone("SELECT COALESCE(SUM(unread),0) n FROM conversations WHERE status <> 'closed'")['n'] ?? 0);
 $link = fn(string $page, ?string $slug = null) => 'index.php' . ($page !== '' ? '?p=' . $page . ($slug ? '&app=' . rawurlencode($slug) : '') : '');
@@ -161,14 +173,16 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
     <?php foreach (hub_apps() as $a): $cur = $app && $app['slug'] === $a['slug'] && isset($appPages[$p]); ?>
       <details class="appnav" <?= $cur || count(hub_apps()) <= 3 ? 'open' : '' ?>>
         <summary><span class="dot" style="background:<?= h($a['color']) ?>"></span><?= h($a['name']) ?></summary>
-        <?php foreach ($appPages as $k => $label): if (in_array($k, $adminOnly, true) && !$isAdmin) continue; ?>
+        <?php if (!empty($a['console_url'])): ?>
+          <a href="<?= h($a['console_url']) ?>" target="_blank" rel="noopener" title="Clients, licences, abonnements, versions, vidéos et FAQ">Console de gestion ↗</a>
+        <?php else: foreach ($appPages as $k => $label): if (in_array($k, $adminOnly, true) && !$isAdmin) continue; ?>
           <a href="<?= $link($k, $a['slug']) ?>" class="<?= $cur && $p === $k ? 'act' : '' ?>"><?= h($label) ?></a>
-        <?php endforeach; ?>
+        <?php endforeach; endif; ?>
       </details>
     <?php endforeach; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('apps') ?>" class="sub <?= $p === 'apps' ? 'act' : '' ?>">＋ Gérer les applications</a><?php endif; ?>
     <div class="nav-title">Administration</div>
-    <?php if ($isAdmin): ?><a href="<?= $link('billing') ?>" class="<?= $p === 'billing' ? 'act' : '' ?>">💳 Abonnements</a><?php endif; ?>
+    <?php if ($isAdmin && $hasLocal): ?><a href="<?= $link('billing') ?>" class="<?= $p === 'billing' ? 'act' : '' ?>">💳 Abonnements</a><?php endif; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('users') ?>" class="<?= $p === 'users' ? 'act' : '' ?>">👥 Comptes</a><?php endif; ?>
     <a href="<?= $link('settings') ?>" class="<?= $p === 'settings' ? 'act' : '' ?>">⚙️ Réglages</a>
     <?php if ($isAdmin): ?><a href="<?= $link('update') ?>" class="<?= $p === 'update' ? 'act' : '' ?>">⬆️ Mise à jour <small>v<?= h(hub_version()) ?></small></a><?php endif; ?>
@@ -183,7 +197,13 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
 <div class="content">
 <?php
 $flashHtml = $flashMsg ? '<div class="flash ' . ($flashMsg['err'] ? 'err' : '') . '">' . h($flashMsg['msg']) . '</div>' : '';
-require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
+if ($managed) {
+    echo '<main class="wrap">' . $flashHtml . '<h1>' . h($app['name']) . '</h1><div class="card"><p>Les clients, licences, abonnements, versions, vidéos et la FAQ de ' . h($app['name'])
+        . ' se gèrent désormais dans sa console de gestion. Ce centre d\'assistance garde les conversations avec ses utilisateurs.</p>'
+        . '<p><a class="btn primary" href="' . h(hub_app_console($app['slug'])) . '" target="_blank" rel="noopener">Ouvrir la console ↗</a></p></div></main>';
+} else {
+    require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
+}
 ?>
 </div>
 </div>

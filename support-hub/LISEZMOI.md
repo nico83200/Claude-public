@@ -46,6 +46,10 @@ Une seule console pour toutes vos applications : les **conversations** sont comm
 - **＋ FAQ** depuis une conversation : prépare une question de la FAQ partagée avec votre réponse.
 - **Notifications sur le téléphone** : ouvrez la console sur le téléphone, « Ajouter à l'écran d'accueil », puis Réglages → Notifications → « Activer sur cet appareil ». Aussi : e-mail et ntfy (au plus une alerte toutes les 3 minutes par conversation).
 
+## Console Centriva (version 3.5)
+
+Centriva est désormais géré par la console de sa plateforme (centriva.fr/console.php) : clients, licences, abonnements Stripe, versions, vidéos et FAQ. Dans **Réglages → Console Centriva**, créez la clé de liaison et collez-la dans la console (menu Assistance, avec l'adresse de `api.php`), puis lancez « Reprendre l'historique ». Les pages de gestion de Centriva disparaissent alors d'ici ; seules les conversations restent. Pensez à remplacer, dans Stripe, l'adresse du webhook par celle indiquée dans la console (Abonnements).
+
 ## Licences
 
 | État | Effet dans l'application du client |

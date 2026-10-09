@@ -27,6 +27,7 @@ define('APP', ROOT . '/app');
 $GLOBALS['config'] = require "$tmp/config.php";
 require APP . '/instances.php';
 require APP . '/central.php';
+require APP . '/platform.php';
 require APP . '/db.php';
 require APP . '/helpers.php';
 require APP . '/schema.php';
@@ -788,6 +789,50 @@ superadmin_delete($sa['id']);
 check(superadmins() === [], 'compte supprimé');
 $GLOBALS['central_backup'] !== null ? file_put_contents(central_dir('superadmins.json'), $GLOBALS['central_backup']) : @unlink(central_dir('superadmins.json'));
 check(central_video_rows() === [] || instances_enabled(), 'vidéos communes réservées au mode multi-clients');
+
+section('Console de la plateforme : licences, abonnements, FAQ');
+$pfFiles = ['settings.json', 'licences.json', 'faq.json', 'billing-events.json', 'releases.json'];
+$pfBackup = [];
+foreach ($pfFiles as $pf) {
+    $pfBackup[$pf] = is_file(central_dir($pf)) ? file_get_contents(central_dir($pf)) : null;
+    @unlink(central_dir($pf));
+}
+platform_settings_save(['grace_days' => 5, 'price_base' => 39, 'price_ai' => 15, 'vat' => 20]);
+check(platform_licence('cli')['status'] === 'active' && !platform_licence('cli')['ai'], 'nouveau client : licence active sans échéance ni option IA');
+platform_licence_save('cli', ['paid_until' => '2026-03-31', 'ai' => true]);
+check(platform_licence('cli', '2026-03-31')['status'] === 'active' && platform_licence('cli', '2026-03-31')['ai'], 'jusqu\'à l\'échéance incluse : active avec l\'option IA');
+check(platform_licence('cli', '2026-04-03')['status'] === 'grace' && platform_licence('cli', '2026-04-07')['status'] === 'expired', 'délai de grâce de 5 jours puis expiration');
+check(!platform_licence('cli', '2026-04-07')['ai'], 'option IA coupée à l\'expiration');
+platform_licence_save('cli', ['status' => 'suspended']);
+check(platform_licence('cli', '2026-03-01')['status'] === 'suspended', 'suspension manuelle');
+platform_licence_save('cli', ['status' => 'active', 'price_base' => 49]);
+check(array_column(platform_billing_lines('cli'), 'amount') === [4900, 1500] && platform_monthly_ttc('cli') === 7680, 'tarif propre au client + option IA, TTC');
+check(platform_monthly_ttc('autre') === 4680, 'tarif par défaut de la plateforme');
+$until = platform_licence_extend('cli', 12, 'Test');
+check($until === date('Y-m-d', strtotime(date('Y-m-d') . ' +12 months')) && platform_billing_events('cli')[0]['type'] === 'manual', 'paiement hors ligne : licence prolongée de 12 mois, inscrit au journal');
+$payload = '{"id":"evt_1"}';
+$ts = time();
+check(platform_stripe_verify($payload, 't=' . $ts . ',v1=' . hash_hmac('sha256', $ts . '.' . $payload, 'whsec_x'), 'whsec_x'), 'signature Stripe valide acceptée');
+check(!platform_stripe_verify($payload, 't=' . ($ts - 400) . ',v1=' . hash_hmac('sha256', ($ts - 400) . '.' . $payload, 'whsec_x'), 'whsec_x')
+    && !platform_stripe_verify($payload, 't=' . $ts . ',v1=00', 'whsec_x'), 'signature trop ancienne ou fausse refusée');
+platform_licence_save('cli', ['stripe_customer' => 'cus_T', 'paid_until' => '2026-01-10']);
+$inv = ['id' => 'evt_paid', 'type' => 'invoice.paid', 'data' => ['object' => ['object' => 'invoice', 'customer' => 'cus_T', 'amount_paid' => 9216,
+    'lines' => ['data' => [['period' => ['end' => strtotime('2027-02-10 12:00')]]]]]]];
+check(str_starts_with(platform_billing_handle($inv), 'Paiement reçu') && platform_licence_row('cli')['paid_until'] === '2027-02-10', 'paiement reçu : échéance prolongée à la fin de la période payée');
+check(platform_billing_handle($inv) === 'déjà traité', 'événement Stripe en double ignoré');
+platform_billing_handle(['id' => 'evt_fail', 'type' => 'invoice.payment_failed', 'data' => ['object' => ['customer' => 'cus_T', 'amount_due' => 9216]]]);
+check(platform_licence_row('cli')['billing_status'] === 'past_due' && platform_licence_row('cli')['paid_until'] === '2027-02-10', 'échec de paiement signalé sans toucher à l\'échéance');
+check(platform_billing_handle(['id' => 'evt_x', 'type' => 'invoice.paid', 'data' => ['object' => ['customer' => 'cus_inconnu']]]) === 'ignoré (client inconnu)', 'client Stripe inconnu ignoré');
+platform_faq_save(['question' => 'Comment exporter le catalogue ?', 'answer' => 'Catalogue → Exporter.', 'active' => true, 'link_label' => 'Catalogue', 'link_route' => 'catalog']);
+platform_faq_save(['question' => 'Question masquée', 'answer' => 'x', 'active' => false]);
+$fb = platform_faq_for_chatbot();
+check(count($fb) === 1 && $fb[0][3] === ['Catalogue', 'catalog'] && str_contains($fb[0][1], 'exporter'), 'FAQ commune au format du chatbot (questions masquées exclues)');
+platform_release_record(['version' => '9.9.0', 'notes' => 'a']);
+platform_release_record(['version' => '9.9.0', 'notes' => 'b', 'file' => null]);
+check(count(platform_releases()) === 1 && platform_releases()[0]['notes'] === 'b', 'historique des versions sans doublon');
+foreach ($pfBackup as $pf => $data) {
+    $data !== null ? file_put_contents(central_dir($pf), $data) : @unlink(central_dir($pf));
+}
 
 section('Démo publique');
 check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');

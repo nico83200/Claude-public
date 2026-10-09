@@ -12,12 +12,23 @@ const LICENCE_CHECK_EVERY = 600; // 10 minutes : une licence expirée ou suspend
 
 function licence_managed(): bool
 {
-    return support_live_enabled();
+    return licence_platform() || support_live_enabled();
 }
 
-/** Dernier état connu (mis en cache dans les paramètres). */
+/** Espace de la plateforme multi-clients : la licence est gérée dans la console (aucun appel réseau). */
+function licence_platform(): bool
+{
+    return current_instance() !== null && instances_enabled();
+}
+
+/** Dernier état connu (mis en cache dans les paramètres ; lu directement dans la console pour un espace de la plateforme). */
 function licence_info(): array
 {
+    if (licence_platform()) {
+        static $cache = [];
+        $slug = (string)current_instance();
+        return $cache[$slug] ??= platform_licence($slug) + ['billing' => platform_billing_summary($slug), 'latest' => null, 'checked_at' => now()];
+    }
     if (!licence_managed()) {
         return ['status' => 'unmanaged'];
     }
@@ -73,6 +84,9 @@ function licence_check(bool $force = false): array
 {
     if (!licence_managed()) {
         return ['status' => 'unmanaged'];
+    }
+    if (licence_platform()) {
+        return licence_info();
     }
     $cached = licence_info();
     if (!$force && !empty($cached['checked_at']) && strtotime($cached['checked_at']) > time() - LICENCE_CHECK_EVERY) {

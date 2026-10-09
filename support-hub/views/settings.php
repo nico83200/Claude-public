@@ -28,7 +28,18 @@ $key = (string)hsetting('anthropic_api_key', '');
     <button class="btn primary">Enregistrer</button>
   </form>
 
-<?php if ($hubUser['role'] === 'admin'): ?>
+<?php if ($hubUser['role'] === 'admin'): $managedApps = array_filter(hub_apps(), fn($a) => !empty($a['console_url'])); ?>
+  <form method="post" class="card" id="console">
+    <?= csrf_input() ?><input type="hidden" name="action" value="console_key">
+    <h2>Console Centriva</h2>
+    <p class="muted" style="margin-top:0">La plateforme Centriva gère elle-même ses clients, licences, abonnements, versions, vidéos et FAQ. Reliée ici par une clé, elle crée l'accès de chaque espace à la conversation en direct et reprend l'historique de ce centre d'assistance ; les pages de gestion de l'application disparaissent alors d'ici, seules les conversations restent.</p>
+    <p><?= hsetting('console_key_hash') ? '<span class="tag green">clé créée</span>' : '<span class="tag">aucune clé</span>' ?>
+      <?php foreach ($managedApps as $ma): ?> <span class="tag green"><?= h($ma['name']) ?> gérée par sa console</span> <a href="<?= h($ma['console_url']) ?>" target="_blank" rel="noopener"><small><?= h($ma['console_url']) ?></small></a><?php endforeach; ?></p>
+    <div class="row"><button class="btn primary" <?= hsetting('console_key_hash') ? 'onclick="return confirm(\'Créer une nouvelle clé ? L\\\'ancienne cessera de fonctionner : collez la nouvelle dans la console (menu Assistance).\')"' : '' ?>><?= hsetting('console_key_hash') ? 'Créer une nouvelle clé de liaison' : 'Créer la clé de liaison' ?></button>
+      <?php if ($managedApps || hsetting('console_key_hash')): ?><button class="btn" name="action" value="console_unlink" onclick="return confirm('Délier la console ? Les pages de gestion de l\'application réapparaissent ici, avec les données d\'avant la liaison.')">Délier</button><?php endif; ?></div>
+  </form>
+<?php endif; ?>
+<?php if ($hubUser['role'] === 'admin' && hub_apps_local()): ?>
   <form method="post" class="card" id="licences">
     <?= csrf_input() ?><input type="hidden" name="action" value="grace_save">
     <h2>Licences</h2>
