@@ -1,9 +1,9 @@
 /*
- * Vidéo tutoriel « version salarié » d'Approvia, enregistrée depuis l'application réelle (données de démonstration).
+ * Vidéo tutoriel « version salarié » de Centriva, enregistrée depuis l'application réelle (données de démonstration).
  *
  *   [VOIX=durees.json] PWPATH=/chemin/vers/playwright node tools/tutoriel-salarie.mjs <dossier-sortie> <dossier-images> [url] [email] [mot-de-passe]
- *   → la vidéo .webm, Approvia-tutoriel-salarie.srt et Approvia-tutoriel-salarie-voix-off.txt (texte minuté pour la voix off)
- *   puis : ffmpeg -i <video>.webm -vf format=yuv420p -c:v libx264 -crf 22 -movflags +faststart Approvia-tutoriel-salarie.mp4
+ *   → la vidéo .webm, Centriva-tutoriel-salarie.srt et Centriva-tutoriel-salarie-voix-off.txt (texte minuté pour la voix off)
+ *   puis : ffmpeg -i <video>.webm -vf format=yuv420p -c:v libx264 -crf 22 -movflags +faststart Centriva-tutoriel-salarie.mp4
  *
  * durees.json (facultatif) : {"intro": 3.2, "steps": [8.3, 7.0, …]}, durée de chaque phrase de la voix off, dans l'ordre des sous-titres.
  * Un repère (7 petits carrés en bas à gauche de l'image) indique le numéro du sous-titre affiché : il sert à caler la voix off
@@ -22,7 +22,7 @@ const OUT = process.argv[2], IMG = process.argv[3];
 const VOIX = process.env.VOIX ? JSON.parse(fs.readFileSync(process.env.VOIX, 'utf8')) : null;
 const APP = (process.argv[4] || 'http://127.0.0.1:8096/') + 'index.php?r=';
 const EMAIL = process.argv[5] || 'claire.secretaire@demo.fr', PASS = process.argv[6] || 'demo1234';
-const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/approvia-logo-blanc.svg'), 'utf8');
+const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/centriva-logo-blanc.svg'), 'utf8');
 const W = 1280, H = 720;
 const cam = Object.fromEntries(['empty', 'lingettes', 'gel', 'gants', 'masques'].map((n) => [n, 'data:image/png;base64,' + fs.readFileSync(path.join(IMG, n + '.png')).toString('base64')]));
 const b = await chromium.launch();
@@ -128,12 +128,12 @@ const showCam = (name) => p.evaluate((n) => window.__cam(n), name);
 const t0 = Date.now();
 
 // ================================================================ Introduction (la phrase d'accueil de la voix off se cale sur le repère 51)
-await card('Tutoriel salarié', 'Faire une demande d\'articles · Scanner · Suivre sa demande · Réceptionner une livraison<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
+await card('Tutoriel salarié', 'Faire une demande d\'articles · Scanner · Suivre sa demande · Réceptionner une livraison<br><span style="font-size:17px;opacity:.75">Centriva — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
 
 // ================================================================ Partie 1 : se repérer
 await part(1, 'Se connecter et se repérer', 'Votre compte, votre centre, le menu');
 await p.goto(APP + 'login');
-await say(1, 'Se connecter', 'Ouvrez Approvia dans votre navigateur (ordinateur, tablette ou téléphone) et connectez-vous avec votre adresse e-mail professionnelle et votre mot de passe.');
+await say(1, 'Se connecter', 'Ouvrez Centriva dans votre navigateur (ordinateur, tablette ou téléphone) et connectez-vous avec votre adresse e-mail professionnelle et votre mot de passe.');
 await type('input[name=email]', EMAIL);
 await type('input[name=password]', PASS);
 await at(0.9); await click('button[type=submit]', { nav: true, after: 300 });
@@ -171,13 +171,13 @@ await click('[data-scan="search"]:visible', { after: 0 }); await scannerOpen();
 await at(0.7); await Promise.all([p.waitForNavigation({ timeout: 15000 }), showCam('gel')]);
 await say(4, '2e article reconnu', 'Le gel hydroalcoolique 500 ml est reconnu à son tour. Même geste : la quantité, puis « Ajouter au panier ».');
 await at(0.5); await setQty(pq, 2); await click('form[data-add-cart] button[type=submit]');
-await say(4, 'Code inconnu ?', 'Si un code-barres n\'est pas au catalogue, Approvia vous propose de suggérer l\'article au service achats, avec sa photo.');
+await say(4, 'Code inconnu ?', 'Si un code-barres n\'est pas au catalogue, Centriva vous propose de suggérer l\'article au service achats, avec sa photo.');
 await moveTo(L('[data-scan="search"]:visible'));
 
 await say(5, 'Vérifier le panier', 'Ouvrez « Mon panier ». Les articles sont automatiquement classés par fournisseur : vous n\'avez pas à vous en occuper.');
 await click('a[href*="r=cart"]', { nav: true });
 await moveTo(L('.supplier-block'));
-await say(5, 'Stocks bas : suggestions', 'Si des articles suivis en stock sont sous leur seuil, Approvia propose de les ajouter. Décochez ce qui n\'est pas utile, ou ignorez simplement ce cadre.', { hl: 'form[action*="stock/reorder"]' });
+await say(5, 'Stocks bas : suggestions', 'Si des articles suivis en stock sont sous leur seuil, Centriva propose de les ajouter. Décochez ce qui n\'est pas utile, ou ignorez simplement ce cadre.', { hl: 'form[action*="stock/reorder"]' });
 await say(5, 'Une ligne par article', 'Pour chaque article : le conditionnement, la quantité modifiable, le prix et la corbeille pour le retirer.', { hl: '.supplier-block' });
 await say(5, 'Modifier une quantité', 'Changez le chiffre puis cliquez sur « Mettre à jour les quantités » : le total est recalculé.');
 await setQty(p.locator('.supplier-block tr').first().locator('.qty-input'), 3);

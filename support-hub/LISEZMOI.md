@@ -1,6 +1,6 @@
 # Centre d'assistance NLapps
 
-Console unique pour gérer toutes les installations de vos applications NLapps (Approvia…) chez vos clients :
+Console unique pour gérer toutes les installations de vos applications NLapps (Centriva…) chez vos clients :
 
 - **Conversations en direct** avec les utilisateurs (bulle d'aide de l'application), captures d'écran, réponses rapides, suggestion de réponse par l'IA, suivi « à traiter / en attente / résolue », note de satisfaction ;
 - **Parc clients et licences** : abonnement, échéance, option assistant IA, suspension, version installée, usage, revenu mensuel estimé ;
@@ -16,8 +16,8 @@ Une seule console pour toutes vos applications : les **conversations** sont comm
    PHP 8.1+ avec les extensions SQLite, OpenSSL et Zip (présentes par défaut chez Hostinger). Aucune base MySQL n'est nécessaire.
 2. Ouvrez `https://nlapps.fr/assistance/` : à la première visite, créez le compte administrateur (nom, identifiant, mot de passe).
    Puis **Mon compte → Double authentification** (fortement conseillé).
-3. **Approvia → Parc clients → Nouveau client** pour chaque installation : nom, formule, date « payé jusqu'au », option IA.
-   Copiez les deux lignes affichées et collez-les dans Approvia, **Administration → Paramètres → Licence et assistance NLapps**, puis « Enregistrer et tester » :
+3. **Centriva → Parc clients → Nouveau client** pour chaque installation : nom, formule, date « payé jusqu'au », option IA.
+   Copiez les deux lignes affichées et collez-les dans Centriva, **Administration → Paramètres → Licence et assistance NLapps**, puis « Enregistrer et tester » :
    ```php
    'support_hub_url' => 'https://nlapps.fr/assistance/api.php',
    'support_hub_key' => 'nlh_…',
@@ -63,7 +63,7 @@ Vos clients règlent leur abonnement par **carte bancaire** ou **prélèvement S
 
 1. Créez un compte Stripe et activez le prélèvement SEPA (Paramètres → Moyens de paiement) et le portail client (Paramètres → Facturation → Portail client).
 2. Dans **Réglages → Paiement en ligne** : collez la clé secrète (`sk_live_…`, ou `sk_test_…` pour essayer), puis déclarez le webhook indiqué (`…/api.php?a=stripe`) dans Stripe et collez son secret (`whsec_…`). Taux de TVA : 20 % par défaut. « Tester la connexion » vérifie la clé.
-3. Chaque client a un **lien de paiement personnel** (Parc clients → Gérer → Paiement en ligne), à copier ou à envoyer par e-mail. L'administrateur du client trouve aussi le bouton **« Payer en ligne » / « Gérer mon abonnement »** dans Approvia (Paramètres → Licence), et dans les bandeaux d'échéance.
+3. Chaque client a un **lien de paiement personnel** (Parc clients → Gérer → Paiement en ligne), à copier ou à envoyer par e-mail. L'administrateur du client trouve aussi le bouton **« Payer en ligne » / « Gérer mon abonnement »** dans Centriva (Paramètres → Licence), et dans les bandeaux d'échéance.
 
 Le montant mensuel est calculé automatiquement : tarif de l'application + option IA si elle est cochée, plus la TVA. Une période déjà réglée est conservée : le premier prélèvement a lieu à son échéance.
 
@@ -71,7 +71,7 @@ Le montant mensuel est calculé automatiquement : tarif de l'application + optio
 
 ## Versions
 
-**Versions → Publier** : déposez le paquet de mise à jour (ex. `approvia-1.12.0.zip`, produit par `php tools/build-update.php`). La version et les notes sont lues dans le paquet. Les installations sous licence active la voient dans un bandeau et la page *Mises à jour*, la téléchargent (empreinte SHA-256 vérifiée) et l'installent avec sauvegarde automatique et retour arrière possible. « Retirer » la rend invisible.
+**Versions → Publier** : déposez le paquet de mise à jour (ex. `centriva-1.12.0.zip`, produit par `php tools/build-update.php`). La version et les notes sont lues dans le paquet. Les installations sous licence active la voient dans un bandeau et la page *Mises à jour*, la téléchargent (empreinte SHA-256 vérifiée) et l'installent avec sauvegarde automatique et retour arrière possible. « Retirer » la rend invisible.
 
 ## Tutoriels vidéo
 
@@ -91,7 +91,7 @@ Le dossier `sdk/` contient **`INTEGRATION.md`**, le guide complet du protocole (
 - `nlapps-chat.js` : widget de conversation autonome, à inclure dans les pages ;
 - `examples/relay.php` : relais serveur entre le widget et ce centre (la clé reste côté serveur).
 
-Créez ensuite un client avec le nom de l'application (champ « Application »), comme pour Approvia.
+Créez ensuite un client avec le nom de l'application (champ « Application »), comme pour Centriva.
 
 ## Sécurité
 

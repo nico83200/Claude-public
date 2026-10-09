@@ -10,14 +10,14 @@ const pad = (n, w = 2) => String(n).padStart(w, '0');
 const srtTime = (s) => { const ms = Math.max(0, Math.round(s * 1000)); return `${pad(Math.floor(ms / 3600000))}:${pad(Math.floor(ms / 60000) % 60)}:${pad(Math.floor(ms / 1000) % 60)},${pad(ms % 1000, 3)}`; };
 const clock = (s) => `${Math.floor(s / 60)}:${pad(Math.floor(s) % 60)}`;
 
-export function writeCaptions(cues, dir, base = 'Approvia-tutoriel-salarie', offset = 0) {
+export function writeCaptions(cues, dir, base = 'Centriva-tutoriel-salarie', offset = 0) {
   const list = cues.filter((c) => c.text && c.end != null).map((c) => ({ ...c, start: c.start + offset, end: c.end + offset }));
   // .srt : un sous-titre par étape, affiché tant que l'étape est à l'écran
   const srt = list.map((c, i) => `${i + 1}\n${srtTime(c.start)} --> ${srtTime(c.end - 0.05)}\n${c.kind === 'card' ? c.title + ' — ' + c.text : c.text}\n`).join('\n');
   fs.writeFileSync(path.join(dir, base + '.srt'), srt);
   // Texte de voix off : minutage, étape, phrase à lire, durée disponible
   const lines = [
-    'APPROVIA — TUTORIEL SALARIÉ',
+    'CENTRIVA — TUTORIEL SALARIÉ',
     'Texte de la voix off (reprend les sous-titres de la vidéo)',
     '',
     'Chaque bloc indique le moment où la phrase apparaît à l\'écran (minutes:secondes) et le temps disponible pour la lire.',

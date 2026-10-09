@@ -1,5 +1,5 @@
 <?php if (demo_mode()): ?>
-<h1>Découvrez Approvia</h1>
+<h1>Découvrez Centriva</h1>
 <p class="muted">Démo en accès libre : choisissez un profil, vous êtes connecté en un clic. Les données sont fictives et remises à zéro chaque nuit.</p>
 <div class="demo-profiles">
   <?php foreach (DEMO_PROFILES as $role => [$demoEmail, $label, $desc, $ic]): ?>

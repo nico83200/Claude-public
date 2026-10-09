@@ -6,11 +6,11 @@
 import { tutoriel } from './tutoriel-base.mjs';
 
 const PHOTO = process.argv[3];
-const t = await tutoriel({ out: process.argv[2], app: process.argv[4] || 'http://127.0.0.1:8096/', base: 'Approvia-tutoriel-hors-catalogue' });
+const t = await tutoriel({ out: process.argv[2], app: process.argv[4] || 'http://127.0.0.1:8096/', base: 'Centriva-tutoriel-hors-catalogue' });
 const { p, APP, VOIX, wait, L, say, hold, at, moveTo, click, type, setQty, card, part, login, finish } = t;
 
 await login('claire.secretaire@demo.fr');
-await card('Commander un article hors catalogue', 'Proposer un nouvel article · Le commander · Validation par le service achats<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
+await card('Commander un article hors catalogue', 'Proposer un nouvel article · Le commander · Validation par le service achats<br><span style="font-size:17px;opacity:.75">Centriva — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
 
 // ================================================================ Partie 1 : le salarié propose l'article
 await part(1, 'Proposer l\'article', 'Recherche · Description · Photo · Quantité');
@@ -19,7 +19,7 @@ await say(1, 'Un article introuvable', 'Vous cherchez un article qui n\'existe p
 await at(0.4); await type('.topbar input[type=search], header input[name=q]', 'spéculum');
 await at(0.9); await p.keyboard.press('Enter'); await p.waitForLoadState();
 const prop = 'a:has-text("Proposez un article hors catalogue"), a.btn:has-text("Proposer")';
-await say(2, 'Aucun ne convient ?', 'Approvia montre les articles les plus proches. Aucun ne convient ? En bas de la liste, cliquez sur « Proposez un article hors catalogue ».', { hl: prop });
+await say(2, 'Aucun ne convient ?', 'Centriva montre les articles les plus proches. Aucun ne convient ? En bas de la liste, cliquez sur « Proposez un article hors catalogue ».', { hl: prop });
 await at(0.85); await click(prop, { nav: true, after: 300 });
 await say(3, 'Décrire l\'article', 'Décrivez l\'article le plus précisément possible : nom, marque, référence et conditionnement.', { hl: '.card:has(input[name=name])' });
 await L('input[name=name]').fill(''); await type('input[name=name]', 'Spéculums vaginaux jetables taille M');

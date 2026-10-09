@@ -87,8 +87,8 @@ check(!hub_status()['online'], 'mode manuel respecté');
 
 echo "FAQ partagée\n";
 check(hub_keywords('Comment imprimer une étiquette pour l\'étagère ?') === 'imprimer etiquette etagere', 'mots-clés tirés de la question (sans accents ni mots vides)');
-hq("INSERT INTO faq (app, question, answer, admin_only, active, created_at, updated_at) VALUES ('*', 'Question A', 'Réponse A', 1, 1, ?, ?), ('autre', 'Question B', 'Réponse B', 0, 1, ?, ?), ('approvia', 'Question C', 'Réponse C', 0, 0, ?, ?)", [hnow(), hnow(), hnow(), hnow(), hnow(), hnow()]);
-$f = hub_faq_for('approvia');
+hq("INSERT INTO faq (app, question, answer, admin_only, active, created_at, updated_at) VALUES ('*', 'Question A', 'Réponse A', 1, 1, ?, ?), ('autre', 'Question B', 'Réponse B', 0, 1, ?, ?), ('centriva', 'Question C', 'Réponse C', 0, 0, ?, ?)", [hnow(), hnow(), hnow(), hnow(), hnow(), hnow()]);
+$f = hub_faq_for('centriva');
 check(count($f) === 1 && $f[0]['q'] === 'Question A' && $f[0]['admin'] === true, 'FAQ filtrée par application, questions inactives exclues');
 
 echo "Versions\n";
@@ -100,9 +100,9 @@ $z->addFromString('VERSION', '2.3.4');
 $z->close();
 check(hub_inspect_package($zipPath) === ['version' => '2.3.4', 'notes' => 'Nouveautés'], 'version et notes lues dans le paquet');
 foreach (['1.9.0', '1.10.0', '1.2.0'] as $ver) {
-    hq("INSERT INTO releases (app, version, notes, file, sha256, size, published, created_at) VALUES ('approvia', ?, '', 'x.zip', 'h', 1, 1, ?)", [$ver, hnow()]);
+    hq("INSERT INTO releases (app, version, notes, file, sha256, size, published, created_at) VALUES ('centriva', ?, '', 'x.zip', 'h', 1, 1, ?)", [$ver, hnow()]);
 }
-check(hub_latest_release('approvia')['version'] === '1.10.0', 'dernière version selon la numérotation (1.10.0 > 1.9.0)');
+check(hub_latest_release('centriva')['version'] === '1.10.0', 'dernière version selon la numérotation (1.10.0 > 1.9.0)');
 
 echo "Mise à jour du centre\n";
 check(hub_update_allowed('views/inbox.php') && hub_update_allowed('vendor/autoload.php') && !hub_update_allowed('config.php') && !hub_update_allowed('data/x.sqlite') && !hub_update_allowed('../index.php'), 'fichiers remplaçables : code oui, config.php et data/ jamais');
@@ -138,14 +138,14 @@ hq('INSERT INTO videos (uid, app, title, keywords, chapters, audience, file, sha
 hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
     ['nl-2', 'autreappli', 'Autre application', '[]', 'all', 'nl-2.mp4', str_repeat('b', 64), 1000, 0, 1, hnow(), hnow()]);
 hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-    ['nl-3', 'approvia', 'Brouillon', '[]', 'all', 'nl-3.mp4', str_repeat('c', 64), 1000, 0, 0, hnow(), hnow()]);
+    ['nl-3', 'centriva', 'Brouillon', '[]', 'all', 'nl-3.mp4', str_repeat('c', 64), 1000, 0, 0, hnow(), hnow()]);
 hq("UPDATE videos SET welcome = 1 WHERE uid = 'nl-1'");
-$vids = hub_videos_for('approvia');
+$vids = hub_videos_for('centriva');
 check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel') && $vids[0]['welcome'] === true,
     'vidéos transmises : publiées, de l\'application, avec chapitres et mots-clés, sans chemin de fichier');
 
 echo "Comptes et applications (3.0)\n";
-check((bool)hub_app('approvia') && hub_app('approvia')['price_base'] == 39, 'application Approvia créée d\'office (tarifs 39 € + 15 €)');
+check((bool)hub_app('centriva') && hub_app('centriva')['price_base'] == 39, 'application Centriva créée d\'office (tarifs 39 € + 15 €)');
 check(hub_slug('Planning Soins à domicile') === 'planning-soins-a-domicile', 'identifiant technique déduit du nom');
 check(hub_valid_username('nicolas') && hub_valid_username('j.martin@nlapps.fr') && !hub_valid_username('ab') && !hub_valid_username('nom avec espace'), 'identifiants valides / refusés');
 hq('DELETE FROM users');
@@ -164,7 +164,7 @@ check(hone("SELECT id FROM users WHERE username = 'ADMIN'") !== null, 'identifia
 echo "Paiement en ligne (3.2)\n";
 $key = hub_create_client('Clinique Paiement', 'https://paie.example');
 $pc = hub_client_from_key($key);
-hq("UPDATE clients SET app = 'approvia', ai_option = 1, paid_until = ? WHERE id = ?", [date('Y-m-d', strtotime('+3 days')), $pc['id']]);
+hq("UPDATE clients SET app = 'centriva', ai_option = 1, paid_until = ? WHERE id = ?", [date('Y-m-d', strtotime('+3 days')), $pc['id']]);
 $pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
 check(array_sum(array_column(hub_billing_lines($pc), 'amount')) === 5400 && count(hub_billing_lines($pc)) === 2, 'montant mensuel : 39 € + option IA 15 € HT');
 hset('billing_vat', '20');
@@ -197,6 +197,23 @@ $pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
 check($pc['billing_status'] === 'canceled' && !hub_billing_active($pc) && hub_licence($pc)['status'] === 'active', 'résiliation : paiements arrêtés, licence valable jusqu\'à la fin de la période payée');
 check(hub_billing_handle(['id' => 'evt_e', 'type' => 'invoice.paid', 'data' => ['object' => ['customer' => 'cus_inconnu']]]) === 'ignoré (client inconnu)', 'événement d\'un autre compte ignoré');
 check((int)hone('SELECT COUNT(*) n FROM billing_events WHERE client_id = ?', [$pc['id']])['n'] === 5, 'journal des paiements du client');
+
+echo "Changement de nom : Approvia devient Centriva (3.3)\n";
+$old = 'approv' . 'ia';
+hq("INSERT OR IGNORE INTO apps (slug, name, color, price_base, price_ai, position, created_at) VALUES (?, 'Approv' || 'ia', '#6366f1', 39, 15, 0, ?)", [$old, hnow()]);
+hq('DELETE FROM apps WHERE slug = ?', ['centriva']);
+$kOld = hub_create_client('Client historique', '');
+hq('UPDATE clients SET app = ? WHERE id = ?', [$old, hub_client_from_key($kOld)['id']]);
+hq("INSERT INTO faq (app, question, answer, active, created_at, updated_at) VALUES (?, 'Comment utiliser ' || 'Approv' || 'ia ?', 'Ouvrez ' || 'Approv' || 'ia.', 1, ?, ?)", [$old, hnow(), hnow()]);
+hq("DELETE FROM settings WHERE k = 'renamed_centriva'");
+hub_migrate(hdb());
+$app = hone("SELECT * FROM apps WHERE slug = 'centriva'");
+check($app && $app['name'] === 'Centriva' && (float)$app['price_base'] === 39.0 && !hone('SELECT slug FROM apps WHERE slug = ?', [$old]), 'application renommée, tarifs conservés');
+check(hub_client_from_key($kOld)['app'] === 'centriva' && !(int)hone('SELECT COUNT(*) n FROM faq WHERE app = ?', [$old])['n'], 'clients et FAQ rattachés à Centriva');
+check((bool)hone("SELECT id FROM faq WHERE question = 'Comment utiliser Centriva ?' AND answer = 'Ouvrez Centriva.'"), 'textes de la FAQ renommés');
+check(hub_app_slug($old) === 'centriva' && hub_app_slug('autre') === 'autre', 'une installation pas encore mise à jour (« approvia ») est reconnue');
+hub_migrate(hdb());
+check((int)hone("SELECT COUNT(*) n FROM apps WHERE slug = 'centriva'")['n'] === 1, 'migration rejouée sans effet');
 
 $rm = function (string $d) use (&$rm): void {
     foreach (glob($d . '/*') ?: [] as $f) {

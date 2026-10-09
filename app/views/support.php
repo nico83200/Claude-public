@@ -1,5 +1,5 @@
 <div class="page-head">
-  <div><h1>Assistance</h1><p>Approvia est créé et maintenu par <strong><?= e($contact['editor']) ?></strong>. Une question, un souci, une idée ? Nous vous répondons.</p></div>
+  <div><h1>Assistance</h1><p>Centriva est créé et maintenu par <strong><?= e($contact['editor']) ?></strong>. Une question, un souci, une idée ? Nous vous répondons.</p></div>
 </div>
 
 <?php if ($pending): ?>

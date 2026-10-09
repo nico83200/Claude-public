@@ -1,8 +1,8 @@
 /*
- * Socle commun des vidéos tutoriels courtes d'Approvia : sous-titres, curseur visible, écrans titres, repère de
+ * Socle commun des vidéos tutoriels courtes de Centriva : sous-titres, curseur visible, écrans titres, repère de
  * synchronisation (pour caler la voix off avec tools/tutoriel-voix.py), rythme réglé sur la voix si elle existe.
  *
- *   const t = await tutoriel({ out, base: 'Approvia-tutoriel-xxx' });
+ *   const t = await tutoriel({ out, base: 'Centriva-tutoriel-xxx' });
  *   await t.card('Titre', 'Sous-titre', 6000, 51);        // écran titre (51 = repère de la phrase d'accueil)
  *   await t.say(1, 'Titre court', 'Phrase du sous-titre…', { hl: '.card' });
  *   …
@@ -19,7 +19,7 @@ export async function tutoriel({ out, base, app = 'http://127.0.0.1:8096/', extr
   const OUT = out;
   const VOIX = process.env.VOIX ? JSON.parse(fs.readFileSync(process.env.VOIX, 'utf8')) : null;
   const APP = app + 'index.php?r=';
-  const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/approvia-logo-blanc.svg'), 'utf8');
+  const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/centriva-logo-blanc.svg'), 'utf8');
   const W = 1280, H = 720;
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: OUT, size: { width: W, height: H } } });

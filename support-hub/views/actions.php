@@ -74,7 +74,7 @@ switch ($action) {
             $key = hub_create_client($name, (string)($_POST['site'] ?? ''));
             $id = (int)hdb()->lastInsertId();
             hq('UPDATE clients SET app = ?, contact_email = ?, paid_until = ?, ai_option = ?, plan = ? WHERE id = ?', [
-                hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'approvia',
+                hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'centriva',
                 trim((string)($_POST['contact_email'] ?? '')) ?: null, ($_POST['paid_until'] ?? '') ?: null, !empty($_POST['ai_option']) ? 1 : 0,
                 trim((string)($_POST['plan'] ?? '')) ?: 'Abonnement', $id,
             ]);
@@ -124,7 +124,7 @@ switch ($action) {
         }
         try {
             $info = hub_inspect_package($f['tmp_name']);
-            $app = hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'approvia';
+            $app = hub_app((string)($_POST['app'] ?? ''))['slug'] ?? 'centriva';
             if (hone('SELECT id FROM releases WHERE app = ? AND version = ?', [$app, $info['version']])) {
                 throw new RuntimeException('La version ' . $info['version'] . ' de ' . $app . ' est déjà publiée.');
             }

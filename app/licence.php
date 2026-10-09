@@ -79,7 +79,7 @@ function licence_check(bool $force = false): array
         return $cached;
     }
     $r = support_hub('check', [], [
-        'app' => 'approvia', 'version' => APP_VERSION, 'url' => licence_instance_url(), 'php' => PHP_VERSION,
+        'app' => 'centriva', 'version' => APP_VERSION, 'url' => licence_instance_url(), 'php' => PHP_VERSION,
         'stats' => licence_stats(), 'faq_hash' => (string)setting('faq_remote_hash', ''), 'videos_hash' => videos_remote_hash(),
     ]);
     if ($r === null) {
@@ -172,7 +172,7 @@ function licence_notice(): ?array
     $pay = !licence_autopay() && licence_pay_url() ? ['pay_url' => licence_pay_url()] : [];
     $n = match ($i['status'] ?? 'unknown') {
         'active' => !empty($i['paid_until']) && !licence_autopay() && (strtotime((string)$i['paid_until']) - strtotime(date('Y-m-d'))) / 86400 <= 15
-            ? ['level' => 'info', 'text' => 'Votre abonnement Approvia arrive à échéance le ' . $date($i['paid_until']) . ' : sans renouvellement, l\'accès sera coupé le lendemain.' . $msg . ' ' . $contact] : ($msg ? ['level' => 'info', 'text' => trim($msg)] : null),
+            ? ['level' => 'info', 'text' => 'Votre abonnement Centriva arrive à échéance le ' . $date($i['paid_until']) . ' : sans renouvellement, l\'accès sera coupé le lendemain.' . $msg . ' ' . $contact] : ($msg ? ['level' => 'info', 'text' => trim($msg)] : null),
         'grace' => ['level' => 'warn', 'text' => 'Abonnement échu le ' . $date($i['paid_until']) . ' : l\'accès au logiciel sera coupé le ' . $date(date('Y-m-d', strtotime((string)$i['grace_until'] . ' +1 day'))) . ' (tous les utilisateurs seront déconnectés).' . $msg . ' ' . $contact],
         'expired' => ['level' => 'danger', 'text' => 'Licence expirée : l\'accès au logiciel est coupé.' . $msg . ' ' . $contact],
         'suspended' => ['level' => 'danger', 'text' => 'Accès suspendu par ' . support_contact()['editor'] . ' : les utilisateurs ne peuvent plus se connecter.' . $msg . ' ' . $contact],

@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * Multi-clients : un seul exemplaire du code sert plusieurs clients, chacun avec sa base de données,
  * ses fichiers (storage, photos, logo), ses comptes et sa licence. Le client est reconnu à l'adresse
- * utilisée (ex. imss.approvia.fr).
+ * utilisée (ex. imss.centriva.fr).
  *
  *   instances/registry.php          liste des clients : slug => [name, hosts[], suspended, created_at]
  *   instances/<slug>/config.php     configuration du client (base de données, nom, fuseau…)
@@ -44,7 +44,7 @@ function instances_save(array $registry): void
         @file_put_contents($dir . '/.htaccess', "Require all denied\nDeny from all\n");
     }
     $tmp = $dir . '/registry.php.' . bin2hex(random_bytes(4));
-    file_put_contents($tmp, "<?php\n// Clients Approvia — géré par la console NLapps (console.php)\nreturn " . var_export($registry, true) . ";\n", LOCK_EX);
+    file_put_contents($tmp, "<?php\n// Clients Centriva — géré par la console NLapps (console.php)\nreturn " . var_export($registry, true) . ";\n", LOCK_EX);
     rename($tmp, $dir . '/registry.php');
     if (function_exists('opcache_invalidate')) {
         @opcache_invalidate($dir . '/registry.php', true);
@@ -168,5 +168,5 @@ function instance_unavailable(string $title, string $text, int $code = 404): nev
         . '<body style="font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f4f6fb;color:#1e1b4b">'
         . '<div style="background:#fff;border-radius:16px;padding:2rem 2.2rem;max-width:480px;box-shadow:0 8px 30px rgba(30,27,75,.1);text-align:center">'
         . '<h1 style="margin-top:0;font-size:1.4rem">' . htmlspecialchars($title) . '</h1><p style="color:#64748b;line-height:1.5">' . $text . '</p>'
-        . '<p style="color:#94a3b8;font-size:.85rem;margin-bottom:0">Approvia · NLapps</p></div>');
+        . '<p style="color:#94a3b8;font-size:.85rem;margin-bottom:0">Centriva · NLapps</p></div>');
 }

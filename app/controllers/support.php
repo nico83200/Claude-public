@@ -207,7 +207,7 @@ function support_page(): void
             . '<p>' . nl2br(e($message)) . '</p>'
             . (input('bot_question') ? '<p style="color:#666">Question posée à l\'assistant : ' . e((string)input('bot_question')) . '</p>' : '')
             . '<hr><pre style="font-size:12px;color:#555">' . e($context) . '</pre></div>';
-        $sent = setting('mail_enabled', '0') === '1' && send_mail($c['email'], '[Approvia #' . $id . '] ' . $subject, $html);
+        $sent = setting('mail_enabled', '0') === '1' && send_mail($c['email'], '[Centriva #' . $id . '] ' . $subject, $html);
         update('support_requests', ['sent_by' => $sent ? 'email' : null], 'id = ?', [$id]);
         audit('Demande d\'assistance', 'support', $id, $subject);
         if ($sent) {
@@ -221,7 +221,7 @@ function support_page(): void
     $pending = null;
     if (input_int('pending') && ($_SESSION['support_pending']['id'] ?? 0) === input_int('pending')) {
         $p = $_SESSION['support_pending'];
-        $pending = ['id' => $p['id'], 'mailto' => 'mailto:' . $c['email'] . '?subject=' . rawurlencode('[Approvia #' . $p['id'] . '] ' . $p['subject']) . '&body=' . rawurlencode($p['text'])];
+        $pending = ['id' => $p['id'], 'mailto' => 'mailto:' . $c['email'] . '?subject=' . rawurlencode('[Centriva #' . $p['id'] . '] ' . $p['subject']) . '&body=' . rawurlencode($p['text'])];
     }
     $isAdmin = is_admin($u);
     $history = all('SELECT r.*, u.first_name, u.last_name FROM support_requests r LEFT JOIN users u ON u.id = r.user_id'

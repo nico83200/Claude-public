@@ -5,12 +5,12 @@
  */
 import { tutoriel } from './tutoriel-base.mjs';
 
-const t = await tutoriel({ out: process.argv[2], app: process.argv[3] || 'http://127.0.0.1:8096/', base: 'Approvia-tutoriel-etiquettes' });
+const t = await tutoriel({ out: process.argv[2], app: process.argv[3] || 'http://127.0.0.1:8096/', base: 'Centriva-tutoriel-etiquettes' });
 const { p, APP, VOIX, wait, L, say, hold, at, moveTo, click, type, card, login, finish } = t;
 const reload = async (fn) => { await Promise.all([p.waitForNavigation(), fn()]); await wait(300); };
 
 await login('claire.secretaire@demo.fr');
-await card('Imprimer les étiquettes', 'Des étiquettes d\'étagère avec code-barres, pour ranger et scanner la réserve<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
+await card('Imprimer les étiquettes', 'Des étiquettes d\'étagère avec code-barres, pour ranger et scanner la réserve<br><span style="font-size:17px;opacity:.75">Centriva — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
 await p.goto(APP + 'product&id=1'); await wait(300);
 
 await say(1, 'À quoi servent les étiquettes', 'Une étiquette d\'étagère indique le nom de l\'article, son fournisseur, sa référence, son emplacement et un code-barres que l\'on peut scanner.');
@@ -38,7 +38,7 @@ await p.goto(APP + 'stock'); await wait(300);
 await say(9, 'Toute la réserve d\'un coup', 'Pour étiqueter toute la réserve, ouvrez « Inventaire » puis « Étiquettes » : une étiquette pour chaque article suivi dans votre centre.', { hl: 'a[href*="labels"]' });
 await at(0.8); await hold();
 await p.goto(APP + 'labels&stock=1'); await wait(300);
-await say(10, 'Scanner les étiquettes', 'Ces codes-barres se scannent ensuite dans Approvia, avec l\'appareil photo ou une douchette : recherche, inventaire tablette et réception.');
+await say(10, 'Scanner les étiquettes', 'Ces codes-barres se scannent ensuite dans Centriva, avec l\'appareil photo ou une douchette : recherche, inventaire tablette et réception.');
 await p.mouse.wheel(0, 400); await wait(800);
 
 await finish('À vous de jouer !', 'Fiche de l\'article → emplacement → « Imprimer l\'étiquette » → format → imprimer à 100 %<br>Toute la réserve : Inventaire → « Étiquettes »');

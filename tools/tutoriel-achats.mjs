@@ -1,10 +1,10 @@
 /*
- * Vidéo tutoriel « service achats » d'Approvia, enregistrée depuis l'application réelle (données de démonstration).
+ * Vidéo tutoriel « service achats » de Centriva, enregistrée depuis l'application réelle (données de démonstration).
  * Même présentation que le tutoriel salarié (tools/tutoriel-salarie.mjs) : sous-titres, curseur visible, écrans de partie,
  * repère de synchronisation en bas à gauche pour caler la voix off avec tools/tutoriel-voix.py.
  *
  *   [VOIX=durees.json] PWPATH=/chemin/vers/playwright node tools/tutoriel-achats.mjs <dossier-sortie> [url] [email] [mot-de-passe]
- *   → la vidéo .webm, Approvia-tutoriel-achats.srt et Approvia-tutoriel-achats-voix-off.txt
+ *   → la vidéo .webm, Centriva-tutoriel-achats.srt et Centriva-tutoriel-achats-voix-off.txt
  *
  * Le compte utilisé doit être administrateur (sans double authentification), avec des demandes en attente chez MédiDistrib
  * pour deux centres (dont une urgente, une ligne « Bandelettes urinaires » à refuser) et un bon reçu avec un écart de facture (BC-2026-0019).
@@ -18,7 +18,7 @@ const OUT = process.argv[2];
 const VOIX = process.env.VOIX ? JSON.parse(fs.readFileSync(process.env.VOIX, 'utf8')) : null;
 const APP = (process.argv[3] || 'http://127.0.0.1:8096/') + 'index.php?r=';
 const EMAIL = process.argv[4] || 'achats@groupe-sante.fr', PASS = process.argv[5] || 'demo1234';
-const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/approvia-logo-blanc.svg'), 'utf8');
+const LOGO = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), '../assets/brand/centriva-logo-blanc.svg'), 'utf8');
 const W = 1280, H = 720;
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: W, height: H }, recordVideo: { dir: OUT, size: { width: W, height: H } } });
@@ -104,7 +104,7 @@ const login = async () => {
 const scrollTo = (loc) => L(loc).evaluate((el) => el.scrollIntoView({ behavior: 'smooth', block: 'start' })).then(() => wait(700));
 
 // ================================================================ Introduction (accueil de la voix off sur le repère 51)
-await card('Tutoriel service achats', 'Traiter les demandes · Passer les commandes · Contrôler les factures · Piloter les achats<br><span style="font-size:17px;opacity:.75">Approvia — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
+await card('Tutoriel service achats', 'Traiter les demandes · Passer les commandes · Contrôler les factures · Piloter les achats<br><span style="font-size:17px;opacity:.75">Centriva — édité par NLapps</span>', VOIX ? Math.max(4200, VOIX.intro * 1000 + 1600) : 6000, 51);
 
 // ================================================================ Partie 1 : pilotage
 await part(1, 'Le pilotage des achats', 'Tableau de bord · Budgets · Dates limites');
@@ -132,7 +132,7 @@ await say(9, 'Le stock du centre', 'La colonne « Stock centre » montre ce qu\'
 for (const t of ['Gants d\'examen', 'Compresses', 'Antiseptique']) { await moveTo(g1().locator('tbody tr', { hasText: t }).first().locator('td').nth(3)); await wait(900); }
 await say(10, 'Un meilleur prix ailleurs', 'Quand le même article est moins cher chez un autre fournisseur, l\'économie possible est affichée sous la ligne.', { hl: g1().locator('tbody tr', { hasText: 'Moins cher' }).first() });
 const g2 = () => med().locator('form[data-po-group]').nth(1);
-await say(11, 'Un transfert entre centres', 'Si un autre centre a l\'article en stock, Approvia propose de le transférer plutôt que de l\'acheter.', { hl: g2().locator('tbody tr', { hasText: 'Seringues' }) });
+await say(11, 'Un transfert entre centres', 'Si un autre centre a l\'article en stock, Centriva propose de le transférer plutôt que de l\'acheter.', { hl: g2().locator('tbody tr', { hasText: 'Seringues' }) });
 await moveTo(g2().locator('.transfer-btn').first());
 const refRow = () => g2().locator('tbody tr', { hasText: 'Bandelettes urinaires' });
 await say(12, 'Refuser une ligne', 'Une ligne ne doit pas être commandée ? La croix la refuse, avec un motif que le demandeur verra dans son suivi.', { hl: refRow() });
@@ -154,7 +154,7 @@ await click(p.locator('a[href*="admin/order&id"], a[href*="admin%2Forder&id"]').
 await moveTo(L('.qty-input, input[name^="qty"]').first()); await wait(800); await moveTo(L('textarea').first());
 await hold(); await p.goto(groupUrl); await wait(300);
 await say(18, 'Commander en ligne', 'Ce fournisseur prend ses commandes en ligne : ouvrez son site d\'ici, votre numéro client et les références à copier sont prêts.', { hl: '.card:has-text("Commande en ligne")' });
-await say(19, 'Ou par e-mail', 'Pour un fournisseur qui travaille par e-mail, Approvia envoie le bon en PDF, directement depuis cette page.');
+await say(19, 'Ou par e-mail', 'Pour un fournisseur qui travaille par e-mail, Centriva envoie le bon en PDF, directement depuis cette page.');
 await click(L('summary:has-text("envoyer le PDF par e-mail"), :text("Autre possibilité")').first(), { after: 300 });
 const done = 'form[action*="order-group"]';
 await say(20, 'Marquer « Commandé »', 'Une fois la commande passée, notez la référence du fournisseur et la date de livraison prévue, puis marquez les bons « Commandé ».', { hl: done });
@@ -172,8 +172,8 @@ await p.goto(APP + 'admin/order&id=19'); await wait(300);
 const inv = '.card:has(h2:has-text("Facture")), .card:has(h3:has-text("Facture"))';
 await say(23, 'Saisir la facture', 'Quand la facture arrive, ouvrez le bon reçu : saisissez le numéro, la date et le montant hors taxes, puis joignez le PDF.', { hl: inv });
 for (const n of ['invoice_number', 'invoice_date', 'invoice_amount', 'invoice_file']) { await moveTo(L(`input[name=${n}]`)); await wait(700); }
-await say(24, 'Le rapprochement', 'Approvia compare la facture à ce qui a été réellement reçu. Un écart est signalé en rouge : vérifiez les quantités et les prix avant de payer.', { hl: `${inv} .flash-error` });
-await say(25, 'Lecture par l\'IA', 'Avec l\'option assistant IA, Approvia peut aussi lire la facture et remplir ces champs pour vous.', { hl: inv });
+await say(24, 'Le rapprochement', 'Centriva compare la facture à ce qui a été réellement reçu. Un écart est signalé en rouge : vérifiez les quantités et les prix avant de payer.', { hl: `${inv} .flash-error` });
+await say(25, 'Lecture par l\'IA', 'Avec l\'option assistant IA, Centriva peut aussi lire la facture et remplir ces champs pour vous.', { hl: inv });
 await hold(); await p.goto(APP + 'admin/invoices'); await wait(300);
 await say(26, 'Toutes les factures', 'La page « Factures » compare chaque facture aux marchandises reçues : à saisir, conformes ou en écart. Les exports comptables sont juste en dessous dans le menu.', { hl: 'table' });
 await at(0.75); await moveTo(L('.sidebar a[href*="exports"]'));
@@ -198,7 +198,7 @@ await p.evaluate(() => window.__tuto && window.__tuto('', '', '', 0)); cue('end'
 await card('À vous de jouer !', 'Pilotage → Traiter les demandes → Commande groupée → « Commandé »<br>Réception par les centres → Contrôle des factures → Tableau de bord direction<br><span style="font-size:17px;opacity:.75">Une question ? Bouton « Aide » en bas à droite de l\'écran</span>', 5000);
 cue('end');
 fs.writeFileSync(path.join(OUT, 'sous-titres.json'), JSON.stringify(cues, null, 1));
-writeCaptions(cues, OUT, 'Approvia-tutoriel-achats');
+writeCaptions(cues, OUT, 'Centriva-tutoriel-achats');
 console.log('étapes', step, '· durée ~', Math.round((Date.now() - t0) / 1000), 's');
 const vid = await p.video().path();
 await ctx.close(); await b.close();

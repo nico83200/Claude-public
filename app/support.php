@@ -165,7 +165,7 @@ function support_answer(string $question, bool $isAdmin, string $page = ''): arr
                 $faq[] = '- ' . $title . ' → ' . $answer . ($link ? ' (page : ' . $link[0] . ')' : '');
             }
         }
-        $system = "Tu es l'assistant d'aide de Approvia, logiciel de commandes pour centres de santé édité par NLapps. "
+        $system = "Tu es l'assistant d'aide de Centriva, logiciel de commandes pour centres de santé édité par NLapps. "
             . "Réponds en français, en 2 à 4 phrases simples, uniquement à partir de la documentation ci-dessous et du bon sens d'utilisation. "
             . "Si la question sort de ce cadre (bug, erreur technique, facturation, demande spécifique) ou si tu n'es pas sûr, dis-le et mets confident à false : "
             . "l'utilisateur pourra discuter avec l'équipe NLapps. N'invente jamais de fonctionnalité.\n"

@@ -58,7 +58,7 @@ function hdb(): PDO
 /** Évolutions du schéma (idempotent) : licences, parc, versions publiées, FAQ partagée, réponses rapides… */
 function hub_migrate(PDO $pdo): void
 {
-    $pdo->exec("CREATE TABLE IF NOT EXISTS releases (id INTEGER PRIMARY KEY AUTOINCREMENT, app TEXT NOT NULL DEFAULT 'approvia', version TEXT NOT NULL,
+    $pdo->exec("CREATE TABLE IF NOT EXISTS releases (id INTEGER PRIMARY KEY AUTOINCREMENT, app TEXT NOT NULL DEFAULT 'centriva', version TEXT NOT NULL,
         notes TEXT, file TEXT NOT NULL, sha256 TEXT NOT NULL, size INTEGER NOT NULL, published INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, UNIQUE(app, version))");
     $pdo->exec("CREATE TABLE IF NOT EXISTS faq (id INTEGER PRIMARY KEY AUTOINCREMENT, app TEXT NOT NULL DEFAULT '*', question TEXT NOT NULL, keywords TEXT,
         answer TEXT NOT NULL, link_label TEXT, link_route TEXT, admin_only INTEGER NOT NULL DEFAULT 0, active INTEGER NOT NULL DEFAULT 1,
@@ -70,7 +70,7 @@ function hub_migrate(PDO $pdo): void
     $pdo->exec("CREATE TABLE IF NOT EXISTS push_subs (id INTEGER PRIMARY KEY AUTOINCREMENT, endpoint TEXT NOT NULL UNIQUE, p256dh TEXT NOT NULL, auth TEXT NOT NULL,
         label TEXT, created_at TEXT NOT NULL, last_ok TEXT)");
     $cols = [
-        'clients' => ['app' => "TEXT NOT NULL DEFAULT 'approvia'", 'plan' => "TEXT NOT NULL DEFAULT 'Abonnement'", 'status' => "TEXT NOT NULL DEFAULT 'active'",
+        'clients' => ['app' => "TEXT NOT NULL DEFAULT 'centriva'", 'plan' => "TEXT NOT NULL DEFAULT 'Abonnement'", 'status' => "TEXT NOT NULL DEFAULT 'active'",
             'paid_until' => 'TEXT', 'ai_option' => 'INTEGER NOT NULL DEFAULT 0', 'licence_note' => 'TEXT', 'app_version' => 'TEXT', 'instance_url' => 'TEXT',
             'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT',
             // 3.2 : encaissement automatique (Stripe)
@@ -100,7 +100,24 @@ function hub_migrate(PDO $pdo): void
     $now = date('Y-m-d H:i:s');
     if (!(int)$pdo->query('SELECT COUNT(*) FROM apps')->fetchColumn()) {
         $pdo->prepare('INSERT INTO apps (slug, name, color, price_base, price_ai, position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-            ->execute(['approvia', 'Approvia', '#6366f1', 39, 15, 0, $now]);
+            ->execute(['centriva', 'Centriva', '#6366f1', 39, 15, 0, $now]);
+    }
+    // 3.3 : Approvia devient Centriva (nom et identifiant technique ; « approvia » reste accepté comme alias)
+    $old = 'approv' . 'ia';
+    if ((int)$pdo->query("SELECT COUNT(*) FROM apps WHERE slug = '$old'")->fetchColumn()) {
+        $pdo->exec("DELETE FROM apps WHERE slug = 'centriva'");
+        $pdo->exec("UPDATE apps SET slug = 'centriva', name = REPLACE(REPLACE(name, 'Approvia', 'Centriva'), 'approvia', 'centriva') WHERE slug = '$old'");
+    }
+    foreach (['clients', 'releases', 'faq', 'videos'] as $t) {
+        $pdo->exec("UPDATE OR IGNORE $t SET app = 'centriva' WHERE app = '$old'");
+    }
+    if (!(int)$pdo->query("SELECT COUNT(*) FROM settings WHERE k = 'renamed_centriva'")->fetchColumn()) {
+        $r = fn(string $col) => "$col = REPLACE($col, 'Approvia', 'Centriva')";
+        $pdo->exec('UPDATE faq SET ' . $r('question') . ', ' . $r('answer') . ', ' . $r('keywords'));
+        $pdo->exec('UPDATE videos SET ' . $r('title') . ', ' . $r('description') . ', ' . $r('keywords'));
+        $pdo->exec('UPDATE releases SET ' . $r('notes'));
+        $pdo->exec('UPDATE quick_replies SET ' . $r('title') . ', ' . $r('body'));
+        $pdo->exec("INSERT INTO settings (k, v) VALUES ('renamed_centriva', '1')");
     }
     // Applications déjà présentes dans le parc (versions antérieures : champ libre)
     foreach ($pdo->query("SELECT app FROM clients UNION SELECT app FROM releases UNION SELECT app FROM faq UNION SELECT app FROM videos")->fetchAll(PDO::FETCH_COLUMN) as $slug) {
@@ -121,6 +138,12 @@ function hub_migrate(PDO $pdo): void
 }
 
 // ---------------------------------------------------------------- Comptes et applications (3.0)
+
+/** Identifiant d'application envoyé par une installation : « approvia » (avant le changement de nom) vaut « centriva ». */
+function hub_app_slug(string $slug): string
+{
+    return $slug === 'approv' . 'ia' ? 'centriva' : $slug;
+}
 
 /** Applications gérées par la console, dans l'ordre du menu. */
 function hub_apps(): array
@@ -404,7 +427,7 @@ function hub_videos_dir(): string
     return $d;
 }
 
-/** « 4:12 Titre | mots-clés » par ligne → [['t' => 252, 'title' => 'Titre', 'k' => 'mots-clés'], …] (même format que dans Approvia). */
+/** « 4:12 Titre | mots-clés » par ligne → [['t' => 252, 'title' => 'Titre', 'k' => 'mots-clés'], …] (même format que dans Centriva). */
 function hub_chapters_parse(string $text): array
 {
     $out = [];
@@ -702,10 +725,10 @@ function hub_ai_suggest(array $conv): string
     }
     $who = ['user' => 'Utilisateur', 'agent' => 'Conseiller', 'bot' => 'Chatbot', 'user_bot' => 'Utilisateur (au chatbot)', 'system' => 'Système'];
     $transcript = implode("\n", array_map(fn($m) => $who[$m['from']] . ' : ' . $m['text'], array_slice(hub_messages((int)$conv['id']), -30)));
-    $faq = implode("\n", array_map(fn($f) => '- ' . $f['q'] . ' → ' . $f['a'], hub_faq_for((string)($conv['app'] ?? 'approvia'))));
+    $faq = implode("\n", array_map(fn($f) => '- ' . $f['q'] . ' → ' . $f['a'], hub_faq_for((string)($conv['app'] ?? 'centriva'))));
     $quick = implode("\n", array_map(fn($r) => '- ' . $r['title'] . ' : ' . $r['body'], hall('SELECT title, body FROM quick_replies ORDER BY position, id')));
     $system = 'Tu aides le conseiller de l\'assistance ' . hcfg('operator_name') . ' à répondre aux utilisateurs de ses applications '
-        . '(notamment Approvia, logiciel d\'achats et de stock pour centres de santé). Rédige UNIQUEMENT le message à envoyer à l\'utilisateur, '
+        . '(notamment Centriva, logiciel d\'achats et de stock pour centres de santé). Rédige UNIQUEMENT le message à envoyer à l\'utilisateur, '
         . 'en français, ton cordial et professionnel, vouvoiement, concis (2 à 6 phrases), avec des étapes concrètes si utile. '
         . 'N\'invente pas de fonction : si l\'information manque, propose de vérifier ou demande une précision. Pas de signature.'
         . ($faq ? "\n\nFAQ connue :\n" . $faq : '') . ($quick ? "\n\nRéponses types de l'équipe :\n" . $quick : '');
@@ -1035,7 +1058,7 @@ function hub_vat_rate(): float
 /** Montant mensuel HT d'un client, en centimes : abonnement de l'application + option IA. */
 function hub_billing_lines(array $c): array
 {
-    $app = hub_app((string)($c['app'] ?: 'approvia')) ?? ['name' => 'Approvia', 'price_base' => 0, 'price_ai' => 0];
+    $app = hub_app((string)($c['app'] ?: 'centriva')) ?? ['name' => 'Centriva', 'price_base' => 0, 'price_ai' => 0];
     $lines = [['label' => $app['name'] . ' — ' . ($c['plan'] ?: 'Abonnement') . ' mensuel', 'amount' => (int)round((float)$app['price_base'] * 100)]];
     if ((int)$c['ai_option'] && (float)$app['price_ai'] > 0) {
         $lines[] = ['label' => $app['name'] . ' — option assistant IA', 'amount' => (int)round((float)$app['price_ai'] * 100)];

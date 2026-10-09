@@ -155,7 +155,7 @@ Le navigateur appelle **une seule route** de votre application, par exemple `POS
 
 Voir `examples/relay.php` pour un relais complet de 60 lignes.
 
-Côté navigateur, le parcours recommandé (celui d'Approvia) : une bulle « Aide » → le chatbot ou la FAQ de l'application répond d'abord → bouton « Parler à un conseiller » → ouverture de la conversation (`open`, avec la transcription du chatbot) → suivi toutes les 4 secondes → à la clôture, note et transcription envoyée par e-mail par le centre d'assistance. Le widget `nlapps-chat.js` fournit cette interface prête à l'emploi.
+Côté navigateur, le parcours recommandé (celui de Centriva) : une bulle « Aide » → le chatbot ou la FAQ de l'application répond d'abord → bouton « Parler à un conseiller » → ouverture de la conversation (`open`, avec la transcription du chatbot) → suivi toutes les 4 secondes → à la clôture, note et transcription envoyée par e-mail par le centre d'assistance. Le widget `nlapps-chat.js` fournit cette interface prête à l'emploi.
 
 ## 6. Licence, mises à jour, FAQ et vidéos (facultatif pour le chat)
 

@@ -45,7 +45,7 @@ $kpi['auto'] = count(array_filter($clients, fn($c) => hub_billing_active($c)));
     <div class="card keybox"><b><?= !empty($nk['rotated']) ? 'Nouvelle clé' : 'Clé' ?> de « <?= h($nk['name']) ?> »</b> (affichée une seule fois) :
       <pre>'support_hub_url' => '<?= h($apiUrl) ?>',
 'support_hub_key' => '<?= h($nk['key']) ?>',</pre>
-      <small class="muted">À coller dans <?= h($app['name']) ?><?= $app['slug'] === 'approvia' ? ' : <b>Administration → Paramètres → Licence et assistance NLapps</b>' : ' (configuration du kit NLapps)' ?>. <?= !empty($nk['rotated']) ? 'L\'ancienne clé reste acceptée 14 jours, le temps que le client colle la nouvelle.' : 'Elle sert à la fois de licence, d\'accès aux mises à jour et à l\'assistance en direct.' ?></small></div>
+      <small class="muted">À coller dans <?= h($app['name']) ?><?= $app['slug'] === 'centriva' ? ' : <b>Administration → Paramètres → Licence et assistance NLapps</b>' : ' (configuration du kit NLapps)' ?>. <?= !empty($nk['rotated']) ? 'L\'ancienne clé reste acceptée 14 jours, le temps que le client colle la nouvelle.' : 'Elle sert à la fois de licence, d\'accès aux mises à jour et à l\'assistance en direct.' ?></small></div>
   <?php endif; ?>
 
   <details class="card edit" <?= $clients ? '' : 'open' ?>>

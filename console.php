@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Console NLapps : gestion des clients Approvia servis par ce même code.
+ * Console NLapps : gestion des clients Centriva servis par ce même code.
  * Chaque client a sa base de données, ses fichiers, ses comptes et sa licence ; il est reconnu à son adresse.
  *
  * Accès : https://votre-serveur/console.php — mot de passe propre à la console (créé au premier accès
@@ -187,7 +187,7 @@ if ($logged && $post) {
             case 'update':
                 $f = $_FILES['package'] ?? null;
                 if (!$f || $f['error'] !== UPLOAD_ERR_OK) {
-                    throw new RuntimeException('Choisissez le paquet de mise à jour (approvia-x.y.z.zip).');
+                    throw new RuntimeException('Choisissez le paquet de mise à jour (centriva-x.y.z.zip).');
                 }
                 $tmp = ROOT . '/storage/console-update.zip';
                 move_uploaded_file($f['tmp_name'], $tmp);
@@ -248,7 +248,7 @@ $single = is_file(ROOT . '/config.php');
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Console NLapps · Approvia</title>
+<title>Console NLapps · Centriva</title>
 <style>
 :root { --bg:#f4f6fb; --card:#fff; --text:#1e1b4b; --muted:#64748b; --border:#e2e8f0; --primary:#4f46e5; --soft:#eef2ff; --green:#059669; --red:#dc2626; --amber:#d97706; }
 @media (prefers-color-scheme: dark) { :root { --bg:#0e1122; --card:#171b33; --text:#e2e8f0; --muted:#94a3b8; --border:#2a3055; --soft:#22285a; } }
@@ -284,7 +284,7 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
 </head>
 <body>
 <header>
-  <b>Approvia · Console NLapps</b><small style="opacity:.8">v<?= e(APP_VERSION) ?></small>
+  <b>Centriva · Console NLapps</b><small style="opacity:.8">v<?= e(APP_VERSION) ?></small>
   <?php if ($logged): ?>
   <nav>
     <a class="<?= $page === '' ? 'on' : '' ?>" href="console.php">Clients</a>
@@ -329,8 +329,8 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
       <div><label>Identifiant <small class="muted">(minuscules, chiffres, tirets — définitif)</small></label><input name="slug" value="<?= $f('slug') ?>" required pattern="[a-z0-9][a-z0-9\-]{0,38}[a-z0-9]?" placeholder="ex : sante-var"></div>
     </div>
     <label>Adresse(s) de l'espace <small class="muted">(une par ligne ; à faire pointer vers ce dossier chez l'hébergeur)</small></label>
-    <textarea name="hosts" rows="2" required placeholder="sante-var.approvia.fr"><?= $f('hosts') ?></textarea>
-    <label>Nom affiché de l'application</label><input name="app_name" value="<?= $f('app_name', 'Approvia') ?>">
+    <textarea name="hosts" rows="2" required placeholder="sante-var.centriva.fr"><?= $f('hosts') ?></textarea>
+    <label>Nom affiché de l'application</label><input name="app_name" value="<?= $f('app_name', 'Centriva') ?>">
 
     <h2 style="margin-top:1.4rem">Base de données</h2>
     <label class="check"><input type="radio" name="db_driver" value="sqlite" <?= ($form['db_driver'] ?? 'sqlite') === 'sqlite' ? 'checked' : '' ?>> SQLite : un fichier propre au client, rien à créer chez l'hébergeur (jusqu'à quelques dizaines d'utilisateurs)</label>
@@ -365,7 +365,7 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
 <?php elseif ($page === 'adopt' && $single): ?>
   <h1>Reprendre l'installation actuelle</h1>
   <form method="post" class="card"><?= csrf_field() ?><input type="hidden" name="action" value="adopt">
-    <p class="muted">L'installation Approvia existante (config.php, base, fichiers) devient un client de la console. <strong>Sa base n'est pas modifiée</strong> : comptes, commandes, réglages et licence sont conservés. Ses fichiers sont copiés dans son espace ; l'ancienne configuration est mise de côté dans <code>storage/</code>.</p>
+    <p class="muted">L'installation Centriva existante (config.php, base, fichiers) devient un client de la console. <strong>Sa base n'est pas modifiée</strong> : comptes, commandes, réglages et licence sont conservés. Ses fichiers sont copiés dans son espace ; l'ancienne configuration est mise de côté dans <code>storage/</code>.</p>
     <div class="grid2">
       <div><label>Nom du client</label><input name="name" value="<?= $f('name', (string)((require ROOT . '/config.php')['app_name'] ?? '')) ?>" required></div>
       <div><label>Identifiant</label><input name="slug" value="<?= $f('slug') ?>" required placeholder="ex : imss"></div>
@@ -411,7 +411,7 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
   </div>
   <?php if (!$registry): ?>
     <div class="card"><p>Aucun client pour l'instant.</p>
-      <p class="muted"><small>Chaque client aura sa base, ses fichiers, ses comptes et sa licence, à sa propre adresse (ex. <code>imss.approvia.fr</code>). Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique <code>*.approvia.fr</code>) vers ce dossier.<?= $single ? ' L\'installation actuelle peut devenir le premier client sans rien perdre.' : '' ?></small></p></div>
+      <p class="muted"><small>Chaque client aura sa base, ses fichiers, ses comptes et sa licence, à sa propre adresse (ex. <code>imss.centriva.fr</code>). Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique <code>*.centriva.fr</code>) vers ce dossier.<?= $single ? ' L\'installation actuelle peut devenir le premier client sans rien perdre.' : '' ?></small></p></div>
   <?php endif; ?>
   <div class="clients">
   <?php foreach ($registry as $slug => $i): $st = instance_stats($slug); $edit = ($_GET['edit'] ?? '') === $slug; ?>

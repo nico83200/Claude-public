@@ -369,7 +369,7 @@ function admin_settings(): void
             } catch (RuntimeException $e) {
                 flash('error', $e->getMessage());
             }
-            set_setting('app_name', (string)input('app_name') ?: 'Approvia');
+            set_setting('app_name', (string)input('app_name') ?: 'Centriva');
             set_setting('company_name', (string)input('company_name'));
             set_setting('company_address', (string)input('company_address'));
             set_setting('billing_info', (string)input('billing_info'));

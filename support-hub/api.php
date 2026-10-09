@@ -137,11 +137,11 @@ switch ($a) {
         out(['ok' => true]);
 
     case 'faq':
-        out(['items' => hub_faq_for((string)($client['app'] ?: 'approvia'))]);
+        out(['items' => hub_faq_for((string)($client['app'] ?: 'centriva'))]);
 
     case 'check':
         // Inventaire du parc : version installée, adresse, statistiques d'usage (sans donnée personnelle)
-        $app = preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($in['app'] ?? $client['app'] ?? 'approvia'))) ?: 'approvia';
+        $app = hub_app_slug(preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($in['app'] ?? $client['app'] ?? 'centriva'))) ?: 'centriva');
         hq('UPDATE clients SET app = ?, app_version = ?, instance_url = ?, php_version = ?, stats = ?, last_check = ? WHERE id = ?', [
             $app, $str($in['version'] ?? '', 30), $str($in['url'] ?? '', 255), $str($in['php'] ?? '', 20),
             json_encode(array_map('intval', array_slice((array)($in['stats'] ?? []), 0, 10))), hnow(), $client['id'],
@@ -174,7 +174,7 @@ switch ($a) {
         if (!in_array($lic['status'], ['active', 'grace'], true)) {
             out(['error' => 'Licence ' . ($lic['status'] === 'suspended' ? 'suspendue' : 'expirée') . ' : mise à jour indisponible. Contactez ' . hcfg('operator_name') . '.'], 402);
         }
-        $r = hone('SELECT * FROM releases WHERE app = ? AND version = ? AND published = 1', [$client['app'] ?: 'approvia', (string)($_GET['v'] ?? '')]);
+        $r = hone('SELECT * FROM releases WHERE app = ? AND version = ? AND published = 1', [$client['app'] ?: 'centriva', (string)($_GET['v'] ?? '')]);
         $path = $r ? hub_releases_dir() . '/' . basename($r['file']) : '';
         if (!$r || !is_file($path)) {
             out(['error' => 'Version introuvable.'], 404);
@@ -193,7 +193,7 @@ switch ($a) {
         if (!in_array($lic['status'], ['active', 'grace'], true)) {
             out(['error' => 'Licence non à jour.'], 402);
         }
-        $v = hone("SELECT * FROM videos WHERE uid = ? AND published = 1 AND (app = '*' OR app = ?)", [(string)($_GET['id'] ?? ''), $client['app'] ?: 'approvia']);
+        $v = hone("SELECT * FROM videos WHERE uid = ? AND published = 1 AND (app = '*' OR app = ?)", [(string)($_GET['id'] ?? ''), $client['app'] ?: 'centriva']);
         $path = $v ? hub_videos_dir() . '/' . basename($v['file']) : '';
         if (!$v || !is_file($path)) {
             out(['error' => 'Vidéo introuvable.'], 404);

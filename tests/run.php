@@ -492,7 +492,7 @@ check(!str_contains((string)setting('support_hub_key'), 'nlh_'), 'clé d\'assist
 set_setting('support_hub_url', null);
 set_setting('support_hub_key', null);
 check(!support_live_enabled(), 'accès assistance supprimé');
-check(app_name() !== '' && str_contains((string)file_get_contents(ROOT . '/manifest.webmanifest'), 'Approvia'), 'nom commercial Approvia');
+check(app_name() !== '' && str_contains((string)file_get_contents(ROOT . '/manifest.webmanifest'), 'Centriva'), 'nom commercial Centriva');
 
 section('Suppression d\'articles');
 $supT = (int)val('SELECT id FROM suppliers LIMIT 1');
@@ -710,7 +710,7 @@ q('DELETE FROM contracts WHERE id = ?', [$cid]);
 
 section('Multi-clients');
 check(instance_valid_slug('sante-var') && instance_valid_slug('imss') && !instance_valid_slug('Santé') && !instance_valid_slug('-x') && !instance_valid_slug('a/b'), 'identifiants de client contrôlés');
-check(instance_normalize_host(' HTTPS://Imss.Approvia.fr/index.php ') === 'imss.approvia.fr', 'adresse normalisée');
+check(instance_normalize_host(' HTTPS://Imss.Centriva.fr/index.php ') === 'imss.centriva.fr', 'adresse normalisée');
 $ip = instance_paths('imss');
 check(str_ends_with($ip['config'], '/instances/imss/config.php') && $ip['uploads_url'] === 'uploads/i/imss', 'chemins propres au client');
 check(instance_paths(null)['storage'] === ROOT . '/storage' && storage_path('x') === ROOT . '/storage/x', 'installation simple inchangée');
@@ -725,6 +725,13 @@ check(in_array('demo', array_column($obSteps, 'key'), true) === demo_present() &
 check(onboarding_progress($obSteps) > 0 && onboarding_progress($obSteps) < 100, 'avancement calculé sur les étapes essentielles');
 $tok = password_reset_create(one("SELECT * FROM users WHERE email = 'admin@test.fr'"), 7 * 86400);
 check(strtotime((string)val('SELECT expires_at FROM password_resets WHERE token_hash = ?', [hash('sha256', $tok)])) > time() + 6 * 86400, 'lien d\'invitation valable 7 jours');
+
+section('Changement de nom');
+set_setting('app_name', 'Approv' . 'ia');
+check(app_name() === 'Centriva', 'ancien nom enregistré : affiché « Centriva »');
+set_setting('app_name', 'Achats IMSS');
+check(app_name() === 'Achats IMSS', 'nom personnalisé conservé');
+set_setting('app_name', null);
 
 section('Démo publique');
 check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');

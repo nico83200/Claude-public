@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * Fabrique un paquet de mise à jour à installer depuis l'interface d'administration.
  *
- *   php tools/build-update.php            → dist/approvia-<version>.zip (sans vendor/)
+ *   php tools/build-update.php            → dist/centriva-<version>.zip (sans vendor/)
  *   php tools/build-update.php --vendor   → inclut les dépendances (assistant IA)
  *   php tools/build-update.php --hub      → paquet du centre d'assistance NLapps (dossier support-hub/, à installer sur nlapps.fr)
  *   php tools/build-update.php --install  → paquet de première installation (avec install.php et vendor/),
@@ -37,7 +37,7 @@ if (in_array('--hub', $argv, true)) {
                 $n++;
             }
         }
-        // Bibliothèque Anthropic (suggestion de réponse par l'IA), la même que celle d'Approvia
+        // Bibliothèque Anthropic (suggestion de réponse par l'IA), la même que celle de Centriva
         if ($withVendorHub && is_dir("$root/vendor")) {
             $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/vendor", FilesystemIterator::SKIP_DOTS));
             foreach ($it as $f) {
@@ -75,7 +75,7 @@ if ($forInstall) {
     array_push($include, 'install.php', 'storage/.htaccess', 'uploads/products/.htaccess', 'uploads/brand/.htaccess');
 }
 @mkdir("$root/dist", 0755, true);
-$out = "$root/dist/approvia-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
+$out = "$root/dist/centriva-$version" . ($forInstall ? '-installation' : ($withVendor ? '-complet' : '')) . '.zip';
 $zip = new ZipArchive();
 $zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 $zip->addFromString('version.json', json_encode(['version' => $version, 'date' => date('Y-m-d'), 'notes' => $notes], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

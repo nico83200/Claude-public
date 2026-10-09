@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.24.0
+- **Approvia devient Centriva** : nouveau nom partout (écrans, e-mails, bons de commande, assistance, documentation) et nouveau logo (un « C » et une coche, mêmes couleurs), icônes de l'application installée sur téléphone et ordinateur comprises.
+- Les installations dont le nom d'application était resté « Approvia » s'affichent automatiquement « Centriva » ; un nom personnalisé est conservé. Aucune donnée, aucun compte ni réglage n'est modifié.
+
+### Centre d'assistance NLapps 3.3.0
+- L'application « Approvia » devient « Centriva » dans la console : parc clients, versions, FAQ et vidéos sont rattachés au nouveau nom (tarifs conservés), et les textes de la FAQ, des vidéos, des notes de version et des réponses rapides sont renommés.
+- Les installations pas encore mises à jour, qui se présentent encore sous l'ancien nom, sont reconnues : licence, FAQ, vidéos et mise à jour vers Centriva leur parviennent normalement.
+
 ## 1.23.0
 - **Abonnement payable en ligne** : dans *Paramètres → Licence et assistance*, l'administrateur voit son mode de paiement, la prochaine échéance et le montant mensuel, avec le bouton « Payer en ligne » (ou « Gérer mon abonnement » : moyen de paiement, factures). Le bouton figure aussi dans le bandeau d'échéance et sur la page de licence expirée.
 
@@ -9,17 +17,17 @@
 - Réglages → Paiement en ligne : clé Stripe, secret du webhook (signature vérifiée, événements rejoués ignorés), TVA, test de connexion.
 
 ## 1.22.0
-- **Démarrage guidé d'un nouveau client** : sur le pilotage, l'administrateur suit une liste d'étapes avec barre de progression, cochées automatiquement d'après ses données : retirer les données de démonstration, renseigner l'organisation, créer les centres, ajouter les fournisseurs, importer le catalogue, inviter les salariés, activer les e-mails, relier Approvia à NLapps ; puis, en facultatif, dates limites, budgets et contrats. La prochaine étape est mise en avant, chaque étape ouvre la bonne page. Guide masquable (et réaffichable depuis Paramètres).
+- **Démarrage guidé d'un nouveau client** : sur le pilotage, l'administrateur suit une liste d'étapes avec barre de progression, cochées automatiquement d'après ses données : retirer les données de démonstration, renseigner l'organisation, créer les centres, ajouter les fournisseurs, importer le catalogue, inviter les salariés, activer les e-mails, relier Centriva à NLapps ; puis, en facultatif, dates limites, budgets et contrats. La prochaine étape est mise en avant, chaque étape ouvre la bonne page. Guide masquable (et réaffichable depuis Paramètres).
 - **Inviter des salariés en nombre** (*Comptes → Inviter des salariés*) : collez une liste (adresses seules, « Prénom Nom <adresse> », « Prénom ; Nom ; adresse » ou colonnes Excel), choisissez les centres, le rôle et la fonction. Chaque personne reçoit par e-mail un lien pour choisir son mot de passe, valable 7 jours ; sans e-mails activés, les liens personnels s'affichent pour être transmis (bouton « Copier tous les liens »). Les comptes déjà actifs ne sont pas touchés, les demandes d'accès en attente sont validées.
 
 ## 1.21.0
-- **Démo publique pour les prospects** : un espace créé dans la console avec « Démo publique » propose sur sa page de connexion quatre profils en un clic (salarié, responsable de centre, acheteur, administrateur), avec un bandeau « Démo » et un bouton « Obtenir Approvia » sur chaque page.
+- **Démo publique pour les prospects** : un espace créé dans la console avec « Démo publique » propose sur sa page de connexion quatre profils en un clic (salarié, responsable de centre, acheteur, administrateur), avec un bandeau « Démo » et un bouton « Obtenir Centriva » sur chaque page.
 - **Remise à zéro chaque nuit à 3 h** (ou à la demande depuis la console) : toutes les saisies des visiteurs sont effacées et les données de démonstration recréées (contrats compris) ; clé cron, licence et tutoriels vidéo conservés.
 - **Actions sensibles neutralisées** sur la démo, avec une explication : mots de passe, double authentification, inscriptions, paramètres, comptes, sauvegardes et nettoyage ; aucun e-mail n'est envoyé ; assistant IA limité à 150 appels par jour.
 - Données de démonstration : ajout du compte acheteur (acheteur@demo.fr).
 
 ## 1.20.0
-- **Plusieurs clients sur un même serveur** : un seul exemplaire du code sert plusieurs clients, chacun avec sa base de données (SQLite ou MySQL), ses fichiers, ses comptes et sa licence, reconnu à son adresse (ex. imss.approvia.fr). Les sessions d'un espace ne valent jamais dans un autre.
+- **Plusieurs clients sur un même serveur** : un seul exemplaire du code sert plusieurs clients, chacun avec sa base de données (SQLite ou MySQL), ses fichiers, ses comptes et sa licence, reconnu à son adresse (ex. imss.centriva.fr). Les sessions d'un espace ne valent jamais dans un autre.
 - **Console NLapps** (`console.php`, mot de passe propre créé avec un code déposé sur le serveur) : création d'un client en un formulaire (premier administrateur, clé de licence, données de démonstration en option), reprise de l'installation existante comme premier client sans toucher à sa base, chiffres clés par client, suspension et rétablissement, changement d'adresses, suppression avec archive.
 - **Mise à jour de tous les clients en une fois** depuis la console : sauvegarde de chaque base et du code, remplacement des fichiers (retour automatique en cas d'échec), migration de chaque base. Dans les espaces clients, le menu « Mises à jour » disparaît.
 - `php cron.php` traite tous les clients, chacun dans son processus. L'installation simple (un seul client) fonctionne exactement comme avant.
@@ -66,7 +74,7 @@
 - Bandeau administrateur : rappel 15 jours avant l'échéance avec la date de coupure.
 
 ### Centre d'assistance NLapps 2.1.0
-- **Mise à jour par paquet ZIP** depuis la console (Réglages → Mise à jour du centre), comme dans Approvia : confirmation par mot de passe, sauvegarde automatique, retour arrière en un clic ; `config.php` et `data/` jamais modifiés. Paquet allégé `nlapps-assistance-maj.zip` (sans la bibliothèque de l'IA) pour les hébergements limités en taille d'envoi.
+- **Mise à jour par paquet ZIP** depuis la console (Réglages → Mise à jour du centre), comme dans Centriva : confirmation par mot de passe, sauvegarde automatique, retour arrière en un clic ; `config.php` et `data/` jamais modifiés. Paquet allégé `nlapps-assistance-maj.zip` (sans la bibliothèque de l'IA) pour les hébergements limités en taille d'envoi.
 - **Console installable** sur ordinateur, Android et iPhone/iPad (bouton « Installer », raccourcis, page hors connexion).
 - **Délai de grâce réglable** (0 par défaut : coupure immédiate à l'échéance).
 
@@ -118,7 +126,7 @@
 - **Accès à l'assistance NLapps dans les paramètres** : l'administrateur colle les deux lignes fournies par NLapps (adresse et clé `nlh_…`) dans *Paramètres → Assistance NLapps*. Les champs se remplissent automatiquement, la clé est chiffrée et la connexion est testée à l'enregistrement. Boutons « Tester la connexion » et « Supprimer l'accès ». Plus besoin de modifier `config.php`, qui reste utilisé si rien n'est saisi.
 
 ## 1.9.0
-- L'application devient **Approvia** : nouveau logo dans le menu, la page de connexion, l'onglet du navigateur et l'icône de l'application installable.
+- L'application devient **Centriva** : nouveau logo dans le menu, la page de connexion, l'onglet du navigateur et l'icône de l'application installable.
 - **Conversation en direct avec NLapps** dans la bulle d'aide, à la place de WhatsApp : si le chatbot ne trouve pas de réponse, ou dès que l'utilisateur demande à parler à un conseiller, la conversation s'ouvre dans la même fenêtre. L'échange avec le chatbot et le contexte (centre, version, page) sont transmis au conseiller. Disponibilité affichée, message d'absence, conversation reprise d'une page à l'autre, notification dans l'application quand une réponse arrive fenêtre fermée.
 - Nouveau **centre d'assistance NLapps** (dossier `support-hub/`, à installer sur nlapps.fr) : console unique pour toutes les installations clientes, clés d'accès par client, alertes e-mail et notification sur téléphone (ntfy).
 

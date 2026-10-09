@@ -1,5 +1,5 @@
 <?php
-/** Mise à jour du centre d'assistance par paquet ZIP (comme dans Approvia) : sauvegarde automatique et retour arrière. */
+/** Mise à jour du centre d'assistance par paquet ZIP (comme dans Centriva) : sauvegarde automatique et retour arrière. */
 defined('HUB') || exit;
 
 $last = json_decode((string)hsetting('last_update', ''), true);

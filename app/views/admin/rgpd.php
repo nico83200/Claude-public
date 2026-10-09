@@ -5,7 +5,7 @@ $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 ?><!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fiche RGPD · <?= e(app_name()) ?></title>
-<link rel="icon" href="assets/brand/approvia-mark.svg">
+<link rel="icon" href="assets/brand/centriva-mark.svg">
 <style>
   @page { size: A4; margin: 16mm 15mm; }
   * { box-sizing: border-box; }

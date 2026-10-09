@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="assets/css/app.css?v=<?= e(defined('APP_VERSION') ? APP_VERSION : '1') ?>">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2a1fc4">
-<link rel="icon" type="image/svg+xml" href="assets/brand/approvia-mark.svg">
+<link rel="icon" type="image/svg+xml" href="assets/brand/centriva-mark.svg">
 </head>
 <body>
 <div class="auth-wrap">
@@ -17,7 +17,7 @@
     <div class="auth-logo"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></div>
     <?php else: ?>
     <div class="brand" style="padding:0;position:relative;z-index:1">
-      <img class="brand-mark" src="assets/brand/approvia-mark.svg" alt="" width="40" height="40">
+      <img class="brand-mark" src="assets/brand/centriva-mark.svg" alt="" width="40" height="40">
       <div><?= e(app_name()) ?></div>
     </div>
     <?php endif; ?>

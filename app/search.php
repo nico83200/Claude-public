@@ -338,7 +338,7 @@ function ai_json(string $system, string|array $user, array $schema, int $maxToke
         ai_last_error(match (true) {
             !ai_sdk_installed() => 'Bibliothèque Anthropic absente : le dossier vendor/ manque sur le serveur (utilisez le paquet d\'installation complet).',
             ai_api_key() === '' => 'Aucune clé API enregistrée (ou clé illisible : fichier storage/secret.key changé ?). Ressaisissez-la.',
-            !licence_ai_allowed() => 'L\'option assistant IA n\'est pas incluse dans votre abonnement Approvia : contactez ' . support_contact()['editor'] . ' pour l\'activer.',
+            !licence_ai_allowed() => 'L\'option assistant IA n\'est pas incluse dans votre abonnement Centriva : contactez ' . support_contact()['editor'] . ' pour l\'activer.',
             default => 'Assistant IA désactivé dans les paramètres.',
         });
         return null;

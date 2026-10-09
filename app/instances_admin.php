@@ -33,7 +33,7 @@ function instance_db_config(string $slug, array $in): array
             $pdo = new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $db['host'], $db['port'], $db['name']), $db['user'], $db['pass'],
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
             if ($pdo->query("SHOW TABLES LIKE 'users'")->fetch()) {
-                throw new RuntimeException('Cette base contient déjà une installation Approvia : utilisez une base vide, propre à ce client.');
+                throw new RuntimeException('Cette base contient déjà une installation Centriva : utilisez une base vide, propre à ce client.');
             }
         } catch (PDOException $e) {
             throw new RuntimeException('Connexion à la base MySQL impossible : ' . $e->getMessage());
@@ -64,7 +64,7 @@ function instance_parse_hosts(string $text, ?string $exceptSlug = null): array
             continue;
         }
         if (!preg_match('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d+)?$/', $h)) {
-            throw new RuntimeException('Adresse invalide : ' . $h . ' (exemple attendu : imss.approvia.fr).');
+            throw new RuntimeException('Adresse invalide : ' . $h . ' (exemple attendu : imss.centriva.fr).');
         }
         foreach (instances_registry() as $s => $i) {
             if ($s !== $exceptSlug && in_array($h, array_map('instance_normalize_host', (array)$i['hosts']), true)) {
@@ -74,7 +74,7 @@ function instance_parse_hosts(string $text, ?string $exceptSlug = null): array
         $hosts[] = $h;
     }
     if (!$hosts) {
-        throw new RuntimeException('Indiquez au moins une adresse (ex. imss.approvia.fr).');
+        throw new RuntimeException('Indiquez au moins une adresse (ex. imss.centriva.fr).');
     }
     return array_values(array_unique($hosts));
 }
@@ -111,7 +111,7 @@ function instance_create(array $in): string
     $db = instance_db_config($slug, (array)($in['db'] ?? []));
 
     instance_prepare_dirs($slug);
-    $config = ['db' => $db, 'app_name' => trim((string)($in['app_name'] ?? '')) ?: 'Approvia', 'timezone' => 'Europe/Paris', 'anthropic_api_key' => '', 'max_upload' => 4 * 1024 * 1024];
+    $config = ['db' => $db, 'app_name' => trim((string)($in['app_name'] ?? '')) ?: 'Centriva', 'timezone' => 'Europe/Paris', 'anthropic_api_key' => '', 'max_upload' => 4 * 1024 * 1024];
     if (trim((string)($in['hub_key'] ?? '')) !== '') {
         $config['support_hub_url'] = trim((string)($in['hub_url'] ?? '')) ?: 'https://nlapps.fr/assistance/api.php';
         $config['support_hub_key'] = trim((string)$in['hub_key']);

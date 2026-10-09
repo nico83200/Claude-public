@@ -26,7 +26,7 @@ $q = ['ids' => implode(',', $ids)];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Étiquettes · <?= e(app_name()) ?></title>
-<link rel="icon" href="assets/brand/approvia-icon.svg">
+<link rel="icon" href="assets/brand/centriva-icon.svg">
 <style>
   @page { size: <?= $roll ? $f['w'] . 'mm ' . $f['h'] . 'mm' : 'A4' ?>; margin: 0; }
   * { box-sizing: border-box; }

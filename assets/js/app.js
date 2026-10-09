@@ -1,4 +1,4 @@
-/* Approvia — interactions */
+/* Centriva — interactions */
 (function () {
   'use strict';
   const csrf = (window.APP && window.APP.csrf) || '';
@@ -897,7 +897,7 @@ document.addEventListener('click', async (e) => {
     await post('index.php?r=api/support/live', { action: 'close' });
     stopPolling(); mode = 'bot'; panel.dataset.hasChat = '0'; fab.classList.remove('has-chat'); endLink.hidden = true;
     if (attach) attach.hidden = true;
-    title.textContent = 'Assistance Approvia'; input.placeholder = 'Votre question…';
+    title.textContent = 'Assistance Centriva'; input.placeholder = 'Votre question…';
     add('Conversation terminée. Merci ! Le chatbot reste à votre disposition.', 'sys');
     askRating();
   });

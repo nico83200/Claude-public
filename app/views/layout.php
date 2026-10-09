@@ -31,7 +31,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="<?= e(app_name()) ?>">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-<link rel="icon" type="image/svg+xml" href="assets/brand/approvia-mark.svg">
+<link rel="icon" type="image/svg+xml" href="assets/brand/centriva-mark.svg">
 </head>
 <body>
 <div class="app">
@@ -39,11 +39,11 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     <?php if ($logo = brand_logo_url()): ?>
     <a class="brand brand-with-logo" href="index.php">
       <span class="brand-logo-box"><img src="<?= e($logo) ?>" alt="<?= e(setting('company_name') ?: app_name()) ?>"></span>
-      <span class="brand-sub"><img src="assets/brand/approvia-mark.svg" alt="" width="16" height="16"> <?= e(app_name()) ?></span>
+      <span class="brand-sub"><img src="assets/brand/centriva-mark.svg" alt="" width="16" height="16"> <?= e(app_name()) ?></span>
     </a>
     <?php else: ?>
     <div class="brand">
-      <img class="brand-mark" src="assets/brand/approvia-mark.svg" alt="" width="40" height="40">
+      <img class="brand-mark" src="assets/brand/centriva-mark.svg" alt="" width="40" height="40">
       <div><?= e(app_name()) ?><small>Achats &amp; approvisionnement</small></div>
     </div>
     <?php endif; ?>
@@ -104,7 +104,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('videos', 'admin/videos') ?>" href="<?= url('videos') ?>"><?= icon('play') ?> Tutoriels vidéo</a>
       <a class="<?= $active('support') ?>" href="<?= url('support') ?>"><?= icon('info') ?> Assistance</a>
     </nav>
-    <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Approvia · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
+    <a class="nav-editor" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Centriva · créé et maintenu par <strong><?= e(support_contact()['editor']) ?></strong></a>
 
     <div class="sidebar-foot">
       <div class="avatar"><?= e(initials($u['first_name'], $u['last_name'])) ?></div>
@@ -142,8 +142,8 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 
     <main class="content">
       <?php if (demo_mode()): ?>
-        <div class="demo-bar"><?= icon('sparkles', 18) ?><div><strong>Démo Approvia</strong> · vous êtes <strong><?= e(mb_strtolower(role_label($u['role']))) ?></strong> (<?= e($u['first_name']) ?>). Données fictives, remises à zéro chaque nuit.</div>
-          <a class="btn btn-sm" href="<?= url('logout') ?>">Changer de profil</a><a class="btn btn-sm btn-primary" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Obtenir Approvia</a></div>
+        <div class="demo-bar"><?= icon('sparkles', 18) ?><div><strong>Démo Centriva</strong> · vous êtes <strong><?= e(mb_strtolower(role_label($u['role']))) ?></strong> (<?= e($u['first_name']) ?>). Données fictives, remises à zéro chaque nuit.</div>
+          <a class="btn btn-sm" href="<?= url('logout') ?>">Changer de profil</a><a class="btn btn-sm btn-primary" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Obtenir Centriva</a></div>
       <?php endif; ?>
       <?php if (is_superadmin() && ($ln = licence_notice())): ?>
         <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a><?php if (!empty($ln['pay_url'])): ?> <a class="btn btn-sm btn-primary" href="<?= e($ln['pay_url']) ?>" target="_blank" rel="noopener">Payer en ligne</a><?php endif; ?></div></div>
@@ -163,7 +163,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
 <button type="button" class="help-fab<?= $hasChat ? ' has-chat' : '' ?>" data-help-open aria-label="Besoin d'aide ?" title="Besoin d'aide ?"><?= icon('info', 22) ?><span><?= $hasChat ? 'Conversation' : 'Aide' ?></span></button>
 <section class="help-panel" data-help-panel hidden aria-label="Assistance" data-live="<?= $liveOn ? '1' : '0' ?>" data-has-chat="<?= $hasChat ? '1' : '0' ?>" data-operator="<?= e(support_contact()['editor']) ?>" data-autoopen="<?= ($r === 'support' && (input('chat') === '1')) ? '1' : '0' ?>">
   <header>
-    <div><strong data-help-title>Assistance Approvia</strong><small data-help-sub>Réponses immédiates · équipe <?= e(support_contact()['editor']) ?> si besoin</small></div>
+    <div><strong data-help-title>Assistance Centriva</strong><small data-help-sub>Réponses immédiates · équipe <?= e(support_contact()['editor']) ?> si besoin</small></div>
     <button type="button" class="btn btn-ghost btn-icon" data-help-close aria-label="Fermer"><?= icon('x', 18) ?></button>
   </header>
   <div class="help-log" data-help-log>

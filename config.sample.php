@@ -16,7 +16,7 @@ return [
     // 'db' => ['driver' => 'sqlite', 'path' => __DIR__ . '/storage/app.sqlite'],
 
     // Nom affiché de l'application
-    'app_name' => 'Approvia',
+    'app_name' => 'Centriva',
 
     // Fuseau horaire
     'timezone' => 'Europe/Paris',

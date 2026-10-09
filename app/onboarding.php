@@ -26,7 +26,7 @@ function onboarding_steps(): array
         $count("SELECT COUNT(*) FROM users WHERE role <> 'admin' AND status = 'active' AND deleted_at IS NULL") > 0, url('admin/invite'), 'Inviter', false];
     $steps[] = ['mail', 'Activer les e-mails', 'Notifications aux salariés, bons de commande aux fournisseurs, invitations.',
         setting('mail_enabled', '0') === '1', url('admin/settings') . '#mail', 'Configurer', false];
-    $steps[] = ['licence', 'Relier Approvia à NLapps', 'Licence, conversation en direct avec l\'assistance, tutoriels vidéo et mises à jour.',
+    $steps[] = ['licence', 'Relier Centriva à NLapps', 'Licence, conversation en direct avec l\'assistance, tutoriels vidéo et mises à jour.',
         licence_managed(), url('admin/settings') . '#assistance', 'Relier', false];
     $steps[] = ['deadlines', 'Programmer vos dates limites', 'Les centres voient le compte à rebours et reçoivent un rappel la veille.',
         $count('SELECT COUNT(*) FROM deadlines') > 0, url('admin/deadlines'), 'Programmer', true];

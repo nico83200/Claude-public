@@ -1,5 +1,5 @@
 /* =====================================================================
-   Approvia — interface
+   Centriva — interface
    ===================================================================== */
 :root {
   --bg: #f4f6fb;
@@ -652,7 +652,7 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 }
 @media print { .help-fab, .help-panel { display: none !important; } }
 
-/* Logo Approvia */
+/* Logo Centriva */
 .brand-mark { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; box-shadow: 0 6px 18px rgba(42, 31, 196, .35); display: block; }
 .brand-sub img { width: 16px; height: 16px; border-radius: 4px; vertical-align: -3px; margin-right: 2px; }
 

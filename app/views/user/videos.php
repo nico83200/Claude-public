@@ -1,5 +1,5 @@
 <div class="page-head">
-  <div><h1>Tutoriels vidéo</h1><p>Apprenez à utiliser Approvia en quelques minutes. Cliquez sur un chapitre pour aller directement au passage qui vous intéresse.</p></div>
+  <div><h1>Tutoriels vidéo</h1><p>Apprenez à utiliser Centriva en quelques minutes. Cliquez sur un chapitre pour aller directement au passage qui vous intéresse.</p></div>
   <?php if (is_superadmin()): ?><a class="btn" href="<?= url('admin/videos') ?>"><?= icon('settings', 18) ?> Gérer les vidéos</a><?php endif; ?>
 </div>
 

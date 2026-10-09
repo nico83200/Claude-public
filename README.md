@@ -1,4 +1,4 @@
-# Approvia
+# Centriva
 
 Logiciel de commandes et d'approvisionnement pour centres de santé, avec lecteur de codes-barres intégré. Édité et maintenu par **NLapps** — https://nlapps.fr · contact@nlapps.fr · +33 6 52 43 67 47.
 
@@ -90,7 +90,7 @@ SQLite est aussi pris en charge, pour les tests ou une petite structure sans ser
 
 ## Installation
 
-Le plus simple est d'utiliser le **paquet d'installation complet** (`approvia-<version>-installation.zip`, fabriqué par `php tools/build-update.php --install`). Il contient déjà les dépendances de l'assistant IA (`vendor/`) : aucun Composer ni ligne de commande n'est nécessaire.
+Le plus simple est d'utiliser le **paquet d'installation complet** (`centriva-<version>-installation.zip`, fabriqué par `php tools/build-update.php --install`). Il contient déjà les dépendances de l'assistant IA (`vendor/`) : aucun Composer ni ligne de commande n'est nécessaire.
 
 1. Créez une base MySQL/MariaDB et son utilisateur chez l'hébergeur.
 2. Déposez le .zip à la racine du site, puis décompressez-le, par exemple avec le gestionnaire de fichiers de l'hébergeur.
@@ -127,9 +127,9 @@ Un article existant (même fournisseur et même référence) est mis à jour. L'
 
 ## Plusieurs clients sur un même serveur
 
-Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (ex. `imss.approvia.fr`, `sante-var.approvia.fr`).
+Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (ex. `imss.centriva.fr`, `sante-var.centriva.fr`).
 
-1. Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique `*.approvia.fr`) vers le dossier d'Approvia, avec HTTPS.
+1. Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique `*.centriva.fr`) vers le dossier de Centriva, avec HTTPS.
 2. Ouvrez `https://…/console.php`. Au premier accès, recopiez le code du fichier `storage/console-code.txt` (FTP ou gestionnaire de fichiers) et choisissez le mot de passe de la console.
 3. **Reprendre l'installation actuelle** : l'installation existante devient le premier client, sans modifier sa base (comptes, commandes, réglages, licence conservés).
 4. **Nouveau client** : nom, identifiant, adresse(s), base SQLite (un fichier, rien à créer) ou MySQL (base vide créée chez l'hébergeur), premier administrateur, clé de licence NLapps, données de démonstration en option.
@@ -140,7 +140,7 @@ La console affiche les chiffres clés de chaque client et permet de le suspendre
 
 **Tâches planifiées** : `php cron.php` traite chaque client à son tour, dans un processus séparé.
 
-**Démo publique** : cochez « Démo publique » à la création d'un espace (avec les données de démonstration), par exemple `demo.approvia.fr`. Les visiteurs se connectent en un clic avec chaque rôle ; les données sont remises à zéro chaque nuit à 3 h (ou par le bouton « Remettre à zéro » de la console) ; paramètres, mots de passe, comptes et e-mails sont neutralisés, et l'assistant IA est limité à 150 appels par jour. Pour une installation simple, ajoutez `'demo_mode' => true` à `config.php`.
+**Démo publique** : cochez « Démo publique » à la création d'un espace (avec les données de démonstration), par exemple `demo.centriva.fr`. Les visiteurs se connectent en un clic avec chaque rôle ; les données sont remises à zéro chaque nuit à 3 h (ou par le bouton « Remettre à zéro » de la console) ; paramètres, mots de passe, comptes et e-mails sont neutralisés, et l'assistant IA est limité à 150 appels par jour. Pour une installation simple, ajoutez `'demo_mode' => true` à `config.php`.
 
 Organisation des fichiers : `instances/registry.php` (liste des clients), `instances/<client>/config.php` et `instances/<client>/storage/` (données privées), `uploads/i/<client>/` (photos et logo). Le dossier `instances/` est interdit d'accès web par `.htaccess`. Sur un serveur nginx, refusez aussi `/instances/` et `/storage/` dans la configuration du site.
 
@@ -167,7 +167,7 @@ Les e-mails passent par une file d'attente : un serveur de messagerie momentané
 
 ## Mises à jour du progiciel
 
-1. **Fabriquer le paquet** (sur le poste de développement) : `php tools/build-update.php` crée `dist/approvia-<version>.zip` à partir du fichier `VERSION` et des notes de `CHANGELOG.md`. Avec `--vendor`, les dépendances sont incluses (paquet plus lourd).
+1. **Fabriquer le paquet** (sur le poste de développement) : `php tools/build-update.php` crée `dist/centriva-<version>.zip` à partir du fichier `VERSION` et des notes de `CHANGELOG.md`. Avec `--vendor`, les dépendances sont incluses (paquet plus lourd).
 2. **Installer** : *Mises à jour → Installer une mise à jour*. Le paquet est d'abord analysé (version, notes, fichiers) ; l'installation ne démarre qu'après confirmation par mot de passe.
 3. **Pendant l'installation**, le progiciel :
    - sauvegarde automatiquement le code et la base de données dans `storage/backups/` ;

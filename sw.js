@@ -1,6 +1,6 @@
 /* Service worker : page hors ligne et mise en cache des images.
  * Feuilles de style et scripts : toujours le réseau d'abord, pour qu'une mise à jour s'applique immédiatement. */
-const VERSION = 'cmd-1.7.2';
+const VERSION = 'centriva-1.24.0';
 const STATIC = ['offline.html', 'assets/icons/icon-192.png'];
 
 self.addEventListener('install', (e) => {

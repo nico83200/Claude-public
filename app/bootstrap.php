@@ -14,16 +14,16 @@ $slug = $console ? null : (getenv('CMD_INSTANCE') ?: null);
 if (!$console && $slug === null && !getenv('CMD_CONFIG') && instances_enabled() && PHP_SAPI !== 'cli') {
     $slug = instance_for_host((string)($_SERVER['HTTP_HOST'] ?? ''));
     if ($slug === null && !is_file(ROOT . '/config.php')) {
-        instance_unavailable('Espace introuvable', 'Aucun espace Approvia ne correspond à cette adresse. Vérifiez le lien reçu de votre service achats.');
+        instance_unavailable('Espace introuvable', 'Aucun espace Centriva ne correspond à cette adresse. Vérifiez le lien reçu de votre service achats.');
     }
 }
 if ($slug !== null) {
     $info = instances_registry()[$slug] ?? null;
     if (!$info || !is_file(instance_paths($slug)['config'])) {
-        instance_unavailable('Espace introuvable', 'Cet espace Approvia n\'existe pas ou a été supprimé.');
+        instance_unavailable('Espace introuvable', 'Cet espace Centriva n\'existe pas ou a été supprimé.');
     }
     if (!empty($info['suspended']) && PHP_SAPI !== 'cli') {
-        instance_unavailable('Espace momentanément indisponible', 'L\'accès à cet espace Approvia est suspendu. Contactez NLapps pour le rétablir.', 503);
+        instance_unavailable('Espace momentanément indisponible', 'L\'accès à cet espace Centriva est suspendu. Contactez NLapps pour le rétablir.', 503);
     }
 }
 

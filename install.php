@@ -12,7 +12,7 @@ define('APP', __DIR__ . '/app');
 // Plusieurs clients installés : chaque espace se crée depuis la console NLapps, jamais par cet assistant
 if (is_file(ROOT . '/instances/registry.php')) {
     http_response_code(403);
-    exit('<!doctype html><meta charset="utf-8"><title>Installation</title><p style="font-family:system-ui;padding:2rem">Approvia est installé en mode multi-clients : créez les espaces depuis <a href="console.php">la console NLapps</a>.</p>');
+    exit('<!doctype html><meta charset="utf-8"><title>Installation</title><p style="font-family:system-ui;padding:2rem">Centriva est installé en mode multi-clients : créez les espaces depuis <a href="console.php">la console NLapps</a>.</p>');
 }
 
 $step = 'config';
@@ -48,7 +48,7 @@ if (!is_file(ROOT . '/config.php') && ($_SERVER['REQUEST_METHOD'] ?? '') === 'PO
         'user'   => trim((string)($_POST['db_user'] ?? '')),
         'pass'   => (string)($_POST['db_pass'] ?? ''),
     ];
-    $appName = trim((string)($_POST['app_name'] ?? '')) ?: 'Approvia';
+    $appName = trim((string)($_POST['app_name'] ?? '')) ?: 'Centriva';
     try {
         $pdo = new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $db['host'], $db['port'], $db['name']),
             $db['user'], $db['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
@@ -175,7 +175,7 @@ function h(string $s): string
           <div class="field"><label>Serveur</label><input type="text" name="db_host" value="<?= h($_POST['db_host'] ?? 'localhost') ?>"></div>
           <div class="field"><label>Port</label><input type="number" name="db_port" value="<?= h((string)($_POST['db_port'] ?? '3306')) ?>"></div>
         </div>
-        <div class="field"><label>Nom de l'application</label><input type="text" name="app_name" value="<?= h($_POST['app_name'] ?? 'Approvia') ?>"></div>
+        <div class="field"><label>Nom de l'application</label><input type="text" name="app_name" value="<?= h($_POST['app_name'] ?? 'Centriva') ?>"></div>
         <button class="btn btn-primary btn-lg mt-1" type="submit"<?= $blocking ? ' disabled' : '' ?>>Tester la connexion et continuer</button>
       </form>
     <?php elseif ($step === 'installed'): ?>
