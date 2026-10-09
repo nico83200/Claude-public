@@ -196,7 +196,7 @@ function mail_template(array $u, string $title, string $body, string $link): str
  */
 function send_mail(string $to, string $subject, string $html, array $attachments = []): bool
 {
-    if (!filter_var($to, FILTER_VALIDATE_EMAIL) || setting('mail_enabled', '0') !== '1') {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL) || setting('mail_enabled', '0') !== '1' || (function_exists('demo_mode') && demo_mode())) {
         return false;
     }
     try {

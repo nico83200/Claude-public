@@ -141,6 +141,10 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     </header>
 
     <main class="content">
+      <?php if (demo_mode()): ?>
+        <div class="demo-bar"><?= icon('sparkles', 18) ?><div><strong>Démo Approvia</strong> · vous êtes <strong><?= e(mb_strtolower(role_label($u['role']))) ?></strong> (<?= e($u['first_name']) ?>). Données fictives, remises à zéro chaque nuit.</div>
+          <a class="btn btn-sm" href="<?= url('logout') ?>">Changer de profil</a><a class="btn btn-sm btn-primary" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Obtenir Approvia</a></div>
+      <?php endif; ?>
       <?php if (is_superadmin() && ($ln = licence_notice())): ?>
         <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a></div></div>
       <?php endif; ?>

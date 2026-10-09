@@ -140,6 +140,8 @@ La console affiche les chiffres clés de chaque client et permet de le suspendre
 
 **Tâches planifiées** : `php cron.php` traite chaque client à son tour, dans un processus séparé.
 
+**Démo publique** : cochez « Démo publique » à la création d'un espace (avec les données de démonstration), par exemple `demo.approvia.fr`. Les visiteurs se connectent en un clic avec chaque rôle ; les données sont remises à zéro chaque nuit à 3 h (ou par le bouton « Remettre à zéro » de la console) ; paramètres, mots de passe, comptes et e-mails sont neutralisés, et l'assistant IA est limité à 150 appels par jour. Pour une installation simple, ajoutez `'demo_mode' => true` à `config.php`.
+
 Organisation des fichiers : `instances/registry.php` (liste des clients), `instances/<client>/config.php` et `instances/<client>/storage/` (données privées), `uploads/i/<client>/` (photos et logo). Le dossier `instances/` est interdit d'accès web par `.htaccess`. Sur un serveur nginx, refusez aussi `/instances/` et `/storage/` dans la configuration du site.
 
 ## Tâches planifiées

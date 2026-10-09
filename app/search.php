@@ -343,6 +343,10 @@ function ai_json(string $system, string|array $user, array $schema, int $maxToke
         });
         return null;
     }
+    if (function_exists('demo_ai_allowed') && !demo_ai_allowed()) {
+        ai_last_error('L\'assistant IA de la démo a atteint son quota du jour : la recherche classique reste disponible.');
+        return null;
+    }
     $client = new \Anthropic\Client(apiKey: ai_api_key(), baseUrl: cfg('anthropic_base_url') ?: null);
     $params = [
         'model' => ai_model(),

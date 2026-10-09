@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.21.0
+- **Démo publique pour les prospects** : un espace créé dans la console avec « Démo publique » propose sur sa page de connexion quatre profils en un clic (salarié, responsable de centre, acheteur, administrateur), avec un bandeau « Démo » et un bouton « Obtenir Approvia » sur chaque page.
+- **Remise à zéro chaque nuit à 3 h** (ou à la demande depuis la console) : toutes les saisies des visiteurs sont effacées et les données de démonstration recréées (contrats compris) ; clé cron, licence et tutoriels vidéo conservés.
+- **Actions sensibles neutralisées** sur la démo, avec une explication : mots de passe, double authentification, inscriptions, paramètres, comptes, sauvegardes et nettoyage ; aucun e-mail n'est envoyé ; assistant IA limité à 150 appels par jour.
+- Données de démonstration : ajout du compte acheteur (acheteur@demo.fr).
+
 ## 1.20.0
 - **Plusieurs clients sur un même serveur** : un seul exemplaire du code sert plusieurs clients, chacun avec sa base de données (SQLite ou MySQL), ses fichiers, ses comptes et sa licence, reconnu à son adresse (ex. imss.approvia.fr). Les sessions d'un espace ne valent jamais dans un autre.
 - **Console NLapps** (`console.php`, mot de passe propre créé avec un code déposé sur le serveur) : création d'un client en un formulaire (premier administrateur, clé de licence, données de démonstration en option), reprise de l'installation existante comme premier client sans toucher à sa base, chiffres clés par client, suspension et rétablissement, changement d'adresses, suppression avec archive.

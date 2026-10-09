@@ -251,6 +251,9 @@ function install_demo_data(int $adminId): void
     $managerId = insert('users', ['email' => 'sophie.responsable@demo.fr', 'password_hash' => $hash, 'first_name' => 'Sophie', 'last_name' => 'Martin',
         'job' => 'Responsable de centre', 'role' => 'manager', 'status' => 'active', 'created_at' => $now]);
     insert('user_centers', ['user_id' => $managerId, 'center_id' => $centerIds[0]]);
+    // v1.18 : acheteur (service achats sans l'organisation ni les paramètres)
+    insert('users', ['email' => 'acheteur@demo.fr', 'password_hash' => $hash, 'first_name' => 'Bruno', 'last_name' => 'Martin',
+        'job' => 'Acheteur', 'role' => 'buyer', 'status' => 'active', 'created_at' => $now]);
     set_setting('approval_threshold', '150');
     foreach ([['hyg', 'Protection (EPI)', 'HPS-GNM', 'Gants nitrile non poudrés taille M — boîte de 100', 'Boîte de 100', 7.20, 5.95, 'gants-nitrile-m'],
               ['medi', 'Hygiène & désinfection', 'GEL-500', 'Gel hydroalcoolique 500 ml', 'Flacon pompe', 6.20, 5.40, 'gel-hydroalcoolique-500'],

@@ -9,6 +9,7 @@ $routes = [
     'login'                 => ['auth', 'auth_login'],
     'register'              => ['auth', 'auth_register'],
     'logout'                => ['auth', 'auth_logout'],
+    'demo/login'            => ['auth', 'demo_login'],
     'forgot'                => ['auth', 'auth_forgot'],
     'reset'                 => ['auth', 'auth_reset'],
     'profile'               => ['auth', 'auth_profile'],
@@ -150,6 +151,14 @@ if (!isset($routes[$route])) {
 
 if (is_post()) {
     csrf_check();
+    // Démo publique : actions sensibles neutralisées, avec une explication
+    if ($demoMsg = demo_blocked($route)) {
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            json_response(['error' => $demoMsg], 403);
+        }
+        flash('info', $demoMsg);
+        redirect_back(user() ? 'dashboard' : 'login');
+    }
 }
 
 // Licence expirée ou suspendue : accès coupé immédiatement, déconnexion forcée de tous les utilisateurs
@@ -168,7 +177,7 @@ if (!user() && $route === 'login' && licence_blocked_now()) {
 }
 
 // Double authentification exigée des administrateurs : configuration obligatoire avant toute autre page
-if (is_admin() && admin_2fa_required() && !user_has_2fa(user()) && !in_array($route, ['profile', 'logout'], true)) {
+if (is_admin() && admin_2fa_required() && !demo_mode() && !user_has_2fa(user()) && !in_array($route, ['profile', 'logout'], true)) {
     flash('info', 'Par sécurité, la double authentification est obligatoire pour les administrateurs : configurez-la ci-dessous (2 minutes).');
     redirect('profile', ['_' => 'security']);
 }

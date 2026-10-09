@@ -138,8 +138,12 @@ function instance_create(array $in): string
         instance_remove_files($slug);
         throw new RuntimeException('Création interrompue, rien n\'a été conservé : ' . $e->getMessage());
     }
-    $registry[$slug] = ['name' => $name, 'hosts' => $hosts, 'suspended' => false, 'demo' => !empty($in['demo']), 'created_at' => date('Y-m-d H:i:s')];
+    $registry[$slug] = ['name' => $name, 'hosts' => $hosts, 'suspended' => false, 'demo' => !empty($in['demo']) || !empty($in['public_demo']),
+        'public_demo' => !empty($in['public_demo']), 'created_at' => date('Y-m-d H:i:s')];
     instances_save($registry);
+    if (!empty($in['public_demo'])) {
+        instance_demo_reset($slug); // comptes de démonstration (connexion en un clic)
+    }
     return $slug;
 }
 
@@ -245,6 +249,15 @@ function instance_delete(string $slug): string
     return basename($archive);
 }
 
+/** Remet à zéro les données d'un espace de démonstration publique. */
+function instance_demo_reset(string $slug): void
+{
+    if (empty(instances_registry()[$slug]['public_demo'])) {
+        throw new RuntimeException('Cet espace n\'est pas une démo publique : ses données ne sont jamais effacées.');
+    }
+    instance_run($slug, fn() => demo_reset());
+}
+
 /** Chiffres clés d'un client pour le tableau de la console. */
 function instance_stats(string $slug): array
 {
@@ -261,6 +274,7 @@ function instance_stats(string $slug): array
                 'last_login' => val('SELECT MAX(last_login) FROM users'),
                 'licence' => $lic,
                 'driver' => db_driver(),
+                'demo_reset_at' => setting('demo_reset_at'),
             ];
         });
     } catch (Throwable $e) {

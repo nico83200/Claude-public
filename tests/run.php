@@ -43,6 +43,7 @@ require APP . '/import.php';
 require APP . '/support.php';
 require APP . '/videos.php';
 require APP . '/contracts.php';
+require APP . '/demo.php';
 require APP . '/barcode.php';
 require APP . '/licence.php';
 require APP . '/reports.php';
@@ -713,6 +714,28 @@ $ip = instance_paths('imss');
 check(str_ends_with($ip['config'], '/instances/imss/config.php') && $ip['uploads_url'] === 'uploads/i/imss', 'chemins propres au client');
 check(instance_paths(null)['storage'] === ROOT . '/storage' && storage_path('x') === ROOT . '/storage/x', 'installation simple inchangée');
 check(uploads_url('products/a.png') === 'uploads/products/a.png', 'photos de l\'installation simple');
+
+section('Démo publique');
+check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');
+$GLOBALS['config']['demo_mode'] = true;
+$_SERVER['REQUEST_METHOD'] = 'POST';
+check(demo_blocked('admin/settings') !== null && demo_blocked('profile') !== null && demo_blocked('admin/user') !== null, 'démo : paramètres, mot de passe et comptes en lecture seule');
+check(demo_blocked('cart') === null && demo_blocked('admin/contract') === null && demo_blocked('admin/requests') === null, 'démo : commander, traiter, contrats restent possibles');
+$_SERVER['REQUEST_METHOD'] = 'GET';
+set_setting('mail_enabled', '1');
+check(send_mail('quelqu.un@example.com', 'Test', '<p>x</p>') === false, 'démo : aucun e-mail envoyé');
+set_setting('demo_ai_count', date('Y-m-d') . '|' . (DEMO_AI_DAILY - 1));
+check(demo_ai_allowed() && !demo_ai_allowed(), 'démo : quota quotidien de l\'assistant IA');
+set_setting('cron_key', 'cle-a-garder');
+q("INSERT INTO products (supplier_id, name, catalog_price, created_at) SELECT id, 'Article saisi par un visiteur', 1, ? FROM suppliers LIMIT 1", [now()]);
+check(cron_demo_reset(true) === 1, 'remise à zéro lancée');
+foreach (DEMO_PROFILES as $role => [$em]) {
+    check((one("SELECT role FROM users WHERE email = ? AND status = 'active'", [$em])['role'] ?? '') === $role, 'profil « ' . $role . ' » recréé (' . $em . ')');
+}
+check(!val("SELECT COUNT(*) FROM products WHERE name = 'Article saisi par un visiteur'") && (int)val('SELECT COUNT(*) FROM contracts') === 2, 'saisies des visiteurs effacées, données de démo recréées');
+check(setting('cron_key') === 'cle-a-garder' && setting('mail_enabled') === '0' && (int)val('SELECT COUNT(*) FROM users') === (int)val('SELECT COUNT(DISTINCT email) FROM users'), 'réglages techniques conservés, e-mails coupés');
+check(cron_demo_reset() === 0, 'une seule remise à zéro par nuit');
+unset($GLOBALS['config']['demo_mode']);
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));

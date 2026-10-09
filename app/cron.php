@@ -21,6 +21,7 @@ const CRON_TASKS = [
     'report'    => ['label' => 'Rapport achats mensuel (PDF)',        'every' => 21600],
     'videos'    => ['label' => 'Tutoriels vidéo NLapps',              'every' => 900],
     'contracts' => ['label' => 'Contrats : prix et échéances',        'every' => 21600],
+    'demo'      => ['label' => 'Démo publique : remise à zéro nocturne', 'every' => 900],
 ];
 
 function cron_last(string $task): int
@@ -55,6 +56,7 @@ function cron_run(bool $force = false): array
                     'report' => (report_monthly_run() ? 'rapport créé' : 'à jour'),
                     'videos' => videos_download_pending(),
                     'contracts' => cron_contracts(),
+                    'demo' => cron_demo_reset(),
                     'licence' => licence_managed() ? (licence_check(true)['status'] ?? '?') : 'sans clé NLapps',
                 };
                 set_setting('cron_last_' . $task, (string)time());

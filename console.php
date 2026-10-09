@@ -120,7 +120,7 @@ if ($logged && $post) {
                     'slug' => $_POST['slug'] ?? '', 'name' => $_POST['name'] ?? '', 'hosts' => $_POST['hosts'] ?? '', 'app_name' => $_POST['app_name'] ?? '',
                     'admin_first_name' => $_POST['admin_first_name'] ?? '', 'admin_last_name' => $_POST['admin_last_name'] ?? '',
                     'admin_email' => $_POST['admin_email'] ?? '', 'admin_password' => $_POST['admin_password'] ?? '',
-                    'demo' => !empty($_POST['demo']), 'hub_url' => $_POST['hub_url'] ?? '', 'hub_key' => $_POST['hub_key'] ?? '',
+                    'demo' => !empty($_POST['demo']), 'public_demo' => !empty($_POST['public_demo']), 'hub_url' => $_POST['hub_url'] ?? '', 'hub_key' => $_POST['hub_key'] ?? '',
                     'db' => ['driver' => $_POST['db_driver'] ?? 'sqlite', 'host' => $_POST['db_host'] ?? '', 'port' => $_POST['db_port'] ?? '',
                         'name' => $_POST['db_name'] ?? '', 'user' => $_POST['db_user'] ?? '', 'pass' => $_POST['db_pass'] ?? ''],
                 ]);
@@ -152,6 +152,28 @@ if ($logged && $post) {
                 $reg[$slug]['suspended'] = $action === 'suspend';
                 instances_save($reg);
                 console_flash('ok', $action === 'suspend' ? 'Espace « ' . $reg[$slug]['name'] . ' » suspendu : plus personne ne peut s\'y connecter.' : 'Espace « ' . $reg[$slug]['name'] . ' » rétabli.');
+                console_go();
+
+            case 'demo_toggle':
+                $reg = instances_registry();
+                if (!isset($reg[$slug])) {
+                    throw new RuntimeException('Client inconnu.');
+                }
+                $on = empty($reg[$slug]['public_demo']);
+                if ($on && empty($reg[$slug]['demo'])) {
+                    throw new RuntimeException('Seul un espace créé avec les données de démonstration peut devenir une démo publique : ses données seraient effacées chaque nuit.');
+                }
+                $reg[$slug]['public_demo'] = $on;
+                instances_save($reg);
+                if ($on) {
+                    instance_demo_reset($slug);
+                }
+                console_flash('ok', $on ? 'Démo publique activée : connexion en un clic, remise à zéro chaque nuit à 3 h.' : 'Démo publique désactivée.');
+                console_go();
+
+            case 'demo_reset':
+                instance_demo_reset($slug);
+                console_flash('ok', 'Démo « ' . instances_registry()[$slug]['name'] . ' » remise à zéro.');
                 console_go();
 
             case 'delete':
@@ -336,6 +358,7 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
       <div><label>Clé</label><input name="hub_key" value="<?= $f('hub_key') ?>" placeholder="nlh_…"></div>
     </div>
     <label class="check" style="margin-top:1rem"><input type="checkbox" name="demo" value="1" <?= !empty($form['demo']) ? 'checked' : '' ?>> Remplir avec les données de démonstration (centres, fournisseurs, articles et comptes fictifs)</label>
+    <label class="check"><input type="checkbox" name="public_demo" value="1" <?= !empty($form['public_demo']) ? 'checked' : '' ?>> Démo publique pour vos prospects : connexion en un clic avec chaque rôle, données remises à zéro chaque nuit, paramètres et e-mails désactivés</label>
     <p><button class="btn primary">Créer l'espace</button></p>
   </form>
 
@@ -393,7 +416,7 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
   <div class="clients">
   <?php foreach ($registry as $slug => $i): $st = instance_stats($slug); $edit = ($_GET['edit'] ?? '') === $slug; ?>
     <div class="card client">
-      <h2><?= e($i['name']) ?> <?= !empty($i['suspended']) ? '<span class="tag red">suspendu</span>' : '<span class="tag green">actif</span>' ?><?= !empty($i['demo']) ? ' <span class="tag amber">démo</span>' : '' ?></h2>
+      <h2><?= e($i['name']) ?> <?= !empty($i['suspended']) ? '<span class="tag red">suspendu</span>' : '<span class="tag green">actif</span>' ?><?= !empty($i['public_demo']) ? ' <span class="tag amber">démo publique</span>' : (!empty($i['demo']) ? ' <span class="tag amber">démo</span>' : '') ?></h2>
       <small class="muted"><?= e($slug) ?> · <?= e($st['driver'] ?? '?') ?> · base v<?= e($st['db_version'] ?? '?') ?><?= ($st['db_version'] ?? '') !== APP_VERSION ? ' <span class="tag amber">à migrer</span>' : '' ?></small>
       <div class="row" style="margin-top:.35rem"><?php foreach ((array)$i['hosts'] as $h): ?><a href="https://<?= e($h) ?>/" target="_blank" rel="noopener"><small><?= e($h) ?></small></a><?php endforeach; ?></div>
       <?php if ($st['ok']): ?>
@@ -403,11 +426,18 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
           <div><b><?= (int)$st['products'] ?></b><span>articles</span></div>
           <div><b><?= (int)$st['orders_month'] ?></b><span>bons ce mois</span></div>
         </div>
+        <?php if (!empty($i['public_demo'])): ?><small class="muted">Dernière remise à zéro : <?= !empty($st['demo_reset_at']) ? e(date('d/m/Y H:i', strtotime((string)$st['demo_reset_at']))) : '—' ?></small><br><?php endif; ?>
         <small class="muted">Licence : <?= e(['unmanaged' => 'non reliée à NLapps', 'active' => 'active', 'grace' => 'période de grâce', 'expired' => 'expirée', 'suspended' => 'suspendue'][$st['licence']] ?? ($st['licence'] ?: '—')) ?> · dernière connexion : <?= $st['last_login'] ? e(date('d/m/Y H:i', strtotime((string)$st['last_login']))) : 'jamais' ?></small>
       <?php else: ?><p class="flash error"><small><?= e($st['error']) ?></small></p><?php endif; ?>
       <div class="row" style="margin-top:.75rem">
         <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="<?= !empty($i['suspended']) ? 'resume' : 'suspend' ?>">
           <button class="btn sm" onclick="return confirm('<?= !empty($i['suspended']) ? 'Rétablir l\\\'accès à cet espace ?' : 'Suspendre cet espace ? Plus personne ne pourra s\\\'y connecter.' ?>')"><?= !empty($i['suspended']) ? 'Rétablir' : 'Suspendre' ?></button></form>
+        <?php if (!empty($i['demo'])): ?>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="demo_toggle"><button class="btn sm"><?= !empty($i['public_demo']) ? 'Désactiver la démo publique' : 'Rendre publique' ?></button></form>
+        <?php endif; ?>
+        <?php if (!empty($i['public_demo'])): ?>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="slug" value="<?= e($slug) ?>"><input type="hidden" name="action" value="demo_reset"><button class="btn sm" onclick="return confirm('Effacer toutes les données de la démo et repartir des données de départ ?')">Remettre à zéro</button></form>
+        <?php endif; ?>
       </div>
       <details <?= $edit ? 'open' : '' ?>><summary>Nom et adresses</summary>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="hosts"><input type="hidden" name="slug" value="<?= e($slug) ?>">
