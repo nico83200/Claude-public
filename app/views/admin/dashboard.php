@@ -7,7 +7,8 @@
   </div>
 </div>
 
-<?php if (is_superadmin() && demo_present()): ?>
+<?php if (onboarding_visible()) { partial('onboarding'); } ?>
+<?php if (is_superadmin() && demo_present() && !onboarding_visible()): ?>
   <div class="flash flash-info mb-2"><?= icon('info') ?><div style="flex:1">Les <strong>données de démonstration</strong> sont encore présentes (centres, fournisseurs et comptes fictifs). Retirez-les avant la mise en service.</div>
     <a class="btn btn-sm" href="<?= url('admin/cleanup') ?>"><?= icon('trash', 16) ?> Supprimer les données de démo</a></div>
 <?php endif; ?>

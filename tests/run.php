@@ -44,6 +44,7 @@ require APP . '/support.php';
 require APP . '/videos.php';
 require APP . '/contracts.php';
 require APP . '/demo.php';
+require APP . '/onboarding.php';
 require APP . '/barcode.php';
 require APP . '/licence.php';
 require APP . '/reports.php';
@@ -714,6 +715,16 @@ $ip = instance_paths('imss');
 check(str_ends_with($ip['config'], '/instances/imss/config.php') && $ip['uploads_url'] === 'uploads/i/imss', 'chemins propres au client');
 check(instance_paths(null)['storage'] === ROOT . '/storage' && storage_path('x') === ROOT . '/storage/x', 'installation simple inchangée');
 check(uploads_url('products/a.png') === 'uploads/products/a.png', 'photos de l\'installation simple');
+
+section('Démarrage guidé');
+[$inv, $badInv] = invite_parse("claire.dubois@ex.fr\nAntoine Morel <a.morel@ex.fr>\nLéa;Fabre;lea.fabre@ex.fr\nJean\tMartin\tjean.martin@ex.fr\nsans adresse\nCLAIRE.DUBOIS@ex.fr");
+check(count($inv) === 4 && count($badInv) === 1, 'liste d\'invitation : 4 personnes reconnues, doublon et ligne sans adresse écartés');
+check($inv[0] === ['Claire', 'Dubois', 'claire.dubois@ex.fr'] && $inv[1] === ['Antoine', 'Morel', 'a.morel@ex.fr'] && $inv[2] === ['Léa', 'Fabre', 'lea.fabre@ex.fr'] && $inv[3] === ['Jean', 'Martin', 'jean.martin@ex.fr'], 'noms lus ou déduits de l\'adresse');
+$obSteps = onboarding_steps();
+check(in_array('demo', array_column($obSteps, 'key'), true) === demo_present() && ($obSteps[array_search('centers', array_column($obSteps, 'key'))]['done'] ?? false), 'étapes détectées d\'après les données (démo, centres…)');
+check(onboarding_progress($obSteps) > 0 && onboarding_progress($obSteps) < 100, 'avancement calculé sur les étapes essentielles');
+$tok = password_reset_create(one("SELECT * FROM users WHERE email = 'admin@test.fr'"), 7 * 86400);
+check(strtotime((string)val('SELECT expires_at FROM password_resets WHERE token_hash = ?', [hash('sha256', $tok)])) > time() + 6 * 86400, 'lien d\'invitation valable 7 jours');
 
 section('Démo publique');
 check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');

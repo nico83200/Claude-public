@@ -64,13 +64,14 @@ function login_record(string $email, bool $success): void
 
 // ---------------------------------------------------------------- Mot de passe oublié
 
-function password_reset_create(array $u): string
+/** Lien de choix du mot de passe : 1 heure (mot de passe oublié) ou plus (invitation, 7 jours). */
+function password_reset_create(array $u, int $ttl = 3600): string
 {
     $token = bin2hex(random_bytes(32));
     q('UPDATE password_resets SET used_at = ? WHERE user_id = ? AND used_at IS NULL', [now(), $u['id']]);
     insert('password_resets', [
         'user_id' => $u['id'], 'token_hash' => hash('sha256', $token),
-        'expires_at' => date('Y-m-d H:i:s', time() + 3600), 'created_at' => now(),
+        'expires_at' => date('Y-m-d H:i:s', time() + $ttl), 'created_at' => now(),
     ]);
     return $token;
 }

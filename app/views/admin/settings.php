@@ -1,7 +1,9 @@
-<div class="page-head"><h1>Paramètres</h1><a class="btn" href="<?= url('admin/rgpd') ?>"><?= icon('lock', 18) ?> Fiche RGPD et sécurité</a></div>
+<div class="page-head"><h1>Paramètres</h1><div class="row">
+  <?php if (setting('onboarding_hidden', '0') === '1'): ?><form method="post" action="<?= url('admin/onboarding') ?>"><?= csrf_field() ?><button class="btn" type="submit"><?= icon('sparkles', 18) ?> Réafficher le guide de démarrage</button></form><?php endif; ?>
+  <a class="btn" href="<?= url('admin/rgpd') ?>"><?= icon('lock', 18) ?> Fiche RGPD et sécurité</a></div></div>
 <?php if ($test): ?><div class="flash flash-<?= $test['ok'] ? 'success' : 'error' ?>"><?= icon($test['ok'] ? 'sparkles' : 'alert') ?><div><?= e($test['msg']) ?></div></div><?php endif; ?>
 <div class="grid grid-2">
-  <form method="post" class="card" enctype="multipart/form-data">
+  <form method="post" class="card" enctype="multipart/form-data" id="general">
     <?= csrf_field() ?>
     <div class="card-head"><h2><?= icon('settings') ?> Général</h2></div>
     <div class="card-body">
@@ -122,7 +124,7 @@
       </div>
     </div>
   </form>
-  <form method="post" class="card" style="grid-column:1/-1">
+  <form method="post" class="card" style="grid-column:1/-1" id="mail">
     <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>
     <div class="card-body">

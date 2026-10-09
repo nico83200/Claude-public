@@ -226,7 +226,7 @@ function auth_reset(): void
             update('password_resets', ['used_at' => now()], 'id = ?', [$reset['id']]);
             q('DELETE FROM login_attempts WHERE email = ? AND success = 0', [$reset['email']]);
             audit('Mot de passe réinitialisé', 'user', (int)$reset['user_id']);
-            flash('success', 'Mot de passe modifié. Vous pouvez vous connecter.');
+            flash('success', input('invite') === '1' ? 'Mot de passe enregistré : connectez-vous avec votre e-mail.' : 'Mot de passe modifié. Vous pouvez vous connecter.');
             redirect('login');
         }
     }

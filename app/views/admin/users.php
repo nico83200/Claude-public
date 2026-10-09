@@ -1,6 +1,6 @@
 <div class="page-head">
   <div><h1>Comptes utilisateurs</h1><p>Validez les demandes d'accès et attribuez les centres de chaque salarié.</p></div>
-  <div class="row"><button type="button" class="btn" data-dialog-open="roles-help"><?= icon('users', 18) ?> Droits des rôles</button><a class="btn btn-primary" href="<?= url('admin/user') ?>"><?= icon('plus', 18) ?> Créer un compte</a></div>
+  <div class="row"><a class="btn" href="<?= url('admin/invite') ?>"><?= icon('send', 18) ?> Inviter des salariés</a><button type="button" class="btn" data-dialog-open="roles-help"><?= icon('users', 18) ?> Droits des rôles</button><a class="btn btn-primary" href="<?= url('admin/user') ?>"><?= icon('plus', 18) ?> Créer un compte</a></div>
 </div>
 <div class="tabs">
   <?php foreach (['' => 'Tous', 'pending' => 'À valider', 'active' => 'Actifs', 'disabled' => 'Désactivés'] as $k => $l): ?>

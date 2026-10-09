@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.22.0
+- **Démarrage guidé d'un nouveau client** : sur le pilotage, l'administrateur suit une liste d'étapes avec barre de progression, cochées automatiquement d'après ses données : retirer les données de démonstration, renseigner l'organisation, créer les centres, ajouter les fournisseurs, importer le catalogue, inviter les salariés, activer les e-mails, relier Approvia à NLapps ; puis, en facultatif, dates limites, budgets et contrats. La prochaine étape est mise en avant, chaque étape ouvre la bonne page. Guide masquable (et réaffichable depuis Paramètres).
+- **Inviter des salariés en nombre** (*Comptes → Inviter des salariés*) : collez une liste (adresses seules, « Prénom Nom <adresse> », « Prénom ; Nom ; adresse » ou colonnes Excel), choisissez les centres, le rôle et la fonction. Chaque personne reçoit par e-mail un lien pour choisir son mot de passe, valable 7 jours ; sans e-mails activés, les liens personnels s'affichent pour être transmis (bouton « Copier tous les liens »). Les comptes déjà actifs ne sont pas touchés, les demandes d'accès en attente sont validées.
+
 ## 1.21.0
 - **Démo publique pour les prospects** : un espace créé dans la console avec « Démo publique » propose sur sa page de connexion quatre profils en un clic (salarié, responsable de centre, acheteur, administrateur), avec un bandeau « Démo » et un bouton « Obtenir Approvia » sur chaque page.
 - **Remise à zéro chaque nuit à 3 h** (ou à la demande depuis la console) : toutes les saisies des visiteurs sont effacées et les données de démonstration recréées (contrats compris) ; clé cron, licence et tutoriels vidéo conservés.
