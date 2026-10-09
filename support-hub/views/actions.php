@@ -498,7 +498,7 @@ switch ($action) {
                 . $url . "\n\nLa période déjà réglée est conservée : le premier paiement aura lieu à son échéance. Le paiement est sécurisé par Stripe ; vous retrouverez vos factures au même endroit.\n\nMerci de votre confiance,\n" . hcfg('operator_name'), $headers);
             flash($ok ? 'Lien de paiement envoyé à ' . $c['contact_email'] . '.' : 'Envoi impossible depuis ce serveur : copiez le lien et transmettez-le.', !$ok);
         }
-        go('index.php?p=clients&app=' . $c['app'] . '#client-' . $c['id']);
+        go(($_POST['back'] ?? '') === 'billing' ? 'index.php?p=billing' : 'index.php?p=clients&app=' . $c['app'] . '#client-' . $c['id']);
 
     // ------------------------------------------------------------ Mise à jour du centre d'assistance
     case 'hub_update':

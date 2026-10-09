@@ -117,8 +117,8 @@ $p = (string)($_GET['p'] ?? '');
 $isAdmin = $hubUser['role'] === 'admin';
 // Pages propres à chaque application (sous-menu de l'application) et pages générales
 $appPages = ['clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ', 'videos' => 'Vidéos'];
-$generalPages = ['' => 'Conversations', 'apps' => 'Applications', 'users' => 'Comptes', 'settings' => 'Réglages', 'update' => 'Mise à jour', 'account' => 'Mon compte'];
-$adminOnly = ['clients', 'releases', 'apps', 'users', 'update'];
+$generalPages = ['' => 'Conversations', 'billing' => 'Abonnements', 'apps' => 'Applications', 'users' => 'Comptes', 'settings' => 'Réglages', 'update' => 'Mise à jour', 'account' => 'Mon compte'];
+$adminOnly = ['clients', 'releases', 'apps', 'users', 'update', 'billing'];
 if (!isset($appPages[$p]) && !isset($generalPages[$p])) {
     $p = '';
 }
@@ -159,7 +159,7 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
     <a href="index.php" class="<?= $p === '' ? 'act' : '' ?>">💬 Conversations <i class="badge" data-unread <?= $unread ? '' : 'hidden' ?>><?= $unread ?></i></a>
     <div class="nav-title">Applications</div>
     <?php foreach (hub_apps() as $a): $cur = $app && $app['slug'] === $a['slug'] && isset($appPages[$p]); ?>
-      <details class="appnav" <?= $cur || count(hub_apps()) === 1 ? 'open' : '' ?>>
+      <details class="appnav" <?= $cur || count(hub_apps()) <= 3 ? 'open' : '' ?>>
         <summary><span class="dot" style="background:<?= h($a['color']) ?>"></span><?= h($a['name']) ?></summary>
         <?php foreach ($appPages as $k => $label): if (in_array($k, $adminOnly, true) && !$isAdmin) continue; ?>
           <a href="<?= $link($k, $a['slug']) ?>" class="<?= $cur && $p === $k ? 'act' : '' ?>"><?= h($label) ?></a>
@@ -168,6 +168,7 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
     <?php endforeach; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('apps') ?>" class="sub <?= $p === 'apps' ? 'act' : '' ?>">＋ Gérer les applications</a><?php endif; ?>
     <div class="nav-title">Administration</div>
+    <?php if ($isAdmin): ?><a href="<?= $link('billing') ?>" class="<?= $p === 'billing' ? 'act' : '' ?>">💳 Abonnements</a><?php endif; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('users') ?>" class="<?= $p === 'users' ? 'act' : '' ?>">👥 Comptes</a><?php endif; ?>
     <a href="<?= $link('settings') ?>" class="<?= $p === 'settings' ? 'act' : '' ?>">⚙️ Réglages</a>
     <?php if ($isAdmin): ?><a href="<?= $link('update') ?>" class="<?= $p === 'update' ? 'act' : '' ?>">⬆️ Mise à jour <small>v<?= h(hub_version()) ?></small></a><?php endif; ?>
@@ -187,7 +188,7 @@ require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
 </div>
 </div>
 <script>window.HUB = <?= json_encode(['csrf' => $csrf, 'vapid' => (function () { try { return hub_vapid()['public']; } catch (Throwable) { return null; } })()]) ?>;</script>
-<script src="assets/hub.js?v=4"></script>
+<script src="assets/hub.js?v=5"></script>
 <?php
 page_foot();
 
@@ -197,7 +198,7 @@ function page_head(string $title): void
 <title><?= h($title) ?> · Assistance NLapps</title>
 <link rel="icon" href="assets/nlapps-mark.svg"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-192.png">
 <meta name="theme-color" content="#1e1b4b"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/hub.css?v=4"></head><body><?php
+<link rel="stylesheet" href="assets/hub.css?v=5"></head><body><?php
 }
 
 function page_foot(): void

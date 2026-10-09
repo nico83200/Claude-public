@@ -119,6 +119,11 @@ function hub_migrate(PDO $pdo): void
         $pdo->exec('UPDATE quick_replies SET ' . $r('title') . ', ' . $r('body'));
         $pdo->exec("INSERT INTO settings (k, v) VALUES ('renamed_centriva', '1')");
     }
+    if (!(int)$pdo->query("SELECT COUNT(*) FROM settings WHERE k = 'renamed_centriva_clients'")->fetchColumn()) {
+        $r = fn(string $col) => "$col = REPLACE($col, 'Approv' || 'ia', 'Centriva')";
+        $pdo->exec('UPDATE clients SET ' . $r('name') . ', ' . $r('plan') . ', ' . $r('licence_note'));
+        $pdo->exec("INSERT INTO settings (k, v) VALUES ('renamed_centriva_clients', '1')");
+    }
     // Applications déjà présentes dans le parc (versions antérieures : champ libre)
     foreach ($pdo->query("SELECT app FROM clients UNION SELECT app FROM releases UNION SELECT app FROM faq UNION SELECT app FROM videos")->fetchAll(PDO::FETCH_COLUMN) as $slug) {
         if ($slug && $slug !== '*') {

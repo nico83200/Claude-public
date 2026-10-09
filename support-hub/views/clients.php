@@ -38,7 +38,7 @@ $kpi['auto'] = count(array_filter($clients, fn($c) => hub_billing_active($c)));
     <div class="stat"><b><?= number_format($kpi['active'] * (float)$app['price_base'] + $kpi['ai'] * (float)$app['price_ai'], 0, ',', ' ') ?> €</b><span>revenu mensuel estimé (HT)</span></div>
     <div class="stat"><b style="color:<?= $kpi['soon'] + $kpi['late'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['soon'] ?> / <?= $kpi['late'] ?></b><span>échéance &lt; 30 j / impayés</span></div>
     <div class="stat"><b style="color:<?= $kpi['outdated'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['outdated'] ?></b><span>installation(s) à mettre à jour</span></div>
-    <?php if ($stripeOn): ?><div class="stat"><b><?= $kpi['auto'] ?> / <?= count($clients) ?></b><span>en paiement automatique</span></div><?php endif; ?>
+    <a class="stat" href="index.php?p=billing" style="text-decoration:none;color:inherit"><b><?= $kpi['auto'] ?> / <?= count($clients) ?></b><span>en paiement automatique<?= $stripeOn ? '' : ' (Stripe à relier)' ?> →</span></a>
   </div>
 
   <?php if ($nk = $_SESSION['new_key'] ?? null): unset($_SESSION['new_key']); ?>
@@ -78,7 +78,7 @@ $kpi['auto'] = count(array_filter($clients, fn($c) => hub_billing_active($c)));
           <td class="hide-sm"><small><?= isset($stats['users']) ? (int)$stats['users'] . ' utilisateurs<br>' . (int)($stats['centers'] ?? 0) . ' centre(s)' : '—' ?><?= isset($stats['orders30']) ? '<br>' . (int)$stats['orders30'] . ' bons / 30 j' : '' ?></small></td>
           <td><span class="tag <?= $lt[1] ?>"><?= h($lt[0]) ?></span><?= $c['lic']['ai'] ? ' <span class="tag violet">IA</span>' : '' ?><br>
             <small class="muted"><?= h($c['plan']) ?><?= $c['paid_until'] ? ' · jusqu\'au ' . date('d/m/Y', strtotime($c['paid_until'])) : ' · sans échéance' ?></small>
-            <?php if ($stripeOn): $bs = (string)$c['billing_status']; ?><br><span class="tag <?= ['active' => 'green', 'trialing' => 'green', 'past_due' => 'red', 'unpaid' => 'red', 'canceled' => 'amber'][$bs] ?? '' ?>" title="Paiement en ligne"><?= $bs ? ($bs === 'active' || $bs === 'trialing' ? ($c['billing_method'] === 'sepa_debit' ? 'Prélèvement SEPA' : ($c['billing_method'] === 'card' ? 'Carte' : 'Paiement auto')) . ($c['billing_next'] ? ' · ' . date('d/m', strtotime($c['billing_next'])) : '') : h(hub_billing_status_label($bs))) : 'Paiement manuel' ?></span><?php endif; ?></td>
+            <?php $bs = (string)$c['billing_status']; if ($stripeOn || $bs): ?><br><span class="tag <?= ['active' => 'green', 'trialing' => 'green', 'past_due' => 'red', 'unpaid' => 'red', 'canceled' => 'amber'][$bs] ?? '' ?>" title="Paiement en ligne"><?= $bs ? ($bs === 'active' || $bs === 'trialing' ? ($c['billing_method'] === 'sepa_debit' ? 'Prélèvement SEPA' : ($c['billing_method'] === 'card' ? 'Carte' : 'Paiement auto')) . ($c['billing_next'] ? ' · ' . date('d/m', strtotime($c['billing_next'])) : '') : h(hub_billing_status_label($bs))) : 'Paiement manuel' ?></span><?php endif; ?></td>
           <td>
             <details class="edit"><summary class="btn sm">Gérer</summary>
               <form method="post" style="min-width:260px">
