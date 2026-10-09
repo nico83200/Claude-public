@@ -1,12 +1,12 @@
 <div class="page-head">
   <div><h1>Tutoriels vidéo</h1><p>Apprenez à utiliser Approvia en quelques minutes. Cliquez sur un chapitre pour aller directement au passage qui vous intéresse.</p></div>
-  <?php if (is_admin()): ?><a class="btn" href="<?= url('admin/videos') ?>"><?= icon('settings', 18) ?> Gérer les vidéos</a><?php endif; ?>
+  <?php if (is_superadmin()): ?><a class="btn" href="<?= url('admin/videos') ?>"><?= icon('settings', 18) ?> Gérer les vidéos</a><?php endif; ?>
 </div>
 
 <?php if (!$videos): ?>
   <div class="card"><div class="empty">
     <?= icon('play') ?><h3>Aucune vidéo pour le moment</h3>
-    <?php if (is_admin()): ?>
+    <?php if (is_superadmin()): ?>
       <p><?= $pending ? $pending . ' vidéo(s) en cours de téléchargement depuis ' . e(support_contact()['editor']) . '.' : 'Les tutoriels publiés par ' . e(support_contact()['editor']) . ' apparaîtront ici automatiquement. Vous pouvez aussi déposer vos propres vidéos.' ?></p>
       <a class="btn btn-primary" href="<?= url('admin/videos') ?>"><?= icon('plus', 18) ?> Ajouter une vidéo</a>
     <?php else: ?>

@@ -24,7 +24,8 @@
     </div>
     <div class="card card-body">
       <div class="field"><label>Rôle</label>
-        <select name="role"><option value="user" <?= ($u['role'] ?? 'user') === 'user' ? 'selected' : '' ?>>Salarié (commandes &amp; réceptions)</option><option value="manager" <?= ($u['role'] ?? '') === 'manager' ? 'selected' : '' ?>>Responsable de centre (valide les demandes de ses centres)</option><option value="admin" <?= ($u['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateur (service achats)</option></select>
+        <select name="role"><option value="user" <?= ($u['role'] ?? 'user') === 'user' ? 'selected' : '' ?>>Salarié (commandes &amp; réceptions)</option><option value="manager" <?= ($u['role'] ?? '') === 'manager' ? 'selected' : '' ?>>Responsable de centre (valide les demandes de ses centres)</option><option value="buyer" <?= ($u['role'] ?? '') === 'buyer' ? 'selected' : '' ?>>Acheteur (service achats, sans l'organisation ni les paramètres)</option><option value="admin" <?= ($u['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateur (service achats, organisation et paramètres)</option></select>
+        <small class="muted">L'acheteur traite les demandes, les commandes, le catalogue, les fournisseurs, les factures et les budgets. Seul l'administrateur gère les centres, les comptes, les paramètres, le journal d'audit et les mises à jour.</small>
       </div>
       <div class="field"><label>Statut</label>
         <select name="status">

@@ -218,7 +218,7 @@ function cron_cycle_count(): int
         if (!$items) {
             continue;
         }
-        $to = center_manager_ids((int)$c['id']) ?: array_map('intval', array_column(all("SELECT id FROM users WHERE role = 'admin' AND status = 'active'"), 'id'));
+        $to = center_manager_ids((int)$c['id']) ?: admin_ids();
         notify($to, 'cycle_count', 'Inventaire tournant : ' . count($items) . ' articles à compter (' . $c['name'] . ')',
             'Quelques minutes suffisent : ' . implode(', ', array_slice(array_column($items, 'name'), 0, 4)) . (count($items) > 4 ? '…' : '') . '.',
             url('stock/cycle', ['c' => $c['id']]));

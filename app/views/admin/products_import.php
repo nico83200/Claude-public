@@ -14,7 +14,7 @@
         <small class="muted">Vous pourrez aussi le choisir à l'étape suivante.</small>
       </div>
       <label class="check"><input type="checkbox" name="use_ai" value="1" <?= $aiReady ? 'checked' : 'disabled' ?>> <span><?= icon('sparkles', 15) ?> Correspondances par l'IA <small class="muted">(colonnes, fournisseurs, catégories)</small></span></label>
-      <?php if (!$aiReady): ?><small class="muted">Assistant IA non configuré (<a href="<?= url('admin/settings') ?>">Paramètres</a>) : la reconnaissance des colonnes se fera par leurs intitulés.</small><?php endif; ?>
+      <?php if (!$aiReady): ?><small class="muted">Assistant IA non configuré (<?= is_superadmin() ? '<a href="' . url('admin/settings') . '">Paramètres</a>' : 'paramètres, à demander à l\'administrateur' ?>) : la reconnaissance des colonnes se fera par leurs intitulés.</small><?php endif; ?>
       <button class="btn btn-primary mt-1" type="submit"><?= icon('upload', 18) ?> Analyser le fichier</button>
     </div>
   </form>

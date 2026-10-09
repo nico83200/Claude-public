@@ -17,9 +17,27 @@ function user(): ?array
     return $cache[$id];
 }
 
-function is_admin(): bool
+/** Rôles du service achats : l'administrateur et l'acheteur (sans l'organisation ni les paramètres). */
+const PURCHASING_ROLES = ['admin', 'buyer'];
+
+/** Libellés des rôles, du moins au plus étendu. */
+const ROLE_LABELS = ['user' => 'Salarié', 'manager' => 'Responsable de centre', 'buyer' => 'Acheteur', 'admin' => 'Administrateur'];
+
+function role_label(?string $role): string
 {
-    return (user()['role'] ?? '') === 'admin';
+    return ROLE_LABELS[$role ?? ''] ?? 'Salarié';
+}
+
+/** Service achats (administrateur ou acheteur). */
+function is_admin(?array $u = null): bool
+{
+    return in_array(($u ?? user())['role'] ?? '', PURCHASING_ROLES, true);
+}
+
+/** Administrateur : seul à gérer l'organisation (centres, comptes) et les paramètres. */
+function is_superadmin(?array $u = null): bool
+{
+    return (($u ?? user())['role'] ?? '') === 'admin';
 }
 
 function require_login(): array
@@ -37,8 +55,17 @@ function require_login(): array
 function require_admin(): array
 {
     $u = require_login();
-    if ($u['role'] !== 'admin') {
+    if (!is_admin($u)) {
         abort(403);
+    }
+    return $u;
+}
+
+function require_superadmin(): array
+{
+    $u = require_login();
+    if (!is_superadmin($u)) {
+        abort(403, 'Réservé à l\'administrateur : l\'organisation et les paramètres ne sont pas accessibles aux acheteurs.');
     }
     return $u;
 }
@@ -67,7 +94,7 @@ function user_centers(?array $u = null): array
     }
     $id = (int)$u['id'];
     if (!isset($cache[$id])) {
-        $cache[$id] = $u['role'] === 'admin'
+        $cache[$id] = is_admin($u)
             ? all('SELECT * FROM centers WHERE active = 1 ORDER BY name')
             : all('SELECT c.* FROM centers c JOIN user_centers uc ON uc.center_id = c.id
                    WHERE uc.user_id = ? AND c.active = 1 ORDER BY c.name', [$id]);

@@ -134,7 +134,7 @@ function admin_videos(): void
                 $w = (string)input('welcome_video', '');
                 set_setting('welcome_video', $w === 'none' || $w === '' || video_find($w) ? $w : '');
                 if (input('reset')) {
-                    q("UPDATE users SET welcome_video_off = 0 WHERE role <> 'admin'");
+                    q("UPDATE users SET welcome_video_off = 0 WHERE role NOT IN ('admin', 'buyer')");
                 }
                 flash('success', $w === 'none' ? 'Aucune vidéo ne s\'ouvrira à la connexion des salariés.' : 'Vidéo d\'accueil enregistrée' . (input('reset') ? ' : elle s\'ouvrira à la prochaine connexion de chaque salarié.' : '.'));
                 break;

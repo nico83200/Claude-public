@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 1.18.0
+- **Nouveau rôle « Acheteur »** : il dispose de tout le service achats (pilotage, direction, demandes à traiter, bons de commande, articles proposés, fournisseurs, articles, catégories, dates limites, comparateur, factures, exports comptables, budgets, stocks des centres) et voit tous les centres, mais pas l'**organisation** (centres, comptes) ni les **paramètres** (paramètres, fiche RGPD, journal d'audit, nettoyage des données, mises à jour et sauvegardes, file d'e-mails, gestion des vidéos). Ces pages sont retirées de son menu et refusées s'il tente d'y accéder directement.
+- L'acheteur reçoit les notifications du service achats (nouvelles demandes, articles proposés, hausses de prix, budgets…), mais pas les comptes à valider ; la double authentification exigée des administrateurs s'applique aussi à lui.
+- Choix du rôle dans *Organisation → Comptes* : Salarié, Responsable de centre, Acheteur ou Administrateur.
+
 ## 1.17.0
 - **Vidéo d'accueil des salariés** : à la connexion d'un salarié, le tutoriel s'ouvre en fenêtre, avec une case « Ne plus afficher ». Tant qu'elle n'est pas cochée, la fenêtre revient à la connexion suivante (une seule fois par connexion) ; la vidéo reste disponible dans « Tutoriels vidéo ». Jamais montrée aux administrateurs.
 - Réglage (Tutoriels vidéo → Vidéo d'accueil des salariés) : automatique (vidéo désignée par NLapps), une vidéo au choix ou aucune ; bouton pour la montrer à nouveau à tous les salariés.

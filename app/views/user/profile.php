@@ -30,7 +30,7 @@
     <div class="card-body">
       <?php if (user_has_2fa($u)): ?>
         <p class="muted" style="margin-top:0">Un code de votre application d'authentification est demandé à chaque connexion.</p>
-        <?php if (!(admin_2fa_required() && $u['role'] === 'admin')): ?>
+        <?php if (!(admin_2fa_required() && is_admin($u))): ?>
         <form method="post" class="row"><?= csrf_field() ?><input type="hidden" name="action" value="2fa_disable">
           <input type="password" name="current" placeholder="Mot de passe" required autocomplete="current-password" style="max-width:220px">
           <input type="text" name="code" placeholder="Code à 6 chiffres" inputmode="numeric" autocomplete="one-time-code" required style="max-width:180px">
@@ -47,7 +47,7 @@
           </div>
         </div>
       <?php else: ?>
-        <p class="muted" style="margin-top:0">Protégez votre compte : en plus du mot de passe, un code à 6 chiffres généré par une application sur votre téléphone vous sera demandé à la connexion.<?= $u['role'] === 'admin' ? ' Fortement conseillé pour les administrateurs.' : '' ?></p>
+        <p class="muted" style="margin-top:0">Protégez votre compte : en plus du mot de passe, un code à 6 chiffres généré par une application sur votre téléphone vous sera demandé à la connexion.<?= is_admin($u) ? ' Fortement conseillé pour les administrateurs.' : '' ?></p>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="2fa_start"><button class="btn btn-primary" type="submit"><?= icon('lock', 16) ?> Configurer</button></form>
       <?php endif; ?>
     </div>
@@ -61,7 +61,7 @@
       <hr>
       <p class="muted">Événements qui vous intéressent :</p>
       <div class="check-grid">
-        <?php $prefs = user_notify_prefs($u); foreach (NOTIFY_EVENTS as $k => $ev): if ($ev['for'] === 'admin' && $u['role'] !== 'admin') continue; if ($ev['for'] === 'manager' && !in_array($u['role'], ['manager', 'admin'], true)) continue; if (!notify_event_enabled($k)) continue; ?>
+        <?php $prefs = user_notify_prefs($u); foreach (NOTIFY_EVENTS as $k => $ev): if ($ev['for'] === 'admin' && !is_admin($u)) continue; if ($ev['for'] === 'manager' && $u['role'] !== 'manager' && !is_admin($u)) continue; if ($k === 'account_pending' && !is_superadmin($u)) continue; if (!notify_event_enabled($k)) continue; ?>
           <label class="check"><input type="checkbox" name="events[<?= $k ?>]" value="1" <?= ($prefs[$k] ?? true) ? 'checked' : '' ?>> <?= e($ev['label']) ?><?= !mail_case_enabled($k) ? ' <small class="muted">(application uniquement)</small>' : '' ?></label>
         <?php endforeach; ?>
       </div>

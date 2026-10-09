@@ -40,9 +40,10 @@ function mail_case_enabled(string $case): bool
     return setting('mail_enabled', '0') === '1' && setting('mailev_' . $case, '1') === '1';
 }
 
-function admin_ids(): array
+/** Service achats (administrateurs et acheteurs) ; administrateurs seuls avec $superOnly. */
+function admin_ids(bool $superOnly = false): array
 {
-    return array_map('intval', array_column(all("SELECT id FROM users WHERE role = 'admin' AND status = 'active'"), 'id'));
+    return array_map('intval', array_column(all('SELECT id FROM users WHERE role IN (' . ($superOnly ? "'admin'" : "'admin', 'buyer'") . ") AND status = 'active'"), 'id'));
 }
 
 function notify_event_enabled(string $type): bool

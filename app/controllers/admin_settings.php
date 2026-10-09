@@ -195,7 +195,7 @@ function admin_user_edit(): void
             'email' => mb_strtolower((string)input('email')),
             'job' => (string)input('job') ?: null,
             'phone' => (string)input('phone') ?: null,
-            'role' => in_array(input('role'), ['admin', 'manager'], true) ? input('role') : 'user',
+            'role' => in_array(input('role'), ['admin', 'buyer', 'manager'], true) ? input('role') : 'user',
             'status' => in_array(input('status'), ['pending', 'active', 'disabled'], true) ? input('status') : 'active',
         ];
         $centerIds = array_map('intval', (array)($_POST['centers'] ?? []));
@@ -208,7 +208,7 @@ function admin_user_edit(): void
         } elseif (val('SELECT COUNT(*) FROM users WHERE email = ? AND id <> ?', [$data['email'], $id])) {
             $errors[] = 'Cet e-mail est déjà utilisé.';
         }
-        if ($data['role'] !== 'admin' && $data['status'] === 'active' && !$centerIds) {
+        if (!is_admin($data) && $data['status'] === 'active' && !$centerIds) {
             $errors[] = 'Un compte actif doit être rattaché à au moins un centre.';
         }
         if ($id === (int)$me['id'] && ($data['role'] !== 'admin' || $data['status'] !== 'active')) {

@@ -173,6 +173,11 @@ if (is_admin() && admin_2fa_required() && !user_has_2fa(user()) && !in_array($ro
 // Tâches de fond (e-mails, rappels, sauvegarde) exécutées après l'envoi de la page
 cron_after_request();
 
+// Organisation et paramètres : réservés à l'administrateur (l'acheteur gère tout le reste du service achats)
+if (preg_match('#^admin/(centers?|users?(/delete)?|settings|rgpd|audit|cleanup|updates(/.*)?|backup-daily|mail-queue|videos)$#', $route)) {
+    require_superadmin();
+}
+
 [$file, $fn] = $routes[$route];
 require_once APP . '/controllers/' . $file . '.php';
 $fn();

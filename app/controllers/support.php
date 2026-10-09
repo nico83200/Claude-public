@@ -14,7 +14,7 @@ function api_support_ask(): void
         json_response(['answer' => 'Bien sûr, je vous mets en relation avec l\'équipe ' . support_contact()['editor'] . '.', 'links' => [], 'source' => 'human',
             'confident' => false, 'human' => true, 'live' => support_live_enabled(), 'form' => url('support', ['q' => mb_substr($q, 0, 300)])]);
     }
-    $isAdmin = ($u['role'] ?? '') === 'admin';
+    $isAdmin = is_admin($u);
     $r = support_answer($q, $isAdmin, (string)input('page', ''));
     // Tutoriel vidéo : la vidéo (et le chapitre) qui correspond le mieux à la question
     if ($vm = video_match($q, $isAdmin)) {
@@ -45,7 +45,7 @@ function support_chat_start(array $u, ?array $center, string $message, array $tr
 {
     $r = support_hub('open', [], [
         'user' => ['name' => $u['first_name'] . ' ' . $u['last_name'], 'email' => $u['email'],
-            'role' => ['admin' => 'Administrateur', 'manager' => 'Responsable de centre'][$u['role']] ?? 'Salarié', 'center' => $center['name'] ?? ''],
+            'role' => role_label($u['role']), 'center' => $center['name'] ?? ''],
         'context' => support_context($u, $center, (string)input('page', '')),
         'transcript' => array_slice($transcript, -12),
         'message' => $message,
@@ -223,7 +223,7 @@ function support_page(): void
         $p = $_SESSION['support_pending'];
         $pending = ['id' => $p['id'], 'mailto' => 'mailto:' . $c['email'] . '?subject=' . rawurlencode('[Approvia #' . $p['id'] . '] ' . $p['subject']) . '&body=' . rawurlencode($p['text'])];
     }
-    $isAdmin = ($u['role'] ?? '') === 'admin';
+    $isAdmin = is_admin($u);
     $history = all('SELECT r.*, u.first_name, u.last_name FROM support_requests r LEFT JOIN users u ON u.id = r.user_id'
         . ($isAdmin ? '' : ' WHERE r.user_id = ' . (int)$u['id']) . ' ORDER BY r.created_at DESC, r.id DESC LIMIT 20');
     render('support', [

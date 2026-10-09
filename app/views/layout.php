@@ -9,7 +9,7 @@ $toReceiveN = $center ? (int)val("SELECT COUNT(*) FROM purchase_orders WHERE cen
 if (is_admin()) {
     $pendingN = (int)val("SELECT COUNT(*) FROM request_lines WHERE status = 'pending'");
     $toOrderN = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE status = 'a_commander'");
-    $usersN = (int)val("SELECT COUNT(*) FROM users WHERE status = 'pending'");
+    $usersN = is_superadmin() ? (int)val("SELECT COUNT(*) FROM users WHERE status = 'pending'") : 0;
     $suggN = pending_suggestions_count();
 }
 $lowN = $center ? stock_low_count((int)$center['id']) : 0;
@@ -88,6 +88,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/exports') ?>" href="<?= url('admin/exports') ?>"><?= icon('download') ?> Exports comptables</a>
       <a class="<?= $active('admin/budgets') ?>" href="<?= url('admin/budgets') ?>"><?= icon('wallet') ?> Budgets</a>
       <a class="<?= $active('admin/stocks') ?>" href="<?= url('admin/stocks') ?>"><?= icon('layers') ?> Stocks des centres</a>
+      <?php if (is_superadmin()): ?>
       <div class="nav-title">Organisation</div>
       <a class="<?= $active('admin/centers', 'admin/center') ?>" href="<?= url('admin/centers') ?>"><?= icon('building') ?> Centres</a>
       <a class="<?= $active('admin/users', 'admin/user') ?>" href="<?= url('admin/users') ?>"><?= icon('users') ?> Comptes <?php if ($usersN): ?><span class="count"><?= $usersN ?></span><?php endif; ?></a>
@@ -95,6 +96,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/audit') ?>" href="<?= url('admin/audit') ?>"><?= icon('shield') ?> Journal d'audit</a>
       <a class="<?= $active('admin/cleanup') ?>" href="<?= url('admin/cleanup') ?>"><?= icon('trash') ?> Nettoyage des données<?php if (demo_present()): ?> <span class="count">démo</span><?php endif; ?></a>
       <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
+      <?php endif; ?>
       <?php endif; ?>
       <div class="nav-title">Aide</div>
       <a class="<?= $active('videos', 'admin/videos') ?>" href="<?= url('videos') ?>"><?= icon('play') ?> Tutoriels vidéo</a>
@@ -106,7 +108,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <div class="avatar"><?= e(initials($u['first_name'], $u['last_name'])) ?></div>
       <div style="flex:1;min-width:0">
         <a href="<?= url('profile') ?>" style="color:#fff;font-weight:600"><?= e($u['first_name'] . ' ' . $u['last_name']) ?></a>
-        <div style="font-size:.78rem;opacity:.7"><?= e($u['job'] ?: ['admin' => 'Administrateur', 'manager' => 'Responsable de centre'][$u['role']] ?? 'Salarié') ?></div>
+        <div style="font-size:.78rem;opacity:.7"><?= e($u['job'] ?: role_label($u['role'])) ?></div>
       </div>
       <a href="<?= url('logout') ?>" title="Se déconnecter"><?= icon('logout') ?></a>
     </div>
@@ -137,10 +139,10 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
     </header>
 
     <main class="content">
-      <?php if (is_admin() && ($ln = licence_notice())): ?>
+      <?php if (is_superadmin() && ($ln = licence_notice())): ?>
         <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a></div></div>
       <?php endif; ?>
-      <?php if (is_admin() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
+      <?php if (is_superadmin() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
         <div class="flash flash-info"><?= icon('sparkles') ?><div>Nouvelle version <strong><?= e($up['version']) ?></strong> disponible. <a href="<?= url('admin/updates') ?>">Voir les nouveautés et l'installer</a></div></div>
       <?php endif; ?>
       <?php foreach (flashes() as $f): ?>

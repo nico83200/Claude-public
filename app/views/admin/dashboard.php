@@ -7,7 +7,7 @@
   </div>
 </div>
 
-<?php if (demo_present()): ?>
+<?php if (is_superadmin() && demo_present()): ?>
   <div class="flash flash-info mb-2"><?= icon('info') ?><div style="flex:1">Les <strong>données de démonstration</strong> sont encore présentes (centres, fournisseurs et comptes fictifs). Retirez-les avant la mise en service.</div>
     <a class="btn btn-sm" href="<?= url('admin/cleanup') ?>"><?= icon('trash', 16) ?> Supprimer les données de démo</a></div>
 <?php endif; ?>
@@ -33,7 +33,7 @@
 <?php if ($n = pending_suggestions_count()): ?>
 <div class="flash flash-info"><?= icon('sparkles') ?><div><strong><?= plural($n, 'article hors catalogue proposé', 'articles hors catalogue proposés') ?></strong> par les centres. <a href="<?= url('admin/suggestions') ?>">Examiner →</a></div></div>
 <?php endif; ?>
-<?php if ($kpi['pending_users']): ?>
+<?php if (is_superadmin() && $kpi['pending_users']): ?>
 <div class="flash flash-info"><?= icon('users') ?><div><strong><?= plural($kpi['pending_users'], 'compte attend', 'comptes attendent') ?></strong> votre validation. <a href="<?= url('admin/users', ['status' => 'pending']) ?>">Valider maintenant →</a></div></div>
 <?php endif; ?>
 

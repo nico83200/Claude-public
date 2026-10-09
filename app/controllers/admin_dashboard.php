@@ -107,7 +107,7 @@ function admin_rgpd(): void
         'stats' => ['users' => (int)val("SELECT COUNT(*) FROM users WHERE status = 'active' AND deleted_at IS NULL"), 'centers' => (int)val('SELECT COUNT(*) FROM centers WHERE active = 1')],
         'ai' => setting('ai_enabled', '1') === '1' && ai_api_key() !== '', 'mail' => setting('mail_enabled', '0') === '1',
         'nlapps' => licence_managed(), 'backupDays' => max(3, (int)setting('backup_keep_days', '30')),
-        'admins2fa' => [(int)val("SELECT COUNT(*) FROM users WHERE role = 'admin' AND status = 'active' AND totp_secret IS NOT NULL"), (int)val("SELECT COUNT(*) FROM users WHERE role = 'admin' AND status = 'active'")],
+        'admins2fa' => [(int)val("SELECT COUNT(*) FROM users WHERE role IN ('admin', 'buyer') AND status = 'active' AND totp_secret IS NOT NULL"), (int)val("SELECT COUNT(*) FROM users WHERE role IN ('admin', 'buyer') AND status = 'active'")],
     ], null);
 }
 

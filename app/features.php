@@ -254,7 +254,7 @@ function request_needs_approval(int $centerId, int $userId, float $total): bool
         return false;
     }
     $u = one('SELECT role FROM users WHERE id = ?', [$userId]);
-    if (in_array($u['role'] ?? '', ['manager', 'admin'], true)) {
+    if (in_array($u['role'] ?? '', ['manager', ...PURCHASING_ROLES], true)) {
         return false;
     }
     return (bool)center_manager_ids($centerId, $userId);

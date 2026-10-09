@@ -443,7 +443,7 @@ function admin_audit(): void
         $params[] = $uid;
     }
     render('admin/audit', ['title' => 'Journal d\'audit', 'rows' => all($sql . ' ORDER BY a.created_at DESC, a.id DESC LIMIT 400', $params),
-        'q' => $q, 'user' => $uid, 'users' => all("SELECT id, first_name, last_name FROM users WHERE role IN ('admin','manager') ORDER BY last_name")]);
+        'q' => $q, 'user' => $uid, 'users' => all("SELECT id, first_name, last_name FROM users WHERE role IN ('admin','buyer','manager') ORDER BY last_name")]);
 }
 
 // ---------------------------------------------------------------- Sauvegardes quotidiennes & file d'e-mails

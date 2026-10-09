@@ -666,6 +666,18 @@ q("DELETE FROM videos WHERE uid IN ('w-tuto', 'w-autre', 'nl-acc')");
 unset($_SESSION['welcome_shown']);
 @unlink(videos_dir() . '/test-tuto.mp4');
 
+section('Rôle acheteur');
+$buyerId = insert('users', ['email' => 'acheteur@test.fr', 'password_hash' => 'x', 'first_name' => 'Alice', 'last_name' => 'Acheteuse', 'role' => 'buyer', 'status' => 'active', 'created_at' => now()]);
+$buyer = as_user('acheteur@test.fr');
+check(is_admin() && !is_superadmin(), 'l\'acheteur fait partie du service achats, sans être administrateur');
+check(count(user_centers($buyer)) === (int)val('SELECT COUNT(*) FROM centers WHERE active = 1'), 'l\'acheteur voit tous les centres');
+check(in_array($buyerId, admin_ids(), true) && !in_array($buyerId, admin_ids(true), true), 'notifié des demandes, pas des comptes à valider');
+check(video_welcome_due($buyer) === null, 'pas de vidéo d\'accueil des salariés pour l\'acheteur');
+check(role_label('buyer') === 'Acheteur', 'libellé du rôle');
+q('DELETE FROM users WHERE id = ?', [$buyerId]);
+as_user('admin@test.fr');
+check(is_superadmin(), 'l\'administrateur garde l\'organisation et les paramètres');
+
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));
 @rmdir($tmp);

@@ -37,7 +37,7 @@ function auth_login(): void
                 }
                 login_record($email, true);
                 login_user($u);
-                redirect($u['role'] === 'admin' ? 'admin' : 'dashboard');
+                redirect(is_admin($u) ? 'admin' : 'dashboard');
             }
         }
     }
@@ -62,7 +62,7 @@ function auth_2fa(): void
             unset($_SESSION['2fa_uid'], $_SESSION['2fa_at']);
             login_record($u['email'], true);
             login_user($u);
-            redirect($u['role'] === 'admin' ? 'admin' : 'dashboard');
+            redirect(is_admin($u) ? 'admin' : 'dashboard');
         } else {
             login_record($u['email'], false);
             $error = 'Code incorrect. Vérifiez l\'heure de votre téléphone et saisissez le code affiché actuellement.';
@@ -108,7 +108,7 @@ function auth_register(): void
                 'role' => 'user', 'status' => 'pending',
                 'requested_centers' => implode(',', $wanted), 'created_at' => now(),
             ]);
-            notify(admin_ids(), 'account_pending', 'Compte à valider : ' . $old['first_name'] . ' ' . $old['last_name'],
+            notify(admin_ids(true), 'account_pending', 'Compte à valider : ' . $old['first_name'] . ' ' . $old['last_name'],
                 ($old['job'] ?: 'Fonction non précisée') . ' — ' . $old['email'], url('admin/users', ['status' => 'pending']));
             flash('success', 'Demande de compte envoyée ! Un administrateur va la valider très prochainement.');
             redirect('login');
@@ -150,7 +150,7 @@ function auth_profile(): void
             }
             redirect('profile', ['_' => 'security']);
         } elseif ($action === '2fa_disable') {
-            if (admin_2fa_required() && $u['role'] === 'admin') {
+            if (admin_2fa_required() && is_admin($u)) {
                 flash('error', 'La double authentification est obligatoire pour les administrateurs.');
             } elseif (password_verify((string)($_POST['current'] ?? ''), $u['password_hash']) && user_totp_verify($u, (string)input('code', ''))) {
                 update('users', ['totp_secret' => null, 'totp_last' => null], 'id = ?', [$u['id']]);

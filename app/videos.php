@@ -271,7 +271,7 @@ function video_welcome(): ?array
 /** La fenêtre d'accueil doit-elle s'ouvrir pour cet utilisateur (une fois par connexion, tant qu'il ne l'a pas désactivée) ? */
 function video_welcome_due(array $u): ?array
 {
-    if (($u['role'] ?? '') === 'admin' || !empty($u['welcome_video_off']) || !empty($_SESSION['welcome_shown'])) {
+    if (is_admin($u) || !empty($u['welcome_video_off']) || !empty($_SESSION['welcome_shown'])) {
         return null;
     }
     $v = video_welcome();
