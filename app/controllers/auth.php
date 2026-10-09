@@ -44,6 +44,29 @@ function auth_login(): void
     render('auth/login', ['error' => $error, 'email' => $email], 'layout_auth');
 }
 
+/**
+ * Arrivée depuis la connexion commune de centriva.fr : jeton à usage unique, signé avec la clé de cet espace
+ * (mot de passe déjà vérifié). La double authentification éventuelle est demandée ici, comme d'habitude.
+ */
+function auth_sso(): void
+{
+    $uid = central_handoff_verify((string)input('t', ''));
+    $u = $uid ? one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$uid]) : null;
+    if (!$u) {
+        flash('error', 'Lien de connexion expiré : reconnectez-vous.');
+        redirect('login');
+    }
+    if (user_has_2fa($u)) {
+        session_regenerate_id(true);
+        $_SESSION['2fa_uid'] = (int)$u['id'];
+        $_SESSION['2fa_at'] = time();
+        redirect('login/2fa');
+    }
+    login_record($u['email'], true);
+    login_user($u);
+    redirect(is_admin($u) ? 'admin' : 'dashboard');
+}
+
 /** Deuxième étape de connexion : code à 6 chiffres (5 minutes après le mot de passe). */
 function auth_2fa(): void
 {

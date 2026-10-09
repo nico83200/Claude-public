@@ -5,6 +5,7 @@ define('ROOT', dirname(__DIR__));
 define('APP', __DIR__);
 
 require_once APP . '/instances.php';
+require_once APP . '/central.php';
 
 // Console NLapps (console.php) : aucun client chargé au départ, elle bascule de l'un à l'autre
 $console = defined('NL_CONSOLE');
@@ -26,7 +27,8 @@ if (!$console && $slug === null && !getenv('CMD_CONFIG') && instances_enabled() 
         }
     }
     if ($slug === null && !is_file(ROOT . '/config.php')) {
-        instance_chooser();
+        $console = true; // page de connexion commune à tous les clients (fin de ce fichier)
+        $GLOBALS['central_login'] = true;
     }
 }
 if ($slug !== null) {
@@ -181,3 +183,9 @@ header('Permissions-Policy: camera=(self)');
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
+
+// centriva.fr sans espace : connexion commune (e-mail + mot de passe), qui ouvre la session dans l'espace du bon client
+if (!empty($GLOBALS['central_login'])) {
+    require APP . '/central_login.php';
+    exit;
+}

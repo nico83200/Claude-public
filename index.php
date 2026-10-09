@@ -17,6 +17,7 @@ $routes = [
     'reset'                 => ['auth', 'auth_reset'],
     'profile'               => ['auth', 'auth_profile'],
     'login/2fa'             => ['auth', 'auth_2fa'],
+    'login/sso'             => ['auth', 'auth_sso'],
 
     // Espace salarié (par centre)
     'dashboard'             => ['user', 'user_dashboard'],

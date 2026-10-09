@@ -125,24 +125,24 @@ Séparateur `;` (ou `,`), encodage UTF-8, première ligne d'en-têtes :
 `fournisseur;reference;designation;description;categorie;conditionnement;prix_catalogue;prix_negocie;mots_cles;tva;code_barre`
 Un article existant (même fournisseur et même référence) est mis à jour. L'export du catalogue sert de modèle.
 
-## Plusieurs clients sur un même serveur
+## Plateforme multi-clients (centriva.fr)
 
-Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (`centriva.fr/imss/`, ou une adresse dédiée). Les sessions sont limitées à leur espace : être connecté chez un client ne donne aucun accès aux autres.
+Un seul Centriva sert tous vos clients. **Chaque client a sa propre base de données**, ses fichiers, ses utilisateurs et sa licence : aucune donnée n'est partagée entre clients.
 
-1. **Tous les clients se connectent à la même adresse**, suivie de l'identifiant de leur espace : `centriva.fr/imss/`, `centriva.fr/sante-var/`… Le fichier `.htaccess` fourni fait le nécessaire sur un hébergement Apache (mod_rewrite). Sur nginx : `location / { try_files $uri $uri/ @espace; } location @espace { rewrite ^/([a-z0-9][a-z0-9-]*)/(.*)$ /$2 last; rewrite ^/([a-z0-9][a-z0-9-]*)$ /index.php last; }`. L'adresse seule (`centriva.fr`) affiche « Accéder à votre espace » : chacun saisit l'identifiant de son établissement, mémorisé ensuite sur l'appareil. Une adresse dédiée par client (`achats.imss.fr`) reste possible.
-2. Ouvrez `https://…/console.php`. Au premier accès, recopiez le code du fichier `storage/console-code.txt` (FTP ou gestionnaire de fichiers) et choisissez le mot de passe de la console.
-3. **Reprendre l'installation actuelle** : l'installation existante devient le premier client, sans modifier sa base (comptes, commandes, réglages, licence conservés).
-4. **Nouveau client** : nom, identifiant, adresse(s), base SQLite (un fichier, rien à créer) ou MySQL (base vide créée chez l'hébergeur), premier administrateur, clé de licence NLapps, données de démonstration en option.
+**Mise en service** (une seule fois) :
+1. Installez la mise à jour, puis ouvrez `https://centriva.fr/console.php`.
+2. Recopiez le code du fichier `storage/console-code.txt` (FTP ou gestionnaire de fichiers de l'hébergeur), puis créez votre compte **super administrateur** (nom, e-mail, mot de passe). Si la console avait déjà un mot de passe, c'est lui qui est demandé.
+3. Laissez cochée « Les données actuelles deviennent le premier client » : la base existante devient le client **IMSS** (`centriva.fr/imss/`), sans aucune modification de ses données.
 
-La console affiche les chiffres clés de chaque client et permet de le suspendre (page « momentanément indisponible »), de changer ses adresses ou de le supprimer (base et fichiers archivés d'abord dans `storage/clients-supprimes/`).
+**Connexion** : tout le monde se connecte sur `centriva.fr` avec son e-mail et son mot de passe. Centriva retrouve le client du compte et ouvre la session dans son espace ; un compte présent chez plusieurs clients choisit son espace. Les super administrateurs arrivent dans l'administration de la plateforme. « Mot de passe oublié » fonctionne depuis la même page.
 
-**Mises à jour** : le code étant commun, elles s'installent depuis la console (*Mise à jour*), pour tous les clients à la fois. La base de chaque client est sauvegardée, le code aussi, puis chaque base est migrée. Le menu « Mises à jour » disparaît des espaces clients.
+**Super administrateurs** (`console.php`) : créer, suspendre ou supprimer des clients (premier administrateur, base SQLite ou MySQL, clé de licence, données de démonstration ou démo publique), **installer les mises à jour pour tous les clients**, **publier les vidéos** visibles dans tous les clients (chapitres, vidéo d'accueil), gérer les comptes super administrateur et activer la double authentification (fortement conseillée).
 
-**Tâches planifiées** : `php cron.php` traite chaque client à son tour, dans un processus séparé.
+**Hébergement** : le fichier `.htaccess` fourni aiguille `centriva.fr/<client>/` vers l'application (Apache, mod_rewrite). Sur nginx : `location / { try_files $uri $uri/ @espace; } location @espace { rewrite ^/([a-z0-9][a-z0-9-]*)/(.*)$ /$2 last; rewrite ^/([a-z0-9][a-z0-9-]*)$ /index.php last; }`, et refusez l'accès web à `/instances/` et `/storage/`. Une adresse dédiée par client (`achats.imss.fr`) reste possible.
 
-**Démo publique** : cochez « Démo publique » à la création d'un espace (avec les données de démonstration), par exemple `demo.centriva.fr`. Les visiteurs se connectent en un clic avec chaque rôle ; les données sont remises à zéro chaque nuit à 3 h (ou par le bouton « Remettre à zéro » de la console) ; paramètres, mots de passe, comptes et e-mails sont neutralisés, et l'assistant IA est limité à 150 appels par jour. Pour une installation simple, ajoutez `'demo_mode' => true` à `config.php`.
+**Démo publique** : cochez « Démo publique » à la création d'un client (avec les données de démonstration), par exemple `centriva.fr/demo/`. Connexion en un clic avec chaque rôle, remise à zéro chaque nuit à 3 h, paramètres et e-mails neutralisés, assistant IA limité à 150 appels par jour.
 
-Organisation des fichiers : `instances/registry.php` (liste des clients), `instances/<client>/config.php` et `instances/<client>/storage/` (données privées), `uploads/i/<client>/` (photos et logo). Le dossier `instances/` est interdit d'accès web par `.htaccess`. Sur un serveur nginx, refusez aussi `/instances/` et `/storage/` dans la configuration du site.
+Organisation des fichiers : `instances/registry.php` (liste des clients), `instances/<client>/config.php` et `instances/<client>/storage/` (données privées), `uploads/i/<client>/` (photos et logo), `storage/central/` (comptes super administrateur, vidéos communes). Tâches planifiées : `php cron.php` traite chaque client à son tour.
 
 ## Tâches planifiées
 

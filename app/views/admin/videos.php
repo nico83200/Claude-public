@@ -12,13 +12,13 @@ $chapHelp = 'Un chapitre par ligne : minutes:secondes, titre, puis | et des mots
 <div class="grid grid-main">
   <div class="stack">
     <?php if (!$videos): ?><div class="card"><div class="empty"><?= icon('play') ?><p>Aucune vidéo pour l'instant.</p></div></div><?php endif; ?>
-    <?php foreach ($videos as $v): $hub = $v['source'] === 'hub'; ?>
+    <?php foreach ($videos as $v): $hub = in_array($v['source'], ['hub', 'central'], true); ?>
       <div class="card <?= $v['active'] ? '' : 'is-done' ?>">
         <div class="card-head">
           <div>
             <h3 class="mb-0"><?= e($v['title']) ?></h3>
             <small class="muted">
-              <?= $hub ? 'Publiée par ' . e(support_contact()['editor']) : 'Ajoutée par votre établissement' ?>
+              <?= $hub ? 'Publiée par ' . e(support_contact()['editor']) . ($v['source'] === 'central' ? ' pour tous les clients' : '') : 'Ajoutée par votre établissement' ?>
               <?= $v['duration'] ? ' · ' . e(video_time((int)$v['duration'])) : '' ?><?= $v['size'] ? ' · ' . round($v['size'] / 1048576, 1) . ' Mo' : '' ?>
               · <?= count($v['chapters']) ?> chapitre(s) · <?= $v['audience'] === 'admin' ? 'administrateurs' : 'tous les utilisateurs' ?>
             </small>
@@ -29,6 +29,7 @@ $chapHelp = 'Un chapitre par ligne : minutes:secondes, titre, puis | et des mots
             <?php else: ?><a class="btn btn-sm" href="<?= url('videos', ['v' => $v['uid']]) ?>"><?= icon('play', 16) ?> Voir</a><?php endif; ?>
           </div>
         </div>
+        <?php if ($v['source'] !== 'central'): ?>
         <details class="card-body" style="padding-top:0">
           <summary class="muted" style="cursor:pointer"><small>Modifier</small></summary>
           <form method="post" class="mt-1">
@@ -53,6 +54,7 @@ $chapHelp = 'Un chapitre par ligne : minutes:secondes, titre, puis | et des mots
             <form method="post" class="mt-1" onsubmit="return confirm('Supprimer définitivement cette vidéo ?')"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$v['id'] ?>"><button class="btn btn-ghost btn-sm btn-danger" type="submit"><?= icon('trash', 16) ?> Supprimer la vidéo</button></form>
           <?php endif; ?>
         </details>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
   </div>

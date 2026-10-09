@@ -8,6 +8,18 @@ declare(strict_types=1);
 
 require_once APP . '/install_demo.php';
 
+/** Adresse publique d'un client vue depuis la requête en cours (console ou page de connexion) : adresse dédiée ou /<identifiant>/. */
+function instance_guess_url(string $slug, array $hosts = []): ?string
+{
+    if (!empty($hosts[0])) {
+        return 'https://' . $hosts[0] . '/';
+    }
+    if (empty($_SERVER['HTTP_HOST'])) {
+        return null;
+    }
+    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . instance_web_dir() . '/' . $slug . '/';
+}
+
 /** Exécute $fn dans le contexte d'un client (base, dossiers), puis revient au contexte de la console. */
 function instance_run(string $slug, callable $fn): mixed
 {
@@ -115,6 +127,7 @@ function instance_create(array $in): string
     }
     instance_write_config($slug, $config);
     // Le registre est écrit en dernier : un client à moitié créé n'est jamais servi
+    $GLOBALS['new_hosts'] = $hosts;
     try {
         instance_run($slug, function () use ($email, $pass, $first, $last, $name, $in) {
             schema_install();
@@ -129,6 +142,9 @@ function instance_create(array $in): string
             });
             set_setting('db_version', APP_VERSION);
             set_setting('cron_key', bin2hex(random_bytes(16)));
+            if ($u = instance_guess_url($GLOBALS['instance'], $GLOBALS['new_hosts'] ?? [])) {
+                set_setting('app_url', $u); // liens des e-mails envoyés avant la première visite
+            }
             audit('Espace créé par la console NLapps', 'instance', null, $name);
         });
     } catch (Throwable $e) {
@@ -173,6 +189,12 @@ function instance_adopt_current(string $slug, string $name, string $hostsText): 
     $registry = instances_registry();
     $registry[$slug] = ['name' => $name ?: (string)($config['app_name'] ?? $slug), 'hosts' => $hosts, 'suspended' => false, 'demo' => false, 'created_at' => date('Y-m-d H:i:s'), 'adopted' => true];
     instances_save($registry);
+    if ($u = instance_guess_url($slug, $hosts)) {
+        try {
+            instance_run($slug, fn() => set_setting('app_url', $u));
+        } catch (Throwable) {
+        }
+    }
     // L'ancienne configuration est mise de côté : toutes les adresses passent désormais par le registre
     @rename(ROOT . '/config.php', ROOT . '/storage/config.php.repris-' . date('Ymd-His'));
     return $slug;

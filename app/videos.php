@@ -52,22 +52,33 @@ function video_time(int $s): string
     return $s >= 3600 ? sprintf('%d:%02d:%02d', intdiv($s, 3600), intdiv($s % 3600, 60), $s % 60) : sprintf('%d:%02d', intdiv($s, 60), $s % 60);
 }
 
+/** Fichier d'une vidéo : dossier du client, ou dossier commun pour les vidéos publiées par le super administrateur. */
+function video_path(array $v): string
+{
+    return (($v['source'] ?? '') === 'central' ? central_videos_dir() : videos_dir()) . '/' . basename((string)$v['file']);
+}
+
 function video_decode(array $v): array
 {
-    $v['chapters'] = json_decode((string)($v['chapters'] ?? ''), true) ?: [];
-    $v['ready'] = !empty($v['file']) && is_file(videos_dir() . '/' . basename((string)$v['file']));
+    $v['chapters'] = is_array($v['chapters'] ?? null) ? $v['chapters'] : (json_decode((string)($v['chapters'] ?? ''), true) ?: []);
+    $v['ready'] = !empty($v['file']) && is_file(video_path($v));
     return $v;
 }
 
-/** Vidéos visibles par l'utilisateur (prêtes à être lues). */
+/** Vidéos visibles par l'utilisateur (prêtes à être lues) : vidéos communes à tous les clients, puis celles de l'installation. */
 function video_list(bool $isAdmin, bool $readyOnly = true): array
 {
-    $rows = array_map('video_decode', all('SELECT * FROM videos WHERE active = 1 ORDER BY position, id'));
+    $rows = array_map('video_decode', array_merge(central_video_rows(), all('SELECT * FROM videos WHERE active = 1 ORDER BY position, id')));
     return array_values(array_filter($rows, fn($v) => ($isAdmin || $v['audience'] !== 'admin') && (!$readyOnly || $v['ready'])));
 }
 
 function video_find(string $uid): ?array
 {
+    foreach (central_video_rows() as $c) {
+        if ($c['uid'] === $uid) {
+            return video_decode($c);
+        }
+    }
     $v = one('SELECT * FROM videos WHERE uid = ?', [$uid]);
     return $v ? video_decode($v) : null;
 }

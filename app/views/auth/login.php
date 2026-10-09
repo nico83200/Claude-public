@@ -29,3 +29,4 @@
 <?php endif; ?>
 <p class="text-center" style="font-size:.9rem"><a href="<?= url('forgot') ?>">Mot de passe oublié ?</a></p>
 <?php if (demo_mode()): ?></details><?php endif; ?>
+<?php if (current_instance() && !demo_mode()): ?><p class="text-center" style="font-size:.85rem"><a href="<?= e(instance_web_dir()) ?>/?changer=1">Se connecter avec un autre compte</a></p><?php endif; ?>

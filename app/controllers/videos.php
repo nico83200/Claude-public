@@ -32,7 +32,7 @@ function video_file(): void
         abort(404, 'Vidéo introuvable.');
     }
     session_write_close(); // la lecture peut durer : on libère la session pour les autres onglets
-    video_stream(videos_dir() . '/' . basename((string)$v['file']));
+    video_stream(video_path($v));
 }
 
 /** Fenêtre d'accueil : « Ne plus afficher » coché à la fermeture. */
@@ -150,7 +150,7 @@ function admin_videos(): void
     }
     render('admin/videos', [
         'title' => 'Tutoriels vidéo',
-        'videos' => array_map('video_decode', all('SELECT * FROM videos ORDER BY position, id')),
+        'videos' => array_map('video_decode', array_merge(central_video_rows(), all('SELECT * FROM videos ORDER BY position, id'))),
         'limit' => upload_limit(),
         'managed' => licence_managed(),
         'welcome' => (string)setting('welcome_video', ''),

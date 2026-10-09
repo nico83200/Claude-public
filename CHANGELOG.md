@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.26.0
+- **Plateforme multi-clients** : un seul Centriva pour tous les clients, chacun avec sa propre base de données, ses fichiers, ses utilisateurs et sa licence.
+- **Connexion unique sur centriva.fr** : e-mail et mot de passe, sans identifiant d'espace à connaître ; Centriva retrouve le client du compte et ouvre la session dans son espace (jeton à usage unique signé avec la clé de ce client ; la double authentification du compte reste demandée). Compte présent chez plusieurs clients : choix de l'espace. « Mot de passe oublié » depuis la même page.
+- **Comptes super administrateur** (remplacent le mot de passe unique de la console) : nom, e-mail, mot de passe, double authentification ; plusieurs comptes possibles. Ils créent et gèrent les clients, installent les mises à jour pour tous et **publient les vidéos communes**, visibles dans tous les clients (chapitres, vidéo d'accueil des salariés). Connexion depuis la page commune ou la console.
+- **Mise en service guidée** : création du premier super administrateur, et les données existantes deviennent le premier client (IMSS) sans être modifiées.
+
 ### Centre d'assistance NLapps 3.4.0
 - **Nouvelle page « Abonnements »** (menu Administration) : tous les clients de toutes les applications avec leur montant mensuel TTC, leur mode de paiement (prélèvement SEPA, carte, manuel, résilié), la prochaine échéance et l'état de leur licence ; revenu mensuel, clients en paiement automatique, encaissé du mois, impayés et échéances proches ; lien de paiement de chaque client (copie ou envoi par e-mail) et journal de tous les paiements avec les factures. Sans Stripe relié, la page est déjà utile et propose de configurer le paiement en ligne.
 - Parc clients : le mode de paiement s'affiche dès qu'il est connu, et le compteur « en paiement automatique » mène à la page Abonnements. Sous-menus des applications dépliés (jusqu'à trois applications).

@@ -2,27 +2,26 @@
 declare(strict_types=1);
 
 /**
- * Console NLapps : gestion des clients Centriva servis par ce même code.
- * Chaque client a sa base de données, ses fichiers, ses comptes et sa licence ; il est reconnu à son adresse.
+ * Administration de la plateforme Centriva (super administrateurs NLapps) : clients, mises à jour, vidéos communes,
+ * comptes super administrateur. Chaque client a sa base de données, ses fichiers, ses comptes et sa licence.
  *
- * Accès : https://votre-serveur/console.php — mot de passe propre à la console (créé au premier accès
- * avec le code d'installation déposé dans storage/console-code.txt, lisible uniquement par FTP / gestionnaire de fichiers).
+ * Premier lancement : création du premier compte super administrateur avec le code d'installation déposé dans
+ * storage/console-code.txt (lisible uniquement par FTP / gestionnaire de fichiers), et reprise des données existantes
+ * comme premier client (IMSS). Ensuite, connexion par e-mail + mot de passe (+ double authentification), ici ou sur la
+ * page de connexion commune de centriva.fr.
  */
 define('NL_CONSOLE', true);
 require __DIR__ . '/app/bootstrap.php';
 require APP . '/instances_admin.php';
 
-session_name('nlconsole');
-session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off', 'httponly' => true, 'samesite' => 'Strict']);
-session_start();
+central_session();
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: same-origin');
 header('Cache-Control: no-store');
 
 @mkdir(ROOT . '/storage', 0750, true);
-const CONSOLE_AUTH = ROOT . '/storage/console-auth.json';
+const CONSOLE_AUTH = ROOT . '/storage/console-auth.json';   // ancienne console (mot de passe unique), reprise au premier accès
 const CONSOLE_CODE = ROOT . '/storage/console-code.txt';
-const CONSOLE_ATTEMPTS = ROOT . '/storage/console-attempts.json';
 
 /** Adresse d'un espace : son adresse dédiée s'il en a une, sinon https://<ce serveur>/<identifiant>/. */
 function console_space_url(string $slug, array $i): string
@@ -32,11 +31,6 @@ function console_space_url(string $slug, array $i): string
     }
     $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
     return ($https ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'centriva.fr') . instance_web_dir() . '/' . $slug . '/';
-}
-
-function console_auth(): array
-{
-    return is_file(CONSOLE_AUTH) ? (json_decode((string)file_get_contents(CONSOLE_AUTH), true) ?: []) : [];
 }
 
 function console_flash(string $type, string $msg): void
@@ -50,73 +44,89 @@ function console_go(string $page = '', array $q = []): never
     exit;
 }
 
-/** Limitation des essais de mot de passe : 5 échecs par adresse IP et par quart d'heure. */
-function console_throttled(bool $failed = false): bool
-{
-    $ip = hash('sha256', (string)($_SERVER['REMOTE_ADDR'] ?? 'cli'));
-    $all = is_file(CONSOLE_ATTEMPTS) ? (json_decode((string)file_get_contents(CONSOLE_ATTEMPTS), true) ?: []) : [];
-    $all = array_map(fn($l) => array_values(array_filter($l, fn($t) => $t > time() - 900)), $all);
-    if ($failed) {
-        $all[$ip][] = time();
-        file_put_contents(CONSOLE_ATTEMPTS, json_encode(array_filter($all)), LOCK_EX);
-    }
-    return count($all[$ip] ?? []) >= 5;
-}
-
-$auth = console_auth();
-$logged = !empty($_SESSION['console_ok']) && ($_SESSION['console_ok'] === ($auth['hash'] ?? null));
+$me = central_superadmin();
+$logged = (bool)$me;
 $page = (string)($_GET['p'] ?? '');
 $post = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
 if ($post) {
     csrf_check();
 }
 $error = null;
+$legacy = is_file(CONSOLE_AUTH) ? (json_decode((string)file_get_contents(CONSOLE_AUTH), true) ?: []) : [];
 
-// ------------------------------------------------------------- Premier accès et connexion
-if (!$auth) {
-    if (!is_file(CONSOLE_CODE)) {
+// ------------------------------------------------------------- Premier lancement : premier compte super administrateur
+if (!superadmins()) {
+    if (!$legacy && !is_file(CONSOLE_CODE)) {
         file_put_contents(CONSOLE_CODE, strtoupper(bin2hex(random_bytes(4))) . "\n", LOCK_EX);
         @chmod(CONSOLE_CODE, 0600);
     }
     if ($post) {
-        $code = strtoupper(trim((string)($_POST['code'] ?? '')));
         $pw = (string)($_POST['password'] ?? '');
-        if (console_throttled()) {
-            $error = 'Trop d\'essais : réessayez dans un quart d\'heure.';
-        } elseif (!hash_equals(trim((string)file_get_contents(CONSOLE_CODE)), $code)) {
-            console_throttled(true);
-            $error = 'Code d\'installation incorrect.';
-        } elseif (mb_strlen($pw) < 12 || $pw !== (string)($_POST['confirm'] ?? '')) {
-            $error = 'Mot de passe : 12 caractères minimum, saisi deux fois à l\'identique.';
-        } else {
-            $hash = password_hash($pw, PASSWORD_DEFAULT);
-            file_put_contents(CONSOLE_AUTH, json_encode(['hash' => $hash, 'created_at' => date('Y-m-d H:i:s')]), LOCK_EX);
-            @chmod(CONSOLE_AUTH, 0600);
+        $proof = trim((string)($_POST['code'] ?? ''));
+        $proofOk = $legacy ? password_verify($proof, (string)($legacy['hash'] ?? '')) : hash_equals(trim((string)@file_get_contents(CONSOLE_CODE)), strtoupper($proof));
+        try {
+            if (central_throttled()) {
+                throw new RuntimeException('Trop d\'essais : réessayez dans un quart d\'heure.');
+            }
+            if (!$proofOk) {
+                central_throttled(true);
+                throw new RuntimeException($legacy ? 'Mot de passe de l\'ancienne console incorrect.' : 'Code d\'installation incorrect.');
+            }
+            if (mb_strlen($pw) < 12 || $pw !== (string)($_POST['confirm'] ?? '')) {
+                throw new RuntimeException('Mot de passe : 12 caractères minimum, saisi deux fois à l\'identique.');
+            }
+            $a = superadmin_save(['name' => trim((string)($_POST['name'] ?? '')), 'email' => (string)($_POST['email'] ?? ''), 'hash' => password_hash($pw, PASSWORD_DEFAULT), 'totp' => null]);
+            // Données existantes : elles deviennent le premier client
+            if (!empty($_POST['adopt']) && is_file(ROOT . '/config.php') && !instances_registry()) {
+                instance_adopt_current(strtolower(trim((string)($_POST['adopt_slug'] ?? 'imss'))) ?: 'imss', trim((string)($_POST['adopt_name'] ?? '')) ?: 'IMSS', '');
+            }
             @unlink(CONSOLE_CODE);
-            session_regenerate_id(true);
-            $_SESSION['console_ok'] = $hash;
+            @unlink(CONSOLE_AUTH);
+            central_superadmin_login($a);
+            console_flash('ok', 'Compte super administrateur créé.' . (instances_registry() ? ' Les données existantes forment le client « ' . array_values(instances_registry())[0]['name'] . ' ».' : ''));
             console_go();
+        } catch (RuntimeException $e) {
+            $error = $e->getMessage();
         }
     }
     $page = 'setup';
 } elseif (!$logged) {
-    if ($post && $page === 'login') {
-        if (console_throttled()) {
-            $error = 'Trop d\'essais : réessayez dans un quart d\'heure.';
-        } elseif (password_verify((string)($_POST['password'] ?? ''), (string)$auth['hash'])) {
-            session_regenerate_id(true);
-            $_SESSION['console_ok'] = $auth['hash'];
+    // ------------------------------------------------------------- Connexion
+    if ($post && isset($_POST['totp']) && ($p = $_SESSION['super_pending'] ?? null) && time() - (int)$p['at'] < 300 && ($a = superadmin_get((string)$p['id']))) {
+        if (!central_throttled() && totp_match((string)$a['totp'], (string)$_POST['totp']) !== null) {
+            unset($_SESSION['super_pending']);
+            central_superadmin_login($a);
             console_go();
+        }
+        central_throttled(true);
+        $error = 'Code incorrect.';
+        $page = 'totp';
+    } elseif ($post) {
+        $a = superadmin_find((string)($_POST['email'] ?? ''));
+        if (central_throttled()) {
+            $error = 'Trop d\'essais : réessayez dans un quart d\'heure.';
+        } elseif ($a && password_verify((string)($_POST['password'] ?? ''), (string)$a['hash'])) {
+            if (!empty($a['totp'])) {
+                session_regenerate_id(true);
+                $_SESSION['super_pending'] = ['id' => $a['id'], 'at' => time()];
+                $page = 'totp';
+            } else {
+                central_superadmin_login($a);
+                console_go();
+            }
         } else {
-            console_throttled(true);
-            $error = 'Mot de passe incorrect.';
+            central_throttled(true);
+            $error = 'Identifiants incorrects.';
         }
     }
-    $page = 'login';
+    if ($page !== 'totp') {
+        $page = 'login';
+    }
 } elseif ($page === 'logout') {
-    $_SESSION = [];
+    unset($_SESSION['super_id'], $_SESSION['super_hash']);
     session_regenerate_id(true);
-    console_go();
+    header('Location: ' . (is_file(ROOT . '/config.php') ? 'console.php' : instance_web_dir() . '/?changer=1'));
+    exit;
 }
 
 // ------------------------------------------------------------- Actions (connecté)
@@ -218,23 +228,128 @@ if ($logged && $post) {
                 console_go();
 
             case 'password':
-                if (!password_verify((string)($_POST['current'] ?? ''), (string)$auth['hash'])) {
+                if (!password_verify((string)($_POST['current'] ?? ''), (string)$me['hash'])) {
                     throw new RuntimeException('Mot de passe actuel incorrect.');
                 }
                 $pw = (string)($_POST['new'] ?? '');
                 if (mb_strlen($pw) < 12 || $pw !== (string)($_POST['confirm'] ?? '')) {
                     throw new RuntimeException('Nouveau mot de passe : 12 caractères minimum, saisi deux fois à l\'identique.');
                 }
-                $hash = password_hash($pw, PASSWORD_DEFAULT);
-                file_put_contents(CONSOLE_AUTH, json_encode(['hash' => $hash, 'created_at' => $auth['created_at'] ?? date('Y-m-d H:i:s'), 'changed_at' => date('Y-m-d H:i:s')]), LOCK_EX);
-                $_SESSION['console_ok'] = $hash;
-                console_flash('ok', 'Mot de passe de la console modifié.');
-                console_go();
+                $me['hash'] = password_hash($pw, PASSWORD_DEFAULT);
+                superadmin_save($me);
+                central_superadmin_login($me);
+                console_flash('ok', 'Mot de passe modifié.');
+                console_go('account');
+
+            case 'totp_enable':
+                $secret = (string)($_SESSION['totp_setup'] ?? '');
+                if ($secret === '' || totp_match($secret, (string)($_POST['code'] ?? '')) === null) {
+                    throw new RuntimeException('Code incorrect : vérifiez l\'heure du téléphone et réessayez.');
+                }
+                $me['totp'] = $secret;
+                superadmin_save($me);
+                unset($_SESSION['totp_setup']);
+                console_flash('ok', 'Double authentification activée : un code vous sera demandé à chaque connexion.');
+                console_go('account');
+
+            case 'totp_disable':
+                if (!password_verify((string)($_POST['current'] ?? ''), (string)$me['hash'])) {
+                    throw new RuntimeException('Mot de passe incorrect.');
+                }
+                $me['totp'] = null;
+                superadmin_save($me);
+                console_flash('ok', 'Double authentification désactivée.');
+                console_go('account');
+
+            case 'admin_add':
+                $pw = (string)($_POST['password'] ?? '');
+                if (mb_strlen($pw) < 12) {
+                    throw new RuntimeException('Mot de passe provisoire : 12 caractères minimum.');
+                }
+                $n = superadmin_save(['name' => trim((string)($_POST['name'] ?? '')), 'email' => (string)($_POST['email'] ?? ''), 'hash' => password_hash($pw, PASSWORD_DEFAULT), 'totp' => null]);
+                console_flash('ok', 'Compte super administrateur créé pour ' . $n['name'] . ' (' . $n['email'] . ').');
+                console_go('admins');
+
+            case 'admin_delete':
+                $id = (string)($_POST['id'] ?? '');
+                if ($id === $me['id']) {
+                    throw new RuntimeException('Vous ne pouvez pas supprimer votre propre compte.');
+                }
+                superadmin_delete($id);
+                console_flash('ok', 'Compte supprimé.');
+                console_go('admins');
+
+            case 'video_upload':
+            case 'video_save':
+                $list = central_videos();
+                $meta = [
+                    'title' => mb_substr(trim((string)($_POST['title'] ?? '')), 0, 150),
+                    'description' => mb_substr(trim((string)($_POST['description'] ?? '')), 0, 2000) ?: null,
+                    'keywords' => mb_substr(trim((string)($_POST['keywords'] ?? '')), 0, 400) ?: null,
+                    'chapters' => video_chapters_parse((string)($_POST['chapters'] ?? '')),
+                    'audience' => ($_POST['audience'] ?? '') === 'admin' ? 'admin' : 'all',
+                    'position' => (int)($_POST['position'] ?? 0),
+                    'welcome' => !empty($_POST['welcome']),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
+                if ($meta['title'] === '') {
+                    throw new RuntimeException('Indiquez le titre de la vidéo.');
+                }
+                if ($meta['welcome']) { // une seule vidéo d'accueil
+                    $list = array_map(fn($v) => ['welcome' => false] + $v, $list);
+                }
+                if ($action === 'video_upload') {
+                    $f = $_FILES['video'] ?? null;
+                    if (!$f || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+                        throw new RuntimeException('Choisissez le fichier vidéo (MP4). Fichiers volumineux : vérifiez upload_max_filesize chez l\'hébergeur.');
+                    }
+                    $mime = (string)(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+                    if (!in_array($mime, ['video/mp4', 'video/x-m4v', 'video/quicktime', 'application/mp4'], true)) {
+                        throw new RuntimeException('Format non pris en charge (' . $mime . ') : envoyez une vidéo MP4 (H.264).');
+                    }
+                    $uid = 'c-' . bin2hex(random_bytes(5));
+                    move_uploaded_file($f['tmp_name'], central_videos_dir() . '/' . $uid . '.mp4');
+                    $list[] = $meta + ['uid' => $uid, 'file' => $uid . '.mp4', 'size' => filesize(central_videos_dir() . '/' . $uid . '.mp4'),
+                        'duration' => (int)($_POST['duration'] ?? 0) ?: null, 'published' => !empty($_POST['publish']), 'created_at' => date('Y-m-d H:i:s')];
+                    console_flash('ok', 'Vidéo « ' . $meta['title'] . ' » ' . (!empty($_POST['publish']) ? 'publiée pour tous les clients.' : 'enregistrée (brouillon).'));
+                } else {
+                    foreach ($list as &$v) {
+                        if ($v['uid'] === ($_POST['uid'] ?? '')) {
+                            $v = $meta + $v;
+                        }
+                    }
+                    unset($v);
+                    console_flash('ok', 'Vidéo mise à jour.');
+                }
+                central_videos_save($list);
+                console_go('videos');
+
+            case 'video_toggle':
+            case 'video_delete':
+                $list = central_videos();
+                foreach ($list as $i => $v) {
+                    if ($v['uid'] === ($_POST['uid'] ?? '')) {
+                        if ($action === 'video_delete') {
+                            @unlink(central_videos_dir() . '/' . basename((string)$v['file']));
+                            unset($list[$i]);
+                        } else {
+                            $list[$i]['published'] = empty($v['published']);
+                        }
+                    }
+                }
+                central_videos_save($list);
+                console_flash('ok', $action === 'video_delete' ? 'Vidéo supprimée de tous les clients.' : 'Visibilité de la vidéo modifiée.');
+                console_go('videos');
         }
     } catch (Throwable $e) {
         console_flash('error', $e->getMessage());
         $_SESSION['form'] = array_diff_key($_POST, array_flip(['admin_password', 'db_pass', 'password', 'current', 'new', 'confirm', '_token']));
-        console_go($action === 'create' ? 'new' : ($action === 'adopt' ? 'adopt' : ''), $action === 'hosts' ? ['edit' => $slug] : []);
+        $back = match (true) {
+            $action === 'create' => 'new', $action === 'adopt' => 'adopt',
+            in_array($action, ['password', 'totp_enable', 'totp_disable'], true) => 'account',
+            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', default => '',
+        };
+        console_go($back, $action === 'hosts' ? ['edit' => $slug] : []);
     }
 }
 
@@ -294,13 +409,15 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
 </head>
 <body>
 <header>
-  <b>Centriva · Console NLapps</b><small style="opacity:.8">v<?= e(APP_VERSION) ?></small>
+  <b>Centriva · Administration de la plateforme</b><small style="opacity:.8">v<?= e(APP_VERSION) ?></small>
   <?php if ($logged): ?>
   <nav>
     <a class="<?= $page === '' ? 'on' : '' ?>" href="console.php">Clients</a>
     <a class="<?= $page === 'new' ? 'on' : '' ?>" href="console.php?p=new">Nouveau client</a>
+    <a class="<?= $page === 'videos' ? 'on' : '' ?>" href="console.php?p=videos">Vidéos</a>
     <a class="<?= $page === 'update' ? 'on' : '' ?>" href="console.php?p=update">Mise à jour</a>
-    <a class="<?= $page === 'account' ? 'on' : '' ?>" href="console.php?p=account">Sécurité</a>
+    <a class="<?= $page === 'admins' ? 'on' : '' ?>" href="console.php?p=admins">Super administrateurs</a>
+    <a class="<?= $page === 'account' ? 'on' : '' ?>" href="console.php?p=account" title="Mon compte"><?= e($me['name']) ?></a>
     <a href="console.php?p=logout">Déconnexion</a>
   </nav>
   <?php endif; ?>
@@ -309,25 +426,47 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
 <?php foreach ($flash as [$t, $m]): ?><div class="flash <?= e($t) ?>"><?= e($m) ?></div><?php endforeach; ?>
 <?php if ($error): ?><div class="flash error"><?= e($error) ?></div><?php endif; ?>
 
-<?php if ($page === 'setup'): ?>
-  <div class="card auth">
-    <h1>Première connexion</h1>
-    <p class="muted">Pour prouver que vous gérez ce serveur, ouvrez le fichier <code>storage/console-code.txt</code> (FTP ou gestionnaire de fichiers de l'hébergeur) et recopiez le code qu'il contient. Il sera supprimé une fois le mot de passe créé.</p>
+<?php if ($page === 'setup'): $hasData = is_file(ROOT . '/config.php') && !instances_registry(); ?>
+  <div class="card auth" style="max-width:520px">
+    <h1>Mise en service de la plateforme</h1>
+    <p class="muted">Créez le premier compte <b>super administrateur</b> : il crée les clients, installe les mises à jour et publie les vidéos pour tous.</p>
     <form method="post"><?= csrf_field() ?>
-      <label>Code d'installation</label><input name="code" required autocomplete="off" autofocus>
-      <label>Mot de passe de la console <small class="muted">(12 caractères minimum)</small></label><input type="password" name="password" minlength="12" required autocomplete="new-password">
-      <label>Confirmation</label><input type="password" name="confirm" minlength="12" required autocomplete="new-password">
-      <p><button class="btn primary">Créer le mot de passe</button></p>
+      <?php if ($legacy): ?>
+        <label>Mot de passe de l'ancienne console</label><input type="password" name="code" required autocomplete="off" autofocus>
+      <?php else: ?>
+        <p class="muted"><small>Pour prouver que vous gérez ce serveur, recopiez le code du fichier <code>storage/console-code.txt</code> (FTP ou gestionnaire de fichiers de l'hébergeur).</small></p>
+        <label>Code d'installation</label><input name="code" required autocomplete="off" autofocus>
+      <?php endif; ?>
+      <div class="grid2">
+        <div><label>Votre nom</label><input name="name" required value="<?= $f('name') ?>"></div>
+        <div><label>E-mail (identifiant)</label><input type="email" name="email" required value="<?= $f('email') ?>"></div>
+        <div><label>Mot de passe <small class="muted">(12 caractères min.)</small></label><input type="password" name="password" minlength="12" required autocomplete="new-password"></div>
+        <div><label>Confirmation</label><input type="password" name="confirm" minlength="12" required autocomplete="new-password"></div>
+      </div>
+      <?php if ($hasData): ?>
+        <div class="card" style="background:var(--soft);margin-top:1rem">
+          <label class="check" style="margin-top:0"><input type="checkbox" name="adopt" value="1" checked> Les données actuelles (comptes, catalogue, commandes…) deviennent le premier client</label>
+          <div class="grid2"><div><label>Nom du client</label><input name="adopt_name" value="IMSS"></div><div><label>Identifiant</label><input name="adopt_slug" value="imss" pattern="[a-z0-9][a-z0-9\-]{0,38}[a-z0-9]?"></div></div>
+          <p class="muted" style="margin:.4rem 0 0"><small>Sa base n'est pas modifiée. Ses utilisateurs se connecteront sur la page d'accueil avec leur e-mail habituel.</small></p>
+        </div>
+      <?php endif; ?>
+      <p><button class="btn primary">Créer le compte et démarrer</button></p>
     </form>
   </div>
 
-<?php elseif ($page === 'login'): ?>
+<?php elseif ($page === 'login' || $page === 'totp'): ?>
   <div class="card auth">
-    <h1>Console NLapps</h1>
-    <form method="post" action="console.php?p=login"><?= csrf_field() ?>
-      <label>Mot de passe</label><input type="password" name="password" required autofocus autocomplete="current-password">
-      <p><button class="btn primary">Se connecter</button></p>
-    </form>
+    <h1>Administration Centriva</h1>
+    <?php if ($page === 'totp'): ?>
+      <form method="post" action="console.php"><?= csrf_field() ?>
+        <label>Code de l'application d'authentification</label><input name="totp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required autofocus>
+        <p><button class="btn primary">Valider</button></p></form>
+    <?php else: ?>
+      <form method="post" action="console.php"><?= csrf_field() ?>
+        <label>E-mail</label><input type="email" name="email" required autofocus autocomplete="username">
+        <label>Mot de passe</label><input type="password" name="password" required autocomplete="current-password">
+        <p><button class="btn primary">Se connecter</button></p></form>
+    <?php endif; ?>
   </div>
 
 <?php elseif ($page === 'new'): ?>
@@ -408,14 +547,95 @@ code { background:var(--soft); padding:.1rem .35rem; border-radius:6px; font-siz
   </div>
 
 <?php elseif ($page === 'account'): ?>
-  <h1>Sécurité de la console</h1>
-  <form method="post" class="card" style="max-width:480px"><?= csrf_field() ?><input type="hidden" name="action" value="password">
-    <label>Mot de passe actuel</label><input type="password" name="current" required autocomplete="current-password">
-    <label>Nouveau mot de passe <small class="muted">(12 caractères minimum)</small></label><input type="password" name="new" minlength="12" required autocomplete="new-password">
-    <label>Confirmation</label><input type="password" name="confirm" minlength="12" required autocomplete="new-password">
-    <p><button class="btn primary">Changer le mot de passe</button></p>
+  <h1>Mon compte</h1>
+  <div class="grid2">
+    <form method="post" class="card"><?= csrf_field() ?><input type="hidden" name="action" value="password">
+      <h2>Mot de passe</h2>
+      <label>Mot de passe actuel</label><input type="password" name="current" required autocomplete="current-password">
+      <label>Nouveau mot de passe <small class="muted">(12 caractères minimum)</small></label><input type="password" name="new" minlength="12" required autocomplete="new-password">
+      <label>Confirmation</label><input type="password" name="confirm" minlength="12" required autocomplete="new-password">
+      <p><button class="btn primary">Changer le mot de passe</button></p>
+    </form>
+    <div class="card">
+      <h2>Double authentification <?= !empty($me['totp']) ? '<span class="tag green">activée</span>' : '<span class="tag amber">conseillée</span>' ?></h2>
+      <?php if (!empty($me['totp'])): ?>
+        <p class="muted">Un code de votre application d'authentification est demandé à chaque connexion.</p>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="totp_disable"><label>Mot de passe (pour désactiver)</label><input type="password" name="current" required><p><button class="btn danger">Désactiver</button></p></form>
+      <?php else: $sec = $_SESSION['totp_setup'] ??= base32_encode(random_bytes(20)); ?>
+        <p class="muted">Ce compte donne accès à tous les clients : protégez-le. Scannez ce QR code avec Google Authenticator, Microsoft Authenticator ou Authy (ou saisissez la clé <code><?= e(trim(chunk_split($sec, 4, ' '))) ?></code>), puis saisissez le code affiché.</p>
+        <div data-qr="<?= e(totp_uri($sec, $me['email'])) ?>" style="width:180px;height:180px;background:#fff;padding:6px;border-radius:8px"></div>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="totp_enable"><label>Code à 6 chiffres</label><input name="code" inputmode="numeric" maxlength="6" required><p><button class="btn primary">Activer</button></p></form>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script>const q = document.querySelector('[data-qr]'); if (window.QRCode && q) new QRCode(q, { text: q.dataset.qr, width: 168, height: 168 });</script>
+      <?php endif; ?>
+    </div>
+  </div>
+
+<?php elseif ($page === 'admins'): ?>
+  <h1>Super administrateurs</h1>
+  <div class="card">
+    <?php foreach (superadmins() as $a): ?>
+      <div class="row" style="justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
+        <div><b><?= e($a['name']) ?></b> <small class="muted"><?= e($a['email']) ?></small> <?= !empty($a['totp']) ? '<span class="tag green">double authentification</span>' : '<span class="tag amber">sans double authentification</span>' ?><br>
+          <small class="muted">Dernière connexion : <?= !empty($a['last_login']) ? e(date('d/m/Y H:i', strtotime($a['last_login']))) : 'jamais' ?></small></div>
+        <?php if ($a['id'] !== $me['id']): ?><form method="post" onsubmit="return confirm('Supprimer ce compte ?')"><?= csrf_field() ?><input type="hidden" name="action" value="admin_delete"><input type="hidden" name="id" value="<?= e($a['id']) ?>"><button class="btn sm danger">Supprimer</button></form><?php else: ?><small class="muted">vous</small><?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+  <form method="post" class="card" style="max-width:560px" autocomplete="off"><?= csrf_field() ?><input type="hidden" name="action" value="admin_add">
+    <h2>Ajouter un super administrateur</h2>
+    <div class="grid2"><div><label>Nom</label><input name="name" required></div><div><label>E-mail</label><input type="email" name="email" required></div></div>
+    <label>Mot de passe provisoire <small class="muted">(12 caractères min., à transmettre ; il pourra le changer dans « Mon compte »)</small></label><input name="password" minlength="12" required value="<?= e(substr(str_replace(['/', '+', '='], '', base64_encode(random_bytes(12))), 0, 14)) ?>">
+    <p><button class="btn primary">Créer le compte</button></p>
   </form>
-  <div class="card"><p class="muted" style="margin:0"><small>Mot de passe perdu : supprimez <code>storage/console-auth.json</code> par FTP ; un nouveau code d'installation sera créé au prochain accès.</small></p></div>
+
+<?php elseif ($page === 'videos'): $cv = central_videos(); ?>
+  <h1>Vidéos communes à tous les clients</h1>
+  <p class="muted">Publiées une fois ici, elles apparaissent dans « Tutoriels vidéo » de chaque client et l'aide en ligne les propose au bon chapitre. La vidéo marquée « accueil » s'ouvre à la première connexion des salariés.</p>
+  <form method="post" enctype="multipart/form-data" class="card" data-video-upload><?= csrf_field() ?><input type="hidden" name="action" value="video_upload"><input type="hidden" name="duration" value="">
+    <h2>Publier une vidéo</h2>
+    <label>Fichier MP4 (H.264)</label><input type="file" name="video" accept="video/mp4,.mp4,.m4v" required>
+    <small class="muted">Limite du serveur : <?= e((string)ini_get('upload_max_filesize')) ?>.</small>
+    <div class="grid2">
+      <div><label>Titre</label><input name="title" required maxlength="150"></div>
+      <div><label>Mots-clés <small class="muted">(aident le chatbot)</small></label><input name="keywords" maxlength="400"></div>
+      <div><label>Visible par</label><select name="audience"><option value="all">Tous les utilisateurs</option><option value="admin">Administrateurs seulement</option></select></div>
+      <div><label>Ordre</label><input type="number" name="position" value="<?= count($cv) * 10 ?>"></div>
+    </div>
+    <label>Description</label><textarea name="description" rows="2"></textarea>
+    <label>Chapitres <small class="muted">(un par ligne : 4:12 Titre | mots-clés)</small></label><textarea name="chapters" rows="4"></textarea>
+    <label class="check"><input type="checkbox" name="welcome" value="1"> Vidéo d'accueil des salariés</label>
+    <label class="check"><input type="checkbox" name="publish" value="1" checked> Publier tout de suite</label>
+    <p><button class="btn primary">Envoyer la vidéo</button></p>
+  </form>
+  <?php foreach ($cv as $v): ?>
+    <div class="card" style="<?= empty($v['published']) ? 'opacity:.65' : '' ?>">
+      <div class="row" style="justify-content:space-between"><div><b><?= e($v['title']) ?></b> <?= !empty($v['published']) ? '<span class="tag green">publiée</span>' : '<span class="tag">brouillon</span>' ?><?= !empty($v['welcome']) ? ' <span class="tag">accueil</span>' : '' ?><?= ($v['audience'] ?? '') === 'admin' ? ' <span class="tag amber">administrateurs</span>' : '' ?><br>
+        <small class="muted"><?= !empty($v['duration']) ? e(video_time((int)$v['duration'])) . ' · ' : '' ?><?= round(((int)($v['size'] ?? 0)) / 1048576, 1) ?> Mo · <?= count($v['chapters'] ?? []) ?> chapitre(s)</small></div>
+        <div class="row">
+          <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="video_toggle"><input type="hidden" name="uid" value="<?= e($v['uid']) ?>"><button class="btn sm"><?= !empty($v['published']) ? 'Retirer' : 'Publier' ?></button></form>
+          <form method="post" onsubmit="return confirm('Supprimer cette vidéo pour tous les clients ?')"><?= csrf_field() ?><input type="hidden" name="action" value="video_delete"><input type="hidden" name="uid" value="<?= e($v['uid']) ?>"><button class="btn sm danger">Supprimer</button></form>
+        </div></div>
+      <details><summary>Modifier</summary>
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="video_save"><input type="hidden" name="uid" value="<?= e($v['uid']) ?>">
+          <div class="grid2"><div><label>Titre</label><input name="title" value="<?= e($v['title']) ?>"></div><div><label>Mots-clés</label><input name="keywords" value="<?= e($v['keywords'] ?? '') ?>"></div>
+            <div><label>Visible par</label><select name="audience"><option value="all">Tous les utilisateurs</option><option value="admin" <?= ($v['audience'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateurs seulement</option></select></div>
+            <div><label>Ordre</label><input type="number" name="position" value="<?= (int)($v['position'] ?? 0) ?>"></div></div>
+          <label>Description</label><textarea name="description" rows="2"><?= e($v['description'] ?? '') ?></textarea>
+          <label>Chapitres</label><textarea name="chapters" rows="5"><?= e(video_chapters_text($v['chapters'] ?? [])) ?></textarea>
+          <label class="check"><input type="checkbox" name="welcome" value="1" <?= !empty($v['welcome']) ? 'checked' : '' ?>> Vidéo d'accueil des salariés</label>
+          <p><button class="btn sm primary">Enregistrer</button></p></form>
+      </details>
+    </div>
+  <?php endforeach; ?>
+  <?php if (!$cv): ?><div class="card muted">Aucune vidéo commune pour l'instant.</div><?php endif; ?>
+  <script>
+  document.querySelector('[data-video-upload] input[type=file]')?.addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return; const form = e.target.form, v = document.createElement('video'); v.preload = 'metadata';
+    v.onloadedmetadata = () => { form.duration.value = Math.round(v.duration || 0); URL.revokeObjectURL(v.src); }; v.src = URL.createObjectURL(f);
+    if (!form.title.value) form.title.value = f.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+  });
+  </script>
 
 <?php else: ?>
   <div class="row" style="justify-content:space-between">

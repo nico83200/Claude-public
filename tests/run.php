@@ -26,6 +26,7 @@ define('ROOT', dirname(__DIR__));
 define('APP', ROOT . '/app');
 $GLOBALS['config'] = require "$tmp/config.php";
 require APP . '/instances.php';
+require APP . '/central.php';
 require APP . '/db.php';
 require APP . '/helpers.php';
 require APP . '/schema.php';
@@ -769,6 +770,24 @@ check(is_file(storage_path('backups/' . $res['backup'])), 'sauvegarde de la base
 @unlink($exp); @unlink(storage_path('backups/' . $res['backup']));
 set_setting('smtp_pass', null); set_setting('support_hub_key', null);
 as_user('admin@test.fr');
+
+section('Plateforme : connexion commune et super administrateurs');
+$mkTok = function (array $d): string { $p = rtrim(strtr(base64_encode(json_encode($d)), '+/', '-_'), '='); return $p . '.' . hash_hmac('sha256', $p, app_secret_key()); };
+$tok = $mkTok(['u' => 7, 'x' => time() + 60, 'n' => 'abc123']);
+check(central_handoff_verify($tok) === 7, 'jeton de connexion de la page commune accepté');
+check(central_handoff_verify($tok) === null, 'jeton à usage unique');
+check(central_handoff_verify($mkTok(['u' => 7, 'x' => time() - 1, 'n' => 'old'])) === null, 'jeton expiré refusé');
+check(central_handoff_verify(substr($tok, 0, -2) . 'xx') === null && central_handoff_verify('u.' . hash_hmac('sha256', 'u', 'autre-cle')) === null, 'jeton falsifié ou signé par un autre client refusé');
+$GLOBALS['central_backup'] = is_file(central_dir('superadmins.json')) ? file_get_contents(central_dir('superadmins.json')) : null;
+@unlink(central_dir('superadmins.json'));
+$sa = superadmin_save(['name' => 'Test', 'email' => 'Super@NLapps.fr', 'hash' => password_hash('x', PASSWORD_DEFAULT), 'totp' => null]);
+check(superadmin_find('super@nlapps.fr')['id'] === $sa['id'], 'compte super administrateur enregistré (e-mail sans casse)');
+$dup = false; try { superadmin_save(['name' => 'Autre', 'email' => 'super@nlapps.fr', 'hash' => 'x']); } catch (RuntimeException) { $dup = true; }
+check($dup, 'e-mail en double refusé');
+superadmin_delete($sa['id']);
+check(superadmins() === [], 'compte supprimé');
+$GLOBALS['central_backup'] !== null ? file_put_contents(central_dir('superadmins.json'), $GLOBALS['central_backup']) : @unlink(central_dir('superadmins.json'));
+check(central_video_rows() === [] || instances_enabled(), 'vidéos communes réservées au mode multi-clients');
 
 section('Démo publique');
 check(!demo_mode() && demo_blocked('admin/settings') === null, 'installation normale : rien n\'est bloqué');
