@@ -11,6 +11,7 @@ if (is_admin()) {
     $toOrderN = (int)val("SELECT COUNT(*) FROM purchase_orders WHERE status = 'a_commander'");
     $usersN = is_superadmin() ? (int)val("SELECT COUNT(*) FROM users WHERE status = 'pending'") : 0;
     $suggN = pending_suggestions_count();
+    $contractN = count(array_filter(contracts_attention(), fn($c) => $c['status']['key'] === 'renew'));
 }
 $lowN = $center ? stock_low_count((int)$center['id']) : 0;
 $approvalN = approvals_pending_count();
@@ -82,6 +83,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/suppliers', 'admin/supplier') ?>" href="<?= url('admin/suppliers') ?>"><?= icon('truck') ?> Fournisseurs</a>
       <a class="<?= $active('admin/products', 'admin/product', 'admin/products/import') ?>" href="<?= url('admin/products') ?>"><?= icon('box') ?> Articles</a>
       <a class="<?= $active('admin/categories') ?>" href="<?= url('admin/categories') ?>"><?= icon('tag') ?> Catégories</a>
+      <a class="<?= $active('admin/contracts', 'admin/contract') ?>" href="<?= url('admin/contracts') ?>"><?= icon('file') ?> Contrats et marchés <?php if ($contractN): ?><span class="count"><?= $contractN ?></span><?php endif; ?></a>
       <a class="<?= $active('admin/deadlines') ?>" href="<?= url('admin/deadlines') ?>"><?= icon('calendar') ?> Dates limites</a>
       <a class="<?= $active('admin/compare') ?>" href="<?= url('admin/compare') ?>"><?= icon('layers') ?> Comparateur</a>
       <a class="<?= $active('admin/invoices') ?>" href="<?= url('admin/invoices') ?>"><?= icon('euro') ?> Factures</a>

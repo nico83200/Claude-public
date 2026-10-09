@@ -78,6 +78,7 @@ require_once APP . '/security.php';
 require_once APP . '/import.php';
 require_once APP . '/support.php';
 require_once APP . '/videos.php';
+require_once APP . '/contracts.php';
 require_once APP . '/pdf.php';
 require_once APP . '/cron.php';
 

@@ -30,6 +30,9 @@
   </a>
 </div>
 
+<?php if ($ca = contracts_attention()): ?>
+<div class="flash flash-info"><?= icon('clock') ?><div><strong><?= plural(count($ca), 'contrat demande', 'contrats demandent') ?> votre attention</strong> : <?= implode(' · ', array_map(fn($c) => e($c['name']) . ' (' . e($c['status']['key'] === 'expired' ? 'expiré' : 'échéance le ' . date_fr($c['end_date'])) . ')', array_slice($ca, 0, 3))) ?><?= count($ca) > 3 ? '…' : '' ?>. <a href="<?= url('admin/contracts', ['f' => $ca[0]['status']['key']]) ?>">Voir les contrats →</a></div></div>
+<?php endif; ?>
 <?php if ($n = pending_suggestions_count()): ?>
 <div class="flash flash-info"><?= icon('sparkles') ?><div><strong><?= plural($n, 'article hors catalogue proposé', 'articles hors catalogue proposés') ?></strong> par les centres. <a href="<?= url('admin/suggestions') ?>">Examiner →</a></div></div>
 <?php endif; ?>

@@ -16,7 +16,7 @@
     <?php if (show_prices()): ?>
     <div class="row">
       <div class="product-price" style="font-size:1.8rem"><?= money($price) ?> <small class="muted" style="font-size:.9rem;font-weight:500">HT</small></div>
-      <?php if ($hasDeal): ?><span class="badge badge-green">Tarif négocié · -<?= round(100 - $price / (float)$p['catalog_price'] * 100) ?> %</span> <s class="muted"><?= money($p['catalog_price']) ?></s><?php endif; ?>
+      <?php if ($hasDeal && is_admin() && ($pc = product_contract((int)$p['id']))): ?><span class="badge badge-violet" title="Prix fixé jusqu'au <?= e(date_fr($pc['end_date'])) ?>">Prix <?= $pc['buying_group'] ? e($pc['buying_group']) : 'contrat' ?></span> <?php endif; ?><?php if ($hasDeal): ?><span class="badge badge-green">Tarif négocié · -<?= round(100 - $price / (float)$p['catalog_price'] * 100) ?> %</span> <s class="muted"><?= money($p['catalog_price']) ?></s><?php endif; ?>
     </div>
     <?php endif; ?>
     <?php if ($p['description']): ?><div class="card card-body"><?= nl2br(e($p['description'])) ?></div><?php endif; ?>

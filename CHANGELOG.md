@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.19.0
+- **Contrats et marchés** (menu *Service achats*) : enregistrez vos marchés de groupement (UniHA, Resah, UGAP, CAIH…) et vos contrats directs : fournisseur, n° de marché, période, montant annuel, interlocuteur, document PDF.
+- **Prix contractuels** : saisis article par article, collés depuis l'annexe tarifaire (référence ; prix) ou repris des tarifs négociés actuels. Pendant la durée du contrat ils deviennent le tarif négocié des articles (paniers, bons de commande, comparateur) ; un import de tarifs fournisseur ne peut pas les écraser, et la fiche article indique le contrat qui fixe le prix.
+- **Alerte avant l'échéance** : au début du préavis choisi (1 à 6 mois, reconduction tacite prise en compte), puis à l'expiration, le service achats est prévenu (notification et e-mail) ; bandeau sur le pilotage et compteur dans le menu. Prolongation en un clic (6 à 36 mois).
+- Liste des contrats avec avancement, filtres (en cours, à renouveler, à venir, expirés), articles couverts et montant annuel ; contrats visibles aussi sur la fiche fournisseur. Accessible aux administrateurs et aux acheteurs.
+
 ## 1.18.1
 - **Comparaison des droits par rôle** : une bulle « ? » à côté du rôle (fiche d'un compte et colonne « Rôle » de la liste), ainsi qu'un bouton « Droits des rôles » sur la page Comptes, ouvrent un tableau comparant salarié, responsable de centre, acheteur et administrateur : commander et recevoir, service achats, organisation et paramètres. Lisible aussi sur téléphone.
 

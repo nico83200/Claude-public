@@ -391,9 +391,10 @@ function import_prepare(array $state): array
 /** Applique l'import. $selected : lignes cochées ; $updateExisting : mettre à jour les articles déjà présents. */
 function import_apply(array $state, array $selected, bool $updateExisting): array
 {
-    $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'suppliers' => 0, 'categories' => 0, 'increases' => []];
+    $report = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'suppliers' => 0, 'categories' => 0, 'increases' => [], 'contract_kept' => 0];
     $rows = import_prepare($state);
-    tx(function () use ($rows, $state, $selected, $updateExisting, &$report) {
+    $contractPrices = contract_prices_now();
+    tx(function () use ($rows, $state, $selected, $updateExisting, $contractPrices, &$report) {
         $newSup = [];
         $newCat = [];
         $catPos = (int)val('SELECT COALESCE(MAX(position), 0) FROM categories');
@@ -434,6 +435,12 @@ function import_apply(array $state, array $selected, bool $updateExisting): arra
                 }
             }
             if ($r['status'] === 'update') {
+                // Prix contractuel en vigueur : l'import ne l'écrase pas (le tarif catalogue, lui, est mis à jour)
+                if (isset($contractPrices[(int)$r['existing_id']])) {
+                    $data['negotiated_price'] = $contractPrices[(int)$r['existing_id']];
+                    $r['price_pct'] = null;
+                    $report['contract_kept']++;
+                }
                 if (!$catId) {
                     unset($data['category_id']);
                 }

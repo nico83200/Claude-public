@@ -97,6 +97,9 @@ function purge_entities(array $centers, array $suppliers, array $users): void
     purge_q('DELETE FROM products WHERE id IN {IN}', $products);
 
     // Fournisseurs
+    purge_q('DELETE FROM contract_prices WHERE contract_id IN (SELECT id FROM contracts WHERE supplier_id IN {IN})', $suppliers);
+    purge_q('DELETE FROM contract_prices WHERE product_id IN {IN}', $products);
+    purge_q('DELETE FROM contracts WHERE supplier_id IN {IN}', $suppliers);
     purge_q('DELETE FROM supplier_centers WHERE supplier_id IN {IN}', $suppliers);
     purge_q('DELETE FROM deadlines WHERE supplier_id IN {IN}', $suppliers);
     purge_q('DELETE FROM suppliers WHERE id IN {IN}', $suppliers);

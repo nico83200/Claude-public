@@ -70,3 +70,16 @@
     </div>
   </div>
 </form>
+<?php if (!empty($s['id'])): $sc = array_values(array_filter(contract_list(), fn($c) => (int)$c['supplier_id'] === (int)$s['id'])); ?>
+<div class="card mt-2">
+  <div class="card-head"><h2><?= icon('file') ?> Contrats et marchés</h2><a class="btn btn-sm" href="<?= url('admin/contract', ['supplier' => $s['id']]) ?>"><?= icon('plus', 15) ?> Nouveau contrat</a></div>
+  <?php if ($sc): ?>
+    <div class="table-wrap"><table class="table"><tbody>
+    <?php foreach ($sc as $c): ?>
+      <tr><td><a class="strong" href="<?= url('admin/contract', ['id' => $c['id']]) ?>"><?= e($c['name']) ?></a> <small class="muted"><?= e($c['buying_group'] ?: 'contrat direct') ?></small></td>
+        <td><small><?= e(date_fr($c['start_date'])) ?> → <?= e(date_fr($c['end_date'])) ?></small></td><td class="num"><?= plural((int)$c['n_prices'], 'article', 'articles') ?></td><td><?= badge($c['status']) ?></td></tr>
+    <?php endforeach; ?>
+    </tbody></table></div>
+  <?php else: ?><div class="card-body muted">Aucun contrat avec ce fournisseur.</div><?php endif; ?>
+</div>
+<?php endif; ?>

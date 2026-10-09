@@ -1073,3 +1073,11 @@ document.addEventListener('click', (e) => {
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
   }
 });
+
+// Filtre instantané d'un tableau : <input data-filter-rows="#tbody"> et <tr data-row-text="…">
+document.addEventListener('input', (e) => {
+  const inp = e.target.closest('[data-filter-rows]');
+  if (!inp) return;
+  const q = inp.value.trim().toLowerCase();
+  document.querySelectorAll(inp.dataset.filterRows + ' tr[data-row-text]').forEach((tr) => { tr.hidden = q !== '' && !tr.dataset.rowText.includes(q); });
+});

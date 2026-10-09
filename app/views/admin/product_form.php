@@ -31,7 +31,11 @@
       <div class="card-head"><h2><?= icon('euro') ?> Tarifs</h2></div>
       <div class="card-body form-grid">
         <div class="field"><label>Tarif catalogue HT (€)</label><input type="text" name="catalog_price" value="<?= $fmt('catalog_price') ?>" placeholder="0,00"></div>
+        <?php if (!empty($contract)): ?>
+        <div class="field"><label>Tarif négocié HT (€)</label><input type="text" value="<?= $fmt('negotiated_price') ?>" readonly><small>Prix fixé par le contrat <a href="<?= url('admin/contract', ['id' => $contract['id']]) ?>"><?= e($contract['name']) ?></a><?= $contract['buying_group'] ? ' (' . e($contract['buying_group']) . ')' : '' ?> jusqu'au <?= e(date_fr($contract['end_date'])) ?> : modifiable depuis le contrat.</small></div>
+        <?php else: ?>
         <div class="field"><label>Tarif négocié HT (€)</label><input type="text" name="negotiated_price" value="<?= $fmt('negotiated_price') ?>" placeholder="laisser vide si aucun"><small>Prix appliqué aux demandes et bons de commande s'il est renseigné.</small></div>
+        <?php endif; ?>
         <div class="field"><label>TVA (%)</label><input type="text" name="vat_rate" value="<?= e(number_format((float)($p['vat_rate'] ?? 20), 2, ',', '')) ?>"></div>
         <div class="field"><label>Quantité proposée par défaut</label><input type="number" name="min_qty" min="1" value="<?= (int)($p['min_qty'] ?? 1) ?>"></div>
       </div>

@@ -16,6 +16,7 @@ $groups = [
         ['Pilotage et tableau Direction', $n, $n, $y, $y],
         ['Traiter les demandes, bons de commande, envoi aux fournisseurs', $n, $n, $y, $y],
         ['Articles proposés, catalogue, fournisseurs, catégories, prix', $n, $n, $y, $y],
+        ['Contrats et marchés (prix contractuels, échéances)', $n, $n, $y, $y],
         ['Factures, exports comptables, budgets, dates limites, stocks des centres', $n, $n, $y, $y],
         ['Notifications des nouvelles demandes et alertes (prix, budget, stock)', $n, 'Validations', $y, $y],
     ],

@@ -357,6 +357,35 @@ function schema_statements(string $driver): array
             response TEXT NOT NULL,
             created_at DATETIME NOT NULL",
 
+        'contracts' => "
+            id {PK},
+            supplier_id {FK} NOT NULL,
+            name VARCHAR(150) NOT NULL,
+            reference VARCHAR(80) NULL,
+            buying_group VARCHAR(80) NULL,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            notice_days INT NOT NULL DEFAULT 90,
+            tacit_renewal TINYINT NOT NULL DEFAULT 0,
+            annual_amount DECIMAL(12,2) NULL,
+            contact VARCHAR(190) NULL,
+            file VARCHAR(255) NULL,
+            notes TEXT NULL,
+            alerted_at DATETIME NULL,
+            expired_notified_at DATETIME NULL,
+            created_by {FK} NULL,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NULL,
+            FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE",
+
+        'contract_prices' => "
+            contract_id {FK} NOT NULL,
+            product_id {FK} NOT NULL,
+            price DECIMAL(10,2) NOT NULL,
+            PRIMARY KEY (contract_id, product_id),
+            FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE CASCADE,
+            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE",
+
         'videos' => "
             id {PK},
             uid VARCHAR(40) NOT NULL,
@@ -434,6 +463,8 @@ function schema_statements(string $driver): array
         'idx_po_group'            => 'purchase_orders(group_ref)',
         'idx_products_compare'    => 'products(compare_group)',
         'idx_videos_uid'          => 'videos(uid)',
+        'idx_contracts_end'       => 'contracts(end_date)',
+        'idx_cprices_product'     => 'contract_prices(product_id)',
     ];
     foreach ($indexes as $n => $def) {
         $sql[] = $driver === 'sqlite'

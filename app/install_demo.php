@@ -304,6 +304,22 @@ function install_demo_data(int $adminId): void
             'billing_email' => 'compta@demo.fr', 'billing_notes' => 'Rappeler le numéro du bon de commande sur la facture',
         ], 'id = ?', [$centerIds[$i]]);
     }
+    // v1.19 : contrats et marchés (un marché de groupement bientôt à échéance, un contrat direct)
+    foreach ([
+        ['medi', 'Marché consommables médicaux', 'UniHA', 'UNI-2024-117', '-34 months', '+75 days', 90, 0, 18000, 'Mme Leroy, chargée de marché UniHA'],
+        ['hyg', 'Contrat hygiène et entretien', null, 'HPS-CT-08', '-6 months', '+30 months', 60, 1, 6500, 'Karim Benali'],
+    ] as [$s, $n, $g, $ref, $from, $to, $notice, $tacit, $amount, $contact]) {
+        $cid = insert('contracts', ['supplier_id' => $sup[$s], 'name' => $n, 'buying_group' => $g, 'reference' => $ref,
+            'start_date' => date('Y-m-d', strtotime($from)), 'end_date' => date('Y-m-d', strtotime($to)), 'notice_days' => $notice,
+            'tacit_renewal' => $tacit, 'annual_amount' => $amount, 'contact' => $contact, 'created_by' => $adminId, 'created_at' => $now]);
+        foreach (all('SELECT id, catalog_price, negotiated_price FROM products WHERE supplier_id = ? ORDER BY id', [$sup[$s]]) as $i => $p) {
+            if ($i % 4 !== 3) { // quelques articles restent hors contrat
+                insert('contract_prices', ['contract_id' => $cid, 'product_id' => $p['id'],
+                    'price' => $p['negotiated_price'] !== null ? $p['negotiated_price'] : round((float)$p['catalog_price'] * 0.88, 2)]);
+            }
+        }
+    }
+    contracts_apply_prices();
     q('DELETE FROM notifications');
     insert('settings', ['skey' => 'company_name', 'svalue' => 'Groupe de Centres de Santé (démo)']);
     insert('settings', ['skey' => 'company_address', 'svalue' => "Service achats\n1 place de la Liberté\n83000 Toulon"]);

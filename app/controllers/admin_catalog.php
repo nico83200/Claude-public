@@ -197,6 +197,10 @@ function admin_product_edit(): void
             'active' => input('active') === '1' ? 1 : 0,
             'updated_at' => now(),
         ];
+        // Article sous contrat en vigueur : le prix contractuel reste le tarif négocié
+        if ($id && ($pc = product_contract($id))) {
+            $data['negotiated_price'] = (float)$pc['price'];
+        }
         $errors = [];
         if ($data['name'] === '') {
             $errors[] = 'La désignation est obligatoire.';
@@ -249,6 +253,7 @@ function admin_product_edit(): void
         'suppliers' => all('SELECT id, name FROM suppliers ORDER BY active DESC, name'),
         'categories' => all('SELECT id, name FROM categories ORDER BY position, name'),
         'defaultSupplier' => input_int('supplier_id'),
+        'contract' => !empty($p['id']) ? product_contract((int)$p['id']) : null,
     ]);
 }
 
@@ -374,7 +379,8 @@ function admin_products_import(): void
             plural($report['created'], 'article créé', 'articles créés'), plural($report['updated'], 'article mis à jour', 'articles mis à jour'),
             $report['skipped'] ? ', ' . plural($report['skipped'], 'ligne ignorée', 'lignes ignorées') : '',
             $report['suppliers'] ? ', ' . plural($report['suppliers'], 'fournisseur créé', 'fournisseurs créés') : '',
-            $report['categories'] ? ', ' . plural($report['categories'], 'catégorie créée', 'catégories créées') : ''));
+            $report['categories'] ? ', ' . plural($report['categories'], 'catégorie créée', 'catégories créées') : '')
+            . ($report['contract_kept'] ? ' ' . plural($report['contract_kept'], 'article sous contrat garde', 'articles sous contrat gardent') . ' son prix contractuel.' : ''));
         if ($inc) {
             flash('error', plural(count($inc), 'hausse de prix', 'hausses de prix') . ' de plus de ' . price_alert_pct() . ' % : '
                 . implode(', ', array_map(fn($i) => $i['name'] . ' (+' . $i['pct'] . ' %)', array_slice($inc, 0, 6))) . (count($inc) > 6 ? '…' : '') . '. Pensez à comparer avec les autres fournisseurs (Comparateur).');

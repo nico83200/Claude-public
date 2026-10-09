@@ -41,6 +41,7 @@ require APP . '/spreadsheet.php';
 require APP . '/import.php';
 require APP . '/support.php';
 require APP . '/videos.php';
+require APP . '/contracts.php';
 require APP . '/barcode.php';
 require APP . '/licence.php';
 require APP . '/reports.php';
@@ -677,6 +678,32 @@ check(role_label('buyer') === 'Acheteur', 'libellé du rôle');
 q('DELETE FROM users WHERE id = ?', [$buyerId]);
 as_user('admin@test.fr');
 check(is_superadmin(), 'l\'administrateur garde l\'organisation et les paramètres');
+
+section('Contrats et marchés');
+$cp = one('SELECT * FROM products WHERE active = 1 AND reference IS NOT NULL ORDER BY id LIMIT 1');
+$cpSup = (int)$cp['supplier_id'];
+$today = date('Y-m-d');
+$cid = insert('contracts', ['supplier_id' => $cpSup, 'name' => 'Marché test', 'buying_group' => 'UniHA', 'start_date' => date('Y-m-d', strtotime('-1 year')),
+    'end_date' => date('Y-m-d', strtotime('+200 days')), 'notice_days' => 90, 'tacit_renewal' => 0, 'created_at' => now()]);
+check(contract_status(one('SELECT * FROM contracts WHERE id = ?', [$cid]))['key'] === 'active', 'contrat en cours');
+[$parsed, $unknown] = contract_parse_prices($cp['reference'] . "\t1,23\nINCONNU;4,00\n", $cpSup);
+check(($parsed[(int)$cp['id']] ?? null) === 1.23 && count($unknown) === 1, 'annexe tarifaire collée : référence reconnue, ligne inconnue signalée');
+insert('contract_prices', ['contract_id' => $cid, 'product_id' => $cp['id'], 'price' => 1.23]);
+check(contracts_apply_prices() >= 1 && (float)val('SELECT negotiated_price FROM products WHERE id = ?', [$cp['id']]) === 1.23, 'prix contractuel appliqué à l\'article');
+check(str_starts_with((string)val('SELECT source FROM price_history WHERE product_id = ? ORDER BY id DESC LIMIT 1', [$cp['id']]), 'Contrat'), 'historique des prix : origine « Contrat »');
+check((product_contract((int)$cp['id'])['buying_group'] ?? '') === 'UniHA', 'contrat retrouvé depuis l\'article');
+check(cron_contracts() === 0, 'pas d\'alerte avant le préavis');
+update('contracts', ['end_date' => date('Y-m-d', strtotime('+60 days'))], 'id = ?', [$cid]);
+check(cron_contracts() === 1 && val('SELECT alerted_at FROM contracts WHERE id = ?', [$cid]) !== null, 'préavis atteint : service achats prévenu');
+check(cron_contracts() === 0, 'alerte envoyée une seule fois');
+check(count(contracts_attention()) === 1, 'contrat signalé sur le pilotage');
+$r = contract_renew($cid, 12);
+check($r['end_date'] === date('Y-m-d', strtotime(date('Y-m-d', strtotime('+60 days')) . ' +12 months')) && $r['alerted_at'] === null, 'prolongation de 12 mois, alertes réarmées');
+update('contracts', ['end_date' => date('Y-m-d', strtotime('-2 days'))], 'id = ?', [$cid]);
+check(contract_status(one('SELECT * FROM contracts WHERE id = ?', [$cid]))['key'] === 'expired' && cron_contracts() >= 1, 'contrat expiré signalé');
+check(product_contract((int)$cp['id']) === null && !isset(contract_prices_now()[(int)$cp['id']]), 'prix contractuel plus en vigueur après l\'échéance');
+q('DELETE FROM contract_prices WHERE contract_id = ?', [$cid]);
+q('DELETE FROM contracts WHERE id = ?', [$cid]);
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));
