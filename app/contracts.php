@@ -11,7 +11,7 @@ const BUYING_GROUPS = ['UniHA', 'Resah', 'UGAP', 'CAIH', 'Helpévia', 'AGEPS', '
 
 function contracts_dir(): string
 {
-    $d = ROOT . '/storage/contracts';
+    $d = storage_path('contracts');
     if (!is_dir($d)) {
         @mkdir($d, 0750, true);
     }

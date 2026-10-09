@@ -9,6 +9,12 @@ declare(strict_types=1);
 define('ROOT', __DIR__);
 define('APP', __DIR__ . '/app');
 
+// Plusieurs clients installés : chaque espace se crée depuis la console NLapps, jamais par cet assistant
+if (is_file(ROOT . '/instances/registry.php')) {
+    http_response_code(403);
+    exit('<!doctype html><meta charset="utf-8"><title>Installation</title><p style="font-family:system-ui;padding:2rem">Approvia est installé en mode multi-clients : créez les espaces depuis <a href="console.php">la console NLapps</a>.</p>');
+}
+
 $step = 'config';
 $error = null;
 $done = false;

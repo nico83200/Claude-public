@@ -12,7 +12,7 @@ declare(strict_types=1);
  *
  * La version est lue dans le fichier VERSION ; les notes dans la première section de CHANGELOG.md.
  */
-const ROOT_FILES = ['cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html'];
+const ROOT_FILES = ['cron.php', 'console.php', 'sw.js', 'manifest.webmanifest', 'offline.html'];
 
 if (PHP_SAPI !== 'cli') {
     exit("À lancer en ligne de commande.\n");
@@ -63,7 +63,7 @@ $notes = '';
 if (is_file("$root/CHANGELOG.md") && preg_match('/^##[^\n]*\n(.*?)(?=^## |\z)/ms', (string)file_get_contents("$root/CHANGELOG.md"), $m)) {
     $notes = trim($m[1]);
 }
-$include = ['index.php', 'cron.php', 'sw.js', 'manifest.webmanifest', 'offline.html', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app', 'assets', 'tools', 'tests'];
+$include = ['index.php', 'cron.php', 'console.php', 'sw.js', 'manifest.webmanifest', 'offline.html', 'VERSION', 'CHANGELOG.md', 'README.md', 'composer.json', 'composer.lock', '.htaccess', 'config.sample.php', 'app', 'assets', 'tools', 'tests'];
 if ($withVendor) {
     if (!is_file("$root/vendor/autoload.php")) {
         exit("Dossier vendor/ absent : lancez d'abord composer install --no-dev.\n");

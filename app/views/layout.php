@@ -97,7 +97,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <a class="<?= $active('admin/settings') ?>" href="<?= url('admin/settings') ?>"><?= icon('settings') ?> Paramètres</a>
       <a class="<?= $active('admin/audit') ?>" href="<?= url('admin/audit') ?>"><?= icon('shield') ?> Journal d'audit</a>
       <a class="<?= $active('admin/cleanup') ?>" href="<?= url('admin/cleanup') ?>"><?= icon('trash') ?> Nettoyage des données<?php if (demo_present()): ?> <span class="count">démo</span><?php endif; ?></a>
-      <a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a>
+      <?php if (!current_instance()): ?><a class="<?= $active('admin/updates') ?>" href="<?= url('admin/updates') ?>"><?= icon('refresh') ?> Mises à jour <span class="count soft">v<?= e(APP_VERSION) ?></span></a><?php endif; ?>
       <?php endif; ?>
       <?php endif; ?>
       <div class="nav-title">Aide</div>
@@ -144,7 +144,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <?php if (is_superadmin() && ($ln = licence_notice())): ?>
         <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a></div></div>
       <?php endif; ?>
-      <?php if (is_superadmin() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
+      <?php if (is_superadmin() && !current_instance() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
         <div class="flash flash-info"><?= icon('sparkles') ?><div>Nouvelle version <strong><?= e($up['version']) ?></strong> disponible. <a href="<?= url('admin/updates') ?>">Voir les nouveautés et l'installer</a></div></div>
       <?php endif; ?>
       <?php foreach (flashes() as $f): ?>

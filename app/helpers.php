@@ -228,7 +228,7 @@ function abort(int $code, string $message = ''): never
 
 function product_image_url(?string $image): ?string
 {
-    return $image ? 'uploads/products/' . rawurlencode($image) : null;
+    return $image ? uploads_url('products/' . rawurlencode($image)) : null;
 }
 
 /** Enregistre une photo envoyée et renvoie le nom de fichier, ou null. */
@@ -253,7 +253,7 @@ function handle_image_upload(string $field): ?string
         throw new RuntimeException('Format de photo non pris en charge (JPG, PNG, WEBP, GIF).');
     }
     $name = date('Ymd') . '-' . bin2hex(random_bytes(8)) . '.' . $ext;
-    $dest = ROOT . '/uploads/products/' . $name;
+    $dest = uploads_path('products/' . $name);
     if (!move_uploaded_file($f['tmp_name'], $dest)) {
         throw new RuntimeException('Impossible d\'enregistrer la photo.');
     }
@@ -316,7 +316,7 @@ function image_shrink(string $path, int $max = 1600): ?string
 function delete_image(?string $name): void
 {
     if ($name && preg_match('/^[\w.-]+$/', $name)) {
-        @unlink(ROOT . '/uploads/products/' . $name);
+        @unlink(uploads_path('products/' . $name));
     }
 }
 

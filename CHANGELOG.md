@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.20.0
+- **Plusieurs clients sur un même serveur** : un seul exemplaire du code sert plusieurs clients, chacun avec sa base de données (SQLite ou MySQL), ses fichiers, ses comptes et sa licence, reconnu à son adresse (ex. imss.approvia.fr). Les sessions d'un espace ne valent jamais dans un autre.
+- **Console NLapps** (`console.php`, mot de passe propre créé avec un code déposé sur le serveur) : création d'un client en un formulaire (premier administrateur, clé de licence, données de démonstration en option), reprise de l'installation existante comme premier client sans toucher à sa base, chiffres clés par client, suspension et rétablissement, changement d'adresses, suppression avec archive.
+- **Mise à jour de tous les clients en une fois** depuis la console : sauvegarde de chaque base et du code, remplacement des fichiers (retour automatique en cas d'échec), migration de chaque base. Dans les espaces clients, le menu « Mises à jour » disparaît.
+- `php cron.php` traite tous les clients, chacun dans son processus. L'installation simple (un seul client) fonctionne exactement comme avant.
+
 ## 1.19.0
 - **Contrats et marchés** (menu *Service achats*) : enregistrez vos marchés de groupement (UniHA, Resah, UGAP, CAIH…) et vos contrats directs : fournisseur, n° de marché, période, montant annuel, interlocuteur, document PDF.
 - **Prix contractuels** : saisis article par article, collés depuis l'annexe tarifaire (référence ; prix) ou repris des tarifs négociés actuels. Pendant la durée du contrat ils deviennent le tarif négocié des articles (paniers, bons de commande, comparateur) ; un import de tarifs fournisseur ne peut pas les écraser, et la fiche article indique le contrat qui fixe le prix.

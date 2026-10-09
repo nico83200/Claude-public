@@ -103,7 +103,7 @@ function admin_updates_remote(): void
     if (!is_post()) {
         redirect('admin/updates');
     }
-    $staging = ROOT . '/storage/update-pending.zip';
+    $staging = storage_path('update-pending.zip');
     try {
         licence_check(true);
         $l = licence_download_update($staging);
@@ -126,7 +126,7 @@ function admin_updates_remote(): void
 function admin_updates_upload(): void
 {
     require_admin();
-    $staging = ROOT . '/storage/update-pending.zip';
+    $staging = storage_path('update-pending.zip');
     if (input('step') === 'apply') {
         if (!admin_check_password() || !is_file($staging)) {
             redirect('admin/updates');

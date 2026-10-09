@@ -6,9 +6,8 @@ declare(strict_types=1);
  */
 function db(): PDO
 {
-    static $pdo = null;
-    if ($pdo !== null) {
-        return $pdo;
+    if (isset($GLOBALS['db_pdo'])) {
+        return $GLOBALS['db_pdo'];
     }
     $c = $GLOBALS['config']['db'];
     $opts = [
@@ -30,7 +29,13 @@ function db(): PDO
         $pdo = new PDO($dsn, $c['user'] ?? '', $c['pass'] ?? '', $opts);
         $pdo->exec("SET time_zone = '" . date('P') . "'");
     }
-    return $pdo;
+    return $GLOBALS['db_pdo'] = $pdo;
+}
+
+/** Ferme la connexion (changement de client par la console multi-clients). */
+function db_reset(): void
+{
+    unset($GLOBALS['db_pdo']);
 }
 
 function db_driver(): string

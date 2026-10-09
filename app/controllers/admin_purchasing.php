@@ -188,7 +188,7 @@ function admin_order_send(): void
         flash('error', 'Adresse e-mail du fournisseur manquante ou invalide (renseignez-la dans la fiche fournisseur).');
         redirect(...$back);
     }
-    $dir = ROOT . '/storage/mail';
+    $dir = storage_path('mail');
     if (!is_dir($dir)) {
         @mkdir($dir, 0750, true);
     }

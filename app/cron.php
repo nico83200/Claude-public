@@ -31,7 +31,7 @@ function cron_last(string $task): int
 /** Exécute les tâches arrivées à échéance. Renvoie le compte rendu. */
 function cron_run(bool $force = false): array
 {
-    $lock = ROOT . '/storage/cron.lock';
+    $lock = storage_path('cron.lock');
     $fh = @fopen($lock, 'c');
     if (!$fh || !flock($fh, LOCK_EX | LOCK_NB)) {
         return ['locked' => true];
@@ -195,7 +195,7 @@ function cron_cleanup(): int
     $n += q('DELETE FROM notifications WHERE read_at IS NOT NULL AND created_at < ?', [date('Y-m-d H:i:s', strtotime('-12 months'))])->rowCount();
     $n += q('DELETE FROM ai_cache WHERE created_at < ?', [date('Y-m-d H:i:s', strtotime('-30 days'))])->rowCount();
     // Pièces jointes d'e-mails déjà envoyés
-    foreach (glob(ROOT . '/storage/mail/*') ?: [] as $f) {
+    foreach (glob(storage_path('mail/*')) ?: [] as $f) {
         if (filemtime($f) < time() - 30 * 86400) {
             @unlink($f);
         }

@@ -125,6 +125,23 @@ Séparateur `;` (ou `,`), encodage UTF-8, première ligne d'en-têtes :
 `fournisseur;reference;designation;description;categorie;conditionnement;prix_catalogue;prix_negocie;mots_cles;tva;code_barre`
 Un article existant (même fournisseur et même référence) est mis à jour. L'export du catalogue sert de modèle.
 
+## Plusieurs clients sur un même serveur
+
+Un seul exemplaire du code peut servir plusieurs clients. Chaque client a **sa base de données, ses fichiers, ses comptes et sa licence**, et il est reconnu à l'adresse utilisée (ex. `imss.approvia.fr`, `sante-var.approvia.fr`).
+
+1. Chez l'hébergeur, faites pointer chaque adresse (ou un sous-domaine générique `*.approvia.fr`) vers le dossier d'Approvia, avec HTTPS.
+2. Ouvrez `https://…/console.php`. Au premier accès, recopiez le code du fichier `storage/console-code.txt` (FTP ou gestionnaire de fichiers) et choisissez le mot de passe de la console.
+3. **Reprendre l'installation actuelle** : l'installation existante devient le premier client, sans modifier sa base (comptes, commandes, réglages, licence conservés).
+4. **Nouveau client** : nom, identifiant, adresse(s), base SQLite (un fichier, rien à créer) ou MySQL (base vide créée chez l'hébergeur), premier administrateur, clé de licence NLapps, données de démonstration en option.
+
+La console affiche les chiffres clés de chaque client et permet de le suspendre (page « momentanément indisponible »), de changer ses adresses ou de le supprimer (base et fichiers archivés d'abord dans `storage/clients-supprimes/`).
+
+**Mises à jour** : le code étant commun, elles s'installent depuis la console (*Mise à jour*), pour tous les clients à la fois. La base de chaque client est sauvegardée, le code aussi, puis chaque base est migrée. Le menu « Mises à jour » disparaît des espaces clients.
+
+**Tâches planifiées** : `php cron.php` traite chaque client à son tour, dans un processus séparé.
+
+Organisation des fichiers : `instances/registry.php` (liste des clients), `instances/<client>/config.php` et `instances/<client>/storage/` (données privées), `uploads/i/<client>/` (photos et logo). Le dossier `instances/` est interdit d'accès web par `.htaccess`. Sur un serveur nginx, refusez aussi `/instances/` et `/storage/` dans la configuration du site.
+
 ## Tâches planifiées
 
 Les e-mails, rappels, relances, la sauvegarde quotidienne et le nettoyage sont exécutés :

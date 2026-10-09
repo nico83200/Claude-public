@@ -371,7 +371,7 @@ function invoice_badge(?string $status): string
 
 function invoices_dir(): string
 {
-    $d = ROOT . '/storage/invoices';
+    $d = storage_path('invoices');
     if (!is_dir($d)) {
         @mkdir($d, 0750, true);
     }
@@ -447,11 +447,11 @@ function handle_invoice_upload(string $field): ?string
 /** Clé de chiffrement propre à l'installation, stockée hors zone web (storage/secret.key). */
 function app_secret_key(): string
 {
-    static $key = null;
-    if ($key !== null) {
-        return $key;
+    static $keys = []; // une clé par client (console multi-clients)
+    $file = storage_path('secret.key');
+    if (isset($keys[$file])) {
+        return $keys[$file];
     }
-    $file = ROOT . '/storage/secret.key';
     if (!is_file($file)) {
         @mkdir(dirname($file), 0755, true);
         if (@file_put_contents($file, base64_encode(random_bytes(32)), LOCK_EX) === false) {
@@ -463,7 +463,7 @@ function app_secret_key(): string
     if (strlen($key) !== 32) {
         throw new RuntimeException('Fichier storage/secret.key invalide.');
     }
-    return $key;
+    return $keys[$file] = $key;
 }
 
 /**
@@ -598,7 +598,7 @@ function center_billing(array $c): array
 
 function brand_dir(): string
 {
-    $d = ROOT . '/uploads/brand';
+    $d = uploads_path('brand');
     if (!is_dir($d)) {
         @mkdir($d, 0755, true);
     }
@@ -612,14 +612,14 @@ function brand_dir(): string
 function brand_logo_url(): ?string
 {
     $f = setting('brand_logo');
-    return ($f && is_file(ROOT . '/uploads/brand/' . basename($f))) ? 'uploads/brand/' . rawurlencode(basename($f)) . '?v=' . substr(md5($f), 0, 6) : null;
+    return ($f && is_file(uploads_path('brand/' . basename($f)))) ? uploads_url('brand/' . rawurlencode(basename($f))) . '?v=' . substr(md5($f), 0, 6) : null;
 }
 
 /** Version JPEG du logo (fond blanc) pour les documents PDF. */
 function brand_logo_pdf_path(): ?string
 {
     $f = setting('brand_logo_pdf');
-    $p = $f ? ROOT . '/uploads/brand/' . basename($f) : null;
+    $p = $f ? uploads_path('brand/' . basename($f)) : null;
     return $p && is_file($p) ? $p : null;
 }
 
@@ -675,7 +675,7 @@ function brand_logo_delete(): void
 {
     foreach (['brand_logo', 'brand_logo_pdf'] as $k) {
         if ($f = setting($k)) {
-            @unlink(ROOT . '/uploads/brand/' . basename($f));
+            @unlink(uploads_path('brand/' . basename($f)));
         }
         set_setting($k, null);
     }

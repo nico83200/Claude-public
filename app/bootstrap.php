@@ -4,20 +4,43 @@ declare(strict_types=1);
 define('ROOT', dirname(__DIR__));
 define('APP', __DIR__);
 
+require_once APP . '/instances.php';
+
+// Console NLapps (console.php) : aucun client chargé au départ, elle bascule de l'un à l'autre
+$console = defined('NL_CONSOLE');
+
+// Client servi : CMD_INSTANCE (ligne de commande), sinon l'adresse appelée quand plusieurs clients sont installés
+$slug = $console ? null : (getenv('CMD_INSTANCE') ?: null);
+if (!$console && $slug === null && !getenv('CMD_CONFIG') && instances_enabled() && PHP_SAPI !== 'cli') {
+    $slug = instance_for_host((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($slug === null && !is_file(ROOT . '/config.php')) {
+        instance_unavailable('Espace introuvable', 'Aucun espace Approvia ne correspond à cette adresse. Vérifiez le lien reçu de votre service achats.');
+    }
+}
+if ($slug !== null) {
+    $info = instances_registry()[$slug] ?? null;
+    if (!$info || !is_file(instance_paths($slug)['config'])) {
+        instance_unavailable('Espace introuvable', 'Cet espace Approvia n\'existe pas ou a été supprimé.');
+    }
+    if (!empty($info['suspended']) && PHP_SAPI !== 'cli') {
+        instance_unavailable('Espace momentanément indisponible', 'L\'accès à cet espace Approvia est suspendu. Contactez NLapps pour le rétablir.', 503);
+    }
+}
+
 // Fichier de configuration (CMD_CONFIG permet de pointer une autre configuration, ex. pour les tests)
-$configFile = getenv('CMD_CONFIG') ?: ROOT . '/config.php';
-if (!is_file($configFile)) {
+$configFile = getenv('CMD_CONFIG') ?: instance_paths($slug)['config'];
+if (!is_file($configFile) && !$console) {
     header('Location: install.php');
     exit;
 }
-
-$GLOBALS['config'] = require $configFile;
+instance_activate($slug);
+$GLOBALS['config'] = is_file($configFile) ? require $configFile : [];
 
 // Erreurs : journal dans storage/logs/ et page explicite plutôt qu'une erreur 500 muette
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
-if (is_dir(ROOT . '/storage') && (is_dir(ROOT . '/storage/logs') || @mkdir(ROOT . '/storage/logs', 0755))) {
-    ini_set('error_log', ROOT . '/storage/logs/php-errors.log');
+if (is_dir(storage_path()) && (is_dir(storage_path('logs')) || @mkdir(storage_path('logs'), 0755))) {
+    ini_set('error_log', storage_path('logs/php-errors.log'));
 }
 function app_error_page(string $message): void
 {
@@ -84,9 +107,9 @@ require_once APP . '/cron.php';
 
 define('APP_VERSION', trim((string)@file_get_contents(ROOT . '/VERSION')) ?: '1.0.0');
 
-if (session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
+if (!$console && session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
     $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-    session_name('cmdcentres');
+    session_name('cmdcentres' . ($slug ? '_' . str_replace('-', '_', $slug) : ''));
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
@@ -95,6 +118,12 @@ if (session_status() === PHP_SESSION_NONE && PHP_SAPI !== 'cli') {
         'samesite' => 'Lax',
     ]);
     session_start();
+    // Une session ouverte chez un client n'est jamais valable chez un autre
+    if (($_SESSION['instance'] ?? $slug) !== $slug) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+    }
+    $_SESSION['instance'] = $slug;
 }
 
 // Mode maintenance pendant l'application d'une mise à jour
@@ -105,7 +134,7 @@ if (is_file(ROOT . '/storage/maintenance.flag') && filemtime(ROOT . '/storage/ma
 }
 
 // Migration automatique de la base quand le code a été mis à jour
-if (setting('db_version') !== APP_VERSION) {
+if (!$console && setting('db_version') !== APP_VERSION) {
     try {
         schema_migrate();
         // Fichiers racine livrés dans app/root/ par le paquet de mise à jour

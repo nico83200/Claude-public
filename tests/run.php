@@ -25,6 +25,7 @@ $_SESSION = [];
 define('ROOT', dirname(__DIR__));
 define('APP', ROOT . '/app');
 $GLOBALS['config'] = require "$tmp/config.php";
+require APP . '/instances.php';
 require APP . '/db.php';
 require APP . '/helpers.php';
 require APP . '/schema.php';
@@ -704,6 +705,14 @@ check(contract_status(one('SELECT * FROM contracts WHERE id = ?', [$cid]))['key'
 check(product_contract((int)$cp['id']) === null && !isset(contract_prices_now()[(int)$cp['id']]), 'prix contractuel plus en vigueur après l\'échéance');
 q('DELETE FROM contract_prices WHERE contract_id = ?', [$cid]);
 q('DELETE FROM contracts WHERE id = ?', [$cid]);
+
+section('Multi-clients');
+check(instance_valid_slug('sante-var') && instance_valid_slug('imss') && !instance_valid_slug('Santé') && !instance_valid_slug('-x') && !instance_valid_slug('a/b'), 'identifiants de client contrôlés');
+check(instance_normalize_host(' HTTPS://Imss.Approvia.fr/index.php ') === 'imss.approvia.fr', 'adresse normalisée');
+$ip = instance_paths('imss');
+check(str_ends_with($ip['config'], '/instances/imss/config.php') && $ip['uploads_url'] === 'uploads/i/imss', 'chemins propres au client');
+check(instance_paths(null)['storage'] === ROOT . '/storage' && storage_path('x') === ROOT . '/storage/x', 'installation simple inchangée');
+check(uploads_url('products/a.png') === 'uploads/products/a.png', 'photos de l\'installation simple');
 
 // Nettoyage
 array_map('unlink', glob("$tmp/*"));

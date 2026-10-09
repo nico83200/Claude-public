@@ -19,7 +19,7 @@ const VIDEO_MAX_MB = 500;
 
 function videos_dir(): string
 {
-    $d = ROOT . '/storage/videos';
+    $d = storage_path('videos');
     if (!is_dir($d)) {
         @mkdir($d, 0775, true);
     }

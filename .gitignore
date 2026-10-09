@@ -12,3 +12,5 @@
 /support-hub/data/*
 !/support-hub/data/.htaccess
 __pycache__/
+/instances/
+/uploads/i/

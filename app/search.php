@@ -242,10 +242,12 @@ function ai_api_key(): string
 /** Clé API utilisée et son origine : paramètres (chiffrée en base), config.php ou variable d'environnement. */
 function ai_key_info(): array
 {
-    static $info = null;
-    if ($info !== null) {
-        return $info;
+    static $cache = [];
+    $ck = storage_path();
+    if (isset($cache[$ck])) {
+        return $cache[$ck];
     }
+    $info = &$cache[$ck];
     $stored = setting('ai_api_key');
     if ($stored) {
         try {

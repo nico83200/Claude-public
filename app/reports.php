@@ -150,7 +150,7 @@ function report_data(string $period, ?int $centerId = null, ?int $now = null): a
 
 function reports_dir(): string
 {
-    $d = ROOT . '/storage/reports';
+    $d = storage_path('reports');
     if (!is_dir($d)) {
         @mkdir($d, 0750, true);
         @file_put_contents($d . '/.htaccess', "Require all denied\n");
