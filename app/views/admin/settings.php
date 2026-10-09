@@ -103,6 +103,11 @@
           <div><small class="muted">Licence</small><div><span class="badge badge-<?= $lt[1] ?>"><?= $lt[0] ?></span> <?= !empty($li['plan']) ? e($li['plan']) : '' ?></div></div>
           <div><small class="muted">Échéance</small><div class="strong"><?= !empty($li['paid_until']) ? date_fr($li['paid_until']) : '—' ?></div></div>
           <div><small class="muted">Assistant IA</small><div class="strong"><?= !empty($li['ai']) ? 'Inclus' : 'Non souscrit' ?></div></div>
+          <?php if (!empty($li['billing']['online'])): $bi = $li['billing']; ?>
+          <div><small class="muted">Paiement</small><div class="strong"><?= !empty($bi['active']) ? e(($bi['method'] === 'sepa_debit' ? 'Prélèvement SEPA' : ($bi['method'] === 'card' ? 'Carte bancaire' : 'Automatique')) . (!empty($bi['next']) ? ' · prochain le ' . date_fr($bi['next']) : '')) : 'À la demande' ?></div>
+            <small class="muted"><?= !empty($bi['monthly_ttc']) ? e(money($bi['monthly_ttc'] / 100)) . ' TTC / mois' : '' ?><?= in_array($bi['status'] ?? '', ['past_due', 'unpaid'], true) ? ' · <span style="color:var(--red)">' . e($bi['status_label']) . '</span>' : '' ?></small></div>
+          <?php endif; ?>
+          <?php if ($payUrl = licence_pay_url()): ?><div style="align-self:center"><a class="btn <?= licence_autopay() ? '' : 'btn-primary' ?>" href="<?= e($payUrl) ?>" target="_blank" rel="noopener"><?= icon('euro', 16) ?> <?= licence_autopay() ? 'Gérer mon abonnement' : 'Payer en ligne' ?></a></div><?php endif; ?>
           <div><small class="muted">Dernière vérification</small><div><?= !empty($li['checked_at']) ? date_fr($li['checked_at'], true) : '—' ?><?= !empty($li['last_error']) ? '<br><small style="color:var(--red)">' . e($li['last_error']) . '</small>' : '' ?></div></div>
         </div>
       <?php endif; ?>

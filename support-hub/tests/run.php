@@ -161,6 +161,43 @@ check((int)hone('SELECT COUNT(*) n FROM users')['n'] === 1, 'migration rejouée 
 check((bool)hone("SELECT slug FROM apps WHERE slug = 'autreappli'"), 'application déjà utilisée par une vidéo ou un client ajoutée au menu');
 check(hone("SELECT id FROM users WHERE username = 'ADMIN'") !== null, 'identifiant insensible à la casse');
 
+echo "Paiement en ligne (3.2)\n";
+$key = hub_create_client('Clinique Paiement', 'https://paie.example');
+$pc = hub_client_from_key($key);
+hq("UPDATE clients SET app = 'approvia', ai_option = 1, paid_until = ? WHERE id = ?", [date('Y-m-d', strtotime('+3 days')), $pc['id']]);
+$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
+check(array_sum(array_column(hub_billing_lines($pc), 'amount')) === 5400 && count(hub_billing_lines($pc)) === 2, 'montant mensuel : 39 € + option IA 15 € HT');
+hset('billing_vat', '20');
+check(hub_billing_summary($pc)['monthly_ttc'] === 6480 && !hub_billing_summary($pc)['online'], 'résumé : 64,80 € TTC, paiement en ligne non configuré');
+$tok = hub_billing_token($pc);
+check(strlen($tok) === 40 && hub_client_by_billing_token($tok)['id'] === $pc['id'] && hub_client_by_billing_token(str_repeat('a', 40)) === null, 'lien de paiement personnel');
+$secret = 'whsec_test123';
+$payload = '{"id":"evt_1"}';
+$t = time();
+check(hub_stripe_verify($payload, 't=' . $t . ',v1=' . hash_hmac('sha256', $t . '.' . $payload, $secret), $secret), 'signature Stripe valide acceptée');
+check(!hub_stripe_verify($payload, 't=' . $t . ',v1=' . hash_hmac('sha256', $t . '.' . $payload, 'whsec_autre'), $secret), 'signature d\'un autre secret refusée');
+check(!hub_stripe_verify($payload, 't=' . ($t - 3600) . ',v1=' . hash_hmac('sha256', ($t - 3600) . '.' . $payload, $secret), $secret), 'événement trop ancien refusé (rejeu)');
+$cid = (string)$pc['id'];
+check(hub_billing_handle(['id' => 'evt_a', 'type' => 'checkout.session.completed', 'data' => ['object' => ['object' => 'checkout.session', 'client_reference_id' => $cid,
+    'customer' => 'cus_X', 'subscription' => 'sub_X', 'payment_method_types' => ['sepa_debit']]]]) === 'Abonnement en ligne souscrit', 'souscription enregistrée');
+$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
+check($pc['stripe_subscription'] === 'sub_X' && $pc['billing_method'] === 'sepa_debit' && hub_billing_active($pc), 'abonnement et prélèvement SEPA rattachés au client');
+$end = strtotime('+1 month +3 days');
+hub_billing_handle(['id' => 'evt_b', 'type' => 'invoice.paid', 'data' => ['object' => ['object' => 'invoice', 'subscription' => 'sub_X', 'amount_paid' => 6480,
+    'hosted_invoice_url' => 'https://invoice.example/1', 'lines' => ['data' => [['period' => ['start' => time(), 'end' => $end]]]]]]]);
+$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
+check($pc['paid_until'] === date('Y-m-d', $end) && hub_licence($pc)['status'] === 'active', 'paiement reçu : licence prolongée jusqu\'à la fin de la période payée');
+check(hub_billing_handle(['id' => 'evt_b', 'type' => 'invoice.paid', 'data' => ['object' => ['subscription' => 'sub_X', 'amount_paid' => 6480]]]) === 'déjà traité', 'même événement reçu deux fois : traité une seule fois');
+hub_billing_handle(['id' => 'evt_old', 'type' => 'invoice.paid', 'data' => ['object' => ['subscription' => 'sub_X', 'amount_paid' => 6480, 'lines' => ['data' => [['period' => ['end' => strtotime('-2 months')]]]]]]]);
+check(hone('SELECT paid_until FROM clients WHERE id = ?', [$pc['id']])['paid_until'] === date('Y-m-d', $end), 'une ancienne facture ne raccourcit jamais la licence');
+hub_billing_handle(['id' => 'evt_c', 'type' => 'invoice.payment_failed', 'data' => ['object' => ['customer' => 'cus_X', 'amount_due' => 6480]]]);
+check(hone('SELECT billing_status FROM clients WHERE id = ?', [$pc['id']])['billing_status'] === 'past_due', 'échec de paiement signalé');
+hub_billing_handle(['id' => 'evt_d', 'type' => 'customer.subscription.deleted', 'data' => ['object' => ['object' => 'subscription', 'id' => 'sub_X', 'metadata' => ['client_id' => $cid]]]]);
+$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
+check($pc['billing_status'] === 'canceled' && !hub_billing_active($pc) && hub_licence($pc)['status'] === 'active', 'résiliation : paiements arrêtés, licence valable jusqu\'à la fin de la période payée');
+check(hub_billing_handle(['id' => 'evt_e', 'type' => 'invoice.paid', 'data' => ['object' => ['customer' => 'cus_inconnu']]]) === 'ignoré (client inconnu)', 'événement d\'un autre compte ignoré');
+check((int)hone('SELECT COUNT(*) n FROM billing_events WHERE client_id = ?', [$pc['id']])['n'] === 5, 'journal des paiements du client');
+
 $rm = function (string $d) use (&$rm): void {
     foreach (glob($d . '/*') ?: [] as $f) {
         is_dir($f) ? $rm($f) : unlink($f);

@@ -17,11 +17,19 @@ declare(strict_types=1);
  *   POST api.php?a=rate   {id, token, rating (1-5), comment}                          → satisfaction après clôture
  *   GET  api.php?a=video&id=…                                                         → fichier d'un tutoriel vidéo (licence à jour)
  *   GET  api.php?a=faq                                                                → FAQ partagée seule
+ *   POST api.php?a=billing                                                            → lien de la page de paiement (abonnement en ligne)
+ *   POST api.php?a=stripe                                                             → webhook Stripe (signature vérifiée, sans clé)
  */
 require __DIR__ . '/lib.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+
+// Notifications de paiement envoyées par Stripe : authentifiées par leur signature, pas par une clé client
+if (($_GET['a'] ?? '') === 'stripe') {
+    require HUB . '/views/stripe-webhook.php';
+    exit;
+}
 
 function out(array $data, int $code = 200): never
 {
@@ -151,8 +159,15 @@ switch ($a) {
                 'size' => (int)$latest['size'], 'sha256' => $latest['sha256'], 'downloadable' => in_array($lic['status'], ['active', 'grace'], true)] : null,
             'faq' => ['hash' => $faqHash] + (($in['faq_hash'] ?? '') !== $faqHash ? ['items' => $faq] : []),
             'videos' => ['hash' => $videosHash] + (($in['videos_hash'] ?? '') !== $videosHash ? ['items' => $videos] : []),
+            'billing' => hub_billing_summary($client),
             'status' => hub_status(),
         ]);
+
+    case 'billing':
+        if (!hub_stripe_ready()) {
+            out(['error' => 'Le paiement en ligne n\'est pas ouvert : contactez ' . hcfg('operator_name') . '.'], 409);
+        }
+        out(['url' => hub_pay_url($client)] + hub_billing_summary($client));
 
     case 'download':
         $lic = hub_licence($client);

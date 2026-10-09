@@ -4,6 +4,12 @@ declare(strict_types=1);
 /** Console NLapps : conversations mutualisées, puis pour chaque application gérée (sous-menu) : parc clients et licences, versions, FAQ, vidéos. */
 require __DIR__ . '/lib.php';
 
+// Page de paiement d'un client (lien personnel, sans connexion à la console)
+if (isset($_GET['pay'])) {
+    require HUB . '/views/pay.php';
+    exit;
+}
+
 session_name('nlapps_hub');
 session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off']);
 session_start();

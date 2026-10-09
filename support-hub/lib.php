@@ -72,7 +72,10 @@ function hub_migrate(PDO $pdo): void
     $cols = [
         'clients' => ['app' => "TEXT NOT NULL DEFAULT 'approvia'", 'plan' => "TEXT NOT NULL DEFAULT 'Abonnement'", 'status' => "TEXT NOT NULL DEFAULT 'active'",
             'paid_until' => 'TEXT', 'ai_option' => 'INTEGER NOT NULL DEFAULT 0', 'licence_note' => 'TEXT', 'app_version' => 'TEXT', 'instance_url' => 'TEXT',
-            'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT'],
+            'php_version' => 'TEXT', 'stats' => 'TEXT', 'last_check' => 'TEXT', 'prev_key_hash' => 'TEXT', 'prev_key_until' => 'TEXT', 'contact_email' => 'TEXT',
+            // 3.2 : encaissement automatique (Stripe)
+            'billing_token' => 'TEXT', 'stripe_customer' => 'TEXT', 'stripe_subscription' => 'TEXT', 'billing_status' => 'TEXT', 'billing_method' => 'TEXT',
+            'billing_next' => 'TEXT', 'billing_amount' => 'INTEGER'],
         'conversations' => ['rating' => 'INTEGER', 'rating_comment' => 'TEXT', 'transcript_sent' => 'INTEGER NOT NULL DEFAULT 0'],
         'messages' => ['file' => 'TEXT', 'author' => 'TEXT'],
         'videos' => ['welcome' => 'INTEGER NOT NULL DEFAULT 0'],
@@ -85,6 +88,9 @@ function hub_migrate(PDO $pdo): void
             }
         }
     }
+    $pdo->exec("CREATE TABLE IF NOT EXISTS billing_events (id INTEGER PRIMARY KEY AUTOINCREMENT, client_id INTEGER, stripe_id TEXT UNIQUE, type TEXT NOT NULL,
+        amount INTEGER, currency TEXT, label TEXT, url TEXT, created_at TEXT NOT NULL)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS billing_client ON billing_events(client_id, id)");
     // 3.0 : comptes nominatifs (identifiant + mot de passe) et applications gérées
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE COLLATE NOCASE, name TEXT NOT NULL,
         email TEXT, password_hash TEXT NOT NULL, totp_secret TEXT, role TEXT NOT NULL DEFAULT 'admin', active INTEGER NOT NULL DEFAULT 1,
@@ -930,3 +936,339 @@ function hub_backups(): array
     return $out;
 }
 
+// ---------------------------------------------------------------- Paiement en ligne (3.2)
+
+/**
+ * Encaissement automatique des abonnements avec Stripe : carte bancaire ou prélèvement SEPA.
+ *
+ *  - Le client paie depuis une page sécurisée (lien personnel index.php?pay=…, ou bouton dans son application),
+ *    hébergée par Stripe : NLapps ne voit jamais les numéros de carte ni l'IBAN.
+ *  - Chaque paiement reçu (webhook « invoice.paid ») prolonge la licence jusqu'à la fin de la période payée.
+ *  - Un échec de paiement est signalé à l'opérateur ; sans régularisation, la licence échoit d'elle-même
+ *    (délai de grâce, puis coupure), comme pour un client facturé à la main.
+ *
+ * Réglages : clé secrète (sk_…), secret du webhook (whsec_…) et taux de TVA, dans Réglages → Paiement en ligne.
+ */
+
+function hub_stripe_key(): string
+{
+    return trim((string)(hsetting('stripe_secret_key') ?: hcfg('stripe_secret_key') ?: ''));
+}
+
+function hub_stripe_ready(): bool
+{
+    return str_starts_with(hub_stripe_key(), 'sk_') || str_starts_with(hub_stripe_key(), 'rk_');
+}
+
+function hub_stripe_test_mode(): bool
+{
+    return str_contains(hub_stripe_key(), '_test_');
+}
+
+/** Appel à l'API Stripe (formulaire encodé, réponse JSON). Lève une exception avec le message de Stripe en cas d'erreur. */
+function hub_stripe(string $method, string $path, array $params = []): array
+{
+    if (!hub_stripe_ready()) {
+        throw new RuntimeException('Paiement en ligne non configuré : renseignez la clé secrète Stripe dans Réglages.');
+    }
+    $url = rtrim((string)(hcfg('stripe_api_base') ?: 'https://api.stripe.com'), '/') . $path;
+    $body = http_build_query($params, '', '&');
+    if ($method === 'GET' && $body !== '') {
+        $url .= '?' . $body;
+    }
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_CUSTOMREQUEST => $method, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20,
+        CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . hub_stripe_key(), 'Stripe-Version: 2024-06-20', 'Content-Type: application/x-www-form-urlencoded'],
+    ] + ($method !== 'GET' ? [CURLOPT_POSTFIELDS => $body] : []));
+    $raw = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    if ($raw === false) {
+        throw new RuntimeException('Stripe injoignable : ' . $err);
+    }
+    $data = json_decode((string)$raw, true);
+    if (!is_array($data)) {
+        throw new RuntimeException('Réponse illisible de Stripe (HTTP ' . $code . ').');
+    }
+    if ($code >= 400) {
+        throw new RuntimeException('Stripe : ' . ($data['error']['message'] ?? ('erreur HTTP ' . $code)));
+    }
+    return $data;
+}
+
+/** Jeton du lien de paiement personnel d'un client (créé au premier besoin). */
+function hub_billing_token(array $c): string
+{
+    if (!empty($c['billing_token'])) {
+        return (string)$c['billing_token'];
+    }
+    $t = bin2hex(random_bytes(20));
+    hq('UPDATE clients SET billing_token = ? WHERE id = ?', [$t, $c['id']]);
+    return $t;
+}
+
+/** Adresse publique de la page de paiement d'un client. */
+function hub_pay_url(array $c): string
+{
+    return preg_replace('/(api|index)\.php$/', 'index.php', hub_base_url()) . '?pay=' . hub_billing_token($c);
+}
+
+/** Adresse du webhook à déclarer chez Stripe. */
+function hub_stripe_webhook_url(): string
+{
+    return preg_replace('/index\.php$/', 'api.php', hub_base_url()) . '?a=stripe';
+}
+
+function hub_client_by_billing_token(string $t): ?array
+{
+    return preg_match('/^[a-f0-9]{40}$/', $t) ? hone('SELECT * FROM clients WHERE billing_token = ? AND active = 1', [$t]) : null;
+}
+
+/** Taux de TVA appliqué (en %). */
+function hub_vat_rate(): float
+{
+    return max(0.0, min(30.0, (float)str_replace(',', '.', (string)hsetting('billing_vat', '20'))));
+}
+
+/** Montant mensuel HT d'un client, en centimes : abonnement de l'application + option IA. */
+function hub_billing_lines(array $c): array
+{
+    $app = hub_app((string)($c['app'] ?: 'approvia')) ?? ['name' => 'Approvia', 'price_base' => 0, 'price_ai' => 0];
+    $lines = [['label' => $app['name'] . ' — ' . ($c['plan'] ?: 'Abonnement') . ' mensuel', 'amount' => (int)round((float)$app['price_base'] * 100)]];
+    if ((int)$c['ai_option'] && (float)$app['price_ai'] > 0) {
+        $lines[] = ['label' => $app['name'] . ' — option assistant IA', 'amount' => (int)round((float)$app['price_ai'] * 100)];
+    }
+    return array_values(array_filter($lines, fn($l) => $l['amount'] > 0));
+}
+
+/** Identifiant Stripe du taux de TVA (créé une fois, recréé si le taux change). */
+function hub_stripe_tax_rate(): ?string
+{
+    $rate = hub_vat_rate();
+    if ($rate <= 0) {
+        return null;
+    }
+    $saved = json_decode((string)hsetting('stripe_tax_rate', ''), true) ?: [];
+    if (($saved['rate'] ?? null) === $rate && !empty($saved['id']) && ($saved['mode'] ?? '') === (hub_stripe_test_mode() ? 'test' : 'live')) {
+        return $saved['id'];
+    }
+    $tr = hub_stripe('POST', '/v1/tax_rates', ['display_name' => 'TVA', 'description' => 'TVA ' . $rate . ' %', 'percentage' => $rate,
+        'inclusive' => 'false', 'country' => 'FR', 'jurisdiction' => 'FR']);
+    hset('stripe_tax_rate', json_encode(['id' => $tr['id'], 'rate' => $rate, 'mode' => hub_stripe_test_mode() ? 'test' : 'live']));
+    return $tr['id'];
+}
+
+/** Client Stripe du client NLapps (créé au premier paiement). */
+function hub_stripe_customer(array $c): string
+{
+    if (!empty($c['stripe_customer'])) {
+        return (string)$c['stripe_customer'];
+    }
+    $cu = hub_stripe('POST', '/v1/customers', array_filter([
+        'name' => $c['name'], 'email' => $c['contact_email'] ?: null, 'preferred_locales' => ['fr'],
+        'metadata' => ['client_id' => (string)$c['id'], 'app' => (string)$c['app']],
+    ], fn($v) => $v !== null));
+    hq('UPDATE clients SET stripe_customer = ? WHERE id = ?', [$cu['id'], $c['id']]);
+    return $cu['id'];
+}
+
+/** L'abonnement en ligne est-il en place (paiements automatiques) ? */
+function hub_billing_active(array $c): bool
+{
+    return !empty($c['stripe_subscription']) && in_array((string)$c['billing_status'], ['active', 'trialing', 'past_due', 'unpaid', 'incomplete'], true);
+}
+
+/**
+ * Page Stripe où le client règle : souscription (carte ou prélèvement SEPA) s'il n'a pas encore d'abonnement,
+ * sinon l'espace client Stripe (changer de moyen de paiement, télécharger les factures).
+ */
+function hub_billing_session_url(array $c): string
+{
+    $back = hub_pay_url($c);
+    $customer = hub_stripe_customer($c);
+    if (hub_billing_active($c)) {
+        return hub_stripe('POST', '/v1/billing_portal/sessions', ['customer' => $customer, 'return_url' => $back, 'locale' => 'fr'])['url'];
+    }
+    $lines = hub_billing_lines($c);
+    if (!$lines) {
+        throw new RuntimeException('Aucun tarif défini pour cette application (Applications → tarifs).');
+    }
+    $tax = hub_stripe_tax_rate();
+    $items = [];
+    foreach ($lines as $l) {
+        $items[] = ['quantity' => 1, 'price_data' => ['currency' => 'eur', 'unit_amount' => $l['amount'], 'recurring' => ['interval' => 'month'],
+            'product_data' => ['name' => $l['label']]]] + ($tax ? ['tax_rates' => [$tax]] : []);
+    }
+    $params = [
+        'mode' => 'subscription', 'customer' => $customer, 'client_reference_id' => (string)$c['id'], 'locale' => 'fr',
+        'payment_method_types' => ['card', 'sepa_debit'], 'line_items' => $items,
+        'subscription_data' => ['metadata' => ['client_id' => (string)$c['id']], 'description' => $c['name']],
+        'success_url' => $back . '&done=1', 'cancel_url' => $back,
+    ];
+    // Période déjà payée : le premier prélèvement a lieu à son terme (pas de double paiement)
+    if ($c['paid_until'] && strtotime($c['paid_until'] . ' 23:59:59') > time() + 2 * 86400) {
+        $params['subscription_data']['trial_end'] = strtotime($c['paid_until'] . ' 12:00:00');
+    }
+    return hub_stripe('POST', '/v1/checkout/sessions', $params)['url'];
+}
+
+/** Vérifie la signature d'un webhook Stripe (en-tête Stripe-Signature : t=…,v1=…), tolérance de 5 minutes. */
+function hub_stripe_verify(string $payload, string $header, string $secret, int $tolerance = 300): bool
+{
+    if ($secret === '' || $header === '') {
+        return false;
+    }
+    $t = null;
+    $sigs = [];
+    foreach (explode(',', $header) as $part) {
+        [$k, $v] = array_pad(explode('=', trim($part), 2), 2, '');
+        if ($k === 't') {
+            $t = (int)$v;
+        } elseif ($k === 'v1') {
+            $sigs[] = $v;
+        }
+    }
+    if (!$t || !$sigs || abs(time() - $t) > $tolerance) {
+        return false;
+    }
+    $expected = hash_hmac('sha256', $t . '.' . $payload, $secret);
+    foreach ($sigs as $s) {
+        if (hash_equals($expected, $s)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function hub_billing_log(?int $clientId, string $stripeId, string $type, ?int $amount, string $label, ?string $url = null): bool
+{
+    try {
+        hq('INSERT INTO billing_events (client_id, stripe_id, type, amount, currency, label, url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$clientId, $stripeId, $type, $amount, 'eur', mb_substr($label, 0, 300), $url, hnow()]);
+        return true;
+    } catch (PDOException) {
+        return false; // événement déjà traité (Stripe renvoie parfois deux fois le même)
+    }
+}
+
+/** Retrouve le client NLapps concerné par un objet Stripe (métadonnées, abonnement ou client Stripe). */
+function hub_billing_client_for(array $o): ?array
+{
+    $id = (int)($o['metadata']['client_id'] ?? $o['client_reference_id'] ?? $o['subscription_details']['metadata']['client_id'] ?? 0);
+    if ($id && ($c = hone('SELECT * FROM clients WHERE id = ?', [$id]))) {
+        return $c;
+    }
+    $sub = is_string($o['subscription'] ?? null) ? $o['subscription'] : (($o['object'] ?? '') === 'subscription' ? ($o['id'] ?? '') : '');
+    if ($sub && ($c = hone('SELECT * FROM clients WHERE stripe_subscription = ?', [$sub]))) {
+        return $c;
+    }
+    $cus = is_string($o['customer'] ?? null) ? $o['customer'] : '';
+    return $cus ? hone('SELECT * FROM clients WHERE stripe_customer = ?', [$cus]) : null;
+}
+
+/**
+ * Traite un événement Stripe déjà authentifié. Renvoie un court compte rendu (journal / tests).
+ * Événements utiles : checkout.session.completed, invoice.paid, invoice.payment_failed,
+ * customer.subscription.updated / deleted.
+ */
+function hub_billing_handle(array $event): string
+{
+    $o = $event['data']['object'] ?? [];
+    $type = (string)($event['type'] ?? '');
+    $c = hub_billing_client_for($o);
+    if (!$c) {
+        return 'ignoré (client inconnu)';
+    }
+    if (!hub_billing_log((int)$c['id'], (string)($event['id'] ?? ''), $type, null, '')) {
+        return 'déjà traité';
+    }
+    $logId = (int)hdb()->lastInsertId();
+    $label = '';
+    switch ($type) {
+        case 'checkout.session.completed':
+            $method = in_array('sepa_debit', (array)($o['payment_method_types'] ?? []), true) && count((array)$o['payment_method_types']) === 1 ? 'sepa_debit' : null;
+            hq('UPDATE clients SET stripe_customer = COALESCE(?, stripe_customer), stripe_subscription = COALESCE(?, stripe_subscription), billing_status = ? WHERE id = ?',
+                [$o['customer'] ?? null, $o['subscription'] ?? null, 'active', $c['id']]);
+            if ($method) {
+                hq('UPDATE clients SET billing_method = ? WHERE id = ?', [$method, $c['id']]);
+            }
+            $label = 'Abonnement en ligne souscrit';
+            hub_notify('Paiement en ligne activé : ' . $c['name'], 'Le client ' . $c['name'] . ' a souscrit son abonnement (paiements automatiques).', hub_base_url() . '?p=clients&app=' . $c['app']);
+            break;
+
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+            $method = $o['default_payment_method']['type'] ?? null;
+            hq('UPDATE clients SET stripe_subscription = ?, billing_status = ?, billing_next = ?' . ($method ? ', billing_method = ?' : '') . ' WHERE id = ?', array_merge(
+                [$o['id'] ?? $c['stripe_subscription'], (string)($o['status'] ?? ''), !empty($o['current_period_end']) ? date('Y-m-d', (int)$o['current_period_end']) : $c['billing_next']],
+                $method ? [$method] : [], [$c['id']]));
+            $label = 'Abonnement : ' . hub_billing_status_label((string)($o['status'] ?? ''));
+            break;
+
+        case 'invoice.paid':
+            $amount = (int)($o['amount_paid'] ?? 0);
+            $end = 0;
+            foreach ((array)($o['lines']['data'] ?? []) as $l) {
+                $end = max($end, (int)($l['period']['end'] ?? 0));
+            }
+            $end = $end ?: (int)($o['period_end'] ?? 0);
+            $until = $end ? date('Y-m-d', $end) : null;
+            // La licence couvre la période payée (sans jamais raccourcir une échéance déjà plus lointaine)
+            if ($until && (!$c['paid_until'] || $until > $c['paid_until'])) {
+                hq('UPDATE clients SET paid_until = ? WHERE id = ?', [$until, $c['id']]);
+            }
+            hq("UPDATE clients SET billing_status = 'active', billing_next = COALESCE(?, billing_next), billing_amount = ? WHERE id = ?", [$until, $amount ?: null, $c['id']]);
+            $label = $amount > 0 ? 'Paiement reçu : ' . number_format($amount / 100, 2, ',', ' ') . ' € TTC' . ($until ? ' · licence jusqu\'au ' . date('d/m/Y', strtotime($until)) : '')
+                : 'Période sans paiement' . ($until ? ' jusqu\'au ' . date('d/m/Y', strtotime($until)) : '');
+            hq('UPDATE billing_events SET amount = ?, url = ? WHERE id = ?', [$amount, $o['hosted_invoice_url'] ?? null, $logId]);
+            break;
+
+        case 'invoice.payment_failed':
+            hq("UPDATE clients SET billing_status = 'past_due' WHERE id = ?", [$c['id']]);
+            $amount = (int)($o['amount_due'] ?? 0);
+            $label = 'Échec de paiement (' . number_format($amount / 100, 2, ',', ' ') . ' €)';
+            hq('UPDATE billing_events SET amount = ?, url = ? WHERE id = ?', [$amount, $o['hosted_invoice_url'] ?? null, $logId]);
+            hub_notify('Échec de paiement : ' . $c['name'], 'Le prélèvement de ' . number_format($amount / 100, 2, ',', ' ') . ' € de ' . $c['name']
+                . ' a échoué. Stripe relance automatiquement ; sans régularisation, la licence échoit le ' . ($c['paid_until'] ? date('d/m/Y', strtotime($c['paid_until'])) : '—') . ' (puis délai de grâce).',
+                hub_base_url() . '?p=clients&app=' . $c['app']);
+            break;
+
+        case 'customer.subscription.deleted':
+            hq("UPDATE clients SET billing_status = 'canceled' WHERE id = ?", [$c['id']]);
+            $label = 'Abonnement en ligne résilié : la licence court jusqu\'au ' . ($c['paid_until'] ? date('d/m/Y', strtotime($c['paid_until'])) : '—');
+            hub_notify('Abonnement résilié : ' . $c['name'], $label . '.', hub_base_url() . '?p=clients&app=' . $c['app']);
+            break;
+
+        default:
+            hq('DELETE FROM billing_events WHERE id = ?', [$logId]);
+            return 'ignoré (' . $type . ')';
+    }
+    hq('UPDATE billing_events SET label = ? WHERE id = ?', [$label, $logId]);
+    return $label;
+}
+
+function hub_billing_status_label(string $s): string
+{
+    return [
+        'active' => 'paiements automatiques', 'trialing' => 'période déjà payée, prélèvement à l\'échéance', 'past_due' => 'paiement en retard',
+        'unpaid' => 'impayé', 'canceled' => 'résilié', 'incomplete' => 'en attente de confirmation', 'incomplete_expired' => 'souscription abandonnée',
+    ][$s] ?? ($s ?: 'non configuré');
+}
+
+/** Résumé de l'abonnement en ligne, transmis à l'application cliente avec sa licence. */
+function hub_billing_summary(array $c): array
+{
+    $ttc = (int)round(array_sum(array_column(hub_billing_lines($c), 'amount')) * (1 + hub_vat_rate() / 100));
+    return [
+        'online' => hub_stripe_ready(),
+        'active' => hub_billing_active($c),
+        'status' => (string)($c['billing_status'] ?: ''),
+        'status_label' => hub_billing_status_label((string)$c['billing_status']),
+        'method' => (string)($c['billing_method'] ?: ''),
+        'next' => $c['billing_next'] ?: null,
+        'monthly_ttc' => $ttc,
+        'pay_url' => hub_stripe_ready() ? hub_pay_url($c) : null,
+    ];
+}

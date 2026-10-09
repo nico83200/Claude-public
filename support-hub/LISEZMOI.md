@@ -57,6 +57,18 @@ Une seule console pour toutes vos applications : les **conversations** sont comm
 
 « Prolonger » ajoute 1, 3 ou 12 mois ; l'accès revient dès que le client clique sur « Vérifier à nouveau » (ou dans les 10 minutes). Sans date d'échéance, la licence est permanente. L'installation vérifie sa licence toutes les 10 minutes et contrôle aussi elle-même la date d'échéance ; une coupure réseau ne coupe pas l'accès d'une licence à jour.
 
+## Paiement en ligne des abonnements (version 3.2)
+
+Vos clients règlent leur abonnement par **carte bancaire** ou **prélèvement SEPA**, sur une page sécurisée par Stripe : NLapps ne voit jamais les numéros de carte ni les IBAN.
+
+1. Créez un compte Stripe et activez le prélèvement SEPA (Paramètres → Moyens de paiement) et le portail client (Paramètres → Facturation → Portail client).
+2. Dans **Réglages → Paiement en ligne** : collez la clé secrète (`sk_live_…`, ou `sk_test_…` pour essayer), puis déclarez le webhook indiqué (`…/api.php?a=stripe`) dans Stripe et collez son secret (`whsec_…`). Taux de TVA : 20 % par défaut. « Tester la connexion » vérifie la clé.
+3. Chaque client a un **lien de paiement personnel** (Parc clients → Gérer → Paiement en ligne), à copier ou à envoyer par e-mail. L'administrateur du client trouve aussi le bouton **« Payer en ligne » / « Gérer mon abonnement »** dans Approvia (Paramètres → Licence), et dans les bandeaux d'échéance.
+
+Le montant mensuel est calculé automatiquement : tarif de l'application + option IA si elle est cochée, plus la TVA. Une période déjà réglée est conservée : le premier prélèvement a lieu à son échéance.
+
+**Chaque paiement reçu prolonge la licence** jusqu'à la fin de la période payée. Un échec de paiement vous est signalé (notification + e-mail) et Stripe relance automatiquement ; sans régularisation, la licence échoit comme d'habitude (délai de grâce, puis coupure). Une résiliation arrête les paiements, la licence court jusqu'à la fin de la période payée. Le parc clients indique pour chacun le mode de paiement et la prochaine échéance, avec le journal des paiements et le lien vers chaque facture.
+
 ## Versions
 
 **Versions → Publier** : déposez le paquet de mise à jour (ex. `approvia-1.12.0.zip`, produit par `php tools/build-update.php`). La version et les notes sont lues dans le paquet. Les installations sous licence active la voient dans un bandeau et la page *Mises à jour*, la téléchargent (empreinte SHA-256 vérifiée) et l'installent avec sauvegarde automatique et retour arrière possible. « Retirer » la rend invisible.

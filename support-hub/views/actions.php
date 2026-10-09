@@ -7,7 +7,7 @@ $ajax = !empty($_SERVER['HTTP_X_CSRF']);
 $cid = (int)($_POST['c'] ?? 0);
 // Comptes « conseiller » : conversations, FAQ, vidéos, réglages de disponibilité et leur propre compte ; le reste est réservé aux administrateurs
 $adminActions = ['client_add', 'client_save', 'client_toggle', 'client_delete', 'client_extend', 'client_rotate', 'release_upload', 'release_toggle', 'release_delete',
-    'grace_save', 'hub_update', 'hub_rollback', 'ai_save', 'app_save', 'app_delete', 'user_add', 'user_save', 'user_password', 'user_totp_reset'];
+    'grace_save', 'stripe_save', 'stripe_test', 'client_paylink', 'hub_update', 'hub_rollback', 'ai_save', 'app_save', 'app_delete', 'user_add', 'user_save', 'user_password', 'user_totp_reset'];
 if (in_array($action, $adminActions, true) && $hubUser['role'] !== 'admin') {
     flash('Action réservée aux administrateurs de la console.', true);
     go('index.php');
@@ -444,6 +444,61 @@ switch ($action) {
         hset('grace_days', (string)max(0, min(60, (int)($_POST['grace_days'] ?? 0))));
         flash(hub_grace_days() ? 'Délai de grâce : ' . hub_grace_days() . ' jour(s) après l\'échéance.' : 'Coupure immédiate à l\'échéance : les utilisateurs d\'un client dont la licence expire sont déconnectés.');
         go('index.php?p=settings#licences');
+
+    // ------------------------------------------------------------ Paiement en ligne (Stripe)
+    case 'stripe_save':
+        $sk = trim((string)($_POST['stripe_secret_key'] ?? ''));
+        $wh = trim((string)($_POST['stripe_webhook_secret'] ?? ''));
+        if ($sk !== '' && !preg_match('/^(sk|rk)_(test|live)_[A-Za-z0-9]+$/', $sk)) {
+            flash('Clé secrète Stripe invalide (elle commence par sk_live_ ou sk_test_).', true);
+            go('index.php?p=settings#paiement');
+        }
+        if ($wh !== '' && !str_starts_with($wh, 'whsec_')) {
+            flash('Secret du webhook invalide (il commence par whsec_).', true);
+            go('index.php?p=settings#paiement');
+        }
+        if ($sk !== '') {
+            hset('stripe_secret_key', $sk);
+        }
+        if ($wh !== '') {
+            hset('stripe_webhook_secret', $wh);
+        }
+        if (!empty($_POST['stripe_clear'])) {
+            hset('stripe_secret_key', null);
+            hset('stripe_webhook_secret', null);
+        }
+        hset('billing_vat', (string)max(0, min(30, (float)str_replace(',', '.', (string)($_POST['billing_vat'] ?? '20')))));
+        flash('Paiement en ligne enregistré' . (hub_stripe_ready() ? (hub_stripe_test_mode() ? ' (mode test Stripe).' : '.') : ' : désactivé.'));
+        go('index.php?p=settings#paiement');
+
+    case 'stripe_test':
+        try {
+            $bal = hub_stripe('GET', '/v1/balance');
+            flash('Connexion à Stripe réussie' . (hub_stripe_test_mode() ? ' (mode test)' : '') . ' : solde disponible ' . number_format(((int)($bal['available'][0]['amount'] ?? 0)) / 100, 2, ',', ' ') . ' €.');
+        } catch (Throwable $e) {
+            flash($e->getMessage(), true);
+        }
+        go('index.php?p=settings#paiement');
+
+    case 'client_paylink':
+        $c = hone('SELECT * FROM clients WHERE id = ?', [(int)($_POST['id'] ?? 0)]);
+        if (!$c) {
+            go('index.php');
+        }
+        $url = hub_pay_url($c);
+        if (!empty($_POST['send'])) {
+            if (!$c['contact_email']) {
+                flash('Renseignez d\'abord l\'e-mail du contact de ' . $c['name'] . '.', true);
+                go('index.php?p=clients&app=' . $c['app']);
+            }
+            $ttc = number_format(hub_billing_summary($c)['monthly_ttc'] / 100, 2, ',', ' ');
+            $headers = 'From: ' . hcfg('operator_name') . ' <' . hcfg('from_email') . ">\r\nReply-To: " . hcfg('notify_email') . "\r\nContent-Type: text/plain; charset=UTF-8";
+            $ok = @mail((string)$c['contact_email'], '=?UTF-8?B?' . base64_encode('Votre abonnement ' . (hub_app($c['app'])['name'] ?? 'NLapps') . ' : paiement automatique') . '?=',
+                "Bonjour,\n\nPour régler votre abonnement (" . $ttc . " € TTC par mois) sans y penser, mettez en place le paiement automatique par carte bancaire ou prélèvement SEPA :\n\n"
+                . $url . "\n\nLa période déjà réglée est conservée : le premier paiement aura lieu à son échéance. Le paiement est sécurisé par Stripe ; vous retrouverez vos factures au même endroit.\n\nMerci de votre confiance,\n" . hcfg('operator_name'), $headers);
+            flash($ok ? 'Lien de paiement envoyé à ' . $c['contact_email'] . '.' : 'Envoi impossible depuis ce serveur : copiez le lien et transmettez-le.', !$ok);
+        }
+        go('index.php?p=clients&app=' . $c['app'] . '#client-' . $c['id']);
 
     // ------------------------------------------------------------ Mise à jour du centre d'assistance
     case 'hub_update':

@@ -35,6 +35,27 @@ $key = (string)hsetting('anthropic_api_key', '');
     <p class="muted" style="margin-top:0">À l'échéance d'un abonnement non renouvelé, l'accès au logiciel du client est coupé et tous ses utilisateurs sont déconnectés (page avec vos coordonnées). Vous pouvez laisser un délai de grâce.</p>
     <div class="row"><label style="margin:0">Délai de grâce après l'échéance</label><input type="number" name="grace_days" min="0" max="60" value="<?= hub_grace_days() ?>" style="max-width:90px"><span>jour(s) — 0 = coupure immédiate</span><button class="btn">Enregistrer</button></div>
   </form>
+  <form method="post" class="card" id="paiement" autocomplete="off">
+    <?= csrf_input() ?><input type="hidden" name="action" value="stripe_save">
+    <h2>Paiement en ligne des abonnements</h2>
+    <p class="muted" style="margin-top:0">Vos clients règlent par <b>carte bancaire</b> ou <b>prélèvement SEPA</b> sur une page sécurisée Stripe (lien personnel, ou bouton dans leur application). Chaque paiement reçu prolonge automatiquement leur licence ; un échec vous est signalé. Frais Stripe : environ 1,5 % + 0,25 € par carte européenne, 0,35 € par prélèvement SEPA.</p>
+    <?php $hookUrl = hub_stripe_webhook_url(); $last = hsetting('stripe_last_event'); ?>
+    <p><?= hub_stripe_ready() ? '<span class="tag green">Activé' . (hub_stripe_test_mode() ? ' · mode test' : '') . '</span>' : '<span class="tag">Non configuré</span>' ?>
+      <?= hsetting('stripe_webhook_secret') ? '<span class="tag green">webhook relié</span>' : '<span class="tag amber">webhook à déclarer</span>' ?><?= $last ? ' <small class="muted">dernier événement : ' . h($last) . '</small>' : '' ?></p>
+    <ol class="muted" style="padding-left:1.2rem;line-height:1.6;margin-top:0">
+      <li>Créez votre compte sur <a href="https://dashboard.stripe.com/register" target="_blank" rel="noopener">stripe.com</a> (activez le prélèvement SEPA dans Paramètres → Moyens de paiement).</li>
+      <li>Développeurs → Clés API : copiez la <b>clé secrète</b> (sk_live_…, ou sk_test_… pour essayer).</li>
+      <li>Développeurs → Webhooks → Ajouter : adresse <code><?= h($hookUrl) ?></code>, événements <code>checkout.session.completed</code>, <code>invoice.paid</code>, <code>invoice.payment_failed</code>, <code>customer.subscription.updated</code>, <code>customer.subscription.deleted</code> ; copiez le <b>secret de signature</b> (whsec_…).</li>
+      <li>Paramètres → Facturation → Portail client : activez-le (changement de moyen de paiement, factures, résiliation).</li>
+    </ol>
+    <div class="grid2">
+      <div><label>Clé secrète Stripe <?= hub_stripe_ready() ? '<small class="muted">(enregistrée : ' . h(substr(hub_stripe_key(), 0, 8)) . '…' . h(substr(hub_stripe_key(), -4)) . ')</small>' : '' ?></label><input name="stripe_secret_key" placeholder="<?= hub_stripe_ready() ? 'laisser vide pour conserver' : 'sk_live_…' ?>" spellcheck="false"></div>
+      <div><label>Secret du webhook <?= hsetting('stripe_webhook_secret') ? '<small class="muted">(enregistré)</small>' : '' ?></label><input name="stripe_webhook_secret" placeholder="<?= hsetting('stripe_webhook_secret') ? 'laisser vide pour conserver' : 'whsec_…' ?>" spellcheck="false"></div>
+      <div><label>TVA appliquée (%)</label><input name="billing_vat" value="<?= h((string)hub_vat_rate()) ?>" inputmode="decimal" style="max-width:120px"></div>
+    </div>
+    <div class="row" style="margin-top:.8rem"><button class="btn primary">Enregistrer</button>
+      <?php if (hub_stripe_ready()): ?><button class="btn" name="action" value="stripe_test">Tester la connexion</button><label class="check" style="margin:0"><input type="checkbox" name="stripe_clear" value="1" style="width:auto"> désactiver (effacer les clés)</label><?php endif; ?></div>
+  </form>
 <?php endif; ?>
 
   <div class="card" id="install">

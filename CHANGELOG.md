@@ -1,5 +1,13 @@
 # Journal des versions
 
+## 1.23.0
+- **Abonnement payable en ligne** : dans *Paramètres → Licence et assistance*, l'administrateur voit son mode de paiement, la prochaine échéance et le montant mensuel, avec le bouton « Payer en ligne » (ou « Gérer mon abonnement » : moyen de paiement, factures). Le bouton figure aussi dans le bandeau d'échéance et sur la page de licence expirée.
+
+### Centre d'assistance NLapps 3.2.0
+- **Encaissement automatique des abonnements** avec Stripe : carte bancaire ou prélèvement SEPA, sur une page de paiement sécurisée propre à chaque client (lien à copier ou à envoyer par e-mail, bouton dans l'application du client). Montant calculé d'après les tarifs de l'application et l'option IA, TVA comprise ; une période déjà réglée est conservée.
+- **Chaque paiement reçu prolonge la licence** automatiquement ; échec de paiement et résiliation signalés à l'opérateur. Parc clients : mode de paiement, prochaine échéance, journal des paiements avec les factures, nombre de clients en paiement automatique.
+- Réglages → Paiement en ligne : clé Stripe, secret du webhook (signature vérifiée, événements rejoués ignorés), TVA, test de connexion.
+
 ## 1.22.0
 - **Démarrage guidé d'un nouveau client** : sur le pilotage, l'administrateur suit une liste d'étapes avec barre de progression, cochées automatiquement d'après ses données : retirer les données de démonstration, renseigner l'organisation, créer les centres, ajouter les fournisseurs, importer le catalogue, inviter les salariés, activer les e-mails, relier Approvia à NLapps ; puis, en facultatif, dates limites, budgets et contrats. La prochaine étape est mise en avant, chaque étape ouvre la bonne page. Guide masquable (et réaffichable depuis Paramètres).
 - **Inviter des salariés en nombre** (*Comptes → Inviter des salariés*) : collez une liste (adresses seules, « Prénom Nom <adresse> », « Prénom ; Nom ; adresse » ou colonnes Excel), choisissez les centres, le rôle et la fonction. Chaque personne reçoit par e-mail un lien pour choisir son mot de passe, valable 7 jours ; sans e-mails activés, les liens personnels s'affichent pour être transmis (bouton « Copier tous les liens »). Les comptes déjà actifs ne sont pas touchés, les demandes d'accès en attente sont validées.

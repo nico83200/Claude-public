@@ -26,6 +26,8 @@ foreach ($clients as &$c) {
 unset($c);
 $licTag = ['active' => ['Active', 'green'], 'grace' => ['Échue · délai de grâce', 'amber'], 'expired' => ['Expirée', 'red'], 'suspended' => ['Suspendue', 'red']];
 $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
+$stripeOn = hub_stripe_ready();
+$kpi['auto'] = count(array_filter($clients, fn($c) => hub_billing_active($c)));
 ?>
 <main class="wrap">
   <?= $flashHtml ?>
@@ -36,6 +38,7 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
     <div class="stat"><b><?= number_format($kpi['active'] * (float)$app['price_base'] + $kpi['ai'] * (float)$app['price_ai'], 0, ',', ' ') ?> €</b><span>revenu mensuel estimé (HT)</span></div>
     <div class="stat"><b style="color:<?= $kpi['soon'] + $kpi['late'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['soon'] ?> / <?= $kpi['late'] ?></b><span>échéance &lt; 30 j / impayés</span></div>
     <div class="stat"><b style="color:<?= $kpi['outdated'] ? 'var(--amber)' : 'inherit' ?>"><?= $kpi['outdated'] ?></b><span>installation(s) à mettre à jour</span></div>
+    <?php if ($stripeOn): ?><div class="stat"><b><?= $kpi['auto'] ?> / <?= count($clients) ?></b><span>en paiement automatique</span></div><?php endif; ?>
   </div>
 
   <?php if ($nk = $_SESSION['new_key'] ?? null): unset($_SESSION['new_key']); ?>
@@ -66,7 +69,7 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
     <table class="cards">
       <tr><th>Client</th><th>Version</th><th class="hide-sm">Usage</th><th>Licence</th><th></th></tr>
       <?php foreach ($clients as $c): $lt = $licTag[$c['lic']['status']]; $stats = json_decode((string)$c['stats'], true) ?: []; ?>
-        <tr class="<?= $c['active'] ? '' : 'dim' ?>">
+        <tr class="<?= $c['active'] ? '' : 'dim' ?>" id="client-<?= (int)$c['id'] ?>">
           <td><b><?= h($c['name']) ?></b><br>
             <small class="muted"><?= $c['instance_url'] ? '<a href="' . h($c['instance_url']) . '" target="_blank" rel="noopener">' . h(preg_replace('#^https?://#', '', $c['instance_url'])) . '</a>' : h($c['site'] ?: '—') ?></small><br>
             <small class="muted">Clé <code><?= h($c['key_hint']) ?></code></small></td>
@@ -74,7 +77,8 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
             <small class="<?= $c['silent'] ? '' : 'muted' ?>" style="<?= $c['silent'] ? 'color:var(--red)' : '' ?>"><?= $c['last_check'] ? 'vu le ' . date('d/m H:i', strtotime($c['last_check'])) : 'jamais connecté' ?></small></td>
           <td class="hide-sm"><small><?= isset($stats['users']) ? (int)$stats['users'] . ' utilisateurs<br>' . (int)($stats['centers'] ?? 0) . ' centre(s)' : '—' ?><?= isset($stats['orders30']) ? '<br>' . (int)$stats['orders30'] . ' bons / 30 j' : '' ?></small></td>
           <td><span class="tag <?= $lt[1] ?>"><?= h($lt[0]) ?></span><?= $c['lic']['ai'] ? ' <span class="tag violet">IA</span>' : '' ?><br>
-            <small class="muted"><?= h($c['plan']) ?><?= $c['paid_until'] ? ' · jusqu\'au ' . date('d/m/Y', strtotime($c['paid_until'])) : ' · sans échéance' ?></small></td>
+            <small class="muted"><?= h($c['plan']) ?><?= $c['paid_until'] ? ' · jusqu\'au ' . date('d/m/Y', strtotime($c['paid_until'])) : ' · sans échéance' ?></small>
+            <?php if ($stripeOn): $bs = (string)$c['billing_status']; ?><br><span class="tag <?= ['active' => 'green', 'trialing' => 'green', 'past_due' => 'red', 'unpaid' => 'red', 'canceled' => 'amber'][$bs] ?? '' ?>" title="Paiement en ligne"><?= $bs ? ($bs === 'active' || $bs === 'trialing' ? ($c['billing_method'] === 'sepa_debit' ? 'Prélèvement SEPA' : ($c['billing_method'] === 'card' ? 'Carte' : 'Paiement auto')) . ($c['billing_next'] ? ' · ' . date('d/m', strtotime($c['billing_next'])) : '') : h(hub_billing_status_label($bs))) : 'Paiement manuel' ?></span><?php endif; ?></td>
           <td>
             <details class="edit"><summary class="btn sm">Gérer</summary>
               <form method="post" style="min-width:260px">
@@ -94,6 +98,17 @@ $apiUrl = preg_replace('/index\.php$/', 'api.php', hub_base_url());
                 <select name="months" style="width:auto"><option value="1">1 mois</option><option value="3">3 mois</option><option value="12">12 mois</option></select>
                 <button class="btn sm">Prolonger</button>
               </form>
+              <?php if ($stripeOn): $ev = hall('SELECT * FROM billing_events WHERE client_id = ? ORDER BY id DESC LIMIT 5', [$c['id']]); ?>
+              <div style="margin-top:.8rem;border-top:1px solid var(--line);padding-top:.6rem">
+                <b>Paiement en ligne</b> <small class="muted">· <?= h(number_format(hub_billing_summary($c)['monthly_ttc'] / 100, 2, ',', ' ')) ?> € TTC / mois</small>
+                <label>Lien de paiement du client</label><input readonly value="<?= h(hub_pay_url($c)) ?>" onclick="this.select()">
+                <div class="row" style="margin-top:.4rem">
+                  <form method="post"><?= csrf_input() ?><input type="hidden" name="action" value="client_paylink"><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><input type="hidden" name="send" value="1"><button class="btn sm" <?= $c['contact_email'] ? '' : 'disabled title="E-mail du contact manquant"' ?>>Envoyer le lien par e-mail</button></form>
+                  <?php if ($c['stripe_customer']): ?><a class="btn sm" href="https://dashboard.stripe.com/<?= hub_stripe_test_mode() ? 'test/' : '' ?>customers/<?= h($c['stripe_customer']) ?>" target="_blank" rel="noopener">Ouvrir dans Stripe</a><?php endif; ?>
+                </div>
+                <?php foreach ($ev as $e): ?><div><small class="muted"><?= date('d/m/Y', strtotime($e['created_at'])) ?> · <?= h($e['label']) ?><?= $e['url'] ? ' · <a href="' . h($e['url']) . '" target="_blank" rel="noopener">facture</a>' : '' ?></small></div><?php endforeach; ?>
+              </div>
+              <?php endif; ?>
               <div class="row" style="margin-top:.6rem">
                 <form method="post" onsubmit="return confirm('Générer une nouvelle clé ? L\'ancienne restera acceptée 14 jours.')"><?= csrf_input() ?><input type="hidden" name="action" value="client_rotate"><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><button class="btn sm">Renouveler la clé</button></form>
                 <form method="post"><?= csrf_input() ?><input type="hidden" name="action" value="client_toggle"><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><button class="btn sm <?= $c['active'] ? 'danger' : '' ?>"><?= $c['active'] ? 'Désactiver la clé' : 'Réactiver' ?></button></form>

@@ -146,7 +146,7 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
           <a class="btn btn-sm" href="<?= url('logout') ?>">Changer de profil</a><a class="btn btn-sm btn-primary" href="<?= e(support_contact()['site']) ?>" target="_blank" rel="noopener">Obtenir Approvia</a></div>
       <?php endif; ?>
       <?php if (is_superadmin() && ($ln = licence_notice())): ?>
-        <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a></div></div>
+        <div class="flash flash-<?= $ln['level'] === 'danger' ? 'error' : 'info' ?> licence-notice"><?= icon($ln['level'] === 'info' ? 'info' : 'alert') ?><div><?= e($ln['text']) ?> <a href="<?= url('admin/settings') ?>#assistance">Détails</a><?php if (!empty($ln['pay_url'])): ?> <a class="btn btn-sm btn-primary" href="<?= e($ln['pay_url']) ?>" target="_blank" rel="noopener">Payer en ligne</a><?php endif; ?></div></div>
       <?php endif; ?>
       <?php if (is_superadmin() && !current_instance() && ($up = licence_update_available()) && licence_updates_allowed() && ($r ?? '') !== 'admin/updates'): ?>
         <div class="flash flash-info"><?= icon('sparkles') ?><div>Nouvelle version <strong><?= e($up['version']) ?></strong> disponible. <a href="<?= url('admin/updates') ?>">Voir les nouveautés et l'installer</a></div></div>

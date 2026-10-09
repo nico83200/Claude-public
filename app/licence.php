@@ -100,6 +100,7 @@ function licence_check(bool $force = false): array
         'days_left' => isset($lic['days_left']) ? (int)$lic['days_left'] : null, 'ai' => !empty($lic['ai']),
         'message' => (string)($lic['message'] ?? ''), 'contact' => (array)($lic['contact'] ?? []),
         'latest' => is_array($r['latest'] ?? null) ? $r['latest'] : null,
+        'billing' => is_array($r['billing'] ?? null) ? array_intersect_key($r['billing'], array_flip(['online', 'active', 'status', 'status_label', 'method', 'next', 'monthly_ttc', 'pay_url'])) : null,
         'checked_at' => now(),
     ];
     set_setting('licence_cache', json_encode($state, JSON_UNESCAPED_UNICODE));
@@ -168,8 +169,9 @@ function licence_notice(): ?array
     $msg = !empty($i['message']) ? ' ' . $i['message'] : '';
     $i['status'] = licence_status();
     $date = fn($d) => $d ? date('d/m/Y', strtotime((string)$d)) : '';
-    return match ($i['status'] ?? 'unknown') {
-        'active' => !empty($i['paid_until']) && (strtotime((string)$i['paid_until']) - strtotime(date('Y-m-d'))) / 86400 <= 15
+    $pay = !licence_autopay() && licence_pay_url() ? ['pay_url' => licence_pay_url()] : [];
+    $n = match ($i['status'] ?? 'unknown') {
+        'active' => !empty($i['paid_until']) && !licence_autopay() && (strtotime((string)$i['paid_until']) - strtotime(date('Y-m-d'))) / 86400 <= 15
             ? ['level' => 'info', 'text' => 'Votre abonnement Approvia arrive à échéance le ' . $date($i['paid_until']) . ' : sans renouvellement, l\'accès sera coupé le lendemain.' . $msg . ' ' . $contact] : ($msg ? ['level' => 'info', 'text' => trim($msg)] : null),
         'grace' => ['level' => 'warn', 'text' => 'Abonnement échu le ' . $date($i['paid_until']) . ' : l\'accès au logiciel sera coupé le ' . $date(date('Y-m-d', strtotime((string)$i['grace_until'] . ' +1 day'))) . ' (tous les utilisateurs seront déconnectés).' . $msg . ' ' . $contact],
         'expired' => ['level' => 'danger', 'text' => 'Licence expirée : l\'accès au logiciel est coupé.' . $msg . ' ' . $contact],
@@ -177,6 +179,24 @@ function licence_notice(): ?array
         'invalid' => ['level' => 'warn', 'text' => 'La clé NLapps (Paramètres → Licence et assistance) est refusée par le centre d\'assistance. ' . $contact],
         default => null,
     };
+    return $n ? $n + $pay : null;
+}
+
+/**
+ * Paiement en ligne de l'abonnement (centre d'assistance NLapps relié à Stripe) : lien vers la page de paiement
+ * propre à cette installation, ou null si NLapps ne propose pas le paiement en ligne.
+ */
+function licence_pay_url(): ?string
+{
+    $b = licence_info()['billing'] ?? null;
+    $u = is_array($b) && !empty($b['online']) ? (string)($b['pay_url'] ?? '') : '';
+    return preg_match('#^https?://#', $u) ? $u : null;
+}
+
+/** Les paiements sont-ils automatiques (abonnement en ligne en place) ? */
+function licence_autopay(): bool
+{
+    return !empty(licence_info()['billing']['active']);
 }
 
 /** Télécharge la version proposée par le centre d'assistance et la prépare pour l'installation (vérification SHA-256). */
