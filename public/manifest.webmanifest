@@ -1,0 +1,22 @@
+{
+    "name": "Equilibre — gestion équine",
+    "short_name": "Equilibre",
+    "description": "Suivi des chevaux, soins, séances et écuries, utilisable hors ligne.",
+    "lang": "fr",
+    "start_url": "/dashboard?source=pwa",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#faf8f3",
+    "theme_color": "#2f6347",
+    "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+        { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    ],
+    "shortcuts": [
+        { "name": "Mode écurie", "url": "/hors-ligne", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Nouvelle séance", "url": "/seances/nouvelle" }
+    ]
+}

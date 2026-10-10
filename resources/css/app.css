@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+@source '../js';
+
+@theme {
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --color-brand-50: #f1f7f3;
+    --color-brand-100: #dcebe1;
+    --color-brand-200: #bbd7c5;
+    --color-brand-300: #8ebba0;
+    --color-brand-400: #5f9877;
+    --color-brand-500: #3f7b5a;
+    --color-brand-600: #2f6347;
+    --color-brand-700: #274f3a;
+    --color-brand-800: #213f30;
+    --color-brand-900: #1b3428;
+    --color-sand-50: #faf8f3;
+    --color-sand-100: #f2ede1;
+    --color-sand-200: #e5dac2;
+    --color-sand-500: #a68b5b;
+}
+
+@layer base {
+    html { -webkit-tap-highlight-color: transparent; }
+    body { @apply bg-sand-50 text-slate-800 antialiased; }
+    [x-cloak] { display: none !important; }
+    input, select, textarea { font-size: 16px; } /* évite le zoom iOS */
+}
+
+@utility input {
+    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none disabled:bg-slate-100;
+}
+@utility label { @apply mb-1 block text-sm font-medium text-slate-700; }
+@utility btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500; }
+@utility btn-secondary { @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400; }
+@utility btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500; }
+@utility btn-ghost { @apply btn text-slate-600 hover:bg-slate-100; }
+@utility card { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
+@utility link { @apply font-medium text-brand-700 underline-offset-2 hover:underline; }
+@utility table-wrap { @apply overflow-x-auto rounded-xl border border-slate-200 bg-white; }
+@utility chip { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium; }
+@utility big-touch { @apply min-h-14 text-base; }
+
+@layer components {
+    .table { @apply min-w-full divide-y divide-slate-200 text-sm; }
+    .table th { @apply bg-slate-50 px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase; }
+    .table td { @apply px-3 py-2.5 align-top; }
+}
