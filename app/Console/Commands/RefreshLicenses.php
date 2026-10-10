@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 /**
  * Transitions temporelles des licences qui ne dépendent d'aucun événement Stripe :
- * fin de période de grâce, fin de licence manuelle ou d'essai.
+ * fin de période de grâce, fin de licence manuelle, d'essai ou d'accès offert par code.
  */
 class RefreshLicenses extends Command
 {
@@ -26,7 +26,7 @@ class RefreshLicenses extends Command
             $license->organization->owner?->notify(new AppNotification('payment_failed', 'Abonnement suspendu', 'La période de grâce est terminée sans régularisation du paiement : l\'espace '.$license->organization->name.' passe en lecture seule. Vos données sont conservées et exportables.', route('billing.index')));
         }
 
-        $expired = License::whereIn('source', ['manual', 'trial'])->whereIn('status', License::WRITABLE)->whereNotNull('ends_at')->where('ends_at', '<', now())->get();
+        $expired = License::whereIn('source', ['manual', 'trial', 'code'])->whereIn('status', License::WRITABLE)->whereNotNull('ends_at')->where('ends_at', '<', now())->get();
         foreach ($expired as $license) {
             $license->update(['status' => 'expired']);
             Audit::log('license.expired', $license, [], $license->organization_id);

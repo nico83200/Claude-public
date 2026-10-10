@@ -6,6 +6,7 @@ use App\Models\FeatureFlag;
 use App\Models\SubscriptionPlan;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\StripeGateway;
+use App\Services\PromoCodeService;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -42,12 +43,13 @@ class BillingController extends Controller
         $org = $this->currentOrganization();
         $this->authorizeOrg($org, Perm::BILLING_MANAGE);
         abort_unless($this->stripe->configured() && FeatureFlag::enabled('billing'), 503, 'Le paiement en ligne n\'est pas disponible.');
-        $data = $request->validate(['plan_id' => ['required', 'integer'], 'interval' => ['required', Rule::in(['month', 'year'])], 'accept' => ['accepted']],
+        $data = $request->validate(['plan_id' => ['required', 'integer'], 'interval' => ['required', Rule::in(['month', 'year'])], 'accept' => ['accepted'], 'promo_code' => ['nullable', 'string', 'max:40']],
             ['accept.accepted' => 'Veuillez accepter les conditions de l\'abonnement.']);
         $plan = SubscriptionPlan::purchasable()->findOrFail($data['plan_id']);
+        $promo = filled($data['promo_code'] ?? null) ? app(PromoCodeService::class)->discountFor($data['promo_code'], $org, $plan) : null;
 
         try {
-            return redirect()->away($this->billing->checkout($org, $request->user(), $plan, $data['interval']));
+            return redirect()->away($this->billing->checkout($org, $request->user(), $plan, $data['interval'], $promo));
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -55,6 +57,17 @@ class BillingController extends Controller
 
             return back()->with('error', 'Le service de paiement est momentanément indisponible. Réessayez plus tard.');
         }
+    }
+
+    /** Active un code d'accès gratuit (licence offerte pour une durée, sans paiement). */
+    public function redeem(Request $request, PromoCodeService $promos)
+    {
+        $org = $this->currentOrganization();
+        $this->authorizeOrg($org, Perm::BILLING_MANAGE);
+        $data = $request->validate(['code' => ['required', 'string', 'max:40']]);
+        $license = $promos->redeemFreeAccess($data['code'], $org, $request->user());
+
+        return back()->with('success', 'Code activé : '.$license->plan->name.' offert jusqu\'au '.$license->ends_at->format('d/m/Y').'.');
     }
 
     /** Retour de Stripe Checkout : informatif uniquement, l'activation vient du webhook. */

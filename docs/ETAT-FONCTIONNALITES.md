@@ -59,9 +59,12 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ Webhooks signés, idempotents, désordre géré, retraitement, alertes ; licences synchronisées ; grâce puis suspension ; licences manuelles
 - ⚙️ Checkout, portail client, changement d'offre, résiliation/reprise : intégrés et testés avec une passerelle simulée — **nécessitent les clés Stripe** et un test en mode test Stripe
 - ☑️ `billing:price-migrations` (notification + application) : non couvert par des tests automatisés
+- ✅ Codes promo : réductions (coupon + code Stripe, pré-appliqué au Checkout, utilisation enregistrée par webhook) et accès gratuits pour N jours (licence `code`, expiration automatique) — testés avec une passerelle simulée ; création réelle des coupons **nécessite les clés Stripe**
+- ✅ Accès offert par l'administration pour une durée en jours
 - ⚠️ TVA : à déléguer à Stripe Tax si nécessaire
 
 ## Administration
+- ✅ Réglages email (SMTP) et Stripe modifiables par le super-administrateur, secrets chiffrés, email de test et test de connexion Stripe
 - ✅ Indicateurs (comptes, organisations, chevaux, abonnements, répartition, échecs, résiliations, MRR **estimé** distinct du facturé et de l'encaissé), utilisateurs, organisations, suspensions, licences, offres, événements Stripe, journal d'audit, erreurs, demandes RGPD
 - ⚠️ Paramètres « logo » et « couleur principale » de l'administration non appliqués : l'identité Jack&Cie (logo fourni, vert/or/ivoire) est intégrée au thème
 
@@ -71,8 +74,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 
 ## Reste à configurer pour la production
 1. Téléverser le zip, lancer l'installeur web (base MySQL, super‑administrateur), HTTPS, cron `schedule:run`.
-2. SMTP (`MAIL_*`) — indispensable pour la vérification d'email et les invitations.
-3. Stripe : clés, webhook, portail client, prix des offres.
+2. SMTP (Administration › Intégrations ou `MAIL_*`) — indispensable pour la vérification d'email et les invitations.
+3. Stripe (Administration › Intégrations ou `.env`) : clés, webhook, portail client, prix des offres.
 4. Premier super-administrateur + 2FA.
 5. Textes légaux validés et paramètres RGPD (raison sociale, DPO, sous-traitants).
 6. Sauvegardes et test de restauration.

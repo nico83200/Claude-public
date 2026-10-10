@@ -7,6 +7,7 @@ use App\Models\Horse;
 use App\Models\User;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
+use App\Services\IntegrationSettings;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         // Caches de droits remis à zéro à chaque requête (voir ResetRequestCaches).
         $this->app->scoped(Entitlements::class);
         $this->app->scoped(HorseAccess::class);
+        $this->app->scoped(IntegrationSettings::class);
     }
 
     public function boot(): void
@@ -46,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
 
         // URLs en français : /chevaux/nouveau, /chevaux/{id}/modifier
         Route::resourceVerbs(['create' => 'nouveau', 'edit' => 'modifier']);
+
+        // Réglages email / Stripe saisis par le super-administrateur (priment sur le .env).
+        if (Installation::isInstalled()) {
+            rescue(fn () => app(IntegrationSettings::class)->apply(), null, false);
+        }
 
         Password::defaults(fn () => Password::min(10)->letters()->numbers());
 

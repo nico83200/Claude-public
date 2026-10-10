@@ -29,7 +29,7 @@ class OrganizationController extends Controller
         return view('admin.organizations.show', [
             'org' => $organization->load(['owner', 'members.user', 'members.role']),
             'ent' => $entitlements->for($organization),
-            'licenses' => $organization->licenses()->with(['plan', 'grantor', 'subscription'])->latest()->get(),
+            'licenses' => $organization->licenses()->with(['plan', 'grantor', 'subscription', 'promoCode'])->latest()->get(),
             'subscriptions' => $organization->subscriptions()->with('plan')->latest()->get(),
             'payments' => $organization->payments()->latest()->limit(30)->get(),
             'plans' => SubscriptionPlan::whereNull('archived_at')->orderBy('sort_order')->pluck('name', 'id'),

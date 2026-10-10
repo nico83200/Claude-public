@@ -7,7 +7,8 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <x-section title="Situation actuelle">
             <p class="text-lg font-semibold">{{ $ent['plan']?->name ?? 'Aucune offre' }}</p>
-            <p class="text-sm"><x-badge :color="$ent['writable'] ? 'green' : 'amber'">{{ \App\Models\License::STATUSES[$ent['status']] ?? 'Aucune licence' }}</x-badge> @if ($ent['source'] === 'manual')<x-badge color="purple">Licence attribuée</x-badge>@endif</p>
+            <p class="text-sm"><x-badge :color="$ent['writable'] ? 'green' : 'amber'">{{ \App\Models\License::STATUSES[$ent['status']] ?? 'Aucune licence' }}</x-badge> @if ($ent['source'] === 'manual')<x-badge color="purple">Licence attribuée</x-badge>@elseif ($ent['source'] === 'code')<x-badge color="purple">Accès offert</x-badge>@endif</p>
+            @if (in_array($ent['source'], ['manual', 'code'], true) && $ent['license']?->ends_at)<p class="mt-1 text-sm text-slate-600">Jusqu'au {{ $ent['license']->ends_at->format('d/m/Y') }}</p>@endif
             @if ($ent['read_only_reason'])<p class="mt-2 text-sm text-amber-800">{{ $ent['read_only_reason'] }}</p>@endif
             @if ($subscription)
                 <div class="mt-3 space-y-1 text-sm text-slate-600">
@@ -44,6 +45,18 @@
         </x-section>
     </div>
 
+    @unless ($subscription)
+        <details class="card mt-6 p-4" @if ($errors->has('code')) open @endif>
+            <summary class="cursor-pointer font-medium">J'ai un code d'accès</summary>
+            <form method="POST" action="{{ route('billing.redeem') }}" class="mt-3 flex flex-wrap items-end gap-2">
+                @csrf
+                <x-field name="code" label="Code" required autocomplete="off" class="min-w-0 flex-1" />
+                <button class="btn-primary">Activer</button>
+            </form>
+            <p class="mt-2 text-xs text-slate-500">Un code d'accès offre une offre pendant une durée limitée, sans carte bancaire. Pour un code de réduction, saisissez-le au moment de souscrire.</p>
+        </details>
+    @endunless
+
     <h2 class="mt-8 mb-3 text-lg font-semibold">{{ $subscription ? 'Changer d\'offre' : 'Choisir une offre' }}</h2>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-data="{ interval: 'month' }">
         <div class="flex gap-2 sm:col-span-2 lg:col-span-3">
@@ -60,7 +73,11 @@
                 <form method="POST" action="{{ $subscription ? route('billing.swap') : route('billing.checkout') }}" class="mt-auto space-y-2 pt-4">
                     @csrf
                     <input type="hidden" name="plan_id" value="{{ $plan->id }}"><input type="hidden" name="interval" :value="interval">
-                    @unless ($subscription)<label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" name="accept" value="1" required class="mt-0.5 rounded"> J'accepte les <a href="{{ route('legal.terms') }}" target="_blank" class="link">conditions</a> : renouvellement automatique, résiliable à tout moment.</label>@endunless
+                    @if (! $subscription && $stripeReady)
+                        <input name="promo_code" placeholder="Code de réduction (optionnel)" aria-label="Code de réduction" value="{{ old('plan_id') == $plan->id ? old('promo_code') : '' }}" class="input text-sm uppercase placeholder:normal-case" autocomplete="off">
+                        @if ($errors->has('promo_code') && old('plan_id') == $plan->id)<p class="text-sm text-red-600">{{ $errors->first('promo_code') }}</p>@endif
+                    @endif
+                    @unless ($subscription)<label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" name="accept" value="1" required class="mt-0.5 rounded"> <span>J'accepte les <a href="{{ route('legal.terms') }}" target="_blank" class="link">conditions</a> : renouvellement automatique, résiliable à tout moment.</span></label>@endunless
                     <button class="btn-primary w-full" @disabled(! $stripeReady)>{{ $subscription ? 'Passer à cette offre' : 'Souscrire' }}</button>
                 </form>
             </div>

@@ -184,6 +184,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Abonnement
     Route::get('/abonnement', [Controllers\BillingController::class, 'index'])->name('billing.index');
     Route::post('/abonnement/souscrire', [Controllers\BillingController::class, 'checkout'])->name('billing.checkout');
+    Route::post('/abonnement/code', [Controllers\BillingController::class, 'redeem'])->middleware('throttle:10,1')->name('billing.redeem');
     Route::get('/abonnement/retour', [Controllers\BillingController::class, 'returned'])->name('billing.return');
     Route::post('/abonnement/portail', [Controllers\BillingController::class, 'portal'])->name('billing.portal');
     Route::post('/abonnement/changer', [Controllers\BillingController::class, 'swap'])->name('billing.swap');
@@ -226,6 +227,15 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::resource('offres', Admin\PlanController::class)->parameters(['offres' => 'plan'])->names('plans')->except(['show', 'destroy']);
     Route::post('/offres/{plan}/archiver', [Admin\PlanController::class, 'archive'])->name('plans.archive');
     Route::get('/facturation', [Admin\BillingController::class, 'index'])->name('billing.index');
+    Route::get('/integrations', [Admin\IntegrationController::class, 'edit'])->name('integrations.edit');
+    Route::put('/integrations/email', [Admin\IntegrationController::class, 'updateMail'])->name('integrations.mail');
+    Route::post('/integrations/email/test', [Admin\IntegrationController::class, 'testMail'])->middleware('throttle:5,1')->name('integrations.mail.test');
+    Route::put('/integrations/stripe', [Admin\IntegrationController::class, 'updateStripe'])->name('integrations.stripe');
+    Route::post('/integrations/stripe/test', [Admin\IntegrationController::class, 'testStripe'])->middleware('throttle:5,1')->name('integrations.stripe.test');
+    Route::get('/codes', [Admin\PromoCodeController::class, 'index'])->name('promo-codes.index');
+    Route::post('/codes', [Admin\PromoCodeController::class, 'store'])->name('promo-codes.store');
+    Route::get('/codes/{promoCode}', [Admin\PromoCodeController::class, 'show'])->name('promo-codes.show');
+    Route::patch('/codes/{promoCode}', [Admin\PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::post('/facturation/evenements/{event}/retraiter', [Admin\BillingController::class, 'reprocess'])->name('billing.reprocess');
     Route::get('/parametres', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/parametres', [Admin\SettingsController::class, 'update'])->name('settings.update');

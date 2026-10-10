@@ -1,6 +1,35 @@
 # Intégrations externes
 
+## Réglages depuis l'administration
+
+**Administration › Intégrations** permet au super-administrateur de saisir les réglages email (SMTP) et Stripe
+sans toucher au serveur. Ils priment sur le `.env`, qui reste la valeur de repli.
+
+- Mots de passe et clés secrètes chiffrés en base avec `APP_KEY` (jamais en clair dans le cache ni le journal d'audit),
+  jamais réaffichés (seulement `••••` + 4 derniers caractères). Champ vide = valeur conservée ; case « Effacer » = retour au `.env`.
+- **Si `APP_KEY` change, les secrets enregistrés deviennent illisibles** et doivent être ressaisis.
+- Boutons « Envoyer un email de test » et « Tester la connexion » Stripe ; URL du webhook et liste des événements affichées.
+- Clés contrôlées (préfixes `pk_`, `sk_`/`rk_`, `whsec_`, même mode test/live). Chaque modification est tracée dans le journal.
+
+## Codes promo et accès offerts
+
+**Administration › Codes promo** :
+
+- **Réduction** (pourcentage ou montant, sur la première facture / N mois / toute la durée, offres concernées,
+  validité, nombre d'utilisations, réservé aux nouveaux clients) : crée un *coupon* et un *code promotionnel* dans Stripe,
+  qui applique la remise. L'utilisateur saisit le code sur la page Abonnement au moment de souscrire ; il est vérifié
+  puis pré-appliqué au Stripe Checkout. Sans code saisi, la page Stripe accepte toujours la saisie d'un code.
+  L'utilisation est enregistrée à la confirmation du paiement (webhook `checkout.session.completed`).
+- **Accès gratuit pour une durée** : le code (« J'ai un code d'accès » sur la page Abonnement) crée une licence
+  de l'offre choisie pendant N jours, sans carte bancaire ; une utilisation par espace, refusé si un abonnement payant
+  est en cours ; expiration automatique par `licenses:refresh` (passage en lecture seule, données conservées).
+- Désactiver un code le désactive aussi dans Stripe ; les avantages déjà accordés sont conservés.
+- Accès offert sans code : fiche organisation › « Offrir un accès » avec une durée en jours.
+- Saisie de code limitée à 10 essais par minute.
+
 ## Stripe (paiements) — à configurer
+
+Depuis **Administration › Intégrations** (recommandé) ou dans le `.env` :
 
 | Variable | Où la trouver |
 |---|---|
@@ -34,6 +63,7 @@ choix explicite du cheval puis des champs.
 
 ## Email
 
+Depuis **Administration › Intégrations** (recommandé, avec email de test) ou dans le `.env` :
 `MAIL_MAILER=smtp` + `MAIL_HOST/PORT/USERNAME/PASSWORD/FROM_*` (tout fournisseur SMTP :
 Brevo, Mailgun, Postmark, SMTP de l'hébergeur…). Tant que `MAIL_MAILER=log`, les emails
 (vérification, réinitialisation, invitations, notifications) sont écrits dans `storage/logs`.

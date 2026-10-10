@@ -13,6 +13,8 @@ class StripeGateway
 {
     private ?StripeClient $client = null;
 
+    private ?string $clientKey = null;
+
     public function configured(): bool
     {
         return filled(config('services.stripe.secret'));
@@ -24,7 +26,13 @@ class StripeGateway
             throw new RuntimeException('Stripe n\'est pas configuré (STRIPE_SECRET manquant).');
         }
 
-        return $this->client ??= new StripeClient(config('services.stripe.secret'));
+        // La clé peut changer en cours d'exécution (réglages modifiés par le super-admin).
+        if ($this->clientKey !== config('services.stripe.secret')) {
+            $this->clientKey = config('services.stripe.secret');
+            $this->client = new StripeClient($this->clientKey);
+        }
+
+        return $this->client;
     }
 
     public function createCustomer(string $email, string $name, array $metadata): string
@@ -65,5 +73,30 @@ class StripeGateway
             'product' => $productId, 'unit_amount' => $unitAmountCents, 'currency' => strtolower($currency),
             'recurring' => ['interval' => $interval], 'metadata' => $metadata,
         ])->id;
+    }
+
+    /** Vérifie la clé secrète : renvoie le mode (test / live) et la devise du compte. */
+    public function testConnection(): array
+    {
+        $balance = $this->client()->balance->retrieve();
+
+        return ['livemode' => (bool) $balance->livemode, 'currencies' => collect($balance->available ?? [])->pluck('currency')->unique()->values()->all()];
+    }
+
+    public function createCoupon(array $params): string
+    {
+        return $this->client()->coupons->create($params)->id;
+    }
+
+    public function createPromotionCode(string $couponId, string $code, array $params = []): string
+    {
+        return $this->client()->promotionCodes->create($params + [
+            'promotion' => ['type' => 'coupon', 'coupon' => $couponId], 'code' => $code,
+        ])->id;
+    }
+
+    public function setPromotionCodeActive(string $id, bool $active): void
+    {
+        $this->client()->promotionCodes->update($id, ['active' => $active]);
     }
 }

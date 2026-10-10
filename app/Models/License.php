@@ -44,10 +44,17 @@ class License extends Model
         return $this->belongsTo(Subscription::class);
     }
 
+    public function promoCode()
+    {
+        return $this->belongsTo(PromoCode::class);
+    }
+
     public function grantor()
     {
         return $this->belongsTo(User::class, 'granted_by');
     }
+
+    public const SOURCES = ['stripe' => 'Abonnement Stripe', 'manual' => 'Attribuée par l\'administration', 'trial' => 'Essai', 'free' => 'Offre gratuite', 'code' => 'Code d\'accès offert'];
 
     public function statusLabel(): string
     {

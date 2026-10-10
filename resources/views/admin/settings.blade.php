@@ -22,7 +22,7 @@
         </x-section>
         <x-section title="Fonctionnalités activables">
             @foreach ($flags as $flag)<x-checkbox :name="'flags['.$flag->key.']'" :label="$flag->label" :checked="$flag->enabled_globally" />@endforeach
-            <p class="mt-2 text-xs text-slate-500">Paramètres techniques (stockage, délais hors ligne, sources de recherche, email, Stripe) : variables d'environnement, voir <code>.env.example</code>.</p>
+            <p class="mt-2 text-xs text-slate-500">Email et Stripe : <a href="{{ route('admin.integrations.edit') }}" class="link">Intégrations</a>. Autres paramètres techniques (stockage, délais hors ligne, sources de recherche) : variables d'environnement, voir <code>.env.example</code>.</p>
             <dl class="mt-3 grid grid-cols-2 gap-1 text-xs text-slate-600">
                 <dt>Email</dt><dd>{{ config('mail.default') }}</dd>
                 <dt>Stripe</dt><dd>{{ config('services.stripe.secret') ? 'configuré' : 'non configuré' }} / webhook {{ config('services.stripe.webhook_secret') ? 'configuré' : 'non configuré' }}</dd>

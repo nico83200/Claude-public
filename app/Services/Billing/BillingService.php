@@ -6,6 +6,7 @@ use App\Models\License;
 use App\Models\Organization;
 use App\Models\PaymentRecord;
 use App\Models\PlanPriceChange;
+use App\Models\PromoCode;
 use App\Models\StripeCustomer;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Notifications\AppNotification;
 use App\Services\Audit;
 use App\Services\Entitlements;
+use App\Services\PromoCodeService;
 use App\Support\Perm;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +45,7 @@ class BillingService
         return $org->subscriptions()->whereNotIn('stripe_status', ['canceled', 'incomplete_expired'])->latest('id')->first();
     }
 
-    public function checkout(Organization $org, User $user, SubscriptionPlan $plan, string $interval): string
+    public function checkout(Organization $org, User $user, SubscriptionPlan $plan, string $interval, ?PromoCode $promo = null): string
     {
         if (! $plan->is_active || $plan->archived_at || $plan->is_default_free) {
             throw ValidationException::withMessages(['plan' => 'Cette offre n\'est pas disponible à la souscription.']);
@@ -65,21 +67,27 @@ class BillingService
             $subscriptionData['trial_period_days'] = $plan->trial_days;
         }
 
+        $metadata = ['organization_id' => (string) $org->id, 'user_id' => (string) $user->id];
+        if ($promo) {
+            $metadata['promo_code_id'] = (string) $promo->id;
+        }
         $session = $this->stripe->createCheckoutSession([
             'mode' => 'subscription',
             'customer' => $this->customerFor($org, $user),
             'client_reference_id' => (string) $org->id,
             'line_items' => [['price' => $price, 'quantity' => 1]],
             'subscription_data' => $subscriptionData,
+            'metadata' => $metadata,
             'locale' => 'fr',
-            'allow_promotion_codes' => true,
+            // Stripe interdit de combiner un code pré-appliqué et la saisie libre sur la page de paiement.
+            ...($promo ? ['discounts' => [['promotion_code' => $promo->stripe_promotion_code_id]]] : ['allow_promotion_codes' => true]),
             'billing_address_collection' => 'required',
             'tax_id_collection' => ['enabled' => true],
             'customer_update' => ['address' => 'auto', 'name' => 'auto'],
             'success_url' => route('billing.return').'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('billing.index').'?annule=1',
         ]);
-        Audit::log('billing.checkout_started', $org, ['plan' => $plan->slug, 'interval' => $interval], $org->id);
+        Audit::log('billing.checkout_started', $org, ['plan' => $plan->slug, 'interval' => $interval, 'promo_code' => $promo?->code], $org->id);
 
         return $session['url'];
     }
@@ -141,6 +149,9 @@ class BillingService
             return 'ignored';
         }
         StripeCustomer::firstOrCreate(['organization_id' => $org->id], ['stripe_customer_id' => $session['customer'], 'email' => $session['customer_details']['email'] ?? null]);
+        if (! empty($session['metadata']['promo_code_id'])) {
+            app(PromoCodeService::class)->recordCheckoutRedemption((int) $session['metadata']['promo_code_id'], $org, $session['id'] ?? null, isset($session['metadata']['user_id']) ? (int) $session['metadata']['user_id'] : null);
+        }
 
         return 'processed';
     }

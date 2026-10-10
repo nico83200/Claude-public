@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\SubscriptionPlan;
 use App\Services\Audit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 /**
@@ -49,12 +50,18 @@ class LicenseController extends Controller
             'status' => ['required', Rule::in(array_keys(License::STATUSES))],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'duration_days' => ['nullable', 'integer', 'min:1', 'max:3650'],
             'notes' => ['required', 'string', 'max:2000'],
             'limit_overrides' => ['array'],
             'limit_overrides.*' => ['nullable', 'integer', 'min:0'],
             'feature_overrides' => ['array'],
             'feature_overrides.*' => ['nullable', 'in:0,1'],
         ], ['notes.required' => 'Indiquez le motif de l\'attribution (traçabilité).']);
+        // Accès offert pour une durée : la fin est calculée depuis le début (licences:refresh l'expire ensuite).
+        if (! empty($data['duration_days'])) {
+            $data['ends_at'] = Carbon::parse($data['starts_at'] ?? now())->addDays((int) $data['duration_days']);
+        }
+        unset($data['duration_days']);
         $data['limit_overrides'] = array_filter(array_intersect_key($data['limit_overrides'] ?? [], array_flip(['max_horses', 'max_members', 'max_invitations', 'storage_mb'])), fn ($v) => $v !== null && $v !== '') ?: null;
         $data['feature_overrides'] = collect($data['feature_overrides'] ?? [])->filter(fn ($v) => $v !== null && $v !== '')->only(array_keys(SubscriptionPlan::FEATURES))->map(fn ($v) => (bool) $v)->all() ?: null;
 

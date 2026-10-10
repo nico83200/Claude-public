@@ -23,7 +23,7 @@
         <div class="space-y-4 lg:col-span-2">
             <x-section title="Licences">
                 @foreach ($licenses as $l)
-                    <details class="border-t border-slate-100 py-2 text-sm first:border-0"><summary class="cursor-pointer"><strong>{{ $l->plan->name }}</strong> — {{ $l->statusLabel() }} · {{ $l->source }} · {{ $l->starts_at?->format('d/m/Y') }} → {{ $l->ends_at?->format('d/m/Y') ?? '…' }} {{ $l->grantor ? '· par '.$l->grantor->name : '' }}</summary>
+                    <details class="border-t border-slate-100 py-2 text-sm first:border-0"><summary class="cursor-pointer"><strong>{{ $l->plan->name }}</strong> — {{ $l->statusLabel() }} · {{ \App\Models\License::SOURCES[$l->source] ?? $l->source }}{{ $l->promoCode ? ' ('.$l->promoCode->code.')' : '' }} · {{ $l->starts_at?->format('d/m/Y') }} → {{ $l->ends_at?->format('d/m/Y') ?? '…' }} {{ $l->grantor ? '· par '.$l->grantor->name : '' }}</summary>
                         @if ($l->notes)<p class="text-xs text-slate-500">{{ $l->notes }}</p>@endif
                         <form method="POST" action="{{ route('admin.licenses.update', $l) }}" class="mt-2 grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
                             @csrf @method('PUT')
@@ -39,13 +39,14 @@
                         </form>
                     </details>
                 @endforeach
-                <details class="mt-3"><summary class="cursor-pointer text-sm link">Attribuer une licence manuelle (sans paiement Stripe)</summary>
+                <details class="mt-3"><summary class="cursor-pointer text-sm link">Offrir un accès / attribuer une licence manuelle (sans paiement Stripe)</summary>
                     <form method="POST" action="{{ route('admin.licenses.store', $org) }}" class="mt-2 grid gap-2 sm:grid-cols-2">
                         @csrf
                         <x-select name="subscription_plan_id" label="Offre" :options="$plans" required />
                         <x-select name="status" label="État" :options="\App\Models\License::STATUSES" value="active" />
                         <x-field name="starts_at" type="date" label="Début" :value="now()->toDateString()" />
                         <x-field name="ends_at" type="date" label="Fin (vide = sans fin)" />
+                        <x-field name="duration_days" type="number" min="1" max="3650" label="Ou durée offerte (jours)" help="Calcule la date de fin à partir du début ; expiration automatique." />
                         @foreach (['max_horses' => 'Chevaux max', 'max_members' => 'Membres max', 'max_invitations' => 'Partages max', 'storage_mb' => 'Stockage (Mo)'] as $k => $lab)<x-field :name="'limit_overrides['.$k.']'" type="number" :label="$lab.' (dérogation)'" />@endforeach
                         <x-textarea name="notes" label="Motif (obligatoire)" required class="sm:col-span-2" />
                         <button class="btn-primary sm:col-span-2">Attribuer</button>
