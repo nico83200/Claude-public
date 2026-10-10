@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import { $, $$, esc, modal, state, toast, downscaleImage, fileToBase64, ITEM_ICONS, money } from '../ui.js';
 import { itemDuration } from '../time.js';
 import { airport } from '../airports.js';
+import { captureScreen, canCapture } from '../screen-capture.js';
 
 const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif,application/pdf';
 
@@ -22,6 +23,8 @@ export function openAiImport({ trip, optionId }) {
           <span class="dz-ico">⬆</span><span>Glissez vos fichiers ici ou <u>parcourez</u></span>
           <small class="muted">PNG, JPEG, WebP, PDF — 5 fichiers max.</small>
         </label>
+        ${canCapture() ? `<p class="capture-row"><button type="button" class="btn capture-btn" id="ai-capture">🖥️ Capturer l'écran</button>
+          <span class="muted small">Choisissez l'onglet (ex. hotels.com, site de la compagnie), puis recadrez la zone utile.</span></p>` : ''}
         <div class="thumbs" id="thumbs"></div>
         <label class="field span2"><span class="lbl">Texte (facultatif)</span><textarea name="text" rows="4" placeholder="Collez ici un e-mail de confirmation, un devis fournisseur…"></textarea></label>
       </div>
@@ -42,6 +45,14 @@ export function openAiImport({ trip, optionId }) {
         thumbs.innerHTML = files.map((f, i) => `<div class="thumb">${f.type.startsWith('image/') ? `<img src="data:${f.type};base64,${f.data}" alt="">` : '<span class="pdf">PDF</span>'}
           <small>${esc(f.name || 'capture')}</small><button type="button" class="icon-btn" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join('');
       };
+      const cap = $('#ai-capture', form);
+      if (cap) {
+        cap.onclick = async () => {
+          if (files.length >= 5) return toast('5 fichiers maximum', 'error');
+          const img = await captureScreen();
+          if (img) { files.push(img); addFiles([]); }
+        };
+      }
       const dz = $('#dropzone', form);
       $('#ai-files', form).onchange = (e) => addFiles([...e.target.files]);
       dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('over'); };

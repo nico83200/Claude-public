@@ -5,6 +5,7 @@ import { navigate, refreshRefs } from '../app.js';
 import { $, esc, state, entityForm, enhanceForm, readForm, toast, confirmDialog, showFieldErrors, money, date, badge, errorToast } from '../ui.js';
 import { localTimeIn, tzDiffHours, todayIso, addDays } from '../time.js';
 import { newTripDialog } from './trips.js';
+import { attachDestinationPrefill } from './catalog.js';
 
 export async function render(el, [entity, id]) {
   const def = state.schema.entities[entity];
@@ -47,6 +48,7 @@ export async function render(el, [entity, id]) {
     </div>`;
   const form = $('#edit-form', el);
   enhanceForm(form);
+  if (entity === 'destinations') attachDestinationPrefill(form);
   form.onsubmit = async (e) => {
     e.preventDefault();
     try {

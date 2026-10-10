@@ -3,6 +3,7 @@
 import { api } from '../api.js';
 import { navigate, refreshRefs } from '../app.js';
 import { $, esc, state, modal, entityForm, enhanceForm, readForm, emptyState, debounce, enumLabel, date } from '../ui.js';
+import { openCatalog, attachDestinationPrefill } from './catalog.js';
 
 const MONTHS = 'JFMAMJJASOND';
 
@@ -22,6 +23,7 @@ export async function render(el, [entity]) {
     <div class="page-head"><h1>${esc(def.label)}</h1>
       <div class="actions">
         ${entity === 'destinations' ? '<a class="btn" href="#/destinations/compare">📅 Comparer & saisonnalité</a>' : ''}
+        ${['destinations', 'suppliers'].includes(entity) ? '<button class="btn" id="catalog">📚 Importer depuis le catalogue</button>' : ''}
         <button class="btn" id="export">Exporter (CSV)</button>
         <button class="btn primary" id="add">+ ${esc(def.singular)}</button></div></div>
     <div class="toolbar"><input type="search" id="q" placeholder="Rechercher…"></div>
@@ -38,9 +40,12 @@ export async function render(el, [entity]) {
   await load();
   $('#q', el).oninput = debounce((e) => load(e.target.value), 250);
   $('#export', el).onclick = () => api.download(`export/${entity}`);
+  const cat = $('#catalog', el);
+  if (cat) cat.onclick = async () => { if (await openCatalog(entity)) await load(); };
   $('#add', el).onclick = async () => {
     const r = await modal({
-      title: `Nouveau : ${def.singular.toLowerCase()}`, wide: true, body: entityForm(entity, {}), onOpen: enhanceForm,
+      title: `Nouveau : ${def.singular.toLowerCase()}`, wide: true, body: entityForm(entity, {}),
+      onOpen: (form) => { enhanceForm(form); if (entity === 'destinations') attachDestinationPrefill(form); },
       onSubmit: (form) => api.post(entity, readForm(form, entity)),
     });
     if (r) {

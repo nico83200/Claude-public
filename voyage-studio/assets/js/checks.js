@@ -32,21 +32,12 @@ export function runChecks({ trip = {}, option = {}, destination = null, traveler
     add('important', 'Transport retour manquant', `Aucun retour prévu autour du ${fmt(end)}.`, { type: 'vol', date_debut: end, lieu_arrivee: trip.ville_depart || '' });
   }
 
-  // 2. Nuits non couvertes
-  if (start && end && daysBetween(start, end) > 0) {
-    const stays = items.filter((i) => ['hebergement', 'croisiere'].includes(i.type) && i.date_debut);
-    const overnightTransport = items.filter((i) => ['vol', 'train'].includes(i.type) && i.date_debut && i.date_fin && i.date_fin > i.date_debut);
-    const uncovered = [];
-    for (let d = start; d < end; d = addDays(d, 1)) {
-      const covered = stays.some((s) => s.date_debut <= d && d < (s.date_fin || addDays(s.date_debut, 1)))
-        || overnightTransport.some((f) => f.date_debut <= d && d < f.date_fin);
-      if (!covered) uncovered.push(d);
-    }
-    if (uncovered.length) {
-      add('important', `${uncovered.length} nuit${uncovered.length > 1 ? 's' : ''} sans hébergement`,
-        uncovered.map(fmt).join(', ') + (uncovered.length > 6 ? '' : ''),
-        { type: 'hebergement', date_debut: uncovered[0], date_fin: addDays(uncovered[uncovered.length - 1], 1), unite: 'chambre_nuit' });
-    }
+  // 2. Nuits non couvertes (une alerte par plage de nuits consécutives)
+  for (const r of uncoveredRanges(trip, option)) {
+    const n = r.nights.length;
+    add('important', n > 1 ? `${n} nuits sans hébergement : du ${fmt(r.from)} au ${fmt(r.to)}` : `Nuit du ${fmt(r.from)} sans hébergement`,
+      `Aucun hôtel, croisière ni vol de nuit ne couvre ${n > 1 ? 'ces nuits' : 'cette nuit'}. Ajoutez un hébergement ou vérifiez les dates.`,
+      { type: 'hebergement', date_debut: r.from, date_fin: r.to, unite: 'chambre_nuit' });
   }
   for (const h of byType('hebergement')) {
     if (h.date_debut && !h.date_fin) add('conseil', `Date de départ manquante : ${h.libelle}`, 'Indiquez la date de fin pour calculer les nuits et vérifier la couverture.');
@@ -177,6 +168,33 @@ export function runChecks({ trip = {}, option = {}, destination = null, traveler
 
   const rank = { important: 0, conseil: 1, info: 2 };
   return out.sort((a, b) => rank[a.level] - rank[b.level]);
+}
+
+/**
+ * Nuits du voyage non couvertes par un hébergement, une croisière ou un trajet de nuit,
+ * regroupées en plages consécutives : [{ from, to, nights: [dates] }] (« to » = date de départ de la plage).
+ */
+export function uncoveredRanges(trip = {}, option = {}) {
+  const items = (option.items || []).filter((i) => i.statut !== 'annule' && !+i.optionnel);
+  const start = trip.date_depart;
+  const end = trip.date_retour;
+  if (!start || !end || daysBetween(start, end) <= 0 || !items.length) return [];
+  const stays = items.filter((i) => ['hebergement', 'croisiere'].includes(i.type) && i.date_debut);
+  const overnight = items.filter((i) => ['vol', 'train'].includes(i.type) && i.date_debut && i.date_fin && i.date_fin > i.date_debut);
+  const ranges = [];
+  for (let d = start; d < end; d = addDays(d, 1)) {
+    const covered = stays.some((s) => s.date_debut <= d && d < (s.date_fin || addDays(s.date_debut, 1)))
+      || overnight.some((f) => f.date_debut <= d && d < f.date_fin);
+    if (covered) continue;
+    const last = ranges[ranges.length - 1];
+    if (last && last.to === d) {
+      last.nights.push(d);
+      last.to = addDays(d, 1);
+    } else {
+      ranges.push({ from: d, to: addDays(d, 1), nights: [d] });
+    }
+  }
+  return ranges;
 }
 
 /** Génère un programme jour par jour à partir des prestations. */

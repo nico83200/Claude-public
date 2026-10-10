@@ -85,7 +85,10 @@ export async function quickCreate(entity) {
     title: `Nouveau : ${def.singular.toLowerCase()}`,
     wide: true,
     body: entityForm(entity, {}),
-    onOpen: enhanceForm,
+    onOpen: async (form) => {
+      enhanceForm(form);
+      if (entity === 'destinations') (await import('./catalog.js')).attachDestinationPrefill(form);
+    },
     onSubmit: async (form) => {
       const r = await api.post(entity, readForm(form, entity));
       await refreshRefs(entity);

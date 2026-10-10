@@ -128,8 +128,52 @@ final class Dashboard
             'options' => $options,
             'departures' => $departures,
             'documents' => $this->documentAlerts($trips, $today),
+            'nights' => $this->uncoveredNights($trips, $today),
             'to_book' => $toBook,
         ];
+    }
+
+    /** Dossiers à venir dont la variante retenue laisse des nuits sans hébergement. */
+    private function uncoveredNights(array $trips, string $today): array
+    {
+        $out = [];
+        foreach ($trips as $t) {
+            if (!in_array($t['statut'], ['prospect', 'devis', 'option', 'confirme', 'solde'], true) || !$t['selected_option_id']
+                || !$t['date_depart'] || !$t['date_retour'] || $t['date_retour'] <= $t['date_depart'] || $t['date_retour'] < $today) {
+                continue;
+            }
+            $items = $this->db->all(
+                "SELECT type, date_debut, date_fin FROM items WHERE option_id = ? AND optionnel = 0
+                   AND (statut IS NULL OR statut <> 'annule') AND date_debut IS NOT NULL",
+                [$t['selected_option_id']]
+            );
+            if (!$items) {
+                continue; // dossier pas encore construit
+            }
+            $missing = [];
+            for ($d = $t['date_depart']; $d < $t['date_retour']; $d = self::addDays($d, 1)) {
+                $covered = false;
+                foreach ($items as $i) {
+                    $endStay = $i['date_fin'] ?: self::addDays($i['date_debut'], 1);
+                    if (in_array($i['type'], ['hebergement', 'croisiere'], true) && $i['date_debut'] <= $d && $d < $endStay) {
+                        $covered = true;
+                    } elseif (in_array($i['type'], ['vol', 'train'], true) && $i['date_fin'] && $i['date_debut'] <= $d && $d < $i['date_fin']) {
+                        $covered = true;
+                    }
+                    if ($covered) {
+                        break;
+                    }
+                }
+                if (!$covered) {
+                    $missing[] = $d;
+                }
+            }
+            if ($missing) {
+                $out[] = ['trip_id' => $t['id'], 'trip' => trim(($t['reference'] ?? '') . ' — ' . $t['titre']), 'count' => count($missing),
+                    'dates' => array_map(fn($d) => substr($d, 8, 2) . '/' . substr($d, 5, 2), $missing)];
+            }
+        }
+        return $out;
     }
 
     /** Passeports expirant moins de 6 mois après le retour (règle de nombreux pays hors UE). */

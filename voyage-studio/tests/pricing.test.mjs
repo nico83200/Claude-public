@@ -3,7 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { computeOption, paymentSchedule, sellFromCost, vatOnMargin, defaultQty } from '../assets/js/pricing.js';
 import { durationBetween, itemDuration, fmtDuration, zonedToUtc, sortChrono } from '../assets/js/time.js';
-import { runChecks, generateDays } from '../assets/js/checks.js';
+import { runChecks, generateDays, uncoveredRanges } from '../assets/js/checks.js';
+import { hotelsComUrl, splitRooms, parseAges } from '../assets/js/search-links.js';
 
 const settings = { devise_base: 'EUR', tva_regime: 'marge', tva_taux: '20', securite_change: '0' };
 const currencies = [{ code: 'EUR', taux: 1 }, { code: 'USD', taux: 1.25 }];
@@ -127,13 +128,13 @@ test('suggestions : oublis détectés', () => {
   };
   const s = runChecks({ trip, option, today: '2027-01-01' });
   const titles = s.map((x) => x.title).join(' | ');
-  assert.match(titles, /1 nuit sans hébergement/);
+  assert.match(titles, /Nuit du 20\/06 sans hébergement/);
   assert.match(titles, /Transfert à l'arrivée/);
   assert.match(titles, /Transfert vers l'aéroport/);
   assert.match(titles, /Arrivée le jour de l'embarquement/);
   assert.match(titles, /Assurance non proposée/);
   assert.equal(s[0].level, 'important');
-  const nuit = s.find((x) => /nuit sans/.test(x.title));
+  const nuit = s.find((x) => /sans hébergement/.test(x.title));
   assert.equal(nuit.add.date_debut, '2027-06-20');
 });
 
@@ -167,4 +168,27 @@ test('tri chronologique des prestations sans heure', () => {
     { id: 6, type: 'assurance' },
   ];
   assert.deepEqual(sortChrono(items).map((i) => i.id), [3, 2, 1, 4, 5, 6]);
+});
+
+test('lien de recherche hotels.com', () => {
+  const u = new URL(hotelsComUrl({ destination: 'Barcelone', checkin: '2027-06-13', checkout: '2027-06-14', adults: 3, childAges: [6, 11], rooms: 2 }));
+  assert.equal(u.hostname, 'fr.hotels.com');
+  assert.equal(u.pathname, '/Hotel-Search');
+  assert.equal(u.searchParams.get('destination'), 'Barcelone');
+  assert.equal(u.searchParams.get('startDate'), '2027-06-13');
+  assert.equal(u.searchParams.get('rooms'), '2');
+  assert.equal(u.searchParams.get('adults'), '2,1');
+  assert.equal(u.searchParams.get('children'), '1_6,2_11');
+  assert.deepEqual(splitRooms(2, [], 5).adults, [1, 1]); // jamais plus de chambres que d'adultes
+  assert.deepEqual(parseAges('4; 12', 3), [4, 12, 8]);
+});
+
+test('plages de nuits non couvertes', () => {
+  const option = { items: [
+    { type: 'hebergement', date_debut: '2027-06-14', date_fin: '2027-06-16' },
+    { type: 'vol', date_debut: '2027-06-18', date_fin: '2027-06-19' },
+  ] };
+  const r = uncoveredRanges({ date_depart: '2027-06-13', date_retour: '2027-06-21' }, option);
+  assert.deepEqual(r.map((x) => [x.from, x.to, x.nights.length]), [['2027-06-13', '2027-06-14', 1], ['2027-06-16', '2027-06-18', 2], ['2027-06-19', '2027-06-21', 2]]);
+  assert.deepEqual(uncoveredRanges({ date_depart: '2027-06-13', date_retour: '2027-06-13' }, option), []);
 });

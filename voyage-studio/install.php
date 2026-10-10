@@ -66,6 +66,16 @@ if (!$installed && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 require __DIR__ . '/app/Demo.php';
                 Demo::seed($repo, $db);
             }
+            if (!empty($_POST['catalog'])) {
+                foreach (['destinations', 'suppliers'] as $entity) {
+                    $existing = array_flip(array_map(fn($r) => Catalog::normalize($r['nom']), $repo->list($entity, [], null, 5000)));
+                    foreach (Catalog::forEntity($entity) as $row) {
+                        if (!isset($existing[Catalog::normalize($row['nom'])])) {
+                            $repo->create($entity, $row);
+                        }
+                    }
+                }
+            }
 
             $export = var_export([
                 'db' => $dbCfg,
@@ -135,7 +145,8 @@ if (!$installed && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label>Clé API Anthropic<input name="ai_key" value="<?= $v('ai_key') ?>" placeholder="sk-ant-…" autocomplete="off"></label>
                 <p class="muted small">Permet l'import de captures d'écran / PDF de réservation et les suggestions intelligentes. Modifiable plus tard dans config.php.</p>
             </fieldset>
-            <label class="inline span2"><input type="checkbox" name="demo" value="1" <?= !empty($_POST['demo']) ? 'checked' : '' ?>> Charger des données de démonstration (clients, fournisseurs, un dossier exemple)</label>
+            <label class="inline span2"><input type="checkbox" name="catalog" value="1" <?= $_SERVER['REQUEST_METHOD'] !== 'POST' || !empty($_POST['catalog']) ? 'checked' : '' ?>> Importer le catalogue de départ : 69 destinations prisées et 63 fournisseurs courants (modifiables ensuite)</label>
+            <label class="inline span2"><input type="checkbox" name="demo" value="1" <?= !empty($_POST['demo']) ? 'checked' : '' ?>> Charger des données de démonstration (clients, un dossier exemple)</label>
             <div class="span2"><button class="btn primary" type="submit">Installer</button></div>
         </form>
     <?php endif; ?>

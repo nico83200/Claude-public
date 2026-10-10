@@ -85,6 +85,11 @@ Demo::seed(new Repository($db), $db);
 $d = $call('GET', 'dashboard')['json']['data'];
 check('tableau de bord', isset($d['counts']['devis']) && $d['counts']['devis'] >= 1, $d['counts'] ?? $d);
 check('alerte option fournisseur', count(array_filter($d['options'], fn($o) => str_contains($o['quoi'], 'MSC'))) === 1, $d['options']);
+check('aucune nuit non couverte (démo)', $d['nights'] === [], $d['nights']);
+$opt = (int)$db->value("SELECT selected_option_id FROM trips WHERE reference LIKE 'VS%-0001' AND titre LIKE 'Croisière%'");
+$db->query("UPDATE items SET date_fin = date_debut WHERE option_id = ? AND type = 'croisiere'", [$opt]);
+$d = $call('GET', 'dashboard')['json']['data'];
+check('alerte nuits non couvertes', count($d['nights']) === 1 && $d['nights'][0]['count'] === 7, $d['nights']);
 $s = $call('GET', 'search', [], ['q' => 'mart'])['json']['data'];
 check('recherche globale', count($s) >= 2, $s);
 

@@ -233,6 +233,62 @@ final class AiAssistant
         return $data['suggestions'] ?? [];
     }
 
+    /* ------------------------------------------------------------ Fiche destination */
+
+    /** Pré-remplit une fiche destination (point de vue d'un voyageur français). */
+    public function destination(string $nom): array
+    {
+        $nom = trim(mb_substr($nom, 0, 120));
+        if ($nom === '') {
+            throw new ValidationException(['nom' => 'Indiquez le nom de la destination']);
+        }
+        $prompt = "Tu es un agent de voyage français expérimenté. Rédige la fiche pratique de la destination « $nom » pour un client "
+            . "au départ de Paris, en français, de façon concise et factuelle.\n"
+            . "- aeroport : code IATA de l'aéroport international principal ; fuseau : identifiant IANA (ex. Asia/Bangkok).\n"
+            . "- hors_ue : true si la destination est hors du territoire de l'Union européenne.\n"
+            . "- devise : code ISO 4217 ; vol_duree : durée de vol typique depuis Paris (ex. « 11 h 30 direct » ou « 14 h avec escale »).\n"
+            . "- budget_jour : budget indicatif sur place en euros par personne et par jour, hors hébergement (nombre).\n"
+            . "- mois_ideaux : exactement 12 caractères de janvier à décembre, 2 = période idéale, 1 = correcte, 0 = déconseillée (pluies, cyclones, chaleur extrême…).\n"
+            . "- formalites : pour un ressortissant français (passeport/CNI, durée de validité, visa, autorisation électronique type ESTA/eTA).\n"
+            . "- sante : vaccins recommandés ou obligatoires, paludisme, précautions.\n"
+            . "- description : 2 à 3 phrases attractives pour un devis client.\n"
+            . "Si une information est incertaine ou récente, dis-le dans le texte. Chaîne vide si inconnu.";
+        $props = [];
+        foreach (['nom', 'pays', 'region', 'aeroport', 'fuseau', 'devise', 'langue', 'vol_duree', 'mois_ideaux', 'climat', 'formalites', 'sante', 'description'] as $k) {
+            $props[$k] = ['type' => 'string'];
+        }
+        $props['hors_ue'] = ['type' => 'boolean'];
+        $props['budget_jour'] = ['type' => ['number', 'null']];
+        $schema = ['type' => 'object', 'properties' => $props, 'required' => array_keys($props), 'additionalProperties' => false];
+        $d = $this->callJson([['type' => 'text', 'text' => $prompt]], $schema, $this->cfg['effort_suggest'] ?? 'medium');
+
+        $out = [];
+        $fields = Schema::entity('destinations')['fields'];
+        foreach ($d as $k => $v) {
+            if (!isset($fields[$k]) || $v === '' || $v === null) {
+                continue;
+            }
+            try {
+                $out[$k] = Repository::normalize($fields[$k], is_bool($v) ? (int)$v : $v);
+            } catch (InvalidArgumentException) {
+            }
+        }
+        if (isset($out['mois_ideaux']) && !preg_match('/^[012]{12}$/', $out['mois_ideaux'])) {
+            unset($out['mois_ideaux']);
+        }
+        if (isset($out['fuseau'])) {
+            try {
+                new DateTimeZone($out['fuseau']);
+            } catch (Exception) {
+                unset($out['fuseau']);
+            }
+        }
+        if (!empty($out['formalites'])) {
+            $out['formalites'] .= ' (Généré par IA — à vérifier sur diplomatie.gouv.fr.)';
+        }
+        return $out;
+    }
+
     /* ------------------------------------------------------------ Appel API */
 
     private function callJson(array $content, array $schema, string $effort): array

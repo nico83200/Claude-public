@@ -34,9 +34,16 @@ Conçu pour un **hébergement mutualisé** (OVH, o2switch, Ionos, Hostinger…) 
 - **Comparateur de destinations** (« Où partir en mars ? ») : saisonnalité mois par mois, budget sur place, durée de vol, décalage horaire, formalités.
 - **Comparateur rapide d'offres** (Outils) : comparez des offres trouvées sur différents sites, avec un score pondéré (prix, durée, escales, confort).
 
+### Catalogue de départ
+69 destinations prisées au départ de la France (saisonnalité mois par mois, budget sur place, durée de vol, fuseau, devise, formalités indicatives, santé) et 63 fournisseurs courants (compagnies, croisiéristes, tour-opérateurs, chaînes hôtelières, banques de lits, ferroviaire, loueurs, assureurs, transferts, activités). Importés à l'installation ou via « 📚 Importer depuis le catalogue » (sélection à cocher, doublons ignorés). Le bouton **« ✨ Pré-remplir les infos »** d'une fiche destination puise dans ce catalogue, ou à défaut interroge l'assistant IA.
+
+### Recherche d'hôtels & capture d'écran
+- **🔎 Chercher un hôtel** : ouvre hotels.com pré-rempli (destination, dates, adultes, enfants et âges, nombre de chambres) — aussi proposé directement sur chaque nuit non couverte.
+- **🖥️ Capturer l'écran** (dans l'import IA) : choisissez l'onglet hotels.com ou le site de la compagnie, recadrez la zone utile à la souris, l'IA crée la prestation. Fonctionne sur ordinateur, en HTTPS.
+
 ### Suggestions « anti-oubli »
 Un contrôle automatique et instantané de chaque variante signale notamment :
-- un transport aller ou retour manquant, des **nuits sans hébergement** ;
+- un transport aller ou retour manquant, des **nuits sans hébergement** (alerte par plage de nuits, encadré rouge directement dans la frise avec « + Hébergement » et « 🔎 hotels.com », et alerte au tableau de bord) ;
 - un **transfert manquant** à l'arrivée ou au départ d'un vol ;
 - une **correspondance serrée** sur des billets séparés, ou des horaires incohérents ;
 - une arrivée le jour de l'embarquement en croisière (une nuit avant la croisière est conseillée) ;

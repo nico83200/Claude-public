@@ -102,6 +102,8 @@ final class Api
                 return $this->aiRoute($m, (string)$id, $b);
             case 'update':
                 return $this->updateRoute($m, (string)$id, $b, $q);
+            case 'catalog':
+                return $this->catalogRoute($m, (string)$id, $b, $q);
         }
 
         if (!$a || !Schema::entity($a)) {
@@ -172,10 +174,39 @@ final class Api
             }
             return $res;
         }
+        if ($action === 'destination') {
+            return $this->ai()->destination((string)($b['nom'] ?? ''));
+        }
         if ($action === 'suggest') {
             return $this->ai()->suggest((array)($b['summary'] ?? []));
         }
         throw new NotFoundException('Route inconnue');
+    }
+
+    private function catalogRoute(string $m, string $entity, array $b, array $q): mixed
+    {
+        if ($m === 'GET' && $entity === 'lookup') {
+            return Catalog::findDestination((string)($q['q'] ?? ''));
+        }
+        $items = Catalog::forEntity($entity);
+        $existing = array_flip(array_map(fn($r) => Catalog::normalize($r['nom']), $this->repo->list($entity, [], null, 5000)));
+        if ($m === 'GET') {
+            return array_map(fn($i) => $i + ['exists' => isset($existing[Catalog::normalize($i['nom'])])], $items);
+        }
+        if ($m === 'POST') {
+            $wanted = array_flip(array_map('strval', (array)($b['names'] ?? [])));
+            return $this->db->transaction(function () use ($items, $wanted, $existing, $entity) {
+                $n = 0;
+                foreach ($items as $i) {
+                    if (isset($wanted[$i['nom']]) && !isset($existing[Catalog::normalize($i['nom'])])) {
+                        $this->repo->create($entity, $i);
+                        $n++;
+                    }
+                }
+                return ['imported' => $n];
+            });
+        }
+        throw new HttpException(405, 'Méthode non autorisée');
     }
 
     private function updateRoute(string $m, string $action, array $b, array $q): mixed

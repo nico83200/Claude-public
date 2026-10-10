@@ -21,7 +21,7 @@ final class Demo
                 'delai_paiement' => '25 % à la réservation, solde J-45', 'conditions_annulation' => "J-90 : 10 %\nJ-60 : 30 %\nJ-30 : 60 %\nJ-15 : 100 %"]);
             $sRec = $r->create('suppliers', ['nom' => 'Sun Transfers Barcelone', 'type' => 'transfert', 'devise' => 'EUR']);
             $sHot = $r->create('suppliers', ['nom' => 'Hotel Casa Fuster', 'type' => 'hotel']);
-            $r->create('suppliers', ['nom' => 'Chapka Assurances', 'type' => 'assurance', 'commission_pct' => 20]);
+            $r->create('suppliers', ['nom' => 'Chapka', 'type' => 'assurance', 'commission_pct' => 20]);
 
             $dMed = $r->create('destinations', ['nom' => 'Méditerranée occidentale', 'pays' => 'Espagne / France / Italie', 'region' => 'Europe',
                 'aeroport' => 'BCN', 'fuseau' => 'Europe/Madrid', 'devise' => 'EUR', 'langue' => 'Espagnol, catalan, italien',

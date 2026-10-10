@@ -267,6 +267,29 @@ export function enhanceForm(form) {
   });
 }
 
+/** Remplit un formulaire (y compris le widget des mois). Renvoie le nombre de champs modifiés. */
+export function fillForm(form, data, { onlyEmpty = true } = {}) {
+  let n = 0;
+  for (const [k, v] of Object.entries(data)) {
+    const el = form.elements[k];
+    if (!el || v === null || v === undefined || v === '') continue;
+    if (el.type === 'checkbox') {
+      if (onlyEmpty && el.checked) continue;
+      el.checked = !!+v;
+    } else {
+      const empty = !el.value || (k === 'mois_ideaux' && /^0*$/.test(el.value));
+      if (onlyEmpty && !empty) continue;
+      el.value = el.type === 'text' && typeof v === 'number' ? String(v).replace('.', ',') : v;
+      if (k === 'mois_ideaux') {
+        $$('.months-widget button.m', form).forEach((b, i) => { b.className = `m lvl${String(v)[i] || 0}`; });
+      }
+    }
+    el.closest('label')?.classList.add('prefilled');
+    n++;
+  }
+  return n;
+}
+
 export function readForm(form, entity = null) {
   const out = {};
   const def = entity ? state.schema.entities[entity].fields : null;

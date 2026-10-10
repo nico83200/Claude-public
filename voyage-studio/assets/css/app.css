@@ -395,3 +395,24 @@ label.inline { display: inline-flex; align-items: center; gap: .4rem; margin-rig
 .big-price { border-left: 5px solid var(--brand); }
 .tabs .tab.active { color: var(--section); border-bottom-color: var(--section); font-weight: 600; }
 .alerts li { background: #fff; border: 1px solid var(--border); border-left-width: 4px; }
+.btn.search-btn { background: #fff4e6; border-color: #fdba74; color: #c2410c; font-weight: 600; }
+.btn.search-btn:hover { background: #ffedd5; border-color: #ea580c; }
+.sg-actions { display: flex; flex-direction: column; gap: .3rem; align-items: stretch; }
+.tl-gap { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: .6rem; align-items: center; padding: .6rem .5rem; margin-bottom: .35rem;
+  border: 2px dashed #f87171; border-radius: 8px; background: #fef2f2; color: #991b1b; }
+.tl-gap .tl-ico { background: #fee2e2; }
+.gap-actions { display: flex; gap: .3rem; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 860px) { .tl-gap { grid-template-columns: 28px minmax(0, 1fr); } .gap-actions { grid-column: 2; justify-content: flex-start; } }
+.cat-groups { display: flex; flex-direction: column; gap: .8rem; max-height: 60vh; overflow-y: auto; }
+.cat-group { border: 1px solid var(--border); border-radius: 8px; padding: .5rem .75rem .75rem; margin: 0; }
+.cat-group legend { padding: 0 .3rem; color: var(--section); }
+.cat-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .4rem .8rem; }
+.cat-item { display: flex; gap: .5rem; align-items: flex-start; cursor: pointer; padding: .3rem; border-radius: 6px; }
+.cat-item:hover { background: var(--surface-2); }
+.cat-item.exists { opacity: .55; cursor: default; }
+.field.prefilled input, .field.prefilled textarea, .field.prefilled select { background: #f5f3ff; border-color: #c4b5fd; }
+.capture-row { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.btn.capture-btn { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; font-weight: 600; }
+.crop-wrap { position: relative; display: inline-block; max-width: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; touch-action: none; }
+.crop-wrap canvas { display: block; cursor: crosshair; max-width: 100%; }
+.crop-sel { position: absolute; border: 2px solid #2563eb; background: rgba(37, 99, 235, .12); box-shadow: 0 0 0 9999px rgba(15, 23, 42, .35); pointer-events: none; }

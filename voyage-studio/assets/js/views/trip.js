@@ -9,9 +9,10 @@ import {
 import { computeOption, paymentSchedule } from '../pricing.js';
 import { fmtDuration, itemDuration, todayIso, daysBetween, sortChrono } from '../time.js';
 import { airport } from '../airports.js';
-import { runChecks, generateDays } from '../checks.js';
+import { runChecks, generateDays, uncoveredRanges } from '../checks.js';
 import { quickCreate } from './trips.js';
 import { openAiImport, aiSummary } from './ai-import.js';
+import { hotelsComUrl, parseAges } from '../search-links.js';
 
 let data = null;
 let ui = { optionId: null, tab: 'build', aiSuggestions: null };
@@ -114,6 +115,7 @@ function buildTab(opt, c) {
               ${state.ai.enabled ? '<button class="btn ai" data-act="ai-import" title="Capture d\'écran, PDF ou e-mail de confirmation">📷 Importer (IA)</button>' : '<button class="btn ai" data-act="ai-off" title="Assistant IA non configuré">📷 Importer (IA)</button>'}
               ${['vol', 'hebergement', 'croisiere', 'transfert', 'train', 'location', 'activite', 'assurance'].map((t) => `<button class="btn small type-btn" style="--c:${TYPE_COLORS[t]}" data-add-type="${t}" title="Ajouter : ${esc(state.schema.itemTypes[t])}">${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t].split(' ')[0])}</button>`).join('')}
               <button class="btn small type-btn" data-add-type="autre">+ Autre</button>
+              <button class="btn small search-btn" data-act="hotel-search" title="Ouvrir hotels.com pré-rempli (destination, dates, voyageurs)">🔎 Chercher un hôtel</button>
             </div>
           </div>
           ${itemsTimeline(c)}
@@ -171,6 +173,19 @@ function itemsTimeline(c) {
   }
   const cancelled = (currentOption().items || []).filter((i) => i.statut === 'annule');
   const start = data.trip.date_depart;
+  // Trous d'hébergement affichés dans la frise, à leur date
+  const gaps = new Map();
+  for (const r of uncoveredRanges(data.trip, currentOption())) {
+    if (!groups.has(r.from)) groups.set(r.from, []);
+    gaps.set(r.from, r);
+  }
+  const gapCard = (r) => `<div class="tl-gap" role="alert">
+      <span class="tl-ico">⚠️</span>
+      <div><b>${r.nights.length > 1 ? `${r.nights.length} nuits sans hébergement` : 'Nuit sans hébergement'}</b>
+        <div class="muted small">du ${date(r.from)} au ${date(r.to)} — aucun hôtel ni croisière prévu</div></div>
+      <div class="gap-actions"><button class="btn small" data-gap-add="${r.from}|${r.to}">🏨 + Hébergement</button>
+        <button class="btn small search-btn" data-gap-hotel="${r.from}|${r.to}">🔎 hotels.com</button></div>
+    </div>`;
   return `<div class="timeline">${[...groups.entries()].sort(([a], [b]) => (a || '9999').localeCompare(b || '9999')).map(([d, lines]) => `
     <div class="tl-day"><div class="tl-date">${d ? `${date(d, true)}${start ? ` <span class="muted">· J${daysBetween(start, d) + 1}</span>` : ''}` : 'Sans date'}</div>
     ${lines.map((l) => {
@@ -192,7 +207,7 @@ function itemsTimeline(c) {
           <button class="icon-btn danger" data-act="del-item" title="Supprimer">🗑</button>
         </div>
       </div>`;
-    }).join('')}</div>`).join('')}
+    }).join('')}${gaps.has(d) ? gapCard(gaps.get(d)) : ''}</div>`).join('')}
     ${cancelled.length ? `<p class="muted small">${cancelled.length} prestation(s) annulée(s) non comptée(s) : ${cancelled.map((i) => `<a href="#" data-item-link="${i.id}">${esc(i.libelle)}</a>`).join(', ')}</p>` : ''}
   </div>`;
 }
@@ -243,7 +258,8 @@ function suggestionsPanel(opt, c) {
   const list = runChecks({ trip: data.trip, option: opt, destination: data.destination, travelers: data.travelers, client: data.client, computed: c });
   const icon = { important: '⚠️', conseil: '💡', info: 'ℹ️' };
   const row = (s, idx, src) => `<li class="sg ${s.level}"><span class="sg-ico">${icon[s.level] || '💡'}</span><div><b>${esc(s.titre || s.title)}</b>${(s.detail) ? `<p>${esc(s.detail)}</p>` : ''}</div>
-    ${s.add || s.type_prestation ? `<button class="btn small" data-suggest="${src}:${idx}">+ Ajouter</button>` : ''}</li>`;
+    <div class="sg-actions">${s.add || s.type_prestation ? `<button class="btn small" data-suggest="${src}:${idx}">+ Ajouter</button>` : ''}
+      ${src === 'rule' && s.add?.type === 'hebergement' ? `<button class="btn small search-btn" data-hotel="${idx}" title="Chercher sur hotels.com pour ces dates">🔎 hotels.com</button>` : ''}</div></li>`;
   ui.lastChecks = list;
   return `<div class="card suggestions">
     <div class="card-head"><h2>Suggestions <span class="badge ${list.some((s) => s.level === 'important') ? 'red' : 'green'}">${list.length}</span></h2>
@@ -490,6 +506,23 @@ async function onClick(e, el) {
     if (r) await reload(el);
     return;
   }
+  const gapAdd = e.target.closest('[data-gap-add]');
+  if (gapAdd) {
+    const [from, to] = gapAdd.dataset.gapAdd.split('|');
+    const r = await itemDialog({ type: 'hebergement', date_debut: from, date_fin: to, unite: 'chambre_nuit', libelle: 'Hôtel' }, { optionId: ui.optionId });
+    if (r) await reload(el);
+    return;
+  }
+  const gapHotel = e.target.closest('[data-gap-hotel]');
+  if (gapHotel) {
+    const [from, to] = gapHotel.dataset.gapHotel.split('|');
+    return hotelSearchDialog({ checkin: from, checkout: to });
+  }
+  const hs = e.target.closest('[data-hotel]');
+  if (hs) {
+    const add = ui.lastChecks[+hs.dataset.hotel]?.add || {};
+    return hotelSearchDialog({ checkin: add.date_debut, checkout: add.date_fin });
+  }
   const sg = e.target.closest('[data-suggest]');
   if (sg) {
     const [src, idx] = sg.dataset.suggest.split(':');
@@ -578,6 +611,9 @@ async function onClick(e, el) {
       case 'ai-import':
         if (await openAiImport({ trip: t, optionId: opt.id })) await reload(el);
         break;
+      case 'hotel-search':
+        await hotelSearchDialog({});
+        break;
       case 'ai-off':
         toast('Assistant IA non configuré : ajoutez votre clé API Anthropic dans config.php (voir Réglages > Assistant IA).', 'info', 8000);
         break;
@@ -645,4 +681,54 @@ async function onClick(e, el) {
   } catch (err) {
     errorToast(err);
   }
+}
+
+/* ================================================================== Recherche hotels.com */
+
+/** Ville probable du séjour : destination du dossier, sinon ville d'arrivée du premier vol. */
+function guessDestination() {
+  if (data.destination?.nom) return data.destination.nom;
+  const opt = currentOption();
+  const first = sortChrono((opt?.items || []).filter((i) => i.type === 'vol' && i.lieu_arrivee))[0];
+  const ap = first && airport(first.lieu_arrivee);
+  return ap ? ap.name.split(' ')[0] : first?.lieu_arrivee || '';
+}
+
+function hotelSearchDialog({ checkin, checkout }) {
+  const t = data.trip;
+  const kids = (+t.nb_enfants || 0) + (+t.nb_bebes || 0);
+  const pax = (+t.nb_adultes || 0) || 2;
+  const v = {
+    destination: guessDestination(),
+    checkin: checkin || t.date_depart || '',
+    checkout: checkout || t.date_retour || '',
+    adults: pax,
+    rooms: Math.max(1, Math.ceil(pax / 2)),
+    ages: [...Array(+t.nb_enfants || 0).fill(8), ...Array(+t.nb_bebes || 0).fill(1)].join(', '),
+  };
+  return modal({
+    title: '🔎 Chercher un hôtel sur hotels.com',
+    submitLabel: 'Ouvrir hotels.com ↗',
+    body: `<div class="form-grid">
+        <label class="field span2"><span class="lbl">Destination (ville, quartier, nom d'hôtel…)</span><input name="destination" value="${esc(v.destination)}" required></label>
+        <label class="field"><span class="lbl">Arrivée</span><input type="date" name="checkin" value="${esc(v.checkin)}"></label>
+        <label class="field"><span class="lbl">Départ</span><input type="date" name="checkout" value="${esc(v.checkout)}"></label>
+        <label class="field"><span class="lbl">Adultes</span><input type="number" name="adults" min="1" value="${v.adults}"></label>
+        <label class="field"><span class="lbl">Chambres</span><input type="number" name="rooms" min="1" value="${v.rooms}"></label>
+        <label class="field span2"><span class="lbl">Âges des enfants (séparés par des virgules)</span><input name="ages" value="${esc(v.ages)}" placeholder="ex. 6, 11">
+          <small class="help">${kids ? `${kids} enfant(s)/bébé(s) dans le dossier — ajustez les âges réels.` : 'Laissez vide s\'il n\'y a pas d\'enfant.'}</small></label>
+      </div>
+      <p class="alert info small">hotels.com s'ouvre dans un nouvel onglet. Une fois l'hôtel choisi, faites une capture de la page (prix affiché) puis
+        ${state.ai.enabled ? 'utilisez <b>📷 Importer (IA)</b> : la prestation sera créée automatiquement.' : 'ajoutez la prestation <b>🏨 Hébergement</b> (ou activez l\'import IA dans les Réglages).'}</p>`,
+    onSubmit: (form) => {
+      const f = readForm(form);
+      const ages = f.ages.trim() ? parseAges(f.ages, f.ages.split(/[\s,;]+/).filter(Boolean).length) : [];
+      if (f.checkin && f.checkout && f.checkout <= f.checkin) {
+        toast('La date de départ doit suivre la date d\'arrivée', 'error');
+        return false;
+      }
+      window.open(hotelsComUrl({ destination: f.destination, checkin: f.checkin, checkout: f.checkout, adults: +f.adults, childAges: ages, rooms: +f.rooms }), '_blank', 'noopener');
+      return true;
+    },
+  });
 }

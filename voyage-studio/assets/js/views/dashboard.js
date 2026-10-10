@@ -39,7 +39,8 @@ export async function render(el) {
     <section class="grid-2">
       <div class="card">
         <h2>À traiter</h2>
-        ${d.options.length + d.payments.length + d.documents.length + d.to_book.length === 0 ? emptyState('✅', 'Rien d\'urgent. Bon travail !') : ''}
+        ${d.options.length + d.payments.length + d.documents.length + d.to_book.length + d.nights.length === 0 ? emptyState('✅', 'Rien d\'urgent. Bon travail !') : ''}
+        ${d.nights.length ? `<h3>⚠️ Nuits sans hébergement</h3>${list(d.nights, (n) => `<li class="danger"><a href="#/trips/${n.trip_id}">${esc(n.trip)}</a><span>${n.count} nuit${n.count > 1 ? 's' : ''} non couverte${n.count > 1 ? 's' : ''} : ${esc(n.dates.slice(0, 6).join(', '))}${n.dates.length > 6 ? '…' : ''}</span><b></b></li>`, '')}` : ''}
         ${d.options.length ? `<h3>Options & validités (≤ 7 jours)</h3>${list(d.options, (o) => `<li class="${o.expire ? 'danger' : 'warn'}"><a href="#/trips/${o.trip_id}">${esc(o.trip)}</a><span>${esc(o.quoi)}</span><b>${o.expire ? 'expiré le ' : ''}${date(o.date)}</b></li>`, '')}` : ''}
         ${d.payments.length ? `<h3>Échéances de paiement (≤ 30 jours)</h3>${list(d.payments, (p) => `<li class="${p.retard ? 'danger' : ''}"><a href="#/trips/${p.trip_id}">${esc(p.trip)}</a><span>${p.sens === 'client' ? '⬇ Encaisser' : '⬆ Payer'} — ${esc(p.libelle)}</span><b>${money(p.montant)} · ${date(p.date)}</b>
             <button class="btn small" data-paid="${p.id}">Marquer réglé</button></li>`, '')}` : ''}
