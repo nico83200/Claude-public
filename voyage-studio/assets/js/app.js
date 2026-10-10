@@ -104,7 +104,7 @@ function renderLayout() {
         <div class="brand-block">${s.agence_logo ? `<img src="${esc(s.agence_logo)}" alt="">` : '<span class="logo">✈</span>'}<span>${esc(s.agence_nom || 'VoyageStudio')}</span></div>
         <nav>${NAV.map(([h, i, l, c]) => `<a href="${h}" data-nav="${h}" style="--c:${c}"><span class="ico">${i}</span>${esc(l)}</a>`).join('')}</nav>
         <div class="sidebar-foot">
-          <span class="muted small">${esc(state.user?.email || '')}</span>
+          <span class="muted small">${esc(state.user?.email || '')} · v${esc(document.documentElement.dataset.version || '')}</span>
           <button class="btn ghost small" id="logout">Déconnexion</button>
         </div>
       </aside>

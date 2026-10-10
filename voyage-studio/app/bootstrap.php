@@ -52,12 +52,13 @@ function vs_db(): Database
     return $db;
 }
 
-function vs_security_headers(): void
+function vs_security_headers(?string $nonce = null): void
 {
+    $script = "'self'" . ($nonce ? " 'nonce-$nonce'" : '');
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: same-origin');
-    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src $script; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
 }
 
 $cfg = vs_config();

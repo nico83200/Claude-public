@@ -20,10 +20,12 @@ DirectoryIndex index.php
     RewriteRule ^(app|data|tests|vendor|scripts)(/|$) - [F,L]
 </IfModule>
 
+# Les fichiers JS/CSS portent une empreinte de version (?v=…) : cache long sans risque.
+# index.php et l'API ne sont jamais mis en cache.
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 7 days"
-    ExpiresByType application/javascript "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
 </IfModule>
 
 <IfModule mod_deflate.c>

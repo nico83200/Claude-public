@@ -194,6 +194,14 @@ final class Updater
         foreach (glob($this->root . '/data/.schema-*') ?: [] as $m) {
             @unlink($m); // la migration du schéma s'exécutera à la prochaine requête
         }
+        // Vide le cache PHP (OPcache) : fichier par fichier, puis globalement si l'hébergeur l'autorise
+        if (function_exists('opcache_invalidate')) {
+            foreach (array_keys($info['_map']) as $rel) {
+                if (str_ends_with($rel, '.php')) {
+                    @opcache_invalidate($this->root . '/' . $rel, true);
+                }
+            }
+        }
         if (function_exists('opcache_reset')) {
             @opcache_reset();
         }
