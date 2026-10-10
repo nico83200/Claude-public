@@ -416,3 +416,14 @@ label.inline { display: inline-flex; align-items: center; gap: .4rem; margin-rig
 .crop-wrap { position: relative; display: inline-block; max-width: 100%; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; touch-action: none; }
 .crop-wrap canvas { display: block; cursor: crosshair; max-width: 100%; }
 .crop-sel { position: absolute; border: 2px solid #2563eb; background: rgba(37, 99, 235, .12); box-shadow: 0 0 0 9999px rgba(15, 23, 42, .35); pointer-events: none; }
+/* Insertion chronologique ---------------------------------------------------- */
+.tl-insert { position: relative; height: 14px; margin: -2px 0 2px; display: flex; align-items: center; justify-content: center; }
+.tl-insert::before { content: ''; position: absolute; left: 40px; right: 0; top: 50%; border-top: 1px dashed transparent; transition: border-color .15s; }
+.tl-insert:hover::before { border-top-color: var(--section); }
+.tl-plus { position: relative; z-index: 1; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: #fff; color: var(--section);
+  font-weight: 800; line-height: 1; cursor: pointer; opacity: .75; transition: opacity .15s, transform .15s; padding: 0; }
+.tl-insert:hover .tl-plus, .tl-plus:focus-visible { opacity: 1; transform: scale(1.15); border-color: var(--section); }
+.tl-insert.open { height: auto; margin: .3rem 0 .6rem; justify-content: flex-start; }
+.type-chips { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; padding: .4rem; background: var(--surface-2); border: 1px dashed var(--section); border-radius: 8px; }
+.kbd-hint { margin-right: auto; }
+@media (hover: none) { .tl-plus { opacity: .8; } }

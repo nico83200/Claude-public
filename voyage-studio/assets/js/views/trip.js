@@ -13,6 +13,7 @@ import { runChecks, generateDays, uncoveredRanges } from '../checks.js';
 import { quickCreate } from './trips.js';
 import { openAiImport, aiSummary } from './ai-import.js';
 import { hotelsComUrl, parseAges } from '../search-links.js';
+import { defaultsBetween, returnOf, autoLabel } from '../insert-defaults.js';
 
 let data = null;
 let ui = { optionId: null, tab: 'build', aiSuggestions: null };
@@ -166,6 +167,7 @@ function itemsTimeline(c) {
   if (!c.lines.length) return emptyState('🧩', 'Ajoutez les prestations du voyage (vols, hôtels, croisière, transferts…) ou importez une capture d\'écran.');
   const groups = new Map();
   const order = sortChrono(c.lines.map((l) => l.item));
+  ui.order = order; // ordre chronologique, utilisé par les boutons « + » d'insertion
   for (const l of order.map((i) => c.lines.find((x) => x.item === i))) {
     const k = l.item.date_debut || '';
     if (!groups.has(k)) groups.set(k, []);
@@ -186,7 +188,8 @@ function itemsTimeline(c) {
       <div class="gap-actions"><button class="btn small" data-gap-add="${r.from}|${r.to}">🏨 + Hébergement</button>
         <button class="btn small search-btn" data-gap-hotel="${r.from}|${r.to}">🔎 hotels.com</button></div>
     </div>`;
-  return `<div class="timeline">${[...groups.entries()].sort(([a], [b]) => (a || '9999').localeCompare(b || '9999')).map(([d, lines]) => `
+  const slot = (after) => `<div class="tl-insert" data-insert="${after}"><button type="button" class="tl-plus" title="Insérer une prestation ici" aria-label="Insérer une prestation ici">+</button></div>`;
+  return `<div class="timeline">${slot(-1)}${[...groups.entries()].sort(([a], [b]) => (a || '9999').localeCompare(b || '9999')).map(([d, lines]) => `
     <div class="tl-day"><div class="tl-date">${d ? `${date(d, true)}${start ? ` <span class="muted">· J${daysBetween(start, d) + 1}</span>` : ''}` : 'Sans date'}</div>
     ${lines.map((l) => {
       const i = l.item;
@@ -202,11 +205,12 @@ function itemsTimeline(c) {
           <small class="muted" title="Achat / marge">achat ${money(l.cost)} · <span class="${l.margin < 0 ? 'neg' : 'pos'}">${money(l.margin)}</span></small>
         </div>
         <div class="tl-actions">
+          ${['vol', 'train', 'transfert'].includes(i.type) ? '<button class="icon-btn" data-act="return-item" title="Créer le trajet retour">↩</button>' : ''}
           <button class="icon-btn" data-act="edit-item" title="Modifier">✎</button>
           <button class="icon-btn" data-act="dup-item" title="Dupliquer">⧉</button>
           <button class="icon-btn danger" data-act="del-item" title="Supprimer">🗑</button>
         </div>
-      </div>`;
+      </div>${slot(order.indexOf(i))}`;
     }).join('')}${gaps.has(d) ? gapCard(gaps.get(d)) : ''}</div>`).join('')}
     ${cancelled.length ? `<p class="muted small">${cancelled.length} prestation(s) annulée(s) non comptée(s) : ${cancelled.map((i) => `<a href="#" data-item-link="${i.id}">${esc(i.libelle)}</a>`).join(', ')}</p>` : ''}
   </div>`;
@@ -367,11 +371,26 @@ export async function itemDialog(values, { optionId, onSaved } = {}) {
     values = { unite: defaults[type] || 'forfait', devise: data?.settings?.devise_base || 'EUR', ...values };
     if (!values.date_debut && ['vol', 'hebergement', 'croisiere'].includes(type) && trip.date_depart) values.date_debut = trip.date_depart;
   }
+  const autoStart = isNew && (!values.libelle || values.libelle === autoLabel(values, state.schema.itemTypes));
   return modal({
     title, wide: true,
     body: `<div class="item-preview" id="item-preview"></div>${entityForm('items', values, { type })}`,
+    footer: `<span class="muted small kbd-hint">Entrée pour enregistrer</span>
+      <button type="button" class="btn" data-close>Annuler</button>
+      ${isNew ? '<button type="submit" class="btn" value="next" title="Enregistrer puis saisir la prestation suivante">Enregistrer et ajouter la suite ➜</button>' : ''}
+      <button type="submit" class="btn primary" value="save">Enregistrer</button>`,
     onOpen: (form) => {
       enhanceForm(form);
+      // Libellé généré automatiquement tant que l'agent ne l'a pas personnalisé
+      let lastAuto = autoStart ? form.elements.libelle.value : null;
+      const refreshLabel = () => {
+        if (lastAuto === null || form.elements.libelle.value !== lastAuto) return;
+        lastAuto = autoLabel(readForm(form, 'items'), state.schema.itemTypes);
+        form.elements.libelle.value = lastAuto;
+      };
+      if (autoStart && !form.elements.libelle.value) { lastAuto = ''; refreshLabel(); }
+      form.elements.libelle.addEventListener('input', () => { if (form.elements.libelle.value === '') lastAuto = ''; });
+      ['type', 'lieu_depart', 'lieu_arrivee', 'compagnie', 'numero', 'navire', 'date_debut', 'date_fin'].forEach((n) => form.elements[n]?.addEventListener('change', refreshLabel));
       const toggle = () => {
         const t = form.elements.type.value;
         $$('[data-types]', form).forEach((elx) => { elx.hidden = !elx.dataset.types.split(' ').includes(t); });
@@ -437,7 +456,7 @@ export async function itemDialog(values, { optionId, onSaved } = {}) {
       }
       const saved = isNew ? await api.post('items', { ...body, option_id: optionId }) : await api.put(`items/${values.id}`, body);
       onSaved && (await onSaved(saved));
-      return saved;
+      return { ...saved, _next: form.dataset.submitter === 'next' };
     },
   });
 }
@@ -500,11 +519,21 @@ async function onClick(e, el) {
     ui.aiSuggestions = null;
     return draw(el);
   }
+  const plus = e.target.closest('.tl-plus');
+  if (plus) {
+    const slotEl = plus.closest('.tl-insert');
+    el.querySelectorAll('.tl-insert.open').forEach((x) => { x.classList.remove('open'); x.innerHTML = '<button type="button" class="tl-plus" title="Insérer une prestation ici">+</button>'; });
+    slotEl.classList.add('open');
+    slotEl.innerHTML = `<div class="type-chips">${typeChips((t) => `data-insert-type="${t}"`)}<button type="button" class="icon-btn" data-insert-cancel title="Annuler">✕</button></div>`;
+    return;
+  }
+  if (e.target.closest('[data-insert-cancel]')) return draw(el);
+  const ins = e.target.closest('[data-insert-type]');
+  if (ins) return insertFlow(el, +ins.closest('[data-insert]').dataset.insert, ins.dataset.insertType);
   const addType = e.target.closest('[data-add-type]');
   if (addType) {
-    const r = await itemDialog({ type: addType.dataset.addType }, { optionId: ui.optionId });
-    if (r) await reload(el);
-    return;
+    // Barre du haut : ajout à la suite du dernier élément de la frise
+    return insertFlow(el, (ui.order?.length || 0) - 1, addType.dataset.addType);
   }
   const gapAdd = e.target.closest('[data-gap-add]');
   if (gapAdd) {
@@ -598,6 +627,12 @@ async function onClick(e, el) {
         if (await itemDialog(it)) await reload(el);
         break;
       }
+      case 'return-item': {
+        const it = opt.items.find((x) => x.id === itemId);
+        const saved = await itemDialog(returnOf(it, t), { optionId: ui.optionId });
+        if (saved) await reload(el);
+        break;
+      }
       case 'dup-item':
         await api.post(`items/${itemId}/duplicate`);
         await reload(el);
@@ -680,6 +715,48 @@ async function onClick(e, el) {
     }
   } catch (err) {
     errorToast(err);
+  }
+}
+
+/* ================================================================== Insertion chronologique */
+
+const INSERT_TYPES = ['vol', 'transfert', 'hebergement', 'croisiere', 'train', 'location', 'activite', 'assurance', 'visa', 'frais', 'autre'];
+
+function typeChips(attrs) {
+  return INSERT_TYPES.map((t) => `<button type="button" class="btn small type-btn" style="--c:${TYPE_COLORS[t]}" ${attrs(t)}>${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t].split(' ')[0])}</button>`).join('');
+}
+
+/** Petite fenêtre de choix du type (enchaînement « ajouter la suite »). */
+function pickType(prev) {
+  return modal({
+    title: 'Prestation suivante',
+    body: `<p class="muted">Après « ${esc(prev?.libelle || '')} », quel type de prestation ?</p><div class="type-chips">${typeChips((t) => `data-pick="${t}"`)}</div>`,
+    footer: '<button type="button" class="btn" data-close>Terminer</button>',
+    onOpen: (form, close) => {
+      form.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-pick]');
+        if (b) close(b.dataset.pick);
+      });
+      setTimeout(() => form.querySelector('[data-pick]')?.focus(), 40);
+    },
+  });
+}
+
+/**
+ * Ajoute une prestation après l'élément n° `after` de la frise (‑1 = en tête), pré-remplie
+ * à partir des éléments voisins ; enchaîne tant que l'agent choisit « ajouter la suite ».
+ */
+async function insertFlow(el, after, type) {
+  let prev = ui.order?.[after] || null;
+  const next = ui.order?.[after + 1] || null;
+  let t = type;
+  while (t) {
+    const saved = await itemDialog(defaultsBetween(prev, next, t, data.trip), { optionId: ui.optionId });
+    if (!saved) break;
+    await reload(el);
+    if (!saved._next) break;
+    prev = saved;
+    t = await pickType(saved);
   }
 }
 

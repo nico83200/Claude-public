@@ -121,6 +121,8 @@ export function modal({ title, body, submitLabel = 'Enregistrer', wide = false, 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!onSubmit) return close(true);
+      // bouton utilisé (ex. « Enregistrer et ajouter la suite »)
+      form.dataset.submitter = e.submitter?.value || '';
       const btn = $('button[type=submit]', form);
       btn && (btn.disabled = true);
       try {

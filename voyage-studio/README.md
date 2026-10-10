@@ -13,6 +13,7 @@ Conçu pour un **hébergement mutualisé** (OVH, o2switch, Ionos, Hostinger…) 
 - **Variantes** : plusieurs propositions par dossier (ex. croisière balcon ou cabine intérieure, avec ou sans nuit d'hôtel), dupliquées en un clic.
 - **Prestations** : vol, train, hébergement, croisière, transfert, location, excursion, assurance, visa, frais. Chaque type a ses champs propres : n° de vol, escales, bagages, navire, cabine, formule (BB/HB/FB/AI), mode de transfert, distance…
 - **Durées réelles avec les fuseaux horaires** : saisissez les horaires locaux et les codes IATA ; le fuseau est déduit de l'aéroport (environ 250 aéroports intégrés), changements d'heure compris.
+- **Saisie rapide** : un **+** entre chaque élément de la frise insère une prestation à cet endroit, pré-remplie d'après les éléments voisins (dates, heure après l'arrivée du vol, lieux de départ et d'arrivée, nuits jusqu'au prochain trajet) ; libellé généré automatiquement ; « Enregistrer et ajouter la suite » pour enchaîner ; « ↩ » crée le trajet retour d'un vol, train ou transfert.
 - Frise chronologique jour par jour, avec les statuts de réservation (à demander, sous option, confirmé) et les dates limites d'option des fournisseurs.
 - **Programme jour par jour** généré à partir des prestations, puis modifiable.
 - **Voyageurs** : contrôle de validité des passeports (6 mois après le retour pour les voyages hors UE).

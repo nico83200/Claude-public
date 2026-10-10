@@ -192,3 +192,48 @@ test('plages de nuits non couvertes', () => {
   assert.deepEqual(r.map((x) => [x.from, x.to, x.nights.length]), [['2027-06-13', '2027-06-14', 1], ['2027-06-16', '2027-06-18', 2], ['2027-06-19', '2027-06-21', 2]]);
   assert.deepEqual(uncoveredRanges({ date_depart: '2027-06-13', date_retour: '2027-06-13' }, option), []);
 });
+
+import { defaultsBetween, returnOf, autoLabel, addMinutes } from '../assets/js/insert-defaults.js';
+
+test('insertion entre deux éléments : transfert après un vol, avant un hôtel', () => {
+  const vol = { type: 'vol', date_debut: '2027-06-13', heure_debut: '07:15', date_fin: '2027-06-13', heure_fin: '09:05', lieu_depart: 'CDG', lieu_arrivee: 'BCN' };
+  const hotel = { type: 'hebergement', libelle: 'Hotel Casa Fuster 5* — 1 nuit', date_debut: '2027-06-13', date_fin: '2027-06-14' };
+  const v = defaultsBetween(vol, hotel, 'transfert');
+  assert.equal(v.date_debut, '2027-06-13');
+  assert.equal(v.heure_debut, '09:35');
+  assert.equal(v.lieu_depart, 'BCN');
+  assert.equal(v.lieu_arrivee, 'Hotel Casa Fuster 5*');
+  assert.match(v.libelle, /^Transfert Barcelone BCN → Hotel Casa Fuster/);
+});
+
+test('insertion : hôtel entre deux vols, vol après un hôtel, transfert avant un vol', () => {
+  const aller = { type: 'vol', date_debut: '2027-06-13', date_fin: '2027-06-13', heure_fin: '09:05', lieu_arrivee: 'BKK' };
+  const retour = { type: 'vol', date_debut: '2027-06-20', heure_debut: '13:40', lieu_depart: 'BKK', lieu_arrivee: 'CDG' };
+  const h = defaultsBetween(aller, retour, 'hebergement');
+  assert.deepEqual([h.date_debut, h.date_fin, h.libelle], ['2027-06-13', '2027-06-20', 'Hôtel — 7 nuits']);
+  const hotel = { type: 'hebergement', libelle: 'Riva', date_debut: '2027-06-13', date_fin: '2027-06-20' };
+  const t = defaultsBetween(hotel, retour, 'transfert');
+  assert.deepEqual([t.date_debut, t.heure_debut, t.lieu_depart, t.lieu_arrivee], ['2027-06-20', '10:40', 'Riva', 'BKK']);
+  const f = defaultsBetween(hotel, null, 'vol', { ville_depart: 'Paris' });
+  assert.equal(f.date_debut, '2027-06-20');
+  assert.equal(f.lieu_depart, undefined); // un nom d'hôtel n'est pas un aéroport
+  const first = defaultsBetween(null, aller, 'vol', { date_depart: '2027-06-13', ville_depart: 'CDG' });
+  assert.deepEqual([first.date_debut, first.lieu_depart, first.lieu_arrivee], ['2027-06-13', 'CDG', undefined]);
+});
+
+test('trajet retour et utilitaires', () => {
+  const r = returnOf({ type: 'vol', lieu_depart: 'CDG', lieu_arrivee: 'BKK', compagnie: 'Thai Airways', date_debut: '2027-02-12' }, { date_retour: '2027-02-26' });
+  assert.deepEqual([r.lieu_depart, r.lieu_arrivee, r.date_debut], ['BKK', 'CDG', '2027-02-26']);
+  assert.equal(r.libelle, 'Vol Bangkok BKK → Paris CDG — Thai Airways');
+  assert.equal(addMinutes('23:50', 30), '23:59');
+  assert.equal(autoLabel({ type: 'croisiere', navire: 'MSC Europa', date_debut: '2027-06-14', date_fin: '2027-06-21' }), 'Croisière MSC Europa — 7 nuits');
+});
+
+test('insertion : pas de trajet « A → A », libellés par défaut', () => {
+  const vol = { type: 'vol', date_debut: '2027-06-13', heure_fin: '09:05', lieu_arrivee: 'BCN' };
+  const tr = { type: 'transfert', date_debut: '2027-06-13', lieu_depart: 'BCN', lieu_arrivee: 'Hôtel' };
+  const v = defaultsBetween(vol, tr, 'transfert');
+  assert.equal(v.lieu_depart, 'BCN');
+  assert.equal(v.lieu_arrivee, undefined);
+  assert.equal(defaultsBetween(tr, null, 'activite').libelle, 'Excursion');
+});
