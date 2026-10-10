@@ -97,30 +97,11 @@ function ini_bytes(string|false $v): int
     };
 }
 
-/** Télécharge la version publiée par NLapps et la prépare : l'installation se confirme ensuite comme pour un paquet envoyé. */
+/** Ancien téléchargement depuis le centre d'assistance (qui ne publie plus de versions) : installation par paquet uniquement. */
 function admin_updates_remote(): void
 {
     require_admin();
-    updates_platform_guard();
-    if (!is_post()) {
-        redirect('admin/updates');
-    }
-    $staging = storage_path('update-pending.zip');
-    try {
-        licence_check(true);
-        $l = licence_download_update($staging);
-        $info = update_inspect($staging);
-        $_SESSION['update_preview'] = [
-            'version' => $info['version'], 'notes' => $info['notes'] ?: (string)($l['notes'] ?? ''), 'date' => $info['date'],
-            'count' => count($info['files']), 'skipped' => array_slice($info['skipped'], 0, 20),
-            'vendor' => $info['vendor'], 'name' => 'Téléchargée depuis ' . support_contact()['editor'],
-            'newer' => version_compare($info['version'], APP_VERSION, '>'),
-        ];
-        flash('success', 'Version ' . $info['version'] . ' téléchargée et vérifiée : confirmez l\'installation ci-dessous.');
-    } catch (Throwable $e) {
-        @unlink($staging);
-        flash('error', $e->getMessage());
-    }
+    flash('info', 'Les mises à jour s\'installent en envoyant le paquet centriva-x.y.z.zip ci-dessous.');
     redirect('admin/updates');
 }
 

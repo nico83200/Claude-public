@@ -19,24 +19,11 @@ function check(bool $cond, string $label): void
     echo ($cond ? "  \033[32m✔\033[0m " : "  \033[31m✘\033[0m ") . $label . "\n";
 }
 
-echo "Licences\n";
+echo "Accès au chat\n";
 $key = hub_create_client('Client test');
 $c = hone('SELECT * FROM clients WHERE key_hash = ?', [hash('sha256', $key)]);
-check(hub_licence($c)['status'] === 'active' && !hub_licence($c)['ai'], 'nouveau client : licence active sans échéance, sans option IA');
-hq('UPDATE clients SET paid_until = ?, ai_option = 1 WHERE id = ?', [date('Y-m-d', strtotime('+10 days')), $c['id']]);
-$l = hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]));
-check($l['status'] === 'active' && $l['ai'] && $l['days_left'] === 10, 'abonnement payé : actif, option IA, 10 jours restants');
-hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-1 day')), $c['id']]);
-check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'expired', 'sans délai de grâce : expirée dès le lendemain de l\'échéance');
-hset('grace_days', '15');
-hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-5 days')), $c['id']]);
-check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'grace', 'délai de grâce de 15 jours réglé : échue depuis 5 jours → grâce');
-hq('UPDATE clients SET paid_until = ? WHERE id = ?', [date('Y-m-d', strtotime('-20 days')), $c['id']]);
-$l = hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]));
-check($l['status'] === 'expired' && !$l['ai'], 'échu depuis 20 jours : expiré, option IA coupée');
-hq("UPDATE clients SET paid_until = NULL, status = 'suspended' WHERE id = ?", [$c['id']]);
-check(hub_licence(hone('SELECT * FROM clients WHERE id = ?', [$c['id']]))['status'] === 'suspended', 'suspension manuelle');
-hq("UPDATE clients SET status = 'active' WHERE id = ?", [$c['id']]);
+check($c && (int)$c['active'] === 1 && str_starts_with($key, 'nlh_'), 'nouveau client : clé créée, accès actif');
+check(!function_exists('hub_licence') && !function_exists('hub_stripe') && !function_exists('hub_billing_summary'), 'licences, abonnements et paiements ne sont plus gérés par le centre d\'assistance (4.0)');
 
 echo "Clés\n";
 check(hub_client_from_key($key) !== null && hub_client_from_key('nlh_faux') === null, 'clé reconnue, fausse clé refusée');
@@ -85,25 +72,6 @@ hset('availability_mode', 'manual');
 hset('online', '0');
 check(!hub_status()['online'], 'mode manuel respecté');
 
-echo "FAQ partagée\n";
-check(hub_keywords('Comment imprimer une étiquette pour l\'étagère ?') === 'imprimer etiquette etagere', 'mots-clés tirés de la question (sans accents ni mots vides)');
-hq("INSERT INTO faq (app, question, answer, admin_only, active, created_at, updated_at) VALUES ('*', 'Question A', 'Réponse A', 1, 1, ?, ?), ('autre', 'Question B', 'Réponse B', 0, 1, ?, ?), ('centriva', 'Question C', 'Réponse C', 0, 0, ?, ?)", [hnow(), hnow(), hnow(), hnow(), hnow(), hnow()]);
-$f = hub_faq_for('centriva');
-check(count($f) === 1 && $f[0]['q'] === 'Question A' && $f[0]['admin'] === true, 'FAQ filtrée par application, questions inactives exclues');
-
-echo "Versions\n";
-$zipPath = $tmp . '/pkg.zip';
-$z = new ZipArchive();
-$z->open($zipPath, ZipArchive::CREATE);
-$z->addFromString('version.json', json_encode(['version' => '2.3.4', 'notes' => 'Nouveautés']));
-$z->addFromString('VERSION', '2.3.4');
-$z->close();
-check(hub_inspect_package($zipPath) === ['version' => '2.3.4', 'notes' => 'Nouveautés'], 'version et notes lues dans le paquet');
-foreach (['1.9.0', '1.10.0', '1.2.0'] as $ver) {
-    hq("INSERT INTO releases (app, version, notes, file, sha256, size, published, created_at) VALUES ('centriva', ?, '', 'x.zip', 'h', 1, 1, ?)", [$ver, hnow()]);
-}
-check(hub_latest_release('centriva')['version'] === '1.10.0', 'dernière version selon la numérotation (1.10.0 > 1.9.0)');
-
 echo "Mise à jour du centre\n";
 check(hub_update_allowed('views/inbox.php') && hub_update_allowed('vendor/autoload.php') && !hub_update_allowed('config.php') && !hub_update_allowed('data/x.sqlite') && !hub_update_allowed('../index.php'), 'fichiers remplaçables : code oui, config.php et data/ jamais');
 $pk = $tmp . '/maj.zip';
@@ -129,23 +97,12 @@ try {
     check(true, 'fichier non image refusé');
 }
 
-// Tutoriels vidéo
-$ch = hub_chapters_parse("0:00 Se connecter | connexion\n4:12 Réceptionner une livraison | colis\nbruit\n1:00:00 Fin");
-check(count($ch) === 3 && $ch[1]['t'] === 252 && $ch[1]['k'] === 'colis' && $ch[2]['t'] === 3600, 'chapitres de vidéo lus (m:ss, h:mm:ss)');
-check(hub_chapters_parse(hub_chapters_text($ch)) === $ch, 'chapitres : aller-retour texte ↔ données');
-hq('INSERT INTO videos (uid, app, title, keywords, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-    ['nl-1', '*', 'Tutoriel salarié', 'commander', json_encode($ch), 'all', 'nl-1.mp4', str_repeat('a', 64), 1000, 0, 1, hnow(), hnow()]);
+// Ancienne vidéo d'une autre application (données d'avant la 4.0, reprises par la console)
 hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
     ['nl-2', 'autreappli', 'Autre application', '[]', 'all', 'nl-2.mp4', str_repeat('b', 64), 1000, 0, 1, hnow(), hnow()]);
-hq('INSERT INTO videos (uid, app, title, chapters, audience, file, sha256, size, position, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-    ['nl-3', 'centriva', 'Brouillon', '[]', 'all', 'nl-3.mp4', str_repeat('c', 64), 1000, 0, 0, hnow(), hnow()]);
-hq("UPDATE videos SET welcome = 1 WHERE uid = 'nl-1'");
-$vids = hub_videos_for('centriva');
-check(count($vids) === 1 && $vids[0]['uid'] === 'nl-1' && $vids[0]['chapters'][1]['t'] === 252 && !isset($vids[0]['file']) && str_contains($vids[0]['k'], 'tutoriel') && $vids[0]['welcome'] === true,
-    'vidéos transmises : publiées, de l\'application, avec chapitres et mots-clés, sans chemin de fichier');
 
 echo "Comptes et applications (3.0)\n";
-check((bool)hub_app('centriva') && hub_app('centriva')['price_base'] == 39, 'application Centriva créée d\'office (tarifs 39 € + 15 €)');
+check((bool)hub_app('centriva'), 'application Centriva créée d\'office');
 check(hub_slug('Planning Soins à domicile') === 'planning-soins-a-domicile', 'identifiant technique déduit du nom');
 check(hub_valid_username('nicolas') && hub_valid_username('j.martin@nlapps.fr') && !hub_valid_username('ab') && !hub_valid_username('nom avec espace'), 'identifiants valides / refusés');
 hq('DELETE FROM users');
@@ -160,43 +117,6 @@ hub_migrate(hdb());
 check((int)hone('SELECT COUNT(*) n FROM users')['n'] === 1, 'migration rejouée sans effet (pas de doublon)');
 check((bool)hone("SELECT slug FROM apps WHERE slug = 'autreappli'"), 'application déjà utilisée par une vidéo ou un client ajoutée au menu');
 check(hone("SELECT id FROM users WHERE username = 'ADMIN'") !== null, 'identifiant insensible à la casse');
-
-echo "Paiement en ligne (3.2)\n";
-$key = hub_create_client('Clinique Paiement', 'https://paie.example');
-$pc = hub_client_from_key($key);
-hq("UPDATE clients SET app = 'centriva', ai_option = 1, paid_until = ? WHERE id = ?", [date('Y-m-d', strtotime('+3 days')), $pc['id']]);
-$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
-check(array_sum(array_column(hub_billing_lines($pc), 'amount')) === 5400 && count(hub_billing_lines($pc)) === 2, 'montant mensuel : 39 € + option IA 15 € HT');
-hset('billing_vat', '20');
-check(hub_billing_summary($pc)['monthly_ttc'] === 6480 && !hub_billing_summary($pc)['online'], 'résumé : 64,80 € TTC, paiement en ligne non configuré');
-$tok = hub_billing_token($pc);
-check(strlen($tok) === 40 && hub_client_by_billing_token($tok)['id'] === $pc['id'] && hub_client_by_billing_token(str_repeat('a', 40)) === null, 'lien de paiement personnel');
-$secret = 'whsec_test123';
-$payload = '{"id":"evt_1"}';
-$t = time();
-check(hub_stripe_verify($payload, 't=' . $t . ',v1=' . hash_hmac('sha256', $t . '.' . $payload, $secret), $secret), 'signature Stripe valide acceptée');
-check(!hub_stripe_verify($payload, 't=' . $t . ',v1=' . hash_hmac('sha256', $t . '.' . $payload, 'whsec_autre'), $secret), 'signature d\'un autre secret refusée');
-check(!hub_stripe_verify($payload, 't=' . ($t - 3600) . ',v1=' . hash_hmac('sha256', ($t - 3600) . '.' . $payload, $secret), $secret), 'événement trop ancien refusé (rejeu)');
-$cid = (string)$pc['id'];
-check(hub_billing_handle(['id' => 'evt_a', 'type' => 'checkout.session.completed', 'data' => ['object' => ['object' => 'checkout.session', 'client_reference_id' => $cid,
-    'customer' => 'cus_X', 'subscription' => 'sub_X', 'payment_method_types' => ['sepa_debit']]]]) === 'Abonnement en ligne souscrit', 'souscription enregistrée');
-$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
-check($pc['stripe_subscription'] === 'sub_X' && $pc['billing_method'] === 'sepa_debit' && hub_billing_active($pc), 'abonnement et prélèvement SEPA rattachés au client');
-$end = strtotime('+1 month +3 days');
-hub_billing_handle(['id' => 'evt_b', 'type' => 'invoice.paid', 'data' => ['object' => ['object' => 'invoice', 'subscription' => 'sub_X', 'amount_paid' => 6480,
-    'hosted_invoice_url' => 'https://invoice.example/1', 'lines' => ['data' => [['period' => ['start' => time(), 'end' => $end]]]]]]]);
-$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
-check($pc['paid_until'] === date('Y-m-d', $end) && hub_licence($pc)['status'] === 'active', 'paiement reçu : licence prolongée jusqu\'à la fin de la période payée');
-check(hub_billing_handle(['id' => 'evt_b', 'type' => 'invoice.paid', 'data' => ['object' => ['subscription' => 'sub_X', 'amount_paid' => 6480]]]) === 'déjà traité', 'même événement reçu deux fois : traité une seule fois');
-hub_billing_handle(['id' => 'evt_old', 'type' => 'invoice.paid', 'data' => ['object' => ['subscription' => 'sub_X', 'amount_paid' => 6480, 'lines' => ['data' => [['period' => ['end' => strtotime('-2 months')]]]]]]]);
-check(hone('SELECT paid_until FROM clients WHERE id = ?', [$pc['id']])['paid_until'] === date('Y-m-d', $end), 'une ancienne facture ne raccourcit jamais la licence');
-hub_billing_handle(['id' => 'evt_c', 'type' => 'invoice.payment_failed', 'data' => ['object' => ['customer' => 'cus_X', 'amount_due' => 6480]]]);
-check(hone('SELECT billing_status FROM clients WHERE id = ?', [$pc['id']])['billing_status'] === 'past_due', 'échec de paiement signalé');
-hub_billing_handle(['id' => 'evt_d', 'type' => 'customer.subscription.deleted', 'data' => ['object' => ['object' => 'subscription', 'id' => 'sub_X', 'metadata' => ['client_id' => $cid]]]]);
-$pc = hone('SELECT * FROM clients WHERE id = ?', [$pc['id']]);
-check($pc['billing_status'] === 'canceled' && !hub_billing_active($pc) && hub_licence($pc)['status'] === 'active', 'résiliation : paiements arrêtés, licence valable jusqu\'à la fin de la période payée');
-check(hub_billing_handle(['id' => 'evt_e', 'type' => 'invoice.paid', 'data' => ['object' => ['customer' => 'cus_inconnu']]]) === 'ignoré (client inconnu)', 'événement d\'un autre compte ignoré');
-check((int)hone('SELECT COUNT(*) n FROM billing_events WHERE client_id = ?', [$pc['id']])['n'] === 5, 'journal des paiements du client');
 
 echo "Changement de nom : Approvia devient Centriva (3.3)\n";
 $old = 'approv' . 'ia';

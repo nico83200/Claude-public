@@ -419,7 +419,7 @@ function settings_tabs(): array
         'ai' => ['Assistant IA', 'sparkles'],
         'mail' => ['E-mails et notifications', 'bell'],
         'subscription' => $platform ? ['Abonnement', 'euro'] : null,
-        'assistance' => $platform ? null : ['Licence et assistance', 'send'],
+        'assistance' => $platform ? null : ['Assistance NLapps', 'send'],
         'tasks' => $platform ? null : ['Tâches planifiées', 'clock'],
     ]);
 }

@@ -2,17 +2,18 @@
 declare(strict_types=1);
 
 /**
- * Licence NLapps : l'installation vérifie régulièrement auprès du centre d'assistance son abonnement, l'option IA,
- * la dernière version publiée et la FAQ partagée. Sans clé NLapps (installation autonome), rien n'est restreint.
+ * Licence Centriva : gérée par la console de la plateforme (super administrateurs) et lue directement par chaque espace.
+ * Une installation autonome (hors plateforme) n'a pas de licence : rien n'est restreint. Le centre d'assistance NLapps
+ * ne gère plus les licences (il ne sert qu'au chat).
  *
- * Statuts : unmanaged (pas de clé), active, grace (échéance passée, délai de grâce), expired, suspended, invalid (clé refusée).
+ * Statuts : unmanaged (hors plateforme), active, grace (échéance passée, délai de grâce), expired, suspended.
  */
 
 const LICENCE_CHECK_EVERY = 600; // 10 minutes : une licence expirée ou suspendue est appliquée sans délai
 
 function licence_managed(): bool
 {
-    return licence_platform() || support_live_enabled();
+    return licence_platform(); // hors plateforme : aucune licence (le centre d'assistance ne sert plus qu'au chat)
 }
 
 /** Espace de la plateforme multi-clients : la licence est gérée dans la console (aucun appel réseau). */
@@ -85,49 +86,7 @@ function licence_check(bool $force = false): array
     if (!licence_managed()) {
         return ['status' => 'unmanaged'];
     }
-    if (licence_platform()) {
-        return licence_info();
-    }
-    $cached = licence_info();
-    if (!$force && !empty($cached['checked_at']) && strtotime($cached['checked_at']) > time() - LICENCE_CHECK_EVERY) {
-        return $cached;
-    }
-    $r = support_hub('check', [], [
-        'app' => 'centriva', 'version' => APP_VERSION, 'url' => licence_instance_url(), 'php' => PHP_VERSION,
-        'stats' => licence_stats(), 'faq_hash' => (string)setting('faq_remote_hash', ''), 'videos_hash' => videos_remote_hash(),
-    ]);
-    if ($r === null) {
-        $code = support_hub_last_code();
-        $state = $cached;
-        if ($code === 401) {
-            $state = ['status' => 'invalid', 'checked_at' => now()];
-        }
-        $state['last_error'] = $code ? 'HTTP ' . $code : 'centre d\'assistance injoignable';
-        $state['last_attempt'] = now();
-        set_setting('licence_cache', json_encode($state, JSON_UNESCAPED_UNICODE));
-        return $state;
-    }
-    $lic = (array)($r['licence'] ?? []);
-    $state = [
-        'status' => in_array($lic['status'] ?? '', ['active', 'grace', 'expired', 'suspended'], true) ? $lic['status'] : 'active',
-        'plan' => (string)($lic['plan'] ?? ''), 'paid_until' => $lic['paid_until'] ?? null, 'grace_until' => $lic['grace_until'] ?? null,
-        'days_left' => isset($lic['days_left']) ? (int)$lic['days_left'] : null, 'ai' => !empty($lic['ai']),
-        'message' => (string)($lic['message'] ?? ''), 'contact' => (array)($lic['contact'] ?? []),
-        'latest' => is_array($r['latest'] ?? null) ? $r['latest'] : null,
-        'billing' => is_array($r['billing'] ?? null) ? array_intersect_key($r['billing'], array_flip(['online', 'active', 'status', 'status_label', 'method', 'next', 'monthly_ttc', 'pay_url'])) : null,
-        'checked_at' => now(),
-    ];
-    set_setting('licence_cache', json_encode($state, JSON_UNESCAPED_UNICODE));
-    if (isset($r['faq']['items']) && is_array($r['faq']['items'])) {
-        set_setting('faq_remote', json_encode($r['faq']['items'], JSON_UNESCAPED_UNICODE));
-        set_setting('faq_remote_hash', (string)($r['faq']['hash'] ?? ''));
-    }
-    // Tutoriels vidéo publiés par NLapps : liste mise à jour ici, fichiers téléchargés par la tâche planifiée « videos »
-    if (isset($r['videos']['items']) && is_array($r['videos']['items'])) {
-        videos_sync_remote($r['videos']['items']);
-        set_setting('videos_remote_hash', (string)($r['videos']['hash'] ?? ''));
-    }
-    return $state;
+    return licence_info();
 }
 
 /** L'option assistant IA est-elle couverte par la licence ? (toujours vrai sans clé NLapps) */
@@ -214,26 +173,4 @@ function licence_pay_url(): ?string
 function licence_autopay(): bool
 {
     return !empty(licence_info()['billing']['active']);
-}
-
-/** Télécharge la version proposée par le centre d'assistance et la prépare pour l'installation (vérification SHA-256). */
-function licence_download_update(string $dest): array
-{
-    $l = licence_update_available();
-    if (!$l) {
-        throw new RuntimeException('Aucune nouvelle version disponible.');
-    }
-    if (!licence_updates_allowed()) {
-        throw new RuntimeException('Licence non à jour : les mises à jour sont indisponibles.');
-    }
-    $code = support_hub_download('download', ['v' => $l['version']], $dest);
-    if ($code !== 200) {
-        @unlink($dest);
-        throw new RuntimeException('Téléchargement impossible (HTTP ' . $code . ').');
-    }
-    if (!empty($l['sha256']) && !hash_equals((string)$l['sha256'], (string)hash_file('sha256', $dest))) {
-        @unlink($dest);
-        throw new RuntimeException('Paquet corrompu pendant le téléchargement (empreinte différente) : réessayez.');
-    }
-    return $l;
 }

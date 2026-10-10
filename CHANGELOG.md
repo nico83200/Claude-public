@@ -1,5 +1,18 @@
 # Journal des versions
 
+## 1.28.0
+- **Une seule page de connexion** : le super administrateur se connecte sur la même page que tout le monde (centriva.fr ou la page de connexion d'un espace) et arrive dans l'administration de la plateforme, double authentification comprise.
+- **Paramètres en catégories** : sous-menu Identité, Règles de gestion, Sécurité, Assistant IA, E-mails et notifications, Abonnement (et Assistance NLapps hors plateforme), dans le menu et en onglets.
+- **Tâches planifiées réservées au super administrateur** sur la plateforme (cron commun à tous les clients, depuis la console) : la catégorie n'apparaît plus dans les espaces.
+- **Abonnement géré par chaque client** (*Paramètres → Abonnement*, administrateur) : formule, échéance, mensualité détaillée, paiement en ligne par carte ou prélèvement SEPA (Stripe), espace de gestion Stripe (moyen de paiement, factures), historique. **Abonnement expiré** : l'administrateur est conduit au paiement dès sa connexion et l'accès revient aussitôt pour tous ; les autres utilisateurs sont invités à le prévenir.
+- **Codes d'accès gratuit et bons de réduction** (console → Codes) : jours offerts, ou réduction en % ou en € HT par mois pendant N mois (ou sans limite), période de validité, nombre maximal d'utilisations, réservation à certains clients ; un code ne sert qu'une fois par client. La réduction s'applique au paiement en ligne (coupon Stripe), y compris à un abonnement déjà en place.
+- **Base SQL commune à tous les clients** (console → Base de données) : une seule base MySQL / MariaDB, chaque client y a ses propres tables préfixées par son identifiant (imss_users…) ; ses données ne sont jamais mêlées à celles des autres. Les nouveaux clients y sont créés ; un client existant y est transféré en un clic (copie complète, vérification table par table, ancienne base conservée). La suppression d'un client archive puis supprime ses seules tables.
+- **Licences centralisées dans la console Centriva** : le centre d'assistance NLapps ne gère plus aucune licence, version, FAQ ni vidéo. Hors plateforme, Centriva n'a plus de licence ; la clé de l'assistance ne sert qu'au chat.
+
+### Centre d'assistance NLapps 4.0.0
+- **Le chat seulement** : conversations, réponses rapides, suggestion IA, comptes, notifications. Les pages Parc clients, Versions, FAQ, Vidéos, Abonnements et les réglages de licence et de paiement sont retirés (les données d'avant restent lisibles par la console Centriva pour la reprise).
+- Nouvelle page **Accès au chat** : une clé par client (créées automatiquement pour les espaces Centriva). Les anciens liens de paiement mènent à la plateforme.
+
 ## 1.27.0
 - **Toute la gestion de Centriva dans la console des super administrateurs** (le centre d'assistance ne garde que les conversations en direct) :
   - **Abonnements** : licence de chaque client (formule, prix propre ou tarif de la plateforme, option IA, échéance « payé jusqu'au », suspension, message aux administrateurs), prolongation après un paiement reçu hors ligne, revenu mensuel, clients en paiement automatique, encaissé du mois, retards et échéances proches, journal des paiements avec les factures. Les espaces lisent leur licence directement, sans appel réseau : un changement s'applique immédiatement.

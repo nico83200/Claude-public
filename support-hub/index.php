@@ -1,19 +1,22 @@
 <?php
 declare(strict_types=1);
 
-/** Console NLapps : conversations mutualisées, puis pour chaque application gérée (sous-menu) : parc clients et licences, versions, FAQ, vidéos. */
+/**
+ * Centre d'assistance NLapps : conversations en direct avec les utilisateurs des applications NLapps.
+ * Licences, abonnements, versions, vidéos et FAQ sont gérés par la console de chaque application (Centriva : centriva.fr/console.php).
+ */
 require __DIR__ . '/lib.php';
 
-// Page de paiement d'un client (lien personnel, sans connexion à la console)
+// Anciens liens de paiement : le paiement se fait désormais depuis l'application (Centriva : Paramètres → Abonnement)
 if (isset($_GET['pay'])) {
-    // Client d'une application gérée par sa console : la page de paiement y est servie (même lien personnel)
     $pc = preg_match('/^[a-f0-9]{40}$/', (string)$_GET['pay']) ? hone('SELECT app FROM clients WHERE billing_token = ?', [(string)$_GET['pay']]) : null;
     if ($pc && ($cu = hub_app_console((string)$pc['app']))) {
         header('Location: ' . preg_replace('#/console\.php$#', '', $cu) . '/?paiement=' . rawurlencode((string)$_GET['pay']), true, 302);
         exit;
     }
-    require HUB . '/views/pay.php';
-    exit;
+    header('Content-Type: text/html; charset=utf-8');
+    exit('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Abonnement</title><body style="font-family:system-ui;padding:2rem;max-width:520px;margin:auto">'
+        . '<h1>Abonnement</h1><p>Le règlement de l\'abonnement se fait maintenant directement dans votre application : <b>Paramètres → Abonnement</b> (administrateur).</p></body>');
 }
 
 session_name('nlapps_hub');
@@ -122,35 +125,17 @@ $st = hub_status();
 $p = (string)($_GET['p'] ?? '');
 $isAdmin = $hubUser['role'] === 'admin';
 // Pages propres à chaque application (sous-menu de l'application) et pages générales
-$appPages = ['clients' => 'Parc clients', 'releases' => 'Versions', 'faq' => 'FAQ', 'videos' => 'Vidéos'];
-$generalPages = ['' => 'Conversations', 'billing' => 'Abonnements', 'apps' => 'Applications', 'users' => 'Comptes', 'settings' => 'Réglages', 'update' => 'Mise à jour', 'account' => 'Mon compte'];
-$adminOnly = ['clients', 'releases', 'apps', 'users', 'update', 'billing'];
-if (!isset($appPages[$p]) && !isset($generalPages[$p])) {
-    $p = '';
-}
-if (in_array($p, $adminOnly, true) && !$isAdmin) {
-    $p = '';
-}
-// Application courante : paramètre « app », sinon la dernière consultée (utile après un enregistrement de formulaire)
-$app = hub_app((string)($_GET['app'] ?? '')) ?? (isset($appPages[$p]) ? (hub_app((string)($_SESSION['app'] ?? '')) ?? (hub_apps()[0] ?? null)) : null);
-if ($app) {
-    $_SESSION['app'] = $app['slug'];
-}
-if (isset($appPages[$p]) && !$app) {
-    $p = 'apps';
-}
-// Application gérée par sa propre console : ses pages de gestion ne sont plus ici
-$managed = isset($appPages[$p]) && $app && hub_app_console($app['slug']);
-$hasLocal = (bool)hub_apps_local();
-if ($p === 'billing' && !$hasLocal) {
+$generalPages = ['' => 'Conversations', 'access' => 'Accès au chat', 'apps' => 'Applications', 'users' => 'Comptes', 'settings' => 'Réglages', 'update' => 'Mise à jour', 'account' => 'Mon compte'];
+$adminOnly = ['access', 'apps', 'users', 'update'];
+if (!isset($generalPages[$p]) || (in_array($p, $adminOnly, true) && !$isAdmin)) {
     $p = '';
 }
 $flashMsg = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
-$title = $managed ? $app['name'] : (isset($appPages[$p]) ? $appPages[$p] . ' · ' . $app['name'] : $generalPages[$p]);
+$title = $generalPages[$p];
 page_head($title);
 $unread = (int)(hone("SELECT COALESCE(SUM(unread),0) n FROM conversations WHERE status <> 'closed'")['n'] ?? 0);
-$link = fn(string $page, ?string $slug = null) => 'index.php' . ($page !== '' ? '?p=' . $page . ($slug ? '&app=' . rawurlencode($slug) : '') : '');
+$link = fn(string $page) => 'index.php' . ($page !== '' ? '?p=' . $page : '');
 $auto = hsetting('availability_mode', 'manual') === 'auto';
 ?>
 <div class="shell">
@@ -169,20 +154,14 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
   <nav>
     <div class="nav-title">Support</div>
     <a href="index.php" class="<?= $p === '' ? 'act' : '' ?>">💬 Conversations <i class="badge" data-unread <?= $unread ? '' : 'hidden' ?>><?= $unread ?></i></a>
+    <?php if ($isAdmin): ?><a href="<?= $link('access') ?>" class="<?= $p === 'access' ? 'act' : '' ?>">🔑 Accès au chat</a><?php endif; ?>
     <div class="nav-title">Applications</div>
-    <?php foreach (hub_apps() as $a): $cur = $app && $app['slug'] === $a['slug'] && isset($appPages[$p]); ?>
-      <details class="appnav" <?= $cur || count(hub_apps()) <= 3 ? 'open' : '' ?>>
-        <summary><span class="dot" style="background:<?= h($a['color']) ?>"></span><?= h($a['name']) ?></summary>
-        <?php if (!empty($a['console_url'])): ?>
-          <a href="<?= h($a['console_url']) ?>" target="_blank" rel="noopener" title="Clients, licences, abonnements, versions, vidéos et FAQ">Console de gestion ↗</a>
-        <?php else: foreach ($appPages as $k => $label): if (in_array($k, $adminOnly, true) && !$isAdmin) continue; ?>
-          <a href="<?= $link($k, $a['slug']) ?>" class="<?= $cur && $p === $k ? 'act' : '' ?>"><?= h($label) ?></a>
-        <?php endforeach; endif; ?>
-      </details>
+    <?php foreach (hub_apps() as $a): ?>
+      <?php if (!empty($a['console_url'])): ?><a href="<?= h($a['console_url']) ?>" target="_blank" rel="noopener" title="Clients, abonnements, versions, vidéos et FAQ : console de l'application"><span class="dot" style="background:<?= h($a['color']) ?>"></span> <?= h($a['name']) ?> ↗</a>
+      <?php else: ?><span class="navtext"><span class="dot" style="background:<?= h($a['color']) ?>"></span> <?= h($a['name']) ?></span><?php endif; ?>
     <?php endforeach; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('apps') ?>" class="sub <?= $p === 'apps' ? 'act' : '' ?>">＋ Gérer les applications</a><?php endif; ?>
     <div class="nav-title">Administration</div>
-    <?php if ($isAdmin && $hasLocal): ?><a href="<?= $link('billing') ?>" class="<?= $p === 'billing' ? 'act' : '' ?>">💳 Abonnements</a><?php endif; ?>
     <?php if ($isAdmin): ?><a href="<?= $link('users') ?>" class="<?= $p === 'users' ? 'act' : '' ?>">👥 Comptes</a><?php endif; ?>
     <a href="<?= $link('settings') ?>" class="<?= $p === 'settings' ? 'act' : '' ?>">⚙️ Réglages</a>
     <?php if ($isAdmin): ?><a href="<?= $link('update') ?>" class="<?= $p === 'update' ? 'act' : '' ?>">⬆️ Mise à jour <small>v<?= h(hub_version()) ?></small></a><?php endif; ?>
@@ -197,18 +176,12 @@ $auto = hsetting('availability_mode', 'manual') === 'auto';
 <div class="content">
 <?php
 $flashHtml = $flashMsg ? '<div class="flash ' . ($flashMsg['err'] ? 'err' : '') . '">' . h($flashMsg['msg']) . '</div>' : '';
-if ($managed) {
-    echo '<main class="wrap">' . $flashHtml . '<h1>' . h($app['name']) . '</h1><div class="card"><p>Les clients, licences, abonnements, versions, vidéos et la FAQ de ' . h($app['name'])
-        . ' se gèrent désormais dans sa console de gestion. Ce centre d\'assistance garde les conversations avec ses utilisateurs.</p>'
-        . '<p><a class="btn primary" href="' . h(hub_app_console($app['slug'])) . '" target="_blank" rel="noopener">Ouvrir la console ↗</a></p></div></main>';
-} else {
-    require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
-}
+require __DIR__ . '/views/' . ($p === '' ? 'inbox' : $p) . '.php';
 ?>
 </div>
 </div>
 <script>window.HUB = <?= json_encode(['csrf' => $csrf, 'vapid' => (function () { try { return hub_vapid()['public']; } catch (Throwable) { return null; } })()]) ?>;</script>
-<script src="assets/hub.js?v=5"></script>
+<script src="assets/hub.js?v=6"></script>
 <?php
 page_foot();
 
@@ -218,7 +191,7 @@ function page_head(string $title): void
 <title><?= h($title) ?> · Assistance NLapps</title>
 <link rel="icon" href="assets/nlapps-mark.svg"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon-192.png">
 <meta name="theme-color" content="#1e1b4b"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/hub.css?v=5"></head><body><?php
+<link rel="stylesheet" href="assets/hub.css?v=6"></head><body><?php
 }
 
 function page_foot(): void

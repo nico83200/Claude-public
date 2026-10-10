@@ -10,15 +10,10 @@ declare(strict_types=1);
  *   POST api.php?a=send   {id, token, text}
  *   GET  api.php?a=poll&id=&token=&after=
  *   POST api.php?a=close  {id, token}
- *   POST api.php?a=check  {app, version, url, php, stats:{users,centers}, faq_hash}  → licence, dernière version, FAQ partagée, tutoriels vidéo
- *   GET  api.php?a=download&v=1.2.3                                                  → paquet de mise à jour (licence valide)
+ *   POST api.php?a=check  {app, version, url, php}                                    → disponibilité (licences, versions, FAQ et vidéos : console de l'application)
  *   POST api.php?a=attach {id, token, data (image en base64), text}                   → capture d'écran jointe
  *   GET  api.php?a=file&id=&token=&f=                                                 → image d'une conversation
  *   POST api.php?a=rate   {id, token, rating (1-5), comment}                          → satisfaction après clôture
- *   GET  api.php?a=video&id=…                                                         → fichier d'un tutoriel vidéo (licence à jour)
- *   GET  api.php?a=faq                                                                → FAQ partagée seule
- *   POST api.php?a=billing                                                            → lien de la page de paiement (abonnement en ligne)
- *   POST api.php?a=stripe                                                             → webhook Stripe (signature vérifiée, sans clé)
  *
  * Console de la plateforme Centriva (en-tête X-Console-Key, clé de liaison créée dans Réglages → Console Centriva) :
  *   POST api.php?a=console_link    {app, console_url}         → l'application est désormais gérée par la console (pages masquées ici)
@@ -30,12 +25,6 @@ require __DIR__ . '/lib.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
-
-// Notifications de paiement envoyées par Stripe : authentifiées par leur signature, pas par une clé client
-if (($_GET['a'] ?? '') === 'stripe') {
-    require HUB . '/views/stripe-webhook.php';
-    exit;
-}
 
 function out(array $data, int $code = 200): never
 {
@@ -72,8 +61,8 @@ if (str_starts_with((string)($_GET['a'] ?? ''), 'console_')) {
             }
             unset($c);
             out([
-                'settings' => ['price_base' => (float)$a['price_base'], 'price_ai' => (float)$a['price_ai'], 'vat' => hub_vat_rate(), 'grace_days' => hub_grace_days(),
-                    'operator_name' => (string)hcfg('operator_name'), 'operator_email' => (string)hcfg('notify_email'), 'stripe_secret_key' => hub_stripe_key()],
+                'settings' => ['price_base' => (float)$a['price_base'], 'price_ai' => (float)$a['price_ai'], 'vat' => (float)str_replace(',', '.', (string)hsetting('billing_vat', '20')), 'grace_days' => (int)hsetting('grace_days', '0'),
+                    'operator_name' => (string)hcfg('operator_name'), 'operator_email' => (string)hcfg('notify_email'), 'stripe_secret_key' => trim((string)(hsetting('stripe_secret_key') ?: hcfg('stripe_secret_key') ?: ''))],
                 'releases' => hall('SELECT id, version, notes, sha256, size, published, created_at FROM releases WHERE app = ? ORDER BY id', [$app]),
                 'videos' => hall("SELECT id, uid, title, description, keywords, chapters, audience, sha256, size, duration, position, published, welcome, created_at FROM videos WHERE app IN ('*', ?) ORDER BY position, id", [$app]),
                 'faq' => hall("SELECT id, question, keywords, answer, link_label, link_route, admin_only, active FROM faq WHERE app IN ('*', ?) ORDER BY id", [$app]),
@@ -222,77 +211,14 @@ switch ($a) {
         out(['ok' => true]);
 
     case 'faq':
-        out(['items' => hub_faq_for((string)($client['app'] ?: 'centriva'))]);
+        out(['items' => []]); // FAQ partagée : gérée par la console de chaque application
 
     case 'check':
-        // Inventaire du parc : version installée, adresse, statistiques d'usage (sans donnée personnelle)
-        $app = hub_app_slug(preg_replace('/[^a-z0-9_-]/', '', strtolower((string)($in['app'] ?? $client['app'] ?? 'centriva'))) ?: 'centriva');
-        hq('UPDATE clients SET app = ?, app_version = ?, instance_url = ?, php_version = ?, stats = ?, last_check = ? WHERE id = ?', [
-            $app, $str($in['version'] ?? '', 30), $str($in['url'] ?? '', 255), $str($in['php'] ?? '', 20),
-            json_encode(array_map('intval', array_slice((array)($in['stats'] ?? []), 0, 10))), hnow(), $client['id'],
+        // Installations antérieures : la licence, les versions, la FAQ et les vidéos ne viennent plus d'ici (console de l'application)
+        hq('UPDATE clients SET app_version = ?, instance_url = ?, php_version = ?, last_check = ? WHERE id = ?', [
+            $str($in['version'] ?? '', 30), $str($in['url'] ?? '', 255), $str($in['php'] ?? '', 20), hnow(), $client['id'],
         ]);
-        $client = hone('SELECT * FROM clients WHERE id = ?', [$client['id']]);
-        $lic = hub_licence($client);
-        $latest = hub_latest_release($app);
-        $faq = hub_faq_for($app);
-        $faqHash = substr(sha1(json_encode($faq)), 0, 16);
-        $videos = hub_videos_for($app);
-        $videosHash = substr(sha1(json_encode($videos)), 0, 16);
-        out([
-            'licence' => $lic,
-            'latest' => $latest ? ['version' => $latest['version'], 'notes' => $latest['notes'], 'date' => substr($latest['created_at'], 0, 10),
-                'size' => (int)$latest['size'], 'sha256' => $latest['sha256'], 'downloadable' => in_array($lic['status'], ['active', 'grace'], true)] : null,
-            'faq' => ['hash' => $faqHash] + (($in['faq_hash'] ?? '') !== $faqHash ? ['items' => $faq] : []),
-            'videos' => ['hash' => $videosHash] + (($in['videos_hash'] ?? '') !== $videosHash ? ['items' => $videos] : []),
-            'billing' => hub_billing_summary($client),
-            'status' => hub_status(),
-        ]);
-
-    case 'billing':
-        if (!hub_stripe_ready()) {
-            out(['error' => 'Le paiement en ligne n\'est pas ouvert : contactez ' . hcfg('operator_name') . '.'], 409);
-        }
-        out(['url' => hub_pay_url($client)] + hub_billing_summary($client));
-
-    case 'download':
-        $lic = hub_licence($client);
-        if (!in_array($lic['status'], ['active', 'grace'], true)) {
-            out(['error' => 'Licence ' . ($lic['status'] === 'suspended' ? 'suspendue' : 'expirée') . ' : mise à jour indisponible. Contactez ' . hcfg('operator_name') . '.'], 402);
-        }
-        $r = hone('SELECT * FROM releases WHERE app = ? AND version = ? AND published = 1', [$client['app'] ?: 'centriva', (string)($_GET['v'] ?? '')]);
-        $path = $r ? hub_releases_dir() . '/' . basename($r['file']) : '';
-        if (!$r || !is_file($path)) {
-            out(['error' => 'Version introuvable.'], 404);
-        }
-        header_remove('Content-Type');
-        header('Content-Type: application/zip');
-        header('Content-Length: ' . filesize($path));
-        header('X-Sha256: ' . $r['sha256']);
-        header('Content-Disposition: attachment; filename="' . $r['app'] . '-' . $r['version'] . '.zip"');
-        readfile($path);
-        exit;
-
-    case 'video':
-        // Tutoriel vidéo, téléchargé une fois par chaque installation (en arrière-plan)
-        $lic = hub_licence($client);
-        if (!in_array($lic['status'], ['active', 'grace'], true)) {
-            out(['error' => 'Licence non à jour.'], 402);
-        }
-        $v = hone("SELECT * FROM videos WHERE uid = ? AND published = 1 AND (app = '*' OR app = ?)", [(string)($_GET['id'] ?? ''), $client['app'] ?: 'centriva']);
-        $path = $v ? hub_videos_dir() . '/' . basename($v['file']) : '';
-        if (!$v || !is_file($path)) {
-            out(['error' => 'Vidéo introuvable.'], 404);
-        }
-        @set_time_limit(0);
-        header_remove('Content-Type');
-        header('Content-Type: video/mp4');
-        header('Content-Length: ' . filesize($path));
-        header('X-Sha256: ' . $v['sha256']);
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-        readfile($path);
-        exit;
+        out(['status' => hub_status()]);
 
     default:
         out(['error' => 'Action inconnue.'], 400);

@@ -46,47 +46,13 @@ Une seule console pour toutes vos applications : les **conversations** sont comm
 - **＋ FAQ** depuis une conversation : prépare une question de la FAQ partagée avec votre réponse.
 - **Notifications sur le téléphone** : ouvrez la console sur le téléphone, « Ajouter à l'écran d'accueil », puis Réglages → Notifications → « Activer sur cet appareil ». Aussi : e-mail et ntfy (au plus une alerte toutes les 3 minutes par conversation).
 
+## Version 4.0 : le chat seulement
+
+Le centre d'assistance ne gère plus ni licences, ni abonnements, ni paiements, ni versions, ni vidéos, ni FAQ : tout cela est centralisé dans la console de la plateforme Centriva (super administrateurs). Il garde les conversations, les réponses rapides, la suggestion IA, les comptes, les notifications et la page **Accès au chat** (une clé par client ; celles des espaces Centriva sont créées par la console).
+
 ## Console Centriva (version 3.5)
 
 Centriva est désormais géré par la console de sa plateforme (centriva.fr/console.php) : clients, licences, abonnements Stripe, versions, vidéos et FAQ. Dans **Réglages → Console Centriva**, créez la clé de liaison et collez-la dans la console (menu Assistance, avec l'adresse de `api.php`), puis lancez « Reprendre l'historique ». Les pages de gestion de Centriva disparaissent alors d'ici ; seules les conversations restent. Pensez à remplacer, dans Stripe, l'adresse du webhook par celle indiquée dans la console (Abonnements).
-
-## Licences
-
-| État | Effet dans l'application du client |
-|---|---|
-| Active | Tout fonctionne. Bandeau d'information pour l'administrateur 15 jours avant l'échéance. |
-| Échue, délai de grâce (si vous en réglez un dans Réglages → Licences) | Tout fonctionne, bandeau d'avertissement avec la date de coupure. |
-| Expirée (le lendemain de l'échéance, ou après le délai de grâce) | **Accès coupé immédiatement** : tous les utilisateurs sont déconnectés et ne peuvent plus se connecter (page « Licence expirée » avec vos coordonnées). Les données sont conservées. |
-| Suspendue (manuel) | Même effet, à tout moment. |
-
-« Prolonger » ajoute 1, 3 ou 12 mois ; l'accès revient dès que le client clique sur « Vérifier à nouveau » (ou dans les 10 minutes). Sans date d'échéance, la licence est permanente. L'installation vérifie sa licence toutes les 10 minutes et contrôle aussi elle-même la date d'échéance ; une coupure réseau ne coupe pas l'accès d'une licence à jour.
-
-## Paiement en ligne des abonnements (version 3.2)
-
-Vos clients règlent leur abonnement par **carte bancaire** ou **prélèvement SEPA**, sur une page sécurisée par Stripe : NLapps ne voit jamais les numéros de carte ni les IBAN.
-
-1. Créez un compte Stripe et activez le prélèvement SEPA (Paramètres → Moyens de paiement) et le portail client (Paramètres → Facturation → Portail client).
-2. Dans **Réglages → Paiement en ligne** : collez la clé secrète (`sk_live_…`, ou `sk_test_…` pour essayer), puis déclarez le webhook indiqué (`…/api.php?a=stripe`) dans Stripe et collez son secret (`whsec_…`). Taux de TVA : 20 % par défaut. « Tester la connexion » vérifie la clé.
-3. Chaque client a un **lien de paiement personnel** (Parc clients → Gérer → Paiement en ligne), à copier ou à envoyer par e-mail. L'administrateur du client trouve aussi le bouton **« Payer en ligne » / « Gérer mon abonnement »** dans Centriva (Paramètres → Licence), et dans les bandeaux d'échéance.
-
-Le montant mensuel est calculé automatiquement : tarif de l'application + option IA si elle est cochée, plus la TVA. Une période déjà réglée est conservée : le premier prélèvement a lieu à son échéance.
-
-**Chaque paiement reçu prolonge la licence** jusqu'à la fin de la période payée. Un échec de paiement vous est signalé (notification + e-mail) et Stripe relance automatiquement ; sans régularisation, la licence échoit comme d'habitude (délai de grâce, puis coupure). Une résiliation arrête les paiements, la licence court jusqu'à la fin de la période payée. Le parc clients indique pour chacun le mode de paiement et la prochaine échéance, avec le journal des paiements et le lien vers chaque facture.
-
-## Versions
-
-**Versions → Publier** : déposez le paquet de mise à jour (ex. `centriva-1.12.0.zip`, produit par `php tools/build-update.php`). La version et les notes sont lues dans le paquet. Les installations sous licence active la voient dans un bandeau et la page *Mises à jour*, la téléchargent (empreinte SHA-256 vérifiée) et l'installent avec sauvegarde automatique et retour arrière possible. « Retirer » la rend invisible.
-
-## Tutoriels vidéo
-
-**Vidéos → Publier une vidéo** : déposez le fichier MP4 (H.264), un titre, des mots-clés et les chapitres, un par ligne :
-
-```
-0:00 Se connecter et se repérer | connexion menu centre
-4:12 Réceptionner une livraison | réception colis livré scanner
-```
-
-Les installations reçoivent la liste à leur prochaine vérification de licence (moins de 10 minutes) et téléchargent la vidéo en arrière-plan (empreinte vérifiée). Le chatbot propose ensuite la vidéo et ouvre directement le chapitre qui répond à la question. Les chapitres et mots-clés se modifient à tout moment sans renvoyer la vidéo. Cochez **« Vidéo d'accueil des salariés »** pour qu'elle s'ouvre en fenêtre à la connexion des salariés de chaque installation (jusqu'à ce qu'ils cochent « Ne plus afficher »). Taille d'envoi : limitée par `upload_max_filesize` et `post_max_size` (à augmenter chez l'hébergeur au besoin).
 
 ## Brancher vos autres applications NLapps
 

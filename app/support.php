@@ -34,24 +34,11 @@ function support_faq(): array
     return array_merge(support_faq_builtin(), support_faq_remote());
 }
 
-/** Questions partagées par NLapps depuis le centre d'assistance (synchronisées avec la licence). */
+/** Questions partagées par NLapps (console de la plateforme). */
 function support_faq_remote(): array
 {
-    if (licence_platform()) {
-        return platform_faq_for_chatbot(); // FAQ partagée gérée dans la console de la plateforme
-    }
-    $items = json_decode((string)setting('faq_remote', ''), true);
-    if (!is_array($items)) {
-        return [];
-    }
-    $out = [];
-    foreach ($items as $f) {
-        if (!empty($f['q']) && !empty($f['a'])) {
-            $link = is_array($f['link'] ?? null) && count($f['link']) === 2 ? [(string)$f['link'][0], (string)$f['link'][1]] : null;
-            $out[] = [(string)$f['q'], (string)($f['k'] ?? ''), (string)$f['a'], $link, !empty($f['admin'])];
-        }
-    }
-    return $out;
+    // FAQ partagée gérée dans la console de la plateforme ; hors plateforme, pas de FAQ distante
+    return licence_platform() ? platform_faq_for_chatbot() : [];
 }
 
 /** Questions intégrées à l'application. */

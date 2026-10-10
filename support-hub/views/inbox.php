@@ -39,7 +39,7 @@ $first = $conv ? explode(' ', trim((string)$conv['user_name']))[0] : '';
         <div><b><?= h($conv['user_name'] ?: 'Utilisateur') ?></b> <small class="muted"><?= h($conv['user_role']) ?></small> <span class="tag <?= $stt[1] ?>" data-status-tag><?= h($stt[0]) ?></span>
           <?php if ($conv['rating'] !== null): ?><span class="stars" title="<?= h((string)$conv['rating_comment']) ?>"><?= str_repeat('★', (int)$conv['rating']) . str_repeat('☆', 5 - (int)$conv['rating']) ?></span><?php endif; ?><br>
           <small><?= count(hub_apps()) > 1 ? h(hub_app_name((string)$conv['app'])) . ' · ' : '' ?><?= h($conv['client']) ?><?= $conv['center'] ? ' · ' . h($conv['center']) : '' ?><?= $conv['user_email'] ? ' · ' . h($conv['user_email']) : '' ?></small></div>
-        <a class="btn sm" href="index.php?p=faq&app=<?= h(rawurlencode((string)$conv['app'])) ?>&from=<?= $cid ?>" title="Transformer la réponse en question de la FAQ partagée">＋ FAQ</a>
+        <?php if ($cu = hub_app_console((string)$conv['app'])): ?><a class="btn sm" href="<?= h($cu) ?>?p=faq" target="_blank" rel="noopener" title="La FAQ partagée se gère dans la console de l'application">FAQ ↗</a><?php endif; ?>
         <form method="post" class="row" style="gap:.4rem">
           <?= csrf_input() ?><input type="hidden" name="c" value="<?= $cid ?>"><input type="hidden" name="action" value="set_status">
           <?php if ($conv['status'] !== 'pending' && $conv['status'] !== 'closed'): ?><button class="btn sm" name="status" value="pending" title="Vous attendez une réponse ou une action de l'utilisateur">En attente</button><?php endif; ?>

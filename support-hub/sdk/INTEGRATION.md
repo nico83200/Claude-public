@@ -15,8 +15,8 @@ Navigateur de l'utilisateur  ──►  Serveur de votre application (relais)  �
 ```
 
 - **La clé API reste sur le serveur** de l'application. Le navigateur n'appelle jamais `api.php` directement : il appelle une route de votre application (le « relais »), qui vérifie que l'utilisateur est connecté puis appelle le centre d'assistance.
-- **Une clé = un client** (une installation de votre application chez un client). Elle est créée dans la console : *Applications → [votre application] → Parc clients → Nouveau client*. Elle commence par `nlh_` et n'est affichée qu'une fois.
-- La même clé sert aussi à la **licence**, aux **mises à jour**, à la **FAQ partagée** et aux **tutoriels vidéo** (section 6). Le chat ne demande que les sections 2 à 5.
+- **Une clé = un client** (une installation de votre application chez un client). Elle est créée dans la console : *Accès au chat → Nouvel accès* (ou automatiquement par la console de l'application, pour Centriva). Elle commence par `nlh_` et n'est affichée qu'une fois.
+- Depuis la version 4.0, le centre d'assistance ne gère plus ni licence, ni mises à jour, ni FAQ, ni vidéos : chaque application les gère dans sa propre console. La clé ne sert qu'au chat (sections 2 à 5).
 
 ## 2. Appels HTTP
 
@@ -157,23 +157,9 @@ Voir `examples/relay.php` pour un relais complet de 60 lignes.
 
 Côté navigateur, le parcours recommandé (celui de Centriva) : une bulle « Aide » → le chatbot ou la FAQ de l'application répond d'abord → bouton « Parler à un conseiller » → ouverture de la conversation (`open`, avec la transcription du chatbot) → suivi toutes les 4 secondes → à la clôture, note et transcription envoyée par e-mail par le centre d'assistance. Le widget `nlapps-chat.js` fournit cette interface prête à l'emploi.
 
-## 6. Licence, mises à jour, FAQ et vidéos (facultatif pour le chat)
+## 6. Licence, mises à jour, FAQ et vidéos
 
-`POST api.php?a=check`, toutes les 10 minutes (tâche planifiée) :
-
-```json
-{ "app": "mon-appli", "version": "2.3.0", "url": "https://achats.client.fr/", "php": "8.2", "stats": { "users": 12 }, "faq_hash": "", "videos_hash": "" }
-```
-
-- `app` : **identifiant technique** de l'application, tel que défini dans la console (*Gérer les applications*). Il range le client dans le bon sous-menu.
-- Réponse :
-  - `licence` = `{ status: active|grace|expired|suspended, plan, paid_until, grace_until, days_left, ai, message, contact }` : couper l'accès à l'application si `status` vaut `expired` ou `suspended` ;
-  - `latest` = dernière version publiée `{ version, notes, date, size, sha256, downloadable }` ;
-  - `faq` et `videos` = `{ hash, items? }` : les `items` ne sont renvoyés que si le `hash` envoyé a changé ;
-  - `status` = disponibilité de l'équipe.
-- `GET api.php?a=download&v=2.4.0` : paquet de mise à jour (zip). Vérifier son empreinte SHA-256 avec `latest.sha256`.
-- `GET api.php?a=video&id=<uid>` : fichier d'un tutoriel vidéo (MP4), à télécharger une fois puis à servir localement.
-- `GET api.php?a=faq` : FAQ partagée seule.
+Retirés du centre d'assistance en version 4.0 : ils se gèrent dans la console de chaque application (pour Centriva : la console de la plateforme, avec abonnements, codes et paiement en ligne). `api.php?a=check` répond encore (disponibilité seulement) pour les installations qui l'appellent toujours.
 
 ## 7. Règles à respecter (liste de contrôle)
 

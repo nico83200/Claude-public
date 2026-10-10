@@ -52,7 +52,7 @@ details.edit[open] { background: #f8fafc; border-radius: 10px; padding: .4rem .6
 .side { width: 250px; flex: none; background: #1e1b4b; color: #fff; display: flex; flex-direction: column; gap: .7rem; padding: 1rem .8rem; overflow-y: auto; }
 .side .brand, .mbar .brand { color: #fff; display: flex; align-items: center; gap: .55rem; font-weight: 600; }
 .side nav { display: flex; flex-direction: column; gap: .1rem; flex: 1; }
-.side nav a, .appnav summary { color: rgba(255,255,255,.78); padding: .45rem .65rem; border-radius: 9px; display: flex; align-items: center; gap: .5rem; font-size: .93rem; }
+.side nav a, .appnav summary, .side nav .navtext { color: rgba(255,255,255,.78); padding: .45rem .65rem; border-radius: 9px; display: flex; align-items: center; gap: .5rem; font-size: .93rem; }
 .side nav a:hover, .appnav summary:hover { background: rgba(255,255,255,.07); color: #fff; }
 .side nav a.act { background: rgba(255,255,255,.16); color: #fff; font-weight: 600; }
 .side nav a .badge { margin-left: auto; }

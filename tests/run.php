@@ -196,34 +196,15 @@ stock_move($c1, $sp3, 5, 'ajout');
 stock_set_alert($c1, $sp3, 2);
 check(($l3 = $findLine()) && (int)$l3['stock_qty'] === 5 && (int)$l3['stock_alert'] === 2, 'article suivi : stock et seuil du centre joints à la ligne');
 
-section('Licence NLapps et FAQ partagée');
-check(licence_status() === 'unmanaged' && licence_ai_allowed() && !licence_blocked() && licence_notice() === null, 'sans clé NLapps : aucune restriction');
+section('Licence hors plateforme');
+check(licence_status() === 'unmanaged' && licence_ai_allowed() && !licence_blocked() && licence_notice() === null, 'installation autonome : aucune restriction');
 set_setting('support_hub_url', 'https://hub.example/api.php');
 set_setting('support_hub_key', encrypt_secret('nlh_abcdefabcdefabcdefabcdef'));
-$setLic = fn(array $l) => set_setting('licence_cache', json_encode($l + ['checked_at' => now()]));
-$setLic(['status' => 'active', 'ai' => false, 'paid_until' => date('Y-m-d', strtotime('+60 days')), 'days_left' => 60]);
-check(!licence_ai_allowed() && licence_updates_allowed() && licence_notice() === null, 'licence active sans option IA : assistant IA coupé, mises à jour possibles');
-$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('+5 days')), 'days_left' => 5]);
-check(licence_ai_allowed() && (licence_notice()['level'] ?? '') === 'info', 'échéance proche : bandeau d\'information pour l\'administrateur');
-$setLic(['status' => 'grace', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-3 days')), 'grace_until' => date('Y-m-d', strtotime('+12 days'))]);
-check(licence_ai_allowed() && licence_updates_allowed() && (licence_notice()['level'] ?? '') === 'warn', 'délai de grâce : tout reste actif, avertissement');
-$setLic(['status' => 'expired', 'ai' => true]);
-check(!licence_ai_allowed() && !licence_updates_allowed() && licence_blocked(), 'licence expirée : accès au logiciel coupé');
-$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-1 day')), 'grace_until' => date('Y-m-d', strtotime('-1 day'))]);
-check(licence_status() === 'expired' && licence_blocked(), 'échéance dépassée détectée localement, sans attendre la vérification (coupure immédiate)');
-$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d'), 'grace_until' => date('Y-m-d')]);
-check(licence_status() === 'active' && !licence_blocked(), 'jour de l\'échéance encore couvert');
-$setLic(['status' => 'active', 'ai' => true, 'paid_until' => date('Y-m-d', strtotime('-2 days')), 'grace_until' => date('Y-m-d', strtotime('+3 days'))]);
-check(licence_status() === 'grace' && !licence_blocked(), 'délai de grâce accordé par NLapps respecté');
-$setLic(['status' => 'suspended']);
-check(licence_blocked() && (licence_notice()['level'] ?? '') === 'danger', 'accès suspendu par NLapps');
-$setLic(['status' => 'active', 'ai' => true, 'latest' => ['version' => '99.0.0', 'sha256' => 'x']]);
-check((licence_update_available()['version'] ?? '') === '99.0.0', 'nouvelle version publiée détectée');
-$setLic(['status' => 'active', 'ai' => true, 'latest' => ['version' => APP_VERSION]]);
-check(licence_update_available() === null, 'version déjà installée : rien à proposer');
-set_setting('faq_remote', json_encode([['q' => 'Comment exporter la comptabilité ?', 'k' => 'export comptable compta fec', 'a' => 'Menu Exports.', 'link' => ['Exports', 'admin/exports'], 'admin' => true]]));
-check(count(support_faq()) === count(support_faq_builtin()) + 1 && support_match('export comptable', true)[0]['title'] === 'Comment exporter la comptabilité ?', 'question partagée par NLapps connue du chatbot');
-check(!support_match('export comptable', false) || support_match('export comptable', false)[0]['title'] !== 'Comment exporter la comptabilité ?', 'question partagée réservée aux administrateurs respectée');
+set_setting('licence_cache', json_encode(['status' => 'expired', 'checked_at' => now()]));
+check(support_live_enabled() && licence_status() === 'unmanaged' && !licence_blocked() && licence_update_available() === null,
+    'clé du centre d\'assistance : chat seulement, plus aucune licence ni version venant de l\'assistance');
+set_setting('faq_remote', json_encode([['q' => 'Ancienne question', 'k' => 'ancienne', 'a' => 'x', 'link' => null, 'admin' => false]]));
+check(count(support_faq()) === count(support_faq_builtin()), 'ancienne FAQ reçue de l\'assistance ignorée');
 check(licence_stats()['centers'] > 0 && isset(licence_stats()['users']), 'statistiques d\'usage sans donnée personnelle');
 set_setting('support_hub_url', null); set_setting('support_hub_key', null); set_setting('licence_cache', null); set_setting('faq_remote', null);
 
@@ -792,7 +773,7 @@ $GLOBALS['central_backup'] !== null ? file_put_contents(central_dir('superadmins
 check(central_video_rows() === [] || instances_enabled(), 'vidéos communes réservées au mode multi-clients');
 
 section('Console de la plateforme : licences, abonnements, FAQ');
-$pfFiles = ['settings.json', 'licences.json', 'faq.json', 'billing-events.json', 'releases.json'];
+$pfFiles = ['settings.json', 'licences.json', 'faq.json', 'billing-events.json', 'releases.json', 'codes.json'];
 $pfBackup = [];
 foreach ($pfFiles as $pf) {
     $pfBackup[$pf] = is_file(central_dir($pf)) ? file_get_contents(central_dir($pf)) : null;
@@ -831,6 +812,30 @@ check(count($fb) === 1 && $fb[0][3] === ['Catalogue', 'catalog'] && str_contains
 platform_release_record(['version' => '9.9.0', 'notes' => 'a']);
 platform_release_record(['version' => '9.9.0', 'notes' => 'b', 'file' => null]);
 check(count(platform_releases()) === 1 && platform_releases()[0]['notes'] === 'b', 'historique des versions sans doublon');
+platform_licence_save('cli', ['paid_until' => date('Y-m-d', strtotime('-3 days')), 'stripe_customer' => null, 'price_base' => null, 'discount' => null]);
+platform_code_save(['code' => 'essai 30', 'kind' => 'free', 'days' => 30, 'valid_until' => date('Y-m-d', strtotime('+1 month'))]);
+check(platform_code_find('ESSAI30') !== null && platform_code_problem(platform_code_find('essai30'), 'cli') === null, 'code normalisé (majuscules, sans espace) et utilisable');
+platform_code_redeem('cli', 'essai30', 'Test');
+check(platform_licence_row('cli')['paid_until'] === date('Y-m-d', strtotime('+30 days')), 'accès gratuit : 30 jours à partir d\'aujourd\'hui (échéance passée)');
+check(platform_code_problem(platform_code_find('ESSAI30'), 'cli') !== null, 'un code ne sert qu\'une fois par client');
+platform_code_save(['code' => 'VIEUX', 'kind' => 'free', 'days' => 10, 'valid_until' => date('Y-m-d', strtotime('-1 day'))]);
+platform_code_save(['code' => 'UNSEUL', 'kind' => 'free', 'days' => 10, 'max_uses' => 1]);
+platform_code_redeem('autre', 'UNSEUL', 'Test');
+platform_code_save(['code' => 'RESERVE', 'kind' => 'free', 'days' => 10, 'only' => ['autre']]);
+check(platform_code_problem(platform_code_find('VIEUX'), 'cli') !== null && platform_code_problem(platform_code_find('UNSEUL'), 'cli') !== null
+    && platform_code_problem(platform_code_find('RESERVE'), 'cli') !== null && platform_code_problem(platform_code_find('INCONNU'), 'cli') !== null,
+    'codes expiré, épuisé, réservé à un autre client ou inconnu refusés');
+platform_code_save(['code' => 'MOINS20', 'kind' => 'discount', 'percent' => 20, 'months' => 3]);
+platform_code_redeem('cli', 'MOINS20', 'Test');
+check(platform_monthly_ttc('cli') === (int)round((3900 + 1500) * 0.8 * 1.2) && platform_discount('cli')['code'] === 'MOINS20', 'réduction de 20 % appliquée à la mensualité');
+platform_licence_save('cli', ['discount' => ['applied_at' => date('Y-m-d', strtotime('-4 months'))] + platform_licence_row('cli')['discount']]);
+check(platform_discount('cli') === null && platform_monthly_ttc('cli') === (int)round((3900 + 1500) * 1.2), 'réduction terminée après sa durée (3 mois)');
+try {
+    platform_code_save(['code' => 'X1', 'kind' => 'discount']);
+    check(false, 'code de réduction sans montant refusé');
+} catch (RuntimeException) {
+    check(true, 'code de réduction sans montant refusé');
+}
 foreach ($pfBackup as $pf => $data) {
     $data !== null ? file_put_contents(central_dir($pf), $data) : @unlink(central_dir($pf));
 }

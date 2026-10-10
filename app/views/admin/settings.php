@@ -113,10 +113,10 @@
 <?php if ($tab === 'assistance'): ?>
   <form method="post" class="card" id="assistance">
     <?= csrf_field() ?><input type="hidden" name="action" value="support_hub"><input type="hidden" name="tab" value="assistance">
-    <div class="card-head"><h2><?= icon('send') ?> Licence et assistance NLapps</h2>
+    <div class="card-head"><h2><?= icon('send') ?> Assistance NLapps</h2>
       <?php if (licence_platform()): ?><span class="badge badge-green">Gérée par NLapps</span><?php elseif ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
     <div class="card-body">
-      <p class="muted" style="font-size:.9rem;margin-top:0<?= licence_platform() ? ';display:none' : '' ?>">La clé fournie par NLapps active votre licence, les mises à jour en un clic, les réponses partagées du chatbot et la conversation en direct avec l'équipe (« Parler à un conseiller »). Collez simplement les deux lignes reçues.</p>
+      <p class="muted" style="font-size:.9rem;margin-top:0<?= licence_platform() ? ';display:none' : '' ?>">La clé fournie par NLapps active la conversation en direct avec l'équipe (« Parler à un conseiller »). Collez simplement les deux lignes reçues.</p>
       <?php $li = licence_info(); if (($li['status'] ?? '') !== 'unmanaged'): $lt = ['active' => ['Active', 'green'], 'grace' => ['Échue · délai de grâce', 'amber'], 'expired' => ['Expirée', 'red'], 'suspended' => ['Suspendue', 'red'], 'invalid' => ['Clé refusée', 'red'], 'unknown' => ['Pas encore vérifiée', 'gray']][$li['status'] ?? 'unknown'] ?? ['?', 'gray']; ?>
         <div class="licence-box mb-2">
           <div><small class="muted">Licence</small><div><span class="badge badge-<?= $lt[1] ?>"><?= $lt[0] ?></span> <?= !empty($li['plan']) ? e($li['plan']) : '' ?></div></div>
