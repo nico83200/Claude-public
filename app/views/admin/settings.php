@@ -1,11 +1,14 @@
-<div class="page-head"><h1>Paramètres</h1><div class="row">
+<?php $tab = settings_tab(); $show = fn(string $t) => $tab === $t ? '' : ' hidden'; ?>
+<div class="page-head"><h1>Paramètres <small class="muted" style="font-size:1rem;font-weight:500">· <?= e(settings_tabs()[$tab][0]) ?></small></h1><div class="row">
   <?php if (setting('onboarding_hidden', '0') === '1'): ?><form method="post" action="<?= url('admin/onboarding') ?>"><?= csrf_field() ?><button class="btn" type="submit"><?= icon('sparkles', 18) ?> Réafficher le guide de démarrage</button></form><?php endif; ?>
   <a class="btn" href="<?= url('admin/rgpd') ?>"><?= icon('lock', 18) ?> Fiche RGPD et sécurité</a></div></div>
+<nav class="settings-tabs"><?php foreach (settings_tabs() as $tk => [$tl, $ti]): ?><a class="<?= $tab === $tk ? 'active' : '' ?>" href="<?= $tk === 'subscription' ? url('admin/subscription') : url('admin/settings', ['tab' => $tk]) ?>"><?= icon($ti, 16) ?> <?= e($tl) ?></a><?php endforeach; ?></nav>
 <?php if ($test): ?><div class="flash flash-<?= $test['ok'] ? 'success' : 'error' ?>"><?= icon($test['ok'] ? 'sparkles' : 'alert') ?><div><?= e($test['msg']) ?></div></div><?php endif; ?>
-<div class="grid grid-2">
-  <form method="post" class="card" enctype="multipart/form-data" id="general">
-    <?= csrf_field() ?>
-    <div class="card-head"><h2><?= icon('settings') ?> Général</h2></div>
+<?php if (in_array($tab, ['general', 'rules', 'security', 'ai'], true)): ?>
+<form method="post" enctype="multipart/form-data" id="general"><?= csrf_field() ?><input type="hidden" name="tab" value="<?= e($tab) ?>">
+  <!-- Un seul formulaire pour ces catégories : les champs des autres onglets restent présents (masqués) et sont conservés -->
+  <section class="card"<?= $show('general') ?>>
+    <div class="card-head"><h2><?= icon('building') ?> Identité</h2></div>
     <div class="card-body">
       <div class="field">
         <label>Logo de l'entreprise</label>
@@ -25,19 +28,30 @@
       <div class="field"><label>Message d'accueil des centres</label><input type="text" name="welcome_message" value="<?= e(setting('welcome_message')) ?>" placeholder="De quoi avez-vous besoin aujourd'hui ?"></div>
       <label class="check"><input type="checkbox" name="show_prices" value="1" <?= setting('show_prices', '1') === '1' ? 'checked' : '' ?>> Afficher les prix aux salariés</label>
       <label class="check"><input type="checkbox" name="allow_registration" value="1" <?= setting('allow_registration', '1') === '1' ? 'checked' : '' ?>> Autoriser les demandes de compte en ligne</label>
+    </div>
+  </section>
+  <section class="card"<?= $show('security') ?>>
+    <div class="card-head"><h2><?= icon('lock') ?> Sécurité</h2></div>
+    <div class="card-body">
       <label class="check"><input type="checkbox" name="admin_2fa_required" value="1" <?= admin_2fa_required() ? 'checked' : '' ?>> Exiger la double authentification pour les administrateurs</label>
-      <hr>
-      <h3><?= icon('activity', 18) ?> Règles de gestion</h3>
+      <p class="muted" style="font-size:.9rem">Les comptes, la double authentification de chacun et le journal des connexions se gèrent dans <a href="<?= url('admin/users') ?>">Comptes</a> et <a href="<?= url('admin/audit') ?>">Journal d'audit</a>. La fiche RGPD résume les mesures de sécurité de Centriva.</p>
+    </div>
+  </section>
+  <section class="card"<?= $show('rules') ?>>
+    <div class="card-head"><h2><?= icon('activity') ?> Règles de gestion</h2></div>
+    <div class="card-body">
       <div class="form-grid">
         <div class="field"><label>Validation par le responsable au-delà de (€ HT)</label><input type="text" name="approval_threshold" value="<?= e(str_replace('.', ',', setting('approval_threshold', '0'))) ?>"><small>0 = pas de validation. Ne s'applique qu'aux centres ayant un « responsable de centre ».</small></div>
         <div class="field"><label>Livraison en retard après (jours)</label><input type="number" min="1" name="late_days" value="<?= e(setting('late_days', '10')) ?>"><small>Ou dès la date de livraison prévue dépassée.</small></div>
         <div class="field"><label>Tolérance d'écart facture (€)</label><input type="text" name="invoice_tolerance" value="<?= e(str_replace('.', ',', setting('invoice_tolerance', '1'))) ?>"></div>
         <div class="field"><label>Conservation des sauvegardes (jours)</label><input type="number" min="3" name="backup_keep_days" value="<?= e(setting('backup_keep_days', '30')) ?>"></div>
       </div>
-      <label class="check"><input type="checkbox" name="pseudo_cron" value="1" <?= setting('pseudo_cron', '1') === '1' ? 'checked' : '' ?>> Exécuter les tâches de fond pendant l'utilisation de l'application (si aucune tâche cron n'est programmée)</label>
-
-      <hr>
-      <h3><?= icon('sparkles', 18) ?> Assistant de recherche IA (Claude)</h3>
+      <?php if (!licence_platform()): ?><label class="check"><input type="checkbox" name="pseudo_cron" value="1" <?= setting('pseudo_cron', '1') === '1' ? 'checked' : '' ?>> Exécuter les tâches de fond pendant l'utilisation de l'application (si aucune tâche cron n'est programmée)</label><?php else: ?><input type="hidden" name="pseudo_cron" value="<?= setting('pseudo_cron', '1') === '1' ? '1' : '0' ?>"><?php endif; ?>
+    </div>
+  </section>
+  <section class="card"<?= $show('ai') ?>>
+    <div class="card-head"><h2><?= icon('sparkles') ?> Assistant de recherche IA (Claude)</h2></div>
+    <div class="card-body">
       <div class="chips mb-2">
         <span class="badge <?= $sdk ? 'badge-green' : 'badge-red' ?>">SDK <?= $sdk ? 'installé' : 'absent (lancer composer install)' ?></span>
         <span class="badge <?= $hasKey ? 'badge-green' : 'badge-amber' ?>">Clé API <?= $hasKey ? 'configurée' : 'non configurée' ?></span>
@@ -69,9 +83,12 @@
       </div>
       <small class="muted">Seuls les noms, catégories, mots-clés et descriptifs des articles sont transmis — aucune donnée patient ni personnelle. Les réponses sont mises en cache 7 jours.</small>
     </div>
-    <div class="card-foot"><button class="btn btn-primary" type="submit"><?= icon('check', 18) ?> Enregistrer</button></div>
-  </form>
-  <div class="stack">
+  </section>
+  <div class="row mb-2"><button class="btn btn-primary" type="submit"><?= icon('check', 18) ?> Enregistrer</button></div>
+</form>
+<?php endif; ?>
+<?php if ($tab === 'ai'): ?>
+<div class="grid grid-2">
     <form method="post" class="card">
       <?= csrf_field() ?><input type="hidden" name="action" value="test_ai">
       <div class="card-head"><h2><?= icon('sparkles') ?> Tester l'assistant</h2></div>
@@ -91,9 +108,11 @@
       <p class="muted" style="font-size:.9rem">La clé saisie dans « Général » est chiffrée dans la base de données avec une clé propre à votre installation (<code>storage/secret.key</code>, hors d'atteinte depuis le web) et n'est jamais réaffichée en clair. Chaque modification est tracée dans le journal d'audit. Ordre de priorité : clé des paramètres, puis <code>config.php</code>, puis variable d'environnement <code>ANTHROPIC_API_KEY</code>.</p>
       <p class="muted mb-0" style="font-size:.9rem">⚠️ Conservez une copie de <code>storage/secret.key</code> avec vos sauvegardes : sans elle, les clés enregistrées devront être ressaisies après une restauration sur un autre serveur.</p>
     </div>
-  </div>
-  <form method="post" class="card" style="grid-column:1/-1" id="assistance">
-    <?= csrf_field() ?><input type="hidden" name="action" value="support_hub">
+</div>
+<?php endif; ?>
+<?php if ($tab === 'assistance'): ?>
+  <form method="post" class="card" id="assistance">
+    <?= csrf_field() ?><input type="hidden" name="action" value="support_hub"><input type="hidden" name="tab" value="assistance">
     <div class="card-head"><h2><?= icon('send') ?> Licence et assistance NLapps</h2>
       <?php if (licence_platform()): ?><span class="badge badge-green">Gérée par NLapps</span><?php elseif ($hub['source'] !== 'none'): ?><span class="badge badge-green">Activée<?= $hub['source'] === 'config' ? ' (config.php)' : '' ?></span><?php else: ?><span class="badge badge-gray">Non configurée</span><?php endif; ?></div>
     <div class="card-body">
@@ -135,8 +154,10 @@
     </div>
   </form>
       <?php endif; ?>
-  <form method="post" class="card" style="grid-column:1/-1" id="mail">
-    <?= csrf_field() ?><input type="hidden" name="action" value="notifications">
+<?php endif; ?>
+<?php if ($tab === 'mail'): ?>
+  <form method="post" class="card" id="mail">
+    <?= csrf_field() ?><input type="hidden" name="action" value="notifications"><input type="hidden" name="tab" value="mail">
     <div class="card-head"><h2><?= icon('bell') ?> Notifications &amp; e-mails</h2></div>
     <div class="card-body">
       <div style="max-width:900px">
@@ -185,10 +206,27 @@
       <button class="btn" type="submit" name="action" value="test_mail"><?= icon('mail', 18) ?> M'envoyer un e-mail de test</button>
     </div>
   </form>
-  <div class="card" style="grid-column:1/-1">
-    <div class="card-head"><h2><?= icon('clock') ?> Tâches planifiées &amp; file d'e-mails</h2></div>
-    <div class="card-body grid grid-2">
-      <div>
+  <div class="card">
+    <div class="card-head"><h2><?= icon('mail') ?> File d'e-mails</h2></div>
+    <div class="card-body">
+        <?php $mq = one('SELECT SUM(CASE WHEN sent_at IS NULL AND attempts < 5 THEN 1 ELSE 0 END) AS waiting, SUM(CASE WHEN sent_at IS NULL AND attempts >= 5 THEN 1 ELSE 0 END) AS failed, SUM(CASE WHEN sent_at IS NOT NULL THEN 1 ELSE 0 END) AS sent FROM mail_queue'); ?>
+        <div class="chips mb-2">
+          <span class="badge badge-amber"><?= (int)$mq['waiting'] ?> e-mail(s) en attente</span>
+          <span class="badge <?= (int)$mq['failed'] ? 'badge-red' : 'badge-gray' ?>"><?= (int)$mq['failed'] ?> en échec</span>
+          <span class="badge badge-green"><?= (int)$mq['sent'] ?> envoyé(s) (30 j)</span>
+        </div>
+        <?php $err = one('SELECT last_error, to_email FROM mail_queue WHERE sent_at IS NULL AND last_error IS NOT NULL ORDER BY id DESC LIMIT 1'); if ($err): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 16) ?><div>Dernière erreur (<?= e($err['to_email']) ?>) : <?= e($err['last_error']) ?></div></div><?php endif; ?>
+      <form method="post" action="<?= url('admin/mail-queue') ?>" class="row row-wrap">
+        <?= csrf_field() ?>
+        <button class="btn" type="submit" name="action" value="retry"><?= icon('repeat', 16) ?> Relancer les e-mails en attente</button>
+      </form>
+    </div>
+  </div>
+<?php endif; ?>
+<?php if ($tab === 'tasks'): ?>
+  <div class="card">
+    <div class="card-head"><h2><?= icon('clock') ?> Tâches planifiées</h2></div>
+    <div class="card-body">
         <p class="muted" style="font-size:.9rem">Envoi des e-mails, rappels la veille des dates limites, relance des livraisons en retard, sauvegarde quotidienne et nettoyage. Pour une exécution régulière, programmez chez votre hébergeur (toutes les 5 à 15 minutes) :</p>
         <div class="field"><label>Commande (cron)</label><input type="text" readonly value="php <?= e(ROOT) ?>/cron.php" onclick="this.select()"></div>
         <div class="field"><label>ou URL à appeler</label><input type="text" readonly value="<?= e(app_base_url() . 'cron.php?key=' . setting('cron_key')) ?>" onclick="this.select()"></div>
@@ -197,21 +235,10 @@
             <li style="padding:.4rem 0"><div class="grow"><?= e($t['label']) ?></div><small class="muted"><?= $last ? 'dernière exécution ' . date('d/m H:i', $last) : 'jamais' ?></small></li>
           <?php endforeach; ?>
         </ul>
-      </div>
-      <div>
-        <?php $mq = one('SELECT SUM(CASE WHEN sent_at IS NULL AND attempts < 5 THEN 1 ELSE 0 END) AS waiting, SUM(CASE WHEN sent_at IS NULL AND attempts >= 5 THEN 1 ELSE 0 END) AS failed, SUM(CASE WHEN sent_at IS NOT NULL THEN 1 ELSE 0 END) AS sent FROM mail_queue'); ?>
-        <div class="chips mb-2">
-          <span class="badge badge-amber"><?= (int)$mq['waiting'] ?> e-mail(s) en attente</span>
-          <span class="badge <?= (int)$mq['failed'] ? 'badge-red' : 'badge-gray' ?>"><?= (int)$mq['failed'] ?> en échec</span>
-          <span class="badge badge-green"><?= (int)$mq['sent'] ?> envoyé(s) (30 j)</span>
-        </div>
-        <?php $err = one('SELECT last_error, to_email FROM mail_queue WHERE sent_at IS NULL AND last_error IS NOT NULL ORDER BY id DESC LIMIT 1'); if ($err): ?><div class="flash flash-error" style="font-size:.85rem"><?= icon('alert', 16) ?><div>Dernière erreur (<?= e($err['to_email']) ?>) : <?= e($err['last_error']) ?></div></div><?php endif; ?>
-        <form method="post" action="<?= url('admin/mail-queue') ?>" class="row row-wrap">
-          <?= csrf_field() ?>
-          <button class="btn" type="submit" name="action" value="retry"><?= icon('repeat', 16) ?> Relancer les e-mails en attente</button>
-          <button class="btn" type="submit" name="action" value="run"><?= icon('check-circle', 16) ?> Exécuter toutes les tâches maintenant</button>
-        </form>
-      </div>
+      <form method="post" action="<?= url('admin/mail-queue') ?>" class="row row-wrap">
+        <?= csrf_field() ?>
+        <button class="btn" type="submit" name="action" value="run"><?= icon('check-circle', 16) ?> Exécuter toutes les tâches maintenant</button>
+      </form>
     </div>
   </div>
-</div>
+<?php endif; ?>

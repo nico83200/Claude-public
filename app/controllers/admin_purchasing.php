@@ -501,9 +501,10 @@ function admin_mail_queue(): void
         q('UPDATE mail_queue SET attempts = 0, last_error = NULL WHERE sent_at IS NULL');
         $n = mail_queue_process(30);
         flash('success', plural($n, 'e-mail envoyé', 'e-mails envoyés') . '.');
-    } elseif (input('action') === 'run') {
+    } elseif (input('action') === 'run' && !licence_platform()) { // plateforme : tâches planifiées réservées au super administrateur
         $r = cron_run(true);
         flash('success', 'Tâches exécutées : ' . implode(' · ', array_map(fn($k, $v) => (CRON_TASKS[$k]['label'] ?? $k) . ' : ' . (is_scalar($v) ? $v : json_encode($v)), array_keys($r), $r)));
+        redirect('admin/settings', ['tab' => 'tasks']);
     }
-    redirect('admin/settings');
+    redirect('admin/settings', ['tab' => 'mail']);
 }

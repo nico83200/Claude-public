@@ -404,3 +404,28 @@ function palette(): array
 {
     return ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6'];
 }
+
+/**
+ * Catégories de la page Paramètres (sous-menu). Sur la plateforme multi-clients, l'abonnement remplace la clé NLapps
+ * et les tâches planifiées sont réservées au super administrateur (console).
+ */
+function settings_tabs(): array
+{
+    $platform = function_exists('licence_platform') && licence_platform();
+    return array_filter([
+        'general' => ['Identité', 'building'],
+        'rules' => ['Règles de gestion', 'activity'],
+        'security' => ['Sécurité', 'lock'],
+        'ai' => ['Assistant IA', 'sparkles'],
+        'mail' => ['E-mails et notifications', 'bell'],
+        'subscription' => $platform ? ['Abonnement', 'euro'] : null,
+        'assistance' => $platform ? null : ['Licence et assistance', 'send'],
+        'tasks' => $platform ? null : ['Tâches planifiées', 'clock'],
+    ]);
+}
+
+function settings_tab(): string
+{
+    $t = (string)($_GET['tab'] ?? $_POST['tab'] ?? 'general');
+    return isset(settings_tabs()[$t]) ? $t : 'general';
+}

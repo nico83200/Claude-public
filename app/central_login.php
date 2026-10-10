@@ -15,6 +15,10 @@ header('X-Frame-Options: DENY');
 $dir = instance_web_dir();
 $post = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
 $mode = isset($_GET['oubli']) ? 'forgot' : 'login';
+// Double authentification du super administrateur (venant de la page de connexion d'un espace)
+if (isset($_GET['code']) && ($p = $_SESSION['super_pending'] ?? null) && time() - (int)$p['at'] < 300) {
+    $mode = 'code';
+}
 $error = null;
 $info = null;
 $email = '';

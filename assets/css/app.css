@@ -789,3 +789,11 @@ body:has(.bulk-bar:not([hidden])) .help-fab { bottom: 5.2rem; }
 .ob-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; flex-shrink: 0; color: #fff; }
 .onboarding-steps li.done .ob-check { background: #10b981; border-color: #10b981; }
 @media (max-width: 640px) { .onboarding-steps li { flex-wrap: wrap; } .onboarding-steps li > div { flex-basis: calc(100% - 2.5rem); } .onboarding-steps li .btn { margin-left: 2.4rem; } }
+
+/* Sous-menu des Paramètres (catégories) */
+.nav-sub { margin: -.1rem 0 .35rem 1.6rem; border-left: 1px solid rgba(255,255,255,.14); }
+.nav .nav-sub a { padding: .32rem .7rem; font-size: .85rem; opacity: .85; }
+.nav .nav-sub a.active { opacity: 1; box-shadow: inset 2px 0 0 #a5b4fc; background: rgba(99,102,241,.22); }
+.settings-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin: 0 0 1rem; }
+.settings-tabs a { padding: .4rem .8rem; border-radius: 999px; border: 1px solid var(--border); color: var(--text); font-size: .88rem; text-decoration: none; background: var(--surface); }
+.settings-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }

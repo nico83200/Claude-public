@@ -267,3 +267,24 @@ function central_video_rows(): array
     }
     return $rows;
 }
+
+/**
+ * Super administrateur reconnu sur la page de connexion d'un espace : on quitte la session de l'espace et on ouvre
+ * celle de la plateforme (avec la double authentification si elle est activée), puis direction l'administration.
+ */
+function central_superadmin_enter(array $a): never
+{
+    session_write_close();
+    session_name('nlconsole');
+    session_id(preg_match('/^[a-zA-Z0-9,-]{22,256}$/', (string)($_COOKIE['nlconsole'] ?? '')) ? (string)$_COOKIE['nlconsole'] : session_create_id());
+    central_session();
+    if (!empty($a['totp'])) {
+        session_regenerate_id(true);
+        $_SESSION['super_pending'] = ['id' => $a['id'], 'at' => time()];
+        header('Location: ' . instance_web_dir() . '/?code=1', true, 303);
+        exit;
+    }
+    central_superadmin_login($a);
+    header('Location: ' . instance_web_dir() . '/console.php', true, 303);
+    exit;
+}

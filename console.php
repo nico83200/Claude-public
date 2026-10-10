@@ -96,6 +96,10 @@ if (!superadmins()) {
         }
     }
     $page = 'setup';
+} elseif (!$logged && instances_enabled() && !is_file(ROOT . '/config.php') && !$post) {
+    // Une seule page de connexion pour tout le monde (centriva.fr) : le super administrateur y est reconnu
+    header('Location: ' . instance_web_dir() . '/?changer=1');
+    exit;
 } elseif (!$logged) {
     // ------------------------------------------------------------- Connexion
     if ($post && isset($_POST['totp']) && ($p = $_SESSION['super_pending'] ?? null) && time() - (int)$p['at'] < 300 && ($a = superadmin_get((string)$p['id']))) {

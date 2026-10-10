@@ -324,7 +324,7 @@ function admin_settings(): void
             $ok = send_mail((string)user()['email'], 'Test d\'envoi — ' . app_name(),
                 mail_template(user(), 'Test d\'envoi réussi', 'Si vous lisez ce message, les notifications par e-mail fonctionnent.', url('admin/settings')));
             flash($ok ? 'success' : 'error', $ok ? 'E-mail de test envoyé à ' . user()['email'] . '. Vérifiez aussi les courriers indésirables.' : 'Échec de l\'envoi : vérifiez la configuration SMTP ou la fonction mail() de l\'hébergement (voir journaux PHP).');
-            redirect('admin/settings');
+            redirect('admin/settings', ['tab' => settings_tab()]);
         } elseif (input('action') === 'notifications') {
             set_setting('mail_enabled', input('mail_enabled') === '1' ? '1' : '0');
             foreach (['mail_from', 'mail_from_name', 'smtp_host', 'smtp_port', 'smtp_user', 'app_url'] as $k) {
@@ -348,14 +348,14 @@ function admin_settings(): void
             }
             audit('Paramètres de notification modifiés', 'settings');
             flash('success', 'Paramètres de notification enregistrés.');
-            redirect('admin/settings');
+            redirect('admin/settings', ['tab' => settings_tab()]);
         } elseif (input('action') === 'support_hub') {
             admin_support_hub_save();
-            redirect('admin/settings');
+            redirect('admin/settings', ['tab' => settings_tab()]);
         } elseif (input('action') === 'clear_ai_cache') {
             q('DELETE FROM ai_cache');
             flash('success', 'Cache de l\'assistant IA vidé.');
-            redirect('admin/settings');
+            redirect('admin/settings', ['tab' => settings_tab()]);
         } else {
             try {
                 if (input('logo_remove') === '1') {
@@ -407,7 +407,7 @@ function admin_settings(): void
             set_setting('pseudo_cron', input('pseudo_cron') === '1' ? '1' : '0');
             audit('Paramètres généraux modifiés', 'settings');
             flash('success', 'Paramètres enregistrés.');
-            redirect('admin/settings');
+            redirect('admin/settings', ['tab' => settings_tab()]);
         }
     }
     render('admin/settings', [

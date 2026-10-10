@@ -94,7 +94,10 @@ $notifN = $u ? unread_notifications((int)$u['id']) : 0;
       <div class="nav-title">Organisation</div>
       <a class="<?= $active('admin/centers', 'admin/center') ?>" href="<?= url('admin/centers') ?>"><?= icon('building') ?> Centres</a>
       <a class="<?= $active('admin/users', 'admin/user') ?>" href="<?= url('admin/users') ?>"><?= icon('users') ?> Comptes <?php if ($usersN): ?><span class="count"><?= $usersN ?></span><?php endif; ?></a>
-      <a class="<?= $active('admin/settings') ?>" href="<?= url('admin/settings') ?>"><?= icon('settings') ?> Paramètres</a>
+      <a class="<?= $active('admin/settings', 'admin/subscription') ?>" href="<?= url('admin/settings') ?>"><?= icon('settings') ?> Paramètres</a>
+      <?php if (in_array($r ?? '', ['admin/settings', 'admin/subscription'], true)): $curTab = ($r ?? '') === 'admin/subscription' ? 'subscription' : settings_tab(); ?>
+        <div class="nav-sub"><?php foreach (settings_tabs() as $tk => [$tl, $ti]): ?><a class="<?= $curTab === $tk ? 'active' : '' ?>" href="<?= $tk === 'subscription' ? url('admin/subscription') : url('admin/settings', ['tab' => $tk]) ?>"><?= e($tl) ?></a><?php endforeach; ?></div>
+      <?php endif; ?>
       <a class="<?= $active('admin/audit') ?>" href="<?= url('admin/audit') ?>"><?= icon('shield') ?> Journal d'audit</a>
       <a class="<?= $active('admin/transfer') ?>" href="<?= url('admin/transfer') ?>"><?= icon('refresh') ?> Export et import</a>
       <a class="<?= $active('admin/cleanup') ?>" href="<?= url('admin/cleanup') ?>"><?= icon('trash') ?> Nettoyage des données<?php if (demo_present()): ?> <span class="count">démo</span><?php endif; ?></a>

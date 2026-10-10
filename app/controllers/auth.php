@@ -18,6 +18,10 @@ function auth_login(): void
             audit('Connexion bloquée', 'user', null, $email);
         } else {
             $u = one('SELECT * FROM users WHERE email = ?', [$email]);
+            // Plateforme : le super administrateur se connecte sur la même page que tout le monde
+            if ((!$u || !password_verify($password, $u['password_hash'])) && instances_enabled() && ($sa = superadmin_find($email)) && password_verify($password, (string)$sa['hash'])) {
+                central_superadmin_enter($sa);
+            }
             if (!$u || !password_verify($password, $u['password_hash'])) {
                 login_record($email, false);
                 $error = 'Identifiants incorrects.';
