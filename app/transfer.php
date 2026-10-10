@@ -95,7 +95,7 @@ function transfer_export(string $password, bool $withFiles): string
             continue;
         }
         try {
-            $st = db()->query("SELECT * FROM $t");
+            $st = db()->query(db_sql("SELECT * FROM $t"));
         } catch (Throwable) {
             continue;
         }
@@ -212,7 +212,7 @@ function transfer_import(string $path, string $password): array
         // 1. Toutes les données de cette installation sont effacées (sauf ce qui lui est propre)
         foreach (db_tables() as $t) {
             if (!in_array($t, ['update_history', 'videos'], true)) {
-                $pdo->exec("DELETE FROM $t");
+                $pdo->exec(db_sql("DELETE FROM $t"));
             }
         }
         // 2. Données de l'archive (colonnes inconnues ignorées : export d'une version plus ancienne ou plus récente)

@@ -445,6 +445,25 @@ if ($logged && $post) {
                 console_flash('ok', 'Code supprimé (les avantages déjà accordés sont conservés).');
                 console_go('codes');
 
+            // ----------------------------------------------------- Base commune
+            case 'shared_db':
+                $d = ['host' => trim((string)($_POST['host'] ?? '')) ?: 'localhost', 'port' => (int)($_POST['port'] ?? 3306) ?: 3306,
+                    'name' => trim((string)($_POST['name'] ?? '')), 'user' => trim((string)($_POST['user'] ?? '')),
+                    'pass' => (string)($_POST['pass'] ?? '') !== '' ? (string)$_POST['pass'] : (string)(platform_shared_db()['pass'] ?? '')];
+                if ($d['name'] === '') {
+                    throw new RuntimeException('Indiquez le nom de la base commune.');
+                }
+                $pdo = platform_shared_db_pdo($d);
+                $ver = (string)$pdo->query('SELECT VERSION()')->fetchColumn();
+                platform_settings_save(['shared_db' => $d]);
+                console_flash('ok', 'Base commune enregistrée (' . $d['name'] . ' sur ' . $d['host'] . ', serveur ' . $ver . ') : les nouveaux clients y sont créés.');
+                console_go('db');
+
+            case 'db_move':
+                $r = instance_db_move_to_shared($slug);
+                console_flash('ok', '« ' . instances_registry()[$slug]['name'] . ' » transféré dans la base commune : ' . $r['tables'] . ' tables, ' . $r['rows'] . ' lignes vérifiées (préfixe ' . $r['prefix'] . '). Son ancienne base n\'a pas été modifiée.');
+                console_go('db');
+
             // ----------------------------------------------------- Versions
             case 'release_notes':
                 platform_release_record(['version' => (string)($_POST['version'] ?? ''), 'notes' => trim((string)($_POST['notes'] ?? ''))]);
@@ -494,7 +513,7 @@ if ($logged && $post) {
         $back = match (true) {
             $action === 'create' => 'new', $action === 'adopt' => 'adopt',
             in_array($action, ['password', 'totp_enable', 'totp_disable'], true) => 'account',
-            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', str_starts_with($action, 'faq_') => 'faq', str_starts_with($action, 'code_') => 'codes',
+            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', str_starts_with($action, 'faq_') => 'faq', str_starts_with($action, 'code_') => 'codes', in_array($action, ['shared_db', 'db_move'], true) => 'db',
             str_starts_with($action, 'hub_') => 'assistance', $action === 'release_notes' || $action === 'update' => 'versions',
             in_array($action, ['billing_settings', 'stripe_test'], true) || ($_POST['back'] ?? '') === 'billing' => 'billing', default => '',
         };
@@ -593,6 +612,7 @@ pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 
     <a class="<?= $page === 'videos' ? 'on' : '' ?>" href="console.php?p=videos">Vidéos</a>
     <a class="<?= $page === 'faq' ? 'on' : '' ?>" href="console.php?p=faq">FAQ</a>
     <a class="<?= $page === 'assistance' ? 'on' : '' ?>" href="console.php?p=assistance">Assistance</a>
+    <a class="<?= $page === 'db' ? 'on' : '' ?>" href="console.php?p=db">Base de données</a>
     <a class="<?= $page === 'admins' ? 'on' : '' ?>" href="console.php?p=admins">Super administrateurs</a>
     <a class="<?= $page === 'account' ? 'on' : '' ?>" href="console.php?p=account" title="Mon compte"><?= e($me['name']) ?></a>
     <a href="console.php?p=logout">Déconnexion</a>
@@ -661,8 +681,10 @@ pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 
     <label>Nom affiché de l'application</label><input name="app_name" value="<?= $f('app_name', 'Centriva') ?>">
 
     <h2 style="margin-top:1.4rem">Base de données</h2>
-    <label class="check"><input type="radio" name="db_driver" value="sqlite" <?= ($form['db_driver'] ?? 'sqlite') === 'sqlite' ? 'checked' : '' ?>> SQLite : un fichier propre au client, rien à créer chez l'hébergeur (jusqu'à quelques dizaines d'utilisateurs)</label>
-    <label class="check"><input type="radio" name="db_driver" value="mysql" <?= ($form['db_driver'] ?? '') === 'mysql' ? 'checked' : '' ?>> MySQL / MariaDB : une base vide, créée pour ce client chez l'hébergeur (recommandé au-delà)</label>
+    <?php $defDb = $form['db_driver'] ?? (platform_shared_db() ? 'shared' : 'sqlite'); ?>
+    <?php if (platform_shared_db()): ?><label class="check"><input type="radio" name="db_driver" value="shared" <?= $defDb === 'shared' ? 'checked' : '' ?>> <b>Base commune</b> (recommandé) : les tables du client sont créées dans la base de la plateforme, préfixées par son identifiant — ses données restent à lui seul</label><?php endif; ?>
+    <label class="check"><input type="radio" name="db_driver" value="sqlite" <?= $defDb === 'sqlite' ? 'checked' : '' ?>> SQLite : un fichier propre au client, rien à créer chez l'hébergeur (jusqu'à quelques dizaines d'utilisateurs)</label>
+    <label class="check"><input type="radio" name="db_driver" value="mysql" <?= $defDb === 'mysql' ? 'checked' : '' ?>> MySQL / MariaDB : une base vide, créée pour ce client chez l'hébergeur (recommandé au-delà)</label>
     <div class="grid2">
       <div><label>Serveur</label><input name="db_host" value="<?= $f('db_host', 'localhost') ?>"></div>
       <div><label>Port</label><input name="db_port" value="<?= $f('db_port', '3306') ?>"></div>
@@ -701,7 +723,7 @@ pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 
     <p><button class="btn primary">Reprendre comme client</button></p>
   </form>
 
-<?php elseif (in_array($page, ['versions', 'billing', 'codes', 'faq', 'assistance'], true)): ?>
+<?php elseif (in_array($page, ['versions', 'billing', 'codes', 'faq', 'assistance', 'db'], true)): ?>
   <?php require APP . '/views/console/' . $page . '.php'; ?>
 
 <?php elseif ($page === 'account'): ?>

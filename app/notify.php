@@ -150,7 +150,7 @@ function notify_po(int $poId, string $type): void
 
 function notify_stock_low(int $centerId, int $productId, int $qty, int $alert): void
 {
-    $p = one('SELECT p.name, c.name AS center_name FROM products p, centers c WHERE p.id = ? AND c.id = ?', [$productId, $centerId]);
+    $p = one('SELECT p.name, c.name AS center_name FROM products p JOIN centers c ON c.id = ? WHERE p.id = ?', [$centerId, $productId]);
     if (!$p) {
         return;
     }

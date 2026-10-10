@@ -93,12 +93,12 @@ function demo_reset(): void
     try {
         foreach (db_tables() as $t) {
             if (!in_array($t, $keepTables, true)) {
-                db()->exec($mysql ? "TRUNCATE TABLE $t" : "DELETE FROM $t");
+                db_exec($mysql ? "TRUNCATE TABLE $t" : "DELETE FROM $t");
             }
         }
         if (!$mysql) {
             try {
-                db()->exec("DELETE FROM sqlite_sequence WHERE name NOT IN ('settings', 'videos')");
+                db()->exec("DELETE FROM sqlite_sequence WHERE name NOT IN (" . db()->quote(db_prefix() . "settings") . ", " . db()->quote(db_prefix() . "videos") . ")");
             } catch (Throwable) {
             }
         }

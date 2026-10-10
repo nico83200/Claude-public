@@ -35,6 +35,14 @@ function instance_run(string $slug, callable $fn): mixed
 /** Configuration de base de données saisie dans la console : SQLite (par défaut) ou MySQL / MariaDB. */
 function instance_db_config(string $slug, array $in): array
 {
+    if (($in['driver'] ?? '') === 'shared') {
+        $db = platform_shared_db_config($slug);
+        $pdo = platform_shared_db_pdo();
+        if ($pdo->query("SHOW TABLES LIKE " . $pdo->quote(str_replace('_', '\\_', $db['prefix']) . 'users'))->fetch()) {
+            throw new RuntimeException('La base commune contient déjà des tables pour l\'identifiant « ' . $slug . ' » (' . $db['prefix'] . '…) : choisissez un autre identifiant.');
+        }
+        return $db;
+    }
     if (($in['driver'] ?? 'sqlite') === 'mysql') {
         $db = ['driver' => 'mysql', 'host' => trim((string)($in['host'] ?? '')) ?: 'localhost', 'port' => (int)($in['port'] ?? 3306) ?: 3306,
             'name' => trim((string)($in['name'] ?? '')), 'user' => trim((string)($in['user'] ?? '')), 'pass' => (string)($in['pass'] ?? '')];
@@ -262,6 +270,12 @@ function instance_delete(string $slug): string
     }
     $zip->addFromString('__registry.json', json_encode([$slug => $registry[$slug]], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     $zip->close();
+    // Base commune : les tables de ce client sont supprimées (les autres clients ne sont pas concernés)
+    $cfgFile = instance_paths($slug)['config'];
+    $cfg = is_file($cfgFile) ? (require $cfgFile) : [];
+    if (!empty($cfg['db']['prefix'])) {
+        instance_run($slug, fn() => instance_drop_tables());
+    }
     unset($registry[$slug]);
     instances_save($registry);
     instance_remove_files($slug);
@@ -292,7 +306,7 @@ function instance_stats(string $slug): array
                 'orders_month' => (int)val('SELECT COUNT(*) FROM purchase_orders WHERE created_at >= ?', [date('Y-m-01')]),
                 'last_login' => val('SELECT MAX(last_login) FROM users'),
                 'licence' => $lic,
-                'driver' => db_driver(),
+                'driver' => db_prefix() !== '' ? 'base commune' : db_driver(),
                 'demo_reset_at' => setting('demo_reset_at'),
             ];
         });
@@ -424,4 +438,131 @@ function instances_cron_all(bool $force = false): array
         }
     }
     return $out;
+}
+
+
+// ---------------------------------------------------------------- Base commune à tous les clients
+
+/** Réglage de la base commune (console → Base de données) ; null si elle n'est pas configurée. */
+function platform_shared_db(): ?array
+{
+    $d = platform_setting('shared_db');
+    return is_array($d) && !empty($d['name']) ? $d : null;
+}
+
+function platform_shared_db_pdo(?array $d = null): PDO
+{
+    $d ??= platform_shared_db();
+    if (!$d) {
+        throw new RuntimeException('Base commune non configurée (console → Base de données).');
+    }
+    try {
+        return new PDO(sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $d['host'] ?: 'localhost', (int)($d['port'] ?: 3306), $d['name']), $d['user'], $d['pass'],
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
+    } catch (PDOException $e) {
+        throw new RuntimeException('Connexion à la base commune impossible : ' . $e->getMessage());
+    }
+}
+
+/** Configuration de base d'un client dans la base commune : mêmes accès, tables préfixées par son identifiant. */
+function platform_shared_db_config(string $slug): array
+{
+    $d = platform_shared_db();
+    if (!$d) {
+        throw new RuntimeException('Base commune non configurée (console → Base de données).');
+    }
+    return ['driver' => 'mysql', 'host' => $d['host'] ?: 'localhost', 'port' => (int)($d['port'] ?: 3306), 'name' => $d['name'], 'user' => $d['user'],
+        'pass' => $d['pass'], 'prefix' => str_replace('-', '_', $slug) . '_'];
+}
+
+/** Supprime toutes les tables du client courant (base commune : seulement celles de son préfixe). */
+function instance_drop_tables(): void
+{
+    if (db_prefix() === '') {
+        throw new RuntimeException('Suppression des tables réservée à un client de la base commune.');
+    }
+    $mysql = db_driver() === 'mysql';
+    db()->exec($mysql ? 'SET FOREIGN_KEY_CHECKS = 0' : 'PRAGMA foreign_keys = OFF');
+    foreach (array_reverse(db_logical_tables()) as $t) {
+        db_exec("DROP TABLE IF EXISTS $t");
+    }
+    db()->exec($mysql ? 'SET FOREIGN_KEY_CHECKS = 1' : 'PRAGMA foreign_keys = ON');
+}
+
+/**
+ * Transfère un client existant (SQLite ou base MySQL dédiée) dans la base commune : copie complète de ses données dans
+ * ses tables préfixées, vérification ligne à ligne du nombre d'enregistrements, puis bascule de sa configuration.
+ * L'ancienne base n'est pas modifiée (retour possible : sa configuration est gardée dans « db_previous »).
+ */
+function instance_db_move_to_shared(string $slug): array
+{
+    @set_time_limit(0);
+    $file = instance_paths($slug)['config'];
+    $cfg = require $file;
+    if (!empty($cfg['db']['prefix'])) {
+        throw new RuntimeException('Ce client est déjà dans la base commune.');
+    }
+    $new = instance_db_config($slug, ['driver' => 'shared']);
+    $dump = tempnam(sys_get_temp_dir(), 'move');
+    $before = instance_run($slug, function () use ($dump) {
+        db_dump_to($dump);
+        $n = [];
+        foreach (db_logical_tables() as $t) {
+            try {
+                $n[$t] = (int)val("SELECT COUNT(*) FROM $t");
+            } catch (Throwable) {
+            }
+        }
+        return $n;
+    });
+    $cfg2 = ['db' => $new, 'db_previous' => $cfg['db']] + $cfg;
+    $tmpCfg = $file . '.move.php';
+    file_put_contents($tmpCfg, "<?php\nreturn " . var_export($cfg2, true) . ";\n");
+    try {
+        $after = instance_run_config($slug, $cfg2, function () use ($dump) {
+            schema_install();
+            db_restore_from($dump);
+            $n = [];
+            foreach (db_logical_tables() as $t) {
+                $n[$t] = (int)val("SELECT COUNT(*) FROM $t");
+            }
+            return $n;
+        });
+        foreach ($before as $t => $c) {
+            if ($t !== 'update_history' && ($after[$t] ?? -1) !== $c) {
+                throw new RuntimeException('Vérification échouée sur la table ' . $t . ' (' . $c . ' avant, ' . ($after[$t] ?? 0) . ' après) : rien n\'a été basculé.');
+            }
+        }
+    } catch (Throwable $e) {
+        try {
+            instance_run_config($slug, $cfg2, fn() => instance_drop_tables());
+        } catch (Throwable) {
+        }
+        @unlink($tmpCfg);
+        @unlink($dump);
+        throw $e;
+    }
+    instance_write_config($slug, $cfg2);
+    @unlink($tmpCfg);
+    @unlink($dump);
+    return ['tables' => count($after), 'rows' => array_sum($after), 'prefix' => $new['prefix']];
+}
+
+/** Exécute du code pour un client avec une configuration donnée (avant de l'enregistrer). */
+function instance_run_config(string $slug, array $config, callable $fn): mixed
+{
+    $prev = [$GLOBALS['instance'] ?? null, $GLOBALS['paths'] ?? null, $GLOBALS['config'] ?? []];
+    instance_activate($slug);
+    $GLOBALS['config'] = $config;
+    db_reset();
+    setting('', null, true);
+    try {
+        return $fn();
+    } finally {
+        [$GLOBALS['instance'], $GLOBALS['paths'], $GLOBALS['config']] = $prev;
+        db_reset();
+        if (function_exists('setting')) {
+            setting('', null, true);
+        }
+    }
 }

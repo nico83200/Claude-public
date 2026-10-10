@@ -141,7 +141,7 @@ function db_dump_to(string $file): void
     $fh = fopen($file, 'w');
     foreach (db_tables() as $t) {
         try {
-            $st = db()->query("SELECT * FROM $t");
+            $st = db()->query(db_sql("SELECT * FROM $t"));
         } catch (Throwable) {
             continue;
         }
@@ -181,7 +181,7 @@ function db_restore_from(string $file): void
                 continue; // l'historique des mises à jour est conservé tel quel
             }
             if (!isset($cleared[$t])) {
-                $pdo->exec("DELETE FROM $t");
+                $pdo->exec(db_sql("DELETE FROM $t"));
                 $cleared[$t] = true;
                 $cols[$t] = array_flip(array_map(fn($c) => $sqlite ? $c['name'] : $c['Field'],
                     all($sqlite ? "PRAGMA table_info($t)" : "SHOW COLUMNS FROM $t")));

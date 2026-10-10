@@ -481,7 +481,7 @@ function schema_install(): void
     // 1) tables, 2) colonnes ajoutées par les versions ultérieures, 3) index
     foreach ($stmts as $stmt) {
         if (str_starts_with($stmt, 'CREATE TABLE')) {
-            db()->exec($stmt);
+            db_exec($stmt);
         }
     }
     schema_add_columns();
@@ -490,7 +490,7 @@ function schema_install(): void
             continue;
         }
         try {
-            db()->exec($stmt);
+            db_exec($stmt);
         } catch (PDOException $e) {
             // Index déjà existant sous MySQL : on ignore
             if ($driver === 'mysql' && str_contains($e->getMessage(), 'Duplicate key name')) {
@@ -551,7 +551,7 @@ function schema_add_columns(): void
     foreach (schema_added_columns() as $table => $cols) {
         foreach ($cols as $col => $def) {
             if (!column_exists($table, $col)) {
-                db()->exec("ALTER TABLE $table ADD COLUMN $col $def");
+                db_exec("ALTER TABLE $table ADD COLUMN $col $def");
             }
         }
     }

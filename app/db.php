@@ -43,9 +43,61 @@ function db_driver(): string
     return ($GLOBALS['config']['db']['driver'] ?? 'mysql') === 'sqlite' ? 'sqlite' : 'mysql';
 }
 
+/**
+ * Base commune à plusieurs clients : chaque client a ses propres tables, préfixées par son identifiant
+ * (imss_users, pins_users…). Le code écrit les noms logiques (« users ») ; ils sont préfixés ici, au dernier moment.
+ */
+function db_prefix(): string
+{
+    return (string)($GLOBALS['config']['db']['prefix'] ?? '');
+}
+
+/** Noms logiques des tables de l'application (ceux du schéma). */
+function db_logical_tables(): array
+{
+    static $t = null;
+    if ($t === null && function_exists('schema_statements')) {
+        $t = [];
+        foreach (schema_statements('sqlite') as $st) {
+            if (preg_match('/^CREATE TABLE IF NOT EXISTS (\w+)/', $st, $m)) {
+                $t[] = $m[1];
+            }
+        }
+    }
+    return $t ?? [];
+}
+
+/** Ajoute le préfixe du client aux noms de tables (et d'index) d'une requête ; inchangée sans préfixe. */
+function db_sql(string $sql): string
+{
+    $p = db_prefix();
+    if ($p === '' || !($tables = db_logical_tables())) {
+        return $sql;
+    }
+    static $re = [];
+    $names = implode('|', $tables);
+    $re[$names] ??= [
+        // FROM users, JOIN users, INTO users, UPDATE users (pas « ON DUPLICATE KEY UPDATE colonne »), TABLE / EXISTS users, REFERENCES users
+        '/(?<!KEY )\b(FROM|JOIN|INTO|UPDATE|TABLE|EXISTS|REFERENCES)(\s+)(' . $names . ')\b/i',
+        // CREATE INDEX … ON users(…), PRAGMA table_info(users)
+        '/\b(ON|table_info\()(\s*)(' . $names . ')\b(?=\s*[()])/i',
+        // colonnes qualifiées par le nom de la table : requests.id
+        '/(?<![\w.\'"$])()()(' . $names . ')(?=\.[a-z_*])/',
+    ];
+    $sql = preg_replace($re[$names], '$1$2' . $p . '$3', $sql);
+    // index (espace de noms commun sous SQLite)
+    return preg_replace('/\b(INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+)(idx_)/i', '$1' . $p . '$2', $sql);
+}
+
+/** Exécution directe (DDL, réglages de session) avec les noms de tables du client. */
+function db_exec(string $sql): int|false
+{
+    return db()->exec(db_sql($sql));
+}
+
 function q(string $sql, array $params = []): PDOStatement
 {
-    $st = db()->prepare($sql);
+    $st = db()->prepare(db_sql($sql));
     $st->execute(array_values($params));
     return $st;
 }

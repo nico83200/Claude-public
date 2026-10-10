@@ -15,7 +15,8 @@ $tmp = sys_get_temp_dir() . '/cmd-tests-' . getmypid();
 @mkdir($tmp);
 $db = "$tmp/test.sqlite";
 @unlink($db); // base neuve à chaque exécution (un numéro de processus peut être réutilisé)
-file_put_contents("$tmp/config.php", "<?php return ['db' => ['driver' => 'sqlite', 'path' => " . var_export($db, true) . "], 'app_name' => 'Tests', 'timezone' => 'Europe/Paris', 'anthropic_api_key' => ''];");
+// TEST_DB_PREFIX=xx_ : mêmes tests avec des tables préfixées (base commune à plusieurs clients)
+file_put_contents("$tmp/config.php", "<?php return ['db' => ['driver' => 'sqlite', 'path' => " . var_export($db, true) . ", 'prefix' => " . var_export((string)getenv('TEST_DB_PREFIX'), true) . "], 'app_name' => 'Tests', 'timezone' => 'Europe/Paris', 'anthropic_api_key' => ''];");
 putenv("CMD_CONFIG=$tmp/config.php");
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['REMOTE_ADDR'] = '10.0.0.1';
