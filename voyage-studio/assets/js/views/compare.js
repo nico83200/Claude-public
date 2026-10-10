@@ -1,7 +1,7 @@
 // Comparateur de variantes : prix, rentabilité, durées, confort — vue agent ou vue client imprimable.
 
 import { api } from '../api.js';
-import { esc, money, pct, date, state, ITEM_ICONS, enumLabel, nl2br } from '../ui.js';
+import { esc, money, pct, date, state, ITEM_ICONS, TYPE_COLORS, enumLabel, nl2br } from '../ui.js';
 import { computeOption } from '../pricing.js';
 import { fmtDuration, sortChrono } from '../time.js';
 
@@ -49,7 +49,6 @@ export async function render(el, [id]) {
 
     const maxTotal = Math.max(1, ...cols.map(({ c }) => c.totals.vente));
     const types = [...new Set(cols.flatMap(({ c }) => Object.keys(c.byType)))];
-    const palette = ['#0f766e', '#2563eb', '#d97706', '#7c3aed', '#db2777', '#059669', '#64748b', '#dc2626', '#0891b2', '#65a30d', '#a16207'];
 
     el.innerHTML = `
       <div class="page-head no-print">
@@ -69,9 +68,9 @@ export async function render(el, [id]) {
       <div class="card">
         <h2>Répartition du prix</h2>
         ${cols.map(({ o, c }) => `<div class="stack-row"><span class="stack-label">${esc(o.nom)}</span>
-          <div class="stack" style="width:${(c.totals.vente / maxTotal) * 100}%">${types.map((t, i) => c.byType[t] ? `<i style="flex:${c.byType[t].vente};background:${palette[i % palette.length]}" title="${esc(state.schema.itemTypes[t])} : ${money(c.byType[t].vente)}"></i>` : '').join('')}</div>
+          <div class="stack" style="width:${(c.totals.vente / maxTotal) * 100}%">${types.map((t, i) => c.byType[t] ? `<i style="flex:${c.byType[t].vente};background:${TYPE_COLORS[t]}" title="${esc(state.schema.itemTypes[t])} : ${money(c.byType[t].vente)}"></i>` : '').join('')}</div>
           <b>${money(c.totals.vente, null, false)}</b></div>`).join('')}
-        <p class="legend">${types.map((t, i) => `<span class="sw" style="background:${palette[i % palette.length]}"></span>${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t])}`).join(' ')}</p>
+        <p class="legend">${types.map((t, i) => `<span class="sw" style="background:${TYPE_COLORS[t]}"></span>${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t])}`).join(' ')}</p>
       </div>
       <div class="grid-${Math.min(cols.length, 3)}">
         ${cols.map(({ o, c }) => `<div class="card"><h3>${esc(o.nom)}</h3><ul class="plain">${sortChrono(c.included.map((l) => l.item)).map((i) => c.included.find((l) => l.item === i)).map((l) => `<li>${ITEM_ICONS[l.item.type]} ${esc(l.item.libelle)}${l.item.date_debut ? ` <span class="muted">· ${date(l.item.date_debut)}</span>` : ''}</li>`).join('')}

@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { navigate, refreshRefs, hashParams } from '../app.js';
 import {
   $, $$, esc, nl2br, money, pct, date, badge, state, modal, confirmDialog, entityForm, enhanceForm, readForm,
-  toast, errorToast, ITEM_ICONS, enumLabel, refLabel, emptyState,
+  toast, errorToast, ITEM_ICONS, TYPE_COLORS, enumLabel, refLabel, emptyState,
 } from '../ui.js';
 import { computeOption, paymentSchedule } from '../pricing.js';
 import { fmtDuration, itemDuration, todayIso, daysBetween, sortChrono } from '../time.js';
@@ -112,8 +112,8 @@ function buildTab(opt, c) {
           <div class="card-head"><h2>Prestations</h2>
             <div class="add-bar">
               ${state.ai.enabled ? '<button class="btn ai" data-act="ai-import" title="Capture d\'écran, PDF ou e-mail de confirmation">📷 Importer (IA)</button>' : '<button class="btn ai" data-act="ai-off" title="Assistant IA non configuré">📷 Importer (IA)</button>'}
-              ${['vol', 'hebergement', 'croisiere', 'transfert', 'train', 'location', 'activite', 'assurance'].map((t) => `<button class="btn small" data-add-type="${t}" title="Ajouter : ${esc(state.schema.itemTypes[t])}">${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t].split(' ')[0])}</button>`).join('')}
-              <button class="btn small" data-add-type="autre">+ Autre</button>
+              ${['vol', 'hebergement', 'croisiere', 'transfert', 'train', 'location', 'activite', 'assurance'].map((t) => `<button class="btn small type-btn" style="--c:${TYPE_COLORS[t]}" data-add-type="${t}" title="Ajouter : ${esc(state.schema.itemTypes[t])}">${ITEM_ICONS[t]} ${esc(state.schema.itemTypes[t].split(' ')[0])}</button>`).join('')}
+              <button class="btn small type-btn" data-add-type="autre">+ Autre</button>
             </div>
           </div>
           ${itemsTimeline(c)}
@@ -175,7 +175,7 @@ function itemsTimeline(c) {
     <div class="tl-day"><div class="tl-date">${d ? `${date(d, true)}${start ? ` <span class="muted">· J${daysBetween(start, d) + 1}</span>` : ''}` : 'Sans date'}</div>
     ${lines.map((l) => {
       const i = l.item;
-      return `<div class="tl-item ${l.optional ? 'optional' : ''}" data-item="${i.id}">
+      return `<div class="tl-item ${l.optional ? 'optional' : ''}" style="--c:${TYPE_COLORS[i.type] || '#64748b'}" data-item="${i.id}">
         <div class="tl-ico" title="${esc(state.schema.itemTypes[i.type])}">${ITEM_ICONS[i.type] || '•'}</div>
         <div class="tl-body">
           <div class="tl-title"><b>${esc(i.libelle)}</b> ${l.optional ? '<span class="badge violet">En option</span>' : ''} ${badge('items', 'statut', i.statut)}
@@ -219,7 +219,7 @@ function pricingPanel(c) {
       ${t.budgetEcart !== null ? `<dt>Écart / budget client</dt><dd class="${t.budgetEcart > 0 ? 'neg' : 'pos'}">${t.budgetEcart > 0 ? '+' : ''}${money(t.budgetEcart)}</dd>` : ''}
     </dl>
     ${c.missingRates.length ? `<p class="alert error small">Taux manquant : ${c.missingRates.join(', ')}</p>` : ''}
-    ${types.length ? `<div class="mix">${types.map(([k, v]) => `<div class="mix-row"><span>${ITEM_ICONS[k]} ${esc(state.schema.itemTypes[k])}</span><div class="mix-bar"><i style="width:${t.vente ? (v.vente / t.vente) * 100 : 0}%"></i></div><span>${money(v.vente, null, false)}</span></div>`).join('')}</div>` : ''}
+    ${types.length ? `<div class="mix">${types.map(([k, v]) => `<div class="mix-row" style="--c:${TYPE_COLORS[k]}"><span>${ITEM_ICONS[k]} ${esc(state.schema.itemTypes[k])}</span><div class="mix-bar"><i style="width:${t.vente ? (v.vente / t.vente) * 100 : 0}%"></i></div><span>${money(v.vente, null, false)}</span></div>`).join('')}</div>` : ''}
   </div>`;
 }
 

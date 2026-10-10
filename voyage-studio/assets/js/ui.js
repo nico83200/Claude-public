@@ -34,6 +34,13 @@ export const ITEM_ICONS = {
   activite: '🎟️', assurance: '🛡️', visa: '🛂', frais: '🧾', autre: '📌',
 };
 
+export const TYPE_COLORS = {
+  vol: '#0284c7', train: '#4f46e5', hebergement: '#d97706', croisiere: '#1d4ed8', transfert: '#0d9488', location: '#7c3aed',
+  activite: '#db2777', assurance: '#16a34a', visa: '#dc2626', frais: '#64748b', autre: '#94a3b8',
+};
+
+export const STATUS_HEX = { prospect: '#94a3b8', devis: '#2563eb', option: '#d97706', confirme: '#16a34a', solde: '#0d9488', termine: '#64748b', annule: '#dc2626' };
+
 export const STATUS_COLORS = {
   prospect: 'gray', devis: 'blue', option: 'amber', confirme: 'green', solde: 'teal', termine: 'gray', annule: 'red',
   a_demander: 'gray', demande: 'blue', confirme_item: 'green',

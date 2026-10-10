@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { esc, money, pct, date, emptyState, state, toast, errorToast } from '../ui.js';
+import { esc, money, pct, date, emptyState, state, toast, errorToast, STATUS_HEX } from '../ui.js';
 import { computeOption } from '../pricing.js';
 
 /** Calcule les totaux des dossiers jamais ouverts (import, démo, restauration) pour fiabiliser les indicateurs. */
@@ -30,10 +30,10 @@ export async function render(el) {
     <div class="page-head"><h1>Tableau de bord</h1><span class="muted">${date(d.today, true)}</span></div>
 
     <section class="kpis">
-      <div class="kpi"><span>CA ${year} (départs confirmés)</span><strong>${money(d.ca, null, false)}</strong></div>
-      <div class="kpi"><span>Marge brute ${year}</span><strong>${money(d.marge, null, false)}</strong><small>${pct(d.taux_marge)} du CA</small></div>
-      <div class="kpi"><span>Devis & options en cours</span><strong>${money(d.pipeline, null, false)}</strong><small>${(d.counts.devis || 0) + (d.counts.option || 0)} dossiers</small></div>
-      <div class="kpi"><span>Taux de transformation</span><strong>${d.conversion === null ? '—' : d.conversion + ' %'}</strong><small>dossiers créés en ${year}</small></div>
+      <div class="kpi" style="--c:#2563eb"><span>CA ${year} (départs confirmés)</span><strong>${money(d.ca, null, false)}</strong></div>
+      <div class="kpi" style="--c:#16a34a"><span>Marge brute ${year}</span><strong>${money(d.marge, null, false)}</strong><small>${pct(d.taux_marge)} du CA</small></div>
+      <div class="kpi" style="--c:#d97706"><span>Devis & options en cours</span><strong>${money(d.pipeline, null, false)}</strong><small>${(d.counts.devis || 0) + (d.counts.option || 0)} dossiers</small></div>
+      <div class="kpi" style="--c:#7c3aed"><span>Taux de transformation</span><strong>${d.conversion === null ? '—' : d.conversion + ' %'}</strong><small>dossiers créés en ${year}</small></div>
     </section>
 
     <section class="grid-2">
@@ -53,7 +53,7 @@ export async function render(el) {
         </div>
         <div class="card">
           <h2>Dossiers par statut</h2>
-          <div class="status-pills">${Object.entries(d.counts).map(([k, n]) => `<a href="#/trips?statut=${k}" class="pill">${esc(statusOpts[k] || k)} <b>${n}</b></a>`).join('')}</div>
+          <div class="status-pills">${Object.entries(d.counts).map(([k, n]) => `<a href="#/trips?statut=${k}" class="pill" style="--c:${STATUS_HEX[k]}">${esc(statusOpts[k] || k)} <b>${n}</b></a>`).join('')}</div>
         </div>
       </div>
     </section>

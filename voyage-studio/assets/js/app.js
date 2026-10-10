@@ -3,14 +3,15 @@
 import { api, setCsrf } from './api.js';
 import { $, esc, state, toast, errorToast, debounce } from './ui.js';
 
+// [lien, icône, libellé, couleur de rubrique]
 const NAV = [
-  ['#/', '📊', 'Tableau de bord'],
-  ['#/trips', '🧳', 'Dossiers'],
-  ['#/clients', '👥', 'Clients'],
-  ['#/suppliers', '🏢', 'Fournisseurs'],
-  ['#/destinations', '🌍', 'Destinations'],
-  ['#/tools', '🧮', 'Outils'],
-  ['#/settings', '⚙️', 'Réglages'],
+  ['#/', '📊', 'Tableau de bord', '#2563eb'],
+  ['#/trips', '🧳', 'Dossiers', '#0d9488'],
+  ['#/clients', '👥', 'Clients', '#7c3aed'],
+  ['#/suppliers', '🏢', 'Fournisseurs', '#ea580c'],
+  ['#/destinations', '🌍', 'Destinations', '#16a34a'],
+  ['#/tools', '🧮', 'Outils', '#db2777'],
+  ['#/settings', '⚙️', 'Réglages', '#475569'],
 ];
 
 const ROUTES = [
@@ -101,7 +102,7 @@ function renderLayout() {
     <div class="layout">
       <aside class="sidebar" id="sidebar">
         <div class="brand-block">${s.agence_logo ? `<img src="${esc(s.agence_logo)}" alt="">` : '<span class="logo">✈</span>'}<span>${esc(s.agence_nom || 'VoyageStudio')}</span></div>
-        <nav>${NAV.map(([h, i, l]) => `<a href="${h}" data-nav="${h}"><span class="ico">${i}</span>${esc(l)}</a>`).join('')}</nav>
+        <nav>${NAV.map(([h, i, l, c]) => `<a href="${h}" data-nav="${h}" style="--c:${c}"><span class="ico">${i}</span>${esc(l)}</a>`).join('')}</nav>
         <div class="sidebar-foot">
           <span class="muted small">${esc(state.user?.email || '')}</span>
           <button class="btn ghost small" id="logout">Déconnexion</button>
@@ -174,10 +175,14 @@ async function route() {
   old.replaceWith(view);
   const path = ((location.hash || '#/').slice(1) || '/').split('?')[0];
   const seq = ++routeSeq;
+  let section = NAV[0][3];
   document.querySelectorAll('[data-nav]').forEach((a) => {
     const h = a.dataset.nav.slice(1);
-    a.classList.toggle('active', h === '/' ? path === '/' : path.startsWith(h));
+    const on = h === '/' ? path === '/' : path.startsWith(h);
+    a.classList.toggle('active', on);
+    if (on) section = NAV.find((n) => n[0] === a.dataset.nav)[3];
   });
+  document.documentElement.style.setProperty('--section', section);
   document.body.classList.toggle('print-view', path.includes('/quote/'));
   document.title = 'VoyageStudio';
   for (const [re, loader] of ROUTES) {

@@ -1,6 +1,6 @@
 import { api } from '../api.js';
 import { refreshRefs, navigate, hashParams } from '../app.js';
-import { $, esc, money, date, badge, state, modal, entityForm, enhanceForm, readForm, emptyState, debounce } from '../ui.js';
+import { $, esc, money, date, badge, state, modal, entityForm, enhanceForm, readForm, emptyState, debounce, STATUS_HEX } from '../ui.js';
 
 export async function render(el) {
   const params = hashParams();
@@ -23,9 +23,9 @@ export async function render(el) {
     let rows = await api.get('trips', query);
     if (!filter.statut) rows = rows.filter((r) => !['termine', 'annule'].includes(r.statut));
     $('#list', el).innerHTML = rows.length ? `
-      <table class="table clickable">
+      <table class="table clickable trips">
         <thead><tr><th>Réf.</th><th>Voyage</th><th>Client</th><th>Départ</th><th>Statut</th><th class="num">Prix de vente</th><th class="num">Marge</th></tr></thead>
-        <tbody>${rows.map((t) => `<tr data-href="#/trips/${t.id}">
+        <tbody>${rows.map((t) => `<tr data-href="#/trips/${t.id}" style="--c:${STATUS_HEX[t.statut] || 'transparent'}">
           <td class="mono">${esc(t.reference)}</td>
           <td><b>${esc(t.titre)}</b>${t._destination ? `<br><span class="muted small">${esc(t._destination)}</span>` : ''}</td>
           <td>${esc(t._client || '')}</td>
