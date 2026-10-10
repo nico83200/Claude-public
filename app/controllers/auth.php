@@ -33,6 +33,11 @@ function auth_login(): void
                 if (password_needs_rehash($u['password_hash'], PASSWORD_DEFAULT)) {
                     update('users', ['password_hash' => password_hash($password, PASSWORD_DEFAULT)], 'id = ?', [$u['id']]);
                 }
+                if (licence_platform() && licence_status() === 'expired' && !is_superadmin($u)) {
+                    $error = 'L\'abonnement de votre établissement a expiré : l\'accès reviendra dès son renouvellement. Prévenez l\'administrateur de ' . app_name() . ' : il peut le renouveler en se connectant.';
+                    render('auth/login', ['error' => $error, 'email' => $email], 'layout_auth');
+                    return;
+                }
                 if (user_has_2fa($u)) { // deuxième étape : code de l'application d'authentification
                     session_regenerate_id(true);
                     $_SESSION['2fa_uid'] = (int)$u['id'];

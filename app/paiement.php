@@ -57,6 +57,8 @@ $c = $slug ? platform_licence_row($slug) : null;
 $lic = $slug ? platform_licence($slug) : null;
 $lines = $slug ? platform_billing_lines($slug) : [];
 $ht = array_sum(array_column($lines, 'amount'));
+$disc = $slug ? platform_discount($slug) : null;
+$ht -= $slug ? platform_discount_amount($slug, $ht) : 0;
 $vat = platform_vat();
 $eur = fn(int $cents) => number_format($cents / 100, 2, ',', ' ') . ' €';
 $h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
@@ -99,6 +101,7 @@ tr.total td { font-weight:800; border-bottom:0; font-size:1.05rem; }
   <?php if (isset($_GET['done'])): ?><p class="ok"><b>Merci !</b> Votre abonnement est enregistré : les paiements se feront automatiquement chaque mois et prolongeront votre licence. La confirmation peut prendre une minute (prélèvement SEPA : quelques jours).</p><?php endif; ?>
   <table>
     <?php foreach ($lines as $l): ?><tr><td><?= $h($l['label']) ?></td><td><?= $eur($l['amount']) ?> HT</td></tr><?php endforeach; ?>
+    <?php if ($disc): ?><tr><td>Réduction (code <?= $h($disc['code']) ?>) · <?= $h(platform_discount_label($disc)) ?></td><td>−<?= $eur(platform_discount_amount($slug, array_sum(array_column($lines, 'amount')))) ?> HT</td></tr><?php endif; ?>
     <?php if ($vat > 0): ?><tr><td class="muted">TVA <?= $h(rtrim(rtrim(number_format($vat, 2, ',', ''), '0'), ',')) ?> %</td><td class="muted"><?= $eur((int)round($ht * $vat / 100)) ?></td></tr><?php endif; ?>
     <tr class="total"><td>Total par mois</td><td><?= $eur((int)round($ht * (1 + $vat / 100))) ?> TTC</td></tr>
   </table>

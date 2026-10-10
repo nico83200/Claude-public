@@ -89,7 +89,7 @@ function platform_grace_days(): int
 // ---------------------------------------------------------------- Licences des clients
 
 const LICENCE_FIELDS = ['plan', 'price_base', 'price_ai', 'ai', 'paid_until', 'status', 'note', 'contact_email',
-    'billing_token', 'stripe_customer', 'stripe_subscription', 'billing_status', 'billing_method', 'billing_next', 'billing_amount', 'hub_client', 'imported_at'];
+    'billing_token', 'stripe_customer', 'stripe_subscription', 'billing_status', 'billing_method', 'billing_next', 'billing_amount', 'hub_client', 'imported_at', 'discount'];
 
 function platform_licences(): array
 {
@@ -170,9 +170,41 @@ function platform_billing_lines(string $slug): array
     return array_values(array_filter($lines, fn($l) => $l['amount'] > 0));
 }
 
+/** Mensualité TTC en centimes, après la réduction en cours éventuelle (bon de réduction). */
 function platform_monthly_ttc(string $slug): int
 {
-    return (int)round(array_sum(array_column(platform_billing_lines($slug), 'amount')) * (1 + platform_vat() / 100));
+    $ht = array_sum(array_column(platform_billing_lines($slug), 'amount'));
+    return (int)round(max(0, $ht - platform_discount_amount($slug, $ht)) * (1 + platform_vat() / 100));
+}
+
+/** Réduction en cours d'un client (bon de réduction utilisé), ou null si aucune / terminée. */
+function platform_discount(string $slug): ?array
+{
+    $d = platform_licence_row($slug)['discount'] ?? null;
+    if (!is_array($d) || empty($d['code'])) {
+        return null;
+    }
+    if ((int)($d['months'] ?? 0) > 0 && date('Y-m-d') >= date('Y-m-d', strtotime(($d['applied_at'] ?? 'now') . ' +' . (int)$d['months'] . ' months'))) {
+        return null; // durée de la réduction écoulée
+    }
+    return $d;
+}
+
+/** Montant de la réduction (centimes HT) sur un total mensuel HT. */
+function platform_discount_amount(string $slug, int $ht): int
+{
+    $d = platform_discount($slug);
+    if (!$d) {
+        return 0;
+    }
+    return min($ht, !empty($d['percent']) ? (int)round($ht * (float)$d['percent'] / 100) : (int)round((float)($d['amount'] ?? 0) * 100));
+}
+
+/** Libellé d'une réduction : « −20 % pendant 3 mois », « −10,00 € HT par mois, sans limite de durée ». */
+function platform_discount_label(array $d): string
+{
+    $v = !empty($d['percent']) ? '−' . rtrim(rtrim(number_format((float)$d['percent'], 2, ',', ''), '0'), ',') . ' %' : '−' . number_format((float)($d['amount'] ?? 0), 2, ',', ' ') . ' € HT par mois';
+    return $v . ((int)($d['months'] ?? 0) > 0 ? ' pendant ' . (int)$d['months'] . ' mois' : ', sans limite de durée');
 }
 
 // ---------------------------------------------------------------- Paiement en ligne (Stripe)
@@ -321,9 +353,9 @@ function platform_stripe_customer(string $slug): string
  * Page Stripe où le client règle : souscription (carte ou prélèvement SEPA) s'il n'a pas encore d'abonnement,
  * sinon l'espace client Stripe (moyen de paiement, factures).
  */
-function platform_billing_session_url(string $slug): string
+function platform_billing_session_url(string $slug, ?string $back = null): string
 {
-    $back = platform_pay_url($slug);
+    $back ??= platform_pay_url($slug);
     $customer = platform_stripe_customer($slug);
     if (platform_billing_active($slug)) {
         return platform_stripe('POST', '/v1/billing_portal/sessions', ['customer' => $customer, 'return_url' => $back, 'locale' => 'fr'])['url'];
@@ -343,11 +375,14 @@ function platform_billing_session_url(string $slug): string
         'mode' => 'subscription', 'customer' => $customer, 'client_reference_id' => $slug, 'locale' => 'fr',
         'payment_method_types' => ['card', 'sepa_debit'], 'line_items' => $items,
         'subscription_data' => ['metadata' => ['centriva_slug' => $slug], 'description' => instances_registry()[$slug]['name'] ?? $slug],
-        'success_url' => $back . '&done=1', 'cancel_url' => $back,
+        'success_url' => $back . (str_contains($back, '?') ? '&' : '?') . 'done=1', 'cancel_url' => $back,
     ];
     // Période déjà payée : le premier prélèvement a lieu à son terme (pas de double paiement)
     if ($c['paid_until'] && strtotime($c['paid_until'] . ' 23:59:59') > time() + 2 * 86400) {
         $params['subscription_data']['trial_end'] = strtotime($c['paid_until'] . ' 12:00:00');
+    }
+    if ($coupon = platform_stripe_coupon($slug)) {
+        $params['discounts'] = [['coupon' => $coupon]];
     }
     return platform_stripe('POST', '/v1/checkout/sessions', $params)['url'];
 }
@@ -900,4 +935,159 @@ function platform_licence_extend(string $slug, int $months, string $by): string
     platform_licence_save($slug, ['paid_until' => $until]);
     platform_billing_log($slug, 'manuel-' . bin2hex(random_bytes(6)), 'manual', null, 'Paiement enregistré par ' . $by . ' : ' . $months . ' mois · licence jusqu\'au ' . date('d/m/Y', strtotime($until)));
     return $until;
+}
+
+
+// ---------------------------------------------------------------- Codes d'accès gratuit et bons de réduction
+
+/**
+ * Codes créés dans la console :
+ *  - « free »     : accès gratuit, prolonge la licence de N jours (essai, geste commercial, partenaire) ;
+ *  - « discount » : réduction sur l'abonnement, en % ou en € HT par mois, pendant N mois (0 = sans limite).
+ * Chaque code a une période de validité (dates), un nombre maximal d'utilisations et ne sert qu'une fois par client.
+ */
+function platform_codes(): array
+{
+    return central_json('codes.json');
+}
+
+function platform_code_normalize(string $code): string
+{
+    return strtoupper(preg_replace('/[^A-Za-z0-9-]/', '', $code));
+}
+
+function platform_code_find(string $code): ?array
+{
+    $code = platform_code_normalize($code);
+    foreach (platform_codes() as $c) {
+        if ($c['code'] === $code) {
+            return $c;
+        }
+    }
+    return null;
+}
+
+/** Crée ou modifie un code (clé : le code lui-même). */
+function platform_code_save(array $c): array
+{
+    $c['code'] = platform_code_normalize((string)($c['code'] ?? '')) ?: 'CENTRIVA-' . strtoupper(bin2hex(random_bytes(3)));
+    if (strlen($c['code']) < 4 || strlen($c['code']) > 40) {
+        throw new RuntimeException('Code : 4 à 40 caractères (lettres, chiffres, tirets).');
+    }
+    if (!in_array($c['kind'] ?? '', ['free', 'discount'], true)) {
+        throw new RuntimeException('Type de code inconnu.');
+    }
+    if ($c['kind'] === 'free' && (int)($c['days'] ?? 0) < 1) {
+        throw new RuntimeException('Accès gratuit : indiquez le nombre de jours offerts.');
+    }
+    if ($c['kind'] === 'discount' && (float)($c['percent'] ?? 0) <= 0 && (float)($c['amount'] ?? 0) <= 0) {
+        throw new RuntimeException('Réduction : indiquez un pourcentage ou un montant.');
+    }
+    if ((float)($c['percent'] ?? 0) > 100) {
+        throw new RuntimeException('Réduction : 100 % au maximum.');
+    }
+    return central_update('codes.json', function (array $all, &$result) use ($c) {
+        foreach ($all as $i => $o) {
+            if ($o['code'] === $c['code']) {
+                $all[$i] = $result = array_merge($o, $c);
+                return $all;
+            }
+        }
+        $c += ['uses' => [], 'active' => true, 'created_at' => date('Y-m-d H:i:s')];
+        $all[] = $result = $c;
+        return $all;
+    });
+}
+
+function platform_code_delete(string $code): void
+{
+    central_update('codes.json', fn(array $all) => array_values(array_filter($all, fn($c) => $c['code'] !== platform_code_normalize($code))));
+}
+
+/** Raison pour laquelle un code n'est pas utilisable par ce client (null s'il l'est). */
+function platform_code_problem(?array $c, string $slug, ?string $today = null): ?string
+{
+    $today ??= date('Y-m-d');
+    if (!$c || empty($c['active'])) {
+        return 'Code inconnu ou désactivé.';
+    }
+    if (!empty($c['valid_from']) && $today < $c['valid_from']) {
+        return 'Ce code sera utilisable à partir du ' . date('d/m/Y', strtotime($c['valid_from'])) . '.';
+    }
+    if (!empty($c['valid_until']) && $today > $c['valid_until']) {
+        return 'Ce code a expiré le ' . date('d/m/Y', strtotime($c['valid_until'])) . '.';
+    }
+    if ((int)($c['max_uses'] ?? 0) > 0 && count($c['uses'] ?? []) >= (int)$c['max_uses']) {
+        return 'Ce code a déjà été utilisé le nombre de fois prévu.';
+    }
+    if (in_array($slug, array_column($c['uses'] ?? [], 'slug'), true)) {
+        return 'Ce code a déjà été utilisé pour votre établissement.';
+    }
+    if (!empty($c['only']) && !in_array($slug, (array)$c['only'], true)) {
+        return 'Ce code n\'est pas valable pour votre établissement.';
+    }
+    return null;
+}
+
+/**
+ * Utilisation d'un code par un client (depuis sa page Abonnement). Renvoie le message de confirmation.
+ * Accès gratuit : l'échéance est repoussée de N jours (à partir d'aujourd'hui si elle est passée).
+ * Réduction : enregistrée sur la licence et appliquée au paiement en ligne (coupon Stripe), y compris à un abonnement déjà en place.
+ */
+function platform_code_redeem(string $slug, string $code, string $by): string
+{
+    $c = platform_code_find($code);
+    if ($why = platform_code_problem($c, $slug)) {
+        throw new RuntimeException($why);
+    }
+    $lic = platform_licence_row($slug);
+    if ($c['kind'] === 'free') {
+        $from = $lic['paid_until'] && $lic['paid_until'] >= date('Y-m-d') ? $lic['paid_until'] : date('Y-m-d');
+        $until = date('Y-m-d', strtotime($from . ' +' . (int)$c['days'] . ' days'));
+        platform_licence_save($slug, ['paid_until' => $until, 'status' => $lic['status'] === 'suspended' ? 'suspended' : 'active']);
+        $msg = 'Code « ' . $c['code'] . ' » : ' . (int)$c['days'] . ' jour(s) offert(s), licence jusqu\'au ' . date('d/m/Y', strtotime($until)) . '.';
+    } else {
+        $d = ['code' => $c['code'], 'percent' => (float)($c['percent'] ?? 0) ?: null, 'amount' => (float)($c['amount'] ?? 0) ?: null,
+            'months' => (int)($c['months'] ?? 0), 'applied_at' => date('Y-m-d'), 'stripe_coupon' => null];
+        platform_licence_save($slug, ['discount' => $d]);
+        $msg = 'Code « ' . $c['code'] . ' » : réduction ' . platform_discount_label($d) . '.';
+        // Abonnement en ligne déjà en place : la réduction s'applique dès la prochaine échéance
+        if (platform_stripe_ready() && platform_billing_active($slug) && ($coupon = platform_stripe_coupon($slug))) {
+            try {
+                platform_stripe('POST', '/v1/subscriptions/' . rawurlencode((string)$lic['stripe_subscription']), ['discounts' => [['coupon' => $coupon]]]);
+                $msg .= ' Elle s\'applique à vos prochains prélèvements.';
+            } catch (Throwable $e) {
+                error_log('[codes] ' . $e->getMessage());
+                $msg .= ' Elle sera appliquée par ' . platform_setting('operator_name') . ' à votre prochain prélèvement.';
+            }
+        }
+    }
+    central_update('codes.json', function (array $all) use ($c, $slug, $by) {
+        foreach ($all as $i => $o) {
+            if ($o['code'] === $c['code']) {
+                $all[$i]['uses'][] = ['slug' => $slug, 'at' => date('Y-m-d H:i:s'), 'by' => $by];
+            }
+        }
+        return $all;
+    });
+    platform_billing_log($slug, 'code-' . bin2hex(random_bytes(6)), 'code', null, $msg . ' (' . $by . ')');
+    return $msg;
+}
+
+/** Coupon Stripe correspondant à la réduction en cours du client (créé une fois, puis réutilisé). */
+function platform_stripe_coupon(string $slug): ?string
+{
+    $d = platform_discount($slug);
+    if (!$d || !platform_stripe_ready()) {
+        return null;
+    }
+    if (!empty($d['stripe_coupon'])) {
+        return (string)$d['stripe_coupon'];
+    }
+    $params = ['name' => 'Code ' . $d['code'], 'metadata' => ['centriva_code' => $d['code'], 'centriva_slug' => $slug]]
+        + (!empty($d['percent']) ? ['percent_off' => (float)$d['percent']] : ['amount_off' => (int)round((float)$d['amount'] * 100), 'currency' => 'eur'])
+        + ((int)$d['months'] > 0 ? ['duration' => 'repeating', 'duration_in_months' => (int)$d['months']] : ['duration' => 'forever']);
+    $id = (string)platform_stripe('POST', '/v1/coupons', $params)['id'];
+    platform_licence_save($slug, ['discount' => ['stripe_coupon' => $id] + $d]);
+    return $id;
 }

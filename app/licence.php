@@ -202,6 +202,9 @@ function licence_notice(): ?array
  */
 function licence_pay_url(): ?string
 {
+    if (licence_platform()) {
+        return url('admin/subscription'); // abonnement géré par l'établissement lui-même
+    }
     $b = licence_info()['billing'] ?? null;
     $u = is_array($b) && !empty($b['online']) ? (string)($b['pay_url'] ?? '') : '';
     return preg_match('#^https?://#', $u) ? $u : null;

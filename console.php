@@ -417,6 +417,34 @@ if ($logged && $post) {
                 console_flash('ok', 'Stripe répond (' . (platform_stripe_test_mode() ? 'mode test' : 'mode réel') . ', ' . count((array)($b['available'] ?? [])) . ' solde(s)).');
                 console_go('billing');
 
+            // ----------------------------------------------------- Codes d'accès gratuit et bons de réduction
+            case 'code_save':
+                $num = fn($k) => max(0, (float)str_replace(',', '.', (string)($_POST[$k] ?? 0)));
+                $date = fn($k) => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($_POST[$k] ?? '')) ? (string)$_POST[$k] : null;
+                $kind = ($_POST['kind'] ?? '') === 'free' ? 'free' : 'discount';
+                $c = platform_code_save(['code' => (string)($_POST['code'] ?? ''), 'kind' => $kind, 'note' => mb_substr(trim((string)($_POST['note'] ?? '')), 0, 200),
+                    'days' => $kind === 'free' ? (int)$num('days') : null,
+                    'percent' => $kind === 'discount' && ($_POST['unit'] ?? '') === 'percent' ? $num('value') : null,
+                    'amount' => $kind === 'discount' && ($_POST['unit'] ?? '') === 'amount' ? $num('value') : null,
+                    'months' => $kind === 'discount' ? (int)$num('months') : null, 'valid_from' => $date('valid_from'), 'valid_until' => $date('valid_until'),
+                    'max_uses' => (int)$num('max_uses'), 'only' => array_values(array_intersect((array)($_POST['only'] ?? []), array_keys(instances_registry()))) ?: null,
+                    'active' => true]);
+                console_flash('ok', 'Code « ' . $c['code'] . ' » enregistré : à communiquer au client, qui le saisit dans Paramètres → Abonnement.');
+                console_go('codes');
+
+            case 'code_toggle':
+                $c = platform_code_find((string)($_POST['code'] ?? ''));
+                if ($c) {
+                    platform_code_save(['active' => empty($c['active'])] + $c);
+                }
+                console_flash('ok', 'Code ' . (!empty($c['active']) ? 'désactivé' : 'réactivé') . '.');
+                console_go('codes');
+
+            case 'code_delete':
+                platform_code_delete((string)($_POST['code'] ?? ''));
+                console_flash('ok', 'Code supprimé (les avantages déjà accordés sont conservés).');
+                console_go('codes');
+
             // ----------------------------------------------------- Versions
             case 'release_notes':
                 platform_release_record(['version' => (string)($_POST['version'] ?? ''), 'notes' => trim((string)($_POST['notes'] ?? ''))]);
@@ -466,7 +494,7 @@ if ($logged && $post) {
         $back = match (true) {
             $action === 'create' => 'new', $action === 'adopt' => 'adopt',
             in_array($action, ['password', 'totp_enable', 'totp_disable'], true) => 'account',
-            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', str_starts_with($action, 'faq_') => 'faq',
+            str_starts_with($action, 'admin_') => 'admins', str_starts_with($action, 'video_') => 'videos', str_starts_with($action, 'faq_') => 'faq', str_starts_with($action, 'code_') => 'codes',
             str_starts_with($action, 'hub_') => 'assistance', $action === 'release_notes' || $action === 'update' => 'versions',
             in_array($action, ['billing_settings', 'stripe_test'], true) || ($_POST['back'] ?? '') === 'billing' => 'billing', default => '',
         };
@@ -560,6 +588,7 @@ pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 
   <nav>
     <a class="<?= in_array($page, ['', 'new', 'adopt'], true) ? 'on' : '' ?>" href="console.php">Clients</a>
     <a class="<?= $page === 'billing' ? 'on' : '' ?>" href="console.php?p=billing">Abonnements</a>
+    <a class="<?= $page === 'codes' ? 'on' : '' ?>" href="console.php?p=codes">Codes</a>
     <a class="<?= $page === 'versions' ? 'on' : '' ?>" href="console.php?p=versions">Versions</a>
     <a class="<?= $page === 'videos' ? 'on' : '' ?>" href="console.php?p=videos">Vidéos</a>
     <a class="<?= $page === 'faq' ? 'on' : '' ?>" href="console.php?p=faq">FAQ</a>
@@ -672,7 +701,7 @@ pre.notes { white-space:pre-wrap; font:inherit; font-size:.9rem; margin:.4rem 0 
     <p><button class="btn primary">Reprendre comme client</button></p>
   </form>
 
-<?php elseif (in_array($page, ['versions', 'billing', 'faq', 'assistance'], true)): ?>
+<?php elseif (in_array($page, ['versions', 'billing', 'codes', 'faq', 'assistance'], true)): ?>
   <?php require APP . '/views/console/' . $page . '.php'; ?>
 
 <?php elseif ($page === 'account'): ?>

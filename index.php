@@ -111,6 +111,7 @@ $routes = [
     'admin/cleanup'         => ['admin_tools', 'admin_cleanup'],
     'admin/deadlines'       => ['admin_settings', 'admin_deadlines'],
     'admin/settings'        => ['admin_settings', 'admin_settings'],
+    'admin/subscription'    => ['subscription', 'admin_subscription'],
     'admin/suggestions'     => ['suggestions', 'admin_suggestions'],
     'admin/suggestion'      => ['suggestions', 'admin_suggestion'],
     'admin/suggestion/add'  => ['suggestions', 'admin_suggestion_add'],
@@ -165,8 +166,17 @@ if (is_post()) {
     }
 }
 
+// Plateforme : abonnement expiré → l'administrateur est conduit au paiement (le reste de l'application attend le renouvellement)
+$payToRenew = licence_platform() && licence_status() === 'expired';
+if ($payToRenew && user() && is_superadmin() && !in_array($route, ['admin/subscription', 'logout', 'login/2fa', 'profile'], true)) {
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        json_response(['error' => 'Abonnement expiré : renouvelez-le pour continuer.'], 402);
+    }
+    flash('info', 'Votre abonnement a expiré : renouvelez-le ci-dessous (paiement en ligne ou code) pour retrouver l\'accès pour tous vos utilisateurs.');
+    redirect('admin/subscription');
+}
 // Licence expirée ou suspendue : accès coupé immédiatement, déconnexion forcée de tous les utilisateurs
-if (user() && licence_blocked_now()) {
+if (user() && !($payToRenew && is_superadmin()) && licence_blocked_now()) {
     audit('Déconnexion forcée (licence ' . (licence_status() === 'suspended' ? 'suspendue' : 'expirée') . ')', 'user', (int)user()['id']);
     logout_user();
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
@@ -174,7 +184,7 @@ if (user() && licence_blocked_now()) {
     }
     redirect('login');
 }
-if (!user() && $route === 'login' && licence_blocked_now()) {
+if (!user() && $route === 'login' && !$payToRenew && licence_blocked_now()) {
     http_response_code(403);
     render('licence_blocked', ['title' => 'Accès coupé', 'notice' => licence_notice(), 'status' => licence_status()], 'layout_auth');
     exit;
@@ -195,7 +205,7 @@ if (current_instance() && str_starts_with($route, 'admin/updates')) {
 }
 
 // Organisation et paramètres : réservés à l'administrateur (l'acheteur gère tout le reste du service achats)
-if (preg_match('#^admin/(centers?|users?(/delete)?|invite|onboarding|transfer|settings|rgpd|audit|cleanup|updates(/.*)?|backup-daily|mail-queue|videos)$#', $route)) {
+if (preg_match('#^admin/(centers?|users?(/delete)?|invite|onboarding|transfer|settings|subscription|rgpd|audit|cleanup|updates(/.*)?|backup-daily|mail-queue|videos)$#', $route)) {
     require_superadmin();
 }
 
