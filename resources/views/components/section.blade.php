@@ -3,8 +3,10 @@
     @if ($title)
         <div class="mb-3 flex items-center justify-between gap-2">
             <h2 class="text-base font-semibold text-slate-900">{{ $title }}</h2>
-            @if ($action)<a href="{{ $action }}" class="text-sm link">{{ $actionLabel ?? 'Voir tout' }}</a>@endif
-            @isset($headerActions){{ $headerActions }}@endisset
+            <div class="flex items-center gap-3">
+                @if ($action)<a href="{{ $action }}" class="text-sm link">{{ $actionLabel ?? 'Voir tout' }}</a>@endif
+                @isset($headerActions){{ $headerActions }}@endisset
+            </div>
         </div>
     @endif
     {{ $slot }}

@@ -3,10 +3,10 @@
 import { openDB, deleteDB } from 'idb';
 
 export const STORES = ['meta', 'horses', 'sessions', 'exercises', 'events', 'treatments', 'feeding', 'queue', 'rejected'];
-const REGISTRY = 'equilibre-registry';
+const REGISTRY = 'jackcie-registry';
 
 export function dbName(userId) {
-    return `equilibre-u${userId}`;
+    return `jackcie-u${userId}`;
 }
 
 async function registry() {

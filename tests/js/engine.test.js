@@ -170,6 +170,6 @@ describe('Séparation des comptes sur un même appareil', () => {
         a.close();
         await purgeAll();
         const dbs = await indexedDB.databases();
-        expect(dbs.filter((d) => d.name.startsWith('equilibre-'))).toHaveLength(0);
+        expect(dbs.filter((d) => d.name.startsWith('jackcie-'))).toHaveLength(0);
     });
 });

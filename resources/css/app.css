@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/playfair-display/index.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,44 +8,77 @@
 @source '../js';
 
 @theme {
-    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --color-brand-50: #f1f7f3;
-    --color-brand-100: #dcebe1;
-    --color-brand-200: #bbd7c5;
-    --color-brand-300: #8ebba0;
-    --color-brand-400: #5f9877;
-    --color-brand-500: #3f7b5a;
-    --color-brand-600: #2f6347;
-    --color-brand-700: #274f3a;
-    --color-brand-800: #213f30;
-    --color-brand-900: #1b3428;
-    --color-sand-50: #faf8f3;
-    --color-sand-100: #f2ede1;
-    --color-sand-200: #e5dac2;
-    --color-sand-500: #a68b5b;
+    /* Jack&Cie — couleurs du logo : vert forêt, or doux, ivoire */
+    --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Playfair Display Variable', 'Didot', 'Bodoni 72', Georgia, serif;
+
+    /* Vert forêt (couleur de marque, logo #0D3122) */
+    --color-brand-50: #f1f6f3;
+    --color-brand-100: #e0ebe5;
+    --color-brand-200: #c1d6ca;
+    --color-brand-300: #94b5a3;
+    --color-brand-400: #5f8b75;
+    --color-brand-500: #3a6a55;
+    --color-brand-600: #245443;
+    --color-brand-700: #184535;
+    --color-brand-800: #113a2b;
+    --color-brand-900: #0d3122;
+
+    /* Or doux (esperluette et arc du logo, #D1BB9D) */
+    --color-gold-50: #fbf7f0;
+    --color-gold-100: #f5ecdd;
+    --color-gold-200: #ebdcc4;
+    --color-gold-300: #d1bb9d;
+    --color-gold-400: #c2a47e;
+    --color-gold-500: #a8875e;
+    --color-gold-600: #8a6c48;
+
+    /* Ivoire / sable */
+    --color-sand-50: #fdfaf4;
+    --color-sand-100: #f6f1e7;
+    --color-sand-200: #ece4d5;
+    --color-sand-500: #a89377;
+
+    /* Gris réchauffés : toute l'interface prend une tonalité chaude */
+    --color-slate-50: #f8f6f3;
+    --color-slate-100: #f1ede8;
+    --color-slate-200: #e7e1d9;
+    --color-slate-300: #d5ccc1;
+    --color-slate-400: #a99d90;
+    --color-slate-500: #7d7166;
+    --color-slate-600: #5f554c;
+    --color-slate-700: #483f38;
+    --color-slate-800: #332c27;
+    --color-slate-900: #26201c;
+
+    --shadow-sm: 0 1px 2px rgb(13 49 34 / 0.04), 0 1px 3px rgb(13 49 34 / 0.05);
 }
 
 @layer base {
     html { -webkit-tap-highlight-color: transparent; }
-    body { @apply bg-sand-50 text-slate-800 antialiased; }
+    body { @apply bg-sand-50 text-slate-800 antialiased; font-feature-settings: 'cv11', 'ss01'; }
+    h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.005em; color: var(--color-brand-900); }
+    h1 { font-weight: 600; }
+    h2, h3 { font-weight: 600; }
     [x-cloak] { display: none !important; }
     input, select, textarea { font-size: 16px; } /* évite le zoom iOS */
+    ::selection { background: var(--color-gold-200); }
 }
 
 @utility input {
-    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none disabled:bg-slate-100;
+    @apply block w-full rounded-xl border border-sand-200 bg-white px-3 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-gold-400 focus:ring-2 focus:ring-gold-100 focus:outline-none disabled:bg-slate-100;
 }
 @utility label { @apply mb-1 block text-sm font-medium text-slate-700; }
 @utility btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
 }
-@utility btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500; }
-@utility btn-secondary { @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400; }
+@utility btn-primary { @apply btn bg-brand-800 text-sand-50 hover:bg-brand-900 focus-visible:ring-brand-500; }
+@utility btn-secondary { @apply btn border border-sand-200 bg-white text-slate-800 hover:border-gold-300 hover:bg-gold-50 focus-visible:ring-gold-300; }
 @utility btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500; }
 @utility btn-ghost { @apply btn text-slate-600 hover:bg-slate-100; }
-@utility card { @apply rounded-xl border border-slate-200 bg-white shadow-sm; }
-@utility link { @apply font-medium text-brand-700 underline-offset-2 hover:underline; }
-@utility table-wrap { @apply overflow-x-auto rounded-xl border border-slate-200 bg-white; }
+@utility card { @apply rounded-2xl border border-sand-200 bg-white shadow-sm; }
+@utility link { @apply font-medium text-brand-700 decoration-gold-300 underline-offset-2 hover:underline; }
+@utility table-wrap { @apply overflow-x-auto rounded-2xl border border-sand-200 bg-white; }
 @utility chip { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium; }
 @utility big-touch { @apply min-h-14 text-base; }
 

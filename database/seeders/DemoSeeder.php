@@ -26,11 +26,11 @@ use RuntimeException;
 /**
  * Données de DÉMONSTRATION, clairement identifiées (is_demo = true, domaine
  *
- * @demo.equilibre.test). Refusé en production.
+ * @demo.jackcie.test). Refusé en production.
  *
  * php artisan db:seed --class=DemoSeeder
- * Comptes : proprietaire@demo.equilibre.test / cavaliere@demo.equilibre.test /
- *           gerant@demo.equilibre.test — mot de passe : Demo2026!demo
+ * Comptes : proprietaire@demo.jackcie.test / cavaliere@demo.jackcie.test /
+ *           gerant@demo.jackcie.test — mot de passe : Demo2026!demo
  */
 class DemoSeeder extends Seeder
 {
@@ -54,9 +54,9 @@ class DemoSeeder extends Seeder
             return $u->fresh();
         };
 
-        $owner = $mk('proprietaire@demo.equilibre.test', 'Claire Dupont (démo)');
-        $rider = $mk('cavaliere@demo.equilibre.test', 'Léa Martin (démo)');
-        $manager = $mk('gerant@demo.equilibre.test', 'Paul Bernard (démo)');
+        $owner = $mk('proprietaire@demo.jackcie.test', 'Claire Dupont (démo)');
+        $rider = $mk('cavaliere@demo.jackcie.test', 'Léa Martin (démo)');
+        $manager = $mk('gerant@demo.jackcie.test', 'Paul Bernard (démo)');
 
         $personal = $owner->personalOrganization();
         License::firstOrCreate(['organization_id' => $personal->id, 'source' => 'manual'], ['subscription_plan_id' => SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'status' => 'active', 'starts_at' => now(), 'notes' => 'Démonstration']);

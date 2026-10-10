@@ -106,7 +106,8 @@ class AuthTest extends TestCase
 
     public function test_public_pages_render(): void
     {
-        $this->get('/')->assertOk()->assertSee('Créer un compte');
+        $this->get('/')->assertOk()->assertSee('Commencer gratuitement')->assertSee('/brand/jackcie-logo', false)->assertSee('apple-mobile-web-app-capable', false);
+        $this->get('/application-mobile')->assertOk()->assertSee('Sur l\'écran d\'accueil', false)->assertSee('Installer maintenant');
         $this->get('/tarifs')->assertOk()->assertSee('Particulier');
         $this->get('/confidentialite')->assertOk();
         $this->get('/conditions')->assertOk();

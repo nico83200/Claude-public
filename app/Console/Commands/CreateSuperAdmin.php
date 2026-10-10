@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserProfile;
 use App\Services\Audit;
 use App\Services\OrganizationService;
+use App\Support\Installation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -61,6 +62,7 @@ class CreateSuperAdmin extends Command
         $organizations->createPersonal($user);
         Audit::log('admin.super_admin_created', $user, ['via' => 'cli']);
 
+        Installation::markInstalled(['by' => 'cli']);
         $this->info("Super-administrateur {$email} créé. Connectez-vous puis activez la double authentification (Paramètres > Sécurité) : elle est obligatoire pour l'administration.");
 
         return self::SUCCESS;

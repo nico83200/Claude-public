@@ -1,22 +1,31 @@
 {
-    "name": "Equilibre — gestion équine",
-    "short_name": "Equilibre",
-    "description": "Suivi des chevaux, soins, séances et écuries, utilisable hors ligne.",
+    "id": "/",
+    "name": "Jack&Cie",
+    "short_name": "Jack&Cie",
+    "description": "Toute la vie de votre cheval, réunie. Santé, soins, séances, demi-pensions et écuries — utilisable hors ligne.",
     "lang": "fr",
+    "dir": "ltr",
     "start_url": "/dashboard?source=pwa",
     "scope": "/",
     "display": "standalone",
-    "orientation": "portrait-primary",
-    "background_color": "#faf8f3",
-    "theme_color": "#2f6347",
+    "display_override": ["standalone", "minimal-ui"],
+    "orientation": "portrait",
+    "background_color": "#FDFAF4",
+    "theme_color": "#FDFAF4",
+    "categories": ["lifestyle", "productivity", "sports"],
     "icons": [
         { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
         { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-        { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-        { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+        { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+    "screenshots": [
+        { "src": "/screenshots/mobile-accueil.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Tableau de bord" },
+        { "src": "/screenshots/mobile-seance.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Mode séance, même hors ligne" },
+        { "src": "/screenshots/ordinateur.png", "sizes": "1600x1000", "type": "image/png", "form_factor": "wide", "label": "Fiche cheval" }
     ],
     "shortcuts": [
-        { "name": "Mode écurie", "url": "/hors-ligne", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
-        { "name": "Nouvelle séance", "url": "/seances/nouvelle" }
+        { "name": "Mode écurie", "short_name": "Écurie", "url": "/hors-ligne", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Nouvelle séance", "short_name": "Séance", "url": "/seances/nouvelle", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Calendrier", "url": "/calendrier", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
     ]
 }

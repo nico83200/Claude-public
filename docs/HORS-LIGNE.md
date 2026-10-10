@@ -7,7 +7,7 @@
 | Manifeste | `public/manifest.webmanifest`, `public/icons/*` | Installation (écran d'accueil, plein écran, raccourcis) |
 | Service Worker | `public/sw.js` | Cache des ressources compilées ; navigation réseau d'abord, repli sur la coquille « mode écurie » ; les pages privées ne sont **jamais** mises en cache |
 | Coquille | `/hors-ligne` (`resources/views/offline/app.blade.php`) | Application autonome qui lit IndexedDB |
-| Stockage | `resources/js/offline/db.js` | IndexedDB, **une base par utilisateur** (`equilibre-u{id}`) |
+| Stockage | `resources/js/offline/db.js` | IndexedDB, **une base par utilisateur** (`jackcie-u{id}`) |
 | Moteur | `resources/js/offline/engine.js` | File d'opérations, push/pull, expiration, purge |
 | Serveur | `app/Services/Sync/SyncService.php`, `/sync/*` | Revalidation des droits, idempotence, fusion, conflits |
 

@@ -1,15 +1,15 @@
-/* Service Worker — Equilibre
+/* Service Worker — Jack&Cie
  * - Ressources statiques compilées : cache d'abord (noms versionnés).
  * - Navigation : réseau d'abord ; hors connexion, repli sur la coquille
  *   « mode écurie » (/hors-ligne) qui lit IndexedDB. Les autres pages
  *   authentifiées ne sont JAMAIS mises en cache (données privées).
  * - API de synchronisation : réseau uniquement.
  */
-const VERSION = 'v1';
-const STATIC_CACHE = `equilibre-static-${VERSION}`;
-const SHELL_CACHE = `equilibre-shell-${VERSION}`;
+const VERSION = 'v3';
+const STATIC_CACHE = `jackcie-static-${VERSION}`;
+const SHELL_CACHE = `jackcie-shell-${VERSION}`;
 const SHELL_URL = '/hors-ligne';
-const PRECACHE = ['/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/offline.html'];
+const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-logo.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(STATIC_CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -53,7 +53,7 @@ self.addEventListener('fetch', (event) => {
 
     if (url.pathname.startsWith('/sync/') || url.pathname.startsWith('/stripe/')) return; // réseau uniquement
 
-    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname === '/manifest.webmanifest') {
+    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/brand/') || url.pathname === '/manifest.webmanifest') {
         event.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => {
             if (res.ok) caches.open(STATIC_CACHE).then((c) => c.put(req, res.clone()));
             return res;

@@ -1,10 +1,13 @@
 import Alpine from 'alpinejs';
 import { stableApp } from './offline/app.js';
 import { purgeAll, purgeOtherUsers } from './offline/db.js';
+import { installStore, listenForInstall } from './install.js';
 
 window.Alpine = Alpine;
 
 Alpine.data('stableApp', stableApp);
+Alpine.store('install', installStore());
+listenForInstall(Alpine);
 
 // Indicateur de connexion / synchronisation visible dans l'en-tête.
 Alpine.data('syncIndicator', () => ({
@@ -14,8 +17,8 @@ Alpine.data('syncIndicator', () => ({
     init() {
         window.addEventListener('online', () => { this.online = true; });
         window.addEventListener('offline', () => { this.online = false; });
-        window.addEventListener('equilibre-sync', (e) => { this.status = e.detail; this.pending = e.detail.pending; });
-        try { this.pending = Number(localStorage.getItem('equilibre-pending') ?? 0); } catch { /* ignore */ }
+        window.addEventListener('jackcie-sync', (e) => { this.status = e.detail; this.pending = e.detail.pending; });
+        try { this.pending = Number(localStorage.getItem('jackcie-pending') ?? 0); } catch { /* ignore */ }
     },
     get label() {
         if (!this.online) return 'Hors ligne';
@@ -33,8 +36,8 @@ Alpine.data('syncIndicator', () => ({
     },
 }));
 
-window.addEventListener('equilibre-sync', (e) => {
-    try { localStorage.setItem('equilibre-pending', String(e.detail.pending ?? 0)); } catch { /* ignore */ }
+window.addEventListener('jackcie-sync', (e) => {
+    try { localStorage.setItem('jackcie-pending', String(e.detail.pending ?? 0)); } catch { /* ignore */ }
 });
 
 Alpine.start();
@@ -61,13 +64,13 @@ if ('serviceWorker' in navigator) {
 const userId = document.querySelector('meta[name="app-user"]')?.content;
 if (userId) {
     try {
-        const previous = localStorage.getItem('equilibre-user');
+        const previous = localStorage.getItem('jackcie-user');
         if (previous && previous !== userId) {
             purgeOtherUsers(userId).catch(() => {});
             postToWorker({ type: 'purge' });
-            localStorage.removeItem('equilibre-pending');
+            localStorage.removeItem('jackcie-pending');
         }
-        localStorage.setItem('equilibre-user', userId);
+        localStorage.setItem('jackcie-user', userId);
     } catch { /* stockage indisponible */ }
 }
 
@@ -77,13 +80,13 @@ document.addEventListener('submit', async (event) => {
     if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-logout') || form.dataset.purged) return;
     event.preventDefault();
     let pending = 0;
-    try { pending = Number(localStorage.getItem('equilibre-pending') ?? 0); } catch { /* ignore */ }
+    try { pending = Number(localStorage.getItem('jackcie-pending') ?? 0); } catch { /* ignore */ }
     if (pending > 0 && !confirm(`${pending} modification(s) hors ligne ne sont pas encore synchronisées et seront perdues. Se déconnecter quand même ?`)) return;
     try {
         await purgeAll();
         await postToWorker({ type: 'purge' });
-        localStorage.removeItem('equilibre-pending');
-        localStorage.removeItem('equilibre-user');
+        localStorage.removeItem('jackcie-pending');
+        localStorage.removeItem('jackcie-user');
     } catch { /* on déconnecte quand même */ }
     form.dataset.purged = '1';
     form.submit();

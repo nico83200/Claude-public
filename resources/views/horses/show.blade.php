@@ -38,9 +38,9 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             @if ($horse->precautions || $horse->care_instructions)
-                <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-                    @if ($horse->precautions)<p class="font-semibold text-amber-900">Précautions</p><p class="mb-2 whitespace-pre-line">{{ $horse->precautions }}</p>@endif
-                    @if ($horse->care_instructions)<p class="font-semibold text-amber-900">Consignes de soins</p><p class="whitespace-pre-line">{{ $horse->care_instructions }}</p>@endif
+                <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm">
+                    @if ($horse->precautions)<p class="font-semibold text-brand-800">Précautions</p><p class="mb-2 whitespace-pre-line">{{ $horse->precautions }}</p>@endif
+                    @if ($horse->care_instructions)<p class="font-semibold text-brand-800">Consignes de soins</p><p class="whitespace-pre-line">{{ $horse->care_instructions }}</p>@endif
                 </div>
             @endif
             <x-section title="Identité">

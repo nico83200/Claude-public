@@ -19,7 +19,7 @@ const shot = async (name) => { if (SHOTS) await page.screenshot({ path: `${SHOTS
 try {
     // 1. Connexion de la demi-pension
     await page.goto(`${BASE}/login`);
-    await page.fill('#f_email', 'cavaliere@demo.equilibre.test');
+    await page.fill('#f_email', 'cavaliere@demo.jackcie.test');
     await page.fill('#f_password', 'Demo2026!demo');
     await page.click('button:has-text("Se connecter")');
     await page.waitForURL('**/dashboard');
@@ -103,7 +103,7 @@ try {
     await page.click('button:has-text("Se déconnecter")');
     await page.waitForURL(`${BASE}/`);
     const dbs = await page.evaluate(() => indexedDB.databases().then((l) => l.map((d) => d.name)));
-    assert(!dbs.some((n) => n.startsWith('equilibre-u')), 'données locales purgées à la déconnexion');
+    assert(!dbs.some((n) => n.startsWith('jackcie-u')), 'données locales purgées à la déconnexion');
 
     console.log('\nE2E hors ligne : SUCCÈS');
 } catch (e) {

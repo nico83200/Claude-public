@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="app-user" content="{{ auth()->id() }}">
-    <meta name="theme-color" content="#2f6347">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    <title>{{ isset($title) ? $title.' · ' : '' }}{{ $appName }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="app-user" content="{{ auth()->id() }}">
+    @include('partials.head')
 </head>
 <body class="min-h-dvh" x-data="{ menu: false }">
 @php
@@ -34,7 +27,7 @@
     <div x-cloak x-show="menu" @click="menu = false" class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden"></div>
     <aside :class="menu ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-slate-200 bg-white transition-transform lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0">
         <div class="flex h-16 items-center justify-between px-5">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-lg font-bold text-brand-800"><img src="/icons/icon.svg" alt="" class="size-8"> {{ $appName }}</a>
+            <a href="{{ route('dashboard') }}" aria-label="Accueil"><x-logo /></a>
             <button class="btn-ghost lg:hidden" @click="menu = false" aria-label="Fermer le menu"><x-icon name="x" /></button>
         </div>
         @if ($userMemberships->count() > 1)
@@ -60,6 +53,7 @@
                 @endif
             @endforeach
             <a href="{{ route('offline.app') }}" class="flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-50"><x-icon name="offline" /> Mode écurie (hors ligne)</a>
+            <button type="button" x-data x-show="! $store.install.installed" @click="$store.install.install(); menu = false" class="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-medium text-brand-700 hover:bg-brand-50"><x-icon name="download" /> Installer sur mon téléphone</button>
             @can('super-admin')
                 <a href="{{ route('admin.dashboard') }}" class="mt-3 flex min-h-11 items-center gap-3 rounded-lg bg-slate-900 px-3 text-sm font-medium text-white"><x-icon name="shield" /> Administration</a>
             @endcan
@@ -112,6 +106,7 @@
         <a href="{{ route($route) }}" class="flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] {{ $active ? 'text-brand-700' : 'text-slate-500' }}"><x-icon :name="$icon" class="size-6" />{{ $label }}</a>
     @endforeach
 </nav>
+@include('partials.install')
 @stack('scripts')
 </body>
 </html>

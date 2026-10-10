@@ -4,6 +4,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
 ## Socle
+- ✅ Installeur web du premier lancement (prérequis, base MySQL, application, super‑administrateur, verrouillage) — testé sur base vierge et depuis le zip de distribution
+- ✅ Web app installable : manifeste complet (icônes, captures, raccourcis), invite native Android/ordinateur, instructions iPhone, page /application-mobile
 - ✅ Inscription avec espace personnel, connexion, déconnexion, vérification d'email, réinitialisation du mot de passe, limitation des tentatives
 - ✅ 2FA TOTP (☑️ parcours d'activation vérifié manuellement uniquement), obligatoire pour l'administration
 - ✅ Organisations multiples, changement d'espace, rôles système et rôles personnalisés, invitations de membres
@@ -61,14 +63,14 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 
 ## Administration
 - ✅ Indicateurs (comptes, organisations, chevaux, abonnements, répartition, échecs, résiliations, MRR **estimé** distinct du facturé et de l'encaissé), utilisateurs, organisations, suspensions, licences, offres, événements Stripe, journal d'audit, erreurs, demandes RGPD
-- ⚠️ Paramètres « logo » et « couleur principale » enregistrés mais pas encore appliqués à l'interface (seul le nom de l'application l'est)
+- ⚠️ Paramètres « logo » et « couleur principale » de l'administration non appliqués : l'identité Jack&Cie (logo fourni, vert/or/ivoire) est intégrée au thème
 
 ## Notifications, exports, RGPD
 - ✅ Notifications en application ; ⚙️ par email dès qu'un SMTP est configuré
 - ✅ Recherche globale limitée aux droits ; exports fiche/santé/séances/dépenses ; export RGPD JSON ; anonymisation ; purge planifiée
 
 ## Reste à configurer pour la production
-1. Serveur MySQL, `.env` de production, HTTPS, cron `schedule:run`.
+1. Téléverser le zip, lancer l'installeur web (base MySQL, super‑administrateur), HTTPS, cron `schedule:run`.
 2. SMTP (`MAIL_*`) — indispensable pour la vérification d'email et les invitations.
 3. Stripe : clés, webhook, portail client, prix des offres.
 4. Premier super-administrateur + 2FA.

@@ -12,7 +12,7 @@
 
 ```bash
 mysqldump --single-transaction --routines --default-character-set=utf8mb4 \
-  -u equilibre -p equilibre | gzip > equilibre-$(date +%F).sql.gz
+  -u jackcie -p jackcie | gzip > jackcie-$(date +%F).sql.gz
 tar czf fichiers-$(date +%F).tar.gz storage/app/private
 ```
 
@@ -24,7 +24,7 @@ La plupart des hébergeurs mutualisés proposent aussi des sauvegardes automatiq
 
 ```bash
 php artisan down
-gunzip < equilibre-AAAA-MM-JJ.sql.gz | mysql -u equilibre -p equilibre
+gunzip < jackcie-AAAA-MM-JJ.sql.gz | mysql -u jackcie -p jackcie
 tar xzf fichiers-AAAA-MM-JJ.tar.gz
 php artisan migrate --force   # si la sauvegarde est antérieure à une version
 php artisan optimize:clear && php artisan up
@@ -32,7 +32,7 @@ php artisan optimize:clear && php artisan up
 
 ## Test de restauration (à faire au moins chaque trimestre)
 
-1. Restaurer la dernière sauvegarde dans une base de recette (`DB_DATABASE=equilibre_recette`).
+1. Restaurer la dernière sauvegarde dans une base de recette (`DB_DATABASE=jackcie_recette`).
 2. `php artisan migrate:status` doit être à jour ; se connecter avec un compte de test.
 3. Ouvrir un cheval, télécharger un document, vérifier le tableau de bord admin.
 4. Consigner date, durée et anomalies.

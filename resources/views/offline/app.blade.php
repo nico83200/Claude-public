@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="app-user" content="{{ auth()->id() }}">
-    <meta name="theme-color" content="#2f6347">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
-    <title>Mode écurie · {{ $appName }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="app-user" content="{{ auth()->id() }}">
+    @php($title = 'Mode écurie')
+    @php($themeColor = '#113a2b')
+    @include('partials.head')
 </head>
 <body data-offline-shell="1" class="min-h-dvh bg-sand-50">
 <div x-data="stableApp" x-cloak class="mx-auto min-h-dvh max-w-2xl pb-24">

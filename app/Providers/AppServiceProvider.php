@@ -7,6 +7,7 @@ use App\Models\Horse;
 use App\Models\User;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
+use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +38,9 @@ class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
         Paginator::useTailwind();
 
-        if ($this->app->isProduction()) {
+        // HTTPS forcé seulement une fois installé et si l'adresse configurée est en https
+        // (l'installeur doit rester accessible sur un domaine pas encore certifié).
+        if ($this->app->isProduction() && Installation::isInstalled() && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
 

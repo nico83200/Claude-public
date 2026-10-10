@@ -19,10 +19,10 @@ export const TYPES = {
 
 function deviceId() {
     let id = null;
-    try { id = localStorage.getItem('equilibre-device'); } catch { /* stockage indisponible */ }
+    try { id = localStorage.getItem('jackcie-device'); } catch { /* stockage indisponible */ }
     if (!id) {
         id = uuid();
-        try { localStorage.setItem('equilibre-device', id); } catch { /* ignore */ }
+        try { localStorage.setItem('jackcie-device', id); } catch { /* ignore */ }
     }
     return id;
 }
@@ -42,7 +42,7 @@ export function stableApp() {
                 this.db = await openUserDb(userId);
                 this.api = createApi({ getToken: () => token, setToken: (t) => { token = t; } });
                 this.engine = new SyncEngine({ db: this.db, api: this.api, deviceId: deviceId(), deviceLabel: navigator.userAgent.slice(0, 90), onWipe: async () => { this.db.close(); await purgeAll(); location.reload(); } });
-                this.engine.addEventListener('change', (e) => { this.state = e.detail; window.dispatchEvent(new CustomEvent('equilibre-sync', { detail: e.detail })); });
+                this.engine.addEventListener('change', (e) => { this.state = e.detail; window.dispatchEvent(new CustomEvent('jackcie-sync', { detail: e.detail })); });
                 await this.engine.init();
                 this.state = { ...this.engine.state };
                 const pin = await this.db.get('meta', 'pin');

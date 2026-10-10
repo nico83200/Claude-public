@@ -33,6 +33,7 @@
         <env name="BRAVE_SEARCH_API_KEY" value=""/>
         <env name="HORSE_SEARCH_WIKIDATA" value="true"/>
         <env name="SESSION_SECURE_COOKIE" value="false"/>
+        <env name="APP_INSTALLED" value="true"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

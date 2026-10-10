@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Forçage de l'état d'installation (null = fichier verrou storage/app/installed.json)
+    'installed' => env('APP_INSTALLED'),
+
+    // Clé facultative exigée par l'installeur web (à définir avant l'envoi des fichiers)
+    'install_key' => env('INSTALL_KEY'),
+
     'billing' => [
         'grace_days' => (int) env('BILLING_GRACE_DAYS', 7),
         'recovery_days' => (int) env('BILLING_RECOVERY_DAYS', 90),
@@ -11,7 +17,7 @@ return [
         'brave_api_key' => env('BRAVE_SEARCH_API_KEY'),
         'timeout' => (int) env('HORSE_SEARCH_TIMEOUT', 8),
         'cache_minutes' => (int) env('HORSE_SEARCH_CACHE_MINUTES', 1440),
-        'user_agent' => env('HORSE_SEARCH_USER_AGENT', 'EquilibreBot/1.0'),
+        'user_agent' => env('HORSE_SEARCH_USER_AGENT', 'JackCieBot/1.0'),
         'max_per_minute' => 10,
     ],
 

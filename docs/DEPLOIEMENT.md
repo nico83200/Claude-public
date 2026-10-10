@@ -1,6 +1,14 @@
 # Déploiement
 
-## Option A — hébergement mutualisé PHP/MySQL
+## Option A — hébergement mutualisé avec le zip et l'installeur web (le plus simple)
+
+1. Téléversez et décompressez `jackcie-x.y.z.zip` (dépendances PHP et ressources compilées déjà incluses,
+   aucun Composer ni Node.js nécessaire sur le serveur).
+2. Domaine → dossier `public/` (ou racine : le `.htaccess` fourni redirige et protège).
+3. Ouvrez le domaine et suivez l'installeur (`/install`) — voir INSTALLATION.md.
+4. Ajoutez la tâche cron affichée en fin d'installation. HTTPS obligatoire en production.
+
+## Option A bis — hébergement mutualisé, installation manuelle
 
 1. Compiler localement : `composer install --no-dev --optimize-autoloader && npm ci && npm run build`.
 2. Envoyer le projet complet (avec `vendor/` et `public/build/`) hors de la racine web.
@@ -15,7 +23,7 @@
    ```
 6. **Cron** (obligatoire — rappels, licences, file de messages, purge) :
    ```
-   * * * * * cd /chemin/equilibre && php artisan schedule:run >> /dev/null 2>&1
+   * * * * * cd /chemin/jackcie && php artisan schedule:run >> /dev/null 2>&1
    ```
    La file (emails) est traitée chaque minute par `queue:work --stop-when-empty`.
 7. HTTPS obligatoire (Service Worker, cookies sécurisés `SESSION_SECURE_COOKIE=true`).

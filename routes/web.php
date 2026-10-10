@@ -4,11 +4,25 @@ use App\Http\Controllers;
 use App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Route;
 
+// --- Installeur du premier lancement (fermé définitivement après installation)
+Route::get('/install', [Controllers\InstallController::class, 'welcome'])->middleware('throttle:60,1')->name('install');
+Route::prefix('install')->name('install.')->middleware('throttle:60,1')->group(function () {
+    Route::post('/deverrouiller', [Controllers\InstallController::class, 'unlock'])->name('unlock');
+    Route::get('/base-de-donnees', [Controllers\InstallController::class, 'database'])->name('database');
+    Route::post('/base-de-donnees', [Controllers\InstallController::class, 'saveDatabase'])->name('database.save');
+    Route::get('/application', [Controllers\InstallController::class, 'application'])->name('application');
+    Route::post('/application', [Controllers\InstallController::class, 'saveApplication'])->name('application.save');
+    Route::get('/administrateur', [Controllers\InstallController::class, 'admin'])->name('admin');
+    Route::post('/administrateur', [Controllers\InstallController::class, 'saveAdmin'])->name('admin.save');
+    Route::get('/termine', [Controllers\InstallController::class, 'done'])->middleware('signed')->name('done');
+});
+
 // --- Pages publiques -------------------------------------------------------
 Route::get('/', [Controllers\PublicController::class, 'home'])->name('home');
 Route::get('/tarifs', [Controllers\PublicController::class, 'pricing'])->name('pricing');
 Route::get('/confidentialite', [Controllers\PublicController::class, 'privacy'])->name('legal.privacy');
 Route::get('/conditions', [Controllers\PublicController::class, 'terms'])->name('legal.terms');
+Route::view('/application-mobile', 'public.install')->name('app.install');
 
 // Webhook Stripe (signature vérifiée, CSRF exclu dans bootstrap/app.php)
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
