@@ -101,8 +101,8 @@ final class AiAssistant
             . "- Une prestation par trajet (aller et retour = 2 vols ; un vol avec correspondance = 1 vol avec escales ≥ 1, horaires du premier départ et de la dernière arrivée), une par hébergement, croisière, transfert, location, activité ou assurance.\n"
             . "- Dates au format AAAA-MM-JJ, heures HH:MM en heure locale telles qu'affichées. Codes IATA des aéroports en majuscules si identifiables.\n"
             . "- prix_total = montant TOTAL affiché pour la prestation (toutes personnes, toutes nuits), dans la devise affichée (code ISO). Si seul un prix par personne ou par nuit est visible, renseigne prix_unitaire et unite en conséquence et laisse prix_total à null.\n"
-            . "- taxes = taxes ou frais séparés du prix (taxes portuaires, taxe de séjour…) s'ils sont détaillés.\n"
-            . "- N'invente rien : mets null pour toute information absente ou illisible. Signale les incertitudes dans 'remarques'.\n"
+            . "- taxes = part du prix_total correspondant à des taxes ou frais (taxes aéroport, portuaires…) quand elle est détaillée. Les montants payables EN PLUS ou sur place (ex. taxe de séjour à régler à l'hôtel) ne vont ni dans prix_total ni dans taxes : mentionne-les dans 'remarques'.\n"
+            . "- N'invente rien : chaîne vide \"\" pour un texte absent ou illisible, null pour un nombre inconnu. Signale les incertitudes dans 'remarques'.\n"
             . "- libelle : court et parlant pour un client (ex. « Vol Paris CDG → Bangkok BKK — Thai Airways TG931 », « Hôtel Riva Surya 4* — 5 nuits, chambre Deluxe »).";
 
         $content[] = ['type' => 'text', 'text' => $prompt];
@@ -110,33 +110,33 @@ final class AiAssistant
         $itemProps = [
             'type' => ['type' => 'string', 'enum' => array_keys(Schema::ITEM_TYPES)],
             'libelle' => ['type' => 'string'],
-            'description' => ['type' => ['string', 'null']],
-            'fournisseur' => ['type' => ['string', 'null'], 'description' => 'Compagnie, hôtel, croisiériste, loueur… qui fournit la prestation'],
-            'date_debut' => ['type' => ['string', 'null']],
-            'heure_debut' => ['type' => ['string', 'null']],
-            'date_fin' => ['type' => ['string', 'null']],
-            'heure_fin' => ['type' => ['string', 'null']],
-            'lieu_depart' => ['type' => ['string', 'null']],
-            'lieu_arrivee' => ['type' => ['string', 'null']],
-            'compagnie' => ['type' => ['string', 'null']],
-            'numero' => ['type' => ['string', 'null'], 'description' => 'N° de vol ou de train'],
-            'classe' => ['type' => ['string', 'null']],
+            'description' => ['type' => 'string'],
+            'fournisseur' => ['type' => 'string', 'description' => 'Compagnie, hôtel, croisiériste, loueur… qui fournit la prestation'],
+            'date_debut' => ['type' => 'string'],
+            'heure_debut' => ['type' => 'string'],
+            'date_fin' => ['type' => 'string'],
+            'heure_fin' => ['type' => 'string'],
+            'lieu_depart' => ['type' => 'string'],
+            'lieu_arrivee' => ['type' => 'string'],
+            'compagnie' => ['type' => 'string'],
+            'numero' => ['type' => 'string', 'description' => 'N° de vol ou de train'],
+            'classe' => ['type' => 'string'],
             'escales' => ['type' => ['integer', 'null']],
             'duree_min' => ['type' => ['integer', 'null'], 'description' => 'Durée totale en minutes si affichée'],
-            'bagages' => ['type' => ['string', 'null']],
-            'navire' => ['type' => ['string', 'null']],
-            'categorie' => ['type' => ['string', 'null']],
-            'chambre' => ['type' => ['string', 'null']],
-            'pension' => ['type' => ['string', 'null'], 'description' => 'RO, BB, HB, FB ou AI'],
-            'mode_transfert' => ['type' => ['string', 'null'], 'description' => 'prive, partage ou chauffeur'],
-            'unite' => ['type' => ['string', 'null'], 'description' => 'Une valeur parmi : ' . implode(', ', array_keys(Schema::UNITS))],
+            'bagages' => ['type' => 'string'],
+            'navire' => ['type' => 'string'],
+            'categorie' => ['type' => 'string'],
+            'chambre' => ['type' => 'string'],
+            'pension' => ['type' => 'string', 'description' => 'RO, BB, HB, FB ou AI'],
+            'mode_transfert' => ['type' => 'string', 'description' => 'prive, partage ou chauffeur'],
+            'unite' => ['type' => 'string', 'description' => 'Une valeur parmi : ' . implode(', ', array_keys(Schema::UNITS))],
             'quantite' => ['type' => ['number', 'null']],
             'prix_unitaire' => ['type' => ['number', 'null']],
             'prix_total' => ['type' => ['number', 'null']],
             'taxes' => ['type' => ['number', 'null']],
-            'devise' => ['type' => ['string', 'null']],
-            'ref_reservation' => ['type' => ['string', 'null']],
-            'remarques' => ['type' => ['string', 'null'], 'description' => 'Incertitudes, conditions particulières, éléments à vérifier'],
+            'devise' => ['type' => 'string'],
+            'ref_reservation' => ['type' => 'string'],
+            'remarques' => ['type' => 'string', 'description' => 'Incertitudes, conditions particulières, éléments à vérifier'],
         ];
         $schema = [
             'type' => 'object',
@@ -145,7 +145,7 @@ final class AiAssistant
                     'type' => 'object', 'properties' => $itemProps,
                     'required' => array_keys($itemProps), 'additionalProperties' => false,
                 ]],
-                'commentaire' => ['type' => ['string', 'null'], 'description' => 'Synthèse courte pour l\'agent'],
+                'commentaire' => ['type' => 'string', 'description' => 'Synthèse courte pour l\'agent'],
             ],
             'required' => ['items', 'commentaire'],
             'additionalProperties' => false,
@@ -156,7 +156,7 @@ final class AiAssistant
         foreach ($data['items'] ?? [] as $it) {
             $items[] = $this->normalizeItem((array)$it);
         }
-        return ['items' => $items, 'commentaire' => $data['commentaire'] ?? null];
+        return ['items' => $items, 'commentaire' => ($data['commentaire'] ?? '') ?: null];
     }
 
     /** Convertit la sortie IA en données compatibles avec l'entité 'items' (validation permissive). */
@@ -165,7 +165,7 @@ final class AiAssistant
         $fields = Schema::entity('items')['fields'];
         $out = [];
         foreach ($it as $k => $v) {
-            if (!isset($fields[$k]) || $v === null) {
+            if (!isset($fields[$k]) || $v === null || $v === '') {
                 continue;
             }
             try {
@@ -195,7 +195,7 @@ final class AiAssistant
         if ($notes) {
             $out['notes'] = "[Import IA] " . implode("\n", $notes);
         }
-        $out['_fournisseur'] = $it['fournisseur'] ?? null;
+        $out['_fournisseur'] = ($it['fournisseur'] ?? '') ?: null;
         $out['statut'] = !empty($out['ref_reservation']) ? 'confirme' : 'a_demander';
         return $out;
     }
@@ -219,8 +219,8 @@ final class AiAssistant
                         'niveau' => ['type' => 'string', 'enum' => ['important', 'conseil', 'info']],
                         'titre' => ['type' => 'string'],
                         'detail' => ['type' => 'string'],
-                        'type_prestation' => ['type' => ['string', 'null'],
-                            'description' => 'Si la suggestion consiste à ajouter une prestation, son type parmi : ' . implode(', ', array_keys(Schema::ITEM_TYPES))],
+                        'type_prestation' => ['type' => 'string',
+                            'description' => 'Si la suggestion consiste à ajouter une prestation, son type parmi : ' . implode(', ', array_keys(Schema::ITEM_TYPES)) . ' ; sinon chaîne vide'],
                     ],
                     'required' => ['niveau', 'titre', 'detail', 'type_prestation'],
                     'additionalProperties' => false,

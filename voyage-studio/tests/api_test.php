@@ -113,6 +113,12 @@ check('statut IA (sans clé)', $st['enabled'] === false);
 $r = $call('POST', 'ai/extract', ['text' => 'Vol AF123']);
 check('IA non configurée → 503', $r['status'] === 503, $r);
 
+echo "Mise à jour (contrôles de sécurité)\n";
+check('chemin normal autorisé', Updater::safePath('app/Api.php') && Updater::allowed('app/Api.php'));
+check('zip-slip refusé', !Updater::safePath('../evil.php') && !Updater::safePath('app/../../x.php') && !Updater::safePath('/etc/passwd') && !Updater::safePath('C:/x'));
+check('config.php et data/ protégés', !Updater::allowed('config.php') && !Updater::allowed('data/voyage.sqlite'));
+check('fichier hors liste blanche ignoré', !Updater::allowed('shell.php'));
+
 echo "Déconnexion\n";
 $call('POST', 'auth/logout');
 check('session fermée', $api->handle('GET', 'clients', [], [], null, '')['status'] === 401);

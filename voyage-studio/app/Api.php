@@ -59,6 +59,14 @@ final class Api
     /** Réponses non JSON (téléchargements). */
     private array $extra = [];
 
+    /** Fichier téléversé (vérifié par is_uploaded_file dans api.php). */
+    private ?string $upload = null;
+
+    public function setUpload(?string $path): void
+    {
+        $this->upload = $path;
+    }
+
     private function dispatch(string $m, array $p, array $q, array $b, string $ip): mixed
     {
         [$a, $id, $action] = array_pad($p, 3, null);
@@ -92,6 +100,8 @@ final class Api
                 return $this->exportCsv((string)$id);
             case 'ai':
                 return $this->aiRoute($m, (string)$id, $b);
+            case 'update':
+                return $this->updateRoute($m, (string)$id, $b, $q);
         }
 
         if (!$a || !Schema::entity($a)) {
@@ -164,6 +174,37 @@ final class Api
         }
         if ($action === 'suggest') {
             return $this->ai()->suggest((array)($b['summary'] ?? []));
+        }
+        throw new NotFoundException('Route inconnue');
+    }
+
+    private function updateRoute(string $m, string $action, array $b, array $q): mixed
+    {
+        $up = new Updater(VS_ROOT, $this->db);
+        if ($m === 'GET' && $action === '') {
+            return $up->status();
+        }
+        if ($m === 'GET' && $action === 'download') {
+            $path = $up->backupPath((string)($q['file'] ?? ''));
+            $this->extra = ['raw' => (string)file_get_contents($path), 'headers' => [
+                'Content-Type' => str_ends_with($path, '.zip') ? 'application/zip' : 'application/json',
+                'Content-Disposition' => 'attachment; filename="' . basename($path) . '"',
+            ]];
+            return null;
+        }
+        if ($m === 'POST' && $action === 'backup') {
+            return $up->backup();
+        }
+        if ($m === 'POST' && in_array($action, ['inspect', 'install'], true)) {
+            if (!$this->upload || !is_file($this->upload)) {
+                throw new HttpException(400, 'Aucun fichier ZIP reçu');
+            }
+            if ($action === 'inspect') {
+                $info = $up->inspect($this->upload);
+                unset($info['_map']);
+                return $info;
+            }
+            return $up->install($this->upload, !empty($b['allow_downgrade']));
         }
         throw new NotFoundException('Route inconnue');
     }

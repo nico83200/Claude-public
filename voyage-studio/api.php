@@ -25,8 +25,19 @@ if ($method === 'POST' && in_array($override, ['PUT', 'DELETE'], true)) {
 }
 
 $body = [];
-$raw = file_get_contents('php://input');
-if ($raw !== '' && $raw !== false) {
+$isMultipart = str_starts_with(strtolower($_SERVER['CONTENT_TYPE'] ?? ''), 'multipart/form-data');
+if ($isMultipart) {
+    $body = $_POST;
+    $f = $_FILES['package'] ?? null;
+    if ($f && $f['error'] === UPLOAD_ERR_OK && is_uploaded_file($f['tmp_name'])) {
+        $api->setUpload($f['tmp_name']);
+    } elseif ($f && in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        http_response_code(413);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Fichier trop volumineux pour la configuration PHP de l\'hébergement (upload_max_filesize). Utilisez le paquet sans vendor/ ou le FTP.']);
+        exit;
+    }
+} elseif (($raw = file_get_contents('php://input')) !== '' && $raw !== false) {
     $body = json_decode($raw, true);
     if (!is_array($body)) {
         $body = [];

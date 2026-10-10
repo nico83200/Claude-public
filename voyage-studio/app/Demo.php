@@ -85,7 +85,8 @@ final class Demo
                 $r->create('days', ['option_id' => $optA['id'], 'jour' => $j, 'titre' => $t, 'lieu' => $l, 'description' => $d]);
             }
 
-            $optB = $r->duplicate('options', $optA['id'], ['nom' => 'Option B — Croisière cabine intérieure, sans nuit à Barcelone', 'ordre' => 1]);
+            $optB = $r->duplicate('options', $optA['id'], ['nom' => 'Option B — Croisière cabine intérieure, sans nuit à Barcelone', 'ordre' => 1,
+                'resume' => '7 nuits à bord du MSC World Europa en cabine intérieure, pension complète, vol le jour de l\'embarquement.']);
             foreach ($r->list('items', ['option_id' => $optB['id']]) as $it) {
                 if ($it['type'] === 'hebergement' || ($it['type'] === 'transfert' && $it['libelle'] === 'Transfert hôtel → port')) {
                     $r->delete('items', $it['id']);

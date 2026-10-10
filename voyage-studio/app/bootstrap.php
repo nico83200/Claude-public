@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * Initialisation commune : configuration, autoload, en-têtes de sécurité.
  */
-const VS_VERSION = '1.0.0';
 const VS_ROOT = __DIR__ . '/..';
+define('VS_VERSION', trim((string)@file_get_contents(VS_ROOT . '/VERSION')) ?: '0.0.0');
 
 if (PHP_VERSION_ID < 80100) {
     http_response_code(500);
@@ -57,7 +57,7 @@ function vs_security_headers(): void
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: same-origin');
-    header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
 }
 
 $cfg = vs_config();
