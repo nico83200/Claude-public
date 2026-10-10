@@ -25,6 +25,8 @@ echo "→ Dépendances PHP de production"
 echo "→ Nettoyage"
 # Dépôts Git embarqués (paquets installés depuis les sources) et fichiers inutiles en production
 find "$STAGE/vendor" -type d \( -name .git -o -name .github \) -prune -exec rm -rf {} +
+find "$STAGE/vendor" -mindepth 3 -maxdepth 3 -type d \( -iname tests -o -iname test -o -iname docs -o -iname doc -o -iname examples \) -prune -exec rm -rf {} +
+find "$STAGE/vendor" -type f \( -iname '*.md' -o -name 'phpunit.xml*' -o -name '.php-cs-fixer*' -o -name 'psalm.xml' -o -name 'phpstan.neon*' \) ! -iname 'LICENSE*' -delete
 rm -f "$STAGE/.env" "$STAGE/storage/app/installed.json" "$STAGE/public/hot"
 find "$STAGE/storage" -type f ! -name '.gitignore' -delete
 rm -rf "$STAGE/bootstrap/cache/"*.php
@@ -67,6 +69,6 @@ TXT
 echo "→ Archive"
 mkdir -p "$ROOT/dist"
 rm -f "$OUT"
-(cd "$(dirname "$STAGE")" && zip -qr -X "$OUT" jackcie)
+(cd "$(dirname "$STAGE")" && zip -9 -qr -X "$OUT" jackcie)
 rm -rf "$(dirname "$STAGE")"
 echo "✓ $OUT ($(du -h "$OUT" | cut -f1))"
