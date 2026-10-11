@@ -1,6 +1,6 @@
 <x-layouts.app title="Intervenants">
     <x-page-header title="Intervenants" :subtitle="'Répertoire de '.$org->name">
-        @if ($canManage)<a href="{{ route('professionals.create') }}" class="btn-primary"><x-icon name="plus" /> Ajouter</a>@endif
+        @if ($canManage)<a href="{{ route('professionals.create') }}" class="btn-secondary"><x-icon name="users" class="size-4" /> Importer un contact</a><a href="{{ route('professionals.create') }}" class="btn-primary"><x-icon name="plus" /> Ajouter</a>@endif
     </x-page-header>
     <form class="mb-4 flex flex-wrap gap-2" method="GET">
         <input name="q" value="{{ request('q') }}" placeholder="Nom, société…" class="input max-w-xs" aria-label="Rechercher">

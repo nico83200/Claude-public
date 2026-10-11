@@ -9,7 +9,7 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" x-model="cat" />
                 <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required x-model="performed" />
-                <x-select name="professional_id" label="Professionnel" :options="$professionals" :value="$record->professional_id" placeholder="—" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
+                <x-professional-select label="Professionnel" :options="$professionals" :value="$record->professional_id" :org="$horse->organization" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
                 <x-field name="reason" label="Motif" :value="$record->reason" />
                 <x-textarea name="observations" label="Observations" :value="$record->observations" />
                 <x-textarea name="care_performed" label="Soins réalisés" :value="$record->care_performed" />

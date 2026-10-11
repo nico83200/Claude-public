@@ -168,7 +168,7 @@
             <input type="hidden" name="paid" value="0">
             <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="paid" value="1" @checked(old('paid', '1')) class="size-5 rounded"> <span x-text="recurring ? 'Échéances déjà passées réglées' : 'Déjà payée'">Déjà payée</span></label>
             <x-field name="supplier" label="Fournisseur" />
-            <x-select name="professional_id" label="Intervenant lié" :options="$professionals" placeholder="—" />
+            <x-professional-select label="Intervenant lié" :options="$professionals" />
             <x-textarea name="comment" label="Commentaire" rows="2" />
             <div><label class="label" for="receipt">Justificatif (facultatif)</label><input id="receipt" type="file" name="receipt" accept=".pdf,image/*" capture="environment" class="text-sm"></div>
             <button class="btn-primary w-full">Enregistrer</button>

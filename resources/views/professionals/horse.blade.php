@@ -16,17 +16,13 @@
         </div>
         @if ($canEdit)
         <x-section title="Associer un intervenant">
-            @if ($available->isEmpty())
-                <p class="text-sm text-slate-500">Le répertoire de l'espace {{ $horse->organization->name }} ne contient pas d'autre intervenant.</p>
-            @else
             <form method="POST" action="{{ route('horses.professionals.attach', $horse) }}" class="space-y-3">
                 @csrf
-                <x-select name="professional_id" label="Intervenant" :options="$available->mapWithKeys(fn ($p) => [$p->id => $p->fullName().' – '.$p->kindLabel()])" required />
+                <x-professional-select :options="$available->mapWithKeys(fn ($p) => [$p->id => $p->fullName().' – '.$p->kindLabel()])" :org="$horse->organization" placeholder="Choisir…" required
+                    :help="$available->isEmpty() ? 'Le répertoire de l\'espace '.$horse->organization->name.' ne contient pas d\'autre intervenant.' : null" />
                 <x-checkbox name="is_primary" label="Référent pour ce cheval" />
                 <button class="btn-primary w-full">Associer</button>
             </form>
-            @endif
-            <a href="{{ route('professionals.create') }}" class="mt-3 block text-sm link">Créer une fiche intervenant</a>
         </x-section>
         @endif
     </div>

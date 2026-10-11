@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Horse;
 use App\Models\Professional;
 use App\Services\HorseAccess;
+use App\Services\ProfessionalDirectory;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -44,11 +45,16 @@ class ProfessionalController extends Controller
         $this->authorizeOrg($org, Perm::PROFESSIONALS_MANAGE);
         $data = $this->validated($request);
 
-        // Anti-doublon : même nom et même téléphone ou email dans l'espace.
-        $duplicate = Professional::where('organization_id', $org->id)->where('last_name', $data['last_name'])
-            ->where(fn ($q) => $q->when($data['phone'] ?? null, fn ($w, $p) => $w->orWhere('phone', $p))->when($data['email'] ?? null, fn ($w, $e) => $w->orWhere('email', $e)))
-            ->when(empty($data['phone']) && empty($data['email']), fn ($q) => $q->where('first_name', $data['first_name'] ?? null))
-            ->first();
+        // Fiche importée qui correspond à une fiche existante : mise à jour à la demande.
+        if ($mergeId = $request->integer('merge')) {
+            $existing = Professional::where('organization_id', $org->id)->findOrFail($mergeId);
+            [$professional] = app(ProfessionalDirectory::class)->upsert($org, $data, $existing);
+
+            return redirect()->route('professionals.show', $professional)->with('success', 'Fiche mise à jour.');
+        }
+
+        // Anti-doublon : même email, même téléphone (quel que soit le format) ou même nom dans l'espace.
+        $duplicate = app(ProfessionalDirectory::class)->match($org, $data);
         if ($duplicate && ! $request->boolean('force')) {
             return back()->withInput()->with('warning', 'Une fiche similaire existe déjà : '.$duplicate->fullName().'. Cochez « Créer quand même » si c\'est une autre personne.')->with('duplicate_id', $duplicate->id);
         }
@@ -58,6 +64,31 @@ class ProfessionalController extends Controller
         $professional->save();
 
         return redirect()->route('professionals.show', $professional)->with('success', 'Intervenant ajouté.');
+    }
+
+    /**
+     * Création rapide depuis un formulaire (soin, rendez-vous, dépense, séance) ou import
+     * d'une fiche contact : crée la fiche, ou met à jour celle qui a le même email,
+     * le même téléphone ou le même nom. Réponse JSON pour sélectionner la fiche aussitôt.
+     */
+    public function quickStore(Request $request, ProfessionalDirectory $directory)
+    {
+        $user = $request->user();
+        $orgId = $request->integer('organization_id') ?: $this->currentOrganization()->id;
+        $org = $user->memberships->firstWhere('organization_id', $orgId)?->organization;
+        abort_unless($org && $user->canInOrg($org, Perm::PROFESSIONALS_MANAGE) && $this->entitlements()->writable($org), 403, 'Vous ne pouvez pas ajouter d\'intervenant dans cet espace.');
+        $data = $this->validated($request);
+
+        [$professional, $created] = $directory->upsert($org, $data);
+
+        return response()->json([
+            'id' => $professional->id,
+            'name' => $professional->fullName(),
+            'label' => $professional->fullName().' – '.$professional->kindLabel(),
+            'kind' => $professional->kind,
+            'created' => $created,
+            'message' => $created ? $professional->fullName().' ajouté à vos intervenants.' : 'Fiche existante mise à jour : '.$professional->fullName().'.',
+        ], $created ? 201 : 200);
     }
 
     public function show(Request $request, Professional $professional, HorseAccess $access)

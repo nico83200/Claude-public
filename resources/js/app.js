@@ -9,6 +9,7 @@ import { pushGateStore } from './push.js';
 import { chunkUpload } from './chunk-upload.js';
 import { videoPlayer } from './video-player.js';
 import { startSelectEnhancer } from './select-enhance.js';
+import { contactImport, contactFormStore } from './contacts.js';
 
 window.Alpine = Alpine;
 
@@ -18,6 +19,10 @@ Alpine.data('updateUpload', updateUpload);
 Alpine.data('pushSettings', pushSettings);
 Alpine.data('chunkUpload', chunkUpload);
 Alpine.data('videoPlayer', videoPlayer);
+Alpine.data('contactImport', contactImport);
+Alpine.store('contactForm', contactFormStore((() => {
+    try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
+})()));
 const assistantConfig = (() => {
     try { return JSON.parse(document.getElementById('assistant-config')?.textContent || '{}'); } catch { return {}; }
 })();

@@ -130,6 +130,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/sante', Controllers\HealthOverviewController::class)->name('health.index');
 
     // Intervenants
+    Route::post('/intervenants/rapide', [Controllers\ProfessionalController::class, 'quickStore'])->middleware('throttle:30,1')->name('professionals.quick');
     Route::resource('intervenants', Controllers\ProfessionalController::class)->parameters(['intervenants' => 'professional'])->names('professionals')->except(['destroy']);
     Route::post('/intervenants/{professional}/archiver', [Controllers\ProfessionalController::class, 'archive'])->name('professionals.archive');
 

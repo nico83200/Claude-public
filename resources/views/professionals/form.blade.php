@@ -1,8 +1,9 @@
 <x-layouts.app :title="$professional->exists ? 'Modifier l\'intervenant' : 'Nouvel intervenant'">
     <x-page-header :title="$professional->exists ? $professional->fullName() : 'Nouvel intervenant'" :back="$professional->exists ? route('professionals.show', $professional) : route('professionals.index')" />
-    <form method="POST" action="{{ $professional->exists ? route('professionals.update', $professional) : route('professionals.store') }}" class="space-y-4">
+    <form method="POST" action="{{ $professional->exists ? route('professionals.update', $professional) : route('professionals.store') }}" class="space-y-4" x-data="contactImport()">
         @csrf @if ($professional->exists) @method('PUT') @endif
         <x-section>
+            <div class="mb-4">@include('professionals._import')</div>
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-select name="kind" label="Fonction" :options="\App\Models\Professional::KINDS" :value="$professional->kind" required />
                 <x-field name="company" label="Cabinet / société" :value="$professional->company" />
@@ -16,6 +17,11 @@
             </div>
             @if (session('duplicate_id'))<div class="mt-3"><x-checkbox name="force" label="Créer quand même (personne différente)" /></div>@endif
         </x-section>
-        <button class="btn-primary">Enregistrer</button>
+        <div class="flex flex-wrap gap-2">
+            <button class="btn-primary">Enregistrer</button>
+            @if (session('duplicate_id') && ! $professional->exists)
+                <button name="merge" value="{{ session('duplicate_id') }}" class="btn-secondary">Mettre à jour la fiche existante</button>
+            @endif
+        </div>
     </form>
 </x-layouts.app>
