@@ -21,3 +21,10 @@ Pour modifier le tutoriel : changer le texte ou les actions d'une scène, relanc
 6. Avec un enregistrement de la voix off : `python3 scripts/tutoriel/caler-voix.py <dossier>` recale chaque scène
    sur la durée réelle de son paragraphe (accélération ou ralenti léger des images), intègre le son (AAC dans le MP4,
    Opus dans le WebM à produire ensuite) et cale les sous-titres sur les phrases détectées.
+
+## Version ordinateur
+
+`ordinateur/record.mjs <dossier> <profil> ordinateur/durees.json` tourne les mêmes scènes en 1280×720 (×1,5 → 1920×1080),
+avec curseur visible ; chaque scène dure exactement son paragraphe de voix off (`durees.json`, issu du calage mobile).
+`ordinateur/assemble.py <dossier> voix.mp3 ordinateur/durees.json` ajuste chaque scène à la durée cible et intègre la voix.
+Les sous-titres sont ceux du mobile (même voix, mêmes temps) : `tutoriel-ordinateur.vtt` = copie de `tutoriel-mobile.vtt`.

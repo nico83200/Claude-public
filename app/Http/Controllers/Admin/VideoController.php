@@ -157,7 +157,8 @@ class VideoController extends Controller
             'title' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string', 'max:1000'],
             'kind' => ['required', 'in:'.implode(',', array_keys(Video::KINDS))],
-        ]);
+            'device' => ['nullable', 'in:'.implode(',', array_keys(Video::DEVICES))],
+        ]) + ['device' => 'all'];
     }
 
     public static function srtToVtt(string $srt): string

@@ -23,7 +23,7 @@ class VideoController extends Controller
     public static function payload(Video $video): array
     {
         return [
-            'id' => $video->id, 'title' => $video->title, 'description' => $video->description, 'kind' => $video->kind,
+            'id' => $video->id, 'title' => $video->title, 'description' => $video->description, 'kind' => $video->kind, 'device' => $video->device,
             'video' => $video->fileUrl('video'), 'videoAlt' => $video->alternateUrl(), 'audio' => $video->fileUrl('audio'), 'captions' => $video->fileUrl('captions'), 'poster' => $video->fileUrl('poster'),
             'seenUrl' => route('videos.seen', $video),
         ];

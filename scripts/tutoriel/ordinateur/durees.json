@@ -1,0 +1,17 @@
+{
+ "durations": {
+  "intro": 6.933,
+  "notifs": 10.998,
+  "accueil": 8.103,
+  "assistant": 11.321,
+  "assistant2": 6.362,
+  "cheval": 12.6,
+  "sante": 7.705,
+  "bilan": 8.666,
+  "calendrier": 5.686,
+  "budget": 10.172,
+  "menu": 7.174,
+  "outro": 3.988
+ },
+ "total": 99.707755
+}

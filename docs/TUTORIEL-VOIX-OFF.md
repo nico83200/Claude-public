@@ -1,7 +1,7 @@
-# Tutoriel mobile — texte de la voix off
+# Tutoriel (mobile et ordinateur) — texte de la voix off
 
-La vidéo `public/videos/tutoriel-mobile.mp4` (1 min 40, voix off incluse) est proposée à la première connexion
-des nouveaux comptes et reste disponible dans le menu « Tutoriels ». Les sous-titres
+La vidéo `public/videos/tutoriel-mobile.mp4` (1 min 40, voix off incluse) et sa version ordinateur `tutoriel-ordinateur.mp4`
+(même voix, mêmes sous-titres) sont proposées à la première connexion des nouveaux comptes, selon l'appareil, et restent disponibles dans le menu « Tutoriels ». Les sous-titres
 (`public/videos/tutoriel-mobile.vtt`) reprennent ce texte mot pour mot.
 
 ## Voix off intégrée

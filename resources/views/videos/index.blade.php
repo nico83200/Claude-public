@@ -15,6 +15,7 @@
                     <div class="p-4">
                         <div class="flex items-center gap-2">
                             <x-badge :color="$video->kind === 'onboarding' ? 'brand' : 'blue'">{{ $video->kind === 'onboarding' ? 'Tutoriel' : 'Nouveauté' }}</x-badge>
+                            @if ($video->device !== 'all')<x-badge>{{ $video->device === 'mobile' ? 'Téléphone' : 'Ordinateur' }}</x-badge>@endif
                             @if ($seen->has($video->id))<span class="text-xs text-slate-400">Déjà vue</span>@endif
                         </div>
                         <p class="mt-2 font-semibold text-slate-900">{{ $video->title }}</p>

@@ -24,6 +24,7 @@
                     <x-field name="title" label="Titre" :value="$video->title" required maxlength="120" />
                     <x-textarea name="description" label="Description" :value="$video->description" rows="2" />
                     <x-select name="kind" label="Affichage" :options="\App\Models\Video::KINDS" :value="$video->kind" />
+                    <x-select name="device" label="Appareils" :options="\App\Models\Video::DEVICES" :value="$video->device" />
                     <button class="btn-primary">Enregistrer</button>
                 </form>
             </x-section>

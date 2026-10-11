@@ -12,13 +12,14 @@ class Videos
      * Vidéos à montrer automatiquement à cet utilisateur (une fois chacune) :
      * - tutoriel de première connexion : comptes créés après sa publication ;
      * - nouveautés : comptes qui existaient déjà à sa publication (un nouveau compte a le tutoriel à jour).
+     * Seules les vidéos destinées à l'appareil utilisé sont proposées (téléphone/tablette ou ordinateur).
      * Tutoriels d'abord, puis nouveautés de la plus ancienne à la plus récente.
      *
      * @return Collection<int, Video>
      */
-    public function pendingFor(User $user): Collection
+    public function pendingFor(User $user, bool $handheld = false): Collection
     {
-        return Video::query()->whereNotNull('video_path')->whereNotNull('published_at')->where('published_at', '<=', now())
+        return Video::query()->whereIn('device', ['all', $handheld ? 'mobile' : 'desktop'])->whereNotNull('video_path')->whereNotNull('published_at')->where('published_at', '<=', now())
             ->whereNotIn('id', $user->videoViews()->select('video_id'))
             ->where(fn ($q) => $q
                 ->where(fn ($w) => $w->where('kind', 'onboarding')->where('published_at', '<=', $user->created_at))

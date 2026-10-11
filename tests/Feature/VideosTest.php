@@ -47,7 +47,7 @@ class VideosTest extends TestCase
 
     public function test_tutorial_is_shown_once_to_new_accounts_and_not_again_after_being_seen(): void
     {
-        $tutorial = Video::where('kind', 'onboarding')->firstOrFail();
+        $tutorial = Video::where('kind', 'onboarding')->where('device', 'desktop')->firstOrFail(); // requêtes de test = ordinateur
         $this->assertSame('builtin', $tutorial->source);
         $user = $this->user();
 
@@ -60,6 +60,21 @@ class VideosTest extends TestCase
         $this->flushSession();
         $this->actingAs($user)->get('/dashboard')->assertOk()->assertDontSee('id="pending-videos"', false);
         $this->actingAs($user)->get('/tutoriels')->assertOk()->assertSee('Bienvenue dans Jack&amp;Cie', false)->assertSee('Déjà vue');
+    }
+
+    public function test_new_accounts_get_the_tutorial_matching_their_device(): void
+    {
+        $this->assertSame(['mobile', 'desktop'], Video::where('kind', 'onboarding')->orderBy('id')->pluck('device')->all());
+        $user = $this->user();
+        $desktop = $this->actingAs($user)->get('/dashboard', ['User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) Chrome/140.0'])->getContent();
+        preg_match('#id="pending-videos">(.*?)</script>#s', $desktop, $m);
+        $this->assertSame(['desktop'], array_column(json_decode($m[1], true), 'device'));
+        $this->flushSession();
+        $phone = $this->actingAs($user)->get('/dashboard', ['User-Agent' => 'Mozilla/5.0 (Linux; Android 14; Pixel 7) Mobile Chrome/140.0'])->getContent();
+        preg_match('#id="pending-videos">(.*?)</script>#s', $phone, $m);
+        $this->assertSame(['mobile'], array_column(json_decode($m[1], true), 'device'));
+        // La bibliothèque « Tutoriels » propose les deux
+        $this->actingAs($user)->get('/tutoriels')->assertOk()->assertSee('Téléphone')->assertSee('Ordinateur');
     }
 
     public function test_announcement_reaches_existing_accounts_at_next_login_only(): void

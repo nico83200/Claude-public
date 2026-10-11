@@ -2,7 +2,7 @@
 @php
     $pendingVideos = collect();
     if (! session('videos_offered') && ! request()->routeIs('videos.*', 'settings.privacy', 'admin.*')) {
-        $pendingVideos = app(\App\Services\Videos::class)->pendingFor(auth()->user());
+        $pendingVideos = app(\App\Services\Videos::class)->pendingFor(auth()->user(), \App\Support\Device::isHandheld(request()));
         if ($pendingVideos->isNotEmpty()) {
             session(['videos_offered' => true]);
         }

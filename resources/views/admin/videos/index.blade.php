@@ -8,7 +8,7 @@
                     <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl {{ $video->isPublished() ? 'bg-brand-50 text-brand-800' : 'bg-slate-100 text-slate-400' }}"><x-icon name="play" /></span>
                     <span class="min-w-0 flex-1">
                         <span class="block font-semibold text-slate-900">{{ $video->title }}</span>
-                        <span class="block text-xs text-slate-500">{{ $video->kind === 'onboarding' ? 'Première connexion' : 'Nouveauté' }} · {{ $video->views_count }} vue(s), {{ $video->completed_count }} jusqu'au bout{{ $video->audio_path ? ' · voix off' : '' }}{{ $video->captions_path ? ' · sous-titres' : '' }}</span>
+                        <span class="block text-xs text-slate-500">{{ $video->kind === 'onboarding' ? 'Première connexion' : 'Nouveauté' }} · {{ \App\Models\Video::DEVICES[$video->device] ?? '' }} · {{ $video->views_count }} vue(s), {{ $video->completed_count }} jusqu'au bout{{ $video->audio_path ? ' · voix off' : '' }}{{ $video->captions_path ? ' · sous-titres' : '' }}</span>
                     </span>
                     <x-badge :color="$video->isPublished() ? 'green' : 'slate'">{{ $video->isPublished() ? 'Publiée' : ($video->video_path ? 'Brouillon' : 'Sans fichier') }}</x-badge>
                 </a>
@@ -22,6 +22,7 @@
                 <x-field name="title" label="Titre" required maxlength="120" placeholder="ex. Nouveau : les dépenses récurrentes" />
                 <x-textarea name="description" label="Description (facultatif)" rows="2" />
                 <x-select name="kind" label="Affichage" :options="\App\Models\Video::KINDS" value="announcement" />
+                <x-select name="device" label="Appareils" :options="\App\Models\Video::DEVICES" value="all" />
                 <button class="btn-primary w-full">Créer, puis ajouter le fichier</button>
             </form>
             <p class="mt-3 text-xs text-slate-500">Une nouveauté s'affiche une fois à chaque utilisateur, à sa prochaine connexion. Les vidéos restent consultables dans le menu « Tutoriels ».</p>

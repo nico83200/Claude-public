@@ -14,6 +14,8 @@ class Video extends Model
 
     protected $casts = ['published_at' => 'datetime'];
 
+    public const DEVICES = ['all' => 'Tous les appareils', 'mobile' => 'Téléphone et tablette', 'desktop' => 'Ordinateur'];
+
     public const KINDS = ['onboarding' => 'Première connexion (nouveaux comptes)', 'announcement' => 'Nouveautés (comptes existants, à la prochaine connexion)'];
 
     /** Fichiers d'une vidéo : type => [colonne, extensions acceptées, taille max (Mo)]. */
