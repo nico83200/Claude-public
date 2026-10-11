@@ -106,4 +106,40 @@ class InvoiceReadingTest extends TestCase
         $this->actingAs($free)->from('/budget')->post('/budget/facture', ['invoice' => UploadedFile::fake()->image('f.jpg')])->assertSessionHas('upsell');
         $this->assertSame(1, AssistantRequest::count());
     }
+
+    public function test_invoice_can_be_merged_with_an_existing_expense(): void
+    {
+        [$user, $horse] = $this->setUpUser();
+        $vet = ExpenseCategory::where('key', 'veterinary')->value('id');
+        // Dépense saisie à la main quelques jours plus tôt, sans justificatif.
+        $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $vet, 'spent_on' => now()->subDays(3)->toDateString(), 'amount' => '85.50', 'comment' => 'Vaccin']);
+        $existing = Expense::firstOrFail();
+        $other = $this->user();
+
+        $this->fake($this->vetInvoice());
+        $review = $this->actingAs($user)->post('/budget/facture', ['invoice' => UploadedFile::fake()->image('facture.jpg')])->headers->get('Location');
+        $this->actingAs($user)->get($review)->assertOk()->assertSee('Déjà saisie ?')
+            ->assertSee('name="merge_expense_id" value="'.$existing->id.'" checked', false);
+
+        $token = basename(parse_url($review, PHP_URL_PATH));
+        $this->actingAs($user)->post("/budget/facture/{$token}", ['merge_expense_id' => $existing->id, 'horse_id' => $horse->id, 'expense_category_id' => $vet,
+            'amount' => '85.50', 'spent_on' => now()->subDays(2)->toDateString(), 'supplier' => 'Clinique vétérinaire du Var', 'comment' => 'Rappel vaccin', 'paid' => '1'])
+            ->assertSessionHas('success');
+
+        $this->assertSame(1, Expense::count());
+        $merged = Expense::with('documents')->first();
+        $this->assertSame('Clinique vétérinaire du Var', $merged->supplier);
+        $this->assertCount(1, $merged->documents);
+
+        // Fusion vers la dépense de quelqu'un d'autre : refusée.
+        $theirHorse = $this->horseFor($other);
+        $this->grantLicense($other->personalOrganization(), 'particulier');
+        $this->actingAs($other)->post('/budget', ['horse_id' => $theirHorse->id, 'expense_category_id' => $vet, 'spent_on' => now()->toDateString(), 'amount' => '85.50']);
+        $theirs = Expense::where('horse_id', $theirHorse->id)->firstOrFail();
+        $this->fake($this->vetInvoice());
+        $review = $this->actingAs($user)->post('/budget/facture', ['invoice' => UploadedFile::fake()->image('f2.jpg')])->headers->get('Location');
+        $this->actingAs($user)->get($review)->assertDontSee('name="merge_expense_id" value="'.$theirs->id.'"', false);
+        $this->actingAs($user)->post('/budget/facture/'.basename(parse_url($review, PHP_URL_PATH)), ['merge_expense_id' => $theirs->id, 'horse_id' => $horse->id, 'expense_category_id' => $vet,
+            'amount' => '85.50', 'spent_on' => now()->toDateString()])->assertForbidden();
+    }
 }

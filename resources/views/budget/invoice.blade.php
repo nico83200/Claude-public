@@ -23,6 +23,25 @@
 
         <form method="POST" action="{{ route('budget.invoice.save', $token) }}" class="space-y-4 lg:col-span-3" x-data="{ care: {{ $care && $horseId ? 'true' : 'false' }}, horse: @js((string) ($horseId ?? '')) }">
             @csrf
+            @if ($matches->isNotEmpty())
+                <x-section title="Déjà saisie ?" data-merge>
+                    <p class="-mt-1 mb-2 text-sm text-slate-500">Cette facture ressemble à une dépense déjà enregistrée : rattachez-la pour éviter un doublon. La dépense prendra les informations vérifiées ci-dessous et la facture en justificatif.</p>
+                    <div class="space-y-2">
+                        <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-3 text-sm has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                            <input type="radio" name="merge_expense_id" value="" @checked(! $matches[0]['same_amount']) class="size-5"> <span class="font-medium text-slate-900">Nouvelle dépense</span>
+                        </label>
+                        @foreach ($matches as $i => $m)
+                            @php $e = $m['expense']; @endphp
+                            <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-3 text-sm has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
+                                <input type="radio" name="merge_expense_id" value="{{ $e->id }}" @checked($i === 0 && $m['same_amount']) class="size-5">
+                                <span class="min-w-0 flex-1"><span class="font-medium text-slate-900">Rattacher à : {{ $e->category->name }} · {{ $e->horse?->shortName() }}</span>
+                                    <span class="block text-xs text-slate-500">{{ $e->spent_on->format('d/m/Y') }}{{ $e->supplier ? ' · '.$e->supplier : '' }}{{ $e->documents->isNotEmpty() ? ' · a déjà un justificatif' : '' }}</span></span>
+                                <span class="shrink-0 font-semibold tabular-nums">{{ number_format((float) $e->amount, 2, ',', ' ') }} €</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </x-section>
+            @endif
             <x-section title="Dépense">
                 <div class="grid gap-3 sm:grid-cols-2">
                     <x-select name="horse_id" label="Cheval" :options="$horses" :value="$horseId" :placeholder="$horseId ? null : 'Choisir…'" required x-model="horse" />

@@ -95,8 +95,25 @@ class InvoiceController extends ExpenseController
         $supplierPro = $d['supplier'] !== '' ? Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))
             ->get()->first(fn ($p) => Str::contains(mb_strtolower($d['supplier']), [mb_strtolower($p->last_name)]) || ($p->company && Str::contains(mb_strtolower($d['supplier']), mb_strtolower($p->company)))) : null;
 
+        // Dépenses déjà saisies qui ressemblent à cette facture (même cheval, montant et date proches) : fusion possible.
+        $refDate = $date ?? today();
+        $matches = Expense::with(['horse', 'category', 'documents'])->whereIn('horse_id', $horses->pluck('id'))
+            ->whereBetween('spent_on', [$refDate->copy()->subDays(45)->toDateString(), $refDate->copy()->addDays(45)->toDateString()])
+            ->whereNull('boarding_statement_id')->get()
+            ->filter(fn (Expense $e) => $this->canEdit($request, $e))
+            ->map(function (Expense $e) use ($d, $refDate, $guessedHorse) {
+                $amount = (float) $d['total_amount'];
+                $gap = $amount > 0 ? abs((float) $e->amount - $amount) / $amount : 1;
+                $score = (1 - min(1, $gap)) * 50 + (1 - min(45, $e->spent_on->diffInDays($refDate)) / 45) * 30
+                    + ($guessedHorse && $e->horse_id === $guessedHorse->id ? 15 : 0) + ($e->documents->isEmpty() ? 5 : 0);
+
+                return ['expense' => $e, 'score' => $score, 'same_amount' => $gap < 0.01];
+            })
+            ->filter(fn ($m) => $m['score'] >= 55)->sortByDesc('score')->take(4)->values();
+
         return view('budget.invoice', [
             'token' => $token,
+            'matches' => $matches,
             'pending' => $pending,
             'd' => $d,
             'horses' => $horses->mapWithKeys(fn ($h) => [$h->id => $h->shortName()]),
@@ -127,19 +144,25 @@ class InvoiceController extends ExpenseController
             'paid' => ['nullable', 'boolean'],
             'with_care' => ['nullable', 'boolean'],
             'care_category_id' => ['nullable', 'required_if:with_care,1', 'exists:care_categories,id'],
+            'merge_expense_id' => ['nullable', 'integer'],
         ]);
+        $merge = null;
+        if (! empty($data['merge_expense_id'])) {
+            $merge = Expense::findOrFail($data['merge_expense_id']);
+            abort_unless($this->canEdit($request, $merge) && ! $merge->boarding_statement_id, 403);
+        }
         $org = $this->authorizeTarget($request, $data['horse_id'] ?? null);
         $this->requireFeature($org, 'budget', 'Suivi des dépenses');
         $horse = ! empty($data['horse_id']) ? Horse::find($data['horse_id']) : null;
         if (! empty($data['professional_id']) && ! Professional::whereIn('organization_id', $request->user()->memberships->pluck('organization_id'))->whereKey($data['professional_id'])->exists()) {
             $data['professional_id'] = null;
         }
-        $withCare = $request->boolean('with_care') && $horse;
+        $withCare = $request->boolean('with_care') && $horse && ! $merge?->care_record_id;
         if ($withCare && ! $access->can($request->user(), $horse, Perm::HEALTH_EDIT)) {
             return back()->withInput()->with('error', 'Vous ne pouvez pas enregistrer de soin pour ce cheval : décochez « Enregistrer aussi le soin ».');
         }
 
-        $expense = DB::transaction(function () use ($request, $data, $org, $horse, $withCare, $pending, $reminders, $calendar) {
+        $expense = DB::transaction(function () use ($request, $data, $org, $horse, $withCare, $pending, $reminders, $calendar, $merge) {
             $care = null;
             if ($withCare) {
                 $category = CareCategory::findOrFail($data['care_category_id']);
@@ -156,12 +179,23 @@ class InvoiceController extends ExpenseController
                 }, 'Contrôle : '.$category->name.' – '.$horse->shortName(), $next?->copy()->setTime(9, 0), ['professional_id' => $care->professional_id, 'duration_minutes' => 30]);
                 $reminders->closePrevious($care, $calendar);
             }
-            $expense = new Expense(collect($data)->only(['horse_id', 'expense_category_id', 'spent_on', 'amount', 'supplier', 'professional_id', 'comment'])->all()
-                + ['care_record_id' => $care?->id]);
-            $expense->paid_on = $request->boolean('paid', true) ? $data['spent_on'] : null;
-            $expense->organization_id = $org->id;
-            $expense->author_id = $request->user()->id;
-            $expense->save();
+            $values = collect($data)->only(['horse_id', 'expense_category_id', 'spent_on', 'amount', 'supplier', 'professional_id', 'comment'])->all();
+            if ($merge) {
+                // Fusion : la dépense existante prend les informations vérifiées de la facture (et garde son soin éventuel).
+                $expense = $merge;
+                $expense->fill(array_filter($values, fn ($v) => $v !== null && $v !== '') + ($care ? ['care_record_id' => $care->id] : []));
+                if ($request->boolean('paid', true) && ! $expense->paid_on) {
+                    $expense->paid_on = $data['spent_on'];
+                }
+                $expense->organization_id = $org->id;
+                $expense->save();
+            } else {
+                $expense = new Expense($values + ['care_record_id' => $care?->id]);
+                $expense->paid_on = $request->boolean('paid', true) ? $data['spent_on'] : null;
+                $expense->organization_id = $org->id;
+                $expense->author_id = $request->user()->id;
+                $expense->save();
+            }
 
             // La facture devient le justificatif (si l'offre a la place de la stocker).
             if (Storage::disk('local')->exists($pending['path']) && $this->entitlements()->canStore($org, (int) $pending['size'])) {
@@ -174,9 +208,11 @@ class InvoiceController extends ExpenseController
         });
         Cache::forget('invoice:'.$token);
         Storage::disk('local')->delete($pending['path']);
-        Audit::log('expense.created_from_invoice', $expense, ['care' => $expense->care_record_id], $org->id);
+        Audit::log($merge ? 'expense.merged_with_invoice' : 'expense.created_from_invoice', $expense, ['care' => $expense->care_record_id], $org->id);
 
-        return redirect()->route('budget.index', $horse ? ['horse' => $horse->id] : [])->with('success', 'Dépense de '.number_format((float) $expense->amount, 2, ',', ' ').' € enregistrée avec la facture'.($expense->care_record_id ? ', et le soin ajouté au carnet de santé.' : '.'));
+        return redirect()->route('budget.index', $horse ? ['horse' => $horse->id] : [])->with('success', $merge
+            ? 'Facture rattachée à la dépense existante ('.number_format((float) $expense->amount, 2, ',', ' ').' €) : elle est complétée, sans doublon.'
+            : 'Dépense de '.number_format((float) $expense->amount, 2, ',', ' ').' € enregistrée avec la facture'.($withCare ? ', et le soin ajouté au carnet de santé.' : '.'));
     }
 
     public function cancel(Request $request, string $token)

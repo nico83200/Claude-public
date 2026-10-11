@@ -238,7 +238,7 @@ class ExpenseController extends Controller
         return $org;
     }
 
-    private function canEdit(Request $request, Expense $expense): bool
+    protected function canEdit(Request $request, Expense $expense): bool
     {
         $user = $request->user();
 
