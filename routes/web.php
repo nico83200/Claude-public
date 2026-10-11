@@ -175,6 +175,11 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Budget
     Route::get('/budget', [Controllers\ExpenseController::class, 'index'])->name('budget.index');
     Route::post('/budget', [Controllers\ExpenseController::class, 'store'])->name('budget.store');
+    // Facture photographiée lue par l'assistant (vérification avant enregistrement).
+    Route::post('/budget/facture', [Controllers\InvoiceController::class, 'read'])->middleware('throttle:10,1')->name('budget.invoice.read');
+    Route::get('/budget/facture/{token}', [Controllers\InvoiceController::class, 'review'])->where('token', '[A-Za-z0-9]{32}')->name('budget.invoice.review');
+    Route::post('/budget/facture/{token}', [Controllers\InvoiceController::class, 'save'])->where('token', '[A-Za-z0-9]{32}')->name('budget.invoice.save');
+    Route::delete('/budget/facture/{token}', [Controllers\InvoiceController::class, 'cancel'])->where('token', '[A-Za-z0-9]{32}')->name('budget.invoice.cancel');
     Route::get('/budget/{expense}/modifier', [Controllers\ExpenseController::class, 'edit'])->name('budget.edit');
     Route::put('/budget/{expense}', [Controllers\ExpenseController::class, 'update'])->name('budget.update');
     Route::delete('/budget/{expense}', [Controllers\ExpenseController::class, 'destroy'])->name('budget.destroy');

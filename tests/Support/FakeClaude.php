@@ -32,4 +32,17 @@ class FakeClaude extends ClaudeGateway
 
         return ['stop_reason' => $next['stop'] ?? 'end_turn', 'texts' => [$next['text']], 'tool_uses' => [], 'raw' => [['type' => 'text', 'text' => $next['text']]], 'usage' => ['input' => 1000, 'output' => 50], 'model' => 'claude-opus-5-5'];
     }
+
+    /** Données renvoyées par la prochaine lecture de facture (null : échec de lecture). */
+    public ?array $invoice = null;
+
+    public function readInvoice(string $bytes, string $mediaType, array $horseNames, array $expenseKeys, array $careKeys): array
+    {
+        $this->calls[] = ['invoice' => compact('mediaType', 'horseNames') + ['size' => strlen($bytes)]];
+        if ($this->invoice === null) {
+            throw new \RuntimeException('Ce fichier n\'a pas pu être lu. Essayez une photo plus nette, ou saisissez la dépense à la main.');
+        }
+
+        return ['data' => $this->invoice, 'usage' => ['input' => 1500, 'output' => 120], 'model' => 'claude-opus-5-5'];
+    }
 }

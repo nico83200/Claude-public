@@ -73,6 +73,7 @@
                                         @foreach (['Le maréchal est prévu le 2 décembre à 9 h', 'Réalise une séance de monte libre en dressage pour travailler la rectitude', 'Le vétérinaire a vacciné Uni ce matin, 75 €', 'Quand est le prochain maréchal ?'] as $ex)
                                             <button type="button" @click="a.send(@js($ex))" class="rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] text-slate-700 transition hover:bg-brand-50 hover:text-brand-900">« {{ $ex }} »</button>
                                         @endforeach
+                                        <a href="{{ route('budget.index') }}#facture" class="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] text-slate-700 transition hover:bg-brand-50 hover:text-brand-900"><x-icon name="camera" class="size-5 text-brand-700" /> Photographier une facture</a>
                                     </div>
                                 </div>
                             </template>

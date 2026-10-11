@@ -1,0 +1,224 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\AssistantRequest;
+use App\Models\CareCategory;
+use App\Models\CareRecord;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
+use App\Models\Horse;
+use App\Models\Professional;
+use App\Services\Assistant\AssistantService;
+use App\Services\Assistant\AssistantTools;
+use App\Services\Assistant\ClaudeGateway;
+use App\Services\Audit;
+use App\Services\CalendarService;
+use App\Services\CareReminders;
+use App\Services\HorseAccess;
+use App\Support\Perm;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
+
+/**
+ * Facture photographiée ou PDF lue par l'assistant (Claude) : les informations sont proposées
+ * dans un formulaire à vérifier ; rien n'est enregistré sans validation. La facture devient le
+ * justificatif de la dépense, et un soin peut être créé en même temps.
+ */
+class InvoiceController extends ExpenseController
+{
+    private const TTL_MINUTES = 120;
+
+    /** Envoi de la photo / du PDF puis lecture. */
+    public function read(Request $request, AssistantService $assistant, ClaudeGateway $claude, HorseAccess $access)
+    {
+        $org = $this->currentOrganization();
+        $request->validate(['invoice' => ['required', 'file', 'max:'.config('equine.uploads.max_kb'), 'mimes:jpg,jpeg,png,webp,gif,pdf,heic,heif']],
+            ['invoice.mimes' => 'Envoyez une photo (JPEG, PNG) ou un PDF.']);
+        foreach (['budget' => 'Suivi des dépenses', 'assistant' => 'Assistant vocal (IA)'] as $feature => $label) {
+            $this->requireFeature($org, $feature, $label);
+        }
+        if ($reason = $assistant->unavailableReason($org)) {
+            return back()->with('error', $reason);
+        }
+        $file = $request->file('invoice');
+        [$bytes, $mime] = $this->prepare($file->getRealPath(), (string) $file->getMimeType());
+        if (! $bytes) {
+            return back()->with('error', 'Format de photo non lisible : sur iPhone, réglez Appareil photo › Formats sur « Le plus compatible », ou envoyez une capture d\'écran.');
+        }
+
+        $user = $request->user();
+        $horses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->get();
+        $started = microtime(true);
+        try {
+            $result = $claude->readInvoice($bytes, $mime, $horses->map->shortName()->values()->all(), AssistantTools::EXPENSE_KEYS, AssistantTools::CARE_KEYS);
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        AssistantRequest::create([
+            'uuid' => (string) Str::uuid(), 'user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) Str::uuid(),
+            'input_mode' => 'document', 'input_text' => 'Lecture de facture : '.Str::limit($file->getClientOriginalName(), 120),
+            'reply' => Str::limit((string) ($result['data']['summary'] ?? ''), 500), 'status' => ($result['data']['is_invoice'] ?? false) ? 'done' : 'clarify',
+            'model' => $result['model'], 'input_tokens' => $result['usage']['input'], 'output_tokens' => $result['usage']['output'], 'duration_ms' => (int) ((microtime(true) - $started) * 1000),
+        ]);
+        if (! ($result['data']['is_invoice'] ?? false)) {
+            return back()->with('warning', 'Ce document ne ressemble pas à une facture. Essayez une photo plus nette, à plat et bien éclairée.');
+        }
+
+        $token = Str::random(32);
+        $path = $file->storeAs('tmp/invoices', $token.'.'.$file->extension(), 'local');
+        Cache::put('invoice:'.$token, [
+            'user_id' => $user->id, 'path' => $path, 'mime' => $file->getMimeType(), 'name' => Str::limit($file->getClientOriginalName(), 250, ''),
+            'size' => $file->getSize(), 'data' => $result['data'], 'horse' => $request->integer('horse') ?: null,
+        ], now()->addMinutes(self::TTL_MINUTES));
+
+        return redirect()->route('budget.invoice.review', $token);
+    }
+
+    /** Formulaire de vérification, pré-rempli. */
+    public function review(Request $request, string $token, HorseAccess $access)
+    {
+        $pending = $this->pending($request, $token);
+        $d = $pending['data'];
+        $user = $request->user();
+        $horses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
+            ->filter(fn ($h) => $this->entitlements()->hasFeature($h->organization, 'budget'));
+        $guessedHorse = $horses->first(fn ($h) => $d['horse_name'] !== '' && in_array(mb_strtolower($d['horse_name']), [mb_strtolower($h->shortName()), mb_strtolower($h->official_name)], true))
+            ?? ($pending['horse'] ? $horses->firstWhere('id', $pending['horse']) : null) ?? ($horses->count() === 1 ? $horses->first() : null);
+        $date = rescue(fn () => Carbon::parse($d['invoice_date']), null, false);
+        $care = $d['care_category'] !== 'none' ? CareCategory::where('key', $d['care_category'])->first() : null;
+        $supplierPro = $d['supplier'] !== '' ? Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))
+            ->get()->first(fn ($p) => Str::contains(mb_strtolower($d['supplier']), [mb_strtolower($p->last_name)]) || ($p->company && Str::contains(mb_strtolower($d['supplier']), mb_strtolower($p->company)))) : null;
+
+        return view('budget.invoice', [
+            'token' => $token,
+            'pending' => $pending,
+            'd' => $d,
+            'horses' => $horses->mapWithKeys(fn ($h) => [$h->id => $h->shortName()]),
+            'horseId' => $guessedHorse?->id,
+            'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
+            'categoryId' => ExpenseCategory::where('key', $d['expense_category'])->value('id'),
+            'date' => $date && ! $date->isFuture() ? $date->toDateString() : today()->toDateString(),
+            'careCategories' => CareCategory::where(fn ($q) => $q->whereNull('organization_id')->orWhereIn('organization_id', $user->memberships->pluck('organization_id')))->orderBy('name')->pluck('name', 'id'),
+            'care' => $care,
+            'professionals' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'professionalId' => $supplierPro?->id,
+            'canOrgExpense' => $user->canInOrg($this->currentOrganization(), Perm::EXPENSES_ORG_VIEW),
+        ]);
+    }
+
+    /** Validation : dépense (+ justificatif) et, si demandé, soin. */
+    public function save(Request $request, string $token, HorseAccess $access, CareReminders $reminders, CalendarService $calendar)
+    {
+        $pending = $this->pending($request, $token);
+        $data = $request->validate([
+            'horse_id' => ['nullable', 'integer'],
+            'expense_category_id' => ['required', 'exists:expense_categories,id'],
+            'spent_on' => ['required', 'date', 'before_or_equal:today'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999', 'decimal:0,2'],
+            'supplier' => ['nullable', 'string', 'max:150'],
+            'professional_id' => ['nullable', 'integer'],
+            'comment' => ['nullable', 'string', 'max:2000'],
+            'paid' => ['nullable', 'boolean'],
+            'with_care' => ['nullable', 'boolean'],
+            'care_category_id' => ['nullable', 'required_if:with_care,1', 'exists:care_categories,id'],
+        ]);
+        $org = $this->authorizeTarget($request, $data['horse_id'] ?? null);
+        $this->requireFeature($org, 'budget', 'Suivi des dépenses');
+        $horse = ! empty($data['horse_id']) ? Horse::find($data['horse_id']) : null;
+        if (! empty($data['professional_id']) && ! Professional::whereIn('organization_id', $request->user()->memberships->pluck('organization_id'))->whereKey($data['professional_id'])->exists()) {
+            $data['professional_id'] = null;
+        }
+        $withCare = $request->boolean('with_care') && $horse;
+        if ($withCare && ! $access->can($request->user(), $horse, Perm::HEALTH_EDIT)) {
+            return back()->withInput()->with('error', 'Vous ne pouvez pas enregistrer de soin pour ce cheval : décochez « Enregistrer aussi le soin ».');
+        }
+
+        $expense = DB::transaction(function () use ($request, $data, $org, $horse, $withCare, $pending, $reminders, $calendar) {
+            $care = null;
+            if ($withCare) {
+                $category = CareCategory::findOrFail($data['care_category_id']);
+                $performed = Carbon::parse($data['spent_on'])->setTime(12, 0);
+                $rule = $reminders->ruleFor($horse, $category->id);
+                $next = $rule && $rule['enabled'] ? CareReminders::addInterval($performed, $rule['interval_value'], $rule['interval_unit']) : null;
+                $care = new CareRecord(['care_category_id' => $category->id, 'performed_at' => $performed, 'professional_id' => $data['professional_id'] ?? null,
+                    'reason' => Str::limit($data['comment'] ?: $pending['data']['summary'], 250, ''), 'cost' => $data['amount'], 'next_check_on' => $next?->toDateString()]);
+                $care->horse_id = $horse->id;
+                $care->author_id = $request->user()->id;
+                $care->save();
+                $calendar->syncFor($care, $horse, match ($category->key) {
+                    'veterinary', 'vaccination', 'exams', 'imaging', 'specialist' => 'veterinary', 'farrier' => 'farrier', default => 'care',
+                }, 'Contrôle : '.$category->name.' – '.$horse->shortName(), $next?->copy()->setTime(9, 0), ['professional_id' => $care->professional_id, 'duration_minutes' => 30]);
+                $reminders->closePrevious($care, $calendar);
+            }
+            $expense = new Expense(collect($data)->only(['horse_id', 'expense_category_id', 'spent_on', 'amount', 'supplier', 'professional_id', 'comment'])->all()
+                + ['care_record_id' => $care?->id]);
+            $expense->paid_on = $request->boolean('paid', true) ? $data['spent_on'] : null;
+            $expense->organization_id = $org->id;
+            $expense->author_id = $request->user()->id;
+            $expense->save();
+
+            // La facture devient le justificatif (si l'offre a la place de la stocker).
+            if (Storage::disk('local')->exists($pending['path']) && $this->entitlements()->canStore($org, (int) $pending['size'])) {
+                $dest = 'organizations/'.$org->id.'/receipts/'.Str::uuid().'.'.pathinfo($pending['path'], PATHINFO_EXTENSION);
+                Storage::disk('local')->move($pending['path'], $dest);
+                $expense->documents()->create(['path' => $dest, 'original_name' => $pending['name'], 'mime' => $pending['mime'], 'size_bytes' => $pending['size']]);
+            }
+
+            return $expense;
+        });
+        Cache::forget('invoice:'.$token);
+        Storage::disk('local')->delete($pending['path']);
+        Audit::log('expense.created_from_invoice', $expense, ['care' => $expense->care_record_id], $org->id);
+
+        return redirect()->route('budget.index', $horse ? ['horse' => $horse->id] : [])->with('success', 'Dépense de '.number_format((float) $expense->amount, 2, ',', ' ').' € enregistrée avec la facture'.($expense->care_record_id ? ', et le soin ajouté au carnet de santé.' : '.'));
+    }
+
+    public function cancel(Request $request, string $token)
+    {
+        $pending = $this->pending($request, $token);
+        Storage::disk('local')->delete($pending['path']);
+        Cache::forget('invoice:'.$token);
+
+        return redirect()->route('budget.index')->with('status', 'Facture abandonnée : rien n\'a été enregistré.');
+    }
+
+    private function pending(Request $request, string $token): array
+    {
+        $pending = Cache::get('invoice:'.$token);
+        abort_unless($pending && $pending['user_id'] === $request->user()->id, 404, 'Lecture de facture expirée : envoyez-la à nouveau.');
+
+        return $pending;
+    }
+
+    /**
+     * Prépare le fichier pour Claude : PDF tel quel, photo réduite à 1 600 px (JPEG) pour rester rapide.
+     *
+     * @return array{0: ?string, 1: string}
+     */
+    private function prepare(string $path, string $mime): array
+    {
+        if ($mime === 'application/pdf') {
+            return [file_get_contents($path), 'application/pdf'];
+        }
+        $image = @imagecreatefromstring((string) file_get_contents($path));
+        if (! $image) {
+            return [null, $mime];
+        }
+        $w = imagesx($image);
+        $h = imagesy($image);
+        $ratio = min(1, 1600 / max($w, $h));
+        $out = imagecreatetruecolor((int) round($w * $ratio), (int) round($h * $ratio));
+        imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255));
+        imagecopyresampled($out, $image, 0, 0, 0, 0, imagesx($out), imagesy($out), $w, $h);
+        ob_start();
+        imagejpeg($out, null, 85);
+
+        return [(string) ob_get_clean(), 'image/jpeg'];
+    }
+}
