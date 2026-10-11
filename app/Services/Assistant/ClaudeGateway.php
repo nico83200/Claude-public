@@ -52,9 +52,12 @@ class ClaudeGateway
         } catch (RateLimitException) {
             throw new RuntimeException('L\'assistant est très sollicité, réessayez dans un instant.');
         } catch (BadRequestException $e) {
-            throw new RuntimeException('Requête refusée par Claude : '.mb_substr($e->getMessage(), 0, 300));
+            // Détail technique dans le journal des erreurs (Administration › Erreurs), message simple pour l'utilisateur.
+            report($e);
+            throw new RuntimeException('L\'assistant n\'a pas pu traiter cette consigne (erreur technique signalée à l\'administrateur). Réessayez plus tard ou faites-le depuis l\'écran concerné.');
         } catch (APIStatusException $e) {
-            throw new RuntimeException('Claude est momentanément indisponible ('.$e->getMessage().').');
+            report($e);
+            throw new RuntimeException('L\'assistant est momentanément indisponible. Réessayez dans quelques instants.');
         } catch (APIConnectionException) {
             throw new RuntimeException('Impossible de joindre Claude (réseau).');
         }

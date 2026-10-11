@@ -66,7 +66,12 @@ class AssistantTest extends TestCase
         $this->assertStringContainsString($horse->id.' | Uni (UNI DU BOIS)', $system);
         $this->assertStringContainsString('année en cours', $system);
         $this->assertStringContainsString('Bibliothèque d\'exercices', $system);
-        $this->assertTrue(collect($fake->calls[0]['tools'])->every(fn ($t) => $t['strict'] === true && $t['inputSchema']['additionalProperties'] === false));
+        // Schémas acceptés par l'API : aucune union de types (anyOf / type multiple), champs requis existants
+        $json = json_encode($fake->calls[0]['tools']);
+        $this->assertStringNotContainsString('anyOf', $json);
+        $this->assertDoesNotMatchRegularExpression('/"type":\[/', $json);
+        $this->assertTrue(collect($fake->calls[0]['tools'])->every(fn ($t) => $t['inputSchema']['additionalProperties'] === false
+            && array_diff($t['inputSchema']['required'], array_keys($t['inputSchema']['properties'])) === []));
         // Résultat de l'outil renvoyé à Claude au tour suivant
         $toolResult = $fake->calls[1]['messages'][2]['content'][0];
         $this->assertSame('tool_result', $toolResult['type']);
@@ -289,5 +294,25 @@ class AssistantTest extends TestCase
         // Désactivation globale
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put('/admin/assistant', ['model' => 'claude-opus-5-5', 'effort' => 'medium', 'session_min' => 50, 'session_max' => 60])->assertSessionHasNoErrors();
         $this->say($user, 'bonjour')->assertStatus(403)->assertJsonFragment(['message' => 'L\'assistant est désactivé sur cette instance.']);
+    }
+
+    public function test_optional_fields_can_be_omitted_by_claude(): void
+    {
+        [$user, $horse] = $this->setUpUser();
+        $fake = $this->fake([
+            ['tools' => [
+                ['create_appointment', ['horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal', 'starts_at' => '2026-12-02 09:00']],
+                ['set_feeding', ['horse_id' => $horse->id, 'changes' => [['feed' => 'Foin', 'quantity' => 8, 'unit' => 'kg']]]],
+                ['create_session', ['horse_id' => $horse->id, 'scheduled_at' => '2026-12-03 18:00', 'session_type' => 'free', 'planned_minutes' => 55, 'exercises' => [['name' => 'Pas rênes longues', 'phase' => 'warmup']]]],
+                ['create_appointment', ['horse_id' => $horse->id, 'type' => 'farrier']], // champs obligatoires manquants
+            ]],
+            ['text' => 'Fait.'],
+        ]);
+        $res = $this->say($user, 'maréchal le 2 décembre à 9 h, 8 kg de foin, séance le 3')->assertOk();
+        $this->assertCount(3, $res->json('actions'));
+        $this->assertFalse(CalendarEvent::where('type', 'farrier')->first()->all_day);
+        $results = collect($fake->calls[1]['messages'][2]['content']);
+        $this->assertTrue($results[3]['isError']);
+        $this->assertStringContainsString('Champ obligatoire manquant', $results[3]['content']);
     }
 }

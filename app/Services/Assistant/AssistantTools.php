@@ -56,11 +56,12 @@ class AssistantTools
         $int = ['type' => 'integer'];
         $num = ['type' => 'number'];
         $bool = ['type' => 'boolean'];
-        $n = fn (array $schema) => ['anyOf' => [$schema, ['type' => 'null']]];
+        // Champ facultatif : simplement non requis (pas d'union « valeur ou null », que l'API limite).
+        $n = fn (array $schema) => $schema + ['x-optional' => true];
         $enum = fn (array $values) => ['type' => 'string', 'enum' => array_values($values)];
         $tool = fn (string $name, string $description, array $props) => [
-            'name' => $name, 'description' => $description, 'strict' => true,
-            'inputSchema' => ['type' => 'object', 'properties' => $props, 'required' => array_keys($props), 'additionalProperties' => false],
+            'name' => $name, 'description' => $description,
+            'inputSchema' => self::finalizeSchema(['type' => 'object', 'properties' => $props, 'additionalProperties' => false]),
         ];
         $phases = array_keys(RidingSession::PHASES);
 
@@ -70,7 +71,7 @@ class AssistantTools
                 'type' => $enum(self::APPOINTMENT_TYPES),
                 'title' => ['type' => 'string', 'description' => 'Titre court, ex. « Maréchal », « Vaccin grippe », « Ostéopathe ».'],
                 'starts_at' => ['type' => 'string', 'description' => 'Date et heure locales au format YYYY-MM-DD HH:MM (00:00 si toute la journée).'],
-                'all_day' => $bool,
+                'all_day' => $n($bool),
                 'duration_minutes' => $n($int),
                 'professional_id' => $n($int),
                 'notes' => $n($str),
@@ -92,7 +93,6 @@ class AssistantTools
                 'planned_minutes' => $int,
                 'location' => $n($str),
                 'exercises' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
-                    'required' => ['exercise_id', 'name', 'phase', 'minutes', 'repetitions', 'instructions'],
                     'properties' => ['exercise_id' => $n($int), 'name' => $n($str), 'phase' => $enum($phases), 'minutes' => $n($int), 'repetitions' => $n($int), 'instructions' => $n($str)]]],
             ]),
             $tool('update_session', 'Déplace, modifie ou annule une séance prévue (identifiant obtenu par find_records). Une séance terminée ne se modifie pas.', [
@@ -110,11 +110,11 @@ class AssistantTools
                 'reason' => $n($str),
                 'care_performed' => $n($str),
                 'cost' => $n($num),
-                'add_expense' => ['type' => 'boolean', 'description' => 'Ajouter le coût aux dépenses (si un coût est donné).'],
+                'add_expense' => $n(['type' => 'boolean', 'description' => 'Ajouter le coût aux dépenses (si un coût est donné).']),
                 'next_interval_value' => $n($int),
                 'next_interval_unit' => $n($enum(['weeks', 'months'])),
                 'next_check_on' => $n(['type' => 'string', 'description' => 'YYYY-MM-DD, si une date précise est donnée.']),
-                'remember_frequency' => ['type' => 'boolean', 'description' => 'Vrai si l\'utilisateur donne une fréquence à retenir pour ce cheval.'],
+                'remember_frequency' => $n(['type' => 'boolean', 'description' => 'Vrai si l\'utilisateur donne une fréquence à retenir pour ce cheval.']),
             ]),
             $tool('add_observation', 'Note une observation de santé ou de comportement (boiterie, gonflement, toux, coup de pied…).', [
                 'horse_id' => $int,
@@ -143,8 +143,7 @@ class AssistantTools
             $tool('set_feeding', 'Modifie la ration d\'un cheval : ajoute, modifie ou retire des aliments/compléments (une nouvelle version de la ration démarre aujourd\'hui, l\'historique est conservé).', [
                 'horse_id' => $int,
                 'changes' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
-                    'required' => ['feed', 'quantity', 'unit', 'time_of_day', 'frequency', 'is_supplement', 'note', 'remove'],
-                    'properties' => ['feed' => $str, 'quantity' => $n($num), 'unit' => $n($str), 'time_of_day' => $n(['type' => 'string', 'description' => 'HH:MM']), 'frequency' => $n($str), 'is_supplement' => $bool, 'note' => $n($str), 'remove' => $bool]]],
+                    'properties' => ['feed' => $str, 'quantity' => $n($num), 'unit' => $n($str), 'time_of_day' => $n(['type' => 'string', 'description' => 'HH:MM']), 'frequency' => $n($str), 'is_supplement' => $n($bool), 'note' => $n($str), 'remove' => $n($bool)]]],
             ]),
             $tool('find_records', 'Recherche des informations pour répondre à une question ou retrouver un élément à modifier.', [
                 'kind' => $enum(['appointments', 'sessions', 'care', 'expenses', 'observations', 'daily_logs', 'feeding', 'horse_profile']),
@@ -160,11 +159,55 @@ class AssistantTools
         ];
     }
 
+    /** Champs requis = champs non marqués facultatifs (récursif pour les listes d'objets). */
+    private static function finalizeSchema(array $schema): array
+    {
+        if (isset($schema['properties'])) {
+            $required = [];
+            foreach ($schema['properties'] as $key => $prop) {
+                if (empty($prop['x-optional'])) {
+                    $required[] = $key;
+                }
+                unset($prop['x-optional']);
+                $schema['properties'][$key] = self::finalizeSchema($prop);
+            }
+            $schema['required'] = $required;
+        }
+        if (isset($schema['items'])) {
+            $schema['items'] = self::finalizeSchema($schema['items']);
+        }
+
+        return $schema;
+    }
+
+    /** Complète les champs facultatifs absents (null), y compris dans les listes d'objets. */
+    private static function withDefaults(array $schema, array $input): array
+    {
+        foreach ($schema['properties'] ?? [] as $key => $prop) {
+            if (! array_key_exists($key, $input)) {
+                $input[$key] = ($prop['type'] ?? null) === 'array' ? [] : (($prop['type'] ?? null) === 'boolean' ? false : null);
+            } elseif (($prop['type'] ?? null) === 'array' && isset($prop['items']['properties']) && is_array($input[$key])) {
+                $input[$key] = array_map(fn ($item) => is_array($item) ? self::withDefaults($prop['items'], $item) : $item, $input[$key]);
+            }
+        }
+
+        return $input;
+    }
+
     // ------------------------------------------------------------------ Exécution
 
     /** @return array{content: string, is_error: bool, stop?: bool} */
     public function execute(string $name, array $input, AssistantContext $ctx): array
     {
+        $schema = collect($this->definitions())->firstWhere('name', $name)['inputSchema'] ?? null;
+        if ($schema) {
+            $input = self::withDefaults($schema, $input);
+            foreach ($schema['required'] as $key) {
+                if ($input[$key] === null || $input[$key] === '') {
+                    return ['content' => 'Champ obligatoire manquant : '.$key.'.', 'is_error' => true];
+                }
+            }
+        }
         try {
             $result = match ($name) {
                 'create_appointment' => $this->createAppointment($input, $ctx),
