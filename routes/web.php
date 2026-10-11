@@ -179,6 +179,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Notifications
     Route::get('/notifications', [Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/lire', [Controllers\NotificationController::class, 'markAll'])->name('notifications.read-all');
+    Route::post('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.subscribe');
+    Route::delete('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('/notifications/essai', [Controllers\PushSubscriptionController::class, 'test'])->middleware('throttle:6,1')->name('push.test');
     Route::get('/notifications/{id}', [Controllers\NotificationController::class, 'open'])->name('notifications.open');
 
     // Abonnement
@@ -200,6 +203,8 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Paramètres du compte
     Route::get('/parametres', [Controllers\SettingsController::class, 'profile'])->name('settings.profile');
     Route::put('/parametres/profil', [Controllers\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::get('/parametres/notifications', [Controllers\SettingsController::class, 'notifications'])->name('settings.notifications');
+    Route::put('/parametres/notifications', [Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::get('/parametres/securite', [Controllers\SettingsController::class, 'security'])->name('settings.security');
     Route::get('/parametres/donnees', [Controllers\SettingsController::class, 'privacy'])->name('settings.privacy');
     Route::get('/parametres/donnees/export', [Controllers\ExportController::class, 'personalData'])->middleware(['throttle:exports', 'password.confirm'])->name('settings.export');

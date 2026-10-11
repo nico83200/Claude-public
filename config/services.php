@@ -44,6 +44,13 @@ return [
 
     // Assistant vocal : compréhension des consignes (Claude) et transcription (ElevenLabs).
     // Clés modifiables dans Administration › Intégrations (prioritaires sur le .env).
+    // Notifications sur le téléphone : seuls les services de notification des navigateurs sont acceptés
+    // comme destinataires (protection contre l'envoi de requêtes vers des adresses arbitraires).
+    'webpush' => [
+        'allowed_hosts' => array_filter(explode(',', (string) env('WEBPUSH_ALLOWED_HOSTS', 'fcm.googleapis.com,jmt17.google.com,*.push.services.mozilla.com,*.notify.windows.com,*.push.apple.com,web.push.apple.com,*.wns.windows.com'))),
+        'allow_http' => (bool) env('WEBPUSH_ALLOW_HTTP', false),
+    ],
+
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
         'base_url' => env('ANTHROPIC_BASE_URL'),

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataRequest;
+use App\Models\PushSubscription;
 use App\Models\UserProfile;
 use App\Services\Audit;
+use App\Services\WebPush;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -26,13 +28,12 @@ class SettingsController extends Controller
             'phone' => ['nullable', 'string', 'max:40'],
             'city' => ['nullable', 'string', 'max:120'],
             'riding_level' => ['nullable', 'string', 'max:60'],
-            'email_notifications' => ['nullable', 'boolean'],
         ]);
         $emailChanged = strtolower($data['email']) !== $user->email;
         $user->forceFill(['name' => $data['name'], 'email' => strtolower($data['email'])] + ($emailChanged ? ['email_verified_at' => null] : []))->save();
         UserProfile::updateOrCreate(['user_id' => $user->id], [
             'first_name' => $data['first_name'] ?? null, 'last_name' => $data['last_name'] ?? null, 'phone' => $data['phone'] ?? null,
-            'city' => $data['city'] ?? null, 'riding_level' => $data['riding_level'] ?? null, 'email_notifications' => $request->boolean('email_notifications'),
+            'city' => $data['city'] ?? null, 'riding_level' => $data['riding_level'] ?? null,
         ]);
         if ($emailChanged) {
             $user->sendEmailVerificationNotification();
@@ -40,6 +41,30 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', $emailChanged ? 'Profil mis à jour. Confirmez votre nouvelle adresse email.' : 'Profil mis à jour.');
+    }
+
+    public function notifications(Request $request, WebPush $push)
+    {
+        return view('settings.notifications', [
+            'profile' => $request->user()->profile ?? new UserProfile,
+            'vapidKey' => $push->publicKey(),
+            'devices' => PushSubscription::where('user_id', $request->user()->id)->count(),
+        ]);
+    }
+
+    public function updateNotifications(Request $request)
+    {
+        $data = $request->validate([
+            'daily_reminder' => ['nullable', 'boolean'],
+            'daily_reminder_at' => ['nullable', 'required_if_accepted:daily_reminder', 'date_format:H:i'],
+        ]);
+        UserProfile::updateOrCreate(['user_id' => $request->user()->id], [
+            'email_notifications' => $request->boolean('email_notifications'),
+            'debrief_reminders' => $request->boolean('debrief_reminders'),
+            'daily_reminder_at' => $request->boolean('daily_reminder') ? $data['daily_reminder_at'] : null,
+        ]);
+
+        return back()->with('success', 'Préférences de notification enregistrées.');
     }
 
     public function security(Request $request)

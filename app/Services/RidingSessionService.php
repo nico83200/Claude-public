@@ -25,6 +25,7 @@ class RidingSessionService
             'scheduled_at' => ['required', 'date'],
             'rider_id' => ['nullable', 'integer'],
             'rider_name' => ['nullable', 'string', 'max:100'],
+            'instructor' => ['nullable', 'string', 'max:100'],
             'discipline' => ['nullable', Rule::in(array_keys(Horse::DISCIPLINES))],
             'session_type' => ['required', Rule::in(array_keys(RidingSession::TYPES))],
             'objective' => ['nullable', 'string', 'max:255'],
@@ -195,6 +196,41 @@ class RidingSessionService
         $session->update(['template_id' => $template->id]);
 
         return $session;
+    }
+
+    /**
+     * Bilan : exercices cochés comme faits (les autres « non réalisés ») et exercices ajoutés après coup,
+     * par exemple ceux travaillés pendant un cours. Un nom identique à un exercice de la bibliothèque
+     * reprend sa fiche ; sinon c'est un exercice libre.
+     *
+     * @param  array<int>|null  $doneIds  null : statuts inchangés
+     * @param  array<int, array{name?: string|null, minutes?: int|null}>  $added
+     */
+    public function recordWork(RidingSession $session, User $user, ?array $doneIds, array $added): void
+    {
+        DB::transaction(function () use ($session, $user, $doneIds, $added) {
+            if ($doneIds !== null) {
+                foreach ($session->items()->where('is_break', false)->get() as $item) {
+                    $item->update(['status' => in_array($item->id, $doneIds, true) ? 'done' : 'skipped']);
+                }
+            }
+            $added = collect($added)->filter(fn ($a) => filled(trim((string) ($a['name'] ?? ''))))->take(30);
+            if ($added->isEmpty()) {
+                return;
+            }
+            $library = Exercise::visibleTo($user)->whereNull('archived_at')->get(['id', 'name'])->keyBy(fn ($e) => mb_strtolower(trim($e->name)));
+            $before = $session->items()->pluck('id');
+            $this->addItems($session, $user, $added->map(fn ($a) => [
+                'exercise_id' => $library->get(mb_strtolower(trim($a['name'])))?->id,
+                'name' => trim($a['name']),
+                'phase' => 'main',
+            ])->values()->all());
+            $new = $session->items()->whereNotIn('id', $before)->orderBy('position')->get();
+            foreach ($new as $i => $item) {
+                $minutes = $added->values()[$i]['minutes'] ?? null;
+                $item->update(['status' => 'done', 'actual_minutes' => $minutes !== null ? (int) $minutes : null]);
+            }
+        });
     }
 
     public function complete(RidingSession $session, array $debrief): RidingSession

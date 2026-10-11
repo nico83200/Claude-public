@@ -66,7 +66,7 @@ class AssistantTools
         $phases = array_keys(RidingSession::PHASES);
 
         return [
-            $tool('create_appointment', 'Ajoute un rendez-vous ou événement au calendrier d\'un cheval (maréchal, vétérinaire, ostéopathe, dentiste, cours, concours, balade, repos…). Pour une séance de travail monté ou à pied, utiliser create_session.', [
+            $tool('create_appointment', 'Ajoute un rendez-vous ou événement au calendrier d\'un cheval (maréchal, vétérinaire, ostéopathe, dentiste, concours, balade, repos…). Pour une séance de travail monté ou à pied et pour un cours (particulier ou collectif), utiliser create_session.', [
                 'horse_id' => $int,
                 'type' => $enum(self::APPOINTMENT_TYPES),
                 'title' => ['type' => 'string', 'description' => 'Titre court, ex. « Maréchal », « Vaccin grippe », « Ostéopathe ».'],
@@ -84,7 +84,7 @@ class AssistantTools
                 'title' => $n($str),
                 'notes' => $n($str),
             ]),
-            $tool('create_session', 'Crée une séance de travail (montée, à pied, longe…) avec ses exercices répartis par phase. Choisir d\'abord dans la bibliothèque (exercise_id) ; un exercice libre (exercise_id null + name) seulement si rien ne convient.', [
+            $tool('create_session', 'Crée une séance de travail (montée, à pied, longe…) ou un cours (session_type private_lesson / group_lesson) avec ses exercices répartis par phase. Choisir d\'abord dans la bibliothèque (exercise_id) ; un exercice libre (exercise_id null + name) seulement si rien ne convient. Pour un cours, exercises peut rester vide : le cavalier les ajoutera au bilan.', [
                 'horse_id' => $int,
                 'scheduled_at' => ['type' => 'string', 'description' => 'YYYY-MM-DD HH:MM'],
                 'session_type' => $enum(array_keys(RidingSession::TYPES)),
@@ -92,6 +92,7 @@ class AssistantTools
                 'objective' => $n($str),
                 'planned_minutes' => $int,
                 'location' => $n($str),
+                'instructor' => $n(['type' => 'string', 'description' => 'Enseignant du cours (prénom ou nom), si mentionné.']),
                 'exercises' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
                     'properties' => ['exercise_id' => $n($int), 'name' => $n($str), 'phase' => $enum($phases), 'minutes' => $n($int), 'repetitions' => $n($int), 'instructions' => $n($str)]]],
             ]),
@@ -314,8 +315,10 @@ class AssistantTools
             'discipline' => array_key_exists((string) ($in['discipline'] ?? ''), Horse::DISCIPLINES) ? $in['discipline'] : null,
             'objective' => $this->clip($in['objective'] ?? null, 255), 'planned_minutes' => max(5, min(600, (int) $in['planned_minutes'])),
             'location' => $this->clip($in['location'] ?? null, 255), 'status' => 'planned',
+            'instructor' => $this->clip($in['instructor'] ?? null, 100),
         ], $items);
-        $summary = 'Séance '.mb_strtolower($session->typeLabel()).' – '.$horse->shortName().' – '.$this->human($at).' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '').' · '.$session->planned_minutes.' min';
+        $summary = $session->title().' – '.$horse->shortName().' – '.$this->human($at)
+            .($items || ! $session->isLesson() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min';
         $ctx->record('session.created', $session, $summary, route('sessions.show', $session), ['delete' => [RidingSession::class, $session->id]]);
 
         return ['ok' => true, 'session_id' => $session->id, 'summary' => $summary, 'exercises' => $session->items()->orderBy('position')->get()->map(fn ($i) => $i->phase.' : '.$i->name.($i->planned_minutes ? ' ('.$i->planned_minutes.' min)' : ''))->all()];
@@ -341,7 +344,7 @@ class AssistantTools
         }
         $before = $this->snapshot($session, array_keys($changes));
         $session->update($changes);
-        $summary = 'Séance '.mb_strtolower($session->typeLabel()).' – '.$session->horse->shortName().' : '.(($changes['status'] ?? null) === 'cancelled' ? 'annulée' : 'modifiée ('.$this->human($session->scheduled_at).')');
+        $summary = $session->title().' – '.$session->horse->shortName().' : '.(($changes['status'] ?? null) === 'cancelled' ? 'annulée' : 'modifiée ('.$this->human($session->scheduled_at).')');
         $ctx->record('session.updated', $session, $summary, route('sessions.show', $session), ['restore' => [RidingSession::class, $session->id, $before]]);
 
         return ['ok' => true, 'summary' => $summary];

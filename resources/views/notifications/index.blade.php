@@ -1,5 +1,6 @@
 <x-layouts.app title="Notifications">
     <x-page-header title="Notifications">
+        <a href="{{ route('settings.notifications') }}" class="btn-ghost"><x-icon name="cog" class="size-4" /> Réglages</a>
         <form method="POST" action="{{ route('notifications.read-all') }}">@csrf<button class="btn-secondary">Tout marquer comme lu</button></form>
     </x-page-header>
     @forelse ($notifications as $n)

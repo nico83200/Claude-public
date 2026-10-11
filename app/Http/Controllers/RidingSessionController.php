@@ -171,13 +171,24 @@ class RidingSessionController extends Controller
     {
         $this->authorizeEdit($request, $session);
 
-        return view('sessions.debrief', ['session' => $session->load(['horse', 'exercises'])]);
+        return view('sessions.debrief', [
+            'session' => $session->load(['horse', 'exercises']),
+            'library' => Exercise::visibleTo($request->user())->whereNull('archived_at')->orderBy('name')->pluck('name'),
+        ]);
     }
 
     public function saveDebrief(Request $request, RidingSession $session)
     {
         $this->authorizeEdit($request, $session);
         $data = $request->validate(RidingSessionService::debriefRules());
+        $work = $request->validate([
+            'items_reviewed' => ['nullable', 'boolean'],
+            'done' => ['nullable', 'array', 'max:100'], 'done.*' => ['integer'],
+            'added' => ['nullable', 'array', 'max:30'],
+            'added.*.name' => ['nullable', 'string', 'max:150'],
+            'added.*.minutes' => ['nullable', 'integer', 'min:0', 'max:300'],
+        ]);
+        $this->sessions->recordWork($session, $request->user(), $request->boolean('items_reviewed') ? array_map('intval', $work['done'] ?? []) : null, $work['added'] ?? []);
         $this->sessions->complete($session, $data);
 
         if (! empty($data['anomalies'])) {

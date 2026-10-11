@@ -13,7 +13,6 @@
                 <x-field name="city" label="Ville" :value="$profile->city" />
                 <x-field name="riding_level" label="Niveau équestre" :value="$profile->riding_level" class="sm:col-span-2" />
             </div>
-            <div class="mt-3"><x-checkbox name="email_notifications" label="Recevoir les notifications par email" :checked="$profile->email_notifications ?? true" /></div>
         </x-section>
         <button class="btn-primary">Enregistrer</button>
     </form>

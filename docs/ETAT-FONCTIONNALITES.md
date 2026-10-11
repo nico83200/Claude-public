@@ -3,6 +3,16 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.4 — cours et rappels
+- ✅ Assistant : un cours dicté (« cours collectif à 16 h avec Jimmy sur Jack Jack ») crée une séance de type cours avec son enseignant, sans exercices inventés ; elle apparaît dans le calendrier (« Cours collectif avec Jimmy – Jack Jack »)
+- ✅ Après la fin prévue d'une séance ou d'un cours (+10 min), notification « Comment s'est passé votre cours ? » vers le bilan, envoyée une fois au cavalier (désactivable)
+- ✅ Bilan : exercices cochés comme faits ou non, ajout des exercices travaillés (suggestions de la bibliothèque, minutes), puis ressenti et clôture
+- ✅ Rappel quotidien facultatif à l'heure choisie, seulement si rien n'a été noté dans la journée
+- ✅ Notifications sur le téléphone (Web Push) : activation dans Paramètres › Notifications, essai, désactivation ; clés VAPID générées et chiffrées en base ; seuls les services de notification des navigateurs sont acceptés comme destinataires
+- ☑️ Vérifié dans Chromium : abonnement réel, envoi serveur accepté par le service de Google, affichage par le service worker et ouverture de la bonne page. La réception de bout en bout n'a pas pu être observée dans l'environnement de test (réseau sortant de réception bloqué) : **à valider sur un téléphone** (iPhone : application installée, iOS 16.4+)
+- ⚙️ Nécessite le cron `schedule:run` (tâche `reminders:activity` toutes les 5 minutes) et HTTPS
+- ❌ Rappel déclenché par la position (arrivée à l'écurie) : impossible dans une application web, voir la discussion du 11/10
+
 ## Version 2.3 — affichage revu
 - ✅ En-tête commun à tous les onglets d'un cheval (photo, nom, actions de la page, menu « ⋯ » : modifier, PDF, partager, historique, archiver, transférer/supprimer), onglets en pastilles défilantes ; les onglets Séances et Dépenses gardent le contexte du cheval
 - ✅ Correction du titre écrasé lettre par lettre sur téléphone (règle CSS globale limitée aux lignes flex sans retour à la ligne)

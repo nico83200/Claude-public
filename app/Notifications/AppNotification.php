@@ -3,13 +3,16 @@
 namespace App\Notifications;
 
 use App\Models\FeatureFlag;
+use App\Models\PushSubscription;
 use App\Models\User;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notification générique (application + email si configuré et accepté).
+ * Notification générique : application, notification sur le téléphone (appareils abonnés)
+ * et email si configuré et accepté.
  *
  * Le contenu doit être construit par l'appelant en ne reprenant que des
  * informations auxquelles le destinataire a accès.
@@ -32,6 +35,9 @@ class AppNotification extends Notification
         'cancellation' => 'Résiliation',
         'sync_action' => 'Synchronisation à vérifier',
         'access_revoked' => 'Accès révoqué',
+        'session_debrief' => 'Bilan de séance à compléter',
+        'daily_reminder' => 'Rappel de saisie',
+        'push_test' => 'Essai de notification',
     ];
 
     public function __construct(
@@ -48,7 +54,10 @@ class AppNotification extends Notification
         if (! $notifiable instanceof User) {
             return $mailEnabled ? ['mail'] : [];
         }
-        $channels = ['database'];
+        $channels = $this->kind === 'push_test' ? [] : ['database'];
+        if (PushSubscription::where('user_id', $notifiable->id)->exists()) {
+            $channels[] = WebPushChannel::class;
+        }
         if ($mailEnabled && ($notifiable->profile?->email_notifications ?? true)) {
             $channels[] = 'mail';
         }
@@ -64,6 +73,12 @@ class AppNotification extends Notification
         }
 
         return $mail->salutation('— '.config('app.name'));
+    }
+
+    /** @return array{title: string, body: string, url: string|null, tag: string} */
+    public function toWebPush(object $notifiable): array
+    {
+        return ['title' => $this->title, 'body' => $this->body, 'url' => $this->url, 'tag' => $this->kind];
     }
 
     public function toArray(object $notifiable): array

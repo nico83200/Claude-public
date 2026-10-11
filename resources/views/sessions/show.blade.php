@@ -3,7 +3,7 @@
         <a href="{{ route('sessions.index', ['horse' => $session->horse_id]) }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Séances de {{ $session->horse->shortName() }}</a>
         <div class="flex items-start gap-3">
             <div class="min-w-0 flex-1">
-                <h1 class="text-[26px] leading-tight font-bold break-words sm:text-[32px]">{{ $session->typeLabel() }}</h1>
+                <h1 class="text-[26px] leading-tight font-bold break-words sm:text-[32px]">{{ $session->isLesson() ? $session->title() : $session->typeLabel() }}</h1>
                 <p class="mt-1 text-[15px] text-slate-500">{{ ucfirst($session->scheduled_at->translatedFormat('l j F à H:i')) }} · {{ $session->horse->shortName() }} · {{ $session->riderLabel() }}</p>
             </div>
             <div class="relative shrink-0" @keydown.escape.window="more = false">

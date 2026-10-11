@@ -20,8 +20,7 @@ class RidingSessionObserver
         if (! $horse || ! $session->scheduled_at) {
             return;
         }
-        $type = RidingSession::TYPES[$session->session_type] ?? 'Séance';
-        $this->calendar->syncFor($session, $horse, 'session', 'Séance '.mb_strtolower($type).' – '.$horse->shortName(), $session->scheduled_at, [
+        $this->calendar->syncFor($session, $horse, 'session', $session->title().' – '.$horse->shortName(), $session->scheduled_at, [
             'status' => match ($session->status) {
                 'completed' => 'done',
                 'cancelled' => 'cancelled',

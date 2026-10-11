@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schedule;
  *   * * * * * cd /chemin/app && php artisan schedule:run >> /dev/null 2>&1
  */
 Schedule::command('reminders:send')->dailyAt('07:30')->withoutOverlapping();
+// Bilan après une séance ou un cours, rappel quotidien de saisie (heure choisie par chaque utilisateur).
+Schedule::command('reminders:activity')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('licenses:refresh')->hourly()->withoutOverlapping();
 Schedule::command('billing:price-migrations')->dailyAt('03:15')->withoutOverlapping();
 Schedule::command('data:purge')->weeklyOn(0, '03:45')->withoutOverlapping();

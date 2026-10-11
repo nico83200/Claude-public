@@ -4,12 +4,14 @@ import { sessionPlanner } from './session-planner.js';
 import { careNext } from './care-next.js';
 import { assistantStore } from './assistant.js';
 import { updateUpload } from './update-upload.js';
+import { pushSettings } from './push-settings.js';
 
 window.Alpine = Alpine;
 
 Alpine.data('sessionPlanner', sessionPlanner);
 Alpine.data('careNext', careNext);
 Alpine.data('updateUpload', updateUpload);
+Alpine.data('pushSettings', pushSettings);
 const assistantConfig = (() => {
     try { return JSON.parse(document.getElementById('assistant-config')?.textContent || '{}'); } catch { return {}; }
 })();

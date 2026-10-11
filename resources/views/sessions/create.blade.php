@@ -9,7 +9,10 @@
                 @if ($templates->isNotEmpty())
                     <x-select name="template_id" label="Partir d'un modèle" :options="$templates" placeholder="Aucun (séance vierge)" class="sm:col-span-2" help="Les exercices du modèle sont copiés ; le modèle n'est pas modifié." />
                 @endif
-                <x-select name="session_type" label="Type de séance" :options="\App\Models\RidingSession::TYPES" value="free" required />
+                <div x-data="{ t: @js(old('session_type', 'free')) }" class="contents">
+                    <x-select name="session_type" label="Type de séance" :options="\App\Models\RidingSession::TYPES" value="free" required x-model="t" />
+                    <div x-show="t === 'private_lesson' || t === 'group_lesson'" x-cloak><x-field name="instructor" label="Enseignant" placeholder="Prénom ou nom" maxlength="100" /></div>
+                </div>
                 <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" placeholder="—" />
                 <x-field name="objective" label="Objectif" maxlength="255" class="sm:col-span-2" />
                 <x-field name="planned_minutes" type="number" label="Durée prévue (min)" min="1" max="600" value="45" />

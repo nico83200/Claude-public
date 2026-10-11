@@ -80,6 +80,21 @@ class RidingSession extends Model
         return self::TYPES[$this->session_type] ?? $this->session_type;
     }
 
+    public function isLesson(): bool
+    {
+        return in_array($this->session_type, ['private_lesson', 'group_lesson'], true);
+    }
+
+    /** Intitulé lisible : « Cours collectif avec Jimmy », « Séance dressage ». */
+    public function title(): string
+    {
+        if ($this->isLesson()) {
+            return $this->typeLabel().($this->instructor ? ' avec '.$this->instructor : '');
+        }
+
+        return 'Séance '.mb_strtolower($this->typeLabel());
+    }
+
     public function riderLabel(): string
     {
         return $this->rider?->name ?? $this->rider_name ?? '—';

@@ -56,6 +56,7 @@
                     <x-select name="session_type" label="Type" :options="\App\Models\RidingSession::TYPES" :value="$session->session_type" required />
                     <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" :value="$session->discipline" placeholder="—" />
                     <x-select name="rider_id" label="Cavalier" :options="$riders" :value="$session->rider_id" placeholder="—" />
+                    @if ($session->isLesson())<x-field name="instructor" label="Enseignant" :value="$session->instructor" maxlength="100" />@endif
                     <x-field name="objective" label="Objectif" :value="$session->objective" class="sm:col-span-2" />
                     <x-field name="planned_minutes" type="number" label="Durée prévue" :value="$session->planned_minutes" />
                     <x-field name="location" label="Lieu" :value="$session->location" />

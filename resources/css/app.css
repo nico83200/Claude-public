@@ -75,6 +75,7 @@
     h2, h3 { font-weight: 600; }
     [x-cloak] { display: none !important; }
     input, select, textarea { font-size: 16px; } /* évite le zoom iOS */
+    input[type=checkbox], input[type=radio] { accent-color: var(--color-brand-700); }
     ::selection { background: var(--color-brand-100); }
 }
 
