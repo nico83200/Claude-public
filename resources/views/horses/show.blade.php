@@ -76,7 +76,7 @@
             @if ($can('health.view'))
             <x-section title="Derniers soins" :action="route('horses.care.index', $horse)">
                 @forelse ($care as $c)
-                    <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="flex justify-between border-t border-slate-100 py-2 text-sm first:border-0"><span><span class="font-medium">{{ $c->category->name }}</span> {{ $c->reason ? '— '.$c->reason : '' }}<span class="block text-xs text-slate-500">{{ $c->professional?->fullName() }}</span></span><span class="text-xs text-slate-500">{{ $c->performed_at->format('d/m/Y') }}</span></a>
+                    <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="flex justify-between border-t border-slate-100 py-2 text-sm first:border-0"><span><span class="font-medium">{{ $c->category->name }}</span> {{ $c->reason ? '— '.$c->reason : '' }}<span class="block text-xs text-slate-500">{{ $c->professional?->fullName() }}</span></span><span class="shrink-0 pl-2 text-xs whitespace-nowrap text-slate-500">{{ $c->performed_at->format('d/m/Y') }}</span></a>
                 @empty <p class="text-sm text-slate-500">Aucun soin enregistré.</p> @endforelse
             </x-section>
             @endif

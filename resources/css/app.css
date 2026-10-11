@@ -56,7 +56,17 @@
 }
 
 @layer base {
-    html { -webkit-tap-highlight-color: transparent; }
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    /* Jamais de défilement horizontal : sur téléphone il décale la barre fixe du bas et fait dézoomer la page.
+       « clip » (et non « hidden ») préserve les éléments collants (en-tête). */
+    html, body { overflow-x: clip; max-width: 100%; overscroll-behavior-y: none; }
+    /* Les éléments de grille et de flex peuvent rétrécir sous la largeur de leur contenu. */
+    .grid > *, .flex > * { min-width: 0; }
+    .flex > svg, .flex > img, .flex > form.inline, .flex > button { flex-shrink: 0; }
+    /* Mots longs (noms, emails, liens) : retour à la ligne plutôt que débordement. */
+    .card, .card *, main p, main dd, main li, main h1, main h2, main h3 { overflow-wrap: break-word; }
+    img, svg, video, canvas, iframe { max-width: 100%; }
+    input[type=file] { max-width: 100%; }
     body { @apply bg-slate-50 text-slate-800 antialiased; font-feature-settings: 'cv11', 'ss01', 'ss03'; }
     h1, h2, h3, .font-display { font-family: var(--font-sans); letter-spacing: -0.02em; color: var(--color-slate-900); }
     h1 { font-weight: 700; }
@@ -80,7 +90,7 @@
 @utility card { @apply rounded-3xl bg-white; box-shadow: var(--shadow-card); }
 @utility link { @apply font-medium text-brand-700 underline-offset-4 hover:underline; }
 @utility table-wrap { @apply overflow-x-auto rounded-3xl bg-white; box-shadow: var(--shadow-card); }
-@utility chip { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium; }
+@utility chip { @apply inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap; }
 @utility big-touch { @apply min-h-14 text-base; }
 
 @layer components {
@@ -104,3 +114,8 @@
 .thinking-dots span { animation: jc-dots 1.2s infinite; }
 .thinking-dots span:nth-child(2) { animation-delay: .15s; }
 .thinking-dots span:nth-child(3) { animation-delay: .3s; }
+
+/* Téléphone : barre du bas masquée pendant la saisie (sinon elle remonte au-dessus du clavier). */
+@media (max-width: 1023px) {
+    body:has(main input:focus, main textarea:focus, main select:focus) nav[aria-label="Navigation rapide"] { display: none; }
+}
