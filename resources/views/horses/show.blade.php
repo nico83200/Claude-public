@@ -68,7 +68,7 @@
                 <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     @foreach ($horse->photos as $photo)
                         <div class="group relative">
-                            <a href="{{ route('horses.photos.show', [$horse, $photo]) }}" target="_blank"><img src="{{ route('horses.photos.show', [$horse, $photo]) }}?thumb=1" alt="{{ $photo->caption }}" loading="lazy" class="aspect-square w-full rounded-lg object-cover"></a>
+                            <a href="{{ route('horses.photos.show', [$horse, $photo]) }}" data-lightbox="photos-{{ $horse->id }}" data-caption="{{ $photo->caption }}"><img src="{{ route('horses.photos.show', [$horse, $photo]) }}?thumb=1" alt="{{ $photo->caption }}" loading="lazy" class="aspect-square w-full rounded-lg object-cover"></a>
                             @if ($can('horse.edit'))
                                 <div class="mt-1 flex gap-1 text-xs">
                                     @if ($horse->main_photo_path !== (string) $photo->id)<form method="POST" action="{{ route('horses.photos.main', [$horse, $photo]) }}">@csrf<button class="link">Principale</button></form>@endif

@@ -12,4 +12,10 @@ class ExpenseDocument extends Model
     {
         return $this->belongsTo(Expense::class);
     }
+
+    /** Image affichable par les navigateurs (ouverte dans la visionneuse plutôt que téléchargée). */
+    public function isImage(): bool
+    {
+        return (bool) preg_match('/\.(jpe?g|png|webp|gif)$/i', (string) $this->original_name);
+    }
 }

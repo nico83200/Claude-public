@@ -3,8 +3,13 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
-## Version 2.10 — connexion avec Google et Apple
+## Version 2.10 — connexion avec Google et Apple, intervenants, menus, photos
 - ✅ « Continuer avec Google / Apple » à l'inscription et à la connexion (OpenID Connect, jetons vérifiés) ; compte et espace personnel créés en un geste ; association automatique à un compte existant seulement si l'email est confirmé par le fournisseur ; double authentification conservée ; association / retrait dans Paramètres › Sécurité ; confirmation des actions sensibles avec Google / Apple. Testé avec un faux fournisseur (vraies clés et signatures) — ⚙️ nécessite les identifiants Google Cloud et Apple Developer (voir `docs/INTEGRATIONS.md`)
+- ✅ Menus déroulants modernes : liste ancrée sur ordinateur, panneau venant du bas sur téléphone, recherche au-delà de 10 choix, clavier ; le champ d'origine reste envoyé avec le formulaire (validation, filtres automatiques)
+- ✅ « Nouvel intervenant ou contact » directement dans les formulaires (soin, rendez-vous, dépense, intervenants du cheval) et « Nouvel enseignant » dans les cours (suggestions des enseignants enregistrés) : la fiche créée est sélectionnée aussitôt
+- ✅ Import d'une fiche contact du téléphone pour créer ou mettre à jour un intervenant : sélecteur de contacts sur Android (Chrome), fichier .vcf sur iPhone (Partager le contact › Enregistrer dans Fichiers) ; fonction déduite (vétérinaire, maréchal…) ; fiche existante reconnue par email, téléphone (tous formats) ou nom et complétée sans perdre d'information. ☑️ Sélecteur Android à confirmer sur un téléphone réel (non disponible dans le navigateur de test) ; lecture vCard testée (iPhone 3.0, Android 2.1, 4.0)
+- ✅ Photos du cheval, documents image et justificatifs photo ouverts dans une visionneuse (plus de nouvel onglet) : photo suivante / précédente, glisser du doigt, bouton retour du téléphone, téléchargement
+- ✅ Corrigé : invitation à activer les notifications et « Plus tard » de la carte d'offre (erreur JavaScript), initialisation des notifications
 
 ## Version 2.9 — propositions d'offre supérieure (Découverte)
 - ✅ Propositions affichées là où l'offre gratuite bloque, avec un argumentaire par fonction et un bouton « Essayer 14 jours gratuitement » (ou « Passer à l'offre … » si l'essai a déjà été utilisé) qui mène à la page Abonnement, offres concernées mises en avant :

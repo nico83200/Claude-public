@@ -20,7 +20,7 @@
         </x-section>
         <div class="space-y-4">
             <x-section title="Documents">
-                @forelse ($record->documents as $d)<a href="{{ route('horses.documents.download', [$horse, $d]) }}" class="block py-1 text-sm link">{{ $d->title }}</a>@empty<p class="text-sm text-slate-500">Aucun document joint.</p>@endforelse
+                @forelse ($record->documents as $d)<a href="{{ route('horses.documents.download', [$horse, $d]) }}" class="block py-1 text-sm link" @if ($d->isImage()) data-lightbox="care-docs" data-caption="{{ $d->title }}" @endif>{{ $d->title }}</a>@empty<p class="text-sm text-slate-500">Aucun document joint.</p>@endforelse
             </x-section>
             @if ($record->treatments->isNotEmpty())
                 <x-section title="Traitements associés">@foreach ($record->treatments as $t)<p class="text-sm">{{ $t->product }} — {{ $t->dosage }}</p>@endforeach</x-section>
