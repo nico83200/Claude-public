@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#faf7f1;color:#0d3122;font-family:Inter,'Inter Display',system-ui;-webkit-font-smoothing:antialiased}
+.abs{position:absolute}
+#bg{inset:0;background:#0e1210}
+#logo{left:0;right:0;top:70px;text-align:center}
+#logo img{height:66px}
+#kicker{left:50%;top:170px;transform:translateX(-50%);background:#0d3122;color:#faf7f1;border-radius:999px;padding:12px 30px;font-size:30px;font-weight:600;white-space:nowrap}
+#title{left:50px;right:50px;top:250px;text-align:center;font:700 70px/1.08 'Inter Display',Inter;letter-spacing:-1.2px}
+#phone{left:198px;top:400px;width:684px;height:1452px;border-radius:78px;background:#0d3122;padding:12px;box-shadow:0 40px 90px rgba(13,49,34,.28)}
+#screen{width:660px;height:1428px;border-radius:66px;overflow:hidden;position:relative;background:#fff}
+#screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 30%}
+#intro{left:0;right:0;top:560px;text-align:center}
+#intro .big{font:800 150px/1 'Inter Display',Inter;letter-spacing:-4px}
+#intro .ver{display:inline-block;margin-top:40px;background:#c2a47e;color:#0d3122;border-radius:999px;padding:16px 44px;font-size:44px;font-weight:700}
+#end{left:0;right:0;top:620px;text-align:center}
+#end img{width:380px}
+#end p{font-size:50px;font-weight:600;margin-top:40px}
+#end small{display:block;font-size:38px;color:#5b6b63;margin-top:14px;font-weight:500}
+#bar{left:0;bottom:0;height:10px;background:#c2a47e}
+</style></head>
+<body>
+<div id="bg" class="abs"></div>
+<div id="logo" class="abs"><img src="../../public/brand/jackcie-wordmark.png" alt=""></div>
+<div id="kicker" class="abs"></div>
+<div id="title" class="abs"></div>
+<div id="phone" class="abs"><div id="screen"></div></div>
+<div id="intro" class="abs"><p class="big">Quoi de<br>neuf ?</p><p class="ver">Version 2.11</p></div>
+<div id="end" class="abs"><img src="../../public/brand/jackcie-logo.png" alt=""><p>Déjà disponible</p><small>jackcie.nlapps.fr</small></div>
+<div id="bar" class="abs"></div>
+<script>
+const $ = (id) => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const ramp = (t, a, d = .5) => ease((t - a) / d);
+const win = (t, a, b, d = .5) => Math.min(ramp(t, a, d), 1 - ramp(t, b - d, d));
+const set = (el, o, y = 0, s = 1) => { el = typeof el === 'string' ? $(el) : el; el.style.opacity = o; el.style.visibility = o <= .001 ? 'hidden' : 'visible'; el.style.translate = `0 ${y}px`; el.style.scale = s; };
+let SC = [], IMGS = {}, cur = null, DIR = '';
+// Appelé par render.mjs avec scenes.json et le dossier des captures.
+window.setup = (scenes, dir) => {
+  SC = scenes; DIR = dir;
+  window.DURATION = scenes.at(-1).start + scenes.at(-1).dur + .4;
+  for (const s of scenes) for (const n of s.shots) if (!IMGS[n]) { const i = new Image(); i.src = `file://${dir}/${n}.png`; $('screen').appendChild(i); IMGS[n] = i; }
+  return Promise.all(Object.values(IMGS).map((i) => i.decode()));
+};
+function render(t) {
+  const s = SC.find((x) => t < x.start + x.dur) ?? SC.at(-1), i = SC.indexOf(s), a = i === 0 ? 0 : s.start, b = s.start + s.dur;
+  if (cur !== s.id) { $('kicker').textContent = s.kicker; $('title').textContent = s.title; cur = s.id; }
+  const isIntro = s.id === 'intro', isEnd = s.id === 'fin';
+  const head = win(t, a + .05, b + .05, .4);
+  set('kicker', !isIntro && s.kicker ? head : 0, (1 - ramp(t, a, .5)) * 16);
+  set('title', !isIntro && s.title ? head : 0, (1 - ramp(t, a + .1, .6)) * 26);
+  // intro : grand titre puis le téléphone monte
+  set('intro', isIntro ? 1 - ramp(t, b - 1.2, .6) : 0, isIntro ? -ramp(t, b - 1.2, .6) * 60 : 0, isIntro ? 1 + .04 * ramp(t, 0, 2) : 1);
+  const phoneO = isIntro ? ramp(t, b - .9, .7) : (isEnd ? 1 - ramp(t, s.start, .6) : 1);
+  set('phone', phoneO, isIntro ? (1 - ramp(t, b - .9, .8)) * 300 : (isEnd ? ramp(t, s.start, .6) * 200 : 0));
+  set('end', isEnd ? ramp(t, s.start + .5, .8) : 0, isEnd ? (1 - ramp(t, s.start + .5, .8)) * 40 : 0);
+  // fond sombre pendant la démonstration du thème sombre
+  const th = SC.find((x) => x.id === 'theme'), d0 = th.start + th.dur / 3;
+  set('bg', s.id === 'theme' ? win(t, d0, th.start + th.dur + .3, .6) * .92 : 0);
+  const dark = $('bg').style.opacity > .5;
+  document.body.style.color = dark ? '#faf7f1' : '#0d3122';
+  $('logo').style.filter = dark ? 'brightness(0) invert(.95)' : 'none';
+  // captures : réparties dans la scène, fondu enchaîné de 0,5 s, léger zoom
+  const shots = isEnd ? [] : s.shots, n = shots.length;
+  for (const [k, img] of Object.entries(IMGS)) {
+    const j = shots.indexOf(k);
+    if (j < 0) { const prev = i > 0 ? SC[i - 1].shots.at(-1) : null; img.style.opacity = k === prev && t < s.start + .5 ? 1 - ramp(t, s.start, .5) : (isEnd && k === SC[i - 1].shots.at(-1) ? 1 : 0); continue; }
+    const s0 = s.start + s.dur * j / n, s1 = s.start + s.dur * (j + 1) / n;
+    img.style.opacity = j === 0 ? (i > 0 && SC[i - 1].shots.at(-1) !== k ? ramp(t, s.start, .5) : 1) : ramp(t, s0 - .25, .5);
+    img.style.zIndex = j + 1;
+    img.style.transform = `scale(${1 + .035 * cl((t - s0) / (s1 - s0 + .5))})`;
+  }
+  $('bar').style.width = (100 * t / window.DURATION) + '%';
+}
+</script>
+</body></html>
