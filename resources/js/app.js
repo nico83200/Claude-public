@@ -1,6 +1,4 @@
 import Alpine from 'alpinejs';
-import { stableApp } from './offline/app.js';
-import { purgeAll, purgeOtherUsers } from './offline/db.js';
 import { installStore, listenForInstall } from './install.js';
 import { sessionPlanner } from './session-planner.js';
 import { careNext } from './care-next.js';
@@ -9,7 +7,6 @@ import { updateUpload } from './update-upload.js';
 
 window.Alpine = Alpine;
 
-Alpine.data('stableApp', stableApp);
 Alpine.data('sessionPlanner', sessionPlanner);
 Alpine.data('careNext', careNext);
 Alpine.data('updateUpload', updateUpload);
@@ -20,85 +17,35 @@ Alpine.store('assistant', assistantStore(assistantConfig));
 Alpine.store('install', installStore());
 listenForInstall(Alpine);
 
-// Indicateur de connexion / synchronisation visible dans l'en-tête.
-Alpine.data('syncIndicator', () => ({
+// État de la connexion (bandeau « Pas de connexion »).
+Alpine.store('network', {
     online: navigator.onLine,
-    pending: 0,
-    status: null,
     init() {
         window.addEventListener('online', () => { this.online = true; });
         window.addEventListener('offline', () => { this.online = false; });
-        window.addEventListener('jackcie-sync', (e) => { this.status = e.detail; this.pending = e.detail.pending; });
-        try { this.pending = Number(localStorage.getItem('jackcie-pending') ?? 0); } catch { /* ignore */ }
     },
-    get label() {
-        if (!this.online) return 'Hors ligne';
-        if (this.status?.syncing) return 'Synchronisation…';
-        if (this.status?.conflicts > 0) return 'Conflit à résoudre';
-        if (this.status?.error) return 'Échec de synchronisation';
-        if (this.pending > 0) return 'Modifications en attente';
-        return 'En ligne';
-    },
-    get dot() {
-        if (!this.online) return 'bg-slate-400';
-        if (this.status?.error || this.status?.conflicts > 0) return 'bg-red-500';
-        if (this.status?.syncing || this.pending > 0) return 'bg-amber-500';
-        return 'bg-emerald-500';
-    },
-}));
-
-window.addEventListener('jackcie-sync', (e) => {
-    try { localStorage.setItem('jackcie-pending', String(e.detail.pending ?? 0)); } catch { /* ignore */ }
 });
 
 Alpine.start();
 
-// --- Service Worker -------------------------------------------------------
-async function postToWorker(message) {
-    const reg = await navigator.serviceWorker?.ready;
-    reg?.active?.postMessage(message);
-}
-
+// --- Service Worker (installation de l'application, page « pas de connexion ») ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(() => {
-            // Mise en cache des ressources de la page courante (feuilles de style, scripts compilés).
-            const assets = [...document.querySelectorAll('link[rel="stylesheet"][href], script[src], link[rel="modulepreload"][href]')]
-                .map((el) => el.href || el.src).filter((u) => u.startsWith(location.origin));
-            postToWorker({ type: 'cache-assets', assets });
-            if (document.body.dataset.offlineShell === '1') postToWorker({ type: 'cache-shell' });
-        }).catch(() => { /* PWA non disponible : l'application reste utilisable en ligne */ });
+        navigator.serviceWorker.register('/sw.js').catch(() => { /* PWA non disponible : l'application reste utilisable */ });
     });
 }
 
-// --- Séparation des comptes sur un même appareil --------------------------
-const userId = document.querySelector('meta[name="app-user"]')?.content;
-if (userId) {
+// --- Nettoyage de l'ancien mode hors ligne ----------------------------------
+// Les versions précédentes gardaient une copie des chevaux dans le téléphone (IndexedDB) :
+// elle est effacée une fois pour toutes.
+(async () => {
     try {
-        const previous = localStorage.getItem('jackcie-user');
-        if (previous && previous !== userId) {
-            purgeOtherUsers(userId).catch(() => {});
-            postToWorker({ type: 'purge' });
-            localStorage.removeItem('jackcie-pending');
+        if (localStorage.getItem('jackcie-offline-removed')) return;
+        const dbs = (await indexedDB.databases?.()) ?? [];
+        for (const db of dbs) {
+            if (db.name?.startsWith('jackcie')) indexedDB.deleteDatabase(db.name);
         }
-        localStorage.setItem('jackcie-user', userId);
-    } catch { /* stockage indisponible */ }
-}
-
-// --- Purge locale à la déconnexion ----------------------------------------
-document.addEventListener('submit', async (event) => {
-    const form = event.target;
-    if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-logout') || form.dataset.purged) return;
-    event.preventDefault();
-    let pending = 0;
-    try { pending = Number(localStorage.getItem('jackcie-pending') ?? 0); } catch { /* ignore */ }
-    if (pending > 0 && !confirm(`${pending} modification(s) hors ligne ne sont pas encore synchronisées et seront perdues. Se déconnecter quand même ?`)) return;
-    try {
-        await purgeAll();
-        await postToWorker({ type: 'purge' });
-        localStorage.removeItem('jackcie-pending');
-        localStorage.removeItem('jackcie-user');
-    } catch { /* on déconnecte quand même */ }
-    form.dataset.purged = '1';
-    form.submit();
-});
+        ['jackcie-pending', 'jackcie-user'].forEach((k) => localStorage.removeItem(k));
+        localStorage.setItem('jackcie-offline-removed', '1');
+    } catch { /* navigateur sans IndexedDB : rien à nettoyer */ }
+})();

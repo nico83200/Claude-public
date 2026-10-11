@@ -35,7 +35,7 @@
                     <p class="mt-3 text-sm font-semibold">Invitations en attente</p>
                     @foreach ($invitations as $i)<div class="flex items-center justify-between py-1 text-sm"><span>{{ $i->email }} <span class="text-xs text-slate-500">expire le {{ $i->expires_at->format('d/m/Y') }}</span></span><x-confirm-delete :action="route('horses.sharing.invitations.revoke', [$horse, $i])" label="Annuler" message="Annuler l'invitation ?" /></div>@endforeach
                 @endif
-                <p class="mt-3 text-xs text-slate-500">La révocation est immédiate pour toute utilisation en ligne. Une copie déjà téléchargée sur un appareil resté hors ligne sera purgée dès sa reconnexion ou à l'expiration de ses données locales ({{ config('equine.offline.ttl_hours') }} h maximum).</p>
+                <p class="mt-3 text-xs text-slate-500">La révocation est immédiate.</p>
             </x-section>
 
             <x-section title="Écuries et prises en charge">

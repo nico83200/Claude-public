@@ -27,7 +27,7 @@
                         <p class="truncate text-sm text-slate-500">{{ collect([$horse->breed?->name, $horse->age() !== null ? $horse->age().' ans' : null, \App\Models\Horse::SEXES[$horse->sex] ?? null])->filter()->implode(' · ') }}</p>
                         <p class="truncate text-xs text-slate-400">{{ $horse->organization->name }}</p>
                         <div class="mt-1 flex gap-1">
-                            @if (in_array($horse->id, $offline))<x-badge color="brand">Hors ligne</x-badge>@endif
+                            
                             @if ($horse->isArchived())<x-badge>Archivé</x-badge>@endif
                         </div>
                     </div>

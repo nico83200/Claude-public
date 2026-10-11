@@ -101,7 +101,6 @@ class AuthTest extends TestCase
     {
         $this->get('/dashboard')->assertRedirect('/login');
         $this->get('/chevaux')->assertRedirect('/login');
-        $this->postJson('/sync/pull', [])->assertStatus(401);
     }
 
     public function test_public_pages_render(): void

@@ -61,7 +61,6 @@
                     <a href="{{ route($route) }}" class="flex min-h-10 items-center gap-3 rounded-full px-4 text-sm {{ $active ? 'bg-white font-medium text-brand-900 shadow-[var(--shadow-card)]' : 'text-slate-500 hover:bg-white/70 hover:text-slate-900' }}"><x-icon :name="$icon" class="size-[18px]" /> {{ $label }}</a>
                 @endif
             @endforeach
-            <a href="{{ route('offline.app') }}" class="flex min-h-10 items-center gap-3 rounded-full px-4 text-sm text-slate-500 hover:bg-white/70 hover:text-slate-900"><x-icon name="offline" class="size-[18px]" /> Mode écurie (hors ligne)</a>
             <button type="button" x-data x-show="! $store.install.installed" @click="$store.install.install(); menu = false" class="flex min-h-10 w-full items-center gap-3 rounded-full px-4 text-left text-sm font-medium text-brand-700 hover:bg-white/70"><x-icon name="download" class="size-[18px]" /> Installer sur mon téléphone</button>
             @can('super-admin')
                 <a href="{{ route('admin.dashboard') }}" class="mt-2 flex min-h-10 items-center gap-3 rounded-full bg-slate-900 px-4 text-sm font-medium text-white"><x-icon name="shield" class="size-[18px]" /> Administration</a>
@@ -70,7 +69,7 @@
         <div class="flex items-center gap-3 px-6 py-4">
             <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
             <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-slate-800">{{ auth()->user()->name }}</span><span class="block truncate text-xs text-slate-500">{{ $currentOrganization?->name }}</span></span>
-            <form method="POST" action="{{ route('logout') }}" data-logout>
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="btn-ghost px-2" aria-label="Se déconnecter" title="Se déconnecter"><x-icon name="logout" class="size-[18px]" /></button>
             </form>
@@ -88,7 +87,7 @@
             </form>
             <div class="ml-auto flex items-center gap-1">
                 <button type="button" class="btn-ghost px-2 sm:hidden" @click="search = ! search; $nextTick(() => search && $refs.q.focus())" aria-label="Rechercher"><x-icon name="search" /></button>
-                @include('partials.sync-indicator')
+                <span x-data x-cloak x-show="! $store.network.online" class="chip bg-amber-100 text-amber-800" role="status">Pas de connexion</span>
                 <a href="{{ route('notifications.index') }}" class="btn-ghost relative px-2" aria-label="Notifications">
                     <x-icon name="bell" />
                     @if ($unreadNotifications > 0)<span class="absolute top-1.5 right-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">{{ min($unreadNotifications, 9) }}</span>@endif

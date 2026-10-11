@@ -15,8 +15,4 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
-    test: {
-        environment: 'node',
-        include: ['tests/js/**/*.test.js'],
-    },
 });

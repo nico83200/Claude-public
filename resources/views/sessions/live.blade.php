@@ -6,7 +6,6 @@
         </div>
         @if ($session->precautions || $session->horse->precautions)<div class="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm"><strong>Précautions :</strong> {{ $session->precautions ?: $session->horse->precautions }}</div>@endif
         <p x-show="error" x-cloak class="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-800" x-text="error"></p>
-        <p class="mb-3 text-xs text-slate-500">Sans réseau à l'écurie ? Utilisez le <a href="{{ route('offline.app') }}" class="link">mode écurie</a> (hors ligne) après avoir rendu le cheval disponible hors ligne.</p>
 
         @foreach (\App\Models\RidingSession::PHASES as $phase => $label)
             @php $items = $session->exercises->where('phase', $phase); @endphp
@@ -60,7 +59,7 @@
                         this.error = null;
                     } catch (e) {
                         Object.assign(s, before);
-                        this.error = navigator.onLine ? ('Non enregistré : ' + e.message) : 'Hors ligne : la modification n\'a pas été enregistrée. Utilisez le mode écurie pour travailler sans réseau.';
+                        this.error = navigator.onLine ? ('Non enregistré : ' + e.message) : 'Pas de connexion : la modification n\'a pas été enregistrée. Réessayez dès que le réseau revient.';
                     }
                 },
             }));

@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Horse;
 use App\Models\HorseDocument;
-use App\Models\SyncOperation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -36,7 +35,7 @@ class PurgeData extends Command
             Storage::disk('local')->deleteDirectory('horses/'.$horse->id);
             $horse->forceDelete(); // cascade SQL sur les tables liées
         }
-        SyncOperation::where('created_at', '<', now()->subDays(180))->delete();
+        DB::table('sync_operations')->where('created_at', '<', now()->subDays(180))->delete(); // ancien mode hors ligne
         DB::table('audit_logs')->where('created_at', '<', now()->subYears(3))->delete();
         // Consignes de l'assistant : texte et actions conservés 90 jours (l'audio n'est jamais stocké).
         DB::table('assistant_requests')->where('created_at', '<', now()->subDays(90))->delete();

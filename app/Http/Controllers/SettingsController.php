@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataRequest;
-use App\Models\SyncDevice;
 use App\Models\UserProfile;
 use App\Services\Audit;
 use Illuminate\Http\Request;
@@ -64,18 +63,5 @@ class SettingsController extends Controller
         Audit::log('gdpr.request', $user, ['type' => $data['type']]);
 
         return back()->with('success', 'Demande enregistrée. Elle sera traitée sous 30 jours maximum ; vous serez informé par email.');
-    }
-
-    public function devices(Request $request)
-    {
-        return view('settings.devices', ['devices' => SyncDevice::where('user_id', $request->user()->id)->latest('last_seen_at')->get()]);
-    }
-
-    public function wipeDevice(Request $request, SyncDevice $device)
-    {
-        abort_unless($device->user_id === $request->user()->id, 404);
-        $device->update(['wipe_requested_at' => now()]);
-
-        return back()->with('success', 'Purge demandée : les données locales de cet appareil seront effacées dès sa prochaine connexion.');
     }
 }

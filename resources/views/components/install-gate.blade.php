@@ -6,7 +6,7 @@
     <div x-show="$store.install.gate" @unless ($handheld) style="display: none" @endunless class="text-center">
         <img src="/icons/icon-192.png" alt="" class="mx-auto size-20 rounded-[22%] shadow-[var(--shadow-card)]">
         <h1 class="mt-5 text-2xl font-bold">Installez l'application</h1>
-        <p class="mt-2 text-[15px] text-slate-600">Sur téléphone et tablette, Jack&amp;Cie s'utilise depuis son application : plein écran, micro, utilisable à l'écurie sans réseau. Installez-la, puis ouvrez-la pour {{ $purpose }}.</p>
+        <p class="mt-2 text-[15px] text-slate-600">Sur téléphone et tablette, Jack&amp;Cie s'utilise depuis son application : plein écran, accès direct, micro pour dicter vos consignes. Installez-la, puis ouvrez-la pour {{ $purpose }}.</p>
         <template x-if="$store.install.inApp">
             <div class="mt-6 rounded-2xl bg-amber-50 p-4 text-left text-sm text-amber-900">
                 Vous êtes dans le navigateur d'une autre application, qui ne permet pas l'installation. Ouvrez cette page dans <strong x-text="$store.install.isIOS ? 'Safari' : 'Chrome'"></strong> (menu ⋯ › « Ouvrir dans le navigateur »).

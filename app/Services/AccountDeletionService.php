@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Horse;
 use App\Models\HorseAccessGrant;
 use App\Models\OrganizationMember;
-use App\Models\SyncDevice;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -32,7 +31,7 @@ class AccountDeletionService
             OrganizationMember::where('user_id', $user->id)->delete();
             DB::table('sessions')->where('user_id', $user->id)->delete();
             DB::table('offline_horse_selections')->where('user_id', $user->id)->delete();
-            SyncDevice::where('user_id', $user->id)->update(['wipe_requested_at' => now()]);
+            DB::table('sync_devices')->where('user_id', $user->id)->delete(); // ancien mode hors ligne (tables conservées)
             $user->profile()?->delete();
             $user->notifications()->delete();
             DB::table('assistant_requests')->where('user_id', $user->id)->delete();

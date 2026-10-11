@@ -99,7 +99,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('super-admin', fn (User $user) => $user->is_super_admin && ! $user->isSuspended());
 
         RateLimiter::for('horse-search', fn (Request $request) => Limit::perMinute(config('equine.horse_search.max_per_minute'))->by($request->user()?->id ?: $request->ip()));
-        RateLimiter::for('sync', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('exports', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('invitations', fn (Request $request) => Limit::perHour(30)->by($request->user()?->id ?: $request->ip()));
     }

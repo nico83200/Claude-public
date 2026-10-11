@@ -17,14 +17,14 @@ avant déploiement (Node n'est pas requis sur le serveur).
 ## 2. Architecture fonctionnelle
 
 ```
-Navigateur (Blade + Alpine)            Mode écurie (PWA)
-   │  formulaires + CSRF                  │ IndexedDB (par utilisateur) + file d'opérations
-   ▼                                      ▼ /sync/pull · /sync/push (cookie de session + CSRF)
+Navigateur / application installée (Blade + Alpine)
+   │  formulaires + CSRF, assistant vocal (JSON)
+   ▼
 Contrôleurs HTTP (app/Http/Controllers) ──► Services métier (app/Services)
    │  Gate "horse" / "org" / "super-admin"      ├─ HorseAccess      : résolution des droits sur un cheval
    │                                            ├─ Entitlements     : licence → limites, fonctionnalités, lecture seule
    │                                            ├─ RidingSessionService, HorseService, CalendarService, InvitationService
-   │                                            ├─ Sync\SyncService : idempotence, fusion à trois voies, conflits
+   │                                            ├─ Assistant\*      : assistant vocal (Claude, ElevenLabs), annulation
    │                                            ├─ Billing\*        : Stripe (passerelle isolée), webhooks, licences
    │                                            └─ HorseSearch\*    : adaptateurs de sources externes
    ▼
@@ -58,8 +58,7 @@ ne dupliquent jamais le dossier (relations datées, historique conservé).
 60 tables (migrations `database/migrations/2026_01_01_*`), InnoDB, utf8mb4,
 montants en `DECIMAL(10,2)`, clés étrangères et index sur les recherches fréquentes,
 suppression logique (`deleted_at`) ou archivage là où l'historique compte, colonne
-`version` (verrou optimiste) sur les entités modifiables hors ligne, `uuid` générés
-côté client pour les créations hors ligne.
+`version` (verrou optimiste) sur les entités modifiables par plusieurs personnes, `uuid` stables.
 
 | Groupe | Tables |
 |---|---|
@@ -69,7 +68,7 @@ côté client pour les créations hors ligne.
 | Santé | care_categories, care_records, treatments, treatment_administrations, health_observations, professionals, horse_professionals |
 | Activités | exercise_categories, exercise_library, exercise_tags, exercise_tag_assignments, session_templates, riding_sessions, session_exercises (copie figée), session_comments, session_media |
 | Quotidien | feeding_plans, feeding_entries, daily_logs, calendar_events, reminders, expenses, expense_categories, expense_documents, notifications |
-| Synchronisation | sync_devices, sync_operations, sync_cursors, sync_conflicts |
+| Ancien mode hors ligne (supprimé en 2.2, tables conservées sans usage) | sync_devices, sync_operations, sync_cursors, sync_conflicts, offline_horse_selections |
 
 ### Diagramme des entités principales
 
@@ -116,7 +115,7 @@ erDiagram
 | Séances / exercices | RidingSessionController, SessionExerciseController, SessionTemplateController, ExerciseController, RidingSessionService |
 | Partage / écuries | HorseSharingController, AssignmentController, Organization*Controller, InvitationService |
 | Quotidien / budget | FeedingController, DailyLogController, ExpenseController |
-| Hors ligne | SyncController, Sync\SyncService, `resources/js/offline/*`, `public/sw.js` |
+| PWA | `public/manifest.webmanifest`, `public/sw.js` (installation, page « pas de connexion », aucune donnée en cache) |
 | Commercial | BillingController, StripeWebhookController, Billing\BillingService, WebhookProcessor, Entitlements |
 | Administration | `app/Http/Controllers/Admin/*` |
 | Exports / RGPD | ExportController, SettingsController, AccountDeletionService |
@@ -127,9 +126,6 @@ erDiagram
 | Risque | Réponse |
 |---|---|
 | Fuite de données entre comptes (IDOR) | Autorisation centralisée, liaisons de routes imbriquées scopées, tests d'isolation |
-| Doublons de synchronisation | `op_uuid` unique + `uuid` client par entité, tests d'idempotence |
-| Écrasement silencieux hors ligne | Fusion à trois voies champ par champ, table `sync_conflicts`, résolution explicite |
-| Révocation vs copie hors ligne | Revérification serveur à chaque opération, purge au pull, TTL local, purge à distance — limite documentée |
 | Webhooks Stripe en double / désordre | Identifiant d'événement unique, verrou, horodatage `last_stripe_event_created` |
 | Activation frauduleuse d'abonnement | Seul le webhook signé active ; la page de retour est informative |
 | Hébergement sans worker | Traitement synchrone des webhooks, `queue:work --stop-when-empty` planifié |

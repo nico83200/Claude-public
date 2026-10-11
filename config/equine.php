@@ -21,12 +21,6 @@ return [
         'max_per_minute' => 10,
     ],
 
-    'offline' => [
-        'ttl_hours' => (int) env('OFFLINE_DATA_TTL_HOURS', 168),
-        'max_horses' => (int) env('OFFLINE_MAX_HORSES', 10),
-        'recent_sessions' => 20,
-    ],
-
     'uploads' => [
         'max_kb' => (int) env('UPLOAD_MAX_KB', 10240),
         'mimes' => ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'csv'],

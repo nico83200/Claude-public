@@ -30,11 +30,8 @@ class HorseController extends Controller
         }
         $request->boolean('archived') ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at');
 
-        $offline = \DB::table('offline_horse_selections')->where('user_id', $user->id)->pluck('horse_id')->all();
-
         return view('horses.index', [
             'horses' => $query->orderBy('official_name')->paginate(24)->withQueryString(),
-            'offline' => $offline,
             'canCreate' => $user->canInOrg($this->currentOrganization(), Perm::HORSES_CREATE),
         ]);
     }
@@ -80,7 +77,6 @@ class HorseController extends Controller
             'observations' => $horse->observations()->with('author')->whereNull('resolved_at')->limit(5)->get(),
             'logs' => $horse->dailyLogs()->with('author')->limit(3)->get(),
             'sources' => $has(Perm::HORSE_EDIT) ? $horse->externalSources()->where('validation', 'pending')->get() : collect(),
-            'isOffline' => \DB::table('offline_horse_selections')->where('user_id', $request->user()->id)->where('horse_id', $horse->id)->exists(),
             'transferTargets' => $has(Perm::HORSE_MANAGE) ? $request->user()->memberships->filter(fn ($m) => $m->organization_id !== $horse->organization_id && in_array(Perm::HORSES_CREATE, $m->role->permissionKeys(), true))->map->organization : collect(),
         ]);
     }
@@ -153,24 +149,5 @@ class HorseController extends Controller
         });
 
         return redirect()->route('horses.show', $horse)->with('success', 'Le cheval est désormais géré par '.$target->name.'.');
-    }
-
-    public function toggleOffline(Request $request, Horse $horse)
-    {
-        $this->authorizeHorse($horse, Perm::HORSE_VIEW);
-        $user = $request->user();
-        $table = \DB::table('offline_horse_selections');
-        $exists = (clone $table)->where('user_id', $user->id)->where('horse_id', $horse->id)->exists();
-        if ($exists) {
-            (clone $table)->where('user_id', $user->id)->where('horse_id', $horse->id)->delete();
-
-            return back()->with('success', 'Le cheval ne sera plus disponible hors ligne (données locales purgées à la prochaine synchronisation).');
-        }
-        if ((clone $table)->where('user_id', $user->id)->count() >= config('equine.offline.max_horses')) {
-            return back()->with('error', 'Vous avez atteint le nombre maximal de chevaux disponibles hors ligne ('.config('equine.offline.max_horses').').');
-        }
-        $table->insert(['user_id' => $user->id, 'horse_id' => $horse->id, 'created_at' => now(), 'updated_at' => now()]);
-
-        return back()->with('success', 'Le cheval sera disponible hors ligne après la prochaine synchronisation (ouvrez le mode écurie).');
     }
 }

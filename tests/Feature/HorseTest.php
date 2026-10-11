@@ -167,15 +167,4 @@ class HorseTest extends TestCase
         $this->actingAs($user)->put("/chevaux/{$horse->id}/genealogie", ['studbook' => 'SF', 'rel' => ['sire' => ['name' => 'GALOUBET A'], 'dam_sire' => ['name' => 'ALME']]])->assertRedirect();
         $this->actingAs($user)->get("/chevaux/{$horse->id}/genealogie")->assertOk()->assertSee('GALOUBET A')->assertSee('ALME');
     }
-
-    public function test_offline_selection_is_limited(): void
-    {
-        config(['equine.offline.max_horses' => 1]);
-        $user = $this->user();
-        $this->grantLicense($user->personalOrganization());
-        $h1 = $this->horseFor($user);
-        $h2 = $this->horseFor($user);
-        $this->actingAs($user)->post("/chevaux/{$h1->id}/hors-ligne")->assertSessionHas('success');
-        $this->actingAs($user)->post("/chevaux/{$h2->id}/hors-ligne")->assertSessionHas('error');
-    }
 }

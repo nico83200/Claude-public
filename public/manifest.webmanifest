@@ -2,7 +2,7 @@
     "id": "/",
     "name": "Jack&Cie",
     "short_name": "Jack&Cie",
-    "description": "Toute la vie de votre cheval, réunie. Santé, soins, séances, demi-pensions et écuries — utilisable hors ligne.",
+    "description": "Toute la vie de votre cheval, réunie. Santé, soins, séances, demi-pensions et écuries — avec assistant vocal.",
     "lang": "fr",
     "dir": "ltr",
     "start_url": "/dashboard?source=pwa",
@@ -20,11 +20,10 @@
     ],
     "screenshots": [
         { "src": "/screenshots/mobile-accueil.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Tableau de bord" },
-        { "src": "/screenshots/mobile-seance.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Mode séance, même hors ligne" },
+        { "src": "/screenshots/mobile-seance.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Mode séance" },
         { "src": "/screenshots/ordinateur.png", "sizes": "1600x1000", "type": "image/png", "form_factor": "wide", "label": "Fiche cheval" }
     ],
     "shortcuts": [
-        { "name": "Mode écurie", "short_name": "Écurie", "url": "/hors-ligne", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
         { "name": "Nouvelle séance", "short_name": "Séance", "url": "/seances/nouvelle", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
         { "name": "Calendrier", "url": "/calendrier", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
     ]

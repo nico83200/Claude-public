@@ -36,10 +36,3 @@ php artisan optimize:clear && php artisan up
 2. `php artisan migrate:status` doit être à jour ; se connecter avec un compte de test.
 3. Ouvrir un cheval, télécharger un document, vérifier le tableau de bord admin.
 4. Consigner date, durée et anomalies.
-
-## Après restauration — appareils hors ligne
-
-Les appareils conservent leurs opérations en attente (identifiants uniques) : elles
-seront rejouées sans doublon. Les opérations déjà enregistrées après la date de la
-sauvegarde seront réappliquées si les appareils les ont encore en file ; sinon elles
-sont perdues pour la période restaurée — prévenir les utilisateurs.

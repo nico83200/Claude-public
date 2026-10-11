@@ -9,8 +9,8 @@
 | Comptes suspendus | Connexion refusée, sessions supprimées, déconnexion immédiate (middleware) |
 | CSRF | Jeton sur tous les formulaires et appels `/sync` ; seul `/stripe/webhook` est exclu (signature Stripe) |
 | Injections SQL | Eloquent / requêtes paramétrées ; recherche `LIKE` échappée |
-| Validation | Côté serveur pour chaque formulaire et chaque opération synchronisée |
-| Contrôle d'accès | `HorseAccess` + Gates à chaque lecture, écriture, export, téléchargement et synchronisation ; routes imbriquées scopées (`/chevaux/{a}/soins/{b}` refuse un soin d'un autre cheval) |
+| Validation | Côté serveur pour chaque formulaire et chaque action de l'assistant |
+| Contrôle d'accès | `HorseAccess` + Gates à chaque lecture, écriture, export, téléchargement et action de l'assistant ; routes imbriquées scopées (`/chevaux/{a}/soins/{b}` refuse un soin d'un autre cheval) |
 | Assignation de masse | Champs sensibles (`is_super_admin`, `organization_id`, `version`…) protégés |
 | Fichiers | Disque privé `storage/app/private`, servis par contrôleur après autorisation ; types et tailles limités ; noms aléatoires |
 | Sessions | En base, chiffrées, cookie `Secure`/`HttpOnly`/`SameSite=Lax` en production |
@@ -29,10 +29,10 @@
 | Accès / portabilité | Paramètres > Mes données > export JSON (mot de passe reconfirmé) ; exports PDF/CSV par cheval |
 | Rectification | Modification directe du profil et des fiches ; demande formelle via le formulaire |
 | Effacement | Demande → Admin > RGPD → anonymisation (compte, profil, accès, espace personnel), purge définitive à J+30 (`data:purge`) |
-| Conservation | Suppressions logiques purgées après 30 j ; journaux d'audit 3 ans ; opérations de synchro 180 j ; notifications lues 1 an ; données d'un abonnement terminé conservées en lecture seule ≥ 90 j (`BILLING_RECOVERY_DAYS`) |
+| Conservation | Suppressions logiques purgées après 30 j ; journaux d'audit 3 ans ; anciennes opérations de synchro (mode hors ligne supprimé) 180 j ; notifications lues 1 an ; données d'un abonnement terminé conservées en lecture seule ≥ 90 j (`BILLING_RECOVERY_DAYS`) |
 | Sous-traitants | Hébergeur, Stripe, fournisseur email, (Brave Search si activé) — à lister dans les paramètres |
 | Procédure | Demandes visibles dans Admin > RGPD, à traiter sous un mois ; chaque action est journalisée |
-| Données hors ligne | Minimisées, expirantes, purgées à la déconnexion (voir HORS-LIGNE.md) |
+| Données sur le téléphone | Aucune donnée privée conservée par l'application (service worker limité aux ressources publiques) ; les copies de l'ancien mode hors ligne sont effacées |
 
 ## À faire avant la mise en production
 

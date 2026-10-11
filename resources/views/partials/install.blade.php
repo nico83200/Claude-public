@@ -7,7 +7,7 @@
             <img src="/icons/icon-192.png" alt="" class="size-11 rounded-[22%]">
             <div class="min-w-0 flex-1">
                 <p class="font-display text-[15px] leading-tight font-semibold">Jack&amp;Cie sur votre téléphone</p>
-                <p class="text-xs text-slate-500">Plein écran, accès direct, utilisable à l'écurie sans réseau.</p>
+                <p class="text-xs text-slate-500">Plein écran, accès direct, micro pour dicter vos consignes.</p>
             </div>
             <button type="button" @click="$store.install.dismiss()" class="rounded-lg p-1.5 text-slate-400 hover:text-slate-700" aria-label="Plus tard"><x-icon name="x" class="size-4" /></button>
         </div>

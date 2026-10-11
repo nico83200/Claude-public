@@ -5,7 +5,7 @@ namespace App\Models\Concerns;
 use Illuminate\Support\Str;
 
 /**
- * Identifiant UUID stable, pouvant être généré côté client (création hors ligne).
+ * Identifiant UUID stable, pouvant être fourni par le client.
  */
 trait HasClientUuid
 {

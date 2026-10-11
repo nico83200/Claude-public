@@ -10,10 +10,12 @@ use App\Models\Invitation;
 use App\Models\Professional;
 use App\Models\RidingSession;
 use App\Models\Role;
+use App\Models\SubscriptionPlan;
 use App\Notifications\AppNotification;
 use App\Services\InvitationService;
 use App\Support\Perm;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class FeaturesTest extends TestCase
@@ -30,7 +32,7 @@ class FeaturesTest extends TestCase
             "/chevaux/{$horse->id}/historique", "/chevaux/{$horse->id}/intervenants", '/chevaux/rechercher', '/sante', '/intervenants', '/intervenants/nouveau',
             '/calendrier', '/calendrier?view=week', '/calendrier?view=day', '/seances', '/seances/nouvelle', "/seances/{$session->id}", "/seances/{$session->id}/preparer",
             "/seances/{$session->id}/en-cours", "/seances/{$session->id}/bilan", '/modeles', '/exercices', '/exercices/nouveau', '/budget', '/partages', '/organisation', '/espaces/nouveau',
-            '/notifications', '/abonnement', '/parametres', '/parametres/securite', '/parametres/donnees', '/parametres/appareils', '/recherche?q=to', '/hors-ligne'];
+            '/notifications', '/abonnement', '/parametres', '/parametres/securite', '/parametres/donnees', '/recherche?q=to'];
         foreach ($pages as $url) {
             $this->actingAs($user)->get($url)->assertOk();
         }
@@ -196,5 +198,22 @@ class FeaturesTest extends TestCase
         $this->actingAs($user)->post('/intervenants', ['last_name' => 'Martin', 'kind' => 'farrier', 'phone' => '0600000000', 'force' => '1']);
         $this->assertSame(2, Professional::count());
         $this->actingAs($this->user())->get('/intervenants/'.Professional::first()->id)->assertNotFound();
+    }
+
+    public function test_offline_mode_and_sync_are_gone(): void
+    {
+        $user = $this->user();
+        $horse = $this->horseFor($user);
+        foreach (['/hors-ligne', '/parametres/appareils', '/sync/session'] as $path) {
+            $this->actingAs($user)->get($path)->assertNotFound();
+        }
+        $this->actingAs($user)->postJson('/sync/pull', [])->assertNotFound();
+        $this->actingAs($user)->post("/chevaux/{$horse->id}/hors-ligne")->assertNotFound();
+        $this->actingAs($user)->get("/chevaux/{$horse->id}")->assertOk()->assertDontSee('hors ligne')->assertDontSee('Mode écurie');
+        $this->assertArrayNotHasKey('offline', SubscriptionPlan::FEATURES);
+        $this->assertFalse(SubscriptionPlan::all()->contains(fn ($p) => in_array('offline', $p->features ?? [], true)));
+        // Tables conservées
+        $this->assertTrue(Schema::hasTable('sync_operations'));
+        $this->assertTrue(Schema::hasTable('offline_horse_selections'));
     }
 }

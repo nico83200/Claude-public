@@ -28,9 +28,6 @@ class Horse extends Model
 
     public const DISCIPLINES = ['dressage' => 'Dressage', 'jumping' => 'Saut d\'obstacles', 'eventing' => 'Concours complet', 'endurance' => 'Endurance', 'western' => 'Western', 'trail' => 'Randonnée / extérieur', 'driving' => 'Attelage', 'vaulting' => 'Voltige', 'horseball' => 'Horse-ball', 'leisure' => 'Loisir', 'groundwork' => 'Travail à pied', 'other' => 'Autre'];
 
-    /** Champs modifiables hors ligne (liste blanche explicite). */
-    public const OFFLINE_EDITABLE = ['usual_name', 'particularities', 'general_notes', 'current_location'];
-
     public function organization()
     {
         return $this->belongsTo(Organization::class);

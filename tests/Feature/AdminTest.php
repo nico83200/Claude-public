@@ -72,7 +72,7 @@ class AdminTest extends TestCase
         $admin = $this->admin();
         $user = $this->user();
         $plan = SubscriptionPlan::where('slug', 'decouverte')->first();
-        $this->asAdmin($admin)->put("/admin/offres/{$plan->id}", ['name' => $plan->name, 'currency' => 'EUR', 'audience' => 'individual', 'max_horses' => 2, 'features' => ['offline'], 'is_active' => '1', 'is_default_free' => '1'])->assertRedirect();
+        $this->asAdmin($admin)->put("/admin/offres/{$plan->id}", ['name' => $plan->name, 'currency' => 'EUR', 'audience' => 'individual', 'max_horses' => 2, 'features' => ['sharing'], 'is_active' => '1', 'is_default_free' => '1'])->assertRedirect();
         $this->horseFor($user);
         $this->horseFor($user); // désormais autorisé : limite à 2
         $this->assertSame(2, $user->personalOrganization()->horses()->count());

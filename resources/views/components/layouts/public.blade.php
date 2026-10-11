@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-        <meta name="description" content="Jack&amp;Cie — Toute la vie de votre cheval, réunie : santé, soins, séances, demi-pensions, écuries. Fonctionne hors ligne.">
+        <meta name="description" content="Jack&amp;Cie — Toute la vie de votre cheval, réunie : santé, soins, séances, demi-pensions, écuries. Assistant vocal.">
     @include('partials.head')
 </head>
 <body class="min-h-dvh">

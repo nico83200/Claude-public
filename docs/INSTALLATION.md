@@ -89,9 +89,5 @@ adapter ces valeurs à votre poste.
 
 ```bash
 php artisan test
-npm test
-# test navigateur hors ligne (Chromium/Playwright) :
-php artisan migrate:fresh --seed && php artisan db:seed --class=DemoSeeder
-php artisan serve --port=8000 &
-node tests/e2e/offline.mjs     # CHROMIUM_PATH=/chemin/vers/chrome si besoin
+# installation de bout en bout depuis le zip (Chromium/Playwright) : voir l'en-tête de tests/e2e/installer.mjs
 ```

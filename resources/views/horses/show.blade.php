@@ -9,12 +9,11 @@
             <div class="mt-1 flex flex-wrap gap-1">
                 <x-badge>{{ $horse->organization->name }}</x-badge>
                 @if ($horse->isArchived())<x-badge color="amber">Archivé — lecture seule</x-badge>@endif
-                @if ($isOffline)<x-badge color="brand">Disponible hors ligne</x-badge>@endif
+
             </div>
         </div>
         <div class="flex flex-wrap gap-2">
             @if ($can('horse.edit') && ! $horse->isArchived())<a href="{{ route('horses.edit', $horse) }}" class="btn-secondary"><x-icon name="pencil" class="size-4" /> Modifier</a>@endif
-            <form method="POST" action="{{ route('horses.offline', $horse) }}">@csrf<button class="btn-secondary" title="Rendre disponible dans le mode écurie hors ligne"><x-icon name="offline" class="size-4" /> {{ $isOffline ? 'Retirer du hors ligne' : 'Disponible hors ligne' }}</button></form>
             <a href="{{ route('horses.export.pdf', $horse) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> PDF</a>
         </div>
     </div>

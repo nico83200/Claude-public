@@ -22,7 +22,6 @@ class SubscriptionPlan extends Model
     public const FEATURES = [
         'sharing' => 'Partage et demi-pensions',
         'stable' => 'Gestion d\'écurie (membres, rôles)',
-        'offline' => 'Mode hors ligne',
         'horse_search' => 'Recherche d\'identité sur Internet',
         'budget' => 'Suivi des dépenses',
         'exports' => 'Exports PDF / CSV',

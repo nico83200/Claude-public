@@ -51,7 +51,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 
 ## Séances et exercices
 - ✅ Préparation par glisser-déposer (souris et tactile) : réordonner, changer de section, déposer un exercice de la bibliothèque dans une section ; flèches ▲▼ conservées pour le clavier
-- ✅ Séances visibles dans le calendrier (prévues, terminées, annulées), synchronisées automatiquement ; visibles seulement avec le droit « Consulter les séances »
+- ✅ Séances visibles dans le calendrier (prévues, terminées, annulées), mises à jour automatiquement ; visibles seulement avec le droit « Consulter les séances »
 - ✅ Création, préparation (phases, ordre, durées, répétitions, consignes, pauses), modèles, mode séance mobile, bilan, historique filtrable, indicateurs de progression
 - ✅ Copie figée des exercices (snapshot + version) : la bibliothèque ne modifie jamais les séances passées ; duplication sans altérer l'originale
 - ✅ Bibliothèque : 23 exercices par défaut, exercices personnels et partagés en écurie, duplication, archivage, filtres
@@ -59,17 +59,14 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 
 ## Partage et demi-pension
 - ✅ Invitations par email (jeton haché, usage unique, adresse vérifiée), droits configurables, préréglages, période d'accès, révocation immédiate, historique des accès
-- ✅ Révocation propagée au hors ligne (refus serveur + purge au pull) — limite documentée pour les appareils restés hors ligne
 
 ## Quotidien et budget
 - ✅ Plans alimentaires avec historique, suivi quotidien, notification en cas d'anomalie
 - ✅ Dépenses par cheval / espace, justificatifs, indicateurs (mois, année, catégorie, cheval, évolution), exports CSV/PDF
 
-## Hors ligne (PWA)
-- ✅ Manifeste, Service Worker, coquille hors ligne, IndexedDB par utilisateur, file d'opérations atomique, idempotence, fusion à trois voies, conflits avec résolution, opérations refusées conservées, expiration, purge à la déconnexion et à distance, PIN facultatif
-- ✅ Test de bout en bout Chromium (coupure réseau, saisie, rechargement, resynchronisation, purge)
-- ⚠️ Safari iOS / Firefox : non testés automatiquement (à valider sur appareils réels)
-- ⚠️ Photos non disponibles hors ligne (choix de minimisation)
+## Application installable (PWA)
+- ✅ Installation sur iPhone / Android, page « Pas de connexion » ; l'application nécessite Internet
+- 🗑️ Mode hors ligne (« mode écurie ») et synchronisation supprimés en 2.2 : les copies locales sont effacées des téléphones à la mise à jour ; les tables correspondantes sont conservées en base sans usage
 
 ## Commercial
 - ✅ Offres administrables (prix, limites, fonctionnalités, essai, public, archivage sans suppression), historique tarifaire, migration avec préavis ≥ 30 j

@@ -8,7 +8,7 @@ use App\Services\CalendarService;
 
 /**
  * Chaque séance (prévue, en cours ou terminée) a son événement dans le calendrier,
- * tenu à jour quelle que soit l'origine de la modification (web, mode live, synchro hors ligne).
+ * tenu à jour quelle que soit l'origine de la modification (web, mode séance, assistant).
  */
 class RidingSessionObserver
 {

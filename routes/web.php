@@ -31,9 +31,6 @@ Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name
 Route::get('/email/confirmer/{id}/{hash}', Controllers\EmailVerificationController::class)->middleware(['signed', 'throttle:12,1'])->name('verification.public');
 Route::get('/invitations/{token}', [Controllers\InvitationController::class, 'show'])->name('invitations.show');
 
-// Coquille hors ligne : servie depuis le cache du Service Worker
-Route::get('/hors-ligne', [Controllers\OfflineController::class, 'app'])->middleware(['auth', 'verified', 'org'])->name('offline.app');
-
 Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/invitations/recues/{invitation}', [Controllers\InvitationController::class, 'respond'])->name('invitations.respond');
     Route::post('/invitations/{token}/accepter', [Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
@@ -70,7 +67,6 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/chevaux/{horse}/archiver', [Controllers\HorseController::class, 'archive'])->name('horses.archive');
     Route::post('/chevaux/{horse}/restaurer', [Controllers\HorseController::class, 'unarchive'])->name('horses.unarchive');
     Route::post('/chevaux/{horse}/transferer', [Controllers\HorseController::class, 'transfer'])->name('horses.transfer');
-    Route::post('/chevaux/{horse}/hors-ligne', [Controllers\HorseController::class, 'toggleOffline'])->name('horses.offline');
 
     Route::scopeBindings()->prefix('/chevaux/{horse}')->name('horses.')->group(function () {
         Route::get('/genealogie', [Controllers\PedigreeController::class, 'show'])->name('pedigree');
@@ -208,17 +204,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/parametres/donnees', [Controllers\SettingsController::class, 'privacy'])->name('settings.privacy');
     Route::get('/parametres/donnees/export', [Controllers\ExportController::class, 'personalData'])->middleware(['throttle:exports', 'password.confirm'])->name('settings.export');
     Route::post('/parametres/donnees/demande', [Controllers\SettingsController::class, 'dataRequest'])->name('settings.data-request');
-    Route::get('/parametres/appareils', [Controllers\SettingsController::class, 'devices'])->name('settings.devices');
-    Route::post('/parametres/appareils/{device}/purger', [Controllers\SettingsController::class, 'wipeDevice'])->name('settings.devices.wipe');
 
-    // Synchronisation hors ligne (JSON, authentification par session + CSRF)
-    Route::prefix('/sync')->middleware('throttle:sync')->name('sync.')->group(function () {
-        Route::get('/session', [Controllers\SyncController::class, 'session'])->name('session');
-        Route::post('/pull', [Controllers\SyncController::class, 'pull'])->name('pull');
-        Route::post('/push', [Controllers\SyncController::class, 'push'])->name('push');
-        Route::get('/conflits', [Controllers\SyncController::class, 'conflicts'])->name('conflicts');
-        Route::post('/conflits/{conflict}', [Controllers\SyncController::class, 'resolve'])->name('conflicts.resolve');
-    });
 });
 
 // --- Super-administration --------------------------------------------------

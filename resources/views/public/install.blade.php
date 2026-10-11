@@ -2,7 +2,7 @@
     <section class="mx-auto max-w-3xl px-4 pt-12 pb-6 text-center">
         <img src="/icons/icon-512.png" alt="Icône Jack&Cie" class="mx-auto mb-6 size-24 rounded-[22%] shadow-md ring-1 ring-sand-200">
         <h1 class="text-3xl sm:text-4xl">Jack&amp;Cie, directement sur votre téléphone</h1>
-        <p class="mx-auto mt-3 max-w-xl text-slate-600">Une icône sur l'écran d'accueil, une ouverture en plein écran, et le mode écurie qui fonctionne même sans réseau. Aucun store, aucun téléchargement lourd.</p>
+        <p class="mx-auto mt-3 max-w-xl text-slate-600">Une icône sur l'écran d'accueil, une ouverture en plein écran, et le micro pour dicter vos consignes. Aucun store, aucun téléchargement lourd.</p>
         <div x-data class="mt-6">
             <p x-show="$store.install.installed" class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-800"><x-icon name="check" class="size-4" /> L'application est déjà installée sur cet appareil.</p>
             <button x-show="! $store.install.installed" type="button" @click="$store.install.install()" class="btn-primary px-6 text-base"><x-icon name="download" /> Installer maintenant</button>
@@ -43,7 +43,7 @@
         <div class="card p-6 text-sm text-slate-700">
             <h2 class="mb-2 text-lg">Bon à savoir</h2>
             <ul class="list-disc space-y-1.5 pl-5">
-                <li>Pour travailler sans réseau, ouvrez une fois le <strong>mode écurie</strong> connecté, après avoir rendu vos chevaux « disponibles hors ligne ».</li>
+                <li>L'application a besoin d'une connexion Internet (4G ou Wi-Fi).</li>
                 <li>Les mises à jour sont automatiques : rien à réinstaller.</li>
                 <li>Pour désinstaller, supprimez l'icône comme n'importe quelle application ; vos données restent sur votre compte.</li>
             </ul>

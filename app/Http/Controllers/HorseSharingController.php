@@ -106,7 +106,7 @@ class HorseSharingController extends Controller
         Audit::log('grant.revoked', $grant, ['user_id' => $grant->user_id], $horse->organization_id);
         $grant->user?->notify(new AppNotification('access_revoked', 'Accès retiré', 'Votre accès au dossier de '.$horse->shortName().' a été retiré par le propriétaire.', null, false));
 
-        return back()->with('success', 'Accès révoqué immédiatement en ligne. Les copies hors ligne de cette personne seront purgées à la prochaine connexion de son appareil.');
+        return back()->with('success', 'Accès révoqué immédiatement en ligne.');
     }
 
     /** Historique des accès et des modifications du dossier. */

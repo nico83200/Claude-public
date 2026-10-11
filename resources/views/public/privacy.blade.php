@@ -15,8 +15,6 @@
     <p>Les informations d'un cheval ne sont visibles que par les personnes auxquelles un accès a été explicitement donné (propriétaire, membres d'écurie selon leur rôle, demi-pensions avec droits choisis). L'administration de la plateforme n'a pas d'accès implicite au contenu métier.</p>
     <h2>Sous-traitants</h2>
     <p>{!! nl2br(e(\App\Models\ApplicationSetting::get('subprocessors', "Hébergement : [à compléter]\nPaiement : Stripe Payments Europe Ltd.\nEnvoi d'emails : [à compléter]"))) !!}</p>
-    <h2>Stockage hors ligne</h2>
-    <p>Le mode écurie conserve sur votre appareil une copie limitée des chevaux que vous avez choisis. Cette copie expire automatiquement, est effacée à la déconnexion et peut être purgée à distance depuis « Paramètres > Appareils ». Une copie déjà présente sur un appareil resté hors ligne ne peut pas être effacée instantanément : elle l'est dès sa reconnexion ou à expiration.</p>
     <h2>Durées de conservation</h2>
     <p>Données du compte : durée du contrat. Après résiliation : conservation en lecture seule et export possible pendant {{ config('equine.billing.recovery_days') }} jours minimum. Éléments supprimés : purge définitive 30 jours après suppression. Factures : durée légale (10 ans).</p>
     <h2>Vos droits</h2>
