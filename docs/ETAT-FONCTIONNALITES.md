@@ -3,6 +3,11 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.5.1 — installation
+- ✅ Le bouton « Installer » déclenche l'installation native (vraie application sur Android, WebAPK) : l'invite du navigateur est conservée dès le chargement de la page, et si elle n'est pas encore prête le bouton l'attend jusqu'à 4 s (« Préparation de l'installation… ») au lieu d'envoyer vers « Ajouter à l'écran d'accueil », qui peut ne créer qu'un raccourci
+- ✅ Instructions de secours précisées : choisir « Installer » et non « Créer un raccourci » (Chrome), icône d'installation de Samsung Internet, option « Ouvrir comme app web » sur iPhone ; après installation, invitation à ouvrir l'application depuis l'écran d'accueil
+- ☑️ Vérifié dans Chromium (Android émulé) : critères d'installation remplis, invite immédiate et invite tardive. À confirmer sur un téléphone réel
+
 ## Version 2.5 — budget récurrent et notifications obligatoires
 - ✅ Dépenses récurrentes (pension, assurance…) : chaque semaine / mois / trimestre / an, date de fin facultative ; chaque échéance devient une dépense « à payer » (sans doublon, sans dérive des fins de mois, rattrapage si le planificateur n'a pas tourné) ; notification le jour de l'échéance ; suspendre / reprendre (sans arriéré) / modifier / arrêter (l'historique reste)
 - ✅ Suivi des paiements : bloc « À payer » (en retard en rouge), bouton « Payé », remise « à payer » ; une dépense simple peut être saisie non réglée

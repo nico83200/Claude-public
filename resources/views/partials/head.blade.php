@@ -10,6 +10,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="/manifest.webmanifest">
+{{-- L'invite d'installation native (Android / ordinateur) peut arriver avant le chargement des scripts :
+     on la garde dès maintenant pour que le bouton « Installer » installe la vraie application, et non un raccourci. --}}
+<script>window.__jcInstall=null;addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__jcInstall=e;dispatchEvent(new Event('jc-installable'));});</script>
 <link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180">
 <title>{{ isset($title) && $title ? $title.' · ' : '' }}{{ $appName }}</title>

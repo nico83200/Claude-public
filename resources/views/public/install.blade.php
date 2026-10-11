@@ -4,8 +4,8 @@
         <h1 class="text-3xl sm:text-4xl">Jack&amp;Cie, directement sur votre téléphone</h1>
         <p class="mx-auto mt-3 max-w-xl text-slate-600">Une icône sur l'écran d'accueil, une ouverture en plein écran, et le micro pour dicter vos consignes. Aucun store, aucun téléchargement lourd.</p>
         <div x-data class="mt-6">
-            <p x-show="$store.install.installed" class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-800"><x-icon name="check" class="size-4" /> L'application est déjà installée sur cet appareil.</p>
-            <button x-show="! $store.install.installed" type="button" @click="$store.install.install()" class="btn-primary px-6 text-base"><x-icon name="download" /> Installer maintenant</button>
+            <p x-show="$store.install.installed || $store.install.justInstalled" class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-800"><x-icon name="check" class="size-4" /> <span x-text="$store.install.justInstalled ? 'Installée : ouvrez Jack&Cie depuis l\'écran d\'accueil.' : 'L\'application est déjà installée sur cet appareil.'">L'application est déjà installée sur cet appareil.</span></p>
+            <button x-show="! $store.install.installed && ! $store.install.justInstalled" type="button" @click="$store.install.install()" :disabled="$store.install.preparing" class="btn-primary px-6 text-base"><x-icon name="download" /> <span x-text="$store.install.preparing ? 'Préparation…' : 'Installer maintenant'">Installer maintenant</span></button>
         </div>
     </section>
 

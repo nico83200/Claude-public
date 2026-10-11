@@ -15,7 +15,12 @@
         </template>
         <template x-if="! $store.install.inApp">
             <div class="mt-6">
-                <button type="button" class="btn-primary w-full text-base" @click="$store.install.install()"><x-icon name="download" class="size-5" /> Installer Jack&amp;Cie</button>
+                <div x-show="$store.install.justInstalled" class="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <strong>Jack&amp;Cie est installée.</strong> Ouvrez-la depuis l'écran d'accueil ou le tiroir d'applications de votre téléphone pour {{ $purpose }}.
+                </div>
+                <button x-show="! $store.install.justInstalled" type="button" class="btn-primary w-full text-base" @click="$store.install.install()" :disabled="$store.install.preparing">
+                    <x-icon name="download" class="size-5" /> <span x-text="$store.install.preparing ? 'Préparation de l\'installation…' : 'Installer Jack&Cie'">Installer Jack&amp;Cie</span>
+                </button>
                 <p class="mt-4 text-sm text-slate-500">Déjà installée ? Ouvrez <strong>Jack&amp;Cie</strong> depuis l'écran d'accueil de votre {{ '' }}<span x-text="$store.install.isIOS && /iPad/.test(navigator.userAgent) ? 'tablette' : 'téléphone'"></span>.</p>
             </div>
         </template>

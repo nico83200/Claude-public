@@ -11,7 +11,7 @@
             </div>
             <button type="button" @click="$store.install.dismiss()" class="rounded-lg p-1.5 text-slate-400 hover:text-slate-700" aria-label="Plus tard"><x-icon name="x" class="size-4" /></button>
         </div>
-        <button type="button" @click="$store.install.install()" class="btn-primary mt-3 w-full">Installer l'application</button>
+        <button type="button" @click="$store.install.install()" :disabled="$store.install.preparing" class="btn-primary mt-3 w-full" x-text="$store.install.preparing ? 'Préparation de l\'installation…' : 'Installer l\'application'">Installer l'application</button>
     </div>
 
     {{-- Instructions (iPhone / iPad, ou navigateur sans invite native) --}}
@@ -28,15 +28,23 @@
                         <svg class="mx-1 inline size-5 align-text-bottom text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-label="icône Partager"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0-12L8 7m4-4l4 4M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1"/></svg>
                         en bas de l'écran (ou en haut sur iPad).</span></li>
                     <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">2</span><span>Faites défiler et choisissez <strong>Sur l'écran d'accueil</strong> <span class="inline-flex size-5 items-center justify-center rounded border border-slate-400 align-text-bottom text-xs">+</span>.</span></li>
-                    <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">3</span><span>Touchez <strong>Ajouter</strong> : l'icône Jack&amp;Cie apparaît avec vos autres apps.</span></li>
+                    <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">3</span><span>Laissez <strong>Ouvrir comme app web</strong> activé s'il est proposé, puis touchez <strong>Ajouter</strong> : Jack&amp;Cie s'ouvre en plein écran, comme une app.</span></li>
                 </ol>
             </template>
             <template x-if="! $store.install.isIOS">
-                <ol class="space-y-3 text-sm">
-                    <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">1</span><span>Ouvrez le menu du navigateur <strong>⋮</strong> (Chrome, Edge, Samsung Internet).</span></li>
-                    <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">2</span><span>Choisissez <strong>Installer l'application</strong> ou <strong>Ajouter à l'écran d'accueil</strong>.</span></li>
-                    <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">3</span><span>Confirmez : Jack&amp;Cie s'ouvre ensuite en plein écran depuis son icône.</span></li>
-                </ol>
+                <div class="space-y-3 text-sm">
+                    <p class="rounded-xl bg-slate-50 p-3 text-slate-600">Si Jack&amp;Cie est déjà installée, ouvrez-la depuis l'écran d'accueil ou le tiroir d'applications.</p>
+                    <ol class="space-y-3">
+                        <template x-if="$store.install.isSamsung">
+                            <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">1</span><span>Touchez l'icône <strong>Installer</strong> <span class="inline-flex size-5 items-center justify-center rounded border border-slate-400 align-text-bottom text-xs">⤓</span> dans la barre d'adresse, ou Menu <strong>≡</strong> › <strong>Ajouter la page à</strong> › <strong>Écran d'accueil</strong>.</span></li>
+                        </template>
+                        <template x-if="! $store.install.isSamsung">
+                            <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">1</span><span>Ouvrez le menu <strong>⋮</strong> de Chrome et touchez <strong>Installer l'application</strong> (ou <strong>Ajouter à l'écran d'accueil</strong>).</span></li>
+                        </template>
+                        <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">2</span><span>Choisissez <strong>Installer</strong>, et non « Créer un raccourci » : c'est ce qui ajoute la vraie application.</span></li>
+                        <li class="flex items-center gap-3"><span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-800">3</span><span>Ouvrez <strong>Jack&amp;Cie</strong> depuis l'écran d'accueil : elle s'affiche en plein écran, sans barre d'adresse.</span></li>
+                    </ol>
+                </div>
             </template>
             <button type="button" @click="$store.install.sheet = false; $store.install.dismiss()" class="btn-secondary mt-6 w-full">J'ai compris</button>
         </div>
