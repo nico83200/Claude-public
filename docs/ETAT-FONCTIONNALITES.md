@@ -8,7 +8,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ Vidéos ciblées par appareil (téléphone et tablette, ordinateur, tous) : un nouveau compte reçoit le tutoriel de l'appareil sur lequel il se connecte ; réglable pour chaque vidéo dans Administration › Vidéos ; la page « Tutoriels » propose les deux versions
 
 ## Version 2.7 — vidéos
-- ✅ Tutoriel vidéo mobile (1 min 40 avec voix off, MP4 H.264 780×1688, 3 Mo, et WebM de secours pour les navigateurs sans H.264) livré avec l'application, sous-titres français (WebVTT) ; tourné sur l'application réelle (données de démonstration ; pour la scène de l'assistant, réponse de l'IA rejouée par un faux serveur, la création de la séance étant réelle)
+- ✅ Tutoriel vidéo mobile (1 min 40 avec voix off, MP4 H.264 780×1688, 4 Mo ; le lecteur sait utiliser une version WebM si elle est fournie à côté) livré avec l'application, sous-titres français (WebVTT) ; tourné sur l'application réelle (données de démonstration ; pour la scène de l'assistant, réponse de l'IA rejouée par un faux serveur, la création de la séance étant réelle)
 - ✅ Affichage automatique en plein écran : tutoriel à la première connexion des nouveaux comptes, nouveautés à la prochaine connexion des comptes existants ; une fois par session tant qu'elle n'est pas vue (« Passer » ou fin de la vidéo) ; jamais par-dessus l'écran d'activation des notifications
 - ✅ Administration › Vidéos : création, envoi par morceaux (vidéo, voix off, sous-titres SRT/VTT, image d'aperçu), aperçu, publication / retrait, statistiques de vues ; fichiers privés servis avec reprise de lecture (iPhone)
 - ✅ Voix off : piste audio séparée, lue en synchronisation avec la vidéo (lecture, pause, avance) ; texte minuté dans `docs/TUTORIEL-VOIX-OFF.md`
