@@ -21,6 +21,7 @@
     ];
     $secondary = [
         ['organization.show', 'Organisation', 'building', true],
+        ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
         ['settings.profile', 'Paramètres', 'cog', true],
         ['videos.index', 'Tutoriels', 'play', true],

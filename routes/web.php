@@ -52,6 +52,16 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/espaces/nouveau', [Controllers\OrganizationController::class, 'create'])->name('organizations.create');
     Route::post('/espaces', [Controllers\OrganizationController::class, 'store'])->name('organizations.store');
     Route::get('/organisation', [Controllers\OrganizationController::class, 'show'])->name('organization.show');
+    // Écurie › Pension : contrats, prestations, relevés mensuels par propriétaire.
+    Route::get('/ecurie/pension', [Controllers\BoardingController::class, 'index'])->name('boarding.index');
+    Route::post('/ecurie/pension/contrats', [Controllers\BoardingController::class, 'storeContract'])->name('boarding.contracts.store');
+    Route::post('/ecurie/pension/contrats/{contract}/fin', [Controllers\BoardingController::class, 'endContract'])->name('boarding.contracts.end');
+    Route::post('/ecurie/pension/prestations', [Controllers\BoardingController::class, 'storeCharge'])->name('boarding.charges.store');
+    Route::delete('/ecurie/pension/prestations/{charge}', [Controllers\BoardingController::class, 'destroyCharge'])->name('boarding.charges.destroy');
+    Route::post('/ecurie/pension/releves', [Controllers\BoardingController::class, 'generate'])->name('boarding.generate');
+    Route::post('/ecurie/pension/releves/{statement}/envoyer', [Controllers\BoardingController::class, 'send'])->name('boarding.send');
+    Route::post('/ecurie/pension/releves/{statement}/paiement', [Controllers\BoardingController::class, 'pay'])->name('boarding.pay');
+    Route::get('/releves-pension/{statement}', [Controllers\BoardingController::class, 'show'])->name('boarding.statement');
     Route::put('/organisation', [Controllers\OrganizationController::class, 'update'])->name('organization.update');
     Route::post('/organisation/membres', [Controllers\OrganizationMemberController::class, 'invite'])->middleware('throttle:invitations')->name('organization.members.invite');
     Route::put('/organisation/membres/{member}', [Controllers\OrganizationMemberController::class, 'update'])->name('organization.members.update');
