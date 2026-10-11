@@ -1,4 +1,13 @@
-@php $e = $event ?? new \App\Models\CalendarEvent(['type' => 'custom', 'starts_at' => ($defaultDate ?? now())->copy()->setTime(9, 0), 'duration_minutes' => 60]); @endphp
+@php
+    // Nouvel événement : valeurs proposées par le lien d'origine (rappel intelligent « prendre rendez-vous »…).
+    $prefillDate = rescue(fn () => request('date') ? \Illuminate\Support\Carbon::parse(request('date')) : null, null, false);
+    $e = $event ?? new \App\Models\CalendarEvent([
+        'type' => array_key_exists((string) request('type'), \App\Models\CalendarEvent::TYPES) ? request('type') : 'custom',
+        'title' => mb_substr((string) request('title'), 0, 150) ?: null,
+        'professional_id' => request()->integer('professional') ?: null,
+        'starts_at' => ($prefillDate ?? $defaultDate ?? now())->copy()->setTime(9, 0), 'duration_minutes' => 60,
+    ]);
+@endphp
 <div class="grid gap-3 sm:grid-cols-2">
     <x-select name="horse_id" label="Cheval" :options="$horses" :value="$e->horse_id ?? request('horse')" placeholder="Aucun (événement de l'espace)" />
     <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="$e->type" required />

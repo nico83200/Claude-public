@@ -6,6 +6,7 @@ use App\Models\CareReminderRule;
 use App\Models\Horse;
 use App\Services\Audit;
 use App\Services\CareReminders;
+use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,5 +35,20 @@ class CareReminderController extends Controller
         Audit::log('care.reminders_updated', $horse, [], $horse->organization_id);
 
         return back()->with('success', 'Rappels de suivi enregistrés.');
+    }
+
+    /** Rappel intelligent : la fréquence du rappel prend le rythme réellement observé. */
+    public function adoptRhythm(Request $request, Horse $horse, CareReminders $reminders, CareRhythm $rhythm)
+    {
+        $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $categoryId = (int) $request->validate(['category_id' => ['required', 'integer']])['category_id'];
+        $row = $rhythm->forHorse($horse)->first(fn ($r) => $r['category']->id === $categoryId) ?? abort(404);
+        $days = $row['interval_days'];
+        [$value, $unit] = $days <= 112 ? [max(1, (int) round($days / 7)), 'weeks'] : [max(1, (int) round($days / 30.44)), 'months'];
+        $current = $reminders->ruleFor($horse, $categoryId);
+        $reminders->save($horse, $categoryId, ['enabled' => true, 'interval_value' => $value, 'interval_unit' => $unit, 'notice_days' => $current['notice_days'] ?? 7]);
+        Audit::log('care.rhythm_adopted', $horse, ['category' => $categoryId, 'days' => $days], $horse->organization_id);
+
+        return back()->with('success', $row['category']->name.' : rappel réglé sur '.CareReminders::describe($value, $unit).', votre rythme habituel.');
     }
 }

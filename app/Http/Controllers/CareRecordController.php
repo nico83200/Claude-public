@@ -13,6 +13,7 @@ use App\Models\Professional;
 use App\Services\Audit;
 use App\Services\CalendarService;
 use App\Services\CareReminders;
+use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,6 +44,7 @@ class CareRecordController extends Controller
             'observations' => $horse->observations()->with('author')->limit(30)->get(),
             'categories' => CareCategory::visibleTo($horse->organization_id)->orderBy('name')->pluck('name', 'id'),
             'users' => $this->assignableUsers($horse),
+            'rhythms' => $canHealth ? app(CareRhythm::class)->forHorse($horse) : collect(),
             'reminderRules' => $canHealth ? $this->reminders->rulesFor($horse)->map(function ($r, $catId) use ($horse) {
                 $last = $horse->careRecords()->where('care_category_id', $catId)->latest('performed_at')->first();
 

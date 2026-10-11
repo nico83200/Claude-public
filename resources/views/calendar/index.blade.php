@@ -84,5 +84,5 @@
             <button class="btn-primary w-full">Ajouter</button>
         </form>
     </dialog>
-    @if ($errors->any())<script>document.getElementById('new-event').showModal()</script>@endif
+    @if ($errors->any() || request()->boolean('nouveau'))<script>document.getElementById('new-event').showModal()</script>@endif
 </x-layouts.app>

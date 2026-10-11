@@ -7,6 +7,34 @@
 
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
+            @if ($rhythms->isNotEmpty())
+            <x-section title="Rythme habituel">
+                <p class="-mt-1 mb-2 text-xs text-slate-500">Calculé à partir de l'historique des soins : l'écart habituel entre deux passages et la date probable du prochain.</p>
+                <div class="divide-y divide-slate-100" data-rhythms>
+                    @foreach ($rhythms as $r)
+                        <div class="py-3 text-sm">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="min-w-0"><span class="font-medium">{{ $r['category']->name }}</span>
+                                    <span class="block text-xs text-slate-500">Toutes les {{ $r['label'] }} en moyenne ({{ $r['count'] }} passages) · dernier le {{ $r['last']->format('d/m/Y') }}</span></span>
+                                @if ($r['planned'])<x-badge color="green">Rendez-vous le {{ $r['planned']->starts_at->format('d/m') }}</x-badge>
+                                @elseif ($r['due_in'] < 0)<x-badge color="red">Prévu vers le {{ $r['next']->format('d/m') }} · en retard</x-badge>
+                                @else<x-badge :color="$r['due_in'] <= 14 ? 'amber' : 'slate'">Prochain vers le {{ $r['next']->format('d/m/Y') }}</x-badge>@endif
+                            </div>
+                            @if ($canEdit && (! $r['planned'] || \App\Services\CareRhythm::differsFromRule($r)))
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @unless ($r['planned'])
+                                        <a href="{{ route('calendar.index', ['nouveau' => 1, 'horse' => $horse->id, 'type' => $r['appointment_type'], 'title' => $r['category']->name, 'date' => $r['next']->isPast() ? today()->addDay()->toDateString() : $r['next']->toDateString(), 'professional' => $r['last_professional_id']]) }}" class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="calendar" class="size-4" /> Prendre rendez-vous</a>
+                                    @endunless
+                                    @if (\App\Services\CareRhythm::differsFromRule($r))
+                                        <form method="POST" action="{{ route('horses.care.rhythm', $horse) }}">@csrf<input type="hidden" name="category_id" value="{{ $r['category']->id }}"><button class="btn-ghost min-h-9 px-3 text-sm">Régler le rappel sur {{ $r['label'] }}</button></form>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </x-section>
+            @endif
             @if ($canHealth && $reminderRules->isNotEmpty())
             <x-section title="Rappels de suivi" x-data="{ edit: false }">
                 <x-slot:headerActions>@if ($canEdit)<button type="button" @click="edit = ! edit" class="btn-ghost text-sm" x-text="edit ? 'Fermer' : 'Paramétrer'">Paramétrer</button>@endif</x-slot:headerActions>

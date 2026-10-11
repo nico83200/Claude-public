@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
         Route::get('/sante', [Controllers\CareRecordController::class, 'index'])->name('care.index');
         Route::put('/rappels-suivi', [Controllers\CareReminderController::class, 'update'])->name('care.reminders');
+        Route::post('/rythme-habituel', [Controllers\CareReminderController::class, 'adoptRhythm'])->name('care.rhythm');
         Route::get('/soins/nouveau', [Controllers\CareRecordController::class, 'create'])->name('care.create');
         Route::post('/soins', [Controllers\CareRecordController::class, 'store'])->name('care.store');
         Route::get('/soins/{care}', [Controllers\CareRecordController::class, 'show'])->name('care.show');
