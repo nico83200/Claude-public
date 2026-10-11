@@ -41,6 +41,7 @@ class AppNotification extends Notification
         'payment_due' => 'Paiement à effectuer',
         'inactivity' => 'Rappel après une absence',
         'account_security' => 'Sécurité du compte',
+        'new_user' => 'Nouvelle inscription (administration)',
     ];
 
     public function __construct(

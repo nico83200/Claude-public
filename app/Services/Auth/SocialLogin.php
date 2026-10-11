@@ -9,6 +9,7 @@ use App\Models\UserProfile;
 use App\Notifications\AppNotification;
 use App\Services\Audit;
 use App\Services\OrganizationService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -80,6 +81,7 @@ class SocialLogin
             return $user;
         });
         Audit::log('auth.social_registered', $user, ['provider' => $provider]);
+        event(new Registered($user));
 
         return ['user' => $user->fresh(), 'created' => true, 'linked' => true];
     }

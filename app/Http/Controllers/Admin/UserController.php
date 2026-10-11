@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\Audit;
+use App\Services\PlanSummary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +22,9 @@ class UserController extends Controller
             ->when($request->query('filter') === 'deletion', fn ($q) => $q->whereNotNull('deletion_requested_at'))
             ->latest()->paginate(40)->withQueryString();
 
-        return view('admin.users.index', ['users' => $users]);
+        $plans = app(PlanSummary::class);
+
+        return view('admin.users.index', ['users' => $users, 'plans' => $users->getCollection()->mapWithKeys(fn (User $u) => [$u->id => $plans->forUser($u)])]);
     }
 
     public function show(User $user)
@@ -31,6 +34,7 @@ class UserController extends Controller
         return view('admin.users.show', [
             'user' => $user->load(['memberships.organization', 'memberships.role', 'profile']),
             'logs' => AuditLog::where('user_id', $user->id)->latest('created_at')->limit(30)->get(),
+            'plans' => app(PlanSummary::class)->forUser($user),
         ]);
     }
 

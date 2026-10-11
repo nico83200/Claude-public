@@ -4,6 +4,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
 ## Version 2.10 — connexion avec Google et Apple, intervenants, menus, photos
+- ✅ 2.10.1 : Administration › Utilisateurs : offre en cours de chaque utilisateur (nom, payante / essai gratuit / offerte / gratuite / paiement en retard / terminée, montant, date de renouvellement, de fin d'essai ou de fin), une ligne par espace dont il est propriétaire ; aussi sur la fiche de l'utilisateur
+- ✅ 2.10.1 : notification aux super-administrateurs à chaque nouvelle inscription (formulaire, Google ou Apple) : dans l'application, sur le téléphone et par email, avec lien vers la fiche
 - ✅ « Continuer avec Google / Apple » à l'inscription et à la connexion (OpenID Connect, jetons vérifiés) ; compte et espace personnel créés en un geste ; association automatique à un compte existant seulement si l'email est confirmé par le fournisseur ; double authentification conservée ; association / retrait dans Paramètres › Sécurité ; confirmation des actions sensibles avec Google / Apple. Testé avec un faux fournisseur (vraies clés et signatures) — ⚙️ nécessite les identifiants Google Cloud et Apple Developer (voir `docs/INTEGRATIONS.md`)
 - ✅ Menus déroulants modernes : liste ancrée sur ordinateur, panneau venant du bas sur téléphone, recherche au-delà de 10 choix, clavier ; le champ d'origine reste envoyé avec le formulaire (validation, filtres automatiques)
 - ✅ « Nouvel intervenant ou contact » directement dans les formulaires (soin, rendez-vous, dépense, intervenants du cheval) et « Nouvel enseignant » dans les cours (suggestions des enseignants enregistrés) : la fiche créée est sélectionnée aussitôt

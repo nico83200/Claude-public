@@ -14,6 +14,13 @@
                 @endif
             </div>
         </x-section>
+        <x-section title="Offre en cours">
+            @forelse ($plans as $s)
+                <div class="border-b border-slate-100 py-2 last:border-0">@include('admin.users._plan', ['s' => $s, 'showOrg' => true])</div>
+            @empty
+                <p class="text-sm text-slate-500">N'est propriétaire d'aucun espace : utilise l'offre de l'espace dont il est membre.</p>
+            @endforelse
+        </x-section>
         <x-section title="Espaces">
             @foreach ($user->memberships as $m)<a href="{{ route('admin.organizations.show', $m->organization_id) }}" class="block py-1 text-sm link">{{ $m->organization?->name }} <span class="text-slate-500">({{ $m->role->name }})</span></a>@endforeach
         </x-section>
