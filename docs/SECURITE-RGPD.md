@@ -26,7 +26,7 @@
 |---|---|
 | Information | Pages Confidentialité / Conditions (modèles à valider juridiquement ; identité, DPO, sous-traitants paramétrables dans Admin > Paramètres) |
 | Consentement | Acceptation des CGU/politique horodatée à l'inscription (`terms_accepted_at`). Aucun cookie publicitaire ni traceur tiers → pas de bandeau requis |
-| Accès / portabilité | Paramètres > Mes données > export JSON (mot de passe reconfirmé) ; exports PDF/CSV par cheval |
+| Accès / portabilité | Paramètres > Mes données > export JSON (mot de passe reconfirmé), ouvert à toutes les offres ; exports PDF/CSV par cheval (offres payantes) |
 | Rectification | Modification directe du profil et des fiches ; demande formelle via le formulaire |
 | Effacement | Demande → Admin > RGPD → anonymisation (compte, profil, accès, espace personnel), purge définitive à J+30 (`data:purge`) |
 | Conservation | Suppressions logiques purgées après 30 j ; journaux d'audit 3 ans ; anciennes opérations de synchro (mode hors ligne supprimé) 180 j ; notifications lues 1 an ; données d'un abonnement terminé conservées en lecture seule ≥ 90 j (`BILLING_RECOVERY_DAYS`) |

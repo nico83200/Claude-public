@@ -179,6 +179,9 @@ class ExpenseController extends Controller
 
     public function export(Request $request, string $format, HorseAccess $access)
     {
+        // Réservé aux offres payantes : offre de l'espace du cheval exporté, sinon de l'espace courant.
+        $horse = $request->integer('horse') ? Horse::find($request->integer('horse')) : null;
+        $this->requireFeature($horse?->organization ?? $this->currentOrganization(), 'exports', 'Exports PDF / CSV');
         $expenses = $this->visibleQuery($request, $access)->with(['horse', 'category'])
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
             ->when($request->query('year'), fn ($q, $y) => $q->whereYear('expenses.spent_on', $y))

@@ -1,6 +1,6 @@
 <x-layouts.app :title="'Santé · '.$horse->shortName()">
     <x-horse-header :horse="$horse">
-        @if ($canHealth)<a href="{{ route('horses.export.health', $horse) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> Export PDF</a>@endif
+        @if ($canHealth)<a href="{{ route('horses.export.health', $horse) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> Export PDF <x-locked-mark :org="$horse->organization" feature="exports" /></a>@endif
         @if ($canEdit)<a href="{{ route('horses.care.create', $horse) }}" class="btn-primary"><x-icon name="plus" /> Soin</a>@endif
     
     </x-horse-header>

@@ -2,8 +2,8 @@
     @if ($contextHorse)
         <x-horse-header :horse="$contextHorse">
             @if ($canCreate)<a href="{{ route('sessions.create', ['horse' => $contextHorse->id]) }}" class="btn-primary"><x-icon name="plus" class="size-4" /> Séance</a>@endif
-            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'pdf']) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF</a>
-            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'csv']) }}" class="btn-ghost">CSV</a>
+            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'pdf']) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF <x-locked-mark :org="$contextHorse->organization" feature="exports" /></a>
+            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'csv']) }}" class="btn-ghost">CSV <x-locked-mark :org="$contextHorse->organization" feature="exports" /></a>
         </x-horse-header>
     @else
         <x-page-header title="Séances" subtitle="Historique et progression">

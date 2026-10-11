@@ -88,6 +88,7 @@ class HealthTest extends TestCase
     {
         $owner = $this->user();
         $rider = $this->user();
+        $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner);
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view', 'sessions.view']]);
         $this->actingAs($owner)->get("/chevaux/{$horse->id}/export/sante.pdf")->assertOk();

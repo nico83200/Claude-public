@@ -12,7 +12,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
   - tableau de bord (carte masquable 7 jours) et menu (encart « 14 jours d'essai gratuit ») ;
   - page Abonnement : fonctions de chaque offre listées, « Nouveau pour vous », offres qui débloquent la fonction demandée signalées.
 - ✅ Seules les personnes qui gèrent l'abonnement voient un bouton ; les autres membres sont informés que le responsable de l'espace peut changer d'offre. L'assistant n'est proposé que s'il est activé et configuré sur l'instance. Rien n'est débloqué sans paiement confirmé par Stripe.
-- ℹ️ Les exports PDF / CSV, listés dans les offres payantes, restent accessibles en Découverte (non bloqués par l'application) : ils ne sont donc pas présentés comme une nouveauté.
+- ✅ 2.9.1 : exports PDF / CSV (fiche, santé, séances, dépenses) réservés aux offres payantes, y compris en lecture seule après la fin d'un abonnement ; en Découverte, boutons signalés d'une étoile et proposition d'offre au clic. L'export des données personnelles (RGPD, JSON) reste ouvert à tous
 
 ## Version 2.8 — tutoriel ordinateur
 - ✅ 2.8.2 : résiliation, reprise et changement d'offre visibles immédiatement (réponse de l'API Stripe appliquée, plus de bouton « Résilier » ni de date de renouvellement après une résiliation) ; état des abonnements relu chez Stripe à l'ouverture de la page Abonnement (au plus toutes les 5 min, immédiatement au retour du portail Stripe) et chaque heure par la tâche `billing:sync` : fin d'essai, renouvellement ou résiliation rattrapés même si un webhook manque
@@ -141,7 +141,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 
 ## Notifications, exports, RGPD
 - ✅ Notifications en application ; ⚙️ par email dès qu'un SMTP est configuré
-- ✅ Recherche globale limitée aux droits ; exports fiche/santé/séances/dépenses ; export RGPD JSON ; anonymisation ; purge planifiée
+- ✅ Recherche globale limitée aux droits ; exports fiche/santé/séances/dépenses (offres payantes) ; export RGPD JSON ; anonymisation ; purge planifiée
 
 ## Reste à configurer pour la production
 1. Téléverser le zip, lancer l'installeur web (base MySQL, super‑administrateur), HTTPS, cron `schedule:run`.

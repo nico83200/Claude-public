@@ -1,16 +1,16 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
 <x-layouts.app title="Budget">
-    @php $newExpense = $creatableHorses->isNotEmpty() || $canOrgExpense; @endphp
+    @php $newExpense = $creatableHorses->isNotEmpty() || $canOrgExpense; $exportOrg = $contextHorse?->organization ?? $currentOrganization; @endphp
     @if ($contextHorse)
         <x-horse-header :horse="$contextHorse">
             @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" class="size-4" /> Dépense</button>@endif
-            <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF</a>
-            <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV</a>
+            <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF <x-locked-mark :org="$exportOrg" feature="exports" /></a>
+            <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV <x-locked-mark :org="$exportOrg" feature="exports" /></a>
         </x-horse-header>
     @else
         <x-page-header title="Budget" :subtitle="'Année '.$year">
-            <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> PDF</a>
-            <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV</a>
+            <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> PDF <x-locked-mark :org="$exportOrg" feature="exports" /></a>
+            <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV <x-locked-mark :org="$exportOrg" feature="exports" /></a>
             @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" /> Dépense</button>@endif
         </x-page-header>
     @endif

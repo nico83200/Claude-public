@@ -137,7 +137,9 @@ class FeaturesTest extends TestCase
         $csv = $this->actingAs($user)->get('/budget/export.csv')->assertOk()->streamedContent();
         $this->assertStringContainsString('120,50', $csv);
         $this->actingAs($user)->get('/budget/export.pdf')->assertOk()->assertHeader('content-type', 'application/pdf');
-        $this->actingAs($this->user())->get('/budget/export.csv')->assertOk()->assertDontSee('Sellerie');
+        $other = $this->user();
+        $this->grantLicense($other->personalOrganization(), 'particulier');
+        $this->actingAs($other)->get('/budget/export.csv')->assertOk()->assertDontSee('Sellerie');
     }
 
     public function test_free_plan_without_budget_feature_cannot_add_expenses(): void
@@ -151,6 +153,7 @@ class FeaturesTest extends TestCase
     public function test_session_exports(): void
     {
         $user = $this->user();
+        $this->grantLicense($user->personalOrganization(), 'particulier');
         $horse = $this->horseFor($user);
         $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d H:i'), 'session_type' => 'jumping', 'objective' => 'Gymnastique']);
         $this->assertStringContainsString('Gymnastique', $this->actingAs($user)->get("/chevaux/{$horse->id}/export/seances.csv")->assertOk()->streamedContent());

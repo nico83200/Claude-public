@@ -18,13 +18,15 @@ use Illuminate\Http\Request;
 
 /**
  * Exports générés côté serveur, restreints aux permissions de l'utilisateur.
- * Disponibles même en lecture seule (abonnement expiré).
+ * Réservés aux offres payantes (fonction « exports »), y compris en lecture seule après la fin
+ * d'un abonnement. L'export des données personnelles (RGPD) reste ouvert à tous.
  */
 class ExportController extends Controller
 {
     public function horsePdf(Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HORSE_VIEW);
+        $this->requireExports($horse);
         $perms = $this->horsePerms($horse);
         $horse->load(['breed', 'identifiers', 'ownerships.user', 'pedigree', 'origin', 'locations']);
         Audit::log('export.horse_pdf', $horse, [], $horse->organization_id);
@@ -40,6 +42,7 @@ class ExportController extends Controller
     public function healthPdf(Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_VIEW);
+        $this->requireExports($horse);
         Audit::log('export.health_pdf', $horse, [], $horse->organization_id);
 
         return Pdf::loadView('exports.health', [
@@ -52,6 +55,7 @@ class ExportController extends Controller
     public function sessions(Request $request, Horse $horse, string $format)
     {
         $this->authorizeHorse($horse, Perm::SESSIONS_VIEW);
+        $this->requireExports($horse);
         $sessions = $horse->sessions()->with(['rider', 'exercises'])
             ->when($request->query('from'), fn ($q, $f) => $q->where('scheduled_at', '>=', $f))
             ->when($request->query('to'), fn ($q, $t) => $q->where('scheduled_at', '<=', $t.' 23:59:59'))->get();
@@ -107,5 +111,10 @@ class ExportController extends Controller
 
         return response()->streamDownload(fn () => print (json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
             'mes-donnees-'.now()->format('Ymd').'.json', ['Content-Type' => 'application/json; charset=UTF-8']);
+    }
+
+    private function requireExports(Horse $horse): void
+    {
+        $this->requireFeature($horse->organization, 'exports', 'Exports PDF / CSV');
     }
 }

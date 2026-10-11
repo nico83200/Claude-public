@@ -19,6 +19,7 @@ class Upsell
     public const PITCHES = [
         'budget' => ['Suivez ce que coûte votre cheval', 'Pension, maréchal, soins : dépenses par catégorie, dépenses récurrentes avec suivi des paiements et coût par mois.'],
         'documents' => ['Tous ses papiers au même endroit', 'Carnet de vaccination, factures, radios, assurance : rangés dans son dossier et consultables partout, même au box.'],
+        'exports' => ['Exportez en PDF et CSV', 'Fiche du cheval, carnet de santé, séances et dépenses : à imprimer, à envoyer au vétérinaire ou à un acheteur, ou à ouvrir dans un tableur.'],
         'assistant' => ['Dictez au lieu de taper', '« Cours demain à 16 h avec Léo » : l\'assistant vocal crée la séance, le soin, la dépense ou le rendez-vous pour vous.'],
         'stable' => ['Gérez votre écurie à plusieurs', 'Membres, rôles, chevaux en pension : chacun accède à ce dont il a besoin.'],
         'max_horses' => ['Un cheval de plus ?', 'Suivez tous vos chevaux dans la même application, avec leurs soins, séances et rappels.'],
@@ -28,8 +29,8 @@ class Upsell
         'assistant_monthly' => ['Encore plus de consignes vocales', 'Les offres supérieures incluent davantage de consignes chaque mois.'],
     ];
 
-    /** Fonctions réellement réservées aux offres qui les incluent (les exports restent ouverts à tous). */
-    public const GATED = ['budget', 'documents', 'assistant', 'stable', 'sharing'];
+    /** Fonctions réservées aux offres qui les incluent. */
+    public const GATED = ['budget', 'documents', 'assistant', 'exports', 'stable', 'sharing'];
 
     public function __construct(private Entitlements $entitlements) {}
 
@@ -63,7 +64,7 @@ class Upsell
             return null;
         }
         $offer = $this->offer($org, $user, 'upgrade', $plan);
-        $names = ['assistant' => 'l\'assistant vocal', 'budget' => 'le suivi des dépenses', 'documents' => 'le stockage de documents'];
+        $names = ['assistant' => 'l\'assistant vocal', 'budget' => 'le suivi des dépenses', 'documents' => 'le stockage de documents', 'exports' => 'les exports PDF et CSV'];
         $items = array_map(fn ($f) => $names[$f], $this->missingFeatures($org));
         $items[] = $plan->max_horses ? 'jusqu\'à '.$plan->max_horses.' chevaux' : 'des chevaux en illimité';
         $offer['title'] = 'Débloquez tout Jack&Cie';
@@ -101,7 +102,7 @@ class Upsell
     {
         $plan = $this->planUnlocking($org, null, false);
 
-        return $plan ? array_values(array_diff(array_intersect($plan->features ?? [], ['assistant', 'budget', 'documents']), $this->entitlements->for($org)['features'])) : [];
+        return $plan ? array_values(array_diff(array_intersect($plan->features ?? [], ['assistant', 'budget', 'documents', 'exports']), $this->entitlements->for($org)['features'])) : [];
     }
 
     /** Offre gratuite par défaut (Découverte) ou aucune licence payante. */

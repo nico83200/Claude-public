@@ -127,4 +127,30 @@ class UpsellTest extends TestCase
         $this->assertStringContainsString('le responsable de l\'espace', $memberOffer['note']);
         $this->assertNull(app(Upsell::class)->upgrade($stable->fresh(), $member->fresh()));
     }
+
+    public function test_exports_are_reserved_to_paid_plans_except_personal_data(): void
+    {
+        $user = $this->user();
+        $horse = $this->horseFor($user);
+
+        // Découverte : export refusé, retour sur la page avec la proposition.
+        foreach (["/chevaux/{$horse->id}/export/fiche.pdf", "/chevaux/{$horse->id}/export/sante.pdf", "/chevaux/{$horse->id}/export/seances.csv", '/budget/export.csv'] as $url) {
+            $this->actingAs($user)->from("/chevaux/{$horse->id}")->get($url)->assertRedirect("/chevaux/{$horse->id}")->assertSessionHas('upsell', ['organization' => $horse->organization_id, 'key' => 'exports']);
+        }
+        $this->actingAs($user)->get("/chevaux/{$horse->id}")->assertSee('(offre supérieure)');
+        $this->actingAs($user)->withSession(['upsell' => ['organization' => $horse->organization_id, 'key' => 'exports']])
+            ->get('/dashboard')->assertSee('data-upsell="exports"', false)->assertSee('Exportez en PDF et CSV');
+
+        // Export des données personnelles (RGPD) : toujours possible.
+        $this->actingAs($user)->withSession(['auth.password_confirmed_at' => time()])->get('/parametres/donnees/export')->assertOk();
+
+        // Offre payante : exports disponibles, y compris en lecture seule après la fin de l'abonnement.
+        $license = $this->grantLicense($user->personalOrganization(), 'particulier');
+        app(Entitlements::class)->flush();
+        $this->actingAs($user)->get("/chevaux/{$horse->id}/export/fiche.pdf")->assertOk();
+        $this->actingAs($user)->get("/chevaux/{$horse->id}")->assertDontSee('(offre supérieure)');
+        $license->update(['status' => 'expired', 'ends_at' => now()->subDay()]);
+        app(Entitlements::class)->flush();
+        $this->actingAs($user)->get("/chevaux/{$horse->id}/export/seances.csv")->assertOk();
+    }
 }
