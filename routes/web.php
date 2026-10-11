@@ -247,6 +247,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 // --- Super-administration --------------------------------------------------
 Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
+    Route::get('/statistiques', Admin\StatsController::class)->name('stats.index');
     Route::get('/utilisateurs', [Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/utilisateurs/{user}', [Admin\UserController::class, 'show'])->name('users.show');
     Route::post('/utilisateurs/{user}/suspendre', [Admin\UserController::class, 'suspend'])->name('users.suspend');

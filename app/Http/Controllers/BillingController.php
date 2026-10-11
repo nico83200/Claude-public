@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FeatureFlag;
 use App\Models\License;
 use App\Models\SubscriptionPlan;
+use App\Services\Audit;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\StripeGateway;
 use App\Services\PromoCodeService;
@@ -25,6 +26,10 @@ class BillingController extends Controller
         $org = $this->currentOrganization();
         $this->authorizeOrg($org, Perm::BILLING_MANAGE);
         $this->refreshFromStripe($org, $request->boolean('maj'));
+        // Arrivée depuis une proposition d'offre : comptée (statistiques de l'administration), sans données personnelles.
+        if (array_key_exists((string) $request->query('fonction'), Upsell::PITCHES)) {
+            Audit::log('upsell.clicked', null, ['key' => $request->query('fonction')], $org->id);
+        }
 
         return view('billing.index', [
             'org' => $org,
