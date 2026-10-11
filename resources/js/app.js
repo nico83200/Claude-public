@@ -8,6 +8,7 @@ import { pushSettings } from './push-settings.js';
 import { pushGateStore } from './push.js';
 import { chunkUpload } from './chunk-upload.js';
 import { videoPlayer } from './video-player.js';
+import { startSelectEnhancer } from './select-enhance.js';
 
 window.Alpine = Alpine;
 
@@ -38,6 +39,7 @@ Alpine.store('network', {
 });
 
 Alpine.start();
+startSelectEnhancer();
 Alpine.store('pushGate').init(Alpine.store('install'));
 
 // --- Service Worker (installation de l'application, page « pas de connexion ») ---

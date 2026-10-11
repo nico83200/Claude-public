@@ -57,7 +57,7 @@ export function pushGateStore({ vapidKey, subscribeUrl, enabled }) {
         busy: false,
         error: '',
         async init(install) {
-            if (!enabled || !install.handheld || !install.installed || !pushSupported() || !vapidKey) return;
+            if (!install || !enabled || !install.handheld || !install.installed || !pushSupported() || !vapidKey) return;
             await this.check();
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.check(); });
         },

@@ -29,7 +29,7 @@
         </x-empty>
     @else
         {{-- Invitation à activer les notifications (application installée, pas encore autorisées) --}}
-        <div x-data="{ show: false }" x-init="try { show = ! $store.install.handheld && 'Notification' in window && 'PushManager' in window && Notification.permission === 'default' && ! localStorage.getItem('jc-push-hint') } catch { }"
+        <div x-data="{ show: false }" x-init="(() => { try { show = ! $store.install.handheld && 'Notification' in window && 'PushManager' in window && Notification.permission === 'default' && ! localStorage.getItem('jc-push-hint') } catch { } })()"
              x-show="show" x-cloak class="mb-5 flex items-center gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70">
             <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-800"><x-icon name="bell" /></span>
             <p class="min-w-0 flex-1 text-sm text-slate-700"><span class="block font-semibold text-slate-900">Ne ratez plus un bilan</span>Recevez un rappel sur cet appareil après vos séances et vos cours.</p>
@@ -45,7 +45,7 @@
 
         {{-- Offre gratuite : proposition d'offre supérieure (masquable 7 jours) --}}
         @if ($upsell)
-            <div x-data="{ show: true }" x-init="try { show = (+localStorage.getItem('jc-upsell-later') || 0) < Date.now() } catch { }" x-show="show" class="relative mb-5">
+            <div x-data="{ show: true }" x-init="(() => { try { show = (+localStorage.getItem('jc-upsell-later') || 0) < Date.now() } catch { } })()" x-show="show" class="relative mb-5">
                 <x-upsell :offer="$upsell" />
                 <button type="button" class="absolute top-3 right-3 p-1.5 text-slate-400 hover:text-slate-700" aria-label="Plus tard"
                         @click="show = false; try { localStorage.setItem('jc-upsell-later', Date.now() + 7 * 864e5) } catch { }"><x-icon name="x" class="size-4" /></button>
