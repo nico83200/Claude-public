@@ -51,20 +51,23 @@
 
         @if ($canCreate)
             <x-section title="Nouvelle mesure">
-                <form method="POST" action="{{ route('horses.weight.store', $horse) }}" class="space-y-3" x-data="{ method: @js(old('method', 'scale')), girth: @js(old('girth_cm')), length: @js(old('length_cm')) }">
+                @if (is_file(public_path('videos/mesure-ruban.mp4')))
+                    <button type="button" data-tape-video class="group mb-4 flex w-full items-center gap-4 rounded-2xl bg-brand-50 p-3 text-left ring-1 ring-brand-100 transition hover:bg-brand-100" onclick="document.getElementById('tape-video').showModal(); document.querySelector('#tape-video video')?.play()">
+                        <span class="relative shrink-0 overflow-hidden rounded-xl"><img src="/videos/mesure-ruban.jpg" alt="" class="h-24 w-[54px] object-cover" loading="lazy"><span class="absolute inset-0 grid place-items-center bg-black/25"><span class="grid size-8 place-items-center rounded-full bg-white/95 text-brand-800 shadow"><x-icon name="play" class="size-4" /></span></span></span>
+                        <span class="min-w-0"><span class="block font-semibold text-brand-900">Pas de balance ? Mesurez au ruban</span><span class="block text-sm text-slate-600">Vidéo d'une minute : où placer le ruban et comment lire les deux mesures.</span></span>
+                    </button>
+                @endif
+                <form method="POST" action="{{ route('horses.weight.store', $horse) }}" class="space-y-3" x-data="{ method: @js(old('method', 'tape')), girth: @js(old('girth_cm')), length: @js(old('length_cm')) }">
                     @csrf
                     <x-field name="measured_on" type="date" label="Date" :value="now()->toDateString()" required />
-                    <x-select name="method" label="Méthode" :options="\App\Models\HorseMeasurement::METHODS" value="scale" required x-model="method" />
-                    <div x-show="method !== 'tape'"><x-field name="weight_kg" type="number" step="0.5" min="30" max="1500" label="Poids (kg)" inputmode="decimal" /></div>
+                    <x-select name="method" label="Méthode" :options="\App\Models\HorseMeasurement::METHODS" value="tape" required x-model="method" />
+                    <div x-show="method !== 'tape'" x-cloak><x-field name="weight_kg" type="number" step="0.5" min="30" max="1500" label="Poids (kg)" inputmode="decimal" /></div>
                     <div x-show="method === 'tape'" x-cloak class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <x-field name="girth_cm" type="number" label="Tour de poitrine (cm)" min="60" max="300" inputmode="numeric" x-model="girth" />
                             <x-field name="length_cm" type="number" label="Longueur (cm)" min="50" max="300" inputmode="numeric" x-model="length" />
                         </div>
                         <p class="rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" x-show="girth > 0 && length > 0">Poids estimé : <strong x-text="Math.round(girth * girth * length / 11877) + ' kg'"></strong></p>
-                        @if (is_file(public_path('videos/mesure-ruban.mp4')))
-                            <button type="button" class="inline-flex items-center gap-1.5 text-sm link" onclick="document.getElementById('tape-video').showModal(); document.querySelector('#tape-video video')?.play()"><x-icon name="play" class="size-4" /> Comment mesurer au ruban (1 min)</button>
-                        @endif
                     </div>
                     <x-select name="body_condition" label="État corporel (facultatif)" :options="\App\Models\HorseMeasurement::BODY_CONDITION" placeholder="—" />
                     <x-field name="notes" label="Remarque" maxlength="500" placeholder="Après la tonte, nouveau foin…" />
@@ -77,7 +80,7 @@
     @if ($canCreate && is_file(public_path('videos/mesure-ruban.mp4')))
         <dialog id="tape-video" class="m-auto w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl bg-black p-0 backdrop:bg-slate-900/70" onclose="this.querySelector('video').pause()">
             <video src="/videos/mesure-ruban.mp4" poster="/videos/mesure-ruban.jpg" controls playsinline preload="none" class="block w-full">
-                <track kind="subtitles" src="/videos/mesure-ruban.vtt" srclang="fr" label="Français" default>
+                <track kind="subtitles" src="/videos/mesure-ruban.vtt" srclang="fr" label="Français">
             </video>
             <form method="dialog" class="flex justify-end bg-slate-900 p-2"><button class="btn-ghost text-sm text-white">Fermer</button></form>
         </dialog>

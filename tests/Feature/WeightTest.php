@@ -16,7 +16,8 @@ class WeightTest extends TestCase
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
-        $this->actingAs($user)->get("/chevaux/{$horse->id}/poids")->assertOk()->assertSee('Aucune mesure pour le moment')->assertSee('>Poids<', false);
+        $this->actingAs($user)->get("/chevaux/{$horse->id}/poids")->assertOk()->assertSee('Aucune mesure pour le moment')->assertSee('>Poids<', false)
+            ->assertSee('<option value="tape" selected', false)->assertSee('data-tape-video', false)->assertSee('Pas de balance ? Mesurez au ruban');
 
         $this->actingAs($user)->post("/chevaux/{$horse->id}/poids", ['measured_on' => '2026-08-01', 'method' => 'scale', 'weight_kg' => '520', 'body_condition' => 5])->assertSessionHas('success');
         // Ruban : 190 cm de tour de poitrine × 173 cm de longueur → 190² × 173 / 11 877 ≈ 525,8 kg.

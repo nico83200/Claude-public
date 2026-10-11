@@ -145,7 +145,7 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#faf7f1;color:#0
 <div id="endlogo" class="abs"><img src="../../public/brand/jackcie-logo.png" alt=""><p>Le suivi de vos chevaux, simplement.</p><small>jackcie.nlapps.fr</small></div>
 
 <script>
-const S = {intro:[0,8.2], prep:[8.2,19.6], girth:[19.6,32.9], len:[32.9,41.5], app:[41.5,52.8], tips:[52.8,65.5], end:[65.5,71.2]};
+const S = {intro:[0,5.6], prep:[5.6,14.43], girth:[14.43,24.85], len:[24.85,31.43], app:[31.43,41.3], tips:[41.3,50.24], end:[50.24,55.72]};
 const $ = (id) => document.getElementById(id);
 const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const ease = (x) => { x = cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
@@ -172,9 +172,9 @@ function render(t) {
   $('horseWrap').setAttribute('transform', 'translate(40 560)');
   $('ground').setAttribute('stroke-dashoffset', 1 - ramp(t, S.prep[0] + .4, 1.2));
   set('shadow', .08 * ramp(t, S.prep[0] + .4, 1));
-  set('tape', sc === 'prep' ? win(t, S.prep[0] + 6.5, S.prep[1], .5) : 0, (1 - ramp(t, S.prep[0] + 6.5, .6)) * 40);
+  set('tape', sc === 'prep' ? win(t, S.prep[0] + 5.0, S.prep[1], .5) : 0, (1 - ramp(t, S.prep[0] + 5.0, .6)) * 40);
   set('prepList', sc === 'prep' ? win(t, a + .8, b) : 0);
-  [...$('prepList').children].forEach((el, i) => set(el, ramp(t, S.prep[0] + [1.2, 3.6, 6.6][i], .5), (1 - ramp(t, S.prep[0] + [1.2, 3.6, 6.6][i], .5)) * 30));
+  [...$('prepList').children].forEach((el, i) => set(el, ramp(t, S.prep[0] + [1.2, 3.4, 5.2][i], .5), (1 - ramp(t, S.prep[0] + [1.2, 3.4, 5.2][i], .5)) * 30));
 
   // tour de poitrine
   const g = ramp(t, S.girth[0] + 2, 4);
@@ -183,7 +183,7 @@ function render(t) {
   set('girthMarks', sc === 'girth' ? win(t, a + .6, b) : 0);
   set('girthRead', sc === 'girth' ? win(t, a + 2, b) : 0);
   $('girthRead').querySelector('span').textContent = Math.round(190 * g);
-  set('girthNote', sc === 'girth' ? win(t, a + 7, b) : 0, (1 - ramp(t, a + 7, .5)) * 20);
+  set('girthNote', sc === 'girth' ? win(t, a + 5.9, b) : 0, (1 - ramp(t, a + 5.9, .5)) * 20);
 
   // longueur
   const l = ramp(t, S.len[0] + 1.6, 3);
@@ -210,16 +210,16 @@ function render(t) {
 
   // conseils
   const T = S.tips[0];
-  ['tip1', 'tip2', 'tip3'].forEach((id, i) => { const s = T + [.4, 3.6, 7.4][i]; set(id, sc === 'tips' ? win(t, s, S.tips[1]) : 0, (1 - ramp(t, s, .6)) * 40); });
-  set('curve', sc === 'tips' ? win(t, T + 7.6, S.tips[1]) : 0);
-  $('curveLine').setAttribute('stroke-dashoffset', 1 - ramp(t, T + 7.8, 2.4));
+  ['tip1', 'tip2', 'tip3'].forEach((id, i) => { const s = T + [.4, 2.6, 4.9][i]; set(id, sc === 'tips' ? win(t, s, S.tips[1]) : 0, (1 - ramp(t, s, .6)) * 40); });
+  set('curve', sc === 'tips' ? win(t, T + 5.1, S.tips[1]) : 0);
+  $('curveLine').setAttribute('stroke-dashoffset', 1 - ramp(t, T + 5.3, 2.4));
 
   // fin
   const E = S.end[0];
-  set('notif', sc === 'end' ? win(t, E + .3, E + 3.4) : 0, (1 - ramp(t, E + .3, .6)) * -60);
-  set('endlogo', sc === 'end' ? ramp(t, E + 3.4, .7) : 0, (1 - ramp(t, E + 3.4, .7)) * 30);
-  if (sc === 'end') { set('title', win(t, E + .05, E + 3.4, .45)); }
+  set('notif', sc === 'end' ? win(t, E + .3, E + 3.3) : 0, (1 - ramp(t, E + .3, .6)) * -60);
+  set('endlogo', sc === 'end' ? ramp(t, E + 3.3, .7) : 0, (1 - ramp(t, E + 3.3, .7)) * 30);
+  if (sc === 'end') { set('title', win(t, E + .05, E + 3.3, .45)); }
 }
-window.DURATION = 71.2;
+window.DURATION = 55.72;
 </script>
 </body></html>
