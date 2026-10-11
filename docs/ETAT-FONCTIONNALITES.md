@@ -3,6 +3,11 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.1
+- ✅ Mises à jour depuis l'administration : envoi par morceaux, vérification, sauvegardes code + base, remplacement sans toucher `.env`/`storage`, migrations dans une seconde requête, restauration automatique en cas d'échec, finalisation de secours par le planificateur — testé de bout en bout (installation 2.1.0 depuis le zip puis mise à jour 2.1.1 via l'interface)
+- ✅ Téléphones et tablettes : connexion et inscription proposées uniquement dans l'application installée ; dans le navigateur, seule l'installation est proposée (navigateurs intégrés aux réseaux sociaux : invitation à ouvrir Safari/Chrome) ; lien de confirmation d'email utilisable sans connexion ; invitations acceptables depuis le tableau de bord
+- ⚠️ À valider sur appareils réels : iPad en « mode ordinateur » (détecté par l'écran tactile), Samsung Internet
+
 ## Assistant vocal (2.0)
 - ✅ Micro central, arrêt au silence, saisie clavier, transcription ElevenLabs, compréhension Claude (SDK officiel) avec outils : rendez-vous, séances avec exercices, soins, observations, suivi quotidien, dépenses, ration, questions, demande de précision
 - ✅ Exécution directe, annulation 10 s + 24 h, historique, droits identiques aux écrans, quota mensuel par offre, indications libres et modèle réglables par le super-administrateur

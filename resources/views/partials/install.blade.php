@@ -1,6 +1,6 @@
 {{-- Invitation à installer Jack&Cie sur le téléphone + feuille d'instructions iPhone --}}
 <div x-data x-cloak>
-    <div x-show="$store.install.showBanner" x-transition.opacity
+    <div x-show="{{ ($banner ?? true) ? '$store.install.showBanner' : 'false' }}" x-transition.opacity
          class="fixed inset-x-3 {{ $bannerBottom ?? 'bottom-[calc(4.5rem+env(safe-area-inset-bottom))]' }} z-30 mx-auto max-w-md rounded-2xl border border-sand-200 bg-white/95 p-3 shadow-lg backdrop-blur lg:bottom-6"
          role="dialog" aria-label="Installer l'application">
         <div class="flex items-center gap-3">

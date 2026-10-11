@@ -1,4 +1,5 @@
 <x-layouts.guest title="Créer un compte">
+<x-install-gate purpose="créer votre compte">
     <h1 class="mb-1 text-xl font-bold">Créer un compte</h1>
     <p class="mb-6 text-sm text-slate-500">Déjà inscrit ? <a href="{{ route('login') }}" class="link">Se connecter</a></p>
     @if (! \App\Models\FeatureFlag::enabled('registration'))
@@ -18,4 +19,5 @@
         <button class="btn-primary w-full">Créer mon compte</button>
     </form>
     @endif
+</x-install-gate>
 </x-layouts.guest>

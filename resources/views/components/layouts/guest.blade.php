@@ -13,5 +13,6 @@
         </div>
         <p class="mt-6 text-center text-xs text-slate-500"><a href="{{ route('legal.privacy') }}" class="hover:underline">Confidentialité</a> · <a href="{{ route('legal.terms') }}" class="hover:underline">Conditions</a></p>
     </div>
+    @include('partials.install', ['banner' => false])
 </body>
 </html>

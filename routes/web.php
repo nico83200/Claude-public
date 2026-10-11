@@ -28,12 +28,14 @@ Route::view('/application-mobile', 'public.install')->name('app.install');
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
 
 // Invitations (consultables avant connexion)
+Route::get('/email/confirmer/{id}/{hash}', Controllers\EmailVerificationController::class)->middleware(['signed', 'throttle:12,1'])->name('verification.public');
 Route::get('/invitations/{token}', [Controllers\InvitationController::class, 'show'])->name('invitations.show');
 
 // Coquille hors ligne : servie depuis le cache du Service Worker
 Route::get('/hors-ligne', [Controllers\OfflineController::class, 'app'])->middleware(['auth', 'verified', 'org'])->name('offline.app');
 
 Route::middleware(['auth', 'verified', 'org'])->group(function () {
+    Route::post('/invitations/recues/{invitation}', [Controllers\InvitationController::class, 'respond'])->name('invitations.respond');
     Route::post('/invitations/{token}/accepter', [Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
     Route::post('/invitations/{token}/refuser', [Controllers\InvitationController::class, 'decline'])->name('invitations.decline');
 
@@ -238,6 +240,14 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/assistant', [Admin\AssistantSettingsController::class, 'edit'])->name('assistant.edit');
     Route::put('/assistant', [Admin\AssistantSettingsController::class, 'update'])->name('assistant.update');
     Route::post('/assistant/test', [Admin\AssistantSettingsController::class, 'test'])->middleware('throttle:6,1')->name('assistant.test');
+    Route::get('/mises-a-jour', [Admin\UpdateController::class, 'index'])->name('updates.index');
+    Route::post('/mises-a-jour/envoi', [Admin\UpdateController::class, 'upload'])->middleware('throttle:600,1')->name('updates.upload');
+    Route::get('/mises-a-jour/{update}', [Admin\UpdateController::class, 'show'])->name('updates.show');
+    Route::post('/mises-a-jour/{update}/installer', [Admin\UpdateController::class, 'apply'])->name('updates.apply');
+    Route::get('/mises-a-jour/{update}/finaliser', [Admin\UpdateController::class, 'finalize'])->middleware('signed')->name('updates.finalize');
+    Route::post('/mises-a-jour/{update}/restaurer', [Admin\UpdateController::class, 'restore'])->name('updates.restore');
+    Route::get('/mises-a-jour/{update}/sauvegarde/{kind}', [Admin\UpdateController::class, 'download'])->whereIn('kind', ['code', 'base'])->name('updates.download');
+    Route::delete('/mises-a-jour/{update}', [Admin\UpdateController::class, 'destroy'])->name('updates.destroy');
     Route::get('/integrations', [Admin\IntegrationController::class, 'edit'])->name('integrations.edit');
     Route::put('/integrations/email', [Admin\IntegrationController::class, 'updateMail'])->name('integrations.mail');
     Route::post('/integrations/email/test', [Admin\IntegrationController::class, 'testMail'])->middleware('throttle:5,1')->name('integrations.mail.test');

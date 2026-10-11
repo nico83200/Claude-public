@@ -1,4 +1,5 @@
 <x-layouts.guest title="Connexion">
+<x-install-gate purpose="vous connecter">
     <h1 class="mb-1 text-xl font-bold">Connexion</h1>
     <p class="mb-6 text-sm text-slate-500">Pas encore de compte ? <a href="{{ route('register') }}" class="link">Créer un compte</a></p>
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
@@ -11,4 +12,5 @@
         </div>
         <button class="btn-primary w-full">Se connecter</button>
     </form>
+</x-install-gate>
 </x-layouts.guest>

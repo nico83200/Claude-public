@@ -11,7 +11,12 @@
             <nav class="flex items-center gap-2 text-sm">
                 <a href="{{ route('app.install') }}" class="btn-ghost hidden sm:inline-flex">L'application</a>
                 <a href="{{ route('pricing') }}" class="btn-ghost hidden sm:inline-flex">Tarifs</a>
-                @auth<a href="{{ route('dashboard') }}" class="btn-primary">Mon espace</a>@else<a href="{{ route('login') }}" class="btn-ghost">Connexion</a><a href="{{ route('register') }}" class="btn-primary">Essayer</a>@endauth
+                @auth<a href="{{ route('dashboard') }}" class="btn-primary">Mon espace</a>@else
+                    @php $handheld = \App\Support\Device::isHandheld(request()); @endphp
+                    {{-- Téléphone / tablette : installation de l'application uniquement --}}
+                    <button type="button" x-data x-show="$store.install.gate" @unless ($handheld) style="display: none" @endunless @click="$store.install.install()" class="btn-primary"><x-icon name="download" class="size-4" /> Installer</button>
+                    <span x-data x-show="! $store.install.gate" @if ($handheld) style="display: none" @endif class="flex items-center gap-2"><a href="{{ route('login') }}" class="btn-ghost">Connexion</a><a href="{{ route('register') }}" class="btn-primary">Essayer</a></span>
+                @endauth
             </nav>
         </div>
     </header>

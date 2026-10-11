@@ -10,6 +10,7 @@ use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -53,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
         if (Installation::isInstalled()) {
             rescue(fn () => app(IntegrationSettings::class)->apply(), null, false);
         }
+
+        // Lien de confirmation d'email utilisable sans être connecté (ouvert depuis la messagerie du téléphone).
+        VerifyEmail::createUrlUsing(fn ($notifiable) => URL::temporarySignedRoute(
+            'verification.public', now()->addMinutes(config('auth.verification.expire', 60)),
+            ['id' => $notifiable->getKey(), 'hash' => sha1($notifiable->getEmailForVerification())],
+        ));
 
         Password::defaults(fn () => Password::min(10)->letters()->numbers());
 

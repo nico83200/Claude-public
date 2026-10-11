@@ -13,3 +13,6 @@ Schedule::command('data:purge')->weeklyOn(0, '03:45')->withoutOverlapping();
 // Hébergement mutualisé sans worker permanent : traitement périodique de la file.
 Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();
 Schedule::command('auth:clear-resets')->daily();
+
+// Mise à jour installée depuis l'administration mais non finalisée (navigateur fermé…)
+Schedule::command('app:finalize-update')->everyMinute()->evenInMaintenanceMode()->withoutOverlapping();

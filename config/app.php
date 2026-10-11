@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Version installée (fichier VERSION à la racine, écrit par le paquet de distribution).
+    'version' => is_file(base_path('VERSION')) ? trim((string) file_get_contents(base_path('VERSION'))) : 'dev',
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

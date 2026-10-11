@@ -22,7 +22,7 @@
                     @foreach ($plan->features ?? [] as $f)<li>✓ {{ \App\Models\SubscriptionPlan::FEATURES[$f] ?? $f }}</li>@endforeach
                     @if ($plan->trial_days)<li class="text-brand-700">{{ $plan->trial_days }} jours d'essai</li>@endif
                 </ul>
-                <a href="{{ auth()->check() ? route('billing.index') : route('register') }}" class="btn-primary mt-6">{{ $plan->is_default_free ? 'Commencer' : 'Choisir' }}</a>
+                <a href="{{ auth()->check() ? route('billing.index') : route('register') }}" x-data @click="if (! {{ auth()->check() ? 'true' : 'false' }} && $store.install.gate) { $event.preventDefault(); $store.install.install() }" class="btn-primary mt-6">{{ $plan->is_default_free ? 'Commencer' : 'Choisir' }}</a>
             </div>
         @endforeach
     </div>

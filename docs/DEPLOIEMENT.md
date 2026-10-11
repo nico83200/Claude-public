@@ -63,3 +63,15 @@ Après une évolution du Service Worker, incrémenter `VERSION` dans `public/sw.
 
 Voir `.env.example` (commentée). Aucun secret ne doit être committé ni exposé côté navigateur ;
 `STRIPE_KEY` (publique) n'est pas utilisée côté client (redirection Checkout côté serveur).
+
+
+## Mettre à jour depuis l'administration (sans SSH)
+
+**Administration › Mises à jour** :
+
+1. Choisir le fichier `jackcie-x.y.z.zip` : il est envoyé par morceaux (les limites d'envoi de l'hébergeur ne gênent pas), puis vérifié : structure du paquet, numéro de version (une version plus ancienne est refusée), absence de chemins dangereux. Comparer l'empreinte SHA-256 affichée avec le fichier `jackcie-x.y.z.zip.sha256` fourni.
+2. **Installer** : le site passe en maintenance, le code actuel et la base sont sauvegardés (`storage/app/updates/`, 3 dernières sauvegardes conservées et téléchargeables), les fichiers sont remplacés — **jamais `.env` ni `storage/`** —, puis une seconde requête (nouveau code chargé) met à jour la base et remet le site en ligne.
+3. En cas d'échec, le code précédent est remis automatiquement. Bouton « Restaurer » pour revenir à la version précédente ; la base se restaure avec la sauvegarde SQL (voir SAUVEGARDE.md).
+
+Prérequis : extension PHP `zip`, dossiers de l'application modifiables par le serveur web, espace disque ≈ 4 × la taille du paquet, **cron du planificateur actif** (il termine automatiquement une mise à jour interrompue, même pendant la maintenance : `php artisan app:finalize-update`).
+Si le site restait bloqué en maintenance sans cron : `php artisan app:finalize-update --now`, ou `php artisan up`.

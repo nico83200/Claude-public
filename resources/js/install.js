@@ -11,6 +11,10 @@ const ua = navigator.userAgent || '';
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isAndroid = /Android/i.test(ua);
 const isIOSSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+// Téléphone ou tablette (iPad récent : se présente comme un Mac tactile).
+const isHandheld = /Android|iPhone|iPad|iPod|Mobile|Tablet|Silk|Kindle|PlayBook|Opera Mini|IEMobile/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+// Navigateurs intégrés aux réseaux sociaux / messageries : l'installation y est impossible.
+const isInAppBrowser = /FBAN|FBAV|Instagram|LinkedInApp|Snapchat|Line\/|MicroMessenger|; wv\)|TikTok|Pinterest|GSA\//i.test(ua);
 const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
 function dismissedRecently() {
@@ -30,12 +34,18 @@ export function installStore() {
         isIOSSafari,
         isAndroid,
         isMobile: isIOS || isAndroid || window.matchMedia('(max-width: 768px)').matches,
+        handheld: isHandheld,
+        inApp: isInAppBrowser,
         dismissed: dismissedRecently(),
         sheet: false,
 
         /** Bandeau mobile : seulement si l'installation est possible et non refusée récemment. */
         get showBanner() {
             return !this.installed && !this.dismissed && this.isMobile && (this.canPrompt || this.isIOS || this.isAndroid);
+        },
+        /** Téléphone/tablette hors application installée : on propose uniquement l'installation. */
+        get gate() {
+            return this.handheld && !this.installed;
         },
         get available() {
             return !this.installed && (this.canPrompt || this.isIOS || this.isAndroid);

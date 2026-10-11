@@ -19,6 +19,8 @@ git ls-files -co --exclude-standard | grep -vE '^(tests/|\.github/|scripts/|dist
   | while read -r f; do [ -e "$f" ] && mkdir -p "$STAGE/$(dirname "$f")" && cp -p "$f" "$STAGE/$f"; done
 cp -R public/build "$STAGE/public/build"
 
+echo "$VERSION" > "$STAGE/VERSION"
+
 echo "→ Dépendances PHP de production"
 (cd "$STAGE" && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --quiet)
 
@@ -73,4 +75,5 @@ mkdir -p "$ROOT/dist"
 rm -f "$OUT"
 (cd "$(dirname "$STAGE")" && zip -9 -qr -X "$OUT" jackcie)
 rm -rf "$(dirname "$STAGE")"
-echo "✓ $OUT ($(du -h "$OUT" | cut -f1))"
+(cd "$ROOT/dist" && sha256sum "$(basename "$OUT")" > "$(basename "$OUT").sha256")
+echo "✓ $OUT ($(du -h "$OUT" | cut -f1)) — SHA-256 : $(cut -d' ' -f1 "$OUT.sha256")"
