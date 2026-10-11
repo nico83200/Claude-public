@@ -1,6 +1,5 @@
 <x-layouts.app :title="'Généalogie · '.$horse->shortName()">
-    <x-page-header :title="$horse->shortName()" subtitle="Généalogie" :back="route('horses.show', $horse)" />
-    @include('horses._tabs')
+    <x-horse-header :horse="$horse" />
     @php
         $node = function ($rel, $label) use ($pedigree, $linkable) {
             $r = $pedigree->get($rel);

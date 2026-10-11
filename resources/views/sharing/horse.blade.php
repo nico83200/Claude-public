@@ -1,8 +1,5 @@
 <x-layouts.app :title="'Partage · '.$horse->shortName()">
-    <x-page-header :title="$horse->shortName()" subtitle="Partage et accès" :back="route('horses.show', $horse)">
-        <a href="{{ route('horses.history', $horse) }}" class="btn-ghost">Historique</a>
-    </x-page-header>
-    @include('horses._tabs')
+    <x-horse-header :horse="$horse" />
     @unless ($sharingIncluded)<div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Le partage n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</div>@endunless
     <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-4">

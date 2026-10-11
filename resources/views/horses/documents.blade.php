@@ -1,6 +1,5 @@
 <x-layouts.app :title="'Documents · '.$horse->shortName()">
-    <x-page-header :title="$horse->shortName()" subtitle="Documents" :back="route('horses.show', $horse)" />
-    @include('horses._tabs')
+    <x-horse-header :horse="$horse" />
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
             @if ($documents->isEmpty())

@@ -1,22 +1,47 @@
 <x-layouts.app title="Séances">
-    <x-page-header title="Séances" subtitle="Historique, recherche et progression">
-        <a href="{{ route('templates.index') }}" class="btn-ghost">Modèles</a>
-        @if (request('horse'))<a href="{{ route('horses.export.sessions', [request('horse'), 'csv']) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> CSV</a><a href="{{ route('horses.export.sessions', [request('horse'), 'pdf']) }}" class="btn-ghost">PDF</a>@endif
-        @if ($canCreate)<a href="{{ route('sessions.create', ['horse' => request('horse')]) }}" class="btn-primary"><x-icon name="plus" /> Nouvelle séance</a>@endif
-    </x-page-header>
+    @if ($contextHorse)
+        <x-horse-header :horse="$contextHorse">
+            @if ($canCreate)<a href="{{ route('sessions.create', ['horse' => $contextHorse->id]) }}" class="btn-primary"><x-icon name="plus" class="size-4" /> Séance</a>@endif
+            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'pdf']) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF</a>
+            <a href="{{ route('horses.export.sessions', [$contextHorse->id, 'csv']) }}" class="btn-ghost">CSV</a>
+        </x-horse-header>
+    @else
+        <x-page-header title="Séances" subtitle="Historique et progression">
+            <a href="{{ route('templates.index') }}" class="btn-ghost">Modèles</a>
+            @if ($canCreate)<a href="{{ route('sessions.create') }}" class="btn-primary"><x-icon name="plus" /> Séance</a>@endif
+        </x-page-header>
+    @endif
 
-    <form method="GET" class="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-        <x-select name="horse" :options="$horses" :value="request('horse')" placeholder="Tous les chevaux" aria-label="Cheval" />
-        <x-select name="rider" :options="$riders" :value="request('rider')" placeholder="Tous les cavaliers" aria-label="Cavalier" />
-        <x-select name="discipline" :options="\App\Models\Horse::DISCIPLINES" :value="request('discipline')" placeholder="Toutes disciplines" aria-label="Discipline" />
-        <x-select name="type" :options="\App\Models\RidingSession::TYPES" :value="request('type')" placeholder="Tous types" aria-label="Type" />
-        <x-select name="status" :options="\App\Models\RidingSession::STATUSES" :value="request('status')" placeholder="Tous statuts" aria-label="Statut" />
-        <input type="date" name="from" value="{{ request('from') }}" class="input" aria-label="Du">
-        <input type="date" name="to" value="{{ request('to') }}" class="input" aria-label="Au">
-        <button class="btn-secondary">Filtrer</button>
-    </form>
+    <x-filters :fields="array_values(array_filter(['rider', 'discipline', 'type', 'status', 'from', 'to', $contextHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id]">
+        @unless ($contextHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
+        <x-select name="status" label="Statut" :options="\App\Models\RidingSession::STATUSES" :value="request('status')" placeholder="Tous" />
+        <x-select name="type" label="Type" :options="\App\Models\RidingSession::TYPES" :value="request('type')" placeholder="Tous" />
+        <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" :value="request('discipline')" placeholder="Toutes" />
+        <x-select name="rider" label="Cavalier" :options="$riders" :value="request('rider')" placeholder="Tous" />
+        <div><label class="label" for="f_from">Du</label><input id="f_from" type="date" name="from" value="{{ request('from') }}" class="input"></div>
+        <div><label class="label" for="f_to">Au</label><input id="f_to" type="date" name="to" value="{{ request('to') }}" class="input"></div>
+    </x-filters>
 
+    @if ($sessions->isEmpty())
+        <x-empty title="Aucune séance" icon="session">Préparez une séance, réalisez-la avec le mode séance sur téléphone puis faites le bilan.</x-empty>
+    @else
+        <div class="space-y-2">
+            @foreach ($sessions as $s)
+                <a href="{{ route('sessions.show', $s) }}" class="card flex items-center gap-4 p-4 transition hover:shadow-md">
+                    <div class="flex size-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-brand-50 text-brand-800"><span class="text-lg leading-none font-bold">{{ $s->scheduled_at->format('d') }}</span><span class="text-[10px] font-medium uppercase">{{ $s->scheduled_at->translatedFormat('M') }}</span></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-semibold text-slate-900">@unless ($contextHorse){{ $s->horse->shortName() }} · @endunless{{ $s->typeLabel() }}</p>
+                        @if ($s->objective)<p class="line-clamp-1 text-sm text-slate-600">{{ $s->objective }}</p>@endif
+                        <p class="mt-0.5 text-xs text-slate-500">{{ $s->scheduled_at->format('H:i') }} · {{ $s->riderLabel() }}{{ $s->actual_minutes ? ' · '.$s->actual_minutes.' min' : ($s->planned_minutes ? ' · '.$s->planned_minutes.' min' : '') }}</p>
+                    </div>
+                    <x-badge :color="['completed' => 'green', 'in_progress' => 'amber', 'cancelled' => 'red'][$s->status] ?? 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge>
+                </a>
+            @endforeach
+        </div>
+        <div class="mt-4">{{ $sessions->links() }}</div>
+    @endif
     @if ($stats)
+        <h2 class="mt-8 mb-3 text-lg font-semibold">Progression</h2>
         <div class="mb-4 grid gap-4 lg:grid-cols-3">
             <x-section title="90 derniers jours">
                 <p class="text-3xl font-bold">{{ $stats['count_90'] }} <span class="text-base font-normal text-slate-500">séances</span></p>
@@ -50,21 +75,4 @@
         </div>
     @endif
 
-    @if ($sessions->isEmpty())
-        <x-empty title="Aucune séance" icon="session">Préparez une séance, réalisez-la avec le mode séance sur téléphone puis faites le bilan.</x-empty>
-    @else
-        <div class="space-y-2">
-            @foreach ($sessions as $s)
-                <a href="{{ route('sessions.show', $s) }}" class="card flex items-center gap-3 p-3 hover:border-brand-300">
-                    <div class="w-14 shrink-0 text-center"><p class="text-lg leading-none font-bold">{{ $s->scheduled_at->format('d') }}</p><p class="text-xs text-slate-500 uppercase">{{ $s->scheduled_at->translatedFormat('M') }}</p></div>
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate font-medium">{{ $s->horse->shortName() }} · {{ $s->typeLabel() }}{{ $s->objective ? ' — '.$s->objective : '' }}</p>
-                        <p class="truncate text-xs text-slate-500">{{ $s->scheduled_at->format('H:i') }} · {{ $s->riderLabel() }} {{ $s->actual_minutes ? '· '.$s->actual_minutes.' min' : ($s->planned_minutes ? '· '.$s->planned_minutes.' min prévues' : '') }} · {{ $s->done_count }} exercice(s) réalisé(s)</p>
-                    </div>
-                    <x-badge :color="['completed' => 'green', 'in_progress' => 'amber', 'cancelled' => 'red'][$s->status] ?? 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge>
-                </a>
-            @endforeach
-        </div>
-        <div class="mt-4">{{ $sessions->links() }}</div>
-    @endif
 </x-layouts.app>

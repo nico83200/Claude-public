@@ -3,6 +3,14 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.3 — affichage revu
+- ✅ En-tête commun à tous les onglets d'un cheval (photo, nom, actions de la page, menu « ⋯ » : modifier, PDF, partager, historique, archiver, transférer/supprimer), onglets en pastilles défilantes ; les onglets Séances et Dépenses gardent le contexte du cheval
+- ✅ Correction du titre écrasé lettre par lettre sur téléphone (règle CSS globale limitée aux lignes flex sans retour à la ligne)
+- ✅ Filtres repliés derrière un bouton « Filtres » (compteur, application immédiate, « Effacer ») : chevaux, séances, exercices, calendrier, budget
+- ✅ Fiche cheval allégée : actions rapides (Séance, Soin, Signaler en fenêtre), « Ajouter une photo » en un geste, gestion du dossier repliée
+- ✅ Séance : actions Démarrer / Préparer / Bilan, menu « ⋯ » (dupliquer, modèle, supprimer), commentaire en une ligne ; calendrier, budget et ration alimentaire réorganisés pour le téléphone
+- ✅ Vérifié dans Chromium à 320, 360, 393 et 1280 px (aucun débordement, aucun titre écrasé)
+
 ## Version 2.1
 - ✅ Mises à jour depuis l'administration : envoi par morceaux, vérification, sauvegardes code + base, remplacement sans toucher `.env`/`storage`, migrations dans une seconde requête, restauration automatique en cas d'échec, finalisation de secours par le planificateur — testé de bout en bout (installation 2.1.0 depuis le zip puis mise à jour 2.1.1 via l'interface)
 - ✅ Téléphones et tablettes : connexion et inscription proposées uniquement dans l'application installée ; dans le navigateur, seule l'installation est proposée (navigateurs intégrés aux réseaux sociaux : invitation à ouvrir Safari/Chrome) ; lien de confirmation d'email utilisable sans connexion ; invitations acceptables depuis le tableau de bord

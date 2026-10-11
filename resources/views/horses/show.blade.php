@@ -1,24 +1,12 @@
 @php $can = fn ($p) => in_array($p, $perms, true); @endphp
 <x-layouts.app :title="$horse->shortName()">
-    <div class="mb-4 flex flex-wrap items-start gap-4">
-        @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="Photo de {{ $horse->shortName() }}" class="size-20 rounded-2xl object-cover sm:size-24">@else<div class="flex size-20 items-center justify-center rounded-2xl bg-brand-100 text-3xl font-bold text-brand-800 sm:size-24">{{ mb_substr($horse->shortName(), 0, 1) }}</div>@endif
-        <div class="min-w-0 flex-1">
-            <h1 class="text-2xl font-bold">{{ $horse->shortName() }}</h1>
-            @if ($horse->usual_name)<p class="text-sm text-slate-500">{{ $horse->official_name }}</p>@endif
-            <p class="text-sm text-slate-600">{{ collect([$horse->breed?->name, \App\Models\Horse::SEXES[$horse->sex] ?? null, $horse->age() !== null ? $horse->age().' ans' : null, $horse->coat])->filter()->implode(' · ') }}</p>
-            <div class="mt-1 flex flex-wrap gap-1">
-                <x-badge>{{ $horse->organization->name }}</x-badge>
-                @if ($horse->isArchived())<x-badge color="amber">Archivé — lecture seule</x-badge>@endif
-
-            </div>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            @if ($can('horse.edit') && ! $horse->isArchived())<a href="{{ route('horses.edit', $horse) }}" class="btn-secondary"><x-icon name="pencil" class="size-4" /> Modifier</a>@endif
-            <a href="{{ route('horses.export.pdf', $horse) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> PDF</a>
-        </div>
-    </div>
-
-    @include('horses._tabs')
+    <x-horse-header :horse="$horse" :perms="$perms">
+        @unless ($horse->isArchived())
+            @if ($can('sessions.create'))<a href="{{ route('sessions.create', ['horse' => $horse->id]) }}" class="btn-primary"><x-icon name="plus" class="size-4" /> Séance</a>@endif
+            @if ($can('health.edit'))<a href="{{ route('horses.care.create', $horse) }}" class="btn-secondary"><x-icon name="health" class="size-4" /> Soin</a>@endif
+            @if ($can('comments.create'))<button type="button" class="btn-secondary" onclick="document.getElementById('observation').showModal()"><x-icon name="alert" class="size-4" /> Signaler</button>@endif
+        @endunless
+    </x-horse-header>
 
     @if ($sources->isNotEmpty())
         <x-section title="Informations importées à vérifier" class="mb-4 border-amber-200 bg-amber-50/40">
@@ -42,6 +30,17 @@
                     @if ($horse->care_instructions)<p class="font-semibold text-brand-800">Consignes de soins</p><p class="whitespace-pre-line">{{ $horse->care_instructions }}</p>@endif
                 </div>
             @endif
+            @if ($treatments->isNotEmpty())
+            <x-section title="Traitements en cours">
+                @foreach ($treatments as $t)<p class="border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $t->product }}</span><span class="block text-xs text-slate-500">{{ $t->dosage }} · {{ $t->frequency }} {{ $t->ends_on ? '· fin '.$t->ends_on->format('d/m') : '' }}</span></p>@endforeach
+            </x-section>
+            @endif
+
+            @if ($events->isNotEmpty())
+            <x-section title="À venir" :action="route('calendar.index', ['horse' => $horse->id])">
+                @foreach ($events as $e)<a href="{{ route('calendar.show', $e) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $e->starts_at->format('d/m H:i') }}</span> {{ $e->title }}</a>@endforeach
+            </x-section>
+            @endif
             <x-section title="Identité">
                 <x-dl :items="[
                     'Nom officiel' => $horse->official_name,
@@ -63,9 +62,6 @@
 
             @if ($can('sessions.view'))
             <x-section title="Dernières séances" :action="route('sessions.index', ['horse' => $horse->id])">
-                @if ($can('sessions.create'))
-                <x-slot:headerActions><a href="{{ route('sessions.create', ['horse' => $horse->id]) }}" class="btn-primary text-sm"><x-icon name="plus" class="size-4" /> Séance</a></x-slot:headerActions>
-                @endif
                 @forelse ($sessions as $s)
                     <a href="{{ route('sessions.show', $s) }}" class="flex justify-between border-t border-slate-100 py-2 text-sm first:border-0"><span>{{ $s->scheduled_at->format('d/m/Y H:i') }} · {{ $s->typeLabel() }}<span class="block text-xs text-slate-500">{{ $s->objective }} · {{ $s->riderLabel() }}</span></span><x-badge :color="$s->status === 'completed' ? 'green' : 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge></a>
                 @empty <p class="text-sm text-slate-500">Aucune séance.</p> @endforelse
@@ -81,7 +77,7 @@
             @endif
 
             <x-section title="Photos">
-                @if ($horse->photos->isEmpty())<p class="text-sm text-slate-500">Aucune photo.</p>@endif
+                @if ($horse->photos->isEmpty())<p class="text-sm text-slate-500">Aucune photo pour le moment.</p>@endif
                 <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     @foreach ($horse->photos as $photo)
                         <div class="group relative">
@@ -95,42 +91,26 @@
                         </div>
                     @endforeach
                 </div>
-                @if ($can('horse.edit'))
-                    <form method="POST" action="{{ route('horses.photos.store', $horse) }}" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-2">
+                @if ($can('horse.edit') && ! $horse->isArchived())
+                    <form method="POST" action="{{ route('horses.photos.store', $horse) }}" enctype="multipart/form-data" class="mt-3">
                         @csrf
-                        <input type="file" name="photo" accept="image/*" capture="environment" required class="text-sm" aria-label="Photo">
-                        <input name="caption" placeholder="Légende" class="input max-w-48 py-2 text-sm" aria-label="Légende">
-                        <button class="btn-secondary">Ajouter</button>
+                        <label class="btn-secondary cursor-pointer"><x-icon name="camera" class="size-4" /> Ajouter une photo
+                            <input type="file" name="photo" accept="image/*" required class="sr-only" onchange="this.form.requestSubmit()">
+                        </label>
                     </form>
                 @endif
             </x-section>
         </div>
 
         <div class="space-y-4">
-            @if ($can('comments.create'))
-            <x-section title="Signaler une observation">
-                <form method="POST" action="{{ route('horses.observations.store', $horse) }}" class="space-y-2">
-                    @csrf
-                    <x-textarea name="body" rows="2" placeholder="Boiterie, plaie, comportement inhabituel…" required aria-label="Observation" />
-                    <div class="flex gap-2"><x-select name="severity" :options="\App\Models\HealthObservation::SEVERITIES" value="info" class="flex-1" aria-label="Niveau" /><button class="btn-primary">Envoyer</button></div>
-                </form>
+            @if ($observations->isNotEmpty())
+            <x-section title="Observations récentes">
                 @foreach ($observations as $o)
-                    <div class="mt-3 border-t border-slate-100 pt-2 text-sm"><x-badge :color="['info' => 'slate', 'watch' => 'amber', 'alert' => 'red'][$o->severity]">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> {{ $o->body }}<p class="text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</p></div>
+                    <div class="border-t border-slate-100 py-2.5 text-sm first:border-0 first:pt-0"><x-badge :color="['info' => 'slate', 'watch' => 'amber', 'alert' => 'red'][$o->severity]">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> {{ $o->body }}<p class="mt-0.5 text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</p></div>
                 @endforeach
             </x-section>
             @endif
 
-            @if ($treatments->isNotEmpty())
-            <x-section title="Traitements en cours">
-                @foreach ($treatments as $t)<p class="border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $t->product }}</span><span class="block text-xs text-slate-500">{{ $t->dosage }} · {{ $t->frequency }} {{ $t->ends_on ? '· fin '.$t->ends_on->format('d/m') : '' }}</span></p>@endforeach
-            </x-section>
-            @endif
-
-            @if ($events->isNotEmpty())
-            <x-section title="À venir" :action="route('calendar.index', ['horse' => $horse->id])">
-                @foreach ($events as $e)<a href="{{ route('calendar.show', $e) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $e->starts_at->format('d/m H:i') }}</span> {{ $e->title }}</a>@endforeach
-            </x-section>
-            @endif
 
             <x-section title="Propriétaires et détenteurs">
                 @foreach ($horse->ownerships->sortBy('ended_on') as $o)
@@ -162,8 +142,9 @@
             @endif
 
             @if ($can('horse.manage'))
-            <x-section title="Gestion du dossier">
-                <div class="space-y-3 text-sm">
+            <details id="gestion" class="card group p-5 sm:p-6" x-data x-init="const o = () => { if (location.hash === '#gestion') { $el.open = true; $el.scrollIntoView({ behavior: 'smooth' }) } }; o(); window.addEventListener('hashchange', o)">
+                <summary class="flex cursor-pointer list-none items-center justify-between text-[17px] font-semibold text-slate-900">Gestion du dossier <x-icon name="chevron" class="size-5 text-slate-400 transition group-open:rotate-90" /></summary>
+                <div class="mt-4 space-y-5 text-sm">
                     @if ($transferTargets->isNotEmpty())
                         <form method="POST" action="{{ route('horses.transfer', $horse) }}" class="space-y-2" onsubmit="return confirm('Transférer la gestion de ce cheval ? L\'historique est conservé.')">
                             @csrf
@@ -171,23 +152,31 @@
                             <button class="btn-secondary w-full">Transférer</button>
                         </form>
                     @endif
-                    <a href="{{ route('horses.history', $horse) }}" class="btn-ghost w-full">Historique des accès et modifications</a>
-                    @if ($horse->isArchived())
-                        <form method="POST" action="{{ route('horses.unarchive', $horse) }}">@csrf<button class="btn-secondary w-full">Restaurer</button></form>
-                    @else
-                        <form method="POST" action="{{ route('horses.archive', $horse) }}" onsubmit="return confirm('Archiver ce cheval ? Son dossier sera conservé en lecture seule.')">@csrf<button class="btn-secondary w-full">Archiver (départ, décès, vente…)</button></form>
-                    @endif
-                    <details><summary class="cursor-pointer text-red-600">Supprimer le dossier</summary>
-                        <form method="POST" action="{{ route('horses.destroy', $horse) }}" class="mt-2 space-y-2">
-                            @csrf @method('DELETE')
-                            <p class="text-xs text-slate-600">Le dossier sera supprimé pour tous les utilisateurs, puis définitivement effacé après 30 jours. Préférez l'archivage pour conserver l'historique.</p>
-                            <x-field name="confirm_name" :label="'Tapez « '.$horse->official_name.' » pour confirmer'" />
-                            <button class="btn-danger w-full">Supprimer</button>
-                        </form>
-                    </details>
+                    <form method="POST" action="{{ route('horses.destroy', $horse) }}" class="space-y-2 rounded-2xl bg-red-50/60 p-4">
+                        @csrf @method('DELETE')
+                        <p class="font-semibold text-red-700">Supprimer le dossier</p>
+                        <p class="text-xs text-slate-600">Le dossier sera supprimé pour tous les utilisateurs, puis définitivement effacé après 30 jours. Préférez l'archivage pour conserver l'historique.</p>
+                        <x-field name="confirm_name" :label="'Tapez « '.$horse->official_name.' » pour confirmer'" />
+                        <button class="btn-danger w-full">Supprimer définitivement</button>
+                    </form>
                 </div>
-            </x-section>
+            </details>
             @endif
         </div>
     </div>
+
+    @if ($can('comments.create'))
+    <dialog id="observation" class="m-auto w-[calc(100%-2rem)] max-w-md rounded-3xl p-0 backdrop:bg-slate-900/40">
+        <form method="POST" action="{{ route('horses.observations.store', $horse) }}" class="space-y-4 p-6">
+            @csrf
+            <div class="flex items-start justify-between gap-2">
+                <div><h2 class="text-lg font-semibold">Signaler une observation</h2><p class="text-sm text-slate-500">Les personnes concernées sont prévenues.</p></div>
+                <button type="button" class="btn-icon border-0" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
+            </div>
+            <x-textarea name="body" rows="3" placeholder="Boiterie, plaie, comportement inhabituel…" required aria-label="Observation" />
+            <x-select name="severity" label="Niveau" :options="\App\Models\HealthObservation::SEVERITIES" value="info" />
+            <button class="btn-primary w-full">Envoyer</button>
+        </form>
+    </dialog>
+    @endif
 </x-layouts.app>

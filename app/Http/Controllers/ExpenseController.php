@@ -52,6 +52,8 @@ class ExpenseController extends Controller
                 'by_month' => (clone $yearQuery)->get(['spent_on', 'amount'])->groupBy(fn ($e) => (int) $e->spent_on->format('n'))->map(fn ($g) => $g->sum('amount')),
             ],
             'horses' => Horse::whereIn('id', (clone $query)->whereNotNull('expenses.horse_id')->distinct()->pluck('expenses.horse_id')->merge($creatable->pluck('id')))->orderBy('official_name')->pluck('official_name', 'id'),
+            // Ouvert depuis le dossier d'un cheval : la page garde l'en-tête et les onglets du cheval.
+            'contextHorse' => ($h = $request->integer('horse') ? Horse::find($request->integer('horse')) : null) && $access->can($user, $h, Perm::EXPENSES_VIEW) ? $h : null,
             'creatableHorses' => $creatable->pluck('official_name', 'id'),
             'canOrgExpense' => $user->canInOrg($this->currentOrganization(), Perm::EXPENSES_ORG_VIEW) && $this->entitlements()->writable($this->currentOrganization()),
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),

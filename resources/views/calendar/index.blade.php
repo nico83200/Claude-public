@@ -4,6 +4,8 @@
     $q = fn ($d, $v = null) => array_filter(['view' => $v ?? $view, 'date' => $d->toDateString(), 'horse' => request('horse'), 'type' => request('type')]);
     $byDay = $occurrences->groupBy(fn ($o) => $o['at']->toDateString());
     $colors = ['red' => 'bg-red-100 text-red-800', 'amber' => 'bg-amber-100 text-amber-800', 'rose' => 'bg-rose-100 text-rose-800', 'purple' => 'bg-violet-100 text-violet-800', 'emerald' => 'bg-emerald-100 text-emerald-800', 'teal' => 'bg-teal-100 text-teal-800', 'blue' => 'bg-blue-100 text-blue-800', 'lime' => 'bg-lime-100 text-lime-800', 'slate' => 'bg-slate-100 text-slate-700', 'sky' => 'bg-sky-100 text-sky-800'];
+    $dots = ['red' => 'bg-red-500', 'amber' => 'bg-amber-500', 'rose' => 'bg-rose-500', 'purple' => 'bg-violet-500', 'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'blue' => 'bg-blue-500', 'lime' => 'bg-lime-500', 'slate' => 'bg-slate-400', 'sky' => 'bg-sky-500'];
+    $dot = fn ($ev) => $dots[\App\Models\CalendarEvent::COLORS[$ev->type] ?? 'sky'];
     $chip = fn ($ev) => $colors[\App\Models\CalendarEvent::COLORS[$ev->type] ?? 'sky'];
 @endphp
 <x-layouts.app title="Calendrier">
@@ -13,26 +15,25 @@
         @endif
     </x-page-header>
 
-    <div class="mb-4 flex flex-wrap items-center gap-2">
-        <div class="flex rounded-lg border border-slate-300 bg-white">
-            <a href="{{ route('calendar.index', $q($prev)) }}" class="btn-ghost px-3" aria-label="Précédent"><x-icon name="back" class="size-4" /></a>
-            <a href="{{ route('calendar.index', $q(now())) }}" class="btn-ghost px-3 text-sm">Aujourd'hui</a>
-            <a href="{{ route('calendar.index', $q($next)) }}" class="btn-ghost px-3" aria-label="Suivant"><x-icon name="chevron" class="size-4" /></a>
+    <div class="mb-3 flex flex-wrap items-center gap-2">
+        <div class="flex shrink-0 items-center rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
+            <a href="{{ route('calendar.index', $q($prev)) }}" class="flex size-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Précédent"><x-icon name="back" class="size-4" /></a>
+            <a href="{{ route('calendar.index', $q(now())) }}" class="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">Aujourd'hui</a>
+            <a href="{{ route('calendar.index', $q($next)) }}" class="flex size-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Suivant"><x-icon name="chevron" class="size-4" /></a>
         </div>
-        <div class="flex rounded-lg border border-slate-300 bg-white text-sm">
-            @foreach (['day' => 'Jour', 'week' => 'Semaine', 'month' => 'Mois'] as $v => $label)
-                <a href="{{ route('calendar.index', $q($date, $v)) }}" class="px-3 py-2 {{ $view === $v ? 'bg-brand-600 font-semibold text-white' : 'text-slate-600' }} first:rounded-l-lg last:rounded-r-lg">{{ $label }}</a>
+        <div class="ml-auto flex shrink-0 items-center rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200/70">
+            @foreach (['day' => 'Jour', 'week' => 'Sem.', 'month' => 'Mois'] as $v => $label)
+                <a href="{{ route('calendar.index', $q($date, $v)) }}" @if ($view === $v) aria-current="page" @endif class="rounded-full px-3 py-1.5 font-medium {{ $view === $v ? 'bg-brand-800 text-white' : 'text-slate-600 hover:bg-slate-100' }}">{{ $label }}</a>
             @endforeach
         </div>
-        <form method="GET" class="flex flex-wrap gap-2">
-            <input type="hidden" name="view" value="{{ $view }}"><input type="hidden" name="date" value="{{ $date->toDateString() }}">
-            <x-select name="horse" :options="$horses" :value="request('horse')" placeholder="Tous les chevaux" onchange="this.form.submit()" aria-label="Cheval" />
-            <x-select name="type" :options="\App\Models\CalendarEvent::TYPES" :value="request('type')" placeholder="Tous les types" onchange="this.form.submit()" aria-label="Type" />
-        </form>
     </div>
+    <x-filters :fields="['horse', 'type']" :keep="['view' => $view, 'date' => $date->toDateString()]">
+        <x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />
+        <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="request('type')" placeholder="Tous" />
+    </x-filters>
 
     @if ($view === 'month')
-        <div class="hidden overflow-hidden rounded-xl border border-slate-200 bg-white md:block">
+        <div class="card hidden overflow-hidden md:block">
             <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-semibold text-slate-500 uppercase">@foreach (['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] as $d)<div class="py-2">{{ $d }}</div>@endforeach</div>
             <div class="grid grid-cols-7">
                 @for ($d = $from->copy(); $d->lte($to); $d->addDay())
@@ -52,13 +53,19 @@
     <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3">
         @forelse ($byDay as $day => $items)
             <div>
-                <p class="mb-1 text-sm font-semibold text-slate-600">{{ ucfirst(\Illuminate\Support\Carbon::parse($day)->translatedFormat('l j F')) }}</p>
-                <div class="space-y-1.5">
+                @php $dayC = \Illuminate\Support\Carbon::parse($day); @endphp
+                <p class="mb-2 text-sm font-semibold text-slate-500">{{ $dayC->isToday() ? 'Aujourd\'hui' : ($dayC->isTomorrow() ? 'Demain' : ucfirst($dayC->translatedFormat('l j F'))) }}</p>
+                <div class="card divide-y divide-slate-100">
                     @foreach ($items as $o)
-                        <a href="{{ route('calendar.show', $o['event']) }}" class="card flex items-center gap-3 p-3 {{ $o['event']->status === 'cancelled' ? 'opacity-60' : '' }}">
-                            <span class="w-14 shrink-0 text-center text-sm font-semibold">{{ $o['event']->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
-                            <span class="min-w-0 flex-1"><span class="block truncate font-medium {{ $o['event']->status === 'cancelled' ? 'line-through' : '' }}">{{ $o['event']->title }}</span><span class="text-xs text-slate-500">{{ $o['event']->horse?->shortName() }} {{ $o['event']->professional ? '· '.$o['event']->professional->fullName() : '' }} {{ $o['event']->recurrence ? '· récurrent' : '' }}</span></span>
-                            <span class="chip {{ $chip($o['event']) }}">{{ \App\Models\CalendarEvent::TYPES[$o['event']->type] }}</span>
+                        @php $ev = $o['event']; @endphp
+                        <a href="{{ route('calendar.show', $ev) }}" class="flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
+                            <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
+                            <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-slate-900 {{ $ev->status === 'cancelled' ? 'line-through' : '' }}">{{ $ev->title }}</span>
+                                <span class="block text-xs text-slate-500">{{ collect([\App\Models\CalendarEvent::TYPES[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
+                            </span>
+                            <x-icon name="chevron" class="size-4 shrink-0 text-slate-300" />
                         </a>
                     @endforeach
                 </div>
@@ -68,7 +75,7 @@
         @endforelse
     </div>
 
-    <dialog id="new-event" class="m-auto w-full max-w-2xl rounded-2xl p-0 backdrop:bg-slate-900/40">
+    <dialog id="new-event" class="m-auto w-[calc(100%-2rem)] max-w-2xl rounded-3xl p-0 backdrop:bg-slate-900/40">
         <form method="POST" action="{{ route('calendar.store') }}" class="space-y-4 p-5">
             @csrf
             <input type="hidden" name="return_view" value="{{ $view }}">

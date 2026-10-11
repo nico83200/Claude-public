@@ -1,18 +1,39 @@
 <x-layouts.app :title="'Séance · '.$session->horse->shortName()">
-    <x-page-header :title="$session->horse->shortName().' · '.$session->typeLabel()" :subtitle="$session->scheduled_at->translatedFormat('l j F Y à H:i').' · '.$session->riderLabel()" :back="route('sessions.index', ['horse' => $session->horse_id])">
+    <div class="mb-6" x-data="{ more: false }">
+        <a href="{{ route('sessions.index', ['horse' => $session->horse_id]) }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Séances de {{ $session->horse->shortName() }}</a>
+        <div class="flex items-start gap-3">
+            <div class="min-w-0 flex-1">
+                <h1 class="text-[26px] leading-tight font-bold break-words sm:text-[32px]">{{ $session->typeLabel() }}</h1>
+                <p class="mt-1 text-[15px] text-slate-500">{{ ucfirst($session->scheduled_at->translatedFormat('l j F à H:i')) }} · {{ $session->horse->shortName() }} · {{ $session->riderLabel() }}</p>
+            </div>
+            <div class="relative shrink-0" @keydown.escape.window="more = false">
+                <button type="button" class="btn-icon" @click="more = ! more" :aria-expanded="more" aria-haspopup="menu" aria-label="Plus d'actions"><x-icon name="dots" /></button>
+                <div x-cloak x-show="more" x-transition.origin.top.right @click.outside="more = false" role="menu" class="absolute right-0 z-40 mt-2 w-60 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl">
+                    @if ($canCreate)<form method="POST" action="{{ route('sessions.duplicate', $session) }}">@csrf<button class="menu-item" role="menuitem"><x-icon name="plus" class="size-4 text-slate-400" /> Dupliquer la séance</button></form>@endif
+                    <button type="button" class="menu-item" role="menuitem" @click="more = false; document.getElementById('save-template').showModal()"><x-icon name="book" class="size-4 text-slate-400" /> Enregistrer comme modèle</button>
+                    @if ($canEdit)
+                        <div class="my-1 border-t border-slate-100"></div>
+                        <x-confirm-delete :action="route('sessions.destroy', $session)" message="Supprimer cette séance ?" class="menu-item text-red-600"><x-icon name="trash" class="size-4" /> Supprimer la séance</x-confirm-delete>
+                    @endif
+                </div>
+            </div>
+        </div>
         @if ($canEdit && ! $session->isCompleted())
-            <a href="{{ route('sessions.live', $session) }}" class="btn-primary"><x-icon name="play" /> Mode séance</a>
-            <a href="{{ route('sessions.edit', $session) }}" class="btn-secondary">Préparer</a>
-            <a href="{{ route('sessions.debrief', $session) }}" class="btn-secondary">Bilan</a>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <a href="{{ route('sessions.live', $session) }}" class="btn-primary"><x-icon name="play" class="size-4" /> Démarrer</a>
+                <a href="{{ route('sessions.edit', $session) }}" class="btn-secondary"><x-icon name="pencil" class="size-4" /> Préparer</a>
+                <a href="{{ route('sessions.debrief', $session) }}" class="btn-secondary"><x-icon name="check" class="size-4" /> Bilan</a>
+            </div>
         @endif
-        @if ($canCreate)<form method="POST" action="{{ route('sessions.duplicate', $session) }}">@csrf<button class="btn-ghost">Dupliquer</button></form>@endif
-    </x-page-header>
+    </div>
 
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             <x-section>
-                <div class="mb-3 flex flex-wrap gap-1"><x-badge :color="$session->isCompleted() ? 'green' : 'slate'">{{ \App\Models\RidingSession::STATUSES[$session->status] }}</x-badge>@if ($session->discipline)<x-badge>{{ \App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline }}</x-badge>@endif</div>
-                <x-dl :items="['Objectif' => $session->objective, 'Durée prévue' => $session->planned_minutes ? $session->planned_minutes.' min' : null, 'Durée réelle' => $session->actual_minutes ? $session->actual_minutes.' min' : null, 'Lieu' => $session->location, 'État avant la séance' => $session->horse_state_before, 'Précautions' => $session->precautions, 'Notes' => $session->notes]" />
+                <div class="flex flex-wrap gap-1.5"><x-badge :color="$session->isCompleted() ? 'green' : ($session->status === 'in_progress' ? 'amber' : 'slate')">{{ \App\Models\RidingSession::STATUSES[$session->status] }}</x-badge>@if ($session->discipline)<x-badge>{{ \App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline }}</x-badge>@endif @if ($session->actual_minutes || $session->planned_minutes)<x-badge color="brand">{{ $session->actual_minutes ?: $session->planned_minutes }} min</x-badge>@endif</div>
+                @if ($session->objective)<p class="mt-3 text-lg font-medium text-slate-900">{{ $session->objective }}</p>@endif
+                <div class="mt-4"></div>
+                <x-dl :items="['Durée prévue' => $session->planned_minutes ? $session->planned_minutes.' min' : null, 'Durée réelle' => $session->actual_minutes ? $session->actual_minutes.' min' : null, 'Lieu' => $session->location, 'État avant la séance' => $session->horse_state_before, 'Précautions' => $session->precautions, 'Notes' => $session->notes]" />
             </x-section>
 
             <x-section title="Exercices">
@@ -50,9 +71,9 @@
 
         <div class="space-y-4">
             <x-section title="Commentaires">
-                @forelse ($session->comments as $c)<div class="border-t border-slate-100 py-2 text-sm first:border-0"><p class="whitespace-pre-line">{{ $c->body }}</p><p class="text-xs text-slate-500">{{ $c->author?->name }} · {{ $c->created_at->format('d/m H:i') }}</p></div>@empty<p class="text-sm text-slate-500">Aucun commentaire.</p>@endforelse
+                @forelse ($session->comments as $c)<div class="border-t border-slate-100 py-2 text-sm first:border-0"><p class="whitespace-pre-line">{{ $c->body }}</p><p class="text-xs text-slate-500">{{ $c->author?->name }} · {{ $c->created_at->format('d/m H:i') }}</p></div>@empty<p class="text-sm text-slate-500">Aucun commentaire pour le moment.</p>@endforelse
                 @if ($canComment)
-                    <form method="POST" action="{{ route('sessions.comments.store', $session) }}" class="mt-2 space-y-2">@csrf<x-textarea name="body" rows="2" required aria-label="Commentaire" /><button class="btn-secondary w-full">Commenter</button></form>
+                    <form method="POST" action="{{ route('sessions.comments.store', $session) }}" class="mt-3 flex items-end gap-2">@csrf<textarea name="body" rows="1" required aria-label="Commentaire" placeholder="Ajouter un commentaire…" class="input min-h-11 flex-1 resize-none" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'"></textarea><button class="btn-primary size-11 shrink-0 p-0" aria-label="Commenter"><x-icon name="send" class="size-5" /></button></form>
                 @endif
             </x-section>
             @if ($previous->isNotEmpty())
@@ -60,12 +81,19 @@
                 @foreach ($previous as $p)<a href="{{ route('sessions.show', $p) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $p->scheduled_at->format('d/m') }}</span> {{ $p->typeLabel() }}@if ($p->to_rework)<span class="block text-xs text-amber-700">À retravailler : {{ \Illuminate\Support\Str::limit($p->to_rework, 80) }}</span>@endif @if ($p->next_objectives)<span class="block text-xs text-slate-500">Objectif suivant : {{ \Illuminate\Support\Str::limit($p->next_objectives, 80) }}</span>@endif</a>@endforeach
             </x-section>
             @endif
-            <x-section title="Modèle">
-                <form method="POST" action="{{ route('sessions.template', $session) }}" class="space-y-2">@csrf<x-field name="name" label="Enregistrer comme modèle" placeholder="Nom du modèle" required /><x-checkbox name="share" label="Partager dans l'espace (écurie)" /><button class="btn-secondary w-full">Créer le modèle</button></form>
-            </x-section>
-            @if ($canEdit)
-                <x-confirm-delete :action="route('sessions.destroy', $session)" message="Supprimer cette séance ?" label="Supprimer la séance" />
-            @endif
         </div>
     </div>
+
+    <dialog id="save-template" class="m-auto w-[calc(100%-2rem)] max-w-md rounded-3xl p-0 backdrop:bg-slate-900/40">
+        <form method="POST" action="{{ route('sessions.template', $session) }}" class="space-y-4 p-6">
+            @csrf
+            <div class="flex items-start justify-between gap-2">
+                <div><h2 class="text-lg font-semibold">Enregistrer comme modèle</h2><p class="text-sm text-slate-500">Réutilisez ces exercices pour une prochaine séance.</p></div>
+                <button type="button" class="btn-icon border-0" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
+            </div>
+            <x-field name="name" label="Nom du modèle" required />
+            <x-checkbox name="share" label="Partager dans l'espace (écurie)" />
+            <button class="btn-primary w-full">Créer le modèle</button>
+        </form>
+    </dialog>
 </x-layouts.app>

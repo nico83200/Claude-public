@@ -1,6 +1,5 @@
 <x-layouts.app :title="'Suivi quotidien · '.$horse->shortName()">
-    <x-page-header :title="$horse->shortName()" subtitle="Suivi quotidien" :back="route('horses.show', $horse)" />
-    @include('horses._tabs')
+    <x-horse-header :horse="$horse" />
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-2 lg:col-span-2">
             @forelse ($logs as $log)

@@ -38,6 +38,23 @@ class FeaturesTest extends TestCase
         }
     }
 
+    public function test_horse_pages_share_one_header_with_actions_menu_and_tabs(): void
+    {
+        $user = $this->user();
+        $this->grantLicense($user->personalOrganization());
+        $horse = $this->horseFor($user);
+        $other = $this->horseFor($this->user());
+        foreach (["/chevaux/{$horse->id}", "/chevaux/{$horse->id}/sante", "/chevaux/{$horse->id}/alimentation", "/seances?horse={$horse->id}", "/budget?horse={$horse->id}"] as $url) {
+            $this->actingAs($user)->get($url)->assertOk()
+                ->assertSee('aria-label="Sections du dossier"', false)
+                ->assertSee("aria-label=\"Plus d'actions\"", false)
+                ->assertSee(route('horses.archive', $horse), false);
+        }
+        // Un cheval inaccessible passé en filtre ne fait pas apparaître son en-tête.
+        $this->actingAs($user)->get("/seances?horse={$other->id}")->assertOk()->assertDontSee('Sections du dossier');
+        $this->actingAs($user)->get("/budget?horse={$other->id}")->assertOk()->assertDontSee('Sections du dossier');
+    }
+
     public function test_horse_sharing_invitation_flow(): void
     {
         Notification::fake();

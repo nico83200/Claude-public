@@ -60,8 +60,10 @@
     /* Jamais de défilement horizontal : sur téléphone il décale la barre fixe du bas et fait dézoomer la page.
        « clip » (et non « hidden ») préserve les éléments collants (en-tête). */
     html, body { overflow-x: clip; max-width: 100%; overscroll-behavior-y: none; }
-    /* Les éléments de grille et de flex peuvent rétrécir sous la largeur de leur contenu. */
-    .grid > *, .flex > * { min-width: 0; }
+    /* Les éléments de grille et de flex (sur une ligne) peuvent rétrécir sous la largeur de leur contenu.
+       Pas pour les flex qui passent à la ligne : un titre s'y écraserait lettre par lettre au lieu de laisser
+       les boutons descendre. */
+    .grid > *, .flex:not(.flex-wrap) > * { min-width: 0; }
     .flex > svg, .flex > img, .flex > form.inline, .flex > button { flex-shrink: 0; }
     /* Mots longs (noms, emails, liens) : retour à la ligne plutôt que débordement. */
     .card, .card *, main p, main dd, main li, main h1, main h2, main h3 { overflow-wrap: break-word; }
@@ -91,6 +93,9 @@
 @utility link { @apply font-medium text-brand-700 underline-offset-4 hover:underline; }
 @utility table-wrap { @apply overflow-x-auto rounded-3xl bg-white; box-shadow: var(--shadow-card); }
 @utility chip { @apply inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap; }
+@utility btn-icon { @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-100; }
+@utility pill { @apply inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium whitespace-nowrap transition; }
+@utility menu-item { @apply flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-100; }
 @utility big-touch { @apply min-h-14 text-base; }
 
 @layer components {
@@ -98,6 +103,14 @@
     .table th { @apply bg-white px-4 py-3 text-left text-xs font-medium text-slate-500; }
     .table td { @apply px-4 py-3 align-top; }
 }
+
+/* Barres d'onglets / filtres défilantes, sans barre de défilement visible */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+/* Champ fichier : bouton arrondi cohérent avec le reste */
+input[type=file]::file-selector-button { margin-right: .75rem; border: 1px solid var(--color-slate-200); border-radius: 9999px; background: #fff; padding: .5rem 1rem; font-weight: 600; font-size: .875rem; color: var(--color-slate-800); cursor: pointer; }
+/* Champs date/heure vides : pas de « mm/dd/yyyy » gris trop présent */
+input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-400); }
 
 /* Préparation de séance : glisser-déposer */
 .drop-zone:has([data-token]) > .empty-hint { margin-top: 0.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; font-size: 0.75rem; opacity: 0.7; }
