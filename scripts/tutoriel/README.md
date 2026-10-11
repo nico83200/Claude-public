@@ -15,3 +15,9 @@ Outils utilisés pour produire `public/videos/tutoriel-mobile.mp4` à partir de 
 
 Pour modifier le tutoriel : changer le texte ou les actions d'une scène, relancer, puis copier
 `tutoriel-mobile.mp4/.vtt/.jpg` dans `public/videos/` et mettre à jour `docs/TUTORIEL-VOIX-OFF.md`.
+
+## Voix off
+
+6. Avec un enregistrement de la voix off : `python3 scripts/tutoriel/caler-voix.py <dossier>` recale chaque scène
+   sur la durée réelle de son paragraphe (accélération ou ralenti léger des images), intègre le son (AAC dans le MP4,
+   Opus dans le WebM à produire ensuite) et cale les sous-titres sur les phrases détectées.
