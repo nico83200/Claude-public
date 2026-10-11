@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { computeOption, paymentSchedule, sellFromCost, vatOnMargin, defaultQty } from '../assets/js/pricing.js';
 import { durationBetween, itemDuration, fmtDuration, zonedToUtc, sortChrono } from '../assets/js/time.js';
-import { runChecks, generateDays, uncoveredRanges } from '../assets/js/checks.js';
+import { runChecks, generateDays, uncoveredRanges, dayRangeLabel } from '../assets/js/checks.js';
 import { hotelsComUrl, splitRooms, parseAges } from '../assets/js/search-links.js';
 
 const settings = { devise_base: 'EUR', tva_regime: 'marge', tva_taux: '20', securite_change: '0' };
@@ -153,7 +153,8 @@ test('programme généré depuis les prestations', () => {
     { type: 'hebergement', libelle: 'Hôtel Riva', date_debut: '2027-06-14', date_fin: '2027-06-16' },
   ] };
   const days = generateDays({ date_depart: '2027-06-13', date_retour: '2027-06-16' }, option);
-  assert.equal(days.length, 4);
+  assert.equal(days.length, 3); // J1 vol, J2–J3 hôtel (regroupés), J4 départ
+  assert.equal(days[1].jour_fin, 3);
   assert.equal(days[0].titre, 'Paris ✈ Bangkok');
   assert.equal(days[1].lieu, 'Hôtel Riva');
 });
@@ -236,4 +237,27 @@ test('insertion : pas de trajet « A → A », libellés par défaut', () => {
   assert.equal(v.lieu_depart, 'BCN');
   assert.equal(v.lieu_arrivee, undefined);
   assert.equal(defaultsBetween(tr, null, 'activite').libelle, 'Excursion');
+});
+
+test('programme : jours de croisière regroupés (« Jours 3 à 9 »)', () => {
+  const option = { items: [
+    { type: 'vol', libelle: 'Vol MRS → LPA', date_debut: '2026-12-16', date_fin: '2026-12-16', lieu_depart: 'MRS', lieu_arrivee: 'LPA' },
+    { type: 'croisiere', libelle: 'Las Palmas - Las Palmas', navire: 'MSC Fantasia', pension: 'FB', date_debut: '2026-12-18', date_fin: '2026-12-25' },
+    { type: 'activite', libelle: 'Excursion Teide', date_debut: '2026-12-21' },
+    { type: 'vol', libelle: 'Vol LPA → MRS', date_debut: '2026-12-26', date_fin: '2026-12-27', lieu_depart: 'LPA', lieu_arrivee: 'MRS' },
+  ] };
+  const days = generateDays({ date_depart: '2026-12-16', date_retour: '2026-12-27' }, option);
+  const summary = days.map((d) => `${dayRangeLabel(d, true)} ${d.titre}`);
+  assert.deepEqual(summary, [
+    'J1 Marseille ✈ Gran Canaria',
+    'J2 Journée libre',
+    'J3–J5 Croisière à bord du MSC Fantasia',
+    'J6 Excursion Teide',
+    'J7–J9 Croisière à bord du MSC Fantasia',
+    'J10 Débarquement',
+    'J11 Gran Canaria ✈ Marseille',
+    'J12 Arrivée à Marseille',
+  ]);
+  assert.equal(dayRangeLabel(days[2]), 'Jours 3 à 5');
+  assert.equal(days[2].lieu, 'À bord');
 });

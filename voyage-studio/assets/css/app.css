@@ -427,3 +427,14 @@ label.inline { display: inline-flex; align-items: center; gap: .4rem; margin-rig
 .type-chips { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; padding: .4rem; background: var(--surface-2); border: 1px dashed var(--section); border-radius: 8px; }
 .kbd-hint { margin-right: auto; }
 @media (hover: none) { .tl-plus { opacity: .8; } }
+/* Durées sur plusieurs jours ------------------------------------------------- */
+.tl-range { display: inline-flex; gap: .3rem; align-items: baseline; margin: .25rem 0 .1rem; padding: .15rem .55rem; border-radius: 6px;
+  background: color-mix(in srgb, var(--c, #64748b) 12%, #fff); color: color-mix(in srgb, var(--c, #64748b) 80%, #000); font-size: .88rem; }
+.tl-range span { color: var(--muted); }
+.tl-end { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap; margin: 0 0 .35rem; padding: .35rem .6rem; font-size: .85rem;
+  border-left: 5px solid var(--c, #64748b); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--c, #64748b) 6%, #fff); }
+.days li.range .day-n { color: var(--brand); }
+.day-n { display: flex; flex-direction: column; min-width: 64px; }
+.day-n small { font-weight: 400; color: var(--muted); font-size: .75rem; }
+.days li { grid-template-columns: 72px 1fr auto; }
+.q-days li { grid-template-columns: 100px 1fr; }

@@ -245,6 +245,7 @@ final class Schema
                 'fields' => [
                     'option_id' => ['type' => 'fk', 'ref' => 'options', 'label' => 'Variante', 'required' => true, 'hidden' => true],
                     'jour' => ['type' => 'int', 'label' => 'Jour n°', 'required' => true],
+                    'jour_fin' => ['type' => 'int', 'label' => 'Jusqu\'au jour n° (facultatif)', 'help' => 'Pour regrouper plusieurs jours, ex. une croisière du jour 3 au jour 9'],
                     'titre' => ['type' => 'string', 'label' => 'Titre', 'required' => true, 'help' => 'ex : Paris ✈ Bangkok'],
                     'lieu' => ['type' => 'string', 'label' => 'Lieu de nuit'],
                     'repas' => ['type' => 'string', 'label' => 'Repas inclus', 'help' => 'ex : P / D / —'],

@@ -7,9 +7,9 @@ import {
   toast, errorToast, ITEM_ICONS, TYPE_COLORS, enumLabel, refLabel, emptyState,
 } from '../ui.js';
 import { computeOption, paymentSchedule } from '../pricing.js';
-import { fmtDuration, itemDuration, todayIso, daysBetween, sortChrono } from '../time.js';
+import { fmtDuration, itemDuration, todayIso, daysBetween, sortChrono, addDays } from '../time.js';
 import { airport } from '../airports.js';
-import { runChecks, generateDays, uncoveredRanges } from '../checks.js';
+import { runChecks, generateDays, uncoveredRanges, dayRangeLabel } from '../checks.js';
 import { quickCreate } from './trips.js';
 import { openAiImport, aiSummary } from './ai-import.js';
 import { hotelsComUrl, parseAges } from '../search-links.js';
@@ -153,7 +153,6 @@ function itemDetails(i, line) {
   if (i.chambre) parts.push(esc(i.chambre));
   if (i.pension) parts.push(esc(enumLabel('items', 'pension', i.pension)));
   if (i.mode_transfert) parts.push(esc(enumLabel('items', 'mode_transfert', i.mode_transfert)));
-  if (['hebergement', 'croisiere', 'location'].includes(i.type) && i.date_fin) parts.push(`${daysBetween(i.date_debut, i.date_fin)} nuit(s) · jusqu'au ${date(i.date_fin)}`);
   if (i.supplier_id) parts.push(`🏢 ${esc(refLabel('suppliers', i.supplier_id))}`);
   if (i.ref_reservation) parts.push(`Réf. ${esc(i.ref_reservation)}`);
   if (line) {
@@ -162,6 +161,22 @@ function itemDetails(i, line) {
   }
   return parts.join(' · ');
 }
+
+/** Bandeau « du … au … » pour une prestation qui dure plusieurs jours. */
+function rangeChip(i) {
+  if (!i.date_debut || !i.date_fin || i.date_fin <= i.date_debut) return '';
+  const n = daysBetween(i.date_debut, i.date_fin);
+  const unit = ['hebergement', 'croisiere'].includes(i.type) ? `${n} nuit${n > 1 ? 's' : ''}`
+    : i.type === 'location' ? `${n} jour${n > 1 ? 's' : ''}`
+    : `arrivée J+${n}`;
+  return `<div class="tl-range" title="Du ${date(i.date_debut, true)} au ${date(i.date_fin, true)}">📅 <b>${dateShortDay(i.date_debut)}</b> → <b>${dateShortDay(i.date_fin)}</b> <span>· ${unit}</span></div>`;
+}
+
+function dateShortDay(d) {
+  return new Date(d + 'T00:00:00Z').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+}
+
+const END_LABELS = { hebergement: 'Départ de l\'hôtel', croisiere: 'Débarquement', location: 'Restitution du véhicule' };
 
 function itemsTimeline(c) {
   if (!c.lines.length) return emptyState('🧩', 'Ajoutez les prestations du voyage (vols, hôtels, croisière, transferts…) ou importez une capture d\'écran.');
@@ -188,9 +203,22 @@ function itemsTimeline(c) {
       <div class="gap-actions"><button class="btn small" data-gap-add="${r.from}|${r.to}">🏨 + Hébergement</button>
         <button class="btn small search-btn" data-gap-hotel="${r.from}|${r.to}">🔎 hotels.com</button></div>
     </div>`;
+ const ends = new Map();
+  for (const l of c.lines) {
+    const i = l.item;
+    if (END_LABELS[i.type] && i.date_fin && i.date_debut && i.date_fin > i.date_debut) {
+      if (!groups.has(i.date_fin)) groups.set(i.date_fin, []);
+      if (!ends.has(i.date_fin)) ends.set(i.date_fin, []);
+      ends.get(i.date_fin).push(i);
+    }
+  }
+  const endMarks = (d) => (ends.get(d) || []).map((i) => `<div class="tl-end" style="--c:${TYPE_COLORS[i.type]}">
+      <span class="tl-end-ico">${ITEM_ICONS[i.type]}</span> <b>Fin :</b> ${esc(END_LABELS[i.type])} — ${esc(i.libelle)}
+      <span class="muted">(depuis le ${date(i.date_debut)}, ${daysBetween(i.date_debut, i.date_fin)} ${i.type === 'location' ? 'j' : 'nuit(s)'})</span></div>`).join('');
   const slot = (after) => `<div class="tl-insert" data-insert="${after}"><button type="button" class="tl-plus" title="Insérer une prestation ici" aria-label="Insérer une prestation ici">+</button></div>`;
   return `<div class="timeline">${slot(-1)}${[...groups.entries()].sort(([a], [b]) => (a || '9999').localeCompare(b || '9999')).map(([d, lines]) => `
     <div class="tl-day"><div class="tl-date">${d ? `${date(d, true)}${start ? ` <span class="muted">· J${daysBetween(start, d) + 1}</span>` : ''}` : 'Sans date'}</div>
+    ${endMarks(d)}
     ${lines.map((l) => {
       const i = l.item;
       return `<div class="tl-item ${l.optional ? 'optional' : ''}" style="--c:${TYPE_COLORS[i.type] || '#64748b'}" data-item="${i.id}">
@@ -198,6 +226,7 @@ function itemsTimeline(c) {
         <div class="tl-body">
           <div class="tl-title"><b>${esc(i.libelle)}</b> ${l.optional ? '<span class="badge violet">En option</span>' : ''} ${badge('items', 'statut', i.statut)}
             ${i.statut === 'option' && i.date_limite_option ? `<span class="badge amber">jusqu'au ${date(i.date_limite_option)}</span>` : ''}</div>
+          ${rangeChip(i)}
           <div class="tl-details">${itemDetails(i, l)}</div>
         </div>
         <div class="tl-price">
@@ -276,8 +305,10 @@ function suggestionsPanel(opt, c) {
 function daysList(opt) {
   const days = opt.days || [];
   if (!days.length) return '<p class="muted">Aucun programme. Générez-le automatiquement depuis les prestations puis personnalisez-le.</p>';
-  return `<ol class="days">${days.map((d) => `<li data-day="${d.id}">
-    <div class="day-n">J${d.jour}</div>
+  const start = data.trip.date_depart;
+  const dayDate = (n) => (start ? date(addDays(start, n - 1)).slice(0, 5) : '');
+  return `<ol class="days">${days.map((d) => `<li data-day="${d.id}" class="${d.jour_fin > d.jour ? 'range' : ''}">
+    <div class="day-n">${dayRangeLabel(d, true)}${start ? `<small>${dayDate(d.jour)}${d.jour_fin > d.jour ? ` → ${dayDate(d.jour_fin)}` : ''}</small>` : ''}</div>
     <div class="day-body"><b>${esc(d.titre)}</b>${d.lieu ? ` <span class="muted">· nuit : ${esc(d.lieu)}</span>` : ''}${d.repas ? ` <span class="muted">· repas : ${esc(d.repas)}</span>` : ''}
       ${d.description ? `<p>${nl2br(d.description)}</p>` : ''}</div>
     <div class="tl-actions"><button class="icon-btn" data-act="edit-day">✎</button><button class="icon-btn danger" data-act="del-day">🗑</button></div></li>`).join('')}</ol>`;
@@ -667,7 +698,7 @@ async function onClick(e, el) {
       case 'gen-days': {
         const days = generateDays(t, opt);
         if (!days.length) { toast('Renseignez les dates du voyage ou des prestations', 'error'); break; }
-        if ((opt.days || []).length && !(await confirmDialog(`Remplacer les ${opt.days.length} jours existants par ${days.length} jours générés ?`, { label: 'Remplacer' }))) break;
+        if ((opt.days || []).length && !(await confirmDialog(`Remplacer le programme existant (${opt.days.length} étape(s)) par ${days.length} étape(s) générées ?`, { label: 'Remplacer' }))) break;
         for (const d of opt.days || []) await api.del(`days/${d.id}`);
         for (const d of days) await api.post('days', { ...d, option_id: opt.id });
         toast('Programme généré : personnalisez les descriptions');
@@ -675,7 +706,7 @@ async function onClick(e, el) {
         break;
       }
       case 'add-day':
-        if (await simpleDialog('days', { jour: (opt.days || []).length + 1 }, { option_id: opt.id }, 'Nouvelle journée')) await reload(el);
+        if (await simpleDialog('days', { jour: (opt.days || []).reduce((m, d) => Math.max(m, d.jour_fin || d.jour), 0) + 1 }, { option_id: opt.id }, 'Nouvelle journée')) await reload(el);
         break;
       case 'edit-day':
         if (await simpleDialog('days', opt.days.find((d) => d.id === dayId), {}, 'Modifier la journée')) await reload(el);

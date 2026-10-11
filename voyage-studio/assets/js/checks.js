@@ -204,23 +204,72 @@ export function generateDays(trip, option) {
   const start = trip.date_depart || dates[0];
   const end = trip.date_retour || dates[dates.length - 1];
   if (!start || !end) return [];
-  const days = [];
+  const STAYS = ['hebergement', 'croisiere'];
+  const cityName = (code) => airport(code)?.name.replace(/ (Charles-de-Gaulle|Orly|Suvarnabhumi|El Prat|Barajas|Schiphol|Heathrow|Gatwick|Changi|Sabiha Gökçen|Provence|Côte d'Azur|Saint-Exupéry|Blagnac|Mérignac)$/, '') || code || '';
+  const stayTitle = (s) => (s.type === 'croisiere'
+    ? `Croisière${s.navire ? ` à bord du ${s.navire}` : ''}`.replace(/^Croisière$/, s.libelle)
+    : s.libelle.replace(/\s+—.*$/, ''));
+
+  // 1. Une entrée par jour
+  const perDay = [];
   let n = 1;
-  for (let d = start; d <= end && n <= 60; d = addDays(d, 1), n++) {
-    const todays = items.filter((i) => i.date_debut === d);
-    const stay = items.find((i) => ['hebergement', 'croisiere'].includes(i.type) && i.date_debut <= d && d < (i.date_fin || i.date_debut));
+  for (let d = start; d <= end && n <= 90; d = addDays(d, 1), n++) {
+    const stay = items.find((i) => STAYS.includes(i.type) && i.date_debut <= d && d < (i.date_fin || addDays(i.date_debut, 1)));
+    // événements du jour autres que la poursuite d'un séjour déjà commencé
+    const todays = items.filter((i) => i.date_debut === d && !(i === stay));
     const moves = todays.filter((i) => ['vol', 'train'].includes(i.type));
+    const ending = items.filter((i) => STAYS.includes(i.type) && i.date_fin === d);
+    const landing = items.find((i) => ['vol', 'train'].includes(i.type) && i.date_fin === d && i.date_debut < d);
     let titre;
     if (moves.length) {
-      const name = (code) => airport(code)?.name.replace(/ (Charles-de-Gaulle|Orly|Suvarnabhumi|El Prat|Barajas|Schiphol|Heathrow|Gatwick|Changi)$/, '') || code || '';
-      titre = `${name(moves[0].lieu_depart)} ✈ ${name(moves[moves.length - 1].lieu_arrivee)}`.trim();
-    } else if (stay?.type === 'croisiere') {
-      titre = d === stay.date_debut ? 'Embarquement' : 'Croisière';
+      titre = `${cityName(moves[0].lieu_depart)} ✈ ${cityName(moves[moves.length - 1].lieu_arrivee)}`.trim();
+    } else if (landing) {
+      titre = `Arrivée à ${cityName(landing.lieu_arrivee)}`;
+    } else if (stay && stay.date_debut === d && stay.type === 'croisiere') {
+      titre = `Embarquement — ${stayTitle(stay)}`;
+    } else if (ending.length && !stay) {
+      titre = ending[0].type === 'croisiere' ? 'Débarquement' : 'Départ de l\'hôtel';
     } else {
-      titre = todays.find((i) => i.type === 'activite')?.libelle || (stay ? stay.libelle.replace(/^(Hôtel|Hotel)\s+/i, '') : 'Journée libre');
+      titre = todays.find((i) => i.type === 'activite')?.libelle || (stay ? stayTitle(stay) : 'Journée libre');
     }
     const desc = todays.map((i) => i.libelle + (i.heure_debut ? ` (${i.heure_debut})` : '')).join(' · ');
-    days.push({ jour: n, titre, lieu: stay ? (stay.type === 'croisiere' ? 'À bord' : stay.libelle) : '', description: desc, repas: stay?.pension || '' });
+    perDay.push({
+      jour: n, titre, stay, quiet: todays.length === 0 && !ending.length && !landing,
+      lieu: stay ? (stay.type === 'croisiere' ? 'À bord' : stay.libelle.replace(/\s+—.*$/, '')) : '',
+      description: desc, repas: BOARDS[stay?.pension] || '',
+    });
   }
-  return days;
+
+  // 2. Regroupe les jours consécutifs « calmes » passés dans le même séjour (ex. jours 3 à 9 : croisière)
+  const out = [];
+  for (const day of perDay) {
+    const last = out[out.length - 1];
+    const sameStay = last && day.stay && last._stay === day.stay;
+    if (sameStay && day.quiet && last._quiet) {
+      last.jour_fin = day.jour;
+      last._quiet = true;
+      continue;
+    }
+    out.push({
+      jour: day.jour, jour_fin: null, titre: day.titre, lieu: day.lieu, description: day.description, repas: day.repas,
+      _stay: day.stay, _quiet: day.quiet,
+    });
+  }
+  return out.map((d) => {
+    if (d.jour_fin && d._stay) {
+      const nights = d.jour_fin - d.jour + 1;
+      d.titre = stayTitle(d._stay);
+      d.description = [d.description, d._stay.type === 'croisiere' ? `${nights} jours de navigation et d'escales.` : `${nights} jours de séjour libre ou d'excursions.`].filter(Boolean).join(' ');
+    }
+    const { _stay, _quiet, ...rest } = d;
+    return rest;
+  });
+}
+
+const BOARDS = { RO: '', BB: 'Petit-déjeuner', HB: 'Petit-déjeuner et dîner', FB: 'Pension complète', AI: 'Tout inclus' };
+
+/** Libellé d'une journée ou d'une plage : « Jour 3 » ou « Jours 3 à 9 ». */
+export function dayRangeLabel(d, short = false) {
+  if (d.jour_fin && d.jour_fin > d.jour) return short ? `J${d.jour}–J${d.jour_fin}` : `Jours ${d.jour} à ${d.jour_fin}`;
+  return short ? `J${d.jour}` : `Jour ${d.jour}`;
 }

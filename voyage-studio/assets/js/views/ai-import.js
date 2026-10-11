@@ -145,7 +145,7 @@ export function aiSummary(data, opt, computed) {
       fin: [i.date_fin, i.heure_fin].filter(Boolean).join(' '), de: i.lieu_depart, vers: i.lieu_arrivee, compagnie: i.compagnie,
       numero: i.numero, escales: i.escales, categorie: i.categorie, chambre: i.chambre, pension: i.pension, statut: i.statut,
     })),
-    programme: (opt.days || []).map((d) => `J${d.jour} ${d.titre}`),
+    programme: (opt.days || []).map((d) => `${d.jour_fin > d.jour ? `J${d.jour}-J${d.jour_fin}` : `J${d.jour}`} ${d.titre}`),
     prix: { total: computed.totals.vente, par_personne: computed.totals.parPers, marge_pct: Math.round(computed.totals.tauxMarque) },
   };
 }

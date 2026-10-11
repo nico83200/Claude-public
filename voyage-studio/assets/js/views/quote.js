@@ -3,7 +3,8 @@
 import { api } from '../api.js';
 import { esc, nl2br, money, date, ITEM_ICONS, enumLabel, state } from '../ui.js';
 import { computeOption } from '../pricing.js';
-import { fmtDuration, itemDuration, daysBetween, todayIso, sortChrono } from '../time.js';
+import { fmtDuration, itemDuration, daysBetween, todayIso, sortChrono, addDays } from '../time.js';
+import { dayRangeLabel } from '../checks.js';
 import { airport } from '../airports.js';
 
 let opts = { detail: false, showPrices: false };
@@ -82,7 +83,7 @@ export async function render(el, [tripId, optionId]) {
         ${data.destination?.description ? `<p>${nl2br(data.destination.description)}</p>` : ''}
       </section>
 
-      ${(opt.days || []).length ? `<section><h2>Votre programme</h2><ol class="q-days">${opt.days.map((d) => `<li><div class="q-dn">Jour ${d.jour}${t.date_depart ? `<small>${date(new Date(Date.parse(t.date_depart) + (d.jour - 1) * 86400000).toISOString().slice(0, 10))}</small>` : ''}</div>
+      ${(opt.days || []).length ? `<section><h2>Votre programme</h2><ol class="q-days">${opt.days.map((d) => `<li><div class="q-dn">${dayRangeLabel(d)}${t.date_depart ? `<small>${d.jour_fin > d.jour ? `du ${date(addDays(t.date_depart, d.jour - 1)).slice(0, 5)} au ${date(addDays(t.date_depart, d.jour_fin - 1)).slice(0, 5)}` : date(addDays(t.date_depart, d.jour - 1))}</small>` : ''}</div>
         <div><b>${esc(d.titre)}</b>${d.description ? `<p>${nl2br(d.description)}</p>` : ''}${d.lieu || d.repas ? `<p class="muted">${d.lieu ? `Nuit : ${esc(d.lieu)}` : ''}${d.repas ? ` · Repas : ${esc(d.repas)}` : ''}</p>` : ''}</div></li>`).join('')}</ol></section>` : ''}
 
       <section><h2>Vos prestations</h2>
