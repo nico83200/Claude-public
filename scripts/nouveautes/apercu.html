@@ -1,0 +1,30 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1080px;height:1920px;overflow:hidden;background:#faf7f1;color:#0d3122;font-family:Inter,'Inter Display',system-ui;-webkit-font-smoothing:antialiased;position:relative}
+body.wide{width:1920px;height:1080px}
+.abs{position:absolute}
+.logo{height:70px}
+h1{font:800 150px/.95 'Inter Display',Inter;letter-spacing:-4px}
+.ver{display:inline-block;background:#c2a47e;color:#0d3122;border-radius:999px;padding:14px 40px;font-size:42px;font-weight:700}
+.list{font-size:34px;font-weight:600;line-height:1.55;color:#3d5148}
+.phone{width:484px;height:1032px;border-radius:60px;background:#0d3122;padding:10px;box-shadow:0 40px 90px rgba(13,49,34,.30)}
+.phone img{width:464px;height:1012px;border-radius:50px;display:block;object-fit:cover}
+.play{width:150px;height:150px;border-radius:50%;background:rgba(13,49,34,.88);display:grid;place-items:center;box-shadow:0 20px 50px rgba(13,49,34,.35)}
+.play:after{content:'';margin-left:14px;border-left:52px solid #faf7f1;border-top:32px solid transparent;border-bottom:32px solid transparent}
+</style></head><body>
+<div id="tall">
+  <img class="abs logo" style="left:50%;top:90px;transform:translateX(-50%)" src="../../public/brand/jackcie-wordmark.png">
+  <div class="abs" style="left:0;right:0;top:230px;text-align:center"><h1>Quoi de neuf ?</h1><p class="ver" style="margin-top:34px">Version 2.11</p></div>
+  <div class="abs phone" style="left:70px;top:720px;rotate:-7deg"><img src="SHOTS/02-accueil-sombre.png"></div>
+  <div class="abs phone" style="left:526px;top:690px;rotate:6deg"><img src="SHOTS/05-poids-ruban.png"></div>
+  <div class="abs play" style="left:465px;top:1100px"></div>
+</div>
+<div id="wide" style="display:none">
+  <img class="abs logo" style="left:110px;top:110px" src="../../public/brand/jackcie-wordmark.png">
+  <div class="abs" style="left:110px;top:250px"><h1 style="font-size:130px">Quoi de<br>neuf ?</h1><p class="ver" style="margin-top:34px">Version 2.11</p>
+    <p class="list" style="margin-top:40px">Thème sombre · Suivi du poids · Rappels intelligents<br>Factures lues par l'assistant · Pension des écuries</p></div>
+  <div class="abs phone" style="left:1000px;top:40px;rotate:-6deg;scale:.8"><img src="SHOTS/02-accueil-sombre.png"></div>
+  <div class="abs phone" style="left:1370px;top:10px;rotate:5deg;scale:.8"><img src="SHOTS/05-poids-ruban.png"></div>
+  <div class="abs play" style="left:1290px;top:460px"></div>
+</div>
+</body></html>
