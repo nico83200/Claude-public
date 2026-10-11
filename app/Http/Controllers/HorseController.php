@@ -76,7 +76,6 @@ class HorseController extends Controller
             'events' => $has(Perm::CALENDAR_VIEW) ? $horse->events()->visibleSessions($has(Perm::SESSIONS_VIEW) ? [$horse->id] : [])->where('starts_at', '>=', now()->startOfDay())->where('status', '!=', 'cancelled')->orderBy('starts_at')->limit(5)->get() : collect(),
             'observations' => $horse->observations()->with('author')->whereNull('resolved_at')->limit(5)->get(),
             'logs' => $horse->dailyLogs()->with('author')->limit(3)->get(),
-            'sources' => $has(Perm::HORSE_EDIT) ? $horse->externalSources()->where('validation', 'pending')->get() : collect(),
             'transferTargets' => $has(Perm::HORSE_MANAGE) ? $request->user()->memberships->filter(fn ($m) => $m->organization_id !== $horse->organization_id && in_array(Perm::HORSES_CREATE, $m->role->permissionKeys(), true))->map->organization : collect(),
         ]);
     }

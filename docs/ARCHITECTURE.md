@@ -8,7 +8,7 @@
 | Langages | PHP 8.3, Node 22, Composer 2.8 | Laravel 13 (stable, PHP ≥ 8.3) |
 | Base de données | Aucune → MariaDB 10.11 installée pour le développement et les tests | MySQL/MariaDB (syntaxe compatible MySQL 8) |
 | Hébergement cible | Non précisé ; exigence « PHP/MySQL classique » | Aucun processus permanent obligatoire : file d'attente et tâches via `cron` + `schedule:run` |
-| Intégrations | Aucune | Stripe, Wikidata, Brave Search (optionnel), SMTP |
+| Intégrations | Aucune | Stripe, SMTP, Anthropic (Claude), ElevenLabs, Web Push |
 
 Contraintes respectées : pas de WebSocket, pas de worker obligatoire, pas de Redis
 obligatoire (cache, sessions, files et verrous en base). Les assets sont compilés
@@ -26,7 +26,6 @@ Contrôleurs HTTP (app/Http/Controllers) ──► Services métier (app/Service
    │                                            ├─ RidingSessionService, HorseService, CalendarService, InvitationService
    │                                            ├─ Assistant\*      : assistant vocal (Claude, ElevenLabs), annulation
    │                                            ├─ Billing\*        : Stripe (passerelle isolée), webhooks, licences
-   │                                            └─ HorseSearch\*    : adaptateurs de sources externes
    ▼
 Modèles Eloquent ──► MySQL          Notifications (base + email) · Journal d'audit · Commandes planifiées
 ```
@@ -108,7 +107,6 @@ erDiagram
 |---|---|
 | Auth, 2FA | Fortify (`app/Providers/FortifyServiceProvider.php`, `resources/views/auth`) |
 | Chevaux | HorseController, PedigreeController, OwnershipController, HorsePhotoController, HorseDocumentController, HorseService, ImageProcessor |
-| Recherche d'identité | HorseSearchController, `app/Services/HorseSearch/*` |
 | Santé | CareRecordController, TreatmentController, ObservationController, HealthOverviewController |
 | Intervenants | ProfessionalController |
 | Calendrier | CalendarController, CalendarService (récurrences calculées, pas de doublons) |

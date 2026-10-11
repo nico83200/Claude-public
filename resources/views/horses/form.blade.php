@@ -4,7 +4,6 @@
         <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">La limite de chevaux de votre offre est atteinte. <a href="{{ route('billing.index') }}" class="link">Changer d'offre</a> ou archiver un cheval.</div>
     @endif
     @unless ($horse->exists)
-        <p class="mb-4 text-sm text-slate-600">Astuce : <a href="{{ route('horse-search.form') }}" class="link">recherchez votre cheval sur Internet</a> pour pré-remplir la fiche à partir de sources publiques.</p>
     @endunless
     <form method="POST" action="{{ $horse->exists ? route('horses.update', $horse) : route('horses.store') }}" class="space-y-5">
         @csrf @if ($horse->exists) @method('PUT') @endif

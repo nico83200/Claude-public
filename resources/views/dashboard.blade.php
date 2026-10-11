@@ -25,7 +25,6 @@
             Saisissez sa fiche manuellement ou retrouvez ses informations publiques sur Internet.
             <x-slot:actions>
                 <a href="{{ route('horses.create') }}" class="btn-primary">Ajouter un cheval</a>
-                <a href="{{ route('horse-search.form') }}" class="btn-secondary">Rechercher mon cheval</a>
             </x-slot:actions>
         </x-empty>
     @else

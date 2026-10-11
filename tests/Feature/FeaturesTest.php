@@ -29,7 +29,7 @@ class FeaturesTest extends TestCase
         $session = RidingSession::first();
         $pages = ['/dashboard', '/chevaux', '/chevaux/nouveau', "/chevaux/{$horse->id}", "/chevaux/{$horse->id}/modifier", "/chevaux/{$horse->id}/sante", "/chevaux/{$horse->id}/soins/nouveau",
             "/chevaux/{$horse->id}/genealogie", "/chevaux/{$horse->id}/documents", "/chevaux/{$horse->id}/alimentation", "/chevaux/{$horse->id}/journal", "/chevaux/{$horse->id}/partage",
-            "/chevaux/{$horse->id}/historique", "/chevaux/{$horse->id}/intervenants", '/chevaux/rechercher', '/sante', '/intervenants', '/intervenants/nouveau',
+            "/chevaux/{$horse->id}/historique", "/chevaux/{$horse->id}/intervenants", '/sante', '/intervenants', '/intervenants/nouveau',
             '/calendrier', '/calendrier?view=week', '/calendrier?view=day', '/seances', '/seances/nouvelle', "/seances/{$session->id}", "/seances/{$session->id}/preparer",
             "/seances/{$session->id}/en-cours", "/seances/{$session->id}/bilan", '/modeles', '/exercices', '/exercices/nouveau', '/budget', '/partages', '/organisation', '/espaces/nouveau',
             '/notifications', '/abonnement', '/parametres', '/parametres/securite', '/parametres/donnees', '/recherche?q=to'];

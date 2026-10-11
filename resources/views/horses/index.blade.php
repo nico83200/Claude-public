@@ -1,6 +1,5 @@
 <x-layouts.app title="Chevaux">
     <x-page-header title="Chevaux" :subtitle="$horses->total().' dossier(s)'">
-        <a href="{{ route('horse-search.form') }}" class="btn-secondary">Importer une fiche</a>
         @if ($canCreate)<a href="{{ route('horses.create') }}" class="btn-primary"><x-icon name="plus" /> Ajouter</a>@endif
     </x-page-header>
     <x-filters search="q" placeholder="Nom, SIRE, UELN…" :fields="$userMemberships->count() > 1 ? ['organization', 'archived'] : ['archived']">

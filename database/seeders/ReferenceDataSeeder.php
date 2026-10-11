@@ -56,7 +56,6 @@ class ReferenceDataSeeder extends Seeder
 
         $flags = [
             'registration' => ['Inscriptions ouvertes', true],
-            'horse_search' => ['Recherche d\'identité sur Internet', true],
             'billing' => ['Souscription en ligne (Stripe)', true],
             'email_notifications' => ['Envoi des notifications par email', true],
         ];

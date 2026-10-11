@@ -3,6 +3,9 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.6
+- 🗑️ « Rechercher mon cheval » (recherche d'identité sur Internet : Wikidata, Brave) supprimé : boutons, pages, code et réglages retirés ; les informations déjà importées restent en base (`horse_external_sources`) sans affichage
+
 ## Version 2.5.1 — installation
 - ✅ Le bouton « Installer » déclenche l'installation native (vraie application sur Android, WebAPK) : l'invite du navigateur est conservée dès le chargement de la page, et si elle n'est pas encore prête le bouton l'attend jusqu'à 4 s (« Préparation de l'installation… ») au lieu d'envoyer vers « Ajouter à l'écran d'accueil », qui peut ne créer qu'un raccourci
 - ✅ Instructions de secours précisées : choisir « Installer » et non « Créer un raccourci » (Chrome), icône d'installation de Samsung Internet, option « Ouvrir comme app web » sur iPhone ; après installation, invitation à ouvrir l'application depuis l'écran d'accueil
@@ -60,7 +63,6 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ Propriétaires/détenteurs datés, lieux de vie, rattachement à une écurie avec droits choisis par le propriétaire
 - ✅ Généalogie (2 générations) avec liens vers les fiches accessibles, représentation graphique
 - ✅ Photos (compression, miniatures, diffusion contrôlée), documents privés
-- ✅ Recherche d'identité : adaptateurs, comparaison, différences, validation champ par champ, provenance — ⚙️ Wikidata sans clé, Brave avec clé ; ❌ registre IFCE (pas d'API ouverte, voir INTEGRATIONS.md)
 
 ## Santé
 - ✅ Rappels de suivi par cheval (fréquence, préavis) : maréchal (6 semaines) et vaccination (12 mois) **actifs par défaut**, vermifuge/dentiste/ostéopathe désactivables ; rappel N jours avant puis le jour même
@@ -123,4 +125,3 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 4. Premier super-administrateur + 2FA.
 5. Textes légaux validés et paramètres RGPD (raison sociale, DPO, sous-traitants).
 6. Sauvegardes et test de restauration.
-7. Facultatif : `BRAVE_SEARCH_API_KEY`, `HORSE_SEARCH_USER_AGENT` avec contact réel.

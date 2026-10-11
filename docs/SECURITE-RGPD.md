@@ -30,7 +30,7 @@
 | Rectification | Modification directe du profil et des fiches ; demande formelle via le formulaire |
 | Effacement | Demande → Admin > RGPD → anonymisation (compte, profil, accès, espace personnel), purge définitive à J+30 (`data:purge`) |
 | Conservation | Suppressions logiques purgées après 30 j ; journaux d'audit 3 ans ; anciennes opérations de synchro (mode hors ligne supprimé) 180 j ; notifications lues 1 an ; données d'un abonnement terminé conservées en lecture seule ≥ 90 j (`BILLING_RECOVERY_DAYS`) |
-| Sous-traitants | Hébergeur, Stripe, fournisseur email, (Brave Search si activé) — à lister dans les paramètres |
+| Sous-traitants | Hébergeur, Stripe, fournisseur email, Anthropic et ElevenLabs (assistant vocal) — à lister dans les paramètres |
 | Procédure | Demandes visibles dans Admin > RGPD, à traiter sous un mois ; chaque action est journalisée |
 | Données sur le téléphone | Aucune donnée privée conservée par l'application (service worker limité aux ressources publiques) ; les copies de l'ancien mode hors ligne sont effacées |
 
@@ -39,7 +39,6 @@
 - Faire valider CGU/CGV et politique de confidentialité, renseigner raison sociale / DPO / sous-traitants.
 - Tenir le registre des traitements.
 - Mettre en place les sauvegardes chiffrées hors site et un test de restauration.
-- Renseigner un `HORSE_SEARCH_USER_AGENT` avec un contact réel.
 
 
 ## Assistant vocal

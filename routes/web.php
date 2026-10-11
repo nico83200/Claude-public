@@ -57,10 +57,6 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/rattachements/{assignment}/terminer', [Controllers\AssignmentController::class, 'end'])->name('assignments.end');
 
     // Recherche d'identité sur Internet
-    Route::get('/chevaux/rechercher', [Controllers\HorseSearchController::class, 'form'])->name('horse-search.form');
-    Route::post('/chevaux/rechercher', [Controllers\HorseSearchController::class, 'search'])->middleware('throttle:horse-search')->name('horse-search.search');
-    Route::post('/chevaux/rechercher/apercu', [Controllers\HorseSearchController::class, 'preview'])->name('horse-search.preview');
-    Route::post('/chevaux/rechercher/importer', [Controllers\HorseSearchController::class, 'import'])->name('horse-search.import');
 
     // Chevaux
     Route::resource('chevaux', Controllers\HorseController::class)->parameters(['chevaux' => 'horse'])->names('horses');
@@ -73,7 +69,6 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::put('/genealogie', [Controllers\PedigreeController::class, 'update'])->name('pedigree.update');
         Route::post('/proprietaires', [Controllers\OwnershipController::class, 'store'])->name('ownerships.store');
         Route::post('/proprietaires/{ownership}/terminer', [Controllers\OwnershipController::class, 'end'])->name('ownerships.end');
-        Route::post('/sources/{source}/{decision}', [Controllers\HorseSourceController::class, 'decide'])->whereIn('decision', ['confirm', 'reject'])->name('sources.decide');
 
         Route::post('/photos', [Controllers\HorsePhotoController::class, 'store'])->name('photos.store');
         Route::get('/photos/{photo}', [Controllers\HorsePhotoController::class, 'show'])->name('photos.show');

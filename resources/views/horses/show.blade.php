@@ -8,19 +8,6 @@
         @endunless
     </x-horse-header>
 
-    @if ($sources->isNotEmpty())
-        <x-section title="Informations importées à vérifier" class="mb-4 border-amber-200 bg-amber-50/40">
-            @foreach ($sources as $src)
-                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-amber-100 py-2 text-sm first:border-0">
-                    <span><strong>{{ \App\Services\HorseSearch\HorseCandidate::FIELDS[$src->field] ?? $src->field }}</strong> : {{ $src->value }} <span class="text-xs text-slate-500">— {{ $src->source }} ({{ $src->fetched_at->format('d/m/Y') }})</span></span>
-                    <span class="flex gap-1">
-                        <form method="POST" action="{{ route('horses.sources.decide', [$horse, $src, 'confirm']) }}">@csrf<button class="btn-secondary text-xs">Confirmer</button></form>
-                        <form method="POST" action="{{ route('horses.sources.decide', [$horse, $src, 'reject']) }}">@csrf<button class="btn-ghost text-xs">Rejeter</button></form>
-                    </span>
-                </div>
-            @endforeach
-        </x-section>
-    @endif
 
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">

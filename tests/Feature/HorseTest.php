@@ -6,10 +6,8 @@ use App\Models\Horse;
 use App\Models\HorseAccessGrant;
 use App\Models\HorseBreed;
 use App\Models\HorseDocument;
-use App\Models\HorseExternalSource;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -108,46 +106,6 @@ class HorseTest extends TestCase
         $this->assertSame((string) $photo->id, $horse->fresh()->main_photo_path);
         $this->actingAs($owner)->get("/chevaux/{$horse->id}/photos/{$photo->id}?thumb=1")->assertOk();
         $this->actingAs($this->user())->get("/chevaux/{$horse->id}/photos/{$photo->id}")->assertForbidden();
-    }
-
-    public function test_identity_search_import_requires_explicit_choice_and_records_provenance(): void
-    {
-        Http::fake([
-            'www.wikidata.org/*' => Http::sequence()
-                ->push(['search' => [['id' => 'Q1'], ['id' => 'Q2']]])
-                ->push(['entities' => [
-                    'Q1' => ['labels' => ['fr' => ['value' => 'Jappeloup']], 'claims' => ['P31' => [['mainsnak' => ['datavalue' => ['value' => ['id' => 'Q726']]]]], 'P21' => [['mainsnak' => ['datavalue' => ['value' => ['id' => 'Q44148']]]]], 'P569' => [['mainsnak' => ['datavalue' => ['value' => ['time' => '+1975-04-05T00:00:00Z', 'precision' => 11]]]]], 'P22' => [['mainsnak' => ['datavalue' => ['value' => ['id' => 'Q10']]]]]]],
-                    'Q2' => ['labels' => ['fr' => ['value' => 'Jappeloup (film)']], 'claims' => ['P31' => [['mainsnak' => ['datavalue' => ['value' => ['id' => 'Q11424']]]]]]],
-                ]])
-                ->push(['entities' => ['Q10' => ['labels' => ['fr' => ['value' => 'Tyrol II']]], 'Q44148' => ['labels' => ['fr' => ['value' => 'mâle']]]]]),
-        ]);
-        $user = $this->user();
-        $this->grantLicense($user->personalOrganization(), 'particulier');
-
-        $response = $this->actingAs($user)->post('/chevaux/rechercher', ['name' => 'Jappeloup'])->assertOk()->assertSee('Jappeloup')->assertSee('Source de référence')->assertDontSee('(film)');
-        $token = $response->viewData('token');
-        $candidate = $response->viewData('candidates')[0];
-        $this->assertSame('Tyrol II', $candidate->fields['sire_name']);
-        $this->assertSame(0, Horse::count()); // rien d'importé sans validation
-
-        $this->actingAs($user)->post('/chevaux/rechercher/apercu', ['token' => $token, 'candidate' => $candidate->id])->assertOk()->assertSee('Confirmer');
-        $this->actingAs($user)->post('/chevaux/rechercher/importer', ['token' => $token, 'candidate' => $candidate->id, 'fields' => ['official_name', 'birth_date', 'sire_name']])->assertRedirect();
-
-        $horse = Horse::firstOrFail();
-        $this->assertSame('Jappeloup', $horse->official_name);
-        $this->assertSame('1975-04-05', $horse->birth_date->toDateString());
-        $this->assertSame('unknown', $horse->sex); // non sélectionné → non importé
-        $this->assertDatabaseHas('horse_relationships', ['horse_id' => $horse->id, 'relation' => 'sire', 'related_name' => 'Tyrol II']);
-        $this->assertSame(3, HorseExternalSource::where('horse_id', $horse->id)->count());
-        $this->assertDatabaseHas('horse_external_sources', ['field' => 'birth_date', 'source' => 'Wikidata', 'reliability' => 'reference', 'validation' => 'confirmed', 'url' => 'https://www.wikidata.org/wiki/Q1']);
-    }
-
-    public function test_identity_search_handles_source_failure_and_offers_manual_entry(): void
-    {
-        Http::fake(['www.wikidata.org/*' => Http::response('Too many requests', 429)]);
-        $user = $this->user();
-        $this->grantLicense($user->personalOrganization(), 'particulier');
-        $this->actingAs($user)->post('/chevaux/rechercher', ['name' => 'Inconnu'])->assertOk()->assertSee('momentanément indisponible')->assertSee('Saisie manuelle');
     }
 
     public function test_transfer_to_own_stable_keeps_history(): void
