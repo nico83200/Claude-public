@@ -70,6 +70,15 @@ class SettingsController extends Controller
         return back()->with('success', 'Préférences de notification enregistrées.');
     }
 
+    /** Apparence : clair (défaut), sombre ou automatique (suit le réglage du téléphone). */
+    public function updateTheme(Request $request)
+    {
+        $data = $request->validate(['theme' => ['required', Rule::in(['light', 'dark', 'auto'])]]);
+        UserProfile::updateOrCreate(['user_id' => $request->user()->id], ['theme' => $data['theme']]);
+
+        return $request->expectsJson() ? response()->json(['theme' => $data['theme']]) : back()->with('success', 'Apparence enregistrée.');
+    }
+
     public function security(Request $request)
     {
         $user = $request->user();

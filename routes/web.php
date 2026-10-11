@@ -217,6 +217,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/parametres/notifications', [Controllers\SettingsController::class, 'notifications'])->name('settings.notifications');
     Route::put('/parametres/notifications', [Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::get('/parametres/securite', [Controllers\SettingsController::class, 'security'])->name('settings.security');
+    Route::put('/parametres/apparence', [Controllers\SettingsController::class, 'updateTheme'])->name('settings.theme');
     Route::post('/parametres/securite/lien-mot-de-passe', [Controllers\SettingsController::class, 'sendPasswordLink'])->middleware('throttle:3,10')->name('settings.password.link');
     Route::get('/parametres/donnees', [Controllers\SettingsController::class, 'privacy'])->name('settings.privacy');
     Route::get('/parametres/donnees/export', [Controllers\ExportController::class, 'personalData'])->middleware(['throttle:exports', 'password.confirm'])->name('settings.export');

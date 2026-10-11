@@ -1,8 +1,27 @@
 {{-- En-tête commun : PWA installable (Android, iOS, ordinateur) --}}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="{{ $themeColor ?? '#FFFFFF' }}">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="{{ $themeColor ?? '#FFFFFF' }}" data-light="{{ $themeColor ?? '#FFFFFF' }}">
+<meta name="color-scheme" content="light dark">
+{{-- Apparence (clair par défaut, sombre ou automatique) appliquée avant l'affichage : pas d'éclair blanc. --}}
+<script>
+(function () {
+    var pref = @json(auth()->user()?->profile?->theme);
+    try { if (pref) localStorage.setItem('jc-theme', pref); else pref = localStorage.getItem('jc-theme'); } catch (e) {}
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    function apply(p) {
+        pref = p || 'light';
+        var dark = pref === 'dark' || (pref === 'auto' && mq.matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#0e1210' : (m.dataset.light || m.content);
+    }
+    window.jcSetTheme = function (p) { try { localStorage.setItem('jc-theme', p); } catch (e) {} apply(p); };
+    mq.addEventListener && mq.addEventListener('change', function () { if (pref === 'auto') apply(pref); });
+    document.addEventListener('DOMContentLoaded', function () { apply(pref); });
+    apply(pref);
+})();
+</script>
 <meta name="application-name" content="Jack&amp;Cie">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">

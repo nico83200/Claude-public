@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import 'tailwindcss' theme(static);
 @import '@fontsource-variable/inter/index.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -109,7 +109,7 @@
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 /* Champ fichier : bouton arrondi cohérent avec le reste */
-input[type=file]::file-selector-button { margin-right: .75rem; border: 1px solid var(--color-slate-200); border-radius: 9999px; background: #fff; padding: .5rem 1rem; font-weight: 600; font-size: .875rem; color: var(--color-slate-800); cursor: pointer; }
+input[type=file]::file-selector-button { margin-right: .75rem; border: 1px solid var(--color-slate-200); border-radius: 9999px; background: var(--color-white); padding: .5rem 1rem; font-weight: 600; font-size: .875rem; color: var(--color-slate-800); cursor: pointer; }
 /* Champs date/heure vides : pas de « mm/dd/yyyy » gris trop présent */
 input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-400); }
 
@@ -145,11 +145,11 @@ input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-40
 .jc-select.is-open .jc-select-chevron { transform: rotate(180deg); color: var(--color-brand-700); }
 .jc-select.is-open .jc-select-button { border-color: var(--color-brand-500); box-shadow: 0 0 0 4px var(--color-brand-100); }
 .jc-select-layer { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
-.jc-select-panel { position: fixed; pointer-events: auto; display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 1.25rem;
+.jc-select-panel { position: fixed; pointer-events: auto; display: flex; flex-direction: column; overflow: hidden; background: var(--color-white); border-radius: 1.25rem;
     box-shadow: 0 18px 50px -12px rgb(13 49 34 / .28), 0 0 0 1px rgb(13 49 34 / .06); opacity: 0; transform: translateY(-4px) scale(.98); transition: opacity .14s ease, transform .14s ease; }
 .jc-select-layer.is-visible .jc-select-panel { opacity: 1; transform: none; }
 .jc-select-search { margin: .5rem .5rem .25rem; padding: .55rem .9rem; border-radius: 9999px; border: 1px solid var(--color-slate-200); background: var(--color-slate-50); font-size: 16px; outline: none; }
-.jc-select-search:focus { border-color: var(--color-brand-500); background: #fff; }
+.jc-select-search:focus { border-color: var(--color-brand-500); background: var(--color-white); }
 .jc-select-list { overflow-y: auto; overscroll-behavior: contain; padding: .375rem; margin: 0; list-style: none; }
 .jc-select-group { padding: .6rem .75rem .25rem; font-size: .7rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--color-slate-400); }
 .jc-select-option { display: flex; align-items: center; gap: .75rem; min-height: 2.75rem; padding: .5rem .75rem; border-radius: .85rem; cursor: pointer; color: var(--color-slate-800); }
@@ -189,3 +189,65 @@ input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-40
 .jc-lb-img.is-loaded { opacity: 1; transform: none; }
 .jc-lb-caption { position: absolute; bottom: calc(1rem + env(safe-area-inset-bottom)); left: 1rem; right: 1rem; text-align: center; color: rgb(255 255 255 / .85); font-size: .9rem; }
 @media (max-width: 639px) { .jc-lb-nav { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   Mode sombre (Paramètres › Apparence : clair par défaut, sombre ou automatique).
+   Les couleurs sont redéfinies, les pages ne changent pas : surfaces sombres,
+   textes clairs, vert et or éclaircis pour rester lisibles.
+   --------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --jc-surface: #171c19;
+    --color-white: var(--jc-surface);
+    --color-slate-50: #0e1210;
+    --color-slate-100: #1f2521;
+    --color-slate-200: #2a312c;
+    --color-slate-300: #3b433d;
+    --color-slate-400: #6c756e;
+    --color-slate-500: #939b94;
+    --color-slate-600: #b4bbb5;
+    --color-slate-700: #cfd5d0;
+    --color-slate-800: #e2e6e2;
+    --color-slate-900: #f2f4f2;
+    --color-sand-50: #0e1210;
+    --color-sand-100: #1f2521;
+    --color-sand-200: #2a312c;
+    --color-brand-50: #13241b;
+    --color-brand-100: #183025;
+    --color-brand-200: #21402f;
+    --color-brand-300: #2f5c45;
+    --color-brand-400: #4f8d6c;
+    --color-brand-500: #6fae8b;
+    --color-brand-600: #8cc5a5;
+    --color-brand-700: #a6d6ba;
+    --color-brand-800: #1e6a49;
+    --color-brand-900: #17573b;
+    --color-gold-50: #211c13;
+    --color-gold-100: #2a2317;
+    --color-gold-200: #3e3322;
+    --color-gold-600: #d2b48a;
+    --shadow-sm: 0 0 0 1px rgb(255 255 255 / .04);
+    --shadow-card: 0 0 0 1px rgb(255 255 255 / .05), 0 12px 30px -18px rgb(0 0 0 / .7);
+    --shadow-float: 0 12px 32px -8px rgb(0 0 0 / .6);
+}
+/* Couleurs d'état (alertes, pastilles) : fonds teintés sombres, textes éclaircis. */
+:root[data-theme="dark"] {
+    --color-red-50: color-mix(in oklab, var(--color-red-500) 14%, var(--jc-surface)); --color-red-100: color-mix(in oklab, var(--color-red-500) 22%, var(--jc-surface)); --color-red-200: color-mix(in oklab, var(--color-red-500) 34%, var(--jc-surface)); --color-red-700: var(--color-red-300); --color-red-800: var(--color-red-300); --color-red-900: var(--color-red-300);
+    --color-amber-50: color-mix(in oklab, var(--color-amber-500) 12%, var(--jc-surface)); --color-amber-100: color-mix(in oklab, var(--color-amber-500) 20%, var(--jc-surface)); --color-amber-200: color-mix(in oklab, var(--color-amber-500) 32%, var(--jc-surface)); --color-amber-700: var(--color-amber-300); --color-amber-800: var(--color-amber-300); --color-amber-900: var(--color-amber-300);
+    --color-emerald-50: color-mix(in oklab, var(--color-emerald-500) 12%, var(--jc-surface)); --color-emerald-100: color-mix(in oklab, var(--color-emerald-500) 20%, var(--jc-surface)); --color-emerald-200: color-mix(in oklab, var(--color-emerald-500) 32%, var(--jc-surface)); --color-emerald-700: var(--color-emerald-300); --color-emerald-800: var(--color-emerald-300); --color-emerald-900: var(--color-emerald-300);
+    --color-green-50: color-mix(in oklab, var(--color-green-500) 12%, var(--jc-surface)); --color-green-100: color-mix(in oklab, var(--color-green-500) 20%, var(--jc-surface)); --color-green-200: color-mix(in oklab, var(--color-green-500) 32%, var(--jc-surface)); --color-green-700: var(--color-green-300); --color-green-800: var(--color-green-300); --color-green-900: var(--color-green-300);
+    --color-sky-50: color-mix(in oklab, var(--color-sky-500) 12%, var(--jc-surface)); --color-sky-100: color-mix(in oklab, var(--color-sky-500) 20%, var(--jc-surface)); --color-sky-200: color-mix(in oklab, var(--color-sky-500) 32%, var(--jc-surface)); --color-sky-700: var(--color-sky-300); --color-sky-800: var(--color-sky-300); --color-sky-900: var(--color-sky-300);
+    --color-blue-50: color-mix(in oklab, var(--color-blue-500) 12%, var(--jc-surface)); --color-blue-100: color-mix(in oklab, var(--color-blue-500) 20%, var(--jc-surface)); --color-blue-200: color-mix(in oklab, var(--color-blue-500) 32%, var(--jc-surface)); --color-blue-700: var(--color-blue-300); --color-blue-800: var(--color-blue-300); --color-blue-900: var(--color-blue-300);
+    --color-purple-50: color-mix(in oklab, var(--color-purple-500) 12%, var(--jc-surface)); --color-purple-100: color-mix(in oklab, var(--color-purple-500) 20%, var(--jc-surface)); --color-purple-200: color-mix(in oklab, var(--color-purple-500) 32%, var(--jc-surface)); --color-purple-700: var(--color-purple-300); --color-purple-800: var(--color-purple-300); --color-purple-900: var(--color-purple-300);
+    --color-rose-50: color-mix(in oklab, var(--color-rose-500) 12%, var(--jc-surface)); --color-rose-100: color-mix(in oklab, var(--color-rose-500) 20%, var(--jc-surface)); --color-rose-200: color-mix(in oklab, var(--color-rose-500) 32%, var(--jc-surface)); --color-rose-700: var(--color-rose-300); --color-rose-800: var(--color-rose-300); --color-rose-900: var(--color-rose-300);
+    --color-teal-50: color-mix(in oklab, var(--color-teal-500) 12%, var(--jc-surface)); --color-teal-100: color-mix(in oklab, var(--color-teal-500) 20%, var(--jc-surface)); --color-teal-700: var(--color-teal-300); --color-teal-800: var(--color-teal-300);
+}
+/* Texte blanc (boutons, pastilles) : reste blanc même si « blanc » désigne désormais la surface sombre. */
+:root[data-theme="dark"] :is(.text-white, .btn-primary, .btn-danger) { color: #fff; }
+:root[data-theme="dark"] [class*="text-white/"] { color: rgb(255 255 255 / .72); }
+/* Textes vert foncé (titres actifs, options choisies) : éclaircis sur fond sombre. */
+:root[data-theme="dark"] :is(.text-brand-800, .text-brand-900) { color: #c4e6d2; }
+:root[data-theme="dark"] .jc-select-option[aria-selected="true"] { color: #c4e6d2; }
+/* Logos (texte vert forêt) : éclaircis. */
+:root[data-theme="dark"] img[src*="/brand/jackcie"], :root[data-theme="dark"] source + img[src*="/brand/"] { filter: invert(1) hue-rotate(180deg) brightness(1.15); }
+:root[data-theme="dark"] input[type=date]::-webkit-calendar-picker-indicator, :root[data-theme="dark"] input[type=time]::-webkit-calendar-picker-indicator, :root[data-theme="dark"] input[type=datetime-local]::-webkit-calendar-picker-indicator { filter: invert(1); }
