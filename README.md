@@ -4,7 +4,7 @@ Application SaaS de gestion équine — web app installable sur iPhone et Androi
 comme une écurie complète : identité et généalogie, santé et traitements,
 intervenants, calendrier, séances et bibliothèque d'exercices, alimentation,
 suivi quotidien, demi-pensions et partage, écuries multi-membres, budget,
-abonnements Stripe, codes promo et accès offerts, super-administration (dont réglages email et Stripe depuis l'interface).
+**assistant vocal** (consignes à l'oral : rendez-vous, séances, soins… — voir docs/ASSISTANT.md), abonnements Stripe, codes promo et accès offerts, super-administration (dont réglages email et Stripe depuis l'interface).
 
 > Ce n'est pas un outil de diagnostic vétérinaire : les traitements enregistrés
 > sont ceux prescrits par des professionnels.

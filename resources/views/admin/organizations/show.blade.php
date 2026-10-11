@@ -31,7 +31,7 @@
                                 <x-select name="subscription_plan_id" label="Offre" :options="$plans" :value="$l->subscription_plan_id" />
                                 <x-field name="starts_at" type="date" label="Début" :value="$l->starts_at?->format('Y-m-d')" />
                                 <x-field name="ends_at" type="date" label="Fin" :value="$l->ends_at?->format('Y-m-d')" />
-                                @foreach (['max_horses' => 'Chevaux max', 'max_members' => 'Membres max', 'max_invitations' => 'Partages max', 'storage_mb' => 'Stockage (Mo)'] as $k => $lab)<x-field :name="'limit_overrides['.$k.']'" type="number" :label="$lab.' (dérogation)'" :value="$l->limit_overrides[$k] ?? null" />@endforeach
+                                @foreach (['max_horses' => 'Chevaux max', 'max_members' => 'Membres max', 'max_invitations' => 'Partages max', 'storage_mb' => 'Stockage (Mo)', 'assistant_monthly' => 'Consignes vocales / mois'] as $k => $lab)<x-field :name="'limit_overrides['.$k.']'" type="number" :label="$lab.' (dérogation)'" :value="$l->limit_overrides[$k] ?? null" />@endforeach
                             @endif
                             <x-select name="status" label="État" :options="\App\Models\License::STATUSES" :value="$l->status" />
                             <x-textarea name="notes" label="Motif" :value="$l->notes" :required="$l->source !== 'stripe'" class="sm:col-span-2" />
@@ -47,7 +47,7 @@
                         <x-field name="starts_at" type="date" label="Début" :value="now()->toDateString()" />
                         <x-field name="ends_at" type="date" label="Fin (vide = sans fin)" />
                         <x-field name="duration_days" type="number" min="1" max="3650" label="Ou durée offerte (jours)" help="Calcule la date de fin à partir du début ; expiration automatique." />
-                        @foreach (['max_horses' => 'Chevaux max', 'max_members' => 'Membres max', 'max_invitations' => 'Partages max', 'storage_mb' => 'Stockage (Mo)'] as $k => $lab)<x-field :name="'limit_overrides['.$k.']'" type="number" :label="$lab.' (dérogation)'" />@endforeach
+                        @foreach (['max_horses' => 'Chevaux max', 'max_members' => 'Membres max', 'max_invitations' => 'Partages max', 'storage_mb' => 'Stockage (Mo)', 'assistant_monthly' => 'Consignes vocales / mois'] as $k => $lab)<x-field :name="'limit_overrides['.$k.']'" type="number" :label="$lab.' (dérogation)'" />@endforeach
                         <x-textarea name="notes" label="Motif (obligatoire)" required class="sm:col-span-2" />
                         <button class="btn-primary sm:col-span-2">Attribuer</button>
                     </form>

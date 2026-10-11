@@ -1,7 +1,8 @@
 <x-layouts.app title="Tableau de bord">
-    <x-page-header title="Bonjour {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}" :subtitle="now()->translatedFormat('l j F Y')">
-        @if ($horses->isNotEmpty())<a href="{{ route('sessions.create') }}" class="btn-primary"><x-icon name="plus" /> Séance</a>@endif
-    </x-page-header>
+    <div class="mb-6">
+        <p class="text-[15px] text-slate-500">{{ ucfirst(now()->translatedFormat('l j F')) }}</p>
+        <h1 class="text-[32px] leading-tight font-bold">Bonjour {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}</h1>
+    </div>
 
     @foreach ($invitations as $inv)
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm">
@@ -25,33 +26,62 @@
             </x-slot:actions>
         </x-empty>
     @else
-        <div class="mb-6 flex snap-x gap-3 overflow-x-auto pb-2">
+        {{-- Assistant --}}
+        <button type="button" @click="$store.assistant.open(true)" class="mb-5 flex w-full items-center gap-4 rounded-3xl bg-brand-900 p-5 text-left text-white shadow-[var(--shadow-float)] transition active:scale-[.99]">
+            <span class="flex size-14 shrink-0 items-center justify-center rounded-full bg-white/10"><x-icon name="mic" class="size-7" /></span>
+            <span class="min-w-0"><span class="block text-[17px] font-semibold">Dites-le simplement</span><span class="block text-sm text-white/70">« Le maréchal vient le 2 décembre à 9 h », « Séance de dressage pour la rectitude »…</span></span>
+        </button>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+            <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">
+                @forelse ($today as $e)
+                    <a href="{{ route('calendar.show', $e) }}" class="-mx-2 flex items-center gap-4 rounded-2xl px-2 py-2.5 hover:bg-slate-50">
+                        <span class="w-14 shrink-0 text-sm font-semibold tabular-nums {{ $e->status === 'done' ? 'text-slate-400' : 'text-slate-900' }}">{{ $e->all_day ? 'Jour' : $e->starts_at->format('H:i') }}</span>
+                        <span class="h-9 w-1 shrink-0 rounded-full {{ ['veterinary' => 'bg-red-400', 'farrier' => 'bg-amber-400', 'care' => 'bg-rose-400', 'treatment' => 'bg-purple-400', 'session' => 'bg-emerald-500', 'lesson' => 'bg-teal-400', 'competition' => 'bg-blue-400', 'ride' => 'bg-lime-400', 'rest' => 'bg-slate-300', 'custom' => 'bg-sky-400'][$e->type] ?? 'bg-slate-300' }}"></span>
+                        <span class="min-w-0 flex-1"><span class="block truncate font-medium {{ $e->status === 'done' ? 'text-slate-400 line-through' : '' }}">{{ $e->title }}</span><span class="block truncate text-sm text-slate-500">{{ $e->horse?->shortName() }}</span></span>
+                        @if ($e->status === 'done')<x-badge color="green">Fait</x-badge>@endif
+                    </a>
+                @empty
+                    <p class="py-2 text-[15px] text-slate-500">Rien de prévu aujourd'hui.</p>
+                @endforelse
+                @if ($events->isNotEmpty())
+                    <p class="mt-4 mb-1 text-xs font-medium tracking-wide text-slate-400 uppercase">Ensuite</p>
+                    @foreach ($events as $e)
+                        <a href="{{ route('calendar.show', $e) }}" class="-mx-2 flex items-center gap-4 rounded-2xl px-2 py-2 text-sm hover:bg-slate-50">
+                            <span class="w-14 shrink-0 text-slate-500">{{ $e->starts_at->translatedFormat('D j') }}</span>
+                            <span class="min-w-0 flex-1 truncate"><span class="font-medium">{{ $e->title }}</span> <span class="text-slate-500">· {{ $e->horse?->shortName() }}</span></span>
+                            <span class="text-slate-400">{{ $e->all_day ? '' : $e->starts_at->format('H:i') }}</span>
+                        </a>
+                    @endforeach
+                @endif
+            </x-section>
+            <x-section title="Échéances" :action="route('health.index')" action-label="Santé">
+                @forelse ($careDue as $c)
+                    <a href="{{ route('horses.care.index', $c->horse_id) }}" class="-mx-2 flex items-center justify-between gap-3 rounded-2xl px-2 py-2.5 hover:bg-slate-50">
+                        <span class="min-w-0"><span class="block truncate font-medium">{{ $c->category->name }}</span><span class="block text-sm text-slate-500">{{ $c->horse->shortName() }}</span></span>
+                        <x-badge :color="$c->next_check_on->isPast() ? 'red' : ($c->next_check_on->diffInDays(now()) <= 7 ? 'amber' : 'slate')">{{ $c->next_check_on->isPast() ? 'En retard' : $c->next_check_on->translatedFormat('j M') }}</x-badge>
+                    </a>
+                @empty <p class="py-2 text-[15px] text-slate-500">Aucune échéance dans le mois.</p> @endforelse
+            </x-section>
+        </div>
+
+        <div class="mt-6 mb-3 flex items-center justify-between"><h2 class="text-[17px] font-semibold">Vos chevaux</h2><a href="{{ route('horses.index') }}" class="text-sm link">Tout voir</a></div>
+        <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($horses as $horse)
-                <a href="{{ route('horses.show', $horse) }}" class="card flex w-40 shrink-0 snap-start flex-col items-center p-3 text-center hover:border-brand-300">
-                    @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="mb-2 size-16 rounded-full object-cover">@else<div class="mb-2 flex size-16 items-center justify-center rounded-full bg-brand-100 text-2xl font-bold text-brand-800">{{ mb_substr($horse->shortName(), 0, 1) }}</div>@endif
-                    <span class="w-full truncate text-sm font-semibold">{{ $horse->shortName() }}</span>
-                    <span class="w-full truncate text-xs text-slate-500">{{ $horse->breed?->name ?? '—' }}</span>
+                @php $due = $nextDue->get($horse->id); @endphp
+                <a href="{{ route('horses.show', $horse) }}" class="card flex flex-col p-4 transition hover:-translate-y-0.5">
+                    @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="mb-3 aspect-[4/3] w-full rounded-2xl object-cover">@else<div class="mb-3 flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-brand-50 text-3xl font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</div>@endif
+                    <span class="truncate font-semibold">{{ $horse->shortName() }}</span>
+                    @if ($due)
+                        <span class="mt-1 flex items-center gap-1.5 text-xs {{ $due->next_check_on->isPast() ? 'text-red-600' : ($due->next_check_on->diffInDays(now()) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->isPast() ? 'en retard' : 'le '.$due->next_check_on->translatedFormat('j M') }}</span>
+                    @else
+                        <span class="mt-1 flex items-center gap-1.5 text-xs text-brand-700"><span class="size-1.5 rounded-full bg-current"></span>À jour</span>
+                    @endif
                 </a>
             @endforeach
         </div>
 
         <div class="grid gap-4 lg:grid-cols-2">
-            <x-section title="Prochains rendez-vous" :action="route('calendar.index')">
-                @forelse ($events as $e)
-                    <a href="{{ route('calendar.show', $e) }}" class="flex items-center justify-between border-t border-slate-100 py-2 text-sm first:border-0 hover:bg-slate-50">
-                        <span><span class="font-medium">{{ $e->title }}</span><span class="block text-xs text-slate-500">{{ $e->horse?->shortName() }}</span></span>
-                        <span class="text-right text-xs text-slate-600">{{ $e->starts_at->translatedFormat('D j M') }}<br>{{ $e->all_day ? 'Journée' : $e->starts_at->format('H:i') }}</span>
-                    </a>
-                @empty <p class="text-sm text-slate-500">Rien de prévu dans les 14 prochains jours.</p> @endforelse
-            </x-section>
-            <x-section title="Rappels de soins" :action="route('health.index')">
-                @forelse ($careDue as $c)
-                    <a href="{{ route('horses.care.show', [$c->horse_id, $c]) }}" class="flex items-center justify-between border-t border-slate-100 py-2 text-sm first:border-0">
-                        <span><span class="font-medium">{{ $c->category->name }}</span><span class="block text-xs text-slate-500">{{ $c->horse->shortName() }}</span></span>
-                        <x-badge :color="$c->next_check_on->isPast() ? 'red' : 'amber'">{{ $c->next_check_on->isPast() ? 'En retard' : $c->next_check_on->format('d/m') }}</x-badge>
-                    </a>
-                @empty <p class="text-sm text-slate-500">Aucune échéance proche.</p> @endforelse
-            </x-section>
             <x-section title="Traitements en cours">
                 @forelse ($treatments as $t)
                     <a href="{{ route('horses.care.index', $t->horse_id) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $t->product }}</span> — {{ $t->horse->shortName() }}<span class="block text-xs text-slate-500">{{ $t->dosage }} {{ $t->ends_on ? '· jusqu\'au '.$t->ends_on->format('d/m') : '' }}</span></a>

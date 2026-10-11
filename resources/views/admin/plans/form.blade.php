@@ -42,6 +42,7 @@
                     <x-field name="max_members" type="number" label="Membres" :value="$plan->max_members" min="0" />
                     <x-field name="max_invitations" type="number" label="Partages / invitations" :value="$plan->max_invitations" min="0" />
                     <x-field name="storage_mb" type="number" label="Stockage (Mo)" :value="$plan->storage_mb" min="0" />
+                    <x-field name="assistant_monthly" type="number" label="Consignes vocales / mois (vide = illimité)" :value="$plan->assistant_monthly" min="0" help="Si « Assistant vocal (IA) » est coché." />
                     <x-field name="history_months" type="number" label="Historique (mois, informatif)" :value="$plan->history_months" min="0" />
                 </div>
             </x-section>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssistantRequest;
 use App\Models\AuditLog;
 use App\Models\DailyLog;
 use App\Models\Expense;
@@ -101,6 +102,7 @@ class ExportController extends Controller
             'access_grants_received' => HorseAccessGrant::with('horse:id,official_name')->where('user_id', $user->id)->get()->map(fn ($g) => ['horse' => $g->horse?->official_name, 'permissions' => $g->permissions, 'starts_at' => $g->starts_at, 'expires_at' => $g->expires_at, 'revoked_at' => $g->revoked_at]),
             'security_log' => AuditLog::where('user_id', $user->id)->latest('created_at')->limit(500)->get(['action', 'ip_address', 'created_at']),
             'notifications' => $user->notifications()->limit(500)->get(['data', 'created_at', 'read_at']),
+            'assistant_consignes' => AssistantRequest::with('actions:id,assistant_request_id,type,summary,created_at,undone_at')->where('user_id', $user->id)->latest()->limit(500)->get(['id', 'input_mode', 'input_text', 'reply', 'status', 'created_at']),
         ];
 
         return response()->streamDownload(fn () => print (json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),

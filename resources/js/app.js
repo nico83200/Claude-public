@@ -4,12 +4,17 @@ import { purgeAll, purgeOtherUsers } from './offline/db.js';
 import { installStore, listenForInstall } from './install.js';
 import { sessionPlanner } from './session-planner.js';
 import { careNext } from './care-next.js';
+import { assistantStore } from './assistant.js';
 
 window.Alpine = Alpine;
 
 Alpine.data('stableApp', stableApp);
 Alpine.data('sessionPlanner', sessionPlanner);
 Alpine.data('careNext', careNext);
+const assistantConfig = (() => {
+    try { return JSON.parse(document.getElementById('assistant-config')?.textContent || '{}'); } catch { return {}; }
+})();
+Alpine.store('assistant', assistantStore(assistantConfig));
 Alpine.store('install', installStore());
 listenForInstall(Alpine);
 

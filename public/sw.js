@@ -5,7 +5,7 @@
  *   authentifiées ne sont JAMAIS mises en cache (données privées).
  * - API de synchronisation : réseau uniquement.
  */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
 const SHELL_CACHE = `jackcie-shell-${VERSION}`;
 const SHELL_URL = '/hors-ligne';

@@ -29,11 +29,18 @@ class DashboardController extends Controller
         $sessionIds = $ids(Perm::SESSIONS_VIEW);
         $expenseIds = $ids(Perm::EXPENSES_VIEW);
 
+        // Prochaine échéance de suivi par cheval (pastille sur la carte du cheval).
+        $nextDue = CareRecord::with('category')->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
+            ->orderBy('next_check_on')->get()->groupBy('horse_id')->map->first();
+
         return view('dashboard', [
             'horses' => $horses,
+            'nextDue' => $nextDue,
+            'today' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->visibleSessions($sessionIds)->where('status', '!=', 'cancelled')
+                ->whereBetween('starts_at', [now()->startOfDay(), now()->endOfDay()])->orderBy('all_day', 'desc')->orderBy('starts_at')->get(),
             'events' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->visibleSessions($sessionIds)->where('status', '!=', 'cancelled')
-                ->whereBetween('starts_at', [now()->startOfDay(), now()->addDays(14)])->orderBy('starts_at')->limit(8)->get(),
-            'careDue' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')
+                ->whereBetween('starts_at', [now()->addDay()->startOfDay(), now()->addDays(14)])->orderBy('starts_at')->limit(6)->get(),
+            'careDue' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
                 ->whereBetween('next_check_on', [now()->subDays(7)->toDateString(), now()->addDays(30)->toDateString()])->orderBy('next_check_on')->limit(8)->get(),
             'treatments' => Treatment::with('horse')->whereIn('horse_id', $treatIds)->current()->limit(8)->get(),
             'sessions' => RidingSession::with(['horse', 'rider'])->whereIn('horse_id', $sessionIds)->orderByDesc('scheduled_at')->limit(6)->get(),

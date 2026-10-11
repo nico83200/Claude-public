@@ -42,4 +42,16 @@ return [
         ],
     ],
 
+    // Assistant vocal : compréhension des consignes (Claude) et transcription (ElevenLabs).
+    // Clés modifiables dans Administration › Intégrations (prioritaires sur le .env).
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'base_url' => env('ANTHROPIC_BASE_URL'),
+    ],
+    'elevenlabs' => [
+        'key' => env('ELEVENLABS_API_KEY'),
+        'stt_model' => env('ELEVENLABS_STT_MODEL', 'scribe_v2'),
+        'base_url' => env('ELEVENLABS_BASE_URL', 'https://api.elevenlabs.io'),
+    ],
+
 ];

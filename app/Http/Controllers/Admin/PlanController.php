@@ -137,6 +137,7 @@ class PlanController extends Controller
             'max_members' => ['nullable', 'integer', 'min:0'],
             'max_invitations' => ['nullable', 'integer', 'min:0'],
             'storage_mb' => ['nullable', 'integer', 'min:0'],
+            'assistant_monthly' => ['nullable', 'integer', 'min:0'],
             'history_months' => ['nullable', 'integer', 'min:0'],
             'trial_days' => ['nullable', 'integer', 'min:0', 'max:90'],
             'renewal_terms' => ['nullable', 'string', 'max:2000'],

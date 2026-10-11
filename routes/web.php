@@ -184,6 +184,12 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/notifications/{id}', [Controllers\NotificationController::class, 'open'])->name('notifications.open');
 
     // Abonnement
+    Route::get('/assistant', [Controllers\AssistantController::class, 'history'])->name('assistant.history');
+    Route::get('/assistant/etat', [Controllers\AssistantController::class, 'status'])->name('assistant.status');
+    Route::post('/assistant/transcription', [Controllers\AssistantController::class, 'transcribe'])->middleware('throttle:20,1')->name('assistant.transcribe');
+    Route::post('/assistant/consigne', [Controllers\AssistantController::class, 'command'])->middleware('throttle:20,1')->name('assistant.command');
+    Route::post('/assistant/actions/{action}/annuler', [Controllers\AssistantController::class, 'undo'])->name('assistant.undo');
+
     Route::get('/abonnement', [Controllers\BillingController::class, 'index'])->name('billing.index');
     Route::post('/abonnement/souscrire', [Controllers\BillingController::class, 'checkout'])->name('billing.checkout');
     Route::post('/abonnement/code', [Controllers\BillingController::class, 'redeem'])->middleware('throttle:10,1')->name('billing.redeem');
@@ -229,6 +235,9 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::resource('offres', Admin\PlanController::class)->parameters(['offres' => 'plan'])->names('plans')->except(['show', 'destroy']);
     Route::post('/offres/{plan}/archiver', [Admin\PlanController::class, 'archive'])->name('plans.archive');
     Route::get('/facturation', [Admin\BillingController::class, 'index'])->name('billing.index');
+    Route::get('/assistant', [Admin\AssistantSettingsController::class, 'edit'])->name('assistant.edit');
+    Route::put('/assistant', [Admin\AssistantSettingsController::class, 'update'])->name('assistant.update');
+    Route::post('/assistant/test', [Admin\AssistantSettingsController::class, 'test'])->middleware('throttle:6,1')->name('assistant.test');
     Route::get('/integrations', [Admin\IntegrationController::class, 'edit'])->name('integrations.edit');
     Route::put('/integrations/email', [Admin\IntegrationController::class, 'updateMail'])->name('integrations.mail');
     Route::post('/integrations/email/test', [Admin\IntegrationController::class, 'testMail'])->middleware('throttle:5,1')->name('integrations.mail.test');

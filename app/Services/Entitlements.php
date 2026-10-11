@@ -50,6 +50,7 @@ class Entitlements
             'max_invitations' => $plan?->max_invitations,
             'storage_mb' => $plan?->storage_mb,
             'history_months' => $plan?->history_months,
+            'assistant_monthly' => $plan?->assistant_monthly,
         ];
         foreach (($license?->limit_overrides ?? []) as $key => $value) {
             if (array_key_exists($key, $limits)) {

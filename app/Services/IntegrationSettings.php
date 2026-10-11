@@ -31,6 +31,8 @@ class IntegrationSettings
         'stripe.key' => ['services.stripe.key', false],
         'stripe.secret' => ['services.stripe.secret', true],
         'stripe.webhook_secret' => ['services.stripe.webhook_secret', true],
+        'anthropic.key' => ['services.anthropic.key', true],
+        'elevenlabs.key' => ['services.elevenlabs.key', true],
     ];
 
     private ?array $resolved = null;

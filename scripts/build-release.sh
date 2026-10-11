@@ -26,6 +26,8 @@ echo "→ Nettoyage"
 # Dépôts Git embarqués (paquets installés depuis les sources) et fichiers inutiles en production
 find "$STAGE/vendor" -type d \( -name .git -o -name .github \) -prune -exec rm -rf {} +
 find "$STAGE/vendor" -mindepth 3 -maxdepth 3 -type d \( -iname tests -o -iname test -o -iname docs -o -iname doc -o -iname examples \) -prune -exec rm -rf {} +
+# Outils de développement et fichiers de démonstration inutiles en production
+rm -rf "$STAGE/vendor/laravel/framework/bin" "$STAGE/vendor/nunomaduro/termwind/art" "$STAGE/vendor/anthropic-ai/sdk/scripts" "$STAGE/vendor/anthropic-ai/sdk/fixtures"
 find "$STAGE/vendor" -type f \( -iname '*.md' -o -name 'phpunit.xml*' -o -name '.php-cs-fixer*' -o -name 'psalm.xml' -o -name 'phpstan.neon*' \) ! -iname 'LICENSE*' -delete
 rm -f "$STAGE/.env" "$STAGE/storage/app/installed.json" "$STAGE/public/hot"
 find "$STAGE/storage" -type f ! -name '.gitignore' -delete

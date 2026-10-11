@@ -60,8 +60,12 @@ class CareReminders
         return $value.' '.($unit === 'weeks' ? ($value > 1 ? 'semaines' : 'semaine') : 'mois');
     }
 
-    /** Un nouveau soin clôt les contrôles en attente plus anciens de la même catégorie. */
-    public function closePrevious(CareRecord $record, CalendarService $calendar): void
+    /**
+     * Un nouveau soin clôt les contrôles en attente plus anciens de la même catégorie.
+     *
+     * @return int[] identifiants des soins dont le contrôle a été clos
+     */
+    public function closePrevious(CareRecord $record, CalendarService $calendar): array
     {
         $older = CareRecord::where('horse_id', $record->horse_id)->where('care_category_id', $record->care_category_id)
             ->where('id', '!=', $record->id)->where('performed_at', '<=', $record->performed_at)
@@ -71,5 +75,7 @@ class CareReminders
             CalendarEvent::where('source_type', $old->getMorphClass())->where('source_id', $old->id)
                 ->whereIn('status', ['planned', 'confirmed'])->update(['status' => 'done']);
         }
+
+        return $older->pluck('id')->all();
     }
 }

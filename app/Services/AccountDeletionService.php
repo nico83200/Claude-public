@@ -35,6 +35,7 @@ class AccountDeletionService
             SyncDevice::where('user_id', $user->id)->update(['wipe_requested_at' => now()]);
             $user->profile()?->delete();
             $user->notifications()->delete();
+            DB::table('assistant_requests')->where('user_id', $user->id)->delete();
             $user->forceFill([
                 'name' => 'Utilisateur supprimé',
                 'email' => 'supprime-'.$user->id.'-'.Str::lower(Str::random(6)).'@invalid.local',

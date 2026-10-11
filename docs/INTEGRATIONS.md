@@ -1,5 +1,10 @@
 # Intégrations externes
 
+## Assistant vocal (Anthropic + ElevenLabs)
+
+Voir [ASSISTANT.md](ASSISTANT.md). Clés dans **Administration › Assistant IA** (ou `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY`).
+Sans clé Anthropic l'assistant est inactif ; sans clé ElevenLabs seule la saisie au clavier est possible.
+
 ## Réglages depuis l'administration
 
 **Administration › Intégrations** permet au super-administrateur de saisir les réglages email (SMTP) et Stripe

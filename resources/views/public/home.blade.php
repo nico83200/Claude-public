@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-16 pb-14 text-center sm:pt-24">
             <x-brand-mark class="mx-auto w-64 sm:w-80" />
             <h1 class="sr-only">Jack&amp;Cie — Toute la vie de votre cheval, réunie.</h1>
-            <p class="mx-auto mt-8 max-w-2xl text-lg text-slate-600">Santé, soins, séances, alimentation, demi-pensions et dépenses, réunis avec soin. Pour un seul cheval comme pour toute une écurie — même là où le réseau ne passe pas.</p>
+            <p class="mx-auto mt-8 max-w-2xl text-lg text-slate-600">Santé, soins, séances, alimentation, demi-pensions et dépenses, réunis avec soin. Pour un seul cheval comme pour toute une écurie — même là où le réseau ne passe pas. Et tout se dit simplement : « le maréchal vient le 2 décembre à 9 h ».</p>
             <div class="mt-9 flex flex-wrap justify-center gap-3">
                 <a href="{{ route('register') }}" class="btn-primary px-7 text-base">Commencer gratuitement</a>
                 <a href="{{ route('app.install') }}" class="btn-secondary px-6 text-base"><x-icon name="download" class="size-4" /> Installer sur mon téléphone</a>

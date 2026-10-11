@@ -38,6 +38,8 @@ class PurgeData extends Command
         }
         SyncOperation::where('created_at', '<', now()->subDays(180))->delete();
         DB::table('audit_logs')->where('created_at', '<', now()->subYears(3))->delete();
+        // Consignes de l'assistant : texte et actions conservés 90 jours (l'audio n'est jamais stocké).
+        DB::table('assistant_requests')->where('created_at', '<', now()->subDays(90))->delete();
         DB::table('notifications')->whereNotNull('read_at')->where('created_at', '<', now()->subYear())->delete();
 
         return self::SUCCESS;

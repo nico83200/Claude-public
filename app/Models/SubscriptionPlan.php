@@ -27,6 +27,7 @@ class SubscriptionPlan extends Model
         'budget' => 'Suivi des dépenses',
         'exports' => 'Exports PDF / CSV',
         'documents' => 'Stockage de documents',
+        'assistant' => 'Assistant vocal (IA)',
     ];
 
     public function subscriptions()

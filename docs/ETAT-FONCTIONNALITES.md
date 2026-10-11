@@ -3,6 +3,14 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Assistant vocal (2.0)
+- ✅ Micro central, arrêt au silence, saisie clavier, transcription ElevenLabs, compréhension Claude (SDK officiel) avec outils : rendez-vous, séances avec exercices, soins, observations, suivi quotidien, dépenses, ration, questions, demande de précision
+- ✅ Exécution directe, annulation 10 s + 24 h, historique, droits identiques aux écrans, quota mensuel par offre, indications libres et modèle réglables par le super-administrateur
+- ⚙️ Testé avec Claude et ElevenLabs simulés (format des requêtes SDK vérifié contre un faux serveur API) — **nécessite les clés Anthropic et ElevenLabs** pour un essai réel ; à valider sur iPhone (Safari enregistre en audio/mp4)
+
+## Interface (2.0)
+- ✅ Nouvelle DA épurée claire : fond clair, vert Jack&Cie en accent, une seule police (Inter), cartes arrondies, barre du bas avec micro central, tableau de bord « Aujourd'hui / Échéances / Vos chevaux »
+
 ## Socle
 - ✅ Installeur web du premier lancement (prérequis, base MySQL, application, super‑administrateur, verrouillage) — testé sur base vierge et depuis le zip de distribution
 - ✅ Web app installable : manifeste complet (icônes, captures, raccourcis), invite native Android/ordinateur, instructions iPhone, page /application-mobile

@@ -40,3 +40,8 @@
 - Tenir le registre des traitements.
 - Mettre en place les sauvegardes chiffrées hors site et un test de restauration.
 - Renseigner un `HORSE_SEARCH_USER_AGENT` avec un contact réel.
+
+
+## Assistant vocal
+
+L'audio des consignes est transmis à ElevenLabs puis oublié (jamais stocké). Le texte des consignes, le contexte nécessaire (chevaux et intervenants accessibles, bibliothèque d'exercices) et les données consultées pour répondre sont transmis à Anthropic. L'historique (texte + actions) est conservé 90 jours, exporté avec les données personnelles et supprimé avec le compte. Les actions de l'assistant passent par les mêmes contrôles d'accès que l'interface. Détails : [ASSISTANT.md](ASSISTANT.md).

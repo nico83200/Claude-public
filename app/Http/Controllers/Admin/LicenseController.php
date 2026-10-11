@@ -62,7 +62,7 @@ class LicenseController extends Controller
             $data['ends_at'] = Carbon::parse($data['starts_at'] ?? now())->addDays((int) $data['duration_days']);
         }
         unset($data['duration_days']);
-        $data['limit_overrides'] = array_filter(array_intersect_key($data['limit_overrides'] ?? [], array_flip(['max_horses', 'max_members', 'max_invitations', 'storage_mb'])), fn ($v) => $v !== null && $v !== '') ?: null;
+        $data['limit_overrides'] = array_filter(array_intersect_key($data['limit_overrides'] ?? [], array_flip(['max_horses', 'max_members', 'max_invitations', 'storage_mb', 'assistant_monthly'])), fn ($v) => $v !== null && $v !== '') ?: null;
         $data['feature_overrides'] = collect($data['feature_overrides'] ?? [])->filter(fn ($v) => $v !== null && $v !== '')->only(array_keys(SubscriptionPlan::FEATURES))->map(fn ($v) => (bool) $v)->all() ?: null;
 
         return $data;
