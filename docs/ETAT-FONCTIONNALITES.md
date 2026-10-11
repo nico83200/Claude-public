@@ -3,6 +3,9 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.10 — connexion avec Google et Apple
+- ✅ « Continuer avec Google / Apple » à l'inscription et à la connexion (OpenID Connect, jetons vérifiés) ; compte et espace personnel créés en un geste ; association automatique à un compte existant seulement si l'email est confirmé par le fournisseur ; double authentification conservée ; association / retrait dans Paramètres › Sécurité ; confirmation des actions sensibles avec Google / Apple. Testé avec un faux fournisseur (vraies clés et signatures) — ⚙️ nécessite les identifiants Google Cloud et Apple Developer (voir `docs/INTEGRATIONS.md`)
+
 ## Version 2.9 — propositions d'offre supérieure (Découverte)
 - ✅ Propositions affichées là où l'offre gratuite bloque, avec un argumentaire par fonction et un bouton « Essayer 14 jours gratuitement » (ou « Passer à l'offre … » si l'essai a déjà été utilisé) qui mène à la page Abonnement, offres concernées mises en avant :
   - assistant vocal : le micro (barre du bas, bouton « Parler », carte « Dites-le simplement ») ouvre une présentation de l'assistant au lieu d'un simple message d'indisponibilité ;

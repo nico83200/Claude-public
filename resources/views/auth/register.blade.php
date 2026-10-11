@@ -5,6 +5,11 @@
     @if (! \App\Models\FeatureFlag::enabled('registration'))
         <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Les inscriptions sont temporairement fermées.</p>
     @else
+    @if (\App\Services\Auth\OidcProvider::available())
+        <x-social-buttons />
+        <p class="mt-3 text-center text-xs text-slate-500">En continuant avec Google ou Apple, vous acceptez les <a href="{{ route('legal.terms') }}" target="_blank" class="link">conditions d'utilisation</a> et la <a href="{{ route('legal.privacy') }}" target="_blank" class="link">politique de confidentialité</a>.</p>
+        <div class="my-6 flex items-center gap-3 text-xs text-slate-400" role="separator"><span class="h-px flex-1 bg-slate-200"></span>ou avec votre email<span class="h-px flex-1 bg-slate-200"></span></div>
+    @endif
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
         <x-field name="name" label="Nom et prénom" required autofocus autocomplete="name" />

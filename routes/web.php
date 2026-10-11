@@ -27,6 +27,14 @@ Route::view('/application-mobile', 'public.install')->name('app.install');
 // Webhook Stripe (signature vérifiée, CSRF exclu dans bootstrap/app.php)
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
 
+// Continuer avec Google / Apple (retour d'Apple en POST : CSRF exclu dans bootstrap/app.php, état vérifié)
+Route::prefix('/connexion/{provider}')->whereIn('provider', ['google', 'apple'])->name('social.')->middleware('throttle:30,1')->group(function () {
+    Route::get('/', [Controllers\SocialAuthController::class, 'redirect'])->name('redirect');
+    Route::match(['get', 'post'], '/retour', [Controllers\SocialAuthController::class, 'callback'])->name('callback');
+    Route::get('/fin', [Controllers\SocialAuthController::class, 'finish'])->name('finish');
+});
+Route::delete('/parametres/securite/{provider}', [Controllers\SocialAuthController::class, 'unlink'])->whereIn('provider', ['google', 'apple'])->middleware('auth')->name('social.unlink');
+
 // Invitations (consultables avant connexion)
 Route::get('/email/confirmer/{id}/{hash}', Controllers\EmailVerificationController::class)->middleware(['signed', 'throttle:12,1'])->name('verification.public');
 Route::get('/invitations/{token}', [Controllers\InvitationController::class, 'show'])->name('invitations.show');
@@ -208,6 +216,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/parametres/notifications', [Controllers\SettingsController::class, 'notifications'])->name('settings.notifications');
     Route::put('/parametres/notifications', [Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::get('/parametres/securite', [Controllers\SettingsController::class, 'security'])->name('settings.security');
+    Route::post('/parametres/securite/lien-mot-de-passe', [Controllers\SettingsController::class, 'sendPasswordLink'])->middleware('throttle:3,10')->name('settings.password.link');
     Route::get('/parametres/donnees', [Controllers\SettingsController::class, 'privacy'])->name('settings.privacy');
     Route::get('/parametres/donnees/export', [Controllers\ExportController::class, 'personalData'])->middleware(['throttle:exports', 'password.confirm'])->name('settings.export');
     Route::post('/parametres/donnees/demande', [Controllers\SettingsController::class, 'dataRequest'])->name('settings.data-request');
@@ -245,6 +254,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::put('/integrations/email', [Admin\IntegrationController::class, 'updateMail'])->name('integrations.mail');
     Route::post('/integrations/email/test', [Admin\IntegrationController::class, 'testMail'])->middleware('throttle:5,1')->name('integrations.mail.test');
     Route::put('/integrations/stripe', [Admin\IntegrationController::class, 'updateStripe'])->name('integrations.stripe');
+    Route::put('/integrations/connexion', [Admin\IntegrationController::class, 'updateSocial'])->name('integrations.social');
     Route::post('/integrations/stripe/test', [Admin\IntegrationController::class, 'testStripe'])->middleware('throttle:5,1')->name('integrations.stripe.test');
     Route::get('/codes', [Admin\PromoCodeController::class, 'index'])->name('promo-codes.index');
     Route::post('/codes', [Admin\PromoCodeController::class, 'store'])->name('promo-codes.store');

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Crypt;
 use Throwable;
 
 /**
- * Réglages email et Stripe modifiables par le super-administrateur.
+ * Réglages email, Stripe, IA et connexion Google / Apple modifiables par le super-administrateur.
  *
  * Stockés en base (`application_settings`), les secrets chiffrés avec APP_KEY.
  * Ils priment sur le fichier .env, qui reste la valeur de repli.
@@ -33,6 +33,12 @@ class IntegrationSettings
         'stripe.webhook_secret' => ['services.stripe.webhook_secret', true],
         'anthropic.key' => ['services.anthropic.key', true],
         'elevenlabs.key' => ['services.elevenlabs.key', true],
+        'google.client_id' => ['services.google.client_id', false],
+        'google.client_secret' => ['services.google.client_secret', true],
+        'apple.client_id' => ['services.apple.client_id', false],
+        'apple.team_id' => ['services.apple.team_id', false],
+        'apple.key_id' => ['services.apple.key_id', false],
+        'apple.private_key' => ['services.apple.private_key', true],
     ];
 
     private ?array $resolved = null;

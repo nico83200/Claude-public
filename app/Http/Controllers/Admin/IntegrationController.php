@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\TestMail;
 use App\Services\Audit;
+use App\Services\Auth\OidcProvider;
 use App\Services\Billing\StripeGateway;
 use App\Services\IntegrationSettings;
 use Illuminate\Http\Request;
@@ -38,12 +39,25 @@ class IntegrationController extends Controller
                 'key' => $s->get('stripe.key') ?? config('services.stripe.key'),
                 'mode' => str_starts_with((string) config('services.stripe.secret'), 'sk_live_') || str_starts_with((string) config('services.stripe.secret'), 'rk_live_') ? 'live' : 'test',
             ],
-            'masked' => collect(['mail.password', 'stripe.secret', 'stripe.webhook_secret'])->mapWithKeys(fn ($k) => [$k => $s->masked($k)]),
+            'social' => [
+                'google_client_id' => $s->get('google.client_id') ?? config('services.google.client_id'),
+                'apple_client_id' => $s->get('apple.client_id') ?? config('services.apple.client_id'),
+                'apple_team_id' => $s->get('apple.team_id') ?? config('services.apple.team_id'),
+                'apple_key_id' => $s->get('apple.key_id') ?? config('services.apple.key_id'),
+                'google' => OidcProvider::configured('google'),
+                'apple' => OidcProvider::configured('apple'),
+                'google_callback' => route('social.callback', 'google'),
+                'apple_callback' => route('social.callback', 'apple'),
+                'domain' => parse_url(config('app.url'), PHP_URL_HOST),
+            ],
+            'masked' => collect(['mail.password', 'stripe.secret', 'stripe.webhook_secret', 'google.client_secret', 'apple.private_key'])->mapWithKeys(fn ($k) => [$k => $s->masked($k)]),
             'sources' => collect(array_keys(IntegrationSettings::FIELDS))->mapWithKeys(fn ($k) => [$k => $s->source($k)]),
             'configured' => [
                 'mail.password' => filled(config('mail.mailers.smtp.password')),
                 'stripe.secret' => filled(config('services.stripe.secret')),
                 'stripe.webhook_secret' => filled(config('services.stripe.webhook_secret')),
+                'google.client_secret' => filled(config('services.google.client_secret')),
+                'apple.private_key' => filled(config('services.apple.private_key')),
             ],
             'webhookUrl' => route('stripe.webhook'),
             'events' => ['checkout.session.completed', 'customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted',
@@ -113,6 +127,51 @@ class IntegrationController extends Controller
         Audit::log('admin.stripe_settings_updated', null, ['fields' => $changed]);
 
         return back()->with('success', 'Réglages Stripe enregistrés. Testez la connexion.');
+    }
+
+    /** Connexion avec Google / Apple : identifiants OAuth (secrets chiffrés). */
+    public function updateSocial(Request $request)
+    {
+        $data = $request->validate([
+            'google_client_id' => ['nullable', 'string', 'max:255', 'regex:/\.apps\.googleusercontent\.com$/'],
+            'google_client_secret' => ['nullable', 'string', 'max:255'],
+            'apple_client_id' => ['nullable', 'string', 'max:255', 'regex:/^[A-Za-z0-9.\-]+$/'],
+            'apple_team_id' => ['nullable', 'string', 'regex:/^[A-Z0-9]{10}$/'],
+            'apple_key_id' => ['nullable', 'string', 'regex:/^[A-Z0-9]{10}$/'],
+            'apple_private_key' => ['nullable', 'string', 'max:2000', 'regex:/BEGIN PRIVATE KEY/'],
+            'clear' => ['array'], 'clear.*' => [Rule::in(['google', 'apple'])],
+        ], [
+            'google_client_id.regex' => 'L\'identifiant client Google se termine par .apps.googleusercontent.com.',
+            'apple_client_id.regex' => 'Indiquez l\'identifiant du « Services ID » (ex. fr.nlapps.jackcie.web).',
+            'apple_team_id.regex' => 'Le Team ID Apple compte 10 caractères (lettres majuscules et chiffres).',
+            'apple_key_id.regex' => 'Le Key ID Apple compte 10 caractères (lettres majuscules et chiffres).',
+            'apple_private_key.regex' => 'Collez le contenu complet du fichier .p8 (« -----BEGIN PRIVATE KEY----- … »).',
+        ]);
+        $clear = [];
+        foreach ($data['clear'] ?? [] as $p) {
+            $clear = [...$clear, ...($p === 'google' ? ['google.client_id', 'google.client_secret'] : ['apple.client_id', 'apple.team_id', 'apple.key_id', 'apple.private_key'])];
+        }
+        $changed = $this->settings->save([
+            'google.client_id' => $data['google_client_id'] ?? null,
+            'google.client_secret' => $data['google_client_secret'] ?? null,
+            'apple.client_id' => $data['apple_client_id'] ?? null,
+            'apple.team_id' => $data['apple_team_id'] ?? null,
+            'apple.key_id' => $data['apple_key_id'] ?? null,
+            'apple.private_key' => isset($data['apple_private_key']) ? trim($data['apple_private_key']) : null,
+        ], $clear);
+        Audit::log('admin.social_settings_updated', null, ['fields' => $changed]);
+
+        // La clé Apple est vérifiée en signant un secret client, sans appel externe.
+        if (OidcProvider::configured('apple')) {
+            try {
+                (new OidcProvider('apple'))->appleClientSecret();
+            } catch (Throwable $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Réglages de connexion enregistrés.'
+            .(OidcProvider::available() ? ' Boutons affichés : '.implode(', ', array_map('ucfirst', OidcProvider::available())).'.' : ' Aucun fournisseur complet : les boutons restent masqués.'));
     }
 
     public function testStripe(StripeGateway $stripe)

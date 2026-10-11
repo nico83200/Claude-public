@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super-admin' => EnsureSuperAdmin::class,
         ]);
         // Webhook Stripe : authentifié par signature, pas par jeton CSRF.
-        $middleware->validateCsrfTokens(except: ['stripe/webhook']);
+        $middleware->validateCsrfTokens(except: ['stripe/webhook', 'connexion/apple/retour']);
         // Cookie de contournement de la maintenance (mise à jour depuis l'administration) : lu en clair par le mode maintenance.
         $middleware->encryptCookies(except: ['laravel_maintenance']);
         $middleware->trustProxies(at: env('TRUSTED_PROXIES') ? explode(',', env('TRUSTED_PROXIES')) : null);

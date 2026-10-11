@@ -1,6 +1,6 @@
 @php $src = fn ($k) => ['admin' => 'réglé ici', 'env' => 'fichier .env', 'none' => 'non renseigné'][$sources[$k]]; @endphp
 <x-layouts.app title="Intégrations · Admin">
-    <x-page-header title="Intégrations" subtitle="Envoi des emails et paiements Stripe" />
+    <x-page-header title="Intégrations" subtitle="Emails, paiements Stripe, connexion avec Google et Apple" />
     @include('admin._nav')
     <p class="mb-4 text-sm text-slate-600">Les valeurs saisies ici priment sur le fichier <code>.env</code> (qui reste la valeur de repli). Les mots de passe et clés secrètes sont chiffrés en base et ne sont jamais réaffichés.</p>
 
@@ -54,6 +54,41 @@
                 <p class="mt-2 text-xs text-slate-500">Événements : {{ implode(', ', $events) }}</p>
                 <p class="mt-2 text-xs text-slate-500">Les offres (Administration › Offres) doivent ensuite être synchronisées pour créer leurs produits et tarifs dans le compte Stripe choisi.</p>
             </div>
+        </x-section>
+        <x-section title="Connexion avec Google et Apple" class="lg:col-span-2">
+            <p class="mb-3 text-sm text-slate-600">Les boutons « Continuer avec Google / Apple » apparaissent sur les pages de connexion et d'inscription dès qu'un fournisseur est entièrement renseigné.</p>
+            <form method="POST" action="{{ route('admin.integrations.social') }}" class="grid gap-6 lg:grid-cols-2">
+                @csrf @method('PUT')
+                <div class="space-y-3">
+                    <p class="flex items-center gap-2 font-medium">Google <x-badge :color="$social['google'] ? 'green' : 'amber'">{{ $social['google'] ? 'Actif' : 'Non configuré' }}</x-badge></p>
+                    <x-field name="google_client_id" label="ID client OAuth" :value="$social['google_client_id']" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off" />
+                    <x-field name="google_client_secret" type="password" label="Code secret du client" autocomplete="new-password"
+                        :help="$masked['google.client_secret'] ? 'Enregistré ('.$masked['google.client_secret'].') — laisser vide pour le conserver.' : ($configured['google.client_secret'] ? 'Défini dans le .env.' : 'Non renseigné.')" />
+                    <div class="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                        <p>Google Cloud Console › API et services › Identifiants › « ID client OAuth » de type <strong>Application Web</strong>.</p>
+                        <p class="mt-1">URI de redirection autorisé :</p>
+                        <p class="mt-1 break-all rounded bg-white px-2 py-1 font-mono" x-data><span x-ref="u">{{ $social['google_callback'] }}</span> <button type="button" class="ml-1 link" @click="navigator.clipboard?.writeText($refs.u.textContent)">Copier</button></p>
+                    </div>
+                    @if ($social['google'])<x-checkbox name="clear[]" value="google" label="Désactiver Google (effacer les identifiants enregistrés)" />@endif
+                </div>
+                <div class="space-y-3">
+                    <p class="flex items-center gap-2 font-medium">Apple <x-badge :color="$social['apple'] ? 'green' : 'amber'">{{ $social['apple'] ? 'Actif' : 'Non configuré' }}</x-badge></p>
+                    <x-field name="apple_client_id" label="Services ID (identifiant)" :value="$social['apple_client_id']" placeholder="fr.nlapps.jackcie.web" autocomplete="off" />
+                    <div class="grid grid-cols-2 gap-3">
+                        <x-field name="apple_team_id" label="Team ID" :value="$social['apple_team_id']" placeholder="ABCDE12345" autocomplete="off" />
+                        <x-field name="apple_key_id" label="Key ID" :value="$social['apple_key_id']" placeholder="XYZ987WVU6" autocomplete="off" />
+                    </div>
+                    <x-textarea name="apple_private_key" label="Clé privée (contenu du fichier .p8)" rows="4" placeholder="-----BEGIN PRIVATE KEY-----"
+                        :help="$masked['apple.private_key'] ? 'Enregistrée — laisser vide pour la conserver.' : ($configured['apple.private_key'] ? 'Définie dans le .env.' : 'Non renseignée.')" />
+                    <div class="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                        <p>Apple Developer › Certificates, Identifiers &amp; Profiles : un <strong>Services ID</strong> avec « Sign in with Apple » (domaine <code>{{ $social['domain'] }}</code>) et une <strong>clé</strong> « Sign in with Apple » (.p8).</p>
+                        <p class="mt-1">Return URL :</p>
+                        <p class="mt-1 break-all rounded bg-white px-2 py-1 font-mono" x-data><span x-ref="u">{{ $social['apple_callback'] }}</span> <button type="button" class="ml-1 link" @click="navigator.clipboard?.writeText($refs.u.textContent)">Copier</button></p>
+                    </div>
+                    @if ($social['apple'])<x-checkbox name="clear[]" value="apple" label="Désactiver Apple (effacer les identifiants enregistrés)" />@endif
+                </div>
+                <div class="lg:col-span-2"><button class="btn-primary">Enregistrer</button></div>
+            </form>
         </x-section>
     </div>
 </x-layouts.app>

@@ -40,6 +40,7 @@ class AppNotification extends Notification
         'push_test' => 'Essai de notification',
         'payment_due' => 'Paiement à effectuer',
         'inactivity' => 'Rappel après une absence',
+        'account_security' => 'Sécurité du compte',
     ];
 
     public function __construct(

@@ -16,7 +16,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     // is_super_admin et suspended_at ne sont jamais assignables en masse.
-    protected $fillable = ['name', 'email', 'password', 'locale', 'current_organization_id', 'terms_accepted_at'];
+    protected $fillable = ['name', 'email', 'password', 'locale', 'current_organization_id', 'terms_accepted_at', 'has_password'];
 
     protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
 
@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'terms_accepted_at' => 'datetime',
             'deletion_requested_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
+            'has_password' => 'boolean',
         ];
     }
 
@@ -93,6 +94,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isSuspended(): bool
     {
         return $this->suspended_at !== null;
+    }
+
+    public function socialAccounts()
+    {
+        return $this->hasMany(SocialAccount::class);
     }
 
     public function hasConfirmedTwoFactor(): bool

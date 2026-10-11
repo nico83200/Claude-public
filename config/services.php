@@ -61,4 +61,17 @@ return [
         'base_url' => env('ELEVENLABS_BASE_URL', 'https://api.elevenlabs.io'),
     ],
 
+    // Connexion avec Google (OpenID Connect) et Apple (Sign in with Apple).
+    // Réglables aussi dans Administration › Intégrations (prioritaire, secrets chiffrés).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
+    'apple' => [
+        'client_id' => env('APPLE_CLIENT_ID'), // identifiant du « Services ID »
+        'team_id' => env('APPLE_TEAM_ID'),
+        'key_id' => env('APPLE_KEY_ID'),
+        'private_key' => env('APPLE_PRIVATE_KEY'), // contenu du fichier .p8
+    ],
+
 ];

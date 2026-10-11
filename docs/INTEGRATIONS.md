@@ -60,3 +60,25 @@ Les envois passent par la file (`QUEUE_CONNECTION=database`), traitée par le pl
 
 Non incluse dans cette version ; la colonne `calendar_events.external_uid` (unique) est prévue
 pour un import/export iCal sans doublon.
+
+
+## Connexion avec Google et Apple
+
+Boutons « Continuer avec Google / Apple » sur les pages de connexion et d'inscription, affichés seulement quand le fournisseur est entièrement configuré (Administration › Intégrations, ou `.env` : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`). Secrets chiffrés en base, jamais renvoyés au navigateur.
+
+**Google** — Google Cloud Console › API et services :
+1. Écran de consentement OAuth : type « Externe », nom Jack&Cie, logo, domaine `jackcie.nlapps.fr`, liens vers les conditions et la politique de confidentialité ; publier l'application (sinon seuls les comptes de test peuvent se connecter).
+2. Identifiants › Créer › ID client OAuth › « Application Web » ; URI de redirection autorisé : `https://<domaine>/connexion/google/retour` (copiable dans l'administration).
+3. Coller l'ID client et le code secret dans Administration › Intégrations.
+
+**Apple** — Apple Developer (compte payant) › Certificates, Identifiers & Profiles :
+1. Identifiers › App ID avec la capacité « Sign in with Apple » (si vous n'en avez pas).
+2. Identifiers › **Services ID** (ex. `fr.nlapps.jackcie.web`) › activer « Sign in with Apple » › Configure : App ID principal, domaine `jackcie.nlapps.fr`, Return URL `https://<domaine>/connexion/apple/retour`.
+3. Keys › nouvelle clé « Sign in with Apple » › télécharger le fichier `.p8` (une seule fois) ; noter le Key ID et le Team ID (en haut à droite du compte).
+4. Saisir Services ID, Team ID, Key ID et le contenu du `.p8` dans Administration › Intégrations : la clé est vérifiée à l'enregistrement.
+
+**Fonctionnement et sécurité**
+- OpenID Connect « authorization code » : `state` et `nonce` aléatoires liés au navigateur (cookie chiffré), PKCE pour Google ; le jeton d'identité est vérifié (signature contre les clés publiées par Google / Apple, émetteur, destinataire, expiration, nonce). Secret client Apple signé en ES256 à chaque connexion (valable 10 min).
+- Identité déjà liée → connexion. Adresse email confirmée par le fournisseur et compte existant → association automatique, avec notification et email d'information. Email non confirmé → jamais utilisé pour rejoindre un compte existant. Sinon → création du compte et de l'espace personnel (si les inscriptions sont ouvertes), conditions acceptées en continuant.
+- La double authentification reste demandée. Les comptes suspendus sont refusés.
+- Paramètres › Sécurité : associer / retirer Google ou Apple (impossible de retirer le dernier moyen de connexion) ; un compte créé sans mot de passe peut en définir un par lien email. Les actions sensibles (export RGPD, administration) se confirment avec Google / Apple ou le mot de passe.

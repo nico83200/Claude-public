@@ -27,6 +27,7 @@ class ResetUserPassword implements ResetsUserPasswords
 
         $user->forceFill([
             'password' => Hash::make($input['password']),
+            'has_password' => true, // compte créé avec Google / Apple : le mot de passe est désormais utilisable
         ])->save();
     }
 }

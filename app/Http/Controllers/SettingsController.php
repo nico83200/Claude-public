@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DataRequest;
 use App\Models\PushSubscription;
+use App\Models\SocialAccount;
 use App\Models\UserProfile;
 use App\Services\Audit;
+use App\Services\Auth\OidcProvider;
 use App\Services\WebPush;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 
 class SettingsController extends Controller
@@ -69,7 +72,21 @@ class SettingsController extends Controller
 
     public function security(Request $request)
     {
-        return view('settings.security', ['user' => $request->user()]);
+        $user = $request->user();
+        $linked = $user->socialAccounts()->get()->keyBy('provider');
+        $providers = array_values(array_filter(array_keys(SocialAccount::PROVIDERS), fn ($p) => OidcProvider::configured($p) || $linked->has($p)));
+
+        return view('settings.security', ['user' => $user, 'linked' => $linked, 'socialProviders' => $providers]);
+    }
+
+    /** Compte créé avec Google / Apple : lien par email pour définir un premier mot de passe. */
+    public function sendPasswordLink(Request $request)
+    {
+        $status = Password::sendResetLink(['email' => $request->user()->email]);
+
+        return back()->with($status === Password::RESET_LINK_SENT ? 'success' : 'error', $status === Password::RESET_LINK_SENT
+            ? 'Un lien pour définir votre mot de passe a été envoyé à '.$request->user()->email.'.'
+            : 'Merci de patienter avant de demander un nouveau lien.');
     }
 
     public function privacy(Request $request)
