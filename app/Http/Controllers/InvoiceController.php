@@ -117,7 +117,7 @@ class InvoiceController extends ExpenseController
     {
         $pending = $this->pending($request, $token);
         $data = $request->validate([
-            'horse_id' => ['nullable', 'integer'],
+            'horse_id' => ['required', 'integer'],
             'expense_category_id' => ['required', 'exists:expense_categories,id'],
             'spent_on' => ['required', 'date', 'before_or_equal:today'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999', 'decimal:0,2'],

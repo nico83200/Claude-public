@@ -25,7 +25,7 @@
             @csrf
             <x-section title="Dépense">
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <x-select name="horse_id" label="Cheval" :options="$horses" :value="$horseId" :placeholder="$canOrgExpense ? 'Aucun (dépense de l\'espace)' : null" x-model="horse" />
+                    <x-select name="horse_id" label="Cheval" :options="$horses" :value="$horseId" :placeholder="$horseId ? null : 'Choisir…'" required x-model="horse" />
                     <x-select name="expense_category_id" label="Catégorie" :options="$categories" :value="$categoryId" required />
                     <x-field name="amount" type="number" step="0.01" min="0.01" label="Montant (€)" :value="$d['total_amount'] > 0 ? number_format((float) $d['total_amount'], 2, '.', '') : null" required inputmode="decimal" />
                     <x-field name="spent_on" type="date" label="Date" :value="$date" required />

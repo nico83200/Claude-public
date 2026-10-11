@@ -74,8 +74,8 @@ class ExpenseController extends Controller
             'contextHorse' => $contextHorse,
             'upsell' => app(Upsell::class)->for($contextHorse?->organization ?? $this->currentOrganization(), $user, 'budget'),
             'creatableHorses' => $creatable->pluck('official_name', 'id'),
-            'canOrgExpense' => $user->canInOrg($this->currentOrganization(), Perm::EXPENSES_ORG_VIEW) && $this->entitlements()->writable($this->currentOrganization())
-                && $this->entitlements()->hasFeature($this->currentOrganization(), 'budget'),
+            // Plus de dépense « générale de l'espace » : chaque dépense est rattachée à un cheval.
+            'canOrgExpense' => false,
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
             'professionals' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
@@ -270,7 +270,8 @@ class ExpenseController extends Controller
     private function validated(Request $request): array
     {
         $data = $request->validate([
-            'horse_id' => ['nullable', 'integer'],
+            // Toute dépense se rapporte à un cheval.
+            'horse_id' => ['required', 'integer'],
             'expense_category_id' => ['required', 'exists:expense_categories,id'],
             'spent_on' => ['required', 'date'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999', 'decimal:0,2'],

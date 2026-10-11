@@ -143,8 +143,8 @@ class AssistantTools
                 'body_condition' => $n($int),
                 'notes' => $n($str),
             ]),
-            $tool('add_expense', 'Enregistre une dépense (maréchal, pension, aliment, vétérinaire, matériel…).', [
-                'horse_id' => $n($int),
+            $tool('add_expense', 'Enregistre une dépense (maréchal, pension, aliment, vétérinaire, matériel…) pour un cheval : toute dépense se rapporte à un cheval ; s\'il n\'est pas clair, demande lequel avec ask_user.', [
+                'horse_id' => $int,
                 'category' => $enum(self::EXPENSE_KEYS),
                 'amount' => $num,
                 'spent_on' => ['type' => 'string', 'description' => 'YYYY-MM-DD'],
@@ -487,11 +487,11 @@ class AssistantTools
 
     private function addExpense(array $in, AssistantContext $ctx): array
     {
-        $horse = ! empty($in['horse_id']) ? $this->horse($ctx, $in['horse_id'], Perm::EXPENSES_CREATE) : null;
-        $org = $horse?->organization ?? $ctx->organization;
-        if (! $horse && ! $ctx->user->canInOrg($org->id, Perm::EXPENSES_CREATE)) {
-            throw new ToolError('Accès insuffisant pour enregistrer une dépense de l\'espace : précisez le cheval.');
+        if (empty($in['horse_id'])) {
+            throw new ToolError('Une dépense se rapporte toujours à un cheval : demandez lequel.');
         }
+        $horse = $this->horse($ctx, $in['horse_id'], Perm::EXPENSES_CREATE);
+        $org = $horse->organization;
         if (! $this->entitlements->hasFeature($org, 'budget')) {
             throw new ToolError('Le suivi des dépenses n\'est pas inclus dans l\'offre de cet espace.');
         }
