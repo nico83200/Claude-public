@@ -8,6 +8,7 @@ use App\Models\Reminder;
 use App\Models\Treatment;
 use App\Models\User;
 use App\Notifications\AppNotification;
+use App\Services\CareReminders;
 use App\Services\HorseAccess;
 use App\Support\Perm;
 use Illuminate\Console\Command;
@@ -24,16 +25,38 @@ class SendReminders extends Command
 
     protected $description = 'Envoie les rappels (rendez-vous, échéances de soins, fins de traitement)';
 
-    public function handle(HorseAccess $access): int
+    public function handle(HorseAccess $access, CareReminders $reminders): int
     {
         $sent = 0;
         $tomorrow = [now()->addDay()->startOfDay(), now()->addDay()->endOfDay()];
 
         foreach (CalendarEvent::with('horse.organization')->whereNotNull('horse_id')->whereIn('status', ['planned', 'confirmed'])->whereBetween('starts_at', $tomorrow)->get() as $event) {
-            $sent += $this->dispatch($access, $event, $event->horse, Perm::CALENDAR_VIEW, 'appointment', 'Rendez-vous demain', $event->title.' le '.$event->starts_at->format('d/m/Y à H:i').'.', route('calendar.show', $event), $event->starts_at);
+            $sent += $this->dispatch($access, $event, $event->horse, $event->isSessionEvent() ? Perm::SESSIONS_VIEW : Perm::CALENDAR_VIEW, 'appointment', $event->isSessionEvent() ? 'Séance demain' : 'Rendez-vous demain', $event->title.' le '.$event->starts_at->format('d/m/Y à H:i').'.', route('calendar.show', $event), $event->starts_at);
         }
-        foreach (CareRecord::with(['horse.organization', 'category'])->whereNotNull('next_check_on')->whereDate('next_check_on', now()->addDays(7)->toDateString())->get() as $care) {
-            $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance de soin dans 7 jours', $care->category->name.' pour '.$care->horse->shortName().' prévu le '.$care->next_check_on->format('d/m/Y').'.', route('horses.care.index', $care->horse), Carbon::parse($care->next_check_on));
+        // Échéances de suivi : règle du cheval (maréchal, vaccination… actifs par défaut),
+        // rappel N jours avant puis le jour même ; un contrôle déjà remplacé par un soin plus récent est ignoré.
+        $today = now()->startOfDay();
+        $rulesCache = [];
+        $dueRecords = CareRecord::with(['horse.organization', 'category'])->whereNotNull('next_check_on')->whereNull('next_check_done_at')
+            ->whereBetween('next_check_on', [$today->toDateString(), $today->copy()->addDays(60)->toDateString()])->get();
+        foreach ($dueRecords as $care) {
+            if (! $care->horse) {
+                continue;
+            }
+            $rules = $rulesCache[$care->horse_id] ??= $reminders->rulesFor($care->horse);
+            $rule = $rules->get($care->care_category_id);
+            if ($rule && ! $rule['enabled']) {
+                continue;
+            }
+            $due = Carbon::parse($care->next_check_on)->startOfDay();
+            $notice = $rule['notice_days'] ?? 7;
+            $what = $care->category->name.' pour '.$care->horse->shortName();
+            if ($notice > 0 && $due->equalTo($today->copy()->addDays($notice))) {
+                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance dans '.$notice.' jour'.($notice > 1 ? 's' : ''), $what.' prévu le '.$due->format('d/m/Y').'. Pensez à prendre rendez-vous.', route('horses.care.index', $care->horse), $due->copy()->subDays($notice));
+            }
+            if ($due->equalTo($today)) {
+                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance aujourd\'hui', $what.' est prévu aujourd\'hui.', route('horses.care.index', $care->horse), $due);
+            }
         }
         foreach (Treatment::with('horse.organization')->where('status', 'active')->whereDate('ends_on', now()->addDay()->toDateString())->get() as $t) {
             $sent += $this->dispatch($access, $t, $t->horse, Perm::TREATMENTS_VIEW, 'treatment_end', 'Fin de traitement demain', 'Le traitement '.$t->product.' de '.$t->horse->shortName().' se termine le '.$t->ends_on->format('d/m/Y').'.', route('horses.care.index', $t->horse), Carbon::parse($t->ends_on));

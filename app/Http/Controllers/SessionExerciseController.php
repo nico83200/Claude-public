@@ -76,6 +76,21 @@ class SessionExerciseController extends Controller
         return back();
     }
 
+    /** Glisser-déposer : ordre et sections de toutes les lignes, ajouts depuis la bibliothèque. */
+    public function layout(Request $request, RidingSession $session)
+    {
+        $this->authorize($request, $session, false);
+        $data = $request->validate([
+            'layout' => ['required', 'array'],
+            'layout.*' => ['array', 'max:60'],
+            'layout.*.*' => ['string', 'regex:/^(item|ex):\d+$/'],
+        ]);
+        abort_if(array_diff(array_keys($data['layout']), array_keys(RidingSession::PHASES)), 422, 'Section inconnue.');
+        $added = $this->sessions->applyLayout($session, $request->user(), $data['layout']);
+
+        return response()->json(['ok' => true, 'added' => $added]);
+    }
+
     public function destroy(Request $request, RidingSession $session, SessionExercise $item)
     {
         $this->authorize($request, $session, false);

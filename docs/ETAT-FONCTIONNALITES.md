@@ -20,6 +20,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ Recherche d'identité : adaptateurs, comparaison, différences, validation champ par champ, provenance — ⚙️ Wikidata sans clé, Brave avec clé ; ❌ registre IFCE (pas d'API ouverte, voir INTEGRATIONS.md)
 
 ## Santé
+- ✅ Rappels de suivi par cheval (fréquence, préavis) : maréchal (6 semaines) et vaccination (12 mois) **actifs par défaut**, vermifuge/dentiste/ostéopathe désactivables ; rappel N jours avant puis le jour même
+- ✅ À l'enregistrement d'un soin ou à la validation d'une intervention du calendrier : fréquence du prochain passage demandée (pré-remplie), date calculée, fréquence mémorisée pour le cheval
 - ✅ Soins par catégorie, professionnel, coût → dépense, document joint, prochain contrôle → calendrier, verrou de modification concurrente
 - ✅ Traitements (posologie saisie, jamais calculée), administrations, fin → calendrier ; observations / signalements avec notification ciblée
 - ✅ Vue d'ensemble : échéances, alertes, traitements ; export PDF de l'historique sanitaire
@@ -35,6 +37,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ❌ Synchronisation avec un calendrier externe (iCal) — prévue (`external_uid`)
 
 ## Séances et exercices
+- ✅ Préparation par glisser-déposer (souris et tactile) : réordonner, changer de section, déposer un exercice de la bibliothèque dans une section ; flèches ▲▼ conservées pour le clavier
+- ✅ Séances visibles dans le calendrier (prévues, terminées, annulées), synchronisées automatiquement ; visibles seulement avec le droit « Consulter les séances »
 - ✅ Création, préparation (phases, ordre, durées, répétitions, consignes, pauses), modèles, mode séance mobile, bilan, historique filtrable, indicateurs de progression
 - ✅ Copie figée des exercices (snapshot + version) : la bibliothèque ne modifie jamais les séances passées ; duplication sans altérer l'originale
 - ✅ Bibliothèque : 23 exercices par défaut, exercices personnels et partagés en écurie, duplication, archivage, filtres

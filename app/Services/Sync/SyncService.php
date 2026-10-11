@@ -110,7 +110,7 @@ class SyncService
                 }
             }
             if ($has(Perm::CALENDAR_VIEW)) {
-                foreach ($horse->events()->where('status', '!=', 'cancelled')->whereBetween('starts_at', [now()->subDays(7), now()->addDays(30)])->orderBy('starts_at')->get() as $e) {
+                foreach ($horse->events()->visibleSessions($has(Perm::SESSIONS_VIEW) ? [$horse->id] : [])->where('status', '!=', 'cancelled')->whereBetween('starts_at', [now()->subDays(7), now()->addDays(30)])->orderBy('starts_at')->get() as $e) {
                     $payload['events'][] = ['id' => $e->id, 'uuid' => $e->uuid, 'horse_id' => $horse->id, 'type' => $e->type, 'title' => $e->title, 'starts_at' => $e->starts_at->toIso8601String(), 'duration_minutes' => $e->duration_minutes, 'status' => $e->status, 'notes' => $e->notes];
                 }
             }

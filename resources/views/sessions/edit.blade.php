@@ -3,14 +3,19 @@
         <a href="{{ route('sessions.live', $session) }}" class="btn-primary"><x-icon name="play" /> Démarrer</a>
     </x-page-header>
 
-    <div class="grid gap-4 lg:grid-cols-5">
+    <div class="grid gap-4 lg:grid-cols-5" x-data="sessionPlanner(@js(route('sessions.exercises.layout', $session)))">
         <div class="space-y-4 lg:col-span-3">
+            <p class="flex items-center gap-2 text-sm text-slate-600"><span class="text-gold-600" aria-hidden="true">⠿</span> Glissez les exercices par la poignée pour les réordonner, les changer de section ou les ajouter depuis la bibliothèque.
+                <span x-show="saving" x-cloak class="ml-auto text-xs text-slate-500">Enregistrement…</span></p>
+            <p x-show="error" x-cloak x-text="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-800" role="alert"></p>
             @foreach (\App\Models\RidingSession::PHASES as $phase => $label)
                 @php $items = $session->exercises->where('phase', $phase)->values(); @endphp
                 <x-section :title="$label">
-                    @forelse ($items as $i => $item)
-                        <div x-data="{ open: false }" class="border-t border-slate-100 py-2 first:border-0">
+                    <div data-phase="{{ $phase }}" class="drop-zone -mx-2 min-h-14 rounded-xl px-2">
+                    @foreach ($items as $i => $item)
+                        <div x-data="{ open: false }" data-token="item:{{ $item->id }}" class="border-t border-slate-100 bg-white py-2 first:border-0">
                             <div class="flex items-center gap-2">
+                                <button type="button" data-handle class="flex size-9 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-slate-400 hover:bg-sand-100 hover:text-slate-700 active:cursor-grabbing" aria-label="Glisser pour déplacer" title="Glisser pour déplacer">⠿</button>
                                 <div class="flex flex-col">
                                     <form method="POST" action="{{ route('sessions.exercises.move', [$session, $item]) }}">@csrf<input type="hidden" name="direction" value="up"><button class="px-1 text-slate-400 hover:text-slate-700 disabled:opacity-20" @disabled($i === 0) aria-label="Monter">▲</button></form>
                                     <form method="POST" action="{{ route('sessions.exercises.move', [$session, $item]) }}">@csrf<input type="hidden" name="direction" value="down"><button class="px-1 text-slate-400 hover:text-slate-700 disabled:opacity-20" @disabled($i === $items->count() - 1) aria-label="Descendre">▼</button></form>
@@ -30,9 +35,9 @@
                                 <button class="btn-secondary sm:col-span-3">Enregistrer</button>
                             </form>
                         </div>
-                    @empty
-                        <p class="text-sm text-slate-500">Aucun exercice dans cette phase.</p>
-                    @endforelse
+                    @endforeach
+                        <p class="empty-hint py-3 text-center text-sm text-slate-500">Déposez un exercice ici</p>
+                    </div>
                     <form method="POST" action="{{ route('sessions.exercises.store', $session) }}" class="mt-2 flex flex-wrap gap-2">
                         @csrf
                         <input type="hidden" name="items[0][phase]" value="{{ $phase }}">
@@ -72,11 +77,12 @@
                         <input x-model="q" placeholder="Rechercher" class="input py-2 text-sm" aria-label="Rechercher un exercice">
                         <select x-model="cat" class="input py-2 text-sm" aria-label="Catégorie"><option value="">Toutes catégories</option>@foreach ($categories as $id => $name)<option value="{{ $id }}">{{ $name }}</option>@endforeach</select>
                     </div>
-                    <div class="max-h-[55vh] space-y-1 overflow-y-auto pr-1">
+                    <div class="max-h-[55vh] space-y-1 overflow-y-auto pr-1" data-library>
                         @foreach ($library as $ex)
-                            <label x-show="(! q || @js(mb_strtolower($ex->name.' '.$ex->objective)).includes(q.toLowerCase())) && (! cat || cat == '{{ $ex->exercise_category_id }}')" class="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-2 text-sm hover:bg-slate-50">
+                            <label data-token="ex:{{ $ex->id }}" x-show="(! q || @js(mb_strtolower($ex->name.' '.$ex->objective)).includes(q.toLowerCase())) && (! cat || cat == '{{ $ex->exercise_category_id }}')" class="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-2 text-sm hover:bg-slate-50">
+                                <span data-handle class="-my-1 -ml-1 flex size-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-lg text-slate-400 hover:bg-sand-100" title="Glisser vers une section" aria-hidden="true">⠿</span>
                                 <input type="checkbox" value="{{ $ex->id }}" x-model="picked" class="mt-0.5 rounded">
-                                <span><span class="font-medium">{{ $ex->name }}</span><span class="block text-xs text-slate-500">{{ $ex->category?->name }} · {{ \App\Models\Exercise::LEVELS[$ex->level] }}{{ $ex->duration_minutes ? ' · '.$ex->duration_minutes.' min' : '' }}</span></span>
+                                <span class="min-w-0"><span class="font-medium">{{ $ex->name }}</span><span class="block text-xs text-slate-500">{{ $ex->category?->name }} · {{ \App\Models\Exercise::LEVELS[$ex->level] }}{{ $ex->duration_minutes ? ' · '.$ex->duration_minutes.' min' : '' }}</span></span>
                             </label>
                         @endforeach
                     </div>

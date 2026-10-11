@@ -8,6 +8,38 @@
 
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
+            @if ($canHealth && $reminderRules->isNotEmpty())
+            <x-section title="Rappels de suivi" x-data="{ edit: false }">
+                <x-slot:headerActions>@if ($canEdit)<button type="button" @click="edit = ! edit" class="btn-ghost text-sm" x-text="edit ? 'Fermer' : 'Paramétrer'">Paramétrer</button>@endif</x-slot:headerActions>
+                <div x-show="! edit" class="divide-y divide-slate-100">
+                    @foreach ($reminderRules as $rule)
+                        <div class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                            <span><span class="font-medium">{{ $rule['category']->name }}</span>
+                                <span class="block text-xs text-slate-500">{{ $rule['enabled'] ? 'Tous les '.\App\Services\CareReminders::describe($rule['interval_value'], $rule['interval_unit']).' · rappel '.$rule['notice_days'].' j avant' : 'Rappel désactivé' }}{{ $rule['last'] ? ' · dernier passage le '.$rule['last']->format('d/m/Y') : ' · aucun passage enregistré' }}</span></span>
+                            @if ($rule['enabled'] && $rule['next'])<x-badge :color="$rule['next']->isPast() ? 'red' : 'amber'">Prochain : {{ $rule['next']->format('d/m/Y') }}</x-badge>
+                            @elseif ($rule['enabled'] && $rule['last'])<x-badge color="slate">Pas d'échéance</x-badge>
+                            @elseif (! $rule['enabled'])<x-badge>Inactif</x-badge>@endif
+                        </div>
+                    @endforeach
+                </div>
+                @if ($canEdit)
+                <form x-show="edit" x-cloak method="POST" action="{{ route('horses.care.reminders', $horse) }}" class="space-y-3">
+                    @csrf @method('PUT')
+                    @foreach ($reminderRules as $catId => $rule)
+                        <fieldset class="grid grid-cols-2 items-end gap-2 rounded-xl border border-sand-200 p-3 sm:grid-cols-4">
+                            <legend class="sr-only">{{ $rule['category']->name }}</legend>
+                            <label class="col-span-2 flex min-h-11 items-center gap-2 text-sm font-medium sm:col-span-1"><input type="hidden" name="rules[{{ $catId }}][enabled]" value="0"><input type="checkbox" name="rules[{{ $catId }}][enabled]" value="1" @checked($rule['enabled']) class="size-5 rounded"> {{ $rule['category']->name }}</label>
+                            <div><label class="label text-xs" for="r{{ $catId }}v">Tous les</label><input id="r{{ $catId }}v" type="number" min="1" max="120" name="rules[{{ $catId }}][interval_value]" value="{{ $rule['interval_value'] }}" class="input py-2" required></div>
+                            <div><label class="label text-xs" for="r{{ $catId }}u">Unité</label><select id="r{{ $catId }}u" name="rules[{{ $catId }}][interval_unit]" class="input py-2">@foreach (\App\Models\CareReminderRule::UNITS as $u => $ul)<option value="{{ $u }}" @selected($rule['interval_unit'] === $u)>{{ $ul }}</option>@endforeach</select></div>
+                            <div><label class="label text-xs" for="r{{ $catId }}n">Prévenir (jours avant)</label><input id="r{{ $catId }}n" type="number" min="0" max="60" name="rules[{{ $catId }}][notice_days]" value="{{ $rule['notice_days'] }}" class="input py-2" required></div>
+                        </fieldset>
+                    @endforeach
+                    <p class="text-xs text-slate-500">La fréquence propose la date du prochain passage à chaque soin enregistré ; le rappel est envoyé avant l'échéance puis le jour même.</p>
+                    <button class="btn-primary">Enregistrer les rappels</button>
+                </form>
+                @endif
+            </x-section>
+            @endif
             @if ($canHealth)
             <x-section title="Historique des soins">
                 <form method="GET" class="mb-3"><x-select name="category" :options="$categories" :value="request('category')" placeholder="Toutes les catégories" onchange="this.form.submit()" aria-label="Catégorie" /></form>
@@ -15,7 +47,7 @@
                     <a href="{{ route('horses.care.show', [$horse, $r]) }}" class="flex items-start justify-between gap-3 border-t border-slate-100 py-3 text-sm first:border-0 hover:bg-slate-50">
                         <span class="min-w-0"><x-badge color="brand">{{ $r->category->name }}</x-badge> <span class="font-medium">{{ $r->reason }}</span>
                             <span class="block truncate text-xs text-slate-500">{{ $r->professional?->fullName() }} {{ $r->care_performed ? '· '.\Illuminate\Support\Str::limit($r->care_performed, 90) : '' }}</span>
-                            @if ($r->next_check_on)<span class="block text-xs {{ $r->next_check_on->isPast() ? 'text-red-600' : 'text-amber-700' }}">Prochain contrôle : {{ $r->next_check_on->format('d/m/Y') }}</span>@endif</span>
+                            @if ($r->next_check_on && ! $r->next_check_done_at)<span class="block text-xs {{ $r->next_check_on->isPast() ? 'text-red-600' : 'text-amber-700' }}">Prochain contrôle : {{ $r->next_check_on->format('d/m/Y') }}</span>@endif</span>
                         <span class="shrink-0 text-right text-xs text-slate-500">{{ $r->performed_at->format('d/m/Y') }}@if ($r->cost)<br>{{ number_format((float) $r->cost, 2, ',', ' ') }} €@endif</span>
                     </a>
                 @empty <p class="text-sm text-slate-500">Aucun soin enregistré.</p> @endforelse

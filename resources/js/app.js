@@ -2,10 +2,14 @@ import Alpine from 'alpinejs';
 import { stableApp } from './offline/app.js';
 import { purgeAll, purgeOtherUsers } from './offline/db.js';
 import { installStore, listenForInstall } from './install.js';
+import { sessionPlanner } from './session-planner.js';
+import { careNext } from './care-next.js';
 
 window.Alpine = Alpine;
 
 Alpine.data('stableApp', stableApp);
+Alpine.data('sessionPlanner', sessionPlanner);
+Alpine.data('careNext', careNext);
 Alpine.store('install', installStore());
 listenForInstall(Alpine);
 

@@ -56,4 +56,18 @@ class CalendarEvent extends Model
     {
         return $this->starts_at->copy()->addMinutes($this->duration_minutes);
     }
+
+    public function isSessionEvent(): bool
+    {
+        return $this->source_type === (new RidingSession)->getMorphClass();
+    }
+
+    /** Masque les événements de séance des chevaux dont l'utilisateur ne peut pas voir les séances. */
+    public function scopeVisibleSessions($query, iterable $sessionHorseIds)
+    {
+        $morph = (new RidingSession)->getMorphClass();
+        $ids = collect($sessionHorseIds)->all();
+
+        return $query->where(fn ($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', $morph)->orWhereIn('horse_id', $ids ?: [0]));
+    }
 }

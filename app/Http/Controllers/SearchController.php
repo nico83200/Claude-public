@@ -45,7 +45,7 @@ class SearchController extends Controller
                 ->map(fn ($e) => ['title' => $e->name, 'meta' => Exercise::SCOPES[$e->scope], 'url' => route('exercises.show', $e)]);
 
             $calIds = $access->horseIdsWith($user, Perm::CALENDAR_VIEW);
-            $results['Rendez-vous'] = CalendarEvent::with('horse')->whereIn('horse_id', $calIds)->where('title', 'like', $like)->latest('starts_at')->limit(10)->get()
+            $results['Rendez-vous'] = CalendarEvent::with('horse')->whereIn('horse_id', $calIds)->visibleSessions($sessionIds)->where('title', 'like', $like)->latest('starts_at')->limit(10)->get()
                 ->map(fn ($e) => ['title' => $e->title, 'meta' => $e->starts_at->format('d/m/Y H:i'), 'url' => route('calendar.show', $e)]);
 
             $expIds = $access->horseIdsWith($user, Perm::EXPENSES_VIEW);

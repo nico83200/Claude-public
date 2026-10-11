@@ -14,6 +14,10 @@
                 'Observations' => $event->notes,
             ]" />
             @if ($event->source_type)<p class="mt-3 text-xs text-slate-500">Événement généré automatiquement à partir d'un soin ou d'un traitement.</p>@endif
+            @if ($canValidate)
+                <a href="{{ route('horses.care.create', [$event->horse, 'evenement' => $event->id]) }}" class="btn-primary mt-4 w-full"><x-icon name="check" class="size-4" /> Valider l'intervention</a>
+                <p class="mt-1 text-xs text-slate-500">Enregistre le soin réalisé et propose la date du prochain passage.</p>
+            @endif
         </x-section>
         @if ($canEdit)
         <x-section title="Modifier" class="lg:col-span-2">

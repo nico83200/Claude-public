@@ -31,4 +31,16 @@ return [
         'max_kb' => (int) env('UPLOAD_MAX_KB', 10240),
         'mimes' => ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'heic', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'csv'],
     ],
+
+    /*
+    | Rappels de suivi par défaut (modifiables cheval par cheval dans Santé › Rappels).
+    | Clé = clé de la catégorie de soin. Maréchal et vaccination sont actifs par défaut.
+    */
+    'care_reminders' => [
+        'farrier' => ['enabled' => true, 'interval_value' => 6, 'interval_unit' => 'weeks', 'notice_days' => 7],
+        'vaccination' => ['enabled' => true, 'interval_value' => 12, 'interval_unit' => 'months', 'notice_days' => 14],
+        'deworming' => ['enabled' => false, 'interval_value' => 4, 'interval_unit' => 'months', 'notice_days' => 7],
+        'dentistry' => ['enabled' => false, 'interval_value' => 12, 'interval_unit' => 'months', 'notice_days' => 14],
+        'osteopathy' => ['enabled' => false, 'interval_value' => 6, 'interval_unit' => 'months', 'notice_days' => 7],
+    ],
 ];

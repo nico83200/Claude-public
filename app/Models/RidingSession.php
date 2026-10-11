@@ -4,9 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\HasClientUuid;
 use App\Models\Concerns\Versioned;
+use App\Observers\RidingSessionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy(RidingSessionObserver::class)]
 class RidingSession extends Model
 {
     use HasClientUuid, SoftDeletes, Versioned;

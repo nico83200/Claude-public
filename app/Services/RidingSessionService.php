@@ -130,6 +130,46 @@ class RidingSessionService
         }
     }
 
+    /**
+     * Applique la disposition issue du glisser-déposer : pour chaque phase, la liste
+     * ordonnée des lignes existantes (« item:ID ») et des exercices de la bibliothèque
+     * déposés (« ex:ID », copiés à cette place). Les lignes absentes ne bougent pas.
+     *
+     * @return int nombre d'exercices ajoutés
+     */
+    public function applyLayout(RidingSession $session, User $user, array $layout): int
+    {
+        return DB::transaction(function () use ($session, $user, $layout) {
+            $existing = $session->items()->get()->keyBy('id');
+            $added = 0;
+            $position = 0;
+            foreach (array_keys(RidingSession::PHASES) as $phase) {
+                foreach (array_values((array) ($layout[$phase] ?? [])) as $token) {
+                    [$kind, $id] = array_pad(explode(':', (string) $token, 2), 2, null);
+                    $id = (int) $id;
+                    if ($kind === 'item' && $existing->has($id)) {
+                        $row = $existing->pull($id);
+                        if ($row->phase !== $phase || $row->position !== $position + 1) {
+                            $row->update(['phase' => $phase, 'position' => $position + 1]);
+                        }
+                        $position++;
+                    } elseif ($kind === 'ex' && ($exercise = Exercise::visibleTo($user)->find($id))) {
+                        $row = SessionExercise::fromExercise($exercise, ['phase' => $phase]);
+                        $row->position = ++$position;
+                        $session->items()->save($row);
+                        $added++;
+                    }
+                }
+            }
+            // Lignes non mentionnées (page obsolète) : conservées après les autres.
+            foreach ($existing->sortBy('position') as $row) {
+                $row->update(['position' => ++$position]);
+            }
+
+            return $added;
+        });
+    }
+
     /** Nouvelle séance prévue à partir d'une séance existante : l'originale n'est jamais modifiée. */
     public function duplicate(RidingSession $source, User $user, ?string $scheduledAt = null): RidingSession
     {

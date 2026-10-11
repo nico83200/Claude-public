@@ -1,11 +1,14 @@
 <x-layouts.app :title="$record->exists ? 'Modifier le soin' : 'Nouveau soin'">
     <x-page-header :title="$record->exists ? 'Modifier le soin' : 'Nouveau soin'" :subtitle="$horse->shortName()" :back="route('horses.care.index', $horse)" />
-    <form method="POST" action="{{ $record->exists ? route('horses.care.update', [$horse, $record]) : route('horses.care.store', $horse) }}" enctype="multipart/form-data" class="space-y-4">
+    <form method="POST" action="{{ $record->exists ? route('horses.care.update', [$horse, $record]) : route('horses.care.store', $horse) }}" enctype="multipart/form-data" class="space-y-4"
+        x-data="careNext({ rules: @js($rules), cat: @js((string) old('care_category_id', $record->care_category_id)), performed: @js(old('performed_at', $record->performed_at?->format('Y-m-d\TH:i'))),
+            mode: @js(old('next_mode', $record->exists ? ($record->next_check_on ? 'date' : 'none') : 'interval')), value: @js(old('next_interval_value')), unit: @js(old('next_interval_unit', 'weeks')), fromOld: @js(old('next_interval_value') !== null) })">
         @csrf @if ($record->exists) @method('PUT') <input type="hidden" name="version" value="{{ $record->version }}"> @endif
+        @if ($event)<input type="hidden" name="calendar_event_id" value="{{ $event->id }}"><p class="rounded-lg bg-gold-50 p-3 text-sm text-slate-700">Validation de l'intervention prévue le {{ $event->starts_at->format('d/m/Y') }} : « {{ $event->title }} ». Elle sera marquée réalisée dans le calendrier.</p>@endif
         <x-section>
             <div class="grid gap-4 sm:grid-cols-2">
-                <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" />
-                <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required />
+                <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" x-model="cat" />
+                <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required x-model="performed" />
                 <x-select name="professional_id" label="Professionnel" :options="$professionals" :value="$record->professional_id" placeholder="—" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
                 <x-field name="reason" label="Motif" :value="$record->reason" />
                 <x-textarea name="observations" label="Observations" :value="$record->observations" />
@@ -13,7 +16,26 @@
                 <x-textarea name="diagnosis" label="Diagnostic communiqué par le professionnel" :value="$record->diagnosis" />
                 <x-textarea name="instructions" label="Consignes" :value="$record->instructions" />
                 <x-field name="cost" type="number" step="0.01" min="0" label="Coût (€)" :value="$record->cost" />
-                <x-field name="next_check_on" type="date" label="Prochain contrôle" :value="$record->next_check_on?->format('Y-m-d')" help="Crée automatiquement un rappel dans le calendrier." />
+            </div>
+        </x-section>
+        <x-section title="Prochain passage">
+            <div class="space-y-3">
+                <div class="flex flex-wrap gap-2 text-sm" role="radiogroup" aria-label="Prochain passage">
+                    @foreach (['interval' => 'Dans un délai', 'date' => 'À une date précise', 'none' => 'Pas de suivi'] as $m => $ml)
+                        <label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3" :class="mode === '{{ $m }}' ? 'border-brand-600 bg-brand-50 text-brand-900' : 'border-sand-200 bg-white'">
+                            <input type="radio" name="next_mode" value="{{ $m }}" x-model="mode" class="sr-only"> {{ $ml }}
+                        </label>
+                    @endforeach
+                </div>
+                <div x-show="mode === 'interval'" class="flex flex-wrap items-end gap-2">
+                    <div class="w-24"><label class="label" for="niv">Dans</label><input id="niv" type="number" name="next_interval_value" min="1" max="120" x-model="value" :disabled="mode !== 'interval'" class="input"></div>
+                    <div class="w-36"><label class="label sr-only" for="niu">Unité</label><select id="niu" name="next_interval_unit" x-model="unit" :disabled="mode !== 'interval'" class="input"><option value="weeks">semaines</option><option value="months">mois</option></select></div>
+                    <p class="pb-3 text-sm text-slate-600" x-show="nextDate">soit le <strong x-text="nextDate"></strong></p>
+                </div>
+                <div x-show="mode === 'date'"><x-field name="next_check_on" type="date" label="Date du prochain contrôle" :value="$record->next_check_on?->format('Y-m-d')" x-bind:disabled="mode !== 'date'" /></div>
+                <div x-show="mode === 'interval'"><x-checkbox name="remember_frequency" label="Retenir cette fréquence pour ce cheval" help="Active le rappel de suivi de cette catégorie (modifiable dans Santé › Rappels de suivi)." :checked="true" /></div>
+                <p x-show="mode !== 'none'" class="text-xs text-slate-500">Un rappel est ajouté au calendrier et une notification est envoyée avant l'échéance.</p>
+                @error('next_interval_value')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
         </x-section>
         <x-section>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CalendarEvent;
 use App\Models\CareCategory;
 use App\Models\CareRecord;
 use App\Models\Expense;
@@ -11,6 +12,7 @@ use App\Models\HorseDocument;
 use App\Models\Professional;
 use App\Services\Audit;
 use App\Services\CalendarService;
+use App\Services\CareReminders;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,7 +21,7 @@ use Illuminate\Validation\Rule;
 
 class CareRecordController extends Controller
 {
-    public function __construct(private CalendarService $calendar) {}
+    public function __construct(private CalendarService $calendar, private CareReminders $reminders) {}
 
     public function index(Request $request, Horse $horse)
     {
@@ -41,14 +43,33 @@ class CareRecordController extends Controller
             'observations' => $horse->observations()->with('author')->limit(30)->get(),
             'categories' => CareCategory::visibleTo($horse->organization_id)->orderBy('name')->pluck('name', 'id'),
             'users' => $this->assignableUsers($horse),
+            'reminderRules' => $canHealth ? $this->reminders->rulesFor($horse)->map(function ($r, $catId) use ($horse) {
+                $last = $horse->careRecords()->where('care_category_id', $catId)->latest('performed_at')->first();
+
+                return $r + ['last' => $last?->performed_at, 'next' => $last?->next_check_done_at ? null : $last?->next_check_on];
+            }) : collect(),
         ]);
     }
 
-    public function create(Horse $horse)
+    public function create(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $record = new CareRecord(['performed_at' => now()]);
+        // Validation d'une intervention prévue au calendrier : formulaire prérempli.
+        $event = $request->integer('evenement') ? CalendarEvent::where('horse_id', $horse->id)->find($request->integer('evenement')) : null;
+        if ($event) {
+            $key = match ($event->type) {
+                'farrier' => 'farrier', 'veterinary' => 'veterinary', default => null
+            };
+            $source = $event->source_type === (new CareRecord)->getMorphClass() ? CareRecord::find($event->source_id) : null;
+            $record->fill([
+                'performed_at' => $event->starts_at->isFuture() ? now() : $event->starts_at,
+                'professional_id' => $event->professional_id, 'reason' => $event->title,
+                'care_category_id' => $source?->care_category_id ?? ($key ? CareCategory::visibleTo($horse->organization_id)->where('key', $key)->value('id') : null),
+            ]);
+        }
 
-        return view('health.form', $this->formData($horse, new CareRecord(['performed_at' => now()])));
+        return view('health.form', ['event' => $event] + $this->formData($horse, $record));
     }
 
     public function store(Request $request, Horse $horse)
@@ -117,6 +138,19 @@ class CareRecordController extends Controller
     private function afterSave(Request $request, Horse $horse, CareRecord $record): void
     {
         $record->loadMissing('category');
+        // Fréquence du prochain passage : retenue pour ce cheval si demandé (rappel activé).
+        if ($request->filled('next_interval_value') && $request->boolean('remember_frequency')) {
+            $this->reminders->save($horse, $record->care_category_id, [
+                'enabled' => true, 'interval_value' => (int) $request->input('next_interval_value'), 'interval_unit' => $request->input('next_interval_unit'),
+                'notice_days' => $this->reminders->ruleFor($horse, $record->care_category_id)['notice_days'] ?? 7,
+            ]);
+        }
+        $this->reminders->closePrevious($record, $this->calendar);
+        if ($request->integer('calendar_event_id')) {
+            CalendarEvent::where('horse_id', $horse->id)->where(fn ($q) => $q->whereNull('source_type')->orWhere('source_type', (new CareRecord)->getMorphClass()))
+                ->whereKey($request->integer('calendar_event_id'))
+                ->update(['status' => 'done']);
+        }
         $this->calendar->syncFor($record, $horse, $this->eventType($record->category?->key), 'Contrôle : '.$record->category?->name.' – '.$horse->shortName(),
             $record->next_check_on ? Carbon::parse($record->next_check_on)->setTime(9, 0) : null,
             ['professional_id' => $record->professional_id, 'duration_minutes' => 30]);
@@ -161,9 +195,23 @@ class CareRecordController extends Controller
             'instructions' => ['nullable', 'string', 'max:10000'],
             'cost' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
             'next_check_on' => ['nullable', 'date'],
+            'next_mode' => ['nullable', Rule::in(['interval', 'date', 'none'])],
+            'next_interval_value' => ['nullable', 'integer', 'min:1', 'max:120'],
+            'next_interval_unit' => ['nullable', 'required_with:next_interval_value', Rule::in(['weeks', 'months'])],
+            'remember_frequency' => ['boolean'],
+            'calendar_event_id' => ['nullable', 'integer'],
             'attachment' => ['nullable', 'file', 'max:'.config('equine.uploads.max_kb'), 'mimes:'.implode(',', config('equine.uploads.mimes'))],
         ]);
-        unset($data['attachment']);
+        $mode = $data['next_mode'] ?? (isset($data['next_interval_value']) ? 'interval' : 'date');
+        if ($mode === 'interval' && ! empty($data['next_interval_value'])) {
+            $data['next_check_on'] = CareReminders::addInterval(Carbon::parse($data['performed_at']), (int) $data['next_interval_value'], $data['next_interval_unit'])->toDateString();
+        } elseif ($mode === 'none') {
+            $data['next_check_on'] = null;
+        }
+        if (! empty($data['next_check_on'])) {
+            $data['next_check_done_at'] = null;
+        }
+        unset($data['attachment'], $data['next_mode'], $data['next_interval_value'], $data['next_interval_unit'], $data['remember_frequency'], $data['calendar_event_id']);
 
         return $data;
     }
@@ -177,6 +225,8 @@ class CareRecordController extends Controller
             'professionals' => Professional::where('organization_id', $horse->organization_id)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName().' – '.$p->kindLabel()]),
             'canExpense' => $this->horseCan($horse, Perm::EXPENSES_CREATE),
             'docCategories' => HorseDocument::CATEGORIES,
+            'rules' => $this->reminders->rulesFor($horse)->map(fn ($r) => ['enabled' => $r['enabled'], 'value' => $r['interval_value'], 'unit' => $r['interval_unit']]),
+            'event' => null,
         ];
     }
 

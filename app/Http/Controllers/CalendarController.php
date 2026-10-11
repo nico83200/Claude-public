@@ -32,6 +32,7 @@ class CalendarController extends Controller
         $orgIds = $user->memberships->pluck('organization_id');
         $events = CalendarEvent::with(['horse', 'responsible', 'professional'])
             ->where(fn ($q) => $q->whereIn('horse_id', $horseIds)->orWhere(fn ($w) => $w->whereNull('horse_id')->whereIn('organization_id', $orgIds)))
+            ->visibleSessions($access->horseIdsWith($user, Perm::SESSIONS_VIEW))
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('horse_id', $h))
             ->when($request->query('type'), fn ($q, $t) => $q->where('type', $t))
             ->where(fn ($q) => $q->whereBetween('starts_at', [$from, $to])
@@ -51,12 +52,18 @@ class CalendarController extends Controller
 
     public function show(Request $request, CalendarEvent $event)
     {
+        // Une séance s'ouvre sur sa propre fiche (droits « séances » vérifiés là-bas).
+        if ($event->isSessionEvent() && $event->source_id) {
+            return redirect()->route('sessions.show', $event->source_id);
+        }
         $this->authorizeEvent($request, $event, Perm::CALENDAR_VIEW);
         $orgIds = $request->user()->memberships->pluck('organization_id');
 
         return view('calendar.show', [
             'event' => $event->load(['horse', 'responsible', 'professional']),
             'canEdit' => $this->canEdit($request, $event),
+            'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
+                && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
             'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
@@ -84,6 +91,7 @@ class CalendarController extends Controller
     public function update(Request $request, CalendarEvent $event)
     {
         abort_unless($this->canEdit($request, $event), 403);
+        abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : modifiez la séance.');
         $data = $this->validated($request) + $request->validate(['status' => ['required', Rule::in(array_keys(CalendarEvent::STATUSES))]]);
         if (! empty($data['horse_id']) && (int) $data['horse_id'] !== (int) $event->horse_id) {
             $this->authorizeHorse(Horse::findOrFail($data['horse_id']), Perm::CALENDAR_EDIT);
@@ -96,6 +104,7 @@ class CalendarController extends Controller
     public function destroy(Request $request, CalendarEvent $event)
     {
         abort_unless($this->canEdit($request, $event), 403);
+        abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : supprimez ou annulez la séance.');
         $event->delete();
 
         return redirect()->route('calendar.index')->with('success', 'Événement supprimé.');

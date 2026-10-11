@@ -31,7 +31,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'horses' => $horses,
-            'events' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->where('status', '!=', 'cancelled')
+            'events' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->visibleSessions($sessionIds)->where('status', '!=', 'cancelled')
                 ->whereBetween('starts_at', [now()->startOfDay(), now()->addDays(14)])->orderBy('starts_at')->limit(8)->get(),
             'careDue' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')
                 ->whereBetween('next_check_on', [now()->subDays(7)->toDateString(), now()->addDays(30)->toDateString()])->orderBy('next_check_on')->limit(8)->get(),

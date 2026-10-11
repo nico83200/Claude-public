@@ -76,7 +76,7 @@ class HorseController extends Controller
             'sessions' => $has(Perm::SESSIONS_VIEW) ? $horse->sessions()->with('rider')->limit(5)->get() : collect(),
             'care' => $has(Perm::HEALTH_VIEW) ? $horse->careRecords()->with(['category', 'professional'])->limit(5)->get() : collect(),
             'treatments' => $has(Perm::TREATMENTS_VIEW) ? $horse->treatments()->current()->get() : collect(),
-            'events' => $has(Perm::CALENDAR_VIEW) ? $horse->events()->where('starts_at', '>=', now()->startOfDay())->where('status', '!=', 'cancelled')->orderBy('starts_at')->limit(5)->get() : collect(),
+            'events' => $has(Perm::CALENDAR_VIEW) ? $horse->events()->visibleSessions($has(Perm::SESSIONS_VIEW) ? [$horse->id] : [])->where('starts_at', '>=', now()->startOfDay())->where('status', '!=', 'cancelled')->orderBy('starts_at')->limit(5)->get() : collect(),
             'observations' => $horse->observations()->with('author')->whereNull('resolved_at')->limit(5)->get(),
             'logs' => $horse->dailyLogs()->with('author')->limit(3)->get(),
             'sources' => $has(Perm::HORSE_EDIT) ? $horse->externalSources()->where('validation', 'pending')->get() : collect(),

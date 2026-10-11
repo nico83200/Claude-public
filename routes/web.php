@@ -88,6 +88,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::delete('/documents/{document}', [Controllers\HorseDocumentController::class, 'destroy'])->name('documents.destroy');
 
         Route::get('/sante', [Controllers\CareRecordController::class, 'index'])->name('care.index');
+        Route::put('/rappels-suivi', [Controllers\CareReminderController::class, 'update'])->name('care.reminders');
         Route::get('/soins/nouveau', [Controllers\CareRecordController::class, 'create'])->name('care.create');
         Route::post('/soins', [Controllers\CareRecordController::class, 'store'])->name('care.store');
         Route::get('/soins/{care}', [Controllers\CareRecordController::class, 'show'])->name('care.show');
@@ -153,6 +154,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/seances/{session}/modele', [Controllers\SessionTemplateController::class, 'storeFromSession'])->name('sessions.template');
     Route::post('/seances/{session}/exercices', [Controllers\SessionExerciseController::class, 'store'])->name('sessions.exercises.store');
     Route::put('/seances/{session}/exercices/{item}', [Controllers\SessionExerciseController::class, 'update'])->scopeBindings()->name('sessions.exercises.update');
+    Route::post('/seances/{session}/exercices/ordre', [Controllers\SessionExerciseController::class, 'layout'])->name('sessions.exercises.layout');
     Route::post('/seances/{session}/exercices/{item}/deplacer', [Controllers\SessionExerciseController::class, 'move'])->scopeBindings()->name('sessions.exercises.move');
     Route::delete('/seances/{session}/exercices/{item}', [Controllers\SessionExerciseController::class, 'destroy'])->scopeBindings()->name('sessions.exercises.destroy');
     Route::post('/seances/{session}/commentaires', [Controllers\RidingSessionController::class, 'comment'])->name('sessions.comments.store');
