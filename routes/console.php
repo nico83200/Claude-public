@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('reminders:send')->dailyAt('07:30')->withoutOverlapping();
 // Bilan après une séance ou un cours, rappel quotidien de saisie (heure choisie par chaque utilisateur).
 Schedule::command('reminders:activity')->everyFiveMinutes()->withoutOverlapping();
+// Échéances des dépenses récurrentes (pension…), notifiées le jour même.
+Schedule::command('expenses:recurring')->dailyAt('06:05')->withoutOverlapping();
 Schedule::command('licenses:refresh')->hourly()->withoutOverlapping();
 Schedule::command('billing:price-migrations')->dailyAt('03:15')->withoutOverlapping();
 Schedule::command('data:purge')->weeklyOn(0, '03:45')->withoutOverlapping();

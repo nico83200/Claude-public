@@ -129,6 +129,7 @@
 </nav>
 @include('partials.assistant', ['contextHorseId' => $contextHorseId])
 @include('partials.install', ['bannerBottom' => 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'])
+@auth @include('partials.push-gate') @endauth
 @stack('scripts')
 </body>
 </html>

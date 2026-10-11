@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_super_admin' => 'boolean',
             'suspended_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'last_seen_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'deletion_requested_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',

@@ -21,10 +21,11 @@
                 <p class="flex items-center gap-2 text-sm font-medium text-emerald-700"><x-icon name="check" class="size-5" /> Activées sur cet appareil</p>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" class="btn-secondary" @click="test()" :disabled="busy">Envoyer un essai</button>
-                    <button type="button" class="btn-ghost" @click="disable()" :disabled="busy">Désactiver</button>
+                    <button type="button" class="btn-ghost" @click="disable()" :disabled="busy" x-show="! $store.install.handheld">Désactiver</button>
                 </div>
             </div>
             <p x-cloak x-show="message" x-text="message" class="mt-3 text-sm text-slate-600" role="status"></p>
+            <p x-cloak x-show="$store.install.handheld && state === 'on'" class="mt-3 text-xs text-slate-500">Sur téléphone, les notifications sont nécessaires au fonctionnement de Jack&Cie. Choisissez ci-dessous les rappels que vous souhaitez recevoir.</p>
             @if ($devices)<p class="mt-3 text-xs text-slate-400">{{ $devices }} appareil{{ $devices > 1 ? 's' : '' }} reçoi{{ $devices > 1 ? 'vent' : 't' }} vos notifications.</p>@endif
         </x-section>
         </div>

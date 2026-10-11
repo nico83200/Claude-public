@@ -38,6 +38,8 @@ class AppNotification extends Notification
         'session_debrief' => 'Bilan de séance à compléter',
         'daily_reminder' => 'Rappel de saisie',
         'push_test' => 'Essai de notification',
+        'payment_due' => 'Paiement à effectuer',
+        'inactivity' => 'Rappel après une absence',
     ];
 
     public function __construct(

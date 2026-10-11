@@ -197,4 +197,19 @@ class LessonRemindersTest extends TestCase
         $this->assertNotEmpty(Crypt::decryptString($stored['private']));
         $this->assertStringNotContainsString(Crypt::decryptString($stored['private']), json_encode($stored));
     }
+
+    public function test_notification_gate_is_on_every_app_page_except_personal_data(): void
+    {
+        $user = $this->user();
+        $html = $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Activez les notifications')->assertSee('id="push-config"', false)->getContent();
+        preg_match('#<script type="application/json" id="push-config">(.*?)</script>#s', $html, $m);
+        $config = json_decode($m[1], true);
+        $this->assertTrue($config['enabled']);
+        $this->assertSame(app(WebPush::class)->publicKey(), $config['vapidKey']);
+        $this->assertSame(route('push.subscribe'), $config['subscribeUrl']);
+
+        $html = $this->actingAs($user)->get('/parametres/donnees')->assertOk()->getContent();
+        preg_match('#id="push-config">(.*?)</script>#s', $html, $m);
+        $this->assertFalse(json_decode($m[1], true)['enabled']);
+    }
 }

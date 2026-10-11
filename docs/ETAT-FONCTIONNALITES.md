@@ -3,6 +3,13 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.5 — budget récurrent et notifications obligatoires
+- ✅ Dépenses récurrentes (pension, assurance…) : chaque semaine / mois / trimestre / an, date de fin facultative ; chaque échéance devient une dépense « à payer » (sans doublon, sans dérive des fins de mois, rattrapage si le planificateur n'a pas tourné) ; notification le jour de l'échéance ; suspendre / reprendre (sans arriéré) / modifier / arrêter (l'historique reste)
+- ✅ Suivi des paiements : bloc « À payer » (en retard en rouge), bouton « Payé », remise « à payer » ; une dépense simple peut être saisie non réglée
+- ✅ Téléphone / tablette (application installée) : écran plein écran bloquant tant que les notifications ne sont pas activées ; si refusées, marche à suivre iPhone / Android et vérification au retour dans l'application ; pas de blocage quand l'appareil ne peut pas recevoir de notifications (iOS < 16.4), ni sur la page « Mes données » ; « Se déconnecter » toujours disponible ; ordinateur non concerné
+- ✅ Rappel après X heures sans ouvrir l'application (X et texte réglables dans Administration › Paramètres, 0 = désactivé) : une fois par absence, entre 9 h et 20 h, pas au-delà de 60 jours d'absence
+- ⚙️ Tâches planifiées : `expenses:recurring` (6 h 05) et `reminders:activity` (toutes les 5 min)
+
 ## Version 2.4 — cours et rappels
 - ✅ Assistant : un cours dicté (« cours collectif à 16 h avec Jimmy sur Jack Jack ») crée une séance de type cours avec son enseignant, sans exercices inventés ; elle apparaît dans le calendrier (« Cours collectif avec Jimmy – Jack Jack »)
 - ✅ Après la fin prévue d'une séance ou d'un cours (+10 min), notification « Comment s'est passé votre cours ? » vers le bilan, envoyée une fois au cavalier (désactivable)

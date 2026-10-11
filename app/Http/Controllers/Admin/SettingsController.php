@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
-    public const KEYS = ['app_name', 'support_email', 'support_phone', 'primary_color', 'logo_url', 'legal_entity', 'legal_address', 'dpo_email', 'hosting_provider', 'subprocessors'];
+    public const KEYS = ['app_name', 'support_email', 'support_phone', 'primary_color', 'logo_url', 'legal_entity', 'legal_address', 'dpo_email', 'hosting_provider', 'subprocessors', 'inactivity_hours', 'inactivity_message'];
 
     public function edit()
     {
@@ -33,8 +33,11 @@ class SettingsController extends Controller
             'dpo_email' => ['nullable', 'email'],
             'hosting_provider' => ['nullable', 'string', 'max:500'],
             'subprocessors' => ['nullable', 'string', 'max:3000'],
+            'inactivity_hours' => ['nullable', 'integer', 'min:0', 'max:720'],
+            'inactivity_message' => ['nullable', 'string', 'max:200'],
             'flags' => ['array'],
         ]);
+        $data['inactivity_hours'] = (int) ($data['inactivity_hours'] ?? 0);
         foreach (self::KEYS as $key) {
             ApplicationSetting::put($key, $data[$key] ?? null);
         }

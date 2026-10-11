@@ -5,6 +5,7 @@ import { careNext } from './care-next.js';
 import { assistantStore } from './assistant.js';
 import { updateUpload } from './update-upload.js';
 import { pushSettings } from './push-settings.js';
+import { pushGateStore } from './push.js';
 
 window.Alpine = Alpine;
 
@@ -17,6 +18,10 @@ const assistantConfig = (() => {
 })();
 Alpine.store('assistant', assistantStore(assistantConfig));
 Alpine.store('install', installStore());
+const pushConfig = (() => {
+    try { return JSON.parse(document.getElementById('push-config')?.textContent || '{}'); } catch { return {}; }
+})();
+Alpine.store('pushGate', pushGateStore(pushConfig));
 listenForInstall(Alpine);
 
 // État de la connexion (bandeau « Pas de connexion »).
@@ -29,6 +34,7 @@ Alpine.store('network', {
 });
 
 Alpine.start();
+Alpine.store('pushGate').init(Alpine.store('install'));
 
 // --- Service Worker (installation de l'application, page « pas de connexion ») ---
 if ('serviceWorker' in navigator) {

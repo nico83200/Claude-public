@@ -12,7 +12,23 @@ class Expense extends Model
 
     protected $guarded = ['id', 'uuid', 'organization_id', 'author_id'];
 
-    protected $casts = ['spent_on' => 'date', 'amount' => 'decimal:2'];
+    protected $casts = ['spent_on' => 'date', 'paid_on' => 'date', 'amount' => 'decimal:2'];
+
+    public function recurring()
+    {
+        return $this->belongsTo(RecurringExpense::class, 'recurring_expense_id');
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->paid_on !== null;
+    }
+
+    /** À payer et échéance dépassée. */
+    public function isOverdue(): bool
+    {
+        return ! $this->isPaid() && $this->spent_on->lt(today());
+    }
 
     public function organization()
     {

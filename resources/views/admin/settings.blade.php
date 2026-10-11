@@ -20,6 +20,14 @@
                 <x-textarea name="subprocessors" label="Sous-traitants (un par ligne)" :value="$settings['subprocessors']" rows="4" />
             </div>
         </x-section>
+        <x-section title="Notifications">
+            <div class="space-y-3">
+                <x-field name="inactivity_hours" type="number" min="0" max="720" label="Rappel après une absence (heures)" :value="$settings['inactivity_hours'] ?? 0"
+                    help="Notification envoyée une fois quand un utilisateur n'a pas ouvert l'application depuis ce nombre d'heures (entre 9 h et 20 h). 0 = désactivé." />
+                <x-field name="inactivity_message" label="Texte de la notification" maxlength="200" :value="$settings['inactivity_message']"
+                    :placeholder="\App\Console\Commands\SendActivityReminders::DEFAULT_INACTIVITY_MESSAGE" />
+            </div>
+        </x-section>
         <x-section title="Fonctionnalités activables">
             @foreach ($flags as $flag)<x-checkbox :name="'flags['.$flag->key.']'" :label="$flag->label" :checked="$flag->enabled_globally" />@endforeach
             <p class="mt-2 text-xs text-slate-500">Email et Stripe : <a href="{{ route('admin.integrations.edit') }}" class="link">Intégrations</a>. Autres paramètres techniques (stockage, sources de recherche) : variables d'environnement, voir <code>.env.example</code>.</p>

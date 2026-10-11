@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApplicationSetting;
 use App\Models\AssistantRequest;
 use App\Models\CareRecord;
 use App\Models\DailyLog;
@@ -29,6 +30,11 @@ class SendActivityReminders extends Command
 
     protected $description = 'Rappels de bilan après les séances et rappel quotidien de saisie';
 
+    public const DEFAULT_INACTIVITY_MESSAGE = 'Vos chevaux vous attendent : notez une séance, un soin ou une observation en quelques secondes.';
+
+    /** Heures (locales) pendant lesquelles le rappel d'absence peut partir : jamais la nuit. */
+    private const DAYTIME = [9, 20];
+
     /** Délai après la fin prévue de la séance avant de proposer le bilan. */
     private const GRACE_MINUTES = 10;
 
@@ -36,7 +42,8 @@ class SendActivityReminders extends Command
     {
         $debriefs = $this->debriefReminders($access, $sessions);
         $daily = $this->dailyReminders($access);
-        $this->info("$debriefs rappel(s) de bilan, $daily rappel(s) quotidien(s).");
+        $absent = $this->inactivityReminders();
+        $this->info("$debriefs rappel(s) de bilan, $daily rappel(s) quotidien(s), $absent rappel(s) d'absence.");
 
         return self::SUCCESS;
     }
@@ -99,6 +106,36 @@ class SendActivityReminders extends Command
                 'Une séance, un soin, une observation… Dites-le à l\'assistant en quelques mots.', route('dashboard'), mail: false));
             $count++;
         }
+
+        return $count;
+    }
+
+    /**
+     * Rappel après X heures sans ouvrir l'application (X réglé par le super-administrateur) :
+     * un seul par absence, jamais la nuit, pas aux comptes suspendus.
+     */
+    private function inactivityReminders(): int
+    {
+        $hours = (int) ApplicationSetting::get('inactivity_hours', 0);
+        $hour = (int) now()->format('G');
+        if ($hours <= 0 || $hour < self::DAYTIME[0] || $hour >= self::DAYTIME[1]) {
+            return 0;
+        }
+        $message = trim((string) ApplicationSetting::get('inactivity_message')) ?: self::DEFAULT_INACTIVITY_MESSAGE;
+        $count = 0;
+        User::whereNull('suspended_at')->whereNotNull('last_seen_at')->where('last_seen_at', '<=', now()->subHours($hours))
+            ->where('last_seen_at', '>=', now()->subDays(60)) // comptes abandonnés depuis longtemps : on n'insiste pas
+            ->chunkById(200, function ($users) use ($message, &$count) {
+                foreach ($users as $user) {
+                    $reminder = Reminder::firstOrCreate(['user_id' => $user->id, 'remindable_type' => 'inactivity', 'remindable_id' => $user->id, 'remind_at' => $user->last_seen_at->copy()->startOfMinute()]);
+                    if ($reminder->sent_at) {
+                        continue;
+                    }
+                    $user->notify(new AppNotification('inactivity', 'Des nouvelles de vos chevaux ?', $message, route('dashboard'), mail: false));
+                    $reminder->update(['sent_at' => now()]);
+                    $count++;
+                }
+            });
 
         return $count;
     }
