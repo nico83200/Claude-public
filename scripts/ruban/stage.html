@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#faf7f1;color:#0d3122;font-family:Inter,'Inter Display',system-ui;-webkit-font-smoothing:antialiased}
+.abs{position:absolute}
+#head{left:0;right:0;top:90px;text-align:center}
+#head img{height:74px}
+#chip{left:50%;top:210px;transform:translateX(-50%);background:#0d3122;color:#faf7f1;border-radius:999px;padding:14px 34px;font-size:34px;font-weight:600;white-space:nowrap}
+#title{left:60px;right:60px;top:300px;text-align:center;font:700 82px/1.08 'Inter Display',Inter;letter-spacing:-1.5px}
+#title em{font-style:normal;color:#a8865c}
+#scene{left:0;top:0;width:1080px;height:1920px}
+.panel{left:70px;right:70px;top:1330px}
+.check{display:flex;align-items:center;gap:26px;font-size:46px;font-weight:600;margin-bottom:30px}
+.check i{flex:none;width:66px;height:66px;border-radius:50%;background:#0d3122;color:#faf7f1;display:grid;place-items:center;font-style:normal;font-size:38px}
+.readout{left:50%;top:1340px;transform:translateX(-50%);background:#fff;border-radius:40px;box-shadow:0 18px 50px rgba(13,49,34,.12);padding:34px 60px;text-align:center;white-space:nowrap}
+.readout p{font-size:36px;color:#5b6b63;font-weight:500}
+.readout b{display:block;font:700 120px/1.05 'Inter Display',Inter;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.readout b small{font-size:56px;font-weight:600;margin-left:10px}
+.note{left:90px;right:90px;top:1640px;text-align:center;font-size:40px;line-height:1.3;color:#3d5148}
+.note strong{color:#0d3122}
+/* téléphone */
+#phone{left:190px;top:500px;width:700px;height:1080px;border-radius:84px;background:#0d3122;padding:22px;box-shadow:0 40px 90px rgba(13,49,34,.28)}
+#screen{width:100%;height:100%;border-radius:64px;background:#f6f3ec;overflow:hidden;position:relative}
+.ph-top{background:#0d3122;color:#faf7f1;padding:64px 40px 30px;font-size:28px}
+.ph-top b{display:block;font-size:44px;margin-top:6px}
+.tabs{display:flex;gap:10px;padding:22px 30px 0;font-size:24px;font-weight:600;color:#5b6b63}
+.tabs span{padding:12px 20px;border-radius:999px;background:#fff}
+.tabs span.on{background:#0d3122;color:#fff}
+.card{margin:24px 30px 0;background:#fff;border-radius:34px;padding:30px}
+.card h3{font-size:32px;margin-bottom:20px}
+.lbl{font-size:24px;font-weight:600;color:#3d5148;margin:16px 0 8px}
+.inp{height:72px;border-radius:20px;border:2px solid #d8dfdb;padding:0 22px;display:flex;align-items:center;font-size:32px;font-variant-numeric:tabular-nums;background:#fff}
+.inp.focus{border-color:#1e8a59;box-shadow:0 0 0 5px rgba(30,138,89,.18)}
+.inp .caret{width:3px;height:36px;background:#0d3122;margin-left:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.result{margin-top:24px;border-radius:24px;background:#e7f3ec;color:#0d3122;padding:24px;font-size:32px}
+.result strong{font-size:40px}
+.btn{margin-top:24px;height:80px;border-radius:999px;background:#0d3122;color:#fff;font-size:30px;font-weight:600;display:grid;place-items:center}
+#tap{width:90px;height:90px;border-radius:50%;background:rgba(194,164,126,.45);border:4px solid #c2a47e}
+/* conseils */
+.tip{left:70px;right:70px;background:#fff;border-radius:40px;box-shadow:0 14px 40px rgba(13,49,34,.10);padding:40px 46px;display:flex;gap:34px;align-items:center}
+.tip i{flex:none;width:110px;height:110px;border-radius:32px;background:#0d3122;color:#c2a47e;display:grid;place-items:center;font:700 54px 'Inter Display',Inter;font-style:normal}
+.tip b{display:block;font-size:46px;line-height:1.15}
+.tip span{display:block;font-size:34px;color:#5b6b63;margin-top:8px;line-height:1.25}
+/* alerte */
+#notif{left:70px;right:70px;top:640px;background:#fff;border-radius:40px;box-shadow:0 24px 60px rgba(13,49,34,.18);padding:40px;display:flex;gap:30px;align-items:center}
+#notif i{flex:none;width:110px;height:110px;border-radius:30px;background:#fdf1dc;color:#9a5b05;display:grid;place-items:center;font:700 64px Inter;font-style:normal}
+#notif b{display:block;font-size:42px}
+#notif span{display:block;font-size:34px;color:#5b6b63;margin-top:6px;line-height:1.25}
+#endlogo{left:0;right:0;top:1120px;text-align:center}
+#endlogo img{width:330px}
+#endlogo p{font-size:44px;font-weight:600;margin-top:30px}
+#endlogo small{display:block;font-size:34px;color:#5b6b63;margin-top:12px;font-weight:500}
+</style></head>
+<body>
+<svg id="scene" class="abs" viewBox="0 0 1080 1920">
+  <defs>
+    <clipPath id="clipGirth"><rect id="cgR" x="0" y="190" width="1000" height="0"/></clipPath>
+    <clipPath id="clipLen"><rect id="clR" x="270" y="0" width="0" height="700"/></clipPath>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#c2a47e"/></marker>
+  </defs>
+  <g id="horseWrap" transform="translate(40 560)">
+    <ellipse id="shadow" cx="545" cy="650" rx="340" ry="20" fill="#0d3122" opacity=".08"/>
+    <line id="ground" x1="60" y1="648" x2="940" y2="648" stroke="#c2a47e" stroke-width="6" stroke-linecap="round" pathLength="1" stroke-dasharray="1 1"/>
+    <g id="horse"></g>
+    <!-- tour de poitrine : côté opposé (pointillés) puis côté visible -->
+    <g id="girth" clip-path="url(#clipGirth)">
+      <path d="M 404 214 C 380 290 380 372 398 450" fill="none" stroke="#c2a47e" stroke-width="8" stroke-dasharray="14 12" opacity=".7"/>
+      <path d="M 404 214 C 432 290 432 372 410 450" fill="none" stroke="#c2a47e" stroke-width="26" stroke-linecap="round"/>
+      <path d="M 404 214 C 432 290 432 372 410 450" fill="none" stroke="#fff6e6" stroke-width="10" stroke-dasharray="2 16" opacity=".9"/>
+    </g>
+    <g id="girthMarks">
+      <circle cx="404" cy="212" r="13" fill="#faf7f1" stroke="#0d3122" stroke-width="5"/>
+      <circle cx="408" cy="450" r="13" fill="#faf7f1" stroke="#0d3122" stroke-width="5"/>
+      <text x="404" y="168" text-anchor="middle" font-size="40" font-weight="700" fill="#0d3122">Garrot</text>
+      <text x="408" y="520" text-anchor="middle" font-size="40" font-weight="700" fill="#faf7f1" stroke="#faf7f1" stroke-width="10" paint-order="stroke">Coude</text>
+      <text x="408" y="520" text-anchor="middle" font-size="40" font-weight="700" fill="#0d3122">Coude</text>
+    </g>
+    <!-- longueur : pointe de l'épaule → pointe de la fesse -->
+    <g id="len">
+      <g clip-path="url(#clipLen)">
+        <line x1="292" y1="340" x2="788" y2="332" stroke="#c2a47e" stroke-width="14" stroke-linecap="round" marker-start="url(#arr)" marker-end="url(#arr)"/>
+        <line x1="300" y1="340" x2="780" y2="332" stroke="#fff6e6" stroke-width="5" stroke-dasharray="2 16"/>
+      </g>
+      <g id="lenMarks">
+        <circle cx="292" cy="340" r="13" fill="#faf7f1" stroke="#0d3122" stroke-width="5"/>
+        <circle cx="788" cy="332" r="13" fill="#faf7f1" stroke="#0d3122" stroke-width="5"/>
+        <text x="268" y="398" text-anchor="end" font-size="36" font-weight="700" fill="#0d3122"><tspan x="268">Pointe de</tspan><tspan x="268" dy="42">l'épaule</tspan></text>
+        <text x="856" y="398" font-size="36" font-weight="700" fill="#0d3122"><tspan x="856">Pointe de</tspan><tspan x="856" dy="42">la fesse</tspan></text>
+      </g>
+    </g>
+  </g>
+  <!-- ruban souple (préparation) -->
+  <g id="tape" transform="translate(470 1760)">
+    <circle r="88" fill="#c2a47e"/><circle r="56" fill="#faf7f1"/><circle r="18" fill="#c2a47e"/>
+    <path d="M 80 40 C 140 70 180 60 240 30" fill="none" stroke="#c2a47e" stroke-width="30" stroke-linecap="round"/>
+  </g>
+  <!-- courbe (conseils) -->
+  <g id="curve" transform="translate(110 1380)">
+    <line x1="0" y1="300" x2="860" y2="300" stroke="#d8dfdb" stroke-width="3"/>
+    <polyline id="curveLine" points="0,170 170,150 340,160 510,130 680,140 860,120" fill="none" stroke="#1e8a59" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" pathLength="1" stroke-dasharray="1 1"/>
+  </g>
+</svg>
+
+<div id="head" class="abs"><img src="../../public/brand/jackcie-wordmark.png" alt=""></div>
+<div id="chip" class="abs"></div>
+<div id="title" class="abs"></div>
+
+<div id="prepList" class="abs panel">
+  <p class="check"><i>✓</i>Sol plat, cheval d'aplomb</p>
+  <p class="check"><i>✓</i>Tête dans l'axe du corps</p>
+  <p class="check"><i>✓</i>Un mètre ruban souple</p>
+</div>
+
+<div id="girthRead" class="abs readout"><p>Tour de poitrine</p><b><span>0</span><small>cm</small></b></div>
+<p id="girthNote" class="abs note">Bien à plat, <strong>sans serrer</strong>.<br>Lisez à la fin d'une expiration.</p>
+<div id="lenRead" class="abs readout"><p>Longueur du corps</p><b><span>0</span><small>cm</small></b></div>
+<p id="lenNote" class="abs note">En <strong>ligne droite</strong>, sans suivre les courbes.</p>
+
+<div id="phone" class="abs"><div id="screen">
+  <div class="ph-top">Mes chevaux<b>Uni</b></div>
+  <div class="tabs"><span>Fiche</span><span>Santé</span><span class="on">Poids</span><span>Séances</span></div>
+  <div class="card">
+    <h3>Nouvelle mesure</h3>
+    <p class="lbl">Méthode</p>
+    <div class="inp" id="method">Pesée (balance)</div>
+    <div id="tapeFields">
+      <div class="row">
+        <div><p class="lbl">Tour de poitrine (cm)</p><div class="inp" id="fG"><span></span></div></div>
+        <div><p class="lbl">Longueur (cm)</p><div class="inp" id="fL"><span></span></div></div>
+      </div>
+      <p class="result" id="result">Poids estimé : <strong>526 kg</strong></p>
+    </div>
+    <div class="btn">Enregistrer</div>
+  </div>
+  <div id="tap" class="abs"></div>
+</div></div>
+
+<div id="tip1" class="abs tip" style="top:560px"><i>1</i><div><b>Toujours la même méthode</b><span>Même ruban, mêmes repères.</span></div></div>
+<div id="tip2" class="abs tip" style="top:820px"><i>2</i><div><b>Au même moment</b><span>Par exemple le matin, avant le repas.</span></div></div>
+<div id="tip3" class="abs tip" style="top:1080px"><i>3</i><div><b>C'est l'évolution qui compte</b><span>L'estimation peut s'écarter de quelques %.</span></div></div>
+
+<div id="notif" class="abs"><i>!</i><div><b>Variation de poids · Uni</b><span>−6 % depuis la mesure précédente (526 → 494 kg).</span></div></div>
+<div id="endlogo" class="abs"><img src="../../public/brand/jackcie-logo.png" alt=""><p>Le suivi de vos chevaux, simplement.</p><small>jackcie.nlapps.fr</small></div>
+
+<script>
+const S = {intro:[0,8.2], prep:[8.2,19.6], girth:[19.6,32.9], len:[32.9,41.5], app:[41.5,52.8], tips:[52.8,65.5], end:[65.5,71.2]};
+const $ = (id) => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const ramp = (t, a, d = .5) => ease((t - a) / d);
+// opacité d'un élément visible entre a et b (fondu de d secondes)
+const win = (t, a, b, d = .5) => Math.min(ramp(t, a, d), 1 - ramp(t, b - d, d));
+const set = (el, o, y = 0, s = 1) => { el = typeof el === 'string' ? $(el) : el; el.style.opacity = o; el.style.visibility = o <= 0.001 ? 'hidden' : 'visible'; el.style.translate = `0 ${y}px`; el.style.scale = s; };
+const CHIPS = {intro: '', prep: 'Étape 1 · Préparer', girth: 'Étape 2 · Tour de poitrine', len: 'Étape 3 · Longueur', app: 'Étape 4 · Saisir', tips: 'Les bons réflexes', end: ''};
+const TITLES = {intro: 'Estimer le poids<br>de votre cheval <em>au ruban</em>', prep: 'Une bonne position', girth: 'Derrière le garrot<br>et les coudes', len: 'De l\'épaule<br>à la fesse', app: '', tips: '', end: 'Et si le poids varie,<br>vous êtes prévenu'};
+let lastScene = null;
+function scene(t) { for (const k in S) if (t < S[k][1]) return k; return 'end'; }
+function render(t) {
+  const sc = scene(t), [a, b] = S[sc];
+  // chapeau et titre : fondu à chaque changement de scène
+  if (sc !== lastScene) { $('chip').textContent = CHIPS[sc]; $('title').innerHTML = TITLES[sc]; lastScene = sc; }
+  const head = win(t, a + .05, b, .45);
+  set('chip', CHIPS[sc] ? head : 0, (1 - ramp(t, a, .5)) * 20);
+  set('title', TITLES[sc] ? head : 0, (1 - ramp(t, a + .1, .6)) * 30);
+  set('head', sc === 'end' ? 1 - ramp(t, a + 3.2, .6) : 1);
+
+  // cheval : de l'intro à la longueur
+  const horseO = sc === 'intro' ? ramp(t, .3, 1) : (['prep', 'girth', 'len'].includes(sc) ? 1 : 1 - ramp(t, S.app[0], .5));
+  set('horseWrap', horseO, sc === 'intro' ? (1 - ramp(t, .3, 1.2)) * 60 : 0);
+  $('horseWrap').setAttribute('transform', 'translate(40 560)');
+  $('ground').setAttribute('stroke-dashoffset', 1 - ramp(t, S.prep[0] + .4, 1.2));
+  set('shadow', .08 * ramp(t, S.prep[0] + .4, 1));
+  set('tape', sc === 'prep' ? win(t, S.prep[0] + 6.5, S.prep[1], .5) : 0, (1 - ramp(t, S.prep[0] + 6.5, .6)) * 40);
+  set('prepList', sc === 'prep' ? win(t, a + .8, b) : 0);
+  [...$('prepList').children].forEach((el, i) => set(el, ramp(t, S.prep[0] + [1.2, 3.6, 6.6][i], .5), (1 - ramp(t, S.prep[0] + [1.2, 3.6, 6.6][i], .5)) * 30));
+
+  // tour de poitrine
+  const g = ramp(t, S.girth[0] + 2, 4);
+  $('cgR').setAttribute('height', 280 * g);
+  set('girth', t < S.app[0] ? (t >= S.girth[0] ? 1 : 0) * (sc === 'len' ? .35 : 1) : 1 - ramp(t, S.app[0], .5));
+  set('girthMarks', sc === 'girth' ? win(t, a + .6, b) : 0);
+  set('girthRead', sc === 'girth' ? win(t, a + 2, b) : 0);
+  $('girthRead').querySelector('span').textContent = Math.round(190 * g);
+  set('girthNote', sc === 'girth' ? win(t, a + 7, b) : 0, (1 - ramp(t, a + 7, .5)) * 20);
+
+  // longueur
+  const l = ramp(t, S.len[0] + 1.6, 3);
+  $('clR').setAttribute('width', 540 * l);
+  set('len', sc === 'len' ? win(t, a + .3, b + .5) : (sc === 'app' ? 1 - ramp(t, S.app[0], .5) : 0));
+  $('lenRead').querySelector('span').textContent = Math.round(173 * l);
+  set('lenRead', sc === 'len' ? win(t, a + 1.6, b) : 0);
+  set('lenNote', sc === 'len' ? win(t, a + 4.5, b) : 0, (1 - ramp(t, a + 4.5, .5)) * 20);
+
+  // application
+  const A = S.app[0];
+  set('phone', sc === 'app' ? win(t, A + .3, S.app[1], .6) : 0, (1 - ramp(t, A + .3, .8)) * 120);
+  const tapeOn = t > A + 3.2;
+  $('method').textContent = tapeOn ? 'Ruban et mètre' : 'Pesée (balance)';
+  $('tapeFields').style.display = tapeOn ? 'block' : 'none';
+  const type = (el, txt, t0) => { const n = cl(Math.floor((t - t0) / .35), 0, txt.length); el.querySelector('span').textContent = txt.slice(0, n); const f = t > t0 - .3 && t < t0 + txt.length * .35 + .4; el.classList.toggle('focus', f); };
+  type($('fG'), '190', A + 4.6); type($('fL'), '173', A + 6.4);
+  $('method').classList.toggle('focus', t > A + 2.2 && t < A + 3.4);
+  set('result', ramp(t, A + 7.8, .4), (1 - ramp(t, A + 7.8, .4)) * 10);
+  // doigt qui touche : méthode, champ 1, champ 2
+  const taps = [[A + 2.2, 330, 384], [A + 4.3, 175, 560], [A + 6.1, 495, 560]];
+  let tp = null; for (const [ts, x, y] of taps) if (t > ts - .4 && t < ts + .5) tp = [ts, x, y];
+  if (tp) { const k = (t - tp[0] + .4) / .9; $('tap').style.left = (tp[1] - 45) + 'px'; $('tap').style.top = (tp[2] - 45) + 'px'; set('tap', Math.sin(Math.PI * cl(k)), 0, .7 + .3 * cl(k)); } else set('tap', 0);
+
+  // conseils
+  const T = S.tips[0];
+  ['tip1', 'tip2', 'tip3'].forEach((id, i) => { const s = T + [.4, 3.6, 7.4][i]; set(id, sc === 'tips' ? win(t, s, S.tips[1]) : 0, (1 - ramp(t, s, .6)) * 40); });
+  set('curve', sc === 'tips' ? win(t, T + 7.6, S.tips[1]) : 0);
+  $('curveLine').setAttribute('stroke-dashoffset', 1 - ramp(t, T + 7.8, 2.4));
+
+  // fin
+  const E = S.end[0];
+  set('notif', sc === 'end' ? win(t, E + .3, E + 3.4) : 0, (1 - ramp(t, E + .3, .6)) * -60);
+  set('endlogo', sc === 'end' ? ramp(t, E + 3.4, .7) : 0, (1 - ramp(t, E + 3.4, .7)) * 30);
+  if (sc === 'end') { set('title', win(t, E + .05, E + 3.4, .45)); }
+}
+window.DURATION = 71.2;
+</script>
+</body></html>

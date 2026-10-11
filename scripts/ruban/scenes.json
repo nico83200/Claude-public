@@ -1,0 +1,44 @@
+[
+ {
+  "id": "intro",
+  "text": "Pas de balance à l'écurie ? Un simple mètre ruban suffit pour estimer le poids de votre cheval.",
+  "start": 0.6,
+  "dur": 7.6
+ },
+ {
+  "id": "prep",
+  "text": "Placez votre cheval d'aplomb, sur un sol plat, la tête dans l'axe du corps. Prenez un mètre ruban souple, celui de la couture fait très bien l'affaire.",
+  "start": 8.2,
+  "dur": 11.4
+ },
+ {
+  "id": "girth",
+  "text": "Mesurez d'abord le tour de poitrine : faites passer le ruban juste derrière le garrot et derrière les coudes, bien à plat, sans serrer. Lisez la mesure à la fin d'une expiration.",
+  "start": 19.6,
+  "dur": 13.3
+ },
+ {
+  "id": "length",
+  "text": "Mesurez ensuite la longueur du corps, en ligne droite, de la pointe de l'épaule jusqu'à la pointe de la fesse.",
+  "start": 32.9,
+  "dur": 8.6
+ },
+ {
+  "id": "app",
+  "text": "Dans Jack&Cie, ouvrez l'onglet Poids de votre cheval, choisissez « Ruban et mètre » et saisissez les deux mesures. Le poids estimé s'affiche aussitôt.",
+  "start": 41.5,
+  "dur": 11.3
+ },
+ {
+  "id": "tips",
+  "text": "Pour une courbe fiable, mesurez toujours de la même façon, au même moment de la journée. L'estimation peut s'écarter de quelques pour cent : c'est l'évolution qui compte.",
+  "start": 52.8,
+  "dur": 12.7
+ },
+ {
+  "id": "end",
+  "text": "Et si le poids varie trop vite, Jack&Cie vous prévient.",
+  "start": 65.5,
+  "dur": 4.8
+ }
+]
