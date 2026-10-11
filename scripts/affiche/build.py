@@ -68,7 +68,8 @@ h1 em{{font-style:normal;color:#a8875e}}
 .scan{{margin-top:3mm;font-size:4.3mm;font-weight:700}}
 .url{{font-size:3.4mm;color:rgba(255,255,255,.7)}}
 footer{{position:absolute;left:0;right:0;bottom:6.5mm;z-index:1;display:flex;align-items:center;justify-content:center;gap:3mm;font-size:4mm;color:#6b736d}}
-.nlimg{{height:8mm}}
+.nlimg{{height:9mm}}
+.site{{margin-left:2mm;padding-left:3mm;border-left:.3mm solid #cbd0ca;font-weight:600;color:#3a413c}}
 .nlph{{font-weight:800;letter-spacing:.08em;color:#141915;border:.4mm dashed #9aa29b;padding:1mm 3mm;border-radius:2mm}}
 </style></head><body>
 <div class="arc" style="width:240mm;height:240mm;left:-150mm;top:170mm"></div>
@@ -82,7 +83,7 @@ footer{{position:absolute;left:0;right:0;bottom:6.5mm;z-index:1;display:flex;ali
  <div class="off"><span class="tag">Toutes les autres offres</span><span class="big">14 jours</span><p>d'essai gratuit : plusieurs chevaux,<br>assistant vocal, budget, écurie…</p></div>
  <div class="qr"><div class="qrbox">{qrhtml}</div><span class="scan">Scannez pour installer</span><span class="url">{urltext}</span></div>
 </section>
-<footer>Une application {nl}</footer>
+<footer>Une application {nl}<span class="site">nlapps.fr</span></footer>
 </body></html>'''
 open(F + '/affiche.html', 'w').write(page)
 subprocess.run(['node', F + '/print.mjs', F], check=True)
