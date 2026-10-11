@@ -271,6 +271,17 @@ class SocialAuthTest extends TestCase
         $this->assertDatabaseHas('social_accounts', ['user_id' => $social->id]);
     }
 
+    public function test_signup_link_code_is_activated_after_google_registration(): void
+    {
+        \App\Models\PromoCode::create(['code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon', 'is_active' => true,
+            'subscription_plan_id' => \App\Models\SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'free_days' => 30]);
+        $this->get('/register?code=EQUITA2026')->assertOk();
+        $this->signIn('google', ['name' => 'Camille Martin'])->assertRedirect('/dashboard')
+            ->assertSessionHas('success', fn ($m) => str_contains($m, 'EQUITA2026') && str_contains($m, 'sans carte bancaire'));
+        $org = User::where('email', 'camille@exemple.fr')->firstOrFail()->personalOrganization();
+        $this->assertDatabaseHas('licenses', ['organization_id' => $org->id, 'source' => 'code']);
+    }
+
     public function test_cancelled_by_user_returns_to_login_quietly(): void
     {
         $start = $this->get('/connexion/apple');

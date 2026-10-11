@@ -93,7 +93,10 @@ class Entitlements
     {
         $licenses = License::with('plan')->where('organization_id', $organization->id)
             ->whereNotIn('status', ['pending'])
-            ->orderByDesc('id')->get();
+            ->orderByDesc('id')->get()
+            // Un accès offert par code et arrivé à son terme ne bloque pas l'espace : retour à l'offre gratuite.
+            ->reject(fn (License $l) => $l->source === 'code' && ($l->status === 'expired' || ($l->ends_at && $l->ends_at->isPast())))
+            ->values();
 
         // Une licence active (ou en grâce / résiliation programmée) prime sur tout le reste.
         $active = $licenses->first(fn (License $l) => in_array($l->status, License::WRITABLE, true)

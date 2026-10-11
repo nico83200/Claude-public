@@ -42,6 +42,10 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::registerView(function () {
             abort_unless(FeatureFlag::enabled('registration'), 403, 'Les inscriptions sont fermées.');
+            // Lien ou QR code avec ?code= : le code est retenu, y compris pour une inscription avec Google / Apple.
+            if ($code = \App\Models\PromoCode::normalize((string) request()->query('code'))) {
+                session(['signup_code' => mb_substr($code, 0, 40)]);
+            }
 
             return view('auth.register');
         });

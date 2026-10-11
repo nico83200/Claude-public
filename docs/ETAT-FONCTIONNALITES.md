@@ -6,6 +6,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 ## Version 2.12 — exercices et démonstrations
 - ✅ 2.12 : bibliothèque d'exercices par défaut portée à 125 exercices (échauffement, transitions, figures, latéral, barres au sol, obstacle, travail à pied, longe, extérieur, western, endurance, attelage, voltige, position du cavalier, désensibilisation, liberté…) ; ajoutés aussi aux installations existantes lors de la mise à jour, sans jamais écraser un exercice modifié
 - ✅ 2.12 : Administration › Exercices : le super-administrateur recherche, ajoute, modifie et retire les exercices de la bibliothèque par défaut ; image (JPEG, PNG, WebP) ou vidéo (MP4, WebM, MOV) de démonstration par exercice, envoyée par morceaux, contrôlée (signature du fichier) et servie aux seuls utilisateurs connectés ; affichée sur la fiche de l'exercice, signalée dans la liste et dans les séances (« Voir la démonstration »). Les séances gardent leur copie figée de l'exercice
+- ✅ 2.12 : code promo à l'inscription : champ « J'ai un code promo » et lien ou QR code `…/register?code=CODE` (le code est retenu aussi pour l'inscription avec Google / Apple) ; un code d'accès gratuit est activé dès la création du compte, sans carte bancaire ; un code refusé est signalé sans créer le compte
+- ✅ 2.12 : corrigé : à la fin d'un accès offert par code, l'espace revient à l'offre gratuite Découverte au lieu de passer en lecture seule
 - ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
 
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension

@@ -82,6 +82,11 @@ class PromoCodeTest extends TestCase
         $this->travel(31)->days();
         Artisan::call('licenses:refresh');
         $this->assertSame('expired', $license->fresh()->status);
+        // L'espace n'est pas bloqué : il revient à l'offre gratuite.
+        app(Entitlements::class)->flush();
+        $ent = app(Entitlements::class)->for($license->organization);
+        $this->assertSame('decouverte', $ent['plan']->slug);
+        $this->assertTrue($ent['writable']);
     }
 
     public function test_invalid_codes_are_rejected(): void

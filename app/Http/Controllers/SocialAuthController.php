@@ -136,7 +136,7 @@ class SocialAuthController extends Controller
         Audit::log('auth.social_login', $user, ['provider' => $provider, 'created' => $result['created']]);
 
         return $result['created']
-            ? redirect()->route('dashboard')->with('success', 'Bienvenue ! Votre compte est créé avec '.$label.'.')
+            ? redirect()->route('dashboard')->with('success', trim('Bienvenue ! Votre compte est créé avec '.$label.'. '.$request->session()->pull('promo_success')))
             : redirect()->intended(route('dashboard'));
     }
 
