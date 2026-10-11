@@ -22,8 +22,9 @@ atouts = [
 ]
 def svg(name): return f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="{ICON[name]}"/></svg>'
 def b64(path):
-    ext = os.path.splitext(path)[1].lower().lstrip('.'); mime = {'jpg': 'jpeg', 'jpeg': 'jpeg', 'png': 'png', 'webp': 'webp', 'svg': 'svg+xml'}[ext]
-    return f'data:image/{mime};base64,' + base64.b64encode(open(path, 'rb').read()).decode()
+    ext = os.path.splitext(path)[1].lower().lstrip('.'); mime = {'jpg': 'jpeg', 'jpeg': 'jpeg', 'png': 'png', 'webp': 'webp', 'svg': 'svg+xml', 'ttf': 'ttf'}[ext]
+    kind = 'font' if ext == 'ttf' else 'image'
+    return f'data:{kind}/{mime};base64,' + base64.b64encode(open(path, 'rb').read()).decode()
 if URL:
     qr = segno.make(URL, error='h')
     qr.save(F + '/qr.svg', scale=10, border=0, dark='#0d3122', light=None)
@@ -36,9 +37,16 @@ nl = f'<img class="nlimg" src="{b64(NL)}" alt="NLAPPS">' if NL else '<span class
 items = ''.join(f'<div class="at"><span class="ic">{svg(i)}</span><div><b>{html.escape(t)}</b><p>{html.escape(d)}</p></div></div>' for i, t, d in atouts)
 page = f'''<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
 @page {{ size: 297mm 420mm; margin: 0 }}
+@font-face{{font-family:'InterPrint';font-weight:400;src:url("{b64(F + '/fonts/Inter-Regular.ttf')}") format('truetype')}}
+@font-face{{font-family:'InterPrint';font-weight:500;src:url("{b64(F + '/fonts/Inter-Medium.ttf')}") format('truetype')}}
+@font-face{{font-family:'InterPrint';font-weight:600;src:url("{b64(F + '/fonts/Inter-SemiBold.ttf')}") format('truetype')}}
+@font-face{{font-family:'InterPrint';font-weight:700;src:url("{b64(F + '/fonts/Inter-Bold.ttf')}") format('truetype')}}
+@font-face{{font-family:'InterPrint';font-weight:800;src:url("{b64(F + '/fonts/Inter-ExtraBold.ttf')}") format('truetype')}}
+
 *{{margin:0;padding:0;box-sizing:border-box}}
-html,body{{width:297mm;height:420mm}}
-body{{font-family:Inter,'Inter Display',system-ui;color:#141915;background:#faf7f1;-webkit-print-color-adjust:exact;print-color-adjust:exact;position:relative;overflow:hidden}}
+html,body{{width:297mm;height:420mm;overflow:hidden}}
+body{{font-family:InterPrint,Inter,system-ui;color:#141915;background:#faf7f1;-webkit-print-color-adjust:exact;print-color-adjust:exact;position:relative;overflow:hidden}}
+.deco{{position:absolute;inset:0;overflow:hidden;z-index:0}}
 .arc{{position:absolute;border-radius:50%;border:1mm solid #ede3d1;z-index:0}}
 header,h1,.lead,.mid,.offer,footer{{position:relative;z-index:1}}
 header{{text-align:center;padding-top:16mm}}
@@ -72,8 +80,8 @@ footer{{position:absolute;left:0;right:0;bottom:6.5mm;z-index:1;display:flex;ali
 .site{{margin-left:2mm;padding-left:3mm;border-left:.3mm solid #cbd0ca;font-weight:600;color:#3a413c}}
 .nlph{{font-weight:800;letter-spacing:.08em;color:#141915;border:.4mm dashed #9aa29b;padding:1mm 3mm;border-radius:2mm}}
 </style></head><body>
-<div class="arc" style="width:240mm;height:240mm;left:-150mm;top:170mm"></div>
-<div class="arc" style="width:180mm;height:180mm;right:-120mm;top:30mm"></div>
+<div class="deco"><div class="arc" style="width:240mm;height:240mm;left:-150mm;top:170mm"></div>
+<div class="arc" style="width:180mm;height:180mm;right:-120mm;top:30mm"></div></div>
 <header><img src="{b64(F + '/jackcie-logo.png')}" alt="Jack&amp;Cie"></header>
 <h1>Toute la vie de votre cheval,<br><em>dans votre poche.</em></h1>
 <p class="lead">L'application des cavaliers, propriétaires et écuries : santé, séances, agenda et budget, réunis et partagés.</p>
