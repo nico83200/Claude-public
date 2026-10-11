@@ -50,6 +50,7 @@ node tests/e2e/installer.mjs   # installation de bout en bout depuis le zip (Chr
 | [docs/INSTALLATION.md](docs/INSTALLATION.md) | Installation sur un environnement vierge |
 | [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md) | Mise en production (mutualisé ou VPS), cron, Stripe |
 | [docs/SAUVEGARDE.md](docs/SAUVEGARDE.md) | Sauvegarde et restauration |
+| [docs/TUTORIEL-VOIX-OFF.md](docs/TUTORIEL-VOIX-OFF.md) | Texte minuté de la voix off du tutoriel vidéo et marche à suivre |
 | [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md) | Stripe, email, assistant vocal : identifiants requis |
 | [docs/SECURITE-RGPD.md](docs/SECURITE-RGPD.md) | Mesures de sécurité et conformité RGPD |
 | [docs/ETAT-FONCTIONNALITES.md](docs/ETAT-FONCTIONNALITES.md) | Fonctionnalités terminées / à configurer / limites connues |

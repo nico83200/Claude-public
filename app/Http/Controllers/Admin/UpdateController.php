@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AppUpdate;
 use App\Services\Audit;
 use App\Services\Updates\Updater;
+use App\Support\UploadLimits;
 use Illuminate\Foundation\Http\MaintenanceModeBypassCookie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -28,7 +29,7 @@ class UpdateController extends Controller
             'updates' => AppUpdate::with('user')->latest()->limit(30)->get(),
             'zipAvailable' => class_exists(\ZipArchive::class),
             'problems' => $this->updater->preflight(30 * 1048576),
-            'chunkBytes' => min(self::CHUNK_MAX_KB * 1024, $this->iniBytes('upload_max_filesize') - 65536, $this->iniBytes('post_max_size') - 65536),
+            'chunkBytes' => UploadLimits::chunkBytes(self::CHUNK_MAX_KB),
         ]);
     }
 
@@ -157,18 +158,5 @@ class UpdateController extends Controller
         $update->delete();
 
         return redirect()->route('admin.updates.index')->with('success', 'Paquet supprimé.');
-    }
-
-    private function iniBytes(string $key): int
-    {
-        $v = trim((string) ini_get($key));
-        if ($v === '' || $v === '0') {
-            return PHP_INT_MAX;
-        }
-        $n = (int) $v;
-
-        return match (strtolower(substr($v, -1))) {
-            'g' => $n * 1073741824, 'm' => $n * 1048576, 'k' => $n * 1024, default => $n
-        };
     }
 }

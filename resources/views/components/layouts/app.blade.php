@@ -23,6 +23,7 @@
         ['organization.show', 'Organisation', 'building', true],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
         ['settings.profile', 'Paramètres', 'cog', true],
+        ['videos.index', 'Tutoriels', 'play', true],
     ];
     $contextHorseId = optional(request()->route('horse'))->id ?? (is_numeric(request()->route('horse')) ? (int) request()->route('horse') : null);
 @endphp
@@ -129,7 +130,7 @@
 </nav>
 @include('partials.assistant', ['contextHorseId' => $contextHorseId])
 @include('partials.install', ['bannerBottom' => 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'])
-@auth @include('partials.push-gate') @endauth
+@auth @include('partials.push-gate') @include('partials.pending-videos') @endauth
 @stack('scripts')
 </body>
 </html>

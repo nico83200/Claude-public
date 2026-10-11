@@ -35,6 +35,11 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    public function videoViews()
+    {
+        return $this->hasMany(VideoView::class);
+    }
+
     public function profile()
     {
         return $this->hasOne(UserProfile::class);

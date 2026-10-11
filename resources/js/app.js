@@ -6,6 +6,8 @@ import { assistantStore } from './assistant.js';
 import { updateUpload } from './update-upload.js';
 import { pushSettings } from './push-settings.js';
 import { pushGateStore } from './push.js';
+import { chunkUpload } from './chunk-upload.js';
+import { videoPlayer } from './video-player.js';
 
 window.Alpine = Alpine;
 
@@ -13,6 +15,8 @@ Alpine.data('sessionPlanner', sessionPlanner);
 Alpine.data('careNext', careNext);
 Alpine.data('updateUpload', updateUpload);
 Alpine.data('pushSettings', pushSettings);
+Alpine.data('chunkUpload', chunkUpload);
+Alpine.data('videoPlayer', videoPlayer);
 const assistantConfig = (() => {
     try { return JSON.parse(document.getElementById('assistant-config')?.textContent || '{}'); } catch { return {}; }
 })();

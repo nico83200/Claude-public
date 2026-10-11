@@ -3,6 +3,14 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.7 — vidéos
+- ✅ Tutoriel vidéo mobile (2 min 09, MP4 H.264 780×1688, 3 Mo, et WebM de secours pour les navigateurs sans H.264) livré avec l'application, sous-titres français (WebVTT) ; tourné sur l'application réelle (données de démonstration ; pour la scène de l'assistant, réponse de l'IA rejouée par un faux serveur, la création de la séance étant réelle)
+- ✅ Affichage automatique en plein écran : tutoriel à la première connexion des nouveaux comptes, nouveautés à la prochaine connexion des comptes existants ; une fois par session tant qu'elle n'est pas vue (« Passer » ou fin de la vidéo) ; jamais par-dessus l'écran d'activation des notifications
+- ✅ Administration › Vidéos : création, envoi par morceaux (vidéo, voix off, sous-titres SRT/VTT, image d'aperçu), aperçu, publication / retrait, statistiques de vues ; fichiers privés servis avec reprise de lecture (iPhone)
+- ✅ Voix off : piste audio séparée, lue en synchronisation avec la vidéo (lecture, pause, avance) ; texte minuté dans `docs/TUTORIEL-VOIX-OFF.md`
+- ✅ Menu « Tutoriels » : toutes les vidéos publiées, à revoir à tout moment
+- ⚠️ Voix off du tutoriel à enregistrer puis à ajouter dans Administration › Vidéos › « Bienvenue dans Jack&Cie » › Voix off
+
 ## Version 2.6
 - 🗑️ « Rechercher mon cheval » (recherche d'identité sur Internet : Wikidata, Brave) supprimé : boutons, pages, code et réglages retirés ; les informations déjà importées restent en base (`horse_external_sources`) sans affichage
 

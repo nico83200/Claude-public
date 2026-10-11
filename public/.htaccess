@@ -23,3 +23,11 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Types de fichiers de l'application (sous-titres des tutoriels, vidéos, manifeste de la web app)
+<IfModule mod_mime.c>
+    AddType text/vtt .vtt
+    AddType video/mp4 .mp4
+    AddType video/webm .webm
+    AddType application/manifest+json .webmanifest
+</IfModule>

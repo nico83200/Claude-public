@@ -177,6 +177,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
     // Notifications
     Route::get('/notifications', [Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/tutoriels', [Controllers\VideoController::class, 'index'])->name('videos.index');
+    Route::get('/videos/{video}/fichier/{kind}', [Controllers\VideoController::class, 'file'])->whereIn('kind', ['video', 'audio', 'captions', 'poster'])->name('videos.file');
+    Route::post('/videos/{video}/vue', [Controllers\VideoController::class, 'seen'])->name('videos.seen');
     Route::post('/notifications/lire', [Controllers\NotificationController::class, 'markAll'])->name('notifications.read-all');
     Route::post('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.subscribe');
     Route::delete('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
@@ -248,6 +251,14 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/codes/{promoCode}', [Admin\PromoCodeController::class, 'show'])->name('promo-codes.show');
     Route::patch('/codes/{promoCode}', [Admin\PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::post('/facturation/evenements/{event}/retraiter', [Admin\BillingController::class, 'reprocess'])->name('billing.reprocess');
+    Route::get('/videos', [Admin\VideoController::class, 'index'])->name('videos.index');
+    Route::post('/videos', [Admin\VideoController::class, 'store'])->name('videos.store');
+    Route::get('/videos/{video}', [Admin\VideoController::class, 'edit'])->name('videos.edit');
+    Route::put('/videos/{video}', [Admin\VideoController::class, 'update'])->name('videos.update');
+    Route::post('/videos/{video}/publication', [Admin\VideoController::class, 'publish'])->name('videos.publish');
+    Route::post('/videos/{video}/fichiers/{kind}', [Admin\VideoController::class, 'upload'])->whereIn('kind', ['video', 'audio', 'captions', 'poster'])->name('videos.upload');
+    Route::delete('/videos/{video}/fichiers/{kind}', [Admin\VideoController::class, 'removeFile'])->whereIn('kind', ['audio', 'captions', 'poster'])->name('videos.remove-file');
+    Route::delete('/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('videos.destroy');
     Route::get('/parametres', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/parametres', [Admin\SettingsController::class, 'update'])->name('settings.update');
     Route::get('/journal', [Admin\AuditController::class, 'index'])->name('audit.index');
