@@ -3,6 +3,17 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension
+- ✅ Thème clair (par défaut), sombre ou automatique (suit le réglage du téléphone ou de l'ordinateur) : Paramètres › Apparence ; choix mémorisé sur le compte et appliqué avant l'affichage (pas de flash)
+- ✅ Suivi du poids et de l'état corporel (note de 1 à 9) : onglet « Poids » du cheval, pesée, ruban (tour de poitrine² × longueur / 11 877) ou estimation ; courbe interactive et tableau ; alerte aux responsables du cheval au-delà de 5 % de variation ou de 2 points d'état ; ajout possible par l'assistant vocal
+- ✅ Vidéo explicative « Comment mesurer au ruban » (1 min, sous-titrée) dans le formulaire de mesure
+- ✅ Rappels intelligents : « Rythme habituel » de chaque type de soin calculé sur l'historique (au moins 3 passages), date probable du prochain passage, retard signalé, « Prendre rendez-vous » pré-rempli dans l'agenda, adoption du rythme comme rappel de suivi ; prévenance quotidienne quand un passage habituel approche
+- ✅ Facture photographiée (ou PDF) lue par l'assistant : fournisseur, date, lignes, total, catégorie et cheval proposés ; écran de vérification avant enregistrement ; facture jointe en justificatif ; soin ajouté au carnet de santé si souhaité. Testé avec une réponse simulée de l'API — ⚙️ nécessite la clé de l'assistant (offre avec assistant)
+- ✅ Fusion d'une facture lue avec une dépense déjà saisie (même cheval, date proche, montant voisin) : la dépense est complétée, sans doublon
+- ✅ Les dépenses sont toujours rattachées à un cheval (formulaire, assistant vocal, factures)
+- ✅ Espace écurie : facturation de la pension aux propriétaires — contrats de pension, prestations ponctuelles, relevé mensuel par propriétaire au prorata des jours de présence, numérotation, PDF, envoi (notification et somme « à payer » dans le budget du propriétaire qui a un compte), paiement noté
+- ✅ Administration › Statistiques : inscriptions, activité, parcours des nouveaux comptes, essais et conversions, fonctions utilisées, propositions d'offre cliquées, résiliations — nombres agrégés uniquement
+
 ## Version 2.10 — connexion avec Google et Apple, intervenants, menus, photos
 - ✅ 2.10.1 : Administration › Utilisateurs : offre en cours de chaque utilisateur (nom, payante / essai gratuit / offerte / gratuite / paiement en retard / terminée, montant, date de renouvellement, de fin d'essai ou de fin), une ligne par espace dont il est propriétaire ; aussi sur la fiche de l'utilisateur
 - ✅ 2.10.1 : notification aux super-administrateurs à chaque nouvelle inscription (formulaire, Google ou Apple) : dans l'application, sur le téléphone et par email, avec lien vers la fiche
