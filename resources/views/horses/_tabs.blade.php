@@ -6,6 +6,7 @@
         ['sessions.index', 'Séances', in_array('sessions.view', $perms), ['horse' => $horse->id]],
         ['horses.feeding', 'Alimentation', in_array('feeding.view', $perms)],
         ['horses.logs.index', 'Suivi', true],
+        ['horses.weight', 'Poids', true],
         ['horses.documents.index', 'Documents', in_array('documents.view', $perms), null, 'documents'],
         ['horses.pedigree', 'Généalogie', true],
         ['horses.professionals', 'Intervenants', true],

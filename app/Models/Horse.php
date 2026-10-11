@@ -128,6 +128,11 @@ class Horse extends Model
         return $this->hasMany(FeedingPlan::class)->orderByDesc('starts_on');
     }
 
+    public function measurements()
+    {
+        return $this->hasMany(HorseMeasurement::class)->orderBy('measured_on')->orderBy('id');
+    }
+
     public function dailyLogs()
     {
         return $this->hasMany(DailyLog::class)->orderByDesc('logged_at');

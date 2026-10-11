@@ -2,6 +2,7 @@
 
 namespace App\Services\Assistant;
 
+use App\Http\Controllers\MeasurementController;
 use App\Http\Controllers\ObservationController;
 use App\Models\CalendarEvent;
 use App\Models\CareCategory;
@@ -15,6 +16,7 @@ use App\Models\FeedingEntry;
 use App\Models\FeedingPlan;
 use App\Models\HealthObservation;
 use App\Models\Horse;
+use App\Models\HorseMeasurement;
 use App\Models\Professional;
 use App\Models\RidingSession;
 use App\Services\CalendarService;
@@ -132,6 +134,15 @@ class AssistantTools
                 'observations' => $n($str),
                 'anomalies' => $n($str),
             ]),
+            $tool('record_weight', 'Enregistre le poids du cheval (pesée, ou estimation au ruban : tour de poitrine et longueur en cm) et/ou sa note d\'état corporel de 1 (très maigre) à 9 (obèse).', [
+                'horse_id' => $int,
+                'measured_on' => $n(['type' => 'string', 'description' => 'YYYY-MM-DD, aujourd\'hui par défaut']),
+                'weight_kg' => $n($num),
+                'girth_cm' => $n($int),
+                'length_cm' => $n($int),
+                'body_condition' => $n($int),
+                'notes' => $n($str),
+            ]),
             $tool('add_expense', 'Enregistre une dépense (maréchal, pension, aliment, vétérinaire, matériel…).', [
                 'horse_id' => $n($int),
                 'category' => $enum(self::EXPENSE_KEYS),
@@ -218,6 +229,7 @@ class AssistantTools
                 'record_care' => $this->recordCare($input, $ctx),
                 'add_observation' => $this->addObservation($input, $ctx),
                 'add_daily_log' => $this->addDailyLog($input, $ctx),
+                'record_weight' => $this->recordWeight($input, $ctx),
                 'add_expense' => $this->addExpense($input, $ctx),
                 'set_feeding' => $this->setFeeding($input, $ctx),
                 'find_records' => $this->findRecords($input, $ctx),
@@ -439,6 +451,38 @@ class AssistantTools
         $ctx->record('dailylog.created', $log, $summary, route('horses.logs.index', $horse), ['delete' => [DailyLog::class, $log->id]]);
 
         return ['ok' => true, 'summary' => $summary];
+    }
+
+    private function recordWeight(array $in, AssistantContext $ctx): array
+    {
+        $horse = $this->horse($ctx, $in['horse_id'], Perm::DAILYLOG_CREATE);
+        $tape = ! empty($in['girth_cm']) && ! empty($in['length_cm']) && empty($in['weight_kg']);
+        $weight = $tape ? HorseMeasurement::estimateFromTape((int) $in['girth_cm'], (int) $in['length_cm']) : (isset($in['weight_kg']) ? (float) $in['weight_kg'] : null);
+        $condition = isset($in['body_condition']) ? (int) $in['body_condition'] : null;
+        if ($weight === null && $condition === null) {
+            throw new ToolError('Indiquez le poids, les mesures au ruban ou la note d\'état corporel.');
+        }
+        if (($weight !== null && ($weight < 30 || $weight > 1500)) || ($condition !== null && ($condition < 1 || $condition > 9))) {
+            throw new ToolError('Valeur hors limites (poids 30 à 1 500 kg, note 1 à 9).');
+        }
+        $on = ! empty($in['measured_on']) ? $this->date($in['measured_on']) : today();
+        if ($on->isFuture()) {
+            throw new ToolError('La date de mesure ne peut pas être dans le futur.');
+        }
+        $previous = $horse->measurements()->where('measured_on', '<=', $on->toDateString())->get()->last();
+        $m = HorseMeasurement::create([
+            'horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'measured_on' => $on->toDateString(), 'weight_kg' => $weight,
+            'method' => $tape ? 'tape' : 'scale', 'girth_cm' => $tape ? (int) $in['girth_cm'] : null, 'length_cm' => $tape ? (int) $in['length_cm'] : null,
+            'body_condition' => $condition, 'notes' => $this->clip($in['notes'] ?? null, 500),
+        ]);
+        $alerts = MeasurementController::alerts($previous, $m);
+        if ($alerts) {
+            ObservationController::notifyManagers($horse, $ctx->user, $this->access, 'Variation de poids : '.$horse->shortName(), implode(' ', $alerts), route('horses.weight', $horse));
+        }
+        $summary = 'Poids – '.$horse->shortName().' – '.($weight ? number_format($weight, 0, ',', ' ').' kg'.($tape ? ' (estimé au ruban)' : '') : 'état '.$condition.'/9');
+        $ctx->record('measurement.created', $m, $summary, route('horses.weight', $horse), ['delete' => [HorseMeasurement::class, $m->id]]);
+
+        return ['ok' => true, 'summary' => $summary, 'alerts' => $alerts];
     }
 
     private function addExpense(array $in, AssistantContext $ctx): array

@@ -10,6 +10,7 @@ use App\Models\CareCategory;
 use App\Models\CareRecord;
 use App\Models\Exercise;
 use App\Models\FeedingPlan;
+use App\Models\HorseMeasurement;
 use App\Models\RidingSession;
 use App\Services\Assistant\AssistantConfig;
 use App\Services\Assistant\ClaudeGateway;
@@ -314,5 +315,22 @@ class AssistantTest extends TestCase
         $results = collect($fake->calls[1]['messages'][2]['content']);
         $this->assertTrue($results[3]['isError']);
         $this->assertStringContainsString('Champ obligatoire manquant', $results[3]['content']);
+    }
+
+    public function test_dictated_weight_with_tape_measures_is_estimated_and_undoable(): void
+    {
+        [$user, $horse] = $this->setUpUser();
+        $this->fake([
+            ['tools' => [['record_weight', ['horse_id' => $horse->id, 'girth_cm' => 190, 'length_cm' => 173, 'body_condition' => 5]]]],
+            ['text' => 'C\'est noté : environ 526 kg pour Uni.'],
+        ]);
+        $res = $this->say($user, 'Uni fait 190 de tour de poitrine et 173 de long, état 5')->assertOk();
+        $m = HorseMeasurement::firstOrFail();
+        $this->assertSame(525.8, $m->weight_kg);
+        $this->assertSame('tape', $m->method);
+        $this->assertStringContainsString('526 kg (estimé au ruban)', $res->json('actions.0.summary'));
+
+        $this->actingAs($user)->postJson($res->json('actions.0.undo_url'))->assertOk();
+        $this->assertSame(0, HorseMeasurement::count());
     }
 }

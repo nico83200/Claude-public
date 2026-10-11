@@ -107,6 +107,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::get('/alimentation', [Controllers\FeedingController::class, 'show'])->name('feeding');
         Route::post('/alimentation', [Controllers\FeedingController::class, 'store'])->name('feeding.store');
         Route::get('/journal', [Controllers\DailyLogController::class, 'index'])->name('logs.index');
+        Route::get('/poids', [Controllers\MeasurementController::class, 'index'])->name('weight');
+        Route::post('/poids', [Controllers\MeasurementController::class, 'store'])->name('weight.store');
+        Route::delete('/poids/{measurement}', [Controllers\MeasurementController::class, 'destroy'])->withoutScopedBindings()->name('weight.destroy');
         Route::post('/journal', [Controllers\DailyLogController::class, 'store'])->name('logs.store');
 
         Route::get('/partage', [Controllers\HorseSharingController::class, 'show'])->name('sharing');

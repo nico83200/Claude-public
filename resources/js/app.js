@@ -11,6 +11,7 @@ import { videoPlayer } from './video-player.js';
 import { startSelectEnhancer } from './select-enhance.js';
 import { contactImport, contactFormStore } from './contacts.js';
 import { startLightbox } from './lightbox.js';
+import { weightChart } from './weight-chart.js';
 
 window.Alpine = Alpine;
 
@@ -21,6 +22,7 @@ Alpine.data('pushSettings', pushSettings);
 Alpine.data('chunkUpload', chunkUpload);
 Alpine.data('videoPlayer', videoPlayer);
 Alpine.data('contactImport', contactImport);
+Alpine.data('weightChart', weightChart);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));

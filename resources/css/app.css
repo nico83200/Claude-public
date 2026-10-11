@@ -251,3 +251,18 @@ input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-40
 /* Logos (texte vert forêt) : éclaircis. */
 :root[data-theme="dark"] img[src*="/brand/jackcie"], :root[data-theme="dark"] source + img[src*="/brand/"] { filter: invert(1) hue-rotate(180deg) brightness(1.15); }
 :root[data-theme="dark"] input[type=date]::-webkit-calendar-picker-indicator, :root[data-theme="dark"] input[type=time]::-webkit-calendar-picker-indicator, :root[data-theme="dark"] input[type=datetime-local]::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+/* Courbe de poids (resources/js/weight-chart.js) — couleur validée en clair et en sombre */
+:root { --chart-series: #1e8a59; }
+:root[data-theme="dark"] { --chart-series: #2fae6e; }
+.weight-chart { overflow: visible; touch-action: pan-y; }
+.wc-grid { stroke: var(--color-slate-100); stroke-width: 1; }
+.wc-axis { fill: var(--color-slate-500); font-size: 11px; font-variant-numeric: tabular-nums; }
+.wc-line { fill: none; stroke: var(--chart-series); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.wc-area { fill: var(--chart-series); opacity: .1; }
+.wc-dot { fill: var(--chart-series); stroke: var(--color-white); stroke-width: 2; }
+.wc-dot.is-estimate { fill: var(--color-white); stroke: var(--chart-series); }
+.wc-label { fill: var(--color-slate-900); font-size: 12px; font-weight: 600; }
+.wc-cross { stroke: var(--color-slate-300); stroke-width: 1; }
+.wc-tip { background: #141915; color: #fff; }
+:root[data-theme="dark"] .wc-tip { background: #f2f4f2; color: #141915; }
