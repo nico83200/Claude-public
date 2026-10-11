@@ -14,7 +14,7 @@ ICON = {
 }
 atouts = [
  ('health', 'Santé et soins', 'Maréchal, vaccins, vermifuges : rappels automatiques.'),
- ('mic', 'Assistant vocal', '« Cours demain à 16 h avec Jimmy » : c\'est noté.'),
+ ('mic', 'Assistant vocal', '« Cours demain à 16 h avec Léo » : c\'est noté.'),
  ('session', 'Séances et cours', 'Préparation, exercices, bilan et progression.'),
  ('calendar', 'Agenda', 'Rendez-vous, cours et soins au même endroit.'),
  ('wallet', 'Budget', 'Pension et dépenses récurrentes, paiements suivis.'),
