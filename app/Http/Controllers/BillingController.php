@@ -9,6 +9,7 @@ use App\Services\Billing\StripeGateway;
 use App\Services\PromoCodeService;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -21,6 +22,7 @@ class BillingController extends Controller
     {
         $org = $this->currentOrganization();
         $this->authorizeOrg($org, Perm::BILLING_MANAGE);
+        $this->refreshFromStripe($org, $request->boolean('maj'));
 
         return view('billing.index', [
             'org' => $org,
@@ -100,7 +102,7 @@ class BillingController extends Controller
         abort_unless($org->stripeCustomer && $this->stripe->configured(), 404);
 
         try {
-            return redirect()->away($this->stripe->createPortalSession($org->stripeCustomer->stripe_customer_id, route('billing.index')));
+            return redirect()->away($this->stripe->createPortalSession($org->stripeCustomer->stripe_customer_id, route('billing.index', ['maj' => 1])));
         } catch (Throwable $e) {
             report($e);
 
@@ -135,6 +137,25 @@ class BillingController extends Controller
         $this->guard(fn () => $this->billing->resume($org));
 
         return back()->with('success', 'Reprise de l\'abonnement demandée.');
+    }
+
+    /**
+     * Rattrapage si un webhook manque : l'état est relu chez Stripe à l'ouverture de la page
+     * (au plus toutes les 5 minutes, ou immédiatement au retour du portail de facturation).
+     */
+    private function refreshFromStripe($org, bool $force): void
+    {
+        if (! $this->stripe->configured() || ! $this->billing->activeSubscription($org)) {
+            return;
+        }
+        if (! $force && ! Cache::add('billing-refresh:'.$org->id, 1, now()->addMinutes(5))) {
+            return;
+        }
+        try {
+            $this->billing->refreshOpenSubscriptions($org);
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 
     private function guard(callable $fn): void

@@ -185,24 +185,71 @@ class BillingTest extends TestCase
         $this->actingAs($staff)->get('/abonnement')->assertForbidden();
     }
 
-    public function test_swap_and_cancel_go_through_stripe(): void
+    public function test_swap_and_cancel_go_through_stripe_and_apply_its_response(): void
     {
         $user = $this->user();
         $org = $user->personalOrganization();
-        $this->webhook($this->subscriptionEvent($org->id, 'active', time()));
-        $gateway = Mockery::mock(StripeGateway::class);
-        $gateway->shouldReceive('configured')->andReturn(true);
-        $gateway->shouldReceive('retrieveSubscription')->andReturn(['items' => ['data' => [['id' => 'si_1']]]]);
-        $gateway->shouldReceive('updateSubscription')->with('sub_123', Mockery::on(fn ($p) => ($p['items'][0]['price'] ?? null) === 'price_multi'))->once()->andReturn([]);
-        $gateway->shouldReceive('updateSubscription')->with('sub_123', ['cancel_at_period_end' => true])->once()->andReturn([]);
-        $this->app->instance(StripeGateway::class, $gateway);
+        $this->webhook($this->subscriptionEvent($org->id, 'active', time() - 10));
         $multi = SubscriptionPlan::where('slug', 'multi-chevaux')->first();
         $multi->update(['stripe_price_monthly_id' => 'price_multi']);
+        $current = $this->stripeSubscription($org->id, 'active');
+        $swapped = $current;
+        $swapped['items']['data'][0]['price'] = ['id' => 'price_multi', 'unit_amount' => 1290, 'currency' => 'eur', 'recurring' => ['interval' => 'month']];
+        $gateway = Mockery::mock(StripeGateway::class);
+        $gateway->shouldReceive('configured')->andReturn(true);
+        // Faux Stripe : garde l'état de l'abonnement entre la modification et les relectures.
+        $state = $current;
+        $gateway->shouldReceive('retrieveSubscription')->andReturnUsing(function () use (&$state) {
+            return $state;
+        });
+        $gateway->shouldReceive('updateSubscription')->with('sub_123', Mockery::on(fn ($p) => ($p['items'][0]['price'] ?? null) === 'price_multi'))->once()->andReturnUsing(function () use (&$state, $swapped) {
+            return $state = $swapped;
+        });
+        $gateway->shouldReceive('updateSubscription')->with('sub_123', ['cancel_at_period_end' => true])->once()->andReturnUsing(function () use (&$state) {
+            return $state = ['cancel_at_period_end' => true] + $state;
+        });
+        $gateway->shouldReceive('updateSubscription')->with('sub_123', ['cancel_at_period_end' => false])->once()->andReturnUsing(function () use (&$state) {
+            return $state = ['cancel_at_period_end' => false] + $state;
+        });
+        $this->app->instance(StripeGateway::class, $gateway);
 
         $this->actingAs($user)->post('/abonnement/changer', ['plan_id' => $multi->id, 'interval' => 'month'])->assertSessionHas('success');
+        $this->assertSame($multi->id, Subscription::first()->subscription_plan_id);
+
+        // Résiliation : visible tout de suite (plus de bouton « Résilier », date de fin au lieu du renouvellement).
         $this->actingAs($user)->post('/abonnement/resilier')->assertSessionHas('success');
-        // L'état local ne change qu'à réception du webhook.
+        $this->assertTrue(Subscription::first()->cancel_at_period_end);
+        $this->assertSame('cancel_scheduled', License::first()->status);
+        $this->actingAs($user)->get('/abonnement')->assertSee('Se termine le')->assertSee('Reprendre l\'abonnement', false)
+            ->assertDontSee('Renouvellement le')->assertDontSee('>Résilier</button>', false);
+
+        // Un webhook plus ancien que la réponse de l'API ne rétablit pas l'ancien état.
+        $this->webhook($this->subscriptionEvent($org->id, 'active', time() - 5))->assertOk();
+        $this->assertTrue(Subscription::first()->cancel_at_period_end);
+
+        $this->actingAs($user)->post('/abonnement/reprendre')->assertSessionHas('success');
         $this->assertFalse(Subscription::first()->cancel_at_period_end);
+    }
+
+    public function test_missed_webhooks_are_caught_up_from_stripe(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+        $user = $this->user();
+        $org = $user->personalOrganization();
+        $this->webhook($this->subscriptionEvent($org->id, 'trialing', time() - 10));
+        $gateway = Mockery::mock(StripeGateway::class)->makePartial();
+        $gateway->shouldReceive('configured')->andReturn(true);
+        $gateway->shouldReceive('retrieveSubscription')->with('sub_123')->andReturn(['cancel_at_period_end' => true] + $this->stripeSubscription($org->id, 'active'), $this->stripeSubscription($org->id, 'canceled'));
+        $this->app->instance(StripeGateway::class, $gateway);
+
+        // Résiliation faite dans le portail Stripe : relue au retour sur la page Abonnement.
+        $this->actingAs($user)->get('/abonnement?maj=1')->assertOk()->assertSee('Se termine le');
+        $this->assertTrue(Subscription::first()->cancel_at_period_end);
+
+        // Fin effective sans webhook : rattrapée par la tâche planifiée.
+        $this->artisan('billing:sync')->assertSuccessful();
+        $this->assertSame('canceled', Subscription::first()->stripe_status);
+        $this->assertSame('expired', License::first()->status);
     }
 
     public function test_old_prices_still_map_to_plan_after_price_change(): void

@@ -12,6 +12,8 @@ Schedule::command('reminders:activity')->everyFiveMinutes()->withoutOverlapping(
 // Échéances des dépenses récurrentes (pension…), notifiées le jour même.
 Schedule::command('expenses:recurring')->dailyAt('06:05')->withoutOverlapping();
 Schedule::command('licenses:refresh')->hourly()->withoutOverlapping();
+// Filet de sécurité si un webhook Stripe manque : état des abonnements relu chez Stripe.
+Schedule::command('billing:sync')->hourly()->withoutOverlapping();
 Schedule::command('billing:price-migrations')->dailyAt('03:15')->withoutOverlapping();
 Schedule::command('data:purge')->weeklyOn(0, '03:45')->withoutOverlapping();
 // Hébergement mutualisé sans worker permanent : traitement périodique de la file.

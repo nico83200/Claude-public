@@ -98,27 +98,56 @@ class BillingService
         $price = $plan->stripePriceFor($interval) ?? throw ValidationException::withMessages(['plan' => 'Tarif non configuré pour cette offre.']);
         $current = $this->stripe->retrieveSubscription($sub->stripe_subscription_id);
         $itemId = $current['items']['data'][0]['id'] ?? throw ValidationException::withMessages(['plan' => 'Abonnement Stripe incohérent.']);
-        // Le changement est confirmé par le webhook customer.subscription.updated.
-        $this->stripe->updateSubscription($sub->stripe_subscription_id, [
+        // La réponse de l'API Stripe est appliquée tout de suite ; le webhook customer.subscription.updated confirme ensuite.
+        $this->applyStripeResponse($this->stripe->updateSubscription($sub->stripe_subscription_id, [
             'items' => [['id' => $itemId, 'price' => $price]],
             'proration_behavior' => 'create_prorations',
             'metadata' => ['organization_id' => (string) $org->id, 'plan_id' => (string) $plan->id],
-        ]);
+        ]));
         Audit::log('billing.swap_requested', $org, ['plan' => $plan->slug, 'interval' => $interval], $org->id);
     }
 
     public function cancel(Organization $org): void
     {
         $sub = $this->activeSubscription($org) ?? throw ValidationException::withMessages(['plan' => 'Aucun abonnement actif.']);
-        $this->stripe->updateSubscription($sub->stripe_subscription_id, ['cancel_at_period_end' => true]);
+        $this->applyStripeResponse($this->stripe->updateSubscription($sub->stripe_subscription_id, ['cancel_at_period_end' => true]));
         Audit::log('billing.cancel_requested', $org, [], $org->id);
     }
 
     public function resume(Organization $org): void
     {
         $sub = $this->activeSubscription($org) ?? throw ValidationException::withMessages(['plan' => 'Aucun abonnement à reprendre.']);
-        $this->stripe->updateSubscription($sub->stripe_subscription_id, ['cancel_at_period_end' => false]);
+        $this->applyStripeResponse($this->stripe->updateSubscription($sub->stripe_subscription_id, ['cancel_at_period_end' => false]));
         Audit::log('billing.resume_requested', $org, [], $org->id);
+    }
+
+    /** Applique l'abonnement renvoyé par l'API Stripe après une modification (réponse authentifiée par la clé secrète). */
+    private function applyStripeResponse(array $subscription): void
+    {
+        if (($subscription['object'] ?? null) === 'subscription' && ! empty($subscription['id'])) {
+            $this->onSubscription($subscription, time(), 'customer.subscription.updated');
+        }
+    }
+
+    /**
+     * Relit chez Stripe les abonnements en cours (rattrape un webhook perdu ou non configuré :
+     * fin d'essai, renouvellement, résiliation depuis le portail). Renvoie le nombre d'abonnements relus.
+     */
+    public function refreshOpenSubscriptions(?Organization $org = null): int
+    {
+        $count = 0;
+        Subscription::whereNotIn('stripe_status', ['canceled', 'incomplete_expired'])
+            ->when($org, fn ($q) => $q->where('organization_id', $org->id))
+            ->each(function (Subscription $sub) use (&$count) {
+                try {
+                    $this->syncSubscriptionFromStripe($sub->stripe_subscription_id);
+                    $count++;
+                } catch (\Throwable $e) {
+                    report($e); // un abonnement en erreur ne bloque pas les suivants
+                }
+            });
+
+        return $count;
     }
 
     // ------------------------------------------------------------------ Webhooks
