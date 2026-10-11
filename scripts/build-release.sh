@@ -29,6 +29,9 @@ echo "→ Nettoyage"
 find "$STAGE/vendor" -type d \( -name .git -o -name .github \) -prune -exec rm -rf {} +
 find "$STAGE/vendor" -mindepth 3 -maxdepth 3 -type d \( -iname tests -o -iname test -o -iname docs -o -iname doc -o -iname examples \) -prune -exec rm -rf {} +
 # Outils de développement et fichiers de démonstration inutiles en production
+# Polices PDF monospaces non utilisées par les exports (le générique « monospace » de dompdf reste Courier)
+rm -f "$STAGE"/vendor/dompdf/dompdf/lib/fonts/DejaVuSansMono* "$STAGE/vendor/monolog/monolog/logo.png"
+php -r '$f=$argv[1]; $j=json_decode(file_get_contents($f), true); unset($j["dejavu sans mono"]); file_put_contents($f, json_encode($j, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));' "$STAGE/vendor/dompdf/dompdf/lib/fonts/installed-fonts.dist.json"
 rm -rf "$STAGE/vendor/laravel/framework/bin" "$STAGE/vendor/nunomaduro/termwind/art" "$STAGE/vendor/anthropic-ai/sdk/scripts" "$STAGE/vendor/anthropic-ai/sdk/fixtures"
 find "$STAGE/vendor" -type f \( -iname '*.md' -o -name 'phpunit.xml*' -o -name '.php-cs-fixer*' -o -name 'psalm.xml' -o -name 'phpstan.neon*' \) ! -iname 'LICENSE*' -delete
 rm -f "$STAGE/.env" "$STAGE/storage/app/installed.json" "$STAGE/public/hot"
