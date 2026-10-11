@@ -16,7 +16,7 @@ class HorsePhotoController extends Controller
         $this->authorizeHorse($horse, Perm::HORSE_EDIT);
         $request->validate(['photo' => ['required', 'image', 'max:'.config('equine.uploads.max_kb')], 'caption' => ['nullable', 'string', 'max:150']]);
         if (! $this->entitlements()->canStore($horse->organization, $request->file('photo')->getSize())) {
-            return back()->with('error', 'Espace de stockage de l\'offre insuffisant.');
+            return back()->with('error', 'Espace de stockage de l\'offre insuffisant.')->with('upsell', ['organization' => $horse->organization_id, 'key' => 'storage_mb']);
         }
         $stored = $images->store($request->file('photo'), 'horses/'.$horse->id.'/photos');
         $photo = HorsePhoto::create(['horse_id' => $horse->id, 'uploaded_by' => $request->user()->id, 'path' => $stored['path'], 'thumb_path' => $stored['thumb'], 'size_bytes' => $stored['size'], 'caption' => $request->input('caption')]);

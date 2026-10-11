@@ -23,15 +23,22 @@ class InvitationService
 {
     public function __construct(private Entitlements $entitlements, private OrganizationService $organizations) {}
 
+    /** Partages en cours (accès actifs et invitations en attente) sur les chevaux de l'espace. */
+    public function horseSharesUsed(Organization $org): int
+    {
+        $horseIds = $org->horses()->pluck('id');
+
+        return HorseAccessGrant::active()->whereIn('horse_id', $horseIds)->count()
+            + Invitation::pending()->where('type', 'horse_access')->whereIn('horse_id', $horseIds)->count();
+    }
+
     public function inviteToHorse(Horse $horse, User $inviter, string $email, array $permissions, ?string $label, $startsAt, $expiresAt): array
     {
         $org = $horse->organization;
         if (! $this->entitlements->hasFeature($org, 'sharing')) {
             throw ValidationException::withMessages(['email' => 'Le partage n\'est pas inclus dans l\'offre de cet espace.']);
         }
-        $used = HorseAccessGrant::active()->whereIn('horse_id', $org->horses()->pluck('id'))->count()
-            + Invitation::pending()->where('type', 'horse_access')->whereIn('horse_id', $org->horses()->pluck('id'))->count();
-        if (! $this->entitlements->withinLimit($org, 'max_invitations', $used)) {
+        if (! $this->entitlements->withinLimit($org, 'max_invitations', $this->horseSharesUsed($org))) {
             throw ValidationException::withMessages(['email' => 'Le nombre maximal de partages de votre offre est atteint.']);
         }
         $email = strtolower($email);

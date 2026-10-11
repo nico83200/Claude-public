@@ -20,8 +20,29 @@
 
             <div class="flex-1 overflow-y-auto px-6 pt-4 pb-6">
                 {{-- Indisponible --}}
-                <template x-if="a.status && ! a.status.available">
+                <template x-if="a.status && ! a.status.available && ! a.status.upsell">
                     <div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700" x-text="a.status.reason"></div>
+                </template>
+                {{-- Non inclus dans l'offre : proposition d'offre supérieure --}}
+                <template x-if="a.status && ! a.status.available && a.status.upsell">
+                    <div class="flex flex-col items-center py-2 text-center" data-upsell="assistant">
+                        <span class="flex size-20 items-center justify-center rounded-full bg-brand-900 text-gold-200 shadow-[var(--shadow-float)]"><x-icon name="mic" class="size-9" /></span>
+                        <p class="mt-4 text-xs font-semibold tracking-wide text-gold-600 uppercase" x-text="'Offre ' + a.status.upsell.plan"></p>
+                        <p class="mt-1 text-xl font-semibold text-slate-900" x-text="a.status.upsell.title"></p>
+                        <p class="mt-2 text-[15px] text-slate-600" x-text="a.status.upsell.text"></p>
+                        <ul class="mt-4 w-full space-y-2 text-left text-sm text-slate-700">
+                            <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Le maréchal vient le 2 décembre à 9 h » → ajouté à l'agenda</li>
+                            <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Vaccin fait ce matin, 75 € » → soin et dépense notés</li>
+                            <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Quand est le prochain maréchal ? » → réponse immédiate</li>
+                        </ul>
+                        <template x-if="a.status.upsell.url">
+                            <div class="mt-5 w-full">
+                                <a :href="a.status.upsell.url" class="btn-primary w-full" x-text="a.status.upsell.cta"></a>
+                                <p class="mt-2 text-xs text-slate-500" x-text="a.status.upsell.trial ? 'Sans engagement, résiliable à tout moment.' : a.status.upsell.note"></p>
+                            </div>
+                        </template>
+                        <template x-if="! a.status.upsell.url"><p class="mt-4 text-xs text-slate-500" x-text="a.status.upsell.note"></p></template>
+                    </div>
                 </template>
 
                 <template x-if="! a.status || a.status.available">

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
+use App\Services\Upsell;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -94,6 +95,8 @@ class AppServiceProvider extends ServiceProvider
             $orgPerms = $user ? $user->memberships->flatMap(fn ($m) => $m->role->permissionKeys())->all() : [];
             $view->with('navPerms', $user ? array_values(array_unique([...app(HorseAccess::class)->navPermissions($user), ...$orgPerms])) : []);
             $view->with('unreadNotifications', $user ? $user->unreadNotifications()->count() : 0);
+            $org = request()->attributes->get('organization');
+            $view->with('navUpsell', $user && $org ? app(Upsell::class)->upgrade($org, $user) : null);
         });
 
         Gate::define('super-admin', fn (User $user) => $user->is_super_admin && ! $user->isSuspended());

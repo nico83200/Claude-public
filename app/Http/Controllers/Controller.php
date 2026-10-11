@@ -49,7 +49,8 @@ abstract class Controller
     protected function requireFeature(Organization $organization, string $feature, string $label): void
     {
         if (! $this->entitlements()->hasFeature($organization, $feature)) {
-            abort(redirect()->back()->with('warning', "« {$label} » n'est pas inclus dans l'offre actuelle de l'espace {$organization->name}."));
+            abort(redirect()->back()->with('warning', "« {$label} » n'est pas inclus dans l'offre actuelle de l'espace {$organization->name}.")
+                ->with('upsell', ['organization' => $organization->id, 'key' => $feature]));
         }
     }
 }

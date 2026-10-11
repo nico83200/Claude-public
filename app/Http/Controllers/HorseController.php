@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Services\Audit;
 use App\Services\HorseAccess;
 use App\Services\HorseService;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,9 +31,14 @@ class HorseController extends Controller
         }
         $request->boolean('archived') ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at');
 
+        $current = $this->currentOrganization();
+        $canCreate = $user->canInOrg($current, Perm::HORSES_CREATE);
+        $limitReached = $canCreate && ! $this->entitlements()->withinLimit($current, 'max_horses', $current->horses()->whereNull('archived_at')->count());
+
         return view('horses.index', [
             'horses' => $query->orderBy('official_name')->paginate(24)->withQueryString(),
-            'canCreate' => $user->canInOrg($this->currentOrganization(), Perm::HORSES_CREATE),
+            'canCreate' => $canCreate,
+            'upsell' => $limitReached && ! $request->boolean('archived') ? app(Upsell::class)->for($current, $user, 'max_horses') : null,
         ]);
     }
 
@@ -45,7 +51,8 @@ class HorseController extends Controller
             'horse' => new Horse(['sex' => 'unknown']),
             'breeds' => HorseBreed::orderBy('name')->pluck('name', 'id'),
             'org' => $org,
-            'limitReached' => ! $this->entitlements()->withinLimit($org, 'max_horses', $org->horses()->whereNull('archived_at')->count()),
+            'limitReached' => $limitReached = ! $this->entitlements()->withinLimit($org, 'max_horses', $org->horses()->whereNull('archived_at')->count()),
+            'upsell' => $limitReached ? app(Upsell::class)->for($org, $request->user(), 'max_horses') : null,
         ]);
     }
 
@@ -89,6 +96,7 @@ class HorseController extends Controller
             'breeds' => HorseBreed::orderBy('name')->pluck('name', 'id'),
             'org' => $horse->organization,
             'limitReached' => false,
+            'upsell' => null,
         ]);
     }
 

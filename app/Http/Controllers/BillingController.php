@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\FeatureFlag;
+use App\Models\License;
 use App\Models\SubscriptionPlan;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\StripeGateway;
 use App\Services\PromoCodeService;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -37,6 +39,9 @@ class BillingController extends Controller
             ],
             'stripeReady' => $this->stripe->configured() && FeatureFlag::enabled('billing'),
             'cancelled' => $request->boolean('annule'),
+            // Arrivée depuis une proposition d'offre supérieure : fonction ou limite à mettre en avant.
+            'focus' => array_key_exists((string) $request->query('fonction'), Upsell::PITCHES) ? (string) $request->query('fonction') : null,
+            'trialAvailable' => ! License::where('organization_id', $org->id)->where('source', 'stripe')->exists(),
         ]);
     }
 

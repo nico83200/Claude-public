@@ -20,7 +20,9 @@
                 </table></div>
             @endif
         </div>
-        @if ($canUpload)
+        @if ($canUpload && $upsell)
+            <x-upsell :offer="$upsell" />
+        @elseif ($canUpload)
         <x-section title="Ajouter un document">
             <form method="POST" action="{{ route('horses.documents.store', $horse) }}" enctype="multipart/form-data" class="space-y-3">
                 @csrf

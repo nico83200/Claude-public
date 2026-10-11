@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Horse;
 use App\Models\HorseDocument;
 use App\Services\Audit;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,14 +14,22 @@ use Illuminate\Validation\Rule;
 
 class HorseDocumentController extends Controller
 {
-    public function index(Horse $horse)
+    public function index(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::DOCUMENTS_VIEW);
         $perms = $this->horsePerms($horse);
         $docs = $horse->documents()->with('uploader')->get()
             ->filter(fn ($d) => ! $d->is_sensitive || in_array(Perm::HEALTH_VIEW, $perms, true));
 
-        return view('horses.documents', ['horse' => $horse, 'documents' => $docs, 'canUpload' => $this->horseCan($horse, Perm::DOCUMENTS_CREATE)]);
+        $canUpload = $this->horseCan($horse, Perm::DOCUMENTS_CREATE);
+        $upsell = null;
+        if ($canUpload) {
+            $upsells = app(Upsell::class);
+            $upsell = $upsells->for($horse->organization, $request->user(), 'documents')
+                ?? (! $this->entitlements()->canStore($horse->organization, 1024 * 1024) ? $upsells->for($horse->organization, $request->user(), 'storage_mb') : null);
+        }
+
+        return view('horses.documents', ['horse' => $horse, 'documents' => $docs, 'canUpload' => $canUpload, 'upsell' => $upsell]);
     }
 
     public function store(Request $request, Horse $horse)
@@ -36,7 +45,7 @@ class HorseDocumentController extends Controller
         ]);
         $file = $request->file('file');
         if (! $this->entitlements()->canStore($horse->organization, $file->getSize())) {
-            return back()->with('error', 'Espace de stockage de l\'offre insuffisant.');
+            return back()->with('error', 'Espace de stockage de l\'offre insuffisant.')->with('upsell', ['organization' => $horse->organization_id, 'key' => 'storage_mb']);
         }
         $this->storeFor($horse, $file, $data, $request->user()->id, isset($data['care_record_id']) ? $horse->cares()->find($data['care_record_id']) : null);
 

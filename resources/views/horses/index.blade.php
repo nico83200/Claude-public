@@ -30,5 +30,6 @@
             @endforeach
         </div>
         <div class="mt-4">{{ $horses->links() }}</div>
+        <x-upsell :offer="$upsell" class="mt-6" />
     @endif
 </x-layouts.app>

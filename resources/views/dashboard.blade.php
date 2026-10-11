@@ -43,6 +43,15 @@
             <span class="min-w-0"><span class="block text-[17px] font-semibold">Dites-le simplement</span><span class="block text-sm text-white/70">« Le maréchal vient le 2 décembre à 9 h », « Séance de dressage pour la rectitude »…</span></span>
         </button>
 
+        {{-- Offre gratuite : proposition d'offre supérieure (masquable 7 jours) --}}
+        @if ($upsell)
+            <div x-data="{ show: true }" x-init="try { show = (+localStorage.getItem('jc-upsell-later') || 0) < Date.now() } catch { }" x-show="show" class="relative mb-5">
+                <x-upsell :offer="$upsell" />
+                <button type="button" class="absolute top-3 right-3 p-1.5 text-slate-400 hover:text-slate-700" aria-label="Plus tard"
+                        @click="show = false; try { localStorage.setItem('jc-upsell-later', Date.now() + 7 * 864e5) } catch { }"><x-icon name="x" class="size-4" /></button>
+            </div>
+        @endif
+
         <div class="grid gap-4 lg:grid-cols-3">
             <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">
                 @forelse ($today as $e)

@@ -12,6 +12,7 @@ use App\Models\RecurringExpense;
 use App\Services\Audit;
 use App\Services\HorseAccess;
 use App\Services\RecurringExpenses;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,7 +48,10 @@ class ExpenseController extends Controller
 
         $yearQuery = (clone $filtered)->whereYear('expenses.spent_on', $year);
         $creatable = Horse::whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
-            ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE));
+            ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
+            // Pas de formulaire voué à l'échec : seuls les chevaux dont l'offre inclut le suivi des dépenses.
+            ->filter(fn ($h) => $this->entitlements()->hasFeature($h->organization, 'budget'));
+        $contextHorse = ($h = $request->integer('horse') ? Horse::find($request->integer('horse')) : null) && $access->can($user, $h, Perm::EXPENSES_VIEW) ? $h : null;
 
         return view('budget.index', [
             'recurring' => $recurring,
@@ -67,9 +71,11 @@ class ExpenseController extends Controller
             ],
             'horses' => Horse::whereIn('id', (clone $query)->whereNotNull('expenses.horse_id')->distinct()->pluck('expenses.horse_id')->merge($creatable->pluck('id')))->orderBy('official_name')->pluck('official_name', 'id'),
             // Ouvert depuis le dossier d'un cheval : la page garde l'en-tête et les onglets du cheval.
-            'contextHorse' => ($h = $request->integer('horse') ? Horse::find($request->integer('horse')) : null) && $access->can($user, $h, Perm::EXPENSES_VIEW) ? $h : null,
+            'contextHorse' => $contextHorse,
+            'upsell' => app(Upsell::class)->for($contextHorse?->organization ?? $this->currentOrganization(), $user, 'budget'),
             'creatableHorses' => $creatable->pluck('official_name', 'id'),
-            'canOrgExpense' => $user->canInOrg($this->currentOrganization(), Perm::EXPENSES_ORG_VIEW) && $this->entitlements()->writable($this->currentOrganization()),
+            'canOrgExpense' => $user->canInOrg($this->currentOrganization(), Perm::EXPENSES_ORG_VIEW) && $this->entitlements()->writable($this->currentOrganization())
+                && $this->entitlements()->hasFeature($this->currentOrganization(), 'budget'),
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
             'professionals' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);

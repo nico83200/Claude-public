@@ -12,6 +12,7 @@ use App\Models\Invitation;
 use App\Models\RidingSession;
 use App\Models\Treatment;
 use App\Services\HorseAccess;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 
@@ -34,6 +35,7 @@ class DashboardController extends Controller
             ->orderBy('next_check_on')->get()->groupBy('horse_id')->map->first();
 
         return view('dashboard', [
+            'upsell' => app(Upsell::class)->upgrade($this->currentOrganization(), $request->user()),
             'horses' => $horses,
             'nextDue' => $nextDue,
             'today' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->visibleSessions($sessionIds)->where('status', '!=', 'cancelled')

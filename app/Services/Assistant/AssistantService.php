@@ -36,6 +36,12 @@ class AssistantService
         private HorseAccess $access,
     ) {}
 
+    /** Assistant activé et configuré sur l'instance (indépendamment de l'offre de l'espace). */
+    public function serviceReady(): bool
+    {
+        return $this->config->enabled() && $this->claude->configured();
+    }
+
     /** Raison pour laquelle l'assistant est indisponible pour cet espace, ou null. */
     public function unavailableReason(Organization $org): ?string
     {

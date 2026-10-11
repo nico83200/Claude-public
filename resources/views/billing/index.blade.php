@@ -57,19 +57,37 @@
         </details>
     @endunless
 
-    <h2 class="mt-8 mb-3 text-lg font-semibold">{{ $subscription ? 'Changer d\'offre' : 'Choisir une offre' }}</h2>
+    @php
+        $focusLimit = $focus && ! array_key_exists($focus, \App\Models\SubscriptionPlan::FEATURES);
+        $unlocks = fn ($plan) => $focus && ($focusLimit ? ($plan->{$focus} === null || $plan->{$focus} > ($ent['limits'][$focus] ?? PHP_INT_MAX)) : in_array($focus, $plan->features ?? [], true));
+    @endphp
+    <h2 id="offres" class="mt-8 mb-3 scroll-mt-24 text-lg font-semibold">{{ $subscription ? 'Changer d\'offre' : 'Choisir une offre' }}</h2>
+    @if ($focus)
+        <div class="mb-4 flex items-start gap-3 rounded-2xl bg-gold-50 p-4 text-sm text-slate-700 ring-1 ring-gold-200">
+            <x-icon name="sparkles" class="size-5 shrink-0 text-gold-600" />
+            <p><strong class="text-slate-900">{{ \App\Services\Upsell::PITCHES[$focus][0] }}</strong> — {{ \App\Services\Upsell::PITCHES[$focus][1] }} Les offres qui le permettent sont signalées ci-dessous.@if (! $subscription && $trialAvailable) Essai gratuit, sans engagement.@endif</p>
+        </div>
+    @endif
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-data="{ interval: 'month' }">
         <div class="flex gap-2 sm:col-span-2 lg:col-span-3">
             <button type="button" @click="interval = 'month'" :class="interval === 'month' ? 'btn-primary' : 'btn-secondary'">Mensuel</button>
             <button type="button" @click="interval = 'year'" :class="interval === 'year' ? 'btn-primary' : 'btn-secondary'">Annuel</button>
         </div>
         @foreach ($plans as $plan)
-            <div class="card flex flex-col p-5 {{ $ent['plan']?->id === $plan->id ? 'border-brand-500 ring-1 ring-brand-500' : '' }}">
+            <div class="card flex flex-col p-5 {{ $ent['plan']?->id === $plan->id || $unlocks($plan) ? 'border-brand-500 ring-1 ring-brand-500' : '' }}" @if ($unlocks($plan)) data-unlocks="{{ $focus }}" @endif>
+                @if ($unlocks($plan))<p class="mb-2"><x-badge color="green">Inclut ce qu'il vous faut</x-badge></p>@endif
                 <p class="text-lg font-bold">{{ $plan->name }}</p>
                 <p class="text-sm text-slate-600">{{ $plan->description }}</p>
                 <p class="mt-3"><span class="text-2xl font-bold" x-text="interval === 'year' ? @js($plan->price_yearly ? $eur($plan->price_yearly, $plan->currency).' / an' : 'Non disponible') : @js($plan->price_monthly ? $eur($plan->price_monthly, $plan->currency).' / mois' : 'Non disponible')"></span></p>
                 <p class="text-xs text-slate-500">{{ $plan->max_horses ?? '∞' }} cheval(aux) · {{ $plan->max_members ?? '∞' }} membre(s){{ $plan->trial_days ? ' · '.$plan->trial_days.' j d\'essai (1re souscription)' : '' }}</p>
                 @if ($plan->renewal_terms)<p class="mt-1 text-xs text-slate-500">{{ $plan->renewal_terms }}</p>@endif
+                <ul class="mt-3 space-y-1 text-sm text-slate-700">
+                    @foreach (\App\Models\SubscriptionPlan::FEATURES as $fk => $flabel)
+                        @if (in_array($fk, $plan->features ?? [], true))
+                            <li class="flex items-start gap-2 {{ $focus === $fk ? 'font-semibold text-brand-900' : '' }}"><x-icon name="check" class="mt-0.5 size-4 shrink-0 text-brand-600" /> {{ $flabel }}@unless (in_array($fk, $ent['features'], true) || ! in_array($fk, \App\Services\Upsell::GATED, true))<span class="ml-auto shrink-0 text-xs font-medium text-gold-600">Nouveau pour vous</span>@endunless</li>
+                        @endif
+                    @endforeach
+                </ul>
                 <form method="POST" action="{{ $subscription ? route('billing.swap') : route('billing.checkout') }}" class="mt-auto space-y-2 pt-4">
                     @csrf
                     <input type="hidden" name="plan_id" value="{{ $plan->id }}"><input type="hidden" name="interval" :value="interval">
@@ -78,7 +96,7 @@
                         @if ($errors->has('promo_code') && old('plan_id') == $plan->id)<p class="text-sm text-red-600">{{ $errors->first('promo_code') }}</p>@endif
                     @endif
                     @unless ($subscription)<label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" name="accept" value="1" required class="mt-0.5 rounded"> <span>J'accepte les <a href="{{ route('legal.terms') }}" target="_blank" class="link">conditions</a> : renouvellement automatique, résiliable à tout moment.</span></label>@endunless
-                    <button class="btn-primary w-full" @disabled(! $stripeReady)>{{ $subscription ? 'Passer à cette offre' : 'Souscrire' }}</button>
+                    <button class="btn-primary w-full" @disabled(! $stripeReady)>{{ $subscription ? 'Passer à cette offre' : ($trialAvailable && $plan->trial_days ? 'Essayer '.$plan->trial_days.' jours gratuitement' : 'Souscrire') }}</button>
                 </form>
             </div>
         @endforeach

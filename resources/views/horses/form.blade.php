@@ -1,8 +1,12 @@
 <x-layouts.app :title="$horse->exists ? 'Modifier '.$horse->shortName() : 'Nouveau cheval'">
     <x-page-header :title="$horse->exists ? 'Modifier la fiche' : 'Nouveau cheval'" :subtitle="'Espace : '.$org->name" :back="$horse->exists ? route('horses.show', $horse) : route('horses.index')" />
-    @if ($limitReached)
+    @if ($limitReached && $upsell)
+        <x-upsell :offer="$upsell" class="mb-3" />
+        <p class="mb-4 text-sm text-slate-500">@php $maxHorses = app(\App\Services\Entitlements::class)->limit($org, 'max_horses'); @endphp Votre offre actuelle permet {{ $maxHorses }} {{ $maxHorses > 1 ? 'chevaux actifs' : 'cheval actif' }}. Vous pouvez aussi <a href="{{ route('horses.index') }}" class="link">archiver un cheval</a> (départ, vente…) pour en suivre un autre.</p>
+    @elseif ($limitReached)
         <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">La limite de chevaux de votre offre est atteinte. <a href="{{ route('billing.index') }}" class="link">Changer d'offre</a> ou archiver un cheval.</div>
     @endif
+    @unless ($limitReached && $upsell)
     @unless ($horse->exists)
     @endunless
     <form method="POST" action="{{ $horse->exists ? route('horses.update', $horse) : route('horses.store') }}" class="space-y-5">
@@ -45,4 +49,5 @@
         @endunless
         <div class="flex gap-2"><button class="btn-primary" @disabled($limitReached)>Enregistrer</button><a href="{{ $horse->exists ? route('horses.show', $horse) : route('horses.index') }}" class="btn-ghost">Annuler</a></div>
     </form>
+    @endunless
 </x-layouts.app>

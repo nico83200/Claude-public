@@ -13,6 +13,7 @@ use App\Notifications\AppNotification;
 use App\Services\Audit;
 use App\Services\HorseAccess;
 use App\Services\InvitationService;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -35,9 +36,11 @@ class HorseSharingController extends Controller
         ]);
     }
 
-    public function show(Horse $horse)
+    public function show(Request $request, Horse $horse, InvitationService $invitations)
     {
         $this->authorizeHorse($horse, Perm::HORSE_MANAGE);
+        $org = $horse->organization;
+        $sharesFull = ! $this->entitlements()->withinLimit($org, 'max_invitations', $invitations->horseSharesUsed($org));
 
         return view('sharing.horse', [
             'horse' => $horse,
@@ -47,7 +50,8 @@ class HorseSharingController extends Controller
             'labels' => Perm::horseLabels(),
             'presets' => ['half_lease' => Perm::halfLeasePreset(), 'boarding' => Perm::boardingPreset()],
             'kinds' => HorseOrganizationAssignment::KINDS,
-            'sharingIncluded' => $this->entitlements()->hasFeature($horse->organization, 'sharing'),
+            'sharingIncluded' => $this->entitlements()->hasFeature($org, 'sharing'),
+            'upsell' => app(Upsell::class)->for($org, $request->user(), 'sharing') ?? ($sharesFull ? app(Upsell::class)->for($org, $request->user(), 'max_invitations') : null),
         ]);
     }
 

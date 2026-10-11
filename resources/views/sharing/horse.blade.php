@@ -1,6 +1,8 @@
 <x-layouts.app :title="'Partage · '.$horse->shortName()">
     <x-horse-header :horse="$horse" />
-    @unless ($sharingIncluded)<div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Le partage n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</div>@endunless
+    @if ($upsell)
+        <x-upsell :offer="$upsell" class="mb-4" />
+    @elseunless ($sharingIncluded)<div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Le partage n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</div>@endif
     <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-4">
             <x-section title="Personnes ayant accès">
@@ -66,7 +68,7 @@
                     <x-field name="label" label="Libellé" value="Demi-pension" />
                     @include('sharing._perms', ['selected' => old('permissions', $presets['half_lease']), 'prefix' => 'permissions'])
                     <div class="grid grid-cols-2 gap-2"><x-field name="starts_at" type="date" label="Début de l'accès" /><x-field name="expires_at" type="date" label="Fin de l'accès" /></div>
-                    <button class="btn-primary w-full" @disabled(! $sharingIncluded)>Envoyer l'invitation</button>
+                    <button class="btn-primary w-full" @disabled(! $sharingIncluded || $upsell)>Envoyer l'invitation</button>
                     <p class="text-xs text-slate-500">La personne n'accédera ni à vos autres chevaux, ni à votre abonnement, ni à vos factures.</p>
                 </form>
             </x-section>

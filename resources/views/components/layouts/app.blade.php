@@ -55,6 +55,13 @@
                     </a>
                 @endif
             @endforeach
+            @if ($navUpsell)
+                <a href="{{ $navUpsell['url'] }}" class="mx-1 my-3 block rounded-2xl bg-brand-900 p-4 text-white transition hover:bg-brand-800" data-upsell="menu">
+                    <span class="flex items-center gap-2 text-xs font-semibold tracking-wide text-gold-200 uppercase"><x-icon name="sparkles" class="size-4" /> Offre {{ $navUpsell['plan']->name }}</span>
+                    <span class="mt-1 block text-[15px] font-semibold">{{ $navUpsell['trial_days'] ? $navUpsell['trial_days'].' jours d\'essai gratuit' : 'Passer à l\'offre supérieure' }}</span>
+                    <span class="mt-0.5 block text-xs text-white/70">Assistant vocal, budget, documents…</span>
+                </a>
+            @endif
             <div class="my-3 border-t border-slate-200/70"></div>
             @foreach ($secondary as [$route, $label, $icon, $visible])
                 @if ($visible)

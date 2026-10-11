@@ -3,6 +3,17 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.9 — propositions d'offre supérieure (Découverte)
+- ✅ Propositions affichées là où l'offre gratuite bloque, avec un argumentaire par fonction et un bouton « Essayer 14 jours gratuitement » (ou « Passer à l'offre … » si l'essai a déjà été utilisé) qui mène à la page Abonnement, offres concernées mises en avant :
+  - assistant vocal : le micro (barre du bas, bouton « Parler », carte « Dites-le simplement ») ouvre une présentation de l'assistant au lieu d'un simple message d'indisponibilité ;
+  - budget : proposition en tête de page, plus de bouton « Dépense » menant à un enregistrement refusé ;
+  - documents : proposition à la place du formulaire d'envoi ; onglets « Documents » et « Dépenses » du cheval signalés d'une étoile ;
+  - limite de chevaux, de partages ou de stockage atteinte : proposition de l'offre qui la relève (formulaire « Nouveau cheval » remplacé, liste des chevaux, page Partage, message d'erreur d'envoi) ;
+  - tableau de bord (carte masquable 7 jours) et menu (encart « 14 jours d'essai gratuit ») ;
+  - page Abonnement : fonctions de chaque offre listées, « Nouveau pour vous », offres qui débloquent la fonction demandée signalées.
+- ✅ Seules les personnes qui gèrent l'abonnement voient un bouton ; les autres membres sont informés que le responsable de l'espace peut changer d'offre. L'assistant n'est proposé que s'il est activé et configuré sur l'instance. Rien n'est débloqué sans paiement confirmé par Stripe.
+- ℹ️ Les exports PDF / CSV, listés dans les offres payantes, restent accessibles en Découverte (non bloqués par l'application) : ils ne sont donc pas présentés comme une nouveauté.
+
 ## Version 2.8 — tutoriel ordinateur
 - ✅ 2.8.2 : résiliation, reprise et changement d'offre visibles immédiatement (réponse de l'API Stripe appliquée, plus de bouton « Résilier » ni de date de renouvellement après une résiliation) ; état des abonnements relu chez Stripe à l'ouverture de la page Abonnement (au plus toutes les 5 min, immédiatement au retour du portail Stripe) et chaque heure par la tâche `billing:sync` : fin d'essai, renouvellement ou résiliation rattrapés même si un webhook manque
 - ✅ 2.8.1 : l'abonnement s'active dès le retour du paiement Stripe (session relue auprès de l'API Stripe, espace et statut vérifiés) et même si les événements `customer.subscription.*` n'arrivent pas (abonnement relu chez Stripe à la réception de `checkout.session.completed` ou d'une facture). Corrige un abonnement resté en « Découverte » après un paiement d'essai à 0 €

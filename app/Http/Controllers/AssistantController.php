@@ -7,6 +7,7 @@ use App\Models\AssistantRequest;
 use App\Services\Assistant\AssistantService;
 use App\Services\Assistant\AssistantUndo;
 use App\Services\Assistant\Transcriber;
+use App\Services\Upsell;
 use Illuminate\Http\Request;
 use RuntimeException;
 use Throwable;
@@ -19,10 +20,20 @@ class AssistantController extends Controller
     public function status(Request $request, Transcriber $transcriber)
     {
         $org = $this->currentOrganization();
+        $reason = $this->assistant->unavailableReason($org);
+        $offer = null;
+        // On ne vante l'assistant que s'il fonctionne réellement sur cette instance.
+        if ($reason && $this->assistant->serviceReady()) {
+            $upsells = app(Upsell::class);
+            $offer = $upsells->for($org, $request->user(), 'assistant')
+                ?? ($this->assistant->remaining($org) === 0 ? $upsells->for($org, $request->user(), 'assistant_monthly') : null);
+        }
 
         return response()->json([
-            'available' => ! ($reason = $this->assistant->unavailableReason($org)),
+            'available' => ! $reason,
             'reason' => $reason,
+            'upsell' => $offer ? ['plan' => $offer['plan']->name, 'title' => $offer['title'], 'text' => $offer['text'], 'note' => $offer['note'],
+                'url' => $offer['can_upgrade'] ? $offer['url'] : null, 'cta' => $offer['cta'], 'trial' => $offer['trial_days'] > 0] : null,
             'voice' => $transcriber->configured(),
             'remaining' => $this->assistant->remaining($org),
         ]);

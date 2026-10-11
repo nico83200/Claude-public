@@ -14,6 +14,7 @@
             @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" /> Dépense</button>@endif
         </x-page-header>
     @endif
+    <x-upsell :offer="$upsell" class="mb-5" />
     <x-filters :fields="array_values(array_filter(['category', $contextHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id, 'year' => request('year')]">
         @unless ($contextHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
         <x-select name="category" label="Catégorie" :options="$categories" :value="request('category')" placeholder="Toutes" />

@@ -11,3 +11,6 @@
         Le formulaire contient {{ $errors->count() > 1 ? $errors->count().' erreurs' : 'une erreur' }} : vérifiez les champs signalés.
     </div>
 @endif
+@if (is_array(session('upsell')) && ($upsellOrg = \App\Models\Organization::find(session('upsell')['organization'] ?? 0)))
+    <x-upsell :offer="app(\App\Services\Upsell::class)->for($upsellOrg, auth()->user(), (string) (session('upsell')['key'] ?? ''))" compact class="mb-4" />
+@endif
