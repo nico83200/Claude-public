@@ -8,6 +8,7 @@ use App\Models\ExerciseTag;
 use App\Models\Horse;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 /**
@@ -59,11 +60,11 @@ class ExerciseController extends Controller
 
     public function store(Request $request)
     {
-        $data = $this->validated($request);
+        $data = self::validated($request);
         $exercise = new Exercise($data['fields']);
         $this->applyScope($request, $exercise, $data['share']);
         $exercise->save();
-        $this->syncTags($exercise, $data['tags']);
+        self::syncTags($exercise, $data['tags']);
 
         return redirect()->route('exercises.show', $exercise)->with('success', 'Exercice créé.');
     }
@@ -78,11 +79,11 @@ class ExerciseController extends Controller
     public function update(Request $request, Exercise $exercise)
     {
         abort_unless($this->canEdit($request, $exercise), 403);
-        $data = $this->validated($request);
+        $data = self::validated($request);
         // Les séances existantes conservent leur copie figée (session_exercises.snapshot) :
         // la version est incrémentée, rien n'est réécrit rétroactivement.
         $exercise->update($data['fields']);
-        $this->syncTags($exercise, $data['tags']);
+        self::syncTags($exercise, $data['tags']);
 
         return redirect()->route('exercises.show', $exercise)->with('success', 'Exercice mis à jour. Les séances passées ne sont pas modifiées.');
     }
@@ -90,7 +91,8 @@ class ExerciseController extends Controller
     public function duplicate(Request $request, Exercise $exercise)
     {
         $this->authorizeVisible($request, $exercise);
-        $copy = $exercise->replicate(['uuid', 'scope', 'user_id', 'organization_id', 'version', 'archived_at']);
+        // La copie ne reprend ni la clé de la bibliothèque ni le fichier de démonstration (géré par l'administration).
+        $copy = $exercise->replicate(['uuid', 'scope', 'user_id', 'organization_id', 'version', 'archived_at', 'seed_key', 'media_path', 'media_type', 'media_size']);
         $copy->name = $exercise->name.' (copie)';
         $copy->scope = 'personal';
         $copy->user_id = $request->user()->id;
@@ -108,6 +110,18 @@ class ExerciseController extends Controller
         $exercise->update(['archived_at' => $exercise->archived_at ? null : now()]);
 
         return back()->with('success', $exercise->archived_at ? 'Exercice archivé.' : 'Exercice réactivé.');
+    }
+
+    /** Image ou vidéo de démonstration (stockée hors du dossier public). */
+    public function media(Request $request, Exercise $exercise)
+    {
+        $this->authorizeVisible($request, $exercise);
+        abort_unless($exercise->media_path && Storage::disk('local')->exists($exercise->media_path), 404);
+
+        return response()->file(Storage::disk('local')->path($exercise->media_path), [
+            'Content-Type' => Exercise::MEDIA_MIMES[strtolower(pathinfo($exercise->media_path, PATHINFO_EXTENSION))] ?? 'application/octet-stream',
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     private function authorizeVisible(Request $request, Exercise $exercise): void
@@ -143,12 +157,12 @@ class ExerciseController extends Controller
         }
     }
 
-    private function syncTags(Exercise $exercise, array $tags): void
+    public static function syncTags(Exercise $exercise, array $tags): void
     {
         $exercise->tags()->sync(collect($tags)->map(fn ($t) => ExerciseTag::firstOrCreate(['name' => mb_strtolower($t)])->id));
     }
 
-    private function validated(Request $request): array
+    public static function validated(Request $request): array
     {
         $fields = $request->validate([
             'name' => ['required', 'string', 'max:150'],

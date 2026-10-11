@@ -181,6 +181,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::resource('exercices', Controllers\ExerciseController::class)->parameters(['exercices' => 'exercise'])->names('exercises')->except(['destroy']);
     Route::post('/exercices/{exercise}/dupliquer', [Controllers\ExerciseController::class, 'duplicate'])->name('exercises.duplicate');
     Route::post('/exercices/{exercise}/archiver', [Controllers\ExerciseController::class, 'archive'])->name('exercises.archive');
+    Route::get('/exercices/{exercise}/demonstration', [Controllers\ExerciseController::class, 'media'])->name('exercises.media');
 
     // Budget
     Route::get('/budget', [Controllers\ExpenseController::class, 'index'])->name('budget.index');
@@ -283,6 +284,14 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/codes/{promoCode}', [Admin\PromoCodeController::class, 'show'])->name('promo-codes.show');
     Route::patch('/codes/{promoCode}', [Admin\PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::post('/facturation/evenements/{event}/retraiter', [Admin\BillingController::class, 'reprocess'])->name('billing.reprocess');
+    Route::get('/exercices', [Admin\ExerciseController::class, 'index'])->name('exercises.index');
+    Route::get('/exercices/nouveau', [Admin\ExerciseController::class, 'create'])->name('exercises.create');
+    Route::post('/exercices', [Admin\ExerciseController::class, 'store'])->name('exercises.store');
+    Route::get('/exercices/{exercise}', [Admin\ExerciseController::class, 'edit'])->name('exercises.edit');
+    Route::put('/exercices/{exercise}', [Admin\ExerciseController::class, 'update'])->name('exercises.update');
+    Route::post('/exercices/{exercise}/archiver', [Admin\ExerciseController::class, 'archive'])->name('exercises.archive');
+    Route::post('/exercices/{exercise}/demonstration', [Admin\ExerciseController::class, 'upload'])->name('exercises.upload');
+    Route::delete('/exercices/{exercise}/demonstration', [Admin\ExerciseController::class, 'removeMedia'])->name('exercises.remove-media');
     Route::get('/videos', [Admin\VideoController::class, 'index'])->name('videos.index');
     Route::post('/videos', [Admin\VideoController::class, 'store'])->name('videos.store');
     Route::get('/videos/{video}', [Admin\VideoController::class, 'edit'])->name('videos.edit');

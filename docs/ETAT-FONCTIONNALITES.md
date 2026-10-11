@@ -3,6 +3,11 @@
 Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé, vérifié manuellement / partiellement testé ·
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
+## Version 2.12 — exercices et démonstrations
+- ✅ 2.12 : bibliothèque d'exercices par défaut portée à 125 exercices (échauffement, transitions, figures, latéral, barres au sol, obstacle, travail à pied, longe, extérieur, western, endurance, attelage, voltige, position du cavalier, désensibilisation, liberté…) ; ajoutés aussi aux installations existantes lors de la mise à jour, sans jamais écraser un exercice modifié
+- ✅ 2.12 : Administration › Exercices : le super-administrateur recherche, ajoute, modifie et retire les exercices de la bibliothèque par défaut ; image (JPEG, PNG, WebP) ou vidéo (MP4, WebM, MOV) de démonstration par exercice, envoyée par morceaux, contrôlée (signature du fichier) et servie aux seuls utilisateurs connectés ; affichée sur la fiche de l'exercice, signalée dans la liste et dans les séances (« Voir la démonstration »). Les séances gardent leur copie figée de l'exercice
+- ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
+
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension
 - ✅ Thème clair (par défaut), sombre ou automatique (suit le réglage du téléphone ou de l'ordinateur) : Paramètres › Apparence ; choix mémorisé sur le compte et appliqué avant l'affichage (pas de flash)
 - ✅ Suivi du poids et de l'état corporel (note de 1 à 9) : onglet « Poids » du cheval, pesée, ruban (tour de poitrine² × longueur / 11 877) ou estimation ; courbe interactive et tableau ; alerte aux responsables du cheval au-delà de 5 % de variation ou de 2 points d'état ; ajout possible par l'assistant vocal

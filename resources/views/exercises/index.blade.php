@@ -16,7 +16,7 @@
             <a href="{{ route('exercises.show', $ex) }}" class="card flex flex-col p-4 transition hover:shadow-md">
                 <div class="flex items-start justify-between gap-2"><p class="font-semibold">{{ $ex->name }}</p><x-badge :color="['default' => 'slate', 'personal' => 'brand', 'organization' => 'purple'][$ex->scope]">{{ ['default' => 'Défaut', 'personal' => 'Perso', 'organization' => 'Écurie'][$ex->scope] }}</x-badge></div>
                 <p class="mt-1 line-clamp-2 text-sm text-slate-600">{{ $ex->objective }}</p>
-                <p class="mt-auto pt-2 text-xs text-slate-500">{{ $ex->category?->name }} · {{ \App\Models\Exercise::LEVELS[$ex->level] }}{{ $ex->duration_minutes ? ' · '.$ex->duration_minutes.' min' : '' }}</p>
+                <p class="mt-auto pt-2 text-xs text-slate-500">{{ $ex->category?->name }} · {{ \App\Models\Exercise::LEVELS[$ex->level] }}{{ $ex->duration_minutes ? ' · '.$ex->duration_minutes.' min' : '' }}@if ($ex->media_type)<span class="ml-1 inline-flex items-center gap-0.5 font-medium text-brand-700"> · <x-icon :name="$ex->media_type === 'video' ? 'play' : 'camera'" class="size-3.5" /> {{ $ex->media_type === 'video' ? 'Vidéo' : 'Image' }}</span>@endif</p>
                 @if ($ex->tags->isNotEmpty())<div class="mt-1 flex flex-wrap gap-1">@foreach ($ex->tags as $t)<span class="chip bg-slate-100 text-slate-600">#{{ $t->name }}</span>@endforeach</div>@endif
             </a>
         @empty

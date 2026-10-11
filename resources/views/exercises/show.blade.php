@@ -1,12 +1,24 @@
 <x-layouts.app :title="$exercise->name">
     <x-page-header :title="$exercise->name" :subtitle="collect([$exercise->category?->name, \App\Models\Exercise::LEVELS[$exercise->level], \App\Models\Exercise::SCOPES[$exercise->scope]])->filter()->implode(' · ')" :back="route('exercises.index')">
         <form method="POST" action="{{ route('exercises.duplicate', $exercise) }}">@csrf<button class="btn-secondary">Dupliquer</button></form>
+        @if ($exercise->scope === 'default' && auth()->user()->is_super_admin)
+            <a href="{{ route('admin.exercises.edit', $exercise) }}" class="btn-secondary">Modifier (administration)</a>
+        @endif
         @if ($canEdit)
             <a href="{{ route('exercises.edit', $exercise) }}" class="btn-secondary">Modifier</a>
             <form method="POST" action="{{ route('exercises.archive', $exercise) }}">@csrf<button class="btn-ghost">{{ $exercise->archived_at ? 'Réactiver' : 'Archiver' }}</button></form>
         @endif
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3">
+        @if ($exercise->media_path)
+            <x-section title="Démonstration" class="lg:order-last" id="demonstration" data-exercise-media>
+                @if ($exercise->media_type === 'video')
+                    <video src="{{ $exercise->mediaSrc() }}" controls playsinline preload="metadata" class="mx-auto max-h-[70vh] w-full rounded-2xl bg-black"></video>
+                @else
+                    <a href="{{ $exercise->mediaSrc() }}" data-lightbox="exercise-{{ $exercise->id }}" data-caption="{{ $exercise->name }}"><img src="{{ $exercise->mediaSrc() }}" alt="Démonstration : {{ $exercise->name }}" class="w-full rounded-2xl object-cover"></a>
+                @endif
+            </x-section>
+        @endif
         <x-section class="lg:col-span-2">
             <x-dl :items="['Objectif pédagogique' => $exercise->objective, 'Description' => $exercise->description, 'Consignes' => $exercise->instructions, 'Prérequis' => $exercise->prerequisites, 'Matériel' => $exercise->equipment, 'Erreurs fréquentes' => $exercise->common_mistakes, 'Points de vigilance' => $exercise->vigilance, 'Critères de réussite' => $exercise->success_criteria]" />
             @if ($exercise->steps)

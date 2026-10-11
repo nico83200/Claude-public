@@ -47,6 +47,7 @@
                                     <p class="text-xs text-slate-500">{{ collect([$item->planned_minutes ? $item->planned_minutes.' min prévues' : null, $item->planned_repetitions ? $item->planned_repetitions.' rép. prévues' : null, $item->actual_minutes ? $item->actual_minutes.' min réelles' : null, $item->done_repetitions !== null ? $item->done_repetitions.' rép. faites' : null])->filter()->implode(' · ') }}</p>
                                     @if ($item->instructions)<p class="text-xs whitespace-pre-line text-slate-600">{{ $item->instructions }}</p>@endif
                                     @if ($item->note)<p class="text-xs text-slate-700">📝 {{ $item->note }}</p>@endif
+                                    @if ($item->exercise?->media_path)<a href="{{ route('exercises.show', $item->exercise) }}#demonstration" class="mt-0.5 inline-flex items-center gap-1 text-xs link"><x-icon :name="$item->exercise->media_type === 'video' ? 'play' : 'camera'" class="size-3.5" /> Voir la démonstration</a>@endif
                                     @if ($item->exercise && $item->exercise_version && $item->exercise->version > $item->exercise_version)<p class="text-[11px] text-slate-400">Exercice modifié depuis dans la bibliothèque : cette séance conserve la version utilisée.</p>@endif
                                 </div>
                                 <x-badge :color="['done' => 'green', 'skipped' => 'red'][$item->status] ?? 'slate'">{{ ['pending' => 'Non coché', 'done' => 'Fait', 'skipped' => 'Non réalisé'][$item->status] }}</x-badge>
