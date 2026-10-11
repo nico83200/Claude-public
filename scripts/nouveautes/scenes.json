@@ -8,7 +8,7 @@
   ],
   "text": "Jack&Cie s'enrichit ! Voici les nouveautés de la version 2.11.",
   "start": 0.6,
-  "dur": 5.6
+  "dur": 4.73
  },
  {
   "id": "theme",
@@ -20,8 +20,12 @@
    "03-apparence"
   ],
   "text": "Nouveau : choisissez votre thème. Clair, sombre, ou automatique pour suivre le réglage de votre téléphone. Rendez-vous dans Paramètres, rubrique Apparence.",
-  "start": 6.2,
-  "dur": 12.5
+  "start": 5.33,
+  "dur": 9.81,
+  "cuts": [
+   7.9,
+   12.2
+  ]
  },
  {
   "id": "poids",
@@ -32,8 +36,11 @@
    "05-poids-ruban"
   ],
   "text": "Suivez le poids et l'état corporel de vos chevaux. Pesée, ruban ou estimation : chaque mesure rejoint la courbe, et vous êtes prévenu si le poids varie trop vite. Pas de balance ? Saisissez le tour de poitrine et la longueur : le poids estimé s'affiche aussitôt.",
-  "start": 18.7,
-  "dur": 20.4
+  "start": 15.14,
+  "dur": 14.74,
+  "cuts": [
+   24.5
+  ]
  },
  {
   "id": "rythme",
@@ -43,8 +50,8 @@
    "06-rythme"
   ],
   "text": "Les rappels deviennent intelligents : Jack&Cie apprend le rythme habituel de vos soins, maréchal, dentiste ou ostéo, et vous prévient quand le prochain passage approche ou prend du retard. Un geste suffit pour prendre rendez-vous.",
-  "start": 39.1,
-  "dur": 18.0
+  "start": 29.88,
+  "dur": 13.21
  },
  {
   "id": "facture",
@@ -56,19 +63,12 @@
    "09-facture-fusion"
   ],
   "text": "Photographiez une facture : l'assistant la lit pour vous. Fournisseur, lignes, total et cheval concerné : vérifiez, puis enregistrez. Si la dépense était déjà saisie, rattachez-y simplement la facture, sans doublon. Le soin peut même rejoindre le carnet de santé en même temps.",
-  "start": 57.1,
-  "dur": 21.5
- },
- {
-  "id": "depense",
-  "title": "Chaque euro a son cheval",
-  "kicker": "Dépenses",
-  "shots": [
-   "18-depense-cheval"
-  ],
-  "text": "Chaque dépense est désormais rattachée à un cheval, pour un coût par cheval toujours juste.",
-  "start": 78.6,
-  "dur": 7.7
+  "start": 43.09,
+  "dur": 16.13,
+  "cuts": [
+   46.3,
+   51.7
+  ]
  },
  {
   "id": "pension",
@@ -80,8 +80,12 @@
    "17-releve"
   ],
   "text": "Pour les écuries : la facturation de la pension. Déclarez vos pensionnaires et les prestations du mois ; Jack&Cie prépare un relevé par propriétaire, au prorata des jours de présence. Envoyez-le en un clic : le propriétaire le reçoit, en PDF, et le retrouve dans son budget.",
-  "start": 86.3,
-  "dur": 21.3
+  "start": 59.22,
+  "dur": 16.06,
+  "cuts": [
+   65.1,
+   69.8
+  ]
  },
  {
   "id": "connexion",
@@ -90,9 +94,9 @@
   "shots": [
    "10-connexion"
   ],
-  "text": "Créez votre compte ou connectez-vous en un instant, avec Google ou Apple.",
-  "start": 107.6,
-  "dur": 6.4
+  "text": "Créez votre compte ou connectez-vous en un instant, avec Google.",
+  "start": 75.28,
+  "dur": 3.71
  },
  {
   "id": "intervenant",
@@ -103,8 +107,11 @@
    "12-intervenant-rapide"
   ],
   "text": "Un intervenant manque dans la liste ? Créez-le sans quitter votre formulaire, ou importez sa fiche depuis les contacts de votre téléphone.",
-  "start": 114.0,
-  "dur": 11.2
+  "start": 78.99,
+  "dur": 6.83,
+  "cuts": [
+   81.1
+  ]
  },
  {
   "id": "confort",
@@ -115,8 +122,11 @@
    "14-photo"
   ],
   "text": "Les menus ont été modernisés, avec une recherche intégrée, et les photos s'ouvrent désormais en grand, sans quitter l'application.",
-  "start": 125.2,
-  "dur": 10.6
+  "start": 85.82,
+  "dur": 6.98,
+  "cuts": [
+   89.2
+  ]
  },
  {
   "id": "fin",
@@ -124,7 +134,7 @@
   "kicker": "",
   "shots": [],
   "text": "Toutes ces nouveautés sont déjà disponibles. Bonne route avec Jack&Cie !",
-  "start": 135.8,
-  "dur": 6.3
+  "start": 92.8,
+  "dur": 5.92
  }
 ]

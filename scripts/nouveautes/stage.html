@@ -43,7 +43,7 @@ window.setup = (scenes, dir) => {
   SC = scenes; DIR = dir;
   window.DURATION = scenes.at(-1).start + scenes.at(-1).dur + .4;
   for (const s of scenes) for (const n of s.shots) if (!IMGS[n]) { const i = new Image(); i.src = `file://${dir}/${n}.png`; $('screen').appendChild(i); IMGS[n] = i; }
-  return Promise.all(Object.values(IMGS).map((i) => i.decode()));
+  return Promise.all(Object.values(IMGS).map((i) => i.complete && i.naturalWidth ? 1 : new Promise((ok, ko) => { i.onload = ok; i.onerror = () => ko(new Error('image ' + i.src)); })));
 };
 function render(t) {
   const s = SC.find((x) => t < x.start + x.dur) ?? SC.at(-1), i = SC.indexOf(s), a = i === 0 ? 0 : s.start, b = s.start + s.dur;
@@ -58,7 +58,7 @@ function render(t) {
   set('phone', phoneO, isIntro ? (1 - ramp(t, b - .9, .8)) * 300 : (isEnd ? ramp(t, s.start, .6) * 200 : 0));
   set('end', isEnd ? ramp(t, s.start + .5, .8) : 0, isEnd ? (1 - ramp(t, s.start + .5, .8)) * 40 : 0);
   // fond sombre pendant la démonstration du thème sombre
-  const th = SC.find((x) => x.id === 'theme'), d0 = th.start + th.dur / 3;
+  const th = SC.find((x) => x.id === 'theme'), d0 = th.cuts ? th.cuts[0] - .3 : th.start + th.dur / 3;
   set('bg', s.id === 'theme' ? win(t, d0, th.start + th.dur + .3, .6) * .92 : 0);
   const dark = $('bg').style.opacity > .5;
   document.body.style.color = dark ? '#faf7f1' : '#0d3122';
@@ -68,7 +68,8 @@ function render(t) {
   for (const [k, img] of Object.entries(IMGS)) {
     const j = shots.indexOf(k);
     if (j < 0) { const prev = i > 0 ? SC[i - 1].shots.at(-1) : null; img.style.opacity = k === prev && t < s.start + .5 ? 1 - ramp(t, s.start, .5) : (isEnd && k === SC[i - 1].shots.at(-1) ? 1 : 0); continue; }
-    const s0 = s.start + s.dur * j / n, s1 = s.start + s.dur * (j + 1) / n;
+    const cut = (m) => m <= 0 ? s.start : m >= n ? s.start + s.dur : (s.cuts ? s.cuts[m - 1] : s.start + s.dur * m / n);
+    const s0 = cut(j), s1 = cut(j + 1);
     img.style.opacity = j === 0 ? (i > 0 && SC[i - 1].shots.at(-1) !== k ? ramp(t, s.start, .5) : 1) : ramp(t, s0 - .25, .5);
     img.style.zIndex = j + 1;
     img.style.transform = `scale(${1 + .035 * cl((t - s0) / (s1 - s0 + .5))})`;
