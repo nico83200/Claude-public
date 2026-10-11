@@ -47,6 +47,11 @@ class StripeGateway
         return ['id' => $s->id, 'url' => $s->url];
     }
 
+    public function retrieveCheckoutSession(string $id): array
+    {
+        return $this->client()->checkout->sessions->retrieve($id, [])->toArray();
+    }
+
     public function createPortalSession(string $customerId, string $returnUrl): string
     {
         return $this->client()->billingPortal->sessions->create(['customer' => $customerId, 'return_url' => $returnUrl])->url;

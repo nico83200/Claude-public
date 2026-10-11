@@ -42,7 +42,7 @@ Depuis **Administration › Intégrations** (recommandé) ou dans le `.env` :
 | `STRIPE_WEBHOOK_SECRET` | Dashboard > Webhooks > point de terminaison > « Secret de signature » |
 
 - Souscription via **Stripe Checkout** (mode `subscription`), gestion des moyens de paiement et factures via le **portail client Stripe** : aucune donnée de carte ne transite par l'application.
-- Activation uniquement par webhook signé ; idempotence par identifiant d'événement ; événements hors ordre ignorés ; échecs journalisés, retentés par Stripe (HTTP 500), alerte aux super-administrateurs au 3ᵉ échec, retraitement manuel dans Admin > Facturation.
+- Activation par webhook signé, ou dès le retour de Checkout : la session est relue auprès de l'API Stripe (appartenance à l'espace et statut `complete` vérifiés). Un abonnement inconnu cité par `checkout.session.completed` ou une facture est relu chez Stripe : l'activation ne dépend pas de la réception des événements `customer.subscription.*` ; idempotence par identifiant d'événement ; événements hors ordre ignorés ; échecs journalisés, retentés par Stripe (HTTP 500), alerte aux super-administrateurs au 3ᵉ échec, retraitement manuel dans Admin > Facturation.
 - Remboursements : effectués depuis le dashboard Stripe (politique commerciale à définir) ; l'application enregistre `charge.refunded`.
 - TVA : non calculée par l'application. Activer **Stripe Tax** si nécessaire (le Checkout collecte adresse et n° de TVA).
 - Sans clés : l'application fonctionne (offre gratuite, licences manuelles) et l'écran d'abonnement indique que le paiement n'est pas configuré.

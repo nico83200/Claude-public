@@ -22,8 +22,8 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Relation de facturation Stripe et synchronisation vers les licences.
- * Seuls les événements Stripe vérifiés modifient l'état des abonnements :
- * la page de retour après paiement n'active jamais rien.
+ * Seules des données Stripe vérifiées modifient l'état des abonnements : webhooks signés,
+ * ou relecture directe par l'API Stripe. Les paramètres de l'URL de retour n'activent jamais rien seuls.
  */
 class BillingService
 {
@@ -152,8 +152,39 @@ class BillingService
         if (! empty($session['metadata']['promo_code_id'])) {
             app(PromoCodeService::class)->recordCheckoutRedemption((int) $session['metadata']['promo_code_id'], $org, $session['id'] ?? null, isset($session['metadata']['user_id']) ? (int) $session['metadata']['user_id'] : null);
         }
+        // Ne dépend pas de la réception des événements customer.subscription.* : l'état est relu chez Stripe.
+        $subId = is_string($session['subscription'] ?? null) ? $session['subscription'] : null;
+        if ($subId && ! Subscription::where('stripe_subscription_id', $subId)->exists()) {
+            $this->syncSubscriptionFromStripe($subId);
+        }
 
         return 'processed';
+    }
+
+    /**
+     * Relit un abonnement directement auprès de l'API Stripe (clé secrète) et l'applique.
+     * Source aussi fiable qu'un webhook signé : rien ne provient du navigateur.
+     */
+    public function syncSubscriptionFromStripe(string $subscriptionId): ?Subscription
+    {
+        $this->onSubscription($this->stripe->retrieveSubscription($subscriptionId), time(), 'customer.subscription.updated');
+
+        return Subscription::firstWhere('stripe_subscription_id', $subscriptionId);
+    }
+
+    /**
+     * Retour de Stripe Checkout : la session est relue chez Stripe (jamais d'après l'URL seule)
+     * et n'est appliquée que si elle appartient bien à l'espace et est payée ou en essai.
+     */
+    public function confirmCheckout(Organization $org, string $sessionId): ?Subscription
+    {
+        $session = $this->stripe->retrieveCheckoutSession($sessionId);
+        if ((int) ($session['client_reference_id'] ?? 0) !== $org->id || ($session['status'] ?? null) !== 'complete' || empty($session['subscription'])) {
+            return null;
+        }
+        $subId = is_string($session['subscription']) ? $session['subscription'] : ($session['subscription']['id'] ?? null);
+
+        return $subId ? $this->syncSubscriptionFromStripe($subId) : null;
     }
 
     private function onSubscription(array $s, int $eventCreated, string $type): string
@@ -245,6 +276,9 @@ class BillingService
         }
         $subId = $inv['subscription'] ?? ($inv['parent']['subscription_details']['subscription'] ?? null);
         $sub = $subId ? Subscription::firstWhere('stripe_subscription_id', $subId) : null;
+        if ($subId && ! $sub) {
+            $sub = $this->syncSubscriptionFromStripe($subId);
+        }
         $record = PaymentRecord::firstOrNew(['stripe_invoice_id' => $inv['id']]);
         $alreadyPaid = $record->exists && $record->status === 'paid';
         $line = $inv['lines']['data'][0]['period'] ?? [];

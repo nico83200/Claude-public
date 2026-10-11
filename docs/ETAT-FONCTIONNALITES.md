@@ -4,6 +4,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 ⚙️ terminé mais nécessite une configuration · ⚠️ partiel · ❌ non réalisé
 
 ## Version 2.8 — tutoriel ordinateur
+- ✅ 2.8.1 : l'abonnement s'active dès le retour du paiement Stripe (session relue auprès de l'API Stripe, espace et statut vérifiés) et même si les événements `customer.subscription.*` n'arrivent pas (abonnement relu chez Stripe à la réception de `checkout.session.completed` ou d'une facture). Corrige un abonnement resté en « Découverte » après un paiement d'essai à 0 €
 - ✅ Tutoriel version ordinateur (1920×1080, 1 min 40) : mêmes scènes, même texte, même voix off et mêmes sous-titres que la version mobile ; barre latérale, bouton « Parler », calendrier mensuel, curseur visible
 - ✅ Vidéos ciblées par appareil (téléphone et tablette, ordinateur, tous) : un nouveau compte reçoit le tutoriel de l'appareil sur lequel il se connecte ; réglable pour chaque vidéo dans Administration › Vidéos ; la page « Tutoriels » propose les deux versions
 

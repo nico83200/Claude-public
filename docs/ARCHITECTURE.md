@@ -35,8 +35,8 @@ Séparations clés :
   (`Gate::authorize('horse', [$horse, 'permission'])`). Les écritures vérifient aussi
   l'état de la licence de l'espace gestionnaire (lecture seule si expirée / suspendue).
 - **Facturation vs droits** : `subscriptions` (relation Stripe) ≠ `licenses` (droits).
-  Une licence peut être manuelle (sans paiement). Seuls les webhooks signés modifient
-  l'état Stripe.
+  Une licence peut être manuelle (sans paiement). Seules des données Stripe vérifiées modifient
+  l'état Stripe : webhooks signés, ou relecture directe par l'API Stripe (clé secrète).
 - **Cloisonnement** : le super-administrateur n'a **aucun** accès implicite aux
   données métier ; l'administration est un espace distinct (`/admin`, 2FA + mot de passe reconfirmé).
 
@@ -125,7 +125,7 @@ erDiagram
 |---|---|
 | Fuite de données entre comptes (IDOR) | Autorisation centralisée, liaisons de routes imbriquées scopées, tests d'isolation |
 | Webhooks Stripe en double / désordre | Identifiant d'événement unique, verrou, horodatage `last_stripe_event_created` |
-| Activation frauduleuse d'abonnement | Seul le webhook signé active ; la page de retour est informative |
+| Activation frauduleuse d'abonnement | Activation par webhook signé ou par relecture de la session auprès de l'API Stripe (espace vérifié, session payée) ; les paramètres de l'URL de retour ne suffisent jamais |
 | Hébergement sans worker | Traitement synchrone des webhooks, `queue:work --stop-when-empty` planifié |
 | Sources externes indisponibles / limitées | Délai d'attente, cache, limitation de débit, saisie manuelle proposée |
 | Changement de prix | Prix Stripe immuables, historique `plan_price_changes`, migration explicite avec préavis ≥ 30 jours |

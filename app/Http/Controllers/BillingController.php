@@ -70,9 +70,26 @@ class BillingController extends Controller
         return back()->with('success', 'Code activé : '.$license->plan->name.' offert jusqu\'au '.$license->ends_at->format('d/m/Y').'.');
     }
 
-    /** Retour de Stripe Checkout : informatif uniquement, l'activation vient du webhook. */
-    public function returned()
+    /**
+     * Retour de Stripe Checkout : la session est relue chez Stripe pour activer sans attendre le webhook.
+     * L'identifiant passé dans l'URL ne suffit pas : seule la réponse de l'API Stripe fait foi.
+     */
+    public function returned(Request $request)
     {
+        $org = $this->currentOrganization();
+        $this->authorizeOrg($org, Perm::BILLING_MANAGE);
+        $sessionId = (string) $request->query('session_id');
+        if (str_starts_with($sessionId, 'cs_') && $this->stripe->configured()) {
+            try {
+                if ($sub = $this->billing->confirmCheckout($org, $sessionId)) {
+                    return redirect()->route('billing.index')->with('success', 'Merci ! Votre abonnement '.$sub->plan->name.' est actif'
+                        .($sub->stripe_status === 'trialing' && $sub->trial_ends_at ? ' (essai gratuit jusqu\'au '.$sub->trial_ends_at->format('d/m/Y').').' : '.'));
+                }
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         return redirect()->route('billing.index')->with('status', 'Merci ! Votre paiement est en cours de confirmation par Stripe. L\'abonnement sera activé dès réception de la confirmation (quelques secondes en général).');
     }
 

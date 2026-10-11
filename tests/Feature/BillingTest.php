@@ -165,8 +165,10 @@ class BillingTest extends TestCase
             ->assertRedirect('https://checkout.stripe.com/c/pay/cs_1');
         $this->assertDatabaseHas('stripe_customers', ['stripe_customer_id' => 'cus_new']);
 
+        // Session relue chez Stripe : non payée → rien n'est activé, quel que soit le contenu de l'URL.
+        $gateway->shouldReceive('retrieveCheckoutSession')->with('cs_1')->andReturn(['id' => 'cs_1', 'status' => 'open', 'client_reference_id' => (string) $user->personalOrganization()->id, 'subscription' => null]);
         $this->actingAs($user)->get('/abonnement/retour?session_id=cs_1')->assertRedirect('/abonnement');
-        $this->assertSame(0, License::count()); // seule la confirmation par webhook active une licence
+        $this->assertSame(0, License::count());
     }
 
     public function test_checkout_requires_terms_acceptance_and_billing_permission(): void
@@ -220,5 +222,69 @@ class BillingTest extends TestCase
         $this->webhook($this->subscriptionEvent($user->personalOrganization()->id, 'active', time(), ['metadata' => []]))->assertOk();
         $this->assertSame($this->plan->id, Subscription::first()->subscription_plan_id);
         $this->assertSame('6.90', Subscription::first()->unit_amount);
+    }
+
+    private function stripeSubscription(int $orgId, string $status = 'trialing'): array
+    {
+        return $this->subscriptionEvent($orgId, $status, time(), ['trial_end' => now()->addDays(14)->timestamp])['data']['object'];
+    }
+
+    public function test_return_from_checkout_activates_subscription_read_from_stripe(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+        $user = $this->user();
+        $org = $user->personalOrganization();
+        $gateway = Mockery::mock(StripeGateway::class)->makePartial();
+        $gateway->shouldReceive('configured')->andReturn(true);
+        $gateway->shouldReceive('retrieveCheckoutSession')->with('cs_ok')->andReturn(['id' => 'cs_ok', 'status' => 'complete', 'client_reference_id' => (string) $org->id, 'subscription' => 'sub_123']);
+        $gateway->shouldReceive('retrieveSubscription')->with('sub_123')->andReturn($this->stripeSubscription($org->id));
+        $this->app->instance(StripeGateway::class, $gateway);
+
+        $this->actingAs($user)->get('/abonnement/retour?session_id=cs_ok')->assertRedirect('/abonnement')->assertSessionHas('success');
+        $this->assertSame('trialing', Subscription::first()->stripe_status);
+        $ent = app(Entitlements::class)->for($org->fresh());
+        $this->assertSame('particulier', $ent['plan']->slug);
+        $this->assertSame('active', $ent['status']);
+        $this->actingAs($user)->get('/abonnement')->assertSee('Essai jusqu', false);
+    }
+
+    public function test_return_with_session_of_another_space_activates_nothing(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+        $user = $this->user();
+        $other = $this->user();
+        $gateway = Mockery::mock(StripeGateway::class)->makePartial();
+        $gateway->shouldReceive('configured')->andReturn(true);
+        $gateway->shouldReceive('retrieveCheckoutSession')->andReturn(['id' => 'cs_x', 'status' => 'complete', 'client_reference_id' => (string) $other->personalOrganization()->id, 'subscription' => 'sub_123']);
+        $gateway->shouldNotReceive('retrieveSubscription');
+        $this->app->instance(StripeGateway::class, $gateway);
+
+        $this->actingAs($user)->get('/abonnement/retour?session_id=cs_x')->assertRedirect('/abonnement');
+        $this->assertSame(0, Subscription::count());
+        $this->assertSame(0, License::count());
+    }
+
+    /** Cas réel : seuls les événements de facture arrivent (abonnement non reçu ou pas encore reçu). */
+    public function test_invoice_for_unknown_subscription_syncs_it_from_stripe(): void
+    {
+        config(['services.stripe.secret' => 'sk_test_x']);
+        $user = $this->user();
+        $org = $user->personalOrganization();
+        StripeCustomer::create(['organization_id' => $org->id, 'stripe_customer_id' => 'cus_123']);
+        $gateway = Mockery::mock(StripeGateway::class)->makePartial();
+        $gateway->shouldReceive('retrieveSubscription')->with('sub_123')->once()->andReturn($this->stripeSubscription($org->id));
+        $this->app->instance(StripeGateway::class, $gateway);
+
+        $this->webhook(['id' => 'evt_inv0', 'object' => 'event', 'type' => 'invoice.paid', 'created' => time(), 'livemode' => false, 'data' => ['object' => [
+            'id' => 'in_0', 'object' => 'invoice', 'customer' => 'cus_123', 'amount_due' => 0, 'amount_paid' => 0, 'currency' => 'eur', 'billing_reason' => 'subscription_create',
+            'parent' => ['type' => 'subscription_details', 'subscription_details' => ['subscription' => 'sub_123', 'metadata' => []]],
+        ]]])->assertOk();
+
+        $this->assertSame(Subscription::first()->id, PaymentRecord::first()->subscription_id);
+        $this->assertSame('particulier', app(Entitlements::class)->for($org->fresh())['plan']->slug);
+
+        // L'événement d'abonnement arrivé ensuite (plus ancien que la relecture) ne dégrade rien.
+        $this->webhook($this->subscriptionEvent($org->id, 'incomplete', time() - 60, [], 'customer.subscription.created'))->assertOk();
+        $this->assertSame('trialing', Subscription::first()->stripe_status);
     }
 }
