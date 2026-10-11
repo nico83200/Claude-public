@@ -64,7 +64,7 @@ class WeightTest extends TestCase
 
         $this->actingAs($owner)->post("/chevaux/{$horse->id}/poids", ['measured_on' => '2026-08-01', 'method' => 'scale', 'weight_kg' => 500]);
         $m = HorseMeasurement::first();
-        $this->grantLicense($owner->personalOrganization(), 'particulier');
+        $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         app(Entitlements::class)->flush();
         $other = $this->horseFor($owner);
         $this->actingAs($owner)->delete("/chevaux/{$other->id}/poids/{$m->id}")->assertNotFound();

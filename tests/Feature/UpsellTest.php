@@ -72,7 +72,7 @@ class UpsellTest extends TestCase
         config(['services.anthropic.key' => 'sk-ant-test']);
         $this->actingAs($user)->getJson('/assistant/etat')->assertOk()
             ->assertJsonPath('available', false)
-            ->assertJsonPath('upsell.plan', 'Particulier')
+            ->assertJsonPath('upsell.plan', 'Propriétaire')
             ->assertJsonPath('upsell.trial', true)
             ->assertJsonPath('upsell.cta', 'Essayer 14 jours gratuitement');
     }

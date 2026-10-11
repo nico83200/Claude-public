@@ -66,7 +66,10 @@ class Upsell
         $offer = $this->offer($org, $user, 'upgrade', $plan);
         $names = ['assistant' => 'l\'assistant vocal', 'budget' => 'le suivi des dépenses', 'documents' => 'le stockage de documents', 'exports' => 'les exports PDF et CSV'];
         $items = array_map(fn ($f) => $names[$f], $this->missingFeatures($org));
-        $items[] = $plan->max_horses ? 'jusqu\'à '.$plan->max_horses.' chevaux' : 'des chevaux en illimité';
+        $currentHorses = $this->entitlements->limit($org, 'max_horses');
+        if (! $plan->max_horses || ($currentHorses !== null && $plan->max_horses > $currentHorses)) {
+            $items[] = $plan->max_horses ? 'jusqu\'à '.$plan->max_horses.' chevaux' : 'des chevaux en illimité';
+        }
         $offer['title'] = 'Débloquez tout Jack&Cie';
         $offer['text'] = ucfirst(implode(', ', array_slice($items, 0, -1)).(count($items) > 1 ? ' et ' : '').end($items)).' avec l\'offre '.$plan->name.'.';
         $offer['url'] = route('billing.index').'#offres';

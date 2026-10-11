@@ -16,7 +16,7 @@ class SignupPromoCodeTest extends TestCase
     {
         return PromoCode::create($attrs + [
             'code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon EquitaLyon 2026',
-            'subscription_plan_id' => SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'free_days' => 30, 'is_active' => true,
+            'subscription_plan_id' => SubscriptionPlan::where('slug', 'particulier')->value('id'), 'free_days' => 30, 'is_active' => true,
         ]);
     }
 
@@ -38,7 +38,8 @@ class SignupPromoCodeTest extends TestCase
         $user = User::where('email', 'lou@exemple.fr')->firstOrFail();
         $org = $user->personalOrganization();
         $license = License::where('organization_id', $org->id)->where('source', 'code')->firstOrFail();
-        $this->assertSame('multi-chevaux', $license->plan->slug);
+        $this->assertSame('Propriétaire', $license->plan->name);
+        $this->assertSame(1, app(Entitlements::class)->limit($org, 'max_horses'), 'Offre Propriétaire : un seul cheval.');
         $this->assertSame(30, (int) round($license->starts_at->diffInDays($license->ends_at)));
         $this->assertNull($license->stripe_subscription_id ?? null);
         $this->assertSame(1, $promo->fresh()->redemptions_count);

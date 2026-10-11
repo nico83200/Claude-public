@@ -50,7 +50,7 @@ class AdminUserPlansTest extends TestCase
         $this->assertStringContainsString('Gratuite', $row('Gratuit Alice'));
         $this->assertStringContainsString('Sans échéance', $row('Gratuit Alice'));
 
-        $this->assertStringContainsString('Particulier', $row('Payant Bruno'));
+        $this->assertStringContainsString('Propriétaire', $row('Payant Bruno'));
         $this->assertStringContainsString('Payante', $row('Payant Bruno'));
         $this->assertStringContainsString('6,90 € / mois', $row('Payant Bruno'));
         $this->assertStringContainsString('Renouvellement le 15/12/2026', $row('Payant Bruno'));

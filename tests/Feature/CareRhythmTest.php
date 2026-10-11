@@ -69,7 +69,7 @@ class CareRhythmTest extends TestCase
             && str_contains($n->body, 'toutes les 7 semaines') && str_contains($n->url, 'nouveau=1'));
 
         // Rendez-vous pris pour un autre cheval de même rythme : pas de rappel.
-        $this->grantLicense($user->personalOrganization(), 'particulier');
+        $this->grantLicense($user->personalOrganization(), 'multi-chevaux');
         app(Entitlements::class)->flush();
         $other = $this->horseFor($user);
         $this->farrierHistory($other, $user, 7);

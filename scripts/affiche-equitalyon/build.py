@@ -6,6 +6,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, '..', 'affiche')          # polices, logo NLapps, capture d'écran de l'affiche A3
 ROOT = os.path.join(HERE, '..', '..')
 CODE = sys.argv[2] if len(sys.argv) > 2 else 'EQUITA2026'
+INSTAGRAM = 'https://www.instagram.com/jackcieapp/'
 URL = sys.argv[1] if len(sys.argv) > 1 else f'https://jackcie.nlapps.fr/register?code={CODE}'
 ICON = {
  'mic': 'M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z',
@@ -29,6 +30,8 @@ def b64(path):
     return f'data:{"font" if ext == "ttf" else "image"}/{mime};base64,' + base64.b64encode(open(path, 'rb').read()).decode()
 qr = segno.make(URL, error='q')
 qr.save(HERE + '/qr.svg', scale=10, border=0, dark='#0d3122', light=None)
+segno.make(INSTAGRAM, error='q').save(HERE + '/qr-instagram.svg', scale=10, border=0, dark='#0d3122', light=None)
+IG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>'
 items = ''.join(f'<div class="at"><span class="ic">{svg(i)}</span><div><b>{html.escape(t)}</b><p>{html.escape(d)}</p></div></div>' for i, t, d in atouts)
 fonts = ''.join(f"@font-face{{font-family:'InterPrint';font-weight:{w};src:url(\"{b64(SRC + '/fonts/Inter-' + n + '.ttf')}\") format('truetype')}}\n"
                 for w, n in [(400, 'Regular'), (500, 'Medium'), (600, 'SemiBold'), (700, 'Bold'), (800, 'ExtraBold')])
@@ -45,9 +48,15 @@ body{{font-family:InterPrint,Inter,system-ui;color:#141915;background:#faf7f1;-w
 .band{{position:absolute;left:0;right:0;top:0;height:{bleed + 25}mm;background:#0d3122}}
 .arc{{position:absolute;border-radius:50%;border:.6mm solid #ede3d1}}
 .trim{{position:absolute;left:{bleed}mm;top:{bleed}mm;width:148mm;height:210mm}}
-.top{{position:absolute;left:7mm;right:7mm;top:5.5mm;text-align:center;color:#fff}}
-.kicker{{font-size:3mm;font-weight:700;letter-spacing:.32em;color:#d1bb9d}}
-.event{{margin-top:1.2mm;font-size:8.6mm;font-weight:800;letter-spacing:.02em;line-height:1}}
+.top{{position:absolute;left:8mm;right:52mm;top:6mm;color:#fff}}
+.ig{{position:absolute;right:7mm;top:3mm;display:flex;align-items:center;gap:2.6mm;color:#fff}}
+.igtxt{{text-align:right;font-size:2.6mm;line-height:1.3;color:rgba(255,255,255,.85)}}
+.igtxt b{{display:flex;align-items:center;justify-content:flex-end;gap:1mm;font-size:3.1mm;color:#fff}}
+.igtxt svg{{width:3.4mm;height:3.4mm;color:#d1bb9d}}
+.igqr{{width:19mm;height:19mm;background:#fff;border-radius:2mm;padding:1.4mm}}
+.igqr img{{width:100%;height:100%;display:block}}
+.kicker{{font-size:2.8mm;font-weight:700;letter-spacing:.28em;color:#d1bb9d}}
+.event{{margin-top:1.4mm;font-size:8.2mm;font-weight:800;letter-spacing:.02em;line-height:1}}
 .event span{{color:#d1bb9d}}
 .logo{{position:absolute;left:0;right:0;top:28.5mm;text-align:center}}
 .logo img{{height:25mm}}
@@ -83,6 +92,7 @@ h1 em{{font-style:normal;color:#a8875e}}
 <div class="arc" style="width:90mm;height:90mm;right:-62mm;top:{bleed + 40}mm"></div>
 <div class="trim">
  <div class="top"><div class="kicker">OFFRE SPÉCIALE SALON</div><div class="event">EQUITA<span>LYON</span> 2026</div></div>
+ <div class="ig"><div class="igtxt"><b>{IG} Instagram</b>Suivez-nous<br>@jackcieapp</div><div class="igqr"><img src="{b64(HERE + '/qr-instagram.svg')}" alt="QR code Instagram"></div></div>
  <div class="logo"><img src="{b64(ROOT + '/public/brand/jackcie-logo.png')}" alt="Jack&amp;Cie"></div>
  <h1>30 jours <em>offerts</em></h1>
  <p class="lead"><b>Toutes les fonctionnalités</b>, sans carte bancaire.<br>L'application qui réunit toute la vie de votre cheval.</p>
@@ -92,7 +102,7 @@ h1 em{{font-style:normal;color:#a8875e}}
    <p class="steps"><b>1.</b> Scannez le QR code &nbsp;<b>2.</b> Créez votre compte<br><b>3.</b> Le code s'active aussitôt : profitez de tout pendant 30 jours</p></div>
   <div class="qr"><div class="qrbox"><img src="{b64(HERE + '/qr.svg')}" alt="QR code"></div><span class="scan">Scannez et créez<br>votre compte</span></div>
  </section>
- <p class="small">Offre valable une fois par compte, sur l'offre Propriétaire multi-chevaux (jusqu'à 10 chevaux). Sans engagement :<br>à la fin des 30 jours, sans souscription, le compte passe à l'offre gratuite Découverte. iPhone, Android et ordinateur.</p>
+ <p class="small">Offre valable une fois par compte, sur l'offre Propriétaire (un cheval, toutes les fonctionnalités) ; plusieurs chevaux : offre<br>Propriétaire multi-chevaux. Sans engagement : à la fin des 30 jours, sans souscription, le compte passe à l'offre gratuite Découverte.</p>
  <div class="foot">Une application <img src="{b64(SRC + '/nlapps-logo.png')}" alt="NLapps"><span class="site">jackcie.nlapps.fr</span></div>
 </div>
 </body></html>'''
@@ -101,5 +111,5 @@ OUT = os.path.join(ROOT, 'dist', 'affiche-equitalyon'); os.makedirs(OUT, exist_o
 open(HERE + '/affiche-fonds-perdus.html', 'w').write(page(3))
 open(HERE + '/affiche-a5.html', 'w').write(page(0))
 subprocess.run(['node', HERE + '/print.mjs', HERE, OUT], check=True)
-for f in ('affiche-fonds-perdus.html', 'affiche-a5.html', 'qr.svg'):
+for f in ('affiche-fonds-perdus.html', 'affiche-a5.html', 'qr.svg', 'qr-instagram.svg'):
     os.remove(os.path.join(HERE, f))

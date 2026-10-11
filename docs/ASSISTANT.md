@@ -26,7 +26,7 @@ Cheval par défaut : celui de la page ouverte, sinon le seul cheval accessible, 
 - clés Anthropic et ElevenLabs (chiffrées, jamais réaffichées ; repli sur `ANTHROPIC_API_KEY` / `ELEVENLABS_API_KEY`) ;
 - tests de connexion, statistiques du mois, dernières erreurs.
 
-Accès par offre : fonctionnalité « Assistant vocal (IA) » et quota mensuel de consignes par espace (Administration › Offres ; dérogation possible par licence). Offres de référence : Particulier 150, Multi-chevaux 400, Écurie 2 000 ; Découverte : non incluse.
+Accès par offre : fonctionnalité « Assistant vocal (IA) » et quota mensuel de consignes par espace (Administration › Offres ; dérogation possible par licence). Offres de référence : Propriétaire 150, Propriétaire multi-chevaux 400, Écurie 2 000 ; Découverte : non incluse.
 
 ## Données personnelles
 

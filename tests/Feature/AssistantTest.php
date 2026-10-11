@@ -175,15 +175,16 @@ class AssistantTest extends TestCase
     {
         [$user, $horse] = $this->setUpUser();
         $farrier = CareCategory::where('key', 'farrier')->first();
+        $at = now()->subHour(); // dans le passé quelle que soit l'heure d'exécution du test
         $previous = CareRecord::forceCreate(['uuid' => (string) Str::uuid(), 'horse_id' => $horse->id, 'care_category_id' => $farrier->id, 'performed_at' => now()->subWeeks(6), 'next_check_on' => now()->addDay()->toDateString()]);
         $this->fake([
-            ['tools' => [['record_care', ['horse_id' => $horse->id, 'category' => 'farrier', 'performed_at' => now()->format('Y-m-d').' 09:00', 'professional_id' => null, 'reason' => null, 'care_performed' => 'Parage', 'cost' => 85, 'add_expense' => true,
+            ['tools' => [['record_care', ['horse_id' => $horse->id, 'category' => 'farrier', 'performed_at' => $at->format('Y-m-d H:i'), 'professional_id' => null, 'reason' => null, 'care_performed' => 'Parage', 'cost' => 85, 'add_expense' => true,
                 'next_interval_value' => null, 'next_interval_unit' => null, 'next_check_on' => null, 'remember_frequency' => false]]]],
             ['text' => 'Passage du maréchal noté, prochain dans 6 semaines.'],
         ]);
         $res = $this->say($user, 'le maréchal est passé ce matin, 85 euros')->assertOk();
         $care = CareRecord::latest('id')->first();
-        $this->assertSame(now()->addWeeks(6)->toDateString(), $care->next_check_on->toDateString());
+        $this->assertSame($at->copy()->addWeeks(6)->toDateString(), $care->next_check_on->toDateString());
         $this->assertNotNull($previous->fresh()->next_check_done_at);
         $this->assertDatabaseHas('expenses', ['care_record_id' => $care->id, 'amount' => 85]);
 

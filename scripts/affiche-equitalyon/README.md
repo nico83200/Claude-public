@@ -13,4 +13,4 @@ Produit dans `dist/affiche-equitalyon/` :
 
 Reprend les polices TrueType, le logo NLapps et la capture d'écran de `scripts/affiche/`.
 Le code doit exister dans Administration › Codes promo : type « Accès gratuit pour une durée »,
-offre « Propriétaire multi-chevaux », 30 jours.
+offre « Propriétaire » (un cheval, toutes les fonctionnalités), 30 jours.

@@ -71,7 +71,7 @@ class BillingTest extends TestCase
         $ent = app(Entitlements::class)->for($org->fresh());
         $this->assertSame('particulier', $ent['plan']->slug);
         $this->assertTrue($ent['writable']);
-        $this->assertSame(3, $ent['limits']['max_horses']);
+        $this->assertSame(1, $ent['limits']['max_horses'], 'Offre Propriétaire : un cheval.');
     }
 
     public function test_out_of_order_events_are_ignored(): void
@@ -160,7 +160,7 @@ class BillingTest extends TestCase
         $this->app->instance(StripeGateway::class, $gateway);
 
         $user = $this->user();
-        $this->actingAs($user)->get('/abonnement')->assertOk()->assertSee('Particulier');
+        $this->actingAs($user)->get('/abonnement')->assertOk()->assertSee('Propriétaire');
         $this->actingAs($user)->post('/abonnement/souscrire', ['plan_id' => $this->plan->id, 'interval' => 'year', 'accept' => '1'])
             ->assertRedirect('https://checkout.stripe.com/c/pay/cs_1');
         $this->assertDatabaseHas('stripe_customers', ['stripe_customer_id' => 'cus_new']);

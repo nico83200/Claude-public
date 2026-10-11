@@ -107,7 +107,7 @@ class AuthTest extends TestCase
     {
         $this->get('/')->assertOk()->assertSee('Commencer gratuitement')->assertSee('/brand/jackcie-logo', false)->assertSee('apple-mobile-web-app-capable', false);
         $this->get('/application-mobile')->assertOk()->assertSee('Sur l\'écran d\'accueil', false)->assertSee('Installer maintenant');
-        $this->get('/tarifs')->assertOk()->assertSee('Particulier');
+        $this->get('/tarifs')->assertOk()->assertSee('Propriétaire');
         $this->get('/confidentialite')->assertOk();
         $this->get('/conditions')->assertOk();
         $this->get('/login')->assertOk();
