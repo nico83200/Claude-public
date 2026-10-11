@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1080px;overflow:hidden;font-family:Inter,system-ui;-webkit-font-smoothing:antialiased}
+body.light{background:#faf7f1;color:#0d3122}
+body.dark{background:radial-gradient(120% 90% at 0% 0%,#1f5f44 0%,#0d3122 60%,#0a2519 100%);color:#fff}
+.glow{position:absolute;border-radius:50%;filter:blur(80px);opacity:.35}
+.brand{position:absolute;left:72px;top:64px;display:flex;align-items:center;gap:16px;font-weight:800;font-size:34px;letter-spacing:-.02em}
+.brand img{width:56px;height:56px;border-radius:22%;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.txt{position:absolute;left:72px;top:210px;width:500px}
+.k{font-weight:700;font-size:24px;letter-spacing:.14em;text-transform:uppercase;color:#a8875e}
+.dark .k{color:#d1bb9d}
+h1{margin-top:20px;font-weight:800;font-size:66px;line-height:1.02;letter-spacing:-.035em}
+.light h1 em{font-style:normal;color:#a8875e}.dark h1 em{font-style:normal;color:#d1bb9d}
+.b{margin-top:28px;font-size:29px;line-height:1.36;font-weight:500;opacity:.82}
+.cta{position:absolute;left:72px;bottom:64px;display:inline-flex;align-items:center;gap:12px;padding:18px 30px;border-radius:999px;font-weight:700;font-size:24px}
+.light .cta{background:#0d3122;color:#fff}.dark .cta{background:#fff;color:#0d3122}
+.phone{position:absolute;left:610px;top:235px;width:410px;height:855px;border-radius:64px;background:#0b0f0d;padding:14px;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+.phone img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:50px;display:block}
+.notch{position:absolute;left:50%;top:26px;width:110px;height:30px;margin-left:-55px;border-radius:18px;background:#0b0f0d}
+.bubble{position:absolute;padding:22px 26px;border-radius:28px;background:#fff;color:#141915;font-size:24px;line-height:1.3;font-weight:600;box-shadow:0 18px 50px rgba(0,0,0,.25);max-width:400px}
+.notif{position:absolute;display:flex;gap:16px;align-items:flex-start;padding:20px 22px;border-radius:26px;background:rgba(255,255,255,.96);color:#141915;box-shadow:0 20px 50px rgba(0,0,0,.28);width:470px}
+.notif img{width:52px;height:52px;border-radius:22%}
+.notif small{display:block;font-size:18px;color:#6b736d;font-weight:500}
+.notif b{display:block;margin-top:2px;font-size:23px}
+.notif span{display:block;margin-top:4px;font-size:20px;line-height:1.3;color:#3a413c}
+.offer{position:absolute;left:600px;top:200px;width:410px;display:grid;gap:22px}
+.card{border-radius:30px;padding:30px 32px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14)}
+.card .t{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#d1bb9d}
+.card .v{margin-top:8px;font-size:58px;font-weight:800;letter-spacing:-.03em}
+.card p{margin-top:6px;font-size:22px;opacity:.8;line-height:1.35}
+.qr{display:flex;gap:22px;align-items:center}
+.qr div:first-child{width:170px;height:170px;background:#fff;border-radius:22px;padding:14px;flex:none}
+.qr img{width:100%;height:100%}
+.qr p{font-size:22px;line-height:1.35;opacity:.85}
+</style></head><body><div id="root"></div>
+<script>
+const d = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+document.body.className = d.theme;
+let h = `<div class="glow" style="width:520px;height:520px;right:-180px;top:-160px;background:${d.theme === 'dark' ? '#579675' : '#e7dac3'}"></div>
+<div class="brand"><img src="icon-192.png">Jack&amp;Cie</div>
+<div class="txt"><div class="k">${d.k}</div><h1>${d.h}</h1><p class="b">${d.b}</p></div>`;
+if (d.img) h += `<div class="phone"><img src="${d.img}"><div class="notch"></div></div>`;
+if (d.bubble) h += `<div class="bubble" style="${d.bubble.style}">${d.bubble.text}</div>`;
+if (d.notif) h += `<div class="notif" style="${d.notif.style}"><img src="icon-192.png"><div><small>Jack&amp;Cie · maintenant</small><b>${d.notif.t}</b><span>${d.notif.s}</span></div></div>`;
+if (d.offer) h += `<div class="offer"><div class="card"><div class="t">Version gratuite</div><div class="v">0 €</div><p>Pour suivre un cheval, sans limite de durée.</p></div><div class="card"><div class="t">Toutes les offres</div><div class="v">14 jours</div><p>d'essai gratuit : plusieurs chevaux, assistant vocal, budget, écurie.</p></div><div class="qr"><div><img src="qr.svg"></div><p>Scannez pour installer<br><b>jackcie.nlapps.fr</b></p></div></div>`;
+h += `<div class="cta">${d.cta || 'Essai gratuit 14 jours · lien en bio'}</div>`;
+document.getElementById('root').innerHTML = h;
+</script></body></html>
