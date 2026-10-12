@@ -257,6 +257,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::post('/utilisateurs/{user}/suspendre', [Admin\UserController::class, 'suspend'])->name('users.suspend');
     Route::post('/utilisateurs/{user}/reactiver', [Admin\UserController::class, 'reactivate'])->name('users.reactivate');
     Route::get('/organisations', [Admin\OrganizationController::class, 'index'])->name('organizations.index');
+    Route::post('/organisations/ecuries-en-double/{user}', [Admin\OrganizationController::class, 'keepStable'])->name('organizations.keep-stable');
     Route::get('/organisations/{organization}', [Admin\OrganizationController::class, 'show'])->name('organizations.show');
     Route::post('/organisations/{organization}/suspendre', [Admin\OrganizationController::class, 'suspend'])->name('organizations.suspend');
     Route::post('/organisations/{organization}/reactiver', [Admin\OrganizationController::class, 'reactivate'])->name('organizations.reactivate');

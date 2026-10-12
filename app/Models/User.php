@@ -64,7 +64,8 @@ class User extends Authenticatable implements MustVerifyEmail
     /** Écurie dont le compte est propriétaire : une seule par compte (offre Écurie). */
     public function ownedStable(): ?Organization
     {
-        return Organization::where('owner_id', $this->id)->where('type', 'stable')->orderBy('id')->first();
+        // L'écurie active d'abord (les écuries en double suspendues par l'administration passent après).
+        return Organization::where('owner_id', $this->id)->where('type', 'stable')->orderByRaw('suspended_at is not null')->orderBy('id')->first();
     }
 
     public function personalOrganization(): ?Organization

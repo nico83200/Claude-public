@@ -17,6 +17,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ 2.12.5 : séance : bouton « Modifier » (date et heure, type, cavalier, enseignant, objectif, durée, lieu, précautions, notes, statut) ; séance terminée : notes seules
 - ✅ 2.12.5 : un compte = son espace personnel (où il est aussi cavalier) et au plus une écurie (offre Écurie) ; être invité dans l'écurie d'un tiers ne compte pas. Les écuries supplémentaires déjà créées ne sont pas supprimées
 - ✅ 2.12.5 : événement : intervenant en tête de fiche, nom cliquable vers sa fiche ; sur téléphone uniquement (pas sur tablette ni ordinateur), boutons « Appeler » et « SMS » (message pré-rempli avec la date du rendez-vous et le cheval) ; mêmes boutons sur la fiche de l'intervenant
+- ✅ 2.12.6 : Administration › Organisations : comptes ayant plusieurs écuries (créées avant la règle) listés avec chevaux, membres et abonnement payant éventuel ; le super-administrateur choisit l'écurie conservée, les autres sont suspendues (lecture seule, données conservées, réactivables) ; les abonnements payants ne sont pas résiliés automatiquement
 - ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
 
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension

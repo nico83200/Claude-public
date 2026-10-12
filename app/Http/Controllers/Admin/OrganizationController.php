@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\SubscriptionPlan;
+use App\Models\User;
 use App\Services\Audit;
 use App\Services\Entitlements;
 use Illuminate\Http\Request;
@@ -19,7 +20,45 @@ class OrganizationController extends Controller
             ->when($request->query('filter') === 'suspended', fn ($q) => $q->whereNotNull('suspended_at'))
             ->latest()->paginate(40)->withQueryString();
 
-        return view('admin.organizations.index', ['organizations' => $orgs]);
+        return view('admin.organizations.index', ['organizations' => $orgs, 'duplicates' => $this->duplicateStables()]);
+    }
+
+    /**
+     * Comptes qui gèrent plusieurs écuries actives (créées avant la règle « une écurie par compte »).
+     *
+     * @return \Illuminate\Support\Collection<int, array{owner: User, stables: \Illuminate\Support\Collection}>
+     */
+    private function duplicateStables()
+    {
+        $owners = Organization::where('type', 'stable')->whereNull('suspended_at')->whereNotNull('owner_id')
+            ->groupBy('owner_id')->havingRaw('count(*) > 1')->pluck('owner_id');
+
+        return User::whereIn('id', $owners)->orderBy('name')->get()->map(fn (User $owner) => [
+            'owner' => $owner,
+            'stables' => Organization::where('owner_id', $owner->id)->where('type', 'stable')->whereNull('suspended_at')
+                ->withCount(['horses', 'members'])->orderBy('created_at')->get()
+                ->each(fn (Organization $o) => $o->setAttribute('paid', $o->subscriptions()->whereIn('stripe_status', ['active', 'trialing', 'past_due'])->exists())),
+        ]);
+    }
+
+    /** Garde l'écurie choisie ; les autres écuries du compte sont suspendues (lecture seule, données conservées, réversible). */
+    public function keepStable(Request $request, User $user)
+    {
+        $data = $request->validate(['keep_id' => ['required', 'integer']]);
+        $keep = Organization::where('owner_id', $user->id)->where('type', 'stable')->whereKey($data['keep_id'])->firstOrFail();
+        $others = Organization::where('owner_id', $user->id)->where('type', 'stable')->whereNull('suspended_at')->whereKeyNot($keep->id)->get();
+        foreach ($others as $org) {
+            $org->forceFill(['suspended_at' => now(), 'suspension_reason' => 'Un compte ne peut gérer qu\'une écurie : « '.$keep->name.' » a été conservée.'])->save();
+            Audit::log('admin.organization_suspended', $org, ['reason' => 'duplicate_stable', 'kept' => $keep->id], $org->id);
+        }
+        if ($keep->isSuspended()) {
+            $keep->forceFill(['suspended_at' => null, 'suspension_reason' => null])->save();
+        }
+        if ($others->contains('id', $user->current_organization_id)) {
+            $user->forceFill(['current_organization_id' => $keep->id])->save();
+        }
+
+        return back()->with('success', '« '.$keep->name.' » est conservée pour '.$user->name.' ; '.$others->count().' autre(s) écurie(s) suspendue(s) (données conservées, réactivables).');
     }
 
     public function show(Organization $organization, Entitlements $entitlements)
