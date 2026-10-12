@@ -34,7 +34,7 @@ Avec Jack&Cie, vous ne vous posez plus la question : maréchal, vaccins, vermifu
 
 Une séance réussie, ça se prépare. 💪
 
-Glissez vos exercices dans l'échauffement, le travail principal et le retour au calme. 23 exercices sont déjà prêts (dressage, barres au sol, longe, travail à pied…), et vous pouvez ajouter les vôtres.
+Glissez vos exercices dans l'échauffement, le travail principal et le retour au calme. 125 exercices sont déjà prêts (dressage, barres au sol, obstacle, longe, travail à pied, extérieur…), et vous pouvez ajouter les vôtres.
 
 Au manège, le mode séance vous guide, exercice par exercice.
 
