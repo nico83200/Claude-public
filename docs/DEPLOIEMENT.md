@@ -6,7 +6,7 @@
    aucun Composer ni Node.js nécessaire sur le serveur).
 2. Domaine → dossier `public/` (ou racine : le `.htaccess` fourni redirige et protège).
 3. Ouvrez le domaine et suivez l'installeur (`/install`) — voir INSTALLATION.md.
-4. Ajoutez la tâche cron affichée en fin d'installation. HTTPS obligatoire en production.
+4. Ajoutez la tâche cron affichée en fin d'installation (toutes les minutes) : `cd <dossier> && php artisan schedule:run`, ou, si l'hébergeur demande le chemin d'un fichier PHP (OVH…), `<dossier>/cron.php`. Vérification : Administration › Notifications. HTTPS obligatoire en production.
 
 ## Option A bis — hébergement mutualisé, installation manuelle
 

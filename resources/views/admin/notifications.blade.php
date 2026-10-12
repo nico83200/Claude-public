@@ -14,6 +14,8 @@
             @unless ($scheduler['cron_ok'])
                 <p class="mt-3 text-sm text-slate-600">À ajouter une fois dans les tâches cron de l'hébergement (cPanel › Tâches cron, chaque minute) :</p>
                 <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white">{{ $scheduler['cron_line'] }}</pre>
+                <p class="mt-3 text-sm text-slate-600">Si l'hébergeur demande plutôt le chemin d'un fichier PHP (ex. OVH), indiquez ce fichier, à lancer toutes les minutes :</p>
+                <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white" data-cron-file>{{ $scheduler['cron_file'] }}</pre>
             @endunless
             <p class="mt-3 text-sm text-slate-600">File d'attente : {{ $queue['pending'] ?? '?' }} en attente{{ $queue['oldest'] ? ' (la plus ancienne depuis '.$queue['oldest']->diffForHumans().')' : '' }}, {{ $queue['failed'] ?? '?' }} en échec.</p>
         </x-section>

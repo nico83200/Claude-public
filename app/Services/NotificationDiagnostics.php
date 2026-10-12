@@ -83,6 +83,7 @@ class NotificationDiagnostics
             'cron_last' => $cron ? Carbon::createFromTimestamp($cron, config('app.timezone')) : null,
             'fallback_last' => $fallback ? Carbon::createFromTimestamp($fallback, config('app.timezone')) : null,
             'cron_line' => '* * * * * cd '.base_path().' && php artisan schedule:run >> /dev/null 2>&1',
+            'cron_file' => base_path('cron.php'),
         ];
     }
 

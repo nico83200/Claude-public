@@ -29,7 +29,7 @@ class NotificationDiagnosticsTest extends TestCase
 
         Cache::forget(NotificationDiagnostics::CRON_KEY);
         $as()->get('/admin/notifications?email='.$user->email)->assertOk()
-            ->assertSee('Le cron du serveur ne tourne pas')->assertSee('php artisan schedule:run')
+            ->assertSee('Le cron du serveur ne tourne pas')->assertSee('php artisan schedule:run')->assertSee(base_path('cron.php'))
             ->assertSee('Aucun appareil abonné')->assertSee('pas encore parti');
 
         PushSubscription::forceCreate(['user_id' => $user->id, 'endpoint' => 'https://web.push.apple.com/abc', 'endpoint_hash' => hash('sha256', 'abc'), 'public_key' => 'x', 'auth_token' => 'y',
