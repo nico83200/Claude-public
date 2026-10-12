@@ -23,10 +23,10 @@ class ExerciseSuggestions
     /**
      * @return array{rider: ?User, galop: ?int, level: ?string, phases: array<string, array<int, array{id: int, reason: string}>>}
      */
-    public function forSession(RidingSession $session, User $viewer, Collection $library): array
+    public function forSession(RidingSession $session, User $viewer, Collection $library, ?int $galopOverride = null): array
     {
         $rider = $session->rider ?? ($session->rider_name ? null : $viewer);
-        $galop = $rider?->profile?->galop();
+        $galop = $galopOverride ?? $rider?->profile?->galop();
         $level = UserProfile::exerciseLevel($galop);
         $visible = $library->keyBy('id');
         $history = $rider ? $this->history($rider, $session) : collect();
@@ -52,7 +52,7 @@ class ExerciseSuggestions
                     if (count($picked) >= self::PER_PHASE) {
                         break;
                     }
-                    $picked[$e->id] = ['id' => $e->id, 'reason' => 'Adapté au Galop '.$galop.' ('.mb_strtolower(Exercise::LEVELS[$level] === 'Confirmé' ? 'expert' : Exercise::LEVELS[$level]).')'];
+                    $picked[$e->id] = ['id' => $e->id, 'reason' => 'Adapté au niveau '.['beginner' => 'débutant (galops 1 à 3)', 'intermediate' => 'intermédiaire (galops 4 et 5)', 'advanced' => 'expert (galop 6 et plus)'][$level]];
                 }
             }
             $phases[$phase] = array_values($picked);

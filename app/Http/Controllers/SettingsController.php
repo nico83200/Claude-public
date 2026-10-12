@@ -55,6 +55,9 @@ class SettingsController extends Controller
     {
         $data = $request->validate(['galop' => ['required', 'integer', 'between:1,7']]);
         UserProfile::updateOrCreate(['user_id' => $request->user()->id], ['riding_level' => 'Galop '.$data['galop']]);
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'galop' => (int) $data['galop']]);
+        }
 
         return back()->with('success', 'Niveau enregistré dans votre fiche : Galop '.$data['galop'].'. Les exercices proposés en tiennent compte.');
     }

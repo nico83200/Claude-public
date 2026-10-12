@@ -32,11 +32,14 @@ class ExerciseSuggestionsTest extends TestCase
         $page = $this->actingAs($user)->get("/seances/{$next->id}/preparer")->assertOk()
             ->assertSee('data-ask-galop', false)->assertSee('data-suggestions="warmup"', false)->assertSee('Fait 3 fois');
         $this->assertStringContainsString($favorite->name, $this->section($page->getContent(), 'warmup'));
+        // Suggestions déjà prêtes pour chaque niveau : affichées dès le choix du galop, sans recharger la page.
+        $page->assertSee('data-variant="2"', false)->assertSee('data-variant="4"', false)->assertSee('data-variant="6"', false);
+        $this->actingAs($user)->postJson('/parametres/niveau', ['galop' => 5])->assertOk()->assertJson(['galop' => 5]);
 
         // Le galop choisi est enregistré dans la fiche ; les étapes sans habitudes reçoivent des exercices de son niveau.
         $this->actingAs($user)->post('/parametres/niveau', ['galop' => 2])->assertSessionHas('success');
         $this->assertSame('Galop 2', $user->fresh()->profile->riding_level);
-        $html = $this->actingAs($user)->get("/seances/{$next->id}/preparer")->assertDontSee('data-ask-galop', false)->assertSee('Adapté au Galop 2 (débutant)')->getContent();
+        $html = $this->actingAs($user)->get("/seances/{$next->id}/preparer")->assertDontSee('data-ask-galop', false)->assertSee('Adapté au niveau débutant (galops 1 à 3)')->getContent();
         $cooldown = $this->section($html, 'cooldown');
         $this->assertNotSame('', $cooldown);
         foreach (Exercise::where('level', 'advanced')->pluck('name') as $hard) {
@@ -57,6 +60,6 @@ class ExerciseSuggestionsTest extends TestCase
 
     private function section(string $html, string $phase): string
     {
-        return preg_match('#data-suggestions="'.$phase.'">(.*?)</section>#s', $html, $m) ? $m[1] : '';
+        return preg_match('#data-suggestions="'.$phase.'" data-variant="">(.*?)</section>#s', $html, $m) ? $m[1] : '';
     }
 }

@@ -3,7 +3,17 @@
         <a href="{{ route('sessions.live', $session) }}" class="btn-primary"><x-icon name="play" /> Démarrer</a>
     </x-page-header>
 
-    <div class="grid gap-4 lg:grid-cols-5" x-data="Object.assign(sessionPlanner(@js(route('sessions.exercises.layout', $session))), { pickPhase: 'main', pickPhaseLabel: '', openPicker(phase, label) { this.pickPhase = phase; this.pickPhaseLabel = label; this.$refs.picker.showModal(); } })">
+    <div class="grid gap-4 lg:grid-cols-5" x-data="Object.assign(sessionPlanner(@js(route('sessions.exercises.layout', $session))), { pickPhase: 'main', pickPhaseLabel: '', galop: @js($suggestions['galop']), askGalop: @js($suggestionVariants !== []), galopError: '',
+        openPicker(phase, label) { this.pickPhase = phase; this.pickPhaseLabel = label; this.$refs.picker.showModal(); },
+        sugKey() { return @js($suggestionVariants !== []) && this.galop ? (this.galop <= 3 ? '2' : (this.galop <= 5 ? '4' : '6')) : ''; },
+        async saveGalop(g) {
+            this.galopError = '';
+            try {
+                const res = await fetch(@js(route('settings.riding-level')), { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }, body: JSON.stringify({ galop: g }) });
+                if (! res.ok) throw new Error();
+            } catch { this.galopError = 'Niveau non enregistré dans votre fiche (connexion ?) ; il est utilisé pour cette séance.'; }
+            this.galop = g; this.askGalop = false;
+        } })">
         <div class="space-y-4 lg:col-span-3">
             <p class="flex items-center gap-2 text-sm text-slate-600"><span class="text-gold-600" aria-hidden="true">⠿</span> <span class="lg:hidden">Touchez « + Exercices » dans chaque étape pour choisir les exercices ; glissez-les par la poignée pour les réordonner.</span><span class="hidden lg:inline">Glissez les exercices par la poignée pour les réordonner, les changer de section ou les ajouter depuis la bibliothèque.</span>
                 <span x-show="saving" x-cloak class="ml-auto text-xs text-slate-500">Enregistrement…</span></p>
@@ -55,7 +65,6 @@
             </x-section>
         </div>
 
-        <form id="galop-form" method="POST" action="{{ route('settings.riding-level') }}" class="hidden">@csrf</form>
         {{-- Fenêtre de choix pour une étape (plein écran sur téléphone) : exercices groupés par catégorie, les plus utiles à l'étape en premier. --}}
         <dialog x-ref="picker" data-exercise-picker class="m-0 h-dvh max-h-none w-full max-w-none p-0 sm:m-auto sm:h-auto sm:max-h-[88vh] sm:w-[calc(100%-2rem)] sm:max-w-2xl sm:rounded-3xl">
             <form method="POST" action="{{ route('sessions.exercises.store', $session) }}" class="flex h-full max-h-[inherit] flex-col" x-data="{ q: '', picked: [], free: '' }" @submit="if (! picked.length && ! free.trim()) $event.preventDefault()">
@@ -65,26 +74,31 @@
                         <h2 class="text-lg font-semibold">Ajouter à <span x-text="pickPhaseLabel"></span></h2>
                         <button type="button" class="btn-ghost min-h-10 px-2" @click="$refs.picker.close()" aria-label="Fermer"><x-icon name="x" class="size-5" /></button>
                     </div>
-                    <input x-model="q" type="search" placeholder="Rechercher un exercice" class="input mt-3" aria-label="Rechercher un exercice">
+                    <input x-show="! askGalop" x-model="q" type="search" placeholder="Rechercher un exercice" class="input mt-3" aria-label="Rechercher un exercice">
                 </div>
-                <div class="flex flex-1 flex-col overflow-y-auto p-4" data-picker-groups>
+                {{-- Étape 1 (galop inconnu) : le niveau, puis la liste s'affiche aussitôt avec les exercices adaptés. --}}
+                @if ($suggestionVariants)
+                <div x-show="askGalop" x-cloak class="flex flex-1 flex-col justify-center overflow-y-auto p-6" data-ask-galop>
+                    <p class="text-xl font-semibold text-slate-900">Quel est votre niveau ?</p>
+                    <p class="mt-1 text-sm text-slate-600">Pour vous proposer des exercices adaptés. Il sera enregistré dans votre fiche (modifiable dans Paramètres).</p>
+                    <div class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        @foreach (\App\Models\UserProfile::GALOPS as $g => $gl)
+                            <button type="button" class="btn-secondary big-touch" @click="saveGalop({{ $g }})" data-galop="{{ $g }}">{{ $gl }}</button>
+                        @endforeach
+                    </div>
+                    <p class="mt-3 text-xs text-slate-500">Galops 1 à 3 : débutant · 4 et 5 : intermédiaire · 6 et plus : expert.</p>
+                    <button type="button" class="mt-5 self-start text-sm font-medium text-slate-600 underline" @click="askGalop = false">Passer et voir tous les exercices</button>
+                </div>
+                @endif
+                <div x-show="! askGalop" class="flex flex-1 flex-col overflow-y-auto p-4" data-picker-groups>
+                    <p x-show="galopError" x-cloak x-text="galopError" class="mb-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-900" style="order:-3"></p>
                     {{-- Pour le cavalier : exercices habituels (historique) et exercices adaptés à son galop. --}}
                     @php $byId = $library->keyBy('id'); $sugRider = $suggestions['rider']; $isMe = $sugRider && $sugRider->id === auth()->id(); @endphp
-                    @if ($isMe && ! $suggestions['galop'])
-                        <div class="mb-4 rounded-2xl bg-gold-50 p-3 ring-1 ring-gold-200" style="order:-2" data-ask-galop>
-                            <p class="text-sm font-medium text-slate-900">Quel est votre niveau ?</p>
-                            <p class="text-xs text-slate-600">Pour vous proposer des exercices adaptés. Il sera enregistré dans votre fiche.</p>
-                            <div class="mt-2 flex flex-wrap gap-1.5">
-                                @foreach (\App\Models\UserProfile::GALOPS as $g => $gl)
-                                    <button type="submit" form="galop-form" name="galop" value="{{ $g }}" class="btn-secondary min-h-9 px-3 text-sm">{{ $gl }}</button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    @foreach ($suggestions['phases'] as $sugPhase => $sugItems)
+                    @foreach (['' => $suggestions] + $suggestionVariants as $sugKey => $variant)
+                    @foreach ($variant['phases'] as $sugPhase => $sugItems)
                         @continue(empty($sugItems))
-                        <section class="mb-4" style="order:-1" x-show="pickPhase === @js($sugPhase) && ! q" data-suggestions="{{ $sugPhase }}">
-                            <h3 class="sticky top-0 z-10 -mx-4 flex items-center gap-1.5 bg-[var(--color-white)] px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-700 uppercase"><x-icon name="sparkles" class="size-3.5" /> {{ $isMe ? 'Pour vous' : 'Pour '.($sugRider?->name ?? 'le cavalier') }}{{ $suggestions['galop'] ? ' · Galop '.$suggestions['galop'] : '' }}</h3>
+                        <section class="mb-4" style="order:-1" x-show="pickPhase === @js($sugPhase) && ! q && sugKey() === @js((string) $sugKey)" data-suggestions="{{ $sugPhase }}" data-variant="{{ $sugKey }}">
+                            <h3 class="sticky top-0 z-10 -mx-4 flex items-center gap-1.5 bg-[var(--color-white)] px-4 py-1.5 text-xs font-semibold tracking-wide text-brand-700 uppercase"><x-icon name="sparkles" class="size-3.5" /> {{ $isMe ? 'Pour vous' : 'Pour '.($sugRider?->name ?? 'le cavalier') }}<span x-show="galop" x-text="' · Galop ' + galop"></span></h3>
                             <div class="space-y-1.5">
                                 @foreach ($sugItems as $sug)
                                     @php $ex = $byId[$sug['id']]; @endphp
@@ -95,6 +109,7 @@
                                 @endforeach
                             </div>
                         </section>
+                    @endforeach
                     @endforeach
                     @foreach ($categories as $catId => $catName)
                         @php $inCat = $library->where('exercise_category_id', $catId); @endphp
@@ -120,7 +135,7 @@
                 </div>
                 <template x-for="(id, i) in picked" :key="id"><span><input type="hidden" :name="'items[' + i + '][exercise_id]'" :value="id"><input type="hidden" :name="'items[' + i + '][phase]'" :value="pickPhase"></span></template>
                 <template x-if="free.trim()"><span><input type="hidden" :name="'items[' + picked.length + '][name]'" :value="free.trim()"><input type="hidden" :name="'items[' + picked.length + '][phase]'" :value="pickPhase"></span></template>
-                <div class="border-t border-slate-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <div x-show="! askGalop" class="border-t border-slate-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                     <button class="btn-primary w-full" :disabled="! picked.length && ! free.trim()" x-text="(n => n ? 'Ajouter ' + n + ' exercice' + (n > 1 ? 's' : '') : 'Choisissez des exercices')(picked.length + (free.trim() ? 1 : 0))">Choisissez des exercices</button>
                 </div>
             </form>

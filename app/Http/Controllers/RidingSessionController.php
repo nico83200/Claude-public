@@ -136,7 +136,11 @@ class RidingSessionController extends Controller
             'session' => $session,
             'library' => $library,
             // Exercices habituels du cavalier et exercices adaptés à son galop, par étape.
-            'suggestions' => app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
+            'suggestions' => $suggestions = app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
+            // Galop inconnu : suggestions préparées pour chaque niveau, affichées dès que le cavalier choisit son galop (sans recharger).
+            'suggestionVariants' => $suggestions['rider']?->id === $user->id && ! $suggestions['galop']
+                ? collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user, $library, $g)])->all()
+                : [],
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),
             'riders' => $this->ridersFor($session->horse),
             'phasePriority' => self::phasePriority(ExerciseCategory::orderBy('sort_order')->pluck('name', 'id')),
