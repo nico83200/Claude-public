@@ -55,12 +55,33 @@ class SettingsController extends Controller
         ]);
     }
 
+    /** Activation en un geste depuis la suggestion (19 h par défaut, modifiable ensuite). */
+    public function enableDailyReminder(Request $request)
+    {
+        $data = $request->validate(['daily_reminder_at' => ['nullable', 'date_format:H:i']]);
+        UserProfile::updateOrCreate(['user_id' => $request->user()->id], ['daily_reminder_at' => $data['daily_reminder_at'] ?? '19:00']);
+
+        return redirect()->route('settings.notifications')->with('success', 'Rappel quotidien activé à '.($data['daily_reminder_at'] ?? '19:00').' : vous pouvez changer l\'heure ci-dessous.');
+    }
+
+    public function stopDailyNudge(Request $request)
+    {
+        UserProfile::updateOrCreate(['user_id' => $request->user()->id], [])->forceFill(['daily_nudge_stopped_at' => now()])->save();
+
+        return redirect()->route('settings.notifications')->with('success', 'C\'est noté : nous ne vous proposerons plus le rappel quotidien. Vous pouvez l\'activer ici à tout moment.');
+    }
+
     public function updateNotifications(Request $request)
     {
         $data = $request->validate([
             'daily_reminder' => ['nullable', 'boolean'],
             'daily_reminder_at' => ['nullable', 'required_if_accepted:daily_reminder', 'date_format:H:i'],
         ]);
+        // Désactivé volontairement : la suggestion d'activer le rappel quotidien n'est plus envoyée.
+        $previous = $request->user()->profile;
+        if ($previous?->daily_reminder_at && ! $request->boolean('daily_reminder')) {
+            $previous->forceFill(['daily_nudge_stopped_at' => now()])->save();
+        }
         UserProfile::updateOrCreate(['user_id' => $request->user()->id], [
             'email_notifications' => $request->boolean('email_notifications'),
             'debrief_reminders' => $request->boolean('debrief_reminders'),

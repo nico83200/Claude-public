@@ -37,6 +37,7 @@ class AppNotification extends Notification
         'access_revoked' => 'Accès révoqué',
         'session_debrief' => 'Bilan de séance à compléter',
         'daily_reminder' => 'Rappel de saisie',
+        'daily_nudge' => 'Suggestion : activer le rappel quotidien',
         'push_test' => 'Essai de notification',
         'payment_due' => 'Paiement à effectuer',
         'inactivity' => 'Rappel après une absence',

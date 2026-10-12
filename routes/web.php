@@ -236,6 +236,8 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::put('/parametres/profil', [Controllers\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
     Route::get('/parametres/notifications', [Controllers\SettingsController::class, 'notifications'])->name('settings.notifications');
     Route::put('/parametres/notifications', [Controllers\SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
+    Route::post('/parametres/notifications/rappel-quotidien', [Controllers\SettingsController::class, 'enableDailyReminder'])->name('settings.daily-reminder.enable');
+    Route::post('/parametres/notifications/rappel-quotidien/ne-plus-proposer', [Controllers\SettingsController::class, 'stopDailyNudge'])->name('settings.daily-reminder.stop');
     Route::get('/parametres/securite', [Controllers\SettingsController::class, 'security'])->name('settings.security');
     Route::put('/parametres/apparence', [Controllers\SettingsController::class, 'updateTheme'])->name('settings.theme');
     Route::post('/parametres/securite/lien-mot-de-passe', [Controllers\SettingsController::class, 'sendPasswordLink'])->middleware('throttle:3,10')->name('settings.password.link');

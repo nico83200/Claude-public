@@ -30,6 +30,17 @@
         </x-section>
         </div>
 
+        @if (request('depuis') === 'rappel' && ! $profile->daily_reminder_at)
+            <x-section class="border border-brand-100 bg-brand-50" data-daily-nudge>
+                <p class="font-semibold text-brand-900">Un petit rappel chaque soir ?</p>
+                <p class="mt-1 text-sm text-brand-900/80">Si vous n'avez rien noté dans la journée (séance, soin, observation…), Jack&amp;Cie vous le rappelle à l'heure choisie. Rien n'est envoyé les jours où vous avez déjà tout noté.</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <form method="POST" action="{{ route('settings.daily-reminder.enable') }}">@csrf<button class="btn-primary">Activer à 19 h</button></form>
+                    <form method="POST" action="{{ route('settings.daily-reminder.stop') }}">@csrf<button class="btn-ghost">Ne plus me le proposer</button></form>
+                </div>
+            </x-section>
+        @endif
+
         <form method="POST" action="{{ route('settings.notifications.update') }}" class="space-y-4" x-data="{ daily: {{ $profile->daily_reminder_at ? 'true' : 'false' }} }">
             @csrf @method('PUT')
             <x-section title="Rappels">
@@ -38,7 +49,7 @@
                         <input type="checkbox" name="debrief_reminders" value="1" @checked($profile->debrief_reminders ?? true) class="mt-0.5 size-5 rounded">
                         <span><span class="block font-medium text-slate-900">Après une séance ou un cours</span><span class="block text-sm text-slate-500">Une notification propose d'ajouter les exercices réalisés et le bilan.</span></span>
                     </label>
-                    <div>
+                    <div id="rappel-quotidien">
                         <label class="flex items-start gap-3">
                             <input type="checkbox" name="daily_reminder" value="1" x-model="daily" class="mt-0.5 size-5 rounded">
                             <span><span class="block font-medium text-slate-900">Rappel quotidien</span><span class="block text-sm text-slate-500">Seulement si vous n'avez rien noté dans la journée.</span></span>
