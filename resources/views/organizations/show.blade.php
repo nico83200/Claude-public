@@ -1,6 +1,8 @@
 <x-layouts.app :title="$org->name">
     <x-page-header :title="$org->name" :subtitle="$org->typeLabel().' · '.$horseCount.' cheval(aux) géré(s)'">
-        <a href="{{ route('organizations.create') }}" class="btn-secondary"><x-icon name="plus" /> Créer une écurie</a>
+        @unless (auth()->user()->ownedStable())
+            <a href="{{ route('organizations.create') }}" class="btn-secondary" data-create-stable><x-icon name="plus" /> Créer mon écurie</a>
+        @endunless
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">

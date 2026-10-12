@@ -61,6 +61,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Organization::class, 'current_organization_id');
     }
 
+    /** Écurie dont le compte est propriétaire : une seule par compte (offre Écurie). */
+    public function ownedStable(): ?Organization
+    {
+        return Organization::where('owner_id', $this->id)->where('type', 'stable')->orderBy('id')->first();
+    }
+
     public function personalOrganization(): ?Organization
     {
         return Organization::where('owner_id', $this->id)->where('type', 'personal')->first();

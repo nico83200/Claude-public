@@ -20,8 +20,14 @@ class OrganizationController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        if ($stable = $request->user()->ownedStable()) {
+            $request->user()->forceFill(['current_organization_id' => $stable->id])->save();
+
+            return redirect()->route('organization.show')->with('status', 'Vous gérez déjà l\'écurie « '.$stable->name.' » : un compte ne peut avoir qu\'un seul espace écurie.');
+        }
+
         return view('organizations.create');
     }
 

@@ -7,6 +7,7 @@ use App\Models\OrganizationMember;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
 class OrganizationService
@@ -29,8 +30,16 @@ class OrganizationService
         });
     }
 
+    /**
+     * Un compte = son espace personnel (où il peut être cavalier), et au plus une écurie (offre Écurie).
+     * Les espaces où il est seulement invité (demi-pension, écurie d'un tiers) ne comptent pas.
+     */
     public function createStable(User $owner, array $data): Organization
     {
+        if ($owner->ownedStable()) {
+            throw ValidationException::withMessages(['name' => 'Votre compte gère déjà une écurie : un compte ne peut avoir qu\'un seul espace écurie.']);
+        }
+
         return DB::transaction(function () use ($owner, $data) {
             $org = Organization::create(array_merge($data, [
                 'slug' => $this->uniqueSlug($data['name']),

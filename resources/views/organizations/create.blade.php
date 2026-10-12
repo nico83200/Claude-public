@@ -12,7 +12,7 @@
                 <x-field name="city" label="Ville" />
             </div>
         </x-section>
-        <p class="text-sm text-slate-600">Vous en serez propriétaire. Votre espace personnel et vos chevaux restent inchangés : vous pourrez transférer la gestion d'un cheval vers l'écurie si besoin.</p>
+        <p class="text-sm text-slate-600">Vous en serez propriétaire. Un compte ne peut gérer qu'une seule écurie (offre Écurie). Votre espace personnel reste le vôtre : vos chevaux et vos séances de cavalier y restent, et vous pourrez transférer la gestion d'un cheval vers l'écurie si besoin.</p>
         <button class="btn-primary">Créer l'écurie</button>
     </form>
 </x-layouts.app>
