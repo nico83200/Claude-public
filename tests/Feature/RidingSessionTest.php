@@ -132,4 +132,27 @@ class RidingSessionTest extends TestCase
         $this->assertDatabaseHas('exercise_library', ['scope' => 'personal', 'user_id' => $user->id, 'duplicated_from_id' => $default->id]);
         $this->actingAs($user)->get('/exercices?level=beginner&max_minutes=10')->assertOk();
     }
+
+    public function test_modify_button_edits_session_details_and_completed_session_notes(): void
+    {
+        [$user, $horse, $session] = $this->setUpSession();
+        $this->actingAs($user)->get("/seances/{$session->id}")->assertOk()->assertSee('data-edit-session', false)->assertSee("/seances/{$session->id}/modifier", false);
+        $this->actingAs($user)->get("/seances/{$session->id}/modifier")->assertOk()->assertSee('Modifier la séance')->assertSee('name="scheduled_at"', false);
+
+        $this->actingAs($user)->put("/seances/{$session->id}", ['return_to' => 'show', 'scheduled_at' => '2026-11-05 17:30', 'session_type' => $session->session_type, 'location' => 'Carrière', 'objective' => 'Transitions'])
+            ->assertRedirect("/seances/{$session->id}");
+        $session->refresh();
+        $this->assertSame(['2026-11-05 17:30', 'Carrière', 'Transitions'], [$session->scheduled_at->format('Y-m-d H:i'), $session->location, $session->objective]);
+
+        // Séance terminée : seules les notes se modifient.
+        $this->actingAs($user)->put("/seances/{$session->id}/bilan", ['actual_minutes' => 45]);
+        $this->assertTrue($session->fresh()->isCompleted());
+        $this->actingAs($user)->get("/seances/{$session->id}")->assertSee('data-edit-session', false);
+        $this->actingAs($user)->get("/seances/{$session->id}/modifier")->assertOk()->assertSee('seules les notes')->assertDontSee('name="scheduled_at"', false);
+        $this->actingAs($user)->put("/seances/{$session->id}", ['return_to' => 'show', 'notes' => 'Très bonne séance', 'scheduled_at' => '2020-01-01 10:00'])->assertRedirect("/seances/{$session->id}")->assertSessionHasNoErrors();
+        $this->assertSame('Très bonne séance', $session->fresh()->notes);
+        $this->assertSame('2026-11-05 17:30', $session->fresh()->scheduled_at->format('Y-m-d H:i'));
+
+        $this->actingAs($this->user())->get("/seances/{$session->id}/modifier")->assertForbidden();
+    }
 }

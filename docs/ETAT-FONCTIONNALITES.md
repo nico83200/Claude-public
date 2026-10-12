@@ -13,6 +13,8 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ 2.12.3 : Codes promo : générateur de QR code (code promo et source facultatifs, aperçu, lien à copier, SVG pour l'impression, PNG pour les réseaux) ; sources de provenance ajoutées, renommées ou retirées dans l'administration, avec un lien et un QR code par source sur la fiche de chaque code
 - ✅ 2.12.3 : Codes promo modifiables après création : libellé, dates de validité (fin incluse), nombre maximal d'utilisations (jamais sous les utilisations déjà faites), réservé aux nouveaux clients ; un code de réduction Stripe est remplacé chez Stripe par un code identique portant les nouveaux réglages (ancien code réactivé si Stripe refuse)
 - ✅ 2.12.4 : rappel quotidien non activé : suggestion envoyée de temps en temps (application et téléphone, jamais par email) aux utilisateurs actifs inscrits depuis plus de 3 jours — au plus 3 fois, espacées de 2 semaines ; activation en un geste (19 h, modifiable) ou « Ne plus me le proposer » ; plus aucune suggestion après une désactivation volontaire
+- ✅ 2.12.5 : corrigé : sur téléphone, la date ou l'heure ne pouvait pas être modifiée dans les fenêtres (nouvel événement, dépense, pension…) : ces fenêtres s'ouvrent désormais en plein écran sur téléphone, hors de la couche modale du navigateur
+- ✅ 2.12.5 : séance : bouton « Modifier » (date et heure, type, cavalier, enseignant, objectif, durée, lieu, précautions, notes, statut) ; séance terminée : notes seules
 - ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
 
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension

@@ -133,18 +133,25 @@ class RidingSessionController extends Controller
         ]);
     }
 
+    /** Modifier les informations de la séance (date, type, cavalier, lieu…) sans passer par la préparation. */
+    public function details(Request $request, RidingSession $session)
+    {
+        $this->authorizeEdit($request, $session);
+
+        return view('sessions.details', ['session' => $session->load('horse'), 'riders' => $this->ridersFor($session->horse)]);
+    }
+
     public function update(Request $request, RidingSession $session)
     {
         $this->authorizeEdit($request, $session);
-        $data = $request->validate(RidingSessionService::rules() + ['status' => ['nullable', 'in:planned,in_progress,cancelled']]);
-        if ($session->isCompleted()) {
-            // Après clôture, seules les notes restent modifiables.
-            $data = array_intersect_key($data, array_flip(['notes']));
-        }
+        // Après clôture, seules les notes restent modifiables.
+        $data = $session->isCompleted()
+            ? $request->validate(['notes' => ['nullable', 'string', 'max:10000']])
+            : $request->validate(RidingSessionService::rules() + ['status' => ['nullable', 'in:planned,in_progress,cancelled']]);
         $session->update($this->sessions->sanitizeRider($session->horse, $data, $request->user()));
         $this->notifyChange($request, $session);
 
-        return back()->with('success', 'Séance enregistrée.');
+        return ($request->input('return_to') === 'show' ? redirect()->route('sessions.show', $session) : back())->with('success', 'Séance enregistrée.');
     }
 
     public function destroy(Request $request, RidingSession $session)

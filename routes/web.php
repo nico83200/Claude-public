@@ -161,6 +161,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/seances', [Controllers\RidingSessionController::class, 'store'])->name('sessions.store');
     Route::get('/seances/{session}', [Controllers\RidingSessionController::class, 'show'])->name('sessions.show');
     Route::get('/seances/{session}/preparer', [Controllers\RidingSessionController::class, 'edit'])->name('sessions.edit');
+    Route::get('/seances/{session}/modifier', [Controllers\RidingSessionController::class, 'details'])->name('sessions.details');
     Route::put('/seances/{session}', [Controllers\RidingSessionController::class, 'update'])->name('sessions.update');
     Route::delete('/seances/{session}', [Controllers\RidingSessionController::class, 'destroy'])->name('sessions.destroy');
     Route::get('/seances/{session}/en-cours', [Controllers\RidingSessionController::class, 'live'])->name('sessions.live');

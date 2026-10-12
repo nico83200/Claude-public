@@ -22,6 +22,23 @@
     apply(pref);
 })();
 </script>
+<script>
+// Téléphone : une fenêtre contenant un champ date ou heure s'ouvre en plein écran, hors de la couche
+// « modale » du navigateur, où certains téléphones n'affichent pas le sélecteur de date ni le clavier.
+(function () {
+    if (!window.HTMLDialogElement || !matchMedia('(max-width: 639px)').matches) return;
+    var modal = HTMLDialogElement.prototype.showModal;
+    HTMLDialogElement.prototype.showModal = function () {
+        if (!this.querySelector('input[type=date],input[type=time],input[type=datetime-local],input[type=month]')) return modal.call(this);
+        var d = this, root = document.documentElement;
+        d.classList.add('jc-sheet'); root.classList.add('jc-sheet-open');
+        d.addEventListener('close', function () { d.classList.remove('jc-sheet'); if (!document.querySelector('dialog.jc-sheet[open]')) root.classList.remove('jc-sheet-open'); }, { once: true });
+        d.show();
+        d.scrollTop = 0;
+    };
+    document.addEventListener('keydown', function (e) { var d = document.querySelector('dialog.jc-sheet[open]'); if (e.key === 'Escape' && d) d.close(); });
+})();
+</script>
 <meta name="application-name" content="Jack&amp;Cie">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
