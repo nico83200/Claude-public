@@ -19,6 +19,7 @@ Route::prefix('install')->name('install.')->middleware('throttle:60,1')->group(f
 
 // --- Pages publiques -------------------------------------------------------
 Route::get('/', [Controllers\PublicController::class, 'home'])->name('home');
+Route::get('/maintenance/reprise', Controllers\MaintenanceResumeController::class)->middleware('throttle:6,1')->name('maintenance.resume');
 Route::get('/tarifs', [Controllers\PublicController::class, 'pricing'])->name('pricing');
 Route::get('/confidentialite', [Controllers\PublicController::class, 'privacy'])->name('legal.privacy');
 Route::get('/conditions', [Controllers\PublicController::class, 'terms'])->name('legal.terms');

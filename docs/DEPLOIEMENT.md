@@ -74,4 +74,8 @@ Voir `.env.example` (commentée). Aucun secret ne doit être committé ni expos�
 3. En cas d'échec, le code précédent est remis automatiquement. Bouton « Restaurer » pour revenir à la version précédente ; la base se restaure avec la sauvegarde SQL (voir SAUVEGARDE.md).
 
 Prérequis : extension PHP `zip`, dossiers de l'application modifiables par le serveur web, espace disque ≈ 4 × la taille du paquet, **cron du planificateur actif** (il termine automatiquement une mise à jour interrompue, même pendant la maintenance : `php artisan app:finalize-update`).
-Si le site restait bloqué en maintenance sans cron : `php artisan app:finalize-update --now`, ou `php artisan up`.
+Si le site restait bloqué en maintenance (« Service indisponible ») :
+- depuis la 2.12.12, la page de maintenance termine elle-même l'installation au bout de 2 minutes, puis se recharge ;
+- avec le cron (ou `cron.php`) en place, l'installation est terminée dans les 3 minutes ;
+- sans accès SSH : gestionnaire de fichiers → `storage/framework/down` → copier la valeur de `"secret"` → ouvrir `https://<domaine>/<secret>` (accès administrateur pendant la maintenance) → Administration › Mises à jour → la mise à jour → « Terminer l'installation » ;
+- en SSH : `php artisan app:finalize-update --now`, ou `php artisan up`.

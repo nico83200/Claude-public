@@ -211,4 +211,25 @@ class UpdateTest extends TestCase
         Artisan::call('app:finalize-update');
         $this->assertSame('done', $update->fresh()->status);
     }
+
+    public function test_maintenance_page_resumes_an_interrupted_update_without_cron(): void
+    {
+        $pkg = $this->package('2.2.0');
+        $update = AppUpdate::create(['status' => 'verified', 'package_path' => $pkg, 'package_size' => filesize($pkg)]);
+        $this->app->instance(Updater::class, $this->updater());
+        $this->updater()->apply($update, ['maintenance' => false, 'backup_db' => false]);
+        Artisan::call('down', ['--secret' => 'secret-test']);
+        try {
+            $this->get('/')->assertStatus(503)->assertSee('/maintenance/reprise', false);
+            $this->getJson('/maintenance/reprise')->assertOk()->assertJson(['resumed' => false, 'down' => true]); // délai de 2 minutes
+            $this->travel(3)->minutes();
+            $this->getJson('/maintenance/reprise')->assertOk()->assertJson(['resumed' => true, 'down' => false]);
+            $this->assertSame('done', $update->fresh()->status);
+            $this->assertFalse(app()->isDownForMaintenance());
+        } finally {
+            if (app()->isDownForMaintenance()) {
+                Artisan::call('up');
+            }
+        }
+    }
 }
