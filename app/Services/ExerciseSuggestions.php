@@ -26,12 +26,24 @@ class ExerciseSuggestions
     public function forSession(RidingSession $session, User $viewer, Collection $library, ?int $galopOverride = null): array
     {
         $rider = $session->rider ?? ($session->rider_name ? null : $viewer);
+
+        return $this->compute($rider, $session->horse_id, $session->id, $session->exercises->pluck('exercise_id')->filter()->all(), $library, $galopOverride);
+    }
+
+    /** Mêmes suggestions hors séance (page Exercices) : habitudes de l'utilisateur et exercices de son niveau. */
+    public function forUser(User $user, Collection $library, ?int $galopOverride = null): array
+    {
+        return $this->compute($user, null, null, [], $library, $galopOverride);
+    }
+
+    private function compute(?User $rider, ?int $horseId, ?int $excludeSessionId, array $already, Collection $library, ?int $galopOverride): array
+    {
+        $rider?->loadMissing('profile');
         $galop = $galopOverride ?? $rider?->profile?->galop();
         $level = UserProfile::exerciseLevel($galop);
         $visible = $library->keyBy('id');
-        $history = $rider ? $this->history($rider, $session) : collect();
+        $history = $rider ? $this->history($rider, $horseId, $excludeSessionId) : collect();
         $priority = RidingSessionController::phasePriority(ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'));
-        $already = $session->exercises->pluck('exercise_id')->filter()->all();
 
         $phases = [];
         foreach (array_keys(RidingSession::PHASES) as $phase) {
@@ -62,12 +74,12 @@ class ExerciseSuggestions
     }
 
     /** Exercices des 18 derniers mois du cavalier, notés par étape. */
-    private function history(User $rider, RidingSession $current): Collection
+    private function history(User $rider, ?int $horseId, ?int $excludeSessionId): Collection
     {
         $rows = SessionExercise::query()
             ->join('riding_sessions', 'riding_sessions.id', '=', 'session_exercises.riding_session_id')
             ->whereNull('riding_sessions.deleted_at')
-            ->where('riding_sessions.id', '!=', $current->id)
+            ->when($excludeSessionId, fn ($q) => $q->where('riding_sessions.id', '!=', $excludeSessionId))
             ->where(fn ($q) => $q->where('riding_sessions.rider_id', $rider->id)->orWhere(fn ($w) => $w->whereNull('riding_sessions.rider_id')->where('riding_sessions.created_by', $rider->id)))
             ->where('riding_sessions.scheduled_at', '>=', now()->subMonths(18))
             ->where('riding_sessions.scheduled_at', '<=', now())
@@ -75,12 +87,12 @@ class ExerciseSuggestions
             ->where('session_exercises.is_break', false)
             ->get(['session_exercises.exercise_id', 'session_exercises.phase', 'session_exercises.status', 'riding_sessions.scheduled_at', 'riding_sessions.horse_id', 'riding_sessions.status as session_status']);
 
-        return $rows->groupBy('phase')->map(fn ($items) => $items->groupBy('exercise_id')->map(function ($uses, $exerciseId) use ($current) {
+        return $rows->groupBy('phase')->map(fn ($items) => $items->groupBy('exercise_id')->map(function ($uses, $exerciseId) use ($horseId) {
             $score = 0;
             foreach ($uses as $u) {
                 $days = (int) abs(now()->diffInDays($u->scheduled_at));
                 $done = $u->status === 'done' ? 1.0 : ($u->status === 'skipped' ? 0.3 : ($u->session_status === 'completed' ? 0.8 : 0.5));
-                $score += $done * (0.5 ** ($days / 60)) * ((int) $u->horse_id === (int) $current->horse_id ? 1.3 : 1.0);
+                $score += $done * (0.5 ** ($days / 60)) * ($horseId && (int) $u->horse_id === $horseId ? 1.3 : 1.0);
             }
             $last = $uses->max('scheduled_at');
 

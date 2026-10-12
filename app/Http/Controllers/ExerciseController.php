@@ -40,9 +40,23 @@ class ExerciseController extends Controller
         }
         $request->boolean('archived') ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at');
 
+        // « Pour vous » (sans recherche ni filtre) : mêmes suggestions que pour préparer une séance.
+        $filtered = collect($request->only(['q', 'category', 'level', 'discipline', 'scope', 'max_minutes', 'objective', 'archived', 'page']))->filter()->isNotEmpty();
+        $suggestions = $variants = null;
+        $library = collect();
+        if (! $filtered) {
+            $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
+            $svc = app(\App\Services\ExerciseSuggestions::class);
+            $suggestions = $svc->forUser($user, $library);
+            $variants = $suggestions['galop'] ? [] : collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => $svc->forUser($user, $library, $g)])->all();
+        }
+
         return view('exercises.index', [
             'exercises' => $query->orderBy('name')->paginate(30)->withQueryString(),
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),
+            'suggestions' => $suggestions,
+            'suggestionVariants' => $variants ?? [],
+            'suggestionLibrary' => $library->keyBy('id'),
         ]);
     }
 

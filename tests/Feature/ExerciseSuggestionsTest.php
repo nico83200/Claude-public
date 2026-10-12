@@ -62,4 +62,25 @@ class ExerciseSuggestionsTest extends TestCase
     {
         return preg_match('#data-suggestions="'.$phase.'" data-variant="">(.*?)</section>#s', $html, $m) ? $m[1] : '';
     }
+
+    public function test_exercises_page_suggests_by_galop_and_habits(): void
+    {
+        $user = $this->user();
+        $horse = $this->horseFor($user);
+        // Sans galop : question d'abord, suggestions de chaque niveau prêtes pour l'affichage immédiat.
+        $this->actingAs($user)->get('/exercices')->assertOk()->assertSee('data-for-you', false)->assertSee('data-ask-galop', false)
+            ->assertSee('data-variant="2"', false)->assertSee('data-variant="6"', false);
+        // Habitude prise en séance : proposée en tête, avec son nombre de passages.
+        $fav = Exercise::where('scope', 'default')->firstOrFail();
+        $this->travelTo(now()->subDays(5));
+        $s = app(RidingSessionService::class)->create($horse, $user, ['scheduled_at' => now()->addDay(), 'session_type' => 'free', 'planned_minutes' => 30], [['exercise_id' => $fav->id, 'phase' => 'main']]);
+        $this->travelBack();
+        $s->forceFill(['status' => 'completed'])->save();
+        $this->actingAs($user)->post('/parametres/niveau', ['galop' => 6])->assertSessionHasNoErrors();
+        $user->refresh();
+        $html = $this->actingAs($user)->get('/exercices')->assertOk()->assertDontSee('data-ask-galop', false)->assertSee('Adapté au niveau expert (galop 6 et plus)')->getContent();
+        $this->assertMatchesRegularExpression('#data-for-you-phase="main" data-variant="">.*?'.preg_quote(e($fav->name), '#').'.*?Fait 1 fois#s', $html);
+        // Recherche ou filtre : liste habituelle sans l'encart.
+        $this->actingAs($user)->get('/exercices?q=volte')->assertOk()->assertDontSee('data-for-you', false);
+    }
 }
