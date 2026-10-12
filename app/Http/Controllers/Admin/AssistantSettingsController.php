@@ -48,6 +48,7 @@ class AssistantSettingsController extends Controller
             'effort' => ['required', Rule::in(array_keys(AssistantConfig::EFFORTS))],
             'session_min' => ['required', 'integer', 'min:10', 'max:240'],
             'session_max' => ['required', 'integer', 'min:10', 'max:240', 'gte:session_min'],
+            'result_seconds' => ['sometimes', 'integer', Rule::in(array_keys(AssistantConfig::RESULT_DELAYS))],
             'instructions' => ['nullable', 'string', 'max:8000'],
             'anthropic_key' => ['nullable', 'string', 'max:255', 'regex:/^sk-ant-/'],
             'elevenlabs_key' => ['nullable', 'string', 'max:255'],
@@ -55,8 +56,8 @@ class AssistantSettingsController extends Controller
         ], ['anthropic_key.regex' => 'La clé Anthropic commence par sk-ant-.', 'session_max.gte' => 'La durée maximale doit être supérieure ou égale à la durée minimale.']);
 
         ApplicationSetting::put('assistant.enabled', $request->boolean('enabled'));
-        foreach (['model', 'effort', 'session_min', 'session_max'] as $k) {
-            ApplicationSetting::put('assistant.'.$k, $data[$k]);
+        foreach (array_intersect_key($data, array_flip(['model', 'effort', 'session_min', 'session_max', 'result_seconds'])) as $k => $v) {
+            ApplicationSetting::put('assistant.'.$k, $v);
         }
         ApplicationSetting::put('assistant.instructions', $data['instructions'] ?? null);
         $settings->save(['anthropic.key' => $data['anthropic_key'] ?? null, 'elevenlabs.key' => $data['elevenlabs_key'] ?? null], $data['clear'] ?? []);

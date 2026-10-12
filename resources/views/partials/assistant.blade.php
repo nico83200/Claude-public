@@ -1,6 +1,7 @@
 {{-- Assistant vocal : panneau (feuille sur mobile, fenêtre sur ordinateur) et bandeau d'annulation --}}
 @php
-    $assistantConfig = ['statusUrl' => route('assistant.status'), 'transcribeUrl' => route('assistant.transcribe'), 'commandUrl' => route('assistant.command'), 'historyUrl' => route('assistant.history'), 'horseId' => $contextHorseId];
+    $assistantConfig = ['statusUrl' => route('assistant.status'), 'transcribeUrl' => route('assistant.transcribe'), 'commandUrl' => route('assistant.command'), 'historyUrl' => route('assistant.history'), 'horseId' => $contextHorseId,
+        'resultSeconds' => app(\App\Services\Assistant\AssistantConfig::class)->resultSeconds(), 'homeUrl' => route('dashboard')];
 @endphp
 <script type="application/json" id="assistant-config">@json($assistantConfig)</script>
 <div x-data="{ get a() { return this.$store.assistant } }" @keydown.escape.window="a.isOpen && a.close()">
@@ -108,6 +109,10 @@
                                     </template>
                                 </div>
                                 <p class="mt-3 text-sm text-red-700" x-show="a.error" x-text="a.error"></p>
+                                <div class="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-brand-50 px-4 py-2.5 text-sm text-brand-900" x-show="a.closeIn > 0" data-assistant-countdown>
+                                    <span x-text="'Ouverture ' + (a.targetLabel ? 'de ' + a.targetLabel : 'du tableau de bord') + ' dans ' + a.closeIn + ' s'"></span>
+                                    <button type="button" class="font-semibold underline" @click="a.keepOpen()">Garder ouvert</button>
+                                </div>
                             </div>
                         </template>
 
@@ -124,7 +129,7 @@
                 <form class="flex items-center gap-2" @submit.prevent="a.send(a.draft)">
                     <button type="button" x-show="a.state === 'result' || a.state === 'error'" @click="a.listen()" :disabled="! a.canRecord" class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-800 text-white disabled:bg-slate-300" aria-label="Parler"><x-icon name="mic" class="size-5" /></button>
                     <label for="assistant-input" class="sr-only">Écrire une consigne</label>
-                    <input id="assistant-input" x-model="a.draft" :placeholder="a.question ? 'Votre réponse…' : 'Écrire une consigne…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'listening' || a.state === 'transcribing'">
+                    <input id="assistant-input" x-model="a.draft" @focus="a.keepOpen()" :placeholder="a.question ? 'Votre réponse…' : 'Écrire une consigne…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'listening' || a.state === 'transcribing'">
                     <button class="flex size-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white disabled:bg-slate-300" :disabled="! a.draft.trim() || a.state === 'thinking'" aria-label="Envoyer"><x-icon name="send" class="size-5" /></button>
                 </form>
                 <p class="mt-2 px-2 text-xs text-slate-400" x-show="a.status && a.status.remaining !== null && a.status.remaining !== undefined"><span x-text="a.status?.remaining"></span> consigne(s) restante(s) ce mois-ci</p>

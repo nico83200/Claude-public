@@ -46,6 +46,7 @@ export function assistantStore(config) {
         level: 0,
         elapsed: 0,
         toast: null, // { text, actions, left }
+        closeIn: 0,     // secondes avant fermeture automatique de la réponse
         changed: false,
         _rec: null,
 
@@ -60,10 +61,63 @@ export function assistantStore(config) {
             if (listen && this.status?.available && this.canRecord && this.state !== 'listening') this.listen();
         },
 
+        init() {
+            // Bandeau d'annulation conservé après l'ouverture de l'élément concerné.
+            try {
+                const saved = JSON.parse(sessionStorage.getItem('jc-assistant-toast') || 'null');
+                sessionStorage.removeItem('jc-assistant-toast');
+                const left = saved ? saved.left - Math.round((Date.now() - saved.at) / 1000) : 0;
+                if (saved && left > 0) this.showToast(saved.text, saved.actions, left);
+            } catch { /* stockage indisponible */ }
+        },
+
+        /** Page de l'élément créé ou modifié par la réponse ; à défaut, le tableau de bord. */
+        get target() {
+            return this.actions.find((a) => a.url && !a.undone)?.url || config.homeUrl || '/dashboard';
+        },
+
+        get targetLabel() {
+            const act = this.actions.find((a) => a.url && !a.undone);
+            return act ? 'l\'élément concerné' : '';
+        },
+
+        startCountdown() {
+            this.stopCountdown();
+            const seconds = Number(config.resultSeconds) || 0;
+            if (!seconds || this.question) return;
+            this.closeIn = seconds;
+            this._closeTimer = setInterval(() => {
+                if (!this.isOpen || this.state !== 'result') { this.stopCountdown(); return; }
+                this.closeIn -= 1;
+                if (this.closeIn <= 0) { this.stopCountdown(); this.close(); }
+            }, 1000);
+        },
+
+        stopCountdown() {
+            clearInterval(this._closeTimer);
+            this.closeIn = 0;
+        },
+
+        keepOpen() {
+            this.stopCountdown();
+        },
+
         close() {
+            this.stopCountdown();
             this.cancelRecording();
+            // Réponse terminée (sans question en attente) : ouverture de l'élément concerné, sinon du tableau de bord.
+            const done = this.state === 'result' && !this.question;
+            const target = done ? new URL(this.target, window.location.origin) : null;
             this.isOpen = false;
             document.documentElement.style.overflow = '';
+            if (target && target.href !== window.location.href) {
+                if (this.toast) {
+                    try { sessionStorage.setItem('jc-assistant-toast', JSON.stringify({ ...this.toast, at: Date.now() })); } catch { /* ignoré */ }
+                }
+                this.changed = false;
+                window.location.assign(target.href);
+                return;
+            }
             if (this.state !== 'thinking') this.reset(false);
             // Les données de la page ont changé : rechargement, après le délai d'annulation s'il court encore.
             if (this.changed) {
@@ -95,6 +149,7 @@ export function assistantStore(config) {
         // ------------------------------------------------------------ Voix
 
         async listen() {
+            this.stopCountdown();
             if (!navigator.onLine) { this.fail('L\'assistant a besoin d\'une connexion Internet.'); return; }
             this.reset(true);
             let stream;
@@ -184,6 +239,7 @@ export function assistantStore(config) {
         async send(text, mode = 'text') {
             text = (text ?? '').trim();
             if (!text) return;
+            this.stopCountdown();
             this.transcript = text;
             this.draft = '';
             this.state = 'thinking';
@@ -202,6 +258,7 @@ export function assistantStore(config) {
                     this.changed = true;
                     this.showToast(data.reply, this.actions);
                 }
+                if (this.state === 'result') this.startCountdown();
             } catch (e) {
                 this.fail(e.message);
             }
@@ -212,6 +269,7 @@ export function assistantStore(config) {
         },
 
         async undo(action) {
+            this.stopCountdown();
             try {
                 await postJson(action.undo_url);
                 action.undoable = false;
@@ -231,9 +289,9 @@ export function assistantStore(config) {
             if (!this.isOpen) window.location.reload();
         },
 
-        showToast(text, actions) {
+        showToast(text, actions, left = UNDO_SECONDS) {
             clearInterval(this._toastTimer);
-            this.toast = { text, actions, left: UNDO_SECONDS };
+            this.toast = { text, actions, left };
             this._toastTimer = setInterval(() => {
                 if (!this.toast) { clearInterval(this._toastTimer); return; }
                 this.toast.left -= 1;

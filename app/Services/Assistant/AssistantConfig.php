@@ -48,6 +48,17 @@ class AssistantConfig
         return [min($min, $max), max($min, $max)];
     }
 
+    /** Durées proposées pour l'affichage de la réponse avant fermeture automatique (0 = jusqu'à fermeture). */
+    public const RESULT_DELAYS = [0 => 'Jusqu\'à ce que l\'utilisateur ferme', 4 => '4 secondes', 6 => '6 secondes', 8 => '8 secondes', 10 => '10 secondes', 15 => '15 secondes', 20 => '20 secondes', 30 => '30 secondes'];
+
+    /** Temps pendant lequel la réponse reste affichée avant de s'ouvrir sur l'élément concerné. */
+    public function resultSeconds(): int
+    {
+        $v = ApplicationSetting::get('assistant.result_seconds');
+
+        return $v === null ? 8 : (int) $v;
+    }
+
     public function enabled(): bool
     {
         return (bool) (ApplicationSetting::get('assistant.enabled') ?? true);

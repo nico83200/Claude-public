@@ -31,6 +31,10 @@
                 <div class="mt-3 space-y-3">
                     <x-select name="model" label="Modèle Claude" :options="\App\Services\Assistant\AssistantConfig::MODELS" :value="$config->model()" />
                     <x-select name="effort" label="Réflexion" :options="\App\Services\Assistant\AssistantConfig::EFFORTS" :value="$config->effort()" />
+                    <div data-result-seconds>
+                        <x-select name="result_seconds" label="Affichage de la réponse" :options="\App\Services\Assistant\AssistantConfig::RESULT_DELAYS" :value="$config->resultSeconds()" />
+                        <p class="mt-1 text-xs text-slate-500">Ensuite (ou dès que l'utilisateur ferme), l'élément concerné s'ouvre : rendez-vous de l'agenda, soin, séance… ; à défaut, le tableau de bord. L'annulation reste possible quelques secondes sur la page ouverte, puis dans l'historique.</p>
+                    </div>
                 </div>
             </x-section>
             <x-section title="Clés d'accès">

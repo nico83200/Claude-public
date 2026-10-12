@@ -307,7 +307,7 @@ class AssistantTest extends TestCase
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/assistant')->assertOk()->assertSee('Indications pour l');
 
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put('/admin/assistant', [
-            'enabled' => '1', 'model' => 'claude-sonnet-5-5', 'effort' => 'low', 'session_min' => 40, 'session_max' => 45,
+            'enabled' => '1', 'model' => 'claude-sonnet-5-5', 'effort' => 'low', 'session_min' => 40, 'session_max' => 45, 'result_seconds' => 15,
             'instructions' => '« Le carré » désigne la carrière de dressage.', 'anthropic_key' => 'sk-ant-secret-1234', 'elevenlabs_key' => 'el-secret-9876',
         ])->assertSessionHasNoErrors();
         $this->assertStringNotContainsString('sk-ant-secret', json_encode(ApplicationSetting::pluck('value')));
@@ -321,6 +321,11 @@ class AssistantTest extends TestCase
         $this->assertStringContainsString('« Le carré » désigne la carrière de dressage.', $system);
         $this->assertStringContainsString('entre 40 et 45 minutes', $system);
         $this->assertSame('claude-sonnet-5-5', app(AssistantConfig::class)->model());
+        // Durée d'affichage de la réponse transmise au panneau de l'assistant.
+        $this->assertSame(15, app(AssistantConfig::class)->resultSeconds());
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/assistant')->assertSee('data-result-seconds', false);
+        $this->actingAs($user)->get('/dashboard')->assertSee('"resultSeconds":15', false);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put('/admin/assistant', ['model' => 'claude-sonnet-5-5', 'effort' => 'low', 'session_min' => 40, 'session_max' => 45, 'result_seconds' => 7, 'enabled' => '1'])->assertSessionHasErrors('result_seconds');
 
         // Désactivation globale
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put('/admin/assistant', ['model' => 'claude-opus-5-5', 'effort' => 'medium', 'session_min' => 50, 'session_max' => 60])->assertSessionHasNoErrors();
