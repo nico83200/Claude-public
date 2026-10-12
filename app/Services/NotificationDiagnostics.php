@@ -82,7 +82,8 @@ class NotificationDiagnostics
             'cron_ok' => self::cronAlive(),
             'cron_last' => $cron ? Carbon::createFromTimestamp($cron, config('app.timezone')) : null,
             'fallback_last' => $fallback ? Carbon::createFromTimestamp($fallback, config('app.timezone')) : null,
-            'cron_line' => '* * * * * cd '.base_path().' && php artisan schedule:run >> /dev/null 2>&1',
+            'cron_line' => '* * * * * cd '.base_path().' && '.self::phpCli().' artisan schedule:run >> /dev/null 2>&1',
+            'cron_command' => self::phpCli().' '.base_path('cron.php'),
             'cron_file' => base_path('cron.php'),
             'cron_php_runs' => $this->cronPhpRuns(),
         ];
@@ -98,6 +99,20 @@ class NotificationDiagnostics
         $lines = array_slice(file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [], -3);
 
         return array_reverse(array_values(array_filter(array_map(fn ($l) => json_decode($l, true), $lines))));
+    }
+
+    /** Chemin d'un PHP 8.3+ en ligne de commande sur ce serveur (le « php » par défaut du cron peut être plus ancien). */
+    public static function phpCli(): string
+    {
+        foreach (['/opt/alt/php85/usr/bin/php', '/opt/alt/php84/usr/bin/php', '/opt/alt/php83/usr/bin/php', '/usr/bin/php8.5', '/usr/bin/php8.4', '/usr/bin/php8.3',
+            '/opt/cpanel/ea-php85/root/usr/bin/php', '/opt/cpanel/ea-php84/root/usr/bin/php', '/opt/cpanel/ea-php83/root/usr/bin/php',
+            '/usr/local/bin/php85', '/usr/local/bin/php84', '/usr/local/bin/php83'] as $bin) {
+            if (@is_executable($bin)) {
+                return $bin;
+            }
+        }
+
+        return 'php';
     }
 
     public function queue(): array

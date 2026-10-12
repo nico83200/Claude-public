@@ -16,6 +16,8 @@
                 <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white">{{ $scheduler['cron_line'] }}</pre>
                 <p class="mt-3 text-sm text-slate-600">Si l'hébergeur demande plutôt le chemin d'un fichier PHP (ex. OVH), indiquez ce fichier, à lancer toutes les minutes :</p>
                 <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white" data-cron-file>{{ $scheduler['cron_file'] }}</pre>
+                <p class="mt-3 text-sm text-slate-600">L'application demande PHP 8.3 : si l'hébergeur permet de choisir la version de PHP de la tâche, prenez 8.3. Sinon, utilisez cette commande personnalisée, qui appelle directement PHP 8.3 :</p>
+                <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white" data-cron-command>{{ $scheduler['cron_command'] }}</pre>
             @endunless
             <div class="mt-3 text-sm text-slate-600" data-cron-runs>
                 <p class="font-medium text-slate-700">Derniers passages de cron.php</p>

@@ -32,6 +32,24 @@ $log = function (string $status) {
     ], JSON_UNESCAPED_UNICODE).PHP_EOL, FILE_APPEND | LOCK_EX);
 };
 
+// Le cron de certains hébergeurs (Hostinger…) utilise une version de PHP plus ancienne que le site :
+// relance avec PHP 8.3 ou plus s'il est installé sur le serveur.
+if (version_compare(PHP_VERSION, '8.3.0', '<') && ! getenv('JACKCIE_CRON_RELAUNCHED')) {
+    $candidates = ['/opt/alt/php85/usr/bin/php', '/opt/alt/php84/usr/bin/php', '/opt/alt/php83/usr/bin/php',
+        '/usr/bin/php8.5', '/usr/bin/php8.4', '/usr/bin/php8.3', '/usr/local/bin/php85', '/usr/local/bin/php84', '/usr/local/bin/php83',
+        '/opt/cpanel/ea-php85/root/usr/bin/php', '/opt/cpanel/ea-php84/root/usr/bin/php', '/opt/cpanel/ea-php83/root/usr/bin/php',
+        '/usr/local/php8.5/bin/php', '/usr/local/php8.4/bin/php', '/usr/local/php8.3/bin/php'];
+    foreach ($candidates as $bin) {
+        if (@is_executable($bin) && function_exists('passthru')) {
+            putenv('JACKCIE_CRON_RELAUNCHED=1');
+            passthru(escapeshellarg($bin).' '.escapeshellarg(__FILE__), $code);
+            exit((int) $code);
+        }
+    }
+    $log('erreur : le cron utilise PHP '.PHP_VERSION.' ; Jack&Cie demande PHP 8.3. Choisissez PHP 8.3 pour la tâche cron chez l\'hébergeur, ou utilisez la commande indiquée dans Administration › Notifications.');
+    exit(1);
+}
+
 try {
     define('LARAVEL_START', microtime(true));
     require __DIR__.'/vendor/autoload.php';

@@ -6,7 +6,7 @@
    aucun Composer ni Node.js nécessaire sur le serveur).
 2. Domaine → dossier `public/` (ou racine : le `.htaccess` fourni redirige et protège).
 3. Ouvrez le domaine et suivez l'installeur (`/install`) — voir INSTALLATION.md.
-4. Ajoutez la tâche cron affichée en fin d'installation (toutes les minutes) : `cd <dossier> && php artisan schedule:run`, ou, si l'hébergeur demande le chemin d'un fichier PHP (OVH…), `<dossier>/cron.php`. Vérification : Administration › Notifications. HTTPS obligatoire en production.
+4. Ajoutez la tâche cron affichée en fin d'installation (toutes les minutes) : `cd <dossier> && php artisan schedule:run`, ou, si l'hébergeur demande le chemin d'un fichier PHP (OVH…), `<dossier>/cron.php`. Le cron doit utiliser PHP 8.3 (certains hébergeurs, dont Hostinger, utilisent une version plus ancienne par défaut pour les tâches cron : `cron.php` se relance alors avec PHP 8.3 s'il le trouve, sinon utiliser la commande affichée, ex. `/opt/alt/php83/usr/bin/php <dossier>/cron.php`). Vérification : Administration › Notifications. HTTPS obligatoire en production.
 
 ## Option A bis — hébergement mutualisé, installation manuelle
 
