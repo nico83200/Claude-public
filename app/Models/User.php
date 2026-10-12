@@ -18,7 +18,7 @@ class User extends Authenticatable implements MustVerifyEmail
     // is_super_admin et suspended_at ne sont jamais assignables en masse.
     protected $fillable = ['name', 'email', 'password', 'locale', 'current_organization_id', 'terms_accepted_at', 'has_password'];
 
-    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
+    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'calendar_token'];
 
     protected function casts(): array
     {

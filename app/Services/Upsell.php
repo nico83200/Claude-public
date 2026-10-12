@@ -21,6 +21,7 @@ class Upsell
         'documents' => ['Tous ses papiers au même endroit', 'Carnet de vaccination, factures, radios, assurance : rangés dans son dossier et consultables partout, même au box.'],
         'exports' => ['Exportez en PDF et CSV', 'Fiche du cheval, carnet de santé, séances et dépenses : à imprimer, à envoyer au vétérinaire ou à un acheteur, ou à ouvrir dans un tableur.'],
         'assistant' => ['Dictez au lieu de taper', '« Cours demain à 16 h avec Léo » : l\'assistant vocal crée la séance, le soin, la dépense ou le rendez-vous pour vous.'],
+        'calendar_sync' => ['Votre agenda Jack&Cie dans votre téléphone', 'Rendez-vous, soins, séances et traitements apparaissent automatiquement dans Google Agenda ou le Calendrier d\'Apple, à côté de vos autres rendez-vous.'],
         'stable' => ['Gérez votre écurie à plusieurs', 'Membres, rôles, chevaux en pension : chacun accède à ce dont il a besoin.'],
         'max_horses' => ['Un cheval de plus ?', 'Suivez tous vos chevaux dans la même application, avec leurs soins, séances et rappels.'],
         'max_invitations' => ['Partagez avec toute l\'équipe', 'Demi-pensionnaire, moniteur, vétérinaire : invitez davantage de personnes sur vos chevaux.'],
@@ -30,7 +31,7 @@ class Upsell
     ];
 
     /** Fonctions réservées aux offres qui les incluent. */
-    public const GATED = ['budget', 'documents', 'assistant', 'exports', 'stable', 'sharing'];
+    public const GATED = ['budget', 'documents', 'assistant', 'exports', 'stable', 'sharing', 'calendar_sync'];
 
     public function __construct(private Entitlements $entitlements) {}
 
@@ -64,7 +65,7 @@ class Upsell
             return null;
         }
         $offer = $this->offer($org, $user, 'upgrade', $plan);
-        $names = ['assistant' => 'l\'assistant vocal', 'budget' => 'le suivi des dépenses', 'documents' => 'le stockage de documents', 'exports' => 'les exports PDF et CSV'];
+        $names = ['assistant' => 'l\'assistant vocal', 'budget' => 'le suivi des dépenses', 'documents' => 'le stockage de documents', 'exports' => 'les exports PDF et CSV', 'calendar_sync' => 'la synchronisation de l\'agenda avec Google et Apple'];
         $items = array_map(fn ($f) => $names[$f], $this->missingFeatures($org));
         $currentHorses = $this->entitlements->limit($org, 'max_horses');
         if (! $plan->max_horses || ($currentHorses !== null && $plan->max_horses > $currentHorses)) {
@@ -105,7 +106,7 @@ class Upsell
     {
         $plan = $this->planUnlocking($org, null, false);
 
-        return $plan ? array_values(array_diff(array_intersect($plan->features ?? [], ['assistant', 'budget', 'documents', 'exports']), $this->entitlements->for($org)['features'])) : [];
+        return $plan ? array_values(array_diff(array_intersect($plan->features ?? [], ['assistant', 'budget', 'documents', 'exports', 'calendar_sync']), $this->entitlements->for($org)['features'])) : [];
     }
 
     /** Offre gratuite par défaut (Découverte) ou aucune licence payante. */

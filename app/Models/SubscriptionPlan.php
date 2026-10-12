@@ -26,6 +26,7 @@ class SubscriptionPlan extends Model
         'exports' => 'Exports PDF / CSV',
         'documents' => 'Stockage de documents',
         'assistant' => 'Assistant vocal (IA)',
+        'calendar_sync' => 'Synchronisation de l\'agenda (Google, Apple)',
     ];
 
     public function subscriptions()

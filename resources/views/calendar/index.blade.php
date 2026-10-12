@@ -16,7 +16,40 @@
         @if ($editableHorses->isNotEmpty() || ($currentOrganization && auth()->user()->canInOrg($currentOrganization, 'calendar.edit')))
             <button type="button" class="btn-primary" onclick="document.getElementById('new-event').showModal()"><x-icon name="plus" /> Événement</button>
         @endif
+        @if ($sync)<button type="button" class="btn-secondary" onclick="document.getElementById('calendar-sync').showModal()" data-calendar-sync-open><x-icon name="calendar" class="size-4" /> Synchroniser</button>@endif
     </x-page-header>
+
+    @if ($sync)
+        <dialog id="calendar-sync" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40" data-calendar-sync>
+            <div class="p-5 sm:p-6" x-data="{ copied: false }">
+                <div class="flex items-start justify-between gap-3">
+                    <h2 class="text-lg font-semibold text-slate-900">Voir l'agenda dans Google ou Apple</h2>
+                    <form method="dialog"><button class="btn-ghost min-h-9 px-2" aria-label="Fermer"><x-icon name="x" class="size-5" /></button></form>
+                </div>
+                <p class="mt-1 text-sm text-slate-600">Vos rendez-vous, soins, séances et traitements apparaissent dans l'agenda de votre téléphone et se mettent à jour automatiquement. Les modifications se font dans Jack&Cie.</p>
+                <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <a href="{{ $sync['webcal'] }}" class="btn-primary justify-center">Calendrier Apple</a>
+                    <a href="{{ $sync['google'] }}" target="_blank" rel="noopener" class="btn-secondary justify-center">Google Agenda</a>
+                </div>
+                <label class="label mt-4" for="calendar-sync-url">Adresse d'abonnement (Outlook et autres agendas)</label>
+                <div class="flex gap-2">
+                    <input id="calendar-sync-url" class="input text-xs" readonly value="{{ $sync['https'] }}" @focus="$el.select()">
+                    <button type="button" class="btn-secondary shrink-0" @click="navigator.clipboard.writeText(@js($sync['https'])); copied = true; setTimeout(() => copied = false, 2000)" x-text="copied ? 'Copiée' : 'Copier'">Copier</button>
+                </div>
+                <ul class="mt-4 space-y-1 text-xs text-slate-500">
+                    <li>• Google Agenda relit l'adresse toutes les quelques heures ; le Calendrier Apple selon son réglage (toutes les heures conseillé).</li>
+                    <li>• Sur Android, ajoutez l'agenda depuis Google Agenda sur ordinateur : il apparaît ensuite sur le téléphone.</li>
+                    <li>• Cette adresse est personnelle : ne la partagez pas.</li>
+                </ul>
+                <form method="POST" action="{{ route('calendar.feed.regenerate') }}" class="mt-4 border-t border-slate-100 pt-3" onsubmit="return confirm('Créer une nouvelle adresse ? L\'ancienne cessera de fonctionner dans les agendas où elle est ajoutée.')">
+                    @csrf
+                    <button class="text-xs font-medium text-slate-600 underline">Adresse partagée par erreur ? En créer une nouvelle</button>
+                </form>
+            </div>
+        </dialog>
+    @elseif ($syncUpsell)
+        <x-upsell :offer="$syncUpsell" class="mb-4" />
+    @endif
 
     <div class="mb-3 flex flex-wrap items-center gap-2">
         <div class="flex shrink-0 items-center rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">

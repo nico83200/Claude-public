@@ -53,6 +53,9 @@ class CalendarController extends Controller
             'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
             'editableHorses' => $editableHorses,
             'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            // Synchronisation Google / Apple (offres payantes), sinon proposition d'offre.
+            'sync' => ($feed = app(\App\Services\CalendarFeed::class))->enabledFor($user) ? $feed->urls($user) : null,
+            'syncUpsell' => $this->currentOrganization() ? app(\App\Services\Upsell::class)->for($this->currentOrganization(), $user, 'calendar_sync') : null,
         ]);
     }
 

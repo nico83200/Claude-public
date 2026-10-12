@@ -20,6 +20,7 @@ Route::prefix('install')->name('install.')->middleware('throttle:60,1')->group(f
 // --- Pages publiques -------------------------------------------------------
 Route::get('/', [Controllers\PublicController::class, 'home'])->name('home');
 Route::post('/push/recu', [Controllers\PushSubscriptionController::class, 'receipt'])->middleware('throttle:60,1')->name('push.receipt');
+Route::get('/agenda/abonnement/{token}.ics', [Controllers\CalendarFeedController::class, 'show'])->where('token', '[A-Za-z0-9]{32,64}')->middleware('throttle:60,1')->name('calendar.feed');
 Route::get('/app.webmanifest', Controllers\ManifestController::class)->name('manifest');
 Route::get('/maintenance/reprise', Controllers\MaintenanceResumeController::class)->middleware('throttle:6,1')->name('maintenance.resume');
 Route::get('/tarifs', [Controllers\PublicController::class, 'pricing'])->name('pricing');
@@ -156,6 +157,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/calendrier', [Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::post('/calendrier', [Controllers\CalendarController::class, 'store'])->name('calendar.store');
     Route::get('/calendrier/{event}', [Controllers\CalendarController::class, 'show'])->name('calendar.show');
+    Route::post('/calendrier/synchronisation/nouvelle-adresse', [Controllers\CalendarFeedController::class, 'regenerate'])->name('calendar.feed.regenerate');
     Route::get('/calendrier/{event}/modifier', [Controllers\CalendarController::class, 'edit'])->name('calendar.edit');
     Route::put('/calendrier/{event}', [Controllers\CalendarController::class, 'update'])->name('calendar.update');
     Route::delete('/calendrier/{event}', [Controllers\CalendarController::class, 'destroy'])->name('calendar.destroy');
