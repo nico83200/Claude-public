@@ -82,17 +82,21 @@ class WebPush
                     'endpoint' => $sub->endpoint, 'publicKey' => $sub->public_key, 'authToken' => $sub->auth_token, 'contentEncoding' => $sub->content_encoding,
                 ]), $json);
             } catch (Throwable $e) {
+                // Serveur qui ne peut pas joindre le service de notification (pare-feu de l'hébergeur…).
                 Log::warning('Web Push : envoi impossible', ['subscription' => $sub->id, 'error' => $e->getMessage()]);
+                $sub->forceFill(['last_failure_at' => now(), 'last_error' => mb_substr('Envoi impossible : '.$e->getMessage(), 0, 255)])->save();
 
                 continue;
             }
             if ($report->isSuccess()) {
-                $sub->forceFill(['last_success_at' => now(), 'failures' => 0])->save();
+                $sub->forceFill(['last_success_at' => now(), 'failures' => 0, 'last_error' => null])->save();
                 $reached++;
             } elseif ($report->isSubscriptionExpired()) {
                 $sub->delete();
             } else {
-                $sub->increment('failures');
+                $code = $report->getResponse()?->getStatusCode();
+                $sub->forceFill(['failures' => $sub->failures + 1, 'last_failure_at' => now(),
+                    'last_error' => mb_substr('Refusé'.($code ? ' ('.$code.')' : '').' : '.$report->getReason(), 0, 255)])->save();
                 if ($sub->failures >= 10) {
                     $sub->delete();
                 }

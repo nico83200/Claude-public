@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Relais du planificateur à chaque visite quand le cron de l'hébergement n'est pas en place.
+    'scheduler_fallback' => (bool) env('SCHEDULER_FALLBACK', true),
+
     // Forçage de l'état d'installation (null = fichier verrou storage/app/installed.json)
     'installed' => env('APP_INSTALLED'),
 

@@ -9,7 +9,7 @@ class PushSubscription extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = ['last_success_at' => 'datetime'];
+    protected $casts = ['last_success_at' => 'datetime', 'last_failure_at' => 'datetime'];
 
     protected $hidden = ['endpoint', 'public_key', 'auth_token'];
 

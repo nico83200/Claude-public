@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\LoadCurrentOrganization;
 use App\Http\Middleware\RedirectIfNotInstalled;
 use App\Http\Middleware\ResetRequestCaches;
+use App\Http\Middleware\RunSchedulerFallback;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetRequestCaches::class);
-        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class]);
+        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,
             'super-admin' => EnsureSuperAdmin::class,

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Announcement;
 use App\Models\License;
 use App\Models\Organization;
+use App\Models\PushSubscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Notifications\AppNotification;
@@ -51,10 +52,15 @@ class Announcements
     public function send(Announcement $announcement): int
     {
         $users = $this->recipients($announcement->plan_ids);
+        $start = now()->subSecond();
         foreach ($users as $user) {
             $user->notify(new AppNotification('announcement', $announcement->title, $announcement->body, $announcement->url, $announcement->with_email));
         }
-        $announcement->update(['recipients_count' => $users->count()]);
+        $announcement->update([
+            'recipients_count' => $users->count(),
+            // Téléphones et ordinateurs effectivement atteints par la notification push.
+            'devices_reached' => PushSubscription::whereIn('user_id', $users->pluck('id'))->where('last_success_at', '>=', $start)->count(),
+        ]);
 
         return $users->count();
     }

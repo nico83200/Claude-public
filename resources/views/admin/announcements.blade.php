@@ -24,14 +24,14 @@
                 <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="with_email" value="1" class="mt-1" @checked(old('with_email'))> <span>Envoyer aussi par e-mail <span class="block text-xs text-slate-500">Uniquement aux utilisateurs qui acceptent les e-mails de notification.</span></span></label>
                 <button class="btn-primary w-full"><x-icon name="bell" class="size-4" /> Envoyer</button>
             </form>
-            <p class="mt-3 text-xs text-slate-500">Le message arrive dans les notifications de l'application et, si l'utilisateur les a activées, sur son téléphone.</p>
+            <p class="mt-3 text-xs text-slate-500">Le message arrive dans les notifications de l'application (cloche) et, si l'utilisateur les a activées sur son téléphone, en notification. En cas de doute : <a href="{{ route('admin.notifications.index') }}" class="underline">Administration › Notifications</a>.</p>
         </x-section>
         <x-section title="Messages envoyés" class="lg:col-span-2">
             @forelse ($history as $a)
                 <div class="border-t border-slate-100 py-3 text-sm first:border-0" data-announcement>
                     <p class="font-medium text-slate-900">{{ $a->title }}</p>
                     <p class="text-slate-600">{{ \Illuminate\Support\Str::limit($a->body, 140) }}</p>
-                    <p class="mt-1 text-xs text-slate-500">{{ $a->created_at->format('d/m/Y H:i') }} · {{ $a->plan_ids ? $plans->whereIn('id', $a->plan_ids)->pluck('name')->implode(', ') : 'Tous' }} · {{ $a->recipients_count }} destinataire(s){{ $a->with_email ? ' · e-mail' : '' }}</p>
+                    <p class="mt-1 text-xs text-slate-500">{{ $a->created_at->format('d/m/Y H:i') }} · {{ $a->plan_ids ? $plans->whereIn('id', $a->plan_ids)->pluck('name')->implode(', ') : 'Tous' }} · {{ $a->recipients_count }} destinataire(s) · {{ $a->devices_reached }} appareil(s) atteint(s){{ $a->with_email ? ' · e-mail' : '' }}</p>
                 </div>
             @empty
                 <p class="text-sm text-slate-500">Aucun message envoyé.</p>

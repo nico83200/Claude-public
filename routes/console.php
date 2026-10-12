@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schedule;
  * Planificateur : une seule tâche cron suffit sur l'hébergement
  *   * * * * * cd /chemin/app && php artisan schedule:run >> /dev/null 2>&1
  */
+// Battement : montre dans l'administration que le cron du serveur tourne bien.
+Schedule::call(fn () => \App\Services\NotificationDiagnostics::beat())->everyMinute()->name('heartbeat');
 Schedule::command('reminders:send')->dailyAt('07:30')->withoutOverlapping();
 // Bilan après une séance ou un cours, rappel quotidien de saisie (heure choisie par chaque utilisateur).
 Schedule::command('reminders:activity')->everyFiveMinutes()->withoutOverlapping();

@@ -21,11 +21,29 @@ export async function currentSubscription() {
     return reg.pushManager.getSubscription();
 }
 
-/** Enregistre l'abonnement existant côté serveur (changement de compte, réinstallation). */
-export async function syncSubscription(subscribeUrl) {
-    const sub = await currentSubscription();
-    if (sub) await sendJson(subscribeUrl, 'POST', sub.toJSON());
-    return sub;
+const sameKey = (sub, vapidKey) => {
+    const raw = sub?.options?.applicationServerKey;
+    if (!raw || !vapidKey) return true; // navigateur qui ne l'expose pas : on ne peut pas comparer
+    const current = new Uint8Array(raw);
+    const wanted = b64ToBytes(vapidKey);
+    return current.length === wanted.length && current.every((v, i) => v === wanted[i]);
+};
+
+/**
+ * Enregistre l'abonnement existant côté serveur (changement de compte, réinstallation).
+ * Si la clé d'envoi du serveur a changé, l'ancien abonnement ne recevrait plus rien :
+ * il est remplacé sans redemander l'autorisation (déjà accordée).
+ */
+export async function syncSubscription(subscribeUrl, vapidKey) {
+    let sub = await currentSubscription();
+    if (!sub) return null;
+    if (!sameKey(sub, vapidKey)) {
+        await sub.unsubscribe();
+        const reg = await navigator.serviceWorker.ready;
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(vapidKey) });
+    }
+    const res = await sendJson(subscribeUrl, 'POST', sub.toJSON());
+    return res.ok ? sub : null;
 }
 
 /** Demande l'autorisation puis abonne l'appareil. Retourne 'granted' | 'denied' | 'default'. */
@@ -34,11 +52,7 @@ export async function subscribe(vapidKey, subscribeUrl) {
     if (permission !== 'granted') return permission;
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
-    if (sub && sub.options?.applicationServerKey) {
-        const current = new Uint8Array(sub.options.applicationServerKey);
-        const wanted = b64ToBytes(vapidKey);
-        if (current.length !== wanted.length || current.some((v, i) => v !== wanted[i])) { await sub.unsubscribe(); sub = null; }
-    }
+    if (sub && !sameKey(sub, vapidKey)) { await sub.unsubscribe(); sub = null; }
     sub ??= await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(vapidKey) });
     const res = await sendJson(subscribeUrl, 'POST', sub.toJSON());
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || 'refus du serveur');
@@ -63,7 +77,7 @@ export function pushGateStore({ vapidKey, subscribeUrl, enabled }) {
         },
         async check() {
             try {
-                if (Notification.permission === 'granted' && await syncSubscription(subscribeUrl)) { this.show = false; return; }
+                if (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) { this.show = false; return; }
             } catch { /* service worker indisponible : on redemande */ }
             this.state = Notification.permission === 'denied' ? 'denied' : 'ask';
             this.show = true;

@@ -305,6 +305,8 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::post('/exercices/{exercise}/archiver', [Admin\ExerciseController::class, 'archive'])->name('exercises.archive');
     Route::post('/exercices/{exercise}/demonstration', [Admin\ExerciseController::class, 'upload'])->name('exercises.upload');
     Route::delete('/exercices/{exercise}/demonstration', [Admin\ExerciseController::class, 'removeMedia'])->name('exercises.remove-media');
+    Route::get('/notifications', [Admin\NotificationDiagnosticsController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/essai', [Admin\NotificationDiagnosticsController::class, 'test'])->middleware('throttle:10,1')->name('notifications.test');
     Route::get('/messages', [Admin\AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/messages', [Admin\AnnouncementController::class, 'store'])->middleware('throttle:10,1')->name('announcements.store');
     Route::get('/videos', [Admin\VideoController::class, 'index'])->name('videos.index');

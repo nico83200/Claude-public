@@ -52,6 +52,7 @@ class SettingsController extends Controller
             'profile' => $request->user()->profile ?? new UserProfile,
             'vapidKey' => $push->publicKey(),
             'devices' => PushSubscription::where('user_id', $request->user()->id)->count(),
+            'dailyStatus' => app(\App\Services\NotificationDiagnostics::class)->dailyReminder($request->user()->loadMissing('profile')),
         ]);
     }
 

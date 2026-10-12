@@ -47,7 +47,7 @@ class AnnouncementController extends Controller
         Audit::log('admin.announcement_sent', $announcement, ['recipients' => $count]);
 
         return redirect()->route('admin.announcements.index')->with($count ? 'success' : 'warning', $count
-            ? 'Message envoyé à '.$count.' utilisateur'.($count > 1 ? 's' : '').'.'
+            ? 'Message envoyé à '.$count.' utilisateur'.($count > 1 ? 's' : '').' : '.$announcement->devices_reached.' appareil(s) atteint(s) en notification.'
             : 'Aucun utilisateur ne correspond à ces offres : rien n\'a été envoyé.');
     }
 }

@@ -46,7 +46,7 @@ class PushSubscriptionController extends Controller
     {
         $reached = $push->send($request->user(), (new AppNotification('push_test', 'Jack&Cie', 'Les notifications fonctionnent sur cet appareil.', route('dashboard')))->toWebPush($request->user()));
 
-        return response()->json(['reached' => $reached], $reached ? 200 : 422);
+        return response()->json(['reached' => $reached, 'error' => $reached ? null : PushSubscription::where('user_id', $request->user()->id)->latest('last_failure_at')->value('last_error')], $reached ? 200 : 422);
     }
 
     public static function allowedEndpoint(string $url): bool

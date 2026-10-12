@@ -98,7 +98,7 @@ class SendActivityReminders extends Command
             if (Reminder::where(['user_id' => $user->id, 'remindable_type' => $user->getMorphClass(), 'remindable_id' => $user->id])->whereDate('remind_at', $now->toDateString())->exists()) {
                 continue;
             }
-            if ($this->wroteSomethingToday($user) || ! $access->accessibleQuery($user)->whereNull('horses.archived_at')->exists()) {
+            if (self::wroteSomethingToday($user) || ! $access->accessibleQuery($user)->whereNull('horses.archived_at')->exists()) {
                 continue;
             }
             Reminder::create(['user_id' => $user->id, 'remindable_type' => $user->getMorphClass(), 'remindable_id' => $user->id, 'remind_at' => $at, 'sent_at' => now()]);
@@ -140,7 +140,7 @@ class SendActivityReminders extends Command
         return $count;
     }
 
-    private function wroteSomethingToday(User $user): bool
+    public static function wroteSomethingToday(User $user): bool
     {
         $today = now()->startOfDay();
 

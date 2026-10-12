@@ -12,7 +12,7 @@ export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl }
             if (!pushSupported()) { this.state = ios && !standalone ? 'install' : 'unsupported'; return; }
             if (Notification.permission === 'denied') { this.state = 'denied'; return; }
             try {
-                this.state = (Notification.permission === 'granted' && await syncSubscription(subscribeUrl)) ? 'on' : 'off';
+                this.state = (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) ? 'on' : 'off';
             } catch { this.state = 'off'; }
         },
         async enable() {
@@ -38,7 +38,9 @@ export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl }
             this.busy = true; this.message = '';
             try {
                 const res = await sendJson(testUrl, 'POST');
-                this.message = res.ok ? 'Notification envoyée : elle doit apparaître dans quelques secondes.' : 'Aucun appareil n\'a pu être joint. Désactivez puis réactivez les notifications.';
+                const data = await res.json().catch(() => ({}));
+                this.message = res.ok ? 'Notification envoyée : elle doit apparaître dans quelques secondes. Sinon, vérifiez les réglages du téléphone (notifications autorisées pour Jack&Cie, mode Concentration).'
+                    : 'Aucun appareil n\'a pu être joint' + (data.error ? ' (' + data.error + ')' : '') + '. Désactivez puis réactivez les notifications.';
             } finally { this.busy = false; }
         },
     };

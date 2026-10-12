@@ -59,6 +59,7 @@
                             <input id="daily_reminder_at" type="time" name="daily_reminder_at" step="900" value="{{ old('daily_reminder_at', $profile->daily_reminder_at ? substr($profile->daily_reminder_at, 0, 5) : '19:00') }}" class="input">
                             @error('daily_reminder_at')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
+                        @if ($profile->daily_reminder_at)<p class="mt-2 ml-8 text-xs {{ $dailyStatus['state'] === 'late' ? 'text-red-600' : 'text-slate-500' }}" data-daily-status>Aujourd'hui : {{ $dailyStatus['message'] }}</p>@endif
                     </div>
                     <label class="flex items-start gap-3 border-t border-slate-100 pt-4">
                         <input type="checkbox" name="email_notifications" value="1" @checked($profile->email_notifications ?? true) class="mt-0.5 size-5 rounded">
