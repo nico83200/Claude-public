@@ -16,7 +16,7 @@ class Video extends Model
 
     public const DEVICES = ['all' => 'Tous les appareils', 'mobile' => 'Téléphone et tablette', 'desktop' => 'Ordinateur'];
 
-    public const KINDS = ['onboarding' => 'Première connexion (nouveaux comptes)', 'announcement' => 'Nouveautés (comptes existants, à la prochaine connexion)'];
+    public const KINDS = ['onboarding' => 'Première connexion (nouveaux comptes)', 'announcement' => 'Nouveautés (comptes existants, sur la page d\'accueil)'];
 
     /** Fichiers d'une vidéo : type => [colonne, extensions acceptées, taille max (Mo)]. */
     public const FILES = [

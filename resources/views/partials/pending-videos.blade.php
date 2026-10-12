@@ -1,12 +1,8 @@
-{{-- Tutoriel de première connexion et nouveautés : affichés une fois par session tant qu'ils n'ont pas été vus. --}}
+{{-- Tutoriel de première connexion et nouveautés : affichés au chargement de la page d'accueil, tant qu'ils n'ont pas été vus ou passés. --}}
 @php
-    $pendingVideos = collect();
-    if (! session('videos_offered') && ! request()->routeIs('videos.*', 'settings.privacy', 'admin.*')) {
-        $pendingVideos = app(\App\Services\Videos::class)->pendingFor(auth()->user(), \App\Support\Device::isHandheld(request()));
-        if ($pendingVideos->isNotEmpty()) {
-            session(['videos_offered' => true]);
-        }
-    }
+    $pendingVideos = request()->routeIs('dashboard')
+        ? app(\App\Services\Videos::class)->pendingFor(auth()->user(), \App\Support\Device::isHandheld(request()))
+        : collect();
 @endphp
 @if ($pendingVideos->isNotEmpty())
     <script type="application/json" id="pending-videos">@json($pendingVideos->map(fn ($v) => \App\Http\Controllers\VideoController::payload($v))->values())</script>

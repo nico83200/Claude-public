@@ -1,5 +1,5 @@
 <x-layouts.app title="Vidéos · Admin">
-    <x-page-header title="Vidéos" subtitle="Tutoriel de première connexion et nouveautés affichées à la prochaine connexion" />
+    <x-page-header title="Vidéos" subtitle="Tutoriel de première connexion et nouveautés affichées au prochain chargement de la page d'accueil" />
     @include('admin._nav')
     <div class="grid gap-4 lg:grid-cols-5">
         <div class="space-y-3 lg:col-span-3">
@@ -25,7 +25,7 @@
                 <x-select name="device" label="Appareils" :options="\App\Models\Video::DEVICES" value="all" />
                 <button class="btn-primary w-full">Créer, puis ajouter le fichier</button>
             </form>
-            <p class="mt-3 text-xs text-slate-500">Une nouveauté s'affiche une fois à chaque utilisateur, à sa prochaine connexion. Les vidéos restent consultables dans le menu « Tutoriels ».</p>
+            <p class="mt-3 text-xs text-slate-500">Une nouveauté s'affiche à chaque utilisateur au prochain chargement de sa page d'accueil, jusqu'à ce qu'il l'ait vue ou passée. Les vidéos restent consultables dans le menu « Tutoriels ».</p>
         </x-section>
     </div>
 </x-layouts.app>

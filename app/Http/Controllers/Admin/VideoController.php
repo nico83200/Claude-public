@@ -65,7 +65,7 @@ class VideoController extends Controller
 
         return back()->with('success', $video->kind === 'onboarding'
             ? 'Vidéo publiée : elle sera proposée à la première connexion des nouveaux comptes.'
-            : 'Vidéo publiée : chaque utilisateur la verra à sa prochaine connexion.');
+            : 'Vidéo publiée : chaque utilisateur la verra au prochain chargement de sa page d\'accueil.');
     }
 
     /** Envoi d'un fichier par morceaux ; le dernier morceau le met en place. */

@@ -52,8 +52,9 @@ class VideosTest extends TestCase
         $user = $this->user();
 
         $this->assertSame(['Bienvenue dans Jack&Cie'], $this->pending($this->actingAs($user)->get('/dashboard')->assertOk()->getContent()));
-        // Une seule fois par session (prochaine connexion sinon)
+        // Uniquement sur la page d'accueil ; reproposée à chaque chargement de l'accueil tant qu'elle n'est ni vue ni passée.
         $this->actingAs($user)->get('/chevaux')->assertOk()->assertDontSee('id="pending-videos"', false);
+        $this->assertSame(['Bienvenue dans Jack&Cie'], $this->pending($this->actingAs($user)->get('/dashboard')->assertOk()->getContent()));
 
         $this->actingAs($user)->postJson(route('videos.seen', $tutorial), ['completed' => true])->assertOk();
         $this->assertTrue(VideoView::where(['user_id' => $user->id, 'video_id' => $tutorial->id])->value('completed'));
@@ -98,6 +99,8 @@ class VideosTest extends TestCase
         Carbon::setTestNow(now()->addMinute());
         $as->post(route('admin.videos.publish', $video))->assertSessionHas('success');
 
+        // Une nouveauté publiée s'affiche dès le prochain chargement de l'accueil, sans nouvelle connexion.
+        $this->actingAs($existing)->get('/chevaux')->assertOk();
         $this->assertSame(['Nouveau : budget récurrent'], $this->pending($this->actingAs($existing)->get('/dashboard')->assertOk()->getContent()));
         $html = $this->actingAs($existing)->get('/tutoriels')->assertOk()->getContent();
         $this->assertStringContainsString(route('videos.file', [$video, 'audio']), str_replace('\\/', '/', $html));
