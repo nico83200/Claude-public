@@ -49,6 +49,20 @@ class PushSubscriptionController extends Controller
         return response()->json(['reached' => $reached, 'error' => $reached ? null : PushSubscription::where('user_id', $request->user()->id)->latest('last_failure_at')->value('last_error')], $reached ? 200 : 422);
     }
 
+    /**
+     * Accusé de réception envoyé par le service worker de l'appareil (sans session ni jeton :
+     * l'adresse d'abonnement, propre à l'appareil, l'identifie). Sert uniquement au diagnostic.
+     */
+    public function receipt(Request $request)
+    {
+        $data = $request->validate(['endpoint' => ['required', 'string', 'max:2000'], 'error' => ['nullable', 'string', 'max:200']]);
+        PushSubscription::where('endpoint_hash', hash('sha256', $data['endpoint']))->update([
+            'last_received_at' => now(), 'last_display_error' => $data['error'] ?? null,
+        ]);
+
+        return response()->noContent();
+    }
+
     public static function allowedEndpoint(string $url): bool
     {
         $parts = parse_url($url);

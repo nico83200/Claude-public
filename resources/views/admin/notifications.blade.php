@@ -17,6 +17,14 @@
                 <p class="mt-3 text-sm text-slate-600">Si l'hébergeur demande plutôt le chemin d'un fichier PHP (ex. OVH), indiquez ce fichier, à lancer toutes les minutes :</p>
                 <pre class="mt-2 overflow-x-auto rounded-xl bg-slate-900 p-3 text-xs text-white" data-cron-file>{{ $scheduler['cron_file'] }}</pre>
             @endunless
+            <div class="mt-3 text-sm text-slate-600" data-cron-runs>
+                <p class="font-medium text-slate-700">Derniers passages de cron.php</p>
+                @forelse ($scheduler['cron_php_runs'] as $run)
+                    <p class="text-xs {{ ($run['status'] ?? '') === 'ok' ? 'text-slate-600' : 'text-red-600' }}">{{ \Illuminate\Support\Carbon::parse($run['at'])->format('d/m H:i:s') }} · PHP {{ $run['php'] ?? '?' }} ({{ $run['sapi'] ?? '?' }}) · {{ $run['status'] ?? '' }}</p>
+                @empty
+                    <p class="text-xs text-slate-500">Aucun passage enregistré : l'hébergeur n'a pas encore lancé cron.php (vérifiez le chemin et la fréquence de la tâche). La ligne de commande ci-dessus n'écrit pas dans ce journal.</p>
+                @endforelse
+            </div>
             <p class="mt-3 text-sm text-slate-600">File d'attente : {{ $queue['pending'] ?? '?' }} en attente{{ $queue['oldest'] ? ' (la plus ancienne depuis '.$queue['oldest']->diffForHumans().')' : '' }}, {{ $queue['failed'] ?? '?' }} en échec.</p>
         </x-section>
         <x-section title="Notifications sur les appareils" data-diag-push>
@@ -40,7 +48,7 @@
                     <div class="rounded-2xl bg-slate-50 px-4 py-3 text-sm">
                         <p class="font-medium text-slate-800">{{ str_contains($d->endpoint, 'apple.com') ? 'iPhone / iPad (Apple)' : (str_contains($d->endpoint, 'google') ? 'Android / Chrome (Google)' : (str_contains($d->endpoint, 'mozilla') ? 'Firefox' : 'Autre')) }} · abonné le {{ $d->created_at->format('d/m/Y') }}</p>
                         <p class="text-xs text-slate-500">{{ $d->device }}</p>
-                        <p class="text-xs {{ $d->last_error ? 'text-red-600' : 'text-slate-600' }}">Dernière réception : {{ $d->last_success_at?->format('d/m/Y H:i') ?? 'jamais' }}{{ $d->last_error ? ' · Dernière erreur ('.$d->last_failure_at?->format('d/m H:i').') : '.$d->last_error : '' }}</p>
+                        <p class="text-xs {{ $d->last_error ? 'text-red-600' : 'text-slate-600' }}">Accepté par {{ str_contains($d->endpoint, 'apple.com') ? 'Apple' : 'le service push' }} : {{ $d->last_success_at?->format('d/m/Y H:i:s') ?? 'jamais' }} · Reçu et affiché par l'appareil : {{ $d->last_received_at?->format('d/m/Y H:i:s') ?? 'jamais' }}{{ $d->last_display_error ? ' (erreur d\'affichage : '.$d->last_display_error.')' : '' }}{{ $d->last_error ? ' · Dernière erreur ('.$d->last_failure_at?->format('d/m H:i').') : '.$d->last_error : '' }}</p>
                     </div>
                 @empty
                     <p class="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Aucun appareil abonné : les notifications restent dans la cloche de l'application. Sur le téléphone, ouvrir l'application installée (écran d'accueil) › Paramètres › Notifications › Activer.</p>

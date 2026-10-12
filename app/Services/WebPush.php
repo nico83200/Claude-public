@@ -72,7 +72,7 @@ class WebPush
         }
         $keys = $this->keys();
         $sender = new Sender(['VAPID' => ['subject' => $this->subject(), 'publicKey' => $keys['public'], 'privateKey' => $keys['private']]],
-            ['TTL' => 6 * 3600, 'urgency' => 'normal'], logger: new NullLogger);
+            ['TTL' => 6 * 3600, 'urgency' => 'high'], logger: new NullLogger);
         $json = json_encode(array_filter($payload + ['icon' => '/icons/icon-192.png'], fn ($v) => $v !== null), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $reached = 0;

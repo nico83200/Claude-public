@@ -70,4 +70,20 @@ class NotificationDiagnosticsTest extends TestCase
         $this->actingAs($user)->get('/dashboard');
         $this->assertNull(Cache::get(NotificationDiagnostics::FALLBACK_KEY));
     }
+
+    public function test_device_receipt_is_recorded_and_shown(): void
+    {
+        $admin = $this->admin();
+        app(\App\Services\WebPush::class)->publicKey(); // clés d'envoi déjà créées (leur création efface les abonnements)
+        $sub = PushSubscription::forceCreate(['user_id' => $admin->id, 'endpoint' => 'https://fcm.googleapis.com/fcm/send/xyz', 'endpoint_hash' => hash('sha256', 'https://fcm.googleapis.com/fcm/send/xyz'),
+            'public_key' => 'x', 'auth_token' => 'y', 'content_encoding' => 'aes128gcm', 'device' => 'Android', 'last_success_at' => now()]);
+        // Le service worker n'a ni session ni jeton CSRF.
+        $this->postJson('/push/recu', ['endpoint' => 'https://fcm.googleapis.com/fcm/send/xyz'])->assertNoContent();
+        $this->assertNotNull($sub->fresh()->last_received_at);
+        $this->postJson('/push/recu', ['endpoint' => 'https://inconnu.example/abc'])->assertNoContent();
+        $this->postJson('/push/recu', ['endpoint' => 'https://fcm.googleapis.com/fcm/send/xyz', 'error' => 'NotAllowedError'])->assertNoContent();
+        $this->assertSame('NotAllowedError', $sub->fresh()->last_display_error);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/notifications')
+            ->assertSee('Reçu et affiché par l')->assertSee('NotAllowedError')->assertSee('data-cron-runs', false);
+    }
 }

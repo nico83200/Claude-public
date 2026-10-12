@@ -45,7 +45,7 @@ class NotificationDiagnosticsController extends Controller
         }
 
         return back()->with($reached ? 'success' : 'error', $reached
-            ? 'Essai envoyé : '.$reached.' appareil(s) sur '.$devices->count().' atteint(s). S\'il n\'apparaît pas, vérifiez les réglages de notification du téléphone (mode Concentration, autorisations de l\'app).'
+            ? 'Essai accepté par le service push pour '.$reached.' appareil(s) sur '.$devices->count().'. Rechargez cette page dans quelques secondes : « Reçu et affiché par l\'appareil » indique si le téléphone l\'a bien reçu.'
             : 'Aucun appareil atteint. Dernière erreur : '.($devices->first()->last_error ?? 'inconnue').'.');
     }
 }

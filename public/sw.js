@@ -4,13 +4,15 @@
  * dans le téléphone : seules les ressources publiques (icônes, styles) sont en cache.
  * La mise à jour v6 efface les caches de l'ancien mode hors ligne.
  * v7 : affichage des notifications (Web Push) et ouverture de la bonne page au toucher.
+ * v8 : accusé de réception (diagnostic), installation qui ne bloque plus si une ressource manque.
  */
-const VERSION = 'v7';
+const VERSION = 'v8';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
 const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(STATIC_CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+    // Une ressource manquante ne doit pas empêcher l'installation (sinon l'ancien service worker reste en place).
+    event.waitUntil(caches.open(STATIC_CACHE).then((c) => Promise.all(PRECACHE.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -46,13 +48,16 @@ self.addEventListener('push', (event) => {
     let data = {};
     try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() }; }
     const title = data.title || 'Jack&Cie';
+    const receipt = (error) => self.registration.pushManager.getSubscription()
+        .then((sub) => sub && fetch('/push/recu', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint, error: error || null }) }))
+        .catch(() => null);
     event.waitUntil(self.registration.showNotification(title, {
         body: data.body || '',
         icon: data.icon || '/icons/icon-192.png',
         tag: data.tag || undefined,
         renotify: Boolean(data.tag),
         data: { url: data.url || '/dashboard' },
-    }));
+    }).then(() => receipt(null), (e) => receipt(String((e && e.message) || e).slice(0, 200))));
 });
 
 self.addEventListener('notificationclick', (event) => {

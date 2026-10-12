@@ -84,7 +84,20 @@ class NotificationDiagnostics
             'fallback_last' => $fallback ? Carbon::createFromTimestamp($fallback, config('app.timezone')) : null,
             'cron_line' => '* * * * * cd '.base_path().' && php artisan schedule:run >> /dev/null 2>&1',
             'cron_file' => base_path('cron.php'),
+            'cron_php_runs' => $this->cronPhpRuns(),
         ];
+    }
+
+    /** Derniers passages de cron.php (heure, type de PHP, résultat). */
+    private function cronPhpRuns(): array
+    {
+        $file = storage_path('logs/cron.log');
+        if (! is_file($file)) {
+            return [];
+        }
+        $lines = array_slice(file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [], -3);
+
+        return array_reverse(array_values(array_filter(array_map(fn ($l) => json_decode($l, true), $lines))));
     }
 
     public function queue(): array
