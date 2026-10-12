@@ -11,7 +11,11 @@
                 <x-field name="last_name" label="Nom" :value="$profile->last_name" />
                 <x-field name="phone" type="tel" label="Téléphone" :value="$profile->phone" />
                 <x-field name="city" label="Ville" :value="$profile->city" />
-                <x-field name="riding_level" label="Niveau équestre" :value="$profile->riding_level" class="sm:col-span-2" />
+                @php $galopOptions = collect(\App\Models\UserProfile::GALOPS)->mapWithKeys(fn ($l) => [$l => $l]); if ($profile->riding_level && ! $profile->galop()) { $galopOptions->put($profile->riding_level, $profile->riding_level); } @endphp
+                <div class="sm:col-span-2" data-riding-level>
+                    <x-select name="riding_level" label="Niveau équestre (galop)" :options="$galopOptions" :value="$profile->galop() ? 'Galop '.$profile->galop() : $profile->riding_level" placeholder="Non renseigné" />
+                    <p class="mt-1 text-xs text-slate-500">Galops 1 à 3 : débutant · 4 et 5 : intermédiaire · 6 et plus : expert. Sert à proposer des exercices adaptés.</p>
+                </div>
             </div>
         </x-section>
         <button class="btn-primary">Enregistrer</button>

@@ -5,6 +5,8 @@ export function careNext(opts) {
         init() {
             if (!this.fromOld) this.applyRule();
             this.$watch('cat', () => this.applyRule());
+            // Un montant saisi coche « Ajouter le coût aux dépenses ».
+            this.$watch('cost', (v) => { if (String(v ?? '').trim() !== '' && Number(v) > 0) this.addExpense = true; });
         },
         applyRule() {
             const rule = this.rules[this.cat];

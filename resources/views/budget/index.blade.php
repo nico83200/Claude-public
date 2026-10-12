@@ -149,7 +149,7 @@
     @endif
 
     <dialog id="new-expense" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40">
-        <form method="POST" action="{{ route('budget.store') }}" enctype="multipart/form-data" class="space-y-3 p-5" x-data="{ recurring: {{ old('recurring') ? 'true' : 'false' }} }">
+        <form method="POST" action="{{ route('budget.store') }}" enctype="multipart/form-data" class="space-y-3 p-5" x-data="{ recurring: {{ old('recurring') ? 'true' : 'false' }}, cat: @js((string) old('expense_category_id', '')), careCats: @js($careCategoryIds) }">
             @csrf
             <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">Nouvelle dépense</h2><button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button></div>
             <x-select name="horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required />
@@ -157,7 +157,11 @@
                 <div><label class="label" for="f_spent_on" x-text="recurring ? 'Première échéance' : 'Date'">Date</label><input id="f_spent_on" type="date" name="spent_on" value="{{ old('spent_on', now()->toDateString()) }}" required class="input"></div>
                 <x-field name="amount" type="number" step="0.01" min="0.01" label="Montant (€)" required inputmode="decimal" />
             </div>
-            <x-select name="expense_category_id" label="Catégorie" :options="$categories" required placeholder="Choisir…" />
+            <x-select name="expense_category_id" label="Catégorie" :options="$categories" required placeholder="Choisir…" x-model="cat" />
+            <label class="flex items-start gap-3 rounded-2xl bg-brand-50 p-3 text-sm" x-show="! recurring && careCats.includes(cat)" x-cloak data-add-care>
+                <input type="hidden" name="add_care" value="0"><input type="checkbox" name="add_care" value="1" checked class="mt-0.5 size-5 rounded">
+                <span><span class="block font-medium text-brand-900">Ajouter aussi le soin au carnet de santé</span><span class="block text-xs text-brand-900/70">Même date, intervenant et montant ; il restera synchronisé avec cette dépense.</span></span>
+            </label>
             <div class="rounded-2xl bg-slate-50 p-3">
                 <label class="flex items-center gap-3 font-medium"><input type="checkbox" name="recurring" value="1" x-model="recurring" class="size-5 rounded"> Dépense récurrente (pension, assurance…)</label>
                 <div x-show="recurring" x-cloak class="mt-3 grid grid-cols-2 gap-3">

@@ -113,9 +113,6 @@ class CalendarController extends Controller
                 'planned_minutes' => min(600, (int) $data['duration_minutes']), 'notes' => $data['notes'] ?? null,
                 'rider_id' => $data['responsible_user_id'] ?? null,
             ]);
-            if ($data['starts_at']->isPast()) {
-                $session->update(['status' => 'completed', 'completed_at' => $data['starts_at']]);
-            }
 
             return redirect()->route('calendar.index', ['date' => $data['starts_at']->toDateString(), 'view' => $request->input('return_view', 'month')])
                 ->with('success', 'Séance ajoutée à l\'agenda et au suivi des séances.');

@@ -32,6 +32,10 @@ class SettingsController extends Controller
             'city' => ['nullable', 'string', 'max:120'],
             'riding_level' => ['nullable', 'string', 'max:60'],
         ]);
+        // Niveau choisi parmi les galops (« Galop 4 ») ; un ancien texte libre reste accepté.
+        if ($galop = UserProfile::parseGalop($data['riding_level'] ?? null)) {
+            $data['riding_level'] = 'Galop '.$galop;
+        }
         $emailChanged = strtolower($data['email']) !== $user->email;
         $user->forceFill(['name' => $data['name'], 'email' => strtolower($data['email'])] + ($emailChanged ? ['email_verified_at' => null] : []))->save();
         UserProfile::updateOrCreate(['user_id' => $user->id], [
@@ -44,6 +48,15 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', $emailChanged ? 'Profil mis à jour. Confirmez votre nouvelle adresse email.' : 'Profil mis à jour.');
+    }
+
+    /** Niveau en galop demandé au moment de choisir des exercices : la fiche est mise à jour. */
+    public function ridingLevel(Request $request)
+    {
+        $data = $request->validate(['galop' => ['required', 'integer', 'between:1,7']]);
+        UserProfile::updateOrCreate(['user_id' => $request->user()->id], ['riding_level' => 'Galop '.$data['galop']]);
+
+        return back()->with('success', 'Niveau enregistré dans votre fiche : Galop '.$data['galop'].'. Les exercices proposés en tiennent compte.');
     }
 
     public function notifications(Request $request, WebPush $push)

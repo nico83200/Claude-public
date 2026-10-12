@@ -86,6 +86,12 @@ class RidingSessionService
             $session = new RidingSession($this->sanitizeRider($horse, $data, $user));
             $session->horse_id = $horse->id;
             $session->created_by = $user->id;
+            // Séance déjà passée à sa saisie (formulaire, agenda, assistant) : enregistrée comme terminée.
+            $end = $session->scheduled_at?->copy()->addMinutes((int) ($session->planned_minutes ?: 60));
+            if ($end && $end->lte(now()) && in_array($session->status, [null, 'planned'], true)) {
+                $session->status = 'completed';
+                $session->completed_at = $end;
+            }
             if ($uuid) {
                 $session->uuid = $uuid;
             }

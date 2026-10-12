@@ -330,7 +330,8 @@ class AssistantTools
             'instructor' => $this->clip($in['instructor'] ?? null, 100),
         ], $items);
         $summary = $session->title().' – '.$horse->shortName().' – '.$this->human($at)
-            .($items || ! $session->isLesson() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min';
+            .($items || ! $session->isLesson() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min'
+            .($session->isCompleted() ? ' · terminée' : '');
         $ctx->record('session.created', $session, $summary, route('sessions.show', $session), ['delete' => [RidingSession::class, $session->id]]);
 
         return ['ok' => true, 'session_id' => $session->id, 'summary' => $summary, 'exercises' => $session->items()->orderBy('position')->get()->map(fn ($i) => $i->phase.' : '.$i->name.($i->planned_minutes ? ' ('.$i->planned_minutes.' min)' : ''))->all()];
@@ -510,6 +511,13 @@ class AssistantTools
         $expense->save();
         $summary = 'Dépense '.number_format($amount, 2, ',', ' ').' € – '.($expense->category?->name ?? 'Autre').($horse ? ' – '.$horse->shortName() : '').' – '.$expense->spent_on->translatedFormat('j M Y');
         $ctx->record('expense.created', $expense, $summary, route('budget.index'), ['delete' => [Expense::class, $expense->id]]);
+        // Dépense de soin : le soin est ajouté au carnet de santé (ou rattaché au soin du même jour déjà noté).
+        if ($care = app(\App\Services\CareExpenseSync::class)->careFromExpense($expense, $ctx->user)) {
+            if ($care->wasRecentlyCreated) {
+                $ctx->record('care.created', $care, 'Soin ajouté au carnet de santé – '.$care->category->name.' – '.$horse->shortName(), route('horses.care.show', [$horse, $care]), ['delete' => [CareRecord::class, $care->id]]);
+            }
+            $summary .= ' (soin ajouté au carnet de santé)';
+        }
 
         return ['ok' => true, 'summary' => $summary];
     }

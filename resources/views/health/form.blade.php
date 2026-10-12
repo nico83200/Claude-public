@@ -2,7 +2,8 @@
     <x-page-header :title="$record->exists ? 'Modifier le soin' : 'Nouveau soin'" :subtitle="$horse->shortName()" :back="route('horses.care.index', $horse)" />
     <form method="POST" action="{{ $record->exists ? route('horses.care.update', [$horse, $record]) : route('horses.care.store', $horse) }}" enctype="multipart/form-data" class="space-y-4"
         x-data="careNext({ rules: @js($rules), cat: @js((string) old('care_category_id', $record->care_category_id)), performed: @js(old('performed_at', $record->performed_at?->format('Y-m-d\TH:i'))),
-            mode: @js(old('next_mode', $record->exists ? ($record->next_check_on ? 'date' : 'none') : 'interval')), value: @js(old('next_interval_value')), unit: @js(old('next_interval_unit', 'weeks')), fromOld: @js(old('next_interval_value') !== null) })">
+            mode: @js(old('next_mode', $defaultMode)), value: @js(old('next_interval_value')), unit: @js(old('next_interval_unit', 'weeks')), fromOld: @js(old('next_interval_value') !== null),
+            cost: @js((string) old('cost', $record->cost)), addExpense: @js((bool) old('add_expense', filled(old('cost', $record->cost)) || ! $record->exists)) })">
         @csrf @if ($record->exists) @method('PUT') <input type="hidden" name="version" value="{{ $record->version }}"> @endif
         @if ($event)<input type="hidden" name="calendar_event_id" value="{{ $event->id }}"><p class="rounded-lg bg-gold-50 p-3 text-sm text-slate-700">Validation de l'intervention prévue le {{ $event->starts_at->format('d/m/Y') }} : « {{ $event->title }} ». Elle sera marquée réalisée dans le calendrier.</p>@endif
         <x-section>
@@ -15,7 +16,7 @@
                 <x-textarea name="care_performed" label="Soins réalisés" :value="$record->care_performed" />
                 <x-textarea name="diagnosis" label="Diagnostic communiqué par le professionnel" :value="$record->diagnosis" />
                 <x-textarea name="instructions" label="Consignes" :value="$record->instructions" />
-                <x-field name="cost" type="number" step="0.01" min="0" label="Coût (€)" :value="$record->cost" />
+                <x-field name="cost" type="number" step="0.01" min="0" label="Coût (€)" :value="$record->cost" x-model="cost" />
             </div>
         </x-section>
         <x-section title="Prochain passage">
@@ -39,7 +40,16 @@
             </div>
         </x-section>
         <x-section>
-            @if ($canExpense)<x-checkbox name="add_expense" label="Ajouter le coût aux dépenses du cheval" :checked="! $record->exists" />@endif
+            @if ($linkedExpense)
+                <p class="flex items-center gap-2 text-sm text-slate-600" data-linked-expense><x-icon name="check" class="size-4 text-emerald-600" /> Dépense liée ({{ number_format((float) $linkedExpense->amount, 2, ',', ' ') }} €) : sa date, son montant et l'intervenant suivent ce soin.</p>
+            @elseif ($canExpense)
+                {{-- Cochée automatiquement dès qu'un montant est saisi. --}}
+                <label class="flex items-start gap-3 text-sm" data-add-expense>
+                    <input type="hidden" name="add_expense" value="0">
+                    <input type="checkbox" name="add_expense" value="1" class="mt-0.5 size-5 rounded" x-model="addExpense">
+                    <span class="font-medium text-slate-900">Ajouter le coût aux dépenses du cheval</span>
+                </label>
+            @endif
             <div class="mt-2 grid gap-3 sm:grid-cols-2">
                 <div><label class="label" for="att">Joindre un document (compte rendu, ordonnance, facture)</label><input id="att" type="file" name="attachment" class="text-sm">@error('attachment')<p class="text-sm text-red-600">{{ $message }}</p>@enderror</div>
                 <x-select name="attachment_category" label="Type de document" :options="$docCategories" value="report" />

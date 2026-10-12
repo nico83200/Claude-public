@@ -27,7 +27,12 @@ class RidingSessionTest extends TestCase
         $this->assertSame($user->id, $session->rider_id);
         $ex = Exercise::where('scope', 'default')->take(3)->get();
 
-        $this->actingAs($user)->get("/seances/{$session->id}/preparer")->assertOk();
+        // Fenêtre de choix par étape (téléphone) : exercices groupés par catégorie, ordre selon l'étape.
+        $this->actingAs($user)->get("/seances/{$session->id}/preparer")->assertOk()
+            ->assertSee('data-exercise-picker', false)->assertSee('data-open-picker="warmup"', false)->assertSee('data-open-picker="cooldown"', false)->assertSee('data-category="Échauffement"', false);
+        $priority = \App\Http\Controllers\RidingSessionController::phasePriority(\App\Models\ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'));
+        $first = fn ($phase) => \App\Models\ExerciseCategory::find(array_search(min($priority[$phase]), $priority[$phase], true))->name;
+        $this->assertSame(['Échauffement', 'Retour au calme'], [$first('warmup'), $first('cooldown')]);
         $this->actingAs($user)->post("/seances/{$session->id}/exercices", ['items' => [
             ['exercise_id' => $ex[0]->id, 'phase' => 'warmup'], ['exercise_id' => $ex[1]->id, 'phase' => 'main'], ['exercise_id' => $ex[2]->id, 'phase' => 'main', 'planned_repetitions' => 8],
         ]])->assertRedirect();

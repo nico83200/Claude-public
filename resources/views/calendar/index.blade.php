@@ -77,7 +77,7 @@
                     <div class="min-h-28 border-r border-b border-slate-100 p-1.5 {{ $d->month !== $date->month ? 'bg-slate-50/60 text-slate-400' : '' }}">
                         <a href="{{ route('calendar.index', $q($d, 'day')) }}" class="text-xs font-semibold {{ $d->isToday() ? 'rounded-full bg-brand-600 px-1.5 text-white' : '' }}">{{ $d->day }}</a>
                         @foreach (($byDay[$d->toDateString()] ?? collect())->take(4) as $o)
-                            <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : '' }}">{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
+                            <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : ($o['at']->lt(now()->startOfDay()) ? 'opacity-70' : '') }}">{{ $o['event']->status === 'done' && empty($o['journal']) ? '✓ ' : '' }}{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
                         @endforeach
                         @if (($byDay[$d->toDateString()] ?? collect())->count() > 4)<span class="text-[11px] text-slate-500">+{{ $byDay[$d->toDateString()]->count() - 4 }}</span>@endif
                     </div>
@@ -87,9 +87,21 @@
     @endif
 
     {{-- Liste (mobile en vue mois, et vues jour/semaine) --}}
-    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3">
-        @forelse ($byDay as $day => $items)
-            <div>
+    {{-- Du plus récent au plus ancien (début du mois en bas), séparation nette entre ce qui est à venir et ce qui est passé. --}}
+    @php
+        $listDays = $byDay->sortKeysDesc();
+        $todayKey = now()->toDateString();
+        $showDivider = $from->lte(now()) && $to->gte(now()->startOfDay());
+        $dividerDone = false;
+    @endphp
+    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3" data-agenda-list>
+        @forelse ($listDays as $day => $items)
+            @if ($showDivider && ! $dividerDone && $day < $todayKey)
+                @php $dividerDone = true; @endphp
+                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui · {{ now()->translatedFormat('j F') }}</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
+                <p class="-mt-1 text-center text-xs font-medium tracking-wide text-slate-400 uppercase">Passé</p>
+            @endif
+            <div class="{{ $day < $todayKey ? 'opacity-60' : '' }}" @if ($day === $todayKey) id="aujourdhui" @endif>
                 @php $dayC = \Illuminate\Support\Carbon::parse($day); @endphp
                 <p class="mb-2 text-sm font-semibold text-slate-500">{{ $dayC->isToday() ? 'Aujourd\'hui' : ($dayC->isTomorrow() ? 'Demain' : ucfirst($dayC->translatedFormat('l j F'))) }}</p>
                 <div class="card divide-y divide-slate-100">
@@ -99,14 +111,24 @@
                             <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
                             <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>
                             <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-slate-900 {{ $ev->status === 'cancelled' ? 'line-through' : '' }}">{{ $ev->title }}</span>
+                                <span class="flex items-center gap-1.5 font-medium {{ $ev->status === 'cancelled' ? 'text-slate-500 line-through' : ($ev->status === 'done' ? 'text-slate-600' : 'text-slate-900') }}">@if ($ev->status === 'done' && empty($o['journal']))<x-icon name="check" class="size-4 shrink-0 text-emerald-600" />@endif<span class="min-w-0">{{ $ev->title }}</span></span>
                                 <span class="block text-xs text-slate-500">{{ collect([$typeLabels[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
                             </span>
+                            @if (empty($o['journal']))
+                                @if ($ev->status === 'done')<x-badge color="green">Réalisé</x-badge>
+                                @elseif ($ev->status === 'cancelled')<x-badge>Annulé</x-badge>
+                                @elseif ($o['at']->isPast())<x-badge color="amber">À valider</x-badge>
+                                @else<x-badge color="brand">À venir</x-badge>@endif
+                            @endif
                             <x-icon name="chevron" class="size-4 shrink-0 text-slate-300" />
                         </a>
                     @endforeach
                 </div>
             </div>
+            @if ($loop->last && $showDivider && ! $dividerDone)
+                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui · {{ now()->translatedFormat('j F') }}</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
+                <p class="-mt-1 text-center text-xs text-slate-400">Rien de passé sur cette période.</p>
+            @endif
         @empty
             <x-empty title="Aucun événement sur cette période" icon="calendar" />
         @endforelse

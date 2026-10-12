@@ -58,8 +58,8 @@
                     <a href="{{ route('calendar.show', $e) }}" class="-mx-2 flex items-center gap-4 rounded-2xl px-2 py-2.5 hover:bg-slate-50">
                         <span class="w-14 shrink-0 text-sm font-semibold tabular-nums {{ $e->status === 'done' ? 'text-slate-400' : 'text-slate-900' }}">{{ $e->all_day ? 'Jour' : $e->starts_at->format('H:i') }}</span>
                         <span class="h-9 w-1 shrink-0 rounded-full {{ ['veterinary' => 'bg-red-400', 'farrier' => 'bg-amber-400', 'care' => 'bg-rose-400', 'treatment' => 'bg-purple-400', 'session' => 'bg-emerald-500', 'lesson' => 'bg-teal-400', 'competition' => 'bg-blue-400', 'ride' => 'bg-lime-400', 'rest' => 'bg-slate-300', 'custom' => 'bg-sky-400'][$e->type] ?? 'bg-slate-300' }}"></span>
-                        <span class="min-w-0 flex-1"><span class="block truncate font-medium {{ $e->status === 'done' ? 'text-slate-400 line-through' : '' }}">{{ $e->title }}</span><span class="block truncate text-sm text-slate-500">{{ $e->horse?->shortName() }}</span></span>
-                        @if ($e->status === 'done')<x-badge color="green">Fait</x-badge>@endif
+                        <span class="min-w-0 flex-1"><span class="block truncate font-medium {{ $e->status === 'done' ? 'text-slate-500' : '' }}">{{ $e->title }}</span><span class="block truncate text-sm text-slate-500">{{ $e->horse?->shortName() }}</span></span>
+                        @if ($e->status === 'done')<x-badge color="green"><x-icon name="check" class="size-3.5" /> Réalisé</x-badge>@elseif ($e->status === 'cancelled')<x-badge>Annulé</x-badge>@endif
                     </a>
                 @empty
                     <p class="py-2 text-[15px] text-slate-500">Rien de prévu aujourd'hui.</p>

@@ -101,6 +101,10 @@ class RidingSessionController extends Controller
             $session = $this->sessions->create($horse, $request->user(), $data);
         }
 
+        if ($session->isCompleted()) {
+            return redirect()->route('sessions.debrief', $session)->with('success', 'Séance passée enregistrée comme terminée : notez les exercices travaillés et votre bilan.');
+        }
+
         return redirect()->route('sessions.edit', $session)->with('success', 'Séance créée : ajoutez les exercices.');
     }
 
@@ -125,12 +129,45 @@ class RidingSessionController extends Controller
         abort_if($session->isCompleted(), 422, 'Une séance terminée ne peut plus être préparée : dupliquez-la pour en créer une nouvelle.');
         $user = $request->user();
 
+        $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
+        $session->load(['horse', 'exercises', 'rider.profile']);
+
         return view('sessions.edit', [
-            'session' => $session->load(['horse', 'exercises']),
-            'library' => Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get(),
+            'session' => $session,
+            'library' => $library,
+            // Exercices habituels du cavalier et exercices adaptés à son galop, par étape.
+            'suggestions' => app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),
             'riders' => $this->ridersFor($session->horse),
+            'phasePriority' => self::phasePriority(ExerciseCategory::orderBy('sort_order')->pluck('name', 'id')),
         ]);
+    }
+
+    /**
+     * Ordre des catégories dans la fenêtre de choix, selon l'étape : échauffement et assouplissements d'abord
+     * pour l'échauffement, retour au calme pour la fin, travail principal ensuite. Les autres suivent dans leur ordre habituel.
+     *
+     * @return array<string, array<int, int>> étape => [id de catégorie => rang]
+     */
+    public static function phasePriority($categories): array
+    {
+        $first = [
+            'warmup' => ['échauffement', 'assouplissement', 'travail à pied', 'longe', 'transitions'],
+            'main' => ['travail sur le plat', 'figures de manège', 'transitions', 'impulsion', 'mobilité latérale', 'obstacle', 'barres au sol'],
+            'complementary' => ['barres au sol', 'équilibre', 'rectitude', 'mobilité latérale', 'travail à pied', 'longe', 'extérieur'],
+            'cooldown' => ['retour au calme', 'assouplissement', 'extérieur'],
+        ];
+        $out = [];
+        foreach ($first as $phase => $names) {
+            $rank = [];
+            foreach ($categories as $id => $name) {
+                $pos = array_search(mb_strtolower($name), $names, true);
+                $rank[$id] = $pos === false ? 100 + count($rank) : $pos;
+            }
+            $out[$phase] = $rank;
+        }
+
+        return $out;
     }
 
     /** Modifier les informations de la séance (date, type, cavalier, lieu…) sans passer par la préparation. */

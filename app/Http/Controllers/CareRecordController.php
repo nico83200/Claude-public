@@ -231,7 +231,30 @@ class CareRecordController extends Controller
             'docCategories' => HorseDocument::CATEGORIES,
             'rules' => $this->reminders->rulesFor($horse)->map(fn ($r) => ['enabled' => $r['enabled'], 'value' => $r['interval_value'], 'unit' => $r['interval_unit']]),
             'event' => null,
+            'linkedExpense' => $record->exists ? Expense::where('care_record_id', $record->id)->first() : null,
+            'defaultMode' => $this->defaultNextMode($horse, $record),
         ];
+    }
+
+    /**
+     * Prochain passage proposé : « dans un délai » pour un nouveau soin, ou pour un soin dont le contrôle
+     * correspond à la fréquence du rappel ; « à une date précise » seulement pour une date choisie à la main.
+     */
+    private function defaultNextMode(Horse $horse, CareRecord $record): string
+    {
+        if (! $record->exists) {
+            return 'interval';
+        }
+        if (! $record->next_check_on) {
+            return 'none';
+        }
+        $rule = $record->care_category_id ? $this->reminders->ruleFor($horse, $record->care_category_id) : null;
+        if ($rule && $rule['enabled'] && $record->performed_at
+            && CareReminders::addInterval($record->performed_at, $rule['interval_value'], $rule['interval_unit'])->isSameDay($record->next_check_on)) {
+            return 'interval';
+        }
+
+        return 'date';
     }
 
     private function assignableUsers(Horse $horse)

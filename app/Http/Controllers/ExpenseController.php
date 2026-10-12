@@ -77,6 +77,7 @@ class ExpenseController extends Controller
             // Plus de dépense « générale de l'espace » : chaque dépense est rattachée à un cheval.
             'canOrgExpense' => false,
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
+            'careCategoryIds' => ExpenseCategory::whereIn('key', array_keys(\App\Services\CareExpenseSync::CARE_FOR_EXPENSE))->pluck('id')->map(fn ($id) => (string) $id)->values(),
             'professionals' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
@@ -120,8 +121,10 @@ class ExpenseController extends Controller
         $expense->author_id = $request->user()->id;
         $expense->save();
         $this->storeReceipt($request, $expense, $org);
+        // Dépense de soin (vétérinaire, maréchal…) : le soin est ajouté au carnet de santé avec les mêmes informations.
+        $care = $request->boolean('add_care', true) ? app(\App\Services\CareExpenseSync::class)->careFromExpense($expense, $request->user()) : null;
 
-        return back()->with('success', 'Dépense enregistrée.');
+        return back()->with('success', $care ? 'Dépense enregistrée, et soin ajouté au carnet de santé.' : 'Dépense enregistrée.');
     }
 
     public function edit(Request $request, Expense $expense, HorseAccess $access)

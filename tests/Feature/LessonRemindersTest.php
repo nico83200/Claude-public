@@ -25,9 +25,13 @@ class LessonRemindersTest extends TestCase
 {
     private function lessonFor($user, $horse, array $attrs = []): RidingSession
     {
-        return app(RidingSessionService::class)->create($horse, $user, $attrs + [
-            'scheduled_at' => now()->subHours(2), 'session_type' => 'group_lesson', 'instructor' => 'Jimmy', 'planned_minutes' => 60, 'status' => 'planned',
-        ]);
+        $attrs += ['scheduled_at' => now()->subHours(2), 'session_type' => 'group_lesson', 'instructor' => 'Jimmy', 'planned_minutes' => 60, 'status' => 'planned'];
+        // Cours prévu à l'avance (une séance saisie après coup est directement enregistrée comme terminée).
+        $this->travelTo(now()->subDays(2));
+        $session = app(RidingSessionService::class)->create($horse, $user, $attrs);
+        $this->travelBack();
+
+        return $session;
     }
 
     public function test_dictated_lesson_becomes_a_session_in_the_calendar(): void
@@ -36,19 +40,19 @@ class LessonRemindersTest extends TestCase
         $this->grantLicense($user->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($user, null, ['official_name' => 'JACK JACK DE COURTIS', 'usual_name' => 'Jack Jack']);
         $fake = new FakeClaude([
-            ['tools' => [['create_session', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d').' 16:00', 'session_type' => 'group_lesson', 'instructor' => 'Jimmy', 'planned_minutes' => 60, 'exercises' => []]]]],
-            ['text' => 'C\'est noté : cours collectif avec Jimmy pour Jack Jack aujourd\'hui à 16 h.'],
+            ['tools' => [['create_session', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 16:00', 'session_type' => 'group_lesson', 'instructor' => 'Jimmy', 'planned_minutes' => 60, 'exercises' => []]]]],
+            ['text' => 'C\'est noté : cours collectif avec Jimmy pour Jack Jack demain à 16 h.'],
         ]);
         $this->app->instance(ClaudeGateway::class, $fake);
 
-        $res = $this->actingAs($user)->postJson('/assistant/consigne', ['text' => 'Une monte en cours collectif est prévue cet après-midi à seize heures avec Jimmy sur Jack Jack.', 'mode' => 'voice'])->assertOk();
+        $res = $this->actingAs($user)->postJson('/assistant/consigne', ['text' => 'Une monte en cours collectif est prévue demain à seize heures avec Jimmy sur Jack Jack.', 'mode' => 'voice'])->assertOk();
 
         $session = RidingSession::firstOrFail();
         $this->assertSame(['group_lesson', 'Jimmy', 60, 'planned'], [$session->session_type, $session->instructor, $session->planned_minutes, $session->status]);
         $this->assertSame('Cours collectif avec Jimmy', $session->title());
         $event = CalendarEvent::where('source_id', $session->id)->where('type', 'session')->firstOrFail();
         $this->assertSame('Cours collectif avec Jimmy – Jack Jack', $event->title);
-        $this->assertSame(now()->format('Y-m-d').' 16:00', $event->starts_at->format('Y-m-d H:i'));
+        $this->assertSame(now()->addDay()->format('Y-m-d').' 16:00', $event->starts_at->format('Y-m-d H:i'));
         $this->assertStringStartsWith('Cours collectif avec Jimmy – Jack Jack', $res->json('actions.0.summary'));
         // Les règles transmises à Claude font d'un cours une séance, sans exercices inventés.
         $system = collect($fake->calls[0]['system'])->pluck('text')->implode("\n");
