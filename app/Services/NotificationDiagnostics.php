@@ -104,9 +104,9 @@ class NotificationDiagnostics
     /** Chemin d'un PHP 8.3+ en ligne de commande sur ce serveur (le « php » par défaut du cron peut être plus ancien). */
     public static function phpCli(): string
     {
-        foreach (['/opt/alt/php85/usr/bin/php', '/opt/alt/php84/usr/bin/php', '/opt/alt/php83/usr/bin/php', '/usr/bin/php8.5', '/usr/bin/php8.4', '/usr/bin/php8.3',
-            '/opt/cpanel/ea-php85/root/usr/bin/php', '/opt/cpanel/ea-php84/root/usr/bin/php', '/opt/cpanel/ea-php83/root/usr/bin/php',
-            '/usr/local/bin/php85', '/usr/local/bin/php84', '/usr/local/bin/php83'] as $bin) {
+        foreach (['/opt/alt/php83/usr/bin/php', '/usr/bin/php8.3', '/opt/cpanel/ea-php83/root/usr/bin/php', '/usr/local/bin/php83',
+            '/opt/alt/php84/usr/bin/php', '/usr/bin/php8.4', '/opt/cpanel/ea-php84/root/usr/bin/php', '/usr/local/bin/php84',
+            '/opt/alt/php85/usr/bin/php', '/usr/bin/php8.5', '/opt/cpanel/ea-php85/root/usr/bin/php', '/usr/local/bin/php85'] as $bin) {
             if (@is_executable($bin)) {
                 return $bin;
             }

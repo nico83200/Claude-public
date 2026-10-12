@@ -35,18 +35,46 @@ $log = function (string $status) {
 // Le cron de certains hébergeurs (Hostinger…) utilise une version de PHP plus ancienne que le site :
 // relance avec PHP 8.3 ou plus s'il est installé sur le serveur.
 if (version_compare(PHP_VERSION, '8.3.0', '<') && ! getenv('JACKCIE_CRON_RELAUNCHED')) {
-    $candidates = ['/opt/alt/php85/usr/bin/php', '/opt/alt/php84/usr/bin/php', '/opt/alt/php83/usr/bin/php',
-        '/usr/bin/php8.5', '/usr/bin/php8.4', '/usr/bin/php8.3', '/usr/local/bin/php85', '/usr/local/bin/php84', '/usr/local/bin/php83',
-        '/opt/cpanel/ea-php85/root/usr/bin/php', '/opt/cpanel/ea-php84/root/usr/bin/php', '/opt/cpanel/ea-php83/root/usr/bin/php',
-        '/usr/local/php8.5/bin/php', '/usr/local/php8.4/bin/php', '/usr/local/php8.3/bin/php'];
-    foreach ($candidates as $bin) {
-        if (@is_executable($bin) && function_exists('passthru')) {
-            putenv('JACKCIE_CRON_RELAUNCHED=1');
-            passthru(escapeshellarg($bin).' '.escapeshellarg(__FILE__), $code);
-            exit((int) $code);
+    // Même version que le site d'abord (8.3), puis plus récentes.
+    $candidates = ['/opt/alt/php83/usr/bin/php', '/usr/bin/php8.3', '/usr/local/bin/php83', '/opt/cpanel/ea-php83/root/usr/bin/php', '/usr/local/php8.3/bin/php',
+        '/opt/alt/php84/usr/bin/php', '/usr/bin/php8.4', '/usr/local/bin/php84', '/opt/cpanel/ea-php84/root/usr/bin/php', '/usr/local/php8.4/bin/php',
+        '/opt/alt/php85/usr/bin/php', '/usr/bin/php8.5', '/usr/local/bin/php85', '/opt/cpanel/ea-php85/root/usr/bin/php', '/usr/local/php8.5/bin/php'];
+    $bin = null;
+    foreach ($candidates as $c) {
+        if (@is_file($c) && @is_executable($c)) {
+            $bin = $c;
+            break;
         }
     }
-    $log('erreur : le cron utilise PHP '.PHP_VERSION.' ; Jack&Cie demande PHP 8.3. Choisissez PHP 8.3 pour la tâche cron chez l\'hébergeur, ou utilisez la commande indiquée dans Administration › Notifications.');
+    $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+    $can = fn ($f) => function_exists($f) && ! in_array($f, $disabled, true);
+    if ($bin) {
+        putenv('JACKCIE_CRON_RELAUNCHED=1');
+        $cmd = 'JACKCIE_CRON_RELAUNCHED=1 '.escapeshellarg($bin).' '.escapeshellarg(__FILE__).' 2>&1';
+        $code = null;
+        if ($can('passthru')) {
+            passthru($cmd, $code);
+        } elseif ($can('system')) {
+            system($cmd, $code);
+        } elseif ($can('exec')) {
+            exec($cmd, $out, $code);
+        } elseif ($can('proc_open')) {
+            $proc = proc_open($cmd, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+            if (is_resource($proc)) {
+                stream_get_contents($pipes[1]);
+                $code = proc_close($proc);
+            }
+        } elseif ($can('shell_exec')) {
+            shell_exec($cmd);
+            $code = 0;
+        }
+        if ($code !== null) {
+            exit((int) $code);
+        }
+        $log('erreur : le cron utilise PHP '.PHP_VERSION.' et ne peut pas relancer '.$bin.' (fonctions désactivées par l\'hébergeur). Remplacez la tâche par la commande : '.$bin.' '.__FILE__);
+        exit(1);
+    }
+    $log('erreur : le cron utilise PHP '.PHP_VERSION.' et aucun PHP 8.3 n\'est visible pour lui. Choisissez PHP 8.3 pour la tâche cron chez l\'hébergeur, ou la commande indiquée dans Administration › Notifications.');
     exit(1);
 }
 
