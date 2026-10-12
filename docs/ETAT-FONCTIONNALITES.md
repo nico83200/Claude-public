@@ -16,6 +16,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ 2.12.5 : corrigé : sur téléphone, la date ou l'heure ne pouvait pas être modifiée dans les fenêtres (nouvel événement, dépense, pension…) : ces fenêtres s'ouvrent désormais en plein écran sur téléphone, hors de la couche modale du navigateur
 - ✅ 2.12.5 : séance : bouton « Modifier » (date et heure, type, cavalier, enseignant, objectif, durée, lieu, précautions, notes, statut) ; séance terminée : notes seules
 - ✅ 2.12.5 : un compte = son espace personnel (où il est aussi cavalier) et au plus une écurie (offre Écurie) ; être invité dans l'écurie d'un tiers ne compte pas. Les écuries supplémentaires déjà créées ne sont pas supprimées
+- ✅ 2.12.5 : événement : intervenant en tête de fiche, nom cliquable vers sa fiche ; sur téléphone uniquement (pas sur tablette ni ordinateur), boutons « Appeler » et « SMS » (message pré-rempli avec la date du rendez-vous et le cheval) ; mêmes boutons sur la fiche de l'intervenant
 - ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
 
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension

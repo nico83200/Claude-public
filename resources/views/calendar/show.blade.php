@@ -4,11 +4,14 @@
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3">
         <x-section>
+            @if ($event->professional)
+                <x-professional-contact :professional="$event->professional" class="mb-4"
+                    :sms="'Bonjour, c\'est au sujet du rendez-vous du '.$event->starts_at->translatedFormat('l j F').($event->all_day ? '' : ' à '.$event->starts_at->format('H\hi')).($event->horse ? ' pour '.$event->horse->shortName() : '').'. '" />
+            @endif
             <x-dl :items="[
                 'Cheval' => $event->horse?->shortName(),
                 'Statut' => \App\Models\CalendarEvent::STATUSES[$event->status],
                 'Durée' => $event->all_day ? 'Toute la journée' : $event->duration_minutes.' min',
-                'Intervenant' => $event->professional?->fullName(),
                 'Responsable' => $event->responsible?->name,
                 'Récurrence' => $event->recurrence ? ['daily' => 'Quotidienne', 'weekly' => 'Hebdomadaire', 'monthly' => 'Mensuelle'][$event->recurrence].($event->recurrence_until ? ' jusqu\'au '.$event->recurrence_until->format('d/m/Y') : '') : null,
                 'Observations' => $event->notes,

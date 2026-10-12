@@ -43,6 +43,8 @@ export function installStore() {
         isAndroid,
         isMobile: isIOS || isAndroid || window.matchMedia('(max-width: 768px)').matches,
         handheld: isHandheld,
+        // Téléphone (pas tablette) : appels et SMS possibles.
+        phone: isHandheld && Math.min(screen.width, screen.height) < 600,
         inApp: isInAppBrowser,
         dismissed: dismissedRecently(),
         sheet: false,

@@ -8,7 +8,14 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <x-section title="Coordonnées">
             <div class="space-y-2 text-sm">
-                @if ($professional->phone)<a href="tel:{{ $professional->phone }}" class="btn-secondary w-full">📞 {{ $professional->phone }}</a>@endif
+                @if ($professional->phone)
+                    @php $tel = preg_replace('/[^0-9+]/', '', $professional->phone); @endphp
+                    <p class="font-medium">{{ $professional->phone }}</p>
+                    <div x-data x-show="$store.install.phone" x-cloak class="grid grid-cols-2 gap-2" data-phone-actions>
+                        <a href="tel:{{ $tel }}" class="btn-primary justify-center"><x-icon name="phone" class="size-4" /> Appeler</a>
+                        <a href="sms:{{ $tel }}" class="btn-secondary justify-center"><x-icon name="sms" class="size-4" /> SMS</a>
+                    </div>
+                @endif
                 @if ($professional->email)<a href="mailto:{{ $professional->email }}" class="block link">{{ $professional->email }}</a>@endif
                 @if ($professional->address)<p>{{ $professional->address }}</p>@endif
                 @if ($professional->usual_rate)<p class="text-slate-500">Tarif habituel : {{ number_format((float) $professional->usual_rate, 2, ',', ' ') }} €</p>@endif
