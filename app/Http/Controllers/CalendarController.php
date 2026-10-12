@@ -60,10 +60,26 @@ class CalendarController extends Controller
         $orgIds = $request->user()->memberships->pluck('organization_id');
 
         return view('calendar.show', [
-            'event' => $event->load(['horse', 'responsible', 'professional']),
+            'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category']),
             'canEdit' => $this->canEdit($request, $event),
             'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
                 && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
+            'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+        ]);
+    }
+
+    /** Modification d'un événement (page séparée de la fiche). */
+    public function edit(Request $request, CalendarEvent $event)
+    {
+        if ($event->isSessionEvent() && $event->source_id) {
+            return redirect()->route('sessions.details', $event->source_id);
+        }
+        $this->authorizeEvent($request, $event, Perm::CALENDAR_VIEW);
+        abort_unless($this->canEdit($request, $event), 403);
+        $orgIds = $request->user()->memberships->pluck('organization_id');
+
+        return view('calendar.edit', [
+            'event' => $event->load(['horse', 'careRecord']),
             'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }

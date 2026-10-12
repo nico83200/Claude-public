@@ -67,6 +67,20 @@
                 @endif
             </x-section>
             @endif
+            @if ($appointments->isNotEmpty())
+            <x-section title="Rendez-vous de l'agenda" data-care-appointments>
+                <p class="-mt-1 mb-2 text-xs text-slate-500">Soins prévus dans l'agenda. Une fois réalisés, ils rejoignent l'historique ci-dessous.</p>
+                @foreach ($appointments as $e)
+                    <div class="flex items-center justify-between gap-3 border-t border-slate-100 py-3 text-sm first:border-0">
+                        <a href="{{ route('calendar.show', $e) }}" class="min-w-0 hover:underline">
+                            <x-badge color="amber">{{ \App\Models\CalendarEvent::TYPES[$e->type] }}</x-badge> <span class="font-medium">{{ $e->title }}</span>
+                            <span class="block text-xs {{ $e->starts_at->isPast() ? 'text-red-600' : 'text-slate-500' }}">{{ $e->starts_at->translatedFormat('D d/m/Y H:i') }}{{ $e->professional ? ' · '.$e->professional->fullName() : '' }}{{ $e->starts_at->isPast() ? ' · à valider' : '' }}</span>
+                        </a>
+                        @if ($canEdit && $e->starts_at->isPast())<a href="{{ route('horses.care.create', [$horse, 'evenement' => $e->id]) }}" class="btn-secondary shrink-0">Valider</a>@endif
+                    </div>
+                @endforeach
+            </x-section>
+            @endif
             @if ($canHealth)
             <x-section title="Historique des soins">
                 <form method="GET" class="mb-3"><x-select name="category" :options="$categories" :value="request('category')" placeholder="Toutes les catégories" onchange="this.form.submit()" aria-label="Catégorie" /></form>

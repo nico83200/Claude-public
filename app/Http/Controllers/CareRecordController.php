@@ -12,6 +12,7 @@ use App\Models\HorseDocument;
 use App\Models\Professional;
 use App\Services\Audit;
 use App\Services\CalendarService;
+use App\Services\CareCalendarSync;
 use App\Services\CareReminders;
 use App\Services\CareRhythm;
 use App\Support\Perm;
@@ -38,6 +39,11 @@ class CareRecordController extends Controller
             'horse' => $horse,
             'records' => $records,
             'canHealth' => $canHealth,
+            'appointments' => $canHealth ? CalendarEvent::where('horse_id', $horse->id)
+                ->whereIn('type', array_keys(CareCalendarSync::CATEGORY_FOR_EVENT))
+                ->whereIn('status', ['planned', 'confirmed'])->whereNull('care_record_id')
+                ->where('starts_at', '>=', now()->subMonths(3))
+                ->with('professional')->orderBy('starts_at')->limit(15)->get() : collect(),
             'canEdit' => $this->horseCan($horse, Perm::HEALTH_EDIT),
             'canObserve' => $this->horseCan($horse, Perm::COMMENTS_CREATE),
             'treatments' => $horse->treatments()->with(['administrations.author', 'responsible'])->get(),
@@ -149,9 +155,11 @@ class CareRecordController extends Controller
         }
         $this->reminders->closePrevious($record, $this->calendar);
         if ($request->integer('calendar_event_id')) {
-            CalendarEvent::where('horse_id', $horse->id)->where(fn ($q) => $q->whereNull('source_type')->orWhere('source_type', (new CareRecord)->getMorphClass()))
-                ->whereKey($request->integer('calendar_event_id'))
-                ->update(['status' => 'done']);
+            $planned = CalendarEvent::where('horse_id', $horse->id)->where(fn ($q) => $q->whereNull('source_type')->orWhere('source_type', (new CareRecord)->getMorphClass()))
+                ->whereKey($request->integer('calendar_event_id'))->first();
+            if ($planned) {
+                app(CareCalendarSync::class)->linkValidated($planned, $record);
+            }
         }
         $this->calendar->syncFor($record, $horse, $this->eventType($record->category?->key), 'Contrôle : '.$record->category?->name.' – '.$horse->shortName(),
             $record->next_check_on ? Carbon::parse($record->next_check_on)->setTime(9, 0) : null,
@@ -177,11 +185,7 @@ class CareRecordController extends Controller
 
     private function eventType(?string $categoryKey): string
     {
-        return match ($categoryKey) {
-            'veterinary', 'vaccination', 'exams', 'imaging', 'specialist' => 'veterinary',
-            'farrier' => 'farrier',
-            default => 'care',
-        };
+        return CareCalendarSync::eventTypeFor($categoryKey);
     }
 
     private function validated(Request $request, Horse $horse): array

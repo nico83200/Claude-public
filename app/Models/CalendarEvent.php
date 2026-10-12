@@ -10,7 +10,7 @@ class CalendarEvent extends Model
 {
     use HasClientUuid, SoftDeletes;
 
-    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by'];
+    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by', 'care_record_id'];
 
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['status' => 'planned', 'duration_minutes' => 60, 'recurrence_interval' => 1];
@@ -69,5 +69,11 @@ class CalendarEvent extends Model
         $ids = collect($sessionHorseIds)->all();
 
         return $query->where(fn ($q) => $q->whereNull('source_type')->orWhere('source_type', '!=', $morph)->orWhereIn('horse_id', $ids ?: [0]));
+    }
+
+    /** Soin du carnet de santé correspondant (synchronisation Agenda ↔ Santé). */
+    public function careRecord()
+    {
+        return $this->belongsTo(CareRecord::class);
     }
 }

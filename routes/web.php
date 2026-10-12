@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/calendrier', [Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::post('/calendrier', [Controllers\CalendarController::class, 'store'])->name('calendar.store');
     Route::get('/calendrier/{event}', [Controllers\CalendarController::class, 'show'])->name('calendar.show');
+    Route::get('/calendrier/{event}/modifier', [Controllers\CalendarController::class, 'edit'])->name('calendar.edit');
     Route::put('/calendrier/{event}', [Controllers\CalendarController::class, 'update'])->name('calendar.update');
     Route::delete('/calendrier/{event}', [Controllers\CalendarController::class, 'destroy'])->name('calendar.destroy');
 

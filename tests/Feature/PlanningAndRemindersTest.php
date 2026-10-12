@@ -156,7 +156,8 @@ class PlanningAndRemindersTest extends TestCase
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
-        $event = new CalendarEvent(['horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal', 'starts_at' => now()->subHour()]);
+        // Rendez-vous pris à l'avance (un rendez-vous saisi après coup crée directement le soin : voir CareCalendarSyncTest).
+        $event = new CalendarEvent(['horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal', 'starts_at' => now()->addHour()]);
         $event->organization_id = $horse->organization_id;
         $event->save();
         $this->actingAs($user)->get("/calendrier/{$event->id}")->assertOk()->assertSee('Valider l\'intervention', false);
@@ -166,6 +167,10 @@ class PlanningAndRemindersTest extends TestCase
             'calendar_event_id' => $event->id, 'next_mode' => 'interval', 'next_interval_value' => 6, 'next_interval_unit' => 'weeks',
         ])->assertRedirect();
         $this->assertSame('done', $event->fresh()->status);
+        // Le rendez-vous validé devient l'événement du soin : pas de doublon dans l'agenda.
+        $care = CareRecord::where('horse_id', $horse->id)->latest('id')->first();
+        $this->assertSame($care->id, $event->fresh()->care_record_id);
+        $this->assertSame(1, CalendarEvent::where('care_record_id', $care->id)->count());
     }
 
     public function test_reminder_settings_and_sending(): void

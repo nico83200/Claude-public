@@ -42,6 +42,13 @@ class AppServiceProvider extends ServiceProvider
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
         Paginator::useTailwind();
 
+        // Agenda ↔ Santé : chaque soin a son événement, chaque rendez-vous de soin réalisé a son soin (toutes sources : formulaires, assistant, factures).
+        \App\Models\CareRecord::saved(fn ($care) => app(\App\Services\CareCalendarSync::class)->fromCare($care));
+        \App\Models\CareRecord::deleted(fn ($care) => app(\App\Services\CareCalendarSync::class)->careDeleted($care));
+        \App\Models\CalendarEvent::created(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event, true));
+        \App\Models\CalendarEvent::updated(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event));
+        \App\Models\CalendarEvent::deleted(fn ($event) => app(\App\Services\CareCalendarSync::class)->eventDeleted($event));
+
         // HTTPS forcé seulement une fois installé et si l'adresse configurée est en https
         // (l'installeur doit rester accessible sur un domaine pas encore certifié).
         if ($this->app->isProduction() && Installation::isInstalled() && str_starts_with((string) config('app.url'), 'https://')) {

@@ -47,4 +47,10 @@ class CareRecord extends Model
     {
         return $this->morphMany(HorseDocument::class, 'attachable');
     }
+
+    /** Événement de l'agenda correspondant à ce soin (synchronisation Agenda ↔ Santé). */
+    public function calendarEvent()
+    {
+        return $this->hasOne(CalendarEvent::class, 'care_record_id');
+    }
 }
