@@ -1,7 +1,7 @@
 {{-- Provenance des inscriptions : scans de QR code et clics sur les liens suivis (?src=…). --}}
 @php $pct = fn ($a, $b) => \App\Http\Controllers\Admin\StatsController::pct((int) $a, (int) $b); @endphp
 @if ($rows->isEmpty())
-    <p class="text-sm text-slate-500">Aucune arrivée par un lien suivi sur la période. Ajoutez <code class="rounded bg-slate-100 px-1">?src=affiche</code> ou <code class="rounded bg-slate-100 px-1">?src=instagram</code> (et éventuellement <code class="rounded bg-slate-100 px-1">&amp;code=…</code>) à l'adresse d'inscription <code class="rounded bg-slate-100 px-1">{{ url('/register') }}</code> pour distinguer vos supports.</p>
+    <p class="text-sm text-slate-500">Aucune arrivée par un lien suivi sur la période. Créez vos liens et QR codes avec le <a href="{{ route('admin.promo-codes.index') }}" class="link">générateur de QR code</a> (Codes promo) en choisissant une source : chaque scan ou clic sera compté ici.</p>
 @else
     <div class="table-wrap" data-acquisition><table class="table">
         <thead><tr><th>Provenance</th><th class="text-right">Scans / clics</th><th class="text-right">Visiteurs</th><th class="text-right">Comptes créés</th><th class="text-right">Codes activés</th></tr></thead>

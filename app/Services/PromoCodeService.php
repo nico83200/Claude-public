@@ -65,6 +65,39 @@ class PromoCodeService
         Audit::log($active ? 'admin.promo_code_enabled' : 'admin.promo_code_disabled', $promo, ['code' => $promo->code]);
     }
 
+    /**
+     * Modifie le libellé, la période de validité, le nombre maximal d'utilisations et la restriction
+     * « nouveaux clients ». Stripe ne permettant pas de modifier ces réglages sur un code existant,
+     * un code de réduction est remplacé chez Stripe par un nouveau code identique (même texte, même
+     * coupon) portant les nouveaux réglages ; les utilisations déjà faites sont déduites de la limite.
+     */
+    public function updateSettings(PromoCode $promo, array $data): void
+    {
+        $promo->fill($data);
+        $stripeFields = ['expires_at', 'max_redemptions', 'first_subscription_only'];
+        if ($promo->stripe_promotion_code_id && $promo->isDirty($stripeFields)) {
+            $old = $promo->stripe_promotion_code_id;
+            $remaining = $promo->max_redemptions !== null ? $promo->max_redemptions - $promo->redemptions_count : null;
+            $usable = $promo->is_active && ($remaining === null || $remaining > 0) && (! $promo->expires_at || $promo->expires_at->isFuture());
+            $this->stripe->setPromotionCodeActive($old, false);
+            if ($usable) {
+                try {
+                    $promo->stripe_promotion_code_id = $this->stripe->createPromotionCode($promo->stripe_coupon_id, $promo->code, array_filter([
+                        'max_redemptions' => $remaining,
+                        'expires_at' => $promo->expires_at?->endOfDay()->timestamp,
+                        'restrictions' => $promo->first_subscription_only ? ['first_time_transaction' => true] : null,
+                    ], fn ($v) => $v !== null));
+                } catch (\Throwable $e) {
+                    $this->stripe->setPromotionCodeActive($old, true);
+                    throw $e;
+                }
+            }
+        }
+        $changes = array_keys($promo->getDirty());
+        $promo->save();
+        Audit::log('admin.promo_code_updated', $promo, ['code' => $promo->code, 'fields' => $changes]);
+    }
+
     public function find(string $code): ?PromoCode
     {
         $code = PromoCode::normalize($code);

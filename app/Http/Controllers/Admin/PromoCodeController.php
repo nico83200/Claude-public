@@ -3,10 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcquisitionSource;
 use App\Models\PromoCode;
 use App\Models\SubscriptionPlan;
+use App\Services\AcquisitionTracker;
+use App\Services\Audit;
 use App\Services\Billing\StripeGateway;
 use App\Services\PromoCodeService;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -23,6 +30,8 @@ class PromoCodeController extends Controller
         $codes = PromoCode::with('plan')->when($request->query('type'), fn ($q, $t) => $q->where('type', $t))->latest()->paginate(30)->withQueryString();
 
         return view('admin.promo-codes.index', [
+            'qrCodes' => PromoCode::where('is_active', true)->orderBy('code')->get(['code', 'label']),
+            'sources' => AcquisitionSource::orderBy('label')->get(),
             'codes' => $codes,
             'plans' => SubscriptionPlan::whereNull('archived_at')->where('is_default_free', false)->orderBy('sort_order')->pluck('name', 'id'),
             'stripeReady' => $stripe->configured(),
@@ -93,7 +102,107 @@ class PromoCodeController extends Controller
             'promo' => $promoCode->load('plan', 'author'),
             'redemptions' => $promoCode->redemptions()->with('organization', 'user')->latest()->paginate(50),
             'plans' => SubscriptionPlan::whereIn('id', $promoCode->plan_ids ?? [])->pluck('name'),
-            'acquisition' => app(\App\Services\AcquisitionTracker::class)->report(null, $promoCode->code),
+            'acquisition' => app(AcquisitionTracker::class)->report(null, $promoCode->code),
+            'sources' => AcquisitionSource::orderBy('label')->get(),
+        ]);
+    }
+
+    /** Validité, nombre d'utilisations, nouveaux clients et libellé, modifiables après la création. */
+    public function updateSettings(Request $request, PromoCode $promoCode)
+    {
+        $data = $request->validate([
+            'label' => ['required', 'string', 'max:120'],
+            'starts_at' => ['nullable', 'date'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+            'max_redemptions' => ['nullable', 'integer', 'min:'.max(1, $promoCode->redemptions_count), 'max:1000000'],
+        ], [
+            'max_redemptions.min' => 'Le code a déjà été utilisé '.$promoCode->redemptions_count.' fois : la limite ne peut pas être inférieure.',
+            'expires_at.after_or_equal' => 'La fin de validité doit suivre le début.',
+        ]);
+        $data['first_subscription_only'] = $request->boolean('first_subscription_only');
+        try {
+            $this->promos->updateSettings($promoCode, $data);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->withInput()->with('error', 'Stripe a refusé la modification : '.mb_substr($e->getMessage(), 0, 300).' Le code n\'a pas été modifié.');
+        }
+
+        return back()->with('success', 'Code '.$promoCode->code.' mis à jour.');
+    }
+
+    /** QR code (SVG, pour l'impression) du lien d'inscription suivi d'une source. */
+    public function qr(PromoCode $promoCode, string $source)
+    {
+        $source = AcquisitionSource::where('key', $source)->firstOrFail();
+
+        return $this->qrResponse($promoCode->code, $source->key, true);
+    }
+
+    /**
+     * Générateur de QR code : code promo et source facultatifs (au moins l'adresse d'inscription).
+     * ?download=1 pour enregistrer le fichier, sinon affichage (aperçu).
+     */
+    public function qrGenerator(Request $request)
+    {
+        $data = $request->validate([
+            'code' => ['nullable', 'string', Rule::exists('promo_codes', 'code')],
+            'src' => ['nullable', 'string', Rule::exists('acquisition_sources', 'key')],
+        ]);
+
+        return $this->qrResponse($data['code'] ?? null, $data['src'] ?? null, $request->boolean('download'));
+    }
+
+    private function qrResponse(?string $code, ?string $source, bool $download)
+    {
+        $link = $code || $source ? AcquisitionTracker::link($code, (string) $source) : url('/register');
+        $svg = (new Writer(new ImageRenderer(new RendererStyle(600, 2), new SvgImageBackEnd)))->writeString($link);
+        $name = 'qr-'.implode('-', array_filter(['jackcie', $code ? strtolower($code) : null, $source])).'.svg';
+
+        return response($svg, 200, array_filter([
+            'Content-Type' => 'image/svg+xml',
+            'Cache-Control' => 'private, max-age=300',
+            'Content-Disposition' => $download ? 'attachment; filename="'.$name.'"' : null,
+        ]));
+    }
+
+    public function storeSource(Request $request)
+    {
+        $data = $this->sourceData($request);
+        $source = AcquisitionSource::create($data);
+        AcquisitionTracker::forgetLabels();
+        Audit::log('admin.acquisition_source_created', $source, $data);
+
+        return back()->with('success', 'Source « '.$source->label.' » ajoutée : son lien et son QR code sont disponibles sur la fiche de chaque code.');
+    }
+
+    public function updateSource(Request $request, AcquisitionSource $source)
+    {
+        $source->update($request->validate(['label' => ['required', 'string', 'max:80']]));
+        AcquisitionTracker::forgetLabels();
+
+        return back()->with('success', 'Source renommée.');
+    }
+
+    public function destroySource(AcquisitionSource $source)
+    {
+        $source->delete();
+        AcquisitionTracker::forgetLabels();
+        Audit::log('admin.acquisition_source_deleted', null, ['key' => $source->key]);
+
+        return back()->with('success', 'Source retirée de la liste. Les arrivées déjà comptées restent dans les statistiques ; les liens déjà diffusés continuent d\'être comptés comme « source non déclarée ».');
+    }
+
+    private function sourceData(Request $request): array
+    {
+        $request->merge(['key' => AcquisitionTracker::normalizeSource($request->input('key') ?: $request->input('label'))]);
+
+        return $request->validate([
+            'label' => ['required', 'string', 'max:80'],
+            'key' => ['required', 'string', 'max:40', 'not_in:lien', Rule::unique('acquisition_sources', 'key')],
+        ], [
+            'key.unique' => 'Une source utilise déjà cet identifiant.',
+            'key.required' => 'Indiquez un nom de source.',
         ]);
     }
 

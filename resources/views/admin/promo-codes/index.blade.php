@@ -2,7 +2,50 @@
     <x-page-header title="Codes promo et accès offerts" />
     @include('admin._nav')
 
-    <details class="card mb-5 p-4 sm:p-5" @if ($errors->any()) open @endif>
+    {{-- Générateur de QR code : code et source facultatifs, aperçu, lien, téléchargement SVG (impression) ou PNG. --}}
+    <section class="card mb-5 p-4 sm:p-5" data-qr-generator x-data="{
+        code: @js($qrCodes->first()?->code ?? ''), src: '', copied: false, busy: false,
+        base: @js(url('/register')), endpoint: @js(route('admin.promo-codes.qr-generator')),
+        query() { const q = new URLSearchParams(); if (this.code) q.set('code', this.code); if (this.src) q.set('src', this.src); return q.toString(); },
+        get link() { const q = this.query(); return this.base + (q ? '?' + q : ''); },
+        get preview() { const q = this.query(); return this.endpoint + (q ? '?' + q : ''); },
+        get download() { const q = this.query(); return this.endpoint + '?' + (q ? q + '&' : '') + 'download=1'; },
+        get name() { return ['qr-jackcie', this.code.toLowerCase(), this.src].filter(Boolean).join('-'); },
+        copy() { navigator.clipboard.writeText(this.link).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000); }); },
+        async png() {
+            this.busy = true;
+            try {
+                const svg = await (await fetch(this.preview, { credentials: 'same-origin' })).text();
+                const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+                const img = new Image(); await new Promise((ok, ko) => { img.onload = ok; img.onerror = ko; img.src = url; });
+                const c = document.createElement('canvas'); c.width = c.height = 1200;
+                const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 1200, 1200); x.drawImage(img, 0, 0, 1200, 1200);
+                URL.revokeObjectURL(url);
+                const a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = this.name + '.png'; a.click();
+            } finally { this.busy = false; }
+        },
+    }">
+        <h2 class="text-[17px] font-semibold">Générateur de QR code</h2>
+        <p class="mt-1 text-sm text-slate-500">Choisissez un code promo et une source : le QR code mène à la page d'inscription avec le code déjà saisi, et chaque scan est compté pour la source choisie.</p>
+        <div class="mt-4 grid gap-5 md:grid-cols-[1fr_15rem]">
+            <div class="space-y-3">
+                <div><label class="label" for="qr_code">Code promo</label>
+                    <select id="qr_code" x-model="code" class="input"><option value="">Sans code (inscription simple)</option>@foreach ($qrCodes as $c)<option value="{{ $c->code }}">{{ $c->code }} · {{ $c->label }}</option>@endforeach</select></div>
+                <div><label class="label" for="qr_src">Source</label>
+                    <select id="qr_src" x-model="src" class="input"><option value="">Aucune source</option>@foreach ($sources as $s)<option value="{{ $s->key }}">{{ $s->label }}</option>@endforeach</select>
+                    <p class="mt-1 text-xs text-slate-500">Une source manque ? Ajoutez-la dans « Sources de provenance » ci-dessous.</p></div>
+                <div><span class="label">Lien</span><p class="break-all rounded-xl bg-slate-50 px-3 py-2 font-mono text-xs text-slate-700" x-text="link"></p></div>
+                <div class="flex flex-wrap gap-2">
+                    <a :href="download" class="btn-primary"><x-icon name="download" class="size-4" /> SVG (impression)</a>
+                    <button type="button" class="btn-secondary" @click="png()" :disabled="busy"><x-icon name="download" class="size-4" /> <span x-text="busy ? 'Préparation…' : 'PNG (réseaux, documents)'"></span></button>
+                    <button type="button" class="btn-ghost" @click="copy()" x-text="copied ? 'Lien copié ✓' : 'Copier le lien'"></button>
+                </div>
+            </div>
+            <div class="flex items-start justify-center"><img :src="preview" alt="Aperçu du QR code" class="aspect-square w-56 rounded-2xl bg-white p-2 ring-1 ring-slate-200" width="224" height="224"></div>
+        </div>
+    </section>
+
+    <details class="card mb-5 p-4 sm:p-5" @if ($errors->any() && ! old('_source')) open @endif>
         <summary class="cursor-pointer font-semibold">Créer un code</summary>
         <form method="POST" action="{{ route('admin.promo-codes.store') }}" class="mt-4 grid gap-3 sm:grid-cols-2" x-data="{ type: @js(old('type', 'free_access')), kind: @js(old('discount_kind', 'percent')), duration: @js(old('duration', 'once')) }">
             @csrf
@@ -39,6 +82,29 @@
             <x-field name="max_redemptions" type="number" label="Nombre maximal d'utilisations (vide = illimité)" min="1" />
             <div class="self-end"><x-checkbox name="first_subscription_only" label="Réservé aux nouveaux clients" /></div>
             <div class="sm:col-span-2"><button class="btn-primary">Créer le code</button></div>
+        </form>
+    </details>
+
+    <details class="card mb-5 p-4 sm:p-5" data-sources @if ($errors->any() && old('_source')) open @endif>
+        <summary class="cursor-pointer font-semibold">Sources de provenance <span class="font-normal text-slate-500">({{ $sources->count() }})</span></summary>
+        <p class="mt-2 text-sm text-slate-500">Une source par support : affiches, Instagram, flyers, partenaire, newsletter… Chaque code promo propose ensuite un lien et un QR code par source, et les statistiques comptent les scans, les clics et les inscriptions de chacune.</p>
+        <div class="mt-3 divide-y divide-slate-100">
+            @foreach ($sources as $src)
+                <div class="flex flex-wrap items-center gap-2 py-2">
+                    <form method="POST" action="{{ route('admin.promo-codes.sources.update', $src) }}" class="flex min-w-0 flex-1 items-center gap-2">@csrf @method('PATCH')
+                        <input name="label" value="{{ $src->label }}" maxlength="80" class="input min-w-0 flex-1" aria-label="Nom de la source {{ $src->key }}">
+                        <span class="hidden shrink-0 font-mono text-xs text-slate-500 sm:inline">src={{ $src->key }}</span>
+                        <button class="btn-ghost text-sm">Renommer</button>
+                    </form>
+                    <x-confirm-delete :action="route('admin.promo-codes.sources.destroy', $src)" :message="'Retirer la source « '.$src->label.' » ? Les arrivées déjà comptées restent dans les statistiques.'" class="text-sm text-red-600">Retirer</x-confirm-delete>
+                </div>
+            @endforeach
+        </div>
+        <form method="POST" action="{{ route('admin.promo-codes.sources.store') }}" class="mt-3 grid gap-2 sm:grid-cols-[1fr_14rem_auto] sm:items-end">
+            @csrf <input type="hidden" name="_source" value="1">
+            <x-field name="label" label="Nouvelle source" placeholder="Flyers sellerie Dupont" maxlength="80" required />
+            <x-field name="key" label="Identifiant (facultatif)" placeholder="flyer-dupont" maxlength="40" help="Calculé à partir du nom si vide." />
+            <button class="btn-primary mb-0.5"><x-icon name="plus" class="size-4" /> Ajouter</button>
         </form>
     </details>
 

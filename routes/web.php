@@ -281,7 +281,13 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::post('/integrations/stripe/test', [Admin\IntegrationController::class, 'testStripe'])->middleware('throttle:5,1')->name('integrations.stripe.test');
     Route::get('/codes', [Admin\PromoCodeController::class, 'index'])->name('promo-codes.index');
     Route::post('/codes', [Admin\PromoCodeController::class, 'store'])->name('promo-codes.store');
+    Route::get('/codes/qr-code', [Admin\PromoCodeController::class, 'qrGenerator'])->name('promo-codes.qr-generator');
+    Route::post('/codes/sources', [Admin\PromoCodeController::class, 'storeSource'])->name('promo-codes.sources.store');
+    Route::patch('/codes/sources/{source}', [Admin\PromoCodeController::class, 'updateSource'])->name('promo-codes.sources.update');
+    Route::delete('/codes/sources/{source}', [Admin\PromoCodeController::class, 'destroySource'])->name('promo-codes.sources.destroy');
     Route::get('/codes/{promoCode}', [Admin\PromoCodeController::class, 'show'])->name('promo-codes.show');
+    Route::put('/codes/{promoCode}/reglages', [Admin\PromoCodeController::class, 'updateSettings'])->name('promo-codes.settings');
+    Route::get('/codes/{promoCode}/qr/{source}', [Admin\PromoCodeController::class, 'qr'])->name('promo-codes.qr');
     Route::patch('/codes/{promoCode}', [Admin\PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::post('/facturation/evenements/{event}/retraiter', [Admin\BillingController::class, 'reprocess'])->name('billing.reprocess');
     Route::get('/exercices', [Admin\ExerciseController::class, 'index'])->name('exercises.index');

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AcquisitionSource;
 use App\Models\AcquisitionVisit;
 use App\Models\PromoCode;
 use App\Models\User;
@@ -19,11 +20,28 @@ use Illuminate\Support\Str;
  */
 class AcquisitionTracker
 {
-    public const SOURCES = ['affiche' => 'Affiches (QR code)', 'instagram' => 'Instagram (lien en bio)', 'instagram-story' => 'Instagram (story)', 'lien' => 'Lien avec code'];
+    /** Libellés des sources déclarées dans l'administration (Codes promo › Sources). */
+    private static ?array $labels = null;
 
     public static function label(string $source): string
     {
-        return self::SOURCES[$source] ?? ucfirst(str_replace('-', ' ', $source));
+        self::$labels ??= AcquisitionSource::pluck('label', 'key')->all();
+        if ($source === 'lien') {
+            return 'Lien avec code (sans source)';
+        }
+
+        return self::$labels[$source] ?? ucfirst(str_replace('-', ' ', $source)).' (source non déclarée)';
+    }
+
+    public static function forgetLabels(): void
+    {
+        self::$labels = null;
+    }
+
+    /** Adresse d'inscription suivie pour un code et une source. */
+    public static function link(?string $code, string $source): string
+    {
+        return url('/register').'?'.http_build_query(array_filter(['code' => $code, 'src' => $source]));
     }
 
     public static function normalizeSource(?string $source): string

@@ -42,7 +42,7 @@ class PromoCode extends Model
         return match (true) {
             ! $this->is_active => 'Ce code n\'est plus actif.',
             $this->starts_at && $this->starts_at->isFuture() => 'Ce code n\'est pas encore valable.',
-            $this->expires_at && $this->expires_at->isPast() => 'Ce code a expiré.',
+            $this->expires_at && $this->expires_at->copy()->endOfDay()->isPast() => 'Ce code a expiré.',
             $this->max_redemptions !== null && $this->redemptions_count >= $this->max_redemptions => 'Ce code a atteint son nombre maximal d\'utilisations.',
             default => null,
         };
