@@ -18,6 +18,19 @@
                     <form method="POST" action="{{ route('admin.organizations.suspend', $org) }}" class="space-y-2">@csrf<x-field name="reason" label="Motif" required /><button class="btn-danger w-full">Suspendre (lecture seule)</button></form>
                 @endif
             </x-section>
+            @php $blocker = \App\Http\Controllers\Admin\OrganizationController::deletionBlocker($org); @endphp
+            <x-section title="Supprimer l'espace" class="border border-red-100" data-delete-org>
+                @if ($blocker)
+                    <p class="text-sm text-slate-600">{{ $blocker }}</p>
+                @else
+                    <p class="mb-3 text-sm text-slate-600">Ses {{ $horseCount }} cheval(aux) et leurs données (santé, séances, documents, dépenses…) sont supprimés et effacés définitivement au bout de 30 jours ; les membres perdent l'accès ; les chevaux confiés par d'autres espaces leur sont rendus. Pour un arrêt temporaire, préférez la suspension.</p>
+                    <form method="POST" action="{{ route('admin.organizations.destroy', $org) }}" class="space-y-2" x-data="{ typed: '' }">
+                        @csrf @method('DELETE')
+                        <x-field name="confirm_name" :label="'Recopiez « '.$org->name.' » pour confirmer'" x-model="typed" autocomplete="off" required />
+                        <button class="btn-danger w-full" :disabled="typed !== @js($org->name)">Supprimer définitivement</button>
+                    </form>
+                @endif
+            </x-section>
             <x-section title="Membres">@foreach ($org->members as $m)<p class="text-sm"><a href="{{ route('admin.users.show', $m->user_id) }}" class="link">{{ $m->user->name }}</a> — {{ $m->role->name }}</p>@endforeach</x-section>
         </div>
         <div class="space-y-4 lg:col-span-2">

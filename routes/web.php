@@ -261,6 +261,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/organisations/{organization}', [Admin\OrganizationController::class, 'show'])->name('organizations.show');
     Route::post('/organisations/{organization}/suspendre', [Admin\OrganizationController::class, 'suspend'])->name('organizations.suspend');
     Route::post('/organisations/{organization}/reactiver', [Admin\OrganizationController::class, 'reactivate'])->name('organizations.reactivate');
+    Route::delete('/organisations/{organization}', [Admin\OrganizationController::class, 'destroy'])->name('organizations.destroy');
     Route::post('/organisations/{organization}/licences', [Admin\LicenseController::class, 'store'])->name('licenses.store');
     Route::put('/licences/{license}', [Admin\LicenseController::class, 'update'])->name('licenses.update');
     Route::resource('offres', Admin\PlanController::class)->parameters(['offres' => 'plan'])->names('plans')->except(['show', 'destroy']);
