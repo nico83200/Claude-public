@@ -65,7 +65,7 @@ class AssistantSettingsController extends Controller
         return back()->with('success', 'Réglages de l\'assistant enregistrés.');
     }
 
-    public function test(Request $request, ClaudeGateway $claude)
+    public function test(Request $request, ClaudeGateway $claude, \App\Services\Assistant\Transcriber $transcriber)
     {
         $which = $request->validate(['service' => ['required', Rule::in(['anthropic', 'elevenlabs'])]])['service'];
         try {
@@ -75,12 +75,10 @@ class AssistantSettingsController extends Controller
                 return back()->with('success', 'Claude répond ('.$r['model'].') : '.trim(implode(' ', $r['texts'])));
             }
             abort_unless(filled(config('services.elevenlabs.key')), back()->with('error', 'Aucune clé ElevenLabs configurée.'));
-            $res = Http::withHeaders(['xi-api-key' => config('services.elevenlabs.key')])->timeout(15)->get('https://api.elevenlabs.io/v1/models');
-            if (! $res->successful()) {
-                return back()->with('error', 'ElevenLabs refuse la clé (HTTP '.$res->status().').');
-            }
+            // Vrai essai de transcription (1 seconde de son) : vérifie la clé, sa permission « Speech to Text » et les crédits.
+            $transcriber->transcribeBytes(\App\Services\Assistant\Transcriber::sampleWav(), 'essai.wav');
 
-            return back()->with('success', 'Connexion ElevenLabs réussie.');
+            return back()->with('success', 'Transcription ElevenLabs opérationnelle (modèle '.config('services.elevenlabs.stt_model', 'scribe_v2').').');
         } catch (Throwable $e) {
             return back()->with('error', 'Échec du test : '.mb_substr($e->getMessage(), 0, 300));
         }

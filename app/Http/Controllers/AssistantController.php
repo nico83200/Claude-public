@@ -52,8 +52,13 @@ class AssistantController extends Controller
             $text = $transcriber->transcribe($request->file('audio'));
         } catch (Throwable $e) {
             report($e);
+            $message = $transcriber->configured() ? 'La transcription a échoué. Réessayez ou écrivez la consigne.' : 'La dictée vocale n\'est pas configurée : écrivez la consigne.';
+            // Le super-administrateur voit la cause exacte pour pouvoir la corriger.
+            if ($request->user()->is_super_admin && $transcriber->configured()) {
+                $message .= ' — '.mb_substr($e->getMessage(), 0, 400);
+            }
 
-            return response()->json(['message' => $transcriber->configured() ? 'La transcription a échoué. Réessayez ou écrivez la consigne.' : 'La dictée vocale n\'est pas configurée : écrivez la consigne.'], 502);
+            return response()->json(['message' => $message], 502);
         }
 
         return response()->json(['text' => $text]);

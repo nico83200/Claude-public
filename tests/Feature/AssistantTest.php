@@ -270,6 +270,35 @@ class AssistantTest extends TestCase
         $this->actingAs($user)->post('/assistant/transcription', ['audio' => UploadedFile::fake()->createWithContent('c.webm', 'abc')], ['Accept' => 'application/json'])->assertStatus(502);
     }
 
+    public function test_transcription_errors_are_explained_to_the_super_admin(): void
+    {
+        [$user] = $this->setUpUser();
+        $this->fake([]);
+        config(['services.elevenlabs.key' => 'el_test']);
+        $denied = ['detail' => ['status' => 'missing_permissions', 'message' => 'The API key you used is missing the permission speech_to_text to execute this operation.']];
+        // Trois refus (deux dictées, un test d'administration), puis la clé est corrigée.
+        Http::fake(['api.elevenlabs.io/*' => Http::sequence()->push($denied, 401)->push($denied, 401)->push($denied, 401)->push(['text' => ''])]);
+        $audio = fn () => UploadedFile::fake()->createWithContent('consigne.webm', str_repeat('a', 2048));
+
+        // Utilisateur : message simple, sans détail technique.
+        $this->actingAs($user)->post('/assistant/transcription', ['audio' => $audio()], ['Accept' => 'application/json'])
+            ->assertStatus(502)->assertJson(['message' => 'La transcription a échoué. Réessayez ou écrivez la consigne.']);
+        // Super-administrateur : la cause exacte et quoi faire.
+        $user->forceFill(['is_super_admin' => true])->save();
+        $this->actingAs($user)->post('/assistant/transcription', ['audio' => $audio()], ['Accept' => 'application/json'])
+            ->assertStatus(502)->assertJsonFragment(['message' => 'La transcription a échoué. Réessayez ou écrivez la consigne. — '.\App\Services\Assistant\Transcriber::explain(401, json_encode(['detail' => ['status' => 'missing_permissions', 'message' => 'The API key you used is missing the permission speech_to_text to execute this operation.']]))]);
+        $this->assertStringContainsString('Speech to Text', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"missing_permissions","message":"x"}}'));
+        $this->assertStringContainsString('crédits', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"quota_exceeded","message":"This request exceeds your quota"}}'));
+        $this->assertStringContainsString('clé ElevenLabs refusée', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"invalid_api_key","message":"Invalid API key"}}'));
+
+        // Test depuis l'administration : vraie transcription d'un court son.
+        $this->actingAs($user)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/assistant/test', ['service' => 'elevenlabs'])
+            ->assertSessionHas('error', fn ($m) => str_contains($m, 'Speech to Text'));
+        $this->actingAs($user)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/assistant/test', ['service' => 'elevenlabs'])
+            ->assertSessionHas('success', fn ($m) => str_contains($m, 'Transcription ElevenLabs opérationnelle'));
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/v1/speech-to-text'));
+    }
+
     public function test_super_admin_configures_instructions_model_and_keys(): void
     {
         $admin = $this->user();
