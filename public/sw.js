@@ -6,10 +6,11 @@
  * v7 : affichage des notifications (Web Push) et ouverture de la bonne page au toucher.
  * v8 : accusé de réception (diagnostic), installation qui ne bloque plus si une ressource manque.
  * v9 : version communiquée à la page (diagnostic de l'appareil).
+ * v10 : manifeste construit par le serveur (jamais mis en cache).
  */
-const VERSION = 'v9';
+const VERSION = 'v10';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
-const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
+const PRECACHE = ['/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
 
 self.addEventListener('install', (event) => {
     // Une ressource manquante ne doit pas empêcher l'installation (sinon l'ancien service worker reste en place).
@@ -30,7 +31,7 @@ self.addEventListener('fetch', (event) => {
     if (url.origin !== self.location.origin) return;
 
     // Ressources publiques versionnées : cache d'abord.
-    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/brand/') || url.pathname === '/manifest.webmanifest') {
+    if (url.pathname.startsWith('/build/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/brand/')) {
         event.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => {
             if (res.ok) caches.open(STATIC_CACHE).then((c) => c.put(req, res.clone()));
             return res;

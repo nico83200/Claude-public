@@ -49,8 +49,24 @@ class AcquisitionTracker
         return mb_substr(trim((string) preg_replace('/[^a-z0-9-]+/', '-', mb_strtolower((string) $source)), '-'), 0, 40);
     }
 
+    /** Jeton signé qui permet à l'application installée de reprendre la visite (sans la compter deux fois). */
+    public static function resumeToken(?int $visitId): ?string
+    {
+        return $visitId ? $visitId.'.'.substr(hash_hmac('sha256', 'visite:'.$visitId, (string) config('app.key')), 0, 20) : null;
+    }
+
     public function track(Request $request): ?AcquisitionVisit
     {
+        // Application installée juste après le scan : même visite, sans nouvelle ouverture comptée.
+        if (is_string($resume = $request->query('suite')) && str_contains($resume, '.')) {
+            $id = (int) strstr($resume, '.', true);
+            if (hash_equals((string) self::resumeToken($id), $resume) && ($visit = AcquisitionVisit::whereKey($id)->whereNull('user_id')->first())) {
+                $request->session()->put('acquisition_visit', $visit->id);
+
+                return $visit;
+            }
+        }
+
         $source = self::normalizeSource($request->query('src') ?? $request->query('utm_source'));
         $code = mb_substr(PromoCode::normalize((string) $request->query('code')), 0, 40) ?: null;
         if ($source === '' && ! $code) {

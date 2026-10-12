@@ -60,4 +60,37 @@ class AcquisitionTrackingTest extends TestCase
             ->assertSee('data-acquisition', false)->assertSee('?code=EQUITA2026&amp;src=instagram', false);
         $this->actingAs($this->user())->get('/admin/statistiques')->assertNotFound();
     }
+
+    public function test_code_and_source_survive_installing_the_app_after_a_scan(): void
+    {
+        PromoCode::create(['code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon', 'is_active' => true,
+            'subscription_plan_id' => SubscriptionPlan::where('slug', 'particulier')->value('id'), 'free_days' => 30]);
+
+        // Sans scan : l'application s'ouvre sur l'accueil.
+        $this->get('/app.webmanifest')->assertOk()->assertHeader('Content-Type', 'application/manifest+json')->assertJsonPath('start_url', '/dashboard?source=pwa');
+
+        // Scan de l'affiche sur un téléphone sans l'application : page d'installation, puis installation.
+        $this->get('/register?code=EQUITA2026&src=affiche')->assertOk();
+        $visit = AcquisitionVisit::sole();
+        $start = $this->get('/app.webmanifest')->assertOk()->json('start_url');
+        $this->assertStringStartsWith('/register?', $start);
+        $this->assertStringContainsString('code=EQUITA2026', $start);
+
+        // L'application installée a sa propre session (iPhone) : le code et la source sont retrouvés, sans double comptage.
+        $this->newVisitor();
+        $this->get($start)->assertOk()->assertSee('data-signup-banner', false)->assertSee('EQUITA2026');
+        $this->assertSame(1, AcquisitionVisit::count());
+        $this->assertSame(1, (int) $visit->fresh()->hits);
+        $this->post('/register', ['name' => 'Lou', 'email' => 'lou@exemple.fr', 'password' => 'Cheval2026secret', 'password_confirmation' => 'Cheval2026secret', 'terms' => '1', 'promo_code' => 'EQUITA2026'])->assertRedirect();
+        $lou = User::where('email', 'lou@exemple.fr')->firstOrFail();
+        $this->assertSame([$lou->id, 'affiche'], [$visit->fresh()->user_id, $visit->fresh()->source]);
+        $this->assertNotNull($visit->fresh()->code_redeemed_at);
+
+        // Jeton falsifié : ignoré (nouvelle visite normale, aucune reprise).
+        $this->newVisitor();
+        $this->get('/register?suite='.$visit->id.'.faux&src=affiche')->assertOk();
+        $this->assertSame(2, AcquisitionVisit::count());
+        // Une fois connecté, le manifeste redevient celui de l'accueil.
+        $this->actingAs($lou)->get('/app.webmanifest')->assertJsonPath('start_url', '/dashboard?source=pwa');
+    }
 }
