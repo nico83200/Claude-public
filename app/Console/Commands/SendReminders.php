@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\CalendarEvent;
 use App\Models\CareRecord;
+use App\Models\Horse;
 use App\Models\Reminder;
 use App\Models\Treatment;
 use App\Models\User;
@@ -60,6 +61,13 @@ class SendReminders extends Command
         }
         foreach (Treatment::with('horse.organization')->where('status', 'active')->whereDate('ends_on', now()->addDay()->toDateString())->get() as $t) {
             $sent += $this->dispatch($access, $t, $t->horse, Perm::TREATMENTS_VIEW, 'treatment_end', 'Fin de traitement demain', 'Le traitement '.$t->product.' de '.$t->horse->shortName().' se termine le '.$t->ends_on->format('d/m/Y').'.', route('horses.care.index', $t->horse), Carbon::parse($t->ends_on));
+        }
+        // Pesées régulières : le jour prévu (une seule fois par échéance).
+        foreach (Horse::with('organization')->whereNotNull('weigh_every_weeks')->whereNull('archived_at')->get() as $horse) {
+            $due = $horse->nextWeighingOn();
+            if ($due && $due->isSameDay($today)) {
+                $sent += $this->dispatch($access, $horse, $horse, Perm::DAILYLOG_CREATE, 'weight_due', 'Pesée à faire', 'C\'est le jour de peser '.$horse->shortName().' (balance ou ruban) pour suivre son poids.', route('horses.weight', $horse), $due);
+            }
         }
         Treatment::where('status', 'active')->whereNotNull('ends_on')->where('ends_on', '<', now()->toDateString())->update(['status' => 'completed']);
 

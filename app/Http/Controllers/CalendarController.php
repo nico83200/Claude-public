@@ -6,7 +6,9 @@ use App\Models\CalendarEvent;
 use App\Models\Horse;
 use App\Models\OrganizationMember;
 use App\Models\Professional;
+use App\Services\AgendaJournal;
 use App\Services\CalendarService;
+use App\Services\RidingSessionService;
 use App\Services\HorseAccess;
 use App\Support\Perm;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ class CalendarController extends Controller
 {
     public function __construct(private CalendarService $calendar) {}
 
-    public function index(Request $request, HorseAccess $access)
+    public function index(Request $request, HorseAccess $access, AgendaJournal $journal)
     {
         $user = $request->user();
         $view = in_array($request->query('view'), ['day', 'week', 'month'], true) ? $request->query('view') : 'month';
@@ -35,6 +37,7 @@ class CalendarController extends Controller
             ->visibleSessions($access->horseIdsWith($user, Perm::SESSIONS_VIEW))
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('horse_id', $h))
             ->when($request->query('type'), fn ($q, $t) => $q->where('type', $t))
+            ->when($request->query('vue') === 'journal', fn ($q) => $q->whereRaw('1 = 0'))
             ->where(fn ($q) => $q->whereBetween('starts_at', [$from, $to])
                 ->orWhere(fn ($r) => $r->whereNotNull('recurrence')->where('starts_at', '<=', $to)->where(fn ($u) => $u->whereNull('recurrence_until')->orWhere('recurrence_until', '>=', $from->toDateString()))))
             ->get();
@@ -43,7 +46,10 @@ class CalendarController extends Controller
 
         return view('calendar.index', [
             'view' => $view, 'date' => $date, 'from' => $from, 'to' => $to,
-            'occurrences' => $this->calendar->expand($events, $from, $to),
+            // Rendez-vous et tout ce qui est daté ailleurs dans l'application (pesées, observations, dépenses…).
+            'occurrences' => $this->calendar->expand($events, $from, $to)
+                ->concat($request->query('vue') === 'rdv' ? [] : $journal->between($user, $from, $to, $request->integer('horse') ?: null, $request->query('type')))
+                ->sortBy(fn ($o) => [$o['at']->toDateString(), $o['event']->all_day ? 0 : 1, $o['at']->format('H:i')])->values(),
             'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
             'editableHorses' => $editableHorses,
             'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
@@ -60,7 +66,7 @@ class CalendarController extends Controller
         $orgIds = $request->user()->memberships->pluck('organization_id');
 
         return view('calendar.show', [
-            'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category']),
+            'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category', 'treatment']),
             'canEdit' => $this->canEdit($request, $event),
             'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
                 && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
@@ -96,6 +102,21 @@ class CalendarController extends Controller
             $this->authorizeOrg($org, Perm::CALENDAR_EDIT);
             $orgId = $org->id;
         }
+        // Une séance, un cours ou une balade d'un cheval saisi dans l'agenda devient une vraie séance (visible dans Séances).
+        $sessionType = ['session' => 'free', 'lesson' => 'private_lesson', 'ride' => 'ride'][$data['type']] ?? null;
+        if ($sessionType && isset($horse) && empty($data['recurrence']) && $this->horseCan($horse, Perm::SESSIONS_CREATE)) {
+            $session = app(RidingSessionService::class)->create($horse, $request->user(), [
+                'scheduled_at' => $data['starts_at'], 'session_type' => $sessionType, 'objective' => $data['title'],
+                'planned_minutes' => min(600, (int) $data['duration_minutes']), 'notes' => $data['notes'] ?? null,
+                'rider_id' => $data['responsible_user_id'] ?? null,
+            ]);
+            if ($data['starts_at']->isPast()) {
+                $session->update(['status' => 'completed', 'completed_at' => $data['starts_at']]);
+            }
+
+            return redirect()->route('calendar.index', ['date' => $data['starts_at']->toDateString(), 'view' => $request->input('return_view', 'month')])
+                ->with('success', 'Séance ajoutée à l\'agenda et au suivi des séances.');
+        }
         $event = new CalendarEvent($data);
         $event->organization_id = $orgId;
         $event->created_by = $request->user()->id;
@@ -121,6 +142,9 @@ class CalendarController extends Controller
     {
         abort_unless($this->canEdit($request, $event), 403);
         abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : supprimez ou annulez la séance.');
+        if ($event->treatment && $event->treatment->administrations()->exists()) {
+            return back()->with('error', 'Ce traitement a déjà des administrations enregistrées : arrêtez-le depuis la page Santé du cheval pour garder son historique.');
+        }
         $event->delete();
 
         return redirect()->route('calendar.index')->with('success', 'Événement supprimé.');

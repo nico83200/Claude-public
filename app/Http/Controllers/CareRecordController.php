@@ -161,9 +161,7 @@ class CareRecordController extends Controller
                 app(CareCalendarSync::class)->linkValidated($planned, $record);
             }
         }
-        $this->calendar->syncFor($record, $horse, $this->eventType($record->category?->key), 'Contrôle : '.$record->category?->name.' – '.$horse->shortName(),
-            $record->next_check_on ? Carbon::parse($record->next_check_on)->setTime(9, 0) : null,
-            ['professional_id' => $record->professional_id, 'duration_minutes' => 30]);
+        // Le contrôle prévu suit le soin dans l'agenda (CareCalendarSync, à chaque enregistrement).
 
         if ($request->boolean('add_expense') && $record->cost && $this->horseCan($horse, Perm::EXPENSES_CREATE)
             && ! Expense::where('care_record_id', $record->id)->exists()) {

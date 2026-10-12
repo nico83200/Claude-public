@@ -45,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
         // Agenda ↔ Santé : chaque soin a son événement, chaque rendez-vous de soin réalisé a son soin (toutes sources : formulaires, assistant, factures).
         \App\Models\CareRecord::saved(fn ($care) => app(\App\Services\CareCalendarSync::class)->fromCare($care));
         \App\Models\CareRecord::deleted(fn ($care) => app(\App\Services\CareCalendarSync::class)->careDeleted($care));
+        \App\Models\Treatment::saved(fn ($t) => app(\App\Services\CareCalendarSync::class)->fromTreatment($t));
+        \App\Models\Treatment::deleted(fn ($t) => app(\App\Services\CareCalendarSync::class)->treatmentDeleted($t));
         \App\Models\CalendarEvent::created(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event, true));
         \App\Models\CalendarEvent::updated(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event));
         \App\Models\CalendarEvent::deleted(fn ($event) => app(\App\Services\CareCalendarSync::class)->eventDeleted($event));

@@ -174,9 +174,6 @@ class InvoiceController extends ExpenseController
                 $care->horse_id = $horse->id;
                 $care->author_id = $request->user()->id;
                 $care->save();
-                $calendar->syncFor($care, $horse, match ($category->key) {
-                    'veterinary', 'vaccination', 'exams', 'imaging', 'specialist' => 'veterinary', 'farrier' => 'farrier', default => 'care',
-                }, 'Contrôle : '.$category->name.' – '.$horse->shortName(), $next?->copy()->setTime(9, 0), ['professional_id' => $care->professional_id, 'duration_minutes' => 30]);
                 $reminders->closePrevious($care, $calendar);
             }
             $values = collect($data)->only(['horse_id', 'expense_category_id', 'spent_on', 'amount', 'supplier', 'professional_id', 'comment'])->all();

@@ -25,6 +25,8 @@ class AppNotification extends Notification
         'appointment' => 'Rendez-vous à venir',
         'care_due' => 'Échéance de soin',
         'treatment_end' => 'Fin de traitement',
+        'weight_due' => 'Pesée à faire',
+        'announcement' => 'Message de Jack&Cie',
         'invitation' => 'Invitation',
         'invitation_accepted' => 'Invitation acceptée',
         'observation' => 'Nouvelle observation',

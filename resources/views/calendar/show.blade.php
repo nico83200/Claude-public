@@ -19,7 +19,13 @@
                 'Récurrence' => $event->recurrence ? ['daily' => 'Quotidienne', 'weekly' => 'Hebdomadaire', 'monthly' => 'Mensuelle'][$event->recurrence].($event->recurrence_until ? ' jusqu\'au '.$event->recurrence_until->format('d/m/Y') : '') : null,
                 'Observations' => $event->notes,
             ]" />
-            @if ($event->source_type)<p class="mt-3 text-xs text-slate-500">Événement généré automatiquement à partir d'un soin ou d'un traitement.</p>@endif
+            @if ($event->source_type === (new \App\Models\CareRecord)->getMorphClass())
+                <p class="mt-3 text-xs text-slate-500">Contrôle prévu à la suite d'un soin : le déplacer ici change la date du contrôle ; le marquer « Réalisé » enregistre le soin dans le carnet de santé.</p>
+                @if ($event->horse)<a href="{{ route('horses.care.show', [$event->horse, $event->source_id]) }}" class="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">Voir le soin d'origine</a>@endif
+            @elseif ($event->source_type === (new \App\Models\Treatment)->getMorphClass() || $event->treatment)
+                <p class="mt-3 text-xs text-slate-500">{{ $event->treatment ? 'Début du traitement' : 'Fin prévue du traitement' }} : il apparaît aussi dans la santé du cheval et se met à jour avec cet événement.</p>
+                @if ($event->horse)<a href="{{ route('horses.care.index', $event->horse) }}" class="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">Voir les traitements</a>@endif
+            @endif
             @if ($canValidate)
                 <a href="{{ route('horses.care.create', [$event->horse, 'evenement' => $event->id]) }}" class="btn-primary mt-4 w-full"><x-icon name="check" class="size-4" /> Valider l'intervention</a>
                 <p class="mt-1 text-xs text-slate-500">Enregistre le soin réalisé et propose la date du prochain passage.</p>

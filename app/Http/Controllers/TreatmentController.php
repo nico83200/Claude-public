@@ -29,7 +29,6 @@ class TreatmentController extends Controller
         $treatment->author_id = $request->user()->id;
         $treatment->status = 'active';
         $treatment->save();
-        $this->syncEvent($horse, $treatment);
         Audit::log('treatment.created', $treatment, [], $horse->organization_id);
 
         return back()->with('success', 'Traitement enregistré.');
@@ -40,7 +39,6 @@ class TreatmentController extends Controller
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
         $data = $this->validated($request, $horse) + $request->validate(['status' => ['required', Rule::in(array_keys(Treatment::STATUSES))]]);
         $treatment->update($data);
-        $this->syncEvent($horse, $treatment);
 
         return back()->with('success', 'Traitement mis à jour.');
     }
@@ -58,13 +56,6 @@ class TreatmentController extends Controller
         return back()->with('success', 'Administration enregistrée.');
     }
 
-    private function syncEvent(Horse $horse, Treatment $treatment): void
-    {
-        $end = $treatment->ends_on && $treatment->status === 'active' ? Carbon::parse($treatment->ends_on)->setTime(18, 0) : null;
-        $this->calendar->syncFor($treatment, $horse, 'treatment', 'Fin de traitement : '.$treatment->product.' – '.$horse->shortName(), $end, [
-            'responsible_user_id' => $treatment->responsible_user_id, 'duration_minutes' => 15,
-        ]);
-    }
 
     private function validated(Request $request, Horse $horse): array
     {

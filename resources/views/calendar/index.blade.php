@@ -1,12 +1,15 @@
 @php
     $prev = match ($view) { 'day' => $date->copy()->subDay(), 'week' => $date->copy()->subWeek(), default => $date->copy()->subMonthNoOverflow() };
     $next = match ($view) { 'day' => $date->copy()->addDay(), 'week' => $date->copy()->addWeek(), default => $date->copy()->addMonthNoOverflow() };
-    $q = fn ($d, $v = null) => array_filter(['view' => $v ?? $view, 'date' => $d->toDateString(), 'horse' => request('horse'), 'type' => request('type')]);
+    $q = fn ($d, $v = null) => array_filter(['view' => $v ?? $view, 'date' => $d->toDateString(), 'horse' => request('horse'), 'type' => request('type'), 'vue' => request('vue')]);
+    $typeLabels = \App\Models\CalendarEvent::TYPES + \App\Services\AgendaJournal::TYPES;
+    $typeColors = \App\Models\CalendarEvent::COLORS + \App\Services\AgendaJournal::COLORS;
+    $href = fn ($o) => $o['url'] ?? route('calendar.show', $o['event']);
     $byDay = $occurrences->groupBy(fn ($o) => $o['at']->toDateString());
     $colors = ['red' => 'bg-red-100 text-red-800', 'amber' => 'bg-amber-100 text-amber-800', 'rose' => 'bg-rose-100 text-rose-800', 'purple' => 'bg-violet-100 text-violet-800', 'emerald' => 'bg-emerald-100 text-emerald-800', 'teal' => 'bg-teal-100 text-teal-800', 'blue' => 'bg-blue-100 text-blue-800', 'lime' => 'bg-lime-100 text-lime-800', 'slate' => 'bg-slate-100 text-slate-700', 'sky' => 'bg-sky-100 text-sky-800'];
     $dots = ['red' => 'bg-red-500', 'amber' => 'bg-amber-500', 'rose' => 'bg-rose-500', 'purple' => 'bg-violet-500', 'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'blue' => 'bg-blue-500', 'lime' => 'bg-lime-500', 'slate' => 'bg-slate-400', 'sky' => 'bg-sky-500'];
-    $dot = fn ($ev) => $dots[\App\Models\CalendarEvent::COLORS[$ev->type] ?? 'sky'];
-    $chip = fn ($ev) => $colors[\App\Models\CalendarEvent::COLORS[$ev->type] ?? 'sky'];
+    $dot = fn ($ev) => $dots[$typeColors[$ev->type] ?? 'sky'];
+    $chip = fn ($ev) => $colors[$typeColors[$ev->type] ?? 'sky'];
 @endphp
 <x-layouts.app title="Calendrier">
     <x-page-header title="Calendrier" :subtitle="ucfirst($view === 'month' ? $date->translatedFormat('F Y') : ($view === 'week' ? 'Semaine du '.$from->format('d/m').' au '.$to->format('d/m/Y') : $date->translatedFormat('l j F Y')))">
@@ -27,9 +30,10 @@
             @endforeach
         </div>
     </div>
-    <x-filters :fields="['horse', 'type']" :keep="['view' => $view, 'date' => $date->toDateString()]">
+    <x-filters :fields="['horse', 'type', 'vue']" :keep="['view' => $view, 'date' => $date->toDateString()]">
         <x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />
-        <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="request('type')" placeholder="Tous" />
+        <x-select name="vue" label="Afficher" :options="['rdv' => 'Rendez-vous et séances', 'journal' => 'Suivi (pesées, observations, dépenses…)']" :value="request('vue')" placeholder="Tout" />
+        <x-select name="type" label="Type" :options="$typeLabels" :value="request('type')" placeholder="Tous" />
     </x-filters>
 
     @if ($view === 'month')
@@ -40,7 +44,7 @@
                     <div class="min-h-28 border-r border-b border-slate-100 p-1.5 {{ $d->month !== $date->month ? 'bg-slate-50/60 text-slate-400' : '' }}">
                         <a href="{{ route('calendar.index', $q($d, 'day')) }}" class="text-xs font-semibold {{ $d->isToday() ? 'rounded-full bg-brand-600 px-1.5 text-white' : '' }}">{{ $d->day }}</a>
                         @foreach (($byDay[$d->toDateString()] ?? collect())->take(4) as $o)
-                            <a href="{{ route('calendar.show', $o['event']) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : '' }}">{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
+                            <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : '' }}">{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
                         @endforeach
                         @if (($byDay[$d->toDateString()] ?? collect())->count() > 4)<span class="text-[11px] text-slate-500">+{{ $byDay[$d->toDateString()]->count() - 4 }}</span>@endif
                     </div>
@@ -58,12 +62,12 @@
                 <div class="card divide-y divide-slate-100">
                     @foreach ($items as $o)
                         @php $ev = $o['event']; @endphp
-                        <a href="{{ route('calendar.show', $ev) }}" class="flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
+                        <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif class="flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
                             <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
                             <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>
                             <span class="min-w-0 flex-1">
                                 <span class="block font-medium text-slate-900 {{ $ev->status === 'cancelled' ? 'line-through' : '' }}">{{ $ev->title }}</span>
-                                <span class="block text-xs text-slate-500">{{ collect([\App\Models\CalendarEvent::TYPES[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
+                                <span class="block text-xs text-slate-500">{{ collect([$typeLabels[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
                             </span>
                             <x-icon name="chevron" class="size-4 shrink-0 text-slate-300" />
                         </a>

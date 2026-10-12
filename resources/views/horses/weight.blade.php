@@ -74,6 +74,15 @@
                     <button class="btn-primary w-full">Enregistrer</button>
                 </form>
             </x-section>
+            <x-section title="Rappel de pesée" data-weigh-reminder>
+                <p class="-mt-1 mb-3 text-sm text-slate-600">Pour suivre le poids, pesez à intervalle régulier. Le jour prévu, une notification vous le rappelle et la pesée apparaît dans l'agenda.</p>
+                <form method="POST" action="{{ route('horses.weight.reminder', $horse) }}" class="space-y-3">
+                    @csrf @method('PUT')
+                    <x-select name="weigh_every_weeks" label="Fréquence" :options="\App\Models\Horse::WEIGH_FREQUENCIES" :value="$horse->weigh_every_weeks" placeholder="Pas de rappel" />
+                    @if ($nextWeighing)<p class="text-sm {{ $nextWeighing->lt(today()) ? 'text-red-600' : 'text-slate-600' }}">Prochaine pesée : <strong>{{ $nextWeighing->isToday() ? 'aujourd\'hui' : $nextWeighing->translatedFormat('l j F Y') }}</strong>{{ $nextWeighing->lt(today()) ? ' (en retard)' : '' }}</p>@endif
+                    <button class="btn-secondary w-full">Enregistrer le rappel</button>
+                </form>
+            </x-section>
         @endif
     </div>
 

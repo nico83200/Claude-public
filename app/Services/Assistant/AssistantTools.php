@@ -391,9 +391,6 @@ class AssistantTools
             $record->horse_id = $horse->id;
             $record->author_id = $ctx->user->id;
             $record->save();
-            $this->calendar->syncFor($record, $horse, match ($category->key) {
-                'veterinary', 'vaccination', 'exams', 'imaging', 'specialist' => 'veterinary', 'farrier' => 'farrier', default => 'care',
-            }, 'Contrôle : '.$category->name.' – '.$horse->shortName(), $next?->copy()->setTime(9, 0), ['professional_id' => $record->professional_id, 'duration_minutes' => 30]);
             $closed = $this->reminders->closePrevious($record, $this->calendar);
             $ruleBefore = null;
             if (! empty($in['remember_frequency']) && ! empty($in['next_interval_value']) && ! empty($in['next_interval_unit'])) {

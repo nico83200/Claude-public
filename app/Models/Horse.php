@@ -174,6 +174,20 @@ class Horse extends Model
         return $this->usual_name ? "{$this->usual_name} ({$this->official_name})" : $this->official_name;
     }
 
+    /** Fréquences proposées pour le rappel de pesée (en semaines). */
+    public const WEIGH_FREQUENCIES = [2 => 'Toutes les 2 semaines', 4 => 'Toutes les 4 semaines', 6 => 'Toutes les 6 semaines', 8 => 'Toutes les 8 semaines', 12 => 'Tous les 3 mois', 26 => 'Tous les 6 mois'];
+
+    /** Prochaine pesée prévue : N semaines après la dernière mesure (aujourd'hui s'il n'y en a aucune). */
+    public function nextWeighingOn(): ?\Illuminate\Support\Carbon
+    {
+        if (! $this->weigh_every_weeks) {
+            return null;
+        }
+        $last = $this->measurements()->reorder()->max('measured_on');
+
+        return $last ? \Illuminate\Support\Carbon::parse($last)->addWeeks($this->weigh_every_weeks)->startOfDay() : today();
+    }
+
     public function shortName(): string
     {
         return $this->usual_name ?: $this->official_name;

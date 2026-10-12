@@ -10,7 +10,7 @@ class CalendarEvent extends Model
 {
     use HasClientUuid, SoftDeletes;
 
-    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by', 'care_record_id'];
+    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by', 'care_record_id', 'treatment_id'];
 
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['status' => 'planned', 'duration_minutes' => 60, 'recurrence_interval' => 1];
@@ -26,6 +26,11 @@ class CalendarEvent extends Model
     public const STATUSES = ['planned' => 'Prévu', 'confirmed' => 'Confirmé', 'done' => 'Réalisé', 'cancelled' => 'Annulé'];
 
     public const COLORS = ['veterinary' => 'red', 'farrier' => 'amber', 'care' => 'rose', 'treatment' => 'purple', 'session' => 'emerald', 'lesson' => 'teal', 'competition' => 'blue', 'ride' => 'lime', 'rest' => 'slate', 'custom' => 'sky'];
+
+    public function treatment()
+    {
+        return $this->belongsTo(Treatment::class);
+    }
 
     public function horse()
     {

@@ -38,7 +38,19 @@ class MeasurementController extends Controller
             'change' => $last && $prev ? self::change($prev->weight_kg, $last->weight_kg) : null,
             'lastCondition' => $measures->whereNotNull('body_condition')->last(),
             'canCreate' => $this->horseCan($horse, Perm::DAILYLOG_CREATE) && ! $horse->isArchived(),
+            'nextWeighing' => $horse->nextWeighingOn(),
         ]);
+    }
+
+    /** Rappel régulier de pesée (notification le jour prévu et pesée à faire dans l'agenda). */
+    public function reminder(Request $request, Horse $horse)
+    {
+        $this->authorizeHorse($horse, Perm::DAILYLOG_CREATE);
+        $data = $request->validate(['weigh_every_weeks' => ['nullable', 'integer', Rule::in(array_keys(Horse::WEIGH_FREQUENCIES))]]);
+        $horse->forceFill(['weigh_every_weeks' => $data['weigh_every_weeks'] ?? null])->save();
+        $next = $horse->nextWeighingOn();
+
+        return back()->with('success', $next ? 'Rappel de pesée enregistré : prochaine pesée le '.$next->format('d/m/Y').', visible dans l\'agenda.' : 'Rappel de pesée désactivé.');
     }
 
     public function store(Request $request, Horse $horse, HorseAccess $access)
