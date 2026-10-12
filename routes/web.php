@@ -217,6 +217,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/notifications/lire', [Controllers\NotificationController::class, 'markAll'])->name('notifications.read-all');
     Route::post('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.subscribe');
     Route::delete('/notifications/appareils', [Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('/notifications/etat', [Controllers\PushSubscriptionController::class, 'state'])->middleware('throttle:30,1')->name('push.state');
     Route::post('/notifications/essai', [Controllers\PushSubscriptionController::class, 'test'])->middleware('throttle:6,1')->name('push.test');
     Route::get('/notifications/{id}', [Controllers\NotificationController::class, 'open'])->name('notifications.open');
 

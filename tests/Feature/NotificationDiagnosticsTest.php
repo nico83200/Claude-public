@@ -29,7 +29,7 @@ class NotificationDiagnosticsTest extends TestCase
 
         Cache::forget(NotificationDiagnostics::CRON_KEY);
         $as()->get('/admin/notifications?email='.$user->email)->assertOk()
-            ->assertSee('Le cron du serveur ne tourne pas')->assertSee('php artisan schedule:run')->assertSee(base_path('cron.php'))
+            ->assertSee('Le cron du serveur ne tourne pas')->assertSee('artisan schedule:run')->assertSee(base_path('cron.php'))
             ->assertSee('Aucun appareil abonné')->assertSee('pas encore parti');
 
         PushSubscription::forceCreate(['user_id' => $user->id, 'endpoint' => 'https://web.push.apple.com/abc', 'endpoint_hash' => hash('sha256', 'abc'), 'public_key' => 'x', 'auth_token' => 'y',
@@ -85,5 +85,21 @@ class NotificationDiagnosticsTest extends TestCase
         $this->assertSame('NotAllowedError', $sub->fresh()->last_display_error);
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/notifications')
             ->assertSee('Reçu et affiché par l')->assertSee('NotAllowedError')->assertSee('data-cron-runs', false);
+    }
+
+    public function test_device_reports_its_state(): void
+    {
+        $user = $this->user();
+        app(\App\Services\WebPush::class)->publicKey();
+        $sub = PushSubscription::forceCreate(['user_id' => $user->id, 'endpoint' => 'https://web.push.apple.com/zz', 'endpoint_hash' => hash('sha256', 'https://web.push.apple.com/zz'),
+            'public_key' => 'x', 'auth_token' => 'y', 'content_encoding' => 'aes128gcm', 'device' => 'iPhone']);
+        $this->actingAs($user)->postJson('/notifications/etat', ['endpoint' => 'https://web.push.apple.com/zz', 'permission' => 'granted', 'version' => 'v9', 'local_test' => 'ok'])
+            ->assertOk()->assertJson(['known' => true, 'received_at' => null]);
+        $this->assertSame(['granted', 'v9', 'ok'], [$sub->fresh()->device_permission, $sub->fresh()->sw_version, $sub->fresh()->local_test]);
+        $this->postJson('/push/recu', ['endpoint' => 'https://web.push.apple.com/zz', 'version' => 'v9']);
+        $this->actingAs($user)->postJson('/notifications/etat', ['endpoint' => 'https://web.push.apple.com/zz'])->assertJsonPath('known', true)->assertJsonMissing(['received_at' => null]);
+        // L'appareil d'un autre utilisateur n'est pas modifiable.
+        $this->actingAs($this->user())->postJson('/notifications/etat', ['endpoint' => 'https://web.push.apple.com/zz', 'permission' => 'denied'])->assertJson(['known' => false]);
+        $this->assertSame('granted', $sub->fresh()->device_permission);
     }
 }

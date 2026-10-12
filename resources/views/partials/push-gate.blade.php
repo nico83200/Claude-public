@@ -3,6 +3,7 @@
     $pushConfig = [
         'vapidKey' => rescue(fn () => app(\App\Services\WebPush::class)->publicKey(), null, false),
         'subscribeUrl' => route('push.subscribe'),
+        'stateUrl' => route('push.state'),
         // Pages toujours accessibles : export et suppression des données personnelles.
         'enabled' => ! request()->routeIs('settings.privacy', 'settings.export', 'settings.data-request'),
     ];

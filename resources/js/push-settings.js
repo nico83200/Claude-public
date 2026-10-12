@@ -1,7 +1,7 @@
 // Page Paramètres › Notifications : activation, désactivation, essai sur cet appareil.
-import { currentSubscription, pushSupported, sendJson, subscribe, syncSubscription } from './push.js';
+import { currentSubscription, pushSupported, reportState, sendJson, subscribe, syncSubscription } from './push.js';
 
-export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl }) {
+export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl, stateUrl }) {
     return {
         state: 'checking', // checking | unsupported | install | denied | off | on
         busy: false,
@@ -13,6 +13,7 @@ export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl }
             if (Notification.permission === 'denied') { this.state = 'denied'; return; }
             try {
                 this.state = (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) ? 'on' : 'off';
+                if (this.state === 'on') reportState(stateUrl);
             } catch { this.state = 'off'; }
         },
         async enable() {
@@ -37,10 +38,33 @@ export function pushSettings({ vapidKey, subscribeUrl, unsubscribeUrl, testUrl }
         async test() {
             this.busy = true; this.message = '';
             try {
+                // 1. Affichage local (sans passer par Internet) : vérifie que le téléphone ou le navigateur montre bien les notifications.
+                let local = 'ok';
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    await reg.showNotification('Jack&Cie', { body: 'Essai d\'affichage sur cet appareil.', icon: '/icons/icon-192.png', tag: 'local_test' });
+                } catch (e) { local = 'refusé : ' + String(e?.message || e); }
+                await reportState(stateUrl, { local_test: local });
+                // 2. Envoi par le service push (Apple, Google…), puis vérification que l'appareil l'a reçu.
+                const started = Date.now();
                 const res = await sendJson(testUrl, 'POST');
                 const data = await res.json().catch(() => ({}));
-                this.message = res.ok ? 'Notification envoyée : elle doit apparaître dans quelques secondes. Sinon, vérifiez les réglages du téléphone (notifications autorisées pour Jack&Cie, mode Concentration).'
-                    : 'Aucun appareil n\'a pu être joint' + (data.error ? ' (' + data.error + ')' : '') + '. Désactivez puis réactivez les notifications.';
+                if (!res.ok) {
+                    this.message = 'Aucun appareil n\'a pu être joint' + (data.error ? ' (' + data.error + ')' : '') + '. Désactivez puis réactivez les notifications.';
+                    return;
+                }
+                this.message = 'Deux notifications d\'essai arrivent (une locale, une par Internet). Vérification de la réception…';
+                let received = false;
+                for (let i = 0; i < 6 && !received; i++) {
+                    await new Promise((r) => setTimeout(r, 2500));
+                    const state = await reportState(stateUrl);
+                    received = Boolean(state?.received_at && Date.parse(state.received_at) >= started - 5000);
+                }
+                this.message = received
+                    ? 'Notification reçue par cet appareil. Si elle n\'est pas apparue, autorisez les notifications de Jack&Cie dans les réglages du téléphone (et vérifiez le mode Concentration / Ne pas déranger).'
+                    : (local === 'ok'
+                        ? 'La notification locale fonctionne, mais celle envoyée par Internet n\'est pas arrivée sur cet appareil. Désactivez puis réactivez les notifications ci-dessus ; si cela persiste, signalez-le (Administration › Notifications affiche le détail).'
+                        : 'Cet appareil refuse d\'afficher les notifications (' + local + '). Autorisez-les pour Jack&Cie dans les réglages du téléphone ou du navigateur.');
             } finally { this.busy = false; }
         },
     };

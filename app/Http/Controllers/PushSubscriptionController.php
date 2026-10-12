@@ -49,16 +49,35 @@ class PushSubscriptionController extends Controller
         return response()->json(['reached' => $reached, 'error' => $reached ? null : PushSubscription::where('user_id', $request->user()->id)->latest('last_failure_at')->value('last_error')], $reached ? 200 : 422);
     }
 
+    /** État de cet appareil envoyé par la page (autorisation, version du service worker, essai local). */
+    public function state(Request $request)
+    {
+        $data = $request->validate([
+            'endpoint' => ['required', 'string', 'max:2000'], 'permission' => ['nullable', 'in:granted,denied,default'],
+            'version' => ['nullable', 'string', 'max:10'], 'local_test' => ['nullable', 'string', 'max:255'],
+        ]);
+        $sub = PushSubscription::where('user_id', $request->user()->id)->where('endpoint_hash', hash('sha256', $data['endpoint']))->first();
+        if (! $sub) {
+            return response()->json(['known' => false]);
+        }
+        $sub->forceFill(array_filter([
+            'device_permission' => $data['permission'] ?? null, 'sw_version' => $data['version'] ?? null,
+            'local_test' => $data['local_test'] ?? null, 'device_checked_at' => now(),
+        ], fn ($v) => $v !== null))->save();
+
+        return response()->json(['known' => true, 'received_at' => $sub->last_received_at?->toIso8601String()]);
+    }
+
     /**
      * Accusé de réception envoyé par le service worker de l'appareil (sans session ni jeton :
      * l'adresse d'abonnement, propre à l'appareil, l'identifie). Sert uniquement au diagnostic.
      */
     public function receipt(Request $request)
     {
-        $data = $request->validate(['endpoint' => ['required', 'string', 'max:2000'], 'error' => ['nullable', 'string', 'max:200']]);
-        PushSubscription::where('endpoint_hash', hash('sha256', $data['endpoint']))->update([
-            'last_received_at' => now(), 'last_display_error' => $data['error'] ?? null,
-        ]);
+        $data = $request->validate(['endpoint' => ['required', 'string', 'max:2000'], 'error' => ['nullable', 'string', 'max:200'], 'version' => ['nullable', 'string', 'max:10']]);
+        PushSubscription::where('endpoint_hash', hash('sha256', $data['endpoint']))->update(array_filter([
+            'last_received_at' => now(), 'last_display_error' => $data['error'] ?? null, 'sw_version' => $data['version'] ?? null,
+        ], fn ($v, $k) => $v !== null || $k === 'last_display_error', ARRAY_FILTER_USE_BOTH));
 
         return response()->noContent();
     }

@@ -5,8 +5,9 @@
  * La mise à jour v6 efface les caches de l'ancien mode hors ligne.
  * v7 : affichage des notifications (Web Push) et ouverture de la bonne page au toucher.
  * v8 : accusé de réception (diagnostic), installation qui ne bloque plus si une ressource manque.
+ * v9 : version communiquée à la page (diagnostic de l'appareil).
  */
-const VERSION = 'v8';
+const VERSION = 'v9';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
 const PRECACHE = ['/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
 
@@ -43,13 +44,18 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
+// Version demandée par la page (diagnostic des notifications).
+self.addEventListener('message', (event) => {
+    if (event.data === 'version' && event.ports[0]) event.ports[0].postMessage(VERSION);
+});
+
 // --- Notifications ------------------------------------------------------------
 self.addEventListener('push', (event) => {
     let data = {};
     try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() }; }
     const title = data.title || 'Jack&Cie';
     const receipt = (error) => self.registration.pushManager.getSubscription()
-        .then((sub) => sub && fetch('/push/recu', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint, error: error || null }) }))
+        .then((sub) => sub && fetch('/push/recu', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint, error: error || null, version: VERSION }) }))
         .catch(() => null);
     event.waitUntil(self.registration.showNotification(title, {
         body: data.body || '',

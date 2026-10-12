@@ -2,7 +2,7 @@
     <x-page-header title="Paramètres" />
     @include('settings._nav')
     <div class="max-w-xl space-y-4">
-        <div x-data="pushSettings({ vapidKey: @js($vapidKey), subscribeUrl: @js(route('push.subscribe')), unsubscribeUrl: @js(route('push.unsubscribe')), testUrl: @js(route('push.test')) })">
+        <div x-data="pushSettings({ vapidKey: @js($vapidKey), subscribeUrl: @js(route('push.subscribe')), unsubscribeUrl: @js(route('push.unsubscribe')), testUrl: @js(route('push.test')), stateUrl: @js(route('push.state')) })">
         <x-section title="Sur cet appareil">
             <p class="-mt-1 mb-4 text-sm text-slate-500">Recevez les rappels directement sur votre téléphone, même quand Jack&Cie est fermée.</p>
 

@@ -46,6 +46,28 @@ export async function syncSubscription(subscribeUrl, vapidKey) {
     return res.ok ? sub : null;
 }
 
+/** Version du service worker actif (diagnostic). */
+export function swVersion() {
+    return navigator.serviceWorker.ready.then((reg) => new Promise((resolve) => {
+        if (!reg.active) return resolve(null);
+        const ch = new MessageChannel();
+        const timer = setTimeout(() => resolve('ancienne'), 1500); // v7 et avant ne répondent pas
+        ch.port1.onmessage = (e) => { clearTimeout(timer); resolve(String(e.data)); };
+        reg.active.postMessage('version', [ch.port2]);
+    })).catch(() => null);
+}
+
+/** Envoie l'état de cet appareil au serveur (autorisation, version, essai local) pour le diagnostic. */
+export async function reportState(stateUrl, extra = {}) {
+    if (!stateUrl) return null;
+    try {
+        const sub = await currentSubscription();
+        if (!sub) return null;
+        const res = await sendJson(stateUrl, 'POST', { endpoint: sub.endpoint, permission: Notification.permission, version: await swVersion(), ...extra });
+        return res.ok ? res.json() : null;
+    } catch { return null; }
+}
+
 /** Demande l'autorisation puis abonne l'appareil. Retourne 'granted' | 'denied' | 'default'. */
 export async function subscribe(vapidKey, subscribeUrl) {
     const permission = await Notification.requestPermission();
@@ -64,7 +86,7 @@ export async function subscribe(vapidKey, subscribeUrl) {
  * tant que les notifications ne sont pas activées. Jamais de blocage quand c'est impossible
  * (navigateur sans Web Push, ex. iOS < 16.4) : il n'y aurait aucun moyen d'en sortir.
  */
-export function pushGateStore({ vapidKey, subscribeUrl, enabled }) {
+export function pushGateStore({ vapidKey, subscribeUrl, enabled, stateUrl }) {
     return {
         show: false,
         state: 'ask', // ask | denied
@@ -77,7 +99,7 @@ export function pushGateStore({ vapidKey, subscribeUrl, enabled }) {
         },
         async check() {
             try {
-                if (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) { this.show = false; return; }
+                if (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) { this.show = false; reportState(stateUrl); return; }
             } catch { /* service worker indisponible : on redemande */ }
             this.state = Notification.permission === 'denied' ? 'denied' : 'ask';
             this.show = true;
