@@ -62,6 +62,11 @@
             </dl>
         </x-section>
 
+        {{-- Provenance : affiches, Instagram… --}}
+        <x-section title="Provenance des inscriptions (QR codes et liens)" class="lg:col-span-2">
+            @include('admin._acquisition', ['rows' => $acquisition])
+        </x-section>
+
         {{-- Fonctions utilisées --}}
         <x-section title="Fonctions utilisées">
             <div class="space-y-2.5">

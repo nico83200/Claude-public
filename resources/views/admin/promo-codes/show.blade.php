@@ -20,6 +20,14 @@
                 <button class="{{ $promo->is_active ? 'btn-danger' : 'btn-primary' }}">{{ $promo->is_active ? 'Désactiver le code' : 'Réactiver le code' }}</button>
             </form>
         </x-section>
+        <x-section title="Provenance (QR codes et liens)" class="lg:col-span-3 lg:order-first">
+            @include('admin._acquisition', ['rows' => $acquisition])
+            <div class="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                @foreach (['affiche' => 'Affiches', 'instagram' => 'Instagram'] as $src => $label)
+                    <p class="rounded-xl bg-slate-50 px-3 py-2"><span class="font-semibold">Lien {{ $label }} :</span> <span class="break-all font-mono">{{ url('/register').'?code='.$promo->code.'&src='.$src }}</span></p>
+                @endforeach
+            </div>
+        </x-section>
         <x-section title="Utilisations" class="lg:col-span-2">
             @forelse ($redemptions as $r)
                 <p class="border-t border-slate-100 py-2 text-sm first:border-0">{{ $r->created_at->format('d/m/Y H:i') }} · <a href="{{ route('admin.organizations.show', $r->organization_id) }}" class="link">{{ $r->organization?->name ?? 'Espace supprimé' }}</a>{{ $r->user ? ' · '.$r->user->name : '' }}</p>

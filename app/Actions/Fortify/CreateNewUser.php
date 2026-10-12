@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Services\AcquisitionTracker;
 use App\Services\OrganizationService;
 use App\Services\PromoCodeService;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,7 @@ class CreateNewUser implements CreatesNewUsers
             $org = $this->organizations->createPersonal($user);
             // Code d'accès gratuit saisi à l'inscription (salon, partenaire) : un code refusé annule l'inscription
             // pour que la personne puisse le corriger, plutôt que de créer un compte sans l'avantage promis.
+            $redeemed = false;
             if (filled($input['promo_code'] ?? null)) {
                 try {
                     $license = app(PromoCodeService::class)->redeemFreeAccess($input['promo_code'], $org, $user);
@@ -53,8 +55,10 @@ class CreateNewUser implements CreatesNewUsers
                     throw ValidationException::withMessages(['promo_code' => collect($e->errors())->flatten()->first()]);
                 }
                 session()->forget('signup_code');
+                $redeemed = true;
                 session()->flash('success', 'Bienvenue ! Votre code est activé : '.$license->plan->name.' offert jusqu\'au '.$license->ends_at->format('d/m/Y').', sans carte bancaire.');
             }
+            app(AcquisitionTracker::class)->registered($user, $redeemed);
 
             return $user;
         });

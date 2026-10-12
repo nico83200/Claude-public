@@ -3,7 +3,7 @@
     pip install segno
     python3 scripts/affiche-equitalyon/build.py [url_inscription] [code]
 
-Par défaut : code `EQUITA2026`, QR code vers `https://jackcie.nlapps.fr/register?code=EQUITA2026`
+Par défaut : code `EQUITA2026`, QR code vers `https://jackcie.nlapps.fr/register?code=EQUITA2026&src=affiche`
 (la page d'inscription retient le code, y compris pour une inscription avec Google ou Apple).
 
 Produit dans `dist/affiche-equitalyon/` :

@@ -9,6 +9,7 @@ Légende : ✅ terminé et couvert par des tests automatisés · ☑️ terminé
 - ✅ 2.12 : code promo à l'inscription : champ « J'ai un code promo » et lien ou QR code `…/register?code=CODE` (le code est retenu aussi pour l'inscription avec Google / Apple) ; un code d'accès gratuit est activé dès la création du compte, sans carte bancaire ; un code refusé est signalé sans créer le compte
 - ✅ 2.12 : corrigé : à la fin d'un accès offert par code, l'espace revient à l'offre gratuite Découverte au lieu de passer en lecture seule
 - ✅ 2.12 : offre « Particulier » renommée « Propriétaire » : un seul cheval, toutes les fonctionnalités (assistant, budget, documents, exports, partage) ; plusieurs chevaux : « Propriétaire multi-chevaux ». Appliqué à la mise à jour seulement si l'offre n'a pas été retouchée dans l'administration ; les abonnements en cours conservent leurs 3 chevaux
+- ✅ 2.12 : provenance des inscriptions : les liens et QR codes d'inscription portent `?src=` (affiche, instagram, instagram-story…) ; Administration › Statistiques et la fiche de chaque code promo affichent, par source, les scans / clics, les visiteurs, les comptes créés (taux de conversion) et les codes activés — inscription par email, Google ou Apple ; aucune donnée personnelle enregistrée (jeton de session condensé)
 - ✅ 2.12 : Poids : méthode « Ruban et mètre » proposée par défaut ; vidéo « Pas de balance ? Mesurez au ruban » (avec voix off) mise en avant en haut du formulaire
 
 ## Version 2.11 — thème sombre, poids, rappels intelligents, factures lues, pension

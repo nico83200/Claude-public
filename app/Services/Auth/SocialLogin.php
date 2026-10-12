@@ -9,6 +9,7 @@ use App\Models\UserProfile;
 use App\Notifications\AppNotification;
 use App\Services\Audit;
 use App\Services\OrganizationService;
+use App\Services\AcquisitionTracker;
 use App\Services\PromoCodeService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\ValidationException;
@@ -84,24 +85,28 @@ class SocialLogin
         });
         Audit::log('auth.social_registered', $user, ['provider' => $provider]);
         event(new Registered($user));
-        $this->redeemSignupCode($user);
+        app(AcquisitionTracker::class)->registered($user, $this->redeemSignupCode($user));
 
         return ['user' => $user->fresh(), 'created' => true, 'linked' => true];
     }
 
     /** Code d'accès gratuit venu du lien d'inscription (?code=) : activé sur l'espace personnel créé. */
-    private function redeemSignupCode(User $user): void
+    private function redeemSignupCode(User $user): bool
     {
         $code = session()->pull('signup_code');
         $org = $user->personalOrganization();
         if (! $code || ! $org) {
-            return;
+            return false;
         }
         try {
             $license = app(PromoCodeService::class)->redeemFreeAccess($code, $org, $user);
             session()->flash('promo_success', 'Votre code '.$code.' est activé : '.$license->plan->name.' offert jusqu\'au '.$license->ends_at->format('d/m/Y').', sans carte bancaire.');
+
+            return true;
         } catch (ValidationException $e) {
             session()->flash('warning', 'Le code '.$code.' n\'a pas pu être activé : '.collect($e->errors())->flatten()->first().' Vous pouvez le saisir dans Abonnement.');
+
+            return false;
         }
     }
 

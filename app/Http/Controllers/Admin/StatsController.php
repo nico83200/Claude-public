@@ -98,6 +98,7 @@ class StatsController extends Controller
             'checkouts' => ['started' => $checkouts, 'completed' => $subscribed],
             'dormant' => (clone $users)->where('created_at', '<=', now()->subDays(30))->where(fn ($q) => $q->whereNull('last_seen_at')->orWhere('last_seen_at', '<', now()->subDays(30)))->count(),
             'since' => $from,
+            'acquisition' => app(\App\Services\AcquisitionTracker::class)->report($from),
         ]);
     }
 

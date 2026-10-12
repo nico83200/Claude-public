@@ -275,11 +275,14 @@ class SocialAuthTest extends TestCase
     {
         \App\Models\PromoCode::create(['code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon', 'is_active' => true,
             'subscription_plan_id' => \App\Models\SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'free_days' => 30]);
-        $this->get('/register?code=EQUITA2026')->assertOk();
+        $this->get('/register?code=EQUITA2026&src=instagram')->assertOk();
         $this->signIn('google', ['name' => 'Camille Martin'])->assertRedirect('/dashboard')
             ->assertSessionHas('success', fn ($m) => str_contains($m, 'EQUITA2026') && str_contains($m, 'sans carte bancaire'));
         $org = User::where('email', 'camille@exemple.fr')->firstOrFail()->personalOrganization();
         $this->assertDatabaseHas('licenses', ['organization_id' => $org->id, 'source' => 'code']);
+        $visit = \App\Models\AcquisitionVisit::where('source', 'instagram')->firstOrFail();
+        $this->assertSame($org->owner_id, $visit->user_id);
+        $this->assertNotNull($visit->code_redeemed_at);
     }
 
     public function test_cancelled_by_user_returns_to_login_quietly(): void

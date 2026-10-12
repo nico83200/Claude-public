@@ -93,6 +93,7 @@ class PromoCodeController extends Controller
             'promo' => $promoCode->load('plan', 'author'),
             'redemptions' => $promoCode->redemptions()->with('organization', 'user')->latest()->paginate(50),
             'plans' => SubscriptionPlan::whereIn('id', $promoCode->plan_ids ?? [])->pluck('name'),
+            'acquisition' => app(\App\Services\AcquisitionTracker::class)->report(null, $promoCode->code),
         ]);
     }
 

@@ -46,6 +46,8 @@ class FortifyServiceProvider extends ServiceProvider
             if ($code = \App\Models\PromoCode::normalize((string) request()->query('code'))) {
                 session(['signup_code' => mb_substr($code, 0, 40)]);
             }
+            // Provenance (?src=affiche, instagram…) : scans de QR code et clics comptés pour l'administration.
+            app(\App\Services\AcquisitionTracker::class)->track(request());
 
             return view('auth.register');
         });
