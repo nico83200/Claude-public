@@ -217,6 +217,7 @@ class RidingSessionController extends Controller
 
         return view('sessions.debrief', [
             'session' => $session->load(['horse', 'exercises']),
+            'questions' => app(\App\Services\DebriefQuestions::class)->for($session),
             'library' => Exercise::visibleTo($request->user())->whereNull('archived_at')->orderBy('name')->pluck('name'),
         ]);
     }
@@ -225,6 +226,19 @@ class RidingSessionController extends Controller
     {
         $this->authorizeEdit($request, $session);
         $data = $request->validate(RidingSessionService::debriefRules());
+        // Bilan en questions à choix : les réponses remplacent les champs texte.
+        if ($request->boolean('questionnaire')) {
+            $answers = $request->validate([
+                'q_objective' => ['nullable', 'in:atteint,en partie,pas encore'],
+                'q_good' => ['nullable', 'array', 'max:20'], 'q_good.*' => ['string', 'max:150'],
+                'q_hard' => ['nullable', 'array', 'max:20'], 'q_hard.*' => ['string', 'max:150'],
+                'q_rework' => ['nullable', 'array', 'max:20'], 'q_rework.*' => ['string', 'max:150'],
+                'q_anomalies' => ['nullable', 'array', 'max:20'], 'q_anomalies.*' => ['string', 'max:150'],
+                'q_next' => ['nullable', 'array', 'max:20'], 'q_next.*' => ['string', 'max:160'],
+                'q_comment' => ['nullable', 'string', 'max:500'],
+            ]);
+            $data = app(\App\Services\DebriefQuestions::class)->compose($answers, $session) + $data;
+        }
         $work = $request->validate([
             'items_reviewed' => ['nullable', 'boolean'],
             'done' => ['nullable', 'array', 'max:100'], 'done.*' => ['integer'],
@@ -236,10 +250,33 @@ class RidingSessionController extends Controller
         $this->sessions->complete($session, $data);
 
         if (! empty($data['anomalies'])) {
-            ObservationController::notifyManagers($session->horse, $request->user(), app(HorseAccess::class), 'Anomalie signalée : '.$session->horse->shortName(), 'Une anomalie a été signalée lors d\'une séance par '.$request->user()->name.'.');
+            ObservationController::notifyManagers($session->horse, $request->user(), app(HorseAccess::class), 'Anomalie signalée : '.$session->horse->shortName(), 'Une anomalie a été signalée lors d\'une séance par '.$request->user()->name.' : '.$data['anomalies'].'.', route('sessions.show', $session));
         }
+        $this->notifyOwnersOfDebrief($request->user(), $session->fresh());
 
         return redirect()->route('sessions.show', $session)->with('success', 'Bilan enregistré, séance clôturée.');
+    }
+
+    /** Bilan fait par un autre cavalier que le propriétaire : le propriétaire est prévenu, avec le lien pour le consulter. */
+    private function notifyOwnersOfDebrief(\App\Models\User $author, RidingSession $session): void
+    {
+        $horse = $session->horse;
+        $access = app(HorseAccess::class);
+        $owners = \App\Models\User::whereIn('id', $horse->ownerships()->whereNotNull('user_id')->whereNull('ended_on')->pluck('user_id'))->get();
+        if ($owners->isEmpty()) {
+            // Sans propriétaire déclaré : les personnes qui gèrent le cheval dans l'espace.
+            $owners = $horse->organization->users()->get()->filter(fn ($u) => in_array(Perm::HORSE_MANAGE, $access->permissions($u, $horse), true));
+        }
+        $feeling = $session->rider_feeling ? ' · ressenti '.$session->rider_feeling.'/5' : '';
+        $summary = collect([$session->progress, $session->difficulties ? 'Difficile : '.$session->difficulties : null])->filter()->implode(' ');
+        foreach ($owners->unique('id')->reject(fn ($u) => $u->id === $author->id) as $owner) {
+            if (! in_array(Perm::SESSIONS_VIEW, $access->permissions($owner, $horse), true)) {
+                continue;
+            }
+            $owner->notify(new \App\Notifications\AppNotification('session_report', 'Bilan de séance : '.$horse->shortName(),
+                $author->name.' a fait le bilan de « '.$session->title().' » du '.$session->scheduled_at->translatedFormat('j F').$feeling.'.'.($summary ? ' '.\Illuminate\Support\Str::limit($summary, 160) : ''),
+                route('sessions.show', $session), mail: false));
+        }
     }
 
     public function duplicate(Request $request, RidingSession $session)

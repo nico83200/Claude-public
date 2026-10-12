@@ -38,15 +38,44 @@
                 </fieldset>
             @endforeach
         </x-section>
-        <x-section>
-            <div class="space-y-3">
-                <x-textarea name="progress" label="Progrès" :value="$session->progress" />
-                <x-textarea name="difficulties" label="Difficultés" :value="$session->difficulties" />
-                <x-textarea name="to_rework" label="Points à retravailler" :value="$session->to_rework" />
-                <x-textarea name="anomalies" label="Anomalies constatées (le propriétaire / soignant sera prévenu)" :value="$session->anomalies" />
-                <x-textarea name="next_objectives" label="Objectifs pour la prochaine séance" :value="$session->next_objectives" />
+        {{-- Questions à choix, adaptées aux exercices et à l'objectif de la séance (réponses enregistrées dans le bilan). --}}
+        @php
+            $has = fn (?string $text, string $choice) => $text && str_contains(mb_strtolower($text), mb_strtolower($choice));
+            $pick = fn (?string $text, array $choices) => array_values(array_filter($choices, fn ($c) => $has($text, $c)));
+            $choices = array_values(array_unique(array_merge($questions['exercises'], $questions['aspects'])));
+            $chip = 'flex min-h-11 cursor-pointer items-center rounded-full border border-slate-300 px-4 text-sm has-[:checked]:border-brand-600 has-[:checked]:bg-brand-600 has-[:checked]:text-white';
+        @endphp
+        <input type="hidden" name="questionnaire" value="1">
+        <div data-debrief-questions x-data="{ hard: @js($pick($session->difficulties, $choices)), rework: @js($pick($session->to_rework, $choices)), anomalies: @js($pick($session->anomalies, \App\Services\DebriefQuestions::ANOMALIES) ?: ['Rien à signaler']), comment: false }" x-init="let prev = [...hard]; $watch('hard', (v) => { v.filter((x) => ! prev.includes(x) && x !== 'Rien de particulier').forEach((x) => { if (! rework.includes(x)) rework.push(x) }); prev = [...v]; })">
+        <x-section title="Votre bilan en quelques touches">
+            <div class="space-y-5">
+                @if ($questions['objective'])
+                    <fieldset data-q="objective"><legend class="label">L'objectif « {{ $questions['objective'] }} » est-il atteint ?</legend>
+                        <div class="flex flex-wrap gap-2">@foreach (['atteint' => 'Atteint', 'en partie' => 'En partie', 'pas encore' => 'Pas encore'] as $v => $l)<label class="{{ $chip }}"><input type="radio" name="q_objective" value="{{ $v }}" class="sr-only" @checked($has($session->progress, '» : '.$v))>{{ $l }}</label>@endforeach</div>
+                    </fieldset>
+                @endif
+                <fieldset data-q="good"><legend class="label">Qu'est-ce qui a bien marché ?</legend>
+                    <div class="flex flex-wrap gap-2">@foreach ($choices as $c)<label class="{{ $chip }}"><input type="checkbox" name="q_good[]" value="{{ $c }}" class="sr-only" @checked($has(\Illuminate\Support\Str::after((string) $session->progress, 'Bien réussi :'), $c) && str_contains((string) $session->progress, 'Bien réussi'))>{{ $c }}</label>@endforeach</div>
+                </fieldset>
+                <fieldset data-q="hard"><legend class="label">Qu'est-ce qui a été difficile ?</legend>
+                    <div class="flex flex-wrap gap-2">@foreach (array_merge(['Rien de particulier'], $choices) as $c)<label class="{{ $chip }}"><input type="checkbox" name="q_hard[]" value="{{ $c }}" x-model="hard" class="sr-only">{{ $c }}</label>@endforeach</div>
+                </fieldset>
+                <fieldset data-q="rework"><legend class="label">À retravailler</legend>
+                    <div class="flex flex-wrap gap-2">@foreach ($choices as $c)<label class="{{ $chip }}"><input type="checkbox" name="q_rework[]" value="{{ $c }}" x-model="rework" class="sr-only">{{ $c }}</label>@endforeach</div>
+                </fieldset>
+                <fieldset data-q="anomalies"><legend class="label">Quelque chose d'anormal chez le cheval ? <span class="font-normal text-slate-400">(le propriétaire / soignant sera prévenu)</span></legend>
+                    <div class="flex flex-wrap gap-2">@foreach (array_merge(['Rien à signaler'], \App\Services\DebriefQuestions::ANOMALIES) as $c)<label class="{{ $chip }}"><input type="checkbox" name="q_anomalies[]" value="{{ $c }}" x-model="anomalies" class="sr-only" @change="if ($event.target.checked) anomalies = $event.target.value === 'Rien à signaler' ? ['Rien à signaler'] : anomalies.filter((a) => a !== 'Rien à signaler')">{{ $c }}</label>@endforeach</div>
+                </fieldset>
+                <fieldset data-q="next"><legend class="label">Pour la prochaine séance</legend>
+                    <div class="flex flex-wrap gap-2">@foreach (array_merge(array_map(fn ($c) => 'Travailler : '.$c, array_slice($questions['aspects'], 0, 4)), \App\Services\DebriefQuestions::NEXT) as $c)<label class="{{ $chip }}"><input type="checkbox" name="q_next[]" value="{{ $c }}" class="sr-only" @checked($has($session->next_objectives, $c))>{{ $c }}</label>@endforeach</div>
+                </fieldset>
+                <div>
+                    <button type="button" class="text-sm font-medium text-brand-700 underline" x-show="! comment" @click="comment = true">+ Ajouter une précision (facultatif)</button>
+                    <div x-show="comment" x-cloak><label class="label" for="q_comment">Précision</label><input id="q_comment" name="q_comment" maxlength="500" class="input" placeholder="En une phrase, si besoin"></div>
+                </div>
             </div>
         </x-section>
+        </div>
         <button class="btn-primary big-touch w-full sm:w-auto">Enregistrer et clôturer</button>
     </form>
 </x-layouts.app>

@@ -38,6 +38,7 @@ class AppNotification extends Notification
         'sync_action' => 'Synchronisation à vérifier',
         'access_revoked' => 'Accès révoqué',
         'session_debrief' => 'Bilan de séance à compléter',
+        'session_report' => 'Bilan fait par un cavalier',
         'daily_reminder' => 'Rappel de saisie',
         'daily_nudge' => 'Suggestion : activer le rappel quotidien',
         'push_test' => 'Essai de notification',
