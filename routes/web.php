@@ -102,6 +102,8 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::get('/resume-veterinaire', [Controllers\HealthShareController::class, 'index'])->name('vet-summary');
         Route::post('/resume-veterinaire', [Controllers\HealthShareController::class, 'store'])->middleware('throttle:10,1')->name('vet-summary.store');
         Route::post('/resume-veterinaire/{share}/desactiver', [Controllers\HealthShareController::class, 'revoke'])->withoutScopedBindings()->name('vet-summary.revoke');
+        Route::post('/resume-veterinaire/{share}/email', [Controllers\HealthShareController::class, 'email'])->withoutScopedBindings()->middleware('throttle:10,1')->name('vet-summary.email');
+        Route::put('/resume-veterinaire/{share}/duree', [Controllers\HealthShareController::class, 'duration'])->withoutScopedBindings()->name('vet-summary.duration');
         Route::post('/ordonnance', [Controllers\PrescriptionController::class, 'read'])->middleware('throttle:10,1')->name('prescription.read');
         Route::get('/ordonnance/{token}', [Controllers\PrescriptionController::class, 'review'])->where('token', '[A-Za-z0-9]{32}')->name('prescription.review');
         Route::post('/ordonnance/{token}', [Controllers\PrescriptionController::class, 'save'])->where('token', '[A-Za-z0-9]{32}')->name('prescription.save');

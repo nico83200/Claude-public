@@ -289,4 +289,39 @@ class AiFeaturesTest extends TestCase
         // Avant : ~3 requêtes par cheval et par appel (plus de 50 ici) ; maintenant une poignée, quel que soit le nombre de chevaux.
         $this->assertLessThan(15, $queries);
     }
+
+    public function test_vet_summary_link_is_sent_by_email_or_sms_and_its_duration_changed(): void
+    {
+        Notification::fake();
+        [$owner, $horse] = $this->setUpUser();
+        $vet = \App\Models\Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Leroy', 'first_name' => 'Anne', 'kind' => 'veterinarian', 'email' => 'cabinet@leroy.test', 'phone' => '06 11 22 33 44']);
+        $horse->professionals()->attach($vet->id);
+
+        $this->actingAs($owner)->get(route('horses.vet-summary', $horse))->assertSee('data-vet-contact', false)->assertSee('Anne Leroy – Vétérinaire')->assertSee('cabinet@leroy.test', false);
+        $this->actingAs($owner)->post(route('horses.vet-summary.store', $horse), ['days' => 3, 'recipient' => 'Dr Anne Leroy', 'recipient_email' => 'cabinet@leroy.test', 'recipient_phone' => '06 11 22 33 44', 'send_email' => 1])
+            ->assertSessionHas('success', fn ($m) => str_contains($m, 'Envoyé par e-mail à cabinet@leroy.test'));
+        $share = HealthShare::sole();
+        $this->assertTrue($share->expires_at->between(now()->addDays(3)->subMinute(), now()->addDays(3)->addMinute()));
+        Notification::assertSentOnDemand(AppNotification::class, fn ($n, $channels, $notifiable) => $notifiable->routes['mail'] === 'cabinet@leroy.test'
+            && $n->kind === 'vet_summary' && $n->url === $share->url() && in_array('mail', $channels, true));
+        $this->assertNotNull($share->fresh()->emailed_at);
+
+        // SMS pré-rempli avec le lien direct, et renvoi par e-mail à une autre adresse.
+        $page = $this->actingAs($owner)->get(route('horses.vet-summary', $horse))->getContent();
+        $this->assertStringContainsString('href="sms:0611223344?&body=', $page);
+        $this->assertStringContainsString(rawurlencode($share->url()), $page);
+        $this->actingAs($owner)->post(route('horses.vet-summary.email', [$horse, $share]), ['recipient_email' => 'secretariat@leroy.test'])->assertSessionHas('success');
+        Notification::assertSentOnDemand(AppNotification::class, fn ($n, $c, $notifiable) => $notifiable->routes['mail'] === 'secretariat@leroy.test');
+
+        // Durée d'ouverture modifiée (prolongation).
+        $this->actingAs($owner)->put(route('horses.vet-summary.duration', [$horse, $share]), ['days' => 30])->assertSessionHas('success');
+        $this->assertTrue($share->fresh()->expires_at->gt(now()->addDays(29)));
+        $this->actingAs($owner)->put(route('horses.vet-summary.duration', [$horse, $share]), ['days' => 5])->assertSessionHasErrors('days');
+
+        // Sans le droit de partager : ni envoi ni changement.
+        $rider = $this->user();
+        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view', 'health.view']]);
+        $this->actingAs($rider)->post(route('horses.vet-summary.email', [$horse, $share]), ['recipient_email' => 'x@y.test'])->assertForbidden();
+        $this->actingAs($rider)->put(route('horses.vet-summary.duration', [$horse, $share]), ['days' => 90])->assertForbidden();
+    }
 }

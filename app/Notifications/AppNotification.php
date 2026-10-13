@@ -49,6 +49,7 @@ class AppNotification extends Notification
         'account_security' => 'Sécurité du compte',
         'new_user' => 'Nouvelle inscription (administration)',
         'system_alert' => 'Alerte technique (administration)',
+        'vet_summary' => 'Résumé de santé envoyé à un professionnel',
     ];
 
     public function __construct(
@@ -64,7 +65,8 @@ class AppNotification extends Notification
     public function via(object $notifiable): array
     {
         // Alerte technique : toujours par e-mail, même si les e-mails de notification sont coupés.
-        $mailEnabled = $this->mail && ($this->kind === 'system_alert' || (FeatureFlag::enabled('email_notifications') && app(MailDesign::class)->enabled($this->kind)));
+        // Envoi demandé expressément (alerte technique, résumé envoyé à un vétérinaire) : toujours par e-mail.
+        $mailEnabled = $this->mail && (in_array($this->kind, ['system_alert', 'vet_summary'], true) || (FeatureFlag::enabled('email_notifications') && app(MailDesign::class)->enabled($this->kind)));
         if (! $notifiable instanceof User) {
             return $mailEnabled ? ['mail'] : [];
         }

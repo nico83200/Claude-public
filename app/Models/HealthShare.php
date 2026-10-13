@@ -8,9 +8,22 @@ class HealthShare extends Model
 {
     protected $guarded = ['id', 'token'];
 
-    protected $casts = ['expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_viewed_at' => 'datetime'];
+    protected $casts = ['expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_viewed_at' => 'datetime', 'emailed_at' => 'datetime'];
 
-    public const DURATIONS = [1 => '24 heures', 7 => '7 jours', 30 => '30 jours'];
+    /** Durée pendant laquelle le lien reste ouvert (jours). */
+    public const DURATIONS = [1 => '24 heures', 3 => '3 jours', 7 => '7 jours', 14 => '15 jours', 30 => '1 mois', 90 => '3 mois'];
+
+    public function url(): string
+    {
+        return route('vet-summary.public', $this->token);
+    }
+
+    /** Texte d'envoi (SMS ou message) avec le lien direct. */
+    public function message(string $from): string
+    {
+        return 'Bonjour, voici le résumé de santé de '.$this->horse->shortName().' (6 derniers mois), consultable sans compte jusqu\'au '
+            .$this->expires_at->translatedFormat('j F Y').' : '.$this->url().' — '.$from;
+    }
 
     public function horse()
     {
