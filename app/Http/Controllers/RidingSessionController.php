@@ -111,6 +111,10 @@ class RidingSessionController extends Controller
     public function show(Request $request, RidingSession $session)
     {
         $this->authorizeHorse($session->horse, Perm::SESSIONS_VIEW);
+        if ($request->boolean('enregistree')) {
+            // Retour de la préparation : les exercices sont déjà enregistrés au fil de l'eau.
+            session()->now('success', 'Séance enregistrée. Après la séance, faites directement le bilan.');
+        }
         $session->load(['horse', 'rider', 'creator', 'exercises.exercise', 'comments.author']);
         $previous = RidingSession::where('horse_id', $session->horse_id)->where('status', 'completed')->where('scheduled_at', '<', $session->scheduled_at)->orderByDesc('scheduled_at')->limit(3)->get();
 

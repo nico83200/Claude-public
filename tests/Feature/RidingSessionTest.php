@@ -66,6 +66,26 @@ class RidingSessionTest extends TestCase
         $this->assertSame('done', $item->fresh()->status);
     }
 
+    public function test_saving_a_prepared_session_leads_to_summary_then_debrief_without_start(): void
+    {
+        $user = $this->user();
+        $horse = $this->horseFor($user);
+        $res = $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d H:i'), 'session_type' => 'dressage', 'planned_minutes' => 45]);
+        $session = RidingSession::latest('id')->firstOrFail();
+        $res->assertRedirect(route('sessions.edit', $session));
+
+        // Préparation : « Enregistrer la séance » mène au résumé, plus de bouton « Démarrer ».
+        $prep = $this->actingAs($user)->get(route('sessions.edit', $session))->assertOk()->assertSee('data-save-session', false)->assertDontSee('Démarrer');
+        $this->assertStringContainsString(route('sessions.show', ['session' => $session, 'enregistree' => 1]), html_entity_decode($prep->getContent()));
+
+        // Résumé : confirmation, passage direct au bilan.
+        $this->actingAs($user)->get(route('sessions.show', ['session' => $session, 'enregistree' => 1]))->assertOk()
+            ->assertSee('Séance enregistrée')->assertSee('Faire le bilan')->assertSee(route('sessions.debrief', $session), false)
+            ->assertDontSee('Démarrer')->assertDontSee(route('sessions.live', $session), false);
+        $this->actingAs($user)->get(route('sessions.debrief', $session))->assertOk();
+        $this->assertSame('planned', $session->fresh()->status);
+    }
+
     public function test_library_changes_do_not_rewrite_past_sessions(): void
     {
         [$user, $horse, $session] = $this->setUpSession();

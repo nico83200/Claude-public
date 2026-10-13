@@ -1,6 +1,6 @@
 <x-layouts.app :title="'Préparer la séance · '.$session->horse->shortName()">
     <x-page-header :title="'Préparer : '.$session->horse->shortName()" :subtitle="$session->scheduled_at->translatedFormat('l j F à H:i')" :back="route('sessions.show', $session)">
-        <a href="{{ route('sessions.live', $session) }}" class="btn-primary"><x-icon name="play" /> Démarrer</a>
+        <a href="{{ route('sessions.show', ['session' => $session, 'enregistree' => 1]) }}" class="btn-primary" data-save-session><x-icon name="check" /> Enregistrer la séance</a>
     </x-page-header>
 
     <div class="grid gap-4 lg:grid-cols-5" x-data="Object.assign(sessionPlanner(@js(route('sessions.exercises.layout', $session))), { pickPhase: 'main', pickPhaseLabel: '', galop: @js($suggestions['galop']), askGalop: @js($suggestionVariants !== []), galopError: '',
@@ -173,5 +173,8 @@
                 </form>
             </x-section>
         </div>
+    </div>
+    <div class="mt-4 lg:max-w-[60%]">
+        <a href="{{ route('sessions.show', ['session' => $session, 'enregistree' => 1]) }}" class="btn-primary w-full" data-save-session-bottom><x-icon name="check" class="size-4" /> Enregistrer la séance</a>
     </div>
 </x-layouts.app>
