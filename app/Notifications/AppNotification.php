@@ -41,6 +41,7 @@ class AppNotification extends Notification
         'session_debrief' => 'Bilan de séance à compléter',
         'session_report' => 'Bilan fait par un cavalier',
         'daily_reminder' => 'Rappel de saisie',
+        'weekly_digest' => 'Récapitulatif de la semaine',
         'daily_nudge' => 'Suggestion : activer le rappel quotidien',
         'push_test' => 'Essai de notification',
         'payment_due' => 'Paiement à effectuer',
@@ -55,6 +56,8 @@ class AppNotification extends Notification
         public string $body,
         public ?string $url = null,
         public bool $mail = true,
+        // Texte plus détaillé pour l'e-mail (le téléphone garde le résumé court).
+        public ?string $mailBody = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -77,7 +80,7 @@ class AppNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         // Mise en forme réglée par le super-administrateur (Administration › E-mails).
-        return app(MailDesign::class)->mailMessage($this->kind, ['name' => $notifiable->name ?? null], $this->title, $this->body, $this->url);
+        return app(MailDesign::class)->mailMessage($this->kind, ['name' => $notifiable->name ?? null], $this->title, $this->mailBody ?? $this->body, $this->url);
     }
 
     /** @return array{title: string, body: string, url: string|null, tag: string} */

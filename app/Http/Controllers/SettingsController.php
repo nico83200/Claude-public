@@ -102,6 +102,7 @@ class SettingsController extends Controller
         UserProfile::updateOrCreate(['user_id' => $request->user()->id], [
             'email_notifications' => $request->boolean('email_notifications'),
             'debrief_reminders' => $request->boolean('debrief_reminders'),
+            'weekly_digest' => $request->boolean('weekly_digest'),
             'daily_reminder_at' => $request->boolean('daily_reminder') ? $data['daily_reminder_at'] : null,
         ]);
 

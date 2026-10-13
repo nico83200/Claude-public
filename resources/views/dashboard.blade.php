@@ -20,6 +20,35 @@
         </div>
     @endforeach
 
+    @if ($onboarding)
+        @php $doneCount = collect($onboarding)->where('done', true)->count(); @endphp
+        <section class="card mb-5 p-5 sm:p-6" data-onboarding>
+            <div class="mb-1 flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-[17px] font-semibold">Bien démarrer avec Jack&amp;Cie</h2>
+                    <p class="text-sm text-slate-500">{{ $doneCount }} étape{{ $doneCount > 1 ? 's' : '' }} sur {{ count($onboarding) }} · quelques minutes suffisent</p>
+                </div>
+                <form method="POST" action="{{ route('onboarding.dismiss') }}">@csrf<button class="btn-ghost min-h-9 px-2 text-sm text-slate-500" aria-label="Masquer le démarrage">Masquer</button></form>
+            </div>
+            <div class="mt-3 mb-4 h-2 rounded-full bg-slate-100"><div class="h-2 rounded-full bg-brand-600 transition-all" style="width: {{ round($doneCount / count($onboarding) * 100) }}%"></div></div>
+            <ol class="divide-y divide-slate-100">
+                @foreach ($onboarding as $step)
+                    <li class="flex items-center gap-3 py-3" data-onboarding-step="{{ $step['key'] }}" data-done="{{ $step['done'] ? '1' : '0' }}">
+                        <span class="flex size-8 shrink-0 items-center justify-center rounded-full {{ $step['done'] ? 'bg-brand-600 text-white' : 'border-2 border-slate-300 text-slate-400' }}">@if ($step['done'])<x-icon name="check" class="size-4" />@else<span class="text-sm font-semibold">{{ $loop->iteration }}</span>@endif</span>
+                        <span class="min-w-0 flex-1"><span class="block font-medium {{ $step['done'] ? 'text-slate-500' : 'text-slate-900' }}">{{ $step['title'] }}</span>@unless ($step['done'])<span class="block text-sm text-slate-500">{{ $step['text'] }}</span>@endunless</span>
+                        @unless ($step['done'])
+                            @if ($step['action'] === 'install')
+                                <button type="button" x-data x-show="! $store.install.installed" @click="$store.install.install()" class="btn-secondary min-h-9 shrink-0 px-4 text-sm">Installer</button>
+                            @elseif ($step['url'])
+                                <a href="{{ $step['url'] }}" class="btn-secondary min-h-9 shrink-0 px-4 text-sm">{{ ['horse' => 'Ajouter', 'health' => 'Noter', 'notifications' => 'Activer', 'share' => 'Inviter'][$step['key']] ?? 'Ouvrir' }}</a>
+                            @endif
+                        @endunless
+                    </li>
+                @endforeach
+            </ol>
+        </section>
+    @endif
+
     @if ($horses->isEmpty())
         <x-empty title="Bienvenue ! Commencez par ajouter votre cheval" icon="horse">
             Saisissez sa fiche manuellement ou retrouvez ses informations publiques sur Internet.
@@ -51,6 +80,12 @@
                         @click="show = false; try { localStorage.setItem('jc-upsell-later', Date.now() + 7 * 864e5) } catch { }"><x-icon name="x" class="size-4" /></button>
             </div>
         @endif
+
+        <a href="{{ route('digest.show') }}" class="mb-5 flex items-center gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70 hover:ring-brand-300" data-digest-link>
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-gold-100 text-gold-700"><x-icon name="calendar" /></span>
+            <span class="min-w-0 flex-1"><span class="block font-semibold text-slate-900">Ma semaine</span><span class="block text-sm text-slate-500">Rendez-vous, traitements, paiements et bilans des 7 prochains jours</span></span>
+            <x-icon name="chevron" class="size-5 shrink-0 text-slate-400" />
+        </a>
 
         <div class="grid gap-4 lg:grid-cols-3">
             <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">

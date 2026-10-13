@@ -8,6 +8,8 @@ class UserProfile extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = ['weekly_digest' => 'boolean', 'weekly_digest_sent_on' => 'date', 'app_installed_at' => 'datetime', 'onboarding_dismissed_at' => 'datetime'];
+
     /** Niveaux proposés (galops de la FFE). */
     public const GALOPS = [1 => 'Galop 1', 2 => 'Galop 2', 3 => 'Galop 3', 4 => 'Galop 4', 5 => 'Galop 5', 6 => 'Galop 6', 7 => 'Galop 7'];
 

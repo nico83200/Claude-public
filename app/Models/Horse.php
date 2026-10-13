@@ -13,7 +13,7 @@ class Horse extends Model
     use HasClientUuid, HasFactory, SoftDeletes, Versioned;
 
     // organization_id, created_by, uuid, version : jamais issus d'une saisie utilisateur directe.
-    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by', 'version', 'is_demo'];
+    protected $guarded = ['id', 'uuid', 'organization_id', 'created_by', 'version', 'is_demo', 'emergency_token'];
 
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['version' => 1, 'sex' => 'unknown'];

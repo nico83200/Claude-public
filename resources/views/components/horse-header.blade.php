@@ -27,6 +27,7 @@
                  class="absolute right-0 z-40 mt-2 w-64 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl">
                 @if ($can('horse.edit') && ! $horse->isArchived())
                     <a href="{{ route('horses.edit', $horse) }}" class="menu-item" role="menuitem"><x-icon name="pencil" class="size-4 text-slate-400" /> Modifier la fiche</a>
+                    <a href="{{ route('horses.emergency.edit', $horse) }}" class="menu-item" role="menuitem" data-emergency-menu><x-icon name="alert" class="size-4 text-slate-400" /> Fiche d'urgence (QR code)</a>
                 @endif
                 <a href="{{ route('horses.export.pdf', $horse) }}" class="menu-item" role="menuitem"><x-icon name="download" class="size-4 text-slate-400" /> Télécharger la fiche (PDF) <x-locked-mark :org="$horse->organization" feature="exports" /></a>
                 @if ($can('horse.manage'))

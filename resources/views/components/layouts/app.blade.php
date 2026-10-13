@@ -117,6 +117,19 @@
     </div>
 </div>
 
+@unless (auth()->user()->profile?->app_installed_at)
+    {{-- Démarrage guidé : application ouverte depuis l'écran d'accueil = installée. --}}
+    <script>
+        (() => { try {
+            const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+            if (standalone && ! localStorage.getItem('jc-installed-sent')) {
+                fetch(@js(route('onboarding.installed')), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, Accept: 'application/json' } })
+                    .then(r => r.ok && localStorage.setItem('jc-installed-sent', '1'));
+            }
+        } catch { } })();
+    </script>
+@endunless
+
 {{-- Barre basse (mobile) : le micro au centre --}}
 <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/70 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden" aria-label="Navigation rapide">
     <div class="grid grid-cols-5 items-end">

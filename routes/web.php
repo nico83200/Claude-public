@@ -22,6 +22,8 @@ Route::get('/', [Controllers\PublicController::class, 'home'])->name('home');
 Route::post('/push/recu', [Controllers\PushSubscriptionController::class, 'receipt'])->middleware('throttle:60,1')->name('push.receipt');
 Route::get('/agenda/abonnement/{token}.ics', [Controllers\CalendarFeedController::class, 'show'])->where('token', '[A-Za-z0-9]{32,64}')->middleware('throttle:60,1')->name('calendar.feed');
 Route::get('/app.webmanifest', Controllers\ManifestController::class)->name('manifest');
+Route::get('/urgence/{token}', [Controllers\EmergencySheetController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.public');
+Route::get('/urgence/{token}/photo', [Controllers\EmergencySheetController::class, 'photo'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.photo');
 Route::get('/email/logo', [Controllers\Admin\MailDesignController::class, 'logo'])->middleware('throttle:120,1')->name('mail.logo');
 Route::get('/maintenance/reprise', Controllers\MaintenanceResumeController::class)->middleware('throttle:6,1')->name('maintenance.resume');
 Route::get('/tarifs', [Controllers\PublicController::class, 'pricing'])->name('pricing');
@@ -50,6 +52,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::post('/invitations/{token}/refuser', [Controllers\InvitationController::class, 'decline'])->name('invitations.decline');
 
     Route::get('/dashboard', Controllers\DashboardController::class)->name('dashboard');
+    Route::get('/ma-semaine', Controllers\DigestController::class)->name('digest.show');
+    Route::post('/demarrage/installe', [Controllers\OnboardingController::class, 'installed'])->middleware('throttle:10,1')->name('onboarding.installed');
+    Route::post('/demarrage/masquer', [Controllers\OnboardingController::class, 'dismiss'])->name('onboarding.dismiss');
     Route::get('/recherche', Controllers\SearchController::class)->name('search');
 
     // Organisations / écuries
@@ -93,6 +98,10 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::post('/proprietaires', [Controllers\OwnershipController::class, 'store'])->name('ownerships.store');
         Route::post('/proprietaires/{ownership}/terminer', [Controllers\OwnershipController::class, 'end'])->name('ownerships.end');
 
+        Route::get('/urgence', [Controllers\EmergencySheetController::class, 'edit'])->name('emergency.edit');
+        Route::put('/urgence', [Controllers\EmergencySheetController::class, 'update'])->name('emergency.update');
+        Route::get('/urgence/imprimer', [Controllers\EmergencySheetController::class, 'print'])->name('emergency.print');
+        Route::get('/urgence/qr-code', [Controllers\EmergencySheetController::class, 'qr'])->name('emergency.qr');
         Route::post('/photos', [Controllers\HorsePhotoController::class, 'store'])->name('photos.store');
         Route::get('/photos/{photo}', [Controllers\HorsePhotoController::class, 'show'])->name('photos.show');
         Route::post('/photos/{photo}/principale', [Controllers\HorsePhotoController::class, 'makeMain'])->name('photos.main');

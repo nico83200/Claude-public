@@ -61,6 +61,10 @@
                         </div>
                         @if ($profile->daily_reminder_at)<p class="mt-2 ml-8 text-xs {{ $dailyStatus['state'] === 'late' ? 'text-red-600' : 'text-slate-500' }}" data-daily-status>Aujourd'hui : {{ $dailyStatus['message'] }}</p>@endif
                     </div>
+                    <label class="flex items-start gap-3" data-weekly-digest-setting>
+                        <input type="checkbox" name="weekly_digest" value="1" @checked($profile->weekly_digest ?? true) class="mt-0.5 size-5 rounded">
+                        <span><span class="block font-medium text-slate-900">Récapitulatif de la semaine</span><span class="block text-sm text-slate-500">Le dimanche soir : rendez-vous et soins à venir, traitements, paiements à prévoir, bilans à faire et budget du mois. <a href="{{ route('digest.show') }}" class="link">Voir ma semaine</a></span></span>
+                    </label>
                     <label class="flex items-start gap-3 border-t border-slate-100 pt-4">
                         <input type="checkbox" name="email_notifications" value="1" @checked($profile->email_notifications ?? true) class="mt-0.5 size-5 rounded">
                         <span><span class="block font-medium text-slate-900">Recevoir aussi les notifications par email</span><span class="block text-sm text-slate-500">Rendez-vous, échéances de soins, invitations… (les rappels de saisie ne sont jamais envoyés par email).</span></span>

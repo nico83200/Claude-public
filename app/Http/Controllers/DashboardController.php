@@ -36,6 +36,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'upsell' => app(Upsell::class)->upgrade($this->currentOrganization(), $request->user()),
+            'onboarding' => app(\App\Services\Onboarding::class)->steps($user, $horses),
             'horses' => $horses,
             'nextDue' => $nextDue,
             'today' => CalendarEvent::with('horse')->whereIn('horse_id', $calendarIds)->visibleSessions($sessionIds)->where('status', '!=', 'cancelled')

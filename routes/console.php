@@ -25,6 +25,8 @@ $task('expenses:recurring')->dailyAt('06:05');
 $task('reminders:rhythm')->dailyAt('08:50');
 // Suggestion d'activer le rappel quotidien (au plus 3 fois, toutes les 2 semaines).
 $task('reminders:daily-nudge')->dailyAt('11:10');
+// Récapitulatif de la semaine, dimanche soir (relancé jusqu'à 21 h si le cron a manqué un passage).
+$task('reminders:weekly')->sundays()->hourlyAt(5)->between('18:00', '21:10');
 $task('licenses:refresh')->hourly();
 // Filet de sécurité si un webhook Stripe manque : état des abonnements relu chez Stripe.
 $task('billing:sync')->hourly();
