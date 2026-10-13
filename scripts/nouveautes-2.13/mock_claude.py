@@ -23,7 +23,9 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         raw = self.rfile.read(int(self.headers['Content-Length'])).decode()
         body = json.loads(raw)
-        if '"warmup"' in raw:
+        if body.get('tools'):
+            out = reply([{"type": "text", "text": "Cette année, le maréchal vous a coûté 380 € pour Uni, en 4 passages. Le prochain est prévu vers le 20 novembre."}])
+        elif '"warmup"' in raw:
             out = reply([{"type": "text", "text": json.dumps(PLAN, ensure_ascii=False)}])
         elif 'is_prescription' in raw:
             out = reply([{"type": "text", "text": json.dumps(RX, ensure_ascii=False)}])

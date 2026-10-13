@@ -1,0 +1,169 @@
+[
+ {
+  "id": "intro",
+  "title": "",
+  "kicker": "Version 2.13",
+  "shots": [
+   "01-accueil"
+  ],
+  "text": "Jack&Cie s'enrichit encore ! Voici les nouveautés de la version 2.13.",
+  "start": 0.6,
+  "dur": 5.41
+ },
+ {
+  "id": "accueil",
+  "title": "Bien démarrer",
+  "kicker": "Accueil",
+  "shots": [
+   "01-accueil",
+   "02-demarrage",
+   "03-urgence-proposee"
+  ],
+  "text": "Sur l'accueil, un démarrage guidé vous accompagne : ajouter votre cheval, noter un premier soin, programmer une séance, activer les notifications et compléter votre profil. Chaque étape se coche toute seule.",
+  "start": 6.01,
+  "dur": 12.08
+ },
+ {
+  "id": "assistant",
+  "title": "Posez-lui vos questions",
+  "kicker": "Assistant",
+  "shots": [
+   "04-assistant-question"
+  ],
+  "text": "L'assistant répond maintenant à vos questions sur le dossier : combien m'a coûté le maréchal cette année, à quand le prochain vermifuge, combien de séances ce mois-ci. Et il peut lire sa réponse à voix haute, pratique quand on a les mains prises à l'écurie.",
+  "start": 18.09,
+  "dur": 18.38
+ },
+ {
+  "id": "ordonnance",
+  "title": "L'ordonnance en photo",
+  "kicker": "Santé",
+  "shots": [
+   "05-ordonnance-carte",
+   "06-ordonnance-verif",
+   "07-ordonnance-traitements"
+  ],
+  "text": "Une ordonnance du vétérinaire ? Prenez-la en photo : l'assistant prépare le soin, les traitements et le prochain contrôle. Vous vérifiez, puis tout rejoint le carnet de santé et l'agenda. La posologie est recopiée telle qu'elle est écrite.",
+  "start": 36.47,
+  "dur": 15.41
+ },
+ {
+  "id": "veto",
+  "title": "Un résumé pour le vétérinaire",
+  "kicker": "Vétérinaire",
+  "shots": [
+   "08-veto-apercu",
+   "09-veto-partage",
+   "11-veto-public"
+  ],
+  "text": "Avant une visite, partagez avec votre vétérinaire un résumé des six derniers mois : soins, traitements, poids et observations, avec une synthèse rédigée par l'assistant. Le lien expire tout seul, et vous pouvez le désactiver à tout moment.",
+  "start": 51.88,
+  "dur": 14.67
+ },
+ {
+  "id": "plan",
+  "title": "Un plan de séance en un geste",
+  "kicker": "Séances",
+  "shots": [
+   "12-plan-carte",
+   "13-plan-propose"
+  ],
+  "text": "Pour préparer une séance, l'assistant propose un plan adapté à l'objectif, à la durée, à votre galop et à vos derniers bilans. Gardez les exercices qui vous plaisent : ils s'ajoutent à la séance.",
+  "start": 66.55,
+  "dur": 13.93
+ },
+ {
+  "id": "exercices",
+  "title": "Des exercices pour vous",
+  "kicker": "Exercices",
+  "shots": [
+   "14-choix-exercices",
+   "15-exercices-pour-vous"
+  ],
+  "text": "Les exercices se choisissent étape par étape, avec des suggestions selon votre niveau et vos habitudes. Retrouvez-les aussi sur la page Exercices.",
+  "start": 80.48,
+  "dur": 9.12
+ },
+ {
+  "id": "bilan",
+  "title": "Le bilan en quelques touches",
+  "kicker": "Bilan de séance",
+  "shots": [
+   "16-bilan",
+   "17-bilan-questions"
+  ],
+  "text": "Après la séance, le bilan se remplit en quelques touches, avec des questions adaptées aux exercices prévus. Et quand un autre cavalier monte votre cheval, vous recevez son bilan.",
+  "start": 89.6,
+  "dur": 11.34
+ },
+ {
+  "id": "agenda",
+  "title": "Tout est dans l'agenda",
+  "kicker": "Agenda",
+  "shots": [
+   "18-agenda",
+   "19-agenda-synchro"
+  ],
+  "text": "L'agenda rassemble tout : rendez-vous, soins, traitements, séances et pesées. Vous pouvez même l'afficher dans Google Agenda ou dans le calendrier de votre téléphone.",
+  "start": 100.94,
+  "dur": 10.23
+ },
+ {
+  "id": "urgence",
+  "title": "La fiche d'urgence",
+  "kicker": "Sécurité",
+  "shots": [
+   "20-urgence-reglage",
+   "22-urgence-publique",
+   "23-urgence-imprimee"
+  ],
+  "text": "Préparez la fiche d'urgence de votre cheval : un QR code à coller sur le box. En cas de problème, n'importe qui voit qui appeler, le vétérinaire, les traitements en cours et les précautions, sans avoir de compte.",
+  "start": 111.17,
+  "dur": 15.04
+ },
+ {
+  "id": "semaine",
+  "title": "Votre semaine d'un coup d'œil",
+  "kicker": "Chaque dimanche",
+  "shots": [
+   "24-ma-semaine"
+  ],
+  "text": "Chaque dimanche soir, recevez le récapitulatif de votre semaine : rendez-vous, traitements, paiements à prévoir et bilans à faire.",
+  "start": 126.21,
+  "dur": 7.64
+ },
+ {
+  "id": "budget",
+  "title": "Un budget plus clair",
+  "kicker": "Budget",
+  "shots": [
+   "25-budget",
+   "26-budget-graphique",
+   "27-depense-detail"
+  ],
+  "text": "Dans le budget, touchez un graphique pour l'agrandir, ou une dépense pour voir son détail. Un soin et sa dépense restent toujours synchronisés.",
+  "start": 133.85,
+  "dur": 9.49
+ },
+ {
+  "id": "horsligne",
+  "title": "Même sans réseau",
+  "kicker": "Hors connexion",
+  "shots": [
+   "29-hors-ligne-consigne",
+   "30-hors-ligne-page"
+  ],
+  "text": "Pas de réseau à l'écurie ? Notez votre consigne quand même : elle sera enregistrée dès le retour de la connexion. Et vos fiches d'urgence restent consultables.",
+  "start": 143.34,
+  "dur": 10.6
+ },
+ {
+  "id": "fin",
+  "title": "",
+  "kicker": "",
+  "shots": [],
+  "text": "Toutes ces nouveautés sont déjà disponibles. Bonne route avec Jack&Cie !",
+  "start": 153.94,
+  "dur": 4.67
+ }
+]

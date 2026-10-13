@@ -1,0 +1,30 @@
+Voix off — Nouveautés Jack&Cie 2.13
+Ton chaleureux et posé. Une pause d'environ une demi-seconde entre deux paragraphes.
+
+[00:00] Jack&Cie s'enrichit encore ! Voici les nouveautés de la version 2.13.
+
+[00:06] Sur l'accueil, un démarrage guidé vous accompagne : ajouter votre cheval, noter un premier soin, programmer une séance, activer les notifications et compléter votre profil. Chaque étape se coche toute seule.
+
+[00:18] L'assistant répond maintenant à vos questions sur le dossier : combien m'a coûté le maréchal cette année, à quand le prochain vermifuge, combien de séances ce mois-ci. Et il peut lire sa réponse à voix haute, pratique quand on a les mains prises à l'écurie.
+
+[00:36] Une ordonnance du vétérinaire ? Prenez-la en photo : l'assistant prépare le soin, les traitements et le prochain contrôle. Vous vérifiez, puis tout rejoint le carnet de santé et l'agenda. La posologie est recopiée telle qu'elle est écrite.
+
+[00:51] Avant une visite, partagez avec votre vétérinaire un résumé des six derniers mois : soins, traitements, poids et observations, avec une synthèse rédigée par l'assistant. Le lien expire tout seul, et vous pouvez le désactiver à tout moment.
+
+[01:06] Pour préparer une séance, l'assistant propose un plan adapté à l'objectif, à la durée, à votre galop et à vos derniers bilans. Gardez les exercices qui vous plaisent : ils s'ajoutent à la séance.
+
+[01:20] Les exercices se choisissent étape par étape, avec des suggestions selon votre niveau et vos habitudes. Retrouvez-les aussi sur la page Exercices.
+
+[01:29] Après la séance, le bilan se remplit en quelques touches, avec des questions adaptées aux exercices prévus. Et quand un autre cavalier monte votre cheval, vous recevez son bilan.
+
+[01:40] L'agenda rassemble tout : rendez-vous, soins, traitements, séances et pesées. Vous pouvez même l'afficher dans Google Agenda ou dans le calendrier de votre téléphone.
+
+[01:51] Préparez la fiche d'urgence de votre cheval : un QR code à coller sur le box. En cas de problème, n'importe qui voit qui appeler, le vétérinaire, les traitements en cours et les précautions, sans avoir de compte.
+
+[02:06] Chaque dimanche soir, recevez le récapitulatif de votre semaine : rendez-vous, traitements, paiements à prévoir et bilans à faire.
+
+[02:13] Dans le budget, touchez un graphique pour l'agrandir, ou une dépense pour voir son détail. Un soin et sa dépense restent toujours synchronisés.
+
+[02:23] Pas de réseau à l'écurie ? Notez votre consigne quand même : elle sera enregistrée dès le retour de la connexion. Et vos fiches d'urgence restent consultables.
+
+[02:33] Toutes ces nouveautés sont déjà disponibles. Bonne route avec Jack&Cie !
