@@ -2,6 +2,7 @@
     <x-page-header title="Assistant" subtitle="Vos consignes et ce que l'assistant a fait">
         <button type="button" @click="$store.assistant.open(true)" class="btn-primary"><x-icon name="mic" class="size-[18px]" /> Parler</button>
     </x-page-header>
+    @include('settings._nav')
     @if ($unavailable)<div class="mb-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">{{ $unavailable }}</div>@endif
     <p class="mb-4 text-sm text-slate-500">{{ $used }} consigne(s) ce mois-ci{{ $remaining !== null ? ' · '.$remaining.' restante(s)' : '' }}. Les enregistrements audio ne sont jamais conservés ; le texte des consignes est supprimé après 90 jours. Une action peut être annulée pendant 24 h si l'élément n'a pas été modifié entre-temps.</p>
 

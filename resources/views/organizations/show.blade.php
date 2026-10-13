@@ -4,6 +4,7 @@
             <a href="{{ route('organizations.create') }}" class="btn-secondary" data-create-stable><x-icon name="plus" /> Créer mon écurie</a>
         @endunless
     </x-page-header>
+    @include('settings._nav')
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             @if (! $org->isPersonal())

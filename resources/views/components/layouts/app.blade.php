@@ -17,10 +17,8 @@
         ['professionals.index', 'Intervenants', 'users', in_array('health.view', $navPerms) || in_array('professionals.manage', $navPerms)],
         ['budget.index', 'Budget', 'wallet', in_array('expenses.view', $navPerms) || in_array('expenses.org_view', $navPerms)],
         ['sharing.index', 'Partages', 'share', true],
-        ['assistant.history', 'Assistant', 'sparkles', true],
     ];
     $secondary = [
-        ['organization.show', 'Organisation', 'building', true],
         ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
         ['settings.profile', 'Paramètres', 'cog', true],
@@ -66,7 +64,7 @@
             <div class="my-3 border-t border-slate-200/70"></div>
             @foreach ($secondary as [$route, $label, $icon, $visible])
                 @if ($visible)
-                    @php $active = request()->routeIs(\Illuminate\Support\Str::before($route, '.').'*'); @endphp
+                    @php $active = request()->routeIs(\Illuminate\Support\Str::before($route, '.').'*') || ($route === 'settings.profile' && request()->routeIs('assistant.history', 'organization.*', 'organizations.create')); @endphp
                     <a href="{{ route($route) }}" class="flex min-h-10 items-center gap-3 rounded-full px-4 text-sm {{ $active ? 'bg-white font-medium text-brand-900 shadow-[var(--shadow-card)]' : 'text-slate-500 hover:bg-white/70 hover:text-slate-900' }}"><x-icon :name="$icon" class="size-[18px]" /> {{ $label }}</a>
                 @endif
             @endforeach

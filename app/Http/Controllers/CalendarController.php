@@ -52,7 +52,7 @@ class CalendarController extends Controller
                 ->sortBy(fn ($o) => [$o['at']->toDateString(), $o['event']->all_day ? 0 : 1, $o['at']->format('H:i')])->values(),
             'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
             'editableHorses' => $editableHorses,
-            'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'professionals' => app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
             // Synchronisation Google / Apple (offres payantes), sinon proposition d'offre.
             'sync' => ($feed = app(\App\Services\CalendarFeed::class))->enabledFor($user) ? $feed->urls($user) : null,
             'syncUpsell' => $this->currentOrganization() ? app(\App\Services\Upsell::class)->for($this->currentOrganization(), $user, 'calendar_sync') : null,
@@ -73,7 +73,7 @@ class CalendarController extends Controller
             'canEdit' => $this->canEdit($request, $event),
             'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
                 && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
-            'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'professionals' => app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
 
@@ -89,7 +89,7 @@ class CalendarController extends Controller
 
         return view('calendar.edit', [
             'event' => $event->load(['horse', 'careRecord']),
-            'professionals' => Professional::whereIn('organization_id', $orgIds)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'professionals' => app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
 
@@ -184,7 +184,7 @@ class CalendarController extends Controller
         ]);
         // Les intervenants et responsables doivent appartenir aux espaces de l'utilisateur.
         $orgIds = $request->user()->memberships->pluck('organization_id');
-        if (! empty($data['professional_id']) && ! Professional::whereIn('organization_id', $orgIds)->whereKey($data['professional_id'])->exists()) {
+        if (! empty($data['professional_id']) && ! app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {
             $data['professional_id'] = null;
         }
         if (! empty($data['responsible_user_id']) && ! OrganizationMember::whereIn('organization_id', $orgIds)->where('user_id', $data['responsible_user_id'])->exists()) {

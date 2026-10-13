@@ -35,10 +35,10 @@
             <ul class="divide-y divide-slate-100">
                 @foreach ($unpaid as $e)
                     <li class="flex items-center gap-3 py-3">
-                        <span class="min-w-0 flex-1">
+                        <a href="{{ route('budget.show', $e) }}" class="min-w-0 flex-1" data-expense-link="{{ $e->id }}">
                             <span class="block font-medium text-slate-900">{{ $e->comment ?: $e->category->name }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $e->horse?->shortName() ?? 'Espace' }}</span>@endunless</span>
                             <span class="block text-xs {{ $e->isOverdue() ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $e->isOverdue() ? 'En retard · ' : 'Échéance · ' }}{{ $e->spent_on->translatedFormat('j M Y') }} · {{ $eur($e->amount) }}</span>
-                        </span>
+                        </a>
                         @if ($canPay($e))
                             <form method="POST" action="{{ route('budget.pay', $e) }}">@csrf<input type="hidden" name="paid" value="1"><button class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="check" class="size-4" /> Payé</button></form>
                         @endif
@@ -53,23 +53,78 @@
         <div class="px-2"><p class="text-xs text-slate-500">Année {{ $year }}</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['year']) }}</p></div>
         <div class="px-2"><p class="text-xs text-slate-500">Par mois</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['year'] / max(1, $year == now()->year ? now()->month : 12)) }}</p></div>
     </div>
-    <div class="mb-4 grid gap-4 lg:grid-cols-3">
+    @php
+        $maxCat = max(1, (float) $kpis['by_category']->max());
+        $maxHorse = max(1, (float) $kpis['by_horse']->max());
+        $maxM = max(1, (float) $kpis['by_month']->max());
+        $totalCat = max(0.01, (float) $kpis['by_category']->sum());
+        $month = fn ($m, $f = 'F') => \Illuminate\Support\Carbon::create(null, $m)->translatedFormat($f);
+        $zoom = 'block w-full cursor-zoom-in rounded-xl text-left focus-visible:outline-2 focus-visible:outline-brand-600';
+    @endphp
+    <div class="mb-4 grid gap-4 lg:grid-cols-3" data-budget-charts>
         <x-section title="Par catégorie">
-            @php $maxCat = max(1, (float) $kpis['by_category']->max()); @endphp
+            <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-category').showModal()" aria-label="Agrandir le graphique par catégorie"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
+            <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-category').showModal()" data-chart-open="category">
             @forelse ($kpis['by_category'] as $name => $total)<div class="py-1 text-sm"><div class="flex justify-between"><span>{{ $name }}</span><span class="font-medium">{{ $eur($total) }}</span></div><div class="mt-0.5 h-1.5 rounded bg-slate-100"><div class="h-1.5 rounded bg-brand-500" style="width: {{ round($total / $maxCat * 100) }}%"></div></div></div>@empty<p class="text-sm text-slate-500">—</p>@endforelse
+            </button>
         </x-section>
         @unless ($contextHorse)
         <x-section title="Coût par cheval">
+            <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-horse').showModal()" aria-label="Agrandir le graphique par cheval"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
+            <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-horse').showModal()" data-chart-open="horse">
             @forelse ($kpis['by_horse'] as $name => $total)<div class="flex justify-between py-1 text-sm"><span>{{ $name }}</span><span class="font-medium">{{ $eur($total) }}</span></div>@empty<p class="text-sm text-slate-500">—</p>@endforelse
+            </button>
         </x-section>
         @endunless
         <x-section title="Évolution mensuelle">
-            @php $maxM = max(1, (float) $kpis['by_month']->max()); @endphp
+            <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-month').showModal()" aria-label="Agrandir l'évolution mensuelle"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
+            <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-month').showModal()" data-chart-open="month">
             <div class="flex h-36 items-end gap-1" role="img" aria-label="Dépenses par mois">
-                @for ($m = 1; $m <= 12; $m++)<div class="flex flex-1 flex-col items-center gap-1" title="{{ \Illuminate\Support\Carbon::create(null, $m)->translatedFormat('F') }} : {{ $eur($kpis['by_month'][$m] ?? 0) }}"><div class="w-full rounded-t bg-brand-500" style="height: {{ max(2, round(($kpis['by_month'][$m] ?? 0) / $maxM * 110)) }}px"></div><span class="text-[9px] text-slate-500">{{ mb_substr(\Illuminate\Support\Carbon::create(null, $m)->translatedFormat('M'), 0, 3) }}</span></div>@endfor
+                @for ($m = 1; $m <= 12; $m++)<div class="flex flex-1 flex-col items-center gap-1" title="{{ $month($m) }} : {{ $eur($kpis['by_month'][$m] ?? 0) }}"><div class="w-full rounded-t bg-brand-500" style="height: {{ max(2, round(($kpis['by_month'][$m] ?? 0) / $maxM * 110)) }}px"></div><span class="text-[9px] text-slate-500">{{ mb_substr($month($m, 'M'), 0, 3) }}</span></div>@endfor
             </div>
+            </button>
         </x-section>
     </div>
+
+    {{-- Graphiques agrandis --}}
+    @foreach (['category' => 'Dépenses par catégorie', 'horse' => 'Coût par cheval', 'month' => 'Évolution mensuelle'] as $chart => $chartTitle)
+        @continue($chart === 'horse' && $contextHorse)
+        <dialog id="chart-{{ $chart }}" class="m-auto w-[calc(100%-1rem)] max-w-4xl rounded-3xl p-0 backdrop:bg-slate-900/50" onclick="if (event.target === this) this.close()" data-chart-dialog="{{ $chart }}">
+            <div class="p-5 sm:p-8">
+                <div class="mb-5 flex items-start justify-between gap-3">
+                    <div><h2 class="text-xl font-semibold">{{ $chartTitle }}</h2><p class="text-sm text-slate-500">{{ $contextHorse?->shortName() ?? 'Tous les chevaux' }} · {{ $year }} · total {{ $eur($kpis['year']) }}</p></div>
+                    <button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
+                </div>
+                @if ($chart === 'month')
+                    <div class="flex h-80 items-end gap-1.5 sm:gap-3" role="img" aria-label="Dépenses par mois en {{ $year }}">
+                        @for ($m = 1; $m <= 12; $m++)
+                            @php $v = (float) ($kpis['by_month'][$m] ?? 0); @endphp
+                            <div class="flex h-full flex-1 flex-col items-center justify-end gap-1">
+                                <span class="hidden text-xs font-medium whitespace-nowrap text-slate-600 sm:block">{{ $v > 0 ? number_format($v, 0, ',', ' ').' €' : '' }}</span>
+                                <div class="w-full rounded-t-lg bg-brand-500" style="height: {{ max(3, round($v / $maxM * 240)) }}px" title="{{ $month($m) }} : {{ $eur($v) }}"></div>
+                                <span class="text-[11px] text-slate-500 sm:text-sm">{{ mb_substr($month($m, 'M'), 0, 3) }}</span>
+                            </div>
+                        @endfor
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
+                        @for ($m = 1; $m <= 12; $m++)<div class="flex justify-between border-b border-slate-100 py-1"><span class="text-slate-600">{{ ucfirst($month($m)) }}</span><span class="font-medium">{{ $eur($kpis['by_month'][$m] ?? 0) }}</span></div>@endfor
+                    </div>
+                @else
+                    @php $rows = $chart === 'category' ? $kpis['by_category'] : $kpis['by_horse']; $max = $chart === 'category' ? $maxCat : $maxHorse; $sum = max(0.01, (float) $rows->sum()); @endphp
+                    <div class="space-y-4">
+                        @forelse ($rows as $name => $total)
+                            <div>
+                                <div class="flex items-baseline justify-between gap-3"><span class="font-medium">{{ $name }}</span><span class="text-sm text-slate-500"><span class="font-semibold text-slate-900">{{ $eur($total) }}</span> · {{ number_format($total / $sum * 100, 0) }} %</span></div>
+                                <div class="mt-1.5 h-4 rounded-full bg-slate-100"><div class="h-4 rounded-full bg-brand-500" style="width: {{ max(1, round($total / $max * 100)) }}%"></div></div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-slate-500">Aucune dépense sur cette période.</p>
+                        @endforelse
+                    </div>
+                @endif
+            </div>
+        </dialog>
+    @endforeach
     @if ($recurring->isNotEmpty())
         <section class="card mb-4 p-5 sm:p-6" aria-labelledby="recurring-title">
             <h2 id="recurring-title" class="mb-2 text-[17px] font-semibold">Dépenses récurrentes</h2>
@@ -113,12 +168,13 @@
     @else
         <div class="card divide-y divide-slate-100 sm:hidden">
             @foreach ($expenses as $e)
-                <div class="flex items-start gap-3 p-4">
+                <div class="relative flex items-start gap-3 p-4 active:bg-slate-50">
                     <div class="min-w-0 flex-1">
+                        <a href="{{ route('budget.show', $e) }}" class="absolute inset-0" aria-label="Détail : {{ $e->category->name }}, {{ $eur($e->amount) }}" data-expense-link="{{ $e->id }}"></a>
                         <p class="font-medium text-slate-900">@if ($e->recurring_expense_id)<x-icon name="refresh" class="mr-0.5 inline size-3.5 text-slate-400" />@endif{{ $e->category->name }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $e->horse?->shortName() ?? 'Espace' }}</span>@endunless</p>
                         <p class="text-xs text-slate-500">{{ $e->spent_on->translatedFormat('j M Y') }}{{ $e->supplier ? ' · '.$e->supplier : '' }}</p>
                         @if ($e->comment)<p class="mt-0.5 line-clamp-1 text-xs text-slate-500">{{ $e->comment }}</p>@endif
-                        <p class="mt-1 flex gap-3 text-xs">
+                        <p class="relative z-10 mt-1 flex w-fit gap-3 text-xs">
                             @foreach ($e->documents as $d)<a href="{{ route('budget.receipt', [$e, $d]) }}" class="link" @if ($d->isImage()) data-lightbox="receipt-{{ $e->id }}" data-caption="Justificatif · {{ $e->category->name }}" @endif>Justificatif</a>@endforeach
                             @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="link">Modifier</a>@endif
                         </p>
@@ -131,10 +187,10 @@
             <thead><tr><th>Date</th><th>Cheval</th><th>Catégorie</th><th class="hidden sm:table-cell">Fournisseur</th><th class="text-right">Montant</th><th></th></tr></thead>
             <tbody class="divide-y divide-slate-100">
             @foreach ($expenses as $e)
-                <tr>
+                <tr class="cursor-pointer hover:bg-slate-50" onclick="if (! event.target.closest('a, button, form')) location.href = this.dataset.href" data-href="{{ route('budget.show', $e) }}">
                     <td class="whitespace-nowrap">{{ $e->spent_on->format('d/m/Y') }}</td>
                     <td>{{ $e->horse?->shortName() ?? '—' }}</td>
-                    <td>{{ $e->category->name }}@if ($e->comment)<span class="block text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($e->comment, 60) }}</span>@endif</td>
+                    <td><a href="{{ route('budget.show', $e) }}" class="font-medium text-slate-900 hover:underline" data-expense-link="{{ $e->id }}">{{ $e->category->name }}</a>@if ($e->comment)<span class="block text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($e->comment, 60) }}</span>@endif</td>
                     <td class="hidden sm:table-cell">{{ $e->supplier }}</td>
                     <td class="text-right font-medium whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="ml-1">À payer</x-badge>@endunless</td>
                     <td class="whitespace-nowrap">

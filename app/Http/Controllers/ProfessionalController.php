@@ -17,15 +17,23 @@ class ProfessionalController extends Controller
     {
         $org = $this->currentOrganization();
         $query = Professional::where('organization_id', $org->id)->withCount('horses');
+        $kind = $request->query('kind');
         if ($q = trim((string) $request->query('q'))) {
             $query->where(fn ($w) => $w->where('last_name', 'like', "%$q%")->orWhere('first_name', 'like', "%$q%")->orWhere('company', 'like', "%$q%"));
         }
-        if ($kind = $request->query('kind')) {
+        if ($kind) {
             $query->where('kind', $kind);
         }
         $request->boolean('archived') ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at');
 
+        // Intervenants des chevaux qu'on partage avec moi (lecture seule).
+        $sharedIds = app(ProfessionalDirectory::class)->sharedIds($request->user());
+        $shared = $sharedIds && ! $request->boolean('archived') ? Professional::whereIn('id', $sharedIds)->whereNull('archived_at')->with(['organization', 'horses'])
+            ->when($q, fn ($w) => $w->where(fn ($w) => $w->where('last_name', 'like', "%$q%")->orWhere('first_name', 'like', "%$q%")->orWhere('company', 'like', "%$q%")))
+            ->when($kind, fn ($w) => $w->where('kind', $kind))->orderBy('last_name')->get() : collect();
+
         return view('professionals.index', [
+            'shared' => $shared,
             'professionals' => $query->orderBy('last_name')->paginate(30)->withQueryString(),
             'canManage' => $request->user()->canInOrg($org, Perm::PROFESSIONALS_MANAGE),
             'org' => $org,
@@ -103,6 +111,7 @@ class ProfessionalController extends Controller
             'horses' => $horses,
             'interventions' => $professional->careRecords()->with(['horse', 'category'])->whereIn('horse_id', $healthIds)->limit(50)->get(),
             'canManage' => $user->canInOrg($professional->organization_id, Perm::PROFESSIONALS_MANAGE),
+            'shared' => ! $user->memberships->contains('organization_id', $professional->organization_id),
         ]);
     }
 
@@ -160,7 +169,8 @@ class ProfessionalController extends Controller
 
     private function authorizeView(Request $request, Professional $professional): void
     {
-        abort_unless($request->user()->memberships->contains('organization_id', $professional->organization_id), 404);
+        abort_unless($request->user()->memberships->contains('organization_id', $professional->organization_id)
+            || app(ProfessionalDirectory::class)->isShared($request->user(), $professional), 404);
     }
 
     private function validated(Request $request): array

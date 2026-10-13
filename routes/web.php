@@ -209,6 +209,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::delete('/budget/recurrentes/{recurring}', [Controllers\RecurringExpenseController::class, 'destroy'])->name('budget.recurring.destroy');
     Route::get('/budget/{expense}/justificatif/{document}', [Controllers\ExpenseController::class, 'receipt'])->scopeBindings()->name('budget.receipt');
     Route::get('/budget/export.{format}', [Controllers\ExpenseController::class, 'export'])->whereIn('format', ['csv', 'pdf'])->middleware('throttle:exports')->name('budget.export');
+    Route::get('/budget/{expense}', [Controllers\ExpenseController::class, 'show'])->whereNumber('expense')->name('budget.show');
 
     // Partages (vue d'ensemble)
     Route::get('/partages', [Controllers\HorseSharingController::class, 'overview'])->name('sharing.index');

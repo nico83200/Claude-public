@@ -78,7 +78,7 @@ class ExpenseController extends Controller
             'canOrgExpense' => false,
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
             'careCategoryIds' => ExpenseCategory::whereIn('key', array_keys(\App\Services\CareExpenseSync::CARE_FOR_EXPENSE))->pluck('id')->map(fn ($id) => (string) $id)->values(),
-            'professionals' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'professionals' => app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
 
@@ -127,6 +127,21 @@ class ExpenseController extends Controller
         return back()->with('success', $care ? 'Dépense enregistrée, et soin ajouté au carnet de santé.' : 'Dépense enregistrée.');
     }
 
+    /** Détail d'une dépense ; une dépense de soin ouvre le soin, avec ses informations financières. */
+    public function show(Request $request, Expense $expense, HorseAccess $access)
+    {
+        abort_unless($this->visibleQuery($request, $access)->whereKey($expense->id)->exists(), 404);
+        if ($expense->care_record_id && $expense->horse && $access->can($request->user(), $expense->horse, Perm::HEALTH_VIEW)
+            && \App\Models\CareRecord::whereKey($expense->care_record_id)->where('horse_id', $expense->horse_id)->exists()) {
+            return redirect()->route('horses.care.show', [$expense->horse_id, $expense->care_record_id]);
+        }
+
+        return view('budget.show', [
+            'expense' => $expense->load(['horse', 'category', 'documents', 'author', 'professional', 'recurring']),
+            'canEdit' => $this->canEdit($request, $expense),
+        ]);
+    }
+
     public function edit(Request $request, Expense $expense, HorseAccess $access)
     {
         $this->authorizeEdit($request, $expense);
@@ -169,7 +184,9 @@ class ExpenseController extends Controller
         $expense->delete();
         Audit::log('expense.deleted', $expense, ['amount' => (string) $expense->amount], $expense->organization_id);
 
-        return back()->with('success', 'Dépense supprimée.');
+        // Depuis la page détail (qui n'existe plus), retour au budget.
+        return (str_starts_with(url()->previous(), route('budget.show', $expense)) ? redirect()->route('budget.index', array_filter(['horse' => $expense->horse_id])) : back())
+            ->with('success', 'Dépense supprimée.');
     }
 
     public function receipt(Request $request, Expense $expense, ExpenseDocument $document, HorseAccess $access)
@@ -284,7 +301,7 @@ class ExpenseController extends Controller
             'receipt' => ['nullable', 'file', 'max:'.config('equine.uploads.max_kb'), 'mimes:pdf,jpg,jpeg,png,webp,heic'],
         ]);
         unset($data['receipt']);
-        if (! empty($data['professional_id']) && ! Professional::whereIn('organization_id', $request->user()->memberships->pluck('organization_id'))->whereKey($data['professional_id'])->exists()) {
+        if (! empty($data['professional_id']) && ! app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {
             $data['professional_id'] = null;
         }
 

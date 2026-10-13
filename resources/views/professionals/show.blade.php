@@ -18,8 +18,9 @@
                 @endif
                 @if ($professional->email)<a href="mailto:{{ $professional->email }}" class="block link">{{ $professional->email }}</a>@endif
                 @if ($professional->address)<p>{{ $professional->address }}</p>@endif
-                @if ($professional->usual_rate)<p class="text-slate-500">Tarif habituel : {{ number_format((float) $professional->usual_rate, 2, ',', ' ') }} €</p>@endif
-                @if ($professional->notes)<p class="whitespace-pre-line text-slate-600">{{ $professional->notes }}</p>@endif
+                @if ($shared)<p class="text-xs text-slate-500" data-shared-notice>Contact partagé par {{ $professional->organization->name }} avec un cheval partagé avec vous.</p>@endif
+                @if ($professional->usual_rate && ! $shared)<p class="text-slate-500">Tarif habituel : {{ number_format((float) $professional->usual_rate, 2, ',', ' ') }} €</p>@endif
+                @if ($professional->notes && ! $shared)<p class="whitespace-pre-line text-slate-600">{{ $professional->notes }}</p>@endif
             </div>
         </x-section>
         <x-section title="Chevaux suivis">

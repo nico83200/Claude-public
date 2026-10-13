@@ -2,8 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\CareRecord;
 use App\Models\Organization;
 use App\Models\Professional;
+use App\Models\User;
+use App\Support\Perm;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Carnet des intervenants d'un espace : recherche d'une fiche existante (email, téléphone
@@ -11,6 +16,45 @@ use App\Models\Professional;
  */
 class ProfessionalDirectory
 {
+    /** @var array<int, array<int, int>> cache par utilisateur, le temps d'une requête */
+    private array $sharedIds = [];
+
+    /**
+     * Intervenants des chevaux partagés avec l'utilisateur, hors de ses propres espaces :
+     * ceux associés au cheval (fiche consultable) et ceux de ses soins (accès santé).
+     *
+     * @return array<int, int>
+     */
+    public function sharedIds(User $user): array
+    {
+        if (isset($this->sharedIds[$user->id])) {
+            return $this->sharedIds[$user->id];
+        }
+        $access = app(HorseAccess::class);
+        $own = $user->memberships->pluck('organization_id');
+        $viewIds = $access->horseIdsWith($user, Perm::HORSE_VIEW);
+        $healthIds = $access->horseIdsWith($user, Perm::HEALTH_VIEW);
+        $ids = DB::table('horse_professionals')->whereIn('horse_id', $viewIds ?: [0])->pluck('professional_id')
+            ->merge(CareRecord::whereIn('horse_id', $healthIds ?: [0])->whereNotNull('professional_id')->pluck('professional_id'))
+            ->unique()->values();
+
+        return $this->sharedIds[$user->id] = Professional::whereIn('id', $ids->all() ?: [0])->whereNotIn('organization_id', $own)->pluck('id')->all();
+    }
+
+    /** Intervenants visibles : ceux de ses espaces et ceux des chevaux partagés avec lui. */
+    public function visibleQuery(User $user): Builder
+    {
+        $own = $user->memberships->pluck('organization_id');
+        $shared = $this->sharedIds($user);
+
+        return Professional::query()->where(fn ($q) => $q->whereIn('organization_id', $own)->orWhereIn('id', $shared ?: [0]));
+    }
+
+    public function isShared(User $user, Professional $professional): bool
+    {
+        return in_array($professional->id, $this->sharedIds($user), true);
+    }
+
     /** Fiche existante de l'espace correspondant à ces coordonnées, ou null. */
     public function match(Organization $org, array $data): ?Professional
     {

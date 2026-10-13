@@ -106,6 +106,10 @@ class CareRecordController extends Controller
             'horse' => $horse,
             'record' => $care->load(['category', 'professional', 'author', 'treatments', 'documents']),
             'canEdit' => $this->horseCan($horse, Perm::HEALTH_EDIT),
+            // Informations financières : dépenses rattachées au soin, si l'utilisateur voit le budget de ce cheval.
+            'expenses' => $this->horseCan($horse, Perm::EXPENSES_VIEW)
+                ? \App\Models\Expense::where('care_record_id', $care->id)->with(['category', 'documents', 'professional'])->orderBy('spent_on')->get()
+                : collect(),
         ]);
     }
 

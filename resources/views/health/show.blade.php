@@ -19,6 +19,25 @@
             ]" />
         </x-section>
         <div class="space-y-4">
+            @if ($expenses->isNotEmpty())
+                <x-section title="Informations financières" data-care-finance>
+                    @foreach ($expenses as $e)
+                        <div class="border-t border-slate-100 py-2 text-sm first:border-0 first:pt-0">
+                            <div class="flex items-baseline justify-between gap-2">
+                                <span class="font-medium">{{ $e->category->name }}</span>
+                                <span class="font-semibold">{{ number_format((float) $e->amount, 2, ',', ' ') }} €</span>
+                            </div>
+                            <p class="text-xs text-slate-500">{{ $e->spent_on->format('d/m/Y') }}{{ $e->supplier ? ' · '.$e->supplier : '' }}</p>
+                            <p class="mt-1">@if ($e->isPaid())<x-badge color="green">Payée{{ $e->paid_on ? ' le '.$e->paid_on->format('d/m/Y') : '' }}</x-badge>@else<x-badge :color="$e->isOverdue() ? 'red' : 'amber'">À payer</x-badge>@endif</p>
+                            @if ($e->comment)<p class="mt-1 text-xs text-slate-600">{{ $e->comment }}</p>@endif
+                            <p class="mt-1 flex flex-wrap gap-3 text-xs">
+                                @foreach ($e->documents as $d)<a href="{{ route('budget.receipt', [$e, $d]) }}" class="link" @if ($d->isImage()) data-lightbox="care-receipt-{{ $e->id }}" data-caption="Justificatif · {{ $e->category->name }}" @endif>Justificatif</a>@endforeach
+                                <a href="{{ route('budget.index', ['horse' => $horse->id, 'year' => $e->spent_on->year]) }}" class="link">Voir dans le budget</a>
+                            </p>
+                        </div>
+                    @endforeach
+                </x-section>
+            @endif
             <x-section title="Documents">
                 @forelse ($record->documents as $d)<a href="{{ route('horses.documents.download', [$horse, $d]) }}" class="block py-1 text-sm link" @if ($d->isImage()) data-lightbox="care-docs" data-caption="{{ $d->title }}" @endif>{{ $d->title }}</a>@empty<p class="text-sm text-slate-500">Aucun document joint.</p>@endforelse
             </x-section>

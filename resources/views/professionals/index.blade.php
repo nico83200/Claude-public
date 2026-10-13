@@ -8,7 +8,7 @@
         <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="archived" value="1" @checked(request('archived')) class="rounded"> Archivés</label>
         <button class="btn-secondary">Filtrer</button>
     </form>
-    @if ($professionals->isEmpty())
+    @if ($professionals->isEmpty() && $shared->isEmpty())
         <x-empty title="Aucun intervenant" icon="users">Vétérinaires, maréchaux-ferrants, ostéopathes… Une fiche unique par professionnel, associée aux chevaux concernés.</x-empty>
     @else
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,5 +22,19 @@
             @endforeach
         </div>
         <div class="mt-4">{{ $professionals->links() }}</div>
+    @endif
+    @if ($shared->isNotEmpty())
+        <h2 class="mt-8 mb-1 text-lg font-semibold">Intervenants des chevaux partagés avec vous</h2>
+        <p class="mb-3 text-sm text-slate-500">Les contacts que les propriétaires ont associés à leurs chevaux. Consultation seule : ils restent gérés par leur espace.</p>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-shared-professionals>
+            @foreach ($shared as $p)
+                <a href="{{ route('professionals.show', $p) }}" class="card p-4 hover:border-brand-300" data-shared-professional="{{ $p->id }}">
+                    <p class="font-semibold">{{ $p->fullName() }}</p>
+                    <p class="text-sm text-slate-500">{{ $p->kindLabel() }}{{ $p->company ? ' · '.$p->company : '' }}</p>
+                    <p class="mt-1 text-sm">{{ $p->phone }}</p>
+                    <p class="text-xs text-slate-400">Partagé par {{ $p->organization->name }}</p>
+                </a>
+            @endforeach
+        </div>
     @endif
 </x-layouts.app>
