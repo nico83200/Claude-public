@@ -74,6 +74,13 @@ class AppServiceProvider extends ServiceProvider
             ['id' => $notifiable->getKey(), 'hash' => sha1($notifiable->getEmailForVerification())],
         ));
 
+        // E-mails de compte dans la même mise en forme que les notifications.
+        VerifyEmail::toMailUsing(fn ($notifiable, string $url) => app(\App\Services\MailDesign::class)->mailMessage('verify_email', ['name' => $notifiable->name ?? null],
+            'Confirmez votre adresse e-mail', 'Cliquez sur le bouton ci-dessous pour confirmer votre adresse e-mail.', $url));
+        \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(fn ($notifiable, string $token) => app(\App\Services\MailDesign::class)->mailMessage('reset_password', ['name' => $notifiable->name ?? null],
+            'Réinitialisation du mot de passe', 'Vous avez demandé à réinitialiser votre mot de passe. Ce lien est valable '.config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60).' minutes. Si vous n\'êtes pas à l\'origine de cette demande, ignorez ce message.',
+            url(route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()], false))));
+
         Password::defaults(fn () => Password::min(10)->letters()->numbers());
 
         // Permission sur un cheval : Gate::authorize('horse', [$horse, 'health.view'])

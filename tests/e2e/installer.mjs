@@ -55,7 +55,7 @@ try {
     await page.fill('#f_password', 'Jack&Cie-2026!');
     await page.click('button:has-text("Se connecter")');
     await page.waitForURL('**/dashboard');
-    assert(await page.isVisible('text=Bonjour Nicolas'), 'connexion du super-administrateur');
+    assert((await page.textContent('[data-greeting]'))?.includes('Nicolas'), 'connexion du super-administrateur');
     await shot('6-tableau-de-bord');
     await page.goto(BASE + '/tarifs');
     assert(await page.isVisible('text=Découverte'), 'offres de référence installées');

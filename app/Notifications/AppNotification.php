@@ -6,6 +6,7 @@ use App\Models\FeatureFlag;
 use App\Models\PushSubscription;
 use App\Models\User;
 use App\Notifications\Channels\WebPushChannel;
+use App\Services\MailDesign;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -58,7 +59,7 @@ class AppNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        $mailEnabled = $this->mail && FeatureFlag::enabled('email_notifications');
+        $mailEnabled = $this->mail && FeatureFlag::enabled('email_notifications') && app(MailDesign::class)->enabled($this->kind);
         if (! $notifiable instanceof User) {
             return $mailEnabled ? ['mail'] : [];
         }
@@ -75,12 +76,8 @@ class AppNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)->subject($this->title)->greeting('Bonjour,')->line($this->body);
-        if ($this->url) {
-            $mail->action('Ouvrir', $this->url);
-        }
-
-        return $mail->salutation('— '.config('app.name'));
+        // Mise en forme réglée par le super-administrateur (Administration › E-mails).
+        return app(MailDesign::class)->mailMessage($this->kind, ['name' => $notifiable->name ?? null], $this->title, $this->body, $this->url);
     }
 
     /** @return array{title: string, body: string, url: string|null, tag: string} */

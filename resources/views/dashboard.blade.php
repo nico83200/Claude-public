@@ -1,7 +1,7 @@
 <x-layouts.app title="Tableau de bord">
     <div class="mb-6">
         <p class="text-[15px] text-slate-500">{{ ucfirst(now()->translatedFormat('l j F')) }}</p>
-        <h1 class="text-[32px] leading-tight font-bold">Bonjour {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}</h1>
+        <h1 class="text-[32px] leading-tight font-bold" data-greeting>{{ \App\Support\Greeting::for(auth()->user()->name, null, auth()->id()) }}</h1>
     </div>
 
     @foreach ($invitations as $inv)
