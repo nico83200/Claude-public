@@ -31,12 +31,60 @@ class HorseAccess
     /** @var array<int, Collection> */
     private array $memberships = [];
 
+    /** @var array<int, array<int, true>> chevaux dont l'utilisateur est propriétaire, par utilisateur */
+    private array $owned = [];
+
+    /** @var array<int, array<int, string[]>> permissions des partages directs, par utilisateur puis cheval */
+    private array $granted = [];
+
+    /** @var array<int, Collection> rattachements actifs à une écurie, par cheval */
+    private array $assignments = [];
+
+    /** @var array<int, Collection> chevaux accessibles, par utilisateur */
+    private array $accessible = [];
+
+    /** @var array<string, int[]> identifiants des chevaux par utilisateur et permission */
+    private array $idsWith = [];
+
     public function __construct(private Entitlements $entitlements) {}
 
+    /** Oublie tout ce qui a été mémorisé (après un changement de droits dans la même requête). */
     public function flush(): void
     {
         $this->cache = [];
         $this->memberships = [];
+        $this->owned = [];
+        $this->granted = [];
+        $this->assignments = [];
+        $this->accessible = [];
+        $this->idsWith = [];
+    }
+
+    /** Une requête par utilisateur (et non par cheval) pour la propriété et les partages directs. */
+    private function ownedBy(User $user): array
+    {
+        return $this->owned[$user->id] ??= HorseOwnership::where('user_id', $user->id)
+            ->where(fn ($q) => $q->whereNull('ended_on')->orWhere('ended_on', '>=', now()->toDateString()))
+            ->whereIn('role', ['owner', 'co_owner'])->pluck('horse_id')->mapWithKeys(fn ($id) => [(int) $id => true])->all();
+    }
+
+    private function grantsOf(User $user): array
+    {
+        return $this->granted[$user->id] ??= HorseAccessGrant::active()->where('user_id', $user->id)->get()
+            ->groupBy('horse_id')->map(fn ($g) => $g->flatMap(fn ($grant) => $grant->permissions ?? [])->unique()->values()->all())->all();
+    }
+
+    /** Rattachements des chevaux donnés, chargés en une requête pour ceux qui ne le sont pas encore. */
+    private function loadAssignments(array $horseIds): void
+    {
+        $missing = array_values(array_diff($horseIds, array_keys($this->assignments)));
+        if (! $missing) {
+            return;
+        }
+        $found = HorseOrganizationAssignment::active()->whereIn('horse_id', $missing)->get()->groupBy('horse_id');
+        foreach ($missing as $id) {
+            $this->assignments[$id] = $found->get($id, collect());
+        }
     }
 
     private function membershipsOf(User $user)
@@ -70,21 +118,16 @@ class HorseAccess
         }
 
         // 2. Propriétaire déclaré avec un compte
-        $isOwner = HorseOwnership::where('horse_id', $horse->id)->where('user_id', $user->id)
-            ->where(fn ($q) => $q->whereNull('ended_on')->orWhere('ended_on', '>=', now()->toDateString()))
-            ->whereIn('role', ['owner', 'co_owner'])->exists();
-        if ($isOwner) {
+        if (isset($this->ownedBy($user)[$horse->id])) {
             $perms = array_merge($perms, Perm::allHorseKeys());
         }
 
         // 3. Partage direct
-        foreach (HorseAccessGrant::active()->where('horse_id', $horse->id)->where('user_id', $user->id)->get() as $grant) {
-            $perms = array_merge($perms, array_intersect($grant->permissions ?? [], Perm::horseKeys()));
-        }
+        $perms = array_merge($perms, array_intersect($this->grantsOf($user)[$horse->id] ?? [], Perm::horseKeys()));
 
         // 4. Écurie de rattachement
-        $assignments = HorseOrganizationAssignment::active()->where('horse_id', $horse->id)->get();
-        foreach ($assignments as $assignment) {
+        $this->loadAssignments([$horse->id]);
+        foreach ($this->assignments[$horse->id] as $assignment) {
             $m = $this->membershipsOf($user)->get($assignment->organization_id);
             if ($m) {
                 $perms = array_merge($perms, array_intersect($assignment->permissions ?? [], $m->role->permissionKeys(), Perm::horseKeys()));
@@ -165,9 +208,21 @@ class HorseAccess
     /** Identifiants des chevaux pour lesquels l'utilisateur détient une permission donnée. */
     public function horseIdsWith(User $user, string $permission): array
     {
-        return $this->accessibleQuery($user)->get()
+        return $this->idsWith[$user->id.':'.$permission] ??= $this->accessibleHorses($user)
             ->filter(fn (Horse $h) => in_array($permission, $this->permissions($user, $h), true))
-            ->pluck('id')->all();
+            ->pluck('id')->values()->all();
+    }
+
+    /** Chevaux accessibles, lus une fois par requête, rattachements préchargés en une requête. */
+    public function accessibleHorses(User $user): Collection
+    {
+        if (! isset($this->accessible[$user->id])) {
+            $horses = $this->accessibleQuery($user)->get();
+            $this->loadAssignments($horses->pluck('id')->map(fn ($id) => (int) $id)->all());
+            $this->accessible[$user->id] = $horses;
+        }
+
+        return $this->accessible[$user->id];
     }
 
     /**

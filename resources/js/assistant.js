@@ -7,6 +7,19 @@ const SILENCE_MS = 1500;      // silence après la parole qui déclenche l'arrê
 const NO_SPEECH_MS = 7000;    // arrêt si rien n'est dit
 const MAX_MS = 60000;         // durée maximale d'une consigne
 const UNDO_SECONDS = 10;
+import { offlineQueue } from './offline-queue.js';
+
+function userId() {
+    return document.querySelector('meta[name=app-user]')?.content ?? '';
+}
+
+/** « Consigne notée hors connexion le mardi 14 octobre à 9 h 12 » : l'assistant date correctement ce qui a été dit. */
+function offlinePrefix(iso) {
+    const d = new Date(iso);
+    const day = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return `(Consigne notée hors connexion le ${day} à ${time} : les mots « aujourd'hui », « ce matin », « hier » se rapportent à cette date.) `;
+}
 
 function csrf() {
     return document.querySelector('meta[name=csrf-token]')?.content ?? '';
@@ -48,7 +61,13 @@ export function assistantStore(config) {
         toast: null, // { text, actions, left }
         closeIn: 0,     // secondes avant fermeture automatique de la réponse
         changed: false,
+        speaking: false,
+        pending: 0,     // consignes notées hors connexion, en attente d'envoi
+        queued: false,  // la dernière consigne a été mise en attente
+        _flushing: false,
         _rec: null,
+        _audio: null,
+        _lastMode: 'text',
 
         get canRecord() {
             return !!(navigator.mediaDevices?.getUserMedia) && pickMime() !== null && this.status?.voice !== false;
@@ -69,6 +88,9 @@ export function assistantStore(config) {
                 const left = saved ? saved.left - Math.round((Date.now() - saved.at) / 1000) : 0;
                 if (saved && left > 0) this.showToast(saved.text, saved.actions, left);
             } catch { /* stockage indisponible */ }
+            // Consignes notées hors connexion : envoyées dès que le réseau est là.
+            this.refreshPending().then(() => { if (this.pending) this.flushQueue(); });
+            window.addEventListener('online', () => { if (this.status?.offline) this.status = null; this.flushQueue(); });
         },
 
         /** Page de l'élément créé ou modifié par la réponse ; à défaut, le tableau de bord. */
@@ -102,11 +124,66 @@ export function assistantStore(config) {
             this.stopCountdown();
         },
 
+        // ------------------------------------------------------------ Réponse vocale (ElevenLabs)
+
+        /** Préférence : '1' / '0' choisie par l'utilisateur ; sans choix, la réponse est lue quand la consigne a été dictée. */
+        speechPref() {
+            try { return localStorage.getItem('jc-assistant-speech'); } catch { return null; }
+        },
+
+        speechOn(mode = this._lastMode) {
+            const pref = this.speechPref();
+            return pref === null ? mode === 'voice' : pref === '1';
+        },
+
+        toggleSpeech() {
+            const next = this.speechOn() ? '0' : '1';
+            try { localStorage.setItem('jc-assistant-speech', next); } catch { /* ignoré */ }
+            if (next === '0') this.stopSpeech();
+            else this.unlockAudio();
+        },
+
+        /** Sur téléphone, le son doit être « débloqué » par un geste : appelé au toucher (micro, envoi). */
+        unlockAudio() {
+            if (!this.status?.speech) return;
+            try {
+                this._audio ??= new Audio();
+                this._audio.muted = true;
+                this._audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+                this._audio.play().then(() => { this._audio.pause(); this._audio.muted = false; }).catch(() => { this._audio.muted = false; });
+            } catch { /* ignoré */ }
+        },
+
+        async speak(requestId) {
+            if (!this.status?.speech || !requestId || !this.speechOn()) return false;
+            try {
+                const res = await fetch(config.speakUrl + '/' + requestId, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf() } });
+                if (!res.ok) return false;
+                const url = URL.createObjectURL(await res.blob());
+                this._audio ??= new Audio();
+                this._audio.muted = false;
+                this._audio.src = url;
+                this.speaking = true;
+                this._audio.onended = this._audio.onerror = () => { this.speaking = false; URL.revokeObjectURL(url); if (this.state === 'result') this.startCountdown(); };
+                await this._audio.play();
+                return true;
+            } catch {
+                this.speaking = false;
+                return false;
+            }
+        },
+
+        stopSpeech() {
+            if (this._audio) { this._audio.pause(); }
+            this.speaking = false;
+        },
+
         close() {
             this.stopCountdown();
+            this.stopSpeech();
             this.cancelRecording();
             // Réponse terminée (sans question en attente) : ouverture de l'élément concerné, sinon du tableau de bord.
-            const done = this.state === 'result' && !this.question;
+            const done = this.state === 'result' && !this.question && !this.queued;
             const target = done ? new URL(this.target, window.location.origin) : null;
             this.isOpen = false;
             document.documentElement.style.overflow = '';
@@ -141,17 +218,82 @@ export function assistantStore(config) {
             try {
                 const res = await fetch(config.statusUrl, { headers: { Accept: 'application/json' } });
                 this.status = await res.json();
+                try { localStorage.setItem('jc-assistant-status', JSON.stringify({ available: this.status.available, voice: this.status.voice })); } catch { /* ignoré */ }
             } catch {
-                this.status = { available: false, reason: navigator.onLine ? 'Assistant indisponible pour le moment.' : 'L\'assistant a besoin d\'une connexion Internet.', voice: false };
+                // Hors connexion : si l'assistant était disponible, on peut noter la consigne (envoyée au retour du réseau).
+                let last = null;
+                try { last = JSON.parse(localStorage.getItem('jc-assistant-status') || 'null'); } catch { /* ignoré */ }
+                this.status = !navigator.onLine && last?.available && offlineQueue.available
+                    ? { available: true, voice: last.voice, speech: false, offline: true }
+                    : { available: false, reason: navigator.onLine ? 'Assistant indisponible pour le moment.' : 'L\'assistant a besoin d\'une connexion Internet.', voice: false };
+            }
+        },
+
+        // ------------------------------------------------------------ Hors connexion
+
+        async refreshPending() {
+            if (!offlineQueue.available) return;
+            try { this.pending = (await offlineQueue.all(userId())).length; } catch { this.pending = 0; }
+        },
+
+        async enqueue(item) {
+            await offlineQueue.add({ ...item, userId: userId(), horseId: config.horseId || null });
+            await this.refreshPending();
+            this.queued = true;
+            this.actions = [];
+            this.question = null;
+            this.reply = 'Pas de réseau : c\'est noté dans le téléphone, et ce sera enregistré automatiquement dès le retour de la connexion.';
+            this.state = 'result';
+        },
+
+        /** Envoi des consignes en attente, dans l'ordre où elles ont été notées. */
+        async flushQueue() {
+            if (this._flushing || !navigator.onLine || !offlineQueue.available) return;
+            this._flushing = true;
+            let sent = 0;
+            const done = [];
+            try {
+                for (const item of await offlineQueue.all(userId())) {
+                    let text = item.text;
+                    if (item.kind === 'audio') {
+                        const form = new FormData();
+                        form.append('audio', item.blob, `consigne.${item.ext || 'webm'}`);
+                        const res = await fetch(config.transcribeUrl, { method: 'POST', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() }, body: form });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) { if (res.status >= 500 || res.status === 429) break; await offlineQueue.remove(item.id); continue; }
+                        text = data.text?.trim();
+                    }
+                    if (text) {
+                        try {
+                            const data = await postJson(config.commandUrl, { text: offlinePrefix(item.at) + text, mode: item.kind === 'audio' ? 'voice' : 'text', horse_id: item.horseId });
+                            if (data.status === 'error') throw new Error(data.reply || 'assistant indisponible');
+                            done.push(...(data.actions || []));
+                            sent++;
+                        } catch (e) {
+                            // Refus (quota, assistant indisponible…) : la consigne reste en attente, on prévient.
+                            if (navigator.onLine) this.showToast('Consigne notée hors connexion pas encore enregistrée : ' + e.message, []);
+                            break;
+                        }
+                    }
+                    await offlineQueue.remove(item.id);
+                }
+            } catch { /* réessayé au prochain retour du réseau */ }
+            this._flushing = false;
+            await this.refreshPending();
+            if (sent) {
+                this.changed = true;
+                this.showToast(sent > 1 ? `${sent} consignes notées hors connexion ont été enregistrées.` : 'La consigne notée hors connexion a été enregistrée.', done);
             }
         },
 
         // ------------------------------------------------------------ Voix
 
         async listen() {
+            this.unlockAudio();
             this.stopCountdown();
-            if (!navigator.onLine) { this.fail('L\'assistant a besoin d\'une connexion Internet.'); return; }
+            if (!navigator.onLine && !offlineQueue.available) { this.fail('L\'assistant a besoin d\'une connexion Internet.'); return; }
             this.reset(true);
+            this.queued = false;
             let stream;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
@@ -202,6 +344,12 @@ export function assistantStore(config) {
                     return;
                 }
                 const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+                if (!navigator.onLine && offlineQueue.available) {
+                    const ext = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+                    this.transcript = 'Message vocal (' + Math.max(1, this.elapsed) + ' s)';
+                    await this.enqueue({ kind: 'audio', blob, ext });
+                    return;
+                }
                 await this.transcribe(blob);
             };
             this._rec = { recorder, cancel: () => { cancelled = true; if (recorder.state === 'recording') recorder.stop(); else cleanup(); } };
@@ -239,6 +387,15 @@ export function assistantStore(config) {
         async send(text, mode = 'text') {
             text = (text ?? '').trim();
             if (!text) return;
+            this._lastMode = mode;
+            this.unlockAudio();
+            this.queued = false;
+            if (!navigator.onLine && offlineQueue.available) {
+                this.transcript = text;
+                this.draft = '';
+                await this.enqueue({ kind: 'text', text });
+                return;
+            }
             this.stopCountdown();
             this.transcript = text;
             this.draft = '';
@@ -258,7 +415,9 @@ export function assistantStore(config) {
                     this.changed = true;
                     this.showToast(data.reply, this.actions);
                 }
-                if (this.state === 'result') this.startCountdown();
+                // Lecture à voix haute : la fermeture automatique attend la fin de la lecture.
+                const spoken = this.state !== 'error' && await this.speak(data.request_id);
+                if (this.state === 'result' && !spoken) this.startCountdown();
             } catch (e) {
                 this.fail(e.message);
             }

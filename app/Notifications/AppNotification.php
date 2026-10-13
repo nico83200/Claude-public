@@ -48,6 +48,7 @@ class AppNotification extends Notification
         'inactivity' => 'Rappel après une absence',
         'account_security' => 'Sécurité du compte',
         'new_user' => 'Nouvelle inscription (administration)',
+        'system_alert' => 'Alerte technique (administration)',
     ];
 
     public function __construct(
@@ -62,7 +63,8 @@ class AppNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        $mailEnabled = $this->mail && FeatureFlag::enabled('email_notifications') && app(MailDesign::class)->enabled($this->kind);
+        // Alerte technique : toujours par e-mail, même si les e-mails de notification sont coupés.
+        $mailEnabled = $this->mail && ($this->kind === 'system_alert' || (FeatureFlag::enabled('email_notifications') && app(MailDesign::class)->enabled($this->kind)));
         if (! $notifiable instanceof User) {
             return $mailEnabled ? ['mail'] : [];
         }
@@ -70,7 +72,7 @@ class AppNotification extends Notification
         if (PushSubscription::where('user_id', $notifiable->id)->exists()) {
             $channels[] = WebPushChannel::class;
         }
-        if ($mailEnabled && ($notifiable->profile?->email_notifications ?? true)) {
+        if ($mailEnabled && ($this->kind === 'system_alert' || ($notifiable->profile?->email_notifications ?? true))) {
             $channels[] = 'mail';
         }
 

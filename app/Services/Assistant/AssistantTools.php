@@ -157,8 +157,8 @@ class AssistantTools
                 'changes' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
                     'properties' => ['feed' => $str, 'quantity' => $n($num), 'unit' => $n($str), 'time_of_day' => $n(['type' => 'string', 'description' => 'HH:MM']), 'frequency' => $n($str), 'is_supplement' => $n($bool), 'note' => $n($str), 'remove' => $n($bool)]]],
             ]),
-            $tool('find_records', 'Recherche des informations pour répondre à une question ou retrouver un élément à modifier.', [
-                'kind' => $enum(['appointments', 'sessions', 'care', 'expenses', 'observations', 'daily_logs', 'feeding', 'horse_profile']),
+            $tool('find_records', 'Recherche des informations pour répondre à une question ou retrouver un élément à modifier. Pour un total ou une moyenne, utiliser les synthèses : expense_totals (dépenses totales par catégorie, défaut : année en cours), last_care (dernier soin de chaque type et prochaine échéance), weights (pesées et note d\'état), treatments (traitements en cours et récents), session_stats (nombre de séances, minutes, exercices les plus travaillés).', [
+                'kind' => $enum(['appointments', 'sessions', 'care', 'expenses', 'observations', 'daily_logs', 'feeding', 'horse_profile', 'expense_totals', 'last_care', 'weights', 'treatments', 'session_stats']),
                 'horse_id' => $n($int),
                 'from' => $n(['type' => 'string', 'description' => 'YYYY-MM-DD']),
                 'to' => $n(['type' => 'string', 'description' => 'YYYY-MM-DD']),
@@ -621,8 +621,50 @@ class AssistantTools
                 'particularities' => $this->clip($h->particularities, 400), 'precautions' => $this->clip($h->precautions, 400),
                 'follow_up' => $this->access->can($ctx->user, $h, Perm::HEALTH_VIEW) ? $this->reminders->rulesFor($h)->filter(fn ($r) => $r['enabled'])->map(fn ($r) => $r['category']->name.' tous les '.CareReminders::describe($r['interval_value'], $r['interval_unit']))->values()->all() : [],
             ])->all(),
+            'expense_totals' => $this->expenseTotals($ids(Perm::EXPENSES_VIEW), $from ?? now()->startOfYear(), $to ?? now()->endOfDay()),
+            'last_care' => CareRecord::with('horse', 'category', 'professional')->whereIn('horse_id', $ids(Perm::HEALTH_VIEW))->orderByDesc('performed_at')->get()
+                ->unique(fn ($c) => $c->horse_id.'-'.$c->care_category_id)->take(40)
+                ->map(fn ($c) => ['horse' => $name($c), 'category' => $c->category?->name, 'last' => $c->performed_at->format('Y-m-d'), 'days_ago' => (int) $c->performed_at->diffInDays(now()),
+                    'professional' => $c->professional?->fullName(), 'next_check_on' => $c->next_check_done_at ? null : $c->next_check_on?->toDateString()])->values()->all(),
+            'weights' => HorseMeasurement::with('horse')->whereIn('horse_id', $ids(Perm::HEALTH_VIEW))->tap(fn ($q) => $range($q, 'measured_on'))
+                ->orderByDesc('measured_on')->limit($limit)->get()
+                ->map(fn ($m) => ['horse' => $name($m), 'date' => $m->measured_on->toDateString(), 'weight_kg' => $m->weight_kg, 'body_condition' => $m->body_condition])->all(),
+            'treatments' => \App\Models\Treatment::with('horse')->whereIn('horse_id', $ids(Perm::TREATMENTS_VIEW))
+                ->where(fn ($q) => $q->where('status', 'active')->orWhere('starts_on', '>=', now()->subMonths(6)->toDateString()))->orderByDesc('starts_on')->limit($limit)->get()
+                ->map(fn ($t) => ['horse' => $name($t), 'product' => $t->product, 'dosage' => $t->dosage, 'frequency' => $t->frequency, 'from' => $t->starts_on->toDateString(), 'to' => $t->ends_on?->toDateString(), 'status' => $t->status])->all(),
+            'session_stats' => $this->sessionStats($ids(Perm::SESSIONS_VIEW), $from ?? now()->subDays(30)->startOfDay(), $to ?? now()->endOfDay()),
             default => throw new ToolError('Type de recherche inconnu.'),
         };
+    }
+
+    /** Totaux de dépenses par catégorie (et par cheval) sur une période. */
+    private function expenseTotals($horseIds, Carbon $from, Carbon $to): array
+    {
+        $rows = Expense::with('horse', 'category')->whereIn('horse_id', $horseIds)->whereBetween('spent_on', [$from->toDateString(), $to->toDateString()])->get();
+
+        return [
+            'from' => $from->toDateString(), 'to' => $to->toDateString(),
+            'total' => round((float) $rows->sum('amount'), 2), 'count' => $rows->count(),
+            'by_category' => $rows->groupBy(fn ($e) => $e->category?->name ?? 'Autre')->map(fn ($g) => ['total' => round((float) $g->sum('amount'), 2), 'count' => $g->count()])->sortByDesc('total')->all(),
+            'by_horse' => $rows->groupBy(fn ($e) => $e->horse?->shortName() ?? 'Espace')->map(fn ($g) => round((float) $g->sum('amount'), 2))->sortDesc()->all(),
+            'unpaid' => round((float) $rows->whereNull('paid_on')->sum('amount'), 2),
+        ];
+    }
+
+    /** Nombre de séances, minutes et exercices les plus travaillés sur une période. */
+    private function sessionStats($horseIds, Carbon $from, Carbon $to): array
+    {
+        $sessions = RidingSession::with('horse', 'items')->whereIn('horse_id', $horseIds)->whereBetween('scheduled_at', [$from, $to])->get();
+        $done = $sessions->where('status', 'completed');
+
+        return [
+            'from' => $from->toDateString(), 'to' => $to->toDateString(),
+            'completed' => $done->count(), 'planned' => $sessions->where('status', 'planned')->count(),
+            'minutes' => (int) $done->sum(fn ($s) => $s->actual_minutes ?: $s->planned_minutes),
+            'by_horse' => $done->groupBy(fn ($s) => $s->horse?->shortName())->map->count()->all(),
+            'top_exercises' => $done->flatMap(fn ($s) => $s->items->pluck('name'))->countBy()->sortDesc()->take(8)->all(),
+            'to_rework' => $done->pluck('to_rework')->filter()->take(5)->values()->all(),
+        ];
     }
 
     private function askUser(array $in, AssistantContext $ctx): array

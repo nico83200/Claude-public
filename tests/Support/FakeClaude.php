@@ -45,4 +45,43 @@ class FakeClaude extends ClaudeGateway
 
         return ['data' => $this->invoice, 'usage' => ['input' => 1500, 'output' => 120], 'model' => 'claude-opus-5-5'];
     }
+
+    /** Données de la prochaine lecture d'ordonnance (null : échec). */
+    public ?array $prescription = null;
+
+    public function readPrescription(string $bytes, string $mediaType, array $horseNames, array $careKeys): array
+    {
+        $this->calls[] = ['prescription' => compact('mediaType', 'horseNames')];
+        if ($this->prescription === null) {
+            throw new \RuntimeException('Ce document n\'a pas pu être lu. Essayez une photo plus nette, ou saisissez le soin à la main.');
+        }
+
+        return ['data' => $this->prescription, 'usage' => ['input' => 1500, 'output' => 200], 'model' => 'claude-opus-5-5'];
+    }
+
+    /** Plan renvoyé par la prochaine demande de plan de séance (null : échec). */
+    public ?array $plan = null;
+
+    public function planSession(string $context, array $exerciseNames): array
+    {
+        $this->calls[] = ['plan' => compact('context', 'exerciseNames')];
+        if ($this->plan === null) {
+            throw new \RuntimeException('Le plan n\'a pas pu être préparé. Réessayez dans un instant.');
+        }
+
+        return ['data' => $this->plan, 'usage' => ['input' => 2000, 'output' => 300], 'model' => 'claude-opus-5-5'];
+    }
+
+    /** Texte renvoyé par la prochaine rédaction (null : échec). */
+    public ?string $written = null;
+
+    public function write(string $system, string $prompt, int $maxTokens = 1200): array
+    {
+        $this->calls[] = ['write' => compact('system', 'prompt')];
+        if ($this->written === null) {
+            throw new \RuntimeException('Le texte n\'a pas pu être rédigé.');
+        }
+
+        return ['text' => $this->written, 'usage' => ['input' => 800, 'output' => 120], 'model' => 'claude-opus-5-5'];
+    }
 }

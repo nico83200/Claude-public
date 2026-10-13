@@ -1,6 +1,6 @@
 {{-- Assistant vocal : panneau (feuille sur mobile, fenêtre sur ordinateur) et bandeau d'annulation --}}
 @php
-    $assistantConfig = ['statusUrl' => route('assistant.status'), 'transcribeUrl' => route('assistant.transcribe'), 'commandUrl' => route('assistant.command'), 'historyUrl' => route('assistant.history'), 'horseId' => $contextHorseId,
+    $assistantConfig = ['statusUrl' => route('assistant.status'), 'transcribeUrl' => route('assistant.transcribe'), 'commandUrl' => route('assistant.command'), 'speakUrl' => url('/assistant/voix'), 'historyUrl' => route('assistant.history'), 'horseId' => $contextHorseId,
         'resultSeconds' => app(\App\Services\Assistant\AssistantConfig::class)->resultSeconds(), 'homeUrl' => route('dashboard')];
 @endphp
 <script type="application/json" id="assistant-config">@json($assistantConfig)</script>
@@ -14,6 +14,10 @@
             <header class="flex items-center justify-between px-6 pt-4">
                 <h2 id="assistant-title" class="flex items-center gap-2 text-[17px] font-semibold"><x-icon name="sparkles" class="size-5 text-brand-600" /> Assistant</h2>
                 <div class="flex items-center gap-1">
+                    <button type="button" x-show="a.status?.speech" x-cloak @click="a.toggleSpeech()" class="btn-ghost px-2" :aria-pressed="a.speechOn()" :title="a.speechOn() ? 'Réponse lue à voix haute : activée' : 'Réponse lue à voix haute : désactivée'" data-assistant-speech>
+                        <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" x-show="a.speechOn()" /><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.395C2.806 8.757 3.63 8.25 4.51 8.25H6.75z" x-show="! a.speechOn()" /></svg>
+                        <span class="sr-only">Lecture vocale</span>
+                    </button>
                     <a href="{{ route('assistant.history') }}" class="btn-ghost px-3 text-sm">Historique</a>
                     <button type="button" class="btn-ghost px-2" @click="a.close()" aria-label="Fermer"><x-icon name="x" /></button>
                 </div>
@@ -34,7 +38,7 @@
                         <ul class="mt-4 w-full space-y-2 text-left text-sm text-slate-700">
                             <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Le maréchal vient le 2 décembre à 9 h » → ajouté à l'agenda</li>
                             <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Vaccin fait ce matin, 75 € » → soin et dépense notés</li>
-                            <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Quand est le prochain maréchal ? » → réponse immédiate</li>
+                            <li class="flex gap-2 rounded-2xl bg-slate-50 px-4 py-3"><x-icon name="check" class="size-5 shrink-0 text-brand-600" /> « Combien m'a coûté le maréchal cette année ? » → réponse tirée du dossier</li>
                         </ul>
                         <template x-if="a.status.upsell.url">
                             <div class="mt-5 w-full">
@@ -71,7 +75,7 @@
                                 <div class="mt-6 w-full text-left">
                                     <p class="mb-2 text-xs font-medium tracking-wide text-slate-400 uppercase">Par exemple</p>
                                     <div class="flex flex-col gap-2">
-                                        @foreach (['Le maréchal est prévu le 2 décembre à 9 h', 'Réalise une séance de monte libre en dressage pour travailler la rectitude', 'Le vétérinaire a vacciné Uni ce matin, 75 €', 'Quand est le prochain maréchal ?'] as $ex)
+                                        @foreach (['Le maréchal est prévu le 2 décembre à 9 h', 'Réalise une séance de monte libre en dressage pour travailler la rectitude', 'Le vétérinaire a vacciné Uni ce matin, 75 €', 'Combien m\'a coûté le maréchal cette année ?'] as $ex)
                                             <button type="button" @click="a.send(@js($ex))" class="rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] text-slate-700 transition hover:bg-brand-50 hover:text-brand-900">« {{ $ex }} »</button>
                                         @endforeach
                                         <a href="{{ route('budget.index') }}#facture" class="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] text-slate-700 transition hover:bg-brand-50 hover:text-brand-900"><x-icon name="camera" class="size-5 text-brand-700" /> Photographier une facture</a>
@@ -129,9 +133,10 @@
                 <form class="flex items-center gap-2" @submit.prevent="a.send(a.draft)">
                     <button type="button" x-show="a.state === 'result' || a.state === 'error'" @click="a.listen()" :disabled="! a.canRecord" class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-800 text-white disabled:bg-slate-300" aria-label="Parler"><x-icon name="mic" class="size-5" /></button>
                     <label for="assistant-input" class="sr-only">Écrire une consigne</label>
-                    <input id="assistant-input" x-model="a.draft" @focus="a.keepOpen()" :placeholder="a.question ? 'Votre réponse…' : 'Écrire une consigne…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'listening' || a.state === 'transcribing'">
+                    <input id="assistant-input" x-model="a.draft" @focus="a.keepOpen()" :placeholder="a.question ? 'Votre réponse…' : 'Une consigne ou une question…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'listening' || a.state === 'transcribing'">
                     <button class="flex size-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white disabled:bg-slate-300" :disabled="! a.draft.trim() || a.state === 'thinking'" aria-label="Envoyer"><x-icon name="send" class="size-5" /></button>
                 </form>
+                <p class="mt-2 px-2 text-xs font-medium text-amber-700" x-show="a.pending" x-cloak data-assistant-pending><span x-text="a.pending"></span> consigne(s) notée(s) hors connexion, envoyée(s) au retour du réseau</p>
                 <p class="mt-2 px-2 text-xs text-slate-400" x-show="a.status && a.status.remaining !== null && a.status.remaining !== undefined"><span x-text="a.status?.remaining"></span> consigne(s) restante(s) ce mois-ci</p>
             </footer>
         </section>

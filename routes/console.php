@@ -27,6 +27,8 @@ $task('reminders:rhythm')->dailyAt('08:50');
 $task('reminders:daily-nudge')->dailyAt('11:10');
 // Récapitulatif de la semaine, dimanche soir (relancé jusqu'à 21 h si le cron a manqué un passage).
 $task('reminders:weekly')->sundays()->hourlyAt(5)->between('18:00', '21:10');
+// Surveillance : alerte e-mail aux super-administrateurs (cron arrêté, erreurs en hausse).
+$task('monitor:check')->everyFiveMinutes();
 $task('licenses:refresh')->hourly();
 // Filet de sécurité si un webhook Stripe manque : état des abonnements relu chez Stripe.
 $task('billing:sync')->hourly();

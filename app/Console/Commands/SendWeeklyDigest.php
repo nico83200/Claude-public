@@ -28,7 +28,7 @@ class SendWeeklyDigest extends Command
         User::query()->whereNull('deleted_at')->whereNull('suspended_at')
             ->where('last_seen_at', '>=', now()->subDays(60))
             ->whereDoesntHave('profile', fn ($q) => $q->where('weekly_digest', false)->orWhere('weekly_digest_sent_on', '>=', $today))
-            ->with(['profile', 'memberships.role'])
+            ->with(['profile', 'memberships.role', 'memberships.organization'])
             ->chunkById(100, function ($users) use ($digests, $today, &$sent) {
                 foreach ($users as $user) {
                     $digest = $digests->for($user);
@@ -37,8 +37,10 @@ class SendWeeklyDigest extends Command
                     if ($digests->isEmpty($digest)) {
                         continue;
                     }
-                    $user->notify(new AppNotification('weekly_digest', 'Votre semaine avec vos chevaux', $digests->summary($digest),
-                        route('digest.show'), mailBody: "Voici ce qui vous attend du ".$digest['from']->translatedFormat('l j F').' au '.$digest['to']->translatedFormat('l j F')." :\n\n".$digests->text($digest)));
+                    // Introduction rédigée par l'assistant (offres qui l'incluent), sinon texte standard.
+                    $intro = $digests->aiIntro($user, $digest);
+                    $user->notify(new AppNotification('weekly_digest', 'Votre semaine avec vos chevaux', $intro ? mb_substr($intro, 0, 240) : $digests->summary($digest),
+                        route('digest.show'), mailBody: ($intro ? $intro."\n\n" : '')."Voici ce qui vous attend du ".$digest['from']->translatedFormat('l j F').' au '.$digest['to']->translatedFormat('l j F')." :\n\n".$digests->text($digest)));
                     $sent++;
                 }
             });

@@ -35,6 +35,7 @@ class AssistantController extends Controller
             'upsell' => $offer ? ['plan' => $offer['plan']->name, 'title' => $offer['title'], 'text' => $offer['text'], 'note' => $offer['note'],
                 'url' => $offer['can_upgrade'] ? $offer['url'] : null, 'cta' => $offer['cta'], 'trial' => $offer['trial_days'] > 0] : null,
             'voice' => $transcriber->configured(),
+            'speech' => app(\App\Services\Assistant\Speaker::class)->configured(),
             'remaining' => $this->assistant->remaining($org),
         ]);
     }
@@ -89,6 +90,23 @@ class AssistantController extends Controller
             'actions' => array_map(fn (AssistantAction $a) => $this->actionPayload($a), $result['actions']),
             'remaining' => $this->assistant->remaining($org),
         ]);
+    }
+
+    /** Réponse d'une consigne lue à voix haute (ElevenLabs), mise en cache 30 minutes. */
+    public function speak(Request $request, string $uuid, \App\Services\Assistant\Speaker $speaker)
+    {
+        abort_unless($speaker->configured(), 404);
+        $req = \App\Models\AssistantRequest::where('uuid', $uuid)->where('user_id', $request->user()->id)->firstOrFail();
+        abort_if(trim((string) $req->reply) === '', 404);
+        try {
+            $audio = \Illuminate\Support\Facades\Cache::remember('assistant:speech:'.$req->uuid, now()->addMinutes(30), fn () => base64_encode($speaker->speak($req->reply)));
+        } catch (RuntimeException $e) {
+            report($e);
+
+            return response()->json(['message' => $request->user()->is_super_admin ? $e->getMessage() : 'Lecture vocale indisponible.'], 503);
+        }
+
+        return response(base64_decode($audio), 200, ['Content-Type' => 'audio/mpeg', 'Cache-Control' => 'private, max-age=1800']);
     }
 
     public function undo(Request $request, AssistantAction $action, AssistantUndo $undo)

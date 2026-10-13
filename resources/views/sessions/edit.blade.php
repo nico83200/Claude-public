@@ -15,6 +15,7 @@
             this.galop = g; this.askGalop = false;
         } })">
         <div class="space-y-4 lg:col-span-3">
+            @include('sessions._ai-plan')
             <p class="flex items-center gap-2 text-sm text-slate-600"><span class="text-gold-600" aria-hidden="true">⠿</span> <span class="lg:hidden">Touchez « + Exercices » dans chaque étape pour choisir les exercices ; glissez-les par la poignée pour les réordonner.</span><span class="hidden lg:inline">Glissez les exercices par la poignée pour les réordonner, les changer de section ou les ajouter depuis la bibliothèque.</span>
                 <span x-show="saving" x-cloak class="ml-auto text-xs text-slate-500">Enregistrement…</span></p>
             <p x-show="error" x-cloak x-text="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-800" role="alert"></p>

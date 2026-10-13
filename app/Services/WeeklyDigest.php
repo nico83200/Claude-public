@@ -103,4 +103,35 @@ class WeeklyDigest
 
         return implode("\n\n", $blocks);
     }
+
+    /**
+     * Introduction rédigée par l'assistant (2 à 3 phrases chaleureuses et précises), pour les espaces
+     * dont l'offre inclut l'assistant ; null sinon ou en cas d'échec (le récapitulatif part sans).
+     */
+    public function aiIntro(User $user, array $d): ?string
+    {
+        if (! (\App\Models\ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
+            return null;
+        }
+        $assistant = app(\App\Services\Assistant\AssistantService::class);
+        $entitlements = app(\App\Services\Entitlements::class);
+        $eligible = $assistant->serviceReady() && $user->memberships->contains(fn ($m) => $m->organization && $entitlements->hasFeature($m->organization, 'assistant'));
+        if (! $eligible) {
+            return null;
+        }
+        try {
+            $result = app(\App\Services\Assistant\ClaudeGateway::class)->write(
+                'Tu écris l\'introduction du récapitulatif hebdomadaire de Jack&Cie, application de suivi de chevaux. '
+                .'Français, 2 à 3 phrases, ton chaleureux et sobre, tutoiement interdit (vouvoiement). Mets en avant 2 ou 3 points concrets de la semaine (jours, noms des chevaux), '
+                .'sans rien inventer, sans liste, sans mise en forme, sans formule de politesse finale ni avis médical. Ne commence pas par « Bonjour » (la salutation est déjà écrite).',
+                'Prénom : '.(strtok(trim((string) $user->name), ' ') ?: '—').'\nSemaine du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')."\n\n".$this->text($d),
+                400);
+
+            return mb_substr(trim($result['text']), 0, 700) ?: null;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
+    }
 }

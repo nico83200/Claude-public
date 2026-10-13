@@ -306,6 +306,63 @@ class RidingSessionController extends Controller
         return back()->with('success', 'Commentaire ajouté.');
     }
 
+    /**
+     * Plan de séance proposé par l'assistant (Claude) : objectif, durée, niveau du cavalier,
+     * derniers bilans. Rien n'est ajouté : la personne choisit ensuite les exercices à garder.
+     */
+    public function plan(Request $request, RidingSession $session, \App\Services\Assistant\AssistantService $assistant, \App\Services\Assistant\ClaudeGateway $claude)
+    {
+        $this->authorizeEdit($request, $session);
+        abort_if($session->isCompleted(), 422);
+        $org = $session->horse->organization;
+        if ($reason = $assistant->unavailableReason($org)) {
+            return response()->json(['error' => $reason], 422);
+        }
+        $user = $request->user()->loadMissing('profile');
+        $session->load(['horse.breed', 'rider.profile', 'exercises']);
+        $rider = $session->rider ?? ($session->rider_name ? null : $user);
+        $galop = $rider?->profile?->galop();
+        $recent = RidingSession::where('horse_id', $session->horse_id)->where('status', 'completed')->where('id', '!=', $session->id)
+            ->orderByDesc('scheduled_at')->limit(4)->get();
+        $horse = $session->horse;
+        $context = implode("\n", array_filter([
+            'Cheval : '.$horse->shortName().' · '.(\App\Models\Horse::DISCIPLINES[$horse->main_discipline] ?? 'discipline non précisée').' · niveau de travail : '.($horse->work_level ?: 'non précisé').($horse->age() ? ' · '.$horse->age().' ans' : ''),
+            $horse->precautions ? 'Précautions : '.$horse->precautions : null,
+            'Cavalier : '.($galop ? 'galop '.$galop.' ('.\App\Models\UserProfile::exerciseLevel($galop).')' : 'niveau inconnu'),
+            'Séance : '.(RidingSession::TYPES[$session->session_type] ?? $session->session_type).($session->discipline ? ' · '.(\App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline) : '').' · durée prévue '.($session->planned_minutes ?: 45).' minutes',
+            'Objectif : '.($session->objective ?: 'non précisé (travail général adapté)'),
+            $session->exercises->isNotEmpty() ? 'Déjà prévu : '.$session->exercises->pluck('name')->implode(', ') : null,
+            $recent->isNotEmpty() ? "Dernières séances :\n".$recent->map(fn ($s) => '- '.$s->scheduled_at->format('d/m').' '.($s->objective ?: '').($s->progress ? ' · progrès : '.$s->progress : '').($s->difficulties ? ' · difficultés : '.$s->difficulties : '').($s->to_rework ? ' · à retravailler : '.$s->to_rework : ''))->implode("\n") : null,
+        ]));
+        $library = Exercise::visibleTo($user)->whereNull('archived_at')->orderBy('name')->get(['id', 'name']);
+        $started = microtime(true);
+        try {
+            $result = $claude->planSession($context, $library->pluck('name')->all());
+        } catch (\RuntimeException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+        \App\Models\AssistantRequest::create([
+            'uuid' => (string) \Illuminate\Support\Str::uuid(), 'user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) \Illuminate\Support\Str::uuid(),
+            'input_mode' => 'text', 'input_text' => 'Plan de séance : '.($session->objective ?: $session->title()), 'reply' => \Illuminate\Support\Str::limit((string) ($result['data']['summary'] ?? ''), 500), 'status' => 'done',
+            'model' => $result['model'], 'input_tokens' => $result['usage']['input'], 'output_tokens' => $result['usage']['output'], 'duration_ms' => (int) ((microtime(true) - $started) * 1000),
+        ]);
+        $byName = $library->keyBy(fn ($e) => mb_strtolower(trim($e->name)));
+        $items = [];
+        foreach (array_keys(RidingSession::PHASES) as $phase) {
+            foreach ((array) ($result['data'][$phase] ?? []) as $row) {
+                $name = trim((string) ($row['name'] ?? ''));
+                if ($name === '') {
+                    continue;
+                }
+                $match = $byName->get(mb_strtolower($name));
+                $items[] = ['exercise_id' => $match?->id, 'name' => $match?->name ?? mb_substr($name, 0, 150), 'phase' => $phase, 'phase_label' => RidingSession::PHASES[$phase],
+                    'planned_minutes' => max(0, min(300, (int) ($row['minutes'] ?? 0))) ?: null, 'instructions' => mb_substr((string) ($row['note'] ?? ''), 0, 500), 'in_library' => (bool) $match];
+            }
+        }
+
+        return response()->json(['summary' => (string) ($result['data']['summary'] ?? ''), 'items' => $items, 'minutes' => array_sum(array_column($items, 'planned_minutes'))]);
+    }
+
     private function authorizeEdit(Request $request, RidingSession $session): void
     {
         $this->authorizeHorse($session->horse, Perm::SESSIONS_VIEW);

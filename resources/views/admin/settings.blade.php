@@ -20,6 +20,17 @@
                 <x-textarea name="subprocessors" label="Sous-traitants (un par ligne)" :value="$settings['subprocessors']" rows="4" />
             </div>
         </x-section>
+        <x-section title="Surveillance" data-monitor-settings>
+            <div class="space-y-3">
+                <label class="flex items-start gap-2 text-sm"><input type="hidden" name="monitor_enabled" value="0"><input type="checkbox" name="monitor_enabled" value="1" class="mt-1" @checked($settings['monitor_enabled'] ?? true)> <span>Alerter les super-administrateurs par e-mail et notification <span class="block text-xs text-slate-500">Cron arrêté, erreurs en hausse. Une alerte au plus toutes les 6 heures, et un message quand le cron repart.</span></span></label>
+                <div class="grid grid-cols-2 gap-3">
+                    <x-field name="monitor_cron_minutes" type="number" min="5" max="1440" label="Cron silencieux depuis (min)" :value="$settings['monitor_cron_minutes'] ?: 15" />
+                    <x-field name="monitor_error_threshold" type="number" min="1" max="10000" label="Erreurs par heure (seuil)" :value="$settings['monitor_error_threshold'] ?: 20" />
+                </div>
+                @php $silent = \App\Services\SystemMonitor::cronSilentMinutes(); @endphp
+                <p class="text-xs text-slate-500" data-monitor-status>État actuel : cron {{ $silent === null ? 'jamais vu' : ($silent < 3 ? 'actif' : 'silencieux depuis '.$silent.' min') }} · {{ \App\Services\SystemMonitor::errorsLastHour() }} erreur(s) sur la dernière heure.</p>
+            </div>
+        </x-section>
         <x-section title="Notifications">
             <div class="space-y-3">
                 <x-field name="inactivity_hours" type="number" min="0" max="720" label="Rappel après une absence (heures)" :value="$settings['inactivity_hours'] ?? 0"

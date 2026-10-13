@@ -50,16 +50,22 @@ class AssistantSettingsController extends Controller
             'session_max' => ['required', 'integer', 'min:10', 'max:240', 'gte:session_min'],
             'result_seconds' => ['sometimes', 'integer', Rule::in(array_keys(AssistantConfig::RESULT_DELAYS))],
             'instructions' => ['nullable', 'string', 'max:8000'],
+            'voice_id' => ['nullable', 'regex:/^[A-Za-z0-9]{10,40}$/'],
+            'speech_model' => ['nullable', Rule::in(array_keys(\App\Services\Assistant\Speaker::MODELS))],
             'anthropic_key' => ['nullable', 'string', 'max:255', 'regex:/^sk-ant-/'],
             'elevenlabs_key' => ['nullable', 'string', 'max:255'],
             'clear' => ['array'], 'clear.*' => [Rule::in(['anthropic.key', 'elevenlabs.key'])],
-        ], ['anthropic_key.regex' => 'La clé Anthropic commence par sk-ant-.', 'session_max.gte' => 'La durée maximale doit être supérieure ou égale à la durée minimale.']);
+        ], ['voice_id.regex' => 'Identifiant de voix ElevenLabs invalide (lettres et chiffres).', 'anthropic_key.regex' => 'La clé Anthropic commence par sk-ant-.', 'session_max.gte' => 'La durée maximale doit être supérieure ou égale à la durée minimale.']);
 
         ApplicationSetting::put('assistant.enabled', $request->boolean('enabled'));
         foreach (array_intersect_key($data, array_flip(['model', 'effort', 'session_min', 'session_max', 'result_seconds'])) as $k => $v) {
             ApplicationSetting::put('assistant.'.$k, $v);
         }
         ApplicationSetting::put('assistant.instructions', $data['instructions'] ?? null);
+        ApplicationSetting::put('assistant.speech_enabled', $request->boolean('speech_enabled'));
+        ApplicationSetting::put('assistant.voice_id', $data['voice_id'] ?? null);
+        ApplicationSetting::put('assistant.speech_model', $data['speech_model'] ?? null);
+        ApplicationSetting::put('digest_ai', $request->boolean('digest_ai'));
         $settings->save(['anthropic.key' => $data['anthropic_key'] ?? null, 'elevenlabs.key' => $data['elevenlabs_key'] ?? null], $data['clear'] ?? []);
         Audit::log('admin.assistant_settings_updated', null, ['model' => $data['model'], 'effort' => $data['effort'], 'keys_changed' => array_keys(array_filter(['anthropic' => $data['anthropic_key'] ?? null, 'elevenlabs' => $data['elevenlabs_key'] ?? null]))]);
 
@@ -82,6 +88,16 @@ class AssistantSettingsController extends Controller
             return back()->with('success', 'Transcription ElevenLabs opérationnelle (modèle '.config('services.elevenlabs.stt_model', 'scribe_v2').').');
         } catch (Throwable $e) {
             return back()->with('error', 'Échec du test : '.mb_substr($e->getMessage(), 0, 300));
+        }
+    }
+
+    /** Essai de la voix (phrase courte) : renvoie le son ou l'erreur expliquée. */
+    public function voiceTest(\App\Services\Assistant\Speaker $speaker)
+    {
+        try {
+            return response($speaker->speak('Bonjour, je suis l\'assistant de Jack et Cie. C\'est noté : maréchal pour Uni mardi à neuf heures.'), 200, ['Content-Type' => 'audio/mpeg']);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
         }
     }
 }

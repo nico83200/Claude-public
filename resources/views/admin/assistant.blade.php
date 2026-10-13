@@ -24,6 +24,17 @@
                 </div>
                 <p class="mt-2 text-xs text-slate-500">Utilisé quand la consigne ne précise pas de durée. Les exercices sont choisis d'abord dans la bibliothèque ; un exercice libre est ajouté à la séance seulement si aucun ne convient.</p>
             </x-section>
+            <x-section title="Réponse vocale et récapitulatif" data-speech-settings>
+                @php $speaker = app(\App\Services\Assistant\Speaker::class); @endphp
+                <x-checkbox name="speech_enabled" label="Lire les réponses à voix haute (ElevenLabs)" :checked="(bool) (\App\Models\ApplicationSetting::get('assistant.speech_enabled') ?? true)" help="Chaque utilisateur l'active ou la coupe avec le haut-parleur de l'assistant ; par défaut, la réponse est lue quand la consigne a été dictée. La clé ElevenLabs doit avoir la permission « Text to Speech »." />
+                <div class="mt-3 grid grid-cols-2 gap-3">
+                    <x-field name="voice_id" label="Identifiant de la voix" :value="\App\Models\ApplicationSetting::get('assistant.voice_id')" :placeholder="\App\Services\Assistant\Speaker::DEFAULT_VOICE" maxlength="40" help="Bibliothèque de voix ElevenLabs › copier l'ID." />
+                    <x-select name="speech_model" label="Modèle de voix" :options="\App\Services\Assistant\Speaker::MODELS" :value="$speaker->model()" />
+                </div>
+                <div class="mt-4 border-t border-slate-100 pt-4">
+                    <x-checkbox name="digest_ai" label="Récapitulatif du dimanche rédigé par l'assistant" :checked="(bool) (\App\Models\ApplicationSetting::get('digest_ai') ?? true)" help="Introduction personnalisée de 2 à 3 phrases pour les espaces dont l'offre inclut l'assistant (sans décompter de consigne). Sinon, le texte standard est envoyé." />
+                </div>
+            </x-section>
         </div>
         <div class="space-y-4 lg:col-span-2">
             <x-section title="Fonctionnement">
@@ -62,6 +73,13 @@
                 <form method="POST" action="{{ route('admin.assistant.test') }}">@csrf<input type="hidden" name="service" value="anthropic"><button class="btn-secondary" @disabled(! $configured['anthropic'])>Tester Claude</button></form>
                 <form method="POST" action="{{ route('admin.assistant.test') }}">@csrf<input type="hidden" name="service" value="elevenlabs"><button class="btn-secondary" @disabled(! $configured['elevenlabs'])>Tester ElevenLabs</button></form>
             </div>
+            @if ($configured['elevenlabs'])
+                <div class="mt-3" x-data="{ src: null, error: '', busy: false }" data-speech-test>
+                    <button type="button" class="btn-ghost text-sm" :disabled="busy" @click="busy = true; error = ''; fetch(@js(route('admin.assistant.voice-test')), { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content } }).then(async r => { if (! r.ok) throw new Error((await r.json()).message); src = URL.createObjectURL(await r.blob()); $nextTick(() => $refs.player.play()) }).catch(e => error = e.message).finally(() => busy = false)">Écouter la voix de l'assistant</button>
+                    <audio x-ref="player" :src="src" controls x-show="src" x-cloak class="mt-2 w-full"></audio>
+                    <p class="mt-1 text-sm text-red-600" x-show="error" x-text="error" x-cloak></p>
+                </div>
+            @endif
         </x-section>
         <x-section title="Dernières erreurs">
             @forelse ($recentErrors as $r)

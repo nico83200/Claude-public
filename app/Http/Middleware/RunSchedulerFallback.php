@@ -20,5 +20,9 @@ class RunSchedulerFallback
             return;
         }
         NotificationDiagnostics::runFallbackIfNeeded();
+        // Cron arrêté : la surveillance est aussi vérifiée depuis les visites (au plus toutes les 10 minutes).
+        if (! NotificationDiagnostics::cronAlive()) {
+            \App\Services\SystemMonitor::checkFromWeb();
+        }
     }
 }

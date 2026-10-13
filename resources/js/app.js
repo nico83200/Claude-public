@@ -51,6 +51,12 @@ startSelectEnhancer();
 startLightbox();
 Alpine.store('pushGate').init(Alpine.store('install'));
 
+// Compte connecté sur ce téléphone : permet de noter une consigne depuis la page « Pas de connexion ».
+try {
+    const uid = document.querySelector('meta[name=app-user]')?.content;
+    if (uid) localStorage.setItem('jc-last-user', uid);
+} catch { /* stockage indisponible */ }
+
 // --- Service Worker (installation de l'application, page « pas de connexion ») ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

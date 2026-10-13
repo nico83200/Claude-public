@@ -33,6 +33,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: env('TRUSTED_PROXIES') ? explode(',', env('TRUSTED_PROXIES')) : null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Surveillance : compteur d'erreurs pour l'alerte « erreurs en hausse » (le journal habituel reste écrit).
+        $exceptions->report(fn (Throwable $e) => \App\Services\SystemMonitor::recordError($e));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

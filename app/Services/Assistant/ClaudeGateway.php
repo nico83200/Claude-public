@@ -167,4 +167,154 @@ class ClaudeGateway
             'model' => $message->model,
         ];
     }
+
+    /**
+     * Lit une ordonnance ou un compte rendu vétérinaire (photo ou PDF) : soin, traitements prescrits,
+     * prochain contrôle. Rien n'est enregistré ici : la personne vérifie avant toute création.
+     *
+     * @return array{data: array, usage: array{input: int, output: int}, model: string}
+     */
+    public function readPrescription(string $bytes, string $mediaType, array $horseNames, array $careKeys): array
+    {
+        $instructions = "Voici une ordonnance ou un compte rendu de vétérinaire (ou d'un autre professionnel équin) concernant un cheval.\n"
+            .'Chevaux de la personne : '.($horseNames ? implode(', ', $horseNames) : 'aucun')."\n"
+            ."Extrais : le praticien (nom et éventuellement structure), la date de la visite (AAAA-MM-JJ), le type de soin, le nom du cheval s'il apparaît (exactement comme dans la liste, sinon chaîne vide), "
+            ."le motif, le diagnostic communiqué, les consignes, la date du prochain contrôle si elle est indiquée (sinon chaîne vide) ou un délai en jours (sinon 0), "
+            ."et chaque médicament prescrit : produit, posologie telle qu'écrite (jamais recalculée), fréquence, nombre de prises par jour, durée en jours (0 si non précisée), voie d'administration. "
+            ."Recopie fidèlement ; laisse vide ce qui est illisible ou absent ; n'invente rien et ne donne aucun avis médical. Indique ta confiance globale.";
+        $treatment = ['type' => 'object', 'properties' => [
+            'product' => ['type' => 'string'], 'dosage' => ['type' => 'string'], 'frequency' => ['type' => 'string'],
+            'times_per_day' => ['type' => 'integer'], 'duration_days' => ['type' => 'integer'], 'route' => ['type' => 'string'],
+        ], 'required' => ['product', 'dosage', 'frequency', 'times_per_day', 'duration_days', 'route'], 'additionalProperties' => false];
+        $schema = ['type' => 'object', 'properties' => [
+            'is_prescription' => ['type' => 'boolean'],
+            'practitioner' => ['type' => 'string'],
+            'visit_date' => ['type' => 'string'],
+            'care_category' => ['type' => 'string', 'enum' => $careKeys],
+            'horse_name' => ['type' => 'string'],
+            'reason' => ['type' => 'string'],
+            'diagnosis' => ['type' => 'string'],
+            'instructions' => ['type' => 'string'],
+            'next_check_on' => ['type' => 'string'],
+            'next_check_days' => ['type' => 'integer'],
+            'treatments' => ['type' => 'array', 'items' => $treatment],
+            'confidence' => ['type' => 'string', 'enum' => ['high', 'medium', 'low']],
+        ], 'required' => ['is_prescription', 'practitioner', 'visit_date', 'care_category', 'horse_name', 'reason', 'diagnosis', 'instructions', 'next_check_on', 'next_check_days', 'treatments', 'confidence'], 'additionalProperties' => false];
+
+        return $this->structured([$this->fileBlock($bytes, $mediaType), ['type' => 'text', 'text' => $instructions]], $schema,
+            'Ce document n\'a pas pu être lu. Essayez une photo plus nette, ou saisissez le soin à la main.');
+    }
+
+    /**
+     * Propose un plan de séance (échauffement, travail, retour au calme) à partir du contexte
+     * (cheval, cavalier, objectif, derniers bilans) et de la bibliothèque d'exercices.
+     *
+     * @return array{data: array, usage: array{input: int, output: int}, model: string}
+     */
+    public function planSession(string $context, array $exerciseNames): array
+    {
+        $item = ['type' => 'object', 'properties' => [
+            'name' => ['type' => 'string'], 'minutes' => ['type' => 'integer'], 'note' => ['type' => 'string'],
+        ], 'required' => ['name', 'minutes', 'note'], 'additionalProperties' => false];
+        $schema = ['type' => 'object', 'properties' => [
+            'summary' => ['type' => 'string'],
+            'warmup' => ['type' => 'array', 'items' => $item],
+            'complementary' => ['type' => 'array', 'items' => $item],
+            'main' => ['type' => 'array', 'items' => $item],
+            'cooldown' => ['type' => 'array', 'items' => $item],
+        ], 'required' => ['summary', 'warmup', 'main', 'complementary', 'cooldown'], 'additionalProperties' => false];
+        $prompt = "Tu aides un cavalier à préparer une séance d'équitation. Propose un plan réaliste et progressif, adapté au niveau, "
+            ."à la durée prévue et aux points à retravailler. Utilise en priorité les exercices de la bibliothèque (nom recopié exactement) ; "
+            ."n'ajoute un exercice hors bibliothèque que s'il est indispensable. 2 à 3 exercices d'échauffement (warmup), 2 à 4 de travail principal (main), 0 à 2 de travail complémentaire ou d'étirements (complementary), 1 à 2 de retour au calme (cooldown). "
+            ."La somme des minutes doit être proche de la durée prévue. Note courte (10 mots max) par exercice. Résumé en une phrase. Jamais de conseil vétérinaire.\n\n"
+            .$context."\n\nBibliothèque d'exercices :\n- ".implode("\n- ", array_slice($exerciseNames, 0, 300));
+
+        return $this->structured([['type' => 'text', 'text' => $prompt]], $schema, 'Le plan n\'a pas pu être préparé. Réessayez dans un instant.');
+    }
+
+    /**
+     * Rédige un court texte en français (récapitulatif, synthèse) à partir de données fournies.
+     *
+     * @return array{text: string, usage: array{input: int, output: int}, model: string}
+     */
+    public function write(string $system, string $prompt, int $maxTokens = 1200): array
+    {
+        $message = $this->call(['system' => $system, 'maxTokens' => $maxTokens, 'messages' => [['role' => 'user', 'content' => $prompt]], 'outputConfig' => ['effort' => 'low']],
+            'Le texte n\'a pas pu être rédigé.');
+        $text = '';
+        foreach ($message->content as $block) {
+            if ($block->type === 'text') {
+                $text .= $block->text;
+            }
+        }
+        if ($message->stopReason === 'refusal' || trim($text) === '') {
+            throw new RuntimeException('Le texte n\'a pas pu être rédigé.');
+        }
+
+        return ['text' => trim($text), 'usage' => $this->usage($message), 'model' => $message->model];
+    }
+
+    /** Réponse au format imposé (schéma JSON). */
+    private function structured(array $content, array $schema, string $unreadable): array
+    {
+        $message = $this->call(['maxTokens' => 4000, 'messages' => [['role' => 'user', 'content' => $content]],
+            'outputConfig' => ['effort' => 'low', 'format' => ['type' => 'json_schema', 'schema' => $schema]]], $unreadable);
+        if ($message->stopReason === 'refusal') {
+            throw new RuntimeException($unreadable);
+        }
+        $data = null;
+        foreach ($message->content as $block) {
+            if ($block->type === 'text') {
+                $data = json_decode($block->text, true);
+                break;
+            }
+        }
+        if (! is_array($data)) {
+            throw new RuntimeException($unreadable);
+        }
+
+        return ['data' => $data, 'usage' => $this->usage($message), 'model' => $message->model];
+    }
+
+    /** Appel commun : modèle réglé, repli automatique, erreurs traduites pour l'utilisateur. */
+    private function call(array $params, string $badRequest)
+    {
+        if (! $this->configured()) {
+            throw new RuntimeException('Assistant non configuré (clé Anthropic manquante).');
+        }
+        $client = new Client(apiKey: config('services.anthropic.key'), baseUrl: config('services.anthropic.base_url') ?: null, requestOptions: ['timeout' => 90, 'maxRetries' => 2]);
+        $model = $this->config->model();
+        $fallback = in_array($model, ['claude-opus-5-5', 'claude-sonnet-5-5'], true);
+        try {
+            return $client->beta->messages->create(...$params + [
+                'model' => $model,
+                'fallbacks' => $fallback ? 'default' : null,
+                'betas' => $fallback ? ['server-side-fallback-2026-07-01'] : null,
+            ]);
+        } catch (AuthenticationException) {
+            throw new RuntimeException('Clé Anthropic refusée : vérifiez-la dans Administration › Intégrations.');
+        } catch (RateLimitException) {
+            throw new RuntimeException('L\'assistant est très sollicité, réessayez dans un instant.');
+        } catch (BadRequestException $e) {
+            report($e);
+            throw new RuntimeException($badRequest);
+        } catch (APIStatusException $e) {
+            report($e);
+            throw new RuntimeException('L\'assistant est momentanément indisponible. Réessayez dans quelques instants.');
+        } catch (APIConnectionException) {
+            throw new RuntimeException('Impossible de joindre Claude (réseau).');
+        }
+    }
+
+    private function fileBlock(string $bytes, string $mediaType): array
+    {
+        return $mediaType === 'application/pdf'
+            ? ['type' => 'document', 'source' => ['type' => 'base64', 'mediaType' => 'application/pdf', 'data' => base64_encode($bytes)]]
+            : ['type' => 'image', 'source' => ['type' => 'base64', 'mediaType' => $mediaType, 'data' => base64_encode($bytes)]];
+    }
+
+    private function usage($message): array
+    {
+        return ['input' => $message->usage->inputTokens + (int) $message->usage->cacheReadInputTokens + (int) $message->usage->cacheCreationInputTokens, 'output' => $message->usage->outputTokens];
+    }
 }

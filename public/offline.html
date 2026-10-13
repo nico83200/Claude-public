@@ -1,6 +1,84 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pas de connexion · Jack&amp;Cie</title>
-<style>body{font-family:system-ui,sans-serif;background:#F6F7F5;color:#141915;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}button{margin-top:8px;border:0;border-radius:999px;background:#113e2c;color:#fff;font:600 15px system-ui;padding:12px 24px}h1{font-weight:700;letter-spacing:-.02em;color:#0D3122}</style></head>
-<body><div><img src="/brand/jackcie-wordmark.png" width="200" alt="Jack&amp;Cie"><h1>Pas de connexion</h1>
-<p>Jack&amp;Cie a besoin d'Internet (4G ou Wi-Fi).<br>Vérifiez votre réseau puis réessayez.</p>
-<button type="button" onclick="location.reload()">Réessayer</button></div></body></html>
+<style>
+body{font-family:system-ui,sans-serif;background:#F6F7F5;color:#141915;margin:0;padding:24px;display:flex;justify-content:center}
+main{max-width:420px;width:100%;text-align:center}
+h1{font-weight:700;letter-spacing:-.02em;color:#0D3122;margin:.6em 0 .2em}
+p{color:#475569;line-height:1.5}
+.card{background:#fff;border-radius:20px;padding:18px;margin-top:18px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h2{font-size:16px;margin:0 0 8px}
+button{border:0;border-radius:999px;background:#113e2c;color:#fff;font:600 15px system-ui;padding:12px 24px;cursor:pointer}
+button.secondary{background:#fff;color:#113e2c;border:1px solid #cbd5e1}
+textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:14px;padding:12px;font:15px system-ui;min-height:90px}
+a.sheet{display:block;padding:12px 14px;border-radius:14px;background:#fef2f2;color:#991b1b;font-weight:600;text-decoration:none;margin-top:8px}
+.ok{color:#166534;font-size:14px}
+[hidden]{display:none!important}
+</style></head>
+<body><main>
+<img src="/brand/jackcie-wordmark.png" width="180" alt="Jack&amp;Cie">
+<h1>Pas de connexion</h1>
+<p>Jack&amp;Cie a besoin d'Internet (4G ou Wi-Fi) pour afficher vos données.</p>
+<button type="button" onclick="location.reload()">Réessayer</button>
+
+<section class="card" id="note" hidden>
+  <h2>Noter quelque chose quand même</h2>
+  <p style="margin:0 0 10px;font-size:14px">« Vermifuge donné à Uni ce matin », « Le maréchal vient mardi à 9 h »… Gardé dans le téléphone, puis enregistré par l'assistant dès le retour du réseau.</p>
+  <form id="note-form"><textarea id="note-text" maxlength="2000" placeholder="Votre consigne…" required></textarea>
+  <div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button type="submit">Noter</button><span id="note-ok" class="ok" hidden>C'est noté ✓</span></div></form>
+  <p id="note-count" style="font-size:13px;margin:10px 0 0"></p>
+</section>
+
+<section class="card" id="sheets" hidden>
+  <h2>Fiches d'urgence disponibles sans réseau</h2>
+  <div id="sheet-list"></div>
+</section>
+</main>
+<script>
+(function () {
+  var userId = null;
+  try { userId = localStorage.getItem('jc-last-user'); } catch (e) {}
+  function db() {
+    return new Promise(function (resolve, reject) {
+      var r = indexedDB.open('jc-queue', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('items', { keyPath: 'id', autoIncrement: true }); };
+      r.onsuccess = function () { resolve(r.result); }; r.onerror = function () { reject(r.error); };
+    });
+  }
+  function count() {
+    return db().then(function (d) { return new Promise(function (res) {
+      var q = d.transaction('items').objectStore('items').getAll();
+      q.onsuccess = function () { res((q.result || []).filter(function (i) { return String(i.userId) === String(userId); }).length); d.close(); };
+    }); });
+  }
+  function showCount() {
+    count().then(function (n) { document.getElementById('note-count').textContent = n ? n + ' consigne(s) en attente d\'envoi.' : ''; }).catch(function () {});
+  }
+  if (userId && 'indexedDB' in window) {
+    document.getElementById('note').hidden = false;
+    showCount();
+    document.getElementById('note-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var t = document.getElementById('note-text');
+      var text = t.value.trim(); if (!text) return;
+      db().then(function (d) { return new Promise(function (res, rej) {
+        var tx = d.transaction('items', 'readwrite');
+        tx.objectStore('items').add({ kind: 'text', text: text, userId: userId, horseId: null, at: new Date().toISOString() });
+        tx.oncomplete = function () { d.close(); res(); }; tx.onerror = function () { rej(tx.error); };
+      }); }).then(function () { t.value = ''; document.getElementById('note-ok').hidden = false; setTimeout(function () { document.getElementById('note-ok').hidden = true; }, 2500); showCount(); });
+    });
+  }
+  if ('caches' in window) {
+    caches.open('jackcie-emergency').then(function (c) { return c.keys(); }).then(function (keys) {
+      if (!keys.length) return;
+      var list = document.getElementById('sheet-list');
+      return Promise.all(keys.map(function (k) { return caches.match(k, { cacheName: 'jackcie-emergency' }).then(function (r) { return r.text(); }).then(function (html) {
+        var m = html.match(/<title>([^<]*)<\/title>/); var a = document.createElement('a');
+        a.className = 'sheet'; a.href = new URL(k.url).pathname; a.textContent = m ? m[1].replace(/ · Jack&amp;Cie$/, '').replace(/&amp;/g, '&') : 'Fiche d\'urgence';
+        list.appendChild(a);
+      }); })).then(function () { document.getElementById('sheets').hidden = false; });
+    }).catch(function () {});
+  }
+  window.addEventListener('online', function () { location.reload(); });
+})();
+</script>
+</body></html>

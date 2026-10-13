@@ -9,7 +9,7 @@
                     <x-field name="emergency_contact_name" label="Personne à appeler" :value="$horse->emergency_contact_name ?? $owner->name" maxlength="120" />
                     <x-field name="emergency_contact_phone" type="tel" label="Téléphone" :value="$horse->emergency_contact_phone ?? $owner->profile?->phone" maxlength="40" inputmode="tel" placeholder="06 12 34 56 78" />
                     <x-textarea name="emergency_notes" label="À savoir en urgence (facultatif)" rows="3" :value="$horse->emergency_notes" maxlength="1000" placeholder="ex. Allergique à la pénicilline · Tique à l'attache · Assurance : …" />
-                    <p class="text-xs text-slate-500">Les précautions de la fiche du cheval et les traitements en cours s'ajoutent automatiquement.</p>
+                    <p class="text-xs text-slate-500">Les précautions de la fiche du cheval et les traitements en cours s'ajoutent automatiquement. Une copie reste consultable sur ce téléphone même sans réseau.</p>
                     @if ($horse->emergency_token)
                         <button class="btn-primary w-full">Enregistrer</button>
                     @else
@@ -18,6 +18,10 @@
                 </form>
             </x-section>
             @if ($horse->emergency_token)
+                {{-- Copie de la fiche gardée dans ce téléphone : consultable à l'écurie sans réseau. --}}
+                <script>
+                    try { navigator.serviceWorker?.ready.then((r) => r.active?.postMessage({ type: 'cache-emergency', path: @js(parse_url(route('emergency.public', $horse->emergency_token), PHP_URL_PATH)) })); } catch { }
+                </script>
                 <x-section title="QR code">
                     <div class="flex flex-wrap items-center gap-4">
                         <img src="{{ route('horses.emergency.qr', $horse) }}" alt="QR code de la fiche d'urgence" class="size-32 rounded-xl border border-slate-200">

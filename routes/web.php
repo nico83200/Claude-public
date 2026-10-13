@@ -22,6 +22,7 @@ Route::get('/', [Controllers\PublicController::class, 'home'])->name('home');
 Route::post('/push/recu', [Controllers\PushSubscriptionController::class, 'receipt'])->middleware('throttle:60,1')->name('push.receipt');
 Route::get('/agenda/abonnement/{token}.ics', [Controllers\CalendarFeedController::class, 'show'])->where('token', '[A-Za-z0-9]{32,64}')->middleware('throttle:60,1')->name('calendar.feed');
 Route::get('/app.webmanifest', Controllers\ManifestController::class)->name('manifest');
+Route::get('/resume/{token}', [Controllers\HealthShareController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('vet-summary.public');
 Route::get('/urgence/{token}', [Controllers\EmergencySheetController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.public');
 Route::get('/urgence/{token}/photo', [Controllers\EmergencySheetController::class, 'photo'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.photo');
 Route::get('/email/logo', [Controllers\Admin\MailDesignController::class, 'logo'])->middleware('throttle:120,1')->name('mail.logo');
@@ -98,6 +99,13 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::post('/proprietaires', [Controllers\OwnershipController::class, 'store'])->name('ownerships.store');
         Route::post('/proprietaires/{ownership}/terminer', [Controllers\OwnershipController::class, 'end'])->name('ownerships.end');
 
+        Route::get('/resume-veterinaire', [Controllers\HealthShareController::class, 'index'])->name('vet-summary');
+        Route::post('/resume-veterinaire', [Controllers\HealthShareController::class, 'store'])->middleware('throttle:10,1')->name('vet-summary.store');
+        Route::post('/resume-veterinaire/{share}/desactiver', [Controllers\HealthShareController::class, 'revoke'])->withoutScopedBindings()->name('vet-summary.revoke');
+        Route::post('/ordonnance', [Controllers\PrescriptionController::class, 'read'])->middleware('throttle:10,1')->name('prescription.read');
+        Route::get('/ordonnance/{token}', [Controllers\PrescriptionController::class, 'review'])->where('token', '[A-Za-z0-9]{32}')->name('prescription.review');
+        Route::post('/ordonnance/{token}', [Controllers\PrescriptionController::class, 'save'])->where('token', '[A-Za-z0-9]{32}')->name('prescription.save');
+        Route::delete('/ordonnance/{token}', [Controllers\PrescriptionController::class, 'cancel'])->where('token', '[A-Za-z0-9]{32}')->name('prescription.cancel');
         Route::get('/urgence', [Controllers\EmergencySheetController::class, 'edit'])->name('emergency.edit');
         Route::put('/urgence', [Controllers\EmergencySheetController::class, 'update'])->name('emergency.update');
         Route::get('/urgence/imprimer', [Controllers\EmergencySheetController::class, 'print'])->name('emergency.print');
@@ -182,6 +190,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::put('/seances/{session}', [Controllers\RidingSessionController::class, 'update'])->name('sessions.update');
     Route::delete('/seances/{session}', [Controllers\RidingSessionController::class, 'destroy'])->name('sessions.destroy');
     Route::get('/seances/{session}/en-cours', [Controllers\RidingSessionController::class, 'live'])->name('sessions.live');
+    Route::post('/seances/{session}/plan', [Controllers\RidingSessionController::class, 'plan'])->middleware('throttle:10,1')->name('sessions.plan');
     Route::get('/seances/{session}/bilan', [Controllers\RidingSessionController::class, 'debrief'])->name('sessions.debrief');
     Route::put('/seances/{session}/bilan', [Controllers\RidingSessionController::class, 'saveDebrief'])->name('sessions.debrief.save');
     Route::post('/seances/{session}/dupliquer', [Controllers\RidingSessionController::class, 'duplicate'])->name('sessions.duplicate');
@@ -240,6 +249,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/assistant/etat', [Controllers\AssistantController::class, 'status'])->name('assistant.status');
     Route::post('/assistant/transcription', [Controllers\AssistantController::class, 'transcribe'])->middleware('throttle:20,1')->name('assistant.transcribe');
     Route::post('/assistant/consigne', [Controllers\AssistantController::class, 'command'])->middleware('throttle:20,1')->name('assistant.command');
+    Route::post('/assistant/voix/{uuid}', [Controllers\AssistantController::class, 'speak'])->whereUuid('uuid')->middleware('throttle:30,1')->name('assistant.speak');
     Route::post('/assistant/actions/{action}/annuler', [Controllers\AssistantController::class, 'undo'])->name('assistant.undo');
 
     Route::get('/abonnement', [Controllers\BillingController::class, 'index'])->name('billing.index');
@@ -290,6 +300,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/assistant', [Admin\AssistantSettingsController::class, 'edit'])->name('assistant.edit');
     Route::put('/assistant', [Admin\AssistantSettingsController::class, 'update'])->name('assistant.update');
     Route::post('/assistant/test', [Admin\AssistantSettingsController::class, 'test'])->middleware('throttle:6,1')->name('assistant.test');
+    Route::post('/assistant/voix-essai', [Admin\AssistantSettingsController::class, 'voiceTest'])->middleware('throttle:6,1')->name('assistant.voice-test');
     Route::get('/mises-a-jour', [Admin\UpdateController::class, 'index'])->name('updates.index');
     Route::post('/mises-a-jour/envoi', [Admin\UpdateController::class, 'upload'])->middleware('throttle:600,1')->name('updates.upload');
     Route::get('/mises-a-jour/{update}', [Admin\UpdateController::class, 'show'])->name('updates.show');

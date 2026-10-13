@@ -7,9 +7,12 @@
  * v8 : accusé de réception (diagnostic), installation qui ne bloque plus si une ressource manque.
  * v9 : version communiquée à la page (diagnostic de l'appareil).
  * v10 : manifeste construit par le serveur (jamais mis en cache).
+ * v11 : fiches d'urgence consultables sans réseau (contenu public par nature) ;
+ *       la page « Pas de connexion » permet de noter une consigne, envoyée au retour du réseau.
  */
-const VERSION = 'v10';
+const VERSION = 'v11';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
+const EMERGENCY_CACHE = 'jackcie-emergency';
 const PRECACHE = ['/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
 
 self.addEventListener('install', (event) => {
@@ -19,7 +22,7 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== STATIC_CACHE).map((k) => caches.delete(k))))
+        caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== STATIC_CACHE && k !== EMERGENCY_CACHE).map((k) => caches.delete(k))))
             .then(() => self.clients.claim()),
     );
 });
@@ -39,6 +42,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Fiche d'urgence (QR code) : réseau d'abord, copie gardée pour l'écurie sans réseau.
+    if (/^\/urgence\/[A-Za-z0-9]{40}$/.test(url.pathname)) {
+        event.respondWith(fetch(req).then((res) => {
+            if (res.ok) caches.open(EMERGENCY_CACHE).then((c) => c.put(url.pathname, res.clone()));
+            else if (res.status === 404) caches.open(EMERGENCY_CACHE).then((c) => c.delete(url.pathname));
+            return res;
+        }).catch(() => caches.match(url.pathname, { cacheName: EMERGENCY_CACHE }).then((hit) => hit || caches.match('/offline.html'))));
+        return;
+    }
+
     // Pages : toujours le réseau ; sans connexion, page d'information.
     if (req.mode === 'navigate') {
         event.respondWith(fetch(req).catch(() => caches.match('/offline.html')));
@@ -48,6 +61,13 @@ self.addEventListener('fetch', (event) => {
 // Version demandée par la page (diagnostic des notifications).
 self.addEventListener('message', (event) => {
     if (event.data === 'version' && event.ports[0]) event.ports[0].postMessage(VERSION);
+    // Fiche d'urgence ouverte par son propriétaire : copie gardée pour consultation sans réseau.
+    if (event.data?.type === 'cache-emergency' && /^\/urgence\/[A-Za-z0-9]{40}$/.test(event.data.path || '')) {
+        event.waitUntil(fetch(event.data.path, { credentials: 'omit' }).then((res) => res.ok && caches.open(EMERGENCY_CACHE).then((c) => c.put(event.data.path, res))).catch(() => null));
+    }
+    if (event.data?.type === 'forget-emergency' && event.data.path) {
+        event.waitUntil(caches.open(EMERGENCY_CACHE).then((c) => c.delete(event.data.path)));
+    }
 });
 
 // --- Notifications ------------------------------------------------------------
