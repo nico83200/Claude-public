@@ -144,4 +144,28 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
         $rider->refresh();
         $this->actingAs($rider)->get('/dashboard')->assertDontSee('data-onboarding', false);
     }
+
+    public function test_dashboard_offers_the_emergency_sheet_until_done_or_dismissed(): void
+    {
+        $owner = $this->user();
+        $horse = $this->horseFor($owner, null, ['usual_name' => 'Uni']);
+        $this->actingAs($owner)->get('/dashboard')->assertSee('data-emergency-cta', false)->assertSee('Préparez la fiche d\'urgence de Uni', false)
+            ->assertSee(route('horses.emergency.edit', $horse), false);
+
+        // Fiche activée : plus de proposition.
+        $this->actingAs($owner)->put(route('horses.emergency.update', $horse), ['action' => 'enable']);
+        $this->actingAs($owner)->get('/dashboard')->assertDontSee('data-emergency-cta', false);
+
+        // « Ne plus afficher » : message qui dit où la retrouver, puis plus rien.
+        $other = $this->user();
+        $this->horseFor($other);
+        $this->actingAs($other)->post('/demarrage/fiche-urgence/masquer')->assertSessionHas('success', fn ($m) => str_contains($m, 'menu ⋯') && str_contains($m, 'Fiche d\'urgence (QR code)'));
+        $other->refresh();
+        $this->actingAs($other)->get('/dashboard')->assertDontSee('data-emergency-cta', false);
+
+        // Cavalier en lecture seule : rien à préparer.
+        $rider = $this->user();
+        HorseAccessGrant::create(['horse_id' => $this->horseFor($this->user())->id, 'user_id' => $rider->id, 'permissions' => ['horse.view']]);
+        $this->actingAs($rider)->get('/dashboard')->assertDontSee('data-emergency-cta', false);
+    }
 }

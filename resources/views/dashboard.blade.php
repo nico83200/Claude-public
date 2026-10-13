@@ -45,6 +45,22 @@
         </section>
     @endif
 
+    @if ($emergencyCta)
+        <section class="mb-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-red-100" data-emergency-cta>
+            <div class="flex items-start gap-3">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-700"><x-icon name="alert" /></span>
+                <div class="min-w-0 flex-1">
+                    <h2 class="font-semibold text-slate-900">Préparez la fiche d'urgence de {{ $emergencyCta->shortName() }}</h2>
+                    <p class="mt-0.5 text-sm text-slate-600">Un QR code à coller sur le box : en cas de problème, n'importe qui voit qui appeler, le vétérinaire, les traitements en cours et les précautions — sans compte.</p>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        <a href="{{ route('horses.emergency.edit', $emergencyCta) }}" class="btn-primary min-h-10 px-4 text-sm">Préparer la fiche</a>
+                        <form method="POST" action="{{ route('onboarding.emergency.dismiss') }}">@csrf<button class="btn-ghost min-h-10 px-3 text-sm text-slate-500" data-emergency-cta-dismiss>Ne plus afficher</button></form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
     @if ($horses->isEmpty())
         <x-empty title="Bienvenue ! Commencez par ajouter votre cheval" icon="horse">
             Saisissez sa fiche manuellement ou retrouvez ses informations publiques sur Internet.

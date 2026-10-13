@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/dashboard', Controllers\DashboardController::class)->name('dashboard');
     Route::get('/ma-semaine', Controllers\DigestController::class)->name('digest.show');
     Route::post('/demarrage/masquer', [Controllers\OnboardingController::class, 'dismiss'])->name('onboarding.dismiss');
+    Route::post('/demarrage/fiche-urgence/masquer', [Controllers\OnboardingController::class, 'dismissEmergency'])->name('onboarding.emergency.dismiss');
     Route::get('/recherche', Controllers\SearchController::class)->name('search');
 
     // Organisations / écuries
