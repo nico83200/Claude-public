@@ -5,7 +5,7 @@
             @forelse ($due as $c)
                 <a href="{{ route('horses.care.show', [$c->horse_id, $c]) }}" class="flex items-center justify-between border-t border-slate-100 py-2 text-sm first:border-0">
                     <span><span class="font-medium">{{ $c->horse->shortName() }}</span> — {{ $c->category->name }}<span class="block text-xs text-slate-500">{{ $c->professional?->fullName() }}</span></span>
-                    <x-badge :color="$c->next_check_on->isPast() ? 'red' : ($c->next_check_on->diffInDays() < 14 ? 'amber' : 'slate')">{{ $c->next_check_on->format('d/m/Y') }}</x-badge>
+                    <x-badge :color="$c->next_check_on->isPast() ? 'red' : (today()->diffInDays($c->next_check_on) < 14 ? 'amber' : 'slate')">{{ $c->next_check_on->format('d/m/Y') }}</x-badge>
                 </a>
             @empty <p class="text-sm text-slate-500">Aucune échéance.</p> @endforelse
         </x-section>

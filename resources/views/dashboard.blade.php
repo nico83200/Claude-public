@@ -126,7 +126,7 @@
                 @forelse ($careDue as $c)
                     <a href="{{ route('horses.care.index', $c->horse_id) }}" class="-mx-2 flex items-center justify-between gap-3 rounded-2xl px-2 py-2.5 hover:bg-slate-50">
                         <span class="min-w-0"><span class="block truncate font-medium">{{ $c->category->name }}</span><span class="block text-sm text-slate-500">{{ $c->horse->shortName() }}</span></span>
-                        <x-badge :color="$c->next_check_on->isPast() ? 'red' : ($c->next_check_on->diffInDays(now()) <= 7 ? 'amber' : 'slate')">{{ $c->next_check_on->isPast() ? 'En retard' : $c->next_check_on->translatedFormat('j M') }}</x-badge>
+                        <x-badge :color="$c->next_check_on->isPast() ? 'red' : (today()->diffInDays($c->next_check_on) <= 7 ? 'amber' : 'slate')">{{ $c->next_check_on->isPast() ? 'En retard' : $c->next_check_on->translatedFormat('j M') }}</x-badge>
                     </a>
                 @empty <p class="py-2 text-[15px] text-slate-500">Aucune échéance dans le mois.</p> @endforelse
             </x-section>
@@ -140,7 +140,7 @@
                     @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="mb-3 aspect-[4/3] w-full rounded-2xl object-cover">@else<div class="mb-3 flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-brand-50 text-3xl font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</div>@endif
                     <span class="truncate font-semibold">{{ $horse->shortName() }}</span>
                     @if ($due)
-                        <span class="mt-1 flex items-center gap-1.5 text-xs {{ $due->next_check_on->isPast() ? 'text-red-600' : ($due->next_check_on->diffInDays(now()) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->isPast() ? 'en retard' : 'le '.$due->next_check_on->translatedFormat('j M') }}</span>
+                        <span data-horse-due class="mt-1 flex items-center gap-1.5 text-xs {{ $due->next_check_on->lt(today()) ? 'text-red-600' : (today()->diffInDays($due->next_check_on) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->lt(today()) ? 'en retard' : ($due->next_check_on->isToday() ? 'aujourd\'hui' : 'le '.$due->next_check_on->translatedFormat('j M')) }}</span>
                     @else
                         <span class="mt-1 flex items-center gap-1.5 text-xs text-brand-700"><span class="size-1.5 rounded-full bg-current"></span>À jour</span>
                     @endif

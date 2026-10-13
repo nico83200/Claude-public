@@ -37,4 +37,23 @@ class GreetingTest extends TestCase
         $this->assertMatchesRegularExpression('#data-greeting>[^<]*Camille[^<]*</h1>#u', $html);
         $this->assertStringContainsString(e(Greeting::for('Camille Durand', now(), $user->id)), $html);
     }
+
+    public function test_horse_card_shows_care_due_only_within_30_days(): void
+    {
+        $user = $this->user();
+        $horse = $this->horseFor($user, null, ['usual_name' => 'Jack jack']);
+        $dentist = \App\Models\CareCategory::where('key', 'dentistry')->value('id');
+        $care = \App\Models\CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $dentist, 'performed_at' => now()->subMonths(3), 'author_id' => $user->id, 'next_check_on' => now()->addMonths(9)->toDateString()]);
+        $this->actingAs($user)->get('/dashboard')->assertDontSee('data-horse-due', false)->assertSee('À jour');
+
+        $care->update(['next_check_on' => now()->addDays(25)->toDateString()]);
+        $html = $this->actingAs($user)->get('/dashboard')->getContent();
+        $this->assertMatchesRegularExpression('#data-horse-due class="[^"]*text-slate-500[^"]*">.*?Dentiste#s', $html);
+
+        $care->update(['next_check_on' => now()->addDays(5)->toDateString()]);
+        $this->assertMatchesRegularExpression('#data-horse-due class="[^"]*text-amber-700#', $this->actingAs($user)->get('/dashboard')->getContent());
+
+        $care->update(['next_check_on' => now()->subDays(2)->toDateString()]);
+        $this->actingAs($user)->get('/dashboard')->assertSee('en retard');
+    }
 }

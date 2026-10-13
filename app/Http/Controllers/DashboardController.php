@@ -18,6 +18,9 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /** Une échéance s'affiche sur la carte du cheval à partir de 30 jours avant sa date. */
+    public const DUE_SOON_DAYS = 30;
+
     public function __invoke(Request $request, HorseAccess $access)
     {
         $user = $request->user();
@@ -30,8 +33,9 @@ class DashboardController extends Controller
         $sessionIds = $ids(Perm::SESSIONS_VIEW);
         $expenseIds = $ids(Perm::EXPENSES_VIEW);
 
-        // Prochaine échéance de suivi par cheval (pastille sur la carte du cheval).
+        // Prochaine échéance de suivi par cheval (pastille sur la carte du cheval) : seulement dans les 30 jours, ou en retard.
         $nextDue = CareRecord::with('category')->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
+            ->where('next_check_on', '<=', now()->addDays(self::DUE_SOON_DAYS)->toDateString())
             ->orderBy('next_check_on')->get()->groupBy('horse_id')->map->first();
 
         return view('dashboard', [
