@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Console\Commands\SendActivityReminders;
+use App\Models\ApplicationSetting;
 use App\Models\PushSubscription;
 use App\Models\Reminder;
 use App\Models\User;
@@ -22,6 +23,9 @@ class NotificationDiagnostics
 
     public const FALLBACK_KEY = 'scheduler.fallback_run';
 
+    /** Copie durable du battement : le cache est vidé à chaque mise à jour (optimize:clear). */
+    public const CRON_SETTING = 'scheduler_cron_heartbeat';
+
     /** Tâches quotidiennes rattrapées par le relais (sans doublon : chacune ne notifie qu'une fois). */
     private const DAILY = ['expenses:recurring' => '06:05', 'reminders:send' => '07:30', 'reminders:rhythm' => '08:50', 'reminders:daily-nudge' => '11:10'];
 
@@ -30,12 +34,33 @@ class NotificationDiagnostics
     {
         if (! app()->bound('scheduler.fallback')) {
             Cache::forever(self::CRON_KEY, now()->timestamp);
+            rescue(fn () => ApplicationSetting::updateOrCreate(['key' => self::CRON_SETTING], ['value' => now()->timestamp]), null, false);
         }
+    }
+
+    /**
+     * Dernier passage du cron (timestamp), null s'il n'a jamais tourné.
+     * Après un vidage du cache, la copie en base prend le relais : sans elle, chaque mise à jour
+     * faisait croire que le cron n'avait jamais tourné (fausse alerte « Cron arrêté »).
+     */
+    public static function lastBeat(): ?int
+    {
+        $last = Cache::get(self::CRON_KEY);
+        if ($last) {
+            return (int) $last;
+        }
+        $stored = rescue(fn () => ApplicationSetting::where('key', self::CRON_SETTING)->value('value'), null, false);
+        if (! $stored) {
+            return null;
+        }
+        Cache::forever(self::CRON_KEY, (int) $stored);
+
+        return (int) $stored;
     }
 
     public static function cronAlive(): bool
     {
-        $last = Cache::get(self::CRON_KEY);
+        $last = self::lastBeat();
 
         return $last && now()->timestamp - (int) $last < 180;
     }
@@ -75,7 +100,7 @@ class NotificationDiagnostics
 
     public function scheduler(): array
     {
-        $cron = Cache::get(self::CRON_KEY);
+        $cron = self::lastBeat();
         $fallback = Cache::get(self::FALLBACK_KEY);
 
         return [

@@ -239,6 +239,25 @@ class AiFeaturesTest extends TestCase
         $this->actingAs($user)->getJson('/assistant/etat')->assertJson(['speech' => false]);
     }
 
+    public function test_cache_cleared_by_an_update_does_not_raise_a_false_cron_alert(): void
+    {
+        Notification::fake();
+        $admin = $this->user();
+        $admin->forceFill(['is_super_admin' => true])->save();
+        \App\Services\NotificationDiagnostics::beat();
+        // La finalisation d'une mise à jour vide tout le cache (optimize:clear).
+        Cache::flush();
+        $this->assertTrue(\App\Services\NotificationDiagnostics::cronAlive(), 'Le dernier passage du cron survit au vidage du cache.');
+        $this->artisan('monitor:check');
+        Notification::assertNothingSent();
+
+        // Un cron vraiment arrêté reste signalé, avec sa durée réelle.
+        $this->travel(40)->minutes();
+        Cache::flush();
+        $this->artisan('monitor:check');
+        Notification::assertSentTo($admin, AppNotification::class, fn ($n) => str_contains($n->body, '40 minutes') && ! str_contains($n->body, 'jamais'));
+    }
+
     public function test_monitor_alerts_super_admins_when_cron_stops_or_errors_spike(): void
     {
         Notification::fake();

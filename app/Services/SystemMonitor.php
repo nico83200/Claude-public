@@ -65,7 +65,7 @@ class SystemMonitor
     /** Minutes depuis le dernier passage du cron (null : jamais vu). */
     public static function cronSilentMinutes(): ?int
     {
-        $last = Cache::get(NotificationDiagnostics::CRON_KEY);
+        $last = NotificationDiagnostics::lastBeat();
 
         return $last ? intdiv(now()->timestamp - (int) $last, 60) : null;
     }
