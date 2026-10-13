@@ -89,7 +89,9 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
             ->assertSee('Vétodoc')->assertSee('0611223344')->assertSee('Antibiotique X')
             ->assertDontSee('Note privée')->assertDontSee('Secret');
 
-        $this->actingAs($owner)->get(route('horses.emergency.print', $horse))->assertOk()->assertSee('<svg', false);
+        $this->actingAs($owner)->get(route('horses.emergency.print', $horse))->assertOk()->assertSee('<svg', false)
+            ->assertSee('06 00 00 00 01')->assertSee('Vétodoc')->assertSee('0611223344')->assertSee('Antibiotique X')->assertSee('Allergique à la pénicilline')
+            ->assertSee('Informations au '.now()->format('d/m/Y'))->assertSee('version toujours à jour')->assertDontSee('Note privée')->assertDontSee('Secret');
         $this->actingAs($owner)->get(route('horses.emergency.qr', $horse))->assertOk()->assertHeader('Content-Type', 'image/svg+xml');
 
         // Lien changé : l'ancien QR ne marche plus ; désactivée : plus rien.

@@ -22,7 +22,7 @@
                     <div class="flex flex-wrap items-center gap-4">
                         <img src="{{ route('horses.emergency.qr', $horse) }}" alt="QR code de la fiche d'urgence" class="size-32 rounded-xl border border-slate-200">
                         <div class="flex flex-col gap-2">
-                            <a href="{{ route('horses.emergency.print', $horse) }}" target="_blank" class="btn-primary" data-emergency-print-link>Imprimer l'étiquette</a>
+                            <a href="{{ route('horses.emergency.print', $horse) }}" target="_blank" class="btn-primary" data-emergency-print-link>Imprimer la fiche</a>
                             <a href="{{ route('emergency.public', $horse->emergency_token) }}" target="_blank" class="btn-secondary">Voir la fiche publique</a>
                             <a href="{{ route('horses.emergency.qr', $horse) }}" class="text-sm link">Télécharger le QR code</a>
                         </div>

@@ -57,13 +57,13 @@ class EmergencySheetController extends Controller
         });
     }
 
-    /** Affiche A6 à imprimer (QR code + nom du cheval). */
+    /** Fiche A5 à imprimer : informations du jour + QR code vers la version toujours à jour. */
     public function print(Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HORSE_EDIT);
         abort_unless($horse->emergency_token, 404);
 
-        return view('emergency.print', ['horse' => $horse, 'qr' => $this->qrSvg(route('emergency.public', $horse->emergency_token))]);
+        return view('emergency.print', ['horse' => $horse, 'sheet' => $this->sheet($horse), 'qr' => $this->qrSvg(route('emergency.public', $horse->emergency_token))]);
     }
 
     public function qr(Horse $horse)
