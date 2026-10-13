@@ -108,29 +108,40 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
     public function test_onboarding_checklist_ticks_itself_and_can_be_hidden(): void
     {
         $user = $this->user();
-        $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('data-onboarding', false)->assertSee('data-onboarding-step="horse" data-done="0"', false);
+        $html = $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('data-onboarding', false)->getContent();
+        $this->assertStringContainsString('data-onboarding-step="horse" data-done="0"', $html);
+        // Ni installation de l'application, ni invitation : pas utiles à tous.
+        $this->assertStringNotContainsString('data-onboarding-step="install"', $html);
+        $this->assertStringNotContainsString('data-onboarding-step="share"', $html);
 
         $horse = $this->horseFor($user);
-        foreach (['deworming', 'farrier'] as $key) {
-            CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => CareCategory::where('key', $key)->value('id'), 'performed_at' => now()->subWeek(), 'author_id' => $user->id]);
-        }
+        CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => CareCategory::where('key', 'veterinary')->value('id'), 'performed_at' => now()->subWeek(), 'author_id' => $user->id]);
         PushSubscription::forceCreate(['user_id' => $user->id, 'endpoint' => 'https://push.example/1', 'endpoint_hash' => hash('sha256', 'https://push.example/1'), 'public_key' => 'k', 'auth_token' => 'a']);
         $html = $this->actingAs($user)->get('/dashboard')->getContent();
-        foreach (['horse', 'health', 'notifications'] as $step) {
+        foreach (['horse', 'care', 'notifications'] as $step) {
             $this->assertStringContainsString('data-onboarding-step="'.$step.'" data-done="1"', $html);
         }
-        $this->assertStringContainsString('data-onboarding-step="share" data-done="0"', $html);
+        $this->assertStringContainsString('data-onboarding-step="agenda" data-done="0"', $html);
+        $this->assertStringContainsString('data-onboarding-step="profile" data-done="0"', $html);
         $this->assertStringContainsString('3 étapes sur 5', $html);
+        $this->assertStringContainsString('Noter votre premier soin', $html);
 
-        $this->actingAs($user)->postJson('/demarrage/installe')->assertOk();
-        $this->assertNotNull(UserProfile::where('user_id', $user->id)->value('app_installed_at'));
-        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $this->user()->id, 'permissions' => ['horse.view']]);
+        CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal', 'starts_at' => now()->addDays(3), 'status' => 'planned', 'created_by' => $user->id]);
+        UserProfile::updateOrCreate(['user_id' => $user->id], ['riding_level' => 'Galop 4', 'phone' => '0612345678']);
         // Tout est fait : la liste disparaît.
         $user->refresh();
         $this->actingAs($user)->get('/dashboard')->assertDontSee('data-onboarding', false);
 
-        $other = $this->user();
-        $this->actingAs($other)->post('/demarrage/masquer')->assertSessionHas('success');
-        $this->actingAs($other)->get('/dashboard')->assertDontSee('data-onboarding', false);
+        // Cavalier avec un cheval partagé en lecture seule : pas d'étape soin ni agenda.
+        $rider = $this->user();
+        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view']]);
+        $html = $this->actingAs($rider)->get('/dashboard')->getContent();
+        $this->assertStringNotContainsString('data-onboarding-step="care"', $html);
+        $this->assertStringNotContainsString('data-onboarding-step="agenda"', $html);
+        $this->assertStringContainsString('data-onboarding-step="profile" data-done="0"', $html);
+
+        $this->actingAs($rider)->post('/demarrage/masquer')->assertSessionHas('success');
+        $rider->refresh();
+        $this->actingAs($rider)->get('/dashboard')->assertDontSee('data-onboarding', false);
     }
 }

@@ -36,13 +36,9 @@
                     <li class="flex items-center gap-3 py-3" data-onboarding-step="{{ $step['key'] }}" data-done="{{ $step['done'] ? '1' : '0' }}">
                         <span class="flex size-8 shrink-0 items-center justify-center rounded-full {{ $step['done'] ? 'bg-brand-600 text-white' : 'border-2 border-slate-300 text-slate-400' }}">@if ($step['done'])<x-icon name="check" class="size-4" />@else<span class="text-sm font-semibold">{{ $loop->iteration }}</span>@endif</span>
                         <span class="min-w-0 flex-1"><span class="block font-medium {{ $step['done'] ? 'text-slate-500' : 'text-slate-900' }}">{{ $step['title'] }}</span>@unless ($step['done'])<span class="block text-sm text-slate-500">{{ $step['text'] }}</span>@endunless</span>
-                        @unless ($step['done'])
-                            @if ($step['action'] === 'install')
-                                <button type="button" x-data x-show="! $store.install.installed" @click="$store.install.install()" class="btn-secondary min-h-9 shrink-0 px-4 text-sm">Installer</button>
-                            @elseif ($step['url'])
-                                <a href="{{ $step['url'] }}" class="btn-secondary min-h-9 shrink-0 px-4 text-sm">{{ ['horse' => 'Ajouter', 'health' => 'Noter', 'notifications' => 'Activer', 'share' => 'Inviter'][$step['key']] ?? 'Ouvrir' }}</a>
-                            @endif
-                        @endunless
+                        @if (! $step['done'] && $step['url'])
+                            <a href="{{ $step['url'] }}" class="btn-secondary min-h-9 shrink-0 px-4 text-sm">{{ $step['button'] }}</a>
+                        @endif
                     </li>
                 @endforeach
             </ol>

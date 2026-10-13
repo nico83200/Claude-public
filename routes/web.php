@@ -53,7 +53,6 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
     Route::get('/dashboard', Controllers\DashboardController::class)->name('dashboard');
     Route::get('/ma-semaine', Controllers\DigestController::class)->name('digest.show');
-    Route::post('/demarrage/installe', [Controllers\OnboardingController::class, 'installed'])->middleware('throttle:10,1')->name('onboarding.installed');
     Route::post('/demarrage/masquer', [Controllers\OnboardingController::class, 'dismiss'])->name('onboarding.dismiss');
     Route::get('/recherche', Controllers\SearchController::class)->name('search');
 
