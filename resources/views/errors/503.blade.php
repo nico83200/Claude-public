@@ -7,7 +7,7 @@
 (function retry(n) {
     fetch('/maintenance/reprise', { headers: { Accept: 'application/json' }, cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : {}; })
-        .then(function (d) { if (d && d.down === false) location.reload(); else if (n < 20) setTimeout(function () { retry(n + 1); }, 30000); })
-        .catch(function () { if (n < 20) setTimeout(function () { retry(n + 1); }, 30000); });
+        .then(function (d) { if (d && d.down === false) location.reload(); else if (n < 240) setTimeout(function () { retry(n + 1); }, 30000); })
+        .catch(function () { if (n < 240) setTimeout(function () { retry(n + 1); }, 30000); });
 })(0);
 </script></body></html>

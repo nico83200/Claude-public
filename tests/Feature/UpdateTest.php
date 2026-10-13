@@ -232,4 +232,38 @@ class UpdateTest extends TestCase
             }
         }
     }
+
+    public function test_installation_interrupted_by_the_host_is_rolled_back_and_site_brought_up(): void
+    {
+        // Phase 1 coupée en pleine copie (délai dépassé chez l'hébergeur) : statut « applying » à jamais, site en maintenance.
+        $pkg = $this->package('2.2.0', ['app/Ancien.php' => '<?php // mis à jour']);
+        $update = AppUpdate::create(['status' => 'verified', 'package_path' => $pkg, 'package_size' => filesize($pkg)]);
+        $this->app->instance(Updater::class, $this->updater());
+        $this->updater()->apply($update, ['maintenance' => false, 'backup_db' => false]);
+        $update->forceFill(['status' => 'applying'])->save();
+        Artisan::call('down', ['--secret' => 'secret-test']);
+        try {
+            $this->getJson('/maintenance/reprise')->assertOk()->assertJson(['resumed' => false, 'down' => true]); // pas avant 10 minutes
+            $this->travel(11)->minutes();
+            $this->getJson('/maintenance/reprise')->assertOk()->assertJson(['resumed' => true, 'down' => false]);
+            $fresh = $update->fresh();
+            $this->assertSame('failed', $fresh->status);
+            $this->assertStringContainsString('Installation interrompue', $fresh->message);
+            $this->assertSame('2.1.0', trim(file_get_contents($this->tmp.'/target/VERSION')));
+            $this->assertSame('<?php // ancien', file_get_contents($this->tmp.'/target/app/Ancien.php'));
+            $this->assertFalse(app()->isDownForMaintenance());
+        } finally {
+            if (app()->isDownForMaintenance()) {
+                Artisan::call('up');
+            }
+        }
+
+        // Même filet de sécurité par le planificateur.
+        $update2 = AppUpdate::create(['status' => 'verified', 'package_path' => $pkg, 'package_size' => filesize($pkg)]);
+        $this->updater()->apply($update2, ['maintenance' => false, 'backup_db' => false]);
+        $update2->forceFill(['status' => 'applying'])->save();
+        $this->travel(11)->minutes();
+        Artisan::call('app:finalize-update');
+        $this->assertSame('failed', $update2->fresh()->status);
+    }
 }

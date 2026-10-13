@@ -18,6 +18,15 @@ class MaintenanceResumeController extends Controller
     {
         $pending = AppUpdate::where('status', 'migrating')->where('updated_at', '<', now()->subMinutes(2))->get();
         $resumed = false;
+        // Installation interrompue avant les migrations (délai dépassé chez l'hébergeur) : retour à la version précédente.
+        foreach (AppUpdate::where('status', 'applying')->where('updated_at', '<', now()->subMinutes(Updater::STALL_MINUTES))->get() as $stalled) {
+            try {
+                $updater->recoverStalled($stalled);
+                $resumed = true;
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
         foreach ($pending as $update) {
             try {
                 $updater->finalize($update);

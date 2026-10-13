@@ -218,6 +218,39 @@ class Updater
         }
     }
 
+    /** Délai sans nouvelle d'une installation (phase 1) avant de la considérer comme interrompue. */
+    public const STALL_MINUTES = 10;
+
+    /**
+     * Installation interrompue pendant la phase 1 (délai dépassé chez l'hébergeur, coupure…) : le site resterait
+     * en maintenance indéfiniment. Le code de la version précédente est remis (la copie a pu commencer),
+     * la mise à jour est marquée en échec et le site remis en ligne. À relancer ensuite depuis l'administration.
+     */
+    public function recoverStalled(AppUpdate $update): void
+    {
+        if ($update->status !== 'applying' || $update->updated_at->gt(now()->subMinutes(self::STALL_MINUTES))) {
+            return;
+        }
+        @set_time_limit(0);
+        ignore_user_abort(true);
+        $update->appendLog('Installation interrompue (aucune nouvelle depuis '.self::STALL_MINUTES.' minutes, probablement un délai dépassé chez l\'hébergeur).');
+        try {
+            if ($update->backup_code_path && is_file($update->backup_code_path)) {
+                $this->restoreCode($update->backup_code_path);
+                $this->clearBootstrapCache();
+                $update->appendLog('Code de la version '.$update->from_version.' restauré.');
+            }
+        } catch (Throwable $e) {
+            report($e);
+            $update->appendLog('Restauration automatique impossible : '.$e->getMessage());
+        } finally {
+            $update->forceFill(['status' => 'failed', 'finished_at' => now(), 'message' => 'Installation interrompue : la version '.$update->from_version.' a été remise en ligne. Relancez la mise à jour.'])->save();
+            if (app()->isDownForMaintenance()) {
+                Artisan::call('up');
+            }
+        }
+    }
+
     private function fail(AppUpdate $update, Throwable $e, bool $copied, bool $bringUp): never
     {
         report($e);

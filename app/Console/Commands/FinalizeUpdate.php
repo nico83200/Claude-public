@@ -22,6 +22,10 @@ class FinalizeUpdate extends Command
     {
         $pending = AppUpdate::where('status', 'migrating')
             ->when(! $this->option('now'), fn ($q) => $q->where('updated_at', '<', now()->subMinutes(2)))->get();
+        // Installation interrompue avant les migrations : version précédente remise et site en ligne.
+        foreach (AppUpdate::where('status', 'applying')->get() as $stalled) {
+            rescue(fn () => $updater->recoverStalled($stalled), null, true);
+        }
         foreach ($pending as $update) {
             try {
                 $updater->finalize($update);
