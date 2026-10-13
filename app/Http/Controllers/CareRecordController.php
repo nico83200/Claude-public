@@ -110,6 +110,7 @@ class CareRecordController extends Controller
             'expenses' => $this->horseCan($horse, Perm::EXPENSES_VIEW)
                 ? \App\Models\Expense::where('care_record_id', $care->id)->with(['category', 'documents', 'professional'])->orderBy('spent_on')->get()
                 : collect(),
+            'canEditExpense' => fn ($e) => $this->horseCan($horse, Perm::EXPENSES_CREATE) && ($e->author_id === request()->user()->id || $this->horseCan($horse, Perm::HORSE_MANAGE)),
         ]);
     }
 

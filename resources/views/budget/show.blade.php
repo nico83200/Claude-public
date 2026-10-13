@@ -1,7 +1,7 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
 <x-layouts.app :title="$expense->category->name.' · Budget'">
     <x-page-header :title="$expense->comment ?: $expense->category->name" :subtitle="($expense->horse?->shortName() ?? 'Espace').' · '.$expense->spent_on->translatedFormat('j F Y')" :back="route('budget.index', array_filter(['horse' => $expense->horse_id, 'year' => $expense->spent_on->year]))">
-        @if ($canEdit)<a href="{{ route('budget.edit', $expense) }}" class="btn-secondary" data-expense-edit><x-icon name="pencil" class="size-4" /> Modifier</a>@endif
+        @if ($canEdit)<a href="{{ route('budget.edit', ['expense' => $expense, 'retour' => '/budget/'.$expense->id]) }}" class="btn-primary" data-expense-edit><x-icon name="pencil" class="size-4" /> Modifier</a>@endif
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3" data-expense-detail>
         <x-section class="lg:col-span-2">
@@ -18,6 +18,9 @@
                 'Dépense récurrente' => $expense->recurring ? $expense->recurring->label.' · '.(\App\Models\RecurringExpense::FREQUENCIES[$expense->recurring->frequency] ?? $expense->recurring->frequency) : null,
                 'Saisie par' => $expense->author?->name,
             ]" />
+            @if ($canEdit)
+                <a href="{{ route('budget.edit', ['expense' => $expense, 'retour' => '/budget/'.$expense->id]) }}" class="btn-secondary mt-4 w-full justify-center sm:w-auto" data-expense-edit-bottom><x-icon name="pencil" class="size-4" /> Modifier la dépense</a>
+            @endif
             @if ($canEdit && ! $expense->isPaid())
                 <form method="POST" action="{{ route('budget.pay', $expense) }}" class="mt-4">@csrf<input type="hidden" name="paid" value="1"><button class="btn-primary"><x-icon name="check" class="size-4" /> Marquer comme payée</button></form>
             @endif

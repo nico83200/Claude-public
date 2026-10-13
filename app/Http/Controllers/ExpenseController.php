@@ -164,7 +164,10 @@ class ExpenseController extends Controller
         $expense->update($data);
         $this->storeReceipt($request, $expense, $expense->organization);
 
-        return redirect()->route('budget.index')->with('success', 'Dépense mise à jour.');
+        // Retour à la page d'où l'on vient (détail de la dépense, fiche du soin), jamais vers un autre site.
+        $back = (string) $request->input('return_to');
+
+        return (str_starts_with($back, '/') && ! str_starts_with($back, '//') ? redirect($back) : redirect()->route('budget.index'))->with('success', 'Dépense mise à jour.');
     }
 
     /** Suivi du paiement : réglée (à la date indiquée, aujourd'hui par défaut) ou de nouveau à payer. */

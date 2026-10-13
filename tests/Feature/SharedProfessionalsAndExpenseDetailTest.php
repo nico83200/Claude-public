@@ -92,4 +92,37 @@ class SharedProfessionalsAndExpenseDetailTest extends TestCase
         // Suppression depuis le détail : retour au budget.
         $this->actingAs($user)->from(route('budget.show', $simple))->delete(route('budget.destroy', $simple))->assertRedirect(route('budget.index', ['horse' => $horse->id]));
     }
+
+    public function test_expense_can_be_edited_from_its_detail_and_from_the_care(): void
+    {
+        $user = $this->user();
+        $this->grantLicense($user->personalOrganization(), 'particulier');
+        $horse = $this->horseFor($user);
+        $board = ExpenseCategory::where('key', 'boarding')->value('id');
+        $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $board, 'spent_on' => now()->toDateString(), 'amount' => '450']);
+        $e = Expense::sole();
+        $this->actingAs($user)->get(route('budget.show', $e))->assertSee('data-expense-edit', false)->assertSee('data-expense-edit-bottom', false);
+        $this->actingAs($user)->get(route('budget.edit', ['expense' => $e, 'retour' => '/budget/'.$e->id]))->assertOk()->assertSee('name="return_to" value="/budget/'.$e->id.'"', false);
+        $this->actingAs($user)->put(route('budget.update', $e), ['horse_id' => $horse->id, 'expense_category_id' => $board, 'spent_on' => now()->toDateString(), 'amount' => '470', 'return_to' => '/budget/'.$e->id])
+            ->assertRedirect('/budget/'.$e->id);
+        $this->assertSame('470.00', $e->fresh()->amount);
+        // Jamais de redirection vers un autre site.
+        $this->actingAs($user)->put(route('budget.update', $e), ['horse_id' => $horse->id, 'expense_category_id' => $board, 'spent_on' => now()->toDateString(), 'amount' => '470', 'return_to' => '//evil.example'])
+            ->assertRedirect(route('budget.index'));
+
+        $farrier = ExpenseCategory::where('key', 'farrier')->value('id');
+        $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $farrier, 'spent_on' => now()->subDay()->toDateString(), 'amount' => '70']);
+        $care = Expense::where('amount', 70)->sole();
+        $this->actingAs($user)->get(route('horses.care.show', [$horse, $care->care_record_id]))->assertSee('data-care-expense-edit', false);
+    }
+
+    public function test_maintenance_page_is_friendly(): void
+    {
+        \Illuminate\Support\Facades\Artisan::call('down', ['--secret' => 'x']);
+        try {
+            $this->get('/')->assertStatus(503)->assertSee('Jack&amp;Cie se refait une beauté', false)->assertSee('data-maintenance', false)->assertSee('/maintenance/reprise', false)->assertDontSee('Service Unavailable');
+        } finally {
+            \Illuminate\Support\Facades\Artisan::call('up');
+        }
+    }
 }

@@ -13,6 +13,7 @@
         <x-field name="supplier" label="Fournisseur" :value="$expense->supplier" />
         <x-textarea name="comment" label="Commentaire" :value="$expense->comment" />
         <div><label class="label" for="receipt">Ajouter un justificatif</label><input id="receipt" type="file" name="receipt" accept=".pdf,image/*" class="text-sm"></div>
+        @if (str_starts_with((string) request('retour'), '/') && ! str_starts_with((string) request('retour'), '//'))<input type="hidden" name="return_to" value="{{ request('retour') }}">@endif
         <button class="btn-primary">Enregistrer</button>
     </form>
 </x-layouts.app>
