@@ -269,3 +269,7 @@ table.compare { width: 100%; border-collapse: collapse; font-size: 15px; min-wid
 .plan .price { margin: 0; }
 .plan ul { align-content: start; }
 @media (max-width: 480px) { .proof { grid-template-columns: 1fr; } }
+/* Le cadre du téléphone épouse toujours la capture (jamais étiré par un voisin plus haut). */
+.phone { height: max-content; align-self: flex-start; }
+.feature-media { align-items: flex-start; }
+.assistant .phone { align-self: center; }
