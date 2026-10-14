@@ -1,4 +1,4 @@
-# À placer dans public_html de jackcie.nlapps.fr UNIQUEMENT si l'application n'y est plus (option B du guide).
+# À placer dans public_html de jackcie.nlapps.fr UNIQUEMENT si l'application n'y est plus (étape 4 du guide).
 # Redirige définitivement toute l'ancienne adresse vers app.jackcie.fr, même chemin, mêmes paramètres
 # (QR codes des fiches d'urgence, affiches, liens de partage, agendas abonnés).
 RewriteEngine On
