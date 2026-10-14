@@ -1,6 +1,47 @@
 // Jack&Cie — site vitrine : menu mobile, en-tête au défilement, bascule mensuel/annuel, apparitions douces.
 document.documentElement.classList.remove('no-js');
 
+/*
+ * Code promo et source dans l'adresse du site (ex. jackcie.fr/?code=PRINTEMPS&src=flyer) :
+ * retenus 30 jours sur l'appareil, puis ajoutés à chaque lien d'inscription vers l'application.
+ * L'application applique le code à la création du compte (y compris dans l'application installée)
+ * et compte l'inscription dans la source (Administration › Codes › Sources).
+ */
+const attribution = (() => {
+    const KEY = 'jc-attribution';
+    const q = new URLSearchParams(location.search);
+    const code = (q.get('code') || q.get('promo') || '').toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 40);
+    const src = (q.get('src') || q.get('source') || q.get('utm_source') || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+    let data = null;
+    try { data = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { /* stockage indisponible */ }
+    if (data && Date.now() - (data.at || 0) > 30 * 864e5) data = null;
+    if (code || src) {
+        // Ce qui est dans l'adresse remplace l'ancienne valeur ; ce qui n'y est pas garde la valeur déjà retenue.
+        data = { code: code || data?.code || '', src: src || data?.src || '', at: Date.now() };
+        try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* ignoré */ }
+    }
+    if (!data || (!data.code && !data.src)) return null;
+    document.querySelectorAll('a[href*="/register"]').forEach((a) => {
+        const u = new URL(a.href, location.href);
+        if (u.host === location.host) return;
+        if (data.code) u.searchParams.set('code', data.code);
+        if (data.src) u.searchParams.set('src', data.src);
+        a.href = u.toString();
+    });
+    // Code personnel : bandeau dédié à la place de l'offre générale du site.
+    if (data.code) {
+        const bar = document.getElementById('code-bar');
+        const promo = document.getElementById('promo');
+        const offer = promo?.dataset.promo || document.getElementById('promo-bar')?.dataset.promo;
+        if (data.code !== offer) {
+            if (bar) { bar.querySelector('[data-code-value]').textContent = data.code; bar.hidden = false; }
+            document.getElementById('promo-bar')?.remove();
+            promo?.remove();
+        }
+    }
+    return data;
+})();
+
 const header = document.querySelector('.header');
 const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
 window.addEventListener('scroll', onScroll, { passive: true });

@@ -106,6 +106,10 @@ def layout(meta, body):
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
 {promo_banner()}
+<a class="promo-bar" id="code-bar" href="{APP}/register" hidden>
+  <span class="promo-bar-text">🎁 Code <span class="promo-bar-code" data-code-value></span> : il sera appliqué à la création de votre compte</span>
+  <span class="promo-bar-cta">Créer mon compte {icon("arrow")}</span>
+</a>
 <header class="header">
   <div class="wrap">
     <a href="/" class="logo" aria-label="Jack&amp;Cie, accueil"><img src="/img/brand/jackcie-wordmark.webp" alt="Jack&amp;Cie" width="130" height="38"></a>
@@ -155,7 +159,7 @@ def promo_banner():
     """Bandeau permanent de l'offre, en haut de toutes les pages, jusqu'à la date de fin (masqué ensuite par le script)."""
     if not PROMO:
         return ''
-    return f'''<a class="promo-bar" id="promo-bar" href="{PROMO['url']}" data-until="{PROMO['until']}" hidden>
+    return f'''<a class="promo-bar" id="promo-bar" href="{PROMO['url']}" data-promo="{PROMO['code']}" data-until="{PROMO['until']}" hidden>
   <span class="promo-bar-event">EQUITA<em>LYON</em> 2026</span>
   <span class="promo-bar-text"><b>30 jours offerts</b><span class="promo-bar-long"> · toutes les fonctionnalités, sans carte bancaire</span> · code <span class="promo-bar-code">{PROMO['code']}</span></span>
   <span class="promo-bar-cta">J'en profite {icon("arrow")}</span>

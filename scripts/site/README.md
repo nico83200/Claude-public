@@ -29,3 +29,11 @@ Images de partage : `node scripts/site/og.mjs` (aperçu du site lancé sur :8090
 ## À compléter
 - Mentions légales : forme juridique, capital, SIRET, adresse, directeur de la publication (repérés en orange).
 - Dans l'app (Administration › Codes › Sources) : déclarer les sources `site-…` pour lire les inscriptions venant du site.
+
+## Liens suivis vers le site (code promo, source)
+`https://jackcie.fr/?code=MONCODE&src=ma-source` (toutes les pages, `?src=` seul ou `?code=` seul possibles ;
+`utm_source` est aussi reconnu). Le site retient le code et la source 30 jours sur l'appareil et les ajoute à tous
+les liens d'inscription vers l'application, qui applique le code à la création du compte (y compris dans
+l'application installée) et compte l'inscription dans la source. Un code autre que celui de l'offre en cours
+remplace la fenêtre et le bandeau de l'offre par un bandeau « Code … : il sera appliqué ».
+Déclarer chaque source dans l'app : Administration › Codes › Sources.
