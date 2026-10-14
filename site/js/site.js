@@ -52,3 +52,49 @@ if (box && (status.has('envoye') || status.has('erreur'))) {
         : ({ champs: 'Merci de renseigner votre nom, une adresse e-mail valide et votre message.', envoi: 'Le message n\'a pas pu partir. Écrivez-nous directement à contact@jackcie.fr.' }[status.get('erreur')] || 'Le message n\'a pas pu partir.');
     box.scrollIntoView({ block: 'center' });
 }
+
+// Fenêtre promotionnelle : une fois par visiteur (fermeture retenue 7 jours), jusqu'à la date de fin de l'offre.
+(() => {
+    const box = document.getElementById('promo');
+    if (!box) return;
+    const key = 'jc-promo-' + box.dataset.promo;
+    const until = new Date(box.dataset.until + 'T23:59:59');
+    let seen = 0;
+    try { seen = Number(localStorage.getItem(key) || 0); } catch { /* stockage indisponible */ }
+    if (Date.now() > until.getTime() || Date.now() - seen < 7 * 864e5 || new URLSearchParams(location.search).has('sans-promo')) return;
+    let opener = null;
+    const remember = () => { try { localStorage.setItem(key, String(Date.now())); } catch { /* ignoré */ } };
+    const close = () => {
+        box.classList.remove('open');
+        remember();
+        document.documentElement.style.overflow = '';
+        document.removeEventListener('keydown', onKey);
+        setTimeout(() => { box.hidden = true; }, 300);
+        opener?.focus?.();
+    };
+    const onKey = (e) => {
+        if (e.key === 'Escape') close();
+        if (e.key === 'Tab') { // la tabulation reste dans la fenêtre
+            const f = [...box.querySelectorAll('a[href], button')];
+            const first = f[0], last = f[f.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+    };
+    const open = () => {
+        if (!box.hidden || document.querySelector('.nav.open')) return;
+        opener = document.activeElement;
+        box.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add('open')));
+        box.querySelector('[data-promo-cta]').focus({ preventScroll: true });
+        document.addEventListener('keydown', onKey);
+        window.removeEventListener('scroll', onScroll);
+    };
+    const onScroll = () => { if (window.scrollY > window.innerHeight * 0.6) open(); };
+    box.querySelectorAll('[data-promo-close]').forEach((el) => el.addEventListener('click', close));
+    box.querySelector('[data-promo-cta]').addEventListener('click', remember);
+    // Après quelques secondes de lecture, ou plus tôt si le visiteur fait défiler la page.
+    setTimeout(open, 6000);
+    window.addEventListener('scroll', onScroll, { passive: true });
+})();

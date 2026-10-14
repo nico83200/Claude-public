@@ -19,6 +19,14 @@ APP = 'https://app.jackcie.fr'
 INSTAGRAM = 'https://www.instagram.com/jackcieapp/'
 EMAIL = 'contact@jackcie.fr'
 
+# Fenêtre promotionnelle « Spécial EquitaLyon » : affichée une fois par visiteur jusqu'à la date de fin (incluse).
+# Pour l'arrêter plus tôt : PROMO = None, puis régénérer le site.
+PROMO = {
+    'code': 'EQUITA2026',
+    'url': APP + '/register?code=EQUITA2026&src=site',
+    'until': '2026-11-30',
+}
+
 ICONS = {
     'check': '<path d="M4.5 12.75l6 6 9-13.5"/>',
     'check-circle': '<path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
@@ -135,10 +143,34 @@ def layout(meta, body):
     <div class="footer-bottom"><span>© {{{{year}}}} Jack&amp;Cie — une application NLapps</span><span>Conçue en France, pour les cavaliers.</span></div>
   </div>
 </footer>
+{promo_popup(meta)}
 <script src="/js/site.js?v={VERSION}" defer></script>
 </body>
 </html>
 '''
+
+
+def promo_popup(meta):
+    """Fenêtre promotionnelle (masquée sans JavaScript, jamais sur les pages légales ni le contact)."""
+    if not PROMO or meta.get('nav') == 'contact' or meta.get('noindex') or meta.get('priority') == '0.2':
+        return ''
+    perks = ''.join(f'<li>{icon("check")}{t}</li>' for t in ['Assistant vocal, santé, séances, budget', 'Agenda partagé, fiche d\'urgence, partage', 'Sans carte bancaire, sans engagement'])
+    return f'''<div class="promo" id="promo" data-promo="{PROMO['code']}" data-until="{PROMO['until']}" role="dialog" aria-modal="true" aria-labelledby="promo-title" hidden>
+  <div class="promo-backdrop" data-promo-close></div>
+  <div class="promo-card">
+    <button type="button" class="promo-x" data-promo-close aria-label="Fermer">{icon("x")}</button>
+    <div class="promo-band"><span class="promo-kicker">Offre spéciale salon</span><span class="promo-event">EQUITA<em>LYON</em> 2026</span></div>
+    <div class="promo-body">
+      <img src="/img/brand/jackcie-logo.webp" alt="Jack&amp;Cie" width="150" height="128" class="promo-logo">
+      <p class="promo-title" id="promo-title">30 jours <em>offerts</em></p>
+      <p class="promo-lead"><b>Toutes les fonctionnalités</b>, sans carte bancaire.</p>
+      <div class="promo-code"><span>Votre code</span><b>{PROMO['code']}</b></div>
+      <ul class="promo-perks">{perks}</ul>
+      <a href="{PROMO['url']}" class="btn btn-gold btn-lg promo-cta" data-promo-cta>J'en profite {icon("arrow")}</a>
+      <p class="promo-note">Le code s'active tout seul à la création du compte. Offre valable une fois par compte sur l'offre Propriétaire ; à la fin des 30 jours, sans souscription, le compte passe à l'offre gratuite.</p>
+    </div>
+  </div>
+</div>'''
 
 
 def parse(file):
