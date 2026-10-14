@@ -306,3 +306,16 @@ table.compare { width: 100%; border-collapse: collapse; font-size: 15px; min-wid
 .promo-note { margin: 14px 0 0; font-size: 12.5px; line-height: 1.45; color: #6b736d; }
 @media (max-width: 420px) { .promo-event { font-size: 27px; } .promo-title { font-size: 38px; } .promo-body { padding: 14px 20px 20px; } }
 @media (prefers-reduced-motion: reduce) { .promo-card, .promo-backdrop { transition: none; } }
+
+/* Bandeau permanent de l'offre (toutes les pages, jusqu'à la date de fin) */
+.promo-bar { display: flex; align-items: center; justify-content: center; gap: 10px 18px; flex-wrap: wrap; padding: 9px 20px; background: var(--brand-900); color: rgba(255, 255, 255, .9); font-size: 14.5px; line-height: 1.35; text-decoration: none; text-align: center; position: relative; z-index: 51; }
+.promo-bar[hidden] { display: none; }
+.promo-bar:hover .promo-bar-cta { background: #efe3cc; }
+.promo-bar-event { font-weight: 800; letter-spacing: .06em; color: #fff; font-size: 13.5px; }
+.promo-bar-event em { font-style: normal; color: #d1bb9d; }
+.promo-bar b { color: #fff; }
+.promo-bar-code { display: inline-block; border: 1.5px dashed #d1bb9d; border-radius: 8px; padding: 0 7px; font-weight: 800; letter-spacing: .05em; color: #fff; }
+.promo-bar-cta { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: var(--gold-200); color: var(--brand-900); font-weight: 700; font-size: 13.5px; transition: background .15s; }
+.promo-bar-cta svg { width: 15px; height: 15px; }
+@media (max-width: 760px) { .promo-bar-long { display: none; } .promo-bar { gap: 6px 10px; font-size: 13.5px; padding: 8px 14px; } }
+@media (max-width: 400px) { .promo-bar-event { display: none; } }

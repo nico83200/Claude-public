@@ -53,6 +53,12 @@ if (box && (status.has('envoye') || status.has('erreur'))) {
     box.scrollIntoView({ block: 'center' });
 }
 
+// Bandeau de l'offre : visible sur toutes les pages jusqu'à la date de fin.
+(() => {
+    const bar = document.getElementById('promo-bar');
+    if (bar && Date.now() <= new Date(bar.dataset.until + 'T23:59:59').getTime()) bar.hidden = false;
+})();
+
 // Fenêtre promotionnelle : une fois par visiteur (fermeture retenue 7 jours), jusqu'à la date de fin de l'offre.
 (() => {
     const box = document.getElementById('promo');

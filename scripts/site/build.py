@@ -105,6 +105,7 @@ def layout(meta, body):
 </head>
 <body>
 <a class="skip" href="#contenu">Aller au contenu</a>
+{promo_banner()}
 <header class="header">
   <div class="wrap">
     <a href="/" class="logo" aria-label="Jack&amp;Cie, accueil"><img src="/img/brand/jackcie-wordmark.webp" alt="Jack&amp;Cie" width="130" height="38"></a>
@@ -148,6 +149,17 @@ def layout(meta, body):
 </body>
 </html>
 '''
+
+
+def promo_banner():
+    """Bandeau permanent de l'offre, en haut de toutes les pages, jusqu'à la date de fin (masqué ensuite par le script)."""
+    if not PROMO:
+        return ''
+    return f'''<a class="promo-bar" id="promo-bar" href="{PROMO['url']}" data-until="{PROMO['until']}" hidden>
+  <span class="promo-bar-event">EQUITA<em>LYON</em> 2026</span>
+  <span class="promo-bar-text"><b>30 jours offerts</b><span class="promo-bar-long"> · toutes les fonctionnalités, sans carte bancaire</span> · code <span class="promo-bar-code">{PROMO['code']}</span></span>
+  <span class="promo-bar-cta">J'en profite {icon("arrow")}</span>
+</a>'''
 
 
 def promo_popup(meta):
