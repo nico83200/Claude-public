@@ -217,6 +217,70 @@ class AiFeaturesTest extends TestCase
         $this->assertNull(app(WeeklyDigest::class)->aiIntro($user->fresh(['memberships.organization']), $d));
     }
 
+    public function test_my_week_page_intro_is_written_once_and_only_rewritten_when_the_week_changes(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-14 10:00')); // mercredi
+        [$user, $horse] = $this->setUpUser('multi-chevaux');
+        $event = \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-16 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $fake = $this->fake();
+        $fake->written = 'Uni voit le maréchal vendredi matin.';
+        $writes = fn () => collect($fake->calls)->filter(fn ($c) => isset($c['write']))->count();
+
+        // Premier affichage : la page s'ouvre sans attendre, l'introduction est demandée ensuite.
+        $this->actingAs($user)->get('/ma-semaine')->assertOk()->assertSee('data-digest-intro', false)->assertSee('L\'assistant résume votre semaine', false);
+        $this->assertSame(0, $writes());
+        $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertOk()->assertJson(['text' => 'Uni voit le maréchal vendredi matin.']);
+        $this->assertSame(1, $writes());
+        $this->assertStringNotContainsString('Budget du mois', collect($fake->calls)->last()['write']['prompt']);
+
+        // Rien n'a changé : réaffichée telle quelle, sans nouvel appel.
+        $this->actingAs($user)->get('/ma-semaine')->assertSee('Uni voit le maréchal vendredi matin.');
+        $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Uni voit le maréchal vendredi matin.']);
+        // Une dépense déjà payée (budget du mois seulement) ne compte pas comme un changement de la semaine.
+        \App\Models\Expense::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'amount' => 40, 'spent_on' => '2026-10-10', 'paid_on' => '2026-10-10', 'expense_category_id' => \App\Models\ExpenseCategory::value('id')]);
+        $this->actingAs($user)->postJson('/ma-semaine/introduction');
+        $this->assertSame(1, $writes());
+
+        // Ajout d'un élément : nouvelle rédaction.
+        $fake->written = 'Maréchal vendredi, puis dentiste samedi pour Uni.';
+        $dentist = \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'care', 'title' => 'Dentiste', 'starts_at' => Carbon::parse('2026-10-17 14:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $this->actingAs($user)->get('/ma-semaine')->assertDontSee('Uni voit le maréchal vendredi matin.');
+        $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Maréchal vendredi, puis dentiste samedi pour Uni.']);
+        $this->assertSame(2, $writes());
+
+        // Modification (rendez-vous déplacé) puis suppression : nouvelle rédaction à chaque fois.
+        $event->forceFill(['starts_at' => Carbon::parse('2026-10-18 09:00')])->save();
+        $this->actingAs($user)->postJson('/ma-semaine/introduction');
+        $this->assertSame(3, $writes());
+        $dentist->delete();
+        $this->actingAs($user)->postJson('/ma-semaine/introduction');
+        $this->actingAs($user)->postJson('/ma-semaine/introduction');
+        $this->assertSame(4, $writes());
+
+        // Changement de semaine : nouvelle rédaction.
+        \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $this->travelTo(Carbon::parse('2026-10-21 10:00'));
+        $this->actingAs($user)->postJson('/ma-semaine/introduction');
+        $this->assertSame(5, $writes());
+        $this->assertSame(1, \App\Models\DigestIntro::where('user_id', $user->id)->count());
+
+        // Échec de l'IA : la page reste utilisable, rien n'est mémorisé.
+        $fake->written = null;
+        $event->forceFill(['title' => 'Maréchal (parage)'])->save();
+        \App\Models\CalendarEvent::where('starts_at', '>=', '2026-10-22')->update(['title' => 'Maréchal (parage)']);
+        $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertOk()->assertJson(['text' => null]);
+        $this->actingAs($user)->get('/ma-semaine')->assertOk();
+
+        // Offre sans l'assistant : ni bloc ni appel.
+        $free = $this->user();
+        $other = $this->horseFor($free);
+        \App\Models\CalendarEvent::forceCreate(['organization_id' => $other->organization_id, 'horse_id' => $other->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $free->id]);
+        $before = $writes();
+        $this->actingAs($free)->get('/ma-semaine')->assertOk()->assertDontSee('data-digest-intro', false);
+        $this->actingAs($free)->postJson('/ma-semaine/introduction')->assertJson(['text' => null]);
+        $this->assertSame($before, $writes());
+    }
+
     public function test_assistant_reply_is_spoken_with_elevenlabs(): void
     {
         [$user, $horse] = $this->setUpUser('multi-chevaux');

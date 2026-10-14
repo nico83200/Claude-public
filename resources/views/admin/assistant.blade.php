@@ -32,7 +32,7 @@
                     <x-select name="speech_model" label="Modèle de voix" :options="\App\Services\Assistant\Speaker::MODELS" :value="$speaker->model()" />
                 </div>
                 <div class="mt-4 border-t border-slate-100 pt-4">
-                    <x-checkbox name="digest_ai" label="Récapitulatif du dimanche rédigé par l'assistant" :checked="(bool) (\App\Models\ApplicationSetting::get('digest_ai') ?? true)" help="Introduction personnalisée de 2 à 3 phrases pour les espaces dont l'offre inclut l'assistant (sans décompter de consigne). Sinon, le texte standard est envoyé." />
+                    <x-checkbox name="digest_ai" label="Récapitulatif de la semaine rédigé par l'assistant" :checked="(bool) (\App\Models\ApplicationSetting::get('digest_ai') ?? true)" help="Introduction personnalisée de 2 à 3 phrases, dans l'e-mail du dimanche et en haut de la page « Ma semaine » (rédigée à nouveau seulement quand la semaine change), pour les espaces dont l'offre inclut l'assistant, sans décompter de consigne. Sinon, le texte standard." />
                 </div>
             </x-section>
         </div>

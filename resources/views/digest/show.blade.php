@@ -1,6 +1,24 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; $d = $digest; @endphp
 <x-layouts.app title="Ma semaine">
     <x-page-header title="Ma semaine" :subtitle="'Du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')" />
+    @if ($intro || $introPending)
+        <div class="mb-4 flex gap-3 rounded-3xl border border-brand-100 bg-brand-50/60 p-4 sm:p-5" data-digest-intro
+             x-data="{ text: @js($intro), loading: @js($introPending) }"
+             x-init="if (loading) fetch(@js(route('digest.intro')), { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content } })
+                 .then((r) => r.ok ? r.json() : {}).then((j) => { text = j.text || null }).catch(() => {}).finally(() => { loading = false })"
+             x-show="loading || text" x-cloak>
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-white text-brand-700"><x-icon name="sparkles" class="size-5" /></span>
+            <div class="min-w-0 flex-1 self-center">
+                <p x-show="text" x-text="text" class="text-[15px] leading-relaxed text-slate-800">{{ $intro }}</p>
+                <div x-show="loading" class="space-y-2" aria-live="polite">
+                    <span class="sr-only">L'assistant rédige le résumé de votre semaine…</span>
+                    <span class="block h-3 w-11/12 animate-pulse rounded-full bg-brand-100"></span>
+                    <span class="block h-3 w-3/4 animate-pulse rounded-full bg-brand-100"></span>
+                    <span class="block text-xs text-brand-700/70">L'assistant résume votre semaine…</span>
+                </div>
+            </div>
+        </div>
+    @endif
     @unless ($enabled)
         <p class="mb-4 rounded-2xl bg-slate-100 p-4 text-sm text-slate-600">Le récapitulatif du dimanche soir est désactivé. <a href="{{ route('settings.notifications') }}" class="link">Le réactiver</a></p>
     @endunless

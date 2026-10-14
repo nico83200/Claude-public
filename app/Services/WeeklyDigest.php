@@ -83,7 +83,7 @@ class WeeklyDigest
     }
 
     /** Texte complet (e-mail) : une ligne par élément, regroupé par rubrique. */
-    public function text(array $d): string
+    public function text(array $d, bool $budget = true): string
     {
         $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €';
         $blocks = [];
@@ -99,7 +99,9 @@ class WeeklyDigest
         if ($d['debriefs']->isNotEmpty()) {
             $blocks[] = "**Bilans de séance à faire**\n".$d['debriefs']->map(fn ($s) => '• '.$s->scheduled_at->format('d/m').' – '.$s->title().' ('.$s->horse->shortName().')')->implode("\n");
         }
-        $blocks[] = '**Budget du mois** : '.$eur($d['month_total']).' ('.$d['month_count'].' dépense'.($d['month_count'] > 1 ? 's' : '').').';
+        if ($budget) {
+            $blocks[] = '**Budget du mois** : '.$eur($d['month_total']).' ('.$d['month_count'].' dépense'.($d['month_count'] > 1 ? 's' : '').').';
+        }
 
         return implode("\n\n", $blocks);
     }
@@ -108,15 +110,9 @@ class WeeklyDigest
      * Introduction rédigée par l'assistant (2 à 3 phrases chaleureuses et précises), pour les espaces
      * dont l'offre inclut l'assistant ; null sinon ou en cas d'échec (le récapitulatif part sans).
      */
-    public function aiIntro(User $user, array $d): ?string
+    public function aiIntro(User $user, array $d, bool $budget = true): ?string
     {
-        if (! (\App\Models\ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
-            return null;
-        }
-        $assistant = app(\App\Services\Assistant\AssistantService::class);
-        $entitlements = app(\App\Services\Entitlements::class);
-        $eligible = $assistant->serviceReady() && $user->memberships->contains(fn ($m) => $m->organization && $entitlements->hasFeature($m->organization, 'assistant'));
-        if (! $eligible) {
+        if (! $this->introEligible($user, $d)) {
             return null;
         }
         try {
@@ -124,7 +120,7 @@ class WeeklyDigest
                 'Tu écris l\'introduction du récapitulatif hebdomadaire de Jack&Cie, application de suivi de chevaux. '
                 .'Français, 2 à 3 phrases, ton chaleureux et sobre, tutoiement interdit (vouvoiement). Mets en avant 2 ou 3 points concrets de la semaine (jours, noms des chevaux), '
                 .'sans rien inventer, sans liste, sans mise en forme, sans formule de politesse finale ni avis médical. Ne commence pas par « Bonjour » (la salutation est déjà écrite).',
-                'Prénom : '.(strtok(trim((string) $user->name), ' ') ?: '—').'\nSemaine du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')."\n\n".$this->text($d),
+                'Prénom : '.(strtok(trim((string) $user->name), ' ') ?: '—').'\nSemaine du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')."\n\n".$this->text($d, $budget),
                 400);
 
             return mb_substr(trim($result['text']), 0, 700) ?: null;
@@ -133,5 +129,64 @@ class WeeklyDigest
 
             return null;
         }
+    }
+
+    /** Introduction IA possible : réglage actif, semaine non vide, service prêt et offre avec l'assistant. */
+    public function introEligible(User $user, array $d): bool
+    {
+        if (! (\App\Models\ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
+            return false;
+        }
+        $entitlements = app(\App\Services\Entitlements::class);
+
+        return app(\App\Services\Assistant\AssistantService::class)->serviceReady()
+            && $user->memberships->contains(fn ($m) => $m->organization && $entitlements->hasFeature($m->organization, 'assistant'));
+    }
+
+    /**
+     * Empreinte du contenu de la semaine : change avec la semaine, l'ajout, la suppression ou la modification
+     * (date, heure, titre, montant…) d'un élément. Le budget du mois n'en fait pas partie.
+     */
+    public function fingerprint(array $d): string
+    {
+        return hash('sha256', json_encode([
+            $d['from']->toDateString(),
+            $d['events']->map(fn ($o) => [$o['event']->id, $o['at']->toDateTimeString(), $o['event']->title, (bool) $o['event']->all_day, $o['event']->horse_id])->values(),
+            $d['treatments']->map(fn ($t) => [$t->id, $t->product, $t->ends_on?->toDateString(), $t->horse_id])->values(),
+            $d['payments']->map(fn ($e) => [$e->id, (string) $e->amount, $e->spent_on?->toDateString(), $e->comment, $e->expense_category_id, $e->horse_id])->values(),
+            $d['debriefs']->map(fn ($r) => [$r->id, $r->scheduled_at?->toDateTimeString(), $r->horse_id])->values(),
+        ]));
+    }
+
+    /** Introduction déjà rédigée pour ce contenu exact de la semaine (sans appel à l'IA). */
+    public function cachedPageIntro(User $user, array $d): ?string
+    {
+        return \App\Models\DigestIntro::where('user_id', $user->id)->where('fingerprint', $this->fingerprint($d))->value('text');
+    }
+
+    /**
+     * Introduction de la page « Ma semaine » : réutilisée tant que la semaine n'a pas changé, sinon rédigée
+     * à nouveau (un seul appel à la fois par utilisateur). Pas décomptée des consignes de l'assistant.
+     */
+    public function pageIntro(User $user, array $d): ?string
+    {
+        if (! $this->introEligible($user, $d)) {
+            return null;
+        }
+        if (($cached = $this->cachedPageIntro($user, $d)) !== null) {
+            return $cached;
+        }
+
+        return \Illuminate\Support\Facades\Cache::lock('digest-intro:'.$user->id, 60)->block(45, function () use ($user, $d) {
+            if (($cached = $this->cachedPageIntro($user, $d)) !== null) {
+                return $cached; // rédigée entre-temps par un autre chargement de la page
+            }
+            $text = $this->aiIntro($user, $d, false);
+            if ($text !== null) {
+                \App\Models\DigestIntro::updateOrCreate(['user_id' => $user->id], ['fingerprint' => $this->fingerprint($d), 'text' => $text]);
+            }
+
+            return $text;
+        });
     }
 }
