@@ -14,13 +14,14 @@ ICON = {
  'session': 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z',
  'scale': 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z',
  'wallet': 'M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3',
+ 'qr': 'M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z',
  'share': 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z',
 }
 atouts = [
  ('mic', 'Assistant vocal', '« Le maréchal vient mardi » : c\'est noté.'),
- ('health', 'Santé et rappels', 'Vaccins, vermifuges, maréchal, dentiste.'),
+ ('health', 'Santé et rappels', 'Vaccins, vermifuges, maréchal, poids.'),
  ('session', 'Séances et 125 exercices', 'Préparation, bilan et progression.'),
- ('scale', 'Poids au ruban', 'Courbe de poids et alerte en cas de variation.'),
+ ('qr', 'Fiche d\'urgence', 'Un QR code sur le box : qui appeler, en un scan.'),
  ('wallet', 'Budget et factures', 'Une photo de la facture, c\'est saisi.'),
  ('share', 'Partage', 'Demi-pension, coach, écurie : chacun ses droits.'),
 ]
@@ -96,7 +97,7 @@ h1 em{{font-style:normal;color:#a8875e}}
  <div class="logo"><img src="{b64(ROOT + '/public/brand/jackcie-logo.png')}" alt="Jack&amp;Cie"></div>
  <h1>30 jours <em>offerts</em></h1>
  <p class="lead"><b>Toutes les fonctionnalités</b>, sans carte bancaire.<br>L'application qui réunit toute la vie de votre cheval.</p>
- <section class="mid"><div class="phone"><img src="{b64(SRC + '/ecran.jpg')}" alt=""></div><div class="atouts">{items}</div></section>
+ <section class="mid"><div class="phone"><img src="{b64(HERE + '/ecran.jpg')}" alt=""></div><div class="atouts">{items}</div></section>
  <section class="offer">
   <div><span class="tag">Votre code</span><br><span class="code">{html.escape(CODE)}</span>
    <p class="steps"><b>1.</b> Scannez le QR code &nbsp;<b>2.</b> Créez votre compte<br><b>3.</b> Le code s'active aussitôt : profitez de tout pendant 30 jours</p></div>

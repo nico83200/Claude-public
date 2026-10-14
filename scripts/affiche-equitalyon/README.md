@@ -3,7 +3,7 @@
     pip install segno
     python3 scripts/affiche-equitalyon/build.py [url_inscription] [code]
 
-Par défaut : code `EQUITA2026`, QR code vers `https://jackcie.nlapps.fr/register?code=EQUITA2026&src=affiche`
+Par défaut : code `EQUITA2026`, QR code vers `https://app.jackcie.fr/register?code=EQUITA2026&src=affiche`
 (la page d'inscription retient le code, y compris pour une inscription avec Google ou Apple).
 
 Produit dans `dist/affiche-equitalyon/` :
@@ -11,6 +11,6 @@ Produit dans `dist/affiche-equitalyon/` :
 - `affiche-equitalyon-A5.pdf` : format fini 148 × 210 mm, pour une imprimante de bureau ;
 - `affiche-equitalyon-A5-apercu.png` : aperçu à environ 300 ppp.
 
-Reprend les polices TrueType, le logo NLapps et la capture d'écran de `scripts/affiche/`.
+Reprend les polices TrueType et le logo NLapps de `scripts/affiche/` ; capture d'écran : `ecran.jpg` (accueil de l'app, issue de `site/img/app/mobile-accueil.webp`).
 Le code doit exister dans Administration › Codes promo : type « Accès gratuit pour une durée »,
 offre « Propriétaire » (un cheval, toutes les fonctionnalités), 30 jours.
