@@ -1,0 +1,108 @@
+[
+ {
+  "id": "11-ordonnance",
+  "theme": "light",
+  "k": "Ordonnance en photo",
+  "h": "Photographiez l'ordonnance.<br><em>On s'occupe du reste.</em>",
+  "b": "L'assistant lit le compte rendu du vétérinaire et prépare le soin, les traitements et le contrôle. Vous vérifiez, vous validez.",
+  "img": "cap/ordonnance.png",
+  "points": [
+   "Une photo ou un PDF",
+   "Soin, posologie et date de contrôle pré-remplis",
+   "Rappels des traitements dans l'agenda"
+  ]
+ },
+ {
+  "id": "12-fiche-urgence",
+  "theme": "dark",
+  "k": "Fiche d'urgence",
+  "h": "Un souci au box&nbsp;?<br><em>Un scan suffit.</em>",
+  "b": "Un QR code à coller sur la porte du box : qui appeler, le vétérinaire, les traitements en cours et les précautions. Sans compte, même pour un remplaçant.",
+  "img": "cap/urgence.png",
+  "points": [
+   "Imprimez la fiche en A5",
+   "Collez-la sur le box",
+   "Toujours à jour grâce au QR code"
+  ]
+ },
+ {
+  "id": "13-poids",
+  "theme": "light",
+  "k": "Poids et état corporel",
+  "h": "Son poids,<br><em>enfin suivi.</em>",
+  "b": "Une mesure au ruban ou à la balance, la note d'état corporel, et une courbe qui montre l'évolution. Un rappel quand il est temps de le peser, une alerte si son poids varie brusquement.",
+  "img": "cap/poids.png",
+  "notif": {
+   "t": "Pesée à faire : Uni",
+   "s": "Dernière mesure il y a 4 semaines. Un petit tour de ruban ?",
+   "style": "left:60px;top:1010px"
+  },
+  "points": [
+   "Ruban, balance ou estimation",
+   "Note d'état corporel de 1 à 9"
+  ]
+ },
+ {
+  "id": "14-resume-veterinaire",
+  "theme": "dark",
+  "k": "Résumé pour le vétérinaire",
+  "h": "Son dossier santé,<br><em>envoyé en un SMS.</em>",
+  "b": "Six mois de soins, traitements, poids et observations, sur une page que le vétérinaire ouvre sans créer de compte. Vous choisissez combien de temps le lien reste valable.",
+  "img": "cap/resume-veto.png",
+  "notif": {
+   "from": "Messages · maintenant",
+   "t": "Claire",
+   "s": "Bonjour Docteur, voici le dossier d'Uni avant la visite de jeudi : app.jackcie.fr/resume/…",
+   "style": "left:60px;top:1040px"
+  },
+  "points": [
+   "Par SMS ou par e-mail",
+   "Lien valable 24 h à 3 mois"
+  ]
+ },
+ {
+  "id": "15-plan-seance",
+  "theme": "light",
+  "k": "Plan de séance",
+  "h": "Pas d'idée pour ce soir&nbsp;?<br><em>Demandez un plan.</em>",
+  "b": "Selon votre objectif, la durée, votre galop et les derniers bilans, l'assistant propose une séance complète. Vous gardez les exercices qui vous plaisent.",
+  "img": "cap/plan-seance.png",
+  "points": [
+   "Échauffement, travail, retour au calme",
+   "125 exercices de la bibliothèque",
+   "Ajouté à la séance en un geste"
+  ]
+ },
+ {
+  "id": "16-reponse-vocale",
+  "theme": "dark",
+  "k": "L'assistant vous répond",
+  "h": "Posez la question.<br><em>Écoutez la réponse.</em>",
+  "b": "Les mains prises à l'écurie ? L'assistant lit sa réponse à voix haute, tirée du dossier de votre cheval.",
+  "img": "cap/voix.png",
+  "bubble": {
+   "text": "🎙️ « Combien m'a coûté le maréchal cette année&nbsp;? »",
+   "style": "left:60px;top:760px"
+  },
+  "notif": {
+   "from": "🔊 Réponse lue à voix haute",
+   "t": "380 € pour Uni",
+   "s": "En 4 passages. Le prochain est prévu vers le 20 novembre.",
+   "style": "left:60px;top:960px"
+  }
+ },
+ {
+  "id": "17-parrainage",
+  "theme": "light",
+  "k": "Parrainage",
+  "h": "Invitez un ami,<br><em>gagnez 15 jours.</em>",
+  "b": "Partagez votre lien ou votre QR code depuis le menu Parrainage. Pour chaque ami inscrit, 15 jours de l'offre Propriétaire offerts.",
+  "img": "cap/parrainage.png",
+  "points": [
+   "Lien, QR code ou SMS",
+   "Jours cumulables",
+   "Votre abonnement n'est jamais remplacé"
+  ],
+  "cta": "Créez votre compte · lien en bio"
+ }
+]
