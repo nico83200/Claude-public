@@ -68,9 +68,13 @@ export async function reportState(stateUrl, extra = {}) {
     } catch { return null; }
 }
 
-/** Demande l'autorisation puis abonne l'appareil. Retourne 'granted' | 'denied' | 'default'. */
-export async function subscribe(vapidKey, subscribeUrl) {
-    const permission = await Notification.requestPermission();
+/**
+ * Demande l'autorisation puis abonne l'appareil. Retourne 'granted' | 'denied' | 'default'.
+ * alreadyGranted : autorisation constatée par ailleurs (réglages du téléphone) ; on ne redemande pas,
+ * car Notification.requestPermission() peut encore répondre « denied » dans une page ouverte avant le changement.
+ */
+export async function subscribe(vapidKey, subscribeUrl, alreadyGranted = false) {
+    const permission = alreadyGranted ? 'granted' : await Notification.requestPermission();
     if (permission !== 'granted') return permission;
     const reg = await navigator.serviceWorker.ready;
     let sub = await reg.pushManager.getSubscription();
@@ -81,38 +85,95 @@ export async function subscribe(vapidKey, subscribeUrl) {
     return 'granted';
 }
 
+/** Clé de session (le navigateur peut la refuser : navigation privée, stockage bloqué). */
+const session = {
+    get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { v === null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { /* sans effet */ } },
+};
+
+/**
+ * Autorisation actuelle. Notification.permission peut rester figée sur « denied » dans une page déjà
+ * ouverte quand l'utilisateur autorise ensuite dans les réglages d'Android : l'API Permissions est
+ * consultée aussi, et l'une ou l'autre suffit pour « granted ».
+ */
+export async function notificationPermission() {
+    let queried = null;
+    try { queried = (await navigator.permissions?.query({ name: 'notifications' }))?.state ?? null; } catch { /* non pris en charge */ }
+    if (Notification.permission === 'granted' || queried === 'granted') return 'granted';
+    if (Notification.permission === 'denied' || queried === 'denied') return 'denied';
+    return 'default';
+}
+
 /**
  * Écran plein écran : sur téléphone/tablette (application installée), l'utilisation est bloquée
  * tant que les notifications ne sont pas activées. Jamais de blocage quand c'est impossible
  * (navigateur sans Web Push, ex. iOS < 16.4) : il n'y aurait aucun moyen d'en sortir.
+ * Si l'autorisation reste refusée malgré les réglages (page rechargée comprise), l'utilisateur peut
+ * continuer sans notifications pour la session : l'écran revient au prochain lancement.
  */
 export function pushGateStore({ vapidKey, subscribeUrl, enabled, stateUrl }) {
     return {
         show: false,
         state: 'ask', // ask | denied
         busy: false,
+        stuck: false, // toujours refusé après rechargement : aide détaillée + « continuer sans »
         error: '',
         async init(install) {
             if (!install || !enabled || !install.handheld || !install.installed || !pushSupported() || !vapidKey) return;
+            if (session.get('jc-push-skip')) return;
+            this.stuck = session.get('jc-push-retry') === '1';
             await this.check();
-            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.check(); });
+            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && this.show) this.check(); });
+            try {
+                const status = await navigator.permissions?.query({ name: 'notifications' });
+                if (status) status.onchange = () => this.show && this.check();
+            } catch { /* non pris en charge */ }
+        },
+        done() {
+            this.show = false; this.error = '';
+            session.set('jc-push-retry', null);
+            reportState(stateUrl);
         },
         async check() {
-            try {
-                if (Notification.permission === 'granted' && await syncSubscription(subscribeUrl, vapidKey)) { this.show = false; reportState(stateUrl); return; }
-            } catch { /* service worker indisponible : on redemande */ }
-            this.state = Notification.permission === 'denied' ? 'denied' : 'ask';
+            const permission = await notificationPermission();
+            if (permission === 'granted') {
+                try {
+                    // Autorisation déjà donnée (réglages du téléphone) : abonnement direct, sans autre écran.
+                    if (await syncSubscription(subscribeUrl, vapidKey) || await subscribe(vapidKey, subscribeUrl, true) === 'granted') return this.done();
+                } catch (e) {
+                    this.error = 'Activation impossible : ' + String(e?.message || 'erreur inconnue').replace(/\.$/, '') + '. Vérifiez la connexion puis réessayez.';
+                }
+            }
+            this.state = permission === 'denied' ? 'denied' : 'ask';
             this.show = true;
         },
         async enable() {
             this.busy = true; this.error = '';
             try {
                 const result = await subscribe(vapidKey, subscribeUrl);
-                if (result === 'granted') this.show = false;
+                if (result === 'granted') this.done();
                 else this.state = result === 'denied' ? 'denied' : 'ask';
             } catch (e) {
                 this.error = 'Activation impossible : ' + String(e?.message || 'erreur inconnue').replace(/\.$/, '') + '. Vérifiez la connexion puis réessayez.';
             } finally { this.busy = false; }
+        },
+        /** « C'est fait, continuer » : revérifie ; si rien n'a changé pour la page, elle est rechargée une fois. */
+        async retry() {
+            this.busy = true; this.error = '';
+            try { await this.check(); } finally { this.busy = false; }
+            if (!this.show) return;
+            if (session.get('jc-push-retry') !== '1') {
+                session.set('jc-push-retry', '1');
+                this.busy = true;
+                return location.reload();
+            }
+            if (this.state === 'ask') return this.enable();
+            this.stuck = true;
+            this.error = 'Les notifications sont toujours bloquées pour Jack&Cie. Suivez les étapes ci-dessous, puis réessayez.';
+        },
+        skip() {
+            session.set('jc-push-skip', '1');
+            this.show = false;
         },
     };
 }

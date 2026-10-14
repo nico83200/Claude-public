@@ -44,7 +44,19 @@
                 <ol x-show="! $store.install.isIOS" class="mt-5 space-y-2 rounded-3xl bg-slate-50 p-5 text-left text-sm text-slate-700">
                     <li>1. Appuyez longuement sur l'icône <strong>Jack&Cie</strong> de l'écran d'accueil</li><li>2. Touchez <strong>Infos sur l'appli</strong> (ⓘ), puis <strong>Notifications</strong></li><li>3. Activez <strong>Autoriser les notifications</strong></li>
                 </ol>
-                <button type="button" class="btn-primary big-touch mt-6 w-full" @click="$store.pushGate.check().then(() => { if ($store.pushGate.state === 'ask') $store.pushGate.enable() })">C'est fait, continuer</button>
+                <div x-show="$store.pushGate.stuck && ! $store.install.isIOS" class="mt-3 rounded-3xl bg-amber-50 p-5 text-left text-sm text-slate-700">
+                    <p class="font-semibold text-slate-900">Toujours bloqué ? Autorisez aussi dans Chrome :</p>
+                    <ol class="mt-2 space-y-2">
+                        <li>1. Ouvrez <strong>Chrome</strong>, touchez <strong>⋮</strong> puis <strong>Paramètres</strong></li>
+                        <li>2. <strong>Paramètres des sites</strong> › <strong>Notifications</strong></li>
+                        <li>3. Touchez <strong>app.jackcie.fr</strong> et choisissez <strong>Autoriser</strong></li>
+                    </ol>
+                    <p class="mt-2 text-xs text-slate-500">Revenez ensuite dans Jack&amp;Cie et touchez « C'est fait, continuer ».</p>
+                </div>
+                <button type="button" class="btn-primary big-touch mt-6 w-full" @click="$store.pushGate.retry()" :disabled="$store.pushGate.busy">
+                    <span x-text="$store.pushGate.busy ? 'Vérification…' : 'C\'est fait, continuer'">C'est fait, continuer</span>
+                </button>
+                <button type="button" x-show="$store.pushGate.stuck" class="mt-4 text-sm font-medium text-brand-700 underline-offset-4 hover:underline" @click="$store.pushGate.skip()">Continuer sans notifications pour l'instant</button>
             </div>
         </template>
 
