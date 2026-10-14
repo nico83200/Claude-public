@@ -133,8 +133,7 @@ class AiCreditsAndVoiceTest extends TestCase
         $id = $this->actingAs($user)->postJson('/assistant/consigne', ['text' => 'Maréchal mardi', 'mode' => 'voice'])->json('request_id');
 
         $res = $this->actingAs($user)->get('/assistant/voix/'.$id.'?partie=0')->assertStatus(503)->assertJson(['code' => 'voice_credits']);
-        $this->assertStringContainsString('n\'a plus assez de crédits', $res->json('message'));
-        $this->assertStringNotContainsString('quota of 10000', $res->json('message'), 'Le détail technique reste réservé au super-administrateur.');
+        $this->assertSame('La lecture vocale est momentanément indisponible, elle revient bientôt.', $res->json('message'), 'Message générique, sans détail technique.');
         Notification::assertSentTo($admin, AppNotification::class, fn ($n) => $n->kind === 'system_alert' && str_contains($n->title, 'Crédits ElevenLabs épuisés')
             && str_contains($n->body, 'quota_exceeded') && in_array('mail', $n->via($admin), true));
         Notification::assertNotSentTo($user, AppNotification::class);
@@ -145,7 +144,7 @@ class AiCreditsAndVoiceTest extends TestCase
         // Dictée : même explication, une seule alerte par période de 6 heures.
         Notification::fake();
         $this->actingAs($user)->post('/assistant/transcription', ['audio' => UploadedFile::fake()->create('consigne.webm', 20, 'audio/webm')])
-            ->assertStatus(503)->assertJson(['code' => 'voice_credits'])->assertJsonFragment(['message' => 'Dictée vocale indisponible : le service vocal (ElevenLabs) n\'a plus assez de crédits pour le moment. L\'administrateur de Jack&Cie a été prévenu. Écrivez votre consigne en attendant.']);
+            ->assertStatus(503)->assertJson(['code' => 'voice_credits'])->assertJsonFragment(['message' => 'La dictée vocale est momentanément indisponible, elle revient bientôt. Écrivez votre consigne en attendant.']);
         Notification::assertNothingSent();
     }
 

@@ -74,8 +74,7 @@ class AssistantController extends Controller
             report($e);
             SystemMonitor::voiceCreditsExhausted($e->getMessage());
 
-            return response()->json(['message' => 'Dictée vocale indisponible : '.lcfirst(VoiceCreditsExhausted::USER_MESSAGE).' Écrivez votre consigne en attendant.'
-                .($request->user()->is_super_admin ? ' — '.mb_substr($e->getMessage(), 0, 400) : ''), 'code' => 'voice_credits'], 503);
+            return response()->json(['message' => 'La dictée vocale est momentanément indisponible, elle revient bientôt. Écrivez votre consigne en attendant.', 'code' => 'voice_credits'], 503);
         } catch (Throwable $e) {
             report($e);
             $message = $transcriber->configured() ? 'La transcription a échoué. Réessayez ou écrivez la consigne.' : 'La dictée vocale n\'est pas configurée : écrivez la consigne.';
@@ -139,8 +138,7 @@ class AssistantController extends Controller
         } catch (VoiceCreditsExhausted $e) {
             report($e);
             SystemMonitor::voiceCreditsExhausted($e->getMessage());
-            $error = ['message' => 'Lecture vocale indisponible : '.lcfirst(VoiceCreditsExhausted::USER_MESSAGE).' La réponse reste affichée à l\'écran.'
-                .($request->user()->is_super_admin ? ' — '.mb_substr($e->getMessage(), 0, 400) : ''), 'code' => 'voice_credits'];
+            $error = ['message' => 'La lecture vocale est momentanément indisponible, elle revient bientôt.', 'code' => 'voice_credits'];
             Cache::put('assistant:speech-error:'.$req->uuid, $error, now()->addMinutes(5));
 
             return response()->json($error, 503);
