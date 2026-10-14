@@ -3,8 +3,8 @@
     pip install segno
     python3 scripts/affiche-equitalyon/build.py [url_inscription] [code]
 
-Par défaut : code `EQUITA2026`, QR code vers `https://app.jackcie.fr/register?code=EQUITA2026&src=affiche`
-(la page d'inscription retient le code, y compris pour une inscription avec Google ou Apple).
+Par défaut : code `EQUITA2026`, QR code vers `https://jackcie.fr/?code=EQUITA2026&src=affiche`
+(le site retient le code et la source et les transmet à l'inscription dans l'application, y compris dans l'application installée et pour une inscription avec Google ou Apple).
 
 Produit dans `dist/affiche-equitalyon/` :
 - `affiche-equitalyon-A5-fonds-perdus.pdf` : 154 × 216 mm (A5 + 3 mm de fonds perdus), pour l'imprimeur ;

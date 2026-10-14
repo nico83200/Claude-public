@@ -7,7 +7,7 @@ SRC = os.path.join(HERE, '..', 'affiche')          # polices, logo NLapps, captu
 ROOT = os.path.join(HERE, '..', '..')
 CODE = sys.argv[2] if len(sys.argv) > 2 else 'EQUITA2026'
 INSTAGRAM = 'https://www.instagram.com/jackcieapp/'
-URL = sys.argv[1] if len(sys.argv) > 1 else f'https://app.jackcie.fr/register?code={CODE}&src=affiche'
+URL = sys.argv[1] if len(sys.argv) > 1 else f'https://jackcie.fr/?code={CODE}&src=affiche'
 ICON = {
  'mic': 'M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z',
  'health': 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z',
