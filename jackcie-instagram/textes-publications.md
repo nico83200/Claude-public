@@ -5,7 +5,7 @@ Visuels portrait **1080 × 1440 px (ratio 3:4)** : `jackcie-01-…png` à `jac
 - Format 3:4 : affiché en entier dans le feed et dans la grille du profil, sans recadrage.
 - Marges de sécurité : texte et logo à ≥ 72 px des bords.
 - 5 hashtags maximum par publication (limite Instagram) : les plus pertinents sont conservés.
-- Visuels 3:4 déjà produits : 03, 04, 05, 06, 07 (les autres restent à refaire au même gabarit, voir `source/render.js`).
+- Les 10 visuels sont produits en 3:4 ; pour les régénérer : `node source/render.js .`
 
 ---
 
