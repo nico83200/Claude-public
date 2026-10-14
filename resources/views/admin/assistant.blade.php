@@ -55,7 +55,7 @@
                     @for ($i = 0; $i < 3; $i++)
                         <div class="grid grid-cols-2 gap-3">
                             <x-field :name="'packs['.$i.'][credits]'" type="number" min="0" max="10000" :label="'Pack '.($i + 1).' : crédits'" :value="$packs[$i]['credits'] ?? null" />
-                            <x-field :name="'packs['.$i.'][price]'" type="number" step="0.01" min="0" max="1000" label="Prix TTC (€)" :value="isset($packs[$i]) ? number_format($packs[$i]['price_cents'] / 100, 2, '.', '') : null" />
+                            <x-field :name="'packs['.$i.'][price]'" type="number" step="0.01" min="0" max="1000" label="Prix (€)" :value="isset($packs[$i]) ? number_format($packs[$i]['price_cents'] / 100, 2, '.', '') : null" />
                         </div>
                     @endfor
                 </div>

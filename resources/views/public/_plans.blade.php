@@ -12,7 +12,7 @@
                     @if ($plan->is_default_free || ! $plan->price_monthly)
                         <span class="text-3xl font-extrabold">Gratuit</span>
                     @else
-                        <span class="text-3xl font-extrabold">{{ number_format((float) $plan->price_monthly, 2, ',', ' ') }} €</span><span class="text-sm text-slate-500"> TTC / mois</span>
+                        <span class="text-3xl font-extrabold">{{ number_format((float) $plan->price_monthly, 2, ',', ' ') }} €</span><span class="text-sm text-slate-500"> / mois</span>
                         @if ($plan->price_yearly)<span class="block text-xs text-slate-500">ou {{ number_format((float) $plan->price_yearly, 2, ',', ' ') }} € / an</span>@endif
                     @endif
                 </p>
@@ -26,5 +26,6 @@
             </div>
         @endforeach
     </div>
+    @if (config('equine.vat_notice'))<p class="mt-4 text-center text-xs text-slate-500" data-vat-notice>{{ config('equine.vat_notice') }}</p>@endif
     @endif
 </section>

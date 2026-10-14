@@ -37,4 +37,7 @@ return [
 
     // Lien Instagram affiché en bas du menu.
     'instagram_url' => env('INSTAGRAM_URL', 'https://www.instagram.com/jackcieapp/'),
+
+    // Mention de TVA affichée avec les prix (micro-entreprise en franchise : article 293 B du CGI).
+    'vat_notice' => env('VAT_NOTICE', 'TVA non applicable, article 293 B du CGI.'),
 ];

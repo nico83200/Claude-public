@@ -76,12 +76,12 @@
                             @csrf
                             <input type="hidden" name="pack" value="{{ $i }}">
                             <p class="text-xl font-semibold text-slate-900">{{ $pack['credits'] }} crédits</p>
-                            <p class="text-sm text-slate-600">{{ \App\Services\Assistant\AssistantCredits::price($pack['price_cents']) }} TTC · {{ number_format($pack['price_cents'] / $pack['credits'], 1, ',', ' ') }} cts la consigne</p>
+                            <p class="text-sm text-slate-600">{{ \App\Services\Assistant\AssistantCredits::price($pack['price_cents']) }} · {{ number_format($pack['price_cents'] / $pack['credits'], 1, ',', ' ') }} cts la consigne</p>
                             <button type="submit" class="btn-primary mt-3 w-full" data-ai-credits-buy="{{ $pack['credits'] }}">Acheter</button>
                         </form>
                     @endforeach
                 </div>
-                <p class="mt-2 text-xs text-slate-500">Paiement unique et sécurisé par Stripe, facture envoyée par e-mail. Les crédits sont ajoutés dès la confirmation du paiement.</p>
+                <p class="mt-2 text-xs text-slate-500">Paiement unique et sécurisé par Stripe, facture envoyée par e-mail. {{ config('equine.vat_notice') }} Les crédits sont ajoutés dès la confirmation du paiement.</p>
             @else
                 <p class="mt-4 text-sm text-slate-500">L'achat de crédits IA n'est pas disponible pour le moment.</p>
             @endif
@@ -102,7 +102,8 @@
         $focusLimit = $focus && ! array_key_exists($focus, \App\Models\SubscriptionPlan::FEATURES);
         $unlocks = fn ($plan) => $focus && ($focusLimit ? ($plan->{$focus} === null || $plan->{$focus} > ($ent['limits'][$focus] ?? PHP_INT_MAX)) : in_array($focus, $plan->features ?? [], true));
     @endphp
-    <h2 id="offres" class="mt-8 mb-3 scroll-mt-24 text-lg font-semibold">{{ $subscription ? 'Changer d\'offre' : 'Choisir une offre' }}</h2>
+    <h2 id="offres" class="mt-8 mb-1 scroll-mt-24 text-lg font-semibold">{{ $subscription ? 'Changer d\'offre' : 'Choisir une offre' }}</h2>
+    <p class="mb-3 text-xs text-slate-500" data-vat-notice>Prix en euros. {{ config('equine.vat_notice') }}</p>
     @if ($focus)
         <div class="mb-4 flex items-start gap-3 rounded-2xl bg-gold-50 p-4 text-sm text-slate-700 ring-1 ring-gold-200">
             <x-icon name="sparkles" class="size-5 shrink-0 text-gold-600" />
