@@ -251,13 +251,15 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/assistant/etat', [Controllers\AssistantController::class, 'status'])->name('assistant.status');
     Route::post('/assistant/transcription', [Controllers\AssistantController::class, 'transcribe'])->middleware('throttle:20,1')->name('assistant.transcribe');
     Route::post('/assistant/consigne', [Controllers\AssistantController::class, 'command'])->middleware('throttle:20,1')->name('assistant.command');
-    Route::post('/assistant/voix/{uuid}', [Controllers\AssistantController::class, 'speak'])->whereUuid('uuid')->middleware('throttle:30,1')->name('assistant.speak');
+    Route::match(['get', 'post'], '/assistant/voix/{uuid}', [Controllers\AssistantController::class, 'speak'])->whereUuid('uuid')->middleware('throttle:90,1')->name('assistant.speak');
     Route::post('/assistant/actions/{action}/annuler', [Controllers\AssistantController::class, 'undo'])->name('assistant.undo');
 
     Route::get('/abonnement', [Controllers\BillingController::class, 'index'])->name('billing.index');
     Route::post('/abonnement/souscrire', [Controllers\BillingController::class, 'checkout'])->name('billing.checkout');
     Route::post('/abonnement/code', [Controllers\BillingController::class, 'redeem'])->middleware('throttle:10,1')->name('billing.redeem');
     Route::get('/abonnement/retour', [Controllers\BillingController::class, 'returned'])->name('billing.return');
+    Route::post('/abonnement/credits-ia', [Controllers\BillingController::class, 'buyCredits'])->middleware('throttle:10,1')->name('billing.credits.buy');
+    Route::get('/abonnement/credits-ia/retour', [Controllers\BillingController::class, 'creditsReturned'])->name('billing.credits.return');
     Route::post('/abonnement/portail', [Controllers\BillingController::class, 'portal'])->name('billing.portal');
     Route::post('/abonnement/changer', [Controllers\BillingController::class, 'swap'])->name('billing.swap');
     Route::post('/abonnement/resilier', [Controllers\BillingController::class, 'cancel'])->name('billing.cancel');

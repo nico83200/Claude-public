@@ -6,9 +6,13 @@ use App\Models\AssistantAction;
 use App\Models\AssistantRequest;
 use App\Services\Assistant\AssistantService;
 use App\Services\Assistant\AssistantUndo;
+use App\Services\Assistant\Speaker;
 use App\Services\Assistant\Transcriber;
+use App\Services\Assistant\VoiceCreditsExhausted;
+use App\Services\SystemMonitor;
 use App\Services\Upsell;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 use Throwable;
 
@@ -21,21 +25,36 @@ class AssistantController extends Controller
     {
         $org = $this->currentOrganization();
         $reason = $this->assistant->unavailableReason($org);
-        $offer = null;
+        $offer = $exhausted = null;
         // On ne vante l'assistant que s'il fonctionne réellement sur cette instance.
         if ($reason && $this->assistant->serviceReady()) {
             $upsells = app(Upsell::class);
-            $offer = $upsells->for($org, $request->user(), 'assistant')
-                ?? ($this->assistant->remaining($org) === 0 ? $upsells->for($org, $request->user(), 'assistant_monthly') : null);
+            $offer = $upsells->for($org, $request->user(), 'assistant');
+            // Solde IA épuisé : explication, achat de crédits et, à défaut, offre supérieure.
+            if (! $offer && $this->assistant->remaining($org) === 0) {
+                $credits = app(\App\Services\Assistant\AssistantCredits::class);
+                $packs = $credits->purchasable() ? \App\Services\Assistant\AssistantCredits::packs() : [];
+                $more = $upsells->for($org, $request->user(), 'assistant_monthly');
+                $exhausted = [
+                    'title' => 'Solde IA épuisé',
+                    'text' => 'Les '.$this->entitlements()->limit($org, 'assistant_monthly').' consignes IA comprises dans votre offre ont été utilisées ce mois-ci. Le quota se renouvelle le 1er '.now()->addMonthNoOverflow()->startOfMonth()->translatedFormat('F').'.',
+                    'can_buy' => $credits->canBuy($org, $request->user()),
+                    'buy_url' => route('billing.index').'#credits-ia',
+                    'from' => $packs ? 'À partir de '.\App\Services\Assistant\AssistantCredits::price($packs[0]['price_cents']).' les '.$packs[0]['credits'].' crédits, sans abonnement supplémentaire.' : null,
+                    'note' => $packs && ! $credits->canBuy($org, $request->user()) ? 'Demandez à la personne qui gère l\'abonnement de l\'espace '.$org->name.' d\'acheter des crédits IA.' : null,
+                    'upgrade' => $more && $more['can_upgrade'] ? ['url' => $more['url'], 'label' => 'Ou passer à l\'offre '.$more['plan']->name] : null,
+                ];
+            }
         }
 
         return response()->json([
             'available' => ! $reason,
             'reason' => $reason,
+            'exhausted' => $exhausted,
             'upsell' => $offer ? ['plan' => $offer['plan']->name, 'title' => $offer['title'], 'text' => $offer['text'], 'note' => $offer['note'],
                 'url' => $offer['can_upgrade'] ? $offer['url'] : null, 'cta' => $offer['cta'], 'trial' => $offer['trial_days'] > 0] : null,
             'voice' => $transcriber->configured(),
-            'speech' => app(\App\Services\Assistant\Speaker::class)->configured(),
+            'speech' => app(Speaker::class)->configured(),
             'remaining' => $this->assistant->remaining($org),
         ]);
     }
@@ -51,6 +70,12 @@ class AssistantController extends Controller
         abort_unless(str_starts_with($mime, 'audio/') || str_starts_with($mime, 'video/') || $mime === 'application/octet-stream', 422, 'Format audio non reconnu.');
         try {
             $text = $transcriber->transcribe($request->file('audio'));
+        } catch (VoiceCreditsExhausted $e) {
+            report($e);
+            SystemMonitor::voiceCreditsExhausted($e->getMessage());
+
+            return response()->json(['message' => 'Dictée vocale indisponible : '.lcfirst(VoiceCreditsExhausted::USER_MESSAGE).' Écrivez votre consigne en attendant.'
+                .($request->user()->is_super_admin ? ' — '.mb_substr($e->getMessage(), 0, 400) : ''), 'code' => 'voice_credits'], 503);
         } catch (Throwable $e) {
             report($e);
             $message = $transcriber->configured() ? 'La transcription a échoué. Réessayez ou écrivez la consigne.' : 'La dictée vocale n\'est pas configurée : écrivez la consigne.';
@@ -92,21 +117,40 @@ class AssistantController extends Controller
         ]);
     }
 
-    /** Réponse d'une consigne lue à voix haute (ElevenLabs), mise en cache 30 minutes. */
-    public function speak(Request $request, string $uuid, \App\Services\Assistant\Speaker $speaker)
+    /**
+     * Réponse d'une consigne lue à voix haute (ElevenLabs), morceau par morceau : la première phrase,
+     * courte, arrive vite et se joue pendant que la suite est générée. Chaque morceau est mis en cache 30 minutes.
+     */
+    public function speak(Request $request, string $uuid, Speaker $speaker)
     {
         abort_unless($speaker->configured(), 404);
-        $req = \App\Models\AssistantRequest::where('uuid', $uuid)->where('user_id', $request->user()->id)->firstOrFail();
-        abort_if(trim((string) $req->reply) === '', 404);
+        $req = AssistantRequest::where('uuid', $uuid)->where('user_id', $request->user()->id)->firstOrFail();
+        $parts = $speaker->parts((string) $req->reply);
+        $part = (int) $request->query('partie', 0);
+        abort_if(! isset($parts[$part]), 404);
+        $headers = ['Content-Type' => 'audio/mpeg', 'Cache-Control' => 'private, max-age=1800', 'X-Speech-Parts' => (string) count($parts)];
+        $key = 'assistant:speech:'.$req->uuid.':'.$part;
+        // Erreur récente : réponse immédiate, sans nouvel appel à ElevenLabs.
+        if ($error = Cache::get('assistant:speech-error:'.$req->uuid)) {
+            return response()->json($error, 503);
+        }
         try {
-            $audio = \Illuminate\Support\Facades\Cache::remember('assistant:speech:'.$req->uuid, now()->addMinutes(30), fn () => base64_encode($speaker->speak($req->reply)));
+            $audio = Cache::remember($key, now()->addMinutes(30), fn () => base64_encode($speaker->speak($parts[$part], $parts[$part - 1] ?? '', $parts[$part + 1] ?? '')));
+        } catch (VoiceCreditsExhausted $e) {
+            report($e);
+            SystemMonitor::voiceCreditsExhausted($e->getMessage());
+            $error = ['message' => 'Lecture vocale indisponible : '.lcfirst(VoiceCreditsExhausted::USER_MESSAGE).' La réponse reste affichée à l\'écran.'
+                .($request->user()->is_super_admin ? ' — '.mb_substr($e->getMessage(), 0, 400) : ''), 'code' => 'voice_credits'];
+            Cache::put('assistant:speech-error:'.$req->uuid, $error, now()->addMinutes(5));
+
+            return response()->json($error, 503);
         } catch (RuntimeException $e) {
             report($e);
 
-            return response()->json(['message' => $request->user()->is_super_admin ? $e->getMessage() : 'Lecture vocale indisponible.'], 503);
+            return response()->json(['message' => $request->user()->is_super_admin ? $e->getMessage() : 'Lecture vocale indisponible pour le moment.'], 503);
         }
 
-        return response(base64_decode($audio), 200, ['Content-Type' => 'audio/mpeg', 'Cache-Control' => 'private, max-age=1800']);
+        return response(base64_decode($audio), 200, $headers);
     }
 
     public function undo(Request $request, AssistantAction $action, AssistantUndo $undo)

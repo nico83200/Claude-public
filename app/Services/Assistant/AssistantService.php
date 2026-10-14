@@ -49,7 +49,8 @@ class AssistantService
             ! $this->config->enabled() => 'L\'assistant est désactivé sur cette instance.',
             ! $this->claude->configured() => 'L\'assistant n\'est pas encore configuré (clé Anthropic manquante).',
             ! $this->entitlements->hasFeature($org, 'assistant') => 'L\'assistant vocal n\'est pas inclus dans l\'offre de l\'espace '.$org->name.'.',
-            $this->remaining($org) === 0 => 'Quota mensuel de consignes atteint pour l\'espace '.$org->name.'. Il se renouvelle le 1er du mois.',
+            $this->remaining($org) === 0 => 'Solde IA épuisé pour l\'espace '.$org->name.' : le quota de consignes de votre offre est atteint pour ce mois-ci. Il se renouvelle le 1er du mois'
+                .(app(AssistantCredits::class)->purchasable() ? ' ; d\'ici là, vous pouvez acheter des crédits IA supplémentaires (Abonnement › Crédits IA).' : '.'),
             default => null,
         };
     }
@@ -62,7 +63,21 @@ class AssistantService
             return null;
         }
 
-        return max(0, $limit - $this->usedThisMonth($org));
+        return max(0, $limit - $this->usedThisMonth($org)) + $this->credits($org);
+    }
+
+    /** Crédits IA achetés et pas encore utilisés. */
+    public function credits(Organization $org): int
+    {
+        return (int) Organization::whereKey($org->id)->value('assistant_credits');
+    }
+
+    /** Consignes du quota mensuel de l'offre restantes (null = illimité), sans les crédits achetés. */
+    public function monthlyRemaining(Organization $org): ?int
+    {
+        $limit = $this->entitlements->limit($org, 'assistant_monthly');
+
+        return $limit === null ? null : max(0, $limit - $this->usedThisMonth($org));
     }
 
     public function usedThisMonth(Organization $org): int

@@ -54,6 +54,9 @@ class AssistantSettingsController extends Controller
             'speech_model' => ['nullable', Rule::in(array_keys(\App\Services\Assistant\Speaker::MODELS))],
             'anthropic_key' => ['nullable', 'string', 'max:255', 'regex:/^sk-ant-/'],
             'elevenlabs_key' => ['nullable', 'string', 'max:255'],
+            'packs' => ['array', 'max:3'],
+            'packs.*.credits' => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'packs.*.price' => ['nullable', 'numeric', 'min:0.5', 'max:1000'],
             'clear' => ['array'], 'clear.*' => [Rule::in(['anthropic.key', 'elevenlabs.key'])],
         ], ['voice_id.regex' => 'Identifiant de voix ElevenLabs invalide (lettres et chiffres).', 'anthropic_key.regex' => 'La clé Anthropic commence par sk-ant-.', 'session_max.gte' => 'La durée maximale doit être supérieure ou égale à la durée minimale.']);
 
@@ -66,6 +69,12 @@ class AssistantSettingsController extends Controller
         ApplicationSetting::put('assistant.voice_id', $data['voice_id'] ?? null);
         ApplicationSetting::put('assistant.speech_model', $data['speech_model'] ?? null);
         ApplicationSetting::put('digest_ai', $request->boolean('digest_ai'));
+        if ($request->has('packs')) {
+            ApplicationSetting::put(\App\Services\Assistant\AssistantCredits::ENABLED_KEY, $request->boolean('credits_enabled'));
+            ApplicationSetting::put(\App\Services\Assistant\AssistantCredits::PACKS_KEY, collect($data['packs'] ?? [])
+                ->filter(fn ($p) => filled($p['credits'] ?? null) && filled($p['price'] ?? null))
+                ->map(fn ($p) => ['credits' => (int) $p['credits'], 'price_cents' => (int) round((float) $p['price'] * 100)])->values()->all());
+        }
         $settings->save(['anthropic.key' => $data['anthropic_key'] ?? null, 'elevenlabs.key' => $data['elevenlabs_key'] ?? null], $data['clear'] ?? []);
         Audit::log('admin.assistant_settings_updated', null, ['model' => $data['model'], 'effort' => $data['effort'], 'keys_changed' => array_keys(array_filter(['anthropic' => $data['anthropic_key'] ?? null, 'elevenlabs' => $data['elevenlabs_key'] ?? null]))]);
 

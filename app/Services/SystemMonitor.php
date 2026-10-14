@@ -112,6 +112,22 @@ class SystemMonitor
         rescue(fn () => app(self::class)->check(), null, true);
     }
 
+    /**
+     * ElevenLabs a refusé une demande faute de crédits : les super-administrateurs sont prévenus
+     * (notification + e-mail), au plus une fois toutes les 6 heures.
+     */
+    public static function voiceCreditsExhausted(string $detail): bool
+    {
+        if (! self::enabled()) {
+            return false;
+        }
+
+        return (bool) rescue(fn () => app(self::class)->alert('elevenlabs_credits', 'Crédits ElevenLabs épuisés',
+            'ElevenLabs refuse les demandes faute de crédits : la dictée et la lecture vocale de l\'assistant sont indisponibles pour les utilisateurs (l\'assistant reste utilisable par écrit).'
+            ."\n\nDétail : ".mb_substr($detail, 0, 400)
+            ."\n\nRechargez le compte ou changez d'abonnement sur elevenlabs.io (Subscription), puis vérifiez avec « Tester la voix » dans Administration › Assistant IA."), false, true);
+    }
+
     private function alert(string $key, string $title, string $body): bool
     {
         if (! Cache::add('monitor:alert:'.$key, true, now()->addHours(self::SILENCE_HOURS))) {

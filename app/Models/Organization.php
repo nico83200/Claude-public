@@ -10,7 +10,7 @@ class Organization extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded = ['id', 'suspended_at', 'suspension_reason'];
+    protected $guarded = ['id', 'suspended_at', 'suspension_reason', 'assistant_credits'];
 
     protected $casts = ['settings' => 'array', 'suspended_at' => 'datetime', 'is_demo' => 'boolean'];
 

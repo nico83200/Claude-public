@@ -32,7 +32,11 @@ async function postJson(url, body) {
         body: JSON.stringify(body ?? {}),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || (res.status === 429 ? 'Trop de consignes d\'affilée : patientez une minute.' : 'Le service est momentanément indisponible.'));
+    if (!res.ok) {
+        const err = new Error(data.message || (res.status === 429 ? 'Trop de consignes d\'affilée : patientez une minute.' : 'Le service est momentanément indisponible.'));
+        err.status = res.status;
+        throw err;
+    }
     return data;
 }
 
@@ -62,6 +66,7 @@ export function assistantStore(config) {
         closeIn: 0,     // secondes avant fermeture automatique de la réponse
         changed: false,
         speaking: false,
+        speechError: '',
         pending: 0,     // consignes notées hors connexion, en attente d'envoi
         queued: false,  // la dernière consigne a été mise en attente
         _flushing: false,
@@ -154,26 +159,56 @@ export function assistantStore(config) {
             } catch { /* ignoré */ }
         },
 
+        /**
+         * Lecture à voix haute, morceau par morceau : la première phrase (courte) est demandée dès
+         * l'arrivée de la réponse et jouée aussitôt ; les suivantes sont préparées pendant la lecture.
+         */
         async speak(requestId) {
             if (!this.status?.speech || !requestId || !this.speechOn()) return false;
+            const token = (this._speechToken = (this._speechToken || 0) + 1);
+            const urls = [];
+            const fetchPart = (k) => {
+                urls[k] ??= fetch(config.speakUrl + '/' + requestId + '?partie=' + k, { headers: { Accept: 'audio/mpeg, application/json' } })
+                    .then(async (res) => {
+                        if (!res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            throw Object.assign(new Error(data.message || 'Lecture vocale indisponible pour le moment.'), { code: data.code, server: true });
+                        }
+                        return { url: URL.createObjectURL(await res.blob()), parts: parseInt(res.headers.get('X-Speech-Parts') || '1', 10) };
+                    });
+                return urls[k];
+            };
+            this.speechError = '';
+            this._audio ??= new Audio();
+            const audio = this._audio;
             try {
-                const res = await fetch(config.speakUrl + '/' + requestId, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf() } });
-                if (!res.ok) return false;
-                const url = URL.createObjectURL(await res.blob());
-                this._audio ??= new Audio();
-                this._audio.muted = false;
-                this._audio.src = url;
-                this.speaking = true;
-                this._audio.onended = this._audio.onerror = () => { this.speaking = false; URL.revokeObjectURL(url); if (this.state === 'result') this.startCountdown(); };
-                await this._audio.play();
-                return true;
-            } catch {
+                let { url, parts } = await fetchPart(0);
+                for (let k = 0; k < parts; k++) {
+                    if (token !== this._speechToken) return false;
+                    if (k + 1 < parts) fetchPart(k + 1).catch(() => {}); // préparée pendant la lecture
+                    if (k > 0) ({ url } = await fetchPart(k));
+                    audio.muted = false;
+                    audio.src = url;
+                    this.speaking = true;
+                    const ended = new Promise((resolve) => { audio.onended = audio.onerror = audio.onpause = resolve; });
+                    await audio.play();
+                    await ended;
+                    URL.revokeObjectURL(url);
+                    if (audio.paused && !audio.ended) break; // lecture arrêtée par l'utilisateur
+                }
                 this.speaking = false;
+                if (token === this._speechToken && this.state === 'result') this.startCountdown();
+                return true;
+            } catch (e) {
+                this.speaking = false;
+                // Message technique utile (ex. crédits du service vocal épuisés) ; les autres échecs restent discrets.
+                if (e?.server) this.speechError = e.message;
                 return false;
             }
         },
 
         stopSpeech() {
+            this._speechToken = (this._speechToken || 0) + 1;
             if (this._audio) { this._audio.pause(); }
             this.speaking = false;
         },
@@ -209,6 +244,7 @@ export function assistantStore(config) {
             this.draft = '';
             this.reply = '';
             this.error = '';
+            this.speechError = '';
             this.actions = [];
             this.question = null;
             if (!keepConversation) this.conversationId = null;
@@ -417,9 +453,11 @@ export function assistantStore(config) {
                 }
                 // Lecture à voix haute : la fermeture automatique attend la fin de la lecture.
                 const spoken = this.state !== 'error' && await this.speak(data.request_id);
-                if (this.state === 'result' && !spoken) this.startCountdown();
+                if (this.state === 'result' && !spoken && !this.speechError) this.startCountdown();
             } catch (e) {
                 this.fail(e.message);
+                // Solde IA épuisé ou assistant devenu indisponible : le panneau affiche l'explication.
+                if (e.status === 403) await this.loadStatus();
             }
         },
 

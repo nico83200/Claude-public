@@ -57,6 +57,47 @@
         </details>
     @endunless
 
+    @if ($aiCredits)
+        <section id="credits-ia" class="card mt-8 scroll-mt-24 p-5" data-ai-credits>
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2 class="flex items-center gap-2 text-lg font-semibold"><x-icon name="sparkles" class="size-5 text-gold-600" /> Crédits IA</h2>
+                    <p class="mt-1 text-sm text-slate-600">1 crédit = 1 consigne de l'assistant ou 1 lecture IA (facture, ordonnance, plan de séance, résumé). Les crédits servent une fois le quota mensuel de votre offre épuisé et n'expirent pas.</p>
+                </div>
+                <div class="text-right text-sm">
+                    <p><span class="text-2xl font-semibold text-slate-900" data-ai-credits-balance>{{ $aiCredits['balance'] }}</span> crédit{{ $aiCredits['balance'] > 1 ? 's' : '' }} acheté{{ $aiCredits['balance'] > 1 ? 's' : '' }}</p>
+                    @if ($aiCredits['limit'] !== null)<p class="text-slate-500">Quota de l'offre : {{ $aiCredits['monthly'] }} / {{ $aiCredits['limit'] }} restant ce mois-ci</p>@else<p class="text-slate-500">Consignes illimitées avec votre offre</p>@endif
+                </div>
+            </div>
+            @if ($aiCredits['packs'])
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    @foreach ($aiCredits['packs'] as $i => $pack)
+                        <form method="POST" action="{{ route('billing.credits.buy') }}" class="flex flex-col rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+                            @csrf
+                            <input type="hidden" name="pack" value="{{ $i }}">
+                            <p class="text-xl font-semibold text-slate-900">{{ $pack['credits'] }} crédits</p>
+                            <p class="text-sm text-slate-600">{{ \App\Services\Assistant\AssistantCredits::price($pack['price_cents']) }} TTC · {{ number_format($pack['price_cents'] / $pack['credits'], 1, ',', ' ') }} cts la consigne</p>
+                            <button type="submit" class="btn-primary mt-3 w-full" data-ai-credits-buy="{{ $pack['credits'] }}">Acheter</button>
+                        </form>
+                    @endforeach
+                </div>
+                <p class="mt-2 text-xs text-slate-500">Paiement unique et sécurisé par Stripe, facture envoyée par e-mail. Les crédits sont ajoutés dès la confirmation du paiement.</p>
+            @else
+                <p class="mt-4 text-sm text-slate-500">L'achat de crédits IA n'est pas disponible pour le moment.</p>
+            @endif
+            @if ($aiCredits['purchases']->isNotEmpty())
+                <details class="mt-4 text-sm">
+                    <summary class="cursor-pointer text-slate-600">Achats de crédits</summary>
+                    <ul class="mt-2 divide-y divide-slate-100">
+                        @foreach ($aiCredits['purchases'] as $p)
+                            <li class="flex justify-between py-1.5"><span>{{ $p->paid_at?->format('d/m/Y') }} · {{ $p->credits }} crédits</span><span>{{ \App\Services\Assistant\AssistantCredits::price($p->amount_cents) }}</span></li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endif
+        </section>
+    @endif
+
     @php
         $focusLimit = $focus && ! array_key_exists($focus, \App\Models\SubscriptionPlan::FEATURES);
         $unlocks = fn ($plan) => $focus && ($focusLimit ? ($plan->{$focus} === null || $plan->{$focus} > ($ent['limits'][$focus] ?? PHP_INT_MAX)) : in_array($focus, $plan->features ?? [], true));

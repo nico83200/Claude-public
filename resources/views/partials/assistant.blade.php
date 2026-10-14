@@ -25,11 +25,28 @@
 
             <div class="flex-1 overflow-y-auto px-6 pt-4 pb-6">
                 {{-- Indisponible --}}
-                <template x-if="a.status && ! a.status.available && ! a.status.upsell">
+                {{-- Solde IA épuisé : explication et achat de crédits --}}
+                <template x-if="a.status && ! a.status.available && a.status.exhausted">
+                    <div class="flex flex-col items-center py-2 text-center" data-ai-exhausted>
+                        <span class="flex size-20 items-center justify-center rounded-full bg-gold-50 text-gold-600 ring-1 ring-gold-200"><x-icon name="sparkles" class="size-9" /></span>
+                        <p class="mt-4 text-xl font-semibold text-slate-900" x-text="a.status.exhausted.title"></p>
+                        <p class="mt-2 text-[15px] text-slate-600" x-text="a.status.exhausted.text"></p>
+                        <p class="mt-3 w-full rounded-2xl bg-slate-50 px-4 py-3 text-left text-sm text-slate-700">Sans attendre, ajoutez des <strong>crédits IA</strong> : chaque crédit permet une consigne à l'assistant ou une lecture IA (facture, ordonnance, plan de séance). Ils ne servent qu'une fois le quota du mois épuisé et n'expirent pas.</p>
+                        <template x-if="a.status.exhausted.can_buy">
+                            <div class="mt-5 w-full">
+                                <a :href="a.status.exhausted.buy_url" class="btn-primary w-full" data-ai-credits-cta>Acheter des crédits IA</a>
+                                <p class="mt-2 text-xs text-slate-500" x-show="a.status.exhausted.from" x-text="a.status.exhausted.from"></p>
+                            </div>
+                        </template>
+                        <p class="mt-4 text-xs text-slate-500" x-show="a.status.exhausted.note" x-text="a.status.exhausted.note"></p>
+                        <template x-if="a.status.exhausted.upgrade"><a :href="a.status.exhausted.upgrade.url" class="btn-ghost mt-2 text-sm" x-text="a.status.exhausted.upgrade.label"></a></template>
+                    </div>
+                </template>
+                <template x-if="a.status && ! a.status.available && ! a.status.upsell && ! a.status.exhausted">
                     <div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-700" x-text="a.status.reason"></div>
                 </template>
                 {{-- Non inclus dans l'offre : proposition d'offre supérieure --}}
-                <template x-if="a.status && ! a.status.available && a.status.upsell">
+                <template x-if="a.status && ! a.status.available && a.status.upsell && ! a.status.exhausted">
                     <div class="flex flex-col items-center py-2 text-center" data-upsell="assistant">
                         <span class="flex size-20 items-center justify-center rounded-full bg-brand-900 text-gold-200 shadow-[var(--shadow-float)]"><x-icon name="mic" class="size-9" /></span>
                         <p class="mt-4 text-xs font-semibold tracking-wide text-gold-600 uppercase" x-text="'Offre ' + a.status.upsell.plan"></p>
@@ -97,6 +114,7 @@
                                     <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700"><x-icon name="sparkles" class="size-5" /></span>
                                     <p class="pt-1.5 text-[16px] leading-relaxed text-slate-900" x-text="a.reply"></p>
                                 </div>
+                                <p x-show="a.speechError" x-cloak class="mt-3 ml-12 flex gap-2 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200" data-speech-error><x-icon name="alert" class="size-4 shrink-0" /><span x-text="a.speechError"></span></p>
                                 <div class="mt-4 space-y-2" x-show="a.actions.length">
                                     <template x-for="act in a.actions" :key="act.id">
                                         <div class="flex items-center gap-3 rounded-2xl bg-slate-50 p-3" :class="act.undone && 'opacity-50'">

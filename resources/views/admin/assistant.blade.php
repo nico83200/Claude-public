@@ -48,6 +48,19 @@
                     </div>
                 </div>
             </x-section>
+            <x-section title="Crédits IA" data-credit-settings>
+                @php $packs = \App\Services\Assistant\AssistantCredits::packs(); @endphp
+                <x-checkbox name="credits_enabled" label="Vendre des crédits IA" :checked="\App\Services\Assistant\AssistantCredits::enabled()" help="Quand le quota mensuel d'un espace est épuisé, l'assistant propose d'acheter des crédits (1 crédit = 1 consigne ou 1 lecture IA). Paiement unique par Stripe ; les crédits n'expirent pas." />
+                <div class="mt-3 space-y-2">
+                    @for ($i = 0; $i < 3; $i++)
+                        <div class="grid grid-cols-2 gap-3">
+                            <x-field :name="'packs['.$i.'][credits]'" type="number" min="0" max="10000" :label="'Pack '.($i + 1).' : crédits'" :value="$packs[$i]['credits'] ?? null" />
+                            <x-field :name="'packs['.$i.'][price]'" type="number" step="0.01" min="0" max="1000" label="Prix TTC (€)" :value="isset($packs[$i]) ? number_format($packs[$i]['price_cents'] / 100, 2, '.', '') : null" />
+                        </div>
+                    @endfor
+                </div>
+                <p class="mt-2 text-xs text-slate-500">Laissez une ligne vide pour ne pas proposer ce pack. Prix minimum 0,50 € (Stripe).</p>
+            </x-section>
             <x-section title="Clés d'accès">
                 <div class="space-y-3">
                     <div>

@@ -46,6 +46,7 @@ class BillingController extends Controller
             'cancelled' => $request->boolean('annule'),
             // Arrivée depuis une proposition d'offre supérieure : fonction ou limite à mettre en avant.
             'focus' => array_key_exists((string) $request->query('fonction'), Upsell::PITCHES) ? (string) $request->query('fonction') : null,
+            'aiCredits' => $this->aiCredits($org),
             'trialAvailable' => ! License::where('organization_id', $org->id)->where('source', 'stripe')->exists(),
         ]);
     }
@@ -69,6 +70,44 @@ class BillingController extends Controller
 
             return back()->with('error', 'Le service de paiement est momentanément indisponible. Réessayez plus tard.');
         }
+    }
+
+    /** Achat d'un pack de crédits IA : paiement unique sur Stripe Checkout. */
+    public function buyCredits(Request $request, \App\Services\Assistant\AssistantCredits $credits)
+    {
+        $org = $this->currentOrganization();
+        $this->authorizeOrg($org, Perm::BILLING_MANAGE);
+        abort_unless($credits->purchasable(), 503, 'L\'achat de crédits IA n\'est pas disponible.');
+        $data = $request->validate(['pack' => ['required', 'integer', 'min:0']]);
+
+        try {
+            return redirect()->away($credits->checkout($org, $request->user(), (int) $data['pack']));
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Le service de paiement est momentanément indisponible. Réessayez plus tard.');
+        }
+    }
+
+    /** Retour de Stripe après l'achat de crédits : la session est relue chez Stripe, jamais crue sur parole. */
+    public function creditsReturned(Request $request, \App\Services\Assistant\AssistantCredits $credits)
+    {
+        $org = $this->currentOrganization();
+        $this->authorizeOrg($org, Perm::BILLING_MANAGE);
+        $sessionId = (string) $request->query('session_id');
+        if (str_starts_with($sessionId, 'cs_') && $this->stripe->configured()) {
+            try {
+                if ($purchase = $credits->confirm($org, $sessionId)) {
+                    return redirect()->to(route('billing.index').'#credits-ia')->with('success', 'Merci ! '.$purchase->credits.' crédits IA ont été ajoutés à votre espace.');
+                }
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
+        return redirect()->to(route('billing.index').'#credits-ia')->with('status', 'Merci ! Votre paiement est en cours de confirmation par Stripe : les crédits IA seront ajoutés dès sa réception (quelques secondes en général).');
     }
 
     /** Active un code d'accès gratuit (licence offerte pour une durée, sans paiement). */
@@ -178,5 +217,23 @@ class BillingController extends Controller
             report($e);
             abort(back()->with('error', 'Le service de paiement est momentanément indisponible.'));
         }
+    }
+
+    /** Bloc « Crédits IA » de la page Abonnement (null si l'offre n'inclut pas l'assistant). */
+    private function aiCredits(\App\Models\Organization $org): ?array
+    {
+        $assistant = app(\App\Services\Assistant\AssistantService::class);
+        $credits = app(\App\Services\Assistant\AssistantCredits::class);
+        if (! $this->entitlements()->hasFeature($org, 'assistant') || ! $assistant->serviceReady()) {
+            return null;
+        }
+
+        return [
+            'balance' => $assistant->credits($org),
+            'monthly' => $assistant->monthlyRemaining($org),
+            'limit' => $this->entitlements()->limit($org, 'assistant_monthly'),
+            'packs' => $credits->purchasable() ? \App\Services\Assistant\AssistantCredits::packs() : [],
+            'purchases' => \App\Models\AssistantCreditPurchase::where('organization_id', $org->id)->where('status', 'paid')->latest('paid_at')->limit(10)->get(),
+        ];
     }
 }

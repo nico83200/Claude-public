@@ -36,10 +36,26 @@ class Transcriber
                 'tag_audio_events' => 'false',
             ]);
         if (! $response->successful()) {
-            throw new RuntimeException(self::explain($response->status(), (string) $response->body()));
+            $message = self::explain($response->status(), (string) $response->body());
+            if (self::creditsExhausted($response->status(), (string) $response->body())) {
+                throw new VoiceCreditsExhausted($message);
+            }
+            throw new RuntimeException($message);
         }
 
         return trim((string) $response->json('text', ''));
+    }
+
+    /** Erreur due à un solde ElevenLabs insuffisant (crédits ou quota épuisés). */
+    public static function creditsExhausted(int $status, string $body): bool
+    {
+        $json = json_decode($body, true);
+        $detail = is_array($json['detail'] ?? null) ? $json['detail'] : ['message' => is_string($json['detail'] ?? null) ? $json['detail'] : null];
+        $code = (string) ($detail['status'] ?? $detail['code'] ?? '');
+        $message = mb_strtolower((string) ($detail['message'] ?? mb_substr($body, 0, 200)));
+
+        return in_array($code, ['quota_exceeded', 'insufficient_credits', 'insufficient_quota', 'payment_required'], true) || $status === 402
+            || str_contains($message, 'credit') || str_contains($message, 'quota');
     }
 
     /** Message clair à partir de la réponse d'erreur d'ElevenLabs (pour le super-administrateur et le journal). */
@@ -51,7 +67,7 @@ class Transcriber
         $message = (string) ($detail['message'] ?? mb_substr($body, 0, 200));
         $hint = match (true) {
             $code === 'missing_permissions' || str_contains($message, 'permission') => 'la clé ElevenLabs n\'a pas la permission « Speech to Text » : dans ElevenLabs › Developers › API Keys, modifiez la clé et autorisez « Speech to Text »',
-            in_array($code, ['quota_exceeded', 'insufficient_credits'], true) || $status === 402 || str_contains(mb_strtolower($message), 'credit') || str_contains(mb_strtolower($message), 'quota') => 'crédits ElevenLabs épuisés : rechargez ou changez d\'abonnement chez ElevenLabs',
+            self::creditsExhausted($status, $body) => 'crédits ElevenLabs épuisés : rechargez ou changez d\'abonnement chez ElevenLabs',
             $code === 'invalid_api_key' || ($status === 401 && $code === '') => 'clé ElevenLabs refusée : vérifiez-la dans Administration › Assistant IA',
             $status === 429 => 'trop de demandes simultanées chez ElevenLabs, réessayez dans un instant',
             $status === 422 || $status === 400 => 'demande refusée par ElevenLabs (format audio ou modèle)',
