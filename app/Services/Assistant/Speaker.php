@@ -76,16 +76,46 @@ class Speaker
         return $parts;
     }
 
+    private const MONTHS = [1 => 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+    /**
+     * Texte adapté à la lecture à voix haute (l'affichage garde « 9h30 ») : la voix lirait sinon la lettre « h ».
+     * Heures (9h, 9 h 30, 14:00, 8h-12h), dates courtes (20/10) et abréviations usuelles.
+     */
+    public static function spoken(string $text): string
+    {
+        $hours = fn (string $h, ?string $m) => match ((int) $h) {
+            0 => 'minuit', 12 => 'midi', 1 => '1 heure', default => (int) $h.' heures',
+        }.($m !== null && $m !== '' && $m !== '00' ? ' '.(int) $m : '');
+        $time = '(?<![\d,.:\/])([01]?\d|2[0-3])';
+        // Plages horaires « 8h-12h » / « 8h à 12h » : « 8 heures à 12 heures ».
+        $text = preg_replace_callback('/'.$time.'\s?[hH]\s?([0-5]\d)?\s?[-–]\s?([01]?\d|2[0-3])\s?[hH]\s?([0-5]\d)?(?![\p{L}\d])/u',
+            fn ($m) => $hours($m[1], $m[2] ?? null).' à '.$hours($m[3], $m[4] ?? null), $text);
+        // « 9h », « 9 h 30 », « 9H00 »
+        $text = preg_replace_callback('/'.$time.'\s?[hH]\s?([0-5]\d)?(?![\p{L}\d])/u', fn ($m) => $hours($m[1], $m[2] ?? null), $text);
+        // « 14:00 », « 9:30 »
+        $text = preg_replace_callback('/'.$time.':([0-5]\d)(?![\d:])/u', fn ($m) => $hours($m[1], $m[2]), $text);
+        // Dates courtes « le 20/10 » : seulement après le, du, au ou un jour (« 3/4 de ration » reste une fraction).
+        $text = preg_replace_callback('/\b(le|du|au|jusqu\'au|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(0?[1-9]|[12]\d|3[01])\/(0?[1-9]|1[0-2])(?![\d\/])/iu',
+            fn ($m) => $m[1].' '.((int) $m[2] === 1 ? '1er' : (int) $m[2]).' '.self::MONTHS[(int) $m[3]], $text);
+
+        return preg_replace(
+            ['/(\d)\s?kg\b/u', '/(\d)\s?km\b/u', '/(\d)\s?cm\b/u', '/(\d)\s?min\b/u', '/\bn°\s?(\d)/u', '/\benv\.\s/u', '/\bRDV\b/u', '/\brdv\b/u'],
+            ['$1 kilos', '$1 kilomètres', '$1 centimètres', '$1 minutes', 'numéro $1', 'environ ', 'rendez-vous', 'rendez-vous'],
+            $text);
+    }
+
     /** MP3 de la phrase lue (600 caractères au plus). */
     public function speak(string $text, string $previous = '', string $next = ''): string
     {
         if (! filled(config('services.elevenlabs.key'))) {
             throw new RuntimeException('Voix non configurée (clé ElevenLabs manquante).');
         }
-        $text = trim(mb_substr(preg_replace('/\s+/u', ' ', $text), 0, self::MAX_CHARS));
+        $text = self::spoken(trim(mb_substr(preg_replace('/\s+/u', ' ', $text), 0, self::MAX_CHARS)));
         if ($text === '') {
             throw new RuntimeException('Rien à lire.');
         }
+        [$previous, $next] = [self::spoken($previous), self::spoken($next)];
         $response = Http::withHeaders(['xi-api-key' => config('services.elevenlabs.key'), 'Accept' => 'audio/mpeg'])
             ->connectTimeout(5)->timeout(30)->retry(1, 300, fn ($e) => ! $e instanceof \Illuminate\Http\Client\RequestException || $e->response->serverError(), throw: false)
             ->post(rtrim(config('services.elevenlabs.base_url', 'https://api.elevenlabs.io'), '/').'/v1/text-to-speech/'.$this->voiceId().'?output_format=mp3_44100_64', array_filter([

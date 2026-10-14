@@ -292,7 +292,7 @@ class AiFeaturesTest extends TestCase
 
         $res = $this->actingAs($user)->post('/assistant/voix/'.$id)->assertOk()->assertHeader('Content-Type', 'audio/mpeg');
         $this->assertSame('ID3-mp3-bytes', $res->getContent());
-        Http::assertSent(fn ($r) => str_contains($r->url(), '/v1/text-to-speech/'.\App\Services\Assistant\Speaker::DEFAULT_VOICE) && $r['text'] === 'C\'est noté : maréchal pour Uni mardi à 9 h.' && $r['language_code'] === 'fr');
+        Http::assertSent(fn ($r) => str_contains($r->url(), '/v1/text-to-speech/'.\App\Services\Assistant\Speaker::DEFAULT_VOICE) && $r['text'] === 'C\'est noté : maréchal pour Uni mardi à 9 heures.' && $r['language_code'] === 'fr');
         // Mis en cache : pas de second appel.
         $this->actingAs($user)->post('/assistant/voix/'.$id)->assertOk();
         Http::assertSentCount(1);
@@ -301,6 +301,22 @@ class AiFeaturesTest extends TestCase
         // Désactivé par le super-administrateur.
         \App\Models\ApplicationSetting::put('assistant.speech_enabled', false);
         $this->actingAs($user)->getJson('/assistant/etat')->assertJson(['speech' => false]);
+    }
+
+    public function test_voice_reads_hours_and_short_dates_in_full(): void
+    {
+        $spoken = fn ($t) => \App\Services\Assistant\Speaker::spoken($t);
+        $this->assertSame('Le maréchal vient mardi à 9 heures.', $spoken('Le maréchal vient mardi à 9h.'));
+        $this->assertSame('Rendez-vous à 9 heures 30, séance à 14 heures, pesée à 1 heure.', $spoken('Rendez-vous à 9 h 30, séance à 14:00, pesée à 1h.'));
+        $this->assertSame('Cours de 8 heures à midi puis 14 heures à 16 heures 30.', $spoken('Cours de 8h-12h puis 14h à 16h30.'));
+        $this->assertSame('Vaccin le 20 octobre, rappel le 1er novembre.', $spoken('Vaccin le 20/10, rappel le 1/11.'));
+        $this->assertSame('520 kilos, 25 minutes, rendez-vous numéro 3, 3/4 de ration, 62,40 €, en 2026.', $spoken('520 kg, 25 min, RDV n°3, 3/4 de ration, 62,40 €, en 2026.'));
+
+        // Le texte envoyé à ElevenLabs est celui adapté à l'oral ; l'affichage n'est pas modifié.
+        config(['services.elevenlabs.key' => 'xi-test']);
+        Http::fake(['api.elevenlabs.io/v1/text-to-speech/*' => Http::response('ID3-mp3-bytes', 200, ['Content-Type' => 'audio/mpeg'])]);
+        app(\App\Services\Assistant\Speaker::class)->speak('Le maréchal vient mardi à 9h30.', 'C\'est noté pour 8h.');
+        Http::assertSent(fn ($r) => $r['text'] === 'Le maréchal vient mardi à 9 heures 30.' && $r['previous_text'] === 'C\'est noté pour 8 heures.');
     }
 
     public function test_cache_cleared_by_an_update_does_not_raise_a_false_cron_alert(): void
