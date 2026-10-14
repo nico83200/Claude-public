@@ -37,6 +37,11 @@ items = ''.join(f'<div class="at"><span class="ic">{svg(i)}</span><div><b>{html.
 fonts = ''.join(f"@font-face{{font-family:'InterPrint';font-weight:{w};src:url(\"{b64(SRC + '/fonts/Inter-' + n + '.ttf')}\") format('truetype')}}\n"
                 for w, n in [(400, 'Regular'), (500, 'Medium'), (600, 'SemiBold'), (700, 'Bold'), (800, 'ExtraBold')])
 
+# Mentions légales (identification de l'annonceur, loi du 29 juillet 1881 sur l'imprimeur, code de l'environnement).
+# Si l'affiche est confiée à un imprimeur, remplacer « Imprimé par nos soins » par son nom et sa ville.
+PRINTER = 'Imprimé par nos soins'
+LEGAL = f'Éditeur : Nicolas Lefèvre EI (NLapps) · SIRET 519 791 719 00114 · 83130 La Garde · {PRINTER} · Ne pas jeter sur la voie publique'
+
 def page(bleed):
     W, H = 148 + 2 * bleed, 210 + 2 * bleed
     return f'''<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
@@ -74,7 +79,7 @@ h1 em{{font-style:normal;color:#a8875e}}
 .ic svg{{width:4.3mm;height:4.3mm}}
 .at b{{display:block;font-size:3.5mm;letter-spacing:-.01em;color:#0d3122;line-height:1.15}}
 .at p{{margin-top:.3mm;font-size:2.65mm;line-height:1.25;color:#4f5751}}
-.offer{{position:absolute;left:7mm;right:7mm;top:155mm;height:39mm;border-radius:5mm;background:#0d3122;color:#fff;display:grid;grid-template-columns:1fr 33mm;gap:4mm;align-items:center;padding:0 4.5mm 0 5.5mm}}
+.offer{{position:absolute;left:7mm;right:7mm;top:153.5mm;height:39mm;border-radius:5mm;background:#0d3122;color:#fff;display:grid;grid-template-columns:1fr 33mm;gap:4mm;align-items:center;padding:0 4.5mm 0 5.5mm}}
 .tag{{font-size:2.5mm;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#d1bb9d}}
 .code{{margin-top:1.6mm;display:inline-block;border:.5mm dashed #d1bb9d;border-radius:2.4mm;padding:1.3mm 3.2mm;font-size:7.6mm;font-weight:800;letter-spacing:.06em;color:#fff;line-height:1.1}}
 .steps{{margin-top:2.4mm;font-size:2.75mm;line-height:1.5;color:rgba(255,255,255,.88)}}
@@ -83,10 +88,11 @@ h1 em{{font-style:normal;color:#a8875e}}
 .qrbox{{width:28mm;height:28mm;background:#fff;border-radius:2.6mm;padding:2mm}}
 .qrbox img{{width:100%;height:100%;display:block}}
 .scan{{margin-top:1.3mm;font-size:2.5mm;font-weight:700;text-align:center;line-height:1.2}}
-.small{{position:absolute;left:8mm;right:8mm;top:196.6mm;text-align:center;font-size:2.05mm;line-height:1.35;color:#6b736d}}
-.foot{{position:absolute;left:0;right:0;top:204.2mm;display:flex;align-items:center;justify-content:center;gap:1.4mm;font-size:2.3mm;color:#6b736d}}
+.small{{position:absolute;left:8mm;right:8mm;top:194.6mm;text-align:center;font-size:2.05mm;line-height:1.35;color:#6b736d}}
+.foot{{position:absolute;left:0;right:0;top:200.8mm;display:flex;align-items:center;justify-content:center;gap:1.4mm;font-size:2.3mm;color:#6b736d}}
 .foot img{{height:4mm}}
 .foot .site{{margin-left:1mm;padding-left:1.6mm;border-left:.2mm solid #cbd0ca;font-weight:600;color:#3a413c}}
+.legal{{position:absolute;left:8mm;right:8mm;top:205mm;text-align:center;font-size:1.6mm;white-space:nowrap;line-height:1.3;color:#8a918c}}
 </style></head><body>
 <div class="band"></div>
 <div class="arc" style="width:120mm;height:120mm;left:-80mm;top:{bleed + 95}mm"></div>
@@ -105,6 +111,7 @@ h1 em{{font-style:normal;color:#a8875e}}
  </section>
  <p class="small">Offre valable une fois par compte, sur l'offre Propriétaire (un cheval, toutes les fonctionnalités) ; plusieurs chevaux : offre<br>Propriétaire multi-chevaux. Sans engagement : à la fin des 30 jours, sans souscription, le compte passe à l'offre gratuite Découverte.</p>
  <div class="foot">Une application <img src="{b64(SRC + '/nlapps-logo.png')}" alt="NLapps"><span class="site">jackcie.fr</span></div>
+ <p class="legal">{html.escape(LEGAL)}</p>
 </div>
 </body></html>'''
 

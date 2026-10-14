@@ -14,3 +14,4 @@ Produit dans `dist/affiche-equitalyon/` :
 Reprend les polices TrueType et le logo NLapps de `scripts/affiche/` ; capture d'écran : `ecran.jpg` (accueil de l'app, issue de `site/img/app/mobile-accueil.webp`).
 Le code doit exister dans Administration › Codes promo : type « Accès gratuit pour une durée »,
 offre « Propriétaire » (un cheval, toutes les fonctionnalités), 30 jours.
+Mentions légales en pied d'affiche : constante `LEGAL` dans `build.py` (remplacer `PRINTER` par le nom et la ville de l'imprimeur si l'impression est confiée à un professionnel).
