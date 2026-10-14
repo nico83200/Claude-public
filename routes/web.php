@@ -34,6 +34,7 @@ Route::view('/application-mobile', 'public.install')->name('app.install');
 
 // Webhook Stripe (signature vérifiée, CSRF exclu dans bootstrap/app.php)
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
+Route::get('/p/{code}', [Controllers\ReferralController::class, 'join'])->where('code', '[A-Za-z0-9]{6,16}')->middleware('throttle:60,1')->name('referral.join');
 
 // Continuer avec Google / Apple (retour d'Apple en POST : CSRF exclu dans bootstrap/app.php, état vérifié)
 Route::prefix('/connexion/{provider}')->whereIn('provider', ['google', 'apple'])->name('social.')->middleware('throttle:30,1')->group(function () {
@@ -237,6 +238,11 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Notifications
     Route::get('/notifications', [Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/tutoriels', [Controllers\VideoController::class, 'index'])->name('videos.index');
+    Route::get('/assistance', [Controllers\SupportController::class, 'create'])->name('support.create');
+    Route::post('/assistance', [Controllers\SupportController::class, 'send'])->middleware('throttle:5,10')->name('support.send');
+    Route::get('/parrainage', [Controllers\ReferralController::class, 'index'])->name('referral.index');
+    Route::get('/parrainage/qr.svg', [Controllers\ReferralController::class, 'qr'])->name('referral.qr');
+    Route::post('/parrainage/utiliser', [Controllers\ReferralController::class, 'useBanked'])->name('referral.use');
     Route::get('/videos/{video}/fichier/{kind}', [Controllers\VideoController::class, 'file'])->whereIn('kind', ['video', 'audio', 'captions', 'poster'])->name('videos.file');
     Route::post('/videos/{video}/vue', [Controllers\VideoController::class, 'seen'])->name('videos.seen');
     Route::post('/notifications/lire', [Controllers\NotificationController::class, 'markAll'])->name('notifications.read-all');

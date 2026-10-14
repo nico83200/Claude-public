@@ -46,6 +46,10 @@ class FortifyServiceProvider extends ServiceProvider
             if ($code = \App\Models\PromoCode::normalize((string) request()->query('code'))) {
                 session(['signup_code' => mb_substr($code, 0, 40)]);
             }
+            // Lien de parrainage repris dans l'application installée (?parrain=) : le parrain est retenu.
+            if (($ref = \App\Services\ReferralService::normalize((string) request()->query('parrain'))) && ($referrer = \App\Models\User::where('referral_code', $ref)->whereNull('suspended_at')->first())) {
+                session(['referral_code' => $ref, 'referral_name' => strtok($referrer->name, ' ')]);
+            }
             // Provenance (?src=affiche, instagram…) : scans de QR code et clics comptés pour l'administration.
             app(\App\Services\AcquisitionTracker::class)->track(request());
 

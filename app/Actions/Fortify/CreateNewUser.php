@@ -59,6 +59,8 @@ class CreateNewUser implements CreatesNewUsers
                 session()->flash('success', 'Bienvenue ! Votre code est activé : '.$license->plan->name.' offert jusqu\'au '.$license->ends_at->format('d/m/Y').', sans carte bancaire.');
             }
             app(AcquisitionTracker::class)->registered($user, $redeemed);
+            // Inscription par le lien d'un parrain (jours offerts au parrain dès l'adresse e-mail confirmée).
+            app(\App\Services\ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(\App\Services\ReferralService::COOKIE));
 
             return $user;
         });

@@ -31,4 +31,10 @@ return [
         'dentistry' => ['enabled' => false, 'interval_value' => 12, 'interval_unit' => 'months', 'notice_days' => 14],
         'osteopathy' => ['enabled' => false, 'interval_value' => 6, 'interval_unit' => 'months', 'notice_days' => 7],
     ],
+
+    // Assistance : adresse qui reçoit les messages du formulaire (menu › Assistance).
+    'support_email' => env('SUPPORT_EMAIL', 'contact@nlapps.fr'),
+
+    // Lien Instagram affiché en bas du menu.
+    'instagram_url' => env('INSTAGRAM_URL', 'https://www.instagram.com/jackcieapp/'),
 ];

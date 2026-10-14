@@ -5,6 +5,9 @@
     @if (! \App\Models\FeatureFlag::enabled('registration'))
         <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Les inscriptions sont temporairement fermées.</p>
     @else
+    @if (session('referral_name'))
+        <p class="mb-5 rounded-2xl bg-gold-50 px-4 py-3 text-sm text-slate-800 ring-1 ring-gold-200" data-referral-banner>Bienvenue ! Vous êtes invité par <strong>{{ session('referral_name') }}</strong> à rejoindre Jack&Cie.</p>
+    @endif
     @if (session('signup_code'))
         <p class="mb-5 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" data-signup-banner>Code <strong>{{ session('signup_code') }}</strong> : il sera activé à la création de votre compte, sans carte bancaire.</p>
     @endif

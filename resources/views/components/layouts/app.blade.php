@@ -21,8 +21,10 @@
     $secondary = [
         ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
+        ['referral.index', 'Parrainage', 'gift', true],
         ['settings.profile', 'Paramètres', 'cog', true],
         ['videos.index', 'Tutoriels', 'play', true],
+        ['support.create', 'Assistance', 'help', true],
     ];
     $contextHorseId = optional(request()->route('horse'))->id ?? (is_numeric(request()->route('horse')) ? (int) request()->route('horse') : null);
 @endphp
@@ -73,6 +75,11 @@
                 <a href="{{ route('admin.dashboard') }}" class="mt-2 flex min-h-10 items-center gap-3 rounded-full bg-slate-900 px-4 text-sm font-medium text-white"><x-icon name="shield" class="size-[18px]" /> Administration</a>
             @endcan
         </nav>
+        <div class="flex items-center gap-2 px-6 pt-2">
+            <a href="{{ config('equine.instagram_url') }}" target="_blank" rel="noopener" class="inline-flex min-h-9 items-center gap-2 rounded-full px-2 text-sm text-slate-500 transition hover:bg-white/70 hover:text-[#C13584]" aria-label="Jack&Cie sur Instagram (nouvel onglet)" data-instagram-link>
+                <x-icon name="instagram" class="size-[22px]" /> <span>{{ '@jackcieapp' }}</span>
+            </a>
+        </div>
         <div class="flex items-center gap-3 px-6 py-4">
             <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
             <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-slate-800">{{ auth()->user()->name }}</span><span class="block truncate text-xs text-slate-500">{{ $currentOrganization?->name }}</span></span>

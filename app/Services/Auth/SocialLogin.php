@@ -86,6 +86,8 @@ class SocialLogin
         Audit::log('auth.social_registered', $user, ['provider' => $provider]);
         event(new Registered($user));
         app(AcquisitionTracker::class)->registered($user, $this->redeemSignupCode($user));
+        // Inscription par le lien d'un parrain (jours offerts au parrain dès l'adresse e-mail confirmée).
+        app(\App\Services\ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(\App\Services\ReferralService::COOKIE));
 
         return ['user' => $user->fresh(), 'created' => true, 'linked' => true];
     }

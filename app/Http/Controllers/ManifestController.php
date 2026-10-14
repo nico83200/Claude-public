@@ -18,8 +18,9 @@ class ManifestController extends Controller
         if (! $request->user()) {
             $code = $request->session()->get('signup_code');
             $resume = AcquisitionTracker::resumeToken($request->session()->get('acquisition_visit'));
-            if ($code || $resume) {
-                $manifest['start_url'] = '/register?'.http_build_query(array_filter(['code' => $code, 'suite' => $resume, 'source' => 'pwa']));
+            $parrain = $request->session()->get('referral_code');
+            if ($code || $resume || $parrain) {
+                $manifest['start_url'] = '/register?'.http_build_query(array_filter(['code' => $code, 'suite' => $resume, 'parrain' => $parrain, 'source' => 'pwa']));
             }
         }
 

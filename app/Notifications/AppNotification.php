@@ -50,6 +50,7 @@ class AppNotification extends Notification
         'new_user' => 'Nouvelle inscription (administration)',
         'system_alert' => 'Alerte technique (administration)',
         'vet_summary' => 'Résumé de santé envoyé à un professionnel',
+        'referral' => 'Parrainage : jours offerts',
     ];
 
     public function __construct(

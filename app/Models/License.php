@@ -54,7 +54,7 @@ class License extends Model
         return $this->belongsTo(User::class, 'granted_by');
     }
 
-    public const SOURCES = ['stripe' => 'Abonnement Stripe', 'manual' => 'Attribuée par l\'administration', 'trial' => 'Essai', 'free' => 'Offre gratuite', 'code' => 'Code d\'accès offert'];
+    public const SOURCES = ['stripe' => 'Abonnement Stripe', 'manual' => 'Attribuée par l\'administration', 'trial' => 'Essai', 'free' => 'Offre gratuite', 'code' => 'Code d\'accès offert', 'referral' => 'Parrainage'];
 
     public function statusLabel(): string
     {
