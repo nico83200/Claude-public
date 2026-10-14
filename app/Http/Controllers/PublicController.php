@@ -12,6 +12,11 @@ class PublicController extends Controller
         if (auth()->check()) {
             return redirect()->route('dashboard');
         }
+        // Visiteur non connecté : le site vitrine présente l'application et mène à la connexion.
+        // L'application installée ne passe pas par ici (elle s'ouvre sur /dashboard?source=pwa).
+        if (filled(config('equine.site_url')) && request()->query('source') !== 'pwa') {
+            return redirect()->away((string) config('equine.site_url'));
+        }
 
         return view('public.home', ['plans' => $this->plans()]);
     }

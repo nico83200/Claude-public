@@ -40,4 +40,8 @@ return [
 
     // Mention de TVA affichée avec les prix (micro-entreprise en franchise : article 293 B du CGI).
     'vat_notice' => env('VAT_NOTICE', 'TVA non applicable, article 293 B du CGI.'),
+
+    // Site vitrine : l'accueil de l'application et la déconnexion (hors application installée) y renvoient.
+    // Laisser vide pour garder la page d'accueil intégrée à l'application.
+    'site_url' => env('SITE_URL', 'https://jackcie.fr'),
 ];

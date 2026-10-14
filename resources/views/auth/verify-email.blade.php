@@ -6,5 +6,5 @@
         @csrf
         <button class="btn-secondary w-full">Renvoyer le lien</button>
     </form>
-    <form method="POST" action="{{ route('logout') }}" class="mt-3 text-center">@csrf<button class="text-sm link">Se déconnecter</button></form>
+    <form method="POST" action="{{ route('logout') }}" class="mt-3 text-center">@csrf<input type="hidden" name="pwa" data-standalone><button class="text-sm link">Se déconnecter</button></form>
 </x-layouts.guest>

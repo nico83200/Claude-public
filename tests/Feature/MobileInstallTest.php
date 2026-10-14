@@ -34,6 +34,7 @@ class MobileInstallTest extends TestCase
 
     public function test_home_page_offers_install_instead_of_login_on_mobile(): void
     {
+        config(['equine.site_url' => null]); // accueil intégré (instance sans site vitrine)
         $html = $this->withHeader('User-Agent', self::IPHONE)->get('/')->assertOk()->getContent();
         $this->assertStringContainsString("Installer l'application", $html);
         $this->assertMatchesRegularExpression('/x-show="! \$store\.install\.gate"\s+style="display: none"/', $html);

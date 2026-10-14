@@ -49,6 +49,6 @@
         </template>
 
         <p x-show="$store.pushGate.error" x-text="$store.pushGate.error" class="mt-4 text-sm text-red-600" role="alert"></p>
-        <form method="POST" action="{{ route('logout') }}" class="mt-8">@csrf<button class="text-sm text-slate-400 underline-offset-4 hover:underline">Se déconnecter</button></form>
+        <form method="POST" action="{{ route('logout') }}" class="mt-8">@csrf<input type="hidden" name="pwa" data-standalone><button class="text-sm text-slate-400 underline-offset-4 hover:underline">Se déconnecter</button></form>
     </div>
 </div>

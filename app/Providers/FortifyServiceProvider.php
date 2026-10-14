@@ -39,6 +39,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
+        $this->app->singleton(\Laravel\Fortify\Contracts\LogoutResponse::class, \App\Http\Responses\LogoutResponse::class);
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::registerView(function () {
             abort_unless(FeatureFlag::enabled('registration'), 403, 'Les inscriptions sont fermées.');

@@ -52,7 +52,7 @@ class AuthTest extends TestCase
         $this->post('/login', ['email' => $user->email, 'password' => 'Cheval2026x'])->assertRedirect('/dashboard');
         $this->assertAuthenticatedAs($user);
         $this->assertNotNull($user->fresh()->last_login_at);
-        $this->post('/logout')->assertRedirect('/');
+        $this->post('/logout')->assertRedirect('https://jackcie.fr');
         $this->assertGuest();
     }
 
@@ -105,6 +105,7 @@ class AuthTest extends TestCase
 
     public function test_public_pages_render(): void
     {
+        config(['equine.site_url' => null]); // accueil intégré (instance sans site vitrine)
         $this->get('/')->assertOk()->assertSee('Commencer gratuitement')->assertSee('/brand/jackcie-logo', false)->assertSee('apple-mobile-web-app-capable', false);
         $this->get('/application-mobile')->assertOk()->assertSee('Sur l\'écran d\'accueil', false)->assertSee('Installer maintenant');
         $this->get('/tarifs')->assertOk()->assertSee('Propriétaire');

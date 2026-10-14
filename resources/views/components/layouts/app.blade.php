@@ -84,7 +84,7 @@
             <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
             <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-slate-800">{{ auth()->user()->name }}</span><span class="block truncate text-xs text-slate-500">{{ $currentOrganization?->name }}</span></span>
             <form method="POST" action="{{ route('logout') }}" onsubmit="try { localStorage.removeItem('jc-last-user') } catch (e) {}">
-                @csrf
+                @csrf<input type="hidden" name="pwa" data-standalone>
                 <button class="btn-ghost px-2" aria-label="Se déconnecter" title="Se déconnecter"><x-icon name="logout" class="size-[18px]" /></button>
             </form>
         </div>

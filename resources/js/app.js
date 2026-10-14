@@ -49,6 +49,13 @@ Alpine.store('network', {
 Alpine.start();
 startSelectEnhancer();
 startLightbox();
+
+// Application installée sur l'écran d'accueil : la déconnexion ramène à la connexion de l'application
+// (et non vers le site, qui s'ouvrirait dans le navigateur).
+document.addEventListener('submit', (e) => {
+    const field = e.target.querySelector?.('input[data-standalone]');
+    if (field) field.value = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true ? '1' : '';
+}, true);
 Alpine.store('pushGate').init(Alpine.store('install'));
 
 // Compte connecté sur ce téléphone : permet de noter une consigne depuis la page « Pas de connexion ».
