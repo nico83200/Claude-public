@@ -30,4 +30,5 @@
     AddType video/mp4 .mp4
     AddType video/webm .webm
     AddType application/manifest+json .webmanifest
+    AddType text/javascript .mjs
 </IfModule>

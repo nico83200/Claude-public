@@ -31,7 +31,7 @@
                             <p class="mt-1">@if ($e->isPaid())<x-badge color="green">Payée{{ $e->paid_on ? ' le '.$e->paid_on->format('d/m/Y') : '' }}</x-badge>@else<x-badge :color="$e->isOverdue() ? 'red' : 'amber'">À payer</x-badge>@endif</p>
                             @if ($e->comment)<p class="mt-1 text-xs text-slate-600">{{ $e->comment }}</p>@endif
                             <p class="mt-1 flex flex-wrap gap-3 text-xs">
-                                @foreach ($e->documents as $d)<a href="{{ route('budget.receipt', [$e, $d]) }}" class="link" @if ($d->isImage()) data-lightbox="care-receipt-{{ $e->id }}" data-caption="Justificatif · {{ $e->category->name }}" @endif>Justificatif</a>@endforeach
+                                @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d" :group="'care-receipt-'.$e->id">Justificatif</x-receipt-link>@endforeach
                                 @if ($canEditExpense($e))<a href="{{ route('budget.edit', ['expense' => $e, 'retour' => '/'.request()->path()]) }}" class="link font-medium" data-care-expense-edit>Modifier la dépense</a>@endif
                                 <a href="{{ route('budget.index', ['horse' => $horse->id, 'year' => $e->spent_on->year]) }}" class="link">Voir dans le budget</a>
                             </p>

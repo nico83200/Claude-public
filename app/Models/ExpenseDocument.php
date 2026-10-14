@@ -16,6 +16,17 @@ class ExpenseDocument extends Model
     /** Image affichable par les navigateurs (ouverte dans la visionneuse plutôt que téléchargée). */
     public function isImage(): bool
     {
-        return (bool) preg_match('/\.(jpe?g|png|webp|gif)$/i', (string) $this->original_name);
+        return (bool) preg_match('/\.(jpe?g|png|webp|gif)$/i', (string) ($this->original_name ?: $this->path));
+    }
+
+    public function isPdf(): bool
+    {
+        return (bool) preg_match('/\.pdf$/i', (string) ($this->original_name ?: $this->path));
+    }
+
+    /** Type d'aperçu dans l'application : « image », « pdf », ou null (fichier seulement téléchargeable). */
+    public function viewerType(): ?string
+    {
+        return $this->isImage() ? 'image' : ($this->isPdf() ? 'pdf' : null);
     }
 }

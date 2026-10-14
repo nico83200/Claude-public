@@ -175,7 +175,7 @@
                         <p class="text-xs text-slate-500">{{ $e->spent_on->translatedFormat('j M Y') }}{{ $e->supplier ? ' · '.$e->supplier : '' }}</p>
                         @if ($e->comment)<p class="mt-0.5 line-clamp-1 text-xs text-slate-500">{{ $e->comment }}</p>@endif
                         <p class="relative z-10 mt-1 flex w-fit gap-3 text-xs">
-                            @foreach ($e->documents as $d)<a href="{{ route('budget.receipt', [$e, $d]) }}" class="link" @if ($d->isImage()) data-lightbox="receipt-{{ $e->id }}" data-caption="Justificatif · {{ $e->category->name }}" @endif>Justificatif</a>@endforeach
+                            @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d">Justificatif</x-receipt-link>@endforeach
                             @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="link">Modifier</a>@endif
                         </p>
                     </div>
@@ -194,7 +194,7 @@
                     <td class="hidden sm:table-cell">{{ $e->supplier }}</td>
                     <td class="text-right font-medium whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="ml-1">À payer</x-badge>@endunless</td>
                     <td class="whitespace-nowrap">
-                        @foreach ($e->documents as $d)<a href="{{ route('budget.receipt', [$e, $d]) }}" class="text-xs link" @if ($d->isImage()) data-lightbox="receipt-{{ $e->id }}-b" data-caption="Justificatif · {{ $e->category->name }}" @endif>Justificatif</a> @endforeach
+                        @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d" :group="'receipt-'.$e->id.'-b'" class="text-xs">Justificatif</x-receipt-link> @endforeach
                         @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="text-xs link">Modifier</a>@endif
                     </td>
                 </tr>

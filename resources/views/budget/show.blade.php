@@ -28,7 +28,7 @@
         <div class="space-y-4">
             <x-section title="Justificatifs">
                 @forelse ($expense->documents as $d)
-                    <a href="{{ route('budget.receipt', [$expense, $d]) }}" class="block py-1 text-sm link" @if ($d->isImage()) data-lightbox="receipt-{{ $expense->id }}" data-caption="Justificatif · {{ $expense->category->name }}" @endif>{{ $d->original_name ?: 'Justificatif' }}</a>
+                    <x-receipt-link :expense="$expense" :document="$d" class="block py-1 text-sm">{{ $d->original_name ?: 'Justificatif' }}</x-receipt-link>
                 @empty
                     <p class="text-sm text-slate-500">Aucun justificatif.@if ($canEdit) <a href="{{ route('budget.edit', $expense) }}" class="link">Ajouter</a>@endif</p>
                 @endforelse

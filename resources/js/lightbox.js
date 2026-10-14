@@ -3,6 +3,8 @@
  * plein écran au lieu d'un nouvel onglet. Images du même groupe : flèches, glisser du doigt, clavier.
  * Le bouton « retour » du téléphone ferme la visionneuse. Sans JavaScript, le lien reste un lien.
  */
+import { renderPdf } from './pdf-view.js';
+
 let state = null;
 
 const icon = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="${d}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -11,15 +13,32 @@ function render() {
     const { items, index, root } = state;
     const item = items[index];
     const img = root.querySelector('.jc-lb-img');
+    const pdf = root.querySelector('.jc-lb-pdf');
+    const fail = root.querySelector('.jc-lb-fail');
+    state.stopPdf?.();
+    state.stopPdf = null;
+    fail.hidden = true;
     img.classList.remove('is-loaded');
-    img.alt = item.caption || '';
-    img.src = item.src;
+    root.classList.toggle('is-pdf', item.type === 'pdf');
+    if (item.type === 'pdf') {
+        img.hidden = true;
+        img.removeAttribute('src');
+        pdf.hidden = false;
+        state.stopPdf = renderPdf(item.src, pdf, () => { pdf.hidden = true; fail.hidden = false; });
+    } else {
+        pdf.hidden = true;
+        pdf.innerHTML = '';
+        img.hidden = false;
+        img.alt = item.caption || '';
+        img.src = item.src;
+    }
+    fail.querySelector('a').href = item.download || item.src;
     root.querySelector('.jc-lb-caption').textContent = item.caption || '';
     root.querySelector('.jc-lb-count').textContent = items.length > 1 ? `${index + 1} / ${items.length}` : '';
     root.querySelector('.jc-lb-download').href = item.download || item.src;
     root.querySelectorAll('.jc-lb-nav').forEach((b) => { b.hidden = items.length < 2; });
     // Images voisines chargées d'avance.
-    [index - 1, index + 1].forEach((i) => { if (items[i]) new Image().src = items[i].src; });
+    [index - 1, index + 1].forEach((i) => { if (items[i] && items[i].type !== 'pdf') new Image().src = items[i].src; });
 }
 
 function go(step) {
@@ -31,6 +50,7 @@ function go(step) {
 function close(fromHistory = false) {
     if (!state) return;
     const { root, opener, onKey } = state;
+    state.stopPdf?.();
     document.removeEventListener('keydown', onKey, true);
     root.classList.remove('is-visible');
     document.documentElement.style.overflow = '';
@@ -45,6 +65,7 @@ function open(link) {
     const links = group ? [...document.querySelectorAll(`a[data-lightbox="${CSS.escape(group)}"]`)] : [link];
     const items = links.map((a) => ({
         src: a.dataset.lightboxSrc || a.href,
+        type: a.dataset.lightboxType || 'image',
         download: a.dataset.lightboxDownload || a.href,
         caption: a.dataset.caption || a.querySelector('img')?.alt || a.getAttribute('title') || '',
     }));
@@ -53,7 +74,7 @@ function open(link) {
     root.className = 'jc-lb';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
-    root.setAttribute('aria-label', 'Photo');
+    root.setAttribute('aria-label', link.dataset.lightboxType === 'pdf' ? 'Document' : 'Photo');
     root.innerHTML = `
         <div class="jc-lb-bar">
             <span class="jc-lb-count"></span>
@@ -63,7 +84,9 @@ function open(link) {
             </span>
         </div>
         <button type="button" class="jc-lb-nav is-prev" aria-label="Photo précédente">${icon('M15 5l-7 7 7 7')}</button>
-        <figure class="jc-lb-stage"><img class="jc-lb-img" alt=""><figcaption class="jc-lb-caption"></figcaption></figure>
+        <figure class="jc-lb-stage"><img class="jc-lb-img" alt=""><div class="jc-lb-pdf" hidden></div>
+            <p class="jc-lb-fail" hidden>Aperçu impossible pour ce fichier. <a download>Le télécharger</a></p>
+            <figcaption class="jc-lb-caption"></figcaption></figure>
         <button type="button" class="jc-lb-nav is-next" aria-label="Photo suivante">${icon('M9 5l7 7-7 7')}</button>`;
     (link.closest('dialog') || document.body).appendChild(root);
 
@@ -76,6 +99,8 @@ function open(link) {
 
     const img = root.querySelector('.jc-lb-img');
     img.addEventListener('load', () => img.classList.add('is-loaded'));
+    // Image illisible par le navigateur (HEIC hors iPhone…) : proposition de téléchargement.
+    img.addEventListener('error', () => { if (img.getAttribute('src')) { img.hidden = true; root.querySelector('.jc-lb-fail').hidden = false; } });
     root.querySelector('.jc-lb-close').addEventListener('click', () => close());
     root.querySelector('.is-prev').addEventListener('click', () => go(-1));
     root.querySelector('.is-next').addEventListener('click', () => go(1));
@@ -89,7 +114,7 @@ function open(link) {
         const dx = e.changedTouches[0].clientX - start.x, dy = e.changedTouches[0].clientY - start.y;
         start = null;
         if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
-        else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) close();
+        else if (dy > 90 && Math.abs(dy) > Math.abs(dx) && !root.classList.contains('is-pdf')) close();
     }, { passive: true });
     document.addEventListener('keydown', onKey, true);
 
