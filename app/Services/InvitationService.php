@@ -28,7 +28,7 @@ class InvitationService
     {
         $horseIds = $org->horses()->pluck('id');
 
-        return HorseAccessGrant::active()->whereIn('horse_id', $horseIds)->count()
+        return HorseAccessGrant::current()->whereIn('horse_id', $horseIds)->count()
             + Invitation::pending()->where('type', 'horse_access')->whereIn('horse_id', $horseIds)->count();
     }
 

@@ -196,7 +196,7 @@ class HorseAccess
                     ->whereIn('role', ['owner', 'co_owner'])
                     ->where(fn ($w) => $w->whereNull('ended_on')->orWhere('ended_on', '>=', $today)))
                 ->orWhereIn('id', fn ($s) => $s->select('horse_id')->from('horse_access_grants')->where('user_id', $userId)
-                    ->whereNull('revoked_at')
+                    ->whereNull('revoked_at')->whereNull('paused_at')
                     ->where(fn ($w) => $w->whereNull('starts_at')->orWhere('starts_at', '<=', $now))
                     ->where(fn ($w) => $w->whereNull('expires_at')->orWhere('expires_at', '>', $now)))
                 ->orWhereIn('id', fn ($s) => $s->select('horse_id')->from('horse_organization_assignments')

@@ -241,6 +241,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
     // Partages (vue d'ensemble)
     Route::get('/partages', [Controllers\HorseSharingController::class, 'overview'])->name('sharing.index');
+    Route::post('/partages/recus/{grant}/suspendre', [Controllers\HorseSharingController::class, 'pauseReceived'])->name('sharing.received.pause');
+    Route::post('/partages/recus/{grant}/reprendre', [Controllers\HorseSharingController::class, 'resumeReceived'])->name('sharing.received.resume');
+    Route::post('/partages/recus/{grant}/quitter', [Controllers\HorseSharingController::class, 'leaveReceived'])->name('sharing.received.leave');
 
     // Notifications
     Route::get('/notifications', [Controllers\NotificationController::class, 'index'])->name('notifications.index');

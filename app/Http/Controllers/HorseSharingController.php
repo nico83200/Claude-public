@@ -30,8 +30,9 @@ class HorseSharingController extends Controller
         $managed = $access->accessibleQuery($user)->get()->filter(fn ($h) => in_array(Perm::HORSE_MANAGE, $access->permissions($user, $h), true));
 
         return view('sharing.index', [
-            'managed' => $managed->load(['accessGrants' => fn ($q) => $q->active()->with('user')]),
-            'received' => HorseAccessGrant::active()->where('user_id', $user->id)->with(['horse', 'grantor'])->get(),
+            'managed' => $managed->load(['accessGrants' => fn ($q) => $q->current()->with('user')]),
+            // Accès reçus en cours, suspendus compris (pour pouvoir les reprendre).
+            'received' => HorseAccessGrant::current()->where('user_id', $user->id)->with(['horse', 'grantor'])->orderByRaw('paused_at is not null')->get(),
             'invitations' => Invitation::pending()->where('email', $user->email)->with(['horse', 'organization', 'inviter'])->get(),
         ]);
     }
@@ -111,6 +112,54 @@ class HorseSharingController extends Controller
         $grant->user?->notify(new AppNotification('access_revoked', 'Accès retiré', 'Votre accès au dossier de '.$horse->shortName().' a été retiré par le propriétaire.', null, false));
 
         return back()->with('success', 'Accès révoqué immédiatement en ligne.');
+    }
+
+    /** La personne invitée suspend son propre accès : le cheval disparaît de son compte jusqu'à la reprise. */
+    public function pauseReceived(Request $request, HorseAccessGrant $grant)
+    {
+        $this->ownReceived($request, $grant);
+        if (! $grant->paused_at) {
+            $grant->update(['paused_at' => now()]);
+            Audit::log('grant.paused', $grant, ['user_id' => $grant->user_id], $grant->horse?->organization_id);
+            $this->tellGrantor($grant, 'Partage suspendu', $request->user()->name.' a suspendu son accès au dossier de '.$grant->horse?->shortName().'. Il ou elle peut le reprendre à tout moment.');
+        }
+
+        return back()->with('success', 'Accès suspendu : '.$grant->horse?->shortName().' n\'apparaît plus dans votre compte et vous ne recevez plus ses rappels. Reprenez-le quand vous voulez.');
+    }
+
+    public function resumeReceived(Request $request, HorseAccessGrant $grant)
+    {
+        $this->ownReceived($request, $grant);
+        if ($grant->paused_at) {
+            $grant->update(['paused_at' => null]);
+            Audit::log('grant.resumed', $grant, ['user_id' => $grant->user_id], $grant->horse?->organization_id);
+            $this->tellGrantor($grant, 'Partage repris', $request->user()->name.' a repris son accès au dossier de '.$grant->horse?->shortName().'.');
+        }
+
+        return back()->with('success', 'Accès repris : vous retrouvez '.$grant->horse?->shortName().' avec les mêmes droits.');
+    }
+
+    /** La personne invitée met fin au partage : définitif, une nouvelle invitation serait nécessaire. */
+    public function leaveReceived(Request $request, HorseAccessGrant $grant)
+    {
+        $this->ownReceived($request, $grant);
+        $grant->update(['revoked_at' => now(), 'revoked_by' => $request->user()->id, 'paused_at' => null]);
+        Audit::log('grant.left', $grant, ['user_id' => $grant->user_id], $grant->horse?->organization_id);
+        $this->tellGrantor($grant, 'Partage arrêté', $request->user()->name.' a mis fin à son accès au dossier de '.$grant->horse?->shortName().'.', true);
+
+        return redirect()->route('sharing.index')->with('success', 'Vous ne partagez plus '.$grant->horse?->shortName().'. Le propriétaire a été prévenu.');
+    }
+
+    /** Seule la personne qui a reçu l'accès agit ici, et seulement sur un partage encore en cours. */
+    private function ownReceived(Request $request, HorseAccessGrant $grant): void
+    {
+        abort_unless($grant->user_id === $request->user()->id, 404);
+        abort_unless($grant->isCurrent(), 422, 'Ce partage est déjà terminé.');
+    }
+
+    private function tellGrantor(HorseAccessGrant $grant, string $title, string $body, bool $mail = false): void
+    {
+        $grant->grantor?->notify(new AppNotification('access_changed', $title, $body, $grant->horse ? route('horses.sharing', $grant->horse) : null, $mail));
     }
 
     /** Historique des accès et des modifications du dossier. */

@@ -12,7 +12,8 @@
                             <div><p class="font-medium">{{ $g->user->name }} <span class="text-sm font-normal text-slate-500">{{ $g->user->email }}</span></p>
                                 <p class="text-xs text-slate-500">{{ $g->label }} · accordé par {{ $g->grantor?->name }} le {{ $g->created_at->format('d/m/Y') }}
                                     {{ $g->starts_at ? '· à partir du '.$g->starts_at->format('d/m/Y') : '' }} {{ $g->expires_at ? '· jusqu\'au '.$g->expires_at->format('d/m/Y') : '' }}
-                                    {{ $g->revoked_at ? '· révoqué le '.$g->revoked_at->format('d/m/Y H:i') : '' }}</p>
+                                    {{ $g->revoked_at ? ($g->revoked_by === $g->user_id ? '· quitté par la personne invitée le ' : '· révoqué le ').$g->revoked_at->format('d/m/Y H:i') : '' }}</p>
+                                @if ($g->paused_at && ! $g->revoked_at)<p class="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Suspendu par la personne invitée depuis le {{ $g->paused_at->format('d/m/Y') }}</p>@endif
                                 <p class="mt-1 text-xs">{{ collect($g->permissions)->map(fn ($p) => $labels[$p] ?? $p)->implode(' · ') }}</p></div>
                             @if (! $g->revoked_at)
                                 <div class="flex gap-1"><button @click="edit = ! edit" class="btn-ghost text-sm">Droits</button>

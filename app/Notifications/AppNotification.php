@@ -38,6 +38,7 @@ class AppNotification extends Notification
         'cancellation' => 'Résiliation',
         'sync_action' => 'Synchronisation à vérifier',
         'access_revoked' => 'Accès révoqué',
+        'access_changed' => 'Partage suspendu, repris ou quitté par la personne invitée',
         'session_debrief' => 'Bilan de séance à compléter',
         'session_report' => 'Bilan fait par un cavalier',
         'daily_reminder' => 'Rappel de saisie',
