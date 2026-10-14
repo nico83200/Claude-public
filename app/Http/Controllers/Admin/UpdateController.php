@@ -91,7 +91,16 @@ class UpdateController extends Controller
 
     public function apply(Request $request, AppUpdate $update)
     {
-        abort_unless($update->status === 'verified' && $update->package_path && is_file($update->package_path), 422, 'Ce paquet n\'est pas prêt à être installé.');
+        // Second envoi (double appui, rechargement, retour arrière) : on renvoie vers le suivi au lieu d'une erreur.
+        if (in_array($update->status, ['applying', 'migrating'], true)) {
+            return redirect()->route('admin.updates.show', $update)->with('success', 'L\'installation est déjà en cours : suivez son avancement ici.');
+        }
+        if ($update->status === 'done') {
+            return redirect()->route('admin.updates.show', $update)->with('success', 'Jack&Cie '.$update->to_version.' est déjà installée.');
+        }
+        if ($update->status !== 'verified' || ! $update->package_path || ! is_file($update->package_path)) {
+            return redirect()->route('admin.updates.show', $update)->with('error', 'Ce paquet n\'est pas prêt à être installé.');
+        }
         $request->validate(['confirm' => ['accepted']], ['confirm.accepted' => 'Cochez la case de confirmation.']);
         if ($problems = $this->updater->preflight((int) $update->package_size)) {
             return back()->with('error', implode(' ', $problems));
