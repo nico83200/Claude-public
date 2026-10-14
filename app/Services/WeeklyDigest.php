@@ -110,7 +110,7 @@ class WeeklyDigest
      * Introduction rédigée par l'assistant (2 à 3 phrases chaleureuses et précises), pour les espaces
      * dont l'offre inclut l'assistant ; null sinon ou en cas d'échec (le récapitulatif part sans).
      */
-    public function aiIntro(User $user, array $d, bool $budget = true): ?string
+    public function aiIntro(User $user, array $d, bool $budget = true, bool $afterGreeting = true): ?string
     {
         if (! $this->introEligible($user, $d)) {
             return null;
@@ -119,16 +119,42 @@ class WeeklyDigest
             $result = app(\App\Services\Assistant\ClaudeGateway::class)->write(
                 'Tu écris l\'introduction du récapitulatif hebdomadaire de Jack&Cie, application de suivi de chevaux. '
                 .'Français, 2 à 3 phrases, ton chaleureux et sobre, tutoiement interdit (vouvoiement). Mets en avant 2 ou 3 points concrets de la semaine (jours, noms des chevaux), '
-                .'sans rien inventer, sans liste, sans mise en forme, sans formule de politesse finale ni avis médical. Ne commence pas par « Bonjour » (la salutation est déjà écrite).',
+                .'sans rien inventer, sans liste, sans mise en forme, sans formule de politesse finale ni avis médical. '
+                .($afterGreeting ? 'Ne commence pas par « Bonjour » (la salutation est déjà écrite). ' : 'Commence directement par le contenu, sans salutation. ')
+                .'Réponds uniquement avec le texte final, entièrement en français : aucun commentaire sur ces consignes, aucun brouillon, aucune autre langue.',
                 'Prénom : '.(strtok(trim((string) $user->name), ' ') ?: '—').'\nSemaine du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')."\n\n".$this->text($d, $budget),
                 400);
 
-            return mb_substr(trim($result['text']), 0, 700) ?: null;
+            return self::cleanIntro($result['text']);
         } catch (\Throwable $e) {
             report($e);
 
             return null;
         }
+    }
+
+    /**
+     * Garde-fou : retire les phrases où le modèle commente sa consigne ou change de langue
+     * (« … wait, I must not start with "Bonjour". Let me write in French. »). Null s'il ne reste rien d'utile.
+     */
+    public static function cleanIntro(string $text): ?string
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', $text), " \t\n\r\0\x0B\"«»“”");
+        $sentences = preg_split('/(?<=[.!?…])\s+(?=\S)/u', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $english = '/\b(wait|let me|let\'s|I must|I should|I will|I\'ll|I need|I am|I\'m|actually|okay|sorry|instructions?|the user|in French|write|should not|must not|start with)\b/i';
+        $kept = array_filter($sentences, function ($sentence) use ($english) {
+            // Phrase inachevée (« Bonjour Nicolas, ... ») ou commentaire de la consigne / en anglais.
+            if (preg_match('/(\.\.\.|…)$/u', $sentence) || preg_match($english, $sentence)) {
+                return false;
+            }
+            $words = preg_split('/[^\p{L}\']+/u', mb_strtolower($sentence), -1, PREG_SPLIT_NO_EMPTY);
+            $en = count(array_intersect($words, ['the', 'and', 'is', 'are', 'you', 'your', 'this', 'that', 'with', 'for', 'will', 'be', 'it', 'of', 'to', 'week', 'have']));
+
+            return ! $words || $en / count($words) < 0.2;
+        });
+        $clean = trim(implode(' ', $kept));
+
+        return mb_strlen($clean) >= 20 ? mb_substr($clean, 0, 700) : null;
     }
 
     /** Introduction IA possible : réglage actif, semaine non vide, service prêt et offre avec l'assistant. */
@@ -150,6 +176,7 @@ class WeeklyDigest
     public function fingerprint(array $d): string
     {
         return hash('sha256', json_encode([
+            'v2', // à changer pour faire réécrire toutes les introductions (changement de consigne)
             $d['from']->toDateString(),
             $d['events']->map(fn ($o) => [$o['event']->id, $o['at']->toDateTimeString(), $o['event']->title, (bool) $o['event']->all_day, $o['event']->horse_id])->values(),
             $d['treatments']->map(fn ($t) => [$t->id, $t->product, $t->ends_on?->toDateString(), $t->horse_id])->values(),
@@ -181,7 +208,7 @@ class WeeklyDigest
             if (($cached = $this->cachedPageIntro($user, $d)) !== null) {
                 return $cached; // rédigée entre-temps par un autre chargement de la page
             }
-            $text = $this->aiIntro($user, $d, false);
+            $text = $this->aiIntro($user, $d, false, false);
             if ($text !== null) {
                 \App\Models\DigestIntro::updateOrCreate(['user_id' => $user->id], ['fingerprint' => $this->fingerprint($d), 'text' => $text]);
             }

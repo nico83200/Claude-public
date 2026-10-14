@@ -281,6 +281,23 @@ class AiFeaturesTest extends TestCase
         $this->assertSame($before, $writes());
     }
 
+    public function test_intro_drops_the_model_commenting_its_instructions_or_switching_language(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-14 10:00'));
+        [$user, $horse] = $this->setUpUser('multi-chevaux');
+        \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Ferrure', 'starts_at' => Carbon::parse('2026-10-15 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $fake = $this->fake();
+        $fake->written = 'Bonjour Léa, ... wait, I must not start with "Bonjour". Let me write in French. Léa, jeudi 15 s\'annonce chargé : une ferrure pour Uni à 9 h. Pensez aussi aux bilans.';
+        $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Léa, jeudi 15 s\'annonce chargé : une ferrure pour Uni à 9 h. Pensez aussi aux bilans.']);
+        $call = collect($fake->calls)->last()['write'];
+        $this->assertStringContainsString('sans salutation', $call['system']);
+        $this->assertStringNotContainsString('la salutation est déjà écrite', $call['system']);
+
+        // Réponse entièrement en anglais : rien n'est affiché ni mémorisé.
+        $this->assertNull(WeeklyDigest::cleanIntro('Here is your week: the farrier comes on Thursday at 9.'));
+        $this->assertSame('Belle semaine pour Uni : le maréchal passe mardi matin.', WeeklyDigest::cleanIntro('« Belle semaine pour Uni : le maréchal passe mardi matin. »'));
+    }
+
     public function test_assistant_reply_is_spoken_with_elevenlabs(): void
     {
         [$user, $horse] = $this->setUpUser('multi-chevaux');
