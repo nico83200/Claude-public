@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SRC = ROOT / 'scripts/site/pages'
 OUT = ROOT / 'site'
 SITE = 'https://jackcie.fr'
-APP = 'https://jackcie.nlapps.fr'
+APP = 'https://app.jackcie.fr'
 INSTAGRAM = 'https://www.instagram.com/jackcieapp/'
 EMAIL = 'contact@jackcie.fr'
 

@@ -57,6 +57,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Anciennes adresses de l'application, redirigées vers APP_URL (séparées par des virgules).
+    'legacy_hosts' => env('LEGACY_HOSTS', 'jackcie.nlapps.fr'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

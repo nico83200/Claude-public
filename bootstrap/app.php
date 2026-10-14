@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetRequestCaches::class);
+        // Ancienne adresse (jackcie.nlapps.fr) → adresse actuelle, avant toute session ou maintenance.
+        $middleware->prepend(\App\Http\Middleware\RedirectLegacyHost::class);
         $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,

@@ -67,13 +67,13 @@ pour un import/export iCal sans doublon.
 Boutons « Continuer avec Google / Apple » sur les pages de connexion et d'inscription, affichés seulement quand le fournisseur est entièrement configuré (Administration › Intégrations, ou `.env` : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`). Secrets chiffrés en base, jamais renvoyés au navigateur.
 
 **Google** — Google Cloud Console › API et services :
-1. Écran de consentement OAuth : type « Externe », nom Jack&Cie, logo, domaine `jackcie.nlapps.fr`, liens vers les conditions et la politique de confidentialité ; publier l'application (sinon seuls les comptes de test peuvent se connecter).
+1. Écran de consentement OAuth : type « Externe », nom Jack&Cie, logo, domaine `jackcie.fr` (application sur `app.jackcie.fr`), liens vers les conditions et la politique de confidentialité ; publier l'application (sinon seuls les comptes de test peuvent se connecter).
 2. Identifiants › Créer › ID client OAuth › « Application Web » ; URI de redirection autorisé : `https://<domaine>/connexion/google/retour` (copiable dans l'administration).
 3. Coller l'ID client et le code secret dans Administration › Intégrations.
 
 **Apple** — Apple Developer (compte payant) › Certificates, Identifiers & Profiles :
 1. Identifiers › App ID avec la capacité « Sign in with Apple » (si vous n'en avez pas).
-2. Identifiers › **Services ID** (ex. `fr.nlapps.jackcie.web`) › activer « Sign in with Apple » › Configure : App ID principal, domaine `jackcie.nlapps.fr`, Return URL `https://<domaine>/connexion/apple/retour`.
+2. Identifiers › **Services ID** (ex. `fr.nlapps.jackcie.web`) › activer « Sign in with Apple » › Configure : App ID principal, domaine `app.jackcie.fr`, Return URL `https://<domaine>/connexion/apple/retour`.
 3. Keys › nouvelle clé « Sign in with Apple » › télécharger le fichier `.p8` (une seule fois) ; noter le Key ID et le Team ID (en haut à droite du compte).
 4. Saisir Services ID, Team ID, Key ID et le contenu du `.p8` dans Administration › Intégrations : la clé est vérifiée à l'enregistrement.
 
