@@ -1,0 +1,151 @@
+<!--{"file": "tarifs.html", "path": "/tarifs", "nav": "tarifs", "priority": "0.9", "og": "tarifs",
+"title": "Tarifs Jack&Cie — gratuit pour un cheval, dès 6,90 € par mois",
+"description": "Les offres Jack&Cie : Découverte gratuite, Propriétaire 6,90 €/mois, Multi-chevaux 14,90 €/mois, Écurie 49 €/mois. Sans engagement, 14 jours d'essai, deux mois offerts en annuel."}-->
+<section class="page-head center">
+  <div class="wrap">
+    <p class="eyebrow">Tarifs</p>
+    <h1>Simple, transparent, sans engagement.</h1>
+    <p class="lead">Commencez gratuitement. Passez à l'offre supérieure quand vous en avez besoin, revenez en arrière quand vous voulez.</p>
+  </div>
+</section>
+
+<section style="padding-top:24px" data-billing="month">
+  <div class="wrap">
+    <div class="center"><div class="billing-toggle" data-billing-toggle role="group" aria-label="Période de facturation">
+      <button type="button" data-value="month" aria-pressed="true">Mensuel</button>
+      <button type="button" data-value="year" aria-pressed="false">Annuel <span class="save">2 mois offerts</span></button>
+    </div></div>
+    <div class="plans">
+      <div class="plan reveal">
+        <h3>Découverte</h3>
+        <p class="for">Pour découvrir et suivre un cheval, gratuitement.</p>
+        <p class="price">0 €</p>
+        <p class="price-note">Pour toujours, sans carte bancaire</p>
+        <ul>
+          <li>{{icon:check}}1 cheval</li>
+          <li>{{icon:check}}Santé, rappels, séances, agenda</li>
+          <li>{{icon:check}}Fiche d'urgence avec QR code</li>
+          <li>{{icon:check}}1 partage (demi-pension, moniteur…)</li>
+          <li>{{icon:check}}100 Mo de stockage</li>
+          <li class="off">{{icon:x}}Assistant, budget, documents</li>
+        </ul>
+        <a href="{{signup:tarifs-decouverte}}" class="btn btn-light">Commencer</a>
+      </div>
+      <div class="plan featured reveal">
+        <span class="badge">Le plus choisi</span>
+        <h3>Propriétaire</h3>
+        <p class="for">Toutes les fonctions pour suivre votre cheval.</p>
+        <p class="price"><span class="monthly-only">6,90 €</span><span class="yearly-only">69 €</span> <small class="monthly-only">/ mois</small><small class="yearly-only">/ an</small></p>
+        <p class="price-note"><span class="monthly-only">ou 69 € par an</span><span class="yearly-only">soit 5,75 € par mois</span> · 14 jours d'essai</p>
+        <ul>
+          <li>{{icon:check}}1 cheval</li>
+          <li>{{icon:check}}Assistant vocal : 150 consignes / mois</li>
+          <li>{{icon:check}}Budget, factures et ordonnances en photo</li>
+          <li>{{icon:check}}Documents et exports PDF / tableur</li>
+          <li>{{icon:check}}Agenda synchronisé Google / Apple</li>
+          <li>{{icon:check}}2 membres, 6 partages, 2 Go</li>
+        </ul>
+        <a href="{{signup:tarifs-proprietaire}}" class="btn btn-primary">Essayer 14 jours</a>
+      </div>
+      <div class="plan reveal">
+        <h3>Multi-chevaux</h3>
+        <p class="for">Plusieurs chevaux et une équipe autour d'eux.</p>
+        <p class="price"><span class="monthly-only">14,90 €</span><span class="yearly-only">149 €</span> <small class="monthly-only">/ mois</small><small class="yearly-only">/ an</small></p>
+        <p class="price-note"><span class="monthly-only">ou 149 € par an</span><span class="yearly-only">soit 12,42 € par mois</span> · 14 jours d'essai</p>
+        <ul>
+          <li>{{icon:check}}Jusqu'à 10 chevaux</li>
+          <li>{{icon:check}}Toutes les fonctions Propriétaire</li>
+          <li>{{icon:check}}Assistant : 400 consignes / mois</li>
+          <li>{{icon:check}}5 membres, 30 partages</li>
+          <li>{{icon:check}}10 Go de stockage</li>
+        </ul>
+        <a href="{{signup:tarifs-multi}}" class="btn btn-light">Essayer 14 jours</a>
+      </div>
+      <div class="plan reveal">
+        <h3>Écurie</h3>
+        <p class="for">Pour les écuries, pensions et centres équestres.</p>
+        <p class="price"><span class="monthly-only">49 €</span><span class="yearly-only">490 €</span> <small class="monthly-only">/ mois</small><small class="yearly-only">/ an</small></p>
+        <p class="price-note"><span class="monthly-only">ou 490 € par an</span><span class="yearly-only">soit 40,83 € par mois</span> · 14 jours d'essai</p>
+        <ul>
+          <li>{{icon:check}}Jusqu'à 80 chevaux</li>
+          <li>{{icon:check}}Gestion de la pension et relevés</li>
+          <li>{{icon:check}}30 membres, rôles et droits</li>
+          <li>{{icon:check}}Assistant : 2 000 consignes / mois</li>
+          <li>{{icon:check}}200 partages, 50 Go</li>
+        </ul>
+        <a href="/ecuries" class="btn btn-light">Découvrir l'offre</a>
+      </div>
+    </div>
+    <p class="center" style="margin-top:22px;font-size:14.5px;color:var(--muted)">Prix TTC. Paiement sécurisé par carte bancaire (Stripe). Résiliation en un clic, effective à la fin de la période payée.</p>
+  </div>
+</section>
+
+<section class="cream">
+  <div class="wrap">
+    <div class="head center reveal"><h2>Comparer les offres</h2></div>
+    <div class="table-wrap reveal">
+      <table class="compare">
+        <thead><tr><th scope="col">Fonction</th><th scope="col">Découverte</th><th scope="col">Propriétaire</th><th scope="col">Multi-chevaux</th><th scope="col">Écurie</th></tr></thead>
+        <tbody>
+          <tr><td>Chevaux</td><td>1</td><td>1</td><td>10</td><td>80</td></tr>
+          <tr><td>Membres de l'espace</td><td>1</td><td>2</td><td>5</td><td>30</td></tr>
+          <tr><td>Partages (demi-pension, moniteur, vétérinaire…)</td><td>1</td><td>6</td><td>30</td><td>200</td></tr>
+          <tr><td>Stockage des photos et documents</td><td>100 Mo</td><td>2 Go</td><td>10 Go</td><td>50 Go</td></tr>
+          <tr><td>Carnet de santé, rappels de soins, traitements</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Séances, exercices et bilans</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Agenda et notifications</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Fiche d'urgence avec QR code</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Assistant vocal (consignes par mois)</td><td class="no">—</td><td>150</td><td>400</td><td>2 000</td></tr>
+          <tr><td>Ordonnance et facture lues en photo</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Budget et dépenses récurrentes</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Documents du cheval</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Exports PDF et tableur</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Agenda synchronisé (Google, Apple)</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Gestion d'écurie : rôles, pension, relevés</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>Essai gratuit</td><td class="no">—</td><td>14 jours</td><td>14 jours</td><td>14 jours</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap grid-2" style="align-items:center;gap:48px">
+    <div class="reveal">
+      <p class="eyebrow">{{icon:sparkles}} Crédits IA</p>
+      <h2>Besoin de plus de consignes ce mois-ci&nbsp;?</h2>
+      <p class="lead">Si vous dépassez le quota de votre offre, ajoutez des crédits IA à l'unité, sans changer d'abonnement. Un crédit, c'est une consigne à l'assistant ou une lecture de facture, d'ordonnance ou de plan de séance. Ils n'expirent pas.</p>
+    </div>
+    <div class="credits reveal">
+      <div class="card center"><p class="price" style="font-size:1.8rem">50</p><p>crédits</p><strong style="color:var(--ink)">4,90 €</strong></div>
+      <div class="card center"><p class="price" style="font-size:1.8rem">150</p><p>crédits</p><strong style="color:var(--ink)">11,90 €</strong></div>
+      <div class="card center"><p class="price" style="font-size:1.8rem">400</p><p>crédits</p><strong style="color:var(--ink)">24,90 €</strong></div>
+    </div>
+  </div>
+</section>
+
+<section class="cream" id="faq">
+  <div class="wrap">
+    <div class="head center reveal"><h2>Questions fréquentes</h2></div>
+    <div class="faq">
+      <details><summary>Comment fonctionne l'essai de 14 jours&nbsp;?</summary><p>Vous choisissez une offre depuis l'application et profitez de toutes ses fonctions pendant 14 jours. Vous pouvez résilier avant la fin de l'essai : vous ne serez pas prélevé. L'essai est proposé lors du premier abonnement.</p></details>
+      <details><summary>Puis-je changer d'offre en cours de route&nbsp;?</summary><p>Oui, à tout moment depuis Abonnement. Le changement est immédiat et calculé au prorata.</p></details>
+      <details><summary>Que se passe-t-il si je résilie&nbsp;?</summary><p>Votre abonnement reste actif jusqu'à la fin de la période payée, puis vous revenez à l'offre Découverte. Vos données restent consultables et exportables.</p></details>
+      <details><summary>Quels moyens de paiement acceptez-vous&nbsp;?</summary><p>La carte bancaire, via Stripe, une plateforme de paiement sécurisée. Nous n'avons jamais accès à vos coordonnées bancaires. Une facture est disponible pour chaque paiement.</p></details>
+      <details><summary>Le demi-pensionnaire doit-il prendre un abonnement&nbsp;?</summary><p>Non. Les personnes avec qui vous partagez votre cheval se créent un compte gratuit et accèdent à votre cheval avec les droits que vous leur donnez.</p></details>
+      <details><summary>J'ai un code promo, où le saisir&nbsp;?</summary><p>À l'inscription (« J'ai un code promo ») ou plus tard dans Abonnement. Un code d'accès offert s'active sans carte bancaire.</p></details>
+      <details><summary>Existe-t-il un parrainage&nbsp;?</summary><p>Oui : depuis le menu Parrainage de l'application, partagez votre lien ou votre QR code. Pour chaque ami inscrit, vous recevez 15 jours de l'offre Propriétaire.</p></details>
+      <details><summary>Où sont stockées mes données&nbsp;?</summary><p>Chez notre hébergeur Hostinger, avec une connexion chiffrée (HTTPS) et un accès protégé. Vous pouvez exporter vos données à tout moment, ou demander leur suppression, depuis les paramètres de l'application.</p></details>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="final reveal">
+      <h2>Le plus simple, c'est d'essayer.</h2>
+      <p>Créez votre compte gratuitement et découvrez Jack&amp;Cie avec votre cheval.</p>
+      <div class="cta-row"><a href="{{signup:tarifs-fin}}" class="btn btn-gold btn-lg">Commencer gratuitement {{icon:arrow}}</a></div>
+    </div>
+  </div>
+</section>

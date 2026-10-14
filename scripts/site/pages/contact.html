@@ -1,0 +1,52 @@
+<!--{"file": "contact.html", "path": "/contact", "nav": "contact", "priority": "0.6", "og": "accueil",
+"title": "Contact — Jack&Cie",
+"description": "Une question sur Jack&Cie, une démonstration pour votre écurie, un partenariat ? Écrivez-nous, nous répondons sous 48 heures ouvrées."}-->
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">{{icon:mail}} Contact</p>
+    <h1>Parlons de vos chevaux.</h1>
+    <p class="lead">Une question, une démonstration pour votre écurie, un partenariat&nbsp;? Écrivez-nous : nous répondons personnellement, en général sous 48 heures ouvrées.</p>
+  </div>
+</section>
+
+<section style="padding-top:16px">
+  <div class="wrap contact-grid">
+    <form class="card form" id="formulaire" method="post" action="/contact.php">
+      <div data-form-status role="status" hidden></div>
+      <div class="row">
+        <div><label for="c-name">Nom et prénom</label><input id="c-name" name="name" required maxlength="120" autocomplete="name"></div>
+        <div><label for="c-email">Adresse e-mail</label><input id="c-email" name="email" type="email" required maxlength="190" autocomplete="email"></div>
+      </div>
+      <div class="row">
+        <div><label for="c-profile">Vous êtes</label>
+          <select id="c-profile" name="profile">
+            <option>Propriétaire</option><option>Cavalier ou demi-pensionnaire</option><option value="Écurie">Gérant d'écurie ou de centre équestre</option><option>Professionnel (vétérinaire, maréchal…)</option><option>Presse ou partenaire</option><option>Autre</option>
+          </select></div>
+        <div><label for="c-phone">Téléphone <span style="font-weight:400;color:var(--muted)">(facultatif)</span></label><input id="c-phone" name="phone" type="tel" maxlength="30" autocomplete="tel"></div>
+      </div>
+      <div><label for="c-subject">Sujet</label>
+        <select id="c-subject" name="subject">
+          <option value="question">Une question sur Jack&amp;Cie</option><option value="ecurie">Une démonstration pour mon écurie</option><option value="compte">Mon compte ou mon abonnement</option><option value="partenariat">Un partenariat</option><option value="presse">Presse</option><option value="autre">Autre</option>
+        </select></div>
+      <div><label for="c-message">Message</label><textarea id="c-message" name="message" required minlength="10" maxlength="5000"></textarea></div>
+      <div class="hp" aria-hidden="true"><label for="c-website">Ne pas remplir</label><input id="c-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <input type="hidden" name="ts" id="c-ts">
+      <p style="font-size:14px;color:var(--muted);margin:0">Vos coordonnées servent uniquement à vous répondre. <a href="/confidentialite">En savoir plus</a>.</p>
+      <div><button class="btn btn-primary btn-lg" type="submit">Envoyer le message {{icon:arrow}}</button></div>
+    </form>
+    <div style="display:grid;gap:16px">
+      <div class="card"><div class="ico">{{icon:mail}}</div><h3>Par e-mail</h3><p><a href="mailto:{{email}}">{{email}}</a></p></div>
+      <div class="card"><div class="ico">{{icon:phone}}</div><h3>Déjà utilisateur&nbsp;?</h3><p>Le menu <b>Assistance</b> de l'application joint automatiquement les informations utiles (version, offre, appareil) : c'est le plus rapide pour un souci technique.</p></div>
+      <div class="card"><div class="ico">{{icon:instagram}}</div><h3>Sur Instagram</h3><p>Nouveautés, conseils et coulisses : <a href="{{instagram}}" target="_blank" rel="noopener">@jackcieapp</a></p></div>
+    </div>
+  </div>
+</section>
+<script>
+  document.getElementById('c-ts').value = String(Math.floor(Date.now() / 1000));
+  (function () {
+    var s = new URLSearchParams(location.search).get('sujet');
+    var sel = document.getElementById('c-subject');
+    if (s && sel.querySelector('option[value="' + s.replace(/[^a-z]/g, '') + '"]')) sel.value = s;
+    if (s === 'ecurie') document.getElementById('c-profile').value = 'Écurie';
+  })();
+</script>

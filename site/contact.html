@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact — Jack&amp;Cie</title>
+<meta name="description" content="Une question sur Jack&amp;Cie, une démonstration pour votre écurie, un partenariat ? Écrivez-nous, nous répondons sous 48 heures ouvrées.">
+<link rel="canonical" href="https://jackcie.fr/contact">
+<meta name="theme-color" content="#fbfaf6">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Jack&amp;Cie">
+<meta property="og:title" content="Contact — Jack&amp;Cie">
+<meta property="og:description" content="Une question sur Jack&amp;Cie, une démonstration pour votre écurie, un partenariat ? Écrivez-nous, nous répondons sous 48 heures ouvrées.">
+<meta property="og:url" content="https://jackcie.fr/contact">
+<meta property="og:image" content="https://jackcie.fr/img/og-accueil.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/brand/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/brand/apple-touch-icon.png">
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=20261014">
+
+
+</head>
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="header">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="Jack&amp;Cie, accueil"><img src="/img/brand/jackcie-wordmark.webp" alt="Jack&amp;Cie" width="130" height="38"></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Ouvrir le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg></button>
+    <nav class="nav" id="nav" aria-label="Navigation principale">
+      <a href="/">Propriétaires</a><a href="/ecuries">Écuries</a><a href="/tarifs">Tarifs</a><a href="/contact" aria-current="page">Contact</a>
+      <a href="https://jackcie.nlapps.fr/login" class="login">Se connecter</a>
+      <a href="https://jackcie.nlapps.fr/register?src=site-menu" class="btn btn-primary">Essayer gratuitement</a>
+    </nav>
+  </div>
+</header>
+<main id="contenu">
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg> Contact</p>
+    <h1>Parlons de vos chevaux.</h1>
+    <p class="lead">Une question, une démonstration pour votre écurie, un partenariat&nbsp;? Écrivez-nous : nous répondons personnellement, en général sous 48 heures ouvrées.</p>
+  </div>
+</section>
+
+<section style="padding-top:16px">
+  <div class="wrap contact-grid">
+    <form class="card form" id="formulaire" method="post" action="/contact.php">
+      <div data-form-status role="status" hidden></div>
+      <div class="row">
+        <div><label for="c-name">Nom et prénom</label><input id="c-name" name="name" required maxlength="120" autocomplete="name"></div>
+        <div><label for="c-email">Adresse e-mail</label><input id="c-email" name="email" type="email" required maxlength="190" autocomplete="email"></div>
+      </div>
+      <div class="row">
+        <div><label for="c-profile">Vous êtes</label>
+          <select id="c-profile" name="profile">
+            <option>Propriétaire</option><option>Cavalier ou demi-pensionnaire</option><option value="Écurie">Gérant d'écurie ou de centre équestre</option><option>Professionnel (vétérinaire, maréchal…)</option><option>Presse ou partenaire</option><option>Autre</option>
+          </select></div>
+        <div><label for="c-phone">Téléphone <span style="font-weight:400;color:var(--muted)">(facultatif)</span></label><input id="c-phone" name="phone" type="tel" maxlength="30" autocomplete="tel"></div>
+      </div>
+      <div><label for="c-subject">Sujet</label>
+        <select id="c-subject" name="subject">
+          <option value="question">Une question sur Jack&amp;Cie</option><option value="ecurie">Une démonstration pour mon écurie</option><option value="compte">Mon compte ou mon abonnement</option><option value="partenariat">Un partenariat</option><option value="presse">Presse</option><option value="autre">Autre</option>
+        </select></div>
+      <div><label for="c-message">Message</label><textarea id="c-message" name="message" required minlength="10" maxlength="5000"></textarea></div>
+      <div class="hp" aria-hidden="true"><label for="c-website">Ne pas remplir</label><input id="c-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <input type="hidden" name="ts" id="c-ts">
+      <p style="font-size:14px;color:var(--muted);margin:0">Vos coordonnées servent uniquement à vous répondre. <a href="/confidentialite">En savoir plus</a>.</p>
+      <div><button class="btn btn-primary btn-lg" type="submit">Envoyer le message <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></button></div>
+    </form>
+    <div style="display:grid;gap:16px">
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg></div><h3>Par e-mail</h3><p><a href="mailto:contact@jackcie.fr">contact@jackcie.fr</a></p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg></div><h3>Déjà utilisateur&nbsp;?</h3><p>Le menu <b>Assistance</b> de l'application joint automatiquement les informations utiles (version, offre, appareil) : c'est le plus rapide pour un souci technique.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3h9A4.5 4.5 0 0121 7.5v9a4.5 4.5 0 01-4.5 4.5h-9A4.5 4.5 0 013 16.5v-9A4.5 4.5 0 017.5 3zM15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM17.25 6.75h.008v.008h-.008V6.75z"/></svg></div><h3>Sur Instagram</h3><p>Nouveautés, conseils et coulisses : <a href="https://www.instagram.com/jackcieapp/" target="_blank" rel="noopener">@jackcieapp</a></p></div>
+    </div>
+  </div>
+</section>
+<script>
+  document.getElementById('c-ts').value = String(Math.floor(Date.now() / 1000));
+  (function () {
+    var s = new URLSearchParams(location.search).get('sujet');
+    var sel = document.getElementById('c-subject');
+    if (s && sel.querySelector('option[value="' + s.replace(/[^a-z]/g, '') + '"]')) sel.value = s;
+    if (s === 'ecurie') document.getElementById('c-profile').value = 'Écurie';
+  })();
+</script>
+
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="brand">
+        <img src="/img/brand/jackcie-wordmark.webp" alt="Jack&amp;Cie" width="136" height="40">
+        <p>L'application qui suit votre cheval au quotidien&nbsp;: santé, séances, agenda, budget et partage, avec un assistant à qui parler.</p>
+        <a class="social" href="https://www.instagram.com/jackcieapp/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3h9A4.5 4.5 0 0121 7.5v9a4.5 4.5 0 01-4.5 4.5h-9A4.5 4.5 0 013 16.5v-9A4.5 4.5 0 017.5 3zM15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM17.25 6.75h.008v.008h-.008V6.75z"/></svg> @jackcieapp</a>
+      </div>
+      <div>
+        <h4>Jack&amp;Cie</h4>
+        <ul><li><a href="/">Pour les propriétaires</a></li><li><a href="/ecuries">Pour les écuries</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/tarifs#faq">Questions fréquentes</a></li></ul>
+      </div>
+      <div>
+        <h4>Application</h4>
+        <ul><li><a href="https://jackcie.nlapps.fr/register?src=site-footer">Créer un compte</a></li><li><a href="https://jackcie.nlapps.fr/login">Se connecter</a></li><li><a href="https://jackcie.nlapps.fr/conditions">Conditions d'utilisation</a></li><li><a href="https://jackcie.nlapps.fr/confidentialite">Confidentialité de l'application</a></li></ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul><li><a href="/contact">Nous écrire</a></li><li><a href="mailto:contact@jackcie.fr">contact@jackcie.fr</a></li><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/confidentialite">Confidentialité du site</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Jack&amp;Cie — une application NLapps</span><span>Conçue en France, pour les cavaliers.</span></div>
+  </div>
+</footer>
+<script src="/js/site.js?v=20261014" defer></script>
+</body>
+</html>
