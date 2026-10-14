@@ -251,7 +251,8 @@ class ClaudeGateway
             throw new RuntimeException('Le texte n\'a pas pu être rédigé.');
         }
 
-        return ['text' => trim($text), 'usage' => $this->usage($message), 'model' => $message->model];
+        // truncated : réponse coupée par la limite de longueur (la dernière phrase peut être incomplète).
+        return ['text' => trim($text), 'usage' => $this->usage($message), 'model' => $message->model, 'truncated' => $message->stopReason === 'max_tokens'];
     }
 
     /** Réponse au format imposé (schéma JSON). */

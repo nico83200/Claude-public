@@ -123,7 +123,11 @@ class WeeklyDigest
                 .($afterGreeting ? 'Ne commence pas par « Bonjour » (la salutation est déjà écrite). ' : 'Commence directement par le contenu, sans salutation. ')
                 .'Réponds uniquement avec le texte final, entièrement en français : aucun commentaire sur ces consignes, aucun brouillon, aucune autre langue.',
                 'Prénom : '.(strtok(trim((string) $user->name), ' ') ?: '—').'\nSemaine du '.$d['from']->translatedFormat('l j F').' au '.$d['to']->translatedFormat('l j F')."\n\n".$this->text($d, $budget),
-                400);
+                1000);
+
+            if (! empty($result['truncated'])) {
+                report(new \RuntimeException('Introduction de la semaine coupée par la limite de longueur.'));
+            }
 
             return self::cleanIntro($result['text']);
         } catch (\Throwable $e) {
@@ -152,6 +156,10 @@ class WeeklyDigest
 
             return ! $words || $en / count($words) < 0.2;
         });
+        // Dernière phrase sans ponctuation finale : réponse coupée, elle est retirée plutôt qu'affichée à moitié.
+        if ($kept && ! preg_match('/[.!?…»)]$/u', end($kept))) {
+            array_pop($kept);
+        }
         $clean = trim(implode(' ', $kept));
 
         return mb_strlen($clean) >= 20 ? mb_substr($clean, 0, 700) : null;
@@ -176,7 +184,7 @@ class WeeklyDigest
     public function fingerprint(array $d): string
     {
         return hash('sha256', json_encode([
-            'v2', // à changer pour faire réécrire toutes les introductions (changement de consigne)
+            'v3', // à changer pour faire réécrire toutes les introductions (changement de consigne)
             $d['from']->toDateString(),
             $d['events']->map(fn ($o) => [$o['event']->id, $o['at']->toDateTimeString(), $o['event']->title, (bool) $o['event']->all_day, $o['event']->horse_id])->values(),
             $d['treatments']->map(fn ($t) => [$t->id, $t->product, $t->ends_on?->toDateString(), $t->horse_id])->values(),

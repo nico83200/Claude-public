@@ -293,6 +293,10 @@ class AiFeaturesTest extends TestCase
         $this->assertStringContainsString('sans salutation', $call['system']);
         $this->assertStringNotContainsString('la salutation est déjà écrite', $call['system']);
 
+        // Réponse coupée par la limite de longueur : la phrase incomplète n'est pas affichée.
+        $this->assertSame('Jeudi sera chargé pour Jack.', WeeklyDigest::cleanIntro('Jeudi sera chargé pour Jack. Ferrure à 9 heures, puis deux séances de monte'));
+        $this->assertNull(WeeklyDigest::cleanIntro('Jeudi 15 octobre sera une journée bien remplie : la ferrure de Jack'));
+
         // Réponse entièrement en anglais : rien n'est affiché ni mémorisé.
         $this->assertNull(WeeklyDigest::cleanIntro('Here is your week: the farrier comes on Thursday at 9.'));
         $this->assertSame('Belle semaine pour Uni : le maréchal passe mardi matin.', WeeklyDigest::cleanIntro('« Belle semaine pour Uni : le maréchal passe mardi matin. »'));

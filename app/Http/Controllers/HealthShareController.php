@@ -58,7 +58,7 @@ class HealthShareController extends Controller
                     'Tu rédiges, pour un vétérinaire équin, une synthèse factuelle du dossier de santé d\'un cheval tenu par son propriétaire. '
                     .'Français, 5 à 8 lignes, phrases courtes, sans mise en forme. Cite les faits marquants avec leurs dates (soins, traitements, évolution du poids, observations, anomalies en séance). '
                     .'N\'interprète pas, ne pose aucun diagnostic, ne donne aucun conseil ; si une donnée manque, ne l\'invente pas.',
-                    $summary->text($summary->build($horse)), 700);
+                    $summary->text($summary->build($horse)), 1500);
                 $ai = $result['text'];
                 AssistantRequest::create([
                     'uuid' => (string) Str::uuid(), 'user_id' => $request->user()->id, 'organization_id' => $horse->organization_id, 'conversation_id' => (string) Str::uuid(),
