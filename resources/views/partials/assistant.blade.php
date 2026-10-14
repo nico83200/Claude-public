@@ -75,19 +75,19 @@
                         </template>
 
                         {{-- Écoute --}}
-                        <div x-show="a.state === 'idle' || a.state === 'listening' || a.state === 'transcribing'" class="flex flex-col items-center py-4 text-center">
-                            <button type="button" @click="a.state === 'listening' ? a.stopListening() : a.listen()" :disabled="a.state === 'transcribing' || ! a.canRecord"
+                        <div x-show="a.state === 'idle' || a.state === 'preparing' || a.state === 'listening' || a.state === 'transcribing'" class="flex flex-col items-center py-4 text-center">
+                            <button type="button" @click="a.state === 'listening' ? a.stopListening() : a.listen()" :disabled="a.state === 'transcribing' || a.state === 'preparing' || ! a.canRecord"
                                     class="relative flex size-24 items-center justify-center rounded-full bg-brand-800 text-white shadow-[var(--shadow-float)] transition active:scale-95 disabled:bg-slate-300"
                                     :class="a.state === 'listening' && 'mic-ring'" :aria-label="a.state === 'listening' ? 'Terminer' : 'Parler'">
                                 <span class="relative z-10" x-show="a.state !== 'listening'"><x-icon name="mic" class="size-10" /></span>
                                 <span class="relative z-10" x-show="a.state === 'listening'" x-cloak><x-icon name="stop" class="size-9" /></span>
                             </button>
-                            <p class="mt-5 text-lg font-semibold text-slate-900" x-text="a.state === 'listening' ? 'Je vous écoute…' : (a.state === 'transcribing' ? 'Je transcris…' : (a.canRecord ? 'Touchez et parlez' : 'Écrivez votre consigne'))"></p>
+                            <p class="mt-5 text-lg font-semibold text-slate-900" x-text="a.state === 'listening' ? 'Je vous écoute…' : a.state === 'preparing' ? 'Attendez le bip…' : (a.state === 'transcribing' ? 'Je transcris…' : (a.canRecord ? 'Touchez et parlez' : 'Écrivez votre consigne'))"></p>
                             <p class="mt-1 text-sm text-slate-500" x-show="a.state === 'listening'">Arrêt automatique quand vous vous taisez · <span x-text="a.elapsed + ' s'"></span></p>
                             <div class="mt-3 flex h-6 items-end gap-1" x-show="a.state === 'listening'" aria-hidden="true">
                                 <template x-for="i in 7"><span class="w-1.5 rounded-full bg-brand-500 transition-all duration-100" :style="`height: ${6 + Math.max(0, a.level * 18 - Math.abs(4 - i) * 3)}px`"></span></template>
                             </div>
-                            <button type="button" class="btn-ghost mt-2 text-sm" x-show="a.state === 'listening'" @click="a.cancelRecording()">Annuler</button>
+                            <button type="button" class="btn-ghost mt-2 text-sm" x-show="a.state === 'listening' || a.state === 'preparing'" @click="a.cancelRecording()">Annuler</button>
                             <template x-if="a.state === 'idle'">
                                 <div class="mt-6 w-full text-left">
                                     <p class="mb-2 text-xs font-medium tracking-wide text-slate-400 uppercase">Par exemple</p>
@@ -151,7 +151,7 @@
                 <form class="flex items-center gap-2" @submit.prevent="a.send(a.draft)">
                     <button type="button" x-show="a.state === 'result' || a.state === 'error'" @click="a.listen()" :disabled="! a.canRecord" class="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-800 text-white disabled:bg-slate-300" aria-label="Parler"><x-icon name="mic" class="size-5" /></button>
                     <label for="assistant-input" class="sr-only">Écrire une consigne</label>
-                    <input id="assistant-input" x-model="a.draft" @focus="a.keepOpen()" :placeholder="a.question ? 'Votre réponse…' : 'Une consigne ou une question…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'listening' || a.state === 'transcribing'">
+                    <input id="assistant-input" x-model="a.draft" @focus="a.keepOpen()" :placeholder="a.question ? 'Votre réponse…' : 'Une consigne ou une question…'" autocomplete="off" class="input rounded-full bg-slate-50 py-2.5" :disabled="a.state === 'thinking' || a.state === 'preparing' || a.state === 'listening' || a.state === 'transcribing'">
                     <button class="flex size-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white disabled:bg-slate-300" :disabled="! a.draft.trim() || a.state === 'thinking'" aria-label="Envoyer"><x-icon name="send" class="size-5" /></button>
                 </form>
                 <p class="mt-2 px-2 text-xs font-medium text-amber-700" x-show="a.pending" x-cloak data-assistant-pending><span x-text="a.pending"></span> consigne(s) notée(s) hors connexion, envoyée(s) au retour du réseau</p>

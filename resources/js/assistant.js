@@ -40,6 +40,30 @@ async function postJson(url, body) {
     return data;
 }
 
+
+/** Signal de début d'écoute : deux notes brèves montantes (≈ 0,2 s) et une courte vibration si possible. */
+function startCue(ctx) {
+    try { navigator.vibrate?.(40); } catch { /* ignoré */ }
+    return new Promise((resolve) => {
+        try {
+            const t = ctx.currentTime + 0.02;
+            [[660, 0], [990, 0.09]].forEach(([freq, at]) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.0001, t + at);
+                gain.gain.exponentialRampToValueAtTime(0.25, t + at + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + at + 0.08);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(t + at);
+                osc.stop(t + at + 0.09);
+            });
+        } catch { /* pas de son possible : on n'attend pas */ }
+        setTimeout(resolve, 230);
+    });
+}
+
 function pickMime() {
     if (typeof MediaRecorder === 'undefined') return null;
     for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']) {
@@ -82,7 +106,7 @@ export function assistantStore(config) {
             this.isOpen = true;
             document.documentElement.style.overflow = 'hidden';
             if (!this.status) await this.loadStatus();
-            if (listen && this.status?.available && this.canRecord && this.state !== 'listening') this.listen();
+            if (listen && this.status?.available && this.canRecord && this.state !== 'listening' && this.state !== 'preparing') this.listen();
         },
 
         init() {
@@ -330,17 +354,29 @@ export function assistantStore(config) {
             if (!navigator.onLine && !offlineQueue.available) { this.fail('L\'assistant a besoin d\'une connexion Internet.'); return; }
             this.reset(true);
             this.queued = false;
+            // Contexte audio créé pendant le toucher (exigé sur téléphone) : sert au bip et à la mesure du niveau.
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            ctx.resume?.().catch(() => {});
+            const token = (this._listenToken = (this._listenToken || 0) + 1);
+            this.state = 'preparing';
             let stream;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
             } catch {
+                ctx.close().catch(() => {});
                 this.fail('Accès au micro refusé. Autorisez le micro dans les réglages du navigateur, ou écrivez votre consigne.');
+                return;
+            }
+            // Bip (et petite vibration) juste avant l'écoute : l'utilisateur sait quand parler, le bip n'est pas enregistré.
+            await startCue(ctx);
+            if (this._listenToken !== token || this.state !== 'preparing') {
+                stream.getTracks().forEach((t) => t.stop());
+                ctx.close().catch(() => {});
                 return;
             }
             const mime = pickMime();
             const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
             const chunks = [];
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const analyser = ctx.createAnalyser();
             analyser.fftSize = 1024;
             ctx.createMediaStreamSource(stream).connect(analyser);
@@ -399,6 +435,7 @@ export function assistantStore(config) {
         },
 
         cancelRecording() {
+            if (this.state === 'preparing') { this.state = 'idle'; this._listenToken = (this._listenToken || 0) + 1; return; } // micro libéré après le bip
             if (this._rec) { this.state = 'idle'; this._rec.cancel(); this._rec = null; }
         },
 
