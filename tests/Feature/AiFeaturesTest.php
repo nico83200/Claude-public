@@ -297,6 +297,8 @@ class AiFeaturesTest extends TestCase
         $this->assertSame('Jeudi sera chargé pour Jack.', WeeklyDigest::cleanIntro('Jeudi sera chargé pour Jack. Ferrure à 9 heures, puis deux séances de monte'));
         $this->assertNull(WeeklyDigest::cleanIntro('Jeudi 15 octobre sera une journée bien remplie : la ferrure de Jack'));
 
+        $this->assertSame('N\'oubliez pas les bilans de lundi et mardi.', WeeklyDigest::cleanIntro('(no, no salutation allowed). (no tutoiement allowed). N\'oubliez pas les bilans de lundi et mardi.'));
+
         // Réponse entièrement en anglais : rien n'est affiché ni mémorisé.
         $this->assertNull(WeeklyDigest::cleanIntro('Here is your week: the farrier comes on Thursday at 9.'));
         $this->assertSame('Belle semaine pour Uni : le maréchal passe mardi matin.', WeeklyDigest::cleanIntro('« Belle semaine pour Uni : le maréchal passe mardi matin. »'));

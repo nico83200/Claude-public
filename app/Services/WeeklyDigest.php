@@ -145,10 +145,11 @@ class WeeklyDigest
     {
         $text = trim(preg_replace('/\s+/u', ' ', $text), " \t\n\r\0\x0B\"«»“”");
         $sentences = preg_split('/(?<=[.!?…])\s+(?=\S)/u', $text, -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $english = '/\b(wait|let me|let\'s|I must|I should|I will|I\'ll|I need|I am|I\'m|actually|okay|sorry|instructions?|the user|in French|write|should not|must not|start with)\b/i';
+        $english = '/\b(wait|let me|let\'s|I must|I should|I will|I\'ll|I need|I am|I\'m|actually|okay|sorry|instructions?|the user|in French|write|should not|must not|start with|allowed|not allowed|draft|here is|here\'s)\b/iu';
         $kept = array_filter($sentences, function ($sentence) use ($english) {
             // Phrase inachevée (« Bonjour Nicolas, ... ») ou commentaire de la consigne / en anglais.
-            if (preg_match('/(\.\.\.|…)$/u', $sentence) || preg_match($english, $sentence)) {
+            // Note entre parenthèses seule (« (no tutoiement allowed). »).
+            if (preg_match('/(\.\.\.|…)$/u', $sentence) || preg_match('/^\(.*\)[.!?]?$/u', $sentence) || preg_match($english, $sentence)) {
                 return false;
             }
             $words = preg_split('/[^\p{L}\']+/u', mb_strtolower($sentence), -1, PREG_SPLIT_NO_EMPTY);
@@ -184,7 +185,7 @@ class WeeklyDigest
     public function fingerprint(array $d): string
     {
         return hash('sha256', json_encode([
-            'v3', // à changer pour faire réécrire toutes les introductions (changement de consigne)
+            'v4', // à changer pour faire réécrire toutes les introductions (changement de consigne)
             $d['from']->toDateString(),
             $d['events']->map(fn ($o) => [$o['event']->id, $o['at']->toDateTimeString(), $o['event']->title, (bool) $o['event']->all_day, $o['event']->horse_id])->values(),
             $d['treatments']->map(fn ($t) => [$t->id, $t->product, $t->ends_on?->toDateString(), $t->horse_id])->values(),

@@ -239,15 +239,27 @@ class ClaudeGateway
      */
     public function write(string $system, string $prompt, int $maxTokens = 1200): array
     {
-        $message = $this->call(['system' => $system, 'maxTokens' => $maxTokens, 'messages' => [['role' => 'user', 'content' => $prompt]], 'outputConfig' => ['effort' => 'low']],
+        // Format imposé (un seul champ « text ») : la réflexion du modèle ne peut pas se mêler au texte livré
+        // (sans cela, à effort bas, des notes comme « wait, I must not… » apparaissaient dans la réponse).
+        // La limite couvre aussi la réflexion : 4000 au moins, pour ne pas couper le texte.
+        $message = $this->call(['system' => $system, 'maxTokens' => max($maxTokens, 4000), 'messages' => [['role' => 'user', 'content' => $prompt]],
+            'outputConfig' => ['effort' => 'low', 'format' => ['type' => 'json_schema', 'schema' => [
+                'type' => 'object', 'additionalProperties' => false, 'required' => ['text'],
+                'properties' => ['text' => ['type' => 'string', 'description' => 'Le texte final, prêt à être affiché, entièrement en français.']],
+            ]]]],
             'Le texte n\'a pas pu être rédigé.');
-        $text = '';
+        $raw = '';
         foreach ($message->content as $block) {
             if ($block->type === 'text') {
-                $text .= $block->text;
+                $raw .= $block->text;
             }
         }
-        if ($message->stopReason === 'refusal' || trim($text) === '') {
+        if ($message->stopReason === 'refusal' || trim($raw) === '') {
+            throw new RuntimeException('Le texte n\'a pas pu être rédigé.');
+        }
+        $data = json_decode($raw, true);
+        $text = is_array($data) && is_string($data['text'] ?? null) ? $data['text'] : $raw;
+        if (trim($text) === '') {
             throw new RuntimeException('Le texte n\'a pas pu être rédigé.');
         }
 
