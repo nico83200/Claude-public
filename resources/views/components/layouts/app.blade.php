@@ -144,6 +144,7 @@
 @include('partials.assistant', ['contextHorseId' => $contextHorseId])
 @if (in_array('professionals.manage', $navPerms))@include('partials.contact-dialog')@endif
 @include('partials.install', ['bannerBottom' => 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))]'])
+@include('partials.install-offer')
 @auth @include('partials.push-gate') @include('partials.pending-videos') @endauth
 @stack('scripts')
 </body>

@@ -21,6 +21,9 @@
                 <button x-show="! $store.install.justInstalled" type="button" class="btn-primary w-full text-base" @click="$store.install.install()" :disabled="$store.install.preparing">
                     <x-icon name="download" class="size-5" /> <span x-text="$store.install.preparing ? 'Préparation de l\'installation…' : 'Installer Jack&Cie'">Installer Jack&amp;Cie</span>
                 </button>
+                @if ($purpose === 'vous connecter')
+                    <p class="mt-5 rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">Pas encore de compte ? <a href="{{ route('register', request()->only('code', 'src', 'parrain')) }}" class="font-semibold link" data-gate-register>Créez-le ici</a>, l'installation vous sera proposée ensuite.</p>
+                @endif
                 <p class="mt-4 text-sm text-slate-500">Déjà installée ? Ouvrez <strong>Jack&amp;Cie</strong> depuis l'écran d'accueil de votre {{ '' }}<span x-text="$store.install.isIOS && /iPad/.test(navigator.userAgent) ? 'tablette' : 'téléphone'"></span>.</p>
             </div>
         </template>

@@ -34,6 +34,12 @@ Route::view('/application-mobile', 'public.install')->name('app.install');
 
 // Webhook Stripe (signature vérifiée, CSRF exclu dans bootstrap/app.php)
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
+// Proposition d'installation après l'inscription : « Plus tard » (aussi avant la confirmation de l'adresse e-mail).
+Route::post('/installation/plus-tard', function (\Illuminate\Http\Request $request) {
+    $request->session()->forget('offer_install');
+
+    return response()->json(['ok' => true]);
+})->middleware('auth')->name('install-offer.dismiss');
 Route::get('/p/{code}', [Controllers\ReferralController::class, 'join'])->where('code', '[A-Za-z0-9]{6,16}')->middleware('throttle:60,1')->name('referral.join');
 
 // Continuer avec Google / Apple (retour d'Apple en POST : CSRF exclu dans bootstrap/app.php, état vérifié)

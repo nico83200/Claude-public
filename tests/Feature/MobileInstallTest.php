@@ -17,10 +17,16 @@ class MobileInstallTest extends TestCase
 
     private const DESKTOP = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36';
 
-    public function test_phones_and_tablets_only_see_install_on_login_and_register(): void
+    public function test_phones_and_tablets_see_install_on_login_but_can_sign_up_in_the_browser(): void
     {
         foreach ([self::IPHONE, self::ANDROID_TABLET] as $ua) {
-            foreach (['/login', '/register'] as $page) {
+            // Inscription : formulaire directement dans le navigateur (installation proposée après).
+            $html = $this->withHeader('User-Agent', $ua)->get('/register?code=EQUITA2026&src=site')->assertOk()->getContent();
+            $this->assertStringContainsString('name="email"', $html);
+            $this->assertStringNotContainsString('x-show="$store.install.gate"', $html);
+            // Connexion : installation proposée, avec un lien pour créer son compte (code et source conservés).
+            $this->withHeader('User-Agent', $ua)->get('/login?code=EQUITA2026&src=site')->assertSee('data-gate-register', false)->assertSee(route('register', ['code' => 'EQUITA2026', 'src' => 'site']));
+            foreach (['/login'] as $page) {
                 $html = $this->withHeader('User-Agent', $ua)->get($page)->assertOk()->getContent();
                 $this->assertMatchesRegularExpression('/x-show="\$store\.install\.gate"\s+class="text-center"/', $html, $page);
                 $this->assertMatchesRegularExpression('/x-show="! \$store\.install\.gate"\s+style="display: none"/', $html, 'formulaire masqué sur '.$page);
