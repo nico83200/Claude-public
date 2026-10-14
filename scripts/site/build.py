@@ -58,7 +58,7 @@ ICONS = {
     'qr': '<path d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>',
 }
 
-NAV = [('/', 'Propriétaires', 'home'), ('/ecuries', 'Écuries', 'ecuries'), ('/tarifs', 'Tarifs', 'tarifs'), ('/contact', 'Contact', 'contact')]
+NAV = [('/', 'Propriétaires', 'home'), ('/ecuries', 'Écuries', 'ecuries'), ('/tarifs', 'Tarifs', 'tarifs'), ('/conseils', 'Conseils', 'conseils'), ('/contact', 'Contact', 'contact')]
 
 
 def icon(name, cls=''):
@@ -134,7 +134,7 @@ def layout(meta, body):
       </div>
       <div>
         <h4>Jack&amp;Cie</h4>
-        <ul><li><a href="/">Pour les propriétaires</a></li><li><a href="/ecuries">Pour les écuries</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/tarifs#faq">Questions fréquentes</a></li></ul>
+        <ul><li><a href="/">Pour les propriétaires</a></li><li><a href="/ecuries">Pour les écuries</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/tarifs#faq">Questions fréquentes</a></li><li><a href="/conseils">Conseils pratiques</a></li></ul>
       </div>
       <div>
         <h4>Application</h4>
