@@ -7,8 +7,10 @@ use App\Models\CareCategory;
 use App\Models\CareRecord;
 use App\Models\CareReminderRule;
 use App\Models\Horse;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Fréquences de suivi (maréchal, vaccination, vermifuge…) : règle du cheval,
@@ -58,6 +60,60 @@ class CareReminders
     public static function describe(int $value, string $unit): string
     {
         return $value.' '.($unit === 'weeks' ? ($value > 1 ? 'semaines' : 'semaine') : 'mois');
+    }
+
+    /**
+     * Boutons de la notification de rappel (« C'est fait », « Reporter d'une semaine ») : adresses signées,
+     * valables 30 jours, liées à la personne et à la date d'échéance (un second appui ne reporte pas deux fois).
+     *
+     * @return array<int, array{action: string, title: string, url: string}>
+     */
+    public function notificationActions(CareRecord $due, User $user): array
+    {
+        $params = ['care' => $due->id, 'user' => $user->id, 'due' => Carbon::parse($due->next_check_on)->toDateString()];
+
+        return [
+            ['action' => 'done', 'title' => 'C\'est fait', 'url' => URL::temporarySignedRoute('care.quick', now()->addDays(30), $params + ['action' => 'fait'])],
+            ['action' => 'later', 'title' => 'Reporter d\'une semaine', 'url' => URL::temporarySignedRoute('care.quick', now()->addDays(30), $params + ['action' => 'reporter'])],
+        ];
+    }
+
+    /**
+     * « C'est fait » depuis un rappel : soin enregistré aujourd'hui (même catégorie, même intervenant),
+     * échéance suivante calculée selon la fréquence du cheval ; le rappel en attente est clos.
+     */
+    public function markDone(CareRecord $due, User $user, CalendarService $calendar): CareRecord
+    {
+        $horse = $due->horse;
+        $rule = $this->ruleFor($horse, $due->care_category_id);
+        $now = now();
+        $next = null;
+        if ($rule && $rule['enabled']) {
+            $next = self::addInterval($now, (int) $rule['interval_value'], $rule['interval_unit']);
+        } elseif ($due->performed_at && $due->next_check_on) {
+            // Pas de fréquence enregistrée : même écart que la fois précédente.
+            $next = $now->copy()->addDays((int) $due->performed_at->copy()->startOfDay()->diffInDays(Carbon::parse($due->next_check_on)));
+        }
+
+        $record = new CareRecord([
+            'care_category_id' => $due->care_category_id, 'professional_id' => $due->professional_id, 'performed_at' => $now,
+            'reason' => $due->reason, 'observations' => 'Noté depuis la notification de rappel.', 'next_check_on' => $next?->toDateString(),
+        ]);
+        $record->horse_id = $horse->id;
+        $record->author_id = $user->id;
+        $record->save();
+        $this->closePrevious($record, $calendar);
+
+        return $record;
+    }
+
+    /** « Reporter d'une semaine » : l'échéance (et son rendez-vous de contrôle dans l'agenda) avance de 7 jours. */
+    public function postpone(CareRecord $due, int $days = 7): Carbon
+    {
+        $due->next_check_on = Carbon::parse($due->next_check_on)->addDays($days);
+        $due->save();
+
+        return $due->next_check_on;
     }
 
     /**

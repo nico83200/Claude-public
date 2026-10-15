@@ -7,7 +7,7 @@
 | Authentification | Fortify : mots de passe hachés (bcrypt), 10 car. min. lettres + chiffres, vérification d'email, réinitialisation par jeton, 2FA TOTP + codes de secours |
 | Tentatives de connexion | 5/min par email+IP ; 2FA 5/min |
 | Comptes suspendus | Connexion refusée, sessions supprimées, déconnexion immédiate (middleware) |
-| CSRF | Jeton sur tous les formulaires et appels `/sync` ; seul `/stripe/webhook` est exclu (signature Stripe) |
+| CSRF | Jeton sur tous les formulaires et appels `/sync`. Exclus : `/stripe/webhook` (signature Stripe), `/connexion/apple/retour` (retour Apple, `state` vérifié), `/push/recu` (accusé de réception sans effet sur les données) et `/rappels/soins/*` (boutons des notifications : adresse signée, valable 30 jours, liée à la personne destinataire, qui doit être connectée et avoir toujours le droit de modifier la santé du cheval) |
 | Injections SQL | Eloquent / requêtes paramétrées ; recherche `LIKE` échappée |
 | Validation | Côté serveur pour chaque formulaire et chaque action de l'assistant |
 | Contrôle d'accès | `HorseAccess` + Gates à chaque lecture, écriture, export, téléchargement et action de l'assistant ; routes imbriquées scopées (`/chevaux/{a}/soins/{b}` refuse un soin d'un autre cheval) |

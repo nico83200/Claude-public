@@ -72,6 +72,8 @@ class AppNotification extends Notification implements ShouldQueue
         public bool $mail = true,
         // Texte plus détaillé pour l'e-mail (le téléphone garde le résumé court).
         public ?string $mailBody = null,
+        // Boutons de la notification sur le téléphone : [['action' => 'done', 'title' => 'C\'est fait', 'url' => adresse signée], …]
+        public array $actions = [],
     ) {
         // Mise en file seulement une fois l'enregistrement validé en base (jamais de notification fantôme).
         $this->afterCommit();
@@ -102,10 +104,11 @@ class AppNotification extends Notification implements ShouldQueue
         return app(MailDesign::class)->mailMessage($this->kind, ['name' => $notifiable->name ?? null], $this->title, $this->mailBody ?? $this->body, $this->url);
     }
 
-    /** @return array{title: string, body: string, url: string|null, tag: string} */
+    /** @return array{title: string, body: string, url: string|null, tag: string, actions?: array} */
     public function toWebPush(object $notifiable): array
     {
-        return ['title' => $this->title, 'body' => $this->body, 'url' => $this->url, 'tag' => $this->kind];
+        return ['title' => $this->title, 'body' => $this->body, 'url' => $this->url, 'tag' => $this->kind]
+            + ($this->actions ? ['actions' => $this->actions] : []);
     }
 
     public function toArray(object $notifiable): array

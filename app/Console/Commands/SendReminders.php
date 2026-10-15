@@ -52,11 +52,13 @@ class SendReminders extends Command
             $due = Carbon::parse($care->next_check_on)->startOfDay();
             $notice = $rule['notice_days'] ?? 7;
             $what = $care->category->name.' pour '.$care->horse->shortName();
+            // « C'est fait » / « Reporter d'une semaine » sur la notification, pour qui peut modifier la santé du cheval.
+            $actions = fn (User $user) => $access->can($user, $care->horse, Perm::HEALTH_EDIT) ? $reminders->notificationActions($care, $user) : [];
             if ($notice > 0 && $due->equalTo($today->copy()->addDays($notice))) {
-                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance dans '.$notice.' jour'.($notice > 1 ? 's' : ''), $what.' prévu le '.$due->format('d/m/Y').'. Pensez à prendre rendez-vous.', route('horses.care.index', $care->horse), $due->copy()->subDays($notice));
+                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance dans '.$notice.' jour'.($notice > 1 ? 's' : ''), $what.' prévu le '.$due->format('d/m/Y').'. Pensez à prendre rendez-vous.', route('horses.care.index', $care->horse), $due->copy()->subDays($notice), $actions);
             }
             if ($due->equalTo($today)) {
-                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance aujourd\'hui', $what.' est prévu aujourd\'hui.', route('horses.care.index', $care->horse), $due);
+                $sent += $this->dispatch($access, $care, $care->horse, Perm::HEALTH_VIEW, 'care_due', 'Échéance aujourd\'hui', $what.' est prévu aujourd\'hui.', route('horses.care.index', $care->horse), $due, $actions);
             }
         }
         foreach (Treatment::with('horse.organization')->where('status', 'active')->whereDate('ends_on', now()->addDay()->toDateString())->get() as $t) {
@@ -76,7 +78,7 @@ class SendReminders extends Command
         return self::SUCCESS;
     }
 
-    private function dispatch(HorseAccess $access, $model, $horse, string $perm, string $kind, string $title, string $body, string $url, Carbon $at): int
+    private function dispatch(HorseAccess $access, $model, $horse, string $perm, string $kind, string $title, string $body, string $url, Carbon $at, ?\Closure $actions = null): int
     {
         if (! $horse) {
             return 0;
@@ -93,7 +95,7 @@ class SendReminders extends Command
             if ($reminder->sent_at) {
                 continue;
             }
-            $user->notify(new AppNotification($kind, $title, $body, $url));
+            $user->notify(new AppNotification($kind, $title, $body, $url, actions: $actions ? $actions($user) : []));
             $reminder->update(['sent_at' => now()]);
             $count++;
         }

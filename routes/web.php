@@ -234,6 +234,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/budget/{expense}/modifier', [Controllers\ExpenseController::class, 'edit'])->name('budget.edit');
     Route::put('/budget/{expense}', [Controllers\ExpenseController::class, 'update'])->name('budget.update');
     Route::delete('/budget/{expense}', [Controllers\ExpenseController::class, 'destroy'])->name('budget.destroy');
+    // Boutons des notifications de rappel de soin (service worker) : adresse signée, voir CareReminderActionController.
+    Route::post('/rappels/soins/{care}/{action}', Controllers\CareReminderActionController::class)->whereIn('action', ['fait', 'reporter'])
+        ->middleware(['signed', 'throttle:30,1'])->name('care.quick');
     Route::post('/budget/{expense}/restaurer', [Controllers\ExpenseController::class, 'restore'])->withTrashed()->name('budget.restore');
     Route::post('/budget/{expense}/paiement', [Controllers\ExpenseController::class, 'pay'])->name('budget.pay');
     Route::put('/budget/recurrentes/{recurring}', [Controllers\RecurringExpenseController::class, 'update'])->name('budget.recurring.update');

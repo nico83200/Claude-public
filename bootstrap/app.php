@@ -29,7 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'super-admin' => EnsureSuperAdmin::class,
         ]);
         // Webhook Stripe : authentifié par signature, pas par jeton CSRF.
-        $middleware->validateCsrfTokens(except: ['stripe/webhook', 'connexion/apple/retour', 'push/recu']);
+        // Boutons des notifications de rappel : adresse signée propre à la personne (le service worker n'a pas de jeton CSRF).
+        $middleware->validateCsrfTokens(except: ['stripe/webhook', 'connexion/apple/retour', 'push/recu', 'rappels/soins/*']);
         // Reprise d'une mise à jour restée en maintenance : accessible pendant la maintenance.
         $middleware->preventRequestsDuringMaintenance(except: ['maintenance/reprise']);
         // Cookie de contournement de la maintenance (mise à jour depuis l'administration) : lu en clair par le mode maintenance.

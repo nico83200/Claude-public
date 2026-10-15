@@ -9,8 +9,9 @@
  * v10 : manifeste construit par le serveur (jamais mis en cache).
  * v11 : fiches d'urgence consultables sans réseau (contenu public par nature) ;
  *       la page « Pas de connexion » permet de noter une consigne, envoyée au retour du réseau.
+ * v12 : boutons « C'est fait » / « Reporter d'une semaine » sur les rappels de soin.
  */
-const VERSION = 'v11';
+const VERSION = 'v12';
 const STATIC_CACHE = `jackcie-static-${VERSION}`;
 const EMERGENCY_CACHE = 'jackcie-emergency';
 const PRECACHE = ['/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/brand/jackcie-wordmark.png', '/brand/jackcie-wordmark.webp', '/offline.html'];
@@ -78,23 +79,51 @@ self.addEventListener('push', (event) => {
     const receipt = (error) => self.registration.pushManager.getSubscription()
         .then((sub) => sub && fetch('/push/recu', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint, error: error || null, version: VERSION }) }))
         .catch(() => null);
+    // Boutons (« C'est fait », « Reporter… ») : seulement vers une adresse de ce site ; ignorés là où le système ne les gère pas (iPhone).
+    const actions = (Array.isArray(data.actions) ? data.actions : [])
+        .filter((a) => a && a.action && a.title && sameOrigin(a.url)).slice(0, 2);
     event.waitUntil(self.registration.showNotification(title, {
         body: data.body || '',
         icon: data.icon || '/icons/icon-192.png',
         tag: data.tag || undefined,
         renotify: Boolean(data.tag),
-        data: { url: data.url || '/dashboard' },
+        actions: actions.map((a) => ({ action: a.action, title: a.title })),
+        data: { url: data.url || '/dashboard', actions },
     }).then(() => receipt(null), (e) => receipt(String((e && e.message) || e).slice(0, 200))));
 });
 
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    const target = new URL(event.notification.data?.url || '/dashboard', self.location.origin);
-    if (target.origin !== self.location.origin) return; // jamais d'ouverture vers un autre site
-    event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+function sameOrigin(url) {
+    try { return new URL(url, self.location.origin).origin === self.location.origin; } catch { return false; }
+}
+
+function openApp(url) {
+    const target = new URL(url || '/dashboard', self.location.origin);
+    if (target.origin !== self.location.origin) return Promise.resolve(); // jamais d'ouverture vers un autre site
+    return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
         for (const w of wins) {
             if (new URL(w.url).origin === target.origin && 'navigate' in w) return w.navigate(target.href).then((c) => (c || w).focus());
         }
         return self.clients.openWindow(target.href);
-    }));
+    });
+}
+
+// Bouton de la notification : action faite sans ouvrir l'application, résultat affiché en notification.
+// Session expirée, droit retiré ou pas de réseau : l'application s'ouvre sur la page concernée.
+function runAction(notification, action) {
+    const tag = notification.tag || undefined;
+    return fetch(action.url, { method: 'POST', credentials: 'include', headers: { Accept: 'application/json' } })
+        .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+        .then((body) => self.registration.showNotification('Jack&Cie', {
+            body: body.message || 'C\'est noté.',
+            icon: '/icons/icon-192.png',
+            tag,
+            data: { url: body.url || notification.data?.url || '/dashboard' },
+        }))
+        .catch(() => openApp(notification.data?.url));
+}
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const action = event.action && (event.notification.data?.actions || []).find((a) => a.action === event.action);
+    event.waitUntil(action ? runAction(event.notification, action) : openApp(event.notification.data?.url));
 });
