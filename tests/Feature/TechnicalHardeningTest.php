@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\ApplicationSetting;
+use App\Models\HorseOrganizationAssignment;
 use App\Notifications\AppNotification;
+use App\Services\HorseAccess;
+use App\Support\Perm;
 use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -27,6 +30,39 @@ class TechnicalHardeningTest extends TestCase
         $admin->notifyNow(new AppNotification('system_alert', 'Alerte', 'Cron arrêté'));
         $this->assertSame(1, $admin->notifications()->count());
         Queue::assertNotPushed(SendQueuedNotifications::class, fn ($job) => $job->notification->kind === 'system_alert');
+    }
+
+    public function test_page_queries_do_not_grow_with_the_number_of_horses(): void
+    {
+        $manager = $this->user();
+        $stable = $this->stable($manager);
+        $this->horseFor($manager, $stable);
+        // Cheval d'un propriétaire pris en charge par l'écurie (droits via rattachement).
+        $owner = $this->user();
+        $boarded = $this->horseFor($owner);
+        HorseOrganizationAssignment::create(['horse_id' => $boarded->id, 'organization_id' => $stable->id, 'status' => 'active', 'starts_at' => now()->subDay(),
+            'permissions' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW, Perm::CALENDAR_VIEW], 'requested_by' => $owner->id]);
+        $count = function (string $url) use ($manager) {
+            app(HorseAccess::class)->flush();
+            DB::flushQueryLog();
+            DB::enableQueryLog();
+            $this->actingAs($manager->fresh())->get($url)->assertOk();
+            DB::disableQueryLog();
+
+            return count(DB::getQueryLog());
+        };
+        $pages = ['/dashboard', '/chevaux', '/calendrier', '/budget', '/seances'];
+        array_map($count, $pages); // caches de réglages remplis
+        $before = array_map($count, $pages);
+
+        foreach (range(1, 4) as $i) {
+            $this->horseFor($manager, $stable);
+            $other = $this->horseFor($otherOwner = $this->user());
+            HorseOrganizationAssignment::create(['horse_id' => $other->id, 'organization_id' => $stable->id, 'status' => 'active', 'starts_at' => now()->subDay(),
+                'permissions' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW, Perm::CALENDAR_VIEW], 'requested_by' => $otherOwner->id]);
+        }
+
+        $this->assertSame(array_combine($pages, $before), array_combine($pages, array_map($count, $pages)));
     }
 
     public function test_a_missing_setting_is_cached_instead_of_read_on_every_call(): void

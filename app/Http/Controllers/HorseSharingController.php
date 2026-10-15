@@ -27,7 +27,7 @@ class HorseSharingController extends Controller
     public function overview(Request $request, HorseAccess $access)
     {
         $user = $request->user();
-        $managed = $access->accessibleQuery($user)->get()->filter(fn ($h) => in_array(Perm::HORSE_MANAGE, $access->permissions($user, $h), true));
+        $managed = $access->preload($access->accessibleQuery($user)->get())->filter(fn ($h) => in_array(Perm::HORSE_MANAGE, $access->permissions($user, $h), true));
 
         return view('sharing.index', [
             'managed' => $managed->load(['accessGrants' => fn ($q) => $q->current()->with('user')]),

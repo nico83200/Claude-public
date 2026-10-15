@@ -9,6 +9,7 @@ use App\Models\HorseOwnership;
 use App\Models\User;
 use App\Support\Perm;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 /**
@@ -89,7 +90,10 @@ class HorseAccess
 
     private function membershipsOf(User $user)
     {
-        return $this->memberships[$user->id] ??= $user->memberships()->with('role.permissions')->get()->keyBy('organization_id');
+        // Adhésions déjà lues par le middleware de l'espace courant : réutilisées plutôt que relues.
+        return $this->memberships[$user->id] ??= ($user->relationLoaded('memberships')
+            ? $user->memberships->loadMissing('role.permissions')
+            : $user->memberships()->with('role.permissions')->get())->keyBy('organization_id');
     }
 
     public function permissions(User $user, Horse $horse): array
@@ -185,7 +189,7 @@ class HorseAccess
             return Horse::query()->whereRaw('1 = 0');
         }
 
-        $orgIds = $user->memberships()->pluck('organization_id');
+        $orgIds = $user->relationLoaded('memberships') ? $user->memberships->pluck('organization_id') : $user->memberships()->pluck('organization_id');
         $userId = $user->id;
         $today = now()->toDateString();
         $now = now();
@@ -203,6 +207,17 @@ class HorseAccess
                     ->whereIn('organization_id', $orgIds)->where('status', 'active')
                     ->where(fn ($w) => $w->whereNull('ends_at')->orWhere('ends_at', '>', $now)));
         });
+    }
+
+    /**
+     * Prépare une liste de chevaux avant d'en vérifier les droits un par un :
+     * rattachements et organisations lus en une requête chacun (au lieu d'une par cheval).
+     */
+    public function preload(EloquentCollection $horses): EloquentCollection
+    {
+        $this->loadAssignments($horses->pluck('id')->map(fn ($id) => (int) $id)->all());
+
+        return $horses->loadMissing('organization');
     }
 
     /** Identifiants des chevaux pour lesquels l'utilisateur détient une permission donnée. */
@@ -238,11 +253,12 @@ class HorseAccess
                 $perms[] = Perm::HORSE_MANAGE;
             }
         }
-        if (HorseOwnership::where('user_id', $user->id)->whereIn('role', ['owner', 'co_owner'])->exists()) {
+        // Mêmes lectures que pour les droits par cheval (déjà en mémoire sur la plupart des pages).
+        if ($this->ownedBy($user)) {
             $perms = array_merge($perms, Perm::allHorseKeys());
         }
-        foreach (HorseAccessGrant::active()->where('user_id', $user->id)->pluck('permissions') as $p) {
-            $perms = array_merge($perms, $p ?? []);
+        foreach ($this->grantsOf($user) as $p) {
+            $perms = array_merge($perms, $p);
         }
 
         return array_values(array_unique($perms));

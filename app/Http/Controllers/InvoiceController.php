@@ -87,7 +87,7 @@ class InvoiceController extends ExpenseController
         $pending = $this->pending($request, $token);
         $d = $pending['data'];
         $user = $request->user();
-        $horses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
+        $horses = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $this->entitlements()->hasFeature($h->organization, 'budget'));
         $guessedHorse = $horses->first(fn ($h) => $d['horse_name'] !== '' && in_array(mb_strtolower($d['horse_name']), [mb_strtolower($h->shortName()), mb_strtolower($h->official_name)], true))
             ?? ($pending['horse'] ? $horses->firstWhere('id', $pending['horse']) : null) ?? ($horses->count() === 1 ? $horses->first() : null);

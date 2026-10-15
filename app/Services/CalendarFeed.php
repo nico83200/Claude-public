@@ -19,7 +19,7 @@ class CalendarFeed
 
     public function enabledFor(User $user): bool
     {
-        return $user->memberships()->with('organization')->get()
+        return $user->loadMissing('memberships.organization')->memberships
             ->contains(fn ($m) => $m->organization && $this->entitlements->hasFeature($m->organization, 'calendar_sync'));
     }
 

@@ -49,7 +49,7 @@ class ExpenseController extends Controller
             ->when($request->query('to'), fn ($q, $t) => $q->where('expenses.spent_on', '<=', $t));
 
         $yearQuery = (clone $filtered)->whereYear('expenses.spent_on', $year);
-        $creatable = Horse::whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
+        $creatable = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
             // Pas de formulaire voué à l'échec : seuls les chevaux dont l'offre inclut le suivi des dépenses.
             ->filter(fn ($h) => $this->entitlements()->hasFeature($h->organization, 'budget'));

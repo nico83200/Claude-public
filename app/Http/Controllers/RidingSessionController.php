@@ -84,7 +84,7 @@ class RidingSessionController extends Controller
     public function create(Request $request, HorseAccess $access)
     {
         $user = $request->user();
-        $horses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::SESSIONS_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
+        $horses = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::SESSIONS_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::SESSIONS_CREATE));
         abort_if($horses->isEmpty(), 403, 'Vous ne pouvez créer de séance pour aucun cheval.');
 

@@ -26,6 +26,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         $horses = $access->accessibleQuery($user)->whereNull('archived_at')->with('breed')->orderBy('official_name')->get();
+        $access->preload($horses);
         $ids = fn (string $perm) => $horses->filter(fn ($h) => in_array($perm, $access->permissions($user, $h), true))->pluck('id');
 
         $calendarIds = $ids(Perm::CALENDAR_VIEW);

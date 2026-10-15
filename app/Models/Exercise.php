@@ -54,7 +54,7 @@ class Exercise extends Model
     /** Exercices visibles par un utilisateur : par défaut + personnels + partagés dans ses espaces. */
     public function scopeVisibleTo($q, User $user)
     {
-        $orgIds = $user->memberships()->pluck('organization_id');
+        $orgIds = $user->relationLoaded('memberships') ? $user->memberships->pluck('organization_id') : $user->memberships()->pluck('organization_id');
 
         return $q->where(function ($w) use ($user, $orgIds) {
             $w->where('scope', 'default')
