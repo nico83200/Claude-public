@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\Channels\WebPushChannel;
 use App\Services\MailDesign;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -17,10 +18,19 @@ use Illuminate\Notifications\Notification;
  *
  * Le contenu doit être construit par l'appelant en ne reprenant que des
  * informations auxquelles le destinataire a accès.
+ *
+ * Envoi en file d'attente (traitée chaque minute par le cron) : un serveur d'e-mails ou de notifications
+ * lent ou en panne ne ralentit ni ne fait échouer l'action de l'utilisateur. Pour un envoi immédiat
+ * (alerte technique, e-mail demandé par l'utilisateur), utiliser notifyNow().
  */
-class AppNotification extends Notification
+class AppNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    /** Nouvel essai après une panne passagère du serveur d'e-mails ou de notifications. */
+    public int $tries = 3;
+
+    public array $backoff = [60, 300];
 
     public const TYPES = [
         'appointment' => 'Rendez-vous à venir',
@@ -62,7 +72,10 @@ class AppNotification extends Notification
         public bool $mail = true,
         // Texte plus détaillé pour l'e-mail (le téléphone garde le résumé court).
         public ?string $mailBody = null,
-    ) {}
+    ) {
+        // Mise en file seulement une fois l'enregistrement validé en base (jamais de notification fantôme).
+        $this->afterCommit();
+    }
 
     public function via(object $notifiable): array
     {

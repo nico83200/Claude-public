@@ -141,7 +141,8 @@ class SystemMonitor
     {
         $admins = User::where('is_super_admin', true)->whereNull('suspended_at')->get();
         foreach ($admins as $admin) {
-            $admin->notify(new AppNotification('system_alert', 'Jack&Cie · '.$title, $body, route('admin.notifications.index')));
+            // Envoi immédiat : une alerte « cron arrêté » ne peut pas attendre la file, traitée par ce même cron.
+            $admin->notifyNow(new AppNotification('system_alert', 'Jack&Cie · '.$title, $body, route('admin.notifications.index')));
         }
 
         return $admins->count();

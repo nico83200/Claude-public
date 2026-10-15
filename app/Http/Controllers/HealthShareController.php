@@ -110,7 +110,8 @@ class HealthShareController extends Controller
     {
         $share->loadMissing('horse');
         $from = $request->user()->name;
-        \Illuminate\Support\Facades\Notification::route('mail', $share->recipient_email)->notify(new \App\Notifications\AppNotification(
+        // Envoi immédiat : l'utilisateur attend la confirmation que l'e-mail est parti.
+        \Illuminate\Support\Facades\Notification::route('mail', $share->recipient_email)->notifyNow(new \App\Notifications\AppNotification(
             'vet_summary',
             'Résumé de santé de '.$share->horse->shortName(),
             $from.' vous transmet le résumé de santé de '.$share->horse->shortName().' sur les 6 derniers mois : soins, traitements, poids et observations.'
