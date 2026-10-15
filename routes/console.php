@@ -35,6 +35,9 @@ $task('licenses:refresh')->hourly();
 $task('billing:sync')->hourly();
 $task('billing:price-migrations')->dailyAt('03:15');
 $task('data:purge')->weeklyOn(0, '03:45');
+// Sauvegarde chiffrée sur Google Drive : chaque nuit à partir de 3 h (rattrapée si le cron a manqué), ou dans la minute
+// quand elle est demandée depuis l'administration. Verrou long : l'envoi des fichiers peut durer.
+Schedule::call(fn () => Artisan::call('backup:run', ['--auto' => true]))->name('backup:run')->everyMinute()->withoutOverlapping(240);
 // Hébergement mutualisé sans worker permanent : traitement périodique de la file.
 $task('queue:work', ['--stop-when-empty' => true, '--max-time' => 50])->everyMinute();
 $task('auth:clear-resets')->daily();

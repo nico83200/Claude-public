@@ -337,6 +337,12 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::post('/mises-a-jour/{update}/restaurer', [Admin\UpdateController::class, 'restore'])->name('updates.restore');
     Route::get('/mises-a-jour/{update}/sauvegarde/{kind}', [Admin\UpdateController::class, 'download'])->whereIn('kind', ['code', 'base'])->name('updates.download');
     Route::delete('/mises-a-jour/{update}', [Admin\UpdateController::class, 'destroy'])->name('updates.destroy');
+    Route::get('/sauvegardes', [Admin\BackupController::class, 'index'])->name('backups.index');
+    Route::post('/sauvegardes/google', [Admin\BackupController::class, 'connect'])->name('backups.connect');
+    Route::get('/sauvegardes/google/retour', [Admin\BackupController::class, 'callback'])->name('backups.callback');
+    Route::delete('/sauvegardes/google', [Admin\BackupController::class, 'disconnect'])->name('backups.disconnect');
+    Route::post('/sauvegardes/lancer', [Admin\BackupController::class, 'run'])->middleware('throttle:6,1')->name('backups.run');
+    Route::post('/sauvegardes/cle', [Admin\BackupController::class, 'revealKey'])->name('backups.key');
     Route::get('/integrations', [Admin\IntegrationController::class, 'edit'])->name('integrations.edit');
     Route::put('/integrations/email', [Admin\IntegrationController::class, 'updateMail'])->name('integrations.mail');
     Route::post('/integrations/email/test', [Admin\IntegrationController::class, 'testMail'])->middleware('throttle:5,1')->name('integrations.mail.test');

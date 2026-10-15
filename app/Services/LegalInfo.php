@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ApplicationSetting;
+use App\Services\Backups\GoogleDrive;
 
 /**
  * Identité de l'éditeur et sous-traitants, pour les pages Confidentialité et Conditions.
@@ -71,6 +72,9 @@ class LegalInfo
         ]);
         if ($social) {
             $lines[] = 'Connexion avec un compte '.implode(' ou ', $social).' (si vous la choisissez) : '.implode(', ', array_map(fn ($s) => $s === 'Google' ? 'Google LLC' : 'Apple Inc.', $social));
+        }
+        if (rescue(fn () => app(GoogleDrive::class)->connected(), false, false)) {
+            $lines[] = 'Sauvegardes chiffrées de la base et des fichiers (illisibles sans la clé de l\'éditeur) : Google Drive, Google LLC';
         }
         $host = (string) config('mail.mailers.smtp.host');
         if (config('mail.default') === 'smtp' && $host !== '' && ! in_array($host, ['127.0.0.1', 'localhost', 'mailpit'], true)) {

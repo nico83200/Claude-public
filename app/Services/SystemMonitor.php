@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Models\ApplicationSetting;
+use App\Models\BackupRun;
 use App\Models\User;
 use App\Notifications\AppNotification;
+use App\Services\Backups\BackupService;
 use App\Support\Installation;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
@@ -97,6 +100,19 @@ class SystemMonitor
             $samples = collect(Cache::get('monitor:samples', []))->map(fn ($s) => '• '.$s['at'].' – '.$s['message'])->implode("\n");
             if ($this->alert('errors', 'Erreurs en hausse', $errors.' erreurs en une heure (seuil : '.self::errorThreshold().').'."\n\nDernières erreurs :\n".$samples."\n\nDétail dans Administration › Erreurs.")) {
                 $sent[] = 'errors';
+            }
+        }
+
+        // Sauvegarde Google Drive configurée mais aucune réussie depuis 48 heures (connexion retirée, Drive plein…).
+        $backups = app(BackupService::class);
+        if ($backups->ready()) {
+            $since = ApplicationSetting::get('backup.connected_at');
+            $last = BackupRun::where('kind', 'database')->where('status', 'done')->max('finished_at');
+            $reference = $last ?? $since;
+            if ($reference && Carbon::parse($reference)->lt(now()->subHours(48))
+                && $this->alert('backup_stale', 'Sauvegardes en retard', ($last ? 'Aucune sauvegarde réussie sur Google Drive depuis le '.Carbon::parse($last)->format('d/m/Y à H:i').'.' : 'Google Drive est connecté mais aucune sauvegarde n\'a encore réussi.')
+                    .' Vérifiez Administration › Sauvegardes (historique et erreurs).')) {
+                $sent[] = 'backup';
             }
         }
 
