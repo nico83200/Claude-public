@@ -32,6 +32,7 @@ jobs:
           node-version: '22'
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: npm ci && npm run build
-      - run: cp .env.example .env && php artisan key:generate
+      - run: cp .env.example .env && php artisan key:generate --force
       - run: ./vendor/bin/pint --test
       - run: php artisan test
+      - run: npm test
