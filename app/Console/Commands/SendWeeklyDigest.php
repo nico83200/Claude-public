@@ -40,7 +40,7 @@ class SendWeeklyDigest extends Command
                     // Introduction rédigée par l'assistant (offres qui l'incluent), sinon texte standard.
                     $intro = $digests->aiIntro($user, $digest);
                     $user->notify(new AppNotification('weekly_digest', 'Votre semaine avec vos chevaux', $intro ? mb_substr($intro, 0, 240) : $digests->summary($digest),
-                        route('digest.show'), mailBody: ($intro ? $intro."\n\n" : '')."Voici ce qui vous attend du ".$digest['from']->translatedFormat('l j F').' au '.$digest['to']->translatedFormat('l j F')." :\n\n".$digests->text($digest)));
+                        route('digest.show'), mailBody: ($intro ? $intro."\n\n" : '').'Voici ce qui vous attend du '.$digest['from']->translatedFormat('l j F').' au '.$digest['to']->translatedFormat('l j F')." :\n\n".$digests->text($digest)));
                     $sent++;
                 }
             });

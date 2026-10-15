@@ -12,6 +12,7 @@ use App\Models\Invitation;
 use App\Models\RidingSession;
 use App\Models\Treatment;
 use App\Services\HorseAccess;
+use App\Services\Onboarding;
 use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'upsell' => app(Upsell::class)->upgrade($this->currentOrganization(), $request->user()),
-            'onboarding' => app(\App\Services\Onboarding::class)->steps($user, $horses),
+            'onboarding' => app(Onboarding::class)->steps($user, $horses),
             // Fiche d'urgence pas encore préparée : proposée sur l'accueil (masquable).
             'emergencyCta' => $user->profile?->emergency_cta_dismissed_at ? null
                 : $horses->first(fn ($h) => ! $h->emergency_token && $access->can($user, $h, Perm::HORSE_EDIT)),

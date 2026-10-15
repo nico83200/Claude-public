@@ -12,6 +12,7 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Notifications\AppNotification;
+use App\Services\Assistant\AssistantCredits;
 use App\Services\Audit;
 use App\Services\Entitlements;
 use App\Services\PromoCodeService;
@@ -159,7 +160,7 @@ class BillingService
 
         return match ($event['type']) {
             'checkout.session.completed' => $this->onCheckoutCompleted($object),
-            'checkout.session.async_payment_succeeded' => app(\App\Services\Assistant\AssistantCredits::class)->fulfil($object) ? 'processed' : 'ignored',
+            'checkout.session.async_payment_succeeded' => app(AssistantCredits::class)->fulfil($object) ? 'processed' : 'ignored',
             'customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted',
             'customer.subscription.paused', 'customer.subscription.resumed' => $this->onSubscription($object, (int) $event['created'], $event['type']),
             'invoice.paid', 'invoice.payment_succeeded' => $this->onInvoice($object, 'paid'),
@@ -175,7 +176,7 @@ class BillingService
     {
         // Achat de crédits IA (paiement unique) : crédits ajoutés une fois le paiement encaissé.
         if (($session['metadata']['kind'] ?? null) === 'assistant_credits') {
-            return app(\App\Services\Assistant\AssistantCredits::class)->fulfil($session) ? 'processed' : 'ignored';
+            return app(AssistantCredits::class)->fulfil($session) ? 'processed' : 'ignored';
         }
         $orgId = (int) ($session['client_reference_id'] ?? 0);
         $org = Organization::find($orgId);

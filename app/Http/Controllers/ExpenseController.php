@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\ExpenseDocument;
 use App\Models\Horse;
 use App\Models\Organization;
-use App\Models\Professional;
 use App\Models\RecurringExpense;
 use App\Services\Audit;
+use App\Services\CareExpenseSync;
 use App\Services\HorseAccess;
+use App\Services\ProfessionalDirectory;
 use App\Services\RecurringExpenses;
 use App\Services\Upsell;
 use App\Support\Perm;
@@ -77,8 +79,8 @@ class ExpenseController extends Controller
             // Plus de dépense « générale de l'espace » : chaque dépense est rattachée à un cheval.
             'canOrgExpense' => false,
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
-            'careCategoryIds' => ExpenseCategory::whereIn('key', array_keys(\App\Services\CareExpenseSync::CARE_FOR_EXPENSE))->pluck('id')->map(fn ($id) => (string) $id)->values(),
-            'professionals' => app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
+            'careCategoryIds' => ExpenseCategory::whereIn('key', array_keys(CareExpenseSync::CARE_FOR_EXPENSE))->pluck('id')->map(fn ($id) => (string) $id)->values(),
+            'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
     }
 
@@ -122,7 +124,7 @@ class ExpenseController extends Controller
         $expense->save();
         $this->storeReceipt($request, $expense, $org);
         // Dépense de soin (vétérinaire, maréchal…) : le soin est ajouté au carnet de santé avec les mêmes informations.
-        $care = $request->boolean('add_care', true) ? app(\App\Services\CareExpenseSync::class)->careFromExpense($expense, $request->user()) : null;
+        $care = $request->boolean('add_care', true) ? app(CareExpenseSync::class)->careFromExpense($expense, $request->user()) : null;
 
         return back()->with('success', $care ? 'Dépense enregistrée, et soin ajouté au carnet de santé.' : 'Dépense enregistrée.');
     }
@@ -132,7 +134,7 @@ class ExpenseController extends Controller
     {
         abort_unless($this->visibleQuery($request, $access)->whereKey($expense->id)->exists(), 404);
         if ($expense->care_record_id && $expense->horse && $access->can($request->user(), $expense->horse, Perm::HEALTH_VIEW)
-            && \App\Models\CareRecord::whereKey($expense->care_record_id)->where('horse_id', $expense->horse_id)->exists()) {
+            && CareRecord::whereKey($expense->care_record_id)->where('horse_id', $expense->horse_id)->exists()) {
             return redirect()->route('horses.care.show', [$expense->horse_id, $expense->care_record_id]);
         }
 
@@ -315,7 +317,7 @@ class ExpenseController extends Controller
             'receipt' => ['nullable', 'file', 'max:'.config('equine.uploads.max_kb'), 'mimes:pdf,jpg,jpeg,png,webp,heic'],
         ]);
         unset($data['receipt']);
-        if (! empty($data['professional_id']) && ! app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {
+        if (! empty($data['professional_id']) && ! app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {
             $data['professional_id'] = null;
         }
 

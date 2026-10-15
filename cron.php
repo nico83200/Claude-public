@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\Console\Input\ArgvInput;
+
 /*
  * Tâche planifiée de Jack&Cie, pour les hébergeurs qui demandent le chemin d'un fichier PHP
  * (Hostinger, OVH « Tâches planifiées »…) au lieu d'une ligne de commande. À lancer chaque minute.
@@ -82,7 +84,7 @@ try {
     define('LARAVEL_START', microtime(true));
     require __DIR__.'/vendor/autoload.php';
     $app = require_once __DIR__.'/bootstrap/app.php';
-    $status = $app->handleCommand(new Symfony\Component\Console\Input\ArgvInput(['artisan', 'schedule:run']));
+    $status = $app->handleCommand(new ArgvInput(['artisan', 'schedule:run']));
     $log($status === 0 ? 'ok' : 'code '.$status);
     exit($status);
 } catch (Throwable $e) {

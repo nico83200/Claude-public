@@ -32,6 +32,7 @@ class DigestController extends Controller
     private function digest(Request $request, WeeklyDigest $digests): array
     {
         $user = $request->user()->loadMissing(['profile', 'memberships.role', 'memberships.organization']);
+
         // En semaine, la période commence aujourd'hui ; le dimanche, elle couvre la semaine suivante.
         return [$user, $digests->for($user, now()->isSunday() ? now() : now()->subDay())];
     }

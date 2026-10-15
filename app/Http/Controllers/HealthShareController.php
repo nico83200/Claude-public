@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\AssistantRequest;
 use App\Models\HealthShare;
 use App\Models\Horse;
+use App\Notifications\AppNotification;
 use App\Services\Assistant\AssistantService;
 use App\Services\Assistant\ClaudeGateway;
 use App\Services\Audit;
 use App\Services\VetSummary;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -111,7 +113,7 @@ class HealthShareController extends Controller
         $share->loadMissing('horse');
         $from = $request->user()->name;
         // Envoi immédiat : l'utilisateur attend la confirmation que l'e-mail est parti.
-        \Illuminate\Support\Facades\Notification::route('mail', $share->recipient_email)->notifyNow(new \App\Notifications\AppNotification(
+        Notification::route('mail', $share->recipient_email)->notifyNow(new AppNotification(
             'vet_summary',
             'Résumé de santé de '.$share->horse->shortName(),
             $from.' vous transmet le résumé de santé de '.$share->horse->shortName().' sur les 6 derniers mois : soins, traitements, poids et observations.'

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Exercise;
-use App\Models\RidingSession;
 use App\Models\UserProfile;
 use App\Services\RidingSessionService;
 use Tests\TestCase;

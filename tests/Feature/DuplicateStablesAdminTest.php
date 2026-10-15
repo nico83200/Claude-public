@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Organization;
 use App\Services\OrganizationService;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /** Comptes créés avant la règle « une écurie par compte » : le super-administrateur choisit l'écurie conservée. */
@@ -12,7 +13,7 @@ class DuplicateStablesAdminTest extends TestCase
     private function legacyStable($owner, string $name): Organization
     {
         // Écurie créée avant la règle (le service la refuserait désormais).
-        $org = Organization::create(['name' => $name, 'slug' => \Illuminate\Support\Str::slug($name).'-'.\Illuminate\Support\Str::random(4), 'type' => 'stable', 'owner_id' => $owner->id]);
+        $org = Organization::create(['name' => $name, 'slug' => Str::slug($name).'-'.Str::random(4), 'type' => 'stable', 'owner_id' => $owner->id]);
         app(OrganizationService::class)->addMember($org, $owner, 'owner');
 
         return $org;

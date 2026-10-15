@@ -6,9 +6,9 @@ use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Exercise;
 use App\Models\Expense;
-use App\Models\Professional;
 use App\Models\RidingSession;
 use App\Services\HorseAccess;
+use App\Services\ProfessionalDirectory;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 
@@ -27,7 +27,7 @@ class SearchController extends Controller
                 ->orWhereHas('identifiers', fn ($i) => $i->where('value', 'like', $like)))->limit(10)->get()
                 ->map(fn ($h) => ['title' => $h->displayName(), 'meta' => $h->isArchived() ? 'Archivé' : null, 'url' => route('horses.show', $h)]);
 
-            $results['Intervenants'] = app(\App\Services\ProfessionalDirectory::class)->visibleQuery($request->user())
+            $results['Intervenants'] = app(ProfessionalDirectory::class)->visibleQuery($request->user())
                 ->where(fn ($w) => $w->where('last_name', 'like', $like)->orWhere('first_name', 'like', $like)->orWhere('company', 'like', $like))->limit(10)->get()
                 ->map(fn ($p) => ['title' => $p->fullName(), 'meta' => $p->kindLabel(), 'url' => route('professionals.show', $p)]);
 

@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\AssistantRequest;
+use App\Models\ApplicationSetting;
+use App\Models\CalendarEvent;
 use App\Models\CareCategory;
 use App\Models\CareRecord;
+use App\Models\DigestIntro;
 use App\Models\Exercise;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -13,12 +15,14 @@ use App\Models\HealthShare;
 use App\Models\HorseAccessGrant;
 use App\Models\HorseDocument;
 use App\Models\HorseMeasurement;
-use App\Models\RidingSession;
+use App\Models\Professional;
 use App\Models\Treatment;
-use App\Models\User;
 use App\Notifications\AppNotification;
 use App\Services\Assistant\ClaudeGateway;
+use App\Services\Assistant\Speaker;
 use App\Services\HorseAccess;
+use App\Services\NotificationDiagnostics;
+use App\Services\RidingSessionService;
 use App\Services\SystemMonitor;
 use App\Services\WeeklyDigest;
 use Illuminate\Http\UploadedFile;
@@ -28,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\Support\FakeClaude;
 use Tests\TestCase;
 
@@ -63,7 +68,7 @@ class AiFeaturesTest extends TestCase
                 ['product' => 'Equipalazone', 'dosage' => '1 sachet matin et soir', 'frequency' => 'matin et soir', 'times_per_day' => 2, 'duration_days' => 5, 'route' => 'orale'],
                 ['product' => 'Betadine', 'dosage' => 'application locale', 'frequency' => '1 fois par jour', 'times_per_day' => 1, 'duration_days' => 0, 'route' => 'cutanée'],
             ]];
-        $vet = \App\Models\Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Leroy', 'first_name' => 'Anne', 'kind' => 'veterinarian']);
+        $vet = Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Leroy', 'first_name' => 'Anne', 'kind' => 'veterinarian']);
 
         $this->actingAs($user)->get(route('horses.care.index', $horse))->assertSee('data-prescription-card', false);
         $res = $this->actingAs($user)->post(route('horses.prescription.read', $horse), ['prescription' => UploadedFile::fake()->image('ordonnance.jpg', 1200, 1600)]);
@@ -91,7 +96,7 @@ class AiFeaturesTest extends TestCase
         $this->assertSame(['Equipalazone', '1 sachet matin et soir', 2, $care->id, 'active'], [$t->product, $t->dosage, $t->times_per_day, $t->care_record_id, $t->status]);
         $this->assertSame('prescription', HorseDocument::where('horse_id', $horse->id)->sole()->category);
         // Prochain contrôle et fin de traitement synchronisés dans l'agenda.
-        $this->assertTrue(\App\Models\CalendarEvent::where('treatment_id', $t->id)->exists());
+        $this->assertTrue(CalendarEvent::where('treatment_id', $t->id)->exists());
         $this->actingAs($user)->get($review)->assertNotFound();
 
         // Sans l'assistant dans l'offre : pas de lecture.
@@ -137,7 +142,7 @@ class AiFeaturesTest extends TestCase
         CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => CareCategory::where('key', 'farrier')->value('id'), 'performed_at' => now()->subYear(), 'author_id' => $owner->id, 'reason' => 'Trop ancien']);
         HorseMeasurement::forceCreate(['horse_id' => $horse->id, 'measured_on' => now()->subMonths(2), 'weight_kg' => 520, 'author_id' => $owner->id]);
         HorseMeasurement::forceCreate(['horse_id' => $horse->id, 'measured_on' => now()->subDays(3), 'weight_kg' => 505, 'author_id' => $owner->id]);
-        HealthObservation::forceCreate(['horse_id' => $horse->id, 'author_id' => $owner->id, 'observed_at' => now()->subDays(8), 'severity' => 'watch', 'body' => 'Boite à froid', 'uuid' => (string) \Illuminate\Support\Str::uuid()]);
+        HealthObservation::forceCreate(['horse_id' => $horse->id, 'author_id' => $owner->id, 'observed_at' => now()->subDays(8), 'severity' => 'watch', 'body' => 'Boite à froid', 'uuid' => (string) Str::uuid()]);
 
         $this->actingAs($owner)->get(route('horses.vet-summary', $horse))->assertOk()->assertSee('data-vet-share-form', false)->assertSee('Abcès de pied')->assertSee('-15,0 kg')->assertDontSee('Trop ancien');
         $this->actingAs($owner)->post(route('horses.vet-summary.store', $horse), ['days' => 7, 'recipient' => 'Dr Leroy', 'with_ai' => 1])->assertSessionHas('success');
@@ -174,7 +179,7 @@ class AiFeaturesTest extends TestCase
             'warmup' => [['name' => mb_strtoupper($lib[0]->name), 'minutes' => 10, 'note' => 'Pas actif']],
             'main' => [['name' => $lib[1]->name, 'minutes' => 25, 'note' => 'Sur les deux mains'], ['name' => 'Serpentine inventée', 'minutes' => 5, 'note' => 'Trois boucles']],
             'complementary' => [], 'cooldown' => [['name' => 'Pas rênes longues', 'minutes' => 5, 'note' => '']]];
-        $session = app(\App\Services\RidingSessionService::class)->create($horse, $user, ['scheduled_at' => now()->addDay(), 'session_type' => 'free', 'planned_minutes' => 45, 'objective' => 'Rectitude']);
+        $session = app(RidingSessionService::class)->create($horse, $user, ['scheduled_at' => now()->addDay(), 'session_type' => 'free', 'planned_minutes' => 45, 'objective' => 'Rectitude']);
 
         $this->actingAs($user)->get(route('sessions.edit', $session))->assertSee('data-ai-plan', false);
         $json = $this->actingAs($user)->postJson(route('sessions.plan', $session))->assertOk()->json();
@@ -204,7 +209,7 @@ class AiFeaturesTest extends TestCase
         $this->travelTo(Carbon::parse('2026-10-18 18:05'));
         [$user, $horse] = $this->setUpUser('multi-chevaux');
         $user->forceFill(['last_seen_at' => now()])->save();
-        \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-20 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-20 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
         $fake = $this->fake();
         $fake->written = 'Belle semaine en vue pour Uni : le maréchal passe mardi matin.';
         $this->artisan('reminders:weekly');
@@ -221,7 +226,7 @@ class AiFeaturesTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2026-10-14 10:00')); // mercredi
         [$user, $horse] = $this->setUpUser('multi-chevaux');
-        $event = \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-16 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $event = CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-16 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
         $fake = $this->fake();
         $fake->written = 'Uni voit le maréchal vendredi matin.';
         $writes = fn () => collect($fake->calls)->filter(fn ($c) => isset($c['write']))->count();
@@ -237,13 +242,13 @@ class AiFeaturesTest extends TestCase
         $this->actingAs($user)->get('/ma-semaine')->assertSee('Uni voit le maréchal vendredi matin.');
         $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Uni voit le maréchal vendredi matin.']);
         // Une dépense déjà payée (budget du mois seulement) ne compte pas comme un changement de la semaine.
-        \App\Models\Expense::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'amount' => 40, 'spent_on' => '2026-10-10', 'paid_on' => '2026-10-10', 'expense_category_id' => \App\Models\ExpenseCategory::value('id')]);
+        Expense::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'amount' => 40, 'spent_on' => '2026-10-10', 'paid_on' => '2026-10-10', 'expense_category_id' => ExpenseCategory::value('id')]);
         $this->actingAs($user)->postJson('/ma-semaine/introduction');
         $this->assertSame(1, $writes());
 
         // Ajout d'un élément : nouvelle rédaction.
         $fake->written = 'Maréchal vendredi, puis dentiste samedi pour Uni.';
-        $dentist = \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'care', 'title' => 'Dentiste', 'starts_at' => Carbon::parse('2026-10-17 14:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        $dentist = CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'care', 'title' => 'Dentiste', 'starts_at' => Carbon::parse('2026-10-17 14:00'), 'status' => 'planned', 'created_by' => $user->id]);
         $this->actingAs($user)->get('/ma-semaine')->assertDontSee('Uni voit le maréchal vendredi matin.');
         $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Maréchal vendredi, puis dentiste samedi pour Uni.']);
         $this->assertSame(2, $writes());
@@ -258,23 +263,23 @@ class AiFeaturesTest extends TestCase
         $this->assertSame(4, $writes());
 
         // Changement de semaine : nouvelle rédaction.
-        \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
         $this->travelTo(Carbon::parse('2026-10-21 10:00'));
         $this->actingAs($user)->postJson('/ma-semaine/introduction');
         $this->assertSame(5, $writes());
-        $this->assertSame(1, \App\Models\DigestIntro::where('user_id', $user->id)->count());
+        $this->assertSame(1, DigestIntro::where('user_id', $user->id)->count());
 
         // Échec de l'IA : la page reste utilisable, rien n'est mémorisé.
         $fake->written = null;
         $event->forceFill(['title' => 'Maréchal (parage)'])->save();
-        \App\Models\CalendarEvent::where('starts_at', '>=', '2026-10-22')->update(['title' => 'Maréchal (parage)']);
+        CalendarEvent::where('starts_at', '>=', '2026-10-22')->update(['title' => 'Maréchal (parage)']);
         $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertOk()->assertJson(['text' => null]);
         $this->actingAs($user)->get('/ma-semaine')->assertOk();
 
         // Offre sans l'assistant : ni bloc ni appel.
         $free = $this->user();
         $other = $this->horseFor($free);
-        \App\Models\CalendarEvent::forceCreate(['organization_id' => $other->organization_id, 'horse_id' => $other->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $free->id]);
+        CalendarEvent::forceCreate(['organization_id' => $other->organization_id, 'horse_id' => $other->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-23 09:00'), 'status' => 'planned', 'created_by' => $free->id]);
         $before = $writes();
         $this->actingAs($free)->get('/ma-semaine')->assertOk()->assertDontSee('data-digest-intro', false);
         $this->actingAs($free)->postJson('/ma-semaine/introduction')->assertJson(['text' => null]);
@@ -285,7 +290,7 @@ class AiFeaturesTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2026-10-14 10:00'));
         [$user, $horse] = $this->setUpUser('multi-chevaux');
-        \App\Models\CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Ferrure', 'starts_at' => Carbon::parse('2026-10-15 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
+        CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Ferrure', 'starts_at' => Carbon::parse('2026-10-15 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
         $fake = $this->fake();
         $fake->written = 'Bonjour Léa, ... wait, I must not start with "Bonjour". Let me write in French. Léa, jeudi 15 s\'annonce chargé : une ferrure pour Uni à 9 h. Pensez aussi aux bilans.';
         $this->actingAs($user)->postJson('/ma-semaine/introduction')->assertJson(['text' => 'Léa, jeudi 15 s\'annonce chargé : une ferrure pour Uni à 9 h. Pensez aussi aux bilans.']);
@@ -315,20 +320,20 @@ class AiFeaturesTest extends TestCase
 
         $res = $this->actingAs($user)->post('/assistant/voix/'.$id)->assertOk()->assertHeader('Content-Type', 'audio/mpeg');
         $this->assertSame('ID3-mp3-bytes', $res->getContent());
-        Http::assertSent(fn ($r) => str_contains($r->url(), '/v1/text-to-speech/'.\App\Services\Assistant\Speaker::DEFAULT_VOICE) && $r['text'] === 'C\'est noté : maréchal pour Uni mardi à 9 heures.' && $r['language_code'] === 'fr');
+        Http::assertSent(fn ($r) => str_contains($r->url(), '/v1/text-to-speech/'.Speaker::DEFAULT_VOICE) && $r['text'] === 'C\'est noté : maréchal pour Uni mardi à 9 heures.' && $r['language_code'] === 'fr');
         // Mis en cache : pas de second appel.
         $this->actingAs($user)->post('/assistant/voix/'.$id)->assertOk();
         Http::assertSentCount(1);
         // Réponse d'un autre utilisateur : refusé.
         $this->actingAs($this->user())->post('/assistant/voix/'.$id)->assertNotFound();
         // Désactivé par le super-administrateur.
-        \App\Models\ApplicationSetting::put('assistant.speech_enabled', false);
+        ApplicationSetting::put('assistant.speech_enabled', false);
         $this->actingAs($user)->getJson('/assistant/etat')->assertJson(['speech' => false]);
     }
 
     public function test_voice_reads_hours_and_short_dates_in_full(): void
     {
-        $spoken = fn ($t) => \App\Services\Assistant\Speaker::spoken($t);
+        $spoken = fn ($t) => Speaker::spoken($t);
         $this->assertSame('Le maréchal vient mardi à 9 heures.', $spoken('Le maréchal vient mardi à 9h.'));
         $this->assertSame('Rendez-vous à 9 heures 30, séance à 14 heures, pesée à 1 heure.', $spoken('Rendez-vous à 9 h 30, séance à 14:00, pesée à 1h.'));
         $this->assertSame('Cours de 8 heures à midi puis 14 heures à 16 heures 30.', $spoken('Cours de 8h-12h puis 14h à 16h30.'));
@@ -338,7 +343,7 @@ class AiFeaturesTest extends TestCase
         // Le texte envoyé à ElevenLabs est celui adapté à l'oral ; l'affichage n'est pas modifié.
         config(['services.elevenlabs.key' => 'xi-test']);
         Http::fake(['api.elevenlabs.io/v1/text-to-speech/*' => Http::response('ID3-mp3-bytes', 200, ['Content-Type' => 'audio/mpeg'])]);
-        app(\App\Services\Assistant\Speaker::class)->speak('Le maréchal vient mardi à 9h30.', 'C\'est noté pour 8h.');
+        app(Speaker::class)->speak('Le maréchal vient mardi à 9h30.', 'C\'est noté pour 8h.');
         Http::assertSent(fn ($r) => $r['text'] === 'Le maréchal vient mardi à 9 heures 30.' && $r['previous_text'] === 'C\'est noté pour 8 heures.');
     }
 
@@ -347,10 +352,10 @@ class AiFeaturesTest extends TestCase
         Notification::fake();
         $admin = $this->user();
         $admin->forceFill(['is_super_admin' => true])->save();
-        \App\Services\NotificationDiagnostics::beat();
+        NotificationDiagnostics::beat();
         // La finalisation d'une mise à jour vide tout le cache (optimize:clear).
         Cache::flush();
-        $this->assertTrue(\App\Services\NotificationDiagnostics::cronAlive(), 'Le dernier passage du cron survit au vidage du cache.');
+        $this->assertTrue(NotificationDiagnostics::cronAlive(), 'Le dernier passage du cron survit au vidage du cache.');
         $this->artisan('monitor:check');
         Notification::assertNothingSent();
 
@@ -366,7 +371,7 @@ class AiFeaturesTest extends TestCase
         Notification::fake();
         $admin = $this->user();
         $admin->forceFill(['is_super_admin' => true])->save();
-        Cache::forever(\App\Services\NotificationDiagnostics::CRON_KEY, now()->subMinutes(40)->timestamp);
+        Cache::forever(NotificationDiagnostics::CRON_KEY, now()->subMinutes(40)->timestamp);
         $this->artisan('monitor:check')->expectsOutputToContain('cron');
         Notification::assertSentTo($admin, AppNotification::class, fn ($n) => $n->kind === 'system_alert' && str_contains($n->body, '40 minutes') && in_array('mail', $n->via($admin), true));
         // Pas de nouvelle alerte avant 6 heures.
@@ -374,13 +379,13 @@ class AiFeaturesTest extends TestCase
         $this->artisan('monitor:check');
         Notification::assertNothingSent();
         // Le cron repart : message de retour à la normale.
-        Cache::forever(\App\Services\NotificationDiagnostics::CRON_KEY, now()->timestamp);
+        Cache::forever(NotificationDiagnostics::CRON_KEY, now()->timestamp);
         $this->artisan('monitor:check');
         Notification::assertSentTo($admin, AppNotification::class, fn ($n) => str_contains($n->title, 'Cron rétabli'));
 
         // Erreurs en hausse.
         Notification::fake();
-        \App\Models\ApplicationSetting::put('monitor_error_threshold', 3);
+        ApplicationSetting::put('monitor_error_threshold', 3);
         foreach (range(1, 3) as $i) {
             SystemMonitor::recordError(new \RuntimeException('Échec n°'.$i));
         }
@@ -416,7 +421,7 @@ class AiFeaturesTest extends TestCase
     {
         Notification::fake();
         [$owner, $horse] = $this->setUpUser();
-        $vet = \App\Models\Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Leroy', 'first_name' => 'Anne', 'kind' => 'veterinarian', 'email' => 'cabinet@leroy.test', 'phone' => '06 11 22 33 44']);
+        $vet = Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Leroy', 'first_name' => 'Anne', 'kind' => 'veterinarian', 'email' => 'cabinet@leroy.test', 'phone' => '06 11 22 33 44']);
         $horse->professionals()->attach($vet->id);
 
         $this->actingAs($owner)->get(route('horses.vet-summary', $horse))->assertSee('data-vet-contact', false)->assertSee('Anne Leroy – Vétérinaire')->assertSee('cabinet@leroy.test', false);

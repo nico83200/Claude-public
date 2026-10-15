@@ -6,12 +6,16 @@ use App\Models\AssistantCreditPurchase;
 use App\Models\AssistantRequest;
 use App\Models\SubscriptionPlan;
 use App\Notifications\AppNotification;
+use App\Services\Assistant\AssistantConfig;
+use App\Services\Assistant\AssistantCredits;
 use App\Services\Assistant\ClaudeGateway;
 use App\Services\Assistant\Speaker;
 use App\Services\Billing\StripeGateway;
+use App\Services\OrganizationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Mockery;
 use Tests\Support\FakeClaude;
 use Tests\TestCase;
@@ -89,7 +93,7 @@ class AiCreditsAndVoiceTest extends TestCase
         $this->actingAs($user)->postJson('/assistant/consigne', ['text' => 'Encore'])->assertOk()->assertJson(['remaining' => 49]);
         $this->assertTrue(AssistantRequest::latest('id')->first()->paid_with_credit);
         // Demande en erreur : crédit rendu.
-        $failed = AssistantRequest::create(['user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) \Illuminate\Support\Str::uuid(), 'input_text' => 'x', 'input_mode' => 'text']);
+        $failed = AssistantRequest::create(['user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) Str::uuid(), 'input_text' => 'x', 'input_mode' => 'text']);
         $this->assertSame(48, $org->fresh()->assistant_credits);
         $failed->update(['status' => 'error']);
         $this->assertSame(49, $org->fresh()->assistant_credits);
@@ -103,17 +107,17 @@ class AiCreditsAndVoiceTest extends TestCase
         $admin = $this->user();
         $admin->forceFill(['is_super_admin' => true])->save();
         $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->put(route('admin.assistant.update'), [
-            'enabled' => '1', 'model' => array_key_first(\App\Services\Assistant\AssistantConfig::MODELS), 'effort' => array_key_first(\App\Services\Assistant\AssistantConfig::EFFORTS),
+            'enabled' => '1', 'model' => array_key_first(AssistantConfig::MODELS), 'effort' => array_key_first(AssistantConfig::EFFORTS),
             'session_min' => 30, 'session_max' => 60, 'credits_enabled' => '1',
             'packs' => [['credits' => 100, 'price' => '8.50'], ['credits' => '', 'price' => ''], ['credits' => 20, 'price' => '2']],
         ])->assertSessionHasNoErrors();
-        $this->assertSame([['credits' => 20, 'price_cents' => 200], ['credits' => 100, 'price_cents' => 850]], \App\Services\Assistant\AssistantCredits::packs());
+        $this->assertSame([['credits' => 20, 'price_cents' => 200], ['credits' => 100, 'price_cents' => 850]], AssistantCredits::packs());
 
         // Un membre sans droit sur l'abonnement ne peut pas acheter.
         $manager = $this->user();
         $stable = $this->stable($manager);
         $rider = $this->user();
-        app(\App\Services\OrganizationService::class)->addMember($stable, $rider, 'rider');
+        app(OrganizationService::class)->addMember($stable, $rider, 'rider');
         $rider->forceFill(['current_organization_id' => $stable->id])->save();
         $this->actingAs($rider)->post('/abonnement/credits-ia', ['pack' => 0])->assertForbidden();
         $this->assertDatabaseCount('assistant_credit_purchases', 0);

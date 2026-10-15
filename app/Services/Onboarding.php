@@ -20,7 +20,7 @@ class Onboarding
 
     /**
      * @return array<int, array{key: string, title: string, text: string, done: bool, url: string|null, button: string}>|null
-     *         null quand tout est fait ou que l'utilisateur a masqué le démarrage
+     *                                                                                                                        null quand tout est fait ou que l'utilisateur a masqué le démarrage
      */
     public function steps(User $user, Collection $horses): ?array
     {

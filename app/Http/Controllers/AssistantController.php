@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssistantAction;
 use App\Models\AssistantRequest;
+use App\Services\Assistant\AssistantCredits;
 use App\Services\Assistant\AssistantService;
 use App\Services\Assistant\AssistantUndo;
 use App\Services\Assistant\Speaker;
@@ -32,15 +33,15 @@ class AssistantController extends Controller
             $offer = $upsells->for($org, $request->user(), 'assistant');
             // Solde IA épuisé : explication, achat de crédits et, à défaut, offre supérieure.
             if (! $offer && $this->assistant->remaining($org) === 0) {
-                $credits = app(\App\Services\Assistant\AssistantCredits::class);
-                $packs = $credits->purchasable() ? \App\Services\Assistant\AssistantCredits::packs() : [];
+                $credits = app(AssistantCredits::class);
+                $packs = $credits->purchasable() ? AssistantCredits::packs() : [];
                 $more = $upsells->for($org, $request->user(), 'assistant_monthly');
                 $exhausted = [
                     'title' => 'Solde IA épuisé',
                     'text' => 'Les '.$this->entitlements()->limit($org, 'assistant_monthly').' consignes IA comprises dans votre offre ont été utilisées ce mois-ci. Le quota se renouvelle le 1er '.now()->addMonthNoOverflow()->startOfMonth()->translatedFormat('F').'.',
                     'can_buy' => $credits->canBuy($org, $request->user()),
                     'buy_url' => route('billing.index').'#credits-ia',
-                    'from' => $packs ? 'À partir de '.\App\Services\Assistant\AssistantCredits::price($packs[0]['price_cents']).' les '.$packs[0]['credits'].' crédits, sans abonnement supplémentaire.' : null,
+                    'from' => $packs ? 'À partir de '.AssistantCredits::price($packs[0]['price_cents']).' les '.$packs[0]['credits'].' crédits, sans abonnement supplémentaire.' : null,
                     'note' => $packs && ! $credits->canBuy($org, $request->user()) ? 'Demandez à la personne qui gère l\'abonnement de l\'espace '.$org->name.' d\'acheter des crédits IA.' : null,
                     'upgrade' => $more && $more['can_upgrade'] ? ['url' => $more['url'], 'label' => 'Ou passer à l\'offre '.$more['plan']->name] : null,
                 ];

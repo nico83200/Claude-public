@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Exercise;
+use App\Models\HorseAccessGrant;
 use App\Notifications\AppNotification;
 use App\Services\RidingSessionService;
 use Illuminate\Support\Facades\Notification;
@@ -18,7 +19,7 @@ class DebriefQuestionsTest extends TestCase
         $rider = $this->user();
         $horse = $this->horseFor($owner);
         // Le cavalier (demi-pensionnaire) fait le bilan ; le propriétaire est prévenu d'une anomalie.
-        \App\Models\HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view', 'sessions.view', 'sessions.edit_all']]);
+        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view', 'sessions.view', 'sessions.edit_all']]);
         $ex = Exercise::where('scope', 'default')->whereHas('category', fn ($q) => $q->where('name', 'Mobilité latérale'))->firstOrFail();
         $session = app(RidingSessionService::class)->create($horse, $owner, ['scheduled_at' => now()->addHour(), 'session_type' => 'dressage', 'objective' => 'Cession à la jambe sur les deux mains', 'planned_minutes' => 45],
             [['exercise_id' => $ex->id, 'phase' => 'main']]);

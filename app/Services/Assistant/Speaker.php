@@ -3,6 +3,7 @@
 namespace App\Services\Assistant;
 
 use App\Models\ApplicationSetting;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -117,7 +118,7 @@ class Speaker
         }
         [$previous, $next] = [self::spoken($previous), self::spoken($next)];
         $response = Http::withHeaders(['xi-api-key' => config('services.elevenlabs.key'), 'Accept' => 'audio/mpeg'])
-            ->connectTimeout(5)->timeout(30)->retry(1, 300, fn ($e) => ! $e instanceof \Illuminate\Http\Client\RequestException || $e->response->serverError(), throw: false)
+            ->connectTimeout(5)->timeout(30)->retry(1, 300, fn ($e) => ! $e instanceof RequestException || $e->response->serverError(), throw: false)
             ->post(rtrim(config('services.elevenlabs.base_url', 'https://api.elevenlabs.io'), '/').'/v1/text-to-speech/'.$this->voiceId().'?output_format=mp3_44100_64', array_filter([
                 'text' => $text,
                 'model_id' => $this->model(),

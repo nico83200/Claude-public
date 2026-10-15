@@ -179,7 +179,7 @@ class ClaudeGateway
         $instructions = "Voici une ordonnance ou un compte rendu de vétérinaire (ou d'un autre professionnel équin) concernant un cheval.\n"
             .'Chevaux de la personne : '.($horseNames ? implode(', ', $horseNames) : 'aucun')."\n"
             ."Extrais : le praticien (nom et éventuellement structure), la date de la visite (AAAA-MM-JJ), le type de soin, le nom du cheval s'il apparaît (exactement comme dans la liste, sinon chaîne vide), "
-            ."le motif, le diagnostic communiqué, les consignes, la date du prochain contrôle si elle est indiquée (sinon chaîne vide) ou un délai en jours (sinon 0), "
+            .'le motif, le diagnostic communiqué, les consignes, la date du prochain contrôle si elle est indiquée (sinon chaîne vide) ou un délai en jours (sinon 0), '
             ."et chaque médicament prescrit : produit, posologie telle qu'écrite (jamais recalculée), fréquence, nombre de prises par jour, durée en jours (0 si non précisée), voie d'administration. "
             ."Recopie fidèlement ; laisse vide ce qui est illisible ou absent ; n'invente rien et ne donne aucun avis médical. Indique ta confiance globale.";
         $treatment = ['type' => 'object', 'properties' => [
@@ -224,7 +224,7 @@ class ClaudeGateway
             'cooldown' => ['type' => 'array', 'items' => $item],
         ], 'required' => ['summary', 'warmup', 'main', 'complementary', 'cooldown'], 'additionalProperties' => false];
         $prompt = "Tu aides un cavalier à préparer une séance d'équitation. Propose un plan réaliste et progressif, adapté au niveau, "
-            ."à la durée prévue et aux points à retravailler. Utilise en priorité les exercices de la bibliothèque (nom recopié exactement) ; "
+            .'à la durée prévue et aux points à retravailler. Utilise en priorité les exercices de la bibliothèque (nom recopié exactement) ; '
             ."n'ajoute un exercice hors bibliothèque que s'il est indispensable. 2 à 3 exercices d'échauffement (warmup), 2 à 4 de travail principal (main), 0 à 2 de travail complémentaire ou d'étirements (complementary), 1 à 2 de retour au calme (cooldown). "
             ."La somme des minutes doit être proche de la durée prévue. Note courte (10 mots max) par exercice. Résumé en une phrase. Jamais de conseil vétérinaire.\n\n"
             .$context."\n\nBibliothèque d'exercices :\n- ".implode("\n- ", array_slice($exerciseNames, 0, 300));

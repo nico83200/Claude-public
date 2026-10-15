@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\License;
 use App\Models\SubscriptionPlan;
 use App\Services\Entitlements;
-use App\Services\Upsell;
 use Tests\TestCase;
 
 /** Offre « Propriétaire » : un cheval ; plusieurs chevaux → « Propriétaire multi-chevaux ». */

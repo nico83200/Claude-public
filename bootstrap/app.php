@@ -4,8 +4,10 @@ use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\LoadCurrentOrganization;
 use App\Http\Middleware\RedirectIfNotInstalled;
+use App\Http\Middleware\RedirectLegacyHost;
 use App\Http\Middleware\ResetRequestCaches;
 use App\Http\Middleware\RunSchedulerFallback;
+use App\Services\SystemMonitor;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetRequestCaches::class);
         // Ancienne adresse (jackcie.nlapps.fr) → adresse actuelle, avant toute session ou maintenance.
-        $middleware->prepend(\App\Http\Middleware\RedirectLegacyHost::class);
+        $middleware->prepend(RedirectLegacyHost::class);
         $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,
@@ -36,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Surveillance : compteur d'erreurs pour l'alerte « erreurs en hausse » (le journal habituel reste écrit).
-        $exceptions->report(fn (Throwable $e) => \App\Services\SystemMonitor::recordError($e));
+        $exceptions->report(fn (Throwable $e) => SystemMonitor::recordError($e));
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

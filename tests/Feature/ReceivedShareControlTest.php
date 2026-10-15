@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\HorseAccessGrant;
 use App\Notifications\AppNotification;
+use App\Services\InvitationService;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -60,6 +61,6 @@ class ReceivedShareControlTest extends TestCase
         $horse = $this->horseFor($owner);
         $rider = $this->user();
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view'], 'paused_at' => now()]);
-        $this->assertSame(1, app(\App\Services\InvitationService::class)->horseSharesUsed($owner->personalOrganization()));
+        $this->assertSame(1, app(InvitationService::class)->horseSharesUsed($owner->personalOrganization()));
     }
 }

@@ -6,6 +6,7 @@ use App\Models\AcquisitionVisit;
 use App\Models\PromoCode;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Services\AcquisitionTracker;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -50,7 +51,7 @@ class AcquisitionTrackingTest extends TestCase
 
         $admin = $this->user();
         $admin->forceFill(['is_super_admin' => true])->save();
-        $report = app(\App\Services\AcquisitionTracker::class)->report(null, 'EQUITA2026')->keyBy('source');
+        $report = app(AcquisitionTracker::class)->report(null, 'EQUITA2026')->keyBy('source');
         $this->assertSame([3, 2, 1, 1], [$report['affiche']->hits, $report['affiche']->visitors, $report['affiche']->accounts, $report['affiche']->redeemed]);
         $this->assertSame([1, 1, 0], [$report['instagram']->hits, $report['instagram']->visitors, $report['instagram']->accounts]);
 

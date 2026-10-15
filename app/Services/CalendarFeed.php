@@ -123,7 +123,7 @@ class CalendarFeed
 
     private function text(string $s): string
     {
-        return str_replace(["\\", ';', ',', "\r\n", "\n"], ['\\\\', '\;', '\\,', '\\n', '\\n'], $s);
+        return str_replace(['\\', ';', ',', "\r\n", "\n"], ['\\\\', '\;', '\\,', '\\n', '\\n'], $s);
     }
 
     /** Lignes de 75 octets au plus (continuation par un espace), sans couper un caractère UTF-8. */

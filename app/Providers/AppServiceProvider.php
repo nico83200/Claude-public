@@ -3,14 +3,22 @@
 namespace App\Providers;
 
 use App\Models\ApplicationSetting;
+use App\Models\CalendarEvent;
+use App\Models\CareRecord;
+use App\Models\Expense;
 use App\Models\Horse;
+use App\Models\Treatment;
 use App\Models\User;
+use App\Services\CareCalendarSync;
+use App\Services\CareExpenseSync;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
+use App\Services\MailDesign;
 use App\Services\Upsell;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -43,16 +51,16 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useTailwind();
 
         // Agenda ↔ Santé : chaque soin a son événement, chaque rendez-vous de soin réalisé a son soin (toutes sources : formulaires, assistant, factures).
-        \App\Models\CareRecord::saved(fn ($care) => app(\App\Services\CareCalendarSync::class)->fromCare($care));
+        CareRecord::saved(fn ($care) => app(CareCalendarSync::class)->fromCare($care));
         // Soin ↔ dépense rattachée : date, montant et intervenant identiques des deux côtés.
-        \App\Models\CareRecord::saved(fn ($care) => app(\App\Services\CareExpenseSync::class)->fromCare($care));
-        \App\Models\Expense::updated(fn ($expense) => app(\App\Services\CareExpenseSync::class)->fromExpense($expense));
-        \App\Models\CareRecord::deleted(fn ($care) => app(\App\Services\CareCalendarSync::class)->careDeleted($care));
-        \App\Models\Treatment::saved(fn ($t) => app(\App\Services\CareCalendarSync::class)->fromTreatment($t));
-        \App\Models\Treatment::deleted(fn ($t) => app(\App\Services\CareCalendarSync::class)->treatmentDeleted($t));
-        \App\Models\CalendarEvent::created(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event, true));
-        \App\Models\CalendarEvent::updated(fn ($event) => app(\App\Services\CareCalendarSync::class)->fromEvent($event));
-        \App\Models\CalendarEvent::deleted(fn ($event) => app(\App\Services\CareCalendarSync::class)->eventDeleted($event));
+        CareRecord::saved(fn ($care) => app(CareExpenseSync::class)->fromCare($care));
+        Expense::updated(fn ($expense) => app(CareExpenseSync::class)->fromExpense($expense));
+        CareRecord::deleted(fn ($care) => app(CareCalendarSync::class)->careDeleted($care));
+        Treatment::saved(fn ($t) => app(CareCalendarSync::class)->fromTreatment($t));
+        Treatment::deleted(fn ($t) => app(CareCalendarSync::class)->treatmentDeleted($t));
+        CalendarEvent::created(fn ($event) => app(CareCalendarSync::class)->fromEvent($event, true));
+        CalendarEvent::updated(fn ($event) => app(CareCalendarSync::class)->fromEvent($event));
+        CalendarEvent::deleted(fn ($event) => app(CareCalendarSync::class)->eventDeleted($event));
 
         // HTTPS forcé seulement une fois installé et si l'adresse configurée est en https
         // (l'installeur doit rester accessible sur un domaine pas encore certifié).
@@ -75,9 +83,9 @@ class AppServiceProvider extends ServiceProvider
         ));
 
         // E-mails de compte dans la même mise en forme que les notifications.
-        VerifyEmail::toMailUsing(fn ($notifiable, string $url) => app(\App\Services\MailDesign::class)->mailMessage('verify_email', ['name' => $notifiable->name ?? null],
+        VerifyEmail::toMailUsing(fn ($notifiable, string $url) => app(MailDesign::class)->mailMessage('verify_email', ['name' => $notifiable->name ?? null],
             'Confirmez votre adresse e-mail', 'Cliquez sur le bouton ci-dessous pour confirmer votre adresse e-mail.', $url));
-        \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(fn ($notifiable, string $token) => app(\App\Services\MailDesign::class)->mailMessage('reset_password', ['name' => $notifiable->name ?? null],
+        ResetPassword::toMailUsing(fn ($notifiable, string $token) => app(MailDesign::class)->mailMessage('reset_password', ['name' => $notifiable->name ?? null],
             'Réinitialisation du mot de passe', 'Vous avez demandé à réinitialiser votre mot de passe. Ce lien est valable '.config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60).' minutes. Si vous n\'êtes pas à l\'origine de cette demande, ignorez ce message.',
             url(route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()], false))));
 

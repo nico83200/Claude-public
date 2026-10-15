@@ -16,6 +16,7 @@ use App\Models\UserProfile;
 use App\Notifications\AppNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /** Récapitulatif de la semaine, fiche d'urgence (QR code) et démarrage guidé. */
@@ -32,7 +33,7 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
 
         CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'farrier', 'title' => 'Maréchal-ferrant', 'starts_at' => Carbon::parse('2026-10-20 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
         CalendarEvent::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'type' => 'custom', 'title' => 'Trop loin', 'starts_at' => Carbon::parse('2026-11-05 09:00'), 'status' => 'planned', 'created_by' => $user->id]);
-        Treatment::forceCreate(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'horse_id' => $horse->id, 'product' => 'Equipalazone', 'starts_on' => '2026-10-15', 'ends_on' => '2026-10-22', 'status' => 'active']);
+        Treatment::forceCreate(['uuid' => (string) Str::uuid(), 'horse_id' => $horse->id, 'product' => 'Equipalazone', 'starts_on' => '2026-10-15', 'ends_on' => '2026-10-22', 'status' => 'active']);
         Expense::forceCreate(['organization_id' => $horse->organization_id, 'horse_id' => $horse->id, 'expense_category_id' => ExpenseCategory::where('key', 'boarding')->value('id'), 'spent_on' => '2026-10-21', 'amount' => 380, 'comment' => 'Pension novembre', 'author_id' => $user->id]);
 
         $this->artisan('reminders:weekly')->assertSuccessful();
@@ -76,7 +77,7 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
         $horse = $this->horseFor($owner, null, ['usual_name' => 'Uni', 'precautions' => 'Tape à l\'attache', 'general_notes' => 'Note privée']);
         $vet = Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Vétodoc', 'kind' => 'veterinarian', 'phone' => '0611223344', 'notes' => 'Secret']);
         $horse->professionals()->attach($vet->id, ['is_primary' => true]);
-        Treatment::forceCreate(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'horse_id' => $horse->id, 'product' => 'Antibiotique X', 'dosage' => '2 fois par jour', 'starts_on' => now()->subDay()->toDateString(), 'status' => 'active']);
+        Treatment::forceCreate(['uuid' => (string) Str::uuid(), 'horse_id' => $horse->id, 'product' => 'Antibiotique X', 'dosage' => '2 fois par jour', 'starts_on' => now()->subDay()->toDateString(), 'status' => 'active']);
 
         $this->actingAs($owner)->get(route('horses.emergency.edit', $horse))->assertOk()->assertSee('data-emergency-enable', false);
         $this->actingAs($owner)->put(route('horses.emergency.update', $horse), ['emergency_contact_name' => 'Paul', 'emergency_contact_phone' => '06 00 00 00 01', 'emergency_notes' => 'Allergique à la pénicilline', 'action' => 'enable'])->assertSessionHasNoErrors();

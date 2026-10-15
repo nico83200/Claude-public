@@ -16,6 +16,7 @@ use App\Services\Audit;
 use App\Services\CalendarService;
 use App\Services\CareReminders;
 use App\Services\HorseAccess;
+use App\Support\AiImage;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -47,7 +48,7 @@ class InvoiceController extends ExpenseController
             return back()->with('error', $reason);
         }
         $file = $request->file('invoice');
-        [$bytes, $mime] = \App\Support\AiImage::prepare($file->getRealPath(), (string) $file->getMimeType());
+        [$bytes, $mime] = AiImage::prepare($file->getRealPath(), (string) $file->getMimeType());
         if (! $bytes) {
             return back()->with('error', 'Format de photo non lisible : sur iPhone, réglez Appareil photo › Formats sur « Le plus compatible », ou envoyez une capture d\'écran.');
         }

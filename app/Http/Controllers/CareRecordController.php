@@ -108,7 +108,7 @@ class CareRecordController extends Controller
             'canEdit' => $this->horseCan($horse, Perm::HEALTH_EDIT),
             // Informations financières : dépenses rattachées au soin, si l'utilisateur voit le budget de ce cheval.
             'expenses' => $this->horseCan($horse, Perm::EXPENSES_VIEW)
-                ? \App\Models\Expense::where('care_record_id', $care->id)->with(['category', 'documents', 'professional'])->orderBy('spent_on')->get()
+                ? Expense::where('care_record_id', $care->id)->with(['category', 'documents', 'professional'])->orderBy('spent_on')->get()
                 : collect(),
             'canEditExpense' => fn ($e) => $this->horseCan($horse, Perm::EXPENSES_CREATE) && ($e->author_id === request()->user()->id || $this->horseCan($horse, Perm::HORSE_MANAGE)),
         ]);

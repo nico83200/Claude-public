@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Audit;
 use App\Services\Entitlements;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +31,7 @@ class OrganizationController extends Controller
     /**
      * Comptes qui gèrent plusieurs écuries actives (créées avant la règle « une écurie par compte »).
      *
-     * @return \Illuminate\Support\Collection<int, array{owner: User, stables: \Illuminate\Support\Collection}>
+     * @return Collection<int, array{owner: User, stables: Collection}>
      */
     private function duplicateStables()
     {

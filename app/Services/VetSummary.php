@@ -8,7 +8,6 @@ use App\Models\Horse;
 use App\Models\HorseMeasurement;
 use App\Models\RidingSession;
 use App\Models\Treatment;
-use Illuminate\Support\Carbon;
 
 /**
  * Résumé de santé d'un cheval sur les derniers mois, pour le vétérinaire :

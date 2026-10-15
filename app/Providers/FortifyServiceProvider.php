@@ -7,7 +7,10 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\FeatureFlag;
+use App\Models\PromoCode;
 use App\Models\User;
+use App\Services\AcquisitionTracker;
+use App\Services\ReferralService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +19,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -39,20 +43,20 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
-        $this->app->singleton(\Laravel\Fortify\Contracts\LogoutResponse::class, \App\Http\Responses\LogoutResponse::class);
+        $this->app->singleton(LogoutResponse::class, \App\Http\Responses\LogoutResponse::class);
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::registerView(function () {
             abort_unless(FeatureFlag::enabled('registration'), 403, 'Les inscriptions sont fermées.');
             // Lien ou QR code avec ?code= : le code est retenu, y compris pour une inscription avec Google / Apple.
-            if ($code = \App\Models\PromoCode::normalize((string) request()->query('code'))) {
+            if ($code = PromoCode::normalize((string) request()->query('code'))) {
                 session(['signup_code' => mb_substr($code, 0, 40)]);
             }
             // Lien de parrainage repris dans l'application installée (?parrain=) : le parrain est retenu.
-            if (($ref = \App\Services\ReferralService::normalize((string) request()->query('parrain'))) && ($referrer = \App\Models\User::where('referral_code', $ref)->whereNull('suspended_at')->first())) {
+            if (($ref = ReferralService::normalize((string) request()->query('parrain'))) && ($referrer = User::where('referral_code', $ref)->whereNull('suspended_at')->first())) {
                 session(['referral_code' => $ref, 'referral_name' => strtok($referrer->name, ' ')]);
             }
             // Provenance (?src=affiche, instagram…) : scans de QR code et clics comptés pour l'administration.
-            app(\App\Services\AcquisitionTracker::class)->track(request());
+            app(AcquisitionTracker::class)->track(request());
 
             return view('auth.register');
         });

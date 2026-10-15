@@ -17,11 +17,13 @@ use App\Services\CareReminders;
 use App\Support\AiImage;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use RuntimeException;
 
 /**
@@ -105,8 +107,8 @@ class PrescriptionController extends Controller
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
         $pending = $this->pending($request, $horse, $token);
         $data = $request->validate([
-            'care_category_id' => ['required', \Illuminate\Validation\Rule::exists('care_categories', 'id')->where(fn ($q) => $q->whereNull('organization_id')->orWhere('organization_id', $horse->organization_id))],
-            'professional_id' => ['nullable', \Illuminate\Validation\Rule::exists('professionals', 'id')->where('organization_id', $horse->organization_id)],
+            'care_category_id' => ['required', Rule::exists('care_categories', 'id')->where(fn ($q) => $q->whereNull('organization_id')->orWhere('organization_id', $horse->organization_id))],
+            'professional_id' => ['nullable', Rule::exists('professionals', 'id')->where('organization_id', $horse->organization_id)],
             'performed_at' => ['required', 'date', 'before_or_equal:today'],
             'reason' => ['nullable', 'string', 'max:255'],
             'diagnosis' => ['nullable', 'string', 'max:10000'],
@@ -145,7 +147,7 @@ class PrescriptionController extends Controller
                 $count++;
             }
             if ($request->boolean('keep_document', true) && Storage::disk('local')->exists($pending['path']) && $this->horseCan($horse, Perm::DOCUMENTS_CREATE)) {
-                $file = new \Illuminate\Http\UploadedFile(Storage::disk('local')->path($pending['path']), $pending['name'], null, null, true);
+                $file = new UploadedFile(Storage::disk('local')->path($pending['path']), $pending['name'], null, null, true);
                 HorseDocumentController::storeFor($horse, $file, ['category' => 'prescription', 'title' => 'Ordonnance du '.Carbon::parse($data['performed_at'])->format('d/m/Y'), 'is_sensitive' => true], $request->user()->id, $record);
             }
 

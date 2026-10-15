@@ -7,14 +7,15 @@ use App\Models\SocialAccount;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Notifications\AppNotification;
+use App\Services\AcquisitionTracker;
 use App\Services\Audit;
 use App\Services\OrganizationService;
-use App\Services\AcquisitionTracker;
 use App\Services\PromoCodeService;
+use App\Services\ReferralService;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 /**
@@ -87,7 +88,7 @@ class SocialLogin
         event(new Registered($user));
         app(AcquisitionTracker::class)->registered($user, $this->redeemSignupCode($user));
         // Inscription par le lien d'un parrain (jours offerts au parrain dès l'adresse e-mail confirmée).
-        app(\App\Services\ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(\App\Services\ReferralService::COOKIE));
+        app(ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(ReferralService::COOKIE));
 
         return ['user' => $user->fresh(), 'created' => true, 'linked' => true];
     }

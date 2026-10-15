@@ -2,6 +2,7 @@
 
 use App\Http\Controllers;
 use App\Http\Controllers\Admin;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // --- Installeur du premier lancement (fermé définitivement après installation)
@@ -25,7 +26,7 @@ Route::get('/app.webmanifest', Controllers\ManifestController::class)->name('man
 Route::get('/resume/{token}', [Controllers\HealthShareController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('vet-summary.public');
 Route::get('/urgence/{token}', [Controllers\EmergencySheetController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.public');
 Route::get('/urgence/{token}/photo', [Controllers\EmergencySheetController::class, 'photo'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:60,1')->name('emergency.photo');
-Route::get('/email/logo', [Controllers\Admin\MailDesignController::class, 'logo'])->middleware('throttle:120,1')->name('mail.logo');
+Route::get('/email/logo', [Admin\MailDesignController::class, 'logo'])->middleware('throttle:120,1')->name('mail.logo');
 Route::get('/maintenance/reprise', Controllers\MaintenanceResumeController::class)->middleware('throttle:6,1')->name('maintenance.resume');
 Route::get('/tarifs', [Controllers\PublicController::class, 'pricing'])->name('pricing');
 Route::get('/confidentialite', [Controllers\PublicController::class, 'privacy'])->name('legal.privacy');
@@ -35,7 +36,7 @@ Route::view('/application-mobile', 'public.install')->name('app.install');
 // Webhook Stripe (signature vérifiée, CSRF exclu dans bootstrap/app.php)
 Route::post('/stripe/webhook', Controllers\StripeWebhookController::class)->name('stripe.webhook');
 // Proposition d'installation après l'inscription : « Plus tard » (aussi avant la confirmation de l'adresse e-mail).
-Route::post('/installation/plus-tard', function (\Illuminate\Http\Request $request) {
+Route::post('/installation/plus-tard', function (Request $request) {
     $request->session()->forget('offer_install');
 
     return response()->json(['ok' => true]);

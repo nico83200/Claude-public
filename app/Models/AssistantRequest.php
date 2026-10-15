@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Assistant\AssistantCredits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -15,10 +16,10 @@ class AssistantRequest extends Model
     {
         static::creating(fn (self $r) => $r->uuid ??= (string) Str::uuid());
         // Au-delà du quota mensuel, la demande utilise un crédit IA acheté (rendu si elle échoue).
-        static::created(fn (self $r) => app(\App\Services\Assistant\AssistantCredits::class)->charge($r));
+        static::created(fn (self $r) => app(AssistantCredits::class)->charge($r));
         static::updated(function (self $r) {
             if ($r->wasChanged('status')) {
-                app(\App\Services\Assistant\AssistantCredits::class)->refund($r);
+                app(AssistantCredits::class)->refund($r);
             }
         });
     }

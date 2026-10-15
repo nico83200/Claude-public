@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\ApplicationSetting;
 use App\Models\AssistantRequest;
 use App\Services\Assistant\AssistantConfig;
+use App\Services\Assistant\AssistantCredits;
 use App\Services\Assistant\ClaudeGateway;
+use App\Services\Assistant\Speaker;
+use App\Services\Assistant\Transcriber;
 use App\Services\Audit;
 use App\Services\IntegrationSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Throwable;
 
@@ -51,7 +53,7 @@ class AssistantSettingsController extends Controller
             'result_seconds' => ['sometimes', 'integer', Rule::in(array_keys(AssistantConfig::RESULT_DELAYS))],
             'instructions' => ['nullable', 'string', 'max:8000'],
             'voice_id' => ['nullable', 'regex:/^[A-Za-z0-9]{10,40}$/'],
-            'speech_model' => ['nullable', Rule::in(array_keys(\App\Services\Assistant\Speaker::MODELS))],
+            'speech_model' => ['nullable', Rule::in(array_keys(Speaker::MODELS))],
             'anthropic_key' => ['nullable', 'string', 'max:255', 'regex:/^sk-ant-/'],
             'elevenlabs_key' => ['nullable', 'string', 'max:255'],
             'packs' => ['array', 'max:3'],
@@ -70,8 +72,8 @@ class AssistantSettingsController extends Controller
         ApplicationSetting::put('assistant.speech_model', $data['speech_model'] ?? null);
         ApplicationSetting::put('digest_ai', $request->boolean('digest_ai'));
         if ($request->has('packs')) {
-            ApplicationSetting::put(\App\Services\Assistant\AssistantCredits::ENABLED_KEY, $request->boolean('credits_enabled'));
-            ApplicationSetting::put(\App\Services\Assistant\AssistantCredits::PACKS_KEY, collect($data['packs'] ?? [])
+            ApplicationSetting::put(AssistantCredits::ENABLED_KEY, $request->boolean('credits_enabled'));
+            ApplicationSetting::put(AssistantCredits::PACKS_KEY, collect($data['packs'] ?? [])
                 ->filter(fn ($p) => filled($p['credits'] ?? null) && filled($p['price'] ?? null))
                 ->map(fn ($p) => ['credits' => (int) $p['credits'], 'price_cents' => (int) round((float) $p['price'] * 100)])->values()->all());
         }
@@ -81,7 +83,7 @@ class AssistantSettingsController extends Controller
         return back()->with('success', 'Réglages de l\'assistant enregistrés.');
     }
 
-    public function test(Request $request, ClaudeGateway $claude, \App\Services\Assistant\Transcriber $transcriber)
+    public function test(Request $request, ClaudeGateway $claude, Transcriber $transcriber)
     {
         $which = $request->validate(['service' => ['required', Rule::in(['anthropic', 'elevenlabs'])]])['service'];
         try {
@@ -92,7 +94,7 @@ class AssistantSettingsController extends Controller
             }
             abort_unless(filled(config('services.elevenlabs.key')), back()->with('error', 'Aucune clé ElevenLabs configurée.'));
             // Vrai essai de transcription (1 seconde de son) : vérifie la clé, sa permission « Speech to Text » et les crédits.
-            $transcriber->transcribeBytes(\App\Services\Assistant\Transcriber::sampleWav(), 'essai.wav');
+            $transcriber->transcribeBytes(Transcriber::sampleWav(), 'essai.wav');
 
             return back()->with('success', 'Transcription ElevenLabs opérationnelle (modèle '.config('services.elevenlabs.stt_model', 'scribe_v2').').');
         } catch (Throwable $e) {
@@ -101,7 +103,7 @@ class AssistantSettingsController extends Controller
     }
 
     /** Essai de la voix (phrase courte) : renvoie le son ou l'erreur expliquée. */
-    public function voiceTest(\App\Services\Assistant\Speaker $speaker)
+    public function voiceTest(Speaker $speaker)
     {
         try {
             return response($speaker->speak('Bonjour, je suis l\'assistant de Jack et Cie. C\'est noté : maréchal pour Uni mardi à neuf heures.'), 200, ['Content-Type' => 'audio/mpeg']);

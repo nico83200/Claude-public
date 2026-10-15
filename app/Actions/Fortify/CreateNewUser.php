@@ -7,6 +7,7 @@ use App\Models\UserProfile;
 use App\Services\AcquisitionTracker;
 use App\Services\OrganizationService;
 use App\Services\PromoCodeService;
+use App\Services\ReferralService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -60,7 +61,7 @@ class CreateNewUser implements CreatesNewUsers
             }
             app(AcquisitionTracker::class)->registered($user, $redeemed);
             // Inscription par le lien d'un parrain (jours offerts au parrain dès l'adresse e-mail confirmée).
-            app(\App\Services\ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(\App\Services\ReferralService::COOKIE));
+            app(ReferralService::class)->attach($user, session('referral_code') ?? request()->cookie(ReferralService::COOKIE));
 
             return $user;
         });

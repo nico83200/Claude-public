@@ -102,6 +102,7 @@ class CareExpenseSync
             $care->save();
             $expense->forceFill(['care_record_id' => $care->id])->save();
         });
+
         return $care;
     }
 

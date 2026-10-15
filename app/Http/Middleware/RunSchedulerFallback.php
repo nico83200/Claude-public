@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\NotificationDiagnostics;
+use App\Services\SystemMonitor;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,7 @@ class RunSchedulerFallback
         NotificationDiagnostics::runFallbackIfNeeded();
         // Cron arrêté : la surveillance est aussi vérifiée depuis les visites (au plus toutes les 10 minutes).
         if (! NotificationDiagnostics::cronAlive()) {
-            \App\Services\SystemMonitor::checkFromWeb();
+            SystemMonitor::checkFromWeb();
         }
     }
 }

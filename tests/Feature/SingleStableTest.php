@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Organization;
+use App\Services\OrganizationService;
 use Tests\TestCase;
 
 /** Un compte = son espace personnel, et au plus une écurie (offre Écurie). */
@@ -25,7 +26,7 @@ class SingleStableTest extends TestCase
 
         // Être invité dans l'écurie d'un tiers ne compte pas : on peut toujours créer la sienne.
         $other = $this->user();
-        app(\App\Services\OrganizationService::class)->addMember($stable, $other, 'rider');
+        app(OrganizationService::class)->addMember($stable, $other, 'rider');
         $this->actingAs($other->fresh())->post('/espaces', ['name' => 'Écurie de Léa'])->assertRedirect('/organisation');
         $this->assertSame(1, Organization::where('owner_id', $other->id)->where('type', 'stable')->count());
     }

@@ -9,7 +9,6 @@ use App\Services\Audit;
 use App\Services\CalendarService;
 use App\Support\Perm;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 /**
@@ -55,7 +54,6 @@ class TreatmentController extends Controller
 
         return back()->with('success', 'Administration enregistrée.');
     }
-
 
     private function validated(Request $request, Horse $horse): array
     {

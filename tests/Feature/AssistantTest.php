@@ -14,6 +14,7 @@ use App\Models\HorseMeasurement;
 use App\Models\RidingSession;
 use App\Services\Assistant\AssistantConfig;
 use App\Services\Assistant\ClaudeGateway;
+use App\Services\Assistant\Transcriber;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -286,10 +287,10 @@ class AssistantTest extends TestCase
         // Super-administrateur : la cause exacte et quoi faire.
         $user->forceFill(['is_super_admin' => true])->save();
         $this->actingAs($user)->post('/assistant/transcription', ['audio' => $audio()], ['Accept' => 'application/json'])
-            ->assertStatus(502)->assertJsonFragment(['message' => 'La transcription a échoué. Réessayez ou écrivez la consigne. — '.\App\Services\Assistant\Transcriber::explain(401, json_encode(['detail' => ['status' => 'missing_permissions', 'message' => 'The API key you used is missing the permission speech_to_text to execute this operation.']]))]);
-        $this->assertStringContainsString('Speech to Text', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"missing_permissions","message":"x"}}'));
-        $this->assertStringContainsString('crédits', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"quota_exceeded","message":"This request exceeds your quota"}}'));
-        $this->assertStringContainsString('clé ElevenLabs refusée', \App\Services\Assistant\Transcriber::explain(401, '{"detail":{"status":"invalid_api_key","message":"Invalid API key"}}'));
+            ->assertStatus(502)->assertJsonFragment(['message' => 'La transcription a échoué. Réessayez ou écrivez la consigne. — '.Transcriber::explain(401, json_encode(['detail' => ['status' => 'missing_permissions', 'message' => 'The API key you used is missing the permission speech_to_text to execute this operation.']]))]);
+        $this->assertStringContainsString('Speech to Text', Transcriber::explain(401, '{"detail":{"status":"missing_permissions","message":"x"}}'));
+        $this->assertStringContainsString('crédits', Transcriber::explain(401, '{"detail":{"status":"quota_exceeded","message":"This request exceeds your quota"}}'));
+        $this->assertStringContainsString('clé ElevenLabs refusée', Transcriber::explain(401, '{"detail":{"status":"invalid_api_key","message":"Invalid API key"}}'));
 
         // Test depuis l'administration : vraie transcription d'un court son.
         $this->actingAs($user)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/assistant/test', ['service' => 'elevenlabs'])

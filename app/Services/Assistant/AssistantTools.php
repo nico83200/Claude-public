@@ -19,7 +19,9 @@ use App\Models\Horse;
 use App\Models\HorseMeasurement;
 use App\Models\Professional;
 use App\Models\RidingSession;
+use App\Models\Treatment;
 use App\Services\CalendarService;
+use App\Services\CareExpenseSync;
 use App\Services\CareReminders;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
@@ -512,7 +514,7 @@ class AssistantTools
         $summary = 'Dépense '.number_format($amount, 2, ',', ' ').' € – '.($expense->category?->name ?? 'Autre').($horse ? ' – '.$horse->shortName() : '').' – '.$expense->spent_on->translatedFormat('j M Y');
         $ctx->record('expense.created', $expense, $summary, route('budget.index'), ['delete' => [Expense::class, $expense->id]]);
         // Dépense de soin : le soin est ajouté au carnet de santé (ou rattaché au soin du même jour déjà noté).
-        if ($care = app(\App\Services\CareExpenseSync::class)->careFromExpense($expense, $ctx->user)) {
+        if ($care = app(CareExpenseSync::class)->careFromExpense($expense, $ctx->user)) {
             if ($care->wasRecentlyCreated) {
                 $ctx->record('care.created', $care, 'Soin ajouté au carnet de santé – '.$care->category->name.' – '.$horse->shortName(), route('horses.care.show', [$horse, $care]), ['delete' => [CareRecord::class, $care->id]]);
             }
@@ -629,7 +631,7 @@ class AssistantTools
             'weights' => HorseMeasurement::with('horse')->whereIn('horse_id', $ids(Perm::HEALTH_VIEW))->tap(fn ($q) => $range($q, 'measured_on'))
                 ->orderByDesc('measured_on')->limit($limit)->get()
                 ->map(fn ($m) => ['horse' => $name($m), 'date' => $m->measured_on->toDateString(), 'weight_kg' => $m->weight_kg, 'body_condition' => $m->body_condition])->all(),
-            'treatments' => \App\Models\Treatment::with('horse')->whereIn('horse_id', $ids(Perm::TREATMENTS_VIEW))
+            'treatments' => Treatment::with('horse')->whereIn('horse_id', $ids(Perm::TREATMENTS_VIEW))
                 ->where(fn ($q) => $q->where('status', 'active')->orWhere('starts_on', '>=', now()->subMonths(6)->toDateString()))->orderByDesc('starts_on')->limit($limit)->get()
                 ->map(fn ($t) => ['horse' => $name($t), 'product' => $t->product, 'dosage' => $t->dosage, 'frequency' => $t->frequency, 'from' => $t->starts_on->toDateString(), 'to' => $t->ends_on?->toDateString(), 'status' => $t->status])->all(),
             'session_stats' => $this->sessionStats($ids(Perm::SESSIONS_VIEW), $from ?? now()->subDays(30)->startOfDay(), $to ?? now()->endOfDay()),

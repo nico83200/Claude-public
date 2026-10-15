@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssistantRequest;
 use App\Models\Exercise;
 use App\Models\ExerciseCategory;
 use App\Models\Horse;
@@ -9,12 +10,18 @@ use App\Models\RidingSession;
 use App\Models\SessionComment;
 use App\Models\SessionTemplate;
 use App\Models\User;
+use App\Models\UserProfile;
 use App\Notifications\AppNotification;
+use App\Services\Assistant\AssistantService;
+use App\Services\Assistant\ClaudeGateway;
+use App\Services\DebriefQuestions;
+use App\Services\ExerciseSuggestions;
 use App\Services\HorseAccess;
 use App\Services\RidingSessionService;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class RidingSessionController extends Controller
 {
@@ -144,10 +151,10 @@ class RidingSessionController extends Controller
             'session' => $session,
             'library' => $library,
             // Exercices habituels du cavalier et exercices adaptés à son galop, par étape.
-            'suggestions' => $suggestions = app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
+            'suggestions' => $suggestions = app(ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
             // Galop inconnu : suggestions préparées pour chaque niveau, affichées dès que le cavalier choisit son galop (sans recharger).
             'suggestionVariants' => $suggestions['rider']?->id === $user->id && ! $suggestions['galop']
-                ? collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => app(\App\Services\ExerciseSuggestions::class)->forSession($session, $user, $library, $g)])->all()
+                ? collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => app(ExerciseSuggestions::class)->forSession($session, $user, $library, $g)])->all()
                 : [],
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),
             'riders' => $this->ridersFor($session->horse),
@@ -245,7 +252,7 @@ class RidingSessionController extends Controller
 
         return view('sessions.debrief', [
             'session' => $session->load(['horse', 'exercises']),
-            'questions' => app(\App\Services\DebriefQuestions::class)->for($session),
+            'questions' => app(DebriefQuestions::class)->for($session),
             'library' => Exercise::visibleTo($request->user())->whereNull('archived_at')->orderBy('name')->pluck('name'),
         ]);
     }
@@ -265,7 +272,7 @@ class RidingSessionController extends Controller
                 'q_next' => ['nullable', 'array', 'max:20'], 'q_next.*' => ['string', 'max:160'],
                 'q_comment' => ['nullable', 'string', 'max:500'],
             ]);
-            $data = app(\App\Services\DebriefQuestions::class)->compose($answers, $session) + $data;
+            $data = app(DebriefQuestions::class)->compose($answers, $session) + $data;
         }
         $work = $request->validate([
             'items_reviewed' => ['nullable', 'boolean'],
@@ -286,11 +293,11 @@ class RidingSessionController extends Controller
     }
 
     /** Bilan fait par un autre cavalier que le propriétaire : le propriétaire est prévenu, avec le lien pour le consulter. */
-    private function notifyOwnersOfDebrief(\App\Models\User $author, RidingSession $session): void
+    private function notifyOwnersOfDebrief(User $author, RidingSession $session): void
     {
         $horse = $session->horse;
         $access = app(HorseAccess::class);
-        $owners = \App\Models\User::whereIn('id', $horse->ownerships()->whereNotNull('user_id')->whereNull('ended_on')->pluck('user_id'))->get();
+        $owners = User::whereIn('id', $horse->ownerships()->whereNotNull('user_id')->whereNull('ended_on')->pluck('user_id'))->get();
         if ($owners->isEmpty()) {
             // Sans propriétaire déclaré : les personnes qui gèrent le cheval dans l'espace.
             $owners = $horse->organization->users()->get()->filter(fn ($u) => in_array(Perm::HORSE_MANAGE, $access->permissions($u, $horse), true));
@@ -301,8 +308,8 @@ class RidingSessionController extends Controller
             if (! in_array(Perm::SESSIONS_VIEW, $access->permissions($owner, $horse), true)) {
                 continue;
             }
-            $owner->notify(new \App\Notifications\AppNotification('session_report', 'Bilan de séance : '.$horse->shortName(),
-                $author->name.' a fait le bilan de « '.$session->title().' » du '.$session->scheduled_at->translatedFormat('j F').$feeling.'.'.($summary ? ' '.\Illuminate\Support\Str::limit($summary, 160) : ''),
+            $owner->notify(new AppNotification('session_report', 'Bilan de séance : '.$horse->shortName(),
+                $author->name.' a fait le bilan de « '.$session->title().' » du '.$session->scheduled_at->translatedFormat('j F').$feeling.'.'.($summary ? ' '.Str::limit($summary, 160) : ''),
                 route('sessions.show', $session), mail: false));
         }
     }
@@ -330,7 +337,7 @@ class RidingSessionController extends Controller
      * Plan de séance proposé par l'assistant (Claude) : objectif, durée, niveau du cavalier,
      * derniers bilans. Rien n'est ajouté : la personne choisit ensuite les exercices à garder.
      */
-    public function plan(Request $request, RidingSession $session, \App\Services\Assistant\AssistantService $assistant, \App\Services\Assistant\ClaudeGateway $claude)
+    public function plan(Request $request, RidingSession $session, AssistantService $assistant, ClaudeGateway $claude)
     {
         $this->authorizeEdit($request, $session);
         abort_if($session->isCompleted(), 422);
@@ -346,10 +353,10 @@ class RidingSessionController extends Controller
             ->orderByDesc('scheduled_at')->limit(4)->get();
         $horse = $session->horse;
         $context = implode("\n", array_filter([
-            'Cheval : '.$horse->shortName().' · '.(\App\Models\Horse::DISCIPLINES[$horse->main_discipline] ?? 'discipline non précisée').' · niveau de travail : '.($horse->work_level ?: 'non précisé').($horse->age() ? ' · '.$horse->age().' ans' : ''),
+            'Cheval : '.$horse->shortName().' · '.(Horse::DISCIPLINES[$horse->main_discipline] ?? 'discipline non précisée').' · niveau de travail : '.($horse->work_level ?: 'non précisé').($horse->age() ? ' · '.$horse->age().' ans' : ''),
             $horse->precautions ? 'Précautions : '.$horse->precautions : null,
-            'Cavalier : '.($galop ? 'galop '.$galop.' ('.\App\Models\UserProfile::exerciseLevel($galop).')' : 'niveau inconnu'),
-            'Séance : '.(RidingSession::TYPES[$session->session_type] ?? $session->session_type).($session->discipline ? ' · '.(\App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline) : '').' · durée prévue '.($session->planned_minutes ?: 45).' minutes',
+            'Cavalier : '.($galop ? 'galop '.$galop.' ('.UserProfile::exerciseLevel($galop).')' : 'niveau inconnu'),
+            'Séance : '.(RidingSession::TYPES[$session->session_type] ?? $session->session_type).($session->discipline ? ' · '.(Horse::DISCIPLINES[$session->discipline] ?? $session->discipline) : '').' · durée prévue '.($session->planned_minutes ?: 45).' minutes',
             'Objectif : '.($session->objective ?: 'non précisé (travail général adapté)'),
             $session->exercises->isNotEmpty() ? 'Déjà prévu : '.$session->exercises->pluck('name')->implode(', ') : null,
             $recent->isNotEmpty() ? "Dernières séances :\n".$recent->map(fn ($s) => '- '.$s->scheduled_at->format('d/m').' '.($s->objective ?: '').($s->progress ? ' · progrès : '.$s->progress : '').($s->difficulties ? ' · difficultés : '.$s->difficulties : '').($s->to_rework ? ' · à retravailler : '.$s->to_rework : ''))->implode("\n") : null,
@@ -361,9 +368,9 @@ class RidingSessionController extends Controller
         } catch (\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
-        \App\Models\AssistantRequest::create([
-            'uuid' => (string) \Illuminate\Support\Str::uuid(), 'user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) \Illuminate\Support\Str::uuid(),
-            'input_mode' => 'text', 'input_text' => 'Plan de séance : '.($session->objective ?: $session->title()), 'reply' => \Illuminate\Support\Str::limit((string) ($result['data']['summary'] ?? ''), 500), 'status' => 'done',
+        AssistantRequest::create([
+            'uuid' => (string) Str::uuid(), 'user_id' => $user->id, 'organization_id' => $org->id, 'conversation_id' => (string) Str::uuid(),
+            'input_mode' => 'text', 'input_text' => 'Plan de séance : '.($session->objective ?: $session->title()), 'reply' => Str::limit((string) ($result['data']['summary'] ?? ''), 500), 'status' => 'done',
             'model' => $result['model'], 'input_tokens' => $result['usage']['input'], 'output_tokens' => $result['usage']['output'], 'duration_ms' => (int) ((microtime(true) - $started) * 1000),
         ]);
         $byName = $library->keyBy(fn ($e) => mb_strtolower(trim($e->name)));

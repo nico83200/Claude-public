@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\AcquisitionVisit;
 use App\Models\ApplicationSetting;
 use App\Models\FeatureFlag;
+use App\Models\PromoCode;
 use App\Models\SocialAccount;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\Auth\OidcProvider;
 use Illuminate\Http\Client\Request as HttpRequest;
@@ -273,14 +276,14 @@ class SocialAuthTest extends TestCase
 
     public function test_signup_link_code_is_activated_after_google_registration(): void
     {
-        \App\Models\PromoCode::create(['code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon', 'is_active' => true,
-            'subscription_plan_id' => \App\Models\SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'free_days' => 30]);
+        PromoCode::create(['code' => 'EQUITA2026', 'type' => 'free_access', 'label' => 'Salon', 'is_active' => true,
+            'subscription_plan_id' => SubscriptionPlan::where('slug', 'multi-chevaux')->value('id'), 'free_days' => 30]);
         $this->get('/register?code=EQUITA2026&src=instagram')->assertOk();
         $this->signIn('google', ['name' => 'Camille Martin'])->assertRedirect('/dashboard')
             ->assertSessionHas('success', fn ($m) => str_contains($m, 'EQUITA2026') && str_contains($m, 'sans carte bancaire'));
         $org = User::where('email', 'camille@exemple.fr')->firstOrFail()->personalOrganization();
         $this->assertDatabaseHas('licenses', ['organization_id' => $org->id, 'source' => 'code']);
-        $visit = \App\Models\AcquisitionVisit::where('source', 'instagram')->firstOrFail();
+        $visit = AcquisitionVisit::where('source', 'instagram')->firstOrFail();
         $this->assertSame($org->owner_id, $visit->user_id);
         $this->assertNotNull($visit->code_redeemed_at);
     }

@@ -15,6 +15,7 @@ use App\Models\License;
 use App\Models\RidingSession;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\AcquisitionTracker;
 use App\Services\Upsell;
 use Illuminate\Http\Request;
 
@@ -98,7 +99,7 @@ class StatsController extends Controller
             'checkouts' => ['started' => $checkouts, 'completed' => $subscribed],
             'dormant' => (clone $users)->where('created_at', '<=', now()->subDays(30))->where(fn ($q) => $q->whereNull('last_seen_at')->orWhere('last_seen_at', '<', now()->subDays(30)))->count(),
             'since' => $from,
-            'acquisition' => app(\App\Services\AcquisitionTracker::class)->report($from),
+            'acquisition' => app(AcquisitionTracker::class)->report($from),
         ]);
     }
 

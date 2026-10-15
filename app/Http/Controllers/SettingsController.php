@@ -8,6 +8,7 @@ use App\Models\SocialAccount;
 use App\Models\UserProfile;
 use App\Services\Audit;
 use App\Services\Auth\OidcProvider;
+use App\Services\NotificationDiagnostics;
 use App\Services\WebPush;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -68,7 +69,7 @@ class SettingsController extends Controller
             'profile' => $request->user()->profile ?? new UserProfile,
             'vapidKey' => $push->publicKey(),
             'devices' => PushSubscription::where('user_id', $request->user()->id)->count(),
-            'dailyStatus' => app(\App\Services\NotificationDiagnostics::class)->dailyReminder($request->user()->loadMissing('profile')),
+            'dailyStatus' => app(NotificationDiagnostics::class)->dailyReminder($request->user()->loadMissing('profile')),
         ]);
     }
 

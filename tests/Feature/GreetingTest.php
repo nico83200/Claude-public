@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\CareCategory;
+use App\Models\CareRecord;
 use App\Support\Greeting;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -42,8 +44,8 @@ class GreetingTest extends TestCase
     {
         $user = $this->user();
         $horse = $this->horseFor($user, null, ['usual_name' => 'Jack jack']);
-        $dentist = \App\Models\CareCategory::where('key', 'dentistry')->value('id');
-        $care = \App\Models\CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $dentist, 'performed_at' => now()->subMonths(3), 'author_id' => $user->id, 'next_check_on' => now()->addMonths(9)->toDateString()]);
+        $dentist = CareCategory::where('key', 'dentistry')->value('id');
+        $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $dentist, 'performed_at' => now()->subMonths(3), 'author_id' => $user->id, 'next_check_on' => now()->addMonths(9)->toDateString()]);
         $this->actingAs($user)->get('/dashboard')->assertDontSee('data-horse-due', false)->assertSee('À jour');
 
         $care->update(['next_check_on' => now()->addDays(25)->toDateString()]);

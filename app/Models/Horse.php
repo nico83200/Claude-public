@@ -7,6 +7,7 @@ use App\Models\Concerns\Versioned;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Horse extends Model
 {
@@ -178,14 +179,14 @@ class Horse extends Model
     public const WEIGH_FREQUENCIES = [2 => 'Toutes les 2 semaines', 4 => 'Toutes les 4 semaines', 6 => 'Toutes les 6 semaines', 8 => 'Toutes les 8 semaines', 12 => 'Tous les 3 mois', 26 => 'Tous les 6 mois'];
 
     /** Prochaine pesée prévue : N semaines après la dernière mesure (aujourd'hui s'il n'y en a aucune). */
-    public function nextWeighingOn(): ?\Illuminate\Support\Carbon
+    public function nextWeighingOn(): ?Carbon
     {
         if (! $this->weigh_every_weeks) {
             return null;
         }
         $last = $this->measurements()->reorder()->max('measured_on');
 
-        return $last ? \Illuminate\Support\Carbon::parse($last)->addWeeks($this->weigh_every_weeks)->startOfDay() : today();
+        return $last ? Carbon::parse($last)->addWeeks($this->weigh_every_weeks)->startOfDay() : today();
     }
 
     public function shortName(): string

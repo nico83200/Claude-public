@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ApplicationSetting;
 use App\Models\SubscriptionPlan;
+use App\Services\LegalInfo;
 
 class PublicController extends Controller
 {
@@ -26,12 +26,12 @@ class PublicController extends Controller
         return view('public.pricing', ['plans' => $this->plans()]);
     }
 
-    public function privacy(\App\Services\LegalInfo $legal)
+    public function privacy(LegalInfo $legal)
     {
         return view('public.privacy', ['legal' => $legal, 'support' => $legal->support()]);
     }
 
-    public function terms(\App\Services\LegalInfo $legal)
+    public function terms(LegalInfo $legal)
     {
         return view('public.terms', ['legal' => $legal, 'support' => $legal->support()]);
     }

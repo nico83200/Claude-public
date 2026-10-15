@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\CareCategory;
 use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\HorseAccessGrant;
 use App\Models\Professional;
+use App\Services\HorseAccess;
+use App\Services\ProfessionalDirectory;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 /** Intervenants des chevaux partagés, Paramètres regroupés, détail des dépenses, graphiques agrandis. */
@@ -20,7 +24,7 @@ class SharedProfessionalsAndExpenseDetailTest extends TestCase
         $farrier = Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Ferrant', 'kind' => 'farrier']);
         $other = Professional::forceCreate(['organization_id' => $horse->organization_id, 'last_name' => 'Inconnu', 'kind' => 'other']);
         $horse->professionals()->attach($vet->id);
-        CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => \App\Models\CareCategory::value('id'), 'performed_at' => now()->subDay(), 'professional_id' => $farrier->id, 'author_id' => $owner->id]);
+        CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => CareCategory::value('id'), 'performed_at' => now()->subDay(), 'professional_id' => $farrier->id, 'author_id' => $owner->id]);
 
         $rider = $this->user();
         $grant = HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => ['horse.view']]);
@@ -35,16 +39,16 @@ class SharedProfessionalsAndExpenseDetailTest extends TestCase
         $this->actingAs($rider)->get(route('professionals.edit', $vet))->assertForbidden();
 
         $grant->update(['permissions' => ['horse.view', 'health.view']]);
-        app()->forgetInstance(\App\Services\ProfessionalDirectory::class);
-        app(\App\Services\HorseAccess::class)->flush();
+        app()->forgetInstance(ProfessionalDirectory::class);
+        app(HorseAccess::class)->flush();
         $this->actingAs($rider)->get('/intervenants')->assertSee('data-shared-professional="'.$farrier->id.'"', false);
         // Utilisable dans l'agenda pour ce cheval.
         $this->actingAs($rider)->get(route('calendar.index'))->assertOk();
 
         // Partage retiré : plus visible.
         $grant->update(['revoked_at' => now()]);
-        app()->forgetInstance(\App\Services\ProfessionalDirectory::class);
-        app(\App\Services\HorseAccess::class)->flush();
+        app()->forgetInstance(ProfessionalDirectory::class);
+        app(HorseAccess::class)->flush();
         $this->actingAs($rider)->get(route('professionals.show', $vet))->assertNotFound();
         $this->actingAs($this->user())->get(route('professionals.show', $vet))->assertNotFound();
     }
@@ -118,11 +122,11 @@ class SharedProfessionalsAndExpenseDetailTest extends TestCase
 
     public function test_maintenance_page_is_friendly(): void
     {
-        \Illuminate\Support\Facades\Artisan::call('down', ['--secret' => 'x']);
+        Artisan::call('down', ['--secret' => 'x']);
         try {
             $this->get('/')->assertStatus(503)->assertSee('Jack&amp;Cie se refait une beauté', false)->assertSee('data-maintenance', false)->assertSee('/maintenance/reprise', false)->assertDontSee('Service Unavailable');
         } finally {
-            \Illuminate\Support\Facades\Artisan::call('up');
+            Artisan::call('up');
         }
     }
 }

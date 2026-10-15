@@ -151,6 +151,7 @@ class MailDesign
         ];
         $fill = function (string $text) use ($vars): string {
             $text = strtr($text, $vars);
+
             // « Bonjour ," quand le prénom est inconnu → « Bonjour, »
             return trim(preg_replace('/ +([,.])/u', '$1', preg_replace('/[ \t]{2,}/', ' ', $text)));
         };

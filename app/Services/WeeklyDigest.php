@@ -2,13 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\ApplicationSetting;
 use App\Models\CalendarEvent;
+use App\Models\DigestIntro;
 use App\Models\Expense;
 use App\Models\RidingSession;
 use App\Models\Treatment;
 use App\Models\User;
+use App\Services\Assistant\AssistantService;
+use App\Services\Assistant\ClaudeGateway;
 use App\Support\Perm;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Récapitulatif de la semaine à venir : agenda (rendez-vous, soins prévus, séances),
@@ -20,8 +26,8 @@ class WeeklyDigest
     public function __construct(private HorseAccess $access, private CalendarService $calendar) {}
 
     /**
-     * @return array{from: Carbon, to: Carbon, events: \Illuminate\Support\Collection, treatments: \Illuminate\Support\Collection,
-     *               payments: \Illuminate\Support\Collection, debriefs: \Illuminate\Support\Collection, month_total: float, month_count: int}
+     * @return array{from: Carbon, to: Carbon, events: Collection, treatments: Collection,
+     *               payments: Collection, debriefs: Collection, month_total: float, month_count: int}
      */
     public function for(User $user, ?Carbon $now = null): array
     {
@@ -116,7 +122,7 @@ class WeeklyDigest
             return null;
         }
         try {
-            $result = app(\App\Services\Assistant\ClaudeGateway::class)->write(
+            $result = app(ClaudeGateway::class)->write(
                 'Tu écris l\'introduction du récapitulatif hebdomadaire de Jack&Cie, application de suivi de chevaux. '
                 .'Français, 2 à 3 phrases, ton chaleureux et sobre, tutoiement interdit (vouvoiement). Mets en avant 2 ou 3 points concrets de la semaine (jours, noms des chevaux), '
                 .'sans rien inventer, sans liste, sans mise en forme, sans formule de politesse finale ni avis médical. '
@@ -169,12 +175,12 @@ class WeeklyDigest
     /** Introduction IA possible : réglage actif, semaine non vide, service prêt et offre avec l'assistant. */
     public function introEligible(User $user, array $d): bool
     {
-        if (! (\App\Models\ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
+        if (! (ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
             return false;
         }
-        $entitlements = app(\App\Services\Entitlements::class);
+        $entitlements = app(Entitlements::class);
 
-        return app(\App\Services\Assistant\AssistantService::class)->serviceReady()
+        return app(AssistantService::class)->serviceReady()
             && $user->memberships->contains(fn ($m) => $m->organization && $entitlements->hasFeature($m->organization, 'assistant'));
     }
 
@@ -197,7 +203,7 @@ class WeeklyDigest
     /** Introduction déjà rédigée pour ce contenu exact de la semaine (sans appel à l'IA). */
     public function cachedPageIntro(User $user, array $d): ?string
     {
-        return \App\Models\DigestIntro::where('user_id', $user->id)->where('fingerprint', $this->fingerprint($d))->value('text');
+        return DigestIntro::where('user_id', $user->id)->where('fingerprint', $this->fingerprint($d))->value('text');
     }
 
     /**
@@ -213,13 +219,13 @@ class WeeklyDigest
             return $cached;
         }
 
-        return \Illuminate\Support\Facades\Cache::lock('digest-intro:'.$user->id, 60)->block(45, function () use ($user, $d) {
+        return Cache::lock('digest-intro:'.$user->id, 60)->block(45, function () use ($user, $d) {
             if (($cached = $this->cachedPageIntro($user, $d)) !== null) {
                 return $cached; // rédigée entre-temps par un autre chargement de la page
             }
             $text = $this->aiIntro($user, $d, false, false);
             if ($text !== null) {
-                \App\Models\DigestIntro::updateOrCreate(['user_id' => $user->id], ['fingerprint' => $this->fingerprint($d), 'text' => $text]);
+                DigestIntro::updateOrCreate(['user_id' => $user->id], ['fingerprint' => $this->fingerprint($d), 'text' => $text]);
             }
 
             return $text;

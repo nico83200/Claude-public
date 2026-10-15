@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\PushSubscription;
 use App\Models\UserProfile;
 use App\Services\NotificationDiagnostics;
+use App\Services\WebPush;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
@@ -74,7 +75,7 @@ class NotificationDiagnosticsTest extends TestCase
     public function test_device_receipt_is_recorded_and_shown(): void
     {
         $admin = $this->admin();
-        app(\App\Services\WebPush::class)->publicKey(); // clés d'envoi déjà créées (leur création efface les abonnements)
+        app(WebPush::class)->publicKey(); // clés d'envoi déjà créées (leur création efface les abonnements)
         $sub = PushSubscription::forceCreate(['user_id' => $admin->id, 'endpoint' => 'https://fcm.googleapis.com/fcm/send/xyz', 'endpoint_hash' => hash('sha256', 'https://fcm.googleapis.com/fcm/send/xyz'),
             'public_key' => 'x', 'auth_token' => 'y', 'content_encoding' => 'aes128gcm', 'device' => 'Android', 'last_success_at' => now()]);
         // Le service worker n'a ni session ni jeton CSRF.
@@ -90,7 +91,7 @@ class NotificationDiagnosticsTest extends TestCase
     public function test_device_reports_its_state(): void
     {
         $user = $this->user();
-        app(\App\Services\WebPush::class)->publicKey();
+        app(WebPush::class)->publicKey();
         $sub = PushSubscription::forceCreate(['user_id' => $user->id, 'endpoint' => 'https://web.push.apple.com/zz', 'endpoint_hash' => hash('sha256', 'https://web.push.apple.com/zz'),
             'public_key' => 'x', 'auth_token' => 'y', 'content_encoding' => 'aes128gcm', 'device' => 'iPhone']);
         $this->actingAs($user)->postJson('/notifications/etat', ['endpoint' => 'https://web.push.apple.com/zz', 'permission' => 'granted', 'version' => 'v9', 'local_test' => 'ok'])

@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssistantCreditPurchase;
 use App\Models\FeatureFlag;
 use App\Models\License;
+use App\Models\Organization;
 use App\Models\SubscriptionPlan;
+use App\Services\Assistant\AssistantCredits;
+use App\Services\Assistant\AssistantService;
 use App\Services\Audit;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\StripeGateway;
@@ -73,7 +77,7 @@ class BillingController extends Controller
     }
 
     /** Achat d'un pack de crédits IA : paiement unique sur Stripe Checkout. */
-    public function buyCredits(Request $request, \App\Services\Assistant\AssistantCredits $credits)
+    public function buyCredits(Request $request, AssistantCredits $credits)
     {
         $org = $this->currentOrganization();
         $this->authorizeOrg($org, Perm::BILLING_MANAGE);
@@ -92,7 +96,7 @@ class BillingController extends Controller
     }
 
     /** Retour de Stripe après l'achat de crédits : la session est relue chez Stripe, jamais crue sur parole. */
-    public function creditsReturned(Request $request, \App\Services\Assistant\AssistantCredits $credits)
+    public function creditsReturned(Request $request, AssistantCredits $credits)
     {
         $org = $this->currentOrganization();
         $this->authorizeOrg($org, Perm::BILLING_MANAGE);
@@ -220,10 +224,10 @@ class BillingController extends Controller
     }
 
     /** Bloc « Crédits IA » de la page Abonnement (null si l'offre n'inclut pas l'assistant). */
-    private function aiCredits(\App\Models\Organization $org): ?array
+    private function aiCredits(Organization $org): ?array
     {
-        $assistant = app(\App\Services\Assistant\AssistantService::class);
-        $credits = app(\App\Services\Assistant\AssistantCredits::class);
+        $assistant = app(AssistantService::class);
+        $credits = app(AssistantCredits::class);
         if (! $this->entitlements()->hasFeature($org, 'assistant') || ! $assistant->serviceReady()) {
             return null;
         }
@@ -232,8 +236,8 @@ class BillingController extends Controller
             'balance' => $assistant->credits($org),
             'monthly' => $assistant->monthlyRemaining($org),
             'limit' => $this->entitlements()->limit($org, 'assistant_monthly'),
-            'packs' => $credits->purchasable() ? \App\Services\Assistant\AssistantCredits::packs() : [],
-            'purchases' => \App\Models\AssistantCreditPurchase::where('organization_id', $org->id)->where('status', 'paid')->latest('paid_at')->limit(10)->get(),
+            'packs' => $credits->purchasable() ? AssistantCredits::packs() : [],
+            'purchases' => AssistantCreditPurchase::where('organization_id', $org->id)->where('status', 'paid')->latest('paid_at')->limit(10)->get(),
         ];
     }
 }

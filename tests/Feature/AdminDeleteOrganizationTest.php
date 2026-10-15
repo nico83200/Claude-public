@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Horse;
 use App\Models\HorseOrganizationAssignment;
-use App\Models\Organization;
 use App\Models\Subscription;
+use App\Models\SubscriptionPlan;
+use App\Services\OrganizationService;
 use Tests\TestCase;
 
 /** Suppression d'un espace par le super-administrateur. */
@@ -20,7 +20,7 @@ class AdminDeleteOrganizationTest extends TestCase
         $stable = $this->stable($owner, 'Écurie à fermer');
         $own = $this->horseFor($owner, $stable);
         $member = $this->user();
-        app(\App\Services\OrganizationService::class)->addMember($stable, $member, 'rider');
+        app(OrganizationService::class)->addMember($stable, $member, 'rider');
         $member->forceFill(['current_organization_id' => $stable->id])->save();
         // Cheval d'un particulier confié à l'écurie : il doit lui être rendu.
         $client = $this->user();
@@ -54,7 +54,7 @@ class AdminDeleteOrganizationTest extends TestCase
         $this->assertNotSoftDeleted($personal);
 
         $stable = $this->stable($this->user(), 'Écurie payante');
-        Subscription::forceCreate(['organization_id' => $stable->id, 'subscription_plan_id' => \App\Models\SubscriptionPlan::where('slug', 'ecurie')->value('id'), 'stripe_subscription_id' => 'sub_1', 'stripe_status' => 'active', 'interval' => 'month']);
+        Subscription::forceCreate(['organization_id' => $stable->id, 'subscription_plan_id' => SubscriptionPlan::where('slug', 'ecurie')->value('id'), 'stripe_subscription_id' => 'sub_1', 'stripe_status' => 'active', 'interval' => 'month']);
         $as()->delete('/admin/organisations/'.$stable->id, ['confirm_name' => 'Écurie payante'])->assertSessionHas('error');
         $this->assertNotSoftDeleted($stable);
 

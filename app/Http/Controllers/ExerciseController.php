@@ -6,6 +6,7 @@ use App\Models\Exercise;
 use App\Models\ExerciseCategory;
 use App\Models\ExerciseTag;
 use App\Models\Horse;
+use App\Services\ExerciseSuggestions;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,7 @@ class ExerciseController extends Controller
         $library = collect();
         if (! $filtered) {
             $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
-            $svc = app(\App\Services\ExerciseSuggestions::class);
+            $svc = app(ExerciseSuggestions::class);
             $suggestions = $svc->forUser($user, $library);
             $variants = $suggestions['galop'] ? [] : collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => $svc->forUser($user, $library, $g)])->all();
         }

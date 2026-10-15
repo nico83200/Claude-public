@@ -2,6 +2,7 @@
 
 namespace App\Services\Assistant;
 
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -28,7 +29,7 @@ class Transcriber
             throw new RuntimeException('Transcription non configurée (clé ElevenLabs manquante).');
         }
         $response = Http::withHeaders(['xi-api-key' => config('services.elevenlabs.key')])
-            ->timeout(45)->retry(2, 500, fn ($e) => ! $e instanceof \Illuminate\Http\Client\RequestException || $e->response->serverError(), throw: false)
+            ->timeout(45)->retry(2, 500, fn ($e) => ! $e instanceof RequestException || $e->response->serverError(), throw: false)
             ->attach('file', $bytes, $filename)
             ->post(rtrim(config('services.elevenlabs.base_url', 'https://api.elevenlabs.io'), '/').'/v1/speech-to-text', [
                 'model_id' => config('services.elevenlabs.stt_model', 'scribe_v2'),

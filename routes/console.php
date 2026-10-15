@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\NotificationDiagnostics;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schedule;
 $task = fn (string $command, array $args = []) => Schedule::call(fn () => Artisan::call($command, $args))->name($command)->withoutOverlapping(30);
 
 // Battement : montre dans l'administration que le cron du serveur tourne bien.
-Schedule::call(fn () => \App\Services\NotificationDiagnostics::beat())->everyMinute()->name('heartbeat');
+Schedule::call(fn () => NotificationDiagnostics::beat())->everyMinute()->name('heartbeat');
 $task('reminders:send')->dailyAt('07:30');
 // Bilan après une séance ou un cours, rappel quotidien de saisie (heure choisie par chaque utilisateur).
 $task('reminders:activity')->everyFiveMinutes();
