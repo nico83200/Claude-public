@@ -39,8 +39,12 @@ class RidingSessionController extends Controller
             $stats = $this->stats($request->integer('horse'));
         }
 
+        $sessions = $query->orderByDesc('scheduled_at')->paginate(20)->withQueryString();
+
         return view('sessions.index', [
-            'sessions' => $query->orderByDesc('scheduled_at')->paginate(20)->withQueryString(),
+            'sessions' => $sessions,
+            // Séances que l'utilisateur peut supprimer (glisser vers la gauche sur téléphone).
+            'deletable' => $sessions->getCollection()->filter(fn ($s) => $this->sessions->canEdit($user, $s))->pluck('id')->all(),
             'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
             'riders' => User::whereIn('id', RidingSession::whereIn('horse_id', $horseIds)->whereNotNull('rider_id')->distinct()->pluck('rider_id'))->orderBy('name')->pluck('name', 'id'),
             'stats' => $stats,
@@ -204,8 +208,24 @@ class RidingSessionController extends Controller
         $this->authorizeEdit($request, $session);
         $horse = $session->horse;
         $session->delete();
+        // Suppression d'un glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
+        if ($request->expectsJson()) {
+            return response()->json(['deleted' => true, 'restore_url' => route('sessions.restore', $session)]);
+        }
 
         return redirect()->route('sessions.index', ['horse' => $horse->id])->with('success', 'Séance supprimée.');
+    }
+
+    /** « Annuler » après une suppression : la séance (et son événement d'agenda) revient. */
+    public function restore(Request $request, RidingSession $session)
+    {
+        abort_unless($session->trashed(), 404);
+        $this->authorizeEdit($request, $session);
+        $session->restore();
+
+        return $request->expectsJson()
+            ? response()->json(['restored' => true])
+            : redirect()->route('sessions.show', $session)->with('success', 'Séance restaurée.');
     }
 
     /** Mode séance mobile (fonctionne aussi hors ligne via l'application écurie). */

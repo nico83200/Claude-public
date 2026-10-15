@@ -199,6 +199,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/seances/{session}/modifier', [Controllers\RidingSessionController::class, 'details'])->name('sessions.details');
     Route::put('/seances/{session}', [Controllers\RidingSessionController::class, 'update'])->name('sessions.update');
     Route::delete('/seances/{session}', [Controllers\RidingSessionController::class, 'destroy'])->name('sessions.destroy');
+    Route::post('/seances/{session}/restaurer', [Controllers\RidingSessionController::class, 'restore'])->withTrashed()->name('sessions.restore');
     Route::get('/seances/{session}/en-cours', [Controllers\RidingSessionController::class, 'live'])->name('sessions.live');
     Route::post('/seances/{session}/plan', [Controllers\RidingSessionController::class, 'plan'])->middleware('throttle:10,1')->name('sessions.plan');
     Route::get('/seances/{session}/bilan', [Controllers\RidingSessionController::class, 'debrief'])->name('sessions.debrief');

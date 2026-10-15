@@ -12,6 +12,7 @@ import { startSelectEnhancer } from './select-enhance.js';
 import { contactImport, contactFormStore } from './contacts.js';
 import { startLightbox } from './lightbox.js';
 import { weightChart } from './weight-chart.js';
+import { swipeList, swipeRow } from './swipe-delete.js';
 
 window.Alpine = Alpine;
 
@@ -23,6 +24,8 @@ Alpine.data('chunkUpload', chunkUpload);
 Alpine.data('videoPlayer', videoPlayer);
 Alpine.data('contactImport', contactImport);
 Alpine.data('weightChart', weightChart);
+Alpine.data('swipeList', swipeList);
+Alpine.data('swipeRow', swipeRow);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));
