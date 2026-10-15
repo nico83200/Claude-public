@@ -115,5 +115,9 @@ installée ; le geste avec « Annuler » n'existe que pour les séances.
 ## Feuille de route
 
 - **À faire maintenant** : D1 (intégration continue), T1 (notifications en file), T2 (réglages), T5 (sous-traitants), U1 (tableau de bord).
+  ✅ Fait en 2.18.0.
 - **Prochainement** : T4 (sauvegardes externes), T3 (requêtes), D4, U2, U3, P1.
+  ✅ T3, D4, U2, U3, P1 faits en 2.19.0 (tableau de bord d'écurie 75 → 44 requêtes, test qui empêche le retour des
+  requêtes par cheval ; « Annuler » sur dépenses et soins ; fenêtre de confirmation de l'application ; boutons photo de 44 px ;
+  « C'est fait » / « Reporter » dans les notifications de rappel). T4 en attente du choix du stockage externe.
 - **Plus tard** : D2, D3, D5, U4, P2 à P5.
