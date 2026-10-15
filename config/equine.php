@@ -41,6 +41,14 @@ return [
     // Mention de TVA affichée avec les prix (micro-entreprise en franchise : article 293 B du CGI).
     'vat_notice' => env('VAT_NOTICE', 'TVA non applicable, article 293 B du CGI.'),
 
+    // Éditeur (pages Confidentialité et Conditions) ; chaque valeur peut être remplacée dans Administration › Réglages.
+    'legal' => [
+        'entity' => env('LEGAL_ENTITY', 'Nicolas Lefèvre, entrepreneur individuel (EI), exerçant sous la marque NLapps'),
+        'siret' => env('LEGAL_SIRET', '519 791 719 00114'),
+        'address' => env('LEGAL_ADDRESS', "Les Hauts des Pins, bâtiment B, 657 avenue du 1er Bataillon d'Infanterie de Marine du Pacifique, 83130 La Garde, France"),
+        'hosting' => env('LEGAL_HOSTING', 'Hostinger International Ltd., 61 Lordou Vironos Street, 6023 Larnaca, Chypre'),
+    ],
+
     // Site vitrine : l'accueil de l'application et la déconnexion (hors application installée) y renvoient.
     // Laisser vide pour garder la page d'accueil intégrée à l'application.
     'site_url' => env('SITE_URL', 'https://jackcie.fr'),

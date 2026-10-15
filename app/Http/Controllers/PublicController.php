@@ -26,14 +26,14 @@ class PublicController extends Controller
         return view('public.pricing', ['plans' => $this->plans()]);
     }
 
-    public function privacy()
+    public function privacy(\App\Services\LegalInfo $legal)
     {
-        return view('public.privacy', ['support' => ApplicationSetting::get('support_email', config('mail.from.address'))]);
+        return view('public.privacy', ['legal' => $legal, 'support' => $legal->support()]);
     }
 
-    public function terms()
+    public function terms(\App\Services\LegalInfo $legal)
     {
-        return view('public.terms', ['support' => ApplicationSetting::get('support_email', config('mail.from.address'))]);
+        return view('public.terms', ['legal' => $legal, 'support' => $legal->support()]);
     }
 
     private function plans()

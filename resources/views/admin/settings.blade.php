@@ -17,7 +17,7 @@
                 <x-field name="legal_entity" label="Raison sociale" :value="$settings['legal_entity']" />
                 <x-textarea name="legal_address" label="Adresse" :value="$settings['legal_address']" rows="2" />
                 <x-field name="dpo_email" type="email" label="Contact données personnelles / DPO" :value="$settings['dpo_email']" />
-                <x-textarea name="subprocessors" label="Sous-traitants (un par ligne)" :value="$settings['subprocessors']" rows="4" />
+                <x-textarea name="subprocessors" label="Sous-traitants (un par ligne)" :value="$settings['subprocessors']" rows="4" help="Laisser vide pour la liste automatique des services branchés : {{ implode(' · ', app(\App\Services\LegalInfo::class)->detectedSubprocessors()) }}" />
             </div>
         </x-section>
         <x-section title="Surveillance" data-monitor-settings>
