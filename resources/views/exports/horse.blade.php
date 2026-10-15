@@ -23,8 +23,8 @@
 <h2>Traitements en cours</h2>
 <table><tr><th>Produit</th><th>Posologie</th><th>Fréquence</th><th>Fin</th></tr>@foreach ($treatments as $t)<tr><td>{{ $t->product }}</td><td>{{ $t->dosage }}</td><td>{{ $t->frequency }}</td><td>{{ $t->ends_on?->format('d/m/Y') }}</td></tr>@endforeach</table>
 @endif
-@if ($feeding)
-<h2>Alimentation — {{ $feeding->name }}</h2>
+@foreach ($rations as $feeding)
+<h2>Alimentation — {{ $feeding->name }}{{ $feeding->ends_on ? ' (jusqu\'au '.$feeding->ends_on->format('d/m/Y').')' : '' }}</h2>
 <table><tr><th>Heure</th><th>Aliment</th><th>Quantité</th></tr>@foreach ($feeding->entries as $e)<tr><td>{{ $e->time_of_day ? substr($e->time_of_day, 0, 5) : '' }}</td><td>{{ $e->feed }}</td><td>{{ $e->quantity ? rtrim(rtrim($e->quantity, '0'), '.').' '.$e->unit : '' }}</td></tr>@endforeach</table>
-@endif
+@endforeach
 </body></html>

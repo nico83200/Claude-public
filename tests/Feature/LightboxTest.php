@@ -24,7 +24,9 @@ class LightboxTest extends TestCase
         $this->actingAs($user)->post("/chevaux/{$horse->id}/documents", ['file' => UploadedFile::fake()->image('radio.png'), 'title' => 'Radio du boulet', 'category' => 'report'])->assertRedirect();
         $this->actingAs($user)->post("/chevaux/{$horse->id}/documents", ['file' => UploadedFile::fake()->create('ordonnance.pdf', 20, 'application/pdf'), 'title' => 'Ordonnance', 'category' => 'report'])->assertRedirect();
         $page = $this->actingAs($user)->get("/chevaux/{$horse->id}/documents")->assertOk();
-        $page->assertSee('data-lightbox="docs-'.$horse->id.'" data-caption="Radio du boulet"', false);
-        $this->assertSame(1, substr_count($page->getContent(), 'data-lightbox="docs-'), 'le PDF reste un téléchargement');
+        $page->assertSee('data-lightbox="docs-'.$horse->id.'" data-lightbox-type="image"', false)->assertSee('data-caption="Radio du boulet"', false);
+        // Le PDF s'ouvre aussi en plein écran dans la visionneuse (comme les justificatifs de dépenses).
+        $this->assertSame(2, substr_count($page->getContent(), 'data-lightbox="docs-'));
+        $page->assertSee('data-lightbox-type="pdf"', false);
     }
 }

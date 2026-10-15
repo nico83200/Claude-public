@@ -28,7 +28,9 @@ class HealthOverviewController extends Controller
             'recent' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->orderByDesc('performed_at')->limit(15)->get(),
             'alerts' => HealthObservation::with(['horse', 'author'])->whereIn('horse_id', $healthIds)->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->get(),
             // Résumé pour le vétérinaire : chevaux dont on voit la santé (choix proposé s'il y en a plusieurs).
-            'vetHorses' => Horse::whereIn('id', $healthIds)->whereNull('archived_at')->orderBy('official_name')->get(),
+            'vetHorses' => $vetHorses = Horse::whereIn('id', $healthIds)->whereNull('archived_at')->orderBy('official_name')->get(),
+            // Soin ou ordonnance : chevaux dont on peut modifier la santé.
+            'editHorses' => $vetHorses->whereIn('id', $access->horseIdsWith($user, Perm::HEALTH_EDIT))->values(),
         ]);
     }
 }

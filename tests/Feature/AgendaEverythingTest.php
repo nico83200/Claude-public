@@ -69,15 +69,23 @@ class AgendaEverythingTest extends TestCase
         $this->assertSoftDeleted($end);
     }
 
-    public function test_planned_check_follows_the_care_and_can_be_validated_from_agenda(): void
+    public function test_check_is_added_to_the_agenda_on_request_then_follows_the_care(): void
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
         $vaccine = CareCategory::where('key', 'vaccination')->value('id');
         $this->actingAs($user)->post("/chevaux/{$horse->id}/soins", ['care_category_id' => $vaccine, 'performed_at' => now()->subDays(2)->format('Y-m-d').' 10:00', 'reason' => 'Grippe', 'next_mode' => 'date', 'next_check_on' => now()->addMonths(6)->toDateString()]);
         $care = CareRecord::where('horse_id', $horse->id)->sole();
+        // Le contrôle n'est plus ajouté d'office à l'agenda : Santé l'indique et propose de l'ajouter.
+        $this->assertSame(0, CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->count());
+        $this->actingAs($user)->get("/chevaux/{$horse->id}/sante")->assertOk()->assertSee('Prochains contrôles')
+            ->assertSee(route('horses.care.check.plan', [$horse, $care]), false);
+        $this->actingAs($user)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
+        $this->actingAs($user)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
         $check = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->sole();
-        $this->assertStringContainsString('Contrôle', $check->title);
+        $this->assertSame('Vaccination – '.$horse->shortName(), $check->title);
+        $this->assertSame(now()->addMonths(6)->toDateString().' 09:00', $check->starts_at->format('Y-m-d H:i'));
+        $this->actingAs($user)->get("/chevaux/{$horse->id}/sante")->assertSee('Dans l\'agenda le', false);
 
         // Déplacer le contrôle dans l'agenda change la date dans le soin.
         $newDate = now()->addMonths(5)->toDateString();
@@ -103,6 +111,7 @@ class AgendaEverythingTest extends TestCase
         $this->actingAs($user)->post("/chevaux/{$horse->id}/soins", ['care_category_id' => $farrier, 'performed_at' => now()->subMonths(3)->format('Y-m-d').' 10:00', 'next_mode' => 'date', 'next_check_on' => now()->subMonth()->toDateString()]);
         $this->assertSame(1, CareRecord::where('horse_id', $horse->id)->count(), 'Un contrôle dans le passé n\'est pas un soin réalisé.');
         $care = CareRecord::where('horse_id', $horse->id)->sole();
+        $this->actingAs($user)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
         $check = CalendarEvent::where('source_type', $care->getMorphClass())->sole();
         $this->actingAs($user)->delete("/calendrier/{$check->id}");
         $this->assertNull($care->fresh()->next_check_on);

@@ -42,6 +42,17 @@ class TreatmentController extends Controller
         return back()->with('success', 'Traitement mis à jour.');
     }
 
+    /** Suppression d'un traitement saisi par erreur (avec ses administrations cochées et ses dates dans l'agenda). */
+    public function destroy(Horse $horse, Treatment $treatment)
+    {
+        $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $treatment->administrations()->delete();
+        $treatment->delete();
+        Audit::log('treatment.deleted', $treatment, ['product' => $treatment->product], $horse->organization_id);
+
+        return back()->with('success', 'Traitement « '.$treatment->product.' » supprimé.');
+    }
+
     public function administer(Request $request, Horse $horse, Treatment $treatment)
     {
         // Les responsables désignés et les soignants peuvent cocher une administration.

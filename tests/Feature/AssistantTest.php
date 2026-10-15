@@ -196,27 +196,45 @@ class AssistantTest extends TestCase
         $this->assertSame(0, CalendarEvent::where('source_id', $care->id)->where('source_type', $care->getMorphClass())->count());
     }
 
-    public function test_feeding_change_creates_new_version_and_undo_restores(): void
+    public function test_feeding_change_updates_the_ration_in_place_and_undo_restores(): void
     {
         [$user, $horse] = $this->setUpUser();
         $old = FeedingPlan::create(['horse_id' => $horse->id, 'name' => 'Ration hiver', 'starts_on' => now()->subMonth()->toDateString()]);
         $old->entries()->create(['feed' => 'Granulés', 'quantity' => 1.5, 'unit' => 'kg', 'time_of_day' => '18:00:00']);
         $this->fake([
-            ['tools' => [['set_feeding', ['horse_id' => $horse->id, 'changes' => [
+            ['tools' => [['set_feeding', ['horse_id' => $horse->id, 'ration' => null, 'duration_days' => null, 'changes' => [
                 ['feed' => 'granulés', 'quantity' => 2, 'unit' => 'kg', 'time_of_day' => '18:00', 'frequency' => null, 'is_supplement' => false, 'note' => null, 'remove' => false],
                 ['feed' => 'Huile de lin', 'quantity' => 0.05, 'unit' => 'L', 'time_of_day' => null, 'frequency' => null, 'is_supplement' => true, 'note' => null, 'remove' => false],
             ]]]]],
             ['text' => 'Ration mise à jour.'],
         ]);
         $res = $this->say($user, 'Uni passe à 2 kg de granulés le soir et ajoute de l\'huile de lin')->assertOk();
-        $new = FeedingPlan::where('horse_id', $horse->id)->latest('id')->first();
-        $this->assertNotSame($old->id, $new->id);
-        $this->assertSame(now()->subDay()->toDateString(), $old->fresh()->ends_on->toDateString());
-        $this->assertEquals(['Granulés' => 2.0, 'Huile de lin' => 0.05], $new->entries->mapWithKeys(fn ($e) => [$e->feed => (float) $e->quantity])->sortKeys()->all());
+        // Une seule ration en cours : modifiée sur place.
+        $this->assertSame(1, FeedingPlan::where('horse_id', $horse->id)->count());
+        $this->assertEquals(['Granulés' => 2.0, 'Huile de lin' => 0.05], $old->fresh()->entries->mapWithKeys(fn ($e) => [$e->feed => (float) $e->quantity])->sortKeys()->all());
 
         $this->actingAs($user)->postJson($res->json('actions.0.undo_url'))->assertOk();
-        $this->assertNull(FeedingPlan::find($new->id));
-        $this->assertNull($old->fresh()->ends_on);
+        $this->assertEquals(['Granulés' => 1.5], $old->fresh()->entries->mapWithKeys(fn ($e) => [$e->feed => (float) $e->quantity])->all());
+    }
+
+    public function test_a_named_supplement_ration_is_added_next_to_the_others(): void
+    {
+        [$user, $horse] = $this->setUpUser();
+        FeedingPlan::create(['horse_id' => $horse->id, 'name' => 'Ration du matin', 'starts_on' => now()->subMonth()->toDateString()]);
+        FeedingPlan::create(['horse_id' => $horse->id, 'name' => 'Ration du soir', 'starts_on' => now()->subMonth()->toDateString()]);
+        $fake = $this->fake([
+            // Sans nom alors que deux rations sont en cours : l'outil demande laquelle.
+            ['tools' => [['set_feeding', ['horse_id' => $horse->id, 'ration' => null, 'duration_days' => null, 'changes' => [
+                ['feed' => 'Levure', 'quantity' => 20, 'unit' => 'g', 'time_of_day' => null, 'frequency' => null, 'is_supplement' => true, 'note' => null, 'remove' => false]]]]]],
+            ['tools' => [['set_feeding', ['horse_id' => $horse->id, 'ration' => 'Complément levure', 'duration_days' => 15, 'changes' => [
+                ['feed' => 'Levure', 'quantity' => 20, 'unit' => 'g', 'time_of_day' => null, 'frequency' => null, 'is_supplement' => true, 'note' => null, 'remove' => false]]]]]],
+            ['text' => 'Complément ajouté pour 15 jours.'],
+        ]);
+        $this->say($user, 'ajoute 20 g de levure pendant 15 jours')->assertOk();
+        $this->assertStringContainsString('Plusieurs rations sont en cours', $fake->calls[1]['messages'][2]['content'][0]['content']);
+        $supplement = FeedingPlan::where('name', 'Complément levure')->sole();
+        $this->assertSame(now()->addDays(14)->toDateString(), $supplement->ends_on->toDateString());
+        $this->assertSame(3, FeedingPlan::where('horse_id', $horse->id)->activeToday()->count());
     }
 
     public function test_questions_use_only_accessible_records(): void

@@ -13,7 +13,7 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
     return {
         touch: window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window,
         hint: false,
-        toast: null, // { text, restoreUrl }
+        toast: null, // { text, restoreUrl, linked: { text, delete_url, done } | null }
         _timer: null,
         init() {
             try { this.hint = this.touch && !localStorage.getItem(hintKey); } catch { this.hint = this.touch; }
@@ -28,19 +28,35 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
             // Le geste a été compris : l'astuce n'est plus utile.
             this.dismissHint();
             clearTimeout(this._timer);
-            this.toast = { text: detail.text || label, restoreUrl: detail.restoreUrl, error: false };
-            this._timer = setTimeout(() => { this.toast = null; }, TOAST_MS);
+            this.toast = { text: detail.text || label, restoreUrl: detail.restoreUrl, linked: detail.linked || null, error: false };
+            // Une proposition liée (supprimer aussi le soin) laisse plus de temps pour répondre.
+            this._timer = setTimeout(() => { this.toast = null; }, detail.linked ? TOAST_MS * 2 : TOAST_MS);
+        },
+        /** Suppression de l'élément lié proposé (ex. le soin rattaché à la dépense), avec « Annuler » pour lui. */
+        async deleteLinked() {
+            const linked = this.toast?.linked;
+            if (!linked) return;
+            clearTimeout(this._timer);
+            this.toast = { text: 'Suppression…', restoreUrl: null, linked: null, error: false };
+            try {
+                const res = await fetch(linked.delete_url, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
+                if (!res.ok) throw new Error();
+                const data = await res.json().catch(() => ({}));
+                this.deleted({ text: linked.done, restoreUrl: data.restore_url });
+            } catch {
+                this.failed('Suppression du soin impossible. Réessayez depuis le carnet de santé.');
+            }
         },
         failed(message) {
             clearTimeout(this._timer);
-            this.toast = { text: message, restoreUrl: null, error: true };
+            this.toast = { text: message, restoreUrl: null, linked: null, error: true };
             this._timer = setTimeout(() => { this.toast = null; }, TOAST_MS);
         },
         async undo() {
             const url = this.toast?.restoreUrl;
             if (!url) return;
             clearTimeout(this._timer);
-            this.toast = { text: 'Restauration…', restoreUrl: null, error: false };
+            this.toast = { text: 'Restauration…', restoreUrl: null, linked: null, error: false };
             try {
                 const res = await fetch(url, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
                 if (!res.ok) throw new Error();
@@ -136,7 +152,7 @@ export function swipeRow({ deleteUrl, text }) {
                 if (!res.ok) throw new Error(res.status === 403 ? 'Vous n\'avez pas le droit de supprimer cet élément.' : '');
                 const data = await res.json().catch(() => ({}));
                 this.gone = true; // repli de la ligne (animation de hauteur)
-                this.$dispatch('swipe-deleted', { text, restoreUrl: data.restore_url });
+                this.$dispatch('swipe-deleted', { text, restoreUrl: data.restore_url, linked: data.care || null });
             } catch (err) {
                 this.busy = false;
                 this.close();

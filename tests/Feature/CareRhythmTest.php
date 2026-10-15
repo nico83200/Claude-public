@@ -26,7 +26,7 @@ class CareRhythmTest extends TestCase
         }
     }
 
-    public function test_rhythm_is_computed_from_history_and_shown_with_actions(): void
+    public function test_rhythm_is_computed_from_history_and_no_longer_shown_on_the_health_page(): void
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
@@ -38,9 +38,9 @@ class CareRhythmTest extends TestCase
         $this->assertSame('7 semaines', $r['label']);
         $this->assertSame(7, $r['due_in']);
 
+        // Plus affiché sur la page santé du cheval (demande 2.21) : le rythme sert aux rappels.
         $this->actingAs($user)->get("/chevaux/{$horse->id}/sante")->assertOk()
-            ->assertSee('Rythme habituel')->assertSee('Toutes les 7 semaines en moyenne (4 passages)')
-            ->assertSee('Prendre rendez-vous')->assertSee('nouveau=1', false);
+            ->assertDontSee('Rythme habituel')->assertDontSee('Toutes les 7 semaines en moyenne');
 
         // La règle par défaut du maréchal diffère du rythme observé : on peut l'aligner.
         $this->actingAs($user)->post("/chevaux/{$horse->id}/rythme-habituel", ['category_id' => $r['category']->id])->assertSessionHas('success');

@@ -40,7 +40,7 @@ class ProfessionalQuickCreateTest extends TestCase
         $p = Professional::first();
         $this->assertSame('julie@clinique-equine.fr', $p->email);
         $this->assertSame('Clinique équine du Var', $p->company);
-        $this->assertSame('+33 6 12 34 56 78', $p->phone);
+        $this->assertSame('06 12 34 56 78', $p->phone, 'Format harmonisé « 06 12 34 56 78 ».');
 
         // Même email : mise à jour aussi ; une fiche archivée revient dans les listes.
         $p->update(['archived_at' => now()]);

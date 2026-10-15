@@ -49,6 +49,12 @@ class RecurringExpense extends Model
         return ! $this->paused_at && (! $this->ends_on || $this->next_due_on->lte($this->ends_on));
     }
 
+    /** Terminée : date de fin dépassée (une récurrence suspendue reste en cours). */
+    public function isEnded(): bool
+    {
+        return ! $this->paused_at && ! $this->isActive();
+    }
+
     /** N-ième échéance (0 = première), calculée depuis la date de départ pour ne jamais dériver (31 → 28/29/30 → 31). */
     public function occurrence(int $n): Carbon
     {

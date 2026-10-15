@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Casts\PhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 
 class HealthShare extends Model
 {
     protected $guarded = ['id', 'token'];
 
-    protected $casts = ['expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_viewed_at' => 'datetime', 'emailed_at' => 'datetime'];
+    protected $casts = ['recipient_phone' => PhoneNumber::class, 'expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_viewed_at' => 'datetime', 'emailed_at' => 'datetime'];
 
     /** Durée pendant laquelle le lien reste ouvert (jours). */
     public const DURATIONS = [1 => '24 heures', 3 => '3 jours', 7 => '7 jours', 14 => '15 jours', 30 => '1 mois', 90 => '3 mois'];

@@ -33,6 +33,9 @@ class HealthTest extends TestCase
 
         $care = CareRecord::firstOrFail();
         $this->assertSame($user->id, $care->author_id);
+        // Le contrôle est ajouté à l'agenda à la demande (Santé › Prochains contrôles).
+        $this->assertSame(0, CalendarEvent::where('source_id', $care->id)->count());
+        $this->actingAs($user)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
         $event = CalendarEvent::where('source_id', $care->id)->firstOrFail();
         $this->assertSame('veterinary', $event->type);
         $this->assertSame(now()->addMonths(6)->toDateString(), $event->starts_at->toDateString());

@@ -6,6 +6,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\RecurringExpense;
 use App\Notifications\AppNotification;
+use App\Services\RecurringExpenses;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -58,6 +59,45 @@ class RecurringExpensesTest extends TestCase
         $this->actingAs($user)->post(route('budget.pay', $first), ['paid' => '0'])->assertSessionHas('success');
         $this->assertNull($first->fresh()->paid_on);
         $this->actingAs($user)->post(route('budget.pay', $first), ['paid' => '1', 'paid_on' => '2027-01-01'])->assertSessionHasErrors('paid_on');
+    }
+
+    public function test_already_paid_marks_the_past_occurrences_paid_but_not_the_next_ones(): void
+    {
+        Carbon::setTestNow('2026-03-15 10:00');
+        [$user, $horse, $cat] = $this->setUpOwner();
+
+        $this->actingAs($user)->post('/budget', [
+            'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => '380', 'spent_on' => '2026-01-10',
+            'recurring' => '1', 'label' => 'Pension', 'frequency' => 'monthly', 'paid' => '1',
+        ])->assertSessionHas('success');
+
+        // 10/01, 10/02, 10/03 : passées, donc réglées.
+        $this->assertSame(3, Expense::count());
+        $this->assertSame(0, Expense::whereNull('paid_on')->count());
+        $this->actingAs($user)->get('/budget')->assertOk()->assertDontSee('id="to-pay"', false);
+
+        // L'échéance suivante, générée plus tard, reste à payer.
+        Carbon::setTestNow('2026-04-10 08:00');
+        app(RecurringExpenses::class)->generate(RecurringExpense::firstOrFail(), notify: false);
+        $this->assertSame(['2026-04-10'], Expense::whereNull('paid_on')->pluck('spent_on')->map->toDateString()->all());
+
+        // Échéance du jour même à la création : réglée aussi, la date d'aujourd'hui n'étant pas à venir.
+        Carbon::setTestNow('2026-05-20 09:00');
+        $this->actingAs($user)->post('/budget', [
+            'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => '40', 'spent_on' => '2026-05-20',
+            'recurring' => '1', 'label' => 'Assurance', 'frequency' => 'monthly', 'paid' => '1',
+        ])->assertSessionHas('success');
+        $this->assertNotNull(Expense::where('amount', 40)->value('paid_on'));
+
+        // Toutes les semaines depuis plus d'un an (au-delà de 36 échéances) : toutes réglées, aucune ne revient « à payer ».
+        $this->actingAs($user)->post('/budget', [
+            'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => '15', 'spent_on' => '2025-04-01',
+            'recurring' => '1', 'label' => 'Paddock', 'frequency' => 'weekly', 'paid' => '1',
+        ])->assertSessionHas('success');
+        $this->actingAs($user)->get('/budget')->assertOk();
+        $weekly = Expense::where('amount', 15);
+        $this->assertGreaterThan(36, (clone $weekly)->count());
+        $this->assertSame(0, (clone $weekly)->whereNull('paid_on')->count());
     }
 
     public function test_due_day_notification_pause_resume_and_stop(): void

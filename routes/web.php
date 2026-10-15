@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::get('/sante', [Controllers\CareRecordController::class, 'index'])->name('care.index');
         Route::put('/rappels-suivi', [Controllers\CareReminderController::class, 'update'])->name('care.reminders');
         Route::post('/rythme-habituel', [Controllers\CareReminderController::class, 'adoptRhythm'])->name('care.rhythm');
+        Route::post('/soins/{care}/controle-agenda', [Controllers\CareReminderController::class, 'planCheck'])->name('care.check.plan');
         Route::get('/soins/nouveau', [Controllers\CareRecordController::class, 'create'])->name('care.create');
         Route::post('/soins', [Controllers\CareRecordController::class, 'store'])->name('care.store');
         Route::get('/soins/{care}', [Controllers\CareRecordController::class, 'show'])->name('care.show');
@@ -144,6 +145,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
         Route::post('/traitements', [Controllers\TreatmentController::class, 'store'])->name('treatments.store');
         Route::put('/traitements/{treatment}', [Controllers\TreatmentController::class, 'update'])->name('treatments.update');
+        Route::delete('/traitements/{treatment}', [Controllers\TreatmentController::class, 'destroy'])->name('treatments.destroy');
         Route::post('/traitements/{treatment}/administrer', [Controllers\TreatmentController::class, 'administer'])->name('treatments.administer');
 
         Route::post('/observations', [Controllers\ObservationController::class, 'store'])->name('observations.store');
@@ -151,6 +153,9 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
         Route::get('/alimentation', [Controllers\FeedingController::class, 'show'])->name('feeding');
         Route::post('/alimentation', [Controllers\FeedingController::class, 'store'])->name('feeding.store');
+        Route::put('/alimentation/{ration}', [Controllers\FeedingController::class, 'update'])->name('feeding.update');
+        Route::post('/alimentation/{ration}/archiver', [Controllers\FeedingController::class, 'archive'])->name('feeding.archive');
+        Route::delete('/alimentation/{ration}', [Controllers\FeedingController::class, 'destroy'])->name('feeding.destroy');
         Route::get('/journal', [Controllers\DailyLogController::class, 'index'])->name('logs.index');
         Route::get('/poids', [Controllers\MeasurementController::class, 'index'])->name('weight');
         Route::post('/poids', [Controllers\MeasurementController::class, 'store'])->name('weight.store');

@@ -198,14 +198,15 @@ class FeaturesTest extends TestCase
         $this->assertNotNull($user->notifications()->first()->read_at);
     }
 
-    public function test_feeding_plan_history_is_preserved(): void
+    public function test_several_feeding_rations_coexist(): void
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
         $this->actingAs($user)->post("/chevaux/{$horse->id}/alimentation", ['name' => 'Hiver', 'starts_on' => now()->subMonth()->toDateString(), 'entries' => [['feed' => 'Foin', 'quantity' => 8]]])->assertRedirect();
         $this->actingAs($user)->post("/chevaux/{$horse->id}/alimentation", ['name' => 'Printemps', 'starts_on' => now()->toDateString(), 'entries' => [['feed' => 'Herbe']]])->assertRedirect();
         $this->assertSame(2, $horse->feedingPlans()->count());
-        $this->assertNotNull($horse->feedingPlans()->where('name', 'Hiver')->first()->ends_on);
+        // Plusieurs rations en même temps (2.21) : la nouvelle ne clôt plus la précédente.
+        $this->assertNull($horse->feedingPlans()->where('name', 'Hiver')->first()->ends_on);
         $this->actingAs($user)->get("/chevaux/{$horse->id}/alimentation")->assertOk()->assertSee('Printemps')->assertSee('Hiver');
     }
 

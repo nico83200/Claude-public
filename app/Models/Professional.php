@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Casts\PhoneNumber;
 use Illuminate\Database\Eloquent\Model;
 
 class Professional extends Model
 {
     protected $guarded = ['id', 'organization_id'];
 
-    protected $casts = ['usual_rate' => 'decimal:2', 'archived_at' => 'datetime'];
+    protected $casts = ['phone' => PhoneNumber::class, 'usual_rate' => 'decimal:2', 'archived_at' => 'datetime'];
 
     public const KINDS = ['veterinarian' => 'Vétérinaire', 'farrier' => 'Maréchal-ferrant', 'osteopath' => 'Ostéopathe', 'dentist' => 'Dentiste équin', 'instructor' => 'Enseignant', 'saddler' => 'Sellier', 'nutritionist' => 'Nutritionniste', 'other' => 'Autre'];
 

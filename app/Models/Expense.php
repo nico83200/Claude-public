@@ -55,6 +55,12 @@ class Expense extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
+    /** Soin du carnet de santé rattaché (vétérinaire, maréchal…). */
+    public function care()
+    {
+        return $this->belongsTo(CareRecord::class, 'care_record_id');
+    }
+
     public function documents()
     {
         return $this->hasMany(ExpenseDocument::class);

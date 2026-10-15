@@ -57,6 +57,8 @@ class CareReminderActionsTest extends TestCase
         $horse = $this->horseFor($owner);
         $care = $this->dueCare($owner, $horse);
         $checkEvent = fn () => CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->first();
+        $this->assertNull($checkEvent(), 'Pas ajouté d\'office à l\'agenda.');
+        $this->actingAs($owner)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
         $this->assertSame('planned', $checkEvent()->status);
         $url = $this->actionUrl($care, $owner, 'done');
 
@@ -85,6 +87,7 @@ class CareReminderActionsTest extends TestCase
         $care = $this->dueCare($owner, $horse, 7);
         $url = $this->actionUrl($care, $owner, 'later');
         $expected = now()->addDays(14)->toDateString();
+        $this->actingAs($owner)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
 
         $this->actingAs($owner)->postJson($url)->assertOk()->assertJsonFragment(['message' => 'Maréchal-ferrant de '.$horse->shortName().' : échéance reportée au '.now()->addDays(14)->format('d/m/Y').'.']);
         $this->assertSame($expected, $care->fresh()->next_check_on->toDateString());

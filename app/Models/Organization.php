@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PhoneNumber;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ class Organization extends Model
 
     protected $guarded = ['id', 'suspended_at', 'suspension_reason', 'assistant_credits'];
 
-    protected $casts = ['settings' => 'array', 'suspended_at' => 'datetime', 'is_demo' => 'boolean'];
+    protected $casts = ['phone' => PhoneNumber::class, 'settings' => 'array', 'suspended_at' => 'datetime', 'is_demo' => 'boolean'];
 
     public function owner()
     {

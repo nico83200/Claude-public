@@ -54,10 +54,10 @@ class NextVersionRequestsTest extends TestCase
         $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         $jack = $this->horseFor($owner, null, ['official_name' => 'JACK']);
         $this->actingAs($owner)->get('/sante')->assertOk()
-            ->assertSee('href="'.route('horses.vet-summary', $jack).'" class="btn-secondary" data-vet-share', false)->assertDontSee('data-vet-share-picker', false);
+            ->assertSee('href="'.route('horses.vet-summary', $jack).'" class="btn-secondary" data-horse-picker="vet"', false)->assertDontSee('data-horse-picker-sheet="vet"', false);
 
         $uni = $this->horseFor($owner, null, ['official_name' => 'UNI']);
-        $this->actingAs($owner)->get('/sante')->assertOk()->assertSee('data-vet-share-picker', false)
+        $this->actingAs($owner)->get('/sante')->assertOk()->assertSee('data-horse-picker-sheet="vet"', false)
             ->assertSee(route('horses.vet-summary', $jack))->assertSee(route('horses.vet-summary', $uni));
     }
 

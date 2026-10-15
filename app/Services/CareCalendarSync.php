@@ -14,7 +14,9 @@ use Illuminate\Support\Str;
 /**
  * Synchronisation Agenda ↔ Santé.
  * - Un soin du carnet de santé a son événement dans l'agenda (réalisé, ou prévu s'il est daté dans le futur),
- *   et son contrôle prévu (« Contrôle : … ») y figure aussi, quelle que soit l'origine du soin (formulaire, assistant, facture).
+ *   quelle que soit l'origine du soin (formulaire, assistant, facture).
+ * - Le prochain contrôle d'un soin n'est plus ajouté d'office à l'agenda : Santé l'indique et propose de l'y ajouter
+ *   à sa date d'échéance (planCheck), seulement pour la prochaine échéance de chaque type de soin.
  * - Un rendez-vous de soin (maréchalerie, vétérinaire, soin) déjà passé à sa saisie, ou marqué « réalisé »,
  *   crée le soin correspondant dans le carnet de santé ; modifier ou supprimer l'un met à jour l'autre.
  * - Déplacer un contrôle prévu dans l'agenda change la date du contrôle ; le marquer « réalisé » enregistre le soin.
@@ -64,19 +66,46 @@ class CareCalendarSync
         });
     }
 
-    /** Contrôle prévu du soin (« Contrôle : … ») : l'heure choisie dans l'agenda est conservée. */
+    /**
+     * Contrôle prévu du soin déjà ajouté à l'agenda (planCheck) : il suit la date du soin, l'heure choisie dans l'agenda
+     * étant conservée. Rien n'est créé d'office.
+     */
     private function syncCheck(CareRecord $care): void
     {
         $existing = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->first();
+        if (! $existing) {
+            return;
+        }
         $at = null;
         if ($care->next_check_on) {
             $day = Carbon::parse($care->next_check_on);
-            $at = $existing && $existing->starts_at->isSameDay($day) ? $existing->starts_at : $day->copy()->setTime(9, 0);
+            $at = $existing->starts_at->isSameDay($day) ? $existing->starts_at : $day->copy()->setTime($existing->starts_at->hour, $existing->starts_at->minute);
         }
-        $this->calendar->syncFor($care, $care->horse, self::eventTypeFor($care->category?->key),
-            'Contrôle : '.($care->category?->name ?? 'Soin').' – '.$care->horse->shortName(), $at,
-            ['professional_id' => $care->professional_id, 'duration_minutes' => $existing?->duration_minutes ?: 30]
-            + ($care->next_check_done_at ? ['status' => 'done'] : ($existing && $existing->status === 'done' ? ['status' => 'planned'] : [])));
+        $this->calendar->syncFor($care, $care->horse, $existing->type, $existing->title, $at,
+            ['professional_id' => $care->professional_id ?? $existing->professional_id]
+            + ($care->next_check_done_at ? ['status' => 'done'] : ($existing->status === 'done' ? ['status' => 'planned'] : [])));
+    }
+
+    /** Prochain contrôle ajouté à l'agenda à la demande, à sa date d'échéance (9 h, modifiable dans l'agenda). */
+    public function planCheck(CareRecord $care): ?CalendarEvent
+    {
+        if (! $care->next_check_on || $care->next_check_done_at) {
+            return null;
+        }
+        $care->loadMissing(['category', 'horse']);
+        $existing = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->first();
+        if ($existing) {
+            return $existing;
+        }
+        $event = null;
+        $this->guard(function () use ($care, &$event) {
+            $event = $this->calendar->syncFor($care, $care->horse, self::eventTypeFor($care->category?->key),
+                Str::limit(($care->category?->name ?? 'Soin').' – '.$care->horse->shortName(), 150, ''),
+                Carbon::parse($care->next_check_on)->setTime(9, 0),
+                ['professional_id' => $care->professional_id, 'duration_minutes' => 30, 'status' => 'planned']);
+        });
+
+        return $event;
     }
 
     /** Soin supprimé : son événement (et son contrôle prévu) disparaît de l'agenda. */

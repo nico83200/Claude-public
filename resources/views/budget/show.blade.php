@@ -37,7 +37,7 @@
                 <x-section title="Intervenant"><a href="{{ route('professionals.show', $expense->professional) }}" class="text-sm link">{{ $expense->professional->fullName() }}</a></x-section>
             @endif
             @if ($canEdit)
-                <x-confirm-delete :action="route('budget.destroy', $expense)" message="Supprimer cette dépense ?" class="btn-ghost text-sm text-red-600"><x-icon name="trash" class="size-4" /> Supprimer la dépense</x-confirm-delete>
+                <x-confirm-delete :action="route('budget.destroy', $expense)" message="Supprimer cette dépense ?" :check="$linkedCare ? 'with_care' : null" :check-label="$linkedCare ? 'Supprimer aussi le soin associé du '.$linkedCare->performed_at->format('d/m/Y') : null" class="btn-ghost text-sm text-red-600"><x-icon name="trash" class="size-4" /> Supprimer la dépense</x-confirm-delete>
             @endif
         </div>
     </div>

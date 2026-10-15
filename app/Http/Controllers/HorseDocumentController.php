@@ -76,7 +76,17 @@ class HorseDocumentController extends Controller
         abort_unless(Storage::disk('local')->exists($document->path), 404);
         Audit::log('document.downloaded', $document, [], $horse->organization_id);
 
-        return Storage::disk('local')->download($document->path, $document->original_name, ['Cache-Control' => 'private, no-store']);
+        // Image ou PDF : affiché en plein écran dans l'application (visionneuse) ; sinon, ou sur demande, téléchargé.
+        if ($request->boolean('telecharger') || ! $document->viewerType()) {
+            return Storage::disk('local')->download($document->path, $document->original_name, ['Cache-Control' => 'private, no-store']);
+        }
+        $mime = $document->isPdf() ? 'application/pdf' : (Storage::disk('local')->mimeType($document->path) ?: 'application/octet-stream');
+        abort_unless($mime === 'application/pdf' || (str_starts_with($mime, 'image/') && $mime !== 'image/svg+xml'), 415);
+
+        return Storage::disk('local')->response($document->path, $document->original_name, [
+            'Content-Type' => $mime, 'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff', 'Content-Security-Policy' => 'sandbox',
+        ], 'inline');
     }
 
     public function destroy(Request $request, Horse $horse, HorseDocument $document)

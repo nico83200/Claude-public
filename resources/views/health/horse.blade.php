@@ -9,32 +9,21 @@
     @if ($canEdit)@include('health._prescription-card')@endif
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
-            @if ($rhythms->isNotEmpty())
-            <x-section title="Rythme habituel">
-                <p class="-mt-1 mb-2 text-xs text-slate-500">Calculé à partir de l'historique des soins : l'écart habituel entre deux passages et la date probable du prochain.</p>
-                <div class="divide-y divide-slate-100" data-rhythms>
-                    @foreach ($rhythms as $r)
-                        <div class="py-3 text-sm">
-                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                <span class="min-w-0"><span class="font-medium">{{ $r['category']->name }}</span>
-                                    <span class="block text-xs text-slate-500">Toutes les {{ $r['label'] }} en moyenne ({{ $r['count'] }} passages) · dernier le {{ $r['last']->format('d/m/Y') }}</span></span>
-                                @if ($r['planned'])<x-badge color="green">Rendez-vous le {{ $r['planned']->starts_at->format('d/m') }}</x-badge>
-                                @elseif ($r['due_in'] < 0)<x-badge color="red">Prévu vers le {{ $r['next']->format('d/m') }} · en retard</x-badge>
-                                @else<x-badge :color="$r['due_in'] <= 14 ? 'amber' : 'slate'">Prochain vers le {{ $r['next']->format('d/m/Y') }}</x-badge>@endif
-                            </div>
-                            @if ($canEdit && (! $r['planned'] || \App\Services\CareRhythm::differsFromRule($r)))
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    @unless ($r['planned'])
-                                        <a href="{{ route('calendar.index', ['nouveau' => 1, 'horse' => $horse->id, 'type' => $r['appointment_type'], 'title' => $r['category']->name, 'date' => $r['next']->isPast() ? today()->addDay()->toDateString() : $r['next']->toDateString(), 'professional' => $r['last_professional_id']]) }}" class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="calendar" class="size-4" /> Prendre rendez-vous</a>
-                                    @endunless
-                                    @if (\App\Services\CareRhythm::differsFromRule($r))
-                                        <form method="POST" action="{{ route('horses.care.rhythm', $horse) }}">@csrf<input type="hidden" name="category_id" value="{{ $r['category']->id }}"><button class="btn-ghost min-h-9 px-3 text-sm">Régler le rappel sur {{ $r['label'] }}</button></form>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
+            @if ($nextChecks->isNotEmpty())
+            <x-section title="Prochains contrôles" id="controles" class="scroll-mt-24" data-next-checks>
+                <p class="-mt-1 mb-2 text-xs text-slate-500">La prochaine échéance de chaque type de soin. Ajoutez-la à l'agenda quand vous le souhaitez.</p>
+                @foreach ($nextChecks as $n)
+                    @php $c = $n['care']; $late = $c->next_check_on->lt(today()); @endphp
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 py-3 text-sm first:border-0" data-next-check="{{ $c->id }}">
+                        <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="min-w-0 hover:underline"><span class="font-medium">{{ $c->category->name }}</span>
+                            <span class="block text-xs {{ $late ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $late ? 'En retard · prévu le ' : 'Échéance le ' }}{{ $c->next_check_on->translatedFormat('j F Y') }} · dernier soin le {{ $c->performed_at->format('d/m/Y') }}</span></a>
+                        @if ($n['event'])
+                            <a href="{{ route('calendar.show', $n['event']) }}" class="shrink-0"><x-badge color="green">Dans l'agenda le {{ $n['event']->starts_at->format('d/m') }}</x-badge></a>
+                        @elseif ($canEdit)
+                            <form method="POST" action="{{ route('horses.care.check.plan', [$horse, $c]) }}" class="shrink-0">@csrf<button class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="calendar" class="size-4" /> Ajouter à l'agenda</button></form>
+                        @endif
+                    </div>
+                @endforeach
             </x-section>
             @endif
             @if ($canHealth && $reminderRules->isNotEmpty())
@@ -127,6 +116,10 @@
                             @include('health._treatment-fields', ['t' => $t])
                             <x-select name="status" label="Statut" :options="\App\Models\Treatment::STATUSES" :value="$t->status" />
                             <button class="btn-primary sm:col-span-2">Enregistrer</button>
+                        </form>
+                        <form x-show="edit" x-cloak method="POST" action="{{ route('horses.treatments.destroy', [$horse, $t]) }}" class="mt-2 text-right"
+                              data-confirm="Supprimer le traitement « {{ $t->product }} » ? À utiliser en cas d'erreur de saisie{{ $t->administrations->isNotEmpty() ? ' : les administrations cochées seront aussi supprimées' : '' }}. Pour un traitement terminé, choisissez plutôt le statut « Terminé »." data-confirm-ok="Supprimer" data-treatment-delete>
+                            @csrf @method('DELETE')<button class="btn-ghost min-h-10 text-sm text-red-600"><x-icon name="trash" class="size-4" /> Supprimer ce traitement</button>
                         </form>
                         @endif
                     </div>

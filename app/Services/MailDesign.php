@@ -61,6 +61,7 @@ class MailDesign
     private const SAMPLES = [
         'appointment' => ['Rendez-vous demain', 'Séance monte libre – Jack le 14/10/2026 à 17:30.'],
         'care_due' => ['Vermifuge à prévoir', 'Le vermifuge de Jack est prévu le 20/10/2026.'],
+        'feeding_end' => ['Fin de ration : Complément articulations', 'La ration « Complément articulations » de Jack s\'est terminée le 20/10/2026. Elle est archivée.'],
         'weight_due' => ['Pesée à faire', 'Pensez à mesurer le poids de Jack : dernière pesée il y a 4 semaines.'],
         'daily_reminder' => ['Rien de noté aujourd\'hui ?', 'Une séance, un soin, une observation ? Notez-le en quelques secondes.'],
         'verify_email' => ['Confirmez votre adresse e-mail', 'Cliquez sur le bouton ci-dessous pour confirmer votre adresse e-mail.'],

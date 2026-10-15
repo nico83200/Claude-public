@@ -18,6 +18,8 @@ $task = fn (string $command, array $args = []) => Schedule::call(fn () => Artisa
 // Battement : montre dans l'administration que le cron du serveur tourne bien.
 Schedule::call(fn () => NotificationDiagnostics::beat())->everyMinute()->name('heartbeat');
 $task('reminders:send')->dailyAt('07:30');
+// Rations arrivées à leur date de fin : archivées, responsables prévenus.
+$task('feeding:archive')->dailyAt('07:10');
 // Bilan après une séance ou un cours, rappel quotidien de saisie (heure choisie par chaque utilisateur).
 $task('reminders:activity')->everyFiveMinutes();
 // Échéances des dépenses récurrentes (pension…), notifiées le jour même.

@@ -35,7 +35,7 @@ class ExportController extends Controller
             'horse' => $horse,
             'perms' => $perms,
             'treatments' => in_array(Perm::TREATMENTS_VIEW, $perms, true) ? $horse->treatments()->current()->get() : collect(),
-            'feeding' => in_array(Perm::FEEDING_VIEW, $perms, true) ? $horse->feedingPlans()->with('entries')->first() : null,
+            'rations' => in_array(Perm::FEEDING_VIEW, $perms, true) ? $horse->feedingPlans()->with('entries')->activeToday()->orderBy('name')->get() : collect(),
         ])->download('fiche-'.str($horse->official_name)->slug().'.pdf');
     }
 

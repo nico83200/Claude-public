@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CareRecord;
 use App\Models\CareReminderRule;
 use App\Models\Horse;
 use App\Services\Audit;
+use App\Services\CareCalendarSync;
 use App\Services\CareReminders;
 use App\Services\CareRhythm;
 use App\Support\Perm;
@@ -50,5 +52,17 @@ class CareReminderController extends Controller
         Audit::log('care.rhythm_adopted', $horse, ['category' => $categoryId, 'days' => $days], $horse->organization_id);
 
         return back()->with('success', $row['category']->name.' : rappel réglé sur '.CareReminders::describe($value, $unit).', votre rythme habituel.');
+    }
+
+    /** Prochain contrôle d'un soin ajouté à l'agenda, à sa date d'échéance (seulement la prochaine échéance du type de soin). */
+    public function planCheck(Horse $horse, CareRecord $care, CareCalendarSync $sync)
+    {
+        $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $latest = $horse->careRecords()->where('care_category_id', $care->care_category_id)->latest('performed_at')->value('id');
+        abort_unless($care->next_check_on && ! $care->next_check_done_at && $latest === $care->id, 422, 'Ce contrôle n\'est plus la prochaine échéance.');
+        $event = $sync->planCheck($care);
+        Audit::log('care.check_planned', $care, ['event' => $event?->id], $horse->organization_id);
+
+        return back()->with('success', 'Ajouté à l\'agenda le '.$event->starts_at->translatedFormat('j F Y').' à 9 h : vous pouvez changer l\'heure dans l\'agenda.');
     }
 }

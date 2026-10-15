@@ -14,7 +14,6 @@ use App\Services\Audit;
 use App\Services\CalendarService;
 use App\Services\CareCalendarSync;
 use App\Services\CareReminders;
-use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -50,13 +49,28 @@ class CareRecordController extends Controller
             'observations' => $horse->observations()->with('author')->limit(30)->get(),
             'categories' => CareCategory::visibleTo($horse->organization_id)->orderBy('name')->pluck('name', 'id'),
             'users' => $this->assignableUsers($horse),
-            'rhythms' => $canHealth ? app(CareRhythm::class)->forHorse($horse) : collect(),
+            'nextChecks' => $canHealth ? $this->nextChecks($horse) : collect(),
             'reminderRules' => $canHealth ? $this->reminders->rulesFor($horse)->map(function ($r, $catId) use ($horse) {
                 $last = $horse->careRecords()->where('care_category_id', $catId)->latest('performed_at')->first();
 
                 return $r + ['last' => $last?->performed_at, 'next' => $last?->next_check_done_at ? null : $last?->next_check_on];
             }) : collect(),
         ]);
+    }
+
+    /**
+     * Prochaine échéance de contrôle de chaque type de soin (celle du dernier soin du type), avec son rendez-vous
+     * s'il a été ajouté à l'agenda.
+     */
+    private function nextChecks(Horse $horse)
+    {
+        $latest = $horse->careRecords()->with('category')->whereNotIn('id', CareRecord::query()->from('care_records as later')
+            ->join('care_records as prev', fn ($j) => $j->on('prev.horse_id', '=', 'later.horse_id')->on('prev.care_category_id', '=', 'later.care_category_id')->on('later.performed_at', '>', 'prev.performed_at'))
+            ->whereNull('later.deleted_at')->where('later.horse_id', $horse->id)->select('prev.id'))
+            ->whereNotNull('next_check_on')->whereNull('next_check_done_at')->get()->sortBy('next_check_on')->values();
+        $events = CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereIn('source_id', $latest->pluck('id'))->get()->keyBy('source_id');
+
+        return $latest->map(fn (CareRecord $c) => ['care' => $c, 'event' => $events->get($c->id)]);
     }
 
     public function create(Request $request, Horse $horse)

@@ -37,6 +37,7 @@ class AppNotification extends Notification implements ShouldQueue
         'care_due' => 'Échéance de soin',
         'treatment_end' => 'Fin de traitement',
         'weight_due' => 'Pesée à faire',
+        'feeding_end' => 'Fin d\'une ration',
         'announcement' => 'Message de Jack&Cie',
         'invitation' => 'Invitation',
         'invitation_accepted' => 'Invitation acceptée',

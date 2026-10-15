@@ -147,6 +147,8 @@ input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-40
 @keyframes jc-confirm-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
 .jc-confirm-box { padding: 1.5rem 1.25rem 1.25rem; }
 .jc-confirm-text { font-size: 1rem; line-height: 1.5; white-space: pre-line; }
+.jc-confirm-check { display: flex; align-items: flex-start; gap: .75rem; margin-top: 1rem; padding: .75rem; border-radius: 1rem; background: var(--color-slate-50); font-size: .9375rem; }
+.jc-confirm-check[hidden] { display: none; }
 .jc-confirm-actions { display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: .5rem; margin-top: 1.25rem; }
 @media (max-width: 30rem) { .jc-confirm-actions > * { flex: 1 1 8rem; } }
 

@@ -15,4 +15,10 @@
         <span class="flex-1" x-text="toast?.text"></span>
         <button type="button" x-show="toast?.restoreUrl" @click="undo()" class="font-semibold text-gold-200 underline-offset-4 hover:underline">Annuler</button>
     </div>
+    {{-- Élément lié (ex. soin rattaché à la dépense supprimée) : suppression proposée, au-dessus du message. --}}
+    <div x-show="toast?.linked" x-cloak x-transition.opacity class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+10.5rem)] z-50 mx-auto flex max-w-md flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-900 shadow-lg ring-1 ring-slate-200 lg:bottom-24" data-swipe-linked>
+        <span class="flex-1" x-text="toast?.linked?.text"></span>
+        <button type="button" @click="deleteLinked()" class="btn-danger min-h-9 px-3 text-sm">Supprimer</button>
+        <button type="button" @click="toast.linked = null" class="btn-ghost min-h-9 px-2 text-sm">Garder</button>
+    </div>
 </div>

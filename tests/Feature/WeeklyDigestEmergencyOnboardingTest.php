@@ -91,7 +91,7 @@ class WeeklyDigestEmergencyOnboardingTest extends TestCase
             ->assertDontSee('Note privée')->assertDontSee('Secret');
 
         $this->actingAs($owner)->get(route('horses.emergency.print', $horse))->assertOk()->assertSee('<svg', false)
-            ->assertSee('06 00 00 00 01')->assertSee('Vétodoc')->assertSee('0611223344')->assertSee('Antibiotique X')->assertSee('Allergique à la pénicilline')
+            ->assertSee('06 00 00 00 01')->assertSee('Vétodoc')->assertSee('06 11 22 33 44')->assertSee('Antibiotique X')->assertSee('Allergique à la pénicilline')
             ->assertSee('Informations au '.now()->format('d/m/Y'))->assertSee('version toujours à jour')->assertDontSee('Note privée')->assertDontSee('Secret');
         $this->actingAs($owner)->get(route('horses.emergency.qr', $horse))->assertOk()->assertHeader('Content-Type', 'image/svg+xml');
 

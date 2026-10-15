@@ -154,8 +154,10 @@ class AssistantTools
                 'comment' => $n($str),
                 'professional_id' => $n($int),
             ]),
-            $tool('set_feeding', 'Modifie la ration d\'un cheval : ajoute, modifie ou retire des aliments/compléments (une nouvelle version de la ration démarre aujourd\'hui, l\'historique est conservé).', [
+            $tool('set_feeding', 'Modifie une ration d\'un cheval : ajoute, modifie ou retire des aliments/compléments. Un cheval peut avoir plusieurs rations en cours (ex. « Ration du matin », « Complément 15 jours ») : ration = nom de la ration visée ; une ration inconnue est créée. Sans nom, la seule ration en cours est modifiée.', [
                 'horse_id' => $int,
+                'ration' => $n($str),
+                'duration_days' => $n(['type' => 'integer', 'description' => 'Nouvelle ration seulement : durée en jours (archivée ensuite)']),
                 'changes' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
                     'properties' => ['feed' => $str, 'quantity' => $n($num), 'unit' => $n($str), 'time_of_day' => $n(['type' => 'string', 'description' => 'HH:MM']), 'frequency' => $n($str), 'is_supplement' => $n($bool), 'note' => $n($str), 'remove' => $n($bool)]]],
             ]),
@@ -532,21 +534,27 @@ class AssistantTools
             throw new ToolError('Aucun changement de ration indiqué.');
         }
 
-        return DB::transaction(function () use ($horse, $changes, $ctx) {
+        $wanted = $this->clip($in['ration'] ?? null, 120);
+
+        return DB::transaction(function () use ($horse, $changes, $ctx, $wanted, $in) {
             $today = now()->startOfDay();
-            $current = FeedingPlan::with('entries')->where('horse_id', $horse->id)->where('starts_on', '<=', $today->toDateString())
-                ->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>=', $today->toDateString()))->latest('starts_on')->first();
-            if ($current && $current->starts_on->isSameDay($today)) {
+            // Plusieurs rations possibles en même temps : celle nommée, sinon la seule en cours.
+            $active = FeedingPlan::with('entries')->where('horse_id', $horse->id)->activeToday()->orderBy('name')->get();
+            $current = $wanted
+                ? $active->first(fn ($p) => mb_strtolower($p->name) === mb_strtolower($wanted)) ?? $active->first(fn ($p) => str_contains(mb_strtolower($p->name), mb_strtolower($wanted)))
+                : ($active->count() === 1 ? $active->first() : null);
+            if (! $wanted && $active->count() > 1) {
+                throw new ToolError('Plusieurs rations sont en cours ('.$active->pluck('name')->implode(', ').') : demande laquelle modifier (paramètre ration).');
+            }
+            if ($current) {
                 $plan = $current;
                 $undo = ['feeding_snapshot' => ['plan_id' => $plan->id, 'entries' => $plan->entries->map->only(['feed', 'quantity', 'unit', 'time_of_day', 'frequency', 'is_supplement', 'note'])->values()->all()]];
             } else {
-                // Nouvelle version de la ration : l'ancienne s'arrête hier (historique conservé).
-                $plan = FeedingPlan::create(['horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'name' => $current?->name ?? 'Ration', 'instructions' => $current?->instructions, 'starts_on' => $today->toDateString()]);
-                foreach ($current?->entries ?? [] as $e) {
-                    $plan->entries()->create($e->only(['feed', 'quantity', 'unit', 'time_of_day', 'frequency', 'is_supplement', 'note']));
-                }
-                $undo = ['feeding_new' => ['plan_id' => $plan->id, 'previous_id' => $current?->id, 'previous_ends_on' => $current?->ends_on?->toDateString()]];
-                $current?->update(['ends_on' => $today->copy()->subDay()->toDateString()]);
+                // Nouvelle ration, suivie en plus des autres (durée facultative : archivée ensuite).
+                $days = max(0, min(365, (int) ($in['duration_days'] ?? 0)));
+                $plan = FeedingPlan::create(['horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'name' => $wanted ?: 'Ration', 'starts_on' => $today->toDateString(),
+                    'ends_on' => $days ? $today->copy()->addDays($days - 1)->toDateString() : null]);
+                $undo = ['feeding_new' => ['plan_id' => $plan->id, 'previous_id' => null, 'previous_ends_on' => null]];
             }
             $done = [];
             foreach ($changes as $c) {
@@ -573,7 +581,7 @@ class AssistantTools
                     $done[] = 'ajouté : '.$feed;
                 }
             }
-            $summary = 'Ration – '.$horse->shortName().' : '.implode(', ', $done ?: ['aucun changement']);
+            $summary = $plan->name.' – '.$horse->shortName().' : '.implode(', ', $done ?: ['aucun changement']);
             $ctx->record('feeding.updated', $plan, $summary, route('horses.feeding', $horse), $undo);
 
             return ['ok' => true, 'summary' => $summary];
@@ -614,9 +622,8 @@ class AssistantTools
             'daily_logs' => DailyLog::with('horse')->whereIn('horse_id', $ids(Perm::HORSE_VIEW))->tap(fn ($q) => $range($q, 'logged_at'))
                 ->orderByDesc('logged_at')->limit($limit)->get()
                 ->map(fn ($l) => ['horse' => $name($l), 'date' => $l->logged_at->format('Y-m-d H:i'), 'appetite' => $l->appetite, 'state' => $l->general_state, 'activity' => $l->activity, 'anomalies' => $l->anomalies])->all(),
-            'feeding' => FeedingPlan::with('horse', 'entries')->whereIn('horse_id', $ids(Perm::FEEDING_VIEW))->where('starts_on', '<=', now()->toDateString())
-                ->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>=', now()->toDateString()))->get()
-                ->map(fn ($p) => ['horse' => $name($p), 'since' => $p->starts_on->toDateString(), 'entries' => $p->entries->map(fn ($e) => trim($e->feed.' '.($e->quantity !== null ? (float) $e->quantity.' '.$e->unit : '').' '.($e->time_of_day ? substr((string) $e->time_of_day, 0, 5) : '').' '.$e->frequency))->all()])->all(),
+            'feeding' => FeedingPlan::with('horse', 'entries')->whereIn('horse_id', $ids(Perm::FEEDING_VIEW))->activeToday()->get()
+                ->map(fn ($p) => ['horse' => $name($p), 'ration' => $p->name, 'since' => $p->starts_on->toDateString(), 'until' => $p->ends_on?->toDateString(), 'entries' => $p->entries->map(fn ($e) => trim($e->feed.' '.($e->quantity !== null ? (float) $e->quantity.' '.$e->unit : '').' '.($e->time_of_day ? substr((string) $e->time_of_day, 0, 5) : '').' '.$e->frequency))->all()])->all(),
             'horse_profile' => Horse::with('breed')->whereIn('id', $ids(Perm::HORSE_VIEW))->limit($limit)->get()->map(fn ($h) => [
                 'horse_id' => $h->id, 'name' => $h->shortName(), 'official_name' => $h->official_name, 'breed' => $h->breed?->name, 'sex' => $h->sex,
                 'age' => $h->birth_date ? $h->birth_date->age : ($h->birth_year ? now()->year - $h->birth_year : null), 'discipline' => $h->main_discipline, 'level' => $h->work_level,

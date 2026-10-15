@@ -10,7 +10,7 @@
                     <tbody class="divide-y divide-slate-100">
                     @foreach ($documents as $d)
                         <tr>
-                            <td><a href="{{ route('horses.documents.download', [$horse, $d]) }}" class="link" @if ($d->isImage()) data-lightbox="docs-{{ $horse->id }}" data-caption="{{ $d->title }}" @endif>{{ $d->title }}</a><span class="block text-xs text-slate-500">{{ $d->original_name }} · {{ number_format($d->size_bytes / 1024, 0, ',', ' ') }} Ko</span></td>
+                            <td><x-document-link :horse="$horse" :document="$d" :group="'docs-'.$horse->id">{{ $d->title }}</x-document-link><span class="block text-xs text-slate-500">{{ $d->original_name }} · {{ number_format($d->size_bytes / 1024, 0, ',', ' ') }} Ko</span></td>
                             <td>{{ \App\Models\HorseDocument::CATEGORIES[$d->category] }} @if ($d->is_sensitive)<x-badge color="purple">Santé</x-badge>@endif</td>
                             <td class="text-xs text-slate-500">{{ $d->created_at->format('d/m/Y') }}<br>{{ $d->uploader?->name }}</td>
                             <td>@if ($canUpload && $d->uploaded_by === auth()->id())<x-confirm-delete :action="route('horses.documents.destroy', [$horse, $d])" message="Supprimer ce document ?" />@endif</td>

@@ -137,6 +137,9 @@ class PlanningAndRemindersTest extends TestCase
         $care = CareRecord::latest('id')->first();
         $this->assertSame('2026-11-26', $care->next_check_on->toDateString());
         $this->assertDatabaseHas('care_reminder_rules', ['horse_id' => $horse->id, 'care_category_id' => $farrier->id, 'interval_value' => 8, 'interval_unit' => 'weeks', 'enabled' => true]);
+        // Contrôle proposé, ajouté à l'agenda à la demande.
+        $this->assertDatabaseMissing('calendar_events', ['source_id' => $care->id, 'source_type' => $care->getMorphClass()]);
+        $this->actingAs($user)->post(route('horses.care.check.plan', [$horse, $care]))->assertSessionHas('success');
         $this->assertDatabaseHas('calendar_events', ['source_id' => $care->id, 'type' => 'farrier', 'status' => 'planned']);
 
         // Passage suivant : l'ancien contrôle est clos, plus de rappel pour lui

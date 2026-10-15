@@ -35,4 +35,15 @@ class HorseDocument extends Model
     {
         return (bool) preg_match('/\.(jpe?g|png|webp|gif)$/i', (string) $this->original_name);
     }
+
+    public function isPdf(): bool
+    {
+        return (bool) preg_match('/\.pdf$/i', (string) $this->original_name);
+    }
+
+    /** Type d'aperçu plein écran dans l'application : « image », « pdf », ou null (fichier seulement téléchargeable). */
+    public function viewerType(): ?string
+    {
+        return $this->isImage() ? 'image' : ($this->isPdf() ? 'pdf' : null);
+    }
 }

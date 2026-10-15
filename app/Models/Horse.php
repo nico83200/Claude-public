@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PhoneNumber;
 use App\Models\Concerns\HasClientUuid;
 use App\Models\Concerns\Versioned;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +21,7 @@ class Horse extends Model
     protected $attributes = ['version' => 1, 'sex' => 'unknown'];
 
     protected $casts = [
+        'emergency_contact_phone' => PhoneNumber::class,
         'birth_date' => 'date',
         'archived_at' => 'datetime',
         'is_demo' => 'boolean',
@@ -127,6 +129,12 @@ class Horse extends Model
     public function feedingPlans()
     {
         return $this->hasMany(FeedingPlan::class)->orderByDesc('starts_on');
+    }
+
+    /** Même relation, pour les adresses /chevaux/{horse}/alimentation/{ration} (liaison limitée au cheval). */
+    public function rations()
+    {
+        return $this->hasMany(FeedingPlan::class);
     }
 
     public function measurements()

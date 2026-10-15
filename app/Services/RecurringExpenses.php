@@ -18,17 +18,20 @@ class RecurringExpenses
     /** Au-delà, l'arriéré est ignoré (récurrence restée inactive très longtemps). */
     private const MAX_CATCH_UP = 36;
 
+    /** À la création, toutes les échéances déjà passées sont créées (10 ans d'échéances hebdomadaires au plus). */
+    public const MAX_AT_CREATION = 520;
+
     public function __construct(private HorseAccess $access) {}
 
     /** @return int nombre d'échéances créées */
-    public function generate(RecurringExpense $rec, ?Carbon $until = null, bool $notify = true): int
+    public function generate(RecurringExpense $rec, ?Carbon $until = null, bool $notify = true, int $max = self::MAX_CATCH_UP): int
     {
         $until = ($until ?? today())->copy()->startOfDay();
         $created = 0;
 
-        DB::transaction(function () use ($rec, $until, $notify, &$created) {
+        DB::transaction(function () use ($rec, $until, $notify, $max, &$created) {
             $rec = RecurringExpense::lockForUpdate()->find($rec->id) ?? $rec;
-            for ($i = 0; $i < self::MAX_CATCH_UP && $rec->isActive() && $rec->next_due_on->lte($until); $i++) {
+            for ($i = 0; $i < $max && $rec->isActive() && $rec->next_due_on->lte($until); $i++) {
                 $due = $rec->next_due_on->copy();
                 $expense = Expense::firstOrNew(['recurring_expense_id' => $rec->id, 'spent_on' => $due->toDateString()]);
                 if (! $expense->exists) {
