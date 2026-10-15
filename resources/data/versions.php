@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.20.0' => ['2026-10-15', 'Sauvegarde automatique chiffrée sur Google Drive ; historique des versions ; partage vétérinaire depuis Santé ; budget par 10 avec « Afficher plus » ; grande carte pour un seul cheval ; suggestions d\'exercices avec l\'offre IA ; espaces au nom du cavalier.'],
     '2.19.0' => ['2026-10-15', 'Rappels de soin : « C\'est fait » et « Reporter d\'une semaine » dans la notification ; « Annuler » après suppression d\'une dépense ou d\'un soin ; confirmations dans l\'application ; pages plus rapides.'],
     '2.18.0' => ['2026-10-15', 'Notifications envoyées en file d\'attente, pages Confidentialité et Conditions complètes, tableau de bord mobile allégé (une suggestion à la fois).'],
     '2.17.1' => ['2026-10-15', 'Séances : glisser une ligne vers la gauche pour la supprimer, avec « Annuler ».'],
