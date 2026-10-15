@@ -5,12 +5,13 @@
         <x-section>
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-select name="horse_id" label="Cheval" :options="$horses" :value="$selectedHorse" required placeholder="Choisir…" />
-                <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="($date ? \Illuminate\Support\Carbon::parse($date)->setTime(10, 0) : now()->addHour()->startOfHour())->format('Y-m-d\TH:i')" required />
+                <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="($date ? (strlen($date) > 10 ? \Illuminate\Support\Carbon::parse($date) : \Illuminate\Support\Carbon::parse($date)->setTime(10, 0)) : now()->addHour()->startOfHour())->format('Y-m-d\TH:i')" required />
                 @if ($templates->isNotEmpty())
                     <x-select name="template_id" label="Partir d'un modèle" :options="$templates" placeholder="Aucun (séance vierge)" class="sm:col-span-2" help="Les exercices du modèle sont copiés ; le modèle n'est pas modifié." />
                 @endif
-                <div x-data="{ t: @js(old('session_type', 'free')) }" class="contents">
-                    <x-select name="session_type" label="Type de séance" :options="\App\Models\RidingSession::TYPES" value="free" required x-model="t" />
+                @php $typeAsked = array_key_exists((string) request('type'), \App\Models\RidingSession::TYPES) ? request('type') : 'free'; @endphp
+                <div x-data="{ t: @js(old('session_type', $typeAsked)) }" class="contents">
+                    <x-select name="session_type" label="Type de séance" :options="\App\Models\RidingSession::TYPES" :value="$typeAsked" required x-model="t" />
                     <div x-show="t === 'private_lesson' || t === 'group_lesson'" x-cloak><x-instructor-field /></div>
                 </div>
                 <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" placeholder="—" />

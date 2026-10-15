@@ -41,7 +41,32 @@
         </x-section>
     </div>
 
-    <h2 class="mt-8 mb-3 text-[17px] font-semibold">Historique</h2>
+    <h2 class="mt-8 mb-1 text-[17px] font-semibold">Historique des versions</h2>
+    <p class="mb-3 text-sm text-slate-500">Principaux changements de chaque version et date d'installation sur ce serveur.</p>
+    <div class="card divide-y divide-slate-100" data-version-history x-data="{ all: false }">
+        @foreach ($versions as $i => $v)
+            <div class="flex flex-col gap-1 p-4 sm:flex-row sm:gap-4" @if ($i >= 8) x-show="all" x-cloak @endif data-version="{{ $v['version'] }}">
+                <div class="shrink-0 sm:w-44">
+                    <p class="font-semibold text-slate-900">{{ $v['version'] }} @if ($v['current'])<x-badge color="green" class="ml-1">Installée</x-badge>@endif</p>
+                    <p class="text-xs text-slate-500">
+                        @if ($v['installed_at'])
+                            {{ $v['initial'] ? 'Installation initiale' : 'Installée' }} le {{ $v['installed_at']->format('d/m/Y à H:i') }}@if ($v['with'])<br>avec la {{ $v['with'] }}@endif
+                        @elseif ($v['initial'])
+                            Installation initiale
+                        @else
+                            Date d'installation inconnue
+                        @endif
+                    </p>
+                </div>
+                <p class="text-sm text-slate-700">{{ $v['summary'] }}@if ($v['released'])<span class="block text-xs text-slate-400">Publiée le {{ $v['released']->format('d/m/Y') }}</span>@endif</p>
+            </div>
+        @endforeach
+        @if ($versions->count() > 8)
+            <button type="button" class="w-full p-3 text-sm font-medium text-brand-700 hover:bg-slate-50" x-show="! all" @click="all = true">Voir les {{ $versions->count() - 8 }} versions précédentes</button>
+        @endif
+    </div>
+
+    <h2 class="mt-8 mb-3 text-[17px] font-semibold">Mises à jour envoyées</h2>
     @if ($updates->isEmpty())
         <p class="text-sm text-slate-500">Aucune mise à jour envoyée pour l'instant.</p>
     @else

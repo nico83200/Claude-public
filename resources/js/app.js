@@ -14,6 +14,7 @@ import { startLightbox } from './lightbox.js';
 import { weightChart } from './weight-chart.js';
 import { swipeList, swipeRow } from './swipe-delete.js';
 import { startConfirm } from './confirm.js';
+import { loadMore } from './load-more.js';
 
 window.Alpine = Alpine;
 // Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
@@ -29,6 +30,7 @@ Alpine.data('contactImport', contactImport);
 Alpine.data('weightChart', weightChart);
 Alpine.data('swipeList', swipeList);
 Alpine.data('swipeRow', swipeRow);
+Alpine.data('loadMore', loadMore);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));

@@ -17,6 +17,7 @@ use App\Services\RecurringExpenses;
 use App\Services\Upsell;
 use App\Support\Perm;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,9 @@ use Illuminate\Support\Str;
  */
 class ExpenseController extends Controller
 {
+    /** Dépenses affichées à la fois dans la liste du budget. */
+    public const PER_PAGE = 10;
+
     public function index(Request $request, HorseAccess $access)
     {
         $user = $request->user();
@@ -42,18 +46,14 @@ class ExpenseController extends Controller
         $query = $this->visibleQuery($request, $access);
         $year = (int) $request->query('year', now()->year);
 
-        $filtered = (clone $query)
-            ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
-            ->when($request->integer('category'), fn ($q, $c) => $q->where('expenses.expense_category_id', $c))
-            ->when($request->query('from'), fn ($q, $f) => $q->where('expenses.spent_on', '>=', $f))
-            ->when($request->query('to'), fn ($q, $t) => $q->where('expenses.spent_on', '<=', $t));
+        $filtered = $this->applyFilters($request, clone $query);
 
         $yearQuery = (clone $filtered)->whereYear('expenses.spent_on', $year);
         $creatable = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
             // Pas de formulaire voué à l'échec : seuls les chevaux dont l'offre inclut le suivi des dépenses.
             ->filter(fn ($h) => $this->entitlements()->hasFeature($h->organization, 'budget'));
-        $contextHorse = ($h = $request->integer('horse') ? Horse::find($request->integer('horse')) : null) && $access->can($user, $h, Perm::EXPENSES_VIEW) ? $h : null;
+        $contextHorse = $this->contextHorse($request, $access);
 
         return view('budget.index', [
             'recurring' => $recurring,
@@ -61,7 +61,7 @@ class ExpenseController extends Controller
             'canDelete' => fn (Expense $e) => $this->canEdit($request, $e),
             'unpaid' => (clone $query)->with(['horse', 'category'])->whereNull('expenses.paid_on')
                 ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))->orderBy('spent_on')->limit(50)->get(),
-            'expenses' => (clone $filtered)->with(['horse', 'category', 'documents', 'author'])->orderByDesc('spent_on')->orderByDesc('id')->paginate(30)->withQueryString(),
+            'expenses' => $this->expensePage(clone $filtered),
             'year' => $year,
             'kpis' => [
                 'month' => (clone $filtered)->whereBetween('expenses.spent_on', [now()->startOfMonth(), now()->endOfMonth()])->sum('expenses.amount'),
@@ -83,6 +83,43 @@ class ExpenseController extends Controller
             'careCategoryIds' => ExpenseCategory::whereIn('key', array_keys(CareExpenseSync::CARE_FOR_EXPENSE))->pluck('id')->map(fn ($id) => (string) $id)->values(),
             'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
+    }
+
+    /** « Afficher 10 dépenses de plus » : lignes suivantes (téléphone et tableau), sans recalculer la page. */
+    public function more(Request $request, HorseAccess $access)
+    {
+        $expenses = $this->expensePage($this->applyFilters($request, $this->visibleQuery($request, $access)));
+        $data = ['expenses' => $expenses, 'contextHorse' => $this->contextHorse($request, $access), 'canDelete' => fn (Expense $e) => $this->canEdit($request, $e)];
+
+        return response()->json([
+            'mobile' => view('budget._expense-items', $data)->render(),
+            'desktop' => view('budget._expense-rows', $data)->render(),
+            'next' => $expenses->hasMorePages() ? route('budget.more', array_merge($request->query(), ['page' => $expenses->currentPage() + 1])) : null,
+        ]);
+    }
+
+    /** Filtres de la liste (cheval, catégorie, période). */
+    private function applyFilters(Request $request, Builder $query): Builder
+    {
+        return $query
+            ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
+            ->when($request->integer('category'), fn ($q, $c) => $q->where('expenses.expense_category_id', $c))
+            ->when($request->query('from'), fn ($q, $f) => $q->where('expenses.spent_on', '>=', $f))
+            ->when($request->query('to'), fn ($q, $t) => $q->where('expenses.spent_on', '<=', $t));
+    }
+
+    /** Une page de dépenses, les plus récentes d'abord (sans compter le total : page plus légère). */
+    private function expensePage(Builder $query): Paginator
+    {
+        return $query->with(['horse', 'category', 'documents', 'author'])->orderByDesc('spent_on')->orderByDesc('id')
+            ->simplePaginate(self::PER_PAGE)->withQueryString();
+    }
+
+    private function contextHorse(Request $request, HorseAccess $access): ?Horse
+    {
+        $horse = $request->integer('horse') ? Horse::find($request->integer('horse')) : null;
+
+        return $horse && $access->can($request->user(), $horse, Perm::EXPENSES_VIEW) ? $horse : null;
     }
 
     public function store(Request $request)

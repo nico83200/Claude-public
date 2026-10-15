@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AppUpdate;
 use App\Services\Audit;
 use App\Services\Updates\Updater;
+use App\Services\Updates\VersionHistory;
 use App\Support\UploadLimits;
 use Illuminate\Foundation\Http\MaintenanceModeBypassCookie;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ class UpdateController extends Controller
             'zipAvailable' => class_exists(\ZipArchive::class),
             'problems' => $this->updater->preflight(30 * 1048576),
             'chunkBytes' => UploadLimits::chunkBytes(self::CHUNK_MAX_KB),
+            'versions' => app(VersionHistory::class)->rows(),
         ]);
     }
 

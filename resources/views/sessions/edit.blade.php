@@ -93,6 +93,9 @@
                 @endif
                 <div x-show="! askGalop" class="flex flex-1 flex-col overflow-y-auto p-4" data-picker-groups>
                     <p x-show="galopError" x-cloak x-text="galopError" class="mb-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-900" style="order:-3"></p>
+                    @if ($suggestionsUpsell)
+                        <x-upsell :offer="$suggestionsUpsell" compact class="mb-4" style="order:-2" x-show="! q" data-suggestions-locked />
+                    @endif
                     {{-- Pour le cavalier : exercices habituels (historique) et exercices adaptés à son galop. --}}
                     @php $byId = $library->keyBy('id'); $sugRider = $suggestions['rider']; $isMe = $sugRider && $sugRider->id === auth()->id(); @endphp
                     @foreach (['' => $suggestions] + $suggestionVariants as $sugKey => $variant)

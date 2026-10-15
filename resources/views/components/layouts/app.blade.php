@@ -9,7 +9,7 @@
 @php
     $nav = [
         ['dashboard', 'Accueil', 'home', true],
-        ['horses.index', 'Chevaux', 'horse', true],
+        ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true],
         ['calendar.index', 'Agenda', 'calendar', in_array('calendar.view', $navPerms)],
         ['sessions.index', 'Séances', 'session', in_array('sessions.view', $navPerms)],
         ['exercises.index', 'Exercices', 'book', true],
@@ -75,6 +75,10 @@
                 <a href="{{ route('admin.dashboard') }}" class="mt-2 flex min-h-10 items-center gap-3 rounded-full bg-slate-900 px-4 text-sm font-medium text-white"><x-icon name="shield" class="size-[18px]" /> Administration</a>
             @endcan
         </nav>
+        @if ($appVersion)
+            {{-- Super-administrateur : version installée, au-dessus du lien Instagram. --}}
+            <a href="{{ route('admin.updates.index') }}" class="mx-6 mt-2 block px-2 text-xs text-slate-400 hover:text-slate-700" data-app-version>Version {{ $appVersion }}</a>
+        @endif
         <div class="flex items-center gap-2 px-6 pt-2">
             <a href="{{ config('equine.instagram_url') }}" target="_blank" rel="noopener" class="inline-flex min-h-9 items-center gap-2 rounded-full px-2 text-sm text-slate-500 transition hover:bg-white/70 hover:text-[#C13584]" aria-label="Jack&Cie sur Instagram (nouvel onglet)" data-instagram-link>
                 <x-icon name="instagram" class="size-[22px]" /> <span>{{ '@jackcieapp' }}</span>
@@ -82,7 +86,7 @@
         </div>
         <div class="flex items-center gap-3 px-6 py-4">
             <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
-            <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-slate-800">{{ auth()->user()->name }}</span><span class="block truncate text-xs text-slate-500">{{ $currentOrganization?->name }}</span></span>
+            <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-slate-800">{{ auth()->user()->name }}</span><span class="block truncate text-xs text-slate-500">{{ $currentOrganization?->isPersonal() ? 'Espace personnel' : $currentOrganization?->name }}</span></span>
             <form method="POST" action="{{ route('logout') }}" onsubmit="try { localStorage.removeItem('jc-last-user') } catch (e) {}">
                 @csrf<input type="hidden" name="pwa" data-standalone>
                 <button class="btn-ghost px-2" aria-label="Se déconnecter" title="Se déconnecter"><x-icon name="logout" class="size-[18px]" /></button>
@@ -127,7 +131,7 @@
 {{-- Barre basse (mobile) : le micro au centre --}}
 <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/70 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden" aria-label="Navigation rapide">
     <div class="grid grid-cols-5 items-end">
-        @foreach ([['dashboard', 'Accueil', 'home'], ['horses.index', 'Chevaux', 'horse']] as [$route, $label, $icon])
+        @foreach ([['dashboard', 'Accueil', 'home'], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse']] as [$route, $label, $icon])
             @php $active = request()->routeIs(\Illuminate\Support\Str::before($route, '.').'*'); @endphp
             <a href="{{ route($route) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}"><x-icon :name="$icon" class="size-6" />{{ $label }}</a>
         @endforeach

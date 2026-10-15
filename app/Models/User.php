@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\OrganizationService;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,16 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = ['name', 'email', 'password', 'locale', 'current_organization_id', 'terms_accepted_at', 'has_password'];
 
     protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'calendar_token'];
+
+    protected static function booted(): void
+    {
+        // Nom modifié (paramètres, administration) : l'espace personnel porte toujours le nom du cavalier.
+        static::updated(function (User $user) {
+            if ($user->wasChanged('name')) {
+                app(OrganizationService::class)->syncPersonalName($user, $user->getOriginal('name'));
+            }
+        });
+    }
 
     protected function casts(): array
     {

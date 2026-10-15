@@ -225,6 +225,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
 
     // Budget
     Route::get('/budget', [Controllers\ExpenseController::class, 'index'])->name('budget.index');
+    Route::get('/budget/depenses', [Controllers\ExpenseController::class, 'more'])->name('budget.more');
     Route::post('/budget', [Controllers\ExpenseController::class, 'store'])->name('budget.store');
     // Facture photographiée lue par l'assistant (vérification avant enregistrement).
     Route::post('/budget/facture', [Controllers\InvoiceController::class, 'read'])->middleware('throttle:10,1')->name('budget.invoice.read');

@@ -28,7 +28,11 @@ class Upsell
         'max_members' => ['Ajoutez des membres', 'Faites travailler plusieurs personnes dans le même espace, chacune avec son rôle.'],
         'storage_mb' => ['Plus d\'espace pour vos fichiers', 'Photos, documents et justificatifs : jusqu\'à plusieurs gigaoctets de stockage.'],
         'assistant_monthly' => ['Encore plus de consignes vocales', 'Les offres supérieures incluent davantage de consignes chaque mois.'],
+        'exercise_suggestions' => ['Des exercices choisis pour vous, à chaque séance', 'Selon votre galop et vos séances passées, Jack&Cie vous propose les exercices adaptés à chaque étape : échauffement, travail, retour au calme. Fini la page blanche avant de monter.'],
     ];
+
+    /** Argumentaires propres à un usage, débloqués par une fonction de l'offre (ex. suggestions d'exercices → assistant IA). */
+    public const ALIASES = ['exercise_suggestions' => 'assistant'];
 
     /** Fonctions réservées aux offres qui les incluent. */
     public const GATED = ['budget', 'documents', 'assistant', 'exports', 'stable', 'sharing', 'calendar_sync'];
@@ -42,11 +46,12 @@ class Upsell
      */
     public function for(Organization $org, ?User $user, string $key): ?array
     {
-        $isLimit = ! array_key_exists($key, SubscriptionPlan::FEATURES);
-        if (! $isLimit && $this->entitlements->hasFeature($org, $key)) {
+        $feature = self::ALIASES[$key] ?? $key;
+        $isLimit = ! array_key_exists($feature, SubscriptionPlan::FEATURES);
+        if (! $isLimit && $this->entitlements->hasFeature($org, $feature)) {
             return null;
         }
-        $plan = $this->planUnlocking($org, $key, $isLimit);
+        $plan = $this->planUnlocking($org, $feature, $isLimit);
 
         return $plan ? $this->offer($org, $user, $key, $plan) : null;
     }
@@ -92,7 +97,7 @@ class Upsell
             'plan' => $plan,
             'trial_days' => $trial,
             'can_upgrade' => $canUpgrade,
-            'url' => route('billing.index', ['fonction' => $key]).'#offres',
+            'url' => route('billing.index', ['fonction' => self::ALIASES[$key] ?? $key]).'#offres',
             'features' => [],
             'cta' => $trial ? 'Essayer '.$trial.' jours gratuitement' : 'Passer à l\'offre '.$plan->name,
             'note' => $canUpgrade

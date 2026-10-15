@@ -7,6 +7,7 @@ use App\Models\ExerciseCategory;
 use App\Models\ExerciseTag;
 use App\Models\Horse;
 use App\Services\ExerciseSuggestions;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -43,9 +44,15 @@ class ExerciseController extends Controller
 
         // « Pour vous » (sans recherche ni filtre) : mêmes suggestions que pour préparer une séance.
         $filtered = collect($request->only(['q', 'category', 'level', 'discipline', 'scope', 'max_minutes', 'objective', 'archived', 'page']))->filter()->isNotEmpty();
-        $suggestions = $variants = null;
+        $suggestions = $variants = $suggestionsUpsell = null;
         $library = collect();
-        if (! $filtered) {
+        // Suggestions d'exercices : incluses dans les offres avec l'assistant IA ; sinon, proposition d'offre.
+        $org = $this->currentOrganization();
+        $entitled = $this->entitlements()->hasFeature($org, 'assistant');
+        if (! $filtered && ! $entitled) {
+            $suggestionsUpsell = app(Upsell::class)->for($org, $user, 'exercise_suggestions');
+        }
+        if (! $filtered && $entitled) {
             $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
             $svc = app(ExerciseSuggestions::class);
             $suggestions = $svc->forUser($user, $library);
@@ -56,6 +63,7 @@ class ExerciseController extends Controller
             'exercises' => $query->orderBy('name')->paginate(30)->withQueryString(),
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),
             'suggestions' => $suggestions,
+            'suggestionsUpsell' => $suggestionsUpsell,
             'suggestionVariants' => $variants ?? [],
             'suggestionLibrary' => $library->keyBy('id'),
         ]);

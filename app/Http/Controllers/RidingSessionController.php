@@ -18,6 +18,7 @@ use App\Services\DebriefQuestions;
 use App\Services\ExerciseSuggestions;
 use App\Services\HorseAccess;
 use App\Services\RidingSessionService;
+use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -147,13 +148,20 @@ class RidingSessionController extends Controller
         $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
         $session->load(['horse', 'exercises', 'rider.profile']);
 
+        // Suggestions d'exercices : incluses dans les offres avec l'assistant IA (espace du cheval) ; sinon, proposition d'offre.
+        $org = $session->horse->organization;
+        $entitled = $this->entitlements()->hasFeature($org, 'assistant');
+
         return view('sessions.edit', [
             'session' => $session,
             'library' => $library,
             // Exercices habituels du cavalier et exercices adaptés à son galop, par étape.
-            'suggestions' => $suggestions = app(ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library),
+            'suggestions' => $suggestions = $entitled
+                ? app(ExerciseSuggestions::class)->forSession($session, $user->loadMissing('profile'), $library)
+                : ['rider' => null, 'galop' => null, 'level' => null, 'phases' => []],
+            'suggestionsUpsell' => $entitled ? null : app(Upsell::class)->for($org, $user, 'exercise_suggestions'),
             // Galop inconnu : suggestions préparées pour chaque niveau, affichées dès que le cavalier choisit son galop (sans recharger).
-            'suggestionVariants' => $suggestions['rider']?->id === $user->id && ! $suggestions['galop']
+            'suggestionVariants' => $entitled && $suggestions['rider']?->id === $user->id && ! $suggestions['galop']
                 ? collect([2, 4, 6])->mapWithKeys(fn ($g) => [(string) $g => app(ExerciseSuggestions::class)->forSession($session, $user, $library, $g)])->all()
                 : [],
             'categories' => ExerciseCategory::orderBy('sort_order')->pluck('name', 'id'),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CalendarEvent;
 use App\Models\Horse;
+use App\Models\HorseAccessGrant;
 use App\Models\HorseBreed;
 use App\Models\Organization;
 use App\Services\Audit;
@@ -35,8 +36,14 @@ class HorseController extends Controller
         $canCreate = $user->canInOrg($current, Perm::HORSES_CREATE);
         $limitReached = $canCreate && ! $this->entitlements()->withinLimit($current, 'max_horses', $current->horses()->whereNull('archived_at')->count());
 
+        $horses = $query->orderBy('official_name')->paginate(24)->withQueryString();
+        // Un seul cheval, et aucun cheval partagé avec la personne : grande carte pleine largeur.
+        $filtered = $request->filled('q') || $request->integer('organization') || $request->boolean('archived');
+        $single = ! $filtered && $horses->total() === 1 && ! HorseAccessGrant::active()->where('user_id', $user->id)->exists();
+
         return view('horses.index', [
-            'horses' => $query->orderBy('official_name')->paginate(24)->withQueryString(),
+            'horses' => $horses,
+            'single' => $single ? $horses->first() : null,
             'canCreate' => $canCreate,
             'upsell' => $limitReached && ! $request->boolean('archived') ? app(Upsell::class)->for($current, $user, 'max_horses') : null,
         ]);

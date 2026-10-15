@@ -8,9 +8,13 @@
         'starts_at' => ($prefillDate ?? $defaultDate ?? now())->copy()->setTime(9, 0), 'duration_minutes' => 60,
     ]);
 @endphp
-<div class="grid gap-3 sm:grid-cols-2">
+@php
+    // Nouvel événement de type Séance ou Cours : on part directement sur la préparation de séance (cheval, date et heure repris).
+    $toSession = ! isset($event) && app(\App\Services\HorseAccess::class)->horseIdsWith(auth()->user(), \App\Support\Perm::SESSIONS_CREATE) !== [];
+@endphp
+<div class="grid gap-3 sm:grid-cols-2" @if ($toSession) x-data @change="if ($event.target.name === 'type' && ['session', 'lesson'].includes($event.target.value)) { const f = $event.target.form; location.href = @js(route('sessions.create')) + '?' + new URLSearchParams({ horse: f.horse_id?.value || '', date: (f.date?.value || '') + (f.time?.value ? ' ' + f.time.value : ''), type: $event.target.value === 'lesson' ? 'private_lesson' : 'free' }); }" data-session-redirect @endif>
     <x-select name="horse_id" label="Cheval" :options="$horses" :value="$e->horse_id ?? request('horse')" placeholder="Aucun (événement de l'espace)" />
-    <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="$e->type" required />
+    <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="$e->type" required :help="$toSession ? 'Séance ou Cours : la préparation de séance s\'ouvre (exercices, cavalier, bilan).' : null" />
     <x-field name="title" label="Titre" :value="$e->title" required class="sm:col-span-2" />
     <x-field name="date" type="date" label="Date" :value="$e->starts_at->format('Y-m-d')" required />
     <x-field name="time" type="time" label="Heure" :value="$e->starts_at->format('H:i')" />

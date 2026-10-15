@@ -168,45 +168,25 @@
     @else
         @php $anyDeletable = $expenses->contains(fn ($e) => $canDelete($e)); @endphp
         <x-swipe.list hint-key="jc-hint-swipe-expenses" :hint="$anyDeletable ? 'glissez une dépense vers la gauche pour la supprimer. Vous pourrez annuler juste après.' : null" class="sm:hidden">
-        <div class="card divide-y divide-slate-100 overflow-hidden">
-            @foreach ($expenses as $e)
-                <x-swipe.row :delete-url="$canDelete($e) ? route('budget.destroy', $e) : null" :text="'Dépense de '.$eur($e->amount).' supprimée'" rounded="" surface="bg-white">
-                <div class="relative flex items-start gap-3 p-4 active:bg-slate-50">
-                    <div class="min-w-0 flex-1">
-                        <a href="{{ route('budget.show', $e) }}" class="absolute inset-0" aria-label="Détail : {{ $e->category->name }}, {{ $eur($e->amount) }}" data-expense-link="{{ $e->id }}"></a>
-                        <p class="font-medium text-slate-900">@if ($e->recurring_expense_id)<x-icon name="refresh" class="mr-0.5 inline size-3.5 text-slate-400" />@endif{{ $e->category->name }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $e->horse?->shortName() ?? 'Espace' }}</span>@endunless</p>
-                        <p class="text-xs text-slate-500">{{ $e->spent_on->translatedFormat('j M Y') }}{{ $e->supplier ? ' · '.$e->supplier : '' }}</p>
-                        @if ($e->comment)<p class="mt-0.5 line-clamp-1 text-xs text-slate-500">{{ $e->comment }}</p>@endif
-                        <p class="relative z-10 mt-1 flex w-fit gap-3 text-xs">
-                            @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d">Justificatif</x-receipt-link>@endforeach
-                            @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="link">Modifier</a>@endif
-                        </p>
-                    </div>
-                    <p class="shrink-0 text-right font-semibold whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="mt-1 block">À payer</x-badge>@endunless</p>
-                </div>
-                </x-swipe.row>
-            @endforeach
+        <div class="card divide-y divide-slate-100 overflow-hidden" data-expense-list>
+            @include('budget._expense-items')
         </div>
         </x-swipe.list>
         <div class="table-wrap hidden sm:block"><table class="table">
             <thead><tr><th>Date</th><th>Cheval</th><th>Catégorie</th><th class="hidden sm:table-cell">Fournisseur</th><th class="text-right">Montant</th><th></th></tr></thead>
-            <tbody class="divide-y divide-slate-100">
-            @foreach ($expenses as $e)
-                <tr class="cursor-pointer hover:bg-slate-50" onclick="if (! event.target.closest('a, button, form')) location.href = this.dataset.href" data-href="{{ route('budget.show', $e) }}">
-                    <td class="whitespace-nowrap">{{ $e->spent_on->format('d/m/Y') }}</td>
-                    <td>{{ $e->horse?->shortName() ?? '—' }}</td>
-                    <td><a href="{{ route('budget.show', $e) }}" class="font-medium text-slate-900 hover:underline" data-expense-link="{{ $e->id }}">{{ $e->category->name }}</a>@if ($e->comment)<span class="block text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($e->comment, 60) }}</span>@endif</td>
-                    <td class="hidden sm:table-cell">{{ $e->supplier }}</td>
-                    <td class="text-right font-medium whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="ml-1">À payer</x-badge>@endunless</td>
-                    <td class="whitespace-nowrap">
-                        @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d" :group="'receipt-'.$e->id.'-b'" class="text-xs">Justificatif</x-receipt-link> @endforeach
-                        @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="text-xs link">Modifier</a>@endif
-                    </td>
-                </tr>
-            @endforeach
+            <tbody class="divide-y divide-slate-100" data-expense-table>
+            @include('budget._expense-rows')
             </tbody>
         </table></div>
-        <div class="mt-4">{{ $expenses->links() }}</div>
+        {{-- 10 dépenses à la fois : les suivantes s'ajoutent sans recharger la page (lien classique sans JavaScript). --}}
+        @if ($expenses->hasMorePages())
+            <div class="mt-4 text-center" x-data="loadMore(@js(route('budget.more', array_merge(request()->query(), ['page' => $expenses->currentPage() + 1]))), { '[data-expense-list]': 'mobile', '[data-expense-table]': 'desktop' })" x-show="next">
+                <a href="{{ $expenses->nextPageUrl() }}" class="btn-secondary" @click.prevent="load()" :aria-disabled="busy" data-load-more>
+                    <x-icon name="plus" class="size-4" /> <span x-text="busy ? 'Chargement…' : 'Afficher {{ \App\Http\Controllers\ExpenseController::PER_PAGE }} dépenses de plus'">Afficher {{ \App\Http\Controllers\ExpenseController::PER_PAGE }} dépenses de plus</span>
+                </a>
+                <p x-show="error" x-cloak x-text="error" class="mt-2 text-sm text-red-700"></p>
+            </div>
+        @endif
     @endif
 
     <dialog id="new-expense" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40">

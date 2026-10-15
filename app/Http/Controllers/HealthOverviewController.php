@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CareRecord;
 use App\Models\HealthObservation;
+use App\Models\Horse;
 use App\Models\Treatment;
 use App\Services\HorseAccess;
 use App\Support\Perm;
@@ -26,6 +27,8 @@ class HealthOverviewController extends Controller
             'treatments' => Treatment::with(['horse', 'responsible'])->whereIn('horse_id', $treatIds)->current()->orderBy('ends_on')->get(),
             'recent' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->orderByDesc('performed_at')->limit(15)->get(),
             'alerts' => HealthObservation::with(['horse', 'author'])->whereIn('horse_id', $healthIds)->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->get(),
+            // Résumé pour le vétérinaire : chevaux dont on voit la santé (choix proposé s'il y en a plusieurs).
+            'vetHorses' => Horse::whereIn('id', $healthIds)->whereNull('archived_at')->orderBy('official_name')->get(),
         ]);
     }
 }

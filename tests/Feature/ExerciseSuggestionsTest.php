@@ -13,6 +13,8 @@ class ExerciseSuggestionsTest extends TestCase
     public function test_usual_exercises_and_galop_level_are_suggested(): void
     {
         $user = $this->user();
+        // Suggestions d'exercices : incluses dans les offres avec l'assistant IA.
+        $this->grantLicense($user->personalOrganization(), 'particulier');
         $horse = $this->horseFor($user);
         $favorite = Exercise::where('scope', 'default')->where('level', 'advanced')->firstOrFail();
         $sessions = app(RidingSessionService::class);
@@ -65,6 +67,8 @@ class ExerciseSuggestionsTest extends TestCase
     public function test_exercises_page_suggests_by_galop_and_habits(): void
     {
         $user = $this->user();
+        // Suggestions d'exercices : incluses dans les offres avec l'assistant IA.
+        $this->grantLicense($user->personalOrganization(), 'particulier');
         $horse = $this->horseFor($user);
         // Sans galop : question d'abord, suggestions de chaque niveau prêtes pour l'affichage immédiat.
         $this->actingAs($user)->get('/exercices')->assertOk()->assertSee('data-for-you', false)->assertSee('data-ask-galop', false)

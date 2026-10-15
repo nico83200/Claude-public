@@ -17,7 +17,8 @@ class OrganizationService
     {
         return DB::transaction(function () use ($user) {
             $org = Organization::create([
-                'name' => 'Espace de '.$user->name,
+                // Espace personnel au nom du cavalier (« Nicolas LEFEVRE »), suivi des changements de nom (syncPersonalName).
+                'name' => $user->name,
                 'slug' => $this->uniqueSlug('perso-'.$user->name),
                 'type' => 'personal',
                 'owner_id' => $user->id,
@@ -28,6 +29,15 @@ class OrganizationService
 
             return $org;
         });
+    }
+
+    /** Nom du compte modifié : l'espace personnel suit, sauf s'il a été renommé autrement. */
+    public function syncPersonalName(User $user, ?string $previous): void
+    {
+        $org = $user->personalOrganization();
+        if ($org && $previous !== null && in_array($org->name, [$previous, 'Espace de '.$previous], true)) {
+            $org->update(['name' => $user->name]);
+        }
     }
 
     /**

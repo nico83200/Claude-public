@@ -11,7 +11,7 @@
         <div><label class="label" for="f_objective">Objectif</label><input id="f_objective" name="objective" value="{{ request('objective') }}" class="input"></div>
         <label class="col-span-2 flex min-h-11 items-center gap-3 text-sm sm:col-span-1 sm:self-end"><input type="checkbox" name="archived" value="1" @checked(request('archived')) class="size-5 rounded"> Archivés</label>
     </x-filters>
-    @if ($suggestions)@include('exercises._for-you')@endif
+    @if ($suggestions)@include('exercises._for-you')@elseif ($suggestionsUpsell)<x-upsell :offer="$suggestionsUpsell" class="mb-6" data-suggestions-locked />@endif
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         @forelse ($exercises as $ex)
             <a href="{{ route('exercises.show', $ex) }}" class="card flex flex-col p-4 transition hover:shadow-md">
