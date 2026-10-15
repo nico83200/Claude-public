@@ -22,7 +22,7 @@
             <div class="mt-4 flex flex-wrap gap-2">
                 @unless ($session->isCompleted())
                     <a href="{{ route('sessions.debrief', $session) }}" class="btn-primary" data-debrief-link><x-icon name="check" class="size-4" /> Faire le bilan</a>
-                    <a href="{{ route('sessions.edit', $session) }}" class="btn-secondary"><x-icon name="session" class="size-4" /> Préparer</a>
+                    @if ($session->usesExercises())<a href="{{ route('sessions.edit', $session) }}" class="btn-secondary" data-prepare-link><x-icon name="session" class="size-4" /> Préparer</a>@endif
                 @endunless
                 <a href="{{ route('sessions.details', $session) }}" class="btn-secondary" data-edit-session><x-icon name="pencil" class="size-4" /> Modifier</a>
             </div>

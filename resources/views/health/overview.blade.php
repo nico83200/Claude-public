@@ -1,11 +1,9 @@
 <x-layouts.app title="Santé et soins">
     <x-page-header title="Santé et soins" subtitle="Vue d'ensemble de tous vos chevaux">
         <x-horse-picker key="care" :horses="$editHorses" route="horses.care.create" label="Soin" class="btn-primary" title="Soin pour quel cheval ?" />
-        @if (app(\App\Services\Assistant\AssistantService::class)->serviceReady())
-        <x-horse-picker key="prescription" :horses="$editHorses" route="horses.care.index" fragment="#ordonnance" icon="camera" label="Ordonnance" title="Ordonnance de quel cheval ?" hint="Photographiez ou déposez l'ordonnance ou le compte rendu : soin, traitements et prochain contrôle sont préparés pour vous." />
-        @endif
         <x-horse-picker key="vet" :horses="$vetHorses" route="horses.vet-summary" icon="share" label="Partager avec le vétérinaire" hint="Son résumé de santé s'affiche ; vous pourrez ensuite l'envoyer par e-mail ou SMS au vétérinaire, avec un lien temporaire." />
     </x-page-header>
+    @include('health._prescription-overview-card')
     <div class="grid gap-4 lg:grid-cols-2">
         <x-section title="Échéances (60 jours)">
             @forelse ($due as $c)

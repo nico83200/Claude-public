@@ -94,11 +94,11 @@ class DemoSeeder extends Seeder
 
         $ex = Exercise::with('category')->where('scope', 'default')->limit(4)->get();
         foreach ([14, 7, 3] as $i => $daysAgo) {
-            $s = $sessions->create($h1, $rider, ['scheduled_at' => now()->subDays($daysAgo)->setTime(18, 0), 'session_type' => $i === 1 ? 'poles' : 'dressage', 'objective' => 'Régularité', 'planned_minutes' => 45], $ex->map(fn ($e) => ['exercise_id' => $e->id, 'phase' => $e->category?->key === 'warmup' ? 'warmup' : 'main'])->all());
+            $s = $sessions->create($h1, $rider, ['scheduled_at' => now()->subDays($daysAgo)->setTime(18, 0), 'session_type' => 'free', 'objective' => 'Régularité', 'planned_minutes' => 45], $ex->map(fn ($e) => ['exercise_id' => $e->id, 'phase' => $e->category?->key === 'warmup' ? 'warmup' : 'main'])->all());
             $s->items()->update(['status' => 'done']);
             $sessions->complete($s, ['actual_minutes' => 45, 'rider_feeling' => 4, 'horse_behavior' => 4, 'progress' => 'Transitions plus fluides', 'to_rework' => $i === 2 ? 'Rectitude sur la ligne du milieu' : null]);
         }
-        $sessions->create($h1, $rider, ['scheduled_at' => now()->addDay()->setTime(18, 0), 'session_type' => 'dressage', 'objective' => 'Cession à la jambe'], $ex->take(2)->map(fn ($e) => ['exercise_id' => $e->id])->all());
+        $sessions->create($h1, $rider, ['scheduled_at' => now()->addDay()->setTime(18, 0), 'session_type' => 'free', 'objective' => 'Cession à la jambe'], $ex->take(2)->map(fn ($e) => ['exercise_id' => $e->id])->all());
 
         foreach ([['boarding', 380], ['farrier', 95], ['feed', 62.4]] as [$cat, $amount]) {
             $e = new Expense(['horse_id' => $h1->id, 'expense_category_id' => ExpenseCategory::where('key', $cat)->value('id'), 'spent_on' => now()->subDays(rand(1, 25)), 'amount' => $amount]);

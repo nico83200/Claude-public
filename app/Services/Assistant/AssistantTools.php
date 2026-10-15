@@ -88,7 +88,7 @@ class AssistantTools
                 'title' => $n($str),
                 'notes' => $n($str),
             ]),
-            $tool('create_session', 'Crée une séance de travail (montée, à pied, longe…) ou un cours (session_type private_lesson / group_lesson) avec ses exercices répartis par phase. Choisir d\'abord dans la bibliothèque (exercise_id) ; un exercice libre (exercise_id null + name) seulement si rien ne convient. Pour un cours, exercises peut rester vide : le cavalier les ajoutera au bilan.', [
+            $tool('create_session', 'Crée une séance de travail (montée, à pied, longe…) ou un cours (session_type private_lesson / group_lesson) ou une balade (ride) ; exercices répartis par phase pour la monte libre seulement. Choisir d\'abord dans la bibliothèque (exercise_id) ; un exercice libre (exercise_id null + name) seulement si rien ne convient. Pour un cours ou une balade, exercises reste vide (ignoré) : le cavalier notera le travail au bilan.', [
                 'horse_id' => $int,
                 'scheduled_at' => ['type' => 'string', 'description' => 'YYYY-MM-DD HH:MM'],
                 'session_type' => $enum(array_keys(RidingSession::TYPES)),
@@ -326,15 +326,20 @@ class AssistantTools
                 'instructions' => $this->clip($ex['instructions'] ?? null, 2000),
             ], fn ($v) => $v !== null);
         }
+        $type = array_key_exists($in['session_type'], RidingSession::TYPES) ? $in['session_type'] : 'free';
+        // Cours et balade : pas d'exercices préparés.
+        if (! RidingSession::typeUsesExercises($type)) {
+            $items = [];
+        }
         $session = $this->sessions->create($horse, $ctx->user, [
-            'scheduled_at' => $at, 'session_type' => array_key_exists($in['session_type'], RidingSession::TYPES) ? $in['session_type'] : 'free',
+            'scheduled_at' => $at, 'session_type' => $type,
             'discipline' => array_key_exists((string) ($in['discipline'] ?? ''), Horse::DISCIPLINES) ? $in['discipline'] : null,
             'objective' => $this->clip($in['objective'] ?? null, 255), 'planned_minutes' => max(5, min(600, (int) $in['planned_minutes'])),
             'location' => $this->clip($in['location'] ?? null, 255), 'status' => 'planned',
             'instructor' => $this->clip($in['instructor'] ?? null, 100),
         ], $items);
         $summary = $session->title().' – '.$horse->shortName().' – '.$this->human($at)
-            .($items || ! $session->isLesson() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min'
+            .($items || $session->usesExercises() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min'
             .($session->isCompleted() ? ' · terminée' : '');
         $ctx->record('session.created', $session, $summary, route('sessions.show', $session), ['delete' => [RidingSession::class, $session->id]]);
 

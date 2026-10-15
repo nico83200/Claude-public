@@ -155,7 +155,7 @@ class FeaturesTest extends TestCase
         $user = $this->user();
         $this->grantLicense($user->personalOrganization(), 'particulier');
         $horse = $this->horseFor($user);
-        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d H:i'), 'session_type' => 'jumping', 'objective' => 'Gymnastique']);
+        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d H:i'), 'session_type' => 'free', 'objective' => 'Gymnastique']);
         $this->assertStringContainsString('Gymnastique', $this->actingAs($user)->get("/chevaux/{$horse->id}/export/seances.csv")->assertOk()->streamedContent());
         $this->actingAs($user)->get("/chevaux/{$horse->id}/export/seances.pdf")->assertOk();
     }

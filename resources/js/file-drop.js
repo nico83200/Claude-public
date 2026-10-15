@@ -1,7 +1,9 @@
 // Envoi d'une photo ou d'un fichier : sur téléphone, « Photographier » ; sur ordinateur (souris),
 // « Choisir un fichier » et glisser-déposer du fichier sur la carte. Le formulaire part dès le choix.
-export function fileDrop() {
+// extra : données propres à la carte (ex. cheval choisi et adresses d'envoi sur la page Santé).
+export function fileDrop(extra = {}) {
     return {
+        ...extra,
         busy: false,
         over: false,
         desktop: window.matchMedia('(hover: hover) and (pointer: fine)').matches,

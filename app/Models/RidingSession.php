@@ -21,12 +21,40 @@ class RidingSession extends Model
 
     protected $casts = ['scheduled_at' => 'datetime', 'completed_at' => 'datetime'];
 
-    public const TYPES = [
-        'free' => 'Monte libre', 'private_lesson' => 'Cours particulier', 'group_lesson' => 'Cours collectif',
+    /** Types proposés à la saisie d'une séance. */
+    public const TYPES = ['private_lesson' => 'Cours particulier', 'group_lesson' => 'Cours collectif', 'free' => 'Monte libre', 'ride' => 'Balade'];
+
+    /** Anciens types, plus proposés : conservés pour les séances déjà enregistrées (affichage, modification). */
+    public const LEGACY_TYPES = [
         'groundwork' => 'Travail à pied', 'lunging' => 'Longe', 'liberty' => 'Liberté', 'dressage' => 'Dressage',
-        'jumping' => 'Obstacle', 'poles' => 'Barres au sol', 'ride' => 'Balade', 'outdoor' => 'Extérieur',
+        'jumping' => 'Obstacle', 'poles' => 'Barres au sol', 'outdoor' => 'Extérieur',
         'recovery' => 'Récupération', 'active_rest' => 'Repos actif', 'other' => 'Autre',
     ];
+
+    /** Cours et balade : pas de choix d'exercices à la préparation (l'enseignant ou la sortie décident du contenu). */
+    public const WITHOUT_EXERCISES = ['private_lesson', 'group_lesson', 'ride'];
+
+    /** Tous les intitulés (types actuels et anciens). */
+    public static function allTypes(): array
+    {
+        return self::TYPES + self::LEGACY_TYPES;
+    }
+
+    /** Choix proposés pour une séance : les types actuels, plus l'ancien type de la séance s'il en a un. */
+    public static function typeOptions(?string $current = null): array
+    {
+        return self::TYPES + ($current && isset(self::LEGACY_TYPES[$current]) ? [$current => self::LEGACY_TYPES[$current]] : []);
+    }
+
+    public static function typeUsesExercises(?string $type): bool
+    {
+        return ! in_array($type, self::WITHOUT_EXERCISES, true);
+    }
+
+    public function usesExercises(): bool
+    {
+        return self::typeUsesExercises($this->session_type);
+    }
 
     public const STATUSES = ['planned' => 'Prévue', 'in_progress' => 'En cours', 'completed' => 'Terminée', 'cancelled' => 'Annulée'];
 
@@ -77,7 +105,7 @@ class RidingSession extends Model
 
     public function typeLabel(): string
     {
-        return self::TYPES[$this->session_type] ?? $this->session_type;
+        return self::allTypes()[$this->session_type] ?? $this->session_type;
     }
 
     public function isLesson(): bool

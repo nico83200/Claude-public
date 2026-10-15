@@ -15,7 +15,7 @@ class SessionSwipeDeleteTest extends TestCase
         $owner = $this->user();
         $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($owner);
-        $this->actingAs($owner)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'dressage'])->assertRedirect();
+        $this->actingAs($owner)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'free'])->assertRedirect();
         $session = RidingSession::where('horse_id', $horse->id)->sole();
         $morph = $session->getMorphClass();
         $this->assertSame(1, CalendarEvent::where('source_type', $morph)->where('source_id', $session->id)->count());
@@ -46,7 +46,7 @@ class SessionSwipeDeleteTest extends TestCase
         $owner = $this->user();
         $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($owner);
-        $this->actingAs($owner)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'dressage']);
+        $this->actingAs($owner)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'free']);
         $session = RidingSession::where('horse_id', $horse->id)->sole();
 
         // Personne qui voit les séances sans pouvoir les modifier : pas de glissé, ni suppression, ni restauration.

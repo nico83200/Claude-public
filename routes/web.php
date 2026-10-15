@@ -231,6 +231,10 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     // Budget
     Route::get('/budget', [Controllers\ExpenseController::class, 'index'])->name('budget.index');
     Route::get('/budget/depenses', [Controllers\ExpenseController::class, 'more'])->name('budget.more');
+    Route::post('/budget/recettes', [Controllers\IncomeController::class, 'store'])->name('budget.incomes.store');
+    Route::get('/budget/recettes/{income}/modifier', [Controllers\IncomeController::class, 'edit'])->name('budget.incomes.edit');
+    Route::put('/budget/recettes/{income}', [Controllers\IncomeController::class, 'update'])->name('budget.incomes.update');
+    Route::delete('/budget/recettes/{income}', [Controllers\IncomeController::class, 'destroy'])->name('budget.incomes.destroy');
     Route::post('/budget', [Controllers\ExpenseController::class, 'store'])->name('budget.store');
     // Facture photographiée lue par l'assistant (vérification avant enregistrement).
     Route::post('/budget/facture', [Controllers\InvoiceController::class, 'read'])->middleware('throttle:10,1')->name('budget.invoice.read');

@@ -3,7 +3,8 @@
     @php $newExpense = $creatableHorses->isNotEmpty() || $canOrgExpense; $exportOrg = $contextHorse?->organization ?? $currentOrganization; @endphp
     @if ($contextHorse)
         <x-horse-header :horse="$contextHorse">
-            @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" class="size-4" /> Dépense</button>@endif
+            @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" class="size-4" /> Dépense</button>
+                <button type="button" class="btn-secondary" onclick="document.getElementById('new-income').showModal()" data-new-income><x-icon name="plus" class="size-4" /> Recette</button>@endif
             <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF <x-locked-mark :org="$exportOrg" feature="exports" /></a>
             <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV <x-locked-mark :org="$exportOrg" feature="exports" /></a>
         </x-horse-header>
@@ -11,7 +12,8 @@
         <x-page-header title="Budget" :subtitle="$periodLabel">
             <a href="{{ route('budget.export', ['pdf'] + request()->only('horse', 'year')) }}" class="btn-ghost"><x-icon name="download" class="size-4" /> PDF <x-locked-mark :org="$exportOrg" feature="exports" /></a>
             <a href="{{ route('budget.export', ['csv'] + request()->only('horse', 'year')) }}" class="btn-ghost">CSV <x-locked-mark :org="$exportOrg" feature="exports" /></a>
-            @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" /> Dépense</button>@endif
+            @if ($newExpense)<button type="button" class="btn-secondary" onclick="document.getElementById('new-income').showModal()" data-new-income><x-icon name="plus" /> Recette</button>
+                <button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" /> Dépense</button>@endif
         </x-page-header>
     @endif
     <x-upsell :offer="$upsell" class="mb-5" />
@@ -54,6 +56,13 @@
         <div class="px-2"><p class="text-xs text-slate-500">{{ $year ? 'Année '.$year : 'Toutes les dates' }}</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['year']) }}</p></div>
         <div class="px-2"><p class="text-xs text-slate-500">Par mois</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['per_month']) }}</p></div>
     </div>
+    @if ($incomes->isNotEmpty())
+        {{-- Recettes de la période et solde (recettes − dépenses). --}}
+        <div class="card mb-4 grid grid-cols-2 divide-x divide-slate-100 py-4 text-center" data-income-kpis>
+            <div class="px-2"><p class="text-xs text-slate-500">Recettes · {{ $year ?: 'toutes les dates' }}</p><p class="mt-1 text-lg font-bold text-brand-800 sm:text-2xl">+ {{ $eur($kpis['income']) }}</p></div>
+            <div class="px-2"><p class="text-xs text-slate-500">Solde (recettes − dépenses)</p><p class="mt-1 text-lg font-bold sm:text-2xl {{ $kpis['balance'] < 0 ? 'text-red-700' : 'text-brand-800' }}">{{ $kpis['balance'] < 0 ? '− ' : '+ ' }}{{ $eur(abs($kpis['balance'])) }}</p></div>
+        </div>
+    @endif
     @php
         $maxCat = max(1, (float) $kpis['by_category']->max());
         $maxHorse = max(1, (float) $kpis['by_horse']->max());
@@ -170,6 +179,27 @@
         </section>
     @endif
 
+    @if ($incomes->isNotEmpty())
+        <section class="card mb-4 p-5 sm:p-6" aria-labelledby="incomes-title" data-incomes>
+            <div class="mb-2 flex items-baseline justify-between gap-2">
+                <h2 id="incomes-title" class="text-[17px] font-semibold">Recettes</h2>
+                <span class="text-sm font-semibold text-brand-800">+ {{ $eur($kpis['income']) }}</span>
+            </div>
+            <ul class="divide-y divide-slate-100">
+                @foreach ($incomes as $i)
+                    <li class="flex items-center gap-3 py-3" data-income="{{ $i->id }}">
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
+                            <span class="block text-xs text-slate-500">{{ $i->categoryLabel() }} · {{ $i->received_on->translatedFormat('j M Y') }}{{ $i->payer ? ' · '.$i->payer : '' }}</span>
+                        </span>
+                        <span class="shrink-0 font-semibold whitespace-nowrap text-brand-800">+ {{ $eur($i->amount) }}</span>
+                        @if ($canEditIncome($i))<a href="{{ route('budget.incomes.edit', array_filter(['income' => $i, 'retour_cheval' => $contextHorse?->id])) }}" class="btn-ghost size-10 shrink-0 px-0 text-slate-500" aria-label="Modifier la recette"><x-icon name="pencil" class="size-4" /></a>@endif
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
     @if ($expenses->isEmpty())
         <x-empty title="Aucune dépense" icon="wallet" />
     @else
@@ -194,6 +224,33 @@
                 <p x-show="error" x-cloak x-text="error" class="mt-2 text-sm text-red-700"></p>
             </div>
         @endif
+    @endif
+
+    @if ($newExpense)
+    <dialog id="new-income" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40" data-income-dialog>
+        <form method="POST" action="{{ route('budget.incomes.store') }}" class="space-y-3 p-5">
+            @csrf
+            <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">Nouvelle recette</h2><button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button></div>
+            <p class="-mt-1 text-sm text-slate-500">Demi-pension, gains de concours, vente… : elle s'ajoute au solde du budget.</p>
+            @php $ie = $errors->income; @endphp
+            <div>
+                <x-select name="horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required id="i_horse" />
+                @if ($ie->has('horse_id'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('horse_id') }}</p>@endif
+            </div>
+            <div>
+                <x-select name="category" label="Type de recette" :options="\App\Models\Income::CATEGORIES" required placeholder="Choisir…" id="i_category" />
+                @if ($ie->has('category'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('category') }}</p>@endif
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="label" for="i_received_on">Date</label><input id="i_received_on" type="date" name="received_on" value="{{ old('received_on', now()->toDateString()) }}" required class="input">@if ($ie->has('received_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('received_on') }}</p>@endif</div>
+                <div><label class="label" for="i_amount">Montant (€)<span class="text-red-600"> *</span></label><input id="i_amount" type="number" name="amount" step="0.01" min="0.01" inputmode="decimal" required value="{{ $ie->any() ? old('amount') : '' }}" class="input">@if ($ie->has('amount'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('amount') }}</p>@endif</div>
+            </div>
+            <div><label class="label" for="i_payer">Versée par (facultatif)</label><input id="i_payer" name="payer" maxlength="150" value="{{ old('payer') }}" placeholder="Demi-pensionnaire, organisateur du concours…" class="input"></div>
+            <div><label class="label" for="i_comment">Commentaire</label><textarea id="i_comment" name="comment" rows="2" maxlength="2000" class="input">{{ $ie->any() ? old('comment') : '' }}</textarea></div>
+            <button class="btn-primary w-full">Enregistrer la recette</button>
+        </form>
+    </dialog>
+    @if ($errors->income->any())<script>document.getElementById('new-income').showModal()</script>@endif
     @endif
 
     <dialog id="new-expense" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40">

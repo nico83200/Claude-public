@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\ExpenseDocument;
 use App\Models\Horse;
+use App\Models\Income;
 use App\Models\Organization;
 use App\Models\RecurringExpense;
 use App\Services\Audit;
@@ -54,6 +55,10 @@ class ExpenseController extends Controller
 
         $yearQuery = $allDates ? (clone $filtered) : (clone $filtered)->whereYear('expenses.spent_on', $year);
         $total = (clone $yearQuery)->sum('expenses.amount');
+        // Recettes (demi-pension, gains de concours…) : mêmes chevaux, même période.
+        $incomeQuery = IncomeController::visibleQuery($request, $access)->when($request->integer('horse'), fn ($q, $h) => $q->where('incomes.horse_id', $h));
+        $incomePeriod = $allDates ? $incomeQuery : $incomeQuery->whereYear('incomes.received_on', $year);
+        $incomeTotal = (float) (clone $incomePeriod)->sum('incomes.amount');
         $first = $allDates ? (clone $yearQuery)->min('expenses.spent_on') : null;
         $creatable = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
@@ -70,9 +75,13 @@ class ExpenseController extends Controller
             'expenses' => $this->expensePage(clone $filtered),
             'year' => $year,
             'periodLabel' => $allDates ? 'Toutes les dates' : 'Année '.$year,
+            'incomes' => (clone $incomePeriod)->with('horse')->orderByDesc('received_on')->orderByDesc('id')->limit(100)->get(),
+            'canEditIncome' => fn (Income $i) => IncomeController::canEdit($request, $i),
             'kpis' => [
                 'month' => (clone $filtered)->whereBetween('expenses.spent_on', [now()->startOfMonth(), now()->endOfMonth()])->sum('expenses.amount'),
                 'year' => $total,
+                'income' => $incomeTotal,
+                'balance' => $incomeTotal - (float) $total,
                 // Moyenne mensuelle : mois écoulés de l'année, ou depuis la première dépense pour « Toutes ».
                 'per_month' => $total / max(1, $allDates
                     ? ($first ? (int) Carbon::parse($first)->startOfMonth()->diffInMonths(now()->startOfMonth()) + 1 : 1)

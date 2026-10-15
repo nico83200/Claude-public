@@ -8,7 +8,10 @@
         @if ($event)<input type="hidden" name="calendar_event_id" value="{{ $event->id }}"><p class="rounded-lg bg-gold-50 p-3 text-sm text-slate-700">Validation de l'intervention prévue le {{ $event->starts_at->format('d/m/Y') }} : « {{ $event->title }} ». Elle sera marquée réalisée dans le calendrier.</p>@endif
         <x-section>
             <div class="grid gap-4 sm:grid-cols-2">
-                <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" x-model="cat" />
+                <div x-data="{ rhythms: @js((object) $rhythms) }">
+                    <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" x-model="cat" />
+                    <p x-show="rhythms[cat]" x-cloak x-text="rhythms[cat]" class="mt-1.5 flex gap-1.5 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600" data-rhythm-info></p>
+                </div>
                 <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required x-model="performed" />
                 <x-professional-select label="Professionnel" :options="$professionals" :value="$record->professional_id" :org="$horse->organization" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
                 <x-field name="reason" label="Motif" :value="$record->reason" />
@@ -35,7 +38,7 @@
                 </div>
                 <div x-show="mode === 'date'"><x-field name="next_check_on" type="date" label="Date du prochain contrôle" :value="$record->next_check_on?->format('Y-m-d')" x-bind:disabled="mode !== 'date'" /></div>
                 <div x-show="mode === 'interval'"><x-checkbox name="remember_frequency" label="Retenir cette fréquence pour ce cheval" help="Active le rappel de suivi de cette catégorie (modifiable dans Santé › Rappels de suivi)." :checked="true" /></div>
-                <p x-show="mode !== 'none'" class="text-xs text-slate-500">Un rappel est ajouté au calendrier et une notification est envoyée avant l'échéance.</p>
+                <p x-show="mode !== 'none'" class="text-xs text-slate-500">Le prochain contrôle est indiqué dans Santé (vous pourrez l'ajouter à l'agenda) et une notification est envoyée avant l'échéance.</p>
                 @error('next_interval_value')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
         </x-section>

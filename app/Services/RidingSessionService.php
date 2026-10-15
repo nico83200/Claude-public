@@ -19,7 +19,8 @@ class RidingSessionService
 {
     public function __construct(private HorseAccess $access) {}
 
-    public static function rules(): array
+    /** @param  string|null  $currentType  type actuel de la séance modifiée (un ancien type reste accepté pour elle) */
+    public static function rules(?string $currentType = null): array
     {
         return [
             'scheduled_at' => ['required', 'date'],
@@ -27,7 +28,7 @@ class RidingSessionService
             'rider_name' => ['nullable', 'string', 'max:100'],
             'instructor' => ['nullable', 'string', 'max:100'],
             'discipline' => ['nullable', Rule::in(array_keys(Horse::DISCIPLINES))],
-            'session_type' => ['required', Rule::in(array_keys(RidingSession::TYPES))],
+            'session_type' => ['required', Rule::in(array_keys(RidingSession::typeOptions($currentType)))],
             'objective' => ['nullable', 'string', 'max:255'],
             'planned_minutes' => ['nullable', 'integer', 'min:1', 'max:600'],
             'location' => ['nullable', 'string', 'max:150'],
@@ -187,7 +188,7 @@ class RidingSessionService
             $copy->scheduled_at = $scheduledAt ?? now()->addDay()->setTime(10, 0);
             $copy->status = 'planned';
             $copy->save();
-            foreach ($source->exercises as $item) {
+            foreach ($copy->usesExercises() ? $source->exercises : [] as $item) {
                 $copy->items()->create($item->only(['exercise_id', 'exercise_version', 'phase', 'position', 'is_break', 'name', 'snapshot', 'planned_minutes', 'planned_repetitions', 'instructions']));
             }
 
@@ -198,7 +199,8 @@ class RidingSessionService
     public function fromTemplate(SessionTemplate $template, Horse $horse, User $user, array $data): RidingSession
     {
         $data += ['session_type' => $template->session_type ?? 'free', 'discipline' => $template->discipline, 'objective' => $template->objective, 'planned_minutes' => $template->planned_minutes];
-        $session = $this->create($horse, $user, $data, $template->items ?? []);
+        // Cours et balade : les exercices du modèle ne sont pas repris.
+        $session = $this->create($horse, $user, $data, RidingSession::typeUsesExercises($data['session_type']) ? ($template->items ?? []) : []);
         $session->update(['template_id' => $template->id]);
 
         return $session;

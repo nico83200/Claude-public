@@ -15,7 +15,7 @@
             <x-section>
                 @include('sessions._details-form', ['returnTo' => 'show'])
             </x-section>
-            <p class="text-sm text-slate-500">Pour changer les exercices, utilisez <a href="{{ route('sessions.edit', $session) }}" class="link">Préparer</a>.</p>
+            @if ($session->usesExercises())<p class="text-sm text-slate-500">Pour changer les exercices, utilisez <a href="{{ route('sessions.edit', $session) }}" class="link">Préparer</a>.</p>@endif
         @endif
     </div>
 </x-layouts.app>

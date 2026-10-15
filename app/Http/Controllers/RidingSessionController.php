@@ -117,6 +117,11 @@ class RidingSessionController extends Controller
             return redirect()->route('sessions.debrief', $session)->with('success', 'Séance passée enregistrée comme terminée : notez les exercices travaillés et votre bilan.');
         }
 
+        // Cours et balade : pas de préparation d'exercices.
+        if (! $session->usesExercises()) {
+            return redirect()->route('sessions.show', $session)->with('success', 'Séance créée. Après la séance, faites directement le bilan.');
+        }
+
         return redirect()->route('sessions.edit', $session)->with('success', 'Séance créée : ajoutez les exercices.');
     }
 
@@ -143,6 +148,10 @@ class RidingSessionController extends Controller
     {
         $this->authorizeEdit($request, $session);
         abort_if($session->isCompleted(), 422, 'Une séance terminée ne peut plus être préparée : dupliquez-la pour en créer une nouvelle.');
+        // Cours et balade : pas de choix d'exercices ; les informations se modifient depuis « Modifier ».
+        if (! $session->usesExercises()) {
+            return redirect()->route('sessions.details', $session);
+        }
         $user = $request->user();
 
         $library = Exercise::visibleTo($user)->whereNull('archived_at')->with('category')->orderBy('name')->get();
@@ -211,7 +220,7 @@ class RidingSessionController extends Controller
         // Après clôture, seules les notes restent modifiables.
         $data = $session->isCompleted()
             ? $request->validate(['notes' => ['nullable', 'string', 'max:10000']])
-            : $request->validate(RidingSessionService::rules() + ['status' => ['nullable', 'in:planned,in_progress,cancelled']]);
+            : $request->validate(RidingSessionService::rules($session->session_type) + ['status' => ['nullable', 'in:planned,in_progress,cancelled']]);
         $session->update($this->sessions->sanitizeRider($session->horse, $data, $request->user()));
         $this->notifyChange($request, $session);
 
@@ -328,7 +337,7 @@ class RidingSessionController extends Controller
         $this->authorizeHorse($session->horse, Perm::SESSIONS_CREATE);
         $copy = $this->sessions->duplicate($session->load('exercises'), $request->user(), $request->input('scheduled_at'));
 
-        return redirect()->route('sessions.edit', $copy)->with('success', 'Nouvelle séance créée à partir de la séance du '.$session->scheduled_at->format('d/m/Y').'. L\'originale est inchangée.');
+        return redirect()->route($copy->usesExercises() ? 'sessions.edit' : 'sessions.show', $copy)->with('success', 'Nouvelle séance créée à partir de la séance du '.$session->scheduled_at->format('d/m/Y').'. L\'originale est inchangée.');
     }
 
     public function comment(Request $request, RidingSession $session)
@@ -364,7 +373,7 @@ class RidingSessionController extends Controller
             'Cheval : '.$horse->shortName().' · '.(Horse::DISCIPLINES[$horse->main_discipline] ?? 'discipline non précisée').' · niveau de travail : '.($horse->work_level ?: 'non précisé').($horse->age() ? ' · '.$horse->age().' ans' : ''),
             $horse->precautions ? 'Précautions : '.$horse->precautions : null,
             'Cavalier : '.($galop ? 'galop '.$galop.' ('.UserProfile::exerciseLevel($galop).')' : 'niveau inconnu'),
-            'Séance : '.(RidingSession::TYPES[$session->session_type] ?? $session->session_type).($session->discipline ? ' · '.(Horse::DISCIPLINES[$session->discipline] ?? $session->discipline) : '').' · durée prévue '.($session->planned_minutes ?: 45).' minutes',
+            'Séance : '.$session->typeLabel().($session->discipline ? ' · '.(Horse::DISCIPLINES[$session->discipline] ?? $session->discipline) : '').' · durée prévue '.($session->planned_minutes ?: 45).' minutes',
             'Objectif : '.($session->objective ?: 'non précisé (travail général adapté)'),
             $session->exercises->isNotEmpty() ? 'Déjà prévu : '.$session->exercises->pluck('name')->implode(', ') : null,
             $recent->isNotEmpty() ? "Dernières séances :\n".$recent->map(fn ($s) => '- '.$s->scheduled_at->format('d/m').' '.($s->objective ?: '').($s->progress ? ' · progrès : '.$s->progress : '').($s->difficulties ? ' · difficultés : '.$s->difficulties : '').($s->to_rework ? ' · à retravailler : '.$s->to_rework : ''))->implode("\n") : null,

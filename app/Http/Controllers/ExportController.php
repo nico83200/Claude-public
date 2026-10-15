@@ -9,6 +9,7 @@ use App\Models\Expense;
 use App\Models\HealthObservation;
 use App\Models\Horse;
 use App\Models\HorseAccessGrant;
+use App\Models\Income;
 use App\Models\RidingSession;
 use App\Models\SessionComment;
 use App\Services\Audit;
@@ -103,6 +104,7 @@ class ExportController extends Controller
             'observations' => HealthObservation::where('author_id', $user->id)->get(['body', 'severity', 'observed_at']),
             'daily_logs' => DailyLog::where('author_id', $user->id)->get(['logged_at', 'appetite', 'general_state', 'behavior', 'observations']),
             'expenses_entered' => Expense::where('author_id', $user->id)->get(['spent_on', 'amount', 'currency', 'supplier', 'comment']),
+            'incomes_entered' => Income::where('author_id', $user->id)->get(['received_on', 'category', 'amount', 'payer', 'comment']),
             'access_grants_received' => HorseAccessGrant::with('horse:id,official_name')->where('user_id', $user->id)->get()->map(fn ($g) => ['horse' => $g->horse?->official_name, 'permissions' => $g->permissions, 'starts_at' => $g->starts_at, 'expires_at' => $g->expires_at, 'revoked_at' => $g->revoked_at]),
             'security_log' => AuditLog::where('user_id', $user->id)->latest('created_at')->limit(500)->get(['action', 'ip_address', 'created_at']),
             'notifications' => $user->notifications()->limit(500)->get(['data', 'created_at', 'read_at']),

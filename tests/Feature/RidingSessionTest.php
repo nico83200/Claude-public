@@ -18,7 +18,7 @@ class RidingSessionTest extends TestCase
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
-        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d H:i'), 'session_type' => 'dressage', 'objective' => 'Transitions', 'planned_minutes' => 45])->assertRedirect();
+        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->format('Y-m-d H:i'), 'session_type' => 'free', 'objective' => 'Transitions', 'planned_minutes' => 45])->assertRedirect();
 
         return [$user, $horse, RidingSession::firstOrFail()];
     }
@@ -72,7 +72,7 @@ class RidingSessionTest extends TestCase
     {
         $user = $this->user();
         $horse = $this->horseFor($user);
-        $res = $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d H:i'), 'session_type' => 'dressage', 'planned_minutes' => 45]);
+        $res = $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d H:i'), 'session_type' => 'free', 'planned_minutes' => 45]);
         $session = RidingSession::latest('id')->firstOrFail();
         $res->assertRedirect(route('sessions.edit', $session));
 

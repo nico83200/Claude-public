@@ -66,12 +66,12 @@ class CareExpenseSyncTest extends TestCase
     public function test_past_sessions_are_completed_and_form_defaults(): void
     {
         [$user, $horse] = $this->setUpOwner();
-        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->subDay()->format('Y-m-d').' 10:00', 'session_type' => 'dressage', 'planned_minutes' => 45])
+        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->subDay()->format('Y-m-d').' 10:00', 'session_type' => 'free', 'planned_minutes' => 45])
             ->assertRedirect()->assertSessionHas('success', fn ($m) => str_contains($m, 'terminée'));
         $past = RidingSession::where('horse_id', $horse->id)->sole();
         $this->assertSame('completed', $past->status);
         $this->assertSame('done', CalendarEvent::where('source_id', $past->id)->where('source_type', $past->getMorphClass())->sole()->status);
-        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'dressage', 'planned_minutes' => 45]);
+        $this->actingAs($user)->post('/seances', ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d').' 10:00', 'session_type' => 'free', 'planned_minutes' => 45]);
         $this->assertSame('planned', RidingSession::where('horse_id', $horse->id)->where('scheduled_at', '>', now())->sole()->status);
 
         // Nouveau soin : « Dans un délai » et dépense cochée par défaut.

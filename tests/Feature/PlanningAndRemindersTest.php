@@ -19,7 +19,7 @@ class PlanningAndRemindersTest extends TestCase
 {
     private function newSession($user, $horse, array $extra = []): RidingSession
     {
-        $this->actingAs($user)->post('/seances', $extra + ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d 18:00'), 'session_type' => 'dressage', 'objective' => 'Transitions', 'planned_minutes' => 45])->assertRedirect();
+        $this->actingAs($user)->post('/seances', $extra + ['horse_id' => $horse->id, 'scheduled_at' => now()->addDay()->format('Y-m-d 18:00'), 'session_type' => 'free', 'objective' => 'Transitions', 'planned_minutes' => 45])->assertRedirect();
 
         return RidingSession::latest('id')->firstOrFail();
     }

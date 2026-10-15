@@ -50,7 +50,7 @@
             <x-section title="90 derniers jours">
                 <p class="text-3xl font-bold">{{ $stats['count_90'] }} <span class="text-base font-normal text-slate-500">séances</span></p>
                 <p class="text-sm text-slate-600">{{ intdiv($stats['minutes_90'], 60) }} h {{ $stats['minutes_90'] % 60 }} min de travail</p>
-                <div class="mt-3 space-y-1 text-sm">@foreach ($stats['by_type'] as $type => $c)<div class="flex justify-between"><span>{{ \App\Models\RidingSession::TYPES[$type] ?? $type }}</span><span class="font-medium">{{ $c }}</span></div>@endforeach</div>
+                <div class="mt-3 space-y-1 text-sm">@foreach ($stats['by_type'] as $type => $c)<div class="flex justify-between"><span>{{ \App\Models\RidingSession::allTypes()[$type] ?? $type }}</span><span class="font-medium">{{ $c }}</span></div>@endforeach</div>
             </x-section>
             <x-section title="Fréquence et durée (12 semaines)">
                 @php $max = max(1, $stats['by_week']->max('minutes') ?? 1); @endphp

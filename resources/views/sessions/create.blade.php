@@ -1,6 +1,7 @@
 <x-layouts.app title="Nouvelle séance">
     <x-page-header title="Nouvelle séance" :back="route('sessions.index')" />
-    <form method="POST" action="{{ route('sessions.store') }}" class="space-y-4">
+    @php $typeAsked = array_key_exists((string) request('type'), \App\Models\RidingSession::TYPES) ? request('type') : 'free'; @endphp
+    <form method="POST" action="{{ route('sessions.store') }}" class="space-y-4" x-data="{ t: @js(old('session_type', $typeAsked)), noExercises: @js(\App\Models\RidingSession::WITHOUT_EXERCISES) }">
         @csrf
         <x-section>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -9,8 +10,7 @@
                 @if ($templates->isNotEmpty())
                     <x-select name="template_id" label="Partir d'un modèle" :options="$templates" placeholder="Aucun (séance vierge)" class="sm:col-span-2" help="Les exercices du modèle sont copiés ; le modèle n'est pas modifié." />
                 @endif
-                @php $typeAsked = array_key_exists((string) request('type'), \App\Models\RidingSession::TYPES) ? request('type') : 'free'; @endphp
-                <div x-data="{ t: @js(old('session_type', $typeAsked)) }" class="contents">
+                <div class="contents">
                     <x-select name="session_type" label="Type de séance" :options="\App\Models\RidingSession::TYPES" :value="$typeAsked" required x-model="t" />
                     <div x-show="t === 'private_lesson' || t === 'group_lesson'" x-cloak><x-instructor-field /></div>
                 </div>
@@ -23,6 +23,7 @@
                 <x-textarea name="precautions" label="Précautions" class="sm:col-span-2" />
             </div>
         </x-section>
-        <button class="btn-primary">Créer et préparer les exercices</button>
+        <p x-show="noExercises.includes(t)" x-cloak class="text-sm text-slate-500" data-no-exercises>Cours et balade : pas de choix d'exercices à préparer. Après la séance, faites directement le bilan.</p>
+        <button class="btn-primary" x-text="noExercises.includes(t) ? 'Créer la séance' : 'Créer et préparer les exercices'">Créer et préparer les exercices</button>
     </form>
 </x-layouts.app>

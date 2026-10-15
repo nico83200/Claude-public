@@ -38,7 +38,7 @@
                 </div>
             @endif
         @endforeach
-        @if ($session->exercises->isEmpty())<x-empty title="Aucun exercice préparé"><x-slot:actions><a href="{{ route('sessions.edit', $session) }}" class="btn-primary">Préparer la séance</a></x-slot:actions></x-empty>@endif
+        @if ($session->exercises->isEmpty() && $session->usesExercises())<x-empty title="Aucun exercice préparé"><x-slot:actions><a href="{{ route('sessions.edit', $session) }}" class="btn-primary">Préparer la séance</a></x-slot:actions></x-empty>@endif
         <a href="{{ route('sessions.debrief', $session) }}" class="btn-primary big-touch mt-6 w-full">Terminer et faire le bilan</a>
     </div>
     @push('scripts')

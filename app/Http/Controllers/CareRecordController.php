@@ -14,6 +14,7 @@ use App\Services\Audit;
 use App\Services\CalendarService;
 use App\Services\CareCalendarSync;
 use App\Services\CareReminders;
+use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -269,6 +270,9 @@ class CareRecordController extends Controller
             'event' => null,
             'linkedExpense' => $record->exists ? Expense::where('care_record_id', $record->id)->first() : null,
             'defaultMode' => $this->defaultNextMode($horse, $record),
+            // Rythme habituel de chaque catégorie, en simple information à la création d'un soin.
+            'rhythms' => $record->exists ? [] : app(CareRhythm::class)->forHorse($horse)->mapWithKeys(fn ($r) => [(string) $r['category']->id => 'Rythme habituel : toutes les '.$r['label']
+                .' en moyenne ('.$r['count'].' passages) · dernier le '.$r['last']->format('d/m/Y').' · prochain vers le '.$r['next']->format('d/m/Y').'.'])->all(),
         ];
     }
 

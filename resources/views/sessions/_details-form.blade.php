@@ -3,7 +3,7 @@
     @csrf @method('PUT')
     @isset($returnTo)<input type="hidden" name="return_to" value="{{ $returnTo }}">@endisset
     <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="$session->scheduled_at->format('Y-m-d\TH:i')" required />
-    <x-select name="session_type" label="Type" :options="\App\Models\RidingSession::TYPES" :value="$session->session_type" required />
+    <x-select name="session_type" label="Type" :options="\App\Models\RidingSession::typeOptions($session->session_type)" :value="$session->session_type" required />
     <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" :value="$session->discipline" placeholder="—" />
     <x-select name="rider_id" label="Cavalier" :options="$riders" :value="$session->rider_id" placeholder="—" />
     @if ($session->isLesson())<x-instructor-field :value="$session->instructor" />@endif

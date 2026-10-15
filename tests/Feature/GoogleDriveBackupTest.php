@@ -102,7 +102,7 @@ class GoogleDriveBackupTest extends TestCase
 
     private function connect(User $admin): string
     {
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/sauvegardes/google')->assertRedirect();
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->post('/admin/sauvegardes/google')->assertRedirect();
         $state = session('backup_oauth_state');
 
         return $state;
@@ -144,19 +144,19 @@ class GoogleDriveBackupTest extends TestCase
     {
         $admin = $this->admin();
         $this->actingAs($this->user())->get('/admin/sauvegardes')->assertNotFound();
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/sauvegardes')->assertOk()->assertSee('data-connect-drive', false);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->get('/admin/sauvegardes')->assertOk()->assertSee('data-connect-drive', false);
 
-        $redirect = $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/sauvegardes/google')->headers->get('Location');
+        $redirect = $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->post('/admin/sauvegardes/google')->headers->get('Location');
         $this->assertStringStartsWith('https://accounts.google.com/o/oauth2/v2/auth?', $redirect);
         parse_str(parse_url($redirect, PHP_URL_QUERY), $q);
         $this->assertSame(['https://www.googleapis.com/auth/drive.file openid email', 'offline', route('admin.backups.callback')], [$q['scope'], $q['access_type'], $q['redirect_uri']]);
 
         // Retour avec un mauvais « state » : refusé.
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => 'abc'])
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => 'abc'])
             ->get('/admin/sauvegardes/google/retour?state=autre&code=c')->assertRedirect()->assertSessionHas('error');
         $this->assertNull(ApplicationSetting::get('backup.google_refresh_token'));
 
-        $page = $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => $q['state']])
+        $page = $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => $q['state']])
             ->get('/admin/sauvegardes/google/retour?state='.$q['state'].'&code=code-google')->assertRedirect(route('admin.backups.index'));
         $page->assertSessionHas('success', 'Google Drive connecté (sauvegardes@exemple.fr).')->assertSessionHas('show_key', true);
         // Jeton et clé stockés chiffrés, jamais en clair en base.
@@ -168,17 +168,17 @@ class GoogleDriveBackupTest extends TestCase
         $this->assertSame('folder-1', ApplicationSetting::get('backup.folder_id'));
 
         // La clé s'affiche juste après la connexion, puis seulement à la demande.
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/sauvegardes')->assertOk()->assertSee($key)->assertSee('data-backup-key', false);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/sauvegardes')->assertOk()->assertDontSee($key)->assertSee('sauvegardes@exemple.fr');
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/sauvegardes/cle')->assertSessionHas('show_key', true);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'show_key' => true])->get('/admin/sauvegardes')->assertSee($key);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->get('/admin/sauvegardes')->assertOk()->assertSee($key)->assertSee('data-backup-key', false);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->get('/admin/sauvegardes')->assertOk()->assertDontSee($key)->assertSee('sauvegardes@exemple.fr');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->post('/admin/sauvegardes/cle')->assertSessionHas('show_key', true);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'show_key' => true])->get('/admin/sauvegardes')->assertSee($key);
     }
 
     public function test_nightly_backup_is_encrypted_uploaded_and_old_ones_pruned(): void
     {
         $admin = $this->admin();
         $state = $this->connect($admin);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
         $key = app(BackupService::class)->key();
         $this->driveFiles = [
             ['id' => 'old-base', 'name' => 'jackcie-base-2026-08-01-0300.sql.gz.jcbk', 'createdTime' => now()->subDays(45)->toIso8601String(), 'size' => '10'],
@@ -219,7 +219,7 @@ class GoogleDriveBackupTest extends TestCase
         // Même nuit : pas de seconde sauvegarde ; demande depuis l'administration : partie dans la minute.
         $this->artisan('backup:run', ['--auto' => true])->assertSuccessful();
         $this->assertSame(2, BackupRun::count());
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->post('/admin/sauvegardes/lancer')->assertSessionHas('success');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->post('/admin/sauvegardes/lancer')->assertSessionHas('success');
         $this->artisan('backup:run', ['--auto' => true])->assertSuccessful();
         $this->assertSame(3, BackupRun::count());
         $this->assertSame('database', BackupRun::latest('id')->first()->kind);
@@ -230,7 +230,7 @@ class GoogleDriveBackupTest extends TestCase
     {
         $admin = $this->admin();
         $state = $this->connect($admin);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
         Notification::fake();
         $this->failUpload = true;
 
@@ -240,7 +240,7 @@ class GoogleDriveBackupTest extends TestCase
         $this->assertStringContainsString('quota', $run->error);
         Notification::assertSentTo($admin, AppNotification::class, fn ($n) => $n->kind === 'system_alert' && str_contains($n->body, 'quota'));
         $this->assertDirectoryDoesNotExist(storage_path('app/backups-tmp'));
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/sauvegardes')->assertSee('data-backup-run="failed"', false);
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->get('/admin/sauvegardes')->assertSee('data-backup-run="failed"', false);
 
         // 48 heures sans sauvegarde réussie : alerte de la surveillance.
         ApplicationSetting::put('monitor_enabled', true);
@@ -253,7 +253,7 @@ class GoogleDriveBackupTest extends TestCase
     {
         $admin = $this->admin();
         $state = $this->connect($admin);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
         $drive = app(GoogleDrive::class);
         $drive->chunkSize = 262144;
         $file = tempnam(sys_get_temp_dir(), 'jcbk');
@@ -270,12 +270,12 @@ class GoogleDriveBackupTest extends TestCase
     {
         $admin = $this->admin();
         $state = $this->connect($admin);
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp(), 'backup_oauth_state' => $state])->get('/admin/sauvegardes/google/retour?state='.$state.'&code=c');
         $this->assertTrue(app(BackupService::class)->ready());
         // Mentionné dans la liste des sous-traitants.
         $this->get('/confidentialite')->assertSee('Google Drive');
 
-        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->delete('/admin/sauvegardes/google')->assertSessionHas('success');
+        $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => now()->getTimestamp()])->delete('/admin/sauvegardes/google')->assertSessionHas('success');
         $this->assertTrue(collect($this->calls)->contains(fn ($c) => str_starts_with($c['url'], 'https://oauth2.googleapis.com/revoke')));
         $this->assertFalse(app(BackupService::class)->ready());
         $this->artisan('backup:run', ['--auto' => true])->assertSuccessful();
