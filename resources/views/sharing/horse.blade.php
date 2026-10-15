@@ -17,7 +17,7 @@
                                 <p class="mt-1 text-xs">{{ collect($g->permissions)->map(fn ($p) => $labels[$p] ?? $p)->implode(' · ') }}</p></div>
                             @if (! $g->revoked_at)
                                 <div class="flex gap-1"><button @click="edit = ! edit" class="btn-ghost text-sm">Droits</button>
-                                    <form method="POST" action="{{ route('horses.sharing.grants.revoke', [$horse, $g]) }}" onsubmit="return confirm('Révoquer cet accès immédiatement ?')">@csrf<button class="btn-ghost text-sm text-red-600">Révoquer</button></form></div>
+                                    <form method="POST" action="{{ route('horses.sharing.grants.revoke', [$horse, $g]) }}" data-confirm="Révoquer cet accès immédiatement ?" data-confirm-ok="Révoquer">@csrf<button class="btn-ghost text-sm text-red-600">Révoquer</button></form></div>
                             @endif
                         </div>
                         @if (! $g->revoked_at)
@@ -46,7 +46,7 @@
                                 <span class="block text-xs text-slate-500">{{ $a->starts_at?->format('d/m/Y') }} {{ $a->ends_at ? '→ '.$a->ends_at->format('d/m/Y') : '' }}</span></span>
                             @if (in_array($a->status, ['pending', 'active']))
                                 <span class="flex gap-1"><button @click="edit = ! edit" class="btn-ghost text-sm">Droits</button>
-                                    <form method="POST" action="{{ route('assignments.end', $a) }}" onsubmit="return confirm('Mettre fin à la prise en charge ? L\'écurie perdra l\'accès ; l\'historique est conservé.')">@csrf<button class="btn-ghost text-sm text-red-600">Terminer</button></form></span>
+                                    <form method="POST" action="{{ route('assignments.end', $a) }}" data-confirm="Mettre fin à la prise en charge ? L'écurie perdra l'accès ; l'historique est conservé." data-confirm-ok="Mettre fin">@csrf<button class="btn-ghost text-sm text-red-600">Terminer</button></form></span>
                             @endif
                         </div>
                         @if (in_array($a->status, ['pending', 'active']))

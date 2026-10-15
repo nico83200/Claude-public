@@ -37,7 +37,7 @@
                     @if ($horse->isArchived())
                         <form method="POST" action="{{ route('horses.unarchive', $horse) }}">@csrf<button class="menu-item" role="menuitem"><x-icon name="refresh" class="size-4 text-slate-400" /> Restaurer le dossier</button></form>
                     @else
-                        <form method="POST" action="{{ route('horses.archive', $horse) }}" onsubmit="return confirm('Archiver ce cheval ? Son dossier sera conservé en lecture seule.')">@csrf<button class="menu-item" role="menuitem"><x-icon name="archive" class="size-4 text-slate-400" /> Archiver (départ, vente…)</button></form>
+                        <form method="POST" action="{{ route('horses.archive', $horse) }}" data-confirm="Archiver ce cheval ? Son dossier sera conservé en lecture seule." data-confirm-ok="Archiver">@csrf<button class="menu-item" role="menuitem"><x-icon name="archive" class="size-4 text-slate-400" /> Archiver (départ, vente…)</button></form>
                     @endif
                     <a href="{{ route('horses.show', $horse) }}#gestion" class="menu-item text-red-600" role="menuitem"><x-icon name="trash" class="size-4" /> Transférer ou supprimer…</a>
                 @endif

@@ -41,7 +41,7 @@
                     <li>• Sur Android, ajoutez l'agenda depuis Google Agenda sur ordinateur : il apparaît ensuite sur le téléphone.</li>
                     <li>• Cette adresse est personnelle : ne la partagez pas.</li>
                 </ul>
-                <form method="POST" action="{{ route('calendar.feed.regenerate') }}" class="mt-4 border-t border-slate-100 pt-3" onsubmit="return confirm('Créer une nouvelle adresse ? L\'ancienne cessera de fonctionner dans les agendas où elle est ajoutée.')">
+                <form method="POST" action="{{ route('calendar.feed.regenerate') }}" class="mt-4 border-t border-slate-100 pt-3" data-confirm="Créer une nouvelle adresse ? L'ancienne cessera de fonctionner dans les agendas où elle est ajoutée." data-confirm-ok="Créer une nouvelle adresse">
                     @csrf
                     <button class="text-xs font-medium text-slate-600 underline">Adresse partagée par erreur ? En créer une nouvelle</button>
                 </form>

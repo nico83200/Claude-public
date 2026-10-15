@@ -86,14 +86,18 @@
             @if ($canHealth)
             <x-section title="Historique des soins">
                 <form method="GET" class="mb-3"><x-select name="category" :options="$categories" :value="request('category')" placeholder="Toutes les catégories" onchange="this.form.submit()" aria-label="Catégorie" /></form>
+                <x-swipe.list hint-key="jc-hint-swipe-care" :hint="$canEdit && $records->isNotEmpty() ? 'glissez un soin vers la gauche pour le supprimer. Vous pourrez annuler juste après.' : null">
                 @forelse ($records as $r)
-                    <a href="{{ route('horses.care.show', [$horse, $r]) }}" class="flex items-start justify-between gap-3 border-t border-slate-100 py-3 text-sm first:border-0 hover:bg-slate-50">
+                    <x-swipe.row :delete-url="$canEdit ? route('horses.care.destroy', [$horse, $r]) : null" :text="'Soin du '.$r->performed_at->format('d/m/Y').' supprimé'" rounded="" surface="bg-white" class="border-t border-slate-100 first:border-0">
+                    <a href="{{ route('horses.care.show', [$horse, $r]) }}" class="flex items-start justify-between gap-3 py-3 text-sm hover:bg-slate-50" draggable="false">
                         <span class="min-w-0"><x-badge color="brand">{{ $r->category->name }}</x-badge> <span class="font-medium">{{ $r->reason }}</span>
                             <span class="block truncate text-xs text-slate-500">{{ $r->professional?->fullName() }} {{ $r->care_performed ? '· '.\Illuminate\Support\Str::limit($r->care_performed, 90) : '' }}</span>
                             @if ($r->next_check_on && ! $r->next_check_done_at)<span class="block text-xs {{ $r->next_check_on->isPast() ? 'text-red-600' : 'text-amber-700' }}">Prochain contrôle : {{ $r->next_check_on->format('d/m/Y') }}</span>@endif</span>
                         <span class="shrink-0 text-right text-xs text-slate-500">{{ $r->performed_at->format('d/m/Y') }}@if ($r->cost)<br>{{ number_format((float) $r->cost, 2, ',', ' ') }} €@endif</span>
                     </a>
+                    </x-swipe.row>
                 @empty <p class="text-sm text-slate-500">Aucun soin enregistré.</p> @endforelse
+                </x-swipe.list>
                 {{ $records?->links() }}
             </x-section>
             @endif

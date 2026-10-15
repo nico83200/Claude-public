@@ -53,7 +53,7 @@
                                 <form method="POST" action="{{ route('assignments.decline', $a) }}">@csrf<button class="btn-ghost text-sm">Refuser</button></form>
                             @elseif ($a->status === 'active')
                                 <a href="{{ route('horses.show', $a->horse) }}" class="btn-secondary text-sm">Ouvrir</a>
-                                @if ($canManage)<form method="POST" action="{{ route('assignments.end', $a) }}" onsubmit="return confirm('Mettre fin à la prise en charge ?')">@csrf<button class="btn-ghost text-sm">Départ</button></form>@endif
+                                @if ($canManage)<form method="POST" action="{{ route('assignments.end', $a) }}" data-confirm="Mettre fin à la prise en charge ?" data-confirm-ok="Mettre fin">@csrf<button class="btn-ghost text-sm">Départ</button></form>@endif
                             @endif
                         </span>
                     </div>

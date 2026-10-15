@@ -25,28 +25,11 @@
     @if ($sessions->isEmpty())
         <x-empty title="Aucune séance" icon="session">Préparez une séance, réalisez-la avec le mode séance sur téléphone puis faites le bilan.</x-empty>
     @else
-        <div x-data="swipeList({ hintKey: 'jc-hint-swipe-sessions' })" @swipe-deleted="deleted($event.detail)" @swipe-failed="failed($event.detail)">
-            @if (count($deletable))
-                {{-- Astuce affichée sur téléphone et tablette jusqu'à ce que le geste soit utilisé ou l'astuce fermée. --}}
-                <div x-show="hint" x-cloak class="mb-3 flex items-center gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" data-swipe-hint>
-                    <x-icon name="arrow-left" class="size-5 shrink-0 text-brand-700" />
-                    <p class="flex-1"><strong>Astuce :</strong> glissez une séance vers la gauche pour la supprimer. Vous pourrez annuler juste après.</p>
-                    <button type="button" class="btn-ghost min-h-9 shrink-0 px-2 text-sm" @click="dismissHint()">Compris</button>
-                </div>
-            @endif
+        <x-swipe.list hint-key="jc-hint-swipe-sessions" :hint="count($deletable) ? 'glissez une séance vers la gauche pour la supprimer. Vous pourrez annuler juste après.' : null">
             <div class="space-y-2">
                 @foreach ($sessions as $s)
-                    @php $deletableRow = in_array($s->id, $deletable, true); @endphp
-                    <div class="relative" @if ($deletableRow) data-swipe-row x-data="swipeRow({ deleteUrl: @js(route('sessions.destroy', $s)), text: @js('Séance du '.$s->scheduled_at->format('d/m').' supprimée') })" x-show="! gone" x-transition:leave="transition duration-300" x-transition:leave-end="opacity-0 scale-y-75" @endif>
-                        @if ($deletableRow)
-                            {{-- Action révélée par le glissé (invisible au repos et à la souris). --}}
-                            <div class="absolute inset-0 flex items-center justify-end overflow-hidden rounded-3xl bg-red-600 transition-opacity" :class="x < 0 ? 'opacity-100' : 'opacity-0'" aria-hidden="true">
-                                <button type="button" data-swipe-action @click="remove()" :tabindex="open ? 0 : -1" class="flex h-full w-24 flex-col items-center justify-center gap-1 text-xs font-semibold text-white">
-                                    <x-icon name="trash" class="size-5" /> Supprimer
-                                </button>
-                            </div>
-                        @endif
-                        <a href="{{ route('sessions.show', $s) }}" class="card relative flex items-center gap-4 p-4 transition hover:shadow-md" @if ($deletableRow) :style="style()" style="touch-action: pan-y; -webkit-user-drag: none; -webkit-touch-callout: none" draggable="false" @endif>
+                    <x-swipe.row :delete-url="in_array($s->id, $deletable, true) ? route('sessions.destroy', $s) : null" :text="'Séance du '.$s->scheduled_at->format('d/m').' supprimée'">
+                        <a href="{{ route('sessions.show', $s) }}" class="card relative flex items-center gap-4 p-4 transition hover:shadow-md" draggable="false">
                             <div class="flex size-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-brand-50 text-brand-800"><span class="text-lg leading-none font-bold">{{ $s->scheduled_at->format('d') }}</span><span class="text-[10px] font-medium uppercase">{{ $s->scheduled_at->translatedFormat('M') }}</span></div>
                             <div class="min-w-0 flex-1">
                                 <p class="font-semibold text-slate-900">@unless ($contextHorse){{ $s->horse->shortName() }} · @endunless{{ $s->typeLabel() }}</p>
@@ -55,15 +38,10 @@
                             </div>
                             <x-badge :color="['completed' => 'green', 'in_progress' => 'amber', 'cancelled' => 'red'][$s->status] ?? 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge>
                         </a>
-                    </div>
+                    </x-swipe.row>
                 @endforeach
             </div>
-            {{-- Message après suppression, avec « Annuler » (au-dessus de la barre du bas). --}}
-            <div x-show="toast" x-cloak x-transition.opacity class="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom)+6.5rem)] z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-sm text-white shadow-lg lg:bottom-8" :class="toast?.error ? 'bg-red-700' : 'bg-slate-900'" role="status" aria-live="polite" data-swipe-toast>
-                <span class="flex-1" x-text="toast?.text"></span>
-                <button type="button" x-show="toast?.restoreUrl" @click="undo()" class="font-semibold text-gold-200 underline-offset-4 hover:underline">Annuler</button>
-            </div>
-        </div>
+        </x-swipe.list>
         <div class="mt-4">{{ $sessions->links() }}</div>
     @endif
     @if ($stats)

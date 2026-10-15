@@ -67,12 +67,23 @@
                 @if ($horse->photos->isEmpty())<p class="text-sm text-slate-500">Aucune photo pour le moment.</p>@endif
                 <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     @foreach ($horse->photos as $photo)
-                        <div class="group relative">
+                        @php $isMain = $horse->main_photo_path === (string) $photo->id; @endphp
+                        <div class="group relative" data-photo="{{ $photo->id }}">
                             <a href="{{ route('horses.photos.show', [$horse, $photo]) }}" data-lightbox="photos-{{ $horse->id }}" data-caption="{{ $photo->caption }}"><img src="{{ route('horses.photos.show', [$horse, $photo]) }}?thumb=1" alt="{{ $photo->caption }}" loading="lazy" class="aspect-square w-full rounded-lg object-cover"></a>
+                            @if ($isMain)<span class="pointer-events-none absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full bg-slate-900/70 px-2 py-0.5 text-[11px] font-medium text-white"><x-icon name="star" fill="currentColor" class="size-3" /> Principale</span>@endif
                             @if ($can('horse.edit'))
-                                <div class="mt-1 flex gap-1 text-xs">
-                                    @if ($horse->main_photo_path !== (string) $photo->id)<form method="POST" action="{{ route('horses.photos.main', [$horse, $photo]) }}">@csrf<button class="link">Principale</button></form>@endif
-                                    <x-confirm-delete :action="route('horses.photos.destroy', [$horse, $photo])" class="text-red-600" message="Supprimer cette photo ?">Suppr.</x-confirm-delete>
+                                {{-- Boutons de 44 px, écartés : pas de suppression par erreur au doigt (confirmation dans l'application). --}}
+                                <div class="mt-1 flex items-center justify-between">
+                                    @unless ($isMain)
+                                        <form method="POST" action="{{ route('horses.photos.main', [$horse, $photo]) }}">@csrf
+                                            <button class="flex size-11 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-700" aria-label="Choisir comme photo principale" title="Choisir comme photo principale"><x-icon name="star" class="size-5" /></button>
+                                        </form>
+                                    @else
+                                        <span></span>
+                                    @endunless
+                                    <form method="POST" action="{{ route('horses.photos.destroy', [$horse, $photo]) }}" data-confirm="Supprimer cette photo ? Elle sera définitivement effacée." data-confirm-ok="Supprimer">@csrf @method('DELETE')
+                                        <button class="flex size-11 items-center justify-center rounded-full text-red-600 hover:bg-red-50" aria-label="Supprimer la photo" title="Supprimer la photo"><x-icon name="trash" class="size-5" /></button>
+                                    </form>
                                 </div>
                             @endif
                         </div>
@@ -133,7 +144,7 @@
                 <summary class="flex cursor-pointer list-none items-center justify-between text-[17px] font-semibold text-slate-900">Gestion du dossier <x-icon name="chevron" class="size-5 text-slate-400 transition group-open:rotate-90" /></summary>
                 <div class="mt-4 space-y-5 text-sm">
                     @if ($transferTargets->isNotEmpty())
-                        <form method="POST" action="{{ route('horses.transfer', $horse) }}" class="space-y-2" onsubmit="return confirm('Transférer la gestion de ce cheval ? L\'historique est conservé.')">
+                        <form method="POST" action="{{ route('horses.transfer', $horse) }}" class="space-y-2" data-confirm="Transférer la gestion de ce cheval ? L'historique est conservé." data-confirm-ok="Transférer">
                             @csrf
                             <x-select name="organization_id" label="Transférer la gestion vers" :options="$transferTargets->pluck('name', 'id')" />
                             <button class="btn-secondary w-full">Transférer</button>

@@ -32,9 +32,9 @@
                             @if ($g->paused_at)
                                 <form method="POST" action="{{ route('sharing.received.resume', $g) }}">@csrf<button class="btn-secondary min-h-9 px-3 text-sm">Reprendre</button></form>
                             @else
-                                <form method="POST" action="{{ route('sharing.received.pause', $g) }}" onsubmit="return confirm(@js('Suspendre votre accès à '.$g->horse->shortName().' ? Le cheval n\'apparaîtra plus dans votre compte et vous ne recevrez plus ses rappels, jusqu\'à ce que vous le repreniez.'))">@csrf<button class="btn-ghost min-h-9 px-3 text-sm">Suspendre</button></form>
+                                <form method="POST" action="{{ route('sharing.received.pause', $g) }}" data-confirm="{{ 'Suspendre votre accès à '.$g->horse->shortName().' ? Le cheval n\'apparaîtra plus dans votre compte et vous ne recevrez plus ses rappels, jusqu\'à ce que vous le repreniez.' }}" data-confirm-ok="Suspendre" data-confirm-tone="neutral">@csrf<button class="btn-ghost min-h-9 px-3 text-sm">Suspendre</button></form>
                             @endif
-                            <form method="POST" action="{{ route('sharing.received.leave', $g) }}" onsubmit="return confirm(@js('Quitter définitivement le partage de '.$g->horse->shortName().' ? Pour le retrouver, le propriétaire devra vous inviter à nouveau.'))">@csrf<button class="btn-ghost min-h-9 px-3 text-sm text-red-600">Quitter</button></form>
+                            <form method="POST" action="{{ route('sharing.received.leave', $g) }}" data-confirm="{{ 'Quitter définitivement le partage de '.$g->horse->shortName().' ? Pour le retrouver, le propriétaire devra vous inviter à nouveau.' }}" data-confirm-ok="Quitter le partage">@csrf<button class="btn-ghost min-h-9 px-3 text-sm text-red-600">Quitter</button></form>
                         </div>
                     </div>
                 </div>

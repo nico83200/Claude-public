@@ -22,7 +22,7 @@
                     @if ($subscription->cancel_at_period_end)
                         <form method="POST" action="{{ route('billing.resume') }}">@csrf<button class="btn-primary">Reprendre l'abonnement</button></form>
                     @else
-                        <form method="POST" action="{{ route('billing.cancel') }}" onsubmit="return confirm('Résilier à la fin de la période en cours ?')">@csrf<button class="btn-ghost text-red-600">Résilier</button></form>
+                        <form method="POST" action="{{ route('billing.cancel') }}" data-confirm="Résilier à la fin de la période en cours ?" data-confirm-ok="Résilier">@csrf<button class="btn-ghost text-red-600">Résilier</button></form>
                     @endif
                 </div>
             @endif

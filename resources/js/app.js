@@ -13,8 +13,11 @@ import { contactImport, contactFormStore } from './contacts.js';
 import { startLightbox } from './lightbox.js';
 import { weightChart } from './weight-chart.js';
 import { swipeList, swipeRow } from './swipe-delete.js';
+import { startConfirm } from './confirm.js';
 
 window.Alpine = Alpine;
+// Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
+startConfirm();
 
 Alpine.data('sessionPlanner', sessionPlanner);
 Alpine.data('careNext', careNext);

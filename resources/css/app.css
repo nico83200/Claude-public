@@ -135,6 +135,21 @@ input[type=date]:invalid, input[type=time]:invalid { color: var(--color-slate-40
 }
 
 /* Menus déroulants (resources/js/select-enhance.js) */
+/* Ligne à glisser pour supprimer (resources/js/swipe-delete.js) : le défilement vertical reste au navigateur,
+   le glissé horizontal est suivi par l'application ; pas de glisser-déposer ni de menu de lien pendant le geste. */
+[data-swipe-row], .jc-swipe-layer { touch-action: pan-y; }
+.jc-swipe-layer, .jc-swipe-layer a { -webkit-user-drag: none; -webkit-touch-callout: none; }
+
+/* Fenêtre de confirmation (resources/js/confirm.js) */
+.jc-confirm { margin: auto; padding: 0; border: 0; border-radius: 1.5rem; width: min(26rem, calc(100vw - 2rem)); background: var(--color-white); color: var(--color-slate-900); box-shadow: 0 24px 60px rgb(0 0 0 / .25); }
+.jc-confirm::backdrop { background: rgb(15 23 18 / .5); }
+.jc-confirm[open] { animation: jc-confirm-in .16s ease-out; }
+@keyframes jc-confirm-in { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+.jc-confirm-box { padding: 1.5rem 1.25rem 1.25rem; }
+.jc-confirm-text { font-size: 1rem; line-height: 1.5; white-space: pre-line; }
+.jc-confirm-actions { display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; gap: .5rem; margin-top: 1.25rem; }
+@media (max-width: 30rem) { .jc-confirm-actions > * { flex: 1 1 8rem; } }
+
 .jc-select { position: relative; }
 .jc-select-native { position: absolute !important; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
 .jc-select-button { display: flex; align-items: center; gap: .5rem; text-align: left; cursor: pointer; }

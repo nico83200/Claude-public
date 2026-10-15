@@ -138,14 +138,31 @@ class CareRecordController extends Controller
         return redirect()->route('horses.care.show', [$horse, $care])->with('success', 'Soin mis à jour.');
     }
 
-    public function destroy(Horse $horse, CareRecord $care)
+    public function destroy(Request $request, Horse $horse, CareRecord $care)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
         $care->delete();
         $this->calendar->syncFor($care, $horse, 'care', '', null);
         Audit::log('care.deleted', $care, [], $horse->organization_id);
+        // Suppression d'un glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
+        if ($request->expectsJson()) {
+            return response()->json(['deleted' => true, 'restore_url' => route('horses.care.restore', [$horse, $care])]);
+        }
 
         return redirect()->route('horses.care.index', $horse)->with('success', 'Soin supprimé.');
+    }
+
+    /** « Annuler » après une suppression : le soin revient, avec son rendez-vous et son contrôle prévu dans l'agenda. */
+    public function restore(Request $request, Horse $horse, CareRecord $care)
+    {
+        abort_unless($care->trashed(), 404);
+        $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $care->restore();
+        Audit::log('care.restored', $care, [], $horse->organization_id);
+
+        return $request->expectsJson()
+            ? response()->json(['restored' => true])
+            : redirect()->route('horses.care.show', [$horse, $care])->with('success', 'Soin restauré.');
     }
 
     private function afterSave(Request $request, Horse $horse, CareRecord $record): void

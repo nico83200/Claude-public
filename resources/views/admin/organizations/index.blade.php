@@ -20,7 +20,7 @@
                                 </label>
                             @endforeach
                         </div>
-                        <button class="btn-primary mt-3" onclick="return confirm('Garder l\'écurie sélectionnée et suspendre les autres écuries de ce compte ?')">Garder l'écurie sélectionnée</button>
+                        <button class="btn-primary mt-3" data-confirm="Garder l'écurie sélectionnée et suspendre les autres écuries de ce compte ?" data-confirm-ok="Garder et suspendre les autres">Garder l'écurie sélectionnée</button>
                     </form>
                 @endforeach
             </div>

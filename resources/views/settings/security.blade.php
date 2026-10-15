@@ -27,7 +27,7 @@
                                 <span class="block text-sm text-slate-500">{{ $linked->has($p) ? 'Associé'.($linked[$p]->email ? ' · '.$linked[$p]->email : '') : 'Non associé' }}</span>
                             </span>
                             @if ($linked->has($p))
-                                <form method="POST" action="{{ route('social.unlink', $p) }}" onsubmit="return confirm('Ne plus pouvoir vous connecter avec {{ \App\Models\SocialAccount::PROVIDERS[$p] }} ?')">@csrf @method('DELETE')<button class="btn-ghost text-red-600">Retirer</button></form>
+                                <form method="POST" action="{{ route('social.unlink', $p) }}" data-confirm="Ne plus pouvoir vous connecter avec {{ \App\Models\SocialAccount::PROVIDERS[$p] }} ?" data-confirm-ok="Dissocier">@csrf @method('DELETE')<button class="btn-ghost text-red-600">Retirer</button></form>
                             @elseif (\App\Services\Auth\OidcProvider::configured($p))
                                 <a href="{{ route('social.redirect', $p) }}?intent=link" class="btn-secondary">Associer</a>
                             @endif
@@ -42,7 +42,7 @@
                 <p class="mb-3 text-sm text-emerald-700">Activée. Un code de votre application d'authentification est demandé à chaque connexion.</p>
                 <form method="POST" action="{{ route('two-factor.regenerate-recovery-codes') }}" class="mb-2">@csrf<button class="btn-secondary w-full">Régénérer les codes de récupération</button></form>
                 <details class="mb-2 text-sm"><summary class="cursor-pointer link">Afficher les codes de récupération</summary><ul class="mt-2 grid grid-cols-2 gap-1 font-mono text-xs">@foreach ($user->recoveryCodes() as $code)<li>{{ $code }}</li>@endforeach</ul></details>
-                <form method="POST" action="{{ route('two-factor.disable') }}" onsubmit="return confirm('Désactiver la double authentification ?')">@csrf @method('DELETE')<button class="btn-ghost w-full text-red-600">Désactiver</button></form>
+                <form method="POST" action="{{ route('two-factor.disable') }}" data-confirm="Désactiver la double authentification ?" data-confirm-ok="Désactiver">@csrf @method('DELETE')<button class="btn-ghost w-full text-red-600">Désactiver</button></form>
             @elseif ($user->two_factor_secret)
                 <p class="mb-3 text-sm">Scannez ce QR code avec votre application (Google Authenticator, Aegis, 1Password…) puis saisissez le code affiché.</p>
                 <div class="mb-3 inline-block rounded-lg bg-white p-2">{!! $user->twoFactorQrCodeSvg() !!}</div>

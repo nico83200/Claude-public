@@ -1,6 +1,6 @@
 <x-layouts.app :title="($plan->exists ? $plan->name : 'Nouvelle offre').' · Admin'">
     <x-page-header :title="$plan->exists ? $plan->name : 'Nouvelle offre'" :back="route('admin.plans.index')">
-        @if ($plan->exists)<form method="POST" action="{{ route('admin.plans.archive', $plan) }}" onsubmit="return confirm('Confirmer ?')">@csrf<button class="btn-secondary">{{ $plan->archived_at ? 'Désarchiver' : 'Archiver' }}</button></form>@endif
+        @if ($plan->exists)<form method="POST" action="{{ route('admin.plans.archive', $plan) }}" data-confirm="{{ $plan->archived_at ? 'Remettre cette offre en vente ?' : 'Archiver cette offre ? Elle ne sera plus proposée aux nouveaux abonnés.' }}" data-confirm-tone="neutral">@csrf<button class="btn-secondary">{{ $plan->archived_at ? 'Désarchiver' : 'Archiver' }}</button></form>@endif
     </x-page-header>
     @include('admin._nav')
     <form method="POST" action="{{ $plan->exists ? route('admin.plans.update', $plan) : route('admin.plans.store') }}" class="space-y-4" x-data="{ pm: @js((string) $plan->price_monthly), py: @js((string) $plan->price_yearly), om: @js((string) $plan->price_monthly), oy: @js((string) $plan->price_yearly) }">

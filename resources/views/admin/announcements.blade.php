@@ -4,7 +4,7 @@
     <div class="grid gap-4 lg:grid-cols-5">
         <x-section title="Nouveau message" class="lg:col-span-3">
             <form method="POST" action="{{ route('admin.announcements.store') }}" class="space-y-3" x-data="{ audience: @js(old('audience', 'all')) }"
-                  onsubmit="return confirm('Envoyer ce message maintenant ? Il ne pourra pas être retiré.')" data-announcement-form>
+                  data-confirm="Envoyer ce message maintenant ? Il ne pourra pas être retiré." data-confirm-ok="Envoyer" data-confirm-tone="neutral" data-announcement-form>
                 @csrf
                 <x-field name="title" label="Titre" required maxlength="120" placeholder="ex. -20 % sur l'offre annuelle jusqu'au 30 novembre" />
                 <x-textarea name="body" label="Message" rows="4" required maxlength="1000" placeholder="Texte affiché dans la notification." />

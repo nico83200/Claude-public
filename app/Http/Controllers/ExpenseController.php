@@ -58,6 +58,7 @@ class ExpenseController extends Controller
         return view('budget.index', [
             'recurring' => $recurring,
             'canPay' => fn (Expense $e) => $this->canEdit($request, $e),
+            'canDelete' => fn (Expense $e) => $this->canEdit($request, $e),
             'unpaid' => (clone $query)->with(['horse', 'category'])->whereNull('expenses.paid_on')
                 ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))->orderBy('spent_on')->limit(50)->get(),
             'expenses' => (clone $filtered)->with(['horse', 'category', 'documents', 'author'])->orderByDesc('spent_on')->orderByDesc('id')->paginate(30)->withQueryString(),
@@ -188,10 +189,27 @@ class ExpenseController extends Controller
         $this->authorizeEdit($request, $expense);
         $expense->delete();
         Audit::log('expense.deleted', $expense, ['amount' => (string) $expense->amount], $expense->organization_id);
+        // Suppression d'un glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
+        if ($request->expectsJson()) {
+            return response()->json(['deleted' => true, 'restore_url' => route('budget.restore', $expense)]);
+        }
 
         // Depuis la page détail (qui n'existe plus), retour au budget.
         return (str_starts_with(url()->previous(), route('budget.show', $expense)) ? redirect()->route('budget.index', array_filter(['horse' => $expense->horse_id])) : back())
             ->with('success', 'Dépense supprimée.');
+    }
+
+    /** « Annuler » après une suppression : la dépense revient, avec ses justificatifs. */
+    public function restore(Request $request, Expense $expense)
+    {
+        abort_unless($expense->trashed(), 404);
+        $this->authorizeEdit($request, $expense);
+        $expense->restore();
+        Audit::log('expense.restored', $expense, [], $expense->organization_id);
+
+        return $request->expectsJson()
+            ? response()->json(['restored' => true])
+            : redirect()->route('budget.show', $expense)->with('success', 'Dépense restaurée.');
     }
 
     public function receipt(Request $request, Expense $expense, ExpenseDocument $document, HorseAccess $access)

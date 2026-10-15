@@ -70,7 +70,7 @@ export function swipeRow({ deleteUrl, text }) {
             el.addEventListener('pointermove', (e) => this.move(e));
             el.addEventListener('pointerup', (e) => this.up(e));
             el.addEventListener('pointercancel', () => this.cancel());
-            // Un glissé ne doit pas ouvrir la séance.
+            // Un glissé ne doit pas ouvrir l'élément (lien de la ligne).
             el.addEventListener('click', (e) => {
                 if (e.target.closest('[data-swipe-action]')) return; // bouton « Supprimer » révélé
                 if (this._moved || this.open) { e.preventDefault(); e.stopPropagation(); if (this.open) this.close(); }
@@ -122,9 +122,10 @@ export function swipeRow({ deleteUrl, text }) {
         cancel() { this._start = null; this.dragging = false; if (!this.open) this.x = 0; },
         close() { this.x = 0; this.open = false; },
         peek() {
-            if (this.open || this.busy) return;
+            if (this.open || this.busy || this.dragging) return;
             this.x = -56;
-            setTimeout(() => { if (!this.open) this.x = 0; }, 650);
+            // Ne pas reprendre la main si l'utilisateur a commencé à glisser entre-temps.
+            setTimeout(() => { if (!this.open && !this.busy && !this._start) this.x = 0; }, 650);
         },
         async remove() {
             if (this.busy) return;
@@ -132,7 +133,7 @@ export function swipeRow({ deleteUrl, text }) {
             this.x = -(this._width || this.$el.offsetWidth);
             try {
                 const res = await fetch(deleteUrl, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
-                if (!res.ok) throw new Error(res.status === 403 ? 'Vous ne pouvez pas supprimer cette séance.' : '');
+                if (!res.ok) throw new Error(res.status === 403 ? 'Vous n\'avez pas le droit de supprimer cet élément.' : '');
                 const data = await res.json().catch(() => ({}));
                 this.gone = true; // repli de la ligne (animation de hauteur)
                 this.$dispatch('swipe-deleted', { text, restoreUrl: data.restore_url });

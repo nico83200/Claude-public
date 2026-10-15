@@ -166,8 +166,11 @@
     @if ($expenses->isEmpty())
         <x-empty title="Aucune dépense" icon="wallet" />
     @else
-        <div class="card divide-y divide-slate-100 sm:hidden">
+        @php $anyDeletable = $expenses->contains(fn ($e) => $canDelete($e)); @endphp
+        <x-swipe.list hint-key="jc-hint-swipe-expenses" :hint="$anyDeletable ? 'glissez une dépense vers la gauche pour la supprimer. Vous pourrez annuler juste après.' : null" class="sm:hidden">
+        <div class="card divide-y divide-slate-100 overflow-hidden">
             @foreach ($expenses as $e)
+                <x-swipe.row :delete-url="$canDelete($e) ? route('budget.destroy', $e) : null" :text="'Dépense de '.$eur($e->amount).' supprimée'" rounded="" surface="bg-white">
                 <div class="relative flex items-start gap-3 p-4 active:bg-slate-50">
                     <div class="min-w-0 flex-1">
                         <a href="{{ route('budget.show', $e) }}" class="absolute inset-0" aria-label="Détail : {{ $e->category->name }}, {{ $eur($e->amount) }}" data-expense-link="{{ $e->id }}"></a>
@@ -181,8 +184,10 @@
                     </div>
                     <p class="shrink-0 text-right font-semibold whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="mt-1 block">À payer</x-badge>@endunless</p>
                 </div>
+                </x-swipe.row>
             @endforeach
         </div>
+        </x-swipe.list>
         <div class="table-wrap hidden sm:block"><table class="table">
             <thead><tr><th>Date</th><th>Cheval</th><th>Catégorie</th><th class="hidden sm:table-cell">Fournisseur</th><th class="text-right">Montant</th><th></th></tr></thead>
             <tbody class="divide-y divide-slate-100">

@@ -140,6 +140,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
         Route::get('/soins/{care}/modifier', [Controllers\CareRecordController::class, 'edit'])->name('care.edit');
         Route::put('/soins/{care}', [Controllers\CareRecordController::class, 'update'])->name('care.update');
         Route::delete('/soins/{care}', [Controllers\CareRecordController::class, 'destroy'])->name('care.destroy');
+        Route::post('/soins/{care}/restaurer', [Controllers\CareRecordController::class, 'restore'])->withTrashed()->name('care.restore');
 
         Route::post('/traitements', [Controllers\TreatmentController::class, 'store'])->name('treatments.store');
         Route::put('/traitements/{treatment}', [Controllers\TreatmentController::class, 'update'])->name('treatments.update');
@@ -233,6 +234,7 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/budget/{expense}/modifier', [Controllers\ExpenseController::class, 'edit'])->name('budget.edit');
     Route::put('/budget/{expense}', [Controllers\ExpenseController::class, 'update'])->name('budget.update');
     Route::delete('/budget/{expense}', [Controllers\ExpenseController::class, 'destroy'])->name('budget.destroy');
+    Route::post('/budget/{expense}/restaurer', [Controllers\ExpenseController::class, 'restore'])->withTrashed()->name('budget.restore');
     Route::post('/budget/{expense}/paiement', [Controllers\ExpenseController::class, 'pay'])->name('budget.pay');
     Route::put('/budget/recurrentes/{recurring}', [Controllers\RecurringExpenseController::class, 'update'])->name('budget.recurring.update');
     Route::post('/budget/recurrentes/{recurring}/pause', [Controllers\RecurringExpenseController::class, 'toggle'])->name('budget.recurring.toggle');
