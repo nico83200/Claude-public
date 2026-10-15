@@ -1,0 +1,4 @@
+{
+    "preset": "laravel",
+    "exclude": ["site", "scripts", "dist"]
+}
