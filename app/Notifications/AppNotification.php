@@ -89,7 +89,7 @@ class AppNotification extends Notification implements ShouldQueue
         if (PushSubscription::where('user_id', $notifiable->id)->exists()) {
             $channels[] = WebPushChannel::class;
         }
-        if ($mailEnabled && ($this->kind === 'system_alert' || ($notifiable->profile?->email_notifications ?? true))) {
+        if ($mailEnabled && ($this->kind === 'system_alert' || ($notifiable->loadMissing('profile')->profile?->email_notifications ?? true))) {
             $channels[] = 'mail';
         }
 

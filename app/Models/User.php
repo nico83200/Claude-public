@@ -82,7 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $id = $organization instanceof Organization ? $organization->id : $organization;
 
-        return $this->memberships->firstWhere('organization_id', $id);
+        return $this->loadMissing('memberships.role')->memberships->firstWhere('organization_id', $id);
     }
 
     /** Permissions de l'utilisateur dans une organisation donnée (rôle). */

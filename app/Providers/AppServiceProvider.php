@@ -46,7 +46,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Hors production : les chargements paresseux (N+1) sont journalisés pour optimisation, sans casser la page.
         Model::preventLazyLoading(! $this->app->isProduction());
-        Model::handleLazyLoadingViolationUsing(fn ($model, $relation) => logger()->debug('Chargement paresseux : '.get_class($model).'::'.$relation));
+        // En test : un chargement en cascade fait échouer le test (requêtes répétées à corriger par un with()).
+        // En développement : simple trace dans le journal.
+        if (! $this->app->runningUnitTests()) {
+            Model::handleLazyLoadingViolationUsing(fn ($model, $relation) => logger()->debug('Chargement paresseux : '.get_class($model).'::'.$relation));
+        }
         Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
         Paginator::useTailwind();
 
