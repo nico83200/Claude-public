@@ -107,4 +107,39 @@ class Version223RequestsTest extends TestCase
         $filtered = $this->actingAs($user)->get('/budget?category='.$cat->id)->viewData('kpis');
         $this->assertTrue($filtered['income_by_category']->isEmpty());
     }
+
+    public function test_health_menu_page_groups_health_feeding_follow_up_and_weight(): void
+    {
+        [$user, $jack] = $this->owner();
+        $uni = $this->horseFor($user, null, ['official_name' => 'UNI']);
+
+        $this->actingAs($user)->get('/sante')->assertOk()->assertSee('data-health-tabs', false)
+            ->assertSee(route('health.index', ['onglet' => 'alimentation']), false)->assertDontSee('data-health-horses', false);
+
+        // Alimentation : rations du premier cheval, bouton et formulaire ; choix du cheval.
+        $page = $this->actingAs($user)->get(route('health.index', ['onglet' => 'alimentation']))->assertOk()
+            ->assertSee('Santé et soins')->assertSee('data-new-ration', false)->assertSee('data-health-horses', false)
+            ->assertSee('aria-current="page"', false)->assertDontSee('aria-label="Sections du dossier"', false);
+        $this->assertSame($jack->id, $page->viewData('horse')->id);
+        $this->assertSame($uni->id, $this->actingAs($user)->get(route('health.index', ['onglet' => 'alimentation', 'cheval' => $uni->id]))->viewData('horse')->id);
+
+        // Ajout d'une ration depuis l'onglet : retour sur l'onglet.
+        $hub = route('health.index', ['onglet' => 'alimentation', 'cheval' => $uni->id]);
+        $this->actingAs($user)->from($hub)->post(route('horses.feeding.store', $uni), ['name' => 'Ration du soir', 'starts_on' => now()->toDateString(), 'end_mode' => 'none', 'entries' => [['feed' => 'Foin']]])
+            ->assertRedirect($hub);
+        $this->actingAs($user)->get($hub)->assertSee('Ration du soir');
+
+        // Suivi et poids : formulaires de saisie présents, enregistrement depuis l'onglet.
+        $this->actingAs($user)->get(route('health.index', ['onglet' => 'suivi', 'cheval' => $jack->id]))->assertOk()->assertSee('Nouvelle saisie')->assertSee(route('horses.logs.store', $jack), false);
+        $this->actingAs($user)->get(route('health.index', ['onglet' => 'poids', 'cheval' => $jack->id]))->assertOk()->assertSee(route('horses.weight.store', $jack), false);
+        $suivi = route('health.index', ['onglet' => 'suivi', 'cheval' => $jack->id]);
+        $this->actingAs($user)->from($suivi)->post(route('horses.logs.store', $jack), ['appetite' => 'good', 'general_state' => 'good', 'observations' => 'RAS'])->assertRedirect($suivi);
+
+        // Cheval d'un autre compte : jamais affiché, premier cheval accessible à la place.
+        $other = $this->horseFor($this->user());
+        $this->assertSame($jack->id, $this->actingAs($user)->get(route('health.index', ['onglet' => 'poids', 'cheval' => $other->id]))->viewData('horse')->id);
+
+        // Aucun cheval : onglet vide expliqué.
+        $this->actingAs($this->user())->get(route('health.index', ['onglet' => 'alimentation']))->assertOk()->assertSee('Aucun cheval à afficher');
+    }
 }

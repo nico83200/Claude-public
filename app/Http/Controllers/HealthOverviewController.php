@@ -9,12 +9,32 @@ use App\Models\Treatment;
 use App\Services\HorseAccess;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class HealthOverviewController extends Controller
 {
+    /** Onglets de la page Santé du menu : la page du cheval correspondante, avec ses boutons et formulaires. */
+    private const TABS = [
+        'alimentation' => [FeedingController::class, 'show', Perm::FEEDING_VIEW],
+        'suivi' => [DailyLogController::class, 'index', Perm::HORSE_VIEW],
+        'poids' => [MeasurementController::class, 'index', Perm::HORSE_VIEW],
+    ];
+
     public function __invoke(Request $request, HorseAccess $access)
     {
         $user = $request->user();
+        if ($tab = self::TABS[$request->query('onglet')] ?? null) {
+            $horses = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, $tab[2]))->whereNull('archived_at')->orderBy('official_name')->get();
+            $horse = $horses->firstWhere('id', $request->integer('cheval')) ?? $horses->first();
+            if (! $horse) {
+                return view('health.hub-empty', ['healthHub' => ['tab' => $request->query('onglet'), 'horses' => $horses, 'horse' => null]]);
+            }
+            // Cheval relu seul (comme sur sa propre page) : ses relations se chargent à la demande.
+            $horse = Horse::findOrFail($horse->id);
+            View::share('healthHub', ['tab' => $request->query('onglet'), 'horses' => $horses, 'horse' => $horse]);
+
+            return app()->call([app($tab[0]), $tab[1]], ['horse' => $horse]);
+        }
         $healthIds = $access->horseIdsWith($user, Perm::HEALTH_VIEW);
         $treatIds = $access->horseIdsWith($user, Perm::TREATMENTS_VIEW);
 

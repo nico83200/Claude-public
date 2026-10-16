@@ -3,6 +3,7 @@
         <x-horse-picker key="care" :horses="$editHorses" route="horses.care.create" label="Soin" class="btn-primary" title="Soin pour quel cheval ?" />
         <x-horse-picker key="vet" :horses="$vetHorses" route="horses.vet-summary" icon="share" label="Partager avec le vétérinaire" hint="Son résumé de santé s'affiche ; vous pourrez ensuite l'envoyer par e-mail ou SMS au vétérinaire, avec un lien temporaire." />
     </x-page-header>
+    @include('health._hub-tabs', ['healthHub' => ['tab' => 'sante']])
     @include('health._prescription-overview-card')
     <div class="grid gap-4 lg:grid-cols-2">
         <x-section title="Échéances (60 jours)">

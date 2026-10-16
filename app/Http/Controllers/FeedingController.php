@@ -44,7 +44,7 @@ class FeedingController extends Controller
         });
         Audit::log('feeding.created', $plan, [], $horse->organization_id);
 
-        return redirect()->route('horses.feeding', $horse)->with('success', 'Ration « '.$plan->name.' » enregistrée.'.($plan->ends_on ? ' Elle sera archivée après le '.$plan->ends_on->format('d/m/Y').'.' : ''));
+        return $this->toFeeding($horse)->with('success', 'Ration « '.$plan->name.' » enregistrée.'.($plan->ends_on ? ' Elle sera archivée après le '.$plan->ends_on->format('d/m/Y').'.' : ''));
     }
 
     public function update(Request $request, Horse $horse, FeedingPlan $ration)
@@ -63,7 +63,7 @@ class FeedingController extends Controller
         });
         Audit::log('feeding.updated', $ration, [], $horse->organization_id);
 
-        return redirect()->route('horses.feeding', $horse)->with('success', 'Ration « '.$ration->name.' » modifiée.');
+        return $this->toFeeding($horse)->with('success', 'Ration « '.$ration->name.' » modifiée.');
     }
 
     /** Archiver (fin de la ration aujourd'hui) ou reprendre une ration archivée. */
@@ -79,7 +79,7 @@ class FeedingController extends Controller
         }
         Audit::log($request->boolean('restore') ? 'feeding.restored' : 'feeding.archived', $ration, [], $horse->organization_id);
 
-        return redirect()->route('horses.feeding', $horse)->with('success', $message);
+        return $this->toFeeding($horse)->with('success', $message);
     }
 
     /** Suppression définitive (ration saisie par erreur). */
@@ -92,7 +92,7 @@ class FeedingController extends Controller
         });
         Audit::log('feeding.deleted', $ration, ['name' => $ration->name], $horse->organization_id);
 
-        return redirect()->route('horses.feeding', $horse)->with('success', 'Ration « '.$ration->name.' » supprimée.');
+        return $this->toFeeding($horse)->with('success', 'Ration « '.$ration->name.' » supprimée.');
     }
 
     private function validated(Request $request): array
@@ -148,5 +148,13 @@ class FeedingController extends Controller
                 ]);
             }
         }
+    }
+
+    /** Retour sur la page d'où vient l'action : onglet Alimentation de la page Santé du menu, sinon le dossier du cheval. */
+    private function toFeeding(Horse $horse)
+    {
+        $previous = url()->previous();
+
+        return str_starts_with($previous, route('health.index')) ? redirect()->to($previous) : redirect()->route('horses.feeding', $horse);
     }
 }

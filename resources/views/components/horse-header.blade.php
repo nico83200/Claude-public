@@ -5,6 +5,13 @@
     $can = fn ($p) => in_array($p, $perms, true);
     $meta = collect([$horse->breed?->name, \App\Models\Horse::SEXES[$horse->sex] ?? null, $horse->age() !== null ? $horse->age().' ans' : null, $horse->coat])->filter();
 @endphp
+@if (! empty($healthHub))
+    {{-- Ouvert depuis la page Santé du menu : en-tête de la santé (onglets, choix du cheval), actions de la page conservées. --}}
+    <x-page-header title="Santé et soins" :subtitle="$horse->shortName().' · '.(['alimentation' => 'alimentation', 'suivi' => 'suivi quotidien', 'poids' => 'poids et état corporel'][$healthHub['tab']] ?? '')">
+        {{ $slot }}
+    </x-page-header>
+    @include('health._hub-tabs')
+@else
 <div class="mb-4" x-data="{ more: false }">
     <a href="{{ route('horses.index') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Chevaux</a>
     <div class="flex items-center gap-4">
@@ -49,3 +56,4 @@
     @endif
 </div>
 @include('horses._tabs', ['perms' => $perms])
+@endif

@@ -30,7 +30,7 @@ class DailyLogController extends Controller
 
         return view('horses.logs', [
             'horse' => $horse,
-            'logs' => $horse->dailyLogs()->with('author')->paginate(30),
+            'logs' => $horse->dailyLogs()->with('author')->paginate(30)->withQueryString(),
             'canCreate' => $this->horseCan($horse, Perm::DAILYLOG_CREATE),
         ]);
     }
