@@ -10,7 +10,7 @@
             @if ($e->comment)<p class="mt-0.5 line-clamp-1 text-xs text-slate-500">{{ $e->comment }}</p>@endif
             <p class="relative z-10 mt-1 flex w-fit gap-3 text-xs">
                 @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d">Justificatif</x-receipt-link>@endforeach
-                @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="link">Modifier</a>@endif
+                @if ($canDelete($e))<a href="{{ route('budget.edit', $e) }}" class="link" data-expense-edit>Modifier</a>@endif
             </p>
         </div>
         <p class="shrink-0 text-right font-semibold whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="mt-1 block">À payer</x-badge>@endunless</p>

@@ -9,7 +9,7 @@
         <td class="text-right font-medium whitespace-nowrap">{{ $eur($e->amount) }}@unless ($e->isPaid())<x-badge :color="$e->isOverdue() ? 'red' : 'amber'" class="ml-1">À payer</x-badge>@endunless</td>
         <td class="whitespace-nowrap">
             @foreach ($e->documents as $d)<x-receipt-link :expense="$e" :document="$d" :group="'receipt-'.$e->id.'-b'" class="text-xs">Justificatif</x-receipt-link> @endforeach
-            @if ($e->author_id === auth()->id())<a href="{{ route('budget.edit', $e) }}" class="text-xs link">Modifier</a>@endif
+            @if ($canDelete($e))<a href="{{ route('budget.edit', $e) }}" class="text-xs link" data-expense-edit>Modifier</a>@endif
         </td>
     </tr>
 @endforeach

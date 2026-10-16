@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.30.1' => ['2026-10-16', 'Budget : « Modifier » proposé dans la liste pour toutes les dépenses que la personne peut modifier (le propriétaire aussi pour celles saisies par une demi-pensionnaire), comme sur la fiche de la dépense.'],
     '2.30.0' => ['2026-10-16', 'Plusieurs chevaux (lot F) : « À prévoir ensemble » (même soin dû pour plusieurs chevaux, intervenant habituel, rendez-vous groupé en un geste), puces pour passer d\'un cheval à l\'autre depuis l\'accueil, recherche dans le choix du cheval et filtres d\'écurie (à surveiller, en traitement, suivi à faire, lieu).'],
     '2.29.0' => ['2026-10-16', 'Plusieurs chevaux (lot E) : accueil « Tous les chevaux » avec l\'état du jour de chaque cheval (alerte, échéance, suivi noté), « Tout va bien » par cheval et « Tout va bien pour tous », traitements de tous les chevaux regroupés avec « Administré ».'],
     '2.28.0' => ['2026-10-16', 'Plusieurs chevaux (lot D) : cheval actif choisi en tête du menu (dernier cheval pour un propriétaire, « Tous les chevaux » pour une écurie), menu, accueil et page Santé du cheval choisi, cheval proposé d\'office dans les formulaires ; rendez-vous groupé (un passage pour plusieurs chevaux) depuis les pastilles Santé, déplacé ensemble depuis l\'agenda.'],

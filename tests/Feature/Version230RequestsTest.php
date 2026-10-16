@@ -5,10 +5,14 @@ namespace Tests\Feature;
 use App\Models\CalendarEvent;
 use App\Models\CareCategory;
 use App\Models\CareRecord;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\HealthObservation;
+use App\Models\HorseAccessGrant;
 use App\Models\Professional;
 use App\Models\Treatment;
 use App\Services\HorseAccess;
+use App\Support\Perm;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -77,5 +81,29 @@ class Version230RequestsTest extends TestCase
         $this->assertStringContainsString('treat', html_entity_decode($row($horses[2])));
         $this->assertStringContainsString('loc:Pré du haut', html_entity_decode($row($horses[0])));
         $this->assertStringNotContainsString('watch', html_entity_decode($row($horses[3])));
+    }
+
+    public function test_budget_list_offers_edit_on_every_expense_the_user_may_change(): void
+    {
+        [$owner, $horses] = $this->owner(1);
+        $horse = $horses[0];
+        $rider = $this->user();
+        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => [Perm::HORSE_VIEW, Perm::EXPENSES_VIEW, Perm::EXPENSES_CREATE]]);
+        $cat = ExpenseCategory::firstOrFail();
+        $mk = fn ($author, $amount) => Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $author->id, 'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => $amount, 'spent_on' => now()->toDateString(), 'paid_on' => now()->toDateString()]);
+        $byOwner = $mk($owner, 70);
+        $byRider = $mk($rider, 107.2);
+
+        // Propriétaire : « Modifier » aussi sur la dépense saisie par la demi-pensionnaire (comme sur sa fiche).
+        $html = $this->actingAs($owner)->get(route('budget.index'))->assertOk()->getContent();
+        $this->assertSame(2, substr_count($html, 'data-expense-edit') / 2, 'Mobile et ordinateur : un lien par dépense.');
+        $this->actingAs($owner)->get(route('budget.edit', $byRider))->assertOk();
+
+        // Demi-pensionnaire : seulement ses propres dépenses.
+        $this->allHorses($rider);
+        $html = $this->actingAs($rider)->get(route('budget.index'))->assertOk()->getContent();
+        $this->assertStringContainsString('href="'.route('budget.edit', $byRider).'" class="link" data-expense-edit', $html);
+        $this->assertStringNotContainsString('href="'.route('budget.edit', $byOwner).'" class="link" data-expense-edit', $html);
+        $this->actingAs($rider)->get(route('budget.edit', $byOwner))->assertForbidden();
     }
 }
