@@ -43,7 +43,10 @@ class GreetingTest extends TestCase
     public function test_horse_card_shows_care_due_only_within_30_days(): void
     {
         $user = $this->user();
+        // Plusieurs chevaux : cartes des chevaux (un seul cheval a son propre tableau de bord).
+        $this->grantLicense($user->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($user, null, ['usual_name' => 'Jack jack']);
+        $this->horseFor($user, null, ['usual_name' => 'Uni']);
         $dentist = CareCategory::where('key', 'dentistry')->value('id');
         $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $dentist, 'performed_at' => now()->subMonths(3), 'author_id' => $user->id, 'next_check_on' => now()->addMonths(9)->toDateString()]);
         $this->actingAs($user)->get('/dashboard')->assertDontSee('data-horse-due', false)->assertSee('À jour');

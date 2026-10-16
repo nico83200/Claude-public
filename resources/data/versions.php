@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.26.0' => ['2026-10-16', 'Mode « un cheval » (lot B) : l\'accueil devient le tableau de bord du cheval (état du jour, « Tout va bien aujourd\'hui » en un toucher, gestes du jour, aujourd\'hui et 7 jours avec « Administré » et « Noter le passage », santé en un coup d\'œil, activité et régularité, budget du mois, partage), en deux colonnes sur ordinateur.'],
     '2.25.0' => ['2026-10-16', 'Mode « un cheval » (lot A) : menu organisé autour du cheval (carte du cheval, Tableau de bord, Agenda, Séances, Santé, Budget, Documents, Intervenants, Partage, Fiche), barre du bas Accueil · Séances · micro · Santé · Menu, page Santé ouverte directement sur le cheval, choix du cheval masqué et présélectionné dans les formulaires et filtres.'],
     '2.24.1' => ['2026-10-16', 'Nom d\'usage du cheval partout (listes de choix, budget, agenda, séances, recherche, exports) ; « Noter le passage » dans les échéances de la page Santé du menu.'],
     '2.24.0' => ['2026-10-16', 'Retours de l\'audit d\'usage : messages en français, « Je viens de monter » et raccourcis sur l\'accueil, suivi quotidien en un geste (modifiable), « Noter le passage » sur les échéances, intervenant habituel proposé, charges fixes mensuelles, « Payé » réversible, invitations à transmettre par WhatsApp ou SMS et relance, formulaires allégés, onglets du cheval sur téléphone, accès de 7 jours avant confirmation de l\'e-mail.'],

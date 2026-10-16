@@ -56,7 +56,7 @@ class Version224RequestsTest extends TestCase
     public function test_dashboard_offers_quick_actions_and_just_rode_preselects_the_horse(): void
     {
         [$user, $horse] = $this->owner();
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('data-quick-actions', false)
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('data-solo-actions', false)
             ->assertSee(route('sessions.create', ['fait' => 1]), false)->assertSee('Je viens de monter');
         $page = $this->actingAs($user)->get(route('sessions.create', ['fait' => 1]))->assertOk();
         $this->assertTrue($page->viewData('justRode'));

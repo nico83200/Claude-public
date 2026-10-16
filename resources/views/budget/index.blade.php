@@ -425,5 +425,5 @@
             <button class="btn-primary w-full">Enregistrer</button>
         </form>
     </dialog>
-    @if ($errors->any())<script>document.getElementById('new-expense').showModal()</script>@endif
+    @if ($errors->any() || (request('nouvelle') === 'depense' && $newExpense))<script>document.getElementById('new-expense').showModal()</script>@endif
 </x-layouts.app>

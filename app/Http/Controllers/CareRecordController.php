@@ -63,7 +63,7 @@ class CareRecordController extends Controller
      * Prochaine échéance de contrôle de chaque type de soin (celle du dernier soin du type), avec son rendez-vous
      * s'il a été ajouté à l'agenda.
      */
-    private function nextChecks(Horse $horse)
+    public function nextChecks(Horse $horse)
     {
         $latest = $horse->careRecords()->with('category')->whereNotIn('id', CareRecord::query()->from('care_records as later')
             ->join('care_records as prev', fn ($j) => $j->on('prev.horse_id', '=', 'later.horse_id')->on('prev.care_category_id', '=', 'later.care_category_id')->on('later.performed_at', '>', 'prev.performed_at'))

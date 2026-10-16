@@ -7,10 +7,14 @@ use App\Models\CareRecord;
 use App\Models\DailyLog;
 use App\Models\Expense;
 use App\Models\HealthObservation;
+use App\Models\Horse;
+use App\Models\HorseAccessGrant;
 use App\Models\HorseOrganizationAssignment;
 use App\Models\Invitation;
+use App\Models\RecurringExpense;
 use App\Models\RidingSession;
 use App\Models\Treatment;
+use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\Onboarding;
 use App\Services\Upsell;
@@ -25,6 +29,10 @@ class DashboardController extends Controller
     public function __invoke(Request $request, HorseAccess $access)
     {
         $user = $request->user();
+        // Un seul cheval : l'accueil est son tableau de bord.
+        if ($solo = $access->soloHorse($user)) {
+            return $this->solo($request, $access, Horse::with(['breed', 'organization'])->findOrFail($solo->id));
+        }
         $horses = $access->accessibleQuery($user)->whereNull('archived_at')->with('breed')->orderBy('official_name')->get();
         $access->preload($horses);
         $ids = fn (string $perm) => $horses->filter(fn ($h) => in_array($perm, $access->permissions($user, $h), true))->pluck('id');
@@ -60,11 +68,60 @@ class DashboardController extends Controller
                 ->where('severity', '!=', 'info')->latest('observed_at')->limit(5)->get(),
             'logs' => DailyLog::with(['horse', 'author'])->whereIn('horse_id', $horses->pluck('id'))->latest('logged_at')->limit(5)->get(),
             'expenses' => Expense::with(['horse', 'category'])->whereIn('horse_id', $expenseIds)->orderByDesc('spent_on')->limit(5)->get(),
-            'invitations' => Invitation::pending()->where('email', $user->email)->with(['horse', 'organization', 'inviter'])->get(),
+            'invitations' => $this->invitations($user),
             'pendingAssignments' => $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->isNotEmpty()
                 ? HorseOrganizationAssignment::with(['horse', 'organization'])->where('status', 'pending')
                     ->whereIn('organization_id', $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->pluck('organization_id'))->get()
                 : collect(),
         ]);
+    }
+
+    /** Tableau de bord du cheval unique : tout ce qui fait sa vie, sans passer par la liste des chevaux. */
+    private function solo(Request $request, HorseAccess $access, Horse $horse)
+    {
+        $user = $request->user();
+        $perms = $access->permissions($user, $horse);
+        $has = fn (string $p) => in_array($p, $perms, true);
+        $entitlements = app(Entitlements::class);
+        $budgetIncluded = $entitlements->hasFeature($horse->organization, 'budget');
+
+        return view('dashboard-solo', [
+            'horse' => $horse,
+            'perms' => $perms,
+            'upsell' => app(Upsell::class)->upgrade($this->currentOrganization(), $user),
+            'onboarding' => app(Onboarding::class)->steps($user, collect([$horse])),
+            'emergencyCta' => $user->profile?->emergency_cta_dismissed_at || $horse->emergency_token || ! $has(Perm::HORSE_EDIT) ? null : $horse,
+            'invitations' => $this->invitations($user),
+            'pendingAssignments' => collect(),
+            'todayLog' => DailyLog::where('horse_id', $horse->id)->where('logged_at', '>=', today())->latest('logged_at')->first(),
+            // Régularité du suivi : jours notés sur les 7 derniers jours.
+            'logDays' => DailyLog::where('horse_id', $horse->id)->where('logged_at', '>=', today()->subDays(6))->pluck('logged_at')->map->toDateString()->unique()->count(),
+            'week' => $has(Perm::CALENDAR_VIEW) ? CalendarEvent::where('horse_id', $horse->id)->visibleSessions($has(Perm::SESSIONS_VIEW) ? [$horse->id] : [])
+                ->where('status', '!=', 'cancelled')->whereBetween('starts_at', [now()->startOfDay(), now()->addDays(7)->endOfDay()])
+                ->orderBy('starts_at')->limit(8)->get() : collect(),
+            'treatments' => $has(Perm::TREATMENTS_VIEW) ? Treatment::where('horse_id', $horse->id)->current()
+                ->with(['administrations' => fn ($q) => $q->where('administered_at', '>=', today())])->get() : collect(),
+            'canAdminister' => $has(Perm::HEALTH_EDIT) || $has(Perm::DAILYLOG_CREATE),
+            'checks' => $has(Perm::HEALTH_VIEW) ? app(CareRecordController::class)->nextChecks($horse) : collect(),
+            'observations' => HealthObservation::where('horse_id', $horse->id)->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->limit(3)->get(),
+            'weights' => $horse->measurements()->reorder()->whereNotNull('weight_kg')->latest('measured_on')->latest('id')->limit(2)->get(),
+            'rations' => $has(Perm::FEEDING_VIEW) ? $horse->rations()->activeToday()->with('entries')->get() : collect(),
+            'sessionsWeek' => $has(Perm::SESSIONS_VIEW) ? RidingSession::where('horse_id', $horse->id)->where('status', 'completed')
+                ->whereBetween('scheduled_at', [now()->startOfWeek(), now()])->count() : null,
+            'lastSession' => $has(Perm::SESSIONS_VIEW) ? RidingSession::with('rider')->where('horse_id', $horse->id)->where('scheduled_at', '<=', now())
+                ->whereIn('status', ['completed', 'in_progress'])->latest('scheduled_at')->first() : null,
+            'budget' => $has(Perm::EXPENSES_VIEW) && $budgetIncluded ? [
+                'month' => (float) Expense::where('horse_id', $horse->id)->whereBetween('spent_on', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount'),
+                'unpaid' => (float) Expense::where('horse_id', $horse->id)->whereNull('paid_on')->where('spent_on', '<=', today())->sum('amount'),
+                'next' => RecurringExpense::where('horse_id', $horse->id)->whereNull('paused_at')->orderBy('next_due_on')->get()->first(fn ($r) => $r->isActive()),
+            ] : null,
+            'budgetLocked' => $has(Perm::EXPENSES_VIEW) && ! $budgetIncluded,
+            'shares' => $has(Perm::HORSE_MANAGE) ? HorseAccessGrant::current()->where('horse_id', $horse->id)->with('user')->get() : null,
+        ]);
+    }
+
+    private function invitations($user)
+    {
+        return Invitation::pending()->where('email', $user->email)->with(['horse', 'organization', 'inviter'])->get();
     }
 }
