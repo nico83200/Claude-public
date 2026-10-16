@@ -13,6 +13,11 @@
             <x-field name="income_received_on" type="date" label="Date" :value="$income->received_on->toDateString()" required />
             <x-field name="income_amount" type="number" step="0.01" min="0.01" label="Montant (€)" :value="$income->amount" required inputmode="decimal" />
         </div>
+        <div class="rounded-2xl bg-slate-50 p-3" x-data="{ received: @js((bool) old('income_received', $income->isReceived())) }">
+            <input type="hidden" name="income_received" value="0">
+            <label class="flex items-center gap-3 font-medium"><input type="checkbox" name="income_received" value="1" x-model="received" class="size-5 rounded" data-income-received> Reçue</label>
+            <div x-show="received" x-cloak class="mt-3"><x-field name="income_collected_on" type="date" label="Reçue le" :value="$income->collected_on?->toDateString()" /></div>
+        </div>
         <x-field name="income_payer" label="Versée par" :value="$income->payer" maxlength="150" />
         <x-textarea name="income_comment" label="Commentaire" :value="$income->comment" rows="2" />
         <button class="btn-primary">Enregistrer</button>

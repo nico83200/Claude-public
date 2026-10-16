@@ -235,6 +235,10 @@ Route::middleware(['auth', 'verified', 'org'])->group(function () {
     Route::get('/budget/recettes/{income}/modifier', [Controllers\IncomeController::class, 'edit'])->name('budget.incomes.edit');
     Route::put('/budget/recettes/{income}', [Controllers\IncomeController::class, 'update'])->name('budget.incomes.update');
     Route::delete('/budget/recettes/{income}', [Controllers\IncomeController::class, 'destroy'])->name('budget.incomes.destroy');
+    Route::post('/budget/recettes/{income}/reception', [Controllers\IncomeController::class, 'receive'])->name('budget.incomes.receive');
+    Route::put('/budget/recettes-recurrentes/{recurring}', [Controllers\RecurringIncomeController::class, 'update'])->name('budget.recurring-incomes.update');
+    Route::post('/budget/recettes-recurrentes/{recurring}/pause', [Controllers\RecurringIncomeController::class, 'toggle'])->name('budget.recurring-incomes.toggle');
+    Route::delete('/budget/recettes-recurrentes/{recurring}', [Controllers\RecurringIncomeController::class, 'destroy'])->name('budget.recurring-incomes.destroy');
     Route::post('/budget', [Controllers\ExpenseController::class, 'store'])->name('budget.store');
     // Facture photographiée lue par l'assistant (vérification avant enregistrement).
     Route::post('/budget/facture', [Controllers\InvoiceController::class, 'read'])->middleware('throttle:10,1')->name('budget.invoice.read');

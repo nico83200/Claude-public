@@ -65,70 +65,109 @@
         </div>
     @endif
     @php
-        $maxCat = max(1, (float) $kpis['by_category']->max());
-        $maxHorse = max(1, (float) $kpis['by_horse']->max());
-        $maxM = max(1, (float) collect($kpis['series'])->max('value'));
-        $totalCat = max(0.01, (float) $kpis['by_category']->sum());
+        $incCat = $kpis['income_by_category'];
+        $maxCat = max(1, (float) $kpis['by_category']->max(), (float) $incCat->max());
+        $hasIncome = $incCat->isNotEmpty();
+        $maxHorse = max(1, (float) $kpis['by_horse']->max(fn ($h) => max($h['expense'], $h['income'])));
+        $maxM = max(1, (float) collect($kpis['series'])->max(fn ($pt) => max($pt['value'], $pt['income'])));
         $zoom = 'block w-full cursor-zoom-in rounded-xl text-left focus-visible:outline-2 focus-visible:outline-brand-600';
+        $signed = fn ($v) => ($v < 0 ? '− ' : '').$eur(abs($v));
     @endphp
     <div class="mb-4 grid gap-4 lg:grid-cols-3" data-budget-charts>
         <x-section title="Par catégorie">
             <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-category').showModal()" aria-label="Agrandir le graphique par catégorie"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
             <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-category').showModal()" data-chart-open="category">
+            @if ($hasIncome)<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Dépenses</p>@endif
             @forelse ($kpis['by_category'] as $name => $total)<div class="py-1 text-sm"><div class="flex justify-between"><span>{{ $name }}</span><span class="font-medium">{{ $eur($total) }}</span></div><div class="mt-0.5 h-1.5 rounded bg-slate-100"><div class="h-1.5 rounded bg-brand-500" style="width: {{ round($total / $maxCat * 100) }}%"></div></div></div>@empty<p class="text-sm text-slate-500">—</p>@endforelse
+            @if ($hasIncome)
+                <p class="mt-3 text-xs font-semibold tracking-wide text-slate-500 uppercase" data-income-categories>Recettes</p>
+                @foreach ($incCat as $name => $total)<div class="py-1 text-sm"><div class="flex justify-between"><span>{{ $name }}</span><span class="font-medium text-brand-800">+ {{ $eur($total) }}</span></div><div class="mt-0.5 h-1.5 rounded bg-slate-100"><div class="h-1.5 rounded bg-gold-400" style="width: {{ round($total / $maxCat * 100) }}%"></div></div></div>@endforeach
+            @endif
             </button>
         </x-section>
         @unless ($contextHorse)
         <x-section title="Coût par cheval">
             <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-horse').showModal()" aria-label="Agrandir le graphique par cheval"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
             <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-horse').showModal()" data-chart-open="horse">
-            @forelse ($kpis['by_horse'] as $name => $total)<div class="flex justify-between py-1 text-sm"><span>{{ $name }}</span><span class="font-medium">{{ $eur($total) }}</span></div>@empty<p class="text-sm text-slate-500">—</p>@endforelse
+            @forelse ($kpis['by_horse'] as $name => $h)
+                <div class="py-1 text-sm" data-horse-cost><div class="flex justify-between gap-2"><span class="min-w-0 truncate">{{ $name }}</span><span class="shrink-0 font-medium">{{ $signed($h['net']) }}</span></div>
+                    @if ($h['income'] > 0)<p class="text-xs text-slate-500">Dépenses {{ $eur($h['expense']) }} · recettes + {{ $eur($h['income']) }}</p>@endif</div>
+            @empty<p class="text-sm text-slate-500">—</p>@endforelse
+            @if ($kpis['by_horse']->contains(fn ($h) => $h['income'] > 0))<p class="mt-2 text-[11px] text-slate-500">Coût net : dépenses moins recettes.</p>@endif
             </button>
         </x-section>
         @endunless
         <x-section :title="$year ? 'Évolution mensuelle' : 'Évolution par année'">
             <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-month').showModal()" aria-label="Agrandir l'évolution"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
             <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-month').showModal()" data-chart-open="month">
-            <div class="flex h-36 items-end gap-1" role="img" aria-label="{{ $year ? 'Dépenses par mois' : 'Dépenses par année' }}">
-                @foreach ($kpis['series'] as $pt)<div class="flex flex-1 flex-col items-center gap-1" title="{{ $pt['long'] }} : {{ $eur($pt['value']) }}"><div class="w-full rounded-t bg-brand-500" style="height: {{ max(2, round($pt['value'] / $maxM * 110)) }}px"></div><span class="text-[9px] text-slate-500">{{ $pt['short'] }}</span></div>@endforeach
+            <div class="flex h-36 items-end gap-1" role="img" aria-label="{{ $year ? 'Dépenses et recettes par mois' : 'Dépenses et recettes par année' }}">
+                @foreach ($kpis['series'] as $pt)<div class="flex flex-1 flex-col items-center gap-1" title="{{ $pt['long'] }} : dépenses {{ $eur($pt['value']) }}{{ $pt['income'] > 0 ? ' · recettes '.$eur($pt['income']) : '' }}"><div class="flex w-full items-end justify-center gap-px"><div class="w-full rounded-t bg-brand-500" style="height: {{ max(2, round($pt['value'] / $maxM * 110)) }}px"></div>@if ($hasIncome)<div class="w-full rounded-t bg-gold-400" style="height: {{ $pt['income'] > 0 ? max(2, round($pt['income'] / $maxM * 110)) : 0 }}px"></div>@endif</div><span class="text-[9px] text-slate-500">{{ $pt['short'] }}</span></div>@endforeach
             </div>
+            @if ($hasIncome)<p class="mt-2 flex gap-3 text-[11px] text-slate-500"><span class="inline-flex items-center gap-1"><span class="size-2.5 rounded-sm bg-brand-500"></span> Dépenses</span><span class="inline-flex items-center gap-1"><span class="size-2.5 rounded-sm bg-gold-400"></span> Recettes</span></p>@endif
             </button>
         </x-section>
     </div>
 
     {{-- Graphiques agrandis --}}
-    @foreach (['category' => 'Dépenses par catégorie', 'horse' => 'Coût par cheval', 'month' => $year ? 'Évolution mensuelle' : 'Évolution par année'] as $chart => $chartTitle)
+    @foreach (['category' => $hasIncome ? 'Dépenses et recettes par catégorie' : 'Dépenses par catégorie', 'horse' => 'Coût par cheval', 'month' => $year ? 'Évolution mensuelle' : 'Évolution par année'] as $chart => $chartTitle)
         @continue($chart === 'horse' && $contextHorse)
         <dialog id="chart-{{ $chart }}" class="m-auto w-[calc(100%-1rem)] max-w-4xl rounded-3xl p-0 backdrop:bg-slate-900/50" onclick="if (event.target === this) this.close()" data-chart-dialog="{{ $chart }}">
             <div class="p-5 sm:p-8">
                 <div class="mb-5 flex items-start justify-between gap-3">
-                    <div><h2 class="text-xl font-semibold">{{ $chartTitle }}</h2><p class="text-sm text-slate-500">{{ $contextHorse?->shortName() ?? 'Tous les chevaux' }} · {{ $year ?: 'toutes les dates' }} · total {{ $eur($kpis['year']) }}</p></div>
+                    <div><h2 class="text-xl font-semibold">{{ $chartTitle }}</h2><p class="text-sm text-slate-500">{{ $contextHorse?->shortName() ?? 'Tous les chevaux' }} · {{ $year ?: 'toutes les dates' }} · dépenses {{ $eur($kpis['year']) }}@if ($hasIncome) · recettes + {{ $eur($kpis['income']) }}@endif</p></div>
                     <button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
                 </div>
                 @if ($chart === 'month')
-                    <div class="flex h-80 items-end gap-1.5 sm:gap-3" role="img" aria-label="{{ $year ? 'Dépenses par mois en '.$year : 'Dépenses par année' }}">
+                    <div class="flex h-80 items-end gap-1.5 sm:gap-3" role="img" aria-label="{{ $year ? 'Dépenses et recettes par mois en '.$year : 'Dépenses et recettes par année' }}">
                         @foreach ($kpis['series'] as $pt)
                             <div class="flex h-full flex-1 flex-col items-center justify-end gap-1">
                                 <span class="hidden text-xs font-medium whitespace-nowrap text-slate-600 sm:block">{{ $pt['value'] > 0 ? number_format($pt['value'], 0, ',', ' ').' €' : '' }}</span>
-                                <div class="w-full rounded-t-lg bg-brand-500" style="height: {{ max(3, round($pt['value'] / $maxM * 240)) }}px" title="{{ $pt['long'] }} : {{ $eur($pt['value']) }}"></div>
+                                <div class="flex w-full items-end justify-center gap-0.5">
+                                    <div class="w-full rounded-t-lg bg-brand-500" style="height: {{ max(3, round($pt['value'] / $maxM * 240)) }}px" title="{{ $pt['long'] }} : dépenses {{ $eur($pt['value']) }}"></div>
+                                    @if ($hasIncome)<div class="w-full rounded-t-lg bg-gold-400" style="height: {{ $pt['income'] > 0 ? max(3, round($pt['income'] / $maxM * 240)) : 0 }}px" title="{{ $pt['long'] }} : recettes {{ $eur($pt['income']) }}"></div>@endif
+                                </div>
                                 <span class="text-[11px] text-slate-500 sm:text-sm">{{ $pt['short'] }}</span>
                             </div>
                         @endforeach
                     </div>
+                    @if ($hasIncome)<p class="mt-3 flex gap-4 text-sm text-slate-600"><span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm bg-brand-500"></span> Dépenses</span><span class="inline-flex items-center gap-1.5"><span class="size-3 rounded-sm bg-gold-400"></span> Recettes</span></p>@endif
                     <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
-                        @foreach ($kpis['series'] as $pt)<div class="flex justify-between border-b border-slate-100 py-1"><span class="text-slate-600">{{ $pt['long'] }}</span><span class="font-medium">{{ $eur($pt['value']) }}</span></div>@endforeach
+                        @foreach ($kpis['series'] as $pt)<div class="flex justify-between gap-2 border-b border-slate-100 py-1"><span class="text-slate-600">{{ $pt['long'] }}</span><span class="text-right font-medium">{{ $eur($pt['value']) }}@if ($pt['income'] > 0)<span class="block text-xs text-brand-800">+ {{ $eur($pt['income']) }}</span>@endif</span></div>@endforeach
                     </div>
-                @else
-                    @php $rows = $chart === 'category' ? $kpis['by_category'] : $kpis['by_horse']; $max = $chart === 'category' ? $maxCat : $maxHorse; $sum = max(0.01, (float) $rows->sum()); @endphp
+                @elseif ($chart === 'horse')
                     <div class="space-y-4">
-                        @forelse ($rows as $name => $total)
+                        @forelse ($kpis['by_horse'] as $name => $h)
                             <div>
-                                <div class="flex items-baseline justify-between gap-3"><span class="font-medium">{{ $name }}</span><span class="text-sm text-slate-500"><span class="font-semibold text-slate-900">{{ $eur($total) }}</span> · {{ number_format($total / $sum * 100, 0) }} %</span></div>
-                                <div class="mt-1.5 h-4 rounded-full bg-slate-100"><div class="h-4 rounded-full bg-brand-500" style="width: {{ max(1, round($total / $max * 100)) }}%"></div></div>
+                                <div class="flex items-baseline justify-between gap-3"><span class="font-medium">{{ $name }}</span><span class="text-sm text-slate-500">coût net <span class="font-semibold text-slate-900">{{ $signed($h['net']) }}</span></span></div>
+                                <div class="mt-1.5 h-3 rounded-full bg-slate-100"><div class="h-3 rounded-full bg-brand-500" style="width: {{ max(1, round($h['expense'] / $maxHorse * 100)) }}%"></div></div>
+                                @if ($h['income'] > 0)<div class="mt-1 h-3 rounded-full bg-slate-100"><div class="h-3 rounded-full bg-gold-400" style="width: {{ max(1, round($h['income'] / $maxHorse * 100)) }}%"></div></div>@endif
+                                <p class="mt-1 text-xs text-slate-500">Dépenses {{ $eur($h['expense']) }}@if ($h['income'] > 0) · recettes + {{ $eur($h['income']) }}@endif</p>
                             </div>
                         @empty
                             <p class="text-sm text-slate-500">Aucune dépense sur cette période.</p>
                         @endforelse
+                    </div>
+                @else
+                    @php $sum = max(0.01, (float) $kpis['by_category']->sum()); $incSum = max(0.01, (float) $incCat->sum()); @endphp
+                    <div class="space-y-4">
+                        @if ($hasIncome)<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Dépenses</p>@endif
+                        @forelse ($kpis['by_category'] as $name => $total)
+                            <div>
+                                <div class="flex items-baseline justify-between gap-3"><span class="font-medium">{{ $name }}</span><span class="text-sm text-slate-500"><span class="font-semibold text-slate-900">{{ $eur($total) }}</span> · {{ number_format($total / $sum * 100, 0) }} %</span></div>
+                                <div class="mt-1.5 h-4 rounded-full bg-slate-100"><div class="h-4 rounded-full bg-brand-500" style="width: {{ max(1, round($total / $maxCat * 100)) }}%"></div></div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-slate-500">Aucune dépense sur cette période.</p>
+                        @endforelse
+                        @if ($hasIncome)
+                            <p class="pt-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">Recettes</p>
+                            @foreach ($incCat as $name => $total)
+                                <div>
+                                    <div class="flex items-baseline justify-between gap-3"><span class="font-medium">{{ $name }}</span><span class="text-sm text-slate-500"><span class="font-semibold text-brand-800">+ {{ $eur($total) }}</span> · {{ number_format($total / $incSum * 100, 0) }} %</span></div>
+                                    <div class="mt-1.5 h-4 rounded-full bg-slate-100"><div class="h-4 rounded-full bg-gold-400" style="width: {{ max(1, round($total / $maxCat * 100)) }}%"></div></div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                 @endif
             </div>
@@ -180,6 +219,73 @@
         </section>
     @endif
 
+    @if ($toReceive->isNotEmpty())
+        <section class="card mb-4 p-5 sm:p-6" aria-labelledby="to-receive" data-to-receive>
+            <div class="mb-2 flex items-baseline justify-between gap-2">
+                <h2 id="to-receive" class="text-[17px] font-semibold">À recevoir</h2>
+                <span class="text-sm font-semibold text-brand-800">+ {{ $eur($toReceive->sum('amount')) }}</span>
+            </div>
+            <ul class="divide-y divide-slate-100">
+                @foreach ($toReceive as $i)
+                    <li class="flex items-center gap-3 py-3" data-receivable="{{ $i->id }}">
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
+                            <span class="block text-xs {{ $i->isOverdue() ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $i->isOverdue() ? 'En retard · ' : 'Échéance · ' }}{{ $i->received_on->translatedFormat('j M Y') }} · + {{ $eur($i->amount) }}</span>
+                        </span>
+                        @if ($canEditIncome($i))
+                            <form method="POST" action="{{ route('budget.incomes.receive', $i) }}">@csrf<input type="hidden" name="received" value="1"><button class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="check" class="size-4" /> Reçue</button></form>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
+    @if ($recurringIncomes->isNotEmpty())
+        @php $endedIncomes = $recurringIncomes->filter->isEnded()->count(); @endphp
+        <section class="card mb-4 p-5 sm:p-6" aria-labelledby="recurring-incomes-title" x-data="{ ended: false }" data-recurring-incomes>
+            <h2 id="recurring-incomes-title" class="mb-2 text-[17px] font-semibold">Recettes récurrentes</h2>
+            @if ($endedIncomes === $recurringIncomes->count())<p class="py-2 text-sm text-slate-500" x-show="! ended">Aucune recette récurrente en cours.</p>@endif
+            <ul class="divide-y divide-slate-100">
+                @foreach ($recurringIncomes->sortBy(fn ($r) => $r->isEnded() ? 1 : 0) as $r)
+                    <li x-data="{ edit: false }" class="py-3" @if ($r->isEnded()) x-show="ended" x-cloak data-recurring-income-ended @else data-recurring-income-ongoing @endif>
+                        <div class="flex items-center gap-3">
+                            <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl {{ $r->paused_at ? 'bg-slate-100 text-slate-400' : 'bg-gold-100 text-gold-700' }}"><x-icon name="refresh" class="size-5" /></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-medium text-slate-900">{{ $r->label }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $r->horse?->shortName() }}</span>@endunless</span>
+                                <span class="block text-xs text-slate-500">+ {{ $eur($r->amount) }} {{ \App\Models\RecurringExpense::SHORT[$r->frequency] }} ·
+                                    @if ($r->paused_at) Suspendue @elseif (! $r->isActive()) Terminée @else Prochaine le {{ $r->next_due_on->translatedFormat('j M Y') }}{{ $r->ends_on ? ', jusqu\'au '.$r->ends_on->translatedFormat('j M Y') : '' }} @endif</span>
+                            </span>
+                            @if ($canManageRecurringIncome($r))<button type="button" class="btn-ghost min-h-9 px-3 text-sm" @click="edit = ! edit" :aria-expanded="edit">Gérer</button>@endif
+                        </div>
+                        @if ($canManageRecurringIncome($r))
+                        <div x-show="edit" x-cloak class="mt-3 rounded-2xl bg-slate-50 p-4">
+                            <form method="POST" action="{{ route('budget.recurring-incomes.update', $r) }}" class="grid grid-cols-2 gap-3">
+                                @csrf @method('PUT')
+                                <x-field name="label" label="Libellé" :value="$r->label" required class="col-span-2" :id="'ril'.$r->id" />
+                                <x-field name="amount" type="number" step="0.01" min="0.01" label="Montant (€)" :value="$r->amount" required inputmode="decimal" :id="'ria'.$r->id" />
+                                <x-select name="frequency" label="Rythme" :options="\App\Models\RecurringExpense::FREQUENCIES" :value="$r->frequency" :id="'rif'.$r->id" />
+                                <x-field name="next_due_on" type="date" label="Prochaine échéance" :value="$r->next_due_on->toDateString()" required :id="'rin'.$r->id" />
+                                <x-field name="ends_on" type="date" label="Jusqu'au (facultatif)" :value="$r->ends_on?->toDateString()" :id="'rie'.$r->id" />
+                                <button class="btn-primary col-span-2">Enregistrer</button>
+                            </form>
+                            <div class="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+                                <form method="POST" action="{{ route('budget.recurring-incomes.toggle', $r) }}">@csrf<button class="btn-secondary min-h-9 px-4 text-sm">{{ $r->paused_at ? 'Reprendre' : 'Suspendre' }}</button></form>
+                                <x-confirm-delete :action="route('budget.recurring-incomes.destroy', $r)" message="Arrêter cette recette récurrente ? Les échéances déjà enregistrées restent dans le budget." class="btn-ghost min-h-9 px-4 text-sm text-red-600">Arrêter</x-confirm-delete>
+                            </div>
+                        </div>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+            @if ($endedIncomes)
+                <button type="button" class="btn-ghost mt-2 min-h-9 px-3 text-sm" @click="ended = ! ended" :aria-expanded="ended" data-recurring-incomes-toggle>
+                    <span x-text="ended ? 'Masquer les recettes récurrentes terminées' : 'Voir les recettes récurrentes terminées ({{ $endedIncomes }})'">Voir les recettes récurrentes terminées ({{ $endedIncomes }})</span>
+                </button>
+            @endif
+        </section>
+    @endif
+
     @if ($incomes->isNotEmpty())
         <section class="card mb-4 p-5 sm:p-6" aria-labelledby="incomes-title" data-incomes x-data="{ all: false }">
             <div class="mb-2 flex items-baseline justify-between gap-2">
@@ -193,7 +299,7 @@
                             <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
                             <span class="block text-xs text-slate-500">{{ $i->categoryLabel() }} · {{ $i->received_on->translatedFormat('j M Y') }}{{ $i->payer ? ' · '.$i->payer : '' }}</span>
                         </span>
-                        <span class="shrink-0 font-semibold whitespace-nowrap text-brand-800">+ {{ $eur($i->amount) }}</span>
+                        <span class="shrink-0 text-right font-semibold whitespace-nowrap text-brand-800">+ {{ $eur($i->amount) }}@unless ($i->isReceived())<x-badge :color="$i->isOverdue() ? 'red' : 'amber'" class="ml-1">{{ $i->isOverdue() ? 'En retard' : 'À recevoir' }}</x-badge>@endunless</span>
                         @if ($canEditIncome($i))<a href="{{ route('budget.incomes.edit', array_filter(['income' => $i, 'retour_cheval' => $contextHorse?->id])) }}" class="btn-ghost size-10 shrink-0 px-0 text-slate-500" aria-label="Modifier la recette"><x-icon name="pencil" class="size-4" /></a>@endif
                     </li>
                 @endforeach
@@ -235,7 +341,7 @@
 
     @if ($newExpense)
     <dialog id="new-income" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-3xl p-0 backdrop:bg-slate-900/40" data-income-dialog>
-        <form method="POST" action="{{ route('budget.incomes.store') }}" class="space-y-3 p-5">
+        <form method="POST" action="{{ route('budget.incomes.store') }}" class="space-y-3 p-5" x-data="{ recurring: @js((bool) old('income_recurring')) }">
             @csrf
             <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">Nouvelle recette</h2><button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button></div>
             <p class="-mt-1 text-sm text-slate-500">Demi-pension, gains de concours, vente… : elle s'ajoute au solde du budget.</p>
@@ -249,9 +355,20 @@
                 @if ($ie->has('income_category'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_category') }}</p>@endif
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <div><label class="label" for="i_received_on">Date</label><input id="i_received_on" type="date" name="income_received_on" value="{{ old('income_received_on', now()->toDateString()) }}" required class="input">@if ($ie->has('income_received_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_received_on') }}</p>@endif</div>
+                <div><label class="label" for="i_received_on" x-text="recurring ? 'Première échéance' : 'Date'">Date</label><input id="i_received_on" type="date" name="income_received_on" value="{{ old('income_received_on', now()->toDateString()) }}" required class="input">@if ($ie->has('income_received_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_received_on') }}</p>@endif</div>
                 <div><label class="label" for="i_amount">Montant (€)<span class="text-red-600"> *</span></label><input id="i_amount" type="number" name="income_amount" step="0.01" min="0.01" inputmode="decimal" required value="{{ old('income_amount') }}" class="input">@if ($ie->has('income_amount'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_amount') }}</p>@endif</div>
             </div>
+            {{-- Recette qui revient (demi-pension chaque mois…), avec date de fin facultative. --}}
+            <div class="rounded-2xl bg-slate-50 p-3">
+                <label class="flex items-center gap-3 font-medium"><input type="checkbox" name="income_recurring" value="1" x-model="recurring" class="size-5 rounded" data-income-recurring> Recette récurrente (demi-pension…)</label>
+                <div x-show="recurring" x-cloak class="mt-3 grid grid-cols-2 gap-3">
+                    <div class="col-span-2"><label class="label" for="i_label">Libellé</label><input id="i_label" name="income_label" maxlength="120" value="{{ old('income_label') }}" placeholder="ex. Demi-pension de Léa" class="input"></div>
+                    <div><label class="label" for="i_frequency">Rythme</label><select id="i_frequency" name="income_frequency" class="input" data-native>@foreach (\App\Models\RecurringExpense::FREQUENCIES as $k => $l)<option value="{{ $k }}" @selected(old('income_frequency', 'monthly') === $k)>{{ $l }}</option>@endforeach</select></div>
+                    <div><label class="label" for="i_ends_on">Jusqu'au (facultatif)</label><input id="i_ends_on" type="date" name="income_ends_on" value="{{ old('income_ends_on') }}" class="input">@if ($ie->has('income_ends_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_ends_on') }}</p>@endif</div>
+                </div>
+            </div>
+            <input type="hidden" name="income_received" value="0">
+            <label class="flex items-center gap-3 text-sm"><input type="checkbox" name="income_received" value="1" @checked(old('income_received', '1')) class="size-5 rounded"> <span x-text="recurring ? 'Échéances déjà passées reçues' : 'Déjà reçue'">Déjà reçue</span></label>
             <div><label class="label" for="i_payer">Versée par (facultatif)</label><input id="i_payer" name="income_payer" maxlength="150" value="{{ old('income_payer') }}" placeholder="Demi-pensionnaire, organisateur du concours…" class="input"></div>
             <div><label class="label" for="i_comment">Commentaire</label><textarea id="i_comment" name="income_comment" rows="2" maxlength="2000" class="input">{{ old('income_comment') }}</textarea></div>
             <button class="btn-primary w-full">Enregistrer la recette</button>

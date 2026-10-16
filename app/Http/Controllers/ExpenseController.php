@@ -10,11 +10,13 @@ use App\Models\Horse;
 use App\Models\Income;
 use App\Models\Organization;
 use App\Models\RecurringExpense;
+use App\Models\RecurringIncome;
 use App\Services\Audit;
 use App\Services\CareExpenseSync;
 use App\Services\HorseAccess;
 use App\Services\ProfessionalDirectory;
 use App\Services\RecurringExpenses;
+use App\Services\RecurringIncomes;
 use App\Services\Upsell;
 use App\Support\Perm;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -42,6 +44,13 @@ class ExpenseController extends Controller
     public function index(Request $request, HorseAccess $access)
     {
         $user = $request->user();
+        // Recettes récurrentes (demi-pension…) : rattrapage des échéances, comme pour les dépenses.
+        $recurringIncomes = RecurringIncome::with('horse')->whereIn('horse_id', $access->horseIdsWith($user, Perm::EXPENSES_VIEW))
+            ->whereIn('horse_id', Horse::query()->select('horses.id'))
+            ->when($request->integer('horse'), fn ($q, $h) => $q->where('horse_id', $h))->orderBy('label')->get();
+        $incomeService = app(RecurringIncomes::class);
+        $recurringIncomes->filter(fn ($r) => $r->isActive() && $r->next_due_on->lte(today()))->each(fn ($r) => $incomeService->generate($r));
+        $recurringIncomes->each->refresh();
         $recurring = $this->visibleRecurringQuery($request, $access)->with(['horse', 'category'])
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('horse_id', $h))->orderBy('label')->get();
         // Rattrapage des échéances si le planificateur n'est pas passé.
@@ -66,7 +75,9 @@ class ExpenseController extends Controller
         // quelle que soit la catégorie filtrée (une recette n'a pas de catégorie de dépense).
         $balanceExpenses = (float) (clone $query)->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
             ->when(! $allDates, fn ($q) => $q->whereYear('expenses.spent_on', $year))->sum('expenses.amount');
-        $first = $allDates ? (clone $yearQuery)->min('expenses.spent_on') : null;
+        $first = $allDates ? collect([(clone $yearQuery)->min('expenses.spent_on'), (clone $incomePeriod)->min('incomes.received_on')])->filter()->min() : null;
+        // Graphiques : recettes comprises, sauf avec un filtre de catégorie de dépense (une recette n'en a pas).
+        $chartIncomes = $request->integer('category') ? collect() : (clone $incomePeriod)->get(['horse_id', 'category', 'received_on', 'amount']);
         $creatable = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
             // Pas de formulaire voué à l'échec : seuls les chevaux dont l'offre inclut le suivi des dépenses.
@@ -77,7 +88,7 @@ class ExpenseController extends Controller
             'recurring' => $recurring,
             'canPay' => fn (Expense $e) => $this->canEdit($request, $e),
             'canDelete' => fn (Expense $e) => $this->canEdit($request, $e),
-            'unpaid' => (clone $query)->with(['horse', 'category'])->whereNull('expenses.paid_on')
+            'unpaid' => (clone $query)->with(['horse.organization', 'category'])->whereNull('expenses.paid_on')
                 ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))->orderBy('spent_on')->limit(50)->get(),
             'expenses' => $this->expensePage(clone $filtered),
             'year' => $year,
@@ -85,6 +96,11 @@ class ExpenseController extends Controller
             'incomes' => (clone $incomePeriod)->with('horse.organization')->orderByDesc('received_on')->orderByDesc('id')->limit(self::MAX_INCOMES)->get(),
             'incomeCount' => (clone $incomePeriod)->count(),
             'canEditIncome' => fn (Income $i) => IncomeController::canEdit($request, $i),
+            'toReceive' => IncomeController::visibleQuery($request, $access)->with('horse.organization')->whereNull('incomes.collected_on')
+                ->when($request->integer('horse'), fn ($q, $h) => $q->where('incomes.horse_id', $h))->orderBy('received_on')->limit(50)->get(),
+            'recurringIncomes' => $recurringIncomes,
+            'canManageRecurringIncome' => fn (RecurringIncome $r) => $r->horse && $access->can($user, $r->horse, Perm::EXPENSES_CREATE)
+                && ($r->author_id === $user->id || $access->can($user, $r->horse, Perm::HORSE_MANAGE)),
             'kpis' => [
                 'month' => (clone $filtered)->whereBetween('expenses.spent_on', [now()->startOfMonth(), now()->endOfMonth()])->sum('expenses.amount'),
                 'year' => $total,
@@ -97,9 +113,10 @@ class ExpenseController extends Controller
                     : ($year == now()->year ? now()->month : 12)),
                 'by_category' => (clone $yearQuery)->join('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
                     ->select(\DB::raw('expense_categories.name as name, sum(expenses.amount) as total'))->groupBy('expense_categories.name')->orderByDesc('total')->pluck('total', 'name'),
-                'by_horse' => (clone $yearQuery)->leftJoin('horses', 'horses.id', '=', 'expenses.horse_id')
-                    ->select(\DB::raw("coalesce(horses.official_name, 'Non affecté') as name, sum(expenses.amount) as total"))->groupBy('name')->orderByDesc('total')->pluck('total', 'name'),
-                'series' => $this->series($yearQuery, $year, $first),
+                'income_by_category' => $chartIncomes->groupBy('category')->map(fn ($g) => (float) $g->sum('amount'))->sortDesc()
+                    ->mapWithKeys(fn ($t, $c) => [Income::CATEGORIES[$c] ?? 'Autre recette' => $t]),
+                'by_horse' => $this->byHorse($yearQuery, $chartIncomes),
+                'series' => $this->series($yearQuery, $year, $first, $chartIncomes),
             ],
             'horses' => Horse::whereIn('id', (clone $query)->whereNotNull('expenses.horse_id')->distinct()->pluck('expenses.horse_id')->merge($creatable->pluck('id')))->orderBy('official_name')->pluck('official_name', 'id'),
             // Ouvert depuis le dossier d'un cheval : la page garde l'en-tête et les onglets du cheval.
@@ -142,7 +159,7 @@ class ExpenseController extends Controller
     /** Une page de dépenses, les plus récentes d'abord (sans compter le total : page plus légère). */
     private function expensePage(Builder $query): Paginator
     {
-        return $query->with(['horse', 'category', 'documents', 'author'])->orderByDesc('spent_on')->orderByDesc('id')
+        return $query->with(['horse.organization', 'category', 'documents', 'author'])->orderByDesc('spent_on')->orderByDesc('id')
             ->simplePaginate(self::PER_PAGE)->withQueryString();
     }
 
@@ -321,21 +338,42 @@ class ExpenseController extends Controller
      *
      * @return array<int, array{short: string, long: string, value: float}>
      */
-    private function series($query, ?int $year, ?string $first): array
+    private function series($query, ?int $year, ?string $first, $incomes = null): array
     {
         $rows = (clone $query)->get(['spent_on', 'amount']);
+        $incomes ??= collect();
         if ($year) {
             $byMonth = $rows->groupBy(fn ($e) => (int) $e->spent_on->format('n'))->map(fn ($g) => (float) $g->sum('amount'));
+            $inMonth = $incomes->groupBy(fn ($i) => (int) $i->received_on->format('n'))->map(fn ($g) => (float) $g->sum('amount'));
 
             return array_map(fn ($m) => [
-                'short' => mb_substr(Carbon::create(null, $m)->translatedFormat('M'), 0, 3), 'long' => ucfirst(Carbon::create(null, $m)->translatedFormat('F')), 'value' => $byMonth[$m] ?? 0.0,
+                'short' => mb_substr(Carbon::create(null, $m)->translatedFormat('M'), 0, 3), 'long' => ucfirst(Carbon::create(null, $m)->translatedFormat('F')),
+                'value' => $byMonth[$m] ?? 0.0, 'income' => $inMonth[$m] ?? 0.0,
             ], range(1, 12));
         }
         $byYear = $rows->groupBy(fn ($e) => (int) $e->spent_on->format('Y'))->map(fn ($g) => (float) $g->sum('amount'));
+        $inYear = $incomes->groupBy(fn ($i) => (int) $i->received_on->format('Y'))->map(fn ($g) => (float) $g->sum('amount'));
         $from = $first ? min((int) Carbon::parse($first)->format('Y'), now()->year) : now()->year;
-        $to = max(now()->year, (int) ($byYear->keys()->max() ?? now()->year));
+        $to = max(now()->year, (int) ($byYear->keys()->merge($inYear->keys())->max() ?? now()->year));
 
-        return array_map(fn ($y) => ['short' => (string) $y, 'long' => (string) $y, 'value' => $byYear[$y] ?? 0.0], range($from, $to));
+        return array_map(fn ($y) => ['short' => (string) $y, 'long' => (string) $y, 'value' => $byYear[$y] ?? 0.0, 'income' => $inYear[$y] ?? 0.0], range($from, $to));
+    }
+
+    /**
+     * Coût par cheval : dépenses, recettes et coût net (dépenses − recettes), du plus coûteux au moins coûteux.
+     *
+     * @return Collection<string, array{expense: float, income: float, net: float}>
+     */
+    private function byHorse($query, $incomes)
+    {
+        $expenses = (clone $query)->whereNotNull('expenses.horse_id')->select(\DB::raw('expenses.horse_id as hid, sum(expenses.amount) as total'))->groupBy('hid')->pluck('total', 'hid');
+        $in = $incomes->groupBy('horse_id')->map(fn ($g) => (float) $g->sum('amount'));
+        $names = Horse::whereIn('id', $expenses->keys()->merge($in->keys())->unique())->pluck('official_name', 'id');
+
+        return $names->mapWithKeys(fn ($name, $id) => [$name => [
+            'expense' => (float) ($expenses[$id] ?? 0), 'income' => (float) ($in[$id] ?? 0),
+            'net' => (float) ($expenses[$id] ?? 0) - (float) ($in[$id] ?? 0),
+        ]])->sortByDesc('net');
     }
 
     /** Soin rattaché à la dépense que l'utilisateur peut supprimer (droit de modifier la santé du cheval). */
@@ -423,7 +461,9 @@ class ExpenseController extends Controller
         $horseIds = $access->horseIdsWith($user, Perm::EXPENSES_VIEW);
         $orgIds = $user->memberships->filter(fn ($m) => in_array(Perm::EXPENSES_ORG_VIEW, $m->role->permissionKeys(), true))->pluck('organization_id');
 
-        return Expense::query()->select('expenses.*')->where(fn ($q) => $q->whereIn('expenses.horse_id', $horseIds)->orWhereIn('expenses.organization_id', $orgIds));
+        return Expense::query()->select('expenses.*')->where(fn ($q) => $q->whereIn('expenses.horse_id', $horseIds)->orWhereIn('expenses.organization_id', $orgIds))
+            // Cheval supprimé : ses dépenses ne comptent plus nulle part (liste, totaux, graphiques).
+            ->where(fn ($q) => $q->whereNull('expenses.horse_id')->orWhereIn('expenses.horse_id', Horse::query()->select('horses.id')));
     }
 
     /** Récurrences visibles : mêmes règles que les dépenses. */
@@ -433,7 +473,8 @@ class ExpenseController extends Controller
         $horseIds = $access->horseIdsWith($user, Perm::EXPENSES_VIEW);
         $orgIds = $user->memberships->filter(fn ($m) => in_array(Perm::EXPENSES_ORG_VIEW, $m->role->permissionKeys(), true))->pluck('organization_id');
 
-        return RecurringExpense::query()->where(fn ($q) => $q->whereIn('horse_id', $horseIds)->orWhere(fn ($w) => $w->whereNull('horse_id')->whereIn('organization_id', $orgIds)));
+        return RecurringExpense::query()->where(fn ($q) => $q->whereIn('horse_id', $horseIds)->orWhere(fn ($w) => $w->whereNull('horse_id')->whereIn('organization_id', $orgIds)))
+            ->where(fn ($q) => $q->whereNull('horse_id')->orWhereIn('horse_id', Horse::query()->select('horses.id')));
     }
 
     public function authorizeTarget(Request $request, ?int $horseId): Organization

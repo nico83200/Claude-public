@@ -13,7 +13,7 @@ class Income extends Model
 
     protected $guarded = ['id', 'uuid', 'organization_id', 'author_id'];
 
-    protected $casts = ['received_on' => 'date', 'amount' => 'decimal:2'];
+    protected $casts = ['received_on' => 'date', 'collected_on' => 'date', 'amount' => 'decimal:2'];
 
     public const CATEGORIES = [
         'half_lease' => 'Demi-pension',
@@ -26,6 +26,23 @@ class Income extends Model
         'refund' => 'Remboursement',
         'other' => 'Autre recette',
     ];
+
+    /** Reçue (comme « payée » pour une dépense) ; sinon « à recevoir ». */
+    public function isReceived(): bool
+    {
+        return $this->collected_on !== null;
+    }
+
+    /** À recevoir et date dépassée. */
+    public function isOverdue(): bool
+    {
+        return ! $this->isReceived() && $this->received_on->lt(today());
+    }
+
+    public function recurring()
+    {
+        return $this->belongsTo(RecurringIncome::class, 'recurring_income_id');
+    }
 
     public function categoryLabel(): string
     {
