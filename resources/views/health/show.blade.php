@@ -2,7 +2,8 @@
     <x-page-header :title="$record->category->name.($record->reason ? ' — '.$record->reason : '')" :subtitle="$horse->shortName().' · '.$record->performed_at->format('d/m/Y H:i')" :back="route('horses.care.index', $horse)">
         @if ($canEdit)
             <a href="{{ route('horses.care.edit', [$horse, $record]) }}" class="btn-secondary">Modifier</a>
-            <x-confirm-delete :action="route('horses.care.destroy', [$horse, $record])" message="Supprimer ce soin ?" />
+            @php $dx = $deletableExpenses->sum('amount'); @endphp
+            <x-confirm-delete :action="route('horses.care.destroy', [$horse, $record])" message="Supprimer ce soin ?" :check="$deletableExpenses->isNotEmpty() ? 'with_expense' : null" :check-label="'Supprimer aussi la dépense liée ('.number_format((float) $dx, 2, ',', ' ').' €)'" />
         @endif
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3">

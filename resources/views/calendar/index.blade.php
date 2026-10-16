@@ -87,19 +87,21 @@
     @endif
 
     {{-- Liste (mobile en vue mois, et vues jour/semaine) --}}
-    {{-- Du plus récent au plus ancien (début du mois en bas), séparation nette entre ce qui est à venir et ce qui est passé. --}}
+    {{-- Ordre chronologique : le passé (estompé) en haut, puis « Aujourd'hui » et la suite ; la page s'ouvre sur aujourd'hui,
+         ou sur l'événement qui vient d'être ajouté. --}}
     @php
-        $listDays = $byDay->sortKeysDesc();
+        $listDays = $byDay->sortKeys();
         $todayKey = now()->toDateString();
         $showDivider = $from->lte(now()) && $to->gte(now()->startOfDay());
         $dividerDone = false;
+        $highlight = session('highlight');
     @endphp
-    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3" data-agenda-list>
+    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3" data-agenda-list
+         x-data x-init="$nextTick(() => ($el.querySelector('[data-highlight]') || $el.querySelector('[data-today-divider]'))?.scrollIntoView({ block: 'center' }))">
         @forelse ($listDays as $day => $items)
-            @if ($showDivider && ! $dividerDone && $day < $todayKey)
+            @if ($showDivider && ! $dividerDone && $day >= $todayKey)
                 @php $dividerDone = true; @endphp
-                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui · {{ now()->translatedFormat('j F') }}</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
-                <p class="-mt-1 text-center text-xs font-medium tracking-wide text-slate-400 uppercase">Passé</p>
+                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
             @endif
             <div class="{{ $day < $todayKey ? 'opacity-60' : '' }}" @if ($day === $todayKey) id="aujourdhui" @endif>
                 @php $dayC = \Illuminate\Support\Carbon::parse($day); @endphp
@@ -107,7 +109,7 @@
                 <div class="card divide-y divide-slate-100">
                     @foreach ($items as $o)
                         @php $ev = $o['event']; @endphp
-                        <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif class="flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
+                        <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif @if ($highlight && empty($o['journal']) && $ev->id == $highlight) data-highlight @endif class="{{ $highlight && empty($o['journal']) && $ev->id == $highlight ? 'bg-brand-50 ring-2 ring-brand-500' : '' }} flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
                             <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
                             <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>
                             <span class="min-w-0 flex-1">
@@ -126,8 +128,8 @@
                 </div>
             </div>
             @if ($loop->last && $showDivider && ! $dividerDone)
-                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui · {{ now()->translatedFormat('j F') }}</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
-                <p class="-mt-1 text-center text-xs text-slate-400">Rien de passé sur cette période.</p>
+                <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
+                <p class="-mt-1 text-center text-xs text-slate-400">Rien de prévu ensuite sur cette période.</p>
             @endif
         @empty
             <x-empty title="Aucun événement sur cette période" icon="calendar" />

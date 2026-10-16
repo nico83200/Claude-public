@@ -123,6 +123,16 @@
 
         <main class="mx-auto max-w-6xl px-4 pt-4 pb-32 sm:px-6 lg:pb-12">
             <x-flash />
+            @auth
+                @unless (auth()->user()->hasVerifiedEmail())
+                    {{-- Adresse à confirmer : l'application reste utilisable, la confirmation sera demandée au bout de 7 jours. --}}
+                    <div class="mb-4 flex flex-wrap items-center gap-3 rounded-2xl bg-gold-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-gold-200" data-verify-banner>
+                        <x-icon name="alert" class="size-5 shrink-0 text-gold-700" />
+                        <p class="min-w-0 flex-1">Confirmez votre adresse <strong>{{ auth()->user()->email }}</strong> avec le lien reçu par e-mail, pour recevoir vos rappels.</p>
+                        <form method="POST" action="{{ route('verification.send') }}">@csrf<button class="btn-ghost min-h-9 px-3 text-sm">Renvoyer le lien</button></form>
+                    </div>
+                @endunless
+            @endauth
             {{ $slot }}
         </main>
     </div>

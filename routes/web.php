@@ -55,7 +55,8 @@ Route::delete('/parametres/securite/{provider}', [Controllers\SocialAuthControll
 Route::get('/email/confirmer/{id}/{hash}', Controllers\EmailVerificationController::class)->middleware(['signed', 'throttle:12,1'])->name('verification.public');
 Route::get('/invitations/{token}', [Controllers\InvitationController::class, 'show'])->name('invitations.show');
 
-Route::middleware(['auth', 'verified', 'org'])->group(function () {
+// Adresse e-mail à confirmer dans les 7 jours (bandeau de rappel en attendant) ; l'administration l'exige toujours.
+Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::post('/invitations/recues/{invitation}', [Controllers\InvitationController::class, 'respond'])->name('invitations.respond');
     Route::post('/invitations/{token}/accepter', [Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
     Route::post('/invitations/{token}/refuser', [Controllers\InvitationController::class, 'decline'])->name('invitations.decline');

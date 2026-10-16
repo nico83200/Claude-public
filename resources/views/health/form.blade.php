@@ -15,12 +15,19 @@
                 <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required x-model="performed" />
                 <x-professional-select label="Professionnel" :options="$professionals" :value="$record->professional_id" :org="$horse->organization" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
                 <x-field name="reason" label="Motif" :value="$record->reason" />
-                <x-textarea name="observations" label="Observations" :value="$record->observations" />
-                <x-textarea name="care_performed" label="Soins réalisés" :value="$record->care_performed" />
-                <x-textarea name="diagnosis" label="Diagnostic communiqué par le professionnel" :value="$record->diagnosis" />
-                <x-textarea name="instructions" label="Consignes" :value="$record->instructions" />
-                <x-field name="cost" type="number" step="0.01" min="0" label="Coût (€)" :value="$record->cost" x-model="cost" />
+                <x-field name="cost" type="number" step="0.01" min="0" label="Coût (€)" :value="$record->cost" x-model="cost" inputmode="decimal" />
             </div>
+            {{-- Détails repliés : pour un parage ou un vermifuge, l'essentiel suffit. --}}
+            @php $hasDetails = filled($record->observations) || filled($record->care_performed) || filled($record->diagnosis) || filled($record->instructions) || $errors->hasAny(['observations', 'care_performed', 'diagnosis', 'instructions']); @endphp
+            <details class="group mt-4 rounded-2xl bg-slate-50 p-4" @if ($hasDetails) open @endif data-care-details>
+                <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between font-medium text-slate-700">Ajouter des détails (observations, soins, diagnostic, consignes)<x-icon name="chevron" class="size-4 transition group-open:rotate-90" /></summary>
+                <div class="mt-3 grid gap-4 sm:grid-cols-2">
+                    <x-textarea name="observations" label="Observations" :value="$record->observations" rows="2" />
+                    <x-textarea name="care_performed" label="Soins réalisés" :value="$record->care_performed" rows="2" />
+                    <x-textarea name="diagnosis" label="Diagnostic communiqué par le professionnel" :value="$record->diagnosis" rows="2" />
+                    <x-textarea name="instructions" label="Consignes" :value="$record->instructions" rows="2" />
+                </div>
+            </details>
         </x-section>
         <x-section title="Prochain passage">
             <div class="space-y-3">
@@ -58,6 +65,6 @@
                 <x-select name="attachment_category" label="Type de document" :options="$docCategories" value="report" />
             </div>
         </x-section>
-        <button class="btn-primary">Enregistrer</button>
+        <button class="btn-primary w-full sm:w-auto">Enregistrer le soin</button>
     </form>
 </x-layouts.app>

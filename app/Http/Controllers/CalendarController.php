@@ -124,7 +124,7 @@ class CalendarController extends Controller
         $event->created_by = $request->user()->id;
         $event->save();
 
-        return redirect()->route('calendar.index', ['date' => $event->starts_at->toDateString(), 'view' => $request->input('return_view', 'month')])->with('success', 'Événement ajouté.');
+        return redirect()->route('calendar.index', ['date' => $event->starts_at->toDateString(), 'view' => $request->input('return_view', 'month')])->with('success', '« '.$event->title.' » ajouté le '.$event->starts_at->translatedFormat('D j M').($event->all_day ? '' : ' à '.$event->starts_at->format('H:i')).'.')->with('highlight', $event->id);
     }
 
     public function update(Request $request, CalendarEvent $event)

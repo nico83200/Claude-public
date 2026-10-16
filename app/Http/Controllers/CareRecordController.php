@@ -74,6 +74,18 @@ class CareRecordController extends Controller
         return $latest->map(fn (CareRecord $c) => ['care' => $c, 'event' => $events->get($c->id)]);
     }
 
+    /** Dépenses rattachées au soin que l'utilisateur peut supprimer (auteur, ou propriétaire / gérant du cheval). */
+    private function linkedExpenses(Request $request, CareRecord $care)
+    {
+        $horse = $care->horse;
+        if (! $horse || ! $this->horseCan($horse, Perm::EXPENSES_CREATE)) {
+            return collect();
+        }
+
+        return Expense::where('care_record_id', $care->id)->get()
+            ->filter(fn (Expense $e) => $e->author_id === $request->user()->id || $this->horseCan($horse, Perm::HORSE_MANAGE))->values();
+    }
+
     public function create(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
@@ -113,11 +125,12 @@ class CareRecordController extends Controller
         return redirect()->route('horses.care.show', [$horse, $record])->with('success', 'Soin enregistré.');
     }
 
-    public function show(Horse $horse, CareRecord $care)
+    public function show(Request $request, Horse $horse, CareRecord $care)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_VIEW);
 
         return view('health.show', [
+            'deletableExpenses' => $this->linkedExpenses($request, $care),
             'horse' => $horse,
             'record' => $care->load(['category', 'professional', 'author', 'treatments', 'documents']),
             'canEdit' => $this->horseCan($horse, Perm::HEALTH_EDIT),
@@ -156,15 +169,31 @@ class CareRecordController extends Controller
     public function destroy(Request $request, Horse $horse, CareRecord $care)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
+        $expenses = $this->linkedExpenses($request, $care);
         $care->delete();
         $this->calendar->syncFor($care, $horse, 'care', '', null);
         Audit::log('care.deleted', $care, [], $horse->organization_id);
-        // Suppression d'un glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
+        // Dépense liée : supprimée aussi si l'utilisateur l'a choisi dans la confirmation.
+        $withExpense = $expenses->isNotEmpty() && $request->boolean('with_expense');
+        if ($withExpense) {
+            $expenses->each(function (Expense $e) use ($horse) {
+                $e->delete();
+                Audit::log('expense.deleted', $e, ['with_care' => $e->care_record_id], $horse->organization_id);
+            });
+        }
+        // Suppression d'un glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation,
+        // et la proposition de supprimer aussi la dépense liée.
         if ($request->expectsJson()) {
-            return response()->json(['deleted' => true, 'restore_url' => route('horses.care.restore', [$horse, $care])]);
+            $first = $expenses->first();
+
+            return response()->json(['deleted' => true, 'restore_url' => route('horses.care.restore', [$horse, $care])] + ($first && ! $withExpense && $expenses->count() === 1 ? ['care' => [
+                'text' => 'Supprimer aussi la dépense liée ('.number_format((float) $first->amount, 2, ',', ' ').' €) ?',
+                'delete_url' => route('budget.destroy', $first),
+                'done' => 'Dépense de '.number_format((float) $first->amount, 2, ',', ' ').' € supprimée',
+            ]] : []));
         }
 
-        return redirect()->route('horses.care.index', $horse)->with('success', 'Soin supprimé.');
+        return redirect()->route('horses.care.index', $horse)->with('success', $withExpense ? 'Soin et dépense liée supprimés.' : 'Soin supprimé.');
     }
 
     /** « Annuler » après une suppression : le soin revient, avec son rendez-vous et son contrôle prévu dans l'agenda. */

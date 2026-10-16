@@ -90,6 +90,12 @@ class HorseController extends Controller
             'events' => $has(Perm::CALENDAR_VIEW) ? $horse->events()->visibleSessions($has(Perm::SESSIONS_VIEW) ? [$horse->id] : [])->where('starts_at', '>=', now()->startOfDay())->where('status', '!=', 'cancelled')->orderBy('starts_at')->limit(5)->get() : collect(),
             'observations' => $horse->observations()->with('author')->whereNull('resolved_at')->limit(5)->get(),
             'logs' => $horse->dailyLogs()->with('author')->limit(3)->get(),
+            // Bande « Aujourd'hui » : ration en cours, dernier suivi, poids et prochaine échéance.
+            'today' => [
+                'rations' => $has(Perm::FEEDING_VIEW) ? $horse->rations()->activeToday()->with('entries')->get() : collect(),
+                'weights' => $horse->measurements()->reorder()->whereNotNull('weight_kg')->latest('measured_on')->latest('id')->limit(2)->get(),
+                'nextDue' => $has(Perm::HEALTH_VIEW) ? $horse->careRecords()->with('category')->reorder()->whereNotNull('next_check_on')->whereNull('next_check_done_at')->orderBy('next_check_on')->first() : null,
+            ],
             'transferTargets' => $has(Perm::HORSE_MANAGE) ? $request->user()->memberships->filter(fn ($m) => $m->organization_id !== $horse->organization_id && in_array(Perm::HORSES_CREATE, $m->role->permissionKeys(), true))->map->organization : collect(),
         ]);
     }

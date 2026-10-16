@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountActive;
+use App\Http\Middleware\EnsureEmailVerifiedWithGrace;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\LoadCurrentOrganization;
 use App\Http\Middleware\RedirectIfNotInstalled;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,
+            'verified.grace' => EnsureEmailVerifiedWithGrace::class,
             'super-admin' => EnsureSuperAdmin::class,
         ]);
         // Webhook Stripe : authentifié par signature, pas par jeton CSRF.

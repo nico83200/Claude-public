@@ -4,8 +4,10 @@
         'vapidKey' => rescue(fn () => app(\App\Services\WebPush::class)->publicKey(), null, false),
         'subscribeUrl' => route('push.subscribe'),
         'stateUrl' => route('push.state'),
-        // Pages toujours accessibles : export et suppression des données personnelles.
-        'enabled' => ! request()->routeIs('settings.privacy', 'settings.export', 'settings.data-request'),
+        // Pages toujours accessibles : export et suppression des données personnelles. Demande faite au moment
+        // où elle a du sens : une fois le premier cheval ajouté (les rappels le concernent).
+        'enabled' => ! request()->routeIs('settings.privacy', 'settings.export', 'settings.data-request')
+            && auth()->check() && app(\App\Services\HorseAccess::class)->accessibleHorses(auth()->user())->isNotEmpty(),
     ];
 @endphp
 <script type="application/json" id="push-config">@json($pushConfig)</script>
@@ -31,6 +33,7 @@
                     <span x-text="$store.pushGate.busy ? 'Activation…' : 'Activer les notifications'">Activer les notifications</span>
                 </button>
                 <p class="mt-3 text-xs text-slate-400">Votre téléphone va vous demander l'autorisation : choisissez « Autoriser ».</p>
+                <button type="button" class="mt-5 min-h-11 text-sm font-medium text-brand-700 underline-offset-4 hover:underline" @click="$store.pushGate.skip()" data-push-later>Plus tard</button>
             </div>
         </template>
 
@@ -56,7 +59,7 @@
                 <button type="button" class="btn-primary big-touch mt-6 w-full" @click="$store.pushGate.retry()" :disabled="$store.pushGate.busy">
                     <span x-text="$store.pushGate.busy ? 'Vérification…' : 'C\'est fait, continuer'">C'est fait, continuer</span>
                 </button>
-                <button type="button" x-show="$store.pushGate.stuck" class="mt-4 text-sm font-medium text-brand-700 underline-offset-4 hover:underline" @click="$store.pushGate.skip()">Continuer sans notifications pour l'instant</button>
+                <button type="button" class="mt-4 min-h-11 text-sm font-medium text-brand-700 underline-offset-4 hover:underline" @click="$store.pushGate.skip()">Continuer sans notifications pour l'instant</button>
             </div>
         </template>
 

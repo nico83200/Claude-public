@@ -90,7 +90,7 @@ class ExpenseController extends Controller
             'canDelete' => fn (Expense $e) => $this->canEdit($request, $e),
             'unpaid' => (clone $query)->with(['horse.organization', 'category'])->whereNull('expenses.paid_on')
                 ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))->orderBy('spent_on')->limit(50)->get(),
-            'expenses' => $this->expensePage(clone $filtered),
+            'expenses' => $this->expensePage(clone $yearQuery),
             'year' => $year,
             'periodLabel' => $allDates ? 'Toutes les dates' : 'Année '.$year,
             'incomes' => (clone $incomePeriod)->with('horse.organization')->orderByDesc('received_on')->orderByDesc('id')->limit(self::MAX_INCOMES)->get(),
@@ -136,7 +136,7 @@ class ExpenseController extends Controller
     /** « Afficher 10 dépenses de plus » : lignes suivantes (téléphone et tableau), sans recalculer la page. */
     public function more(Request $request, HorseAccess $access)
     {
-        $expenses = $this->expensePage($this->applyFilters($request, $this->visibleQuery($request, $access)));
+        $expenses = $this->expensePage($this->yearFilter($request, $this->applyFilters($request, $this->visibleQuery($request, $access))));
         $data = ['expenses' => $expenses, 'contextHorse' => $this->contextHorse($request, $access), 'canDelete' => fn (Expense $e) => $this->canEdit($request, $e)];
 
         return response()->json([
@@ -144,6 +144,14 @@ class ExpenseController extends Controller
             'desktop' => view('budget._expense-rows', $data)->render(),
             'next' => $expenses->hasMorePages() ? route('budget.more', array_merge($request->query(), ['page' => $expenses->currentPage() + 1])) : null,
         ]);
+    }
+
+    /** Année choisie (boutons d'année) : la liste suit les chiffres ; « Toutes » ne filtre pas. */
+    private function yearFilter(Request $request, Builder $query): Builder
+    {
+        $year = $request->query('year', (string) now()->year);
+
+        return $year === 'toutes' ? $query : $query->whereYear('expenses.spent_on', (int) $year);
     }
 
     /** Filtres de la liste (cheval, catégorie, période). */

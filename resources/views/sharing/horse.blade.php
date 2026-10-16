@@ -1,8 +1,16 @@
 <x-layouts.app :title="'Partage · '.$horse->shortName()">
     <x-horse-header :horse="$horse" />
+    @if ($sharingIncluded && $sharesFull)
+        {{-- Limite atteinte : le dire clairement, avec la limite de l'offre. --}}
+        <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" data-shares-full>
+            Votre offre permet de partager avec {{ $sharesLimit }} {{ $sharesLimit > 1 ? 'personnes' : 'personne' }} au total (invitations en attente comprises). Pour inviter quelqu'un d'autre, retirez un accès ou une invitation, ou passez à une offre supérieure.
+        </div>
+    @endif
     @if ($upsell)
         <x-upsell :offer="$upsell" class="mb-4" />
-    @elseunless ($sharingIncluded)<div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Le partage n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</div>@endif
+    @elseif (! $sharingIncluded)
+        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Le partage n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</div>
+    @endif
     <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-4">
             <x-section title="Personnes ayant accès">

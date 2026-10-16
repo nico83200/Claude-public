@@ -52,7 +52,13 @@
     @endif
 
     <div class="card mb-4 grid grid-cols-3 divide-x divide-slate-100 py-4 text-center">
-        <div class="px-2"><p class="text-xs text-slate-500">Ce mois-ci</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['month']) }}</p></div>
+        @if (! $year || $year == now()->year)
+            <div class="px-2"><p class="text-xs text-slate-500">Ce mois-ci</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['month']) }}</p></div>
+        @else
+            {{-- Année passée : « ce mois-ci » n'a pas de sens, on montre le mois le plus élevé. --}}
+            @php $topMonth = collect($kpis['series'])->sortByDesc('value')->first(); @endphp
+            <div class="px-2"><p class="text-xs text-slate-500">Mois le plus élevé</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($topMonth['value'] ?? 0) }}</p><p class="text-xs text-slate-500">{{ ($topMonth['value'] ?? 0) > 0 ? $topMonth['long'] : '—' }}</p></div>
+        @endif
         <div class="px-2"><p class="text-xs text-slate-500">{{ $year ? 'Année '.$year : 'Toutes les dates' }}</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['year']) }}</p></div>
         <div class="px-2"><p class="text-xs text-slate-500">Par mois</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['per_month']) }}</p></div>
     </div>
@@ -314,7 +320,7 @@
     @endif
 
     @if ($expenses->isEmpty())
-        <x-empty title="Aucune dépense" icon="wallet" />
+        <x-empty :title="$year ? 'Aucune dépense en '.$year : 'Aucune dépense'" icon="wallet" />
     @else
         @php $anyDeletable = $expenses->contains(fn ($e) => $canDelete($e)); @endphp
         <x-swipe.list hint-key="jc-hint-swipe-expenses" :hint="$anyDeletable ? 'glissez une dépense vers la gauche pour la supprimer. Vous pourrez annuler juste après.' : null" class="sm:hidden">

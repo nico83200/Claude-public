@@ -52,6 +52,8 @@ class HorseSharingController extends Controller
             'presets' => ['half_lease' => Perm::halfLeasePreset(), 'boarding' => Perm::boardingPreset()],
             'kinds' => HorseOrganizationAssignment::KINDS,
             'sharingIncluded' => $this->entitlements()->hasFeature($org, 'sharing'),
+            'sharesFull' => $sharesFull,
+            'sharesLimit' => $this->entitlements()->limit($org, 'max_invitations'),
             'upsell' => app(Upsell::class)->for($org, $request->user(), 'sharing') ?? ($sharesFull ? app(Upsell::class)->for($org, $request->user(), 'max_invitations') : null),
         ]);
     }

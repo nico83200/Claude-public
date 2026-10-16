@@ -96,7 +96,10 @@ class RidingSessionController extends Controller
         return view('sessions.create', [
             'horses' => $horses->pluck('official_name', 'id'),
             'templates' => SessionTemplate::where('user_id', $user->id)->orWhereIn('organization_id', $user->memberships->pluck('organization_id'))->orderBy('name')->pluck('name', 'id'),
-            'selectedHorse' => $request->integer('horse') ?: null,
+            // Cheval présélectionné : celui demandé, sinon le seul cheval, sinon celui de la dernière séance saisie.
+            'selectedHorse' => $request->integer('horse') ?: ($horses->count() === 1 ? $horses->first()->id
+                : RidingSession::where('created_by', $user->id)->whereIn('horse_id', $horses->pluck('id'))->latest('id')->value('horse_id')),
+            'justRode' => $request->boolean('fait'),
             'date' => $request->query('date'),
         ]);
     }

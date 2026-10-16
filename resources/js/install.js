@@ -58,7 +58,13 @@ export function installStore() {
         },
         /** Téléphone/tablette hors application installée : on propose uniquement l'installation. */
         get gate() {
-            return this.handheld && !this.installed;
+            return this.handheld && !this.installed && !this.browserChosen;
+        },
+        /** « Continuer dans le navigateur » : l'installation reste conseillée, sans être imposée (mémorisé pour la session). */
+        browserChosen: (() => { try { return sessionStorage.getItem('jc-browser') === '1'; } catch { return false; } })(),
+        useBrowser() {
+            this.browserChosen = true;
+            try { sessionStorage.setItem('jc-browser', '1'); } catch { /* sans effet */ }
         },
         get available() {
             return !this.installed && (this.canPrompt || this.isIOS || this.isAndroid);

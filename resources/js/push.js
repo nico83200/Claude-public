@@ -91,6 +91,15 @@ const session = {
     set: (k, v) => { try { v === null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { /* sans effet */ } },
 };
 
+/** « Plus tard » : l'écran ne revient qu'au bout de quelques jours (stockage local, sinon pour la session). */
+const LATER_DAYS = 7;
+const later = {
+    active() {
+        try { const t = Number(localStorage.getItem('jc-push-later') || 0); return t > 0 && Date.now() - t < LATER_DAYS * 86400000; } catch { return !!session.get('jc-push-skip'); }
+    },
+    set() { try { localStorage.setItem('jc-push-later', String(Date.now())); } catch { session.set('jc-push-skip', '1'); } },
+};
+
 /**
  * Autorisation actuelle. Notification.permission peut rester figée sur « denied » dans une page déjà
  * ouverte quand l'utilisateur autorise ensuite dans les réglages d'Android : l'API Permissions est
@@ -108,8 +117,8 @@ export async function notificationPermission() {
  * Écran plein écran : sur téléphone/tablette (application installée), l'utilisation est bloquée
  * tant que les notifications ne sont pas activées. Jamais de blocage quand c'est impossible
  * (navigateur sans Web Push, ex. iOS < 16.4) : il n'y aurait aucun moyen d'en sortir.
- * Si l'autorisation reste refusée malgré les réglages (page rechargée comprise), l'utilisateur peut
- * continuer sans notifications pour la session : l'écran revient au prochain lancement.
+ * « Plus tard » est toujours proposé : l'écran revient après quelques jours (LATER_DAYS), jamais avant
+ * que le premier cheval soit ajouté (le serveur ne l'active qu'à ce moment-là).
  */
 export function pushGateStore({ vapidKey, subscribeUrl, enabled, stateUrl }) {
     return {
@@ -120,7 +129,7 @@ export function pushGateStore({ vapidKey, subscribeUrl, enabled, stateUrl }) {
         error: '',
         async init(install) {
             if (!install || !enabled || !install.handheld || !install.installed || !pushSupported() || !vapidKey) return;
-            if (session.get('jc-push-skip')) return;
+            if (session.get('jc-push-skip') || later.active()) return;
             this.stuck = session.get('jc-push-retry') === '1';
             await this.check();
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && this.show) this.check(); });
@@ -173,6 +182,7 @@ export function pushGateStore({ vapidKey, subscribeUrl, enabled, stateUrl }) {
         },
         skip() {
             session.set('jc-push-skip', '1');
+            later.set();
             this.show = false;
         },
     };

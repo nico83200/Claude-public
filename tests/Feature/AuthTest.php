@@ -32,9 +32,13 @@ class AuthTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'bob@example.com']);
     }
 
-    public function test_unverified_user_is_redirected_to_verification(): void
+    public function test_unverified_user_can_start_then_must_verify_after_a_week(): void
     {
+        // Compte neuf : il entre tout de suite, avec un bandeau pour confirmer son adresse.
         $user = $this->user(['email_verified_at' => null]);
+        $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('data-verify-banner', false);
+        // Au-delà de 7 jours sans confirmation : page de confirmation.
+        $user->forceFill(['created_at' => now()->subDays(8)])->save();
         $this->actingAs($user)->get('/dashboard')->assertRedirect('/email/verify');
     }
 

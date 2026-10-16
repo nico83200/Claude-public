@@ -9,6 +9,47 @@
     </x-horse-header>
 
 
+    @php
+        $lastLog = $logs->first(); $w = $today['weights']; $nextDue = $today['nextDue'];
+        $trend = $w->count() === 2 ? (float) $w[0]->weight_kg - (float) $w[1]->weight_kg : null;
+        $qty = fn ($e) => $e->quantity !== null ? rtrim(rtrim((string) $e->quantity, '0'), '.').' '.$e->unit : '';
+    @endphp
+    {{-- Aujourd'hui : ce qu'on vient vérifier chaque jour, en un coup d'œil. --}}
+    <div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4" data-horse-today>
+        <a href="{{ route('horses.logs.index', $horse) }}" class="card p-4 hover:ring-brand-300">
+            <p class="text-xs text-slate-500">Dernier suivi</p>
+            @if ($lastLog)
+                <p class="mt-1 font-semibold {{ $lastLog->anomalies || $lastLog->general_state === 'poor' ? 'text-red-700' : 'text-slate-900' }}">{{ $lastLog->anomalies ? 'Anomalie signalée' : 'État : '.(\App\Models\DailyLog::STATE[$lastLog->general_state] ?? '—') }}</p>
+                <p class="text-xs text-slate-500">{{ $lastLog->logged_at->diffForHumans() }}</p>
+            @else<p class="mt-1 font-semibold text-slate-400">Aucun</p><p class="text-xs text-brand-700">Noter le suivi du jour</p>@endif
+        </a>
+        <a href="{{ route('horses.weight', $horse) }}" class="card p-4 hover:ring-brand-300">
+            <p class="text-xs text-slate-500">Poids</p>
+            @if ($w->isNotEmpty())
+                <p class="mt-1 font-semibold text-slate-900">{{ number_format((float) $w[0]->weight_kg, 0, ',', ' ') }} kg @if ($trend !== null && abs($trend) >= 1)<span class="text-xs font-medium {{ abs($trend) >= 15 ? 'text-amber-700' : 'text-slate-500' }}">{{ $trend > 0 ? '+' : '−' }}{{ number_format(abs($trend), 0, ',', ' ') }}</span>@endif</p>
+                <p class="text-xs text-slate-500">le {{ $w[0]->measured_on->format('d/m') }}</p>
+            @else<p class="mt-1 font-semibold text-slate-400">—</p><p class="text-xs text-brand-700">Ajouter une pesée</p>@endif
+        </a>
+        @if ($can('health.view'))
+        <a href="{{ route('horses.care.index', $horse) }}#controles" class="card p-4 hover:ring-brand-300">
+            <p class="text-xs text-slate-500">Prochaine échéance</p>
+            @if ($nextDue)
+                <p class="mt-1 truncate font-semibold {{ $nextDue->next_check_on->isPast() ? 'text-red-700' : 'text-slate-900' }}">{{ $nextDue->category?->name }}</p>
+                <p class="text-xs {{ $nextDue->next_check_on->isPast() ? 'text-red-600' : 'text-slate-500' }}">{{ $nextDue->next_check_on->isPast() ? 'en retard depuis le ' : 'le ' }}{{ $nextDue->next_check_on->format('d/m') }}</p>
+            @else<p class="mt-1 font-semibold text-slate-400">Rien de prévu</p>@endif
+        </a>
+        @endif
+        @if ($can('feeding.view'))
+        <a href="{{ route('horses.feeding', $horse) }}" class="card p-4 hover:ring-brand-300">
+            <p class="text-xs text-slate-500">Ration{{ $today['rations']->count() > 1 ? 's' : '' }} en cours</p>
+            @forelse ($today['rations']->take(2) as $r)
+                <p class="mt-1 truncate text-sm font-semibold text-slate-900">{{ $r->name }}</p>
+                <p class="truncate text-xs text-slate-500">{{ $r->entries->take(3)->map(fn ($e) => trim(($e->time_of_day ? substr($e->time_of_day, 0, 5).' ' : '').$e->feed.' '.$qty($e)))->implode(' · ') }}</p>
+            @empty<p class="mt-1 font-semibold text-slate-400">Aucune</p><p class="text-xs text-brand-700">Ajouter une ration</p>@endforelse
+        </a>
+        @endif
+    </div>
+
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             @if ($horse->precautions || $horse->care_instructions)

@@ -21,7 +21,10 @@
         @if ($canEdit)
             <div class="mt-4 flex flex-wrap gap-2">
                 @unless ($session->isCompleted())
-                    <a href="{{ route('sessions.debrief', $session) }}" class="btn-primary" data-debrief-link><x-icon name="check" class="size-4" /> Faire le bilan</a>
+                    @php $canStart = $session->usesExercises() && $session->exercises->isNotEmpty() && $session->status !== 'cancelled'; @endphp
+                    {{-- Séance préparée : le mode séance (grandes commandes, au bord de la carrière) en action principale. --}}
+                    @if ($canStart)<a href="{{ route('sessions.live', $session) }}" class="btn-primary" data-live-link><x-icon name="play" class="size-4" /> {{ $session->status === 'in_progress' ? 'Reprendre la séance' : 'Démarrer la séance' }}</a>@endif
+                    <a href="{{ route('sessions.debrief', $session) }}" class="{{ $canStart ? 'btn-secondary' : 'btn-primary' }}" data-debrief-link><x-icon name="check" class="size-4" /> Faire le bilan</a>
                     @if ($session->usesExercises())<a href="{{ route('sessions.edit', $session) }}" class="btn-secondary" data-prepare-link><x-icon name="session" class="size-4" /> Préparer</a>@endif
                 @endunless
                 <a href="{{ route('sessions.details', $session) }}" class="btn-secondary" data-edit-session><x-icon name="pencil" class="size-4" /> Modifier</a>
