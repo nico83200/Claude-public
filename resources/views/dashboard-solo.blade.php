@@ -20,6 +20,20 @@
 
     @include('dashboard._invitations')
 
+    @if ($otherHorses->isNotEmpty())
+        {{-- Passage rapide d'un cheval à l'autre (et « Tous ») --}}
+        <form method="POST" action="{{ route('focus.set') }}" class="no-scrollbar -mx-4 mb-3 flex gap-2 overflow-x-auto px-4 py-1 sm:mx-0 sm:px-1" data-horse-chips>
+            @csrf
+            <button name="horse" value="all" class="pill min-h-11 shrink-0 gap-2 bg-white px-3 text-sm text-slate-700 ring-1 ring-slate-200"><x-icon name="horse" class="size-4" /> Tous</button>
+            @foreach ($otherHorses as $h)
+                <button name="horse" value="{{ $h->id }}" @if ($h->is($horse)) aria-current="true" @endif class="pill min-h-11 shrink-0 gap-2 pl-1.5 text-sm {{ $h->is($horse) ? 'bg-brand-50 font-semibold text-brand-900 ring-2 ring-brand-500' : 'bg-white text-slate-700 ring-1 ring-slate-200' }}" data-horse-chip="{{ $h->id }}">
+                    @if ($h->mainPhotoUrl())<img src="{{ $h->mainPhotoUrl() }}" alt="" class="size-8 rounded-full object-cover">@else<span class="flex size-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-800">{{ mb_strtoupper(mb_substr($h->shortName(), 0, 1)) }}</span>@endif
+                    {{ $h->shortName() }}
+                </button>
+            @endforeach
+        </form>
+    @endif
+
     {{-- 1. Le cheval et son état du jour --}}
     <section class="mb-5 flex items-center gap-4 sm:gap-5" data-solo-hero>
         <a href="{{ route('horses.show', $horse) }}" class="shrink-0" aria-label="Fiche de {{ $horse->shortName() }}">

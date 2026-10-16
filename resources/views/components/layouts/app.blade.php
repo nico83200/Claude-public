@@ -77,7 +77,7 @@
         <nav class="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4" aria-label="Navigation principale">
             @if ($focusHorse || $focusChoices->isNotEmpty())
                 {{-- Carte du cheval en tête du menu : ouvre sa fiche ; avec plusieurs chevaux, choix du cheval actif. --}}
-                <div class="mb-2 flex items-center gap-1 rounded-3xl bg-white p-2 shadow-[var(--shadow-card)]" x-data="{ pick: false }" @open-focus.window="pick = true" data-focus-card>
+                <div class="mb-2 flex items-center gap-1 rounded-3xl bg-white p-2 shadow-[var(--shadow-card)]" x-data="{ pick: false, q: '' }" @open-focus.window="pick = true" data-focus-card>
                     @if ($focusHorse)
                         <a href="{{ route('horses.show', $focusHorse) }}" class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1" data-solo-horse-card>
                             @if ($focusHorse->mainPhotoUrl())<img src="{{ $focusHorse->mainPhotoUrl() }}" alt="" class="size-12 shrink-0 rounded-2xl object-cover">@else<span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-lg font-bold text-brand-800">{{ mb_strtoupper(mb_substr($focusHorse->shortName(), 0, 1)) }}</span>@endif
@@ -96,10 +96,13 @@
                             <div x-show="pick" x-cloak x-transition.opacity class="fixed inset-0 z-[80] flex items-end justify-center bg-slate-900/45 sm:items-center" @click.self="pick = false" @keydown.escape.window="pick = false" role="dialog" aria-modal="true" aria-label="Choisir le cheval" data-focus-sheet>
                                 <div class="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl">
                                     <div class="mb-3 flex items-center justify-between"><h2 class="text-lg font-semibold">Quel cheval ?</h2><button type="button" class="btn-ghost px-2" @click="pick = false" aria-label="Fermer"><x-icon name="x" /></button></div>
+                                    @if ($focusChoices->count() > 6)
+                                        <label class="mb-3 block"><span class="sr-only">Rechercher un cheval</span><input type="search" x-model="q" placeholder="Rechercher un cheval…" class="input" data-focus-search></label>
+                                    @endif
                                     <form method="POST" action="{{ route('focus.set') }}" class="space-y-1.5">
                                         @csrf
                                         @foreach ($focusChoices as $choice)
-                                            <button name="horse" value="{{ $choice->id }}" class="flex min-h-14 w-full items-center gap-3 rounded-2xl px-3 text-left {{ $focusHorse?->is($choice) ? 'bg-brand-50 ring-2 ring-brand-500' : 'bg-slate-50 hover:bg-brand-50' }}" data-focus-choice="{{ $choice->id }}">
+                                            <button name="horse" value="{{ $choice->id }}" x-show="! q || @js(mb_strtolower($choice->shortName().' '.$choice->official_name)).includes(q.toLowerCase())" class="flex min-h-14 w-full items-center gap-3 rounded-2xl px-3 text-left {{ $focusHorse?->is($choice) ? 'bg-brand-50 ring-2 ring-brand-500' : 'bg-slate-50 hover:bg-brand-50' }}" data-focus-choice="{{ $choice->id }}">
                                                 @if ($choice->mainPhotoUrl())<img src="{{ $choice->mainPhotoUrl() }}" alt="" class="size-10 shrink-0 rounded-xl object-cover">@else<span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 font-bold text-brand-800">{{ mb_strtoupper(mb_substr($choice->shortName(), 0, 1)) }}</span>@endif
                                                 <span class="min-w-0 flex-1 truncate font-medium text-slate-900">{{ $choice->shortName() }}</span>
                                                 @if ($focusHorse?->is($choice))<x-icon name="check" class="size-5 text-brand-700" />@endif

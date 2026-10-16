@@ -68,6 +68,8 @@ class DashboardController extends Controller
             'alertsByHorse' => HealthObservation::whereIn('horse_id', $horses->pluck('id'))->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->get()->groupBy('horse_id')->map->first(),
             'logIds' => $ids(Perm::DAILYLOG_CREATE)->all(),
             'healthEditIds' => $ids(Perm::HEALTH_EDIT)->all(),
+            // Échéances à prévoir, regroupées par type de soin : un rendez-vous pour plusieurs chevaux.
+            'toPlan' => self::pendingChecks($ids(Perm::HEALTH_EDIT), 45)->groupBy('care_category_id')->filter(fn ($g) => $g->count() > 1),
             'sessions' => RidingSession::with(['horse', 'rider'])->whereIn('horse_id', $sessionIds)->orderByDesc('scheduled_at')->limit(6)->get(),
             'observations' => HealthObservation::with(['horse', 'author'])->whereIn('horse_id', $horses->pluck('id'))->whereNull('resolved_at')
                 ->where('severity', '!=', 'info')->latest('observed_at')->limit(5)->get(),
@@ -92,6 +94,9 @@ class DashboardController extends Controller
 
         return view('dashboard-solo', [
             'horse' => $horse,
+            // Plusieurs chevaux : puces pour passer d'un cheval à l'autre sans ouvrir le menu.
+            'otherHorses' => $access->hasSeveralHorses($user)
+                ? $access->accessibleHorses($user)->whereNull('archived_at')->sortBy(fn ($h) => mb_strtolower($h->shortName()))->values() : collect(),
             'perms' => $perms,
             'upsell' => app(Upsell::class)->upgrade($this->currentOrganization(), $user),
             'onboarding' => app(Onboarding::class)->steps($user, collect([$horse])),
@@ -137,13 +142,23 @@ class DashboardController extends Controller
             return collect();
         }
 
-        return CareRecord::with(['horse', 'category'])->whereIn('horse_id', Horse::whereIn('id', $ids)->whereNull('archived_at')->select('id'))
-            ->whereIn('care_category_id', $categories)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
-            ->where('next_check_on', '<=', now()->addDays(90)->toDateString())
+        return self::pendingChecks($ids, 90, $categories)->groupBy('care_category_id');
+    }
+
+    /**
+     * Prochaines échéances à prévoir (dernier soin de chaque catégorie, contrôle pas encore fait ni dans l'agenda),
+     * dans les jours à venir ou en retard.
+     */
+    public static function pendingChecks($horseIds, int $days, $categories = null)
+    {
+        return CareRecord::with(['horse', 'category', 'professional'])->whereIn('horse_id', Horse::whereIn('id', collect($horseIds))->whereNull('archived_at')->select('id'))
+            ->when($categories, fn ($q) => $q->whereIn('care_category_id', $categories))
+            ->whereNotNull('next_check_on')->whereNull('next_check_done_at')
+            ->where('next_check_on', '<=', now()->addDays($days)->toDateString())
             ->whereNotExists(fn ($q) => $q->selectRaw(1)->from('care_records as later')->whereColumn('later.horse_id', 'care_records.horse_id')
                 ->whereColumn('later.care_category_id', 'care_records.care_category_id')->whereColumn('later.performed_at', '>', 'care_records.performed_at')->whereNull('later.deleted_at'))
             ->whereNotIn('id', CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereNotNull('source_id')->select('source_id'))
-            ->orderBy('next_check_on')->get()->groupBy('care_category_id');
+            ->orderBy('next_check_on')->get();
     }
 
     private function invitations($user)

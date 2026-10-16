@@ -17,7 +17,12 @@
         </div>
         {{-- Tous les chevaux : l'état du jour de chacun, et le suivi en un toucher (un par cheval ou pour tous). --}}
         @php $pendingLog = $horses->filter(fn ($h) => in_array($h->id, $logIds) && ! $todayLogs->has($h->id)); @endphp
-        <section class="card mb-5 p-5 sm:p-6" data-stable-today>
+        @php
+            $treatedIds = $treatments->pluck('horse_id')->unique()->all();
+            $locations = $horses->pluck('current_location')->filter()->map(fn ($l) => trim($l))->unique()->sort()->values();
+            $filters = ['all' => 'Tous', 'watch' => 'À surveiller', 'treat' => 'En traitement', 'log' => 'Suivi à faire'] + $locations->mapWithKeys(fn ($l) => ['loc:'.$l => $l])->all();
+        @endphp
+        <section class="card mb-5 p-5 sm:p-6" data-stable-today x-data="{ f: 'all' }">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div><h2 class="text-[17px] font-semibold text-slate-900">Vos chevaux aujourd'hui</h2><p class="text-sm text-slate-500">{{ $todayLogs->count() }} suivi{{ $todayLogs->count() > 1 ? 's' : '' }} noté{{ $todayLogs->count() > 1 ? 's' : '' }} sur {{ \App\Support\Fr::count($horses->count(), 'cheval', 'chevaux') }}</p></div>
                 @if ($pendingLog->count() > 1)
@@ -28,10 +33,26 @@
                     </form>
                 @endif
             </div>
+            @if ($horses->count() >= 4)
+                {{-- Écurie : filtres rapides (état du jour, traitements, lieu). --}}
+                <div class="no-scrollbar -mx-1 mb-2 flex gap-1.5 overflow-x-auto px-1" role="group" aria-label="Filtrer les chevaux" data-stable-filters>
+                    @foreach ($filters as $key => $label)
+                        <button type="button" @click="f = @js($key)" :class="f === @js($key) ? 'bg-brand-800 text-white' : 'bg-slate-100 text-slate-700'" class="pill min-h-10 shrink-0 px-3.5 text-sm" data-stable-filter="{{ $key }}">{{ $label }}</button>
+                    @endforeach
+                </div>
+            @endif
             <div class="divide-y divide-slate-100">
                 @foreach ($horses as $horse)
-                    @php $due = $nextDue->get($horse->id); $log = $todayLogs->get($horse->id); $alert = $alertsByHorse->get($horse->id); @endphp
-                    <div class="flex items-center gap-3 py-2.5" data-stable-horse="{{ $horse->id }}">
+                    @php
+                        $due = $nextDue->get($horse->id); $log = $todayLogs->get($horse->id); $alert = $alertsByHorse->get($horse->id);
+                        $tags = array_values(array_filter([
+                            $alert || ($due && $due->next_check_on->lt(today())) ? 'watch' : null,
+                            in_array($horse->id, $treatedIds) ? 'treat' : null,
+                            ! $log && in_array($horse->id, $logIds) ? 'log' : null,
+                            $horse->current_location ? 'loc:'.trim($horse->current_location) : null,
+                        ]));
+                    @endphp
+                    <div class="flex items-center gap-3 py-2.5" data-stable-horse="{{ $horse->id }}" x-show="f === 'all' || @js($tags).includes(f)">
                         <a href="{{ route('horses.show', $horse) }}" class="flex min-w-0 flex-1 items-center gap-3">
                             @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="size-11 shrink-0 rounded-2xl object-cover">@else<span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</span>@endif
                             <span class="min-w-0">
@@ -58,6 +79,47 @@
                 @endforeach
             </div>
         </section>
+
+        @if ($toPlan->isNotEmpty())
+            {{-- À prévoir ensemble : même soin à faire pour plusieurs chevaux, un seul rendez-vous. --}}
+            <section class="card mb-5 p-5 sm:p-6" data-to-plan x-data="{ open: null }" @keydown.escape.window="open = null">
+                <h2 class="mb-1 text-[17px] font-semibold text-slate-900">À prévoir ensemble</h2>
+                <p class="mb-3 text-sm text-slate-500">Un seul passage de l'intervenant pour plusieurs chevaux.</p>
+                @foreach ($toPlan as $categoryId => $group)
+                    @php $first = $group->first(); $pros = $group->pluck('professional')->filter()->unique('id'); @endphp
+                    <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 py-3 first:border-0" data-to-plan-group="{{ $categoryId }}">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-medium text-slate-900">{{ $first->category->name }} · {{ \App\Support\Fr::count($group->count(), 'cheval', 'chevaux') }}</p>
+                            <p class="text-sm text-slate-500">{{ $group->map(fn ($c) => $c->horse->shortName().' ('.($c->next_check_on->lt(today()) ? 'en retard' : $c->next_check_on->format('d/m')).')')->implode(', ') }}</p>
+                            @if ($pros->isNotEmpty())<p class="text-xs text-slate-500">Habituellement : {{ $pros->map(fn ($p) => $p->fullName())->implode(', ') }}</p>@endif
+                        </div>
+                        <button type="button" class="btn-primary min-h-11 px-4 text-sm" @click="open = {{ $categoryId }}" data-to-plan-open="{{ $categoryId }}"><x-icon name="calendar" class="size-4" /> Rendez-vous groupé</button>
+                    </div>
+                    <template x-teleport="body">
+                        <div x-show="open === {{ $categoryId }}" x-cloak x-transition.opacity class="fixed inset-0 z-[70] flex items-end justify-center bg-slate-900/45 sm:items-center" @click.self="open = null" role="dialog" aria-modal="true" aria-label="Rendez-vous groupé {{ $first->category->name }}">
+                            <div class="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl">
+                                <div class="mb-3 flex items-start justify-between gap-3"><h2 class="text-lg font-semibold">{{ $first->category->name }} : rendez-vous groupé</h2><button type="button" class="btn-ghost px-2" @click="open = null" aria-label="Fermer"><x-icon name="x" /></button></div>
+                                <form method="POST" action="{{ route('horses.care.check.plan', [$first->horse_id, $first]) }}" class="space-y-3" data-to-plan-form="{{ $categoryId }}">
+                                    @csrf
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <x-field name="date" type="date" label="Date" :value="max($first->next_check_on, today())->toDateString()" :min="today()->toDateString()" :id="'grp_date_'.$categoryId" required />
+                                        <x-field name="time" type="time" label="Heure" value="09:00" :id="'grp_time_'.$categoryId" />
+                                    </div>
+                                    <fieldset class="rounded-2xl border border-slate-200 p-3">
+                                        <legend class="px-1 text-sm font-medium text-slate-700">Chevaux du rendez-vous</legend>
+                                        <p class="flex min-h-11 items-center gap-3 text-sm"><x-icon name="check" class="size-5 text-brand-700" /><span><span class="font-medium">{{ $first->horse->shortName() }}</span> <span class="text-slate-500">· dernier passage le {{ $first->performed_at->format('d/m/Y') }}</span></span></p>
+                                        @foreach ($group->skip(1) as $c)
+                                            <label class="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" name="with[]" value="{{ $c->id }}" checked class="size-5 rounded border-slate-300 text-brand-700"><span><span class="font-medium">{{ $c->horse->shortName() }}</span> <span class="text-slate-500">· dernier passage le {{ $c->performed_at->format('d/m/Y') }}</span></span></label>
+                                        @endforeach
+                                    </fieldset>
+                                    <button class="btn-primary min-h-11 w-full justify-center"><x-icon name="calendar" class="size-4" /> Créer le rendez-vous</button>
+                                </form>
+                            </div>
+                        </div>
+                    </template>
+                @endforeach
+            </section>
+        @endif
 
         <div class="mb-5 grid gap-4 lg:grid-cols-3" data-dashboard-today>
             <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">
