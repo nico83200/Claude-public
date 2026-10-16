@@ -126,10 +126,42 @@
             <x-section title="Santé" :action="route('health.index')" action-label="Dossier santé" data-solo-health>
                 @if ($can('health.view'))
                     @if ($checks->isNotEmpty())
-                        <div class="flex flex-wrap gap-2">
+                        {{-- Un toucher sur une pastille : prendre le rendez-vous, avec la date du dernier passage pour mémoire. --}}
+                        <div class="flex flex-wrap gap-2" x-data="{ open: null }" @keydown.escape.window="open = null">
                             @foreach ($checks as $n)
-                                @php $c = $n['care']; $tone = $c->next_check_on->lt(today()) ? 'bg-red-50 text-red-800 ring-red-200' : ($c->next_check_on->lte(today()->addDays(30)) ? 'bg-amber-50 text-amber-900 ring-amber-200' : 'bg-brand-50 text-brand-900 ring-brand-200'); @endphp
-                                <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="rounded-2xl px-3 py-2 text-sm ring-1 {{ $tone }}" data-solo-check><span class="block font-medium">{{ $c->category->name }}</span><span class="block text-xs opacity-80">{{ $c->next_check_on->lt(today()) ? 'en retard' : $c->next_check_on->translatedFormat('j M Y') }}</span></a>
+                                @php $c = $n['care']; $ev = $n['event']; $tone = $c->next_check_on->lt(today()) ? 'bg-red-50 text-red-800 ring-red-200' : ($c->next_check_on->lte(today()->addDays(30)) ? 'bg-amber-50 text-amber-900 ring-amber-200' : 'bg-brand-50 text-brand-900 ring-brand-200'); @endphp
+                                <button type="button" @click="open = {{ $c->id }}" class="min-h-11 rounded-2xl px-3 py-2 text-left text-sm ring-1 {{ $tone }}" data-solo-check="{{ $c->id }}">
+                                    <span class="block font-medium">{{ $c->category->name }}</span>
+                                    <span class="block text-xs opacity-80">{{ $ev ? 'RDV le '.$ev->starts_at->translatedFormat('j M') : ($c->next_check_on->lt(today()) ? 'en retard' : $c->next_check_on->translatedFormat('j M Y')) }}</span>
+                                </button>
+                                <template x-teleport="body">
+                                    <div x-show="open === {{ $c->id }}" x-cloak x-transition.opacity class="fixed inset-0 z-[70] flex items-end justify-center bg-slate-900/45 sm:items-center" @click.self="open = null" role="dialog" aria-modal="true" aria-label="Rendez-vous {{ $c->category->name }}" data-solo-check-sheet="{{ $c->id }}">
+                                        <div class="w-full max-w-md rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl">
+                                            <div class="mb-3 flex items-start justify-between gap-3">
+                                                <div><h2 class="text-lg font-semibold">{{ $c->category->name }}</h2><p class="text-sm text-slate-500">{{ $horse->shortName() }} · {{ $c->next_check_on->lt(today()) ? 'en retard, prévu le ' : 'prévu le ' }}{{ $c->next_check_on->translatedFormat('j F Y') }}</p></div>
+                                                <button type="button" class="btn-ghost px-2" @click="open = null" aria-label="Fermer"><x-icon name="x" /></button>
+                                            </div>
+                                            <p class="mb-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700" data-solo-check-memo>Pour mémoire : dernier passage le <strong>{{ $c->performed_at->translatedFormat('j F Y') }}</strong>{{ $c->professional ? ' avec '.$c->professional->fullName() : '' }}.</p>
+                                            @if ($ev)
+                                                <p class="mb-3 text-sm text-slate-700">Rendez-vous déjà dans l'agenda le <strong>{{ $ev->starts_at->translatedFormat('j F Y') }}</strong>{{ $ev->all_day ? '' : ' à '.$ev->starts_at->format('H:i') }}.</p>
+                                                <a href="{{ route('calendar.show', $ev) }}" class="btn-primary min-h-11 w-full justify-center"><x-icon name="calendar" class="size-4" /> Voir le rendez-vous</a>
+                                            @elseif ($can('health.edit'))
+                                                <form method="POST" action="{{ route('horses.care.check.plan', [$horse, $c]) }}" class="space-y-3" data-solo-check-plan>
+                                                    @csrf
+                                                    <div class="grid grid-cols-2 gap-3">
+                                                        <x-field name="date" type="date" label="Date du rendez-vous" :value="max($c->next_check_on, today())->toDateString()" :min="today()->toDateString()" :id="'rdv_date_'.$c->id" required />
+                                                        <x-field name="time" type="time" label="Heure" value="09:00" :id="'rdv_time_'.$c->id" />
+                                                    </div>
+                                                    <button class="btn-primary min-h-11 w-full justify-center"><x-icon name="calendar" class="size-4" /> Créer le rendez-vous</button>
+                                                </form>
+                                            @endif
+                                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                                @if ($can('health.edit'))<a href="{{ route('horses.care.create', [$horse, 'suite' => $c->id]) }}" class="btn-secondary min-h-11 justify-center px-3 text-sm"><x-icon name="check" class="size-4" /> Noter le passage</a>@endif
+                                                <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="btn-ghost min-h-11 justify-center px-3 text-sm {{ $can('health.edit') ? '' : 'col-span-2' }}">Voir le dernier soin</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
                             @endforeach
                         </div>
                     @else

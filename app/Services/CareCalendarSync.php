@@ -86,23 +86,30 @@ class CareCalendarSync
             + ($care->next_check_done_at ? ['status' => 'done'] : ($existing->status === 'done' ? ['status' => 'planned'] : [])));
     }
 
-    /** Prochain contrôle ajouté à l'agenda à la demande, à sa date d'échéance (9 h, modifiable dans l'agenda). */
-    public function planCheck(CareRecord $care): ?CalendarEvent
+    /**
+     * Prochain contrôle ajouté à l'agenda à la demande : à sa date d'échéance (9 h) ou au jour et à l'heure choisis
+     * (le prochain passage du soin suit alors ce rendez-vous). La date du passage précédent reste en note, pour mémoire.
+     */
+    public function planCheck(CareRecord $care, ?Carbon $at = null): ?CalendarEvent
     {
         if (! $care->next_check_on || $care->next_check_done_at) {
             return null;
         }
-        $care->loadMissing(['category', 'horse']);
+        $care->loadMissing(['category', 'horse', 'professional']);
         $existing = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->first();
         if ($existing) {
             return $existing;
         }
+        $at ??= Carbon::parse($care->next_check_on)->setTime(9, 0);
+        if (! $at->isSameDay(Carbon::parse($care->next_check_on))) {
+            $care->forceFill(['next_check_on' => $at->toDateString()])->saveQuietly();
+        }
+        $memo = 'Pour mémoire : dernier passage le '.$care->performed_at->format('d/m/Y').($care->professional ? ' avec '.$care->professional->fullName() : '').'.';
         $event = null;
-        $this->guard(function () use ($care, &$event) {
+        $this->guard(function () use ($care, $at, $memo, &$event) {
             $event = $this->calendar->syncFor($care, $care->horse, self::eventTypeFor($care->category?->key),
                 Str::limit(($care->category?->name ?? 'Soin').' – '.$care->horse->shortName(), 150, ''),
-                Carbon::parse($care->next_check_on)->setTime(9, 0),
-                ['professional_id' => $care->professional_id, 'duration_minutes' => 30, 'status' => 'planned']);
+                $at, ['professional_id' => $care->professional_id, 'duration_minutes' => 30, 'status' => 'planned', 'notes' => $memo]);
         });
 
         return $event;

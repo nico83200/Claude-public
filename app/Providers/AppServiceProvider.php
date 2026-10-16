@@ -24,6 +24,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -132,6 +133,8 @@ class AppServiceProvider extends ServiceProvider
             // Mode « un cheval » : menu organisé autour du cheval (droits de la personne sur ce cheval).
             $view->with('soloHorse', $solo);
             $view->with('soloPerms', $solo ? app(HorseAccess::class)->permissions($user, $solo) : []);
+            // Passage d'un cheval à plusieurs (ou l'inverse) : l'organisation change, on l'explique une fois.
+            $view->with('soloTransition', $user ? self::soloTransition($user->id, $solo) : null);
             $view->with('appVersion', $user?->is_super_admin ? trim((string) @file_get_contents(base_path('VERSION'))) : null);
             $org = request()->attributes->get('organization');
             $view->with('navUpsell', $user && $org ? app(Upsell::class)->upgrade($org, $user) : null);
@@ -141,5 +144,21 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('exports', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
         RateLimiter::for('invitations', fn (Request $request) => Limit::perHour(30)->by($request->user()?->id ?: $request->ip()));
+    }
+
+    /**
+     * Compare le mode « un cheval » à celui de la dernière page vue : 'multi' (deuxième cheval arrivé),
+     * 'solo' (retour à un seul cheval) ou null. La première visite ne fait que mémoriser l'état.
+     */
+    public static function soloTransition(int $userId, ?Horse $solo): ?string
+    {
+        $key = 'jc-solo-mode:'.$userId;
+        $now = $solo ? 'solo' : 'multi';
+        $before = Cache::get($key);
+        if ($before !== $now) {
+            Cache::forever($key, $now);
+        }
+
+        return $before !== null && $before !== $now ? $now : null;
     }
 }

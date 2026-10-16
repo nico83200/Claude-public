@@ -133,7 +133,7 @@
             <form action="{{ route('search') }}" method="GET" class="relative min-w-0 flex-1 sm:max-w-md" :class="search ? 'block' : 'hidden sm:block'" role="search">
                 <label for="global-search" class="sr-only">Rechercher</label>
                 <x-icon name="search" class="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
-                <input id="global-search" name="q" value="{{ request('q') }}" placeholder="Rechercher un cheval, un soin…" class="input rounded-full border-transparent bg-white py-2.5 pl-10 text-sm shadow-[var(--shadow-card)]" x-ref="q">
+                <input id="global-search" name="q" value="{{ request('q') }}" placeholder="{{ ($soloHorse ?? null) ? 'Rechercher un soin, une séance…' : 'Rechercher un cheval, un soin…' }}" class="input rounded-full border-transparent bg-white py-2.5 pl-10 text-sm shadow-[var(--shadow-card)]" x-ref="q">
             </form>
             <div class="ml-auto flex items-center gap-1">
                 <button type="button" class="btn-ghost px-2 sm:hidden" @click="search = ! search; $nextTick(() => search && $refs.q.focus())" aria-label="Rechercher"><x-icon name="search" /></button>
@@ -155,6 +155,17 @@
 
         <main class="mx-auto max-w-6xl px-4 pt-4 pb-32 sm:px-6 lg:pb-12">
             <x-flash />
+            @if (($soloTransition ?? null) === 'multi')
+                <div class="mb-4 flex items-start gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900 ring-1 ring-brand-200" data-solo-transition="multi">
+                    <x-icon name="horse" class="mt-0.5 size-5 shrink-0" />
+                    <p class="min-w-0 flex-1">Vous suivez maintenant plusieurs chevaux : l'accueil les présente tous, le menu retrouve « Chevaux » et chaque formulaire vous demande pour quel cheval.</p>
+                </div>
+            @elseif (($soloTransition ?? null) === 'solo' && $soloHorse)
+                <div class="mb-4 flex items-start gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900 ring-1 ring-brand-200" data-solo-transition="solo">
+                    <x-icon name="horse" class="mt-0.5 size-5 shrink-0" />
+                    <p class="min-w-0 flex-1">Un seul cheval suivi : l'accueil devient le tableau de bord de {{ $soloHorse->shortName() }} et le menu s'organise autour de lui.</p>
+                </div>
+            @endif
             @auth
                 @unless (auth()->user()->hasVerifiedEmail())
                     {{-- Adresse à confirmer : l'application reste utilisable, la confirmation sera demandée au bout de 7 jours. --}}

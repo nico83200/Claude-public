@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.27.0' => ['2026-10-16', 'Mode « un cheval » (lot C) : passage à plusieurs chevaux (ou retour à un seul) expliqué une fois par un message, quelle qu\'en soit la cause (nouveau cheval, partage reçu ou terminé, archivage) ; recherche adaptée ; pastilles Santé de l\'accueil : prise de rendez-vous (date et heure) avec la date du dernier passage pour mémoire, gardée en note du rendez-vous ; parcours complet testé.'],
     '2.26.0' => ['2026-10-16', 'Mode « un cheval » (lot B) : l\'accueil devient le tableau de bord du cheval (état du jour, « Tout va bien aujourd\'hui » en un toucher, gestes du jour, aujourd\'hui et 7 jours avec « Administré » et « Noter le passage », santé en un coup d\'œil, activité et régularité, budget du mois, partage), en deux colonnes sur ordinateur.'],
     '2.25.0' => ['2026-10-16', 'Mode « un cheval » (lot A) : menu organisé autour du cheval (carte du cheval, Tableau de bord, Agenda, Séances, Santé, Budget, Documents, Intervenants, Partage, Fiche), barre du bas Accueil · Séances · micro · Santé · Menu, page Santé ouverte directement sur le cheval, choix du cheval masqué et présélectionné dans les formulaires et filtres.'],
     '2.24.1' => ['2026-10-16', 'Nom d\'usage du cheval partout (listes de choix, budget, agenda, séances, recherche, exports) ; « Noter le passage » dans les échéances de la page Santé du menu.'],

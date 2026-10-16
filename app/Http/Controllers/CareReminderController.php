@@ -11,6 +11,7 @@ use App\Services\CareReminders;
 use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 /** Rappels de suivi d'un cheval : fréquence maréchal, vaccination, vermifuge… */
@@ -55,14 +56,18 @@ class CareReminderController extends Controller
     }
 
     /** Prochain contrôle d'un soin ajouté à l'agenda, à sa date d'échéance (seulement la prochaine échéance du type de soin). */
-    public function planCheck(Horse $horse, CareRecord $care, CareCalendarSync $sync)
+    public function planCheck(Request $request, Horse $horse, CareRecord $care, CareCalendarSync $sync)
     {
         $this->authorizeHorse($horse, Perm::HEALTH_EDIT);
         $latest = $horse->careRecords()->where('care_category_id', $care->care_category_id)->latest('performed_at')->value('id');
         abort_unless($care->next_check_on && ! $care->next_check_done_at && $latest === $care->id, 422, 'Ce contrôle n\'est plus la prochaine échéance.');
-        $event = $sync->planCheck($care);
+        // Jour et heure du rendez-vous choisis (facultatif) ; à défaut, la date d'échéance à 9 h.
+        $data = $request->validate(['date' => ['nullable', 'date', 'after_or_equal:today'], 'time' => ['nullable', 'date_format:H:i']]);
+        $at = ! empty($data['date']) ? Carbon::parse($data['date'].' '.($data['time'] ?? '09:00')) : null;
+        $event = $sync->planCheck($care, $at);
         Audit::log('care.check_planned', $care, ['event' => $event?->id], $horse->organization_id);
+        $hour = $event->starts_at->format('H:i') === '09:00' && ! $at ? ' à 9 h : vous pouvez changer l\'heure dans l\'agenda.' : ' à '.$event->starts_at->format('H:i').'.';
 
-        return back()->with('success', 'Ajouté à l\'agenda le '.$event->starts_at->translatedFormat('j F Y').' à 9 h : vous pouvez changer l\'heure dans l\'agenda.');
+        return back()->with('success', 'Rendez-vous ajouté à l\'agenda le '.$event->starts_at->translatedFormat('j F Y').$hour);
     }
 }

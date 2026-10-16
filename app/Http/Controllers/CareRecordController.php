@@ -65,7 +65,7 @@ class CareRecordController extends Controller
      */
     public function nextChecks(Horse $horse)
     {
-        $latest = $horse->careRecords()->with('category')->whereNotIn('id', CareRecord::query()->from('care_records as later')
+        $latest = $horse->careRecords()->with(['category', 'professional'])->whereNotIn('id', CareRecord::query()->from('care_records as later')
             ->join('care_records as prev', fn ($j) => $j->on('prev.horse_id', '=', 'later.horse_id')->on('prev.care_category_id', '=', 'later.care_category_id')->on('later.performed_at', '>', 'prev.performed_at'))
             ->whereNull('later.deleted_at')->where('later.horse_id', $horse->id)->select('prev.id'))
             ->whereNotNull('next_check_on')->whereNull('next_check_done_at')->get()->sortBy('next_check_on')->values();
