@@ -49,7 +49,11 @@ class RidingSessionController extends Controller
 
         $sessions = $query->orderByDesc('scheduled_at')->paginate(20)->withQueryString();
 
+        // Filtre « Type » : les 4 types actuels, plus les anciens types encore présents dans les séances visibles.
+        $legacy = RidingSession::whereIn('horse_id', $horseIds)->whereNotIn('session_type', array_keys(RidingSession::TYPES))->distinct()->pluck('session_type');
+
         return view('sessions.index', [
+            'typeFilter' => RidingSession::TYPES + collect(RidingSession::LEGACY_TYPES)->only($legacy->all())->all(),
             'sessions' => $sessions,
             // Séances que l'utilisateur peut supprimer (glisser vers la gauche sur téléphone).
             'deletable' => $sessions->getCollection()->filter(fn ($s) => $this->sessions->canEdit($user, $s))->pluck('id')->all(),
@@ -221,10 +225,17 @@ class RidingSessionController extends Controller
         $data = $session->isCompleted()
             ? $request->validate(['notes' => ['nullable', 'string', 'max:10000']])
             : $request->validate(RidingSessionService::rules($session->session_type) + ['status' => ['nullable', 'in:planned,in_progress,cancelled']]);
+        $hadExercises = $session->usesExercises();
         $session->update($this->sessions->sanitizeRider($session->horse, $data, $request->user()));
         $this->notifyChange($request, $session);
+        // Devenue un cours ou une balade : pas d'exercices préparés (le travail se note au bilan).
+        $removed = 0;
+        if ($hadExercises && ! $session->usesExercises()) {
+            $removed = $session->items()->delete();
+        }
+        $message = 'Séance enregistrée.'.($removed ? ' Cours et balade n\'ont pas d\'exercices préparés : '.$removed.' exercice'.($removed > 1 ? 's retirés' : ' retiré').'.' : '');
 
-        return ($request->input('return_to') === 'show' ? redirect()->route('sessions.show', $session) : back())->with('success', 'Séance enregistrée.');
+        return ($request->input('return_to') === 'show' || ! $session->usesExercises() ? redirect()->route('sessions.show', $session) : back())->with('success', $message);
     }
 
     public function destroy(Request $request, RidingSession $session)

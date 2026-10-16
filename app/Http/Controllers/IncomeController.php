@@ -40,7 +40,9 @@ class IncomeController extends Controller
 
         return view('budget.income-edit', [
             'income' => $income->load('horse'),
-            'horses' => Horse::whereIn('id', $access->horseIdsWith($request->user(), Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->pluck('official_name', 'id'),
+            // Une recette reste dans son espace : seuls les chevaux de cet espace sont proposés.
+            'horses' => Horse::whereIn('id', $access->horseIdsWith($request->user(), Perm::EXPENSES_CREATE))->where('organization_id', $income->organization_id)
+                ->whereNull('archived_at')->orderBy('official_name')->pluck('official_name', 'id'),
         ]);
     }
 
@@ -50,8 +52,9 @@ class IncomeController extends Controller
         $data = $this->validated($request);
         $horse = Horse::findOrFail($data['horse_id']);
         $this->authorizeHorse($horse, Perm::EXPENSES_CREATE);
+        abort_unless($horse->organization_id === $income->organization_id, 422, 'Une recette ne peut pas changer d\'espace.');
+        $this->requireFeature($horse->organization, 'budget', 'Suivi des dépenses');
         $income->fill($data);
-        $income->organization_id = $horse->organization_id;
         $income->save();
         Audit::log('income.updated', $income, array_keys($income->getChanges()), $horse->organization_id);
 
@@ -77,6 +80,7 @@ class IncomeController extends Controller
     {
         $access = app(HorseAccess::class);
         $user = $request->user();
+        $income->loadMissing('horse.organization');
 
         return $income->horse && $access->can($user, $income->horse, Perm::EXPENSES_CREATE)
             && ($income->author_id === $user->id || $access->can($user, $income->horse, Perm::HORSE_MANAGE));
@@ -89,14 +93,20 @@ class IncomeController extends Controller
 
     private function validated(Request $request): array
     {
+        // Champs préfixés (income_…) : ils ne remplissent pas, après une erreur, la fenêtre des dépenses ni les filtres.
         // Erreurs dans leur propre sac : la fenêtre « Nouvelle recette » se rouvre, pas celle des dépenses.
-        return $request->validateWithBag('income', [
-            'horse_id' => ['required', 'integer'],
-            'category' => ['required', Rule::in(array_keys(Income::CATEGORIES))],
-            'received_on' => ['required', 'date'],
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:99999999', 'decimal:0,2'],
-            'payer' => ['nullable', 'string', 'max:150'],
-            'comment' => ['nullable', 'string', 'max:2000'],
-        ], ['category.required' => 'Choisissez le type de recette.']);
+        $data = $request->validateWithBag('income', [
+            'income_horse_id' => ['required', 'integer'],
+            'income_category' => ['required', Rule::in(array_keys(Income::CATEGORIES))],
+            'income_received_on' => ['required', 'date'],
+            'income_amount' => ['required', 'numeric', 'min:0.01', 'max:99999999', 'decimal:0,2'],
+            'income_payer' => ['nullable', 'string', 'max:150'],
+            'income_comment' => ['nullable', 'string', 'max:2000'],
+        ], ['income_category.required' => 'Choisissez le type de recette.'], [
+            'income_horse_id' => 'cheval', 'income_category' => 'type de recette', 'income_received_on' => 'date',
+            'income_amount' => 'montant', 'income_payer' => 'versée par', 'income_comment' => 'commentaire',
+        ]);
+
+        return collect($data)->mapWithKeys(fn ($v, $k) => [substr($k, strlen('income_')) => $v])->all();
     }
 }

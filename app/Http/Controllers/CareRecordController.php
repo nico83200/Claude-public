@@ -271,8 +271,9 @@ class CareRecordController extends Controller
             'linkedExpense' => $record->exists ? Expense::where('care_record_id', $record->id)->first() : null,
             'defaultMode' => $this->defaultNextMode($horse, $record),
             // Rythme habituel de chaque catégorie, en simple information à la création d'un soin.
-            'rhythms' => $record->exists ? [] : app(CareRhythm::class)->forHorse($horse)->mapWithKeys(fn ($r) => [(string) $r['category']->id => 'Rythme habituel : toutes les '.$r['label']
-                .' en moyenne ('.$r['count'].' passages) · dernier le '.$r['last']->format('d/m/Y').' · prochain vers le '.$r['next']->format('d/m/Y').'.'])->all(),
+            'rhythms' => $record->exists ? [] : app(CareRhythm::class)->forHorse($horse)->mapWithKeys(fn ($r) => [(string) $r['category']->id => 'Rythme habituel : '.CareRhythm::every($r['label'])
+                .' en moyenne ('.$r['count'].' passages) · dernier le '.$r['last']->format('d/m/Y')
+                .($r['next']->lt(today()) ? ' · prochain prévu vers le '.$r['next']->format('d/m/Y').', déjà passé.' : ' · prochain vers le '.$r['next']->format('d/m/Y').'.')])->all(),
         ];
     }
 

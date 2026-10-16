@@ -66,6 +66,12 @@ class CareRhythm
     }
 
     /** « 7 semaines », « 2 mois », « 10 jours » : la forme la plus naturelle. */
+    /** « toutes les 7 semaines », « tous les 2 mois », « tous les 10 jours » (accord selon l'unité). */
+    public static function every(string $label): string
+    {
+        return (str_ends_with($label, 'semaines') ? 'toutes les ' : 'tous les ').$label;
+    }
+
     public static function describeDays(int $days): string
     {
         if ($days >= 56 && abs($days / 30.44 - round($days / 30.44)) < 0.25) {

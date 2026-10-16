@@ -13,7 +13,8 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('horse_id')->nullable()->constrained()->nullOnDelete();
+            // Toujours rattachée à un cheval : supprimée avec lui (purge définitive).
+            $table->foreignId('horse_id')->constrained()->cascadeOnDelete();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('category', 30);
             $table->date('received_on');

@@ -60,7 +60,8 @@
         {{-- Recettes de la période et solde (recettes − dépenses). --}}
         <div class="card mb-4 grid grid-cols-2 divide-x divide-slate-100 py-4 text-center" data-income-kpis>
             <div class="px-2"><p class="text-xs text-slate-500">Recettes · {{ $year ?: 'toutes les dates' }}</p><p class="mt-1 text-lg font-bold text-brand-800 sm:text-2xl">+ {{ $eur($kpis['income']) }}</p></div>
-            <div class="px-2"><p class="text-xs text-slate-500">Solde (recettes − dépenses)</p><p class="mt-1 text-lg font-bold sm:text-2xl {{ $kpis['balance'] < 0 ? 'text-red-700' : 'text-brand-800' }}">{{ $kpis['balance'] < 0 ? '− ' : '+ ' }}{{ $eur(abs($kpis['balance'])) }}</p></div>
+            <div class="px-2"><p class="text-xs text-slate-500">Solde (recettes − dépenses)</p><p class="mt-1 text-lg font-bold sm:text-2xl {{ $kpis['balance'] < 0 ? 'text-red-700' : 'text-brand-800' }}" data-balance>{{ $kpis['balance'] < 0 ? '− ' : '+ ' }}{{ $eur(abs($kpis['balance'])) }}</p>
+                @if (request('category'))<p class="mt-0.5 text-[11px] text-slate-500">Toutes catégories de dépenses ({{ $eur($kpis['balance_expenses']) }})</p>@endif</div>
         </div>
     @endif
     @php
@@ -180,14 +181,14 @@
     @endif
 
     @if ($incomes->isNotEmpty())
-        <section class="card mb-4 p-5 sm:p-6" aria-labelledby="incomes-title" data-incomes>
+        <section class="card mb-4 p-5 sm:p-6" aria-labelledby="incomes-title" data-incomes x-data="{ all: false }">
             <div class="mb-2 flex items-baseline justify-between gap-2">
                 <h2 id="incomes-title" class="text-[17px] font-semibold">Recettes</h2>
                 <span class="text-sm font-semibold text-brand-800">+ {{ $eur($kpis['income']) }}</span>
             </div>
             <ul class="divide-y divide-slate-100">
                 @foreach ($incomes as $i)
-                    <li class="flex items-center gap-3 py-3" data-income="{{ $i->id }}">
+                    <li class="flex items-center gap-3 py-3" data-income="{{ $i->id }}" @if ($loop->index >= 5) x-show="all" x-cloak @endif>
                         <span class="min-w-0 flex-1">
                             <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
                             <span class="block text-xs text-slate-500">{{ $i->categoryLabel() }} · {{ $i->received_on->translatedFormat('j M Y') }}{{ $i->payer ? ' · '.$i->payer : '' }}</span>
@@ -197,6 +198,12 @@
                     </li>
                 @endforeach
             </ul>
+            @if ($incomes->count() > 5)
+                <button type="button" class="btn-ghost mt-2 min-h-9 px-3 text-sm" @click="all = ! all" :aria-expanded="all" data-incomes-toggle>
+                    <span x-text="all ? 'Afficher moins' : 'Voir toutes les recettes ({{ $incomeCount }})'">Voir toutes les recettes ({{ $incomeCount }})</span>
+                </button>
+                @if ($incomeCount > $incomes->count())<p x-show="all" x-cloak class="mt-1 text-xs text-slate-500">Les {{ $incomes->count() }} plus récentes sont affichées ; l'export PDF ou CSV les contient toutes.</p>@endif
+            @endif
         </section>
     @endif
 
@@ -234,19 +241,19 @@
             <p class="-mt-1 text-sm text-slate-500">Demi-pension, gains de concours, vente… : elle s'ajoute au solde du budget.</p>
             @php $ie = $errors->income; @endphp
             <div>
-                <x-select name="horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required id="i_horse" />
-                @if ($ie->has('horse_id'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('horse_id') }}</p>@endif
+                <x-select name="income_horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required id="i_horse" />
+                @if ($ie->has('income_horse_id'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_horse_id') }}</p>@endif
             </div>
             <div>
-                <x-select name="category" label="Type de recette" :options="\App\Models\Income::CATEGORIES" required placeholder="Choisir…" id="i_category" />
-                @if ($ie->has('category'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('category') }}</p>@endif
+                <x-select name="income_category" label="Type de recette" :options="\App\Models\Income::CATEGORIES" required placeholder="Choisir…" id="i_category" />
+                @if ($ie->has('income_category'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_category') }}</p>@endif
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <div><label class="label" for="i_received_on">Date</label><input id="i_received_on" type="date" name="received_on" value="{{ old('received_on', now()->toDateString()) }}" required class="input">@if ($ie->has('received_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('received_on') }}</p>@endif</div>
-                <div><label class="label" for="i_amount">Montant (€)<span class="text-red-600"> *</span></label><input id="i_amount" type="number" name="amount" step="0.01" min="0.01" inputmode="decimal" required value="{{ $ie->any() ? old('amount') : '' }}" class="input">@if ($ie->has('amount'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('amount') }}</p>@endif</div>
+                <div><label class="label" for="i_received_on">Date</label><input id="i_received_on" type="date" name="income_received_on" value="{{ old('income_received_on', now()->toDateString()) }}" required class="input">@if ($ie->has('income_received_on'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_received_on') }}</p>@endif</div>
+                <div><label class="label" for="i_amount">Montant (€)<span class="text-red-600"> *</span></label><input id="i_amount" type="number" name="income_amount" step="0.01" min="0.01" inputmode="decimal" required value="{{ old('income_amount') }}" class="input">@if ($ie->has('income_amount'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_amount') }}</p>@endif</div>
             </div>
-            <div><label class="label" for="i_payer">Versée par (facultatif)</label><input id="i_payer" name="payer" maxlength="150" value="{{ old('payer') }}" placeholder="Demi-pensionnaire, organisateur du concours…" class="input"></div>
-            <div><label class="label" for="i_comment">Commentaire</label><textarea id="i_comment" name="comment" rows="2" maxlength="2000" class="input">{{ $ie->any() ? old('comment') : '' }}</textarea></div>
+            <div><label class="label" for="i_payer">Versée par (facultatif)</label><input id="i_payer" name="income_payer" maxlength="150" value="{{ old('income_payer') }}" placeholder="Demi-pensionnaire, organisateur du concours…" class="input"></div>
+            <div><label class="label" for="i_comment">Commentaire</label><textarea id="i_comment" name="income_comment" rows="2" maxlength="2000" class="input">{{ old('income_comment') }}</textarea></div>
             <button class="btn-primary w-full">Enregistrer la recette</button>
         </form>
     </dialog>

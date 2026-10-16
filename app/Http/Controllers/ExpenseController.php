@@ -36,6 +36,9 @@ class ExpenseController extends Controller
     /** Dépenses affichées à la fois dans la liste du budget. */
     public const PER_PAGE = 10;
 
+    /** Recettes listées sur la page (les plus récentes) ; au-delà, l'export les contient toutes. */
+    public const MAX_INCOMES = 200;
+
     public function index(Request $request, HorseAccess $access)
     {
         $user = $request->user();
@@ -59,6 +62,10 @@ class ExpenseController extends Controller
         $incomeQuery = IncomeController::visibleQuery($request, $access)->when($request->integer('horse'), fn ($q, $h) => $q->where('incomes.horse_id', $h));
         $incomePeriod = $allDates ? $incomeQuery : $incomeQuery->whereYear('incomes.received_on', $year);
         $incomeTotal = (float) (clone $incomePeriod)->sum('incomes.amount');
+        // Solde : recettes moins toutes les dépenses du même cheval et de la même période,
+        // quelle que soit la catégorie filtrée (une recette n'a pas de catégorie de dépense).
+        $balanceExpenses = (float) (clone $query)->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
+            ->when(! $allDates, fn ($q) => $q->whereYear('expenses.spent_on', $year))->sum('expenses.amount');
         $first = $allDates ? (clone $yearQuery)->min('expenses.spent_on') : null;
         $creatable = Horse::with('organization')->whereIn('id', $access->horseIdsWith($user, Perm::EXPENSES_CREATE))->whereNull('archived_at')->orderBy('official_name')->get()
             ->filter(fn ($h) => $access->can($user, $h, Perm::EXPENSES_CREATE))
@@ -75,13 +82,15 @@ class ExpenseController extends Controller
             'expenses' => $this->expensePage(clone $filtered),
             'year' => $year,
             'periodLabel' => $allDates ? 'Toutes les dates' : 'Année '.$year,
-            'incomes' => (clone $incomePeriod)->with('horse')->orderByDesc('received_on')->orderByDesc('id')->limit(100)->get(),
+            'incomes' => (clone $incomePeriod)->with('horse.organization')->orderByDesc('received_on')->orderByDesc('id')->limit(self::MAX_INCOMES)->get(),
+            'incomeCount' => (clone $incomePeriod)->count(),
             'canEditIncome' => fn (Income $i) => IncomeController::canEdit($request, $i),
             'kpis' => [
                 'month' => (clone $filtered)->whereBetween('expenses.spent_on', [now()->startOfMonth(), now()->endOfMonth()])->sum('expenses.amount'),
                 'year' => $total,
                 'income' => $incomeTotal,
-                'balance' => $incomeTotal - (float) $total,
+                'balance' => $incomeTotal - $balanceExpenses,
+                'balance_expenses' => $balanceExpenses,
                 // Moyenne mensuelle : mois écoulés de l'année, ou depuis la première dépense pour « Toutes ».
                 'per_month' => $total / max(1, $allDates
                     ? ($first ? (int) Carbon::parse($first)->startOfMonth()->diffInMonths(now()->startOfMonth()) + 1 : 1)
@@ -381,19 +390,27 @@ class ExpenseController extends Controller
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('expenses.horse_id', $h))
             ->when(ctype_digit((string) $request->query('year')), fn ($q) => $q->whereYear('expenses.spent_on', (int) $request->query('year')))
             ->orderBy('spent_on')->get();
-        Audit::log('export.expenses', null, ['format' => $format, 'count' => $expenses->count()], $this->currentOrganization()->id);
+        // Recettes des mêmes chevaux et de la même année, pour un export conforme au solde affiché.
+        $incomes = IncomeController::visibleQuery($request, $access)->with('horse')
+            ->when($request->integer('horse'), fn ($q, $h) => $q->where('incomes.horse_id', $h))
+            ->when(ctype_digit((string) $request->query('year')), fn ($q) => $q->whereYear('incomes.received_on', (int) $request->query('year')))
+            ->orderBy('received_on')->get();
+        Audit::log('export.expenses', null, ['format' => $format, 'count' => $expenses->count(), 'incomes' => $incomes->count()], $this->currentOrganization()->id);
         $name = 'depenses-'.now()->format('Ymd');
 
         if ($format === 'pdf') {
-            return Pdf::loadView('exports.expenses', ['expenses' => $expenses, 'title' => 'Dépenses'])->download($name.'.pdf');
+            return Pdf::loadView('exports.expenses', ['expenses' => $expenses, 'incomes' => $incomes, 'title' => 'Dépenses'.($incomes->isNotEmpty() ? ' et recettes' : '')])->download($name.'.pdf');
         }
 
-        return response()->streamDownload(function () use ($expenses) {
+        return response()->streamDownload(function () use ($expenses, $incomes) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Date', 'Cheval', 'Catégorie', 'Fournisseur', 'Montant', 'Devise', 'Commentaire'], ';');
+            fputcsv($out, ['Type', 'Date', 'Cheval', 'Catégorie', 'Fournisseur / versée par', 'Montant', 'Devise', 'Commentaire'], ';');
             foreach ($expenses as $e) {
-                fputcsv($out, [$e->spent_on->format('d/m/Y'), $e->horse?->official_name, $e->category?->name, $e->supplier, number_format((float) $e->amount, 2, ',', ''), $e->currency, $e->comment], ';');
+                fputcsv($out, ['Dépense', $e->spent_on->format('d/m/Y'), $e->horse?->official_name, $e->category?->name, $e->supplier, number_format((float) $e->amount, 2, ',', ''), $e->currency, $e->comment], ';');
+            }
+            foreach ($incomes as $i) {
+                fputcsv($out, ['Recette', $i->received_on->format('d/m/Y'), $i->horse?->official_name, $i->categoryLabel(), $i->payer, number_format((float) $i->amount, 2, ',', ''), 'EUR', $i->comment], ';');
             }
             fclose($out);
         }, $name.'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);

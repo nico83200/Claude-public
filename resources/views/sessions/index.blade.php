@@ -15,7 +15,7 @@
     <x-filters :fields="array_values(array_filter(['rider', 'discipline', 'type', 'status', 'from', 'to', $contextHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id]">
         @unless ($contextHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
         <x-select name="status" label="Statut" :options="\App\Models\RidingSession::STATUSES" :value="request('status')" placeholder="Tous" />
-        <x-select name="type" label="Type" :options="\App\Models\RidingSession::TYPES" :value="request('type')" placeholder="Tous" />
+        <x-select name="type" label="Type" :options="$typeFilter" :value="request('type')" placeholder="Tous" />
         <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" :value="request('discipline')" placeholder="Toutes" />
         <x-select name="rider" label="Cavalier" :options="$riders" :value="request('rider')" placeholder="Tous" />
         <div><label class="label" for="f_from">Du</label><input id="f_from" type="date" name="from" value="{{ request('from') }}" class="input"></div>

@@ -59,7 +59,7 @@ class SendRhythmReminders extends Command
         $ago = $r['last']->diffInDays(today());
         $since = $ago >= 14 ? (int) round($ago / 7).' semaines' : $ago.' jours';
 
-        return 'Dernier passage pour '.$horse->shortName().' il y a '.$since.' ; d\'habitude, c\'est toutes les '.$r['label']
+        return 'Dernier passage pour '.$horse->shortName().' il y a '.$since.' ; d\'habitude, c\'est '.CareRhythm::every($r['label'])
             .($r['due_in'] < 0 ? ' : c\'est en retard.' : ($r['due_in'] === 0 ? ' : c\'est aujourd\'hui.' : ' : prochain passage vers le '.$r['next']->translatedFormat('j F').'.'));
     }
 

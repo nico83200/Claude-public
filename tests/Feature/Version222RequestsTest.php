@@ -10,6 +10,7 @@ use App\Models\HorseAccessGrant;
 use App\Models\Income;
 use App\Models\RidingSession;
 use App\Models\SessionTemplate;
+use App\Services\CareRhythm;
 use App\Services\RidingSessionService;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -141,9 +142,9 @@ class Version222RequestsTest extends TestCase
         [$user, $horse] = $this->owner();
         $this->actingAs($user)->get('/budget')->assertOk()->assertSee('data-new-income', false)->assertSee('Demi-pension')->assertDontSee('data-income-kpis', false);
 
-        $this->actingAs($user)->post(route('budget.incomes.store'), ['horse_id' => $horse->id, 'category' => 'half_lease', 'received_on' => now()->toDateString(), 'amount' => '150', 'payer' => 'Léa'])
+        $this->actingAs($user)->post(route('budget.incomes.store'), ['income_horse_id' => $horse->id, 'income_category' => 'half_lease', 'income_received_on' => now()->toDateString(), 'income_amount' => '150', 'income_payer' => 'Léa'])
             ->assertSessionHas('success', 'Recette de 150,00 € enregistrée.');
-        $this->actingAs($user)->post(route('budget.incomes.store'), ['horse_id' => $horse->id, 'category' => 'prize', 'received_on' => now()->toDateString(), 'amount' => '80.50', 'comment' => 'CSO Hyères'])->assertSessionHas('success');
+        $this->actingAs($user)->post(route('budget.incomes.store'), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '80.50', 'income_comment' => 'CSO Hyères'])->assertSessionHas('success');
         $cat = ExpenseCategory::firstOrFail();
         $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => '300', 'spent_on' => now()->toDateString()]);
 
@@ -153,13 +154,13 @@ class Version222RequestsTest extends TestCase
         $this->actingAs($user)->get('/budget?horse='.$horse->id)->assertOk()->assertSee('CSO Hyères');
 
         // Erreur de saisie : la fenêtre des recettes se rouvre avec le message.
-        $this->actingAs($user)->from('/budget')->post(route('budget.incomes.store'), ['horse_id' => $horse->id, 'received_on' => now()->toDateString(), 'amount' => '10'])
-            ->assertSessionHasErrorsIn('income', 'category');
+        $this->actingAs($user)->from('/budget')->post(route('budget.incomes.store'), ['income_horse_id' => $horse->id, 'income_received_on' => now()->toDateString(), 'income_amount' => '10'])
+            ->assertSessionHasErrorsIn('income', 'income_category');
 
         // Modifier puis supprimer.
         $prize = Income::where('category', 'prize')->sole();
         $this->actingAs($user)->get(route('budget.incomes.edit', $prize))->assertOk()->assertSee('CSO Hyères');
-        $this->actingAs($user)->put(route('budget.incomes.update', $prize), ['horse_id' => $horse->id, 'category' => 'prize', 'received_on' => now()->toDateString(), 'amount' => '120', 'comment' => 'CSO Hyères'])->assertSessionHas('success');
+        $this->actingAs($user)->put(route('budget.incomes.update', $prize), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '120', 'income_comment' => 'CSO Hyères'])->assertSessionHas('success');
         $this->assertSame('120.00', $prize->fresh()->amount);
         $this->actingAs($user)->delete(route('budget.incomes.destroy', $prize))->assertSessionHas('success');
         $this->assertSoftDeleted($prize);
@@ -170,12 +171,65 @@ class Version222RequestsTest extends TestCase
         $half = Income::where('category', 'half_lease')->sole();
         $this->actingAs($stranger)->get(route('budget.incomes.edit', $half))->assertForbidden();
         $this->actingAs($stranger)->delete(route('budget.incomes.destroy', $half))->assertForbidden();
-        $this->actingAs($stranger)->post(route('budget.incomes.store'), ['horse_id' => $horse->id, 'category' => 'prize', 'received_on' => now()->toDateString(), 'amount' => '5'])->assertForbidden();
+        $this->actingAs($stranger)->post(route('budget.incomes.store'), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '5'])->assertForbidden();
 
         // Lecture seule des dépenses : recettes visibles, sans modification.
         $viewer = $this->user();
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $viewer->id, 'permissions' => ['horse.view', 'expenses.view']]);
         $this->actingAs($viewer)->get('/budget')->assertOk()->assertSee('Léa')->assertDontSee(route('budget.incomes.edit', $half));
-        $this->actingAs($viewer)->put(route('budget.incomes.update', $half), ['horse_id' => $horse->id, 'category' => 'prize', 'received_on' => now()->toDateString(), 'amount' => '1'])->assertForbidden();
+        $this->actingAs($viewer)->put(route('budget.incomes.update', $half), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '1'])->assertForbidden();
+    }
+
+    public function test_an_income_stays_in_its_space_and_the_balance_ignores_the_category_filter(): void
+    {
+        [$user, $horse] = $this->owner();
+        $stable = $this->stable($user, 'Écurie du Lac');
+        $this->grantLicense($stable);
+        $other = $this->horseFor($user, $stable, ['official_name' => 'LAC']);
+        $income = Income::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $user->id, 'horse_id' => $horse->id, 'category' => 'half_lease', 'received_on' => now()->toDateString(), 'amount' => 150]);
+
+        $edit = $this->actingAs($user)->get(route('budget.incomes.edit', $income))->assertOk();
+        $this->assertStringNotContainsString('<option value="'.$other->id.'"', Str::betweenFirst($edit->getContent(), 'name="income_horse_id"', '</select>'));
+        $this->actingAs($user)->put(route('budget.incomes.update', $income), ['income_horse_id' => $other->id, 'income_category' => 'half_lease', 'income_received_on' => now()->toDateString(), 'income_amount' => '150'])->assertStatus(422);
+        $this->assertSame($horse->id, $income->fresh()->horse_id);
+
+        // Solde : toutes les dépenses du cheval, même filtrées par catégorie.
+        $farrier = ExpenseCategory::where('key', 'farrier')->firstOrFail();
+        $boarding = ExpenseCategory::where('key', '!=', 'farrier')->firstOrFail();
+        foreach ([[$farrier, 95], [$boarding, 380]] as [$cat, $amount]) {
+            $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => (string) $amount, 'spent_on' => now()->toDateString()]);
+        }
+        $kpis = $this->actingAs($user)->get('/budget?horse='.$horse->id.'&category='.$farrier->id)->assertOk()->assertSee('Toutes catégories de dépenses')->viewData('kpis');
+        $this->assertSame([95.0, -325.0], [(float) $kpis['year'], round($kpis['balance'], 2)]);
+
+        // Export : recettes et dépenses.
+        $this->grantLicense($user->personalOrganization(), 'multi-chevaux');
+        $csv = $this->actingAs($user)->get(route('budget.export', ['csv', 'horse' => $horse->id]))->assertOk()->streamedContent();
+        $this->assertStringContainsString('Recette;', $csv);
+        $this->assertStringContainsString('Demi-pension', $csv);
+        $this->assertStringContainsString('Dépense;', $csv);
+    }
+
+    public function test_a_session_turned_into_a_lesson_loses_its_prepared_exercises(): void
+    {
+        [$user, $horse] = $this->owner();
+        $exercise = Exercise::whereNull('organization_id')->firstOrFail();
+        $session = app(RidingSessionService::class)->create($horse, $user, ['scheduled_at' => now()->addDay(), 'session_type' => 'free', 'planned_minutes' => 45], [['exercise_id' => $exercise->id, 'phase' => 'main']]);
+        $this->actingAs($user)->from(route('sessions.edit', $session))->put(route('sessions.update', $session), $this->sessionData(['session_type' => 'private_lesson']))
+            ->assertRedirect(route('sessions.show', $session))->assertSessionHas('success', 'Séance enregistrée. Cours et balade n\'ont pas d\'exercices préparés : 1 exercice retiré.');
+        $this->assertSame(0, $session->items()->count());
+
+        // Filtre de la liste : les anciens types encore utilisés restent proposés.
+        app(RidingSessionService::class)->create($horse, $user, ['scheduled_at' => now()->addDays(3), 'session_type' => 'lunging', 'planned_minutes' => 30]);
+        $filter = Str::betweenFirst($this->actingAs($user)->get('/seances')->assertOk()->getContent(), 'name="type"', '</select>');
+        $this->assertStringContainsString('Longe', $filter);
+        $this->assertStringNotContainsString('Dressage', $filter);
+    }
+
+    public function test_rhythm_wording_agrees_with_the_unit(): void
+    {
+        $this->assertSame('toutes les 7 semaines', CareRhythm::every('7 semaines'));
+        $this->assertSame('tous les 2 mois', CareRhythm::every('2 mois'));
+        $this->assertSame('tous les 10 jours', CareRhythm::every('10 jours'));
     }
 }
