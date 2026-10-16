@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.22.0' => ['2026-10-16', 'Séances : cours particulier, cours collectif, monte libre ou balade (sans exercices à préparer pour les cours et la balade) ; lecture de l\'ordonnance depuis la page Santé ; rythme habituel indiqué à la création d\'un soin ; recettes dans le budget (demi-pension, gains de concours…) avec solde.'],
     '2.21.0' => ['2026-10-15', 'Plusieurs rations en même temps (durée, archivage automatique) ; boutons Soin et Ordonnance sur la page Santé ; choix ou glisser-déposer d\'un fichier sur ordinateur ; documents de soin en plein écran ; dépense et soin liés (suppression proposée, seuls les soins sans dépense) ; récurrences déjà payées corrigées ; contrôles ajoutés à l\'agenda à la demande ; budget « Toutes » ; assistant limité à l\'application.'],
     '2.20.0' => ['2026-10-15', 'Sauvegarde automatique chiffrée sur Google Drive ; historique des versions ; partage vétérinaire depuis Santé ; budget par 10 avec « Afficher plus » ; grande carte pour un seul cheval ; suggestions d\'exercices avec l\'offre IA ; espaces au nom du cavalier.'],
     '2.19.0' => ['2026-10-15', 'Rappels de soin : « C\'est fait » et « Reporter d\'une semaine » dans la notification ; « Annuler » après suppression d\'une dépense ou d\'un soin ; confirmations dans l\'application ; pages plus rapides.'],
