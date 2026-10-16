@@ -130,7 +130,7 @@ class Version223RequestsTest extends TestCase
         $this->actingAs($user)->get($hub)->assertSee('Ration du soir');
 
         // Suivi et poids : formulaires de saisie présents, enregistrement depuis l'onglet.
-        $this->actingAs($user)->get(route('health.index', ['onglet' => 'suivi', 'cheval' => $jack->id]))->assertOk()->assertSee('Nouvelle saisie')->assertSee(route('horses.logs.store', $jack), false);
+        $this->actingAs($user)->get(route('health.index', ['onglet' => 'suivi', 'cheval' => $jack->id]))->assertOk()->assertSee('Saisie détaillée')->assertSee(route('horses.logs.store', $jack), false);
         $this->actingAs($user)->get(route('health.index', ['onglet' => 'poids', 'cheval' => $jack->id]))->assertOk()->assertSee(route('horses.weight.store', $jack), false);
         $suivi = route('health.index', ['onglet' => 'suivi', 'cheval' => $jack->id]);
         $this->actingAs($user)->from($suivi)->post(route('horses.logs.store', $jack), ['appetite' => 'good', 'general_state' => 'good', 'observations' => 'RAS'])->assertRedirect($suivi);

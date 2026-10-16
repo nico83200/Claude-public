@@ -1,6 +1,6 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
 <x-layouts.app :title="$org->name.' · Admin'">
-    <x-page-header :title="$org->name" :subtitle="$org->typeLabel().' · '.$org->owner?->email.' · '.$horseCount.' cheval(aux)'" :back="route('admin.organizations.index')" />
+    <x-page-header :title="$org->name" :subtitle="$org->typeLabel().' · '.$org->owner?->email.' · '.\App\Support\Fr::count($horseCount, 'cheval', 'chevaux')" :back="route('admin.organizations.index')" />
     @include('admin._nav')
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4">
@@ -23,7 +23,7 @@
                 @if ($blocker)
                     <p class="text-sm text-slate-600">{{ $blocker }}</p>
                 @else
-                    <p class="mb-3 text-sm text-slate-600">Ses {{ $horseCount }} cheval(aux) et leurs données (santé, séances, documents, dépenses…) sont supprimés et effacés définitivement au bout de 30 jours ; les membres perdent l'accès ; les chevaux confiés par d'autres espaces leur sont rendus. Pour un arrêt temporaire, préférez la suspension.</p>
+                    <p class="mb-3 text-sm text-slate-600">Ses {{ \App\Support\Fr::count($horseCount, 'cheval', 'chevaux') }} et leurs données (santé, séances, documents, dépenses…) sont supprimés et effacés définitivement au bout de 30 jours ; les membres perdent l'accès ; les chevaux confiés par d'autres espaces leur sont rendus. Pour un arrêt temporaire, préférez la suspension.</p>
                     <form method="POST" action="{{ route('admin.organizations.destroy', $org) }}" class="space-y-2" x-data="{ typed: '' }">
                         @csrf @method('DELETE')
                         <x-field name="confirm_name" :label="'Recopiez « '.$org->name.' » pour confirmer'" x-model="typed" autocomplete="off" required />

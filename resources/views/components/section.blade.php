@@ -4,7 +4,7 @@
         <div class="mb-3 flex items-center justify-between gap-2">
             <h2 class="text-[17px] font-semibold text-slate-900">{{ $title }}</h2>
             <div class="flex items-center gap-3">
-                @if ($action)<a href="{{ $action }}" class="text-sm link">{{ $actionLabel ?? 'Voir tout' }}</a>@endif
+                @if ($action)<a href="{{ $action }}" class="-my-2 inline-flex min-h-11 items-center px-1 text-sm link">{{ $actionLabel ?? 'Voir tout' }}</a>@endif
                 @isset($headerActions){{ $headerActions }}@endisset
             </div>
         </div>

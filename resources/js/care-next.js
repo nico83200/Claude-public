@@ -4,9 +4,17 @@ export function careNext(opts) {
         ...opts,
         init() {
             if (!this.fromOld) this.applyRule();
-            this.$watch('cat', () => this.applyRule());
+            this.$watch('cat', () => { this.applyRule(); this.proposePro(); });
             // Un montant saisi coche « Ajouter le coût aux dépenses ».
             this.$watch('cost', (v) => { if (String(v ?? '').trim() !== '' && Number(v) > 0) this.addExpense = true; });
+        },
+        /** Intervenant habituel de la catégorie, proposé seulement si aucun n'est déjà choisi. */
+        proposePro() {
+            const pro = (this.usualPros || {})[this.cat];
+            const select = this.$root.querySelector('select[name=professional_id]');
+            if (!pro || !select || select.value || !select.querySelector(`option[value="${pro}"]`)) return;
+            select.value = pro;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
         },
         applyRule() {
             const rule = this.rules[this.cat];

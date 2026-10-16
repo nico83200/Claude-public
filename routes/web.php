@@ -163,9 +163,13 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
         Route::put('/poids/rappel', [Controllers\MeasurementController::class, 'reminder'])->name('weight.reminder');
         Route::delete('/poids/{measurement}', [Controllers\MeasurementController::class, 'destroy'])->withoutScopedBindings()->name('weight.destroy');
         Route::post('/journal', [Controllers\DailyLogController::class, 'store'])->name('logs.store');
+        Route::get('/journal/{log}/modifier', [Controllers\DailyLogController::class, 'edit'])->withoutScopedBindings()->name('logs.edit');
+        Route::put('/journal/{log}', [Controllers\DailyLogController::class, 'update'])->withoutScopedBindings()->name('logs.update');
+        Route::delete('/journal/{log}', [Controllers\DailyLogController::class, 'destroy'])->withoutScopedBindings()->name('logs.destroy');
 
         Route::get('/partage', [Controllers\HorseSharingController::class, 'show'])->name('sharing');
         Route::post('/partage/invitations', [Controllers\HorseSharingController::class, 'invite'])->middleware('throttle:invitations')->name('sharing.invite');
+        Route::post('/partage/invitations/{invitation}/renvoyer', [Controllers\HorseSharingController::class, 'resendInvitation'])->middleware('throttle:invitations')->name('sharing.invitations.resend');
         Route::delete('/partage/invitations/{invitation}', [Controllers\HorseSharingController::class, 'revokeInvitation'])->name('sharing.invitations.revoke');
         Route::put('/partage/acces/{grant}', [Controllers\HorseSharingController::class, 'updateGrant'])->name('sharing.grants.update');
         Route::post('/partage/acces/{grant}/revoquer', [Controllers\HorseSharingController::class, 'revokeGrant'])->name('sharing.grants.revoke');

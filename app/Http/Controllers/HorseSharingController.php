@@ -69,9 +69,21 @@ class HorseSharingController extends Controller
             'starts_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after:today', 'after_or_equal:starts_at'],
         ]);
-        $invitations->inviteToHorse($horse, $request->user(), $data['email'], $data['permissions'] ?? [], $data['label'] ?? null, $data['starts_at'] ?? null, $data['expires_at'] ?? null);
+        [, $token] = $invitations->inviteToHorse($horse, $request->user(), $data['email'], $data['permissions'] ?? [], $data['label'] ?? null, $data['starts_at'] ?? null, $data['expires_at'] ?? null);
 
-        return back()->with('success', 'Invitation envoyée. L\'accès sera actif dès son acceptation.');
+        // Lien montré une seule fois, à transmettre aussi par WhatsApp ou SMS (il ne fonctionne que pour l'adresse invitée).
+        return back()->with('success', 'Invitation envoyée par e-mail. L\'accès sera actif dès son acceptation.')
+            ->with('invite_link', ['url' => route('invitations.show', $token), 'email' => strtolower($data['email'])]);
+    }
+
+    public function resendInvitation(Request $request, Horse $horse, Invitation $invitation, InvitationService $invitations)
+    {
+        $this->authorizeHorse($horse, Perm::HORSE_MANAGE);
+        abort_unless($invitation->horse_id === $horse->id && $invitation->isPending(), 404);
+        $token = $invitations->resend($invitation, $request->user());
+
+        return back()->with('success', 'Invitation renvoyée à '.$invitation->email.'.')
+            ->with('invite_link', ['url' => route('invitations.show', $token), 'email' => $invitation->email]);
     }
 
     public function revokeInvitation(Horse $horse, Invitation $invitation)

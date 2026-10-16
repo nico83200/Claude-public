@@ -24,6 +24,9 @@
             @if ($canEdit && ! $expense->isPaid())
                 <form method="POST" action="{{ route('budget.pay', $expense) }}" class="mt-4">@csrf<input type="hidden" name="paid" value="1"><button class="btn-primary"><x-icon name="check" class="size-4" /> Marquer comme payée</button></form>
             @endif
+            @if ($canEdit && $expense->isPaid())
+                <form method="POST" action="{{ route('budget.pay', $expense) }}" class="mt-4">@csrf<input type="hidden" name="paid" value="0"><button class="btn-ghost text-sm" data-expense-unpay><x-icon name="undo" class="size-4" /> Remettre « à payer »</button></form>
+            @endif
         </x-section>
         <div class="space-y-4">
             <x-section title="Justificatifs">

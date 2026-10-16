@@ -111,6 +111,8 @@ class ExpenseController extends Controller
                 'per_month' => $total / max(1, $allDates
                     ? ($first ? (int) Carbon::parse($first)->startOfMonth()->diffInMonths(now()->startOfMonth()) + 1 : 1)
                     : ($year == now()->year ? now()->month : 12)),
+                // Charges fixes : récurrences en cours (ni suspendues ni terminées), ramenées au mois.
+                'fixed_monthly' => $recurring->filter(fn ($r) => $r->isActive())->sum(fn ($r) => $r->monthlyAmount()),
                 'by_category' => (clone $yearQuery)->join('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
                     ->select(\DB::raw('expense_categories.name as name, sum(expenses.amount) as total'))->groupBy('expense_categories.name')->orderByDesc('total')->pluck('total', 'name'),
                 'income_by_category' => $chartIncomes->groupBy('category')->map(fn ($g) => (float) $g->sum('amount'))->sortDesc()

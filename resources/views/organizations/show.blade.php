@@ -1,5 +1,5 @@
 <x-layouts.app :title="$org->name">
-    <x-page-header :title="$org->name" :subtitle="$org->typeLabel().' · '.$horseCount.' cheval(aux) géré(s)'">
+    <x-page-header :title="$org->name" :subtitle="$org->typeLabel().' · '.\App\Support\Fr::count($horseCount, 'cheval géré', 'chevaux gérés')">
         @unless (auth()->user()->ownedStable())
             <a href="{{ route('organizations.create') }}" class="btn-secondary" data-create-stable><x-icon name="plus" /> Créer mon écurie</a>
         @endunless

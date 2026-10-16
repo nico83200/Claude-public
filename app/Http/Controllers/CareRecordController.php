@@ -104,6 +104,12 @@ class CareRecordController extends Controller
             ]);
         }
 
+        // « Noter le passage » depuis une échéance : même catégorie et même intervenant que le dernier soin.
+        $previous = ! $event && $request->integer('suite') ? CareRecord::where('horse_id', $horse->id)->find($request->integer('suite')) : null;
+        if ($previous) {
+            $record->fill(['care_category_id' => $previous->care_category_id, 'professional_id' => $previous->professional_id]);
+        }
+
         return view('health.form', ['event' => $event] + $this->formData($horse, $record));
     }
 
@@ -299,6 +305,10 @@ class CareRecordController extends Controller
             'event' => null,
             'linkedExpense' => $record->exists ? Expense::where('care_record_id', $record->id)->first() : null,
             'defaultMode' => $this->defaultNextMode($horse, $record),
+            // Intervenant habituel par catégorie (le plus récent), proposé quand la catégorie est choisie.
+            'usualPros' => $record->exists ? [] : CareRecord::where('horse_id', $horse->id)->whereNotNull('professional_id')
+                ->whereIn('professional_id', Professional::where('organization_id', $horse->organization_id)->whereNull('archived_at')->select('id'))
+                ->orderBy('performed_at')->pluck('professional_id', 'care_category_id')->mapWithKeys(fn ($v, $k) => [(string) $k => (string) $v])->all(),
             // Rythme habituel de chaque catégorie, en simple information à la création d'un soin.
             'rhythms' => $record->exists ? [] : app(CareRhythm::class)->forHorse($horse)->mapWithKeys(fn ($r) => [(string) $r['category']->id => 'Rythme habituel : '.CareRhythm::every($r['label'])
                 .' en moyenne ('.$r['count'].' passages) · dernier le '.$r['last']->format('d/m/Y')

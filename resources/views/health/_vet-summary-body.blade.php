@@ -1,11 +1,12 @@
 {{-- Contenu du résumé pour le vétérinaire (aperçu dans le dossier et page partagée). --}}
 @php $obsColors = ['info' => 'slate', 'watch' => 'amber', 'alert' => 'red']; @endphp
 <div class="space-y-4" data-vet-summary>
-    @if ($s['identity'] || $s['precautions'])
+    @if ($s['identity'] || $s['precautions'] || ($s['emergency_notes'] ?? null))
         <section class="card p-5">
             <h2 class="mb-2 font-semibold">Identité</h2>
             @if ($s['identity'])<x-dl :items="$s['identity']" />@endif
             @if ($s['precautions'])<p class="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900"><strong>Précautions :</strong> {{ $s['precautions'] }}</p>@endif
+            @if ($s['emergency_notes'] ?? null)<p class="mt-3 whitespace-pre-line rounded-xl bg-red-50 p-3 text-sm text-red-900" data-vet-emergency-notes><strong>Allergies et notes d'urgence :</strong> {{ $s['emergency_notes'] }}</p>@endif
         </section>
     @endif
     <section class="card p-5">

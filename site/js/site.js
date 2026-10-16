@@ -97,7 +97,14 @@ if (box && (status.has('envoye') || status.has('erreur'))) {
 // Bandeau de l'offre : visible sur toutes les pages jusqu'à la date de fin.
 (() => {
     const bar = document.getElementById('promo-bar');
-    if (bar && Date.now() <= new Date(bar.dataset.until + 'T23:59:59').getTime()) bar.hidden = false;
+    if (!bar || Date.now() > new Date(bar.dataset.until + 'T23:59:59').getTime()) return;
+    bar.hidden = false;
+    // Offre en cours : le hero la rappelle et les boutons vers l'inscription portent le code (champ prérempli).
+    document.querySelectorAll('[data-promo-hero]').forEach((el) => { el.hidden = false; });
+    document.querySelectorAll('a[href*="app.jackcie.fr/register"]').forEach((a) => {
+        const u = new URL(a.href);
+        if (!u.searchParams.has('code')) { u.searchParams.set('code', bar.dataset.promo); a.href = u.toString(); }
+    });
 })();
 
 // Fenêtre promotionnelle : une fois par visiteur (fermeture retenue 7 jours), jusqu'à la date de fin de l'offre.

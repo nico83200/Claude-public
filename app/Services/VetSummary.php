@@ -37,6 +37,8 @@ class VetSummary
                 'SIRE' => $horse->identifier('sire'),
             ]),
             'precautions' => $horse->precautions,
+            // Notes de la fiche d'urgence (allergies, réactions connues…) : utiles au vétérinaire.
+            'emergency_notes' => $horse->emergency_notes,
             'treatments' => Treatment::where('horse_id', $horse->id)
                 ->where(fn ($q) => $q->where('status', 'active')->orWhere('starts_on', '>=', $from->toDateString())->orWhere('ends_on', '>=', $from->toDateString()))
                 ->orderByDesc('starts_on')->get(),
@@ -59,6 +61,9 @@ class VetSummary
         $lines[] = 'Période : depuis le '.$s['from']->format('d/m/Y');
         if ($s['precautions']) {
             $lines[] = 'Précautions : '.$s['precautions'];
+        }
+        if ($s['emergency_notes'] ?? null) {
+            $lines[] = 'Notes d\'urgence (allergies…) : '.$s['emergency_notes'];
         }
         $lines[] = "\nTraitements :";
         foreach ($s['treatments'] as $t) {

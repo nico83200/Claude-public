@@ -18,7 +18,7 @@
                     <p class="pr-12 font-semibold">{{ $p->fullName() }}</p>
                     <p class="pr-12 text-sm text-slate-500">{{ $p->kindLabel() }}{{ $p->company ? ' · '.$p->company : '' }}</p>
                     <p class="mt-1 text-sm">{{ $p->phone }}</p>
-                    <p class="text-xs text-slate-400">{{ $p->horses_count }} cheval(aux)</p>
+                    <p class="text-xs text-slate-400">{{ \App\Support\Fr::count($p->horses_count, 'cheval', 'chevaux') }}</p>
                     @if ($canManage && $p->organization_id === $org->id)
                         {{-- Accès direct à la modification de la fiche. --}}
                         <a href="{{ route('professionals.edit', $p) }}" class="absolute top-2 right-2 z-10 flex size-11 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-700" aria-label="Modifier {{ $p->fullName() }}" title="Modifier" data-edit-professional="{{ $p->id }}"><x-icon name="pencil" class="size-5" /></a>

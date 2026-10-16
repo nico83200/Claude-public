@@ -1,10 +1,14 @@
 <x-layouts.app :title="'Suivi quotidien · '.$horse->shortName()">
     <x-horse-header :horse="$horse" />
     <div class="grid gap-4 lg:grid-cols-3">
-        <div class="space-y-2 lg:col-span-2">
+        <div class="order-2 space-y-2 lg:order-1 lg:col-span-2">
             @forelse ($logs as $log)
                 <div class="card p-4 text-sm">
-                    <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-semibold">{{ $log->logged_at->translatedFormat('l j F Y, H:i') }}</span><span class="text-xs text-slate-500">{{ $log->author?->name }}</span></div>
+                    <div class="flex flex-wrap items-center justify-between gap-2"><span class="font-semibold">{{ $log->logged_at->translatedFormat('l j F Y, H:i') }}</span><span class="flex items-center gap-1 text-xs text-slate-500">{{ $log->author?->name }}
+                        @if (\App\Http\Controllers\DailyLogController::canEdit($log, $perms))
+                            <a href="{{ route('horses.logs.edit', [$horse, $log]) }}" class="btn-ghost size-11 justify-center p-0" aria-label="Modifier la saisie" data-log-edit><x-icon name="pencil" class="size-4" /></a>
+                        @endif
+                    </span></div>
                     <div class="mt-1 flex flex-wrap gap-1">
                         @if ($log->appetite)<x-badge :color="$log->appetite === 'good' ? 'green' : 'amber'">Appétit : {{ \App\Models\DailyLog::APPETITE[$log->appetite] }}</x-badge>@endif
                         @if ($log->general_state)<x-badge :color="$log->general_state === 'good' ? 'green' : ($log->general_state === 'poor' ? 'red' : 'amber')">État : {{ \App\Models\DailyLog::STATE[$log->general_state] }}</x-badge>@endif
@@ -20,18 +24,22 @@
             {{ $logs->links() }}
         </div>
         @if ($canCreate)
-        <x-section title="Nouvelle saisie">
-            <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="space-y-3">
+        <div class="order-1 space-y-3 lg:order-2">
+            {{-- Une journée sans histoire se note en un geste. --}}
+            <form method="POST" action="{{ route('horses.logs.store', $horse) }}" data-log-all-good>
                 @csrf
-                <x-select name="appetite" label="Appétit" :options="\App\Models\DailyLog::APPETITE" value="good" />
-                <x-select name="general_state" label="État général" :options="\App\Models\DailyLog::STATE" value="good" />
-                <x-field name="behavior" label="Comportement" />
-                <x-field name="activity" label="Activité" placeholder="Paddock, marcheur, repos…" />
-                <x-textarea name="observations" label="Observations" />
-                <x-textarea name="anomalies" label="Anomalies constatées" />
-                <button class="btn-primary w-full">Enregistrer</button>
+                <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
+                <button class="btn-primary min-h-12 w-full gap-2"><x-icon name="check" class="size-5" /> Tout va bien aujourd'hui</button>
             </form>
-        </x-section>
+            <details class="card p-4" @if ($errors->any()) open @endif data-log-detailed>
+                <summary class="flex min-h-11 cursor-pointer items-center font-semibold">Saisie détaillée</summary>
+                <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="mt-3 space-y-3">
+                    @csrf
+                    @include('horses._log-form', ['log' => null])
+                    <button class="btn-primary w-full">Enregistrer</button>
+                </form>
+            </details>
+        </div>
         @endif
     </div>
 </x-layouts.app>

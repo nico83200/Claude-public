@@ -60,7 +60,8 @@
             <div class="px-2"><p class="text-xs text-slate-500">Mois le plus élevé</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($topMonth['value'] ?? 0) }}</p><p class="text-xs text-slate-500">{{ ($topMonth['value'] ?? 0) > 0 ? $topMonth['long'] : '—' }}</p></div>
         @endif
         <div class="px-2"><p class="text-xs text-slate-500">{{ $year ? 'Année '.$year : 'Toutes les dates' }}</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['year']) }}</p></div>
-        <div class="px-2"><p class="text-xs text-slate-500">Par mois</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['per_month']) }}</p></div>
+        <div class="px-2"><p class="text-xs text-slate-500">Moyenne par mois</p><p class="mt-1 text-lg font-bold sm:text-2xl">{{ $eur($kpis['per_month']) }}</p>
+            @if ($kpis['fixed_monthly'] > 0)<p class="text-[11px] text-slate-500" data-fixed-monthly>dont {{ $eur($kpis['fixed_monthly']) }} de charges fixes</p>@endif</div>
     </div>
     @if ($incomes->isNotEmpty())
         {{-- Recettes de la période et solde (recettes − dépenses). --}}

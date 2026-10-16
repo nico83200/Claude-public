@@ -205,6 +205,11 @@ class LessonRemindersTest extends TestCase
     public function test_notification_gate_is_on_every_app_page_except_personal_data(): void
     {
         $user = $this->user();
+        // Sans cheval, l'écran n'est pas encore proposé (le compte n'a rien à rappeler).
+        $html = $this->actingAs($user)->get('/dashboard')->assertOk()->getContent();
+        preg_match('#<script type="application/json" id="push-config">(.*?)</script>#s', $html, $m);
+        $this->assertFalse(json_decode($m[1], true)['enabled']);
+        $this->horseFor($user);
         $html = $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Activez les notifications')->assertSee('id="push-config"', false)->getContent();
         preg_match('#<script type="application/json" id="push-config">(.*?)</script>#s', $html, $m);
         $config = json_decode($m[1], true);

@@ -15,7 +15,7 @@
                                 <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
                                     <input type="radio" name="keep_id" value="{{ $o->id }}" @checked($i === 0) class="mt-0.5 size-5">
                                     <span class="min-w-0 flex-1"><a href="{{ route('admin.organizations.show', $o) }}" class="font-medium link">{{ $o->name }}</a>
-                                        <span class="block text-xs text-slate-500">Créée le {{ $o->created_at->format('d/m/Y') }} · {{ $o->horses_count }} cheval(aux) · {{ $o->members_count }} membre(s)</span></span>
+                                        <span class="block text-xs text-slate-500">Créée le {{ $o->created_at->format('d/m/Y') }} · {{ \App\Support\Fr::count($o->horses_count, 'cheval', 'chevaux') }} · {{ \App\Support\Fr::count($o->members_count, 'membre', 'membres') }}</span></span>
                                     @if ($o->paid)<x-badge color="amber">Abonnement payant en cours</x-badge>@endif
                                 </label>
                             @endforeach

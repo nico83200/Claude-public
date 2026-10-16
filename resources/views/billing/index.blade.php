@@ -30,7 +30,7 @@
         <x-section title="Utilisation">
             @foreach (['horses' => ['Chevaux actifs', 'max_horses', ''], 'members' => ['Membres', 'max_members', ''], 'storage_mb' => ['Stockage', 'storage_mb', ' Mo']] as $k => [$label, $limitKey, $unit])
                 @php $limit = $ent['limits'][$limitKey]; $pct = $limit ? min(100, round($usage[$k] / max(1, $limit) * 100)) : 0; @endphp
-                <div class="mb-3 text-sm"><div class="flex justify-between"><span>{{ $label }}</span><span>{{ $usage[$k] }}{{ $unit }} / {{ $limit ?? '∞' }}{{ $limit ? $unit : '' }}</span></div>
+                <div class="mb-3 text-sm"><div class="flex justify-between"><span>{{ $label }}</span><span>@if ($k === 'storage_mb'){{ \App\Support\Fr::megabytes($usage[$k]) }} / {{ $limit ? \App\Support\Fr::megabytes($limit) : '∞' }}@else{{ $usage[$k] }} / {{ $limit ?? '∞' }}@endif</span></div>
                     @if ($limit)<div class="mt-1 h-2 rounded bg-slate-100"><div class="h-2 rounded {{ $pct >= 90 ? 'bg-red-500' : 'bg-brand-500' }}" style="width: {{ $pct }}%"></div></div>@endif</div>
             @endforeach
             <p class="text-xs text-slate-500">Fonctionnalités : {{ collect($ent['features'])->map(fn ($f) => \App\Models\SubscriptionPlan::FEATURES[$f] ?? $f)->implode(', ') ?: '—' }}</p>
@@ -121,7 +121,7 @@
                 <p class="text-lg font-bold">{{ $plan->name }}</p>
                 <p class="text-sm text-slate-600">{{ $plan->description }}</p>
                 <p class="mt-3"><span class="text-2xl font-bold" x-text="interval === 'year' ? @js($plan->price_yearly ? $eur($plan->price_yearly, $plan->currency).' / an' : 'Non disponible') : @js($plan->price_monthly ? $eur($plan->price_monthly, $plan->currency).' / mois' : 'Non disponible')"></span></p>
-                <p class="text-xs text-slate-500">{{ $plan->max_horses ?? '∞' }} cheval(aux) · {{ $plan->max_members ?? '∞' }} membre(s){{ $plan->trial_days ? ' · '.$plan->trial_days.' j d\'essai (1re souscription)' : '' }}</p>
+                <p class="text-xs text-slate-500">{{ $plan->max_horses === null ? 'Chevaux illimités' : \App\Support\Fr::count($plan->max_horses, 'cheval', 'chevaux') }} · {{ $plan->max_members === null ? 'membres illimités' : \App\Support\Fr::count($plan->max_members, 'membre', 'membres') }}{{ $plan->max_invitations ? ' · partage avec '.\App\Support\Fr::count($plan->max_invitations, 'personne', 'personnes') : '' }}{{ $plan->trial_days ? ' · '.$plan->trial_days.' j d\'essai (1re souscription)' : '' }}</p>
                 @if ($plan->renewal_terms)<p class="mt-1 text-xs text-slate-500">{{ $plan->renewal_terms }}</p>@endif
                 <ul class="mt-3 space-y-1 text-sm text-slate-700">
                     @foreach (\App\Models\SubscriptionPlan::FEATURES as $fk => $flabel)

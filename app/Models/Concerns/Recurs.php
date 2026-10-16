@@ -15,6 +15,14 @@ trait Recurs
         return ! $this->paused_at && (! $this->ends_on || $this->next_due_on->lte($this->ends_on));
     }
 
+    /** Montant ramené au mois (hebdomadaire × 52/12, trimestriel ÷ 3, annuel ÷ 12). */
+    public function monthlyAmount(): float
+    {
+        return (float) $this->amount * match ($this->frequency) {
+            'weekly' => 52 / 12, 'quarterly' => 1 / 3, 'yearly' => 1 / 12, default => 1,
+        };
+    }
+
     /** Terminée : date de fin dépassée (une récurrence suspendue reste en cours). */
     public function isEnded(): bool
     {

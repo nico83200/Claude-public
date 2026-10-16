@@ -17,8 +17,9 @@
                     @endif
                 </p>
                 <ul class="mt-4 flex-1 space-y-1.5 text-sm text-slate-700">
-                    <li>✓ {{ $plan->max_horses === null ? 'Chevaux illimités' : $plan->max_horses.' cheval'.($plan->max_horses > 1 ? 'x' : '') }}</li>
-                    @if ($plan->max_members)<li>✓ {{ $plan->max_members }} membre(s)</li>@endif
+                    <li>✓ {{ $plan->max_horses === null ? 'Chevaux illimités' : \App\Support\Fr::count($plan->max_horses, 'cheval', 'chevaux') }}</li>
+                    @if ($plan->max_members)<li>✓ {{ \App\Support\Fr::count($plan->max_members, 'membre', 'membres') }}</li>@endif
+                    @if ($plan->max_invitations)<li>✓ Partage avec {{ \App\Support\Fr::count($plan->max_invitations, 'personne', 'personnes') }}</li>@endif
                     @foreach ($plan->features ?? [] as $f)<li>✓ {{ \App\Models\SubscriptionPlan::FEATURES[$f] ?? $f }}</li>@endforeach
                     @if ($plan->trial_days)<li class="text-brand-700">{{ $plan->trial_days }} jours d'essai</li>@endif
                 </ul>

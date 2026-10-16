@@ -38,7 +38,7 @@ class RecurringExpenses
                     $expense->forceFill([
                         'organization_id' => $rec->organization_id, 'author_id' => $rec->author_id, 'horse_id' => $rec->horse_id,
                         'expense_category_id' => $rec->expense_category_id, 'professional_id' => $rec->professional_id,
-                        'amount' => $rec->amount, 'supplier' => $rec->supplier, 'comment' => $rec->label, 'paid_on' => null,
+                        'amount' => $rec->amount, 'supplier' => $rec->supplier, 'comment' => $rec->comment ? $rec->label.' — '.$rec->comment : $rec->label, 'paid_on' => null,
                     ])->save();
                     $created++;
                     if ($notify && $due->isSameDay(today())) {

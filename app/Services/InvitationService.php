@@ -78,20 +78,39 @@ class InvitationService
         ], "Invitation à rejoindre {$org->name}", "{$inviter->name} vous invite à rejoindre l'espace {$org->name} en tant que « {$role->name} ».");
     }
 
-    /** @return array{0: Invitation, 1: string} invitation + jeton en clair (à n'envoyer que par email) */
+    /** @return array{0: Invitation, 1: string} invitation + jeton en clair (envoyé par e-mail, et montré une fois à l'invitant pour un message ; lié à l'adresse invitée) */
     private function create(array $data, string $title, string $body): array
     {
         $token = Str::random(48);
         $invitation = Invitation::create($data + ['token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(14)]);
-        $url = route('invitations.show', $token);
-
-        $existing = User::where('email', $data['email'])->first();
-        $notification = new AppNotification('invitation', $title, $body, $url);
-        $existing ? $existing->notify($notification) : Notification::route('mail', $data['email'])->notify($notification);
+        $this->send($data['email'], $title, $body, route('invitations.show', $token));
 
         Audit::log('invitation.created', $invitation, ['email' => $data['email'], 'type' => $data['type']], $data['organization_id'] ?? null);
 
         return [$invitation, $token];
+    }
+
+    /**
+     * Relance d'une invitation en attente : nouveau lien (l'ancien ne marche plus), validité repartie pour 14 jours.
+     * Retourne le jeton en clair pour un envoi par message (le lien reste lié à l'adresse invitée).
+     */
+    public function resend(Invitation $invitation, User $by): string
+    {
+        $token = Str::random(48);
+        $invitation->update(['token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(14)]);
+        $invitation->loadMissing(['horse', 'organization']);
+        $place = $invitation->horse ? 'au dossier de '.$invitation->horse->shortName() : 'à l\'espace '.$invitation->organization?->name;
+        $this->send($invitation->email, 'Rappel : invitation de '.$by->name, $by->name.' vous invite à accéder '.$place.' sur Jack&Cie.', route('invitations.show', $token));
+        Audit::log('invitation.resent', $invitation, ['email' => $invitation->email], $invitation->organization_id);
+
+        return $token;
+    }
+
+    private function send(string $email, string $title, string $body, string $url): void
+    {
+        $existing = User::where('email', $email)->first();
+        $notification = new AppNotification('invitation', $title, $body, $url);
+        $existing ? $existing->notify($notification) : Notification::route('mail', $email)->notify($notification);
     }
 
     public function findByToken(string $token): ?Invitation

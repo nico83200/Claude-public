@@ -10,7 +10,8 @@
         <p class="mb-5 rounded-2xl bg-gold-50 px-4 py-3 text-sm text-slate-800 ring-1 ring-gold-200" data-referral-banner>Bienvenue ! Vous êtes invité par <strong>{{ session('referral_name') }}</strong> à rejoindre Jack&Cie.</p>
     @endif
     @if (session('signup_code'))
-        <p class="mb-5 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" data-signup-banner>Code <strong>{{ session('signup_code') }}</strong> : il sera activé à la création de votre compte, sans carte bancaire.</p>
+        <p class="mb-5 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" data-signup-banner>@php $signupPromo = \App\Models\PromoCode::where('code', \App\Models\PromoCode::normalize((string) session('signup_code')))->first(); @endphp
+            Code <strong>{{ session('signup_code') }}</strong>{{ $signupPromo?->free_days && ! $signupPromo->unavailableReason() ? ' : '.$signupPromo->free_days.' jours offerts' : '' }}, activé à la création de votre compte, sans carte bancaire.</p>
     @endif
     @if (\App\Services\Auth\OidcProvider::available())
         <x-social-buttons />

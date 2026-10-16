@@ -17,11 +17,16 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 py-3 text-sm first:border-0" data-next-check="{{ $c->id }}">
                         <a href="{{ route('horses.care.show', [$horse, $c]) }}" class="min-w-0 hover:underline"><span class="font-medium">{{ $c->category->name }}</span>
                             <span class="block text-xs {{ $late ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $late ? 'En retard · prévu le ' : 'Échéance le ' }}{{ $c->next_check_on->translatedFormat('j F Y') }} · dernier soin le {{ $c->performed_at->format('d/m/Y') }}</span></a>
+                        <span class="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto sm:shrink-0">
                         @if ($n['event'])
-                            <a href="{{ route('calendar.show', $n['event']) }}" class="shrink-0"><x-badge color="green">Dans l'agenda le {{ $n['event']->starts_at->format('d/m') }}</x-badge></a>
+                            <a href="{{ route('calendar.show', $n['event']) }}"><x-badge color="green">Dans l'agenda le {{ $n['event']->starts_at->format('d/m') }}</x-badge></a>
                         @elseif ($canEdit)
-                            <form method="POST" action="{{ route('horses.care.check.plan', [$horse, $c]) }}" class="shrink-0">@csrf<button class="btn-secondary min-h-9 px-4 text-sm"><x-icon name="calendar" class="size-4" /> Ajouter à l'agenda</button></form>
+                            <form method="POST" action="{{ route('horses.care.check.plan', [$horse, $c]) }}">@csrf<button class="btn-secondary min-h-11 w-full justify-center px-3 text-sm"><x-icon name="calendar" class="size-4" /> Ajouter à l'agenda</button></form>
                         @endif
+                        @if ($canEdit)
+                            <a href="{{ route('horses.care.create', [$horse, 'suite' => $c->id]) }}" class="btn-primary min-h-11 justify-center px-3 text-sm" data-note-passage><x-icon name="check" class="size-4" /> Noter le passage</a>
+                        @endif
+                        </span>
                     </div>
                 @endforeach
             </x-section>

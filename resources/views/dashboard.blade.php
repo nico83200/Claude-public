@@ -21,6 +21,14 @@
     @endforeach
 
     @if ($horses->isNotEmpty())
+        {{-- Gestes du quotidien à portée de pouce. --}}
+        @php $np = app(\App\Services\HorseAccess::class)->navPermissions(auth()->user()); @endphp
+        <div class="no-scrollbar -mx-4 mb-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" data-quick-actions>
+            @if (in_array('sessions.create', $np))<a href="{{ route('sessions.create', ['fait' => 1]) }}" class="pill min-h-11 shrink-0 gap-2 bg-brand-800 px-4 text-white"><x-icon name="check" class="size-4" /> Je viens de monter</a>@endif
+            <a href="{{ route('health.index', ['onglet' => 'suivi']) }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="doc" class="size-4" /> Suivi du jour</a>
+            @if (in_array('health.edit', $np))<a href="{{ route('health.index') }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="health" class="size-4" /> Noter un soin</a>@endif
+            <a href="{{ route('health.index', ['onglet' => 'poids']) }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="scale" class="size-4" /> Pesée</a>
+        </div>
         <div class="mb-5 grid gap-4 lg:grid-cols-3" data-dashboard-today>
             <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">
                 @forelse ($today as $e)

@@ -10,6 +10,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\Audit;
 use App\Services\Entitlements;
+use App\Support\Fr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -127,7 +128,7 @@ class OrganizationController extends Controller
         });
         Audit::log('admin.organization_deleted', $organization, ['name' => $name, 'horses' => $horses]);
 
-        return redirect()->route('admin.organizations.index')->with('success', 'Espace « '.$name.' » supprimé ('.$horses.' cheval(aux), effacés définitivement dans 30 jours).');
+        return redirect()->route('admin.organizations.index')->with('success', 'Espace « '.$name.' » supprimé ('.Fr::count($horses, 'cheval', 'chevaux').', effacés définitivement dans 30 jours).');
     }
 
     public function reactivate(Organization $organization)

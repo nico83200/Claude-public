@@ -9,6 +9,7 @@
 @php
     $nav = [
         ['dashboard', 'Accueil', 'home', true],
+        ['digest.show', 'Ma semaine', 'clock', true],
         ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true],
         ['calendar.index', 'Agenda', 'calendar', in_array('calendar.view', $navPerms)],
         ['sessions.index', 'Séances', 'session', in_array('sessions.view', $navPerms)],
