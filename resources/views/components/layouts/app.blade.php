@@ -9,20 +9,24 @@
 @php
     // Entrée : [route, libellé, icône, visible, paramètres, routes actives, fonction de l'offre (symbole si absente)].
     $soloHorse = $soloHorse ?? null;
-    if ($soloHorse) {
-        // Mode « un cheval » : le menu est celui du cheval, sans passer par la liste des chevaux.
+    $focusHorse = $focusHorse ?? null;
+    $focusChoices = $focusChoices ?? collect();
+    if ($focusHorse) {
+        // Cheval unique ou cheval actif : le menu est celui du cheval, sans passer par la liste des chevaux.
+        // Plusieurs chevaux : les pages communes s'ouvrent filtrées sur le cheval actif.
+        $fh = $soloHorse ? [] : ['horse' => $focusHorse->id];
         $sp = $soloPerms ?? [];
         $sCan = fn (...$keys) => (bool) array_intersect($keys, $sp);
         $nav = [
             ['dashboard', 'Tableau de bord', 'home', true, [], ['dashboard', 'digest.*']],
-            ['calendar.index', 'Agenda', 'calendar', $sCan('calendar.view'), [], ['calendar.*']],
-            ['sessions.index', 'Séances', 'session', $sCan('sessions.view'), [], ['sessions.*', 'exercises.*']],
+            ['calendar.index', 'Agenda', 'calendar', $sCan('calendar.view'), $fh, ['calendar.*']],
+            ['sessions.index', 'Séances', 'session', $sCan('sessions.view'), $fh, ['sessions.*', 'exercises.*']],
             ['health.index', 'Santé', 'health', $sCan('health.view', 'treatments.view'), [], ['health.*', 'horses.care.*', 'horses.feeding*', 'horses.logs.*', 'horses.weight*', 'horses.treatments.*', 'horses.prescription*', 'horses.vet-summary*']],
-            ['budget.index', 'Budget', 'wallet', $sCan('expenses.view'), [], ['budget.*'], 'budget'],
-            ['horses.documents.index', 'Documents', 'doc', $sCan('documents.view'), [$soloHorse], ['horses.documents.*'], 'documents'],
+            ['budget.index', 'Budget', 'wallet', $sCan('expenses.view'), $fh, ['budget.*'], 'budget'],
+            ['horses.documents.index', 'Documents', 'doc', $sCan('documents.view'), [$focusHorse], ['horses.documents.*'], 'documents'],
             ['professionals.index', 'Intervenants', 'users', $sCan('health.view') || in_array('professionals.manage', $navPerms), [], ['professionals.*', 'horses.professionals*']],
-            $sCan('horse.manage') ? ['horses.sharing', 'Partage', 'share', true, [$soloHorse], ['horses.sharing*', 'sharing.*']] : ['sharing.index', 'Partage', 'share', true, [], ['sharing.*']],
-            ['horses.show', 'Fiche de '.$soloHorse->shortName(), 'horse', true, [$soloHorse], ['horses.show', 'horses.edit', 'horses.pedigree*', 'horses.emergency.*', 'horses.history', 'horses.photos.*', 'horses.ownerships.*']],
+            $sCan('horse.manage') ? ['horses.sharing', 'Partage', 'share', true, [$focusHorse], ['horses.sharing*', 'sharing.*']] : ['sharing.index', 'Partage', 'share', true, [], ['sharing.*']],
+            ['horses.show', 'Fiche de '.$focusHorse->shortName(), 'horse', true, [$focusHorse], ['horses.show', 'horses.edit', 'horses.pedigree*', 'horses.emergency.*', 'horses.history', 'horses.photos.*', 'horses.ownerships.*']],
         ];
     } else {
         $nav = [
@@ -39,9 +43,9 @@
         ];
     }
     $navActive = fn (array $item) => request()->routeIs(...($item[5] ?? [\Illuminate\Support\Str::before($item[0], '.').'*']));
-    $navLocked = fn (array $item) => isset($item[6]) && $soloHorse && ! app(\App\Services\Entitlements::class)->hasFeature($soloHorse->organization, $item[6]);
+    $navLocked = fn (array $item) => isset($item[6]) && $focusHorse && ! app(\App\Services\Entitlements::class)->hasFeature($focusHorse->organization, $item[6]);
     $secondary = [
-        ['horses.index', 'Mes chevaux', 'plus', (bool) $soloHorse],
+        ['horses.index', $soloHorse ? 'Mes chevaux' : 'Tous mes chevaux', $soloHorse ? 'plus' : 'horse', (bool) $focusHorse],
         ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
         ['referral.index', 'Parrainage', 'gift', true],
@@ -49,7 +53,7 @@
         ['videos.index', 'Tutoriels', 'play', true],
         ['support.create', 'Assistance', 'help', true],
     ];
-    $contextHorseId = optional(request()->route('horse'))->id ?? (is_numeric(request()->route('horse')) ? (int) request()->route('horse') : null);
+    $contextHorseId = optional(request()->route('horse'))->id ?? (is_numeric(request()->route('horse')) ? (int) request()->route('horse') : ($focusHorse ?? null)?->id);
 @endphp
 <div class="lg:flex">
     {{-- Barre latérale (ordinateur) / tiroir (mobile) --}}
@@ -71,13 +75,47 @@
             </form>
         @endif
         <nav class="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4" aria-label="Navigation principale">
-            @if ($soloHorse)
-                {{-- Carte du cheval en tête du menu : ouvre sa fiche. --}}
-                <a href="{{ route('horses.show', $soloHorse) }}" class="mb-2 flex items-center gap-3 rounded-3xl bg-white p-3 shadow-[var(--shadow-card)]" data-solo-horse-card>
-                    @if ($soloHorse->mainPhotoUrl())<img src="{{ $soloHorse->mainPhotoUrl() }}" alt="" class="size-12 shrink-0 rounded-2xl object-cover">@else<span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-lg font-bold text-brand-800">{{ mb_strtoupper(mb_substr($soloHorse->shortName(), 0, 1)) }}</span>@endif
-                    <span class="min-w-0"><span class="block truncate font-semibold text-slate-900">{{ $soloHorse->shortName() }}</span>
-                        <span class="block truncate text-xs text-slate-500">{{ collect([$soloHorse->age() !== null ? $soloHorse->age().' ans' : null, \App\Models\Horse::DISCIPLINES[$soloHorse->main_discipline] ?? null])->filter()->implode(' · ') ?: 'Voir la fiche' }}</span></span>
-                </a>
+            @if ($focusHorse || $focusChoices->isNotEmpty())
+                {{-- Carte du cheval en tête du menu : ouvre sa fiche ; avec plusieurs chevaux, choix du cheval actif. --}}
+                <div class="mb-2 flex items-center gap-1 rounded-3xl bg-white p-2 shadow-[var(--shadow-card)]" x-data="{ pick: false }" @open-focus.window="pick = true" data-focus-card>
+                    @if ($focusHorse)
+                        <a href="{{ route('horses.show', $focusHorse) }}" class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1" data-solo-horse-card>
+                            @if ($focusHorse->mainPhotoUrl())<img src="{{ $focusHorse->mainPhotoUrl() }}" alt="" class="size-12 shrink-0 rounded-2xl object-cover">@else<span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-lg font-bold text-brand-800">{{ mb_strtoupper(mb_substr($focusHorse->shortName(), 0, 1)) }}</span>@endif
+                            <span class="min-w-0"><span class="block truncate font-semibold text-slate-900">{{ $focusHorse->shortName() }}</span>
+                                <span class="block truncate text-xs text-slate-500">{{ collect([$focusHorse->age() !== null ? $focusHorse->age().' ans' : null, \App\Models\Horse::DISCIPLINES[$focusHorse->main_discipline] ?? null])->filter()->implode(' · ') ?: 'Voir la fiche' }}</span></span>
+                        </a>
+                    @else
+                        <button type="button" class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-1 text-left" @click="pick = true">
+                            <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-800"><x-icon name="horse" /></span>
+                            <span class="min-w-0"><span class="block font-semibold leading-tight text-slate-900">Tous les chevaux</span><span class="block text-xs text-slate-500">{{ \App\Support\Fr::count($focusChoices->count(), 'cheval', 'chevaux') }}</span></span>
+                        </button>
+                    @endif
+                    @if ($focusChoices->isNotEmpty())
+                        <button type="button" class="btn-ghost size-11 shrink-0 justify-center p-0" @click="pick = true" :aria-expanded="pick" aria-label="Changer de cheval" data-focus-switch><x-icon name="chevron" class="size-5 rotate-90" /></button>
+                        <template x-teleport="body">
+                            <div x-show="pick" x-cloak x-transition.opacity class="fixed inset-0 z-[80] flex items-end justify-center bg-slate-900/45 sm:items-center" @click.self="pick = false" @keydown.escape.window="pick = false" role="dialog" aria-modal="true" aria-label="Choisir le cheval" data-focus-sheet>
+                                <div class="max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl">
+                                    <div class="mb-3 flex items-center justify-between"><h2 class="text-lg font-semibold">Quel cheval ?</h2><button type="button" class="btn-ghost px-2" @click="pick = false" aria-label="Fermer"><x-icon name="x" /></button></div>
+                                    <form method="POST" action="{{ route('focus.set') }}" class="space-y-1.5">
+                                        @csrf
+                                        @foreach ($focusChoices as $choice)
+                                            <button name="horse" value="{{ $choice->id }}" class="flex min-h-14 w-full items-center gap-3 rounded-2xl px-3 text-left {{ $focusHorse?->is($choice) ? 'bg-brand-50 ring-2 ring-brand-500' : 'bg-slate-50 hover:bg-brand-50' }}" data-focus-choice="{{ $choice->id }}">
+                                                @if ($choice->mainPhotoUrl())<img src="{{ $choice->mainPhotoUrl() }}" alt="" class="size-10 shrink-0 rounded-xl object-cover">@else<span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 font-bold text-brand-800">{{ mb_strtoupper(mb_substr($choice->shortName(), 0, 1)) }}</span>@endif
+                                                <span class="min-w-0 flex-1 truncate font-medium text-slate-900">{{ $choice->shortName() }}</span>
+                                                @if ($focusHorse?->is($choice))<x-icon name="check" class="size-5 text-brand-700" />@endif
+                                            </button>
+                                        @endforeach
+                                        <button name="horse" value="all" class="flex min-h-14 w-full items-center gap-3 rounded-2xl px-3 text-left {{ $focusHorse ? 'bg-slate-50 hover:bg-brand-50' : 'bg-brand-50 ring-2 ring-brand-500' }}" data-focus-choice="all">
+                                            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-800 ring-1 ring-slate-200"><x-icon name="horse" class="size-5" /></span>
+                                            <span class="min-w-0 flex-1 font-medium text-slate-900">Tous les chevaux</span>
+                                            @unless ($focusHorse)<x-icon name="check" class="size-5 text-brand-700" />@endunless
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </template>
+                    @endif
+                </div>
             @endif
             @foreach ($nav as $item)
                 @if ($item[3])
@@ -158,7 +196,7 @@
             @if (($soloTransition ?? null) === 'multi')
                 <div class="mb-4 flex items-start gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900 ring-1 ring-brand-200" data-solo-transition="multi">
                     <x-icon name="horse" class="mt-0.5 size-5 shrink-0" />
-                    <p class="min-w-0 flex-1">Vous suivez maintenant plusieurs chevaux : l'accueil les présente tous, le menu retrouve « Chevaux » et chaque formulaire vous demande pour quel cheval.</p>
+                    <p class="min-w-0 flex-1">Vous suivez maintenant plusieurs chevaux : choisissez le cheval en tête du menu, ou « Tous les chevaux » pour les voir ensemble. Chaque formulaire vous demande pour quel cheval.</p>
                 </div>
             @elseif (($soloTransition ?? null) === 'solo' && $soloHorse)
                 <div class="mb-4 flex items-start gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900 ring-1 ring-brand-200" data-solo-transition="solo">
@@ -187,9 +225,9 @@
         @php
             // Un cheval : Accueil · Séances · micro · Santé · Menu (l'agenda reste sur l'accueil et dans le menu).
             $byRoute = collect($nav)->keyBy(0);
-            $calendarItem = ['calendar.index', 'Agenda', 'calendar', true, [], ['calendar.*']];
+            $calendarItem = ['calendar.index', 'Agenda', 'calendar', true, $focusHorse && ! $soloHorse ? ['horse' => $focusHorse->id] : [], ['calendar.*']];
             $pick = fn ($route) => ($byRoute[$route][3] ?? false) ? $byRoute[$route] : $calendarItem;
-            [$barLeft, $barRight] = $soloHorse
+            [$barLeft, $barRight] = $focusHorse
                 ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*']], $pick('sessions.index')], $pick('health.index')]
                 : [[['dashboard', 'Accueil', 'home', true], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true]], $calendarItem];
         @endphp

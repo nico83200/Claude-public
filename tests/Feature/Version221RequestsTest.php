@@ -147,6 +147,7 @@ class Version221RequestsTest extends TestCase
             ->assertDontSee('data-horse-picker-sheet="care"', false);
 
         $uni = $this->horseFor($user, null, ['official_name' => 'UNI']);
+        $this->allHorses($user);
         $this->actingAs($user)->get('/sante')->assertOk()->assertSee('data-horse-picker-sheet="care"', false)
             ->assertSee(route('horses.care.create', $jack))->assertSee(route('horses.care.create', $uni));
 

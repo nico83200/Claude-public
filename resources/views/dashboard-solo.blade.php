@@ -31,7 +31,11 @@
         </a>
         <div class="min-w-0 flex-1">
             <p class="text-sm text-slate-500" data-greeting>{{ ucfirst(now()->translatedFormat('l j F')) }} · {{ \App\Support\Greeting::for(auth()->user()->name, null, auth()->id()) }}</p>
-            <h1 class="text-[30px] leading-tight font-bold break-words text-slate-900 sm:text-4xl">{{ $horse->shortName() }}</h1>
+            <h1 class="text-[30px] leading-tight font-bold break-words text-slate-900 sm:text-4xl">{{ $horse->shortName() }}
+                @if (app(\App\Services\HorseAccess::class)->hasSeveralHorses(auth()->user()))
+                    <button type="button" x-data @click="$dispatch('open-focus')" class="ml-1 inline-flex min-h-11 items-center gap-1 rounded-full px-2 align-middle text-sm font-medium text-brand-700 hover:bg-brand-50" data-solo-switch>Changer <x-icon name="chevron" class="size-4 rotate-90" /></button>
+                @endif
+            </h1>
             @if ($meta->isNotEmpty())<p class="text-sm text-slate-500">{{ $meta->implode(' · ') }}</p>@endif
             <p class="mt-2 inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-medium ring-1 {{ $tones[$stateTone] }}" data-solo-state="{{ $stateTone }}"><span class="truncate">{{ $stateText }}</span></p>
         </div>
@@ -152,6 +156,17 @@
                                                         <x-field name="date" type="date" label="Date du rendez-vous" :value="max($c->next_check_on, today())->toDateString()" :min="today()->toDateString()" :id="'rdv_date_'.$c->id" required />
                                                         <x-field name="time" type="time" label="Heure" value="09:00" :id="'rdv_time_'.$c->id" />
                                                     </div>
+                                                    @if (($groupable[$c->care_category_id] ?? collect())->isNotEmpty())
+                                                        <fieldset class="rounded-2xl border border-slate-200 p-3" data-solo-group="{{ $c->id }}">
+                                                            <legend class="px-1 text-sm font-medium text-slate-700">Même rendez-vous pour d'autres chevaux ?</legend>
+                                                            @foreach ($groupable[$c->care_category_id] as $g)
+                                                                <label class="flex min-h-11 items-center gap-3 text-sm">
+                                                                    <input type="checkbox" name="with[]" value="{{ $g->id }}" class="size-5 rounded border-slate-300 text-brand-700" @checked($g->next_check_on->lte($c->next_check_on->copy()->addDays(21)))>
+                                                                    <span class="min-w-0 flex-1"><span class="font-medium text-slate-900">{{ $g->horse->shortName() }}</span> <span class="text-slate-500">· {{ $g->next_check_on->lt(today()) ? 'en retard' : 'prévu le '.$g->next_check_on->format('d/m') }}</span></span>
+                                                                </label>
+                                                            @endforeach
+                                                        </fieldset>
+                                                    @endif
                                                     <button class="btn-primary min-h-11 w-full justify-center"><x-icon name="calendar" class="size-4" /> Créer le rendez-vous</button>
                                                 </form>
                                             @endif

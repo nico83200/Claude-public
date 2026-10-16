@@ -27,12 +27,13 @@ class Version227RequestsTest extends TestCase
         // Première visite : l'état est mémorisé, sans message.
         $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertDontSee('data-solo-transition', false);
 
-        // Un cheval partagé arrive : message une seule fois, accueil habituel.
+        // Un cheval partagé arrive : message une seule fois ; le cheval actif reste le sien.
         $other = $this->user();
         $uni = $this->horseFor($other, null, ['official_name' => 'UNI']);
         $grant = HorseAccessGrant::create(['horse_id' => $uni->id, 'user_id' => $user->id, 'permissions' => [Perm::HORSE_VIEW]]);
         $this->fresh();
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertViewIs('dashboard')->assertSee('data-solo-transition="multi"', false);
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertViewIs('dashboard-solo')->assertSee('data-solo-transition="multi"', false)
+            ->assertSee('data-focus-switch', false);
         $this->fresh();
         $this->actingAs($user)->get(route('dashboard'))->assertDontSee('data-solo-transition', false);
 

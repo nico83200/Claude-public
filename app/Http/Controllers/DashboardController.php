@@ -29,9 +29,9 @@ class DashboardController extends Controller
     public function __invoke(Request $request, HorseAccess $access)
     {
         $user = $request->user();
-        // Un seul cheval : l'accueil est son tableau de bord.
-        if ($solo = $access->soloHorse($user)) {
-            return $this->solo($request, $access, Horse::with(['breed', 'organization'])->findOrFail($solo->id));
+        // Un seul cheval, ou cheval actif choisi : l'accueil est son tableau de bord.
+        if ($focus = $access->focusHorse($user)) {
+            return $this->solo($request, $access, Horse::with(['breed', 'organization'])->findOrFail($focus->id));
         }
         $horses = $access->accessibleQuery($user)->whereNull('archived_at')->with('breed')->orderBy('official_name')->get();
         $access->preload($horses);
@@ -102,7 +102,9 @@ class DashboardController extends Controller
             'treatments' => $has(Perm::TREATMENTS_VIEW) ? Treatment::where('horse_id', $horse->id)->current()
                 ->with(['administrations' => fn ($q) => $q->where('administered_at', '>=', today())])->get() : collect(),
             'canAdminister' => $has(Perm::HEALTH_EDIT) || $has(Perm::DAILYLOG_CREATE),
-            'checks' => $has(Perm::HEALTH_VIEW) ? app(CareRecordController::class)->nextChecks($horse) : collect(),
+            'checks' => $checks = $has(Perm::HEALTH_VIEW) ? app(CareRecordController::class)->nextChecks($horse) : collect(),
+            // Rendez-vous groupé : autres chevaux avec la même échéance à prévoir (pas encore dans l'agenda).
+            'groupable' => $has(Perm::HEALTH_EDIT) ? $this->groupable($user, $access, $horse, $checks) : collect(),
             'observations' => HealthObservation::where('horse_id', $horse->id)->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->limit(3)->get(),
             'weights' => $horse->measurements()->reorder()->whereNotNull('weight_kg')->latest('measured_on')->latest('id')->limit(2)->get(),
             'rations' => $has(Perm::FEEDING_VIEW) ? $horse->rations()->activeToday()->with('entries')->get() : collect(),
@@ -118,6 +120,24 @@ class DashboardController extends Controller
             'budgetLocked' => $has(Perm::EXPENSES_VIEW) && ! $budgetIncluded,
             'shares' => $has(Perm::HORSE_MANAGE) ? HorseAccessGrant::current()->where('horse_id', $horse->id)->with('user')->get() : null,
         ]);
+    }
+
+    /** Échéances des autres chevaux, par catégorie, pouvant partager le rendez-vous du cheval affiché. */
+    private function groupable($user, HorseAccess $access, Horse $horse, $checks)
+    {
+        $ids = collect($access->horseIdsWith($user, Perm::HEALTH_EDIT))->reject(fn ($id) => (int) $id === $horse->id)->values();
+        $categories = $checks->map(fn ($n) => $n['care']->care_category_id)->unique()->values();
+        if ($ids->isEmpty() || $categories->isEmpty()) {
+            return collect();
+        }
+
+        return CareRecord::with(['horse', 'category'])->whereIn('horse_id', Horse::whereIn('id', $ids)->whereNull('archived_at')->select('id'))
+            ->whereIn('care_category_id', $categories)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
+            ->where('next_check_on', '<=', now()->addDays(90)->toDateString())
+            ->whereNotExists(fn ($q) => $q->selectRaw(1)->from('care_records as later')->whereColumn('later.horse_id', 'care_records.horse_id')
+                ->whereColumn('later.care_category_id', 'care_records.care_category_id')->whereColumn('later.performed_at', '>', 'care_records.performed_at')->whereNull('later.deleted_at'))
+            ->whereNotIn('id', CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereNotNull('source_id')->select('source_id'))
+            ->orderBy('next_check_on')->get()->groupBy('care_category_id');
     }
 
     private function invitations($user)

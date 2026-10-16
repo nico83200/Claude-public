@@ -193,7 +193,7 @@ class Version224RequestsTest extends TestCase
         $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $farrier->id, 'author_id' => $user->id, 'performed_at' => now()->subWeeks(7), 'next_check_on' => now()->addWeek()->toDateString()]);
         // Plusieurs chevaux : la page Santé du menu liste les échéances de tous les chevaux.
         $this->horseFor($user, null, ['official_name' => 'UNI']);
-        app()->forgetInstance(HorseAccess::class);
+        $this->allHorses($user);
         $this->actingAs($user)->get(route('health.index'))->assertOk()->assertSee('data-due="'.$care->id.'"', false)
             ->assertSee(route('horses.care.create', [$horse, 'suite' => $care->id]), false);
 

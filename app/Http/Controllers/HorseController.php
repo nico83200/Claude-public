@@ -76,6 +76,12 @@ class HorseController extends Controller
     public function show(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HORSE_VIEW);
+        // Plusieurs chevaux (propriétaire) : le dossier ouvert devient le cheval actif (« dernier cheval consulté »).
+        $access = app(HorseAccess::class);
+        $user = $request->user();
+        if (! $horse->isArchived() && $access->hasSeveralHorses($user) && ! $access->stableUser($user) && ! $access->focusHorse($user)?->is($horse)) {
+            $access->setFocus($user, $horse);
+        }
         $perms = $this->horsePerms($horse);
         $has = fn ($p) => in_array($p, $perms, true);
         $horse->load(['breed', 'identifiers', 'organization', 'ownerships.user', 'pedigree.related', 'photos', 'locations', 'origin',

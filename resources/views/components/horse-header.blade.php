@@ -13,7 +13,7 @@
     @include('health._hub-tabs')
 @else
 <div class="mb-4" x-data="{ more: false }">
-    @if (app(\App\Services\HorseAccess::class)->soloHorse(auth()->user())?->is($horse))
+    @if (app(\App\Services\HorseAccess::class)->focusHorse(auth()->user())?->is($horse))
         <a href="{{ route('dashboard') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Accueil</a>
     @else
         <a href="{{ route('horses.index') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Chevaux</a>

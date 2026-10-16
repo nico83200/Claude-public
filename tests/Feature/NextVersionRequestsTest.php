@@ -58,6 +58,7 @@ class NextVersionRequestsTest extends TestCase
             ->assertSee(route('horses.vet-summary', $jack), false)->assertDontSee('data-horse-picker-sheet="vet"', false);
 
         $uni = $this->horseFor($owner, null, ['official_name' => 'UNI']);
+        $this->allHorses($owner);
         $this->actingAs($owner)->get('/sante')->assertOk()->assertSee('data-horse-picker-sheet="vet"', false)
             ->assertSee(route('horses.vet-summary', $jack))->assertSee(route('horses.vet-summary', $uni));
     }
@@ -156,6 +157,9 @@ class NextVersionRequestsTest extends TestCase
         $shared = $this->horseFor($other);
         HorseAccessGrant::create(['horse_id' => $shared->id, 'user_id' => $owner->id, 'permissions' => ['horse.view']]);
         $this->actingAs($owner)->get('/chevaux')->assertOk()->assertDontSee('data-single-horse', false)->assertSee('2 dossier(s)');
+        // Plusieurs chevaux : le cheval actif se choisit en tête du menu ; « Tous les chevaux » rend la liste « Chevaux ».
+        $this->assertStringContainsString('data-focus-switch', $this->actingAs($owner)->get('/dashboard')->getContent());
+        $this->allHorses($owner);
         $this->assertStringContainsString('Chevaux</a>', $this->actingAs($owner)->get('/dashboard')->getContent());
 
         // Seul cheval partagé (aucun à soi) : pas de grande carte, mais le menu dit « Cheval ».

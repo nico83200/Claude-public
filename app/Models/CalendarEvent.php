@@ -68,6 +68,14 @@ class CalendarEvent extends Model
     }
 
     /** Masque les événements de séance des chevaux dont l'utilisateur ne peut pas voir les séances. */
+    /** Autres événements du même rendez-vous groupé (un passage pour plusieurs chevaux). */
+    public function groupSiblings()
+    {
+        return $this->group_uuid
+            ? static::with('horse')->where('group_uuid', $this->group_uuid)->whereKeyNot($this->id)->orderBy('id')->get()
+            : collect();
+    }
+
     public function scopeVisibleSessions($query, iterable $sessionHorseIds)
     {
         $morph = (new RidingSession)->getMorphClass();

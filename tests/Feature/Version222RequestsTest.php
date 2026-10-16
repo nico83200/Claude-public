@@ -103,6 +103,7 @@ class Version222RequestsTest extends TestCase
         $this->assertStringNotContainsString('id="rx_horse"', $page->getContent(), 'Un seul cheval : pas de choix.');
 
         $uni = $this->horseFor($user, null, ['official_name' => 'UNI']);
+        $this->allHorses($user);
         $two = $this->actingAs($user)->get('/sante')->assertOk()->assertSee('id="rx_horse"', false)->getContent();
         $this->assertStringContainsString('<option value="'.$uni->id.'">', Str::betweenFirst($two, 'id="rx_horse"', '</select>'));
         // Adresse d'envoi de chaque cheval (choisie par le menu, sans recharger).

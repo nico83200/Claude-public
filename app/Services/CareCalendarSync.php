@@ -90,7 +90,7 @@ class CareCalendarSync
      * Prochain contrôle ajouté à l'agenda à la demande : à sa date d'échéance (9 h) ou au jour et à l'heure choisis
      * (le prochain passage du soin suit alors ce rendez-vous). La date du passage précédent reste en note, pour mémoire.
      */
-    public function planCheck(CareRecord $care, ?Carbon $at = null): ?CalendarEvent
+    public function planCheck(CareRecord $care, ?Carbon $at = null, ?string $group = null): ?CalendarEvent
     {
         if (! $care->next_check_on || $care->next_check_done_at) {
             return null;
@@ -106,10 +106,10 @@ class CareCalendarSync
         }
         $memo = 'Pour mémoire : dernier passage le '.$care->performed_at->format('d/m/Y').($care->professional ? ' avec '.$care->professional->fullName() : '').'.';
         $event = null;
-        $this->guard(function () use ($care, $at, $memo, &$event) {
+        $this->guard(function () use ($care, $at, $memo, $group, &$event) {
             $event = $this->calendar->syncFor($care, $care->horse, self::eventTypeFor($care->category?->key),
                 Str::limit(($care->category?->name ?? 'Soin').' – '.$care->horse->shortName(), 150, ''),
-                $at, ['professional_id' => $care->professional_id, 'duration_minutes' => 30, 'status' => 'planned', 'notes' => $memo]);
+                $at, ['professional_id' => $care->professional_id, 'duration_minutes' => 30, 'status' => 'planned', 'notes' => $memo, 'group_uuid' => $group]);
         });
 
         return $event;

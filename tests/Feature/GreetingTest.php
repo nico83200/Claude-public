@@ -47,6 +47,7 @@ class GreetingTest extends TestCase
         $this->grantLicense($user->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($user, null, ['usual_name' => 'Jack jack']);
         $this->horseFor($user, null, ['usual_name' => 'Uni']);
+        $this->allHorses($user);
         $dentist = CareCategory::where('key', 'dentistry')->value('id');
         $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $dentist, 'performed_at' => now()->subMonths(3), 'author_id' => $user->id, 'next_check_on' => now()->addMonths(9)->toDateString()]);
         $this->actingAs($user)->get('/dashboard')->assertDontSee('data-horse-due', false)->assertSee('À jour');

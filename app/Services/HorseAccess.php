@@ -47,6 +47,9 @@ class HorseAccess
     /** @var array<string, int[]> identifiants des chevaux par utilisateur et permission */
     private array $idsWith = [];
 
+    /** @var array<int, Horse|null> cheval actif par utilisateur (calculé une fois par requête) */
+    private array $focus = [];
+
     public function __construct(private Entitlements $entitlements) {}
 
     /** Oublie tout ce qui a été mémorisé (après un changement de droits dans la même requête). */
@@ -59,6 +62,7 @@ class HorseAccess
         $this->assignments = [];
         $this->accessible = [];
         $this->idsWith = [];
+        $this->focus = [];
     }
 
     /** Une requête par utilisateur (et non par cheval) pour la propriété et les partages directs. */
@@ -252,6 +256,58 @@ class HorseAccess
         }
 
         return $active->first()->loadMissing('organization');
+    }
+
+    /**
+     * Cheval actif : le cheval unique, sinon le cheval choisi (« Tous les chevaux » : null).
+     * Par défaut, le dernier cheval consulté pour un propriétaire, « Tous les chevaux » pour une écurie
+     * (pour une écurie, le choix ne vaut que pour la session).
+     */
+    public function focusHorse(User $user): ?Horse
+    {
+        if (array_key_exists($user->id, $this->focus)) {
+            return $this->focus[$user->id];
+        }
+        if ($solo = $this->soloHorse($user)) {
+            return $this->focus[$user->id] = $solo;
+        }
+        $active = $this->accessibleHorses($user)->whereNull('archived_at')->values();
+        if ($active->isEmpty()) {
+            return $this->focus[$user->id] = null;
+        }
+        $choice = session('focus_horse');
+        if ($choice === null && ! $this->stableUser($user)) {
+            $profile = $user->profile;
+            $choice = $profile?->all_horses ? 'all' : $profile?->active_horse_id;
+            $choice ??= $active->sortBy(fn (Horse $h) => mb_strtolower($h->shortName()))->first()->id;
+        }
+        $horse = $choice && $choice !== 'all' ? $active->firstWhere('id', (int) $choice) : null;
+
+        return $this->focus[$user->id] = $horse?->loadMissing('organization');
+    }
+
+    /** Plusieurs chevaux suivis (le choix du cheval actif est proposé). */
+    public function hasSeveralHorses(User $user): bool
+    {
+        return $this->accessibleHorses($user)->whereNull('archived_at')->count() > 1;
+    }
+
+    /** Choisit le cheval actif (null : « Tous les chevaux »), mémorisé pour la session et, pour un propriétaire, sur son profil. */
+    public function setFocus(User $user, ?Horse $horse): void
+    {
+        session(['focus_horse' => $horse?->id ?? 'all']);
+        if (! $this->stableUser($user)) {
+            $user->profile()->updateOrCreate([], ['active_horse_id' => $horse?->id, 'all_horses' => $horse === null]);
+            $user->unsetRelation('profile');
+        }
+        unset($this->focus[$user->id]);
+    }
+
+    /** Membre d'un espace écurie (offre avec la gestion d'écurie) : « Tous les chevaux » par défaut. */
+    public function stableUser(User $user): bool
+    {
+        return $this->membershipsOf($user)->loadMissing('organization')->contains(fn ($m) => $m->organization && ! $m->organization->isPersonal()
+            && $this->entitlements->hasFeature($m->organization, 'stable'));
     }
 
     /**

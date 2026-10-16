@@ -90,6 +90,9 @@ class Version225RequestsTest extends TestCase
         $this->actingAs($user)->get(route('sessions.create'))->assertOk()->assertDontSee('data-horse-implicit', false);
         $this->actingAs($user)->get(route('budget.index'))->assertOk()->assertSee('id="f_horse"', false);
         $nav = $this->nav($this->actingAs($user)->get(route('dashboard'))->getContent());
+        $this->assertStringContainsString('data-focus-switch', $nav);
+        $this->allHorses($user);
+        $nav = $this->nav($this->actingAs($user)->get(route('dashboard'))->getContent());
         $this->assertStringNotContainsString('data-solo-horse-card', $nav);
         $this->assertStringContainsString('Chevaux', $nav);
     }

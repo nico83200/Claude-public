@@ -12,6 +12,7 @@ use App\Services\CareRhythm;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /** Rappels de suivi d'un cheval : fréquence maréchal, vaccination, vermifuge… */
@@ -62,12 +63,32 @@ class CareReminderController extends Controller
         $latest = $horse->careRecords()->where('care_category_id', $care->care_category_id)->latest('performed_at')->value('id');
         abort_unless($care->next_check_on && ! $care->next_check_done_at && $latest === $care->id, 422, 'Ce contrôle n\'est plus la prochaine échéance.');
         // Jour et heure du rendez-vous choisis (facultatif) ; à défaut, la date d'échéance à 9 h.
-        $data = $request->validate(['date' => ['nullable', 'date', 'after_or_equal:today'], 'time' => ['nullable', 'date_format:H:i']]);
+        $data = $request->validate([
+            'date' => ['nullable', 'date', 'after_or_equal:today'], 'time' => ['nullable', 'date_format:H:i'],
+            'with' => ['array', 'max:100'], 'with.*' => ['integer'],
+        ]);
         $at = ! empty($data['date']) ? Carbon::parse($data['date'].' '.($data['time'] ?? '09:00')) : null;
-        $event = $sync->planCheck($care, $at);
-        Audit::log('care.check_planned', $care, ['event' => $event?->id], $horse->organization_id);
+        // Rendez-vous groupé : même passage (même jour, même heure) pour d'autres chevaux à la même échéance.
+        $others = collect($data['with'] ?? [])->unique()->map(fn ($id) => CareRecord::with(['horse', 'category'])->find($id))
+            ->filter(fn ($c) => $c && $c->id !== $care->id && $c->care_category_id === $care->care_category_id && $c->horse
+                && $this->horseCan($c->horse, Perm::HEALTH_EDIT) && self::isPendingLatest($c));
+        $group = $others->isNotEmpty() ? (string) Str::uuid() : null;
+        $event = $sync->planCheck($care, $at, $group);
+        foreach ($others as $other) {
+            $sync->planCheck($other, $event->starts_at->copy(), $group);
+        }
+        Audit::log('care.check_planned', $care, ['event' => $event?->id, 'grouped' => $others->pluck('horse_id')->all()], $horse->organization_id);
         $hour = $event->starts_at->format('H:i') === '09:00' && ! $at ? ' à 9 h : vous pouvez changer l\'heure dans l\'agenda.' : ' à '.$event->starts_at->format('H:i').'.';
+        $with = $others->isNotEmpty() ? ' pour '.$horse->shortName().', '.$others->map(fn ($c) => $c->horse->shortName())->implode(', ') : '';
 
-        return back()->with('success', 'Rendez-vous ajouté à l\'agenda le '.$event->starts_at->translatedFormat('j F Y').$hour);
+        return back()->with('success', 'Rendez-vous ajouté à l\'agenda le '.$event->starts_at->translatedFormat('j F Y').$hour.($with ? ' Rendez-vous groupé'.$with.'.' : ''));
+    }
+
+    /** Dernier soin de sa catégorie, avec un contrôle à venir pas encore fait. */
+    public static function isPendingLatest(CareRecord $care): bool
+    {
+        $latest = CareRecord::where('horse_id', $care->horse_id)->where('care_category_id', $care->care_category_id)->latest('performed_at')->value('id');
+
+        return $care->next_check_on && ! $care->next_check_done_at && $latest === $care->id;
     }
 }

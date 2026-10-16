@@ -103,6 +103,7 @@ class Version226RequestsTest extends TestCase
     {
         [$user] = $this->owner('multi-chevaux');
         $this->horseFor($user);
+        $this->allHorses($user);
         $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertViewIs('dashboard')->assertSee('Vos chevaux');
     }
 }

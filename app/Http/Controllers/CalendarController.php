@@ -12,6 +12,7 @@ use App\Services\HorseAccess;
 use App\Services\ProfessionalDirectory;
 use App\Services\RidingSessionService;
 use App\Services\Upsell;
+use App\Support\Fr;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -73,6 +74,7 @@ class CalendarController extends Controller
         return view('calendar.show', [
             'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category', 'treatment']),
             'canEdit' => $this->canEdit($request, $event),
+            'siblings' => $event->groupSiblings()->filter(fn ($e) => $e->horse && $this->horseCan($e->horse, Perm::CALENDAR_VIEW))->values(),
             'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
                 && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
             'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
@@ -136,8 +138,18 @@ class CalendarController extends Controller
             $this->authorizeHorse(Horse::findOrFail($data['horse_id']), Perm::CALENDAR_EDIT);
         }
         $event->update($data);
+        // Rendez-vous groupé : même jour, même heure et même intervenant pour les autres chevaux (si demandé).
+        $moved = 0;
+        if ($event->group_uuid && $request->boolean('whole_group')) {
+            foreach ($event->groupSiblings() as $sibling) {
+                if ($sibling->horse && $this->horseCan($sibling->horse, Perm::CALENDAR_EDIT)) {
+                    $sibling->update(collect($data)->only(['starts_at', 'all_day', 'duration_minutes', 'professional_id'])->all());
+                    $moved++;
+                }
+            }
+        }
 
-        return redirect()->route('calendar.show', $event)->with('success', 'Événement mis à jour.');
+        return redirect()->route('calendar.show', $event)->with('success', 'Événement mis à jour.'.($moved ? ' Les '.Fr::count($moved, 'autre cheval', 'autres chevaux').' du rendez-vous suivent.' : ''));
     }
 
     public function destroy(Request $request, CalendarEvent $event)

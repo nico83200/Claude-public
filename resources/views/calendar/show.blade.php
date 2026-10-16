@@ -7,6 +7,13 @@
     </x-page-header>
     <div class="grid gap-4 lg:grid-cols-3">
         <x-section class="lg:col-span-2" data-event-details>
+            @if ($siblings->isNotEmpty())
+                <div class="mb-4 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900" data-event-group>
+                    <p class="font-medium">Rendez-vous groupé</p>
+                    <p class="mt-0.5">Même passage pour {{ $event->horse?->shortName() }} et
+                        @foreach ($siblings as $sib)<a href="{{ route('calendar.show', $sib) }}" class="link">{{ $sib->horse?->shortName() }}</a>{{ $loop->remaining > 1 ? ', ' : ($loop->remaining === 1 ? ' et ' : '') }}@endforeach.</p>
+                </div>
+            @endif
             @if ($event->professional)
                 <x-professional-contact :professional="$event->professional" class="mb-4"
                     :sms="'Bonjour, c\'est au sujet du rendez-vous du '.$event->starts_at->translatedFormat('l j F').($event->all_day ? '' : ' à '.$event->starts_at->format('H\hi')).($event->horse ? ' pour '.$event->horse->shortName() : '').'. '" />

@@ -7,6 +7,7 @@ use App\Models\License;
 use App\Models\Organization;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Services\HorseAccess;
 use App\Services\HorseService;
 use App\Services\OrganizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,5 +50,13 @@ abstract class TestCase extends BaseTestCase
         $org ??= $owner->personalOrganization();
 
         return app(HorseService::class)->create($org, $owner, array_merge(['official_name' => 'TORNADE '.uniqid(), 'sex' => 'female'], $attributes), $org->isPersonal());
+    }
+
+    /** Plusieurs chevaux : affiche « Tous les chevaux » plutôt que le cheval actif. */
+    protected function allHorses(User $user): void
+    {
+        $user->profile()->updateOrCreate([], ['all_horses' => true, 'active_horse_id' => null]);
+        $user->unsetRelation('profile');
+        app()->forgetInstance(HorseAccess::class);
     }
 }

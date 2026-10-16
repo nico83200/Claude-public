@@ -128,11 +128,17 @@ class AppServiceProvider extends ServiceProvider
             $view->with('navPerms', $user ? array_values(array_unique([...app(HorseAccess::class)->navPermissions($user), ...$orgPerms])) : []);
             $view->with('unreadNotifications', $user ? $user->unreadNotifications()->count() : 0);
             // Un seul cheval suivi : « Cheval » au lieu de « Chevaux » dans le menu (liste déjà lue pour les droits).
-            $solo = $user ? app(HorseAccess::class)->soloHorse($user) : null;
+            $access = app(HorseAccess::class);
+            $solo = $user ? $access->soloHorse($user) : null;
+            $focus = $user ? $access->focusHorse($user) : null;
             $view->with('navHorseLabel', $solo ? 'Cheval' : 'Chevaux');
-            // Mode « un cheval » : menu organisé autour du cheval (droits de la personne sur ce cheval).
+            // Cheval unique ou cheval actif : menu organisé autour du cheval (droits de la personne sur ce cheval).
             $view->with('soloHorse', $solo);
-            $view->with('soloPerms', $solo ? app(HorseAccess::class)->permissions($user, $solo) : []);
+            $view->with('focusHorse', $focus);
+            $view->with('soloPerms', $focus ? $access->permissions($user, $focus) : []);
+            // Plusieurs chevaux : choix du cheval actif en tête du menu.
+            $view->with('focusChoices', $user && ! $solo && $access->hasSeveralHorses($user)
+                ? $access->accessibleHorses($user)->whereNull('archived_at')->sortBy(fn ($h) => mb_strtolower($h->shortName()))->values() : collect());
             // Passage d'un cheval à plusieurs (ou l'inverse) : l'organisation change, on l'explique une fois.
             $view->with('soloTransition', $user ? self::soloTransition($user->id, $solo) : null);
             $view->with('appVersion', $user?->is_super_admin ? trim((string) @file_get_contents(base_path('VERSION'))) : null);
