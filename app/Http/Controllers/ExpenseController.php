@@ -18,6 +18,7 @@ use App\Services\ProfessionalDirectory;
 use App\Services\RecurringExpenses;
 use App\Services\RecurringIncomes;
 use App\Services\Upsell;
+use App\Support\Fr;
 use App\Support\Perm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -274,13 +275,44 @@ class ExpenseController extends Controller
             $org = $this->authorizeTarget($request, $data['horse_id'] ?? null);
             abort_unless($org->id === $expense->organization_id, 422, 'Une dépense ne peut pas changer d\'espace.');
         }
+        // Échéance d'une dépense récurrente : cette échéance seulement, les suivantes, ou toute la série.
+        $scope = $expense->recurring_expense_id ? $request->validate(['scope' => ['nullable', 'in:one,following,all']])['scope'] ?? 'one' : 'one';
+        $originalDate = $expense->spent_on->toDateString();
         $expense->update($data);
         $this->storeReceipt($request, $expense, $expense->organization);
+        $message = 'Dépense mise à jour.';
+        if ($scope !== 'one' && ($rec = $expense->recurring)) {
+            $message = $this->applyToSeries($request, $expense, $rec, $data, $scope, $originalDate);
+        }
 
         // Retour à la page d'où l'on vient (détail de la dépense, fiche du soin), jamais vers un autre site.
         $back = (string) $request->input('return_to');
 
-        return (str_starts_with($back, '/') && ! str_starts_with($back, '//') ? redirect($back) : redirect()->route('budget.index'))->with('success', 'Dépense mise à jour.');
+        return (str_starts_with($back, '/') && ! str_starts_with($back, '//') ? redirect($back) : redirect()->route('budget.index'))->with('success', $message);
+    }
+
+    /**
+     * Modification reportée sur la série : montant, catégorie, fournisseur, intervenant, commentaire et cheval.
+     * Les échéances à venir suivent le modèle de la récurrence ; la date ne change que pour l'échéance modifiée.
+     */
+    private function applyToSeries(Request $request, Expense $expense, RecurringExpense $rec, array $data, string $scope, string $originalDate): string
+    {
+        $fields = collect($data)->only(['horse_id', 'expense_category_id', 'amount', 'supplier', 'professional_id', 'comment'])->all();
+        $others = $rec->occurrences()->with(['horse.organization'])->whereKeyNot($expense->id)
+            ->when($scope === 'following', fn ($q) => $q->where('spent_on', '>', $originalDate))->get()
+            ->filter(fn (Expense $e) => $this->canEdit($request, $e));
+        $others->each(fn (Expense $e) => $e->update($fields));
+
+        // Modèle des prochaines échéances (commentaire sans le libellé, ajouté à chaque échéance).
+        $comment = $fields['comment'] ?? null;
+        if ($comment !== null && ($comment === $rec->label || str_starts_with($comment, $rec->label.' — '))) {
+            $comment = trim(mb_substr($comment, mb_strlen($rec->label)), ' —') ?: null;
+        }
+        $rec->update(collect($fields)->except('comment')->all() + ['comment' => $comment]);
+        Audit::log('expense.recurring_series_updated', $rec, ['scope' => $scope, 'occurrences' => $others->count() + 1], $rec->organization_id);
+
+        return ($scope === 'all' ? 'Toute la série mise à jour' : 'Cette échéance et les suivantes mises à jour')
+            .' ('.Fr::count($others->count() + 1, 'échéance', 'échéances').', et les prochaines à venir).';
     }
 
     /** Suivi du paiement : réglée (à la date indiquée, aujourd'hui par défaut) ou de nouveau à payer. */

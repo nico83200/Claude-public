@@ -10,9 +10,11 @@ use App\Models\ExpenseCategory;
 use App\Models\HealthObservation;
 use App\Models\HorseAccessGrant;
 use App\Models\Professional;
+use App\Models\RecurringExpense;
 use App\Models\Treatment;
 use App\Services\HorseAccess;
 use App\Support\Perm;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -105,5 +107,46 @@ class Version230RequestsTest extends TestCase
         $this->assertStringContainsString('href="'.route('budget.edit', $byRider).'" class="link" data-expense-edit', $html);
         $this->assertStringNotContainsString('href="'.route('budget.edit', $byOwner).'" class="link" data-expense-edit', $html);
         $this->actingAs($rider)->get(route('budget.edit', $byOwner))->assertForbidden();
+    }
+
+    public function test_editing_a_recurring_expense_asks_for_one_following_or_all(): void
+    {
+        Carbon::setTestNow('2026-10-16 10:00');
+        [$user, $horses] = $this->owner(1);
+        $horse = $horses[0];
+        $cat = ExpenseCategory::firstOrFail();
+        $this->actingAs($user)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => '270', 'spent_on' => '2026-07-05',
+            'recurring' => '1', 'label' => 'Pension', 'frequency' => 'monthly', 'paid' => '1', 'comment' => 'Box'])->assertSessionHas('success');
+        $rec = RecurringExpense::sole();
+        $occ = fn () => $rec->occurrences()->orderBy('spent_on')->get();
+        $this->assertSame(['2026-07-05', '2026-08-05', '2026-09-05', '2026-10-05'], $occ()->map(fn ($e) => $e->spent_on->toDateString())->all());
+        $aug = $occ()[1];
+        $form = fn ($e, $amount, $scope = null) => array_filter(['horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'spent_on' => $e->spent_on->toDateString(), 'amount' => $amount, 'comment' => $e->comment, 'scope' => $scope]);
+
+        $this->actingAs($user)->get(route('budget.edit', $aug))->assertOk()->assertSee('data-recurring-scope', false)->assertSee('Toute la série');
+
+        // Cette échéance uniquement (par défaut).
+        $this->actingAs($user)->put(route('budget.update', $aug), $form($aug, '275'))->assertSessionHas('success', 'Dépense mise à jour.');
+        $this->assertSame(['270.00', '275.00', '270.00', '270.00'], $occ()->pluck('amount')->all());
+        $this->assertSame('270.00', $rec->fresh()->amount);
+
+        // Cette échéance et les suivantes : juillet ne bouge pas, le modèle suit.
+        $this->actingAs($user)->put(route('budget.update', $aug), $form($aug, '280', 'following'))->assertSessionHas('success', fn ($m) => str_contains($m, 'les suivantes'));
+        $this->assertSame(['270.00', '280.00', '280.00', '280.00'], $occ()->pluck('amount')->all());
+        $this->assertSame('280.00', $rec->fresh()->amount);
+        $this->assertSame('Box', $rec->fresh()->comment);
+
+        // Toute la série, passé compris ; l'échéance suivante créée reprend le nouveau montant.
+        $this->actingAs($user)->put(route('budget.update', $aug), $form($aug, '290', 'all'))->assertSessionHas('success', fn ($m) => str_contains($m, 'Toute la série') && str_contains($m, '4 échéances'));
+        $this->assertSame(['290.00', '290.00', '290.00', '290.00'], $occ()->pluck('amount')->all());
+        Carbon::setTestNow('2026-11-06 08:00');
+        $this->artisan('expenses:recurring')->assertSuccessful();
+        $this->assertSame('290.00', $occ()->last()->amount);
+        $this->assertSame('2026-11-05', $occ()->last()->spent_on->toDateString());
+        Carbon::setTestNow();
+
+        // Dépense non récurrente : pas de choix.
+        $simple = Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $user->id, 'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => 70, 'spent_on' => now()->toDateString()]);
+        $this->actingAs($user)->get(route('budget.edit', $simple))->assertOk()->assertDontSee('data-recurring-scope', false);
     }
 }
