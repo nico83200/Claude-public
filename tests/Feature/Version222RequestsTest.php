@@ -98,7 +98,7 @@ class Version222RequestsTest extends TestCase
     {
         config(['services.anthropic.key' => 'sk-ant-test']);
         [$user, $jack] = $this->owner();
-        $page = $this->actingAs($user)->get('/sante')->assertOk()->assertSee('data-prescription-overview', false)
+        $page = $this->actingAs($user)->get('/sante')->assertOk()
             ->assertSee('action="'.route('horses.prescription.read', $jack).'"', false);
         $this->assertStringNotContainsString('id="rx_horse"', $page->getContent(), 'Un seul cheval : pas de choix.');
 
@@ -112,7 +112,7 @@ class Version222RequestsTest extends TestCase
         // Offre sans assistant : proposition d'offre au lieu de l'envoi.
         $free = $this->user();
         $this->horseFor($free);
-        $this->actingAs($free)->get('/sante')->assertOk()->assertSee('data-prescription-overview', false)
+        $this->actingAs($free)->get('/sante')->assertOk()->assertSee('data-prescription-card', false)
             ->assertSee(route('billing.index', ['fonction' => 'assistant']), false)->assertDontSee('name="prescription"', false);
 
         // Santé en lecture seule : rien.

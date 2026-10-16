@@ -191,12 +191,16 @@ class Version224RequestsTest extends TestCase
 
         $farrier = CareCategory::where('key', 'farrier')->firstOrFail();
         $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $farrier->id, 'author_id' => $user->id, 'performed_at' => now()->subWeeks(7), 'next_check_on' => now()->addWeek()->toDateString()]);
-        $this->actingAs($user)->get(route('health.index'))->assertOk()->assertSee(route('horses.care.create', [$horse, 'suite' => $care->id]), false);
+        // Plusieurs chevaux : la page Santé du menu liste les échéances de tous les chevaux.
+        $this->horseFor($user, null, ['official_name' => 'UNI']);
+        app()->forgetInstance(HorseAccess::class);
+        $this->actingAs($user)->get(route('health.index'))->assertOk()->assertSee('data-due="'.$care->id.'"', false)
+            ->assertSee(route('horses.care.create', [$horse, 'suite' => $care->id]), false);
 
-        // Lecture seule : l'échéance est visible, sans le bouton.
+        // Lecture seule (un seul cheval, son dossier santé) : l'échéance est visible, sans le bouton.
         $reader = $this->user();
         $horse->accessGrants()->create(['user_id' => $reader->id, 'permissions' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW], 'granted_by' => $user->id, 'label' => 'Lecture']);
         app()->forgetInstance(HorseAccess::class);
-        $this->actingAs($reader)->get(route('health.index'))->assertOk()->assertSee('data-due="'.$care->id.'"', false)->assertDontSee('data-note-passage', false);
+        $this->actingAs($reader)->get(route('health.index'))->assertOk()->assertSee('data-next-check="'.$care->id.'"', false)->assertDontSee('data-note-passage', false);
     }
 }

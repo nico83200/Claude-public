@@ -24,7 +24,7 @@
         suggest(f) { if (! this.autoTitle) return; const t = this.types[f.type.value] || ''; const h = this.horses[f.horse_id?.value] || ''; f.title.value = f.type.value === 'custom' ? '' : [t, h].filter(Boolean).join(' – '); } }"
      @change="if (['type', 'horse_id'].includes($event.target.name)) suggest($event.target.form);@if ($toSession) if ($event.target.name === 'type' && ['session', 'lesson'].includes($event.target.value)) { const f = $event.target.form; location.href = @js(route('sessions.create')) + '?' + new URLSearchParams({ horse: f.horse_id?.value || '', date: (f.date?.value || '') + (f.time?.value ? ' ' + f.time.value : ''), type: $event.target.value === 'lesson' ? 'private_lesson' : 'free' }); } @endif">
     <x-select name="type" label="Type" :options="\App\Models\CalendarEvent::TYPES" :value="$e->type" required :help="$toSession ? 'Séance ou Cours : la préparation de séance s\'ouvre (exercices, cavalier, bilan).' : null" />
-    <x-select name="horse_id" label="Cheval" :options="$horses" :value="$e->horse_id ?? request('horse', $onlyHorse)" placeholder="Aucun (événement de l'espace)" />
+    <x-horse-select name="horse_id" :options="$horses" :value="$e->horse_id ?? request('horse', $onlyHorse)" placeholder="Aucun (événement de l'espace)" />
     <x-field name="title" label="Titre" :value="$e->title" required class="sm:col-span-2" @input="autoTitle = false" />
     <x-field name="date" type="date" label="Date" :value="$e->starts_at->format('Y-m-d')" required />
     <div x-show="! allDay"><x-field name="time" type="time" label="Heure" :value="$e->starts_at->format('H:i')" /></div>

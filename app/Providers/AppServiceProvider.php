@@ -127,7 +127,11 @@ class AppServiceProvider extends ServiceProvider
             $view->with('navPerms', $user ? array_values(array_unique([...app(HorseAccess::class)->navPermissions($user), ...$orgPerms])) : []);
             $view->with('unreadNotifications', $user ? $user->unreadNotifications()->count() : 0);
             // Un seul cheval suivi : « Cheval » au lieu de « Chevaux » dans le menu (liste déjà lue pour les droits).
-            $view->with('navHorseLabel', $user && app(HorseAccess::class)->accessibleHorses($user)->whereNull('archived_at')->count() === 1 ? 'Cheval' : 'Chevaux');
+            $solo = $user ? app(HorseAccess::class)->soloHorse($user) : null;
+            $view->with('navHorseLabel', $solo ? 'Cheval' : 'Chevaux');
+            // Mode « un cheval » : menu organisé autour du cheval (droits de la personne sur ce cheval).
+            $view->with('soloHorse', $solo);
+            $view->with('soloPerms', $solo ? app(HorseAccess::class)->permissions($user, $solo) : []);
             $view->with('appVersion', $user?->is_super_admin ? trim((string) @file_get_contents(base_path('VERSION'))) : null);
             $org = request()->attributes->get('organization');
             $view->with('navUpsell', $user && $org ? app(Upsell::class)->upgrade($org, $user) : null);

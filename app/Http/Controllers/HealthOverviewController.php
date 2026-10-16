@@ -35,6 +35,14 @@ class HealthOverviewController extends Controller
 
             return app()->call([app($tab[0]), $tab[1]], ['horse' => $horse]);
         }
+        // Un seul cheval : la page Santé est directement son dossier santé (sans choix du cheval).
+        $solo = $access->soloHorse($user);
+        if ($solo && array_intersect([Perm::HEALTH_VIEW, Perm::TREATMENTS_VIEW], $access->permissions($user, $solo))) {
+            $horse = Horse::findOrFail($solo->id);
+            View::share('healthHub', ['tab' => 'sante', 'horses' => collect([$horse]), 'horse' => $horse]);
+
+            return app()->call([app(CareRecordController::class), 'index'], ['horse' => $horse]);
+        }
         $healthIds = $access->horseIdsWith($user, Perm::HEALTH_VIEW);
         $treatIds = $access->horseIdsWith($user, Perm::TREATMENTS_VIEW);
 

@@ -63,8 +63,8 @@
             @endforeach
         </div>
     </div>
-    <x-filters :fields="['horse', 'type', 'vue']" :keep="['view' => $view, 'date' => $date->toDateString()]">
-        <x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />
+    <x-filters :fields="$horses->count() > 1 ? ['horse', 'type', 'vue'] : ['type', 'vue']" :keep="['view' => $view, 'date' => $date->toDateString()]">
+        @if ($horses->count() > 1)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endif
         <x-select name="vue" label="Afficher" :options="['rdv' => 'Rendez-vous et séances', 'journal' => 'Suivi (pesées, observations, dépenses…)']" :value="request('vue')" placeholder="Tout" />
         <x-select name="type" label="Type" :options="$typeLabels" :value="request('type')" placeholder="Tous" />
     </x-filters>

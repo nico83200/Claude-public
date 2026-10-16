@@ -7,19 +7,41 @@
 </head>
 <body class="min-h-dvh" x-data="{ menu: false }">
 @php
-    $nav = [
-        ['dashboard', 'Accueil', 'home', true],
-        ['digest.show', 'Ma semaine', 'clock', true],
-        ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true],
-        ['calendar.index', 'Agenda', 'calendar', in_array('calendar.view', $navPerms)],
-        ['sessions.index', 'Séances', 'session', in_array('sessions.view', $navPerms)],
-        ['exercises.index', 'Exercices', 'book', true],
-        ['health.index', 'Santé', 'health', in_array('health.view', $navPerms) || in_array('treatments.view', $navPerms)],
-        ['professionals.index', 'Intervenants', 'users', in_array('health.view', $navPerms) || in_array('professionals.manage', $navPerms)],
-        ['budget.index', 'Budget', 'wallet', in_array('expenses.view', $navPerms) || in_array('expenses.org_view', $navPerms)],
-        ['sharing.index', 'Partages', 'share', true],
-    ];
+    // Entrée : [route, libellé, icône, visible, paramètres, routes actives, fonction de l'offre (symbole si absente)].
+    $soloHorse = $soloHorse ?? null;
+    if ($soloHorse) {
+        // Mode « un cheval » : le menu est celui du cheval, sans passer par la liste des chevaux.
+        $sp = $soloPerms ?? [];
+        $sCan = fn (...$keys) => (bool) array_intersect($keys, $sp);
+        $nav = [
+            ['dashboard', 'Tableau de bord', 'home', true, [], ['dashboard', 'digest.*']],
+            ['calendar.index', 'Agenda', 'calendar', $sCan('calendar.view'), [], ['calendar.*']],
+            ['sessions.index', 'Séances', 'session', $sCan('sessions.view'), [], ['sessions.*', 'exercises.*']],
+            ['health.index', 'Santé', 'health', $sCan('health.view', 'treatments.view'), [], ['health.*', 'horses.care.*', 'horses.feeding*', 'horses.logs.*', 'horses.weight*', 'horses.treatments.*', 'horses.prescription*', 'horses.vet-summary*']],
+            ['budget.index', 'Budget', 'wallet', $sCan('expenses.view'), [], ['budget.*'], 'budget'],
+            ['horses.documents.index', 'Documents', 'doc', $sCan('documents.view'), [$soloHorse], ['horses.documents.*'], 'documents'],
+            ['professionals.index', 'Intervenants', 'users', $sCan('health.view') || in_array('professionals.manage', $navPerms), [], ['professionals.*', 'horses.professionals*']],
+            $sCan('horse.manage') ? ['horses.sharing', 'Partage', 'share', true, [$soloHorse], ['horses.sharing*', 'sharing.*']] : ['sharing.index', 'Partage', 'share', true, [], ['sharing.*']],
+            ['horses.show', 'Fiche de '.$soloHorse->shortName(), 'horse', true, [$soloHorse], ['horses.show', 'horses.edit', 'horses.pedigree*', 'horses.emergency.*', 'horses.history', 'horses.photos.*', 'horses.ownerships.*']],
+        ];
+    } else {
+        $nav = [
+            ['dashboard', 'Accueil', 'home', true],
+            ['digest.show', 'Ma semaine', 'clock', true],
+            ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true],
+            ['calendar.index', 'Agenda', 'calendar', in_array('calendar.view', $navPerms)],
+            ['sessions.index', 'Séances', 'session', in_array('sessions.view', $navPerms)],
+            ['exercises.index', 'Exercices', 'book', true],
+            ['health.index', 'Santé', 'health', in_array('health.view', $navPerms) || in_array('treatments.view', $navPerms)],
+            ['professionals.index', 'Intervenants', 'users', in_array('health.view', $navPerms) || in_array('professionals.manage', $navPerms)],
+            ['budget.index', 'Budget', 'wallet', in_array('expenses.view', $navPerms) || in_array('expenses.org_view', $navPerms)],
+            ['sharing.index', 'Partages', 'share', true],
+        ];
+    }
+    $navActive = fn (array $item) => request()->routeIs(...($item[5] ?? [\Illuminate\Support\Str::before($item[0], '.').'*']));
+    $navLocked = fn (array $item) => isset($item[6]) && $soloHorse && ! app(\App\Services\Entitlements::class)->hasFeature($soloHorse->organization, $item[6]);
     $secondary = [
+        ['horses.index', 'Mes chevaux', 'plus', (bool) $soloHorse],
         ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
         ['referral.index', 'Parrainage', 'gift', true],
@@ -49,11 +71,20 @@
             </form>
         @endif
         <nav class="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4" aria-label="Navigation principale">
-            @foreach ($nav as [$route, $label, $icon, $visible])
-                @if ($visible)
-                    @php $active = request()->routeIs(\Illuminate\Support\Str::before($route, '.').'*'); @endphp
-                    <a href="{{ route($route) }}" class="flex min-h-11 items-center gap-3 rounded-full px-4 text-[15px] font-medium transition {{ $active ? 'bg-white text-brand-900 shadow-[var(--shadow-card)] lg:bg-white' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900' }}" @if ($active) aria-current="page" @endif>
-                        <x-icon :name="$icon" class="size-5 {{ $active ? 'text-brand-700' : '' }}" /> {{ $label }}
+            @if ($soloHorse)
+                {{-- Carte du cheval en tête du menu : ouvre sa fiche. --}}
+                <a href="{{ route('horses.show', $soloHorse) }}" class="mb-2 flex items-center gap-3 rounded-3xl bg-white p-3 shadow-[var(--shadow-card)]" data-solo-horse-card>
+                    @if ($soloHorse->mainPhotoUrl())<img src="{{ $soloHorse->mainPhotoUrl() }}" alt="" class="size-12 shrink-0 rounded-2xl object-cover">@else<span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-lg font-bold text-brand-800">{{ mb_strtoupper(mb_substr($soloHorse->shortName(), 0, 1)) }}</span>@endif
+                    <span class="min-w-0"><span class="block truncate font-semibold text-slate-900">{{ $soloHorse->shortName() }}</span>
+                        <span class="block truncate text-xs text-slate-500">{{ collect([$soloHorse->age() !== null ? $soloHorse->age().' ans' : null, \App\Models\Horse::DISCIPLINES[$soloHorse->main_discipline] ?? null])->filter()->implode(' · ') ?: 'Voir la fiche' }}</span></span>
+                </a>
+            @endif
+            @foreach ($nav as $item)
+                @if ($item[3])
+                    @php $active = $navActive($item); @endphp
+                    <a href="{{ route($item[0], $item[4] ?? []) }}" class="flex min-h-11 items-center gap-3 rounded-full px-4 text-[15px] font-medium transition {{ $active ? 'bg-white text-brand-900 shadow-[var(--shadow-card)] lg:bg-white' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900' }}" @if ($active) aria-current="page" @endif data-nav="{{ $item[0] }}">
+                        <x-icon :name="$item[2]" class="size-5 {{ $active ? 'text-brand-700' : '' }}" /> <span class="min-w-0 truncate">{{ $item[1] }}</span>
+                        @if ($navLocked($item))<x-icon name="sparkles" class="ml-auto size-4 text-gold-500" /><span class="sr-only"> (offre supérieure)</span>@endif
                     </a>
                 @endif
             @endforeach
@@ -142,17 +173,26 @@
 {{-- Barre basse (mobile) : le micro au centre --}}
 <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/70 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden" aria-label="Navigation rapide">
     <div class="grid grid-cols-5 items-end">
-        @foreach ([['dashboard', 'Accueil', 'home'], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse']] as [$route, $label, $icon])
-            @php $active = request()->routeIs(\Illuminate\Support\Str::before($route, '.').'*'); @endphp
-            <a href="{{ route($route) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}"><x-icon :name="$icon" class="size-6" />{{ $label }}</a>
+        @php
+            // Un cheval : Accueil · Séances · micro · Santé · Menu (l'agenda reste sur l'accueil et dans le menu).
+            $byRoute = collect($nav)->keyBy(0);
+            $calendarItem = ['calendar.index', 'Agenda', 'calendar', true, [], ['calendar.*']];
+            $pick = fn ($route) => ($byRoute[$route][3] ?? false) ? $byRoute[$route] : $calendarItem;
+            [$barLeft, $barRight] = $soloHorse
+                ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*']], $pick('sessions.index')], $pick('health.index')]
+                : [[['dashboard', 'Accueil', 'home', true], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true]], $calendarItem];
+        @endphp
+        @foreach ($barLeft as $item)
+            @php $active = $navActive($item); @endphp
+            <a href="{{ route($item[0], $item[4] ?? []) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}" data-bar="{{ $item[0] }}"><x-icon :name="$item[2]" class="size-6" />{{ $item[1] }}</a>
         @endforeach
         <div class="flex justify-center">
             <button type="button" @click="$store.assistant.open(true)" class="relative -mt-7 flex size-16 items-center justify-center rounded-full bg-brand-800 text-white shadow-[var(--shadow-float)] ring-4 ring-white transition active:scale-95" aria-label="Parler à l'assistant">
                 <x-icon name="mic" class="size-7" />
             </button>
         </div>
-        @php $active = request()->routeIs('calendar*'); @endphp
-        <a href="{{ route('calendar.index') }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}"><x-icon name="calendar" class="size-6" />Agenda</a>
+        @php $active = $navActive($barRight); @endphp
+        <a href="{{ route($barRight[0], $barRight[4] ?? []) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}" data-bar="{{ $barRight[0] }}"><x-icon :name="$barRight[2]" class="size-6" />{{ $barRight[1] }}</a>
         <button type="button" @click="menu = true" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-400"><x-icon name="menu" class="size-6" />Menu</button>
     </div>
 </nav>

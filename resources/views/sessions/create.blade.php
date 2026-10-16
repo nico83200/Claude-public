@@ -17,7 +17,7 @@
         </div>
         <x-section>
             <div class="grid gap-4 sm:grid-cols-2">
-                <x-select name="horse_id" label="Cheval" :options="$horses" :value="$selectedHorse" required placeholder="Choisir…" />
+                <x-horse-select name="horse_id" :options="$horses" :value="$selectedHorse" required placeholder="Choisir…" />
                 <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="$justRode ? now()->subMinutes(45)->format('Y-m-d\TH:i') : $plannedAt" required />
                 @if ($templates->isNotEmpty())
                     <div class="sm:col-span-2">

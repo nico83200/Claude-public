@@ -53,8 +53,9 @@ class NextVersionRequestsTest extends TestCase
         $owner = $this->user();
         $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         $jack = $this->horseFor($owner, null, ['official_name' => 'JACK']);
-        $this->actingAs($owner)->get('/sante')->assertOk()
-            ->assertSee('href="'.route('horses.vet-summary', $jack).'" class="btn-secondary" data-horse-picker="vet"', false)->assertDontSee('data-horse-picker-sheet="vet"', false);
+        // Un seul cheval : la page Santé est son dossier santé, avec le résumé pour le vétérinaire.
+        $this->actingAs($owner)->get('/sante')->assertOk()->assertSee('data-health-tabs', false)
+            ->assertSee(route('horses.vet-summary', $jack), false)->assertDontSee('data-horse-picker-sheet="vet"', false);
 
         $uni = $this->horseFor($owner, null, ['official_name' => 'UNI']);
         $this->actingAs($owner)->get('/sante')->assertOk()->assertSee('data-horse-picker-sheet="vet"', false)
@@ -145,7 +146,9 @@ class NextVersionRequestsTest extends TestCase
         $jack = $this->horseFor($owner, null, ['official_name' => 'JACK']);
         $this->actingAs($owner)->get('/chevaux')->assertOk()->assertSee('data-single-horse', false)->assertSee('Ouvrir le dossier')->assertDontSee('dossier(s)');
         $html = $this->actingAs($owner)->get('/dashboard')->getContent();
-        $this->assertStringContainsString('Cheval</a>', $html);
+        // Mode « un cheval » : carte du cheval en tête du menu et « Fiche de … » au lieu de la liste des chevaux.
+        $this->assertStringContainsString('data-solo-horse-card', $html);
+        $this->assertStringContainsString('Fiche de JACK', $html);
         $this->assertStringNotContainsString('Chevaux</a>', $html);
 
         // Un cheval partagé avec la personne : liste habituelle, menu « Chevaux ».

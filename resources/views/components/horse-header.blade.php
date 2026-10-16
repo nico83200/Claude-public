@@ -7,13 +7,17 @@
 @endphp
 @if (! empty($healthHub))
     {{-- Ouvert depuis la page Santé du menu : en-tête de la santé (onglets, choix du cheval), actions de la page conservées. --}}
-    <x-page-header title="Santé et soins" :subtitle="$horse->shortName().' · '.(['alimentation' => 'alimentation', 'suivi' => 'suivi quotidien', 'poids' => 'poids et état corporel'][$healthHub['tab']] ?? '')">
+    <x-page-header title="Santé et soins" :subtitle="$horse->shortName().' · '.(['sante' => 'soins et traitements', 'alimentation' => 'alimentation', 'suivi' => 'suivi quotidien', 'poids' => 'poids et état corporel'][$healthHub['tab']] ?? '')">
         {{ $slot }}
     </x-page-header>
     @include('health._hub-tabs')
 @else
 <div class="mb-4" x-data="{ more: false }">
-    <a href="{{ route('horses.index') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Chevaux</a>
+    @if (app(\App\Services\HorseAccess::class)->soloHorse(auth()->user())?->is($horse))
+        <a href="{{ route('dashboard') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Accueil</a>
+    @else
+        <a href="{{ route('horses.index') }}" class="mb-3 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"><x-icon name="back" class="size-4" /> Chevaux</a>
+    @endif
     <div class="flex items-center gap-4">
         <a href="{{ route('horses.show', $horse) }}" class="shrink-0" aria-label="Fiche de {{ $horse->shortName() }}">
             @if ($horse->mainPhotoUrl())

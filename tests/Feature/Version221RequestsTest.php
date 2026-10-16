@@ -141,8 +141,9 @@ class Version221RequestsTest extends TestCase
     public function test_health_page_offers_care_buttons_with_a_horse_choice(): void
     {
         [$user, $jack] = $this->owner();
+        // Un seul cheval : son dossier santé, bouton « Soin » direct.
         $this->actingAs($user)->get('/sante')->assertOk()
-            ->assertSee('href="'.route('horses.care.create', $jack).'" class="btn-primary" data-horse-picker="care"', false)
+            ->assertSee('href="'.route('horses.care.create', $jack).'"', false)
             ->assertDontSee('data-horse-picker-sheet="care"', false);
 
         $uni = $this->horseFor($user, null, ['official_name' => 'UNI']);

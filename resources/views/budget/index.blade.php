@@ -1,6 +1,6 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
 <x-layouts.app title="Budget">
-    @php $newExpense = $creatableHorses->isNotEmpty() || $canOrgExpense; $exportOrg = $contextHorse?->organization ?? $currentOrganization; @endphp
+    @php $newExpense = $creatableHorses->isNotEmpty() || $canOrgExpense; $exportOrg = $contextHorse?->organization ?? $currentOrganization; $singleHorse = $horses->count() < 2; @endphp
     @if ($contextHorse)
         <x-horse-header :horse="$contextHorse">
             @if ($newExpense)<button type="button" class="btn-primary" onclick="document.getElementById('new-expense').showModal()"><x-icon name="plus" class="size-4" /> Dépense</button>
@@ -18,8 +18,8 @@
     @endif
     <x-upsell :offer="$upsell" class="mb-5" />
     @if ($newExpense)@include('budget._invoice-card')@endif
-    <x-filters :fields="array_values(array_filter(['category', $contextHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id, 'year' => request('year')]">
-        @unless ($contextHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
+    <x-filters :fields="array_values(array_filter(['category', $contextHorse || $singleHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id, 'year' => request('year')]">
+        @unless ($contextHorse || $singleHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
         <x-select name="category" label="Catégorie" :options="$categories" :value="request('category')" placeholder="Toutes" />
     </x-filters>
     @php $years = collect(range(now()->year, now()->year - 5)); @endphp
@@ -39,7 +39,7 @@
                 @foreach ($unpaid as $e)
                     <li class="flex items-center gap-3 py-3">
                         <a href="{{ route('budget.show', $e) }}" class="min-w-0 flex-1" data-expense-link="{{ $e->id }}">
-                            <span class="block font-medium text-slate-900">{{ $e->comment ?: $e->category->name }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $e->horse?->shortName() ?? 'Espace' }}</span>@endunless</span>
+                            <span class="block font-medium text-slate-900">{{ $e->comment ?: $e->category->name }}@unless ($contextHorse || $singleHorse)<span class="font-normal text-slate-500"> · {{ $e->horse?->shortName() ?? 'Espace' }}</span>@endunless</span>
                             <span class="block text-xs {{ $e->isOverdue() ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $e->isOverdue() ? 'En retard · ' : 'Échéance · ' }}{{ $e->spent_on->translatedFormat('j M Y') }} · {{ $eur($e->amount) }}</span>
                         </a>
                         @if ($canPay($e))
@@ -92,7 +92,7 @@
             @endif
             </button>
         </x-section>
-        @unless ($contextHorse)
+        @unless ($contextHorse || $singleHorse)
         <x-section title="Coût par cheval">
             <x-slot:headerActions><button type="button" class="btn-ghost min-h-8 px-2 text-slate-500" onclick="document.getElementById('chart-horse').showModal()" aria-label="Agrandir le graphique par cheval"><x-icon name="expand" class="size-4" /></button></x-slot:headerActions>
             <button type="button" class="{{ $zoom }}" onclick="document.getElementById('chart-horse').showModal()" data-chart-open="horse">
@@ -117,11 +117,11 @@
 
     {{-- Graphiques agrandis --}}
     @foreach (['category' => $hasIncome ? 'Dépenses et recettes par catégorie' : 'Dépenses par catégorie', 'horse' => 'Coût par cheval', 'month' => $year ? 'Évolution mensuelle' : 'Évolution par année'] as $chart => $chartTitle)
-        @continue($chart === 'horse' && $contextHorse)
+        @continue($chart === 'horse' && ($contextHorse || $singleHorse))
         <dialog id="chart-{{ $chart }}" class="m-auto w-[calc(100%-1rem)] max-w-4xl rounded-3xl p-0 backdrop:bg-slate-900/50" onclick="if (event.target === this) this.close()" data-chart-dialog="{{ $chart }}">
             <div class="p-5 sm:p-8">
                 <div class="mb-5 flex items-start justify-between gap-3">
-                    <div><h2 class="text-xl font-semibold">{{ $chartTitle }}</h2><p class="text-sm text-slate-500">{{ $contextHorse?->shortName() ?? 'Tous les chevaux' }} · {{ $year ?: 'toutes les dates' }} · dépenses {{ $eur($kpis['year']) }}@if ($hasIncome) · recettes + {{ $eur($kpis['income']) }}@endif</p></div>
+                    <div><h2 class="text-xl font-semibold">{{ $chartTitle }}</h2><p class="text-sm text-slate-500">{{ $contextHorse?->shortName() ?? ($singleHorse ? $horses->first() : 'Tous les chevaux') }} · {{ $year ?: 'toutes les dates' }} · dépenses {{ $eur($kpis['year']) }}@if ($hasIncome) · recettes + {{ $eur($kpis['income']) }}@endif</p></div>
                     <button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
                 </div>
                 @if ($chart === 'month')
@@ -192,7 +192,7 @@
                         <div class="flex items-center gap-3">
                             <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl {{ $r->paused_at ? 'bg-slate-100 text-slate-400' : 'bg-brand-50 text-brand-800' }}"><x-icon name="refresh" class="size-5" /></span>
                             <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-slate-900">{{ $r->label }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $r->horse?->shortName() ?? 'Espace' }}</span>@endunless</span>
+                                <span class="block font-medium text-slate-900">{{ $r->label }}@unless ($contextHorse || $singleHorse)<span class="font-normal text-slate-500"> · {{ $r->horse?->shortName() ?? 'Espace' }}</span>@endunless</span>
                                 <span class="block text-xs text-slate-500">
                                     {{ $eur($r->amount) }} {{ \App\Models\RecurringExpense::SHORT[$r->frequency] }} ·
                                     @if ($r->paused_at) Suspendue @elseif (! $r->isActive()) Terminée @else Prochaine le {{ $r->next_due_on->translatedFormat('j M Y') }} @endif
@@ -236,7 +236,7 @@
                 @foreach ($toReceive as $i)
                     <li class="flex items-center gap-3 py-3" data-receivable="{{ $i->id }}">
                         <span class="min-w-0 flex-1">
-                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
+                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse || $singleHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
                             <span class="block text-xs {{ $i->isOverdue() ? 'font-medium text-red-600' : 'text-slate-500' }}">{{ $i->isOverdue() ? 'En retard · ' : 'Échéance · ' }}{{ $i->received_on->translatedFormat('j M Y') }} · + {{ $eur($i->amount) }}</span>
                         </span>
                         @if ($canEditIncome($i))
@@ -259,7 +259,7 @@
                         <div class="flex items-center gap-3">
                             <span class="flex size-10 shrink-0 items-center justify-center rounded-2xl {{ $r->paused_at ? 'bg-slate-100 text-slate-400' : 'bg-gold-100 text-gold-700' }}"><x-icon name="refresh" class="size-5" /></span>
                             <span class="min-w-0 flex-1">
-                                <span class="block font-medium text-slate-900">{{ $r->label }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $r->horse?->shortName() }}</span>@endunless</span>
+                                <span class="block font-medium text-slate-900">{{ $r->label }}@unless ($contextHorse || $singleHorse)<span class="font-normal text-slate-500"> · {{ $r->horse?->shortName() }}</span>@endunless</span>
                                 <span class="block text-xs text-slate-500">+ {{ $eur($r->amount) }} {{ \App\Models\RecurringExpense::SHORT[$r->frequency] }} ·
                                     @if ($r->paused_at) Suspendue @elseif (! $r->isActive()) Terminée @else Prochaine le {{ $r->next_due_on->translatedFormat('j M Y') }}{{ $r->ends_on ? ', jusqu\'au '.$r->ends_on->translatedFormat('j M Y') : '' }} @endif</span>
                             </span>
@@ -303,7 +303,7 @@
                 @foreach ($incomes as $i)
                     <li class="flex items-center gap-3 py-3" data-income="{{ $i->id }}" @if ($loop->index >= 5) x-show="all" x-cloak @endif>
                         <span class="min-w-0 flex-1">
-                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
+                            <span class="block font-medium text-slate-900">{{ $i->comment ?: $i->categoryLabel() }}@unless ($contextHorse || $singleHorse)<span class="font-normal text-slate-500"> · {{ $i->horse?->shortName() }}</span>@endunless</span>
                             <span class="block text-xs text-slate-500">{{ $i->categoryLabel() }} · {{ $i->received_on->translatedFormat('j M Y') }}{{ $i->payer ? ' · '.$i->payer : '' }}</span>
                         </span>
                         <span class="shrink-0 text-right font-semibold whitespace-nowrap text-brand-800">+ {{ $eur($i->amount) }}@unless ($i->isReceived())<x-badge :color="$i->isOverdue() ? 'red' : 'amber'" class="ml-1">{{ $i->isOverdue() ? 'En retard' : 'À recevoir' }}</x-badge>@endunless</span>
@@ -354,7 +354,7 @@
             <p class="-mt-1 text-sm text-slate-500">Demi-pension, gains de concours, vente… : elle s'ajoute au solde du budget.</p>
             @php $ie = $errors->income; @endphp
             <div>
-                <x-select name="income_horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required id="i_horse" />
+                <x-horse-select name="income_horse_id" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required id="i_horse" />
                 @if ($ie->has('income_horse_id'))<p class="mt-1 text-sm text-red-600">{{ $ie->first('income_horse_id') }}</p>@endif
             </div>
             <div>
@@ -388,7 +388,7 @@
         <form method="POST" action="{{ route('budget.store') }}" enctype="multipart/form-data" class="space-y-3 p-5" x-data="{ recurring: {{ old('recurring') ? 'true' : 'false' }}, cat: @js((string) old('expense_category_id', '')), careCats: @js($careCategoryIds), horse: @js((string) old('horse_id', request('horse', $creatableHorses->count() === 1 ? $creatableHorses->keys()->first() : ''))), openCares: @js($openCares), get cares() { return this.openCares[this.horse] || []; } }">
             @csrf
             <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">Nouvelle dépense</h2><button type="button" class="btn-ghost px-2" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button></div>
-            <x-select name="horse_id" label="Cheval" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required x-model="horse" />
+            <x-horse-select name="horse_id" :options="$creatableHorses" :value="request('horse')" :placeholder="$creatableHorses->count() > 1 ? 'Choisir…' : null" required x-model="horse" />
             <div class="grid grid-cols-2 gap-3">
                 <div><label class="label" for="f_spent_on" x-text="recurring ? 'Première échéance' : 'Date'">Date</label><input id="f_spent_on" type="date" name="spent_on" value="{{ old('spent_on', now()->toDateString()) }}" required class="input"></div>
                 <x-field name="amount" type="number" step="0.01" min="0.01" label="Montant (€)" required inputmode="decimal" />

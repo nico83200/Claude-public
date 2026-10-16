@@ -241,6 +241,20 @@ class HorseAccess
     }
 
     /**
+     * Mode « un cheval » : le seul cheval actif auquel l'utilisateur a accès (offre Découverte ou Propriétaire,
+     * demi-pension sur un seul cheval…), ou null s'il en suit zéro ou plusieurs.
+     */
+    public function soloHorse(User $user): ?Horse
+    {
+        $active = $this->accessibleHorses($user)->whereNull('archived_at');
+        if ($active->count() !== 1) {
+            return null;
+        }
+
+        return $active->first()->loadMissing('organization');
+    }
+
+    /**
      * Union des permissions cheval de l'utilisateur, tous chevaux confondus,
      * calculée en quelques requêtes (sert à adapter la navigation).
      */

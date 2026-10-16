@@ -78,9 +78,11 @@ class SharedProfessionalsAndExpenseDetailTest extends TestCase
         $simple = Expense::where('amount', 450)->sole();
 
         $budget = $this->actingAs($user)->get('/budget')->assertOk()->assertSee('data-expense-link="'.$simple->id.'"', false);
-        foreach (['category', 'horse', 'month'] as $chart) {
+        foreach (['category', 'month'] as $chart) {
             $budget->assertSee('data-chart-dialog="'.$chart.'"', false)->assertSee('data-chart-open="'.$chart.'"', false);
         }
+        // Un seul cheval : pas de graphique « Coût par cheval ».
+        $budget->assertDontSee('data-chart-dialog="horse"', false);
         $this->actingAs($user)->get(route('budget.show', $simple))->assertOk()->assertSee('data-expense-detail', false)
             ->assertSee('450,00 €')->assertSee('Écurie du Lac')->assertSee('Pension octobre')->assertSee('Payée');
 

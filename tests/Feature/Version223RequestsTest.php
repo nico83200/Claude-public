@@ -97,7 +97,7 @@ class Version223RequestsTest extends TestCase
         Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $user->id, 'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => 400, 'spent_on' => '2026-03-02', 'paid_on' => '2026-03-02']);
         Income::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $user->id, 'horse_id' => $horse->id, 'category' => 'half_lease', 'received_on' => '2026-03-10', 'collected_on' => '2026-03-10', 'amount' => 150]);
 
-        $page = $this->actingAs($user)->get('/budget')->assertOk()->assertSee('data-income-categories', false)->assertSee('Dépenses 400,00 € · recettes + 150,00 €');
+        $page = $this->actingAs($user)->get('/budget')->assertOk()->assertSee('data-income-categories', false);
         $kpis = $page->viewData('kpis');
         $this->assertSame(['Demi-pension' => 150.0], $kpis['income_by_category']->all());
         $this->assertSame(['expense' => 400.0, 'income' => 150.0, 'net' => 250.0], $kpis['by_horse']['Jack']);

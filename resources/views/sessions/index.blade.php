@@ -7,13 +7,14 @@
         </x-horse-header>
     @else
         <x-page-header title="Séances" subtitle="Historique et progression">
+            <a href="{{ route('exercises.index') }}" class="btn-ghost" data-exercises-link><x-icon name="book" class="size-4" /> Exercices</a>
             <a href="{{ route('templates.index') }}" class="btn-ghost">Modèles</a>
             @if ($canCreate)<a href="{{ route('sessions.create') }}" class="btn-primary"><x-icon name="plus" /> Séance</a>@endif
         </x-page-header>
     @endif
 
-    <x-filters :fields="array_values(array_filter(['rider', 'discipline', 'type', 'status', 'from', 'to', $contextHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id]">
-        @unless ($contextHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
+    <x-filters :fields="array_values(array_filter(['rider', 'discipline', 'type', 'status', 'from', 'to', $contextHorse || $horses->count() < 2 ? null : 'horse']))" :keep="['horse' => $contextHorse?->id]">
+        @unless ($contextHorse || $horses->count() < 2)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless
         <x-select name="status" label="Statut" :options="\App\Models\RidingSession::STATUSES" :value="request('status')" placeholder="Tous" />
         <x-select name="type" label="Type" :options="$typeFilter" :value="request('type')" placeholder="Tous" />
         <x-select name="discipline" label="Discipline" :options="\App\Models\Horse::DISCIPLINES" :value="request('discipline')" placeholder="Toutes" />
@@ -32,7 +33,7 @@
                         <a href="{{ route('sessions.show', $s) }}" class="card relative flex items-center gap-4 p-4 transition hover:shadow-md" draggable="false">
                             <div class="flex size-12 shrink-0 flex-col items-center justify-center rounded-2xl bg-brand-50 text-brand-800"><span class="text-lg leading-none font-bold">{{ $s->scheduled_at->format('d') }}</span><span class="text-[10px] font-medium uppercase">{{ $s->scheduled_at->translatedFormat('M') }}</span></div>
                             <div class="min-w-0 flex-1">
-                                <p class="font-semibold text-slate-900">@unless ($contextHorse){{ $s->horse->shortName() }} · @endunless{{ $s->typeLabel() }}</p>
+                                <p class="font-semibold text-slate-900">@unless ($contextHorse || $horses->count() < 2){{ $s->horse->shortName() }} · @endunless{{ $s->typeLabel() }}</p>
                                 @if ($s->objective)<p class="line-clamp-1 text-sm text-slate-600">{{ $s->objective }}</p>@endif
                                 <p class="mt-0.5 text-xs text-slate-500">{{ $s->scheduled_at->format('H:i') }} · {{ $s->riderLabel() }}{{ $s->actual_minutes ? ' · '.$s->actual_minutes.' min' : ($s->planned_minutes ? ' · '.$s->planned_minutes.' min' : '') }}</p>
                             </div>
