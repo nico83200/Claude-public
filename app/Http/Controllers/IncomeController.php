@@ -72,7 +72,7 @@ class IncomeController extends Controller
             'income' => $income->load('horse'),
             // Une recette reste dans son espace : seuls les chevaux de cet espace sont proposés.
             'horses' => Horse::whereIn('id', $access->horseIdsWith($request->user(), Perm::EXPENSES_CREATE))->where('organization_id', $income->organization_id)
-                ->whereNull('archived_at')->orderBy('official_name')->pluck('official_name', 'id'),
+                ->whereNull('archived_at')->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
         ]);
     }
 

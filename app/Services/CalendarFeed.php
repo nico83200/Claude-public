@@ -62,7 +62,7 @@ class CalendarFeed
         } else {
             foreach ($this->events($user) as $e) {
                 $title = $e->title.($e->horse && ! str_contains($e->title, $e->horse->shortName()) ? ' – '.$e->horse->shortName() : '');
-                $desc = collect([CalendarEvent::TYPES[$e->type] ?? null, $e->horse ? 'Cheval : '.$e->horse->official_name : null,
+                $desc = collect([CalendarEvent::TYPES[$e->type] ?? null, $e->horse ? 'Cheval : '.$e->horse->shortName() : null,
                     $e->professional ? 'Intervenant : '.$e->professional->fullName() : null, $e->notes])->filter()->implode("\n");
                 $lines = array_merge($lines, $this->vevent('event-'.$e->id, $e->starts_at, $e->all_day, (int) $e->duration_minutes ?: 60, $title, $desc,
                     route('calendar.show', $e), $e->status === 'cancelled' ? 'CANCELLED' : ($e->status === 'planned' ? 'TENTATIVE' : 'CONFIRMED'), $this->rrule($e), $e->updated_at ?? now()));

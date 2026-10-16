@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Horse extends Model
 {
@@ -195,6 +196,12 @@ class Horse extends Model
         $last = $this->measurements()->reorder()->max('measured_on');
 
         return $last ? Carbon::parse($last)->addWeeks($this->weigh_every_weeks)->startOfDay() : today();
+    }
+
+    /** Liste « id => nom d'usage » triée par nom d'usage (menus de choix du cheval). */
+    public static function options(iterable $horses): Collection
+    {
+        return collect($horses)->sortBy(fn (self $h) => mb_strtolower($h->shortName()))->mapWithKeys(fn (self $h) => [$h->id => $h->shortName()]);
     }
 
     public function shortName(): string

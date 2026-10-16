@@ -3,7 +3,7 @@
     <form method="POST" action="{{ route('calendar.update', $event) }}" class="max-w-3xl space-y-4">
         @csrf @method('PUT')
         <x-section>
-            @include('calendar._form', ['horses' => $event->horse ? collect([$event->horse_id => $event->horse->official_name]) : collect(), 'event' => $event])
+            @include('calendar._form', ['horses' => $event->horse ? collect([$event->horse_id => $event->horse->shortName()]) : collect(), 'event' => $event])
             <div class="mt-3 max-w-xs"><x-select name="status" label="Statut" :options="\App\Models\CalendarEvent::STATUSES" :value="$event->status" /></div>
             @if ($event->careRecord)
                 <p class="mt-3 text-xs text-slate-500">Le soin correspondant du carnet de santé sera mis à jour (date, intervenant).</p>

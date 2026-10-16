@@ -39,6 +39,8 @@ class HealthOverviewController extends Controller
         $treatIds = $access->horseIdsWith($user, Perm::TREATMENTS_VIEW);
 
         return view('health.overview', [
+            // Chevaux dont l'utilisateur peut noter les soins (bouton « Noter le passage » des échéances).
+            'editableIds' => $access->horseIdsWith($user, Perm::HEALTH_EDIT),
             'due' => CareRecord::with(['horse', 'category', 'professional'])->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')
                 ->where('next_check_on', '<=', now()->addDays(60)->toDateString())
                 ->whereNotExists(fn ($q) => $q->selectRaw(1)->from('care_records as later')->whereColumn('later.horse_id', 'care_records.horse_id')

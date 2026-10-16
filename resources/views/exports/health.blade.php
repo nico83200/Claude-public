@@ -1,5 +1,5 @@
 <html><head><meta charset="utf-8">@include('exports._style')</head><body>
-<h1>Historique sanitaire — {{ $horse->displayName() }}</h1>
+<h1>Historique sanitaire — {{ $horse->shortName() }}</h1>
 <p class="muted">{{ $horse->breed?->name }} · SIRE {{ $horse->identifier('sire') ?? '—' }}</p>
 <h2>Soins et interventions</h2>
 <table><tr><th>Date</th><th>Catégorie</th><th>Professionnel</th><th>Motif / soins</th><th>Prochain contrôle</th></tr>

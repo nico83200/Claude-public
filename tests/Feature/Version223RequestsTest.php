@@ -46,7 +46,7 @@ class Version223RequestsTest extends TestCase
         $this->actingAs($user)->delete(route('horses.destroy', $test), ['confirm_name' => 'MON CHEVAL TEST'])->assertRedirect();
         $page = $this->actingAs($user)->get('/budget')->assertOk()->assertDontSee('MON CHEVAL TEST');
         $kpis = $page->viewData('kpis');
-        $this->assertSame(['JACK'], $kpis['by_horse']->keys()->all());
+        $this->assertSame(['Jack'], $kpis['by_horse']->keys()->all());
         $this->assertSame([300.0, 0.0], [(float) $kpis['year'], (float) $kpis['income']]);
     }
 
@@ -100,7 +100,7 @@ class Version223RequestsTest extends TestCase
         $page = $this->actingAs($user)->get('/budget')->assertOk()->assertSee('data-income-categories', false)->assertSee('Dépenses 400,00 € · recettes + 150,00 €');
         $kpis = $page->viewData('kpis');
         $this->assertSame(['Demi-pension' => 150.0], $kpis['income_by_category']->all());
-        $this->assertSame(['expense' => 400.0, 'income' => 150.0, 'net' => 250.0], $kpis['by_horse']['JACK']);
+        $this->assertSame(['expense' => 400.0, 'income' => 150.0, 'net' => 250.0], $kpis['by_horse']['Jack']);
         $this->assertSame([400.0, 150.0], [$kpis['series'][2]['value'], $kpis['series'][2]['income']]);
 
         // Filtre de catégorie de dépense : recettes retirées des graphiques.

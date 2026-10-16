@@ -3,7 +3,7 @@
     @php
         $node = function ($rel, $label) use ($pedigree, $linkable) {
             $r = $pedigree->get($rel);
-            $name = $r?->related_name ?? $r?->related?->official_name;
+            $name = $r?->related_name ?? $r?->related?->shortName();
             return ['label' => $label, 'name' => $name, 'breed' => $r?->related_breed, 'url' => in_array($rel, $linkable) ? route('horses.pedigree', $r->related_horse_id) : null, 'ref' => $r?->external_reference];
         };
         $tree = [
@@ -14,7 +14,7 @@
     <x-section title="Arbre généalogique">
         <div class="overflow-x-auto">
             <div class="grid min-w-[560px] grid-cols-3 items-center gap-3">
-                <div class="row-span-2 rounded-xl border-2 border-brand-500 bg-brand-50 p-3 text-center"><p class="text-xs text-slate-500">Cheval</p><p class="font-bold">{{ $horse->official_name }}</p><p class="text-xs">{{ $horse->breed?->name }}</p></div>
+                <div class="row-span-2 rounded-xl border-2 border-brand-500 bg-brand-50 p-3 text-center"><p class="text-xs text-slate-500">Cheval</p><p class="font-bold">{{ $horse->shortName() }}</p><p class="text-xs">{{ $horse->breed?->name }}</p></div>
                 @foreach ($tree as $i => [$parent, $grands])
                     <div class="col-start-2 rounded-xl border border-slate-200 bg-white p-3 text-center {{ $i === 0 ? 'row-start-1' : 'row-start-2' }}">
                         <p class="text-xs text-slate-500">{{ $parent['label'] }}</p>

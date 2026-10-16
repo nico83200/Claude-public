@@ -120,11 +120,11 @@ class ExpenseController extends Controller
                 'by_horse' => $this->byHorse($yearQuery, $chartIncomes),
                 'series' => $this->series($yearQuery, $year, $first, $chartIncomes),
             ],
-            'horses' => Horse::whereIn('id', (clone $query)->whereNotNull('expenses.horse_id')->distinct()->pluck('expenses.horse_id')->merge($creatable->pluck('id')))->orderBy('official_name')->pluck('official_name', 'id'),
+            'horses' => Horse::whereIn('id', (clone $query)->whereNotNull('expenses.horse_id')->distinct()->pluck('expenses.horse_id')->merge($creatable->pluck('id')))->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
             // Ouvert depuis le dossier d'un cheval : la page garde l'en-tête et les onglets du cheval.
             'contextHorse' => $contextHorse,
             'upsell' => app(Upsell::class)->for($contextHorse?->organization ?? $this->currentOrganization(), $user, 'budget'),
-            'creatableHorses' => $creatable->pluck('official_name', 'id'),
+            'creatableHorses' => $creatable->pipe(Horse::options(...)),
             // Plus de dépense « générale de l'espace » : chaque dépense est rattachée à un cheval.
             'canOrgExpense' => false,
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
@@ -262,7 +262,7 @@ class ExpenseController extends Controller
             'expense' => $expense->load('documents'),
             'linkedCare' => $this->linkedCare($request, $expense),
             'categories' => ExpenseCategory::orderBy('name')->pluck('name', 'id'),
-            'horses' => Horse::whereIn('id', $access->horseIdsWith($request->user(), Perm::EXPENSES_CREATE))->orderBy('official_name')->pluck('official_name', 'id'),
+            'horses' => Horse::whereIn('id', $access->horseIdsWith($request->user(), Perm::EXPENSES_CREATE))->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
         ]);
     }
 
@@ -378,7 +378,7 @@ class ExpenseController extends Controller
     {
         $expenses = (clone $query)->whereNotNull('expenses.horse_id')->select(\DB::raw('expenses.horse_id as hid, sum(expenses.amount) as total'))->groupBy('hid')->pluck('total', 'hid');
         $in = $incomes->groupBy('horse_id')->map(fn ($g) => (float) $g->sum('amount'));
-        $names = Horse::whereIn('id', $expenses->keys()->merge($in->keys())->unique())->pluck('official_name', 'id');
+        $names = Horse::whereIn('id', $expenses->keys()->merge($in->keys())->unique())->get(['id', 'official_name', 'usual_name'])->mapWithKeys(fn ($h) => [$h->id => $h->shortName()]);
 
         return $names->mapWithKeys(fn ($name, $id) => [$name => [
             'expense' => (float) ($expenses[$id] ?? 0), 'income' => (float) ($in[$id] ?? 0),
@@ -455,10 +455,10 @@ class ExpenseController extends Controller
             fwrite($out, "\xEF\xBB\xBF");
             fputcsv($out, ['Type', 'Date', 'Cheval', 'Catégorie', 'Fournisseur / versée par', 'Montant', 'Devise', 'Commentaire'], ';');
             foreach ($expenses as $e) {
-                fputcsv($out, ['Dépense', $e->spent_on->format('d/m/Y'), $e->horse?->official_name, $e->category?->name, $e->supplier, number_format((float) $e->amount, 2, ',', ''), $e->currency, $e->comment], ';');
+                fputcsv($out, ['Dépense', $e->spent_on->format('d/m/Y'), $e->horse?->shortName(), $e->category?->name, $e->supplier, number_format((float) $e->amount, 2, ',', ''), $e->currency, $e->comment], ';');
             }
             foreach ($incomes as $i) {
-                fputcsv($out, ['Recette', $i->received_on->format('d/m/Y'), $i->horse?->official_name, $i->categoryLabel(), $i->payer, number_format((float) $i->amount, 2, ',', ''), 'EUR', $i->comment], ';');
+                fputcsv($out, ['Recette', $i->received_on->format('d/m/Y'), $i->horse?->shortName(), $i->categoryLabel(), $i->payer, number_format((float) $i->amount, 2, ',', ''), 'EUR', $i->comment], ';');
             }
             fclose($out);
         }, $name.'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);

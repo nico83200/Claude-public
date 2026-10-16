@@ -25,7 +25,7 @@ class SearchController extends Controller
             $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $q).'%';
             $results['Chevaux'] = $access->accessibleQuery($user)->where(fn ($w) => $w->where('official_name', 'like', $like)->orWhere('usual_name', 'like', $like)
                 ->orWhereHas('identifiers', fn ($i) => $i->where('value', 'like', $like)))->limit(10)->get()
-                ->map(fn ($h) => ['title' => $h->displayName(), 'meta' => $h->isArchived() ? 'Archivé' : null, 'url' => route('horses.show', $h)]);
+                ->map(fn ($h) => ['title' => $h->shortName(), 'meta' => collect([$h->usual_name ? $h->official_name : null, $h->isArchived() ? 'Archivé' : null])->filter()->implode(' · ') ?: null, 'url' => route('horses.show', $h)]);
 
             $results['Intervenants'] = app(ProfessionalDirectory::class)->visibleQuery($request->user())
                 ->where(fn ($w) => $w->where('last_name', 'like', $like)->orWhere('first_name', 'like', $like)->orWhere('company', 'like', $like))->limit(10)->get()

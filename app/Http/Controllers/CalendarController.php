@@ -44,7 +44,7 @@ class CalendarController extends Controller
                 ->orWhere(fn ($r) => $r->whereNotNull('recurrence')->where('starts_at', '<=', $to)->where(fn ($u) => $u->whereNull('recurrence_until')->orWhere('recurrence_until', '>=', $from->toDateString()))))
             ->get();
 
-        $editableHorses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::CALENDAR_EDIT))->whereNull('archived_at')->orderBy('official_name')->pluck('official_name', 'id');
+        $editableHorses = Horse::whereIn('id', $access->horseIdsWith($user, Perm::CALENDAR_EDIT))->whereNull('archived_at')->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...));
 
         return view('calendar.index', [
             'view' => $view, 'date' => $date, 'from' => $from, 'to' => $to,
@@ -52,7 +52,7 @@ class CalendarController extends Controller
             'occurrences' => $this->calendar->expand($events, $from, $to)
                 ->concat($request->query('vue') === 'rdv' ? [] : $journal->between($user, $from, $to, $request->integer('horse') ?: null, $request->query('type')))
                 ->sortBy(fn ($o) => [$o['at']->toDateString(), $o['event']->all_day ? 0 : 1, $o['at']->format('H:i')])->values(),
-            'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
+            'horses' => Horse::whereIn('id', $horseIds)->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
             'editableHorses' => $editableHorses,
             'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
             // Synchronisation Google / Apple (offres payantes), sinon proposition d'offre.

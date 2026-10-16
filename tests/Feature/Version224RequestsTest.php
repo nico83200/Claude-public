@@ -178,4 +178,25 @@ class Version224RequestsTest extends TestCase
         $this->actingAs($other)->post(route('horses.sharing.invitations.resend', [$horse, $invitation]))->assertForbidden();
         $this->actingAs($other)->post(route('horses.sharing.invitations.resend', [$otherHorse, $invitation]))->assertNotFound();
     }
+
+    public function test_usual_name_everywhere_and_note_the_visit_from_the_health_menu(): void
+    {
+        [$user, $horse] = $this->owner();
+        $cat = ExpenseCategory::firstOrFail();
+        Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $user->id, 'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => 50, 'spent_on' => now()->toDateString(), 'paid_on' => now()->toDateString()]);
+        $budget = $this->actingAs($user)->get('/budget')->assertOk();
+        $this->assertSame([$horse->id => 'Jack'], $budget->viewData('horses')->all());
+        $this->assertSame(['Jack'], $budget->viewData('kpis')['by_horse']->keys()->all());
+        $this->assertSame([$horse->id => 'Jack'], $this->actingAs($user)->get(route('sessions.create'))->viewData('horses')->all());
+
+        $farrier = CareCategory::where('key', 'farrier')->firstOrFail();
+        $care = CareRecord::forceCreate(['horse_id' => $horse->id, 'care_category_id' => $farrier->id, 'author_id' => $user->id, 'performed_at' => now()->subWeeks(7), 'next_check_on' => now()->addWeek()->toDateString()]);
+        $this->actingAs($user)->get(route('health.index'))->assertOk()->assertSee(route('horses.care.create', [$horse, 'suite' => $care->id]), false);
+
+        // Lecture seule : l'échéance est visible, sans le bouton.
+        $reader = $this->user();
+        $horse->accessGrants()->create(['user_id' => $reader->id, 'permissions' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW], 'granted_by' => $user->id, 'label' => 'Lecture']);
+        app()->forgetInstance(HorseAccess::class);
+        $this->actingAs($reader)->get(route('health.index'))->assertOk()->assertSee('data-due="'.$care->id.'"', false)->assertDontSee('data-note-passage', false);
+    }
 }

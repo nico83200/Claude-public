@@ -57,7 +57,7 @@ class RidingSessionController extends Controller
             'sessions' => $sessions,
             // Séances que l'utilisateur peut supprimer (glisser vers la gauche sur téléphone).
             'deletable' => $sessions->getCollection()->filter(fn ($s) => $this->sessions->canEdit($user, $s))->pluck('id')->all(),
-            'horses' => Horse::whereIn('id', $horseIds)->orderBy('official_name')->pluck('official_name', 'id'),
+            'horses' => Horse::whereIn('id', $horseIds)->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
             'riders' => User::whereIn('id', RidingSession::whereIn('horse_id', $horseIds)->whereNotNull('rider_id')->distinct()->pluck('rider_id'))->orderBy('name')->pluck('name', 'id'),
             'stats' => $stats,
             // Ouvert depuis le dossier d'un cheval : la page garde l'en-tête et les onglets du cheval.
@@ -94,7 +94,7 @@ class RidingSessionController extends Controller
         abort_if($horses->isEmpty(), 403, 'Vous ne pouvez créer de séance pour aucun cheval.');
 
         return view('sessions.create', [
-            'horses' => $horses->pluck('official_name', 'id'),
+            'horses' => $horses->pipe(Horse::options(...)),
             'templates' => SessionTemplate::where('user_id', $user->id)->orWhereIn('organization_id', $user->memberships->pluck('organization_id'))->orderBy('name')->pluck('name', 'id'),
             // Cheval présélectionné : celui demandé, sinon le seul cheval, sinon celui de la dernière séance saisie.
             'selectedHorse' => $request->integer('horse') ?: ($horses->count() === 1 ? $horses->first()->id

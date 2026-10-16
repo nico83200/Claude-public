@@ -23,7 +23,7 @@ class PedigreeController extends Controller
             'pedigree' => $pedigree,
             'linkable' => $linkable,
             'canEdit' => $this->horseCan($horse, Perm::HORSE_EDIT),
-            'candidates' => $access->accessibleQuery($request->user())->where('id', '!=', $horse->id)->orderBy('official_name')->pluck('official_name', 'id'),
+            'candidates' => $access->accessibleQuery($request->user())->where('id', '!=', $horse->id)->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
         ]);
     }
 
@@ -55,7 +55,7 @@ class PedigreeController extends Controller
             }
             HorseRelationship::updateOrCreate(['horse_id' => $horse->id, 'relation' => $rel], [
                 'related_horse_id' => $relatedId,
-                'related_name' => $row['name'] ?? Horse::find($relatedId)?->official_name,
+                'related_name' => $row['name'] ?? Horse::find($relatedId)?->shortName(),
                 'related_breed' => $row['breed'] ?? null,
                 'external_reference' => $row['reference'] ?? null,
             ]);
