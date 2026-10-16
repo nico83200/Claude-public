@@ -62,7 +62,12 @@ class DashboardController extends Controller
                 ->whereBetween('starts_at', [now()->addDay()->startOfDay(), now()->addDays(14)])->orderBy('starts_at')->limit(6)->get(),
             'careDue' => CareRecord::with(['horse', 'category'])->whereIn('horse_id', $healthIds)->whereNotNull('next_check_on')->whereNull('next_check_done_at')
                 ->whereBetween('next_check_on', [now()->subDays(7)->toDateString(), now()->addDays(30)->toDateString()])->orderBy('next_check_on')->limit(8)->get(),
-            'treatments' => Treatment::with('horse')->whereIn('horse_id', $treatIds)->current()->limit(8)->get(),
+            'treatments' => Treatment::with(['horse', 'administrations' => fn ($q) => $q->where('administered_at', '>=', today())])->whereIn('horse_id', $treatIds)->current()->orderBy('horse_id')->limit(30)->get(),
+            // Tous les chevaux : état du jour de chacun (suivi noté, alerte) et gestes possibles.
+            'todayLogs' => DailyLog::whereIn('horse_id', $horses->pluck('id'))->where('logged_at', '>=', today())->latest('logged_at')->get()->groupBy('horse_id')->map->first(),
+            'alertsByHorse' => HealthObservation::whereIn('horse_id', $horses->pluck('id'))->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->get()->groupBy('horse_id')->map->first(),
+            'logIds' => $ids(Perm::DAILYLOG_CREATE)->all(),
+            'healthEditIds' => $ids(Perm::HEALTH_EDIT)->all(),
             'sessions' => RidingSession::with(['horse', 'rider'])->whereIn('horse_id', $sessionIds)->orderByDesc('scheduled_at')->limit(6)->get(),
             'observations' => HealthObservation::with(['horse', 'author'])->whereIn('horse_id', $horses->pluck('id'))->whereNull('resolved_at')
                 ->where('severity', '!=', 'info')->latest('observed_at')->limit(5)->get(),
@@ -101,7 +106,8 @@ class DashboardController extends Controller
                 ->orderBy('starts_at')->limit(8)->get() : collect(),
             'treatments' => $has(Perm::TREATMENTS_VIEW) ? Treatment::where('horse_id', $horse->id)->current()
                 ->with(['administrations' => fn ($q) => $q->where('administered_at', '>=', today())])->get() : collect(),
-            'canAdminister' => $has(Perm::HEALTH_EDIT) || $has(Perm::DAILYLOG_CREATE),
+            // « Administré » : droits santé, ou responsable désigné du traitement avec le droit de suivi (comme le contrôleur).
+            'canAdminister' => fn ($t) => $has(Perm::HEALTH_EDIT) || ($t->responsible_user_id === $user->id && $has(Perm::DAILYLOG_CREATE)),
             'checks' => $checks = $has(Perm::HEALTH_VIEW) ? app(CareRecordController::class)->nextChecks($horse) : collect(),
             // Rendez-vous groupé : autres chevaux avec la même échéance à prévoir (pas encore dans l'agenda).
             'groupable' => $has(Perm::HEALTH_EDIT) ? $this->groupable($user, $access, $horse, $checks) : collect(),

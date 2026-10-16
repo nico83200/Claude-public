@@ -15,6 +15,50 @@
             @if (in_array('health.edit', $np))<a href="{{ route('health.index') }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="health" class="size-4" /> Noter un soin</a>@endif
             <a href="{{ route('health.index', ['onglet' => 'poids']) }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="scale" class="size-4" /> Pesée</a>
         </div>
+        {{-- Tous les chevaux : l'état du jour de chacun, et le suivi en un toucher (un par cheval ou pour tous). --}}
+        @php $pendingLog = $horses->filter(fn ($h) => in_array($h->id, $logIds) && ! $todayLogs->has($h->id)); @endphp
+        <section class="card mb-5 p-5 sm:p-6" data-stable-today>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div><h2 class="text-[17px] font-semibold text-slate-900">Vos chevaux aujourd'hui</h2><p class="text-sm text-slate-500">{{ $todayLogs->count() }} suivi{{ $todayLogs->count() > 1 ? 's' : '' }} noté{{ $todayLogs->count() > 1 ? 's' : '' }} sur {{ \App\Support\Fr::count($horses->count(), 'cheval', 'chevaux') }}</p></div>
+                @if ($pendingLog->count() > 1)
+                    <form method="POST" action="{{ route('logs.all-good') }}" data-all-good-all>
+                        @csrf
+                        @foreach ($pendingLog as $h)<input type="hidden" name="horses[]" value="{{ $h->id }}">@endforeach
+                        <button class="btn-primary min-h-11 px-4"><x-icon name="check" class="size-4" /> Tout va bien pour tous ({{ $pendingLog->count() }})</button>
+                    </form>
+                @endif
+            </div>
+            <div class="divide-y divide-slate-100">
+                @foreach ($horses as $horse)
+                    @php $due = $nextDue->get($horse->id); $log = $todayLogs->get($horse->id); $alert = $alertsByHorse->get($horse->id); @endphp
+                    <div class="flex items-center gap-3 py-2.5" data-stable-horse="{{ $horse->id }}">
+                        <a href="{{ route('horses.show', $horse) }}" class="flex min-w-0 flex-1 items-center gap-3">
+                            @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="size-11 shrink-0 rounded-2xl object-cover">@else<span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</span>@endif
+                            <span class="min-w-0">
+                                <span class="block truncate font-semibold text-slate-900">{{ $horse->shortName() }}</span>
+                                @if ($alert)
+                                    <span class="flex items-center gap-1.5 truncate text-xs text-red-600" data-horse-alert><span class="size-1.5 shrink-0 rounded-full bg-current"></span>{{ \Illuminate\Support\Str::limit($alert->body, 50) }}</span>
+                                @elseif ($due)
+                                    <span data-horse-due class="flex items-center gap-1.5 text-xs {{ $due->next_check_on->lt(today()) ? 'text-red-600' : (today()->diffInDays($due->next_check_on) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->lt(today()) ? 'en retard' : ($due->next_check_on->isToday() ? 'aujourd\'hui' : 'le '.$due->next_check_on->translatedFormat('j M')) }}</span>
+                                @else
+                                    <span class="flex items-center gap-1.5 text-xs text-brand-700"><span class="size-1.5 rounded-full bg-current"></span>À jour</span>
+                                @endif
+                            </span>
+                        </a>
+                        @if ($log)
+                            <x-badge :color="$log->anomalies || $log->general_state === 'poor' ? 'amber' : 'green'"><x-icon name="check" class="size-3.5" /> Suivi {{ $log->logged_at->format('H:i') }}</x-badge>
+                        @elseif (in_array($horse->id, $logIds))
+                            <form method="POST" action="{{ route('horses.logs.store', $horse) }}" data-horse-all-good="{{ $horse->id }}">
+                                @csrf
+                                <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
+                                <button class="btn-secondary min-h-11 shrink-0 px-3 text-sm" aria-label="Tout va bien pour {{ $horse->shortName() }}"><x-icon name="check" class="size-4" /> Tout va bien</button>
+                            </form>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
         <div class="mb-5 grid gap-4 lg:grid-cols-3" data-dashboard-today>
             <x-section title="Aujourd'hui" class="lg:col-span-2" :action="route('calendar.index')" action-label="Agenda">
                 @forelse ($today as $e)
@@ -72,26 +116,24 @@
             <span class="min-w-0"><span class="block text-[17px] font-semibold">Dites-le simplement</span><span class="block text-sm text-white/70">« Le maréchal vient le 2 décembre à 9 h », « Séance de dressage pour la rectitude »…</span></span>
         </button>
 
-        <div class="mt-6 mb-3 flex items-center justify-between"><h2 class="text-[17px] font-semibold">Vos chevaux</h2><a href="{{ route('horses.index') }}" class="text-sm link">Tout voir</a></div>
-        <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            @foreach ($horses as $horse)
-                @php $due = $nextDue->get($horse->id); @endphp
-                <a href="{{ route('horses.show', $horse) }}" class="card flex flex-col p-4 transition hover:-translate-y-0.5">
-                    @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="mb-3 aspect-[4/3] w-full rounded-2xl object-cover">@else<div class="mb-3 flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-brand-50 text-3xl font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</div>@endif
-                    <span class="truncate font-semibold">{{ $horse->shortName() }}</span>
-                    @if ($due)
-                        <span data-horse-due class="mt-1 flex items-center gap-1.5 text-xs {{ $due->next_check_on->lt(today()) ? 'text-red-600' : (today()->diffInDays($due->next_check_on) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->lt(today()) ? 'en retard' : ($due->next_check_on->isToday() ? 'aujourd\'hui' : 'le '.$due->next_check_on->translatedFormat('j M')) }}</span>
-                    @else
-                        <span class="mt-1 flex items-center gap-1.5 text-xs text-brand-700"><span class="size-1.5 rounded-full bg-current"></span>À jour</span>
-                    @endif
-                </a>
-            @endforeach
-        </div>
-
         <div class="grid gap-4 lg:grid-cols-2">
-            <x-section title="Traitements en cours">
-                @forelse ($treatments as $t)
-                    <a href="{{ route('horses.care.index', $t->horse_id) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $t->product }}</span> — {{ $t->horse->shortName() }}<span class="block text-xs text-slate-500">{{ $t->dosage }} {{ $t->ends_on ? '· jusqu\'au '.$t->ends_on->format('d/m') : '' }}</span></a>
+            {{-- Traitements de tous les chevaux, regroupés : « Administré » directement. --}}
+            <x-section title="Traitements à donner" data-stable-treatments>
+                @forelse ($treatments->groupBy('horse_id') as $horseTreatments)
+                    <p class="mt-2 text-xs font-semibold tracking-wide text-slate-500 uppercase first:mt-0">{{ $horseTreatments->first()->horse->shortName() }}</p>
+                    @foreach ($horseTreatments as $t)
+                        @php $doneToday = $t->administrations->count(); $target = $t->times_per_day ?: 1; @endphp
+                        <div class="flex items-center gap-3 border-t border-slate-100 py-2 text-sm first:border-0" data-stable-treatment="{{ $t->id }}">
+                            <a href="{{ route('horses.care.index', $t->horse_id) }}" class="min-w-0 flex-1"><span class="font-medium">{{ $t->product }}</span><span class="block text-xs text-slate-500">{{ $t->dosage }} {{ $t->ends_on ? '· jusqu\'au '.$t->ends_on->format('d/m') : '' }}</span></a>
+                            @if ($t->track_administrations && (in_array($t->horse_id, $healthEditIds) || ($t->responsible_user_id === auth()->id() && in_array($t->horse_id, $logIds))))
+                                @if ($doneToday >= $target)
+                                    <x-badge color="green"><x-icon name="check" class="size-3.5" /> Fait</x-badge>
+                                @else
+                                    <form method="POST" action="{{ route('horses.treatments.administer', [$t->horse_id, $t]) }}">@csrf<button class="btn-secondary min-h-11 px-3 text-sm"><x-icon name="check" class="size-4" /> Administré{{ $target > 1 ? ' ('.$doneToday.'/'.$target.')' : '' }}</button></form>
+                                @endif
+                            @endif
+                        </div>
+                    @endforeach
                 @empty <p class="text-sm text-slate-500">Aucun traitement en cours.</p> @endforelse
             </x-section>
             <x-section title="Dernières séances" :action="route('sessions.index')">

@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
 
     Route::get('/dashboard', Controllers\DashboardController::class)->name('dashboard');
     Route::post('/cheval-actif', Controllers\FocusHorseController::class)->name('focus.set');
+    Route::post('/suivi/tout-va-bien', [Controllers\DailyLogController::class, 'allGood'])->name('logs.all-good');
     Route::get('/ma-semaine', Controllers\DigestController::class)->name('digest.show');
     Route::post('/ma-semaine/introduction', [Controllers\DigestController::class, 'intro'])->middleware('throttle:20,1')->name('digest.intro');
     Route::post('/demarrage/masquer', [Controllers\OnboardingController::class, 'dismiss'])->name('onboarding.dismiss');

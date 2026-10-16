@@ -71,7 +71,7 @@
                     <div class="flex items-center gap-3 border-t border-slate-100 py-2.5 text-sm first:border-0" data-solo-treatment="{{ $t->id }}">
                         <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold-50 text-gold-700"><x-icon name="health" class="size-4" /></span>
                         <span class="min-w-0 flex-1"><span class="block font-medium text-slate-900">{{ $t->product }}</span><span class="block text-xs text-slate-500">{{ collect([$t->dosage, $t->frequency, $t->ends_on ? 'jusqu\'au '.$t->ends_on->format('d/m') : null])->filter()->implode(' · ') ?: 'Traitement en cours' }}</span></span>
-                        @if ($t->track_administrations && $canAdminister)
+                        @if ($t->track_administrations && $canAdminister($t))
                             @if ($doneToday >= $target)
                                 <x-badge color="green"><x-icon name="check" class="size-3.5" /> Fait</x-badge>
                             @else

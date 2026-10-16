@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.29.0' => ['2026-10-16', 'Plusieurs chevaux (lot E) : accueil « Tous les chevaux » avec l\'état du jour de chaque cheval (alerte, échéance, suivi noté), « Tout va bien » par cheval et « Tout va bien pour tous », traitements de tous les chevaux regroupés avec « Administré ».'],
     '2.28.0' => ['2026-10-16', 'Plusieurs chevaux (lot D) : cheval actif choisi en tête du menu (dernier cheval pour un propriétaire, « Tous les chevaux » pour une écurie), menu, accueil et page Santé du cheval choisi, cheval proposé d\'office dans les formulaires ; rendez-vous groupé (un passage pour plusieurs chevaux) depuis les pastilles Santé, déplacé ensemble depuis l\'agenda.'],
     '2.27.0' => ['2026-10-16', 'Mode « un cheval » (lot C) : passage à plusieurs chevaux (ou retour à un seul) expliqué une fois par un message, quelle qu\'en soit la cause (nouveau cheval, partage reçu ou terminé, archivage) ; recherche adaptée ; pastilles Santé de l\'accueil : prise de rendez-vous (date et heure) avec la date du dernier passage pour mémoire, gardée en note du rendez-vous ; parcours complet testé.'],
     '2.26.0' => ['2026-10-16', 'Mode « un cheval » (lot B) : l\'accueil devient le tableau de bord du cheval (état du jour, « Tout va bien aujourd\'hui » en un toucher, gestes du jour, aujourd\'hui et 7 jours avec « Administré » et « Noter le passage », santé en un coup d\'œil, activité et régularité, budget du mois, partage), en deux colonnes sur ordinateur.'],

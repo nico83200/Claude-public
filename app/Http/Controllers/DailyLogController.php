@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DailyLog;
 use App\Models\Horse;
 use App\Services\HorseAccess;
+use App\Support\Fr;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -48,6 +49,22 @@ class DailyLogController extends Controller
         }
 
         return back()->with('success', $request->boolean('all_good') ? 'C\'est noté : tout va bien aujourd\'hui.' : 'Suivi quotidien enregistré.');
+    }
+
+    /** « Tout va bien pour tous » : un suivi « bon » pour chaque cheval choisi qui n'en a pas encore aujourd'hui. */
+    public function allGood(Request $request, HorseAccess $access)
+    {
+        $data = $request->validate(['horses' => ['required', 'array', 'max:200'], 'horses.*' => ['integer']]);
+        $user = $request->user();
+        $allowed = collect($access->horseIdsWith($user, Perm::DAILYLOG_CREATE))->map(fn ($id) => (int) $id);
+        $done = DailyLog::whereIn('horse_id', $data['horses'])->where('logged_at', '>=', today())->pluck('horse_id')->map(fn ($id) => (int) $id);
+        $ids = collect($data['horses'])->map(fn ($id) => (int) $id)->unique()->intersect($allowed)->diff($done)
+            ->filter(fn ($id) => Horse::whereKey($id)->whereNull('archived_at')->exists());
+        foreach ($ids as $id) {
+            DailyLog::create(['horse_id' => $id, 'author_id' => $user->id, 'logged_at' => now(), 'appetite' => 'good', 'general_state' => 'good']);
+        }
+
+        return back()->with('success', $ids->isEmpty() ? 'Le suivi du jour était déjà noté.' : 'Tout va bien noté pour '.Fr::count($ids->count(), 'cheval', 'chevaux').'.');
     }
 
     public function edit(Horse $horse, DailyLog $log)
