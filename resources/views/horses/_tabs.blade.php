@@ -11,6 +11,7 @@
         ['horses.pedigree', 'Généalogie', true],
         ['horses.professionals', 'Intervenants', true],
         ['budget.index', 'Dépenses', in_array('expenses.view', $perms), ['horse' => $horse->id], 'budget'],
+        ['horses.riding-days', 'Jours de monte', in_array('sessions.view', $perms)],
         ['horses.sharing', 'Partage', in_array('horse.manage', $perms)],
     ];
 @endphp
@@ -41,14 +42,14 @@
         @endforeach
     </div>
 </nav>
-{{-- Téléphone : 4 onglets + « Plus » (feuille avec les autres sections). --}}
+{{-- Téléphone : 4 onglets + « Plus » (feuille avec les autres sections) ; largeur selon le libellé, qui passe sur deux lignes plutôt que d'être coupé. --}}
 <nav class="jc-sticky-strip mb-6 sm:hidden" aria-label="Sections du dossier (téléphone)" x-data="{ more: false }" @keydown.escape.window="more = false" data-horse-tabs-mobile>
     <div class="flex gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
         @foreach ($primary as $t)
-            <a href="{{ $t['url'] }}" @if ($t['active']) aria-current="page" @endif class="{{ $pill($t) }} flex-1 justify-center px-2 text-[13px]">{{ $t['label'] }}{!! $lock($t) !!}</a>
+            <a href="{{ $t['url'] }}" @if ($t['active']) aria-current="page" @endif class="{{ $pill($t) }} flex-auto justify-center px-2 text-center text-[13px] leading-tight whitespace-normal">{{ $t['label'] }}{!! $lock($t) !!}</a>
         @endforeach
         @if ($more->isNotEmpty())
-            <button type="button" class="pill min-h-11 flex-1 justify-center px-2 text-[13px] text-slate-600" @click="more = true" :aria-expanded="more" data-horse-tabs-more>Plus</button>
+            <button type="button" class="pill min-h-11 flex-auto justify-center px-2 text-[13px] text-slate-600" @click="more = true" :aria-expanded="more" data-horse-tabs-more>Plus</button>
         @endif
     </div>
     @if ($more->isNotEmpty())

@@ -177,6 +177,9 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
         Route::delete('/partage/invitations/{invitation}', [Controllers\HorseSharingController::class, 'revokeInvitation'])->name('sharing.invitations.revoke');
         Route::put('/partage/acces/{grant}', [Controllers\HorseSharingController::class, 'updateGrant'])->name('sharing.grants.update');
         Route::post('/partage/acces/{grant}/revoquer', [Controllers\HorseSharingController::class, 'revokeGrant'])->name('sharing.grants.revoke');
+        Route::get('/jours-de-monte', [Controllers\RidingDayController::class, 'show'])->name('riding-days');
+        Route::put('/jours-de-monte', [Controllers\RidingDayController::class, 'update'])->name('riding-days.update');
+        Route::post('/jours-de-monte/echange', [Controllers\RidingDayController::class, 'give'])->name('riding-days.give');
         Route::post('/partage/ecurie', [Controllers\AssignmentController::class, 'request'])->name('assignments.request');
         Route::put('/partage/ecurie/{assignment}', [Controllers\AssignmentController::class, 'update'])->name('assignments.update');
         Route::get('/historique', [Controllers\HorseSharingController::class, 'history'])->name('history');

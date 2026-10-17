@@ -19,6 +19,10 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <x-horse-select name="horse_id" :options="$horses" :value="$selectedHorse" required placeholder="Choisir…" />
                 <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="$justRode ? now()->subMinutes(45)->format('Y-m-d\TH:i') : $plannedAt" required />
+                @if ($ridingHints)
+                    {{-- Jour de monte de quelqu'un d'autre : on le dit avant d'enregistrer. --}}
+                    <p x-data="ridingDayHint({ hints: @js($ridingHints), me: {{ auth()->id() }} })" x-show="text" x-cloak x-text="text" class="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200 sm:col-span-2" data-riding-hint></p>
+                @endif
                 @if ($templates->isNotEmpty())
                     <div class="sm:col-span-2">
                         <x-select name="template_id" label="Partir d'un modèle" :options="$templates" placeholder="Aucun (séance vierge)" />

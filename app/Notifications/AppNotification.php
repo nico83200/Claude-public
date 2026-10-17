@@ -63,6 +63,7 @@ class AppNotification extends Notification implements ShouldQueue
         'system_alert' => 'Alerte technique (administration)',
         'vet_summary' => 'Résumé de santé envoyé à un professionnel',
         'referral' => 'Parrainage : jours offerts',
+        'riding_day' => 'Jours de monte (échange, séance sur votre jour)',
     ];
 
     public function __construct(

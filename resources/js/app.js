@@ -18,6 +18,7 @@ import { loadMore } from './load-more.js';
 import { fileDrop } from './file-drop.js';
 import { agendaScroll } from './agenda-scroll.js';
 import { startTimeStatus } from './time-status.js';
+import { ridingDayHint } from './riding-days.js';
 import { loadSimulation, navigationSimulation, serverMonitor } from './simulation.js';
 
 window.Alpine = Alpine;
@@ -40,6 +41,7 @@ Alpine.data('agendaScroll', agendaScroll);
 Alpine.data('loadSimulation', loadSimulation);
 Alpine.data('serverMonitor', serverMonitor);
 Alpine.data('navigationSimulation', navigationSimulation);
+Alpine.data('ridingDayHint', ridingDayHint);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));

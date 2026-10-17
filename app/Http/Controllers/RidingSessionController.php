@@ -17,6 +17,7 @@ use App\Services\Assistant\ClaudeGateway;
 use App\Services\DebriefQuestions;
 use App\Services\ExerciseSuggestions;
 use App\Services\HorseAccess;
+use App\Services\RidingDays;
 use App\Services\RidingSessionService;
 use App\Services\ToValidate;
 use App\Services\Upsell;
@@ -96,6 +97,8 @@ class RidingSessionController extends Controller
         abort_if($horses->isEmpty(), 403, 'Vous ne pouvez créer de séance pour aucun cheval.');
 
         return view('sessions.create', [
+            // Jours de monte des prochaines semaines : aide si la date choisie est le jour de quelqu'un d'autre.
+            'ridingHints' => app(RidingDays::class)->hintsFor($horses->values()),
             'horses' => $horses->pipe(Horse::options(...)),
             'templates' => SessionTemplate::where('user_id', $user->id)->orWhereIn('organization_id', $user->memberships->pluck('organization_id'))->orderBy('name')->pluck('name', 'id'),
             // Cheval présélectionné : celui demandé, sinon le seul cheval, sinon celui de la dernière séance saisie.
@@ -124,6 +127,10 @@ class RidingSessionController extends Controller
 
         if ($session->isCompleted()) {
             return redirect()->route('sessions.debrief', $session)->with('success', 'Séance passée enregistrée comme terminée : notez les exercices travaillés et votre bilan.');
+        }
+        // Séance prévue le jour de monte de quelqu'un d'autre : la personne est prévenue.
+        if ($dayOwner = app(RidingDays::class)->notifyConflict($session, $request->user())) {
+            session()->flash('warning', 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.');
         }
 
         // Cours et balade : pas de préparation d'exercices.
@@ -233,6 +240,9 @@ class RidingSessionController extends Controller
         $hadExercises = $session->usesExercises();
         $session->update($this->sessions->sanitizeRider($session->horse, $data, $request->user()));
         $this->notifyChange($request, $session);
+        if ($session->wasChanged(['scheduled_at', 'rider_id']) && ($dayOwner = app(RidingDays::class)->notifyConflict($session, $request->user()))) {
+            session()->flash('warning', 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.');
+        }
         // Devenue un cours ou une balade : pas d'exercices préparés (le travail se note au bilan).
         $removed = 0;
         if ($hadExercises && ! $session->usesExercises()) {

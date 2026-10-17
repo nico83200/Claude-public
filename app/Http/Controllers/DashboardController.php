@@ -17,6 +17,7 @@ use App\Models\Treatment;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\Onboarding;
+use App\Services\RidingDays;
 use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Perm;
@@ -106,6 +107,8 @@ class DashboardController extends Controller
             'emergencyCta' => $user->profile?->emergency_cta_dismissed_at || $horse->emergency_token || ! $has(Perm::HORSE_EDIT) ? null : $horse,
             'invitations' => $this->invitations($user),
             'toValidate' => app(ToValidate::class)->items($user, $horse),
+            // Jours de monte des 7 prochains jours (cheval partagé).
+            'ridingWeek' => $has(Perm::SESSIONS_VIEW) || $has(Perm::CALENDAR_VIEW) ? app(RidingDays::class)->between(collect([$horse]), today(), today()->addDays(6)) : [],
             'pendingAssignments' => collect(),
             'todayLog' => DailyLog::where('horse_id', $horse->id)->where('logged_at', '>=', today())->latest('logged_at')->first(),
             // Régularité du suivi : jours notés sur les 7 derniers jours.

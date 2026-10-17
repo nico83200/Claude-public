@@ -82,6 +82,25 @@
             {{-- 3. Aujourd'hui et 7 prochains jours --}}
             <x-section title="Aujourd'hui et 7 jours" :action="$can('calendar.view') ? route('calendar.index') : null" action-label="Agenda" data-solo-week>
                 @php $hasWeek = $week->isNotEmpty() || $treatments->isNotEmpty() || $soon->isNotEmpty(); @endphp
+                @if ($ridingWeek)
+                    {{-- Jours de monte : qui monte quel jour cette semaine (cheval partagé). --}}
+                    @php
+                        $todayRider = $ridingWeek[today()->toDateString()][$horse->id]['user'] ?? null;
+                        $firstName = fn ($u) => \Illuminate\Support\Str::limit(\Illuminate\Support\Str::before($u->name.' ', ' '), 7, '');
+                    @endphp
+                    <a href="{{ route('horses.riding-days', $horse) }}" class="mb-3 block" data-solo-riding>
+                        <span class="block text-sm text-slate-700">Aujourd'hui : <strong>{{ $todayRider ? ($todayRider->id === auth()->id() ? 'votre jour de monte' : 'jour de '.$todayRider->name) : 'jour libre' }}</strong></span>
+                        <span class="no-scrollbar mt-1.5 flex gap-1 overflow-x-auto">
+                            @for ($i = 0; $i < 7; $i++)
+                                @php $d = today()->addDays($i); $u = $ridingWeek[$d->toDateString()][$horse->id]['user'] ?? null; $mine = $u?->id === auth()->id(); @endphp
+                                <span class="flex min-w-11 flex-1 flex-col items-center rounded-xl py-1 text-[11px] leading-tight {{ $mine ? 'bg-brand-100 text-brand-900' : ($u ? 'bg-slate-100 text-slate-700' : 'bg-slate-50 text-slate-400') }}" data-solo-riding-day="{{ $d->toDateString() }}">
+                                    <span class="uppercase">{{ $i === 0 ? 'Auj.' : $d->translatedFormat('D') }}</span>
+                                    <span class="font-semibold">{{ $u ? ($mine ? 'Moi' : $firstName($u)) : '—' }}</span>
+                                </span>
+                            @endfor
+                        </span>
+                    </a>
+                @endif
                 @foreach ($treatments as $t)
                     @php $doneToday = $t->administrations->count(); $target = $t->times_per_day ?: 1; @endphp
                     <div class="flex items-center gap-3 border-t border-slate-100 py-2.5 text-sm first:border-0" data-solo-treatment="{{ $t->id }}">

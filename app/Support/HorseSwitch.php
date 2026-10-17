@@ -23,6 +23,7 @@ final class HorseSwitch
         'horses.show' => ['horses.index'], 'horses.care.index' => ['health.index'], 'horses.logs.index' => ['health.index', ['onglet' => 'suivi']],
         'horses.weight' => ['health.index', ['onglet' => 'poids']], 'horses.feeding' => ['health.index', ['onglet' => 'alimentation']],
         'horses.documents.index' => ['horses.index'], 'horses.professionals' => ['professionals.index'], 'horses.pedigree' => ['horses.index'],
+        'horses.riding-days' => ['calendar.index'], // « Tous » : l'agenda montre les jours de monte de chaque cheval
     ];
 
     /** Données des puces pour la page en cours, ou null si elles n'ont pas lieu d'être. */

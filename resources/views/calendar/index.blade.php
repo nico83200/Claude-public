@@ -11,6 +11,15 @@
     $dots = ['red' => 'bg-red-500', 'amber' => 'bg-amber-500', 'rose' => 'bg-rose-500', 'purple' => 'bg-violet-500', 'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'blue' => 'bg-blue-500', 'lime' => 'bg-lime-500', 'slate' => 'bg-slate-400', 'sky' => 'bg-sky-500'];
     $dot = fn ($ev) => $dots[$typeColors[$ev->type] ?? 'sky'];
     $chip = fn ($ev) => $colors[$typeColors[$ev->type] ?? 'sky'];
+    // Jours de monte : « Jour de Léa » (nom du cheval en plus quand plusieurs chevaux sont affichés).
+    $riderLabel = function (string $day) use ($ridingDays, $ridingHorses) {
+        return collect($ridingDays[$day] ?? [])->map(function ($info, $horseId) use ($ridingDays, $ridingHorses) {
+            $who = $info['user'] ? ($info['user']->id === auth()->id() ? 'mon jour' : 'jour de '.$info['user']->name) : 'jour libre';
+            $several = collect($ridingDays)->flatMap(fn ($h) => array_keys($h))->unique()->count() > 1;
+
+            return ['horse' => $ridingHorses[$horseId] ?? null, 'text' => ($several && isset($ridingHorses[$horseId]) ? $ridingHorses[$horseId]->shortName().' : ' : '').ucfirst($who), 'mine' => $info['user']?->id === auth()->id(), 'changed' => $info['changed']];
+        })->values();
+    };
 @endphp
 <x-layouts.app title="Calendrier">
     {{-- Téléphone : ce haut de page reste fixe, seule la liste défile (voir agenda-scroll.js). --}}
@@ -81,6 +90,7 @@
                 @for ($d = $from->copy(); $d->lte($to); $d->addDay())
                     <div class="min-h-28 border-r border-b border-slate-100 p-1.5 {{ $d->month !== $date->month ? 'bg-slate-50/60 text-slate-400' : '' }}">
                         <a href="{{ route('calendar.index', $q($d, 'day')) }}" class="text-xs font-semibold {{ $d->isToday() ? 'rounded-full bg-brand-600 px-1.5 text-white' : '' }}">{{ $d->day }}</a>
+                        @foreach ($riderLabel($d->toDateString()) as $r)<a href="{{ $r['horse'] ? route('horses.riding-days', $r['horse']) : '#' }}" class="block truncate text-[11px] {{ $r['mine'] ? 'font-semibold text-brand-800' : 'text-slate-500' }}" data-riding-day-cell>{{ $r['text'] }}{{ $r['changed'] ? ' ⇄' : '' }}</a>@endforeach
                         @foreach (($byDay[$d->toDateString()] ?? collect())->take(4) as $o)
                             <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : ($o['at']->lt(now()->startOfDay()) ? 'opacity-70' : '') }}">{{ $o['event']->status === 'done' && empty($o['journal']) ? '✓ ' : '' }}{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
                         @endforeach
@@ -95,7 +105,8 @@
     {{-- Ordre chronologique : le passé (estompé) en haut, puis « Aujourd'hui » et la suite ; la page s'ouvre sur aujourd'hui,
          ou sur l'événement qui vient d'être ajouté. --}}
     @php
-        $listDays = $byDay->sortKeys();
+        // Journées avec rendez-vous, et journées attribuées (jours de monte) même sans rendez-vous.
+        $listDays = $byDay->union(collect($ridingDays)->map(fn () => collect()))->sortKeys();
         $todayKey = now()->toDateString();
         $showDivider = $from->lte(now()) && $to->gte(now()->startOfDay());
         $dividerDone = false;
@@ -111,7 +122,13 @@
             @endif
             <div class="{{ $day < $todayKey ? 'opacity-60' : '' }}" @if ($day === $todayKey) id="aujourdhui" @endif>
                 @php $dayC = \Illuminate\Support\Carbon::parse($day); @endphp
-                <p class="mb-2 text-sm font-semibold text-slate-500">{{ $dayC->isToday() ? 'Aujourd\'hui' : ($dayC->isTomorrow() ? 'Demain' : ucfirst($dayC->translatedFormat('l j F'))) }}</p>
+                <div class="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p class="text-sm font-semibold text-slate-500">{{ $dayC->isToday() ? 'Aujourd\'hui' : ($dayC->isTomorrow() ? 'Demain' : ucfirst($dayC->translatedFormat('l j F'))) }}</p>
+                    @foreach ($riderLabel($day) as $r)
+                        <a href="{{ $r['horse'] ? route('horses.riding-days', $r['horse']) : '#' }}" class="rounded-full px-2 py-0.5 text-xs font-medium {{ $r['mine'] ? 'bg-brand-100 text-brand-900' : 'bg-slate-100 text-slate-600' }}" data-riding-day="{{ $day }}">{{ $r['text'] }}{{ $r['changed'] ? ' · échange' : '' }}</a>
+                    @endforeach
+                </div>
+                @if ($items->isNotEmpty())
                 <div class="card divide-y divide-slate-100 overflow-hidden">
                     @foreach ($items as $o)
                         @php
@@ -143,6 +160,7 @@
                         </x-swipe.row>
                     @endforeach
                 </div>
+                @endif
             </div>
             @if ($loop->last && $showDivider && ! $dividerDone)
                 <div class="flex items-center gap-3 py-1" data-today-divider><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span><span class="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white">Aujourd'hui</span><span class="h-0.5 flex-1 rounded-full bg-brand-600"></span></div>
