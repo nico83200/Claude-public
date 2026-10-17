@@ -10,8 +10,9 @@
         'past_days' => ['Jours passés', 'étalement dans le passé'],
         'future_days' => ['Jours à venir', 'étalement dans le futur'],
         'chunk' => ['Comptes par étape', 'une requête par étape'],
+        'shares' => ['Partages vers mon compte', 'chevaux de test partagés avec vous, droits différents'],
     ];
-    $countLabels = ['accounts' => 'comptes', 'horses' => 'chevaux', 'horses_refused' => 'chevaux refusés (offre)', 'events' => 'rendez-vous', 'sessions' => 'séances', 'cares' => 'soins', 'expenses' => 'dépenses', 'logs' => 'suivis'];
+    $countLabels = ['accounts' => 'comptes', 'horses' => 'chevaux', 'horses_refused' => 'chevaux refusés (offre)', 'events' => 'rendez-vous', 'sessions' => 'séances', 'cares' => 'soins', 'expenses' => 'dépenses', 'logs' => 'suivis', 'shares' => 'partages vers vous'];
     $batchData = $batches->map(fn ($b) => ['id' => $b->id, 'status' => $b->status, 'label' => \App\Models\SimulationBatch::STATUSES[$b->status] ?? $b->status,
         'done' => $b->accounts_done, 'total' => $b->accounts(), 'counts' => $b->counts ?? [], 'date' => $b->created_at->format('d/m/Y H:i'), 'seconds' => round($b->elapsed_ms / 1000)])->values();
     $activeData = $active ? app(\App\Services\LoadSimulation::class)->progress($active) : null;
@@ -95,7 +96,7 @@
             purgeUrl: @js(route('admin.simulation.purge', '__ID__')),
             active: @js($activeData),
             batches: @js($batchData),
-        })" x-init="form = @js($defaults)">
+        })" x-init="form = @js($defaults + ['shares_accept' => false])">
         <p x-show="error" x-cloak class="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-100" x-text="error" data-simulation-error></p>
 
         <div class="grid gap-4 lg:grid-cols-2">
@@ -108,6 +109,11 @@
                             <span class="text-xs text-slate-500">{{ $help }} ({{ $limits[$key][0] }} à {{ $limits[$key][1] }})</span>
                         </label>
                     @endforeach
+                    <div class="col-span-2 rounded-2xl bg-slate-50 p-3 text-sm" x-show="form.shares > 0" x-cloak data-simulation-shares>
+                        <label class="flex items-start gap-2"><input type="checkbox" class="mt-0.5 size-5 rounded border-slate-300 text-brand-700" x-model="form.shares_accept">
+                            <span><span class="font-medium text-slate-800">Accepter d'office</span><span class="block text-xs text-slate-500">Sinon, les partages vous sont proposés sur l'accueil (Accepter / Refuser), comme une vraie invitation.</span></span></label>
+                        <p class="mt-2 text-xs text-slate-500">Profils en alternance (nom d'usage du cheval = profil) : {{ collect(\App\Services\LoadSimulation::shareProfiles())->pluck('label')->implode(', ') }}. Au plus un partage par cheval de test ; sans e-mail ni notification.</p>
+                    </div>
                     <p class="col-span-2 text-sm text-slate-600">Environ <strong x-text="estimate().toLocaleString('fr-FR')"></strong> lignes créées en base.</p>
                     <button class="btn-primary col-span-2" :disabled="running || purging" data-simulation-start><x-icon name="play" class="size-4" /> Lancer la simulation</button>
                 </form>

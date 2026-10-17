@@ -27,7 +27,8 @@ class SimulationController extends Controller
 
     public function store(Request $request)
     {
-        $rules = collect(LoadSimulation::LIMITS)->map(fn ($l) => ['required', 'integer', 'min:'.$l[0], 'max:'.$l[1]])->all();
+        $rules = collect(LoadSimulation::LIMITS)->map(fn ($l, $key) => [$key === 'shares' ? 'nullable' : 'required', 'integer', 'min:'.$l[0], 'max:'.$l[1]])->all()
+            + ['shares_accept' => ['nullable', 'boolean']];
         $batch = $this->simulation->start($request->user(), $request->validate($rules));
 
         return $request->wantsJson()

@@ -229,9 +229,11 @@
             // Un cheval : Accueil · Séances · micro · Santé · Menu (l'agenda reste sur l'accueil et dans le menu).
             $byRoute = collect($nav)->keyBy(0);
             $calendarItem = ['calendar.index', 'Agenda', 'calendar', true, $focusHorse && ! $soloHorse ? ['horse' => $focusHorse->id] : [], ['calendar.*']];
-            $pick = fn ($route) => ($byRoute[$route][3] ?? false) ? $byRoute[$route] : $calendarItem;
+            // Droits restreints (partage) : Séances, Santé, puis Agenda et la fiche du cheval, sans doublon.
+            $slots = $focusHorse ? collect([$byRoute['sessions.index'] ?? null, $byRoute['health.index'] ?? null, $calendarItem,
+                ['horses.show', 'Fiche', 'horse', true, ['horse' => $focusHorse->id], ['horses.show']]])->filter(fn ($i) => $i && ($i[3] ?? false))->values() : null;
             [$barLeft, $barRight] = $focusHorse
-                ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*']], $pick('sessions.index')], $pick('health.index')]
+                ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*']], $slots[0]], $slots[1]]
                 : [[['dashboard', 'Accueil', 'home', true], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true]], $calendarItem];
         @endphp
         @foreach ($barLeft as $item)

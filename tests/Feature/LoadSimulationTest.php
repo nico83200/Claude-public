@@ -5,16 +5,22 @@ namespace Tests\Feature;
 use App\Models\CalendarEvent;
 use App\Models\DailyLog;
 use App\Models\Horse;
+use App\Models\HorseAccessGrant;
+use App\Models\Invitation;
 use App\Models\License;
 use App\Models\Organization;
 use App\Models\RidingSession;
 use App\Models\SimulationBatch;
 use App\Models\User;
+use App\Services\HorseAccess;
 use App\Services\LoadSimulation;
 use App\Services\WeeklyDigest;
+use App\Support\Perm;
 use Illuminate\Mail\Events\MessageSent;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /** Simulation de charge (super-admin) : comptes de test créés par étapes, état du serveur, suppression complète. */
@@ -132,5 +138,63 @@ class LoadSimulationTest extends TestCase
 
         $this->assertTrue(LoadSimulation::isSimulated($fake));
         $this->assertFalse(app(WeeklyDigest::class)->introEligible($fake, ['sessions' => collect([1])] + app(WeeklyDigest::class)->for($fake)));
+    }
+
+    public function test_shares_are_proposed_to_my_account_with_different_rights(): void
+    {
+        $admin = $this->admin();
+        $params = ['accounts' => 4, 'chunk' => 4, 'shares' => 3, 'events' => 0, 'sessions' => 0, 'cares' => 0, 'expenses' => 0, 'logs' => 0] + self::PARAMS;
+        $run = $this->as($admin)->postJson(route('admin.simulation.store'), $params)->json();
+        $this->assertSame(3, $this->as($admin)->postJson(route('admin.simulation.step', $run['id']))->json('counts.shares'));
+
+        // Proposés sur l'accueil (en attente), sans e-mail.
+        $pending = Invitation::pending()->where('email', $admin->email)->with('horse')->get();
+        $this->assertCount(3, $pending);
+        $this->assertSame(['Demi-pension', 'Pension (écurie)', 'Lecture seule'], $pending->map(fn ($i) => Str::after($i->horse->usual_name, ' · '))->all());
+        $this->assertNotSame($pending[0]->permissions, $pending[2]->permissions);
+        $page = $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+        foreach ($pending as $inv) {
+            $page->assertSee(route('invitations.respond', $inv), false);
+        }
+
+        // Accepter : les droits du profil s'appliquent (lecture seule : pas de modification de la fiche).
+        foreach ($pending as $inv) {
+            $this->actingAs($admin)->post(route('invitations.respond', $inv), ['decision' => 'accept']);
+        }
+        App::forgetInstance(HorseAccess::class);
+        $readOnly = $pending[2]->horse;
+        $this->actingAs($admin)->get(route('horses.show', $readOnly))->assertOk();
+        $this->actingAs($admin)->get(route('horses.edit', $readOnly))->assertForbidden();
+
+        // Suppression : partages et accès disparaissent avec les chevaux de test.
+        $this->as($admin)->postJson(route('admin.simulation.purge', $run['id']))->assertJson(['left' => 0]);
+        $this->assertSame(0, HorseAccessGrant::where('user_id', $admin->id)->count());
+        $this->assertSame(0, Invitation::where('email', $admin->email)->count());
+        $this->actingAs($admin)->get(route('dashboard'))->assertOk();
+    }
+
+    public function test_shares_can_be_accepted_automatically(): void
+    {
+        $admin = $this->admin();
+        $params = ['accounts' => 7, 'chunk' => 7, 'shares' => 7, 'shares_accept' => true, 'events' => 0, 'sessions' => 0, 'cares' => 0, 'expenses' => 0, 'logs' => 0] + self::PARAMS;
+        $run = $this->as($admin)->postJson(route('admin.simulation.store'), $params)->json();
+        $this->as($admin)->postJson(route('admin.simulation.step', $run['id']));
+        $grants = HorseAccessGrant::where('user_id', $admin->id)->get();
+        $this->assertCount(7, $grants);
+        $this->assertSame(1, $grants->whereNotNull('expires_at')->count(), 'Un profil limité à 30 jours.');
+        $this->assertSame(0, Invitation::pending()->where('email', $admin->email)->count());
+        $this->actingAs($admin)->get(route('horses.index'))->assertOk()->assertSee('Tous les droits');
+    }
+
+    public function test_bottom_bar_has_no_duplicate_for_a_view_only_shared_horse(): void
+    {
+        $owner = $this->user();
+        $horse = $this->horseFor($owner);
+        $guest = $this->user();
+        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $guest->id, 'permissions' => [Perm::HORSE_VIEW]]);
+        $html = $this->actingAs($guest)->get(route('dashboard'))->assertOk()->getContent();
+        preg_match_all('/data-bar="([^"]+)"/', $html, $m);
+        $this->assertSame($m[1], array_values(array_unique($m[1])), 'Chaque entrée de la barre du bas est unique.');
+        $this->assertSame(['dashboard', 'calendar.index', 'horses.show'], $m[1]);
     }
 }

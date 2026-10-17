@@ -8,10 +8,13 @@ use App\Models\CareRecord;
 use App\Models\DailyLog;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\HorseAccessGrant;
+use App\Models\Invitation;
 use App\Models\RidingSession;
 use App\Models\SimulationBatch;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Support\Perm;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -38,16 +41,33 @@ class LoadSimulation
     public const STEP_SECONDS = 8;
 
     public const LIMITS = ['accounts' => [1, self::MAX_PER_BATCH], 'horses' => [1, 3], 'events' => [0, 40], 'sessions' => [0, 40],
-        'cares' => [0, 20], 'expenses' => [0, 30], 'logs' => [0, 60], 'past_days' => [0, 365], 'future_days' => [0, 180], 'chunk' => [1, 50]];
+        'cares' => [0, 20], 'expenses' => [0, 30], 'logs' => [0, 60], 'past_days' => [0, 365], 'future_days' => [0, 180], 'chunk' => [1, 50], 'shares' => [0, 30]];
 
     public const DEFAULTS = ['accounts' => 50, 'horses' => 1, 'events' => 8, 'sessions' => 10, 'cares' => 4, 'expenses' => 6, 'logs' => 14,
-        'past_days' => 60, 'future_days' => 30, 'chunk' => 10];
+        'past_days' => 60, 'future_days' => 30, 'chunk' => 10, 'shares' => 0];
 
     private const FIRST = ['Camille', 'Léa', 'Manon', 'Chloé', 'Inès', 'Jade', 'Louise', 'Emma', 'Lucas', 'Hugo', 'Arthur', 'Jules', 'Clara', 'Zoé', 'Lina', 'Nina', 'Paul', 'Théo', 'Alice', 'Margaux'];
 
     private const LAST = ['Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia', 'David', 'Bertrand', 'Roux', 'Vincent', 'Fournier'];
 
     private const HORSES = ['Tornade', 'Éclair', 'Quartz', 'Ulysse', 'Vanille', 'Caramel', 'Iris', 'Saphir', 'Opale', 'Rubis', 'Galopin', 'Pépite', 'Nuage', 'Hermès', 'Lune', 'Jasmin'];
+
+    /**
+     * Partages proposés au compte qui lance la simulation (un cheval de test par partage, profils en alternance) :
+     * pour voir l'app avec plusieurs chevaux et des droits différents.
+     */
+    public static function shareProfiles(): array
+    {
+        return [
+            ['label' => 'Demi-pension', 'perms' => Perm::halfLeasePreset()],
+            ['label' => 'Pension (écurie)', 'perms' => Perm::boardingPreset()],
+            ['label' => 'Lecture seule', 'perms' => array_values(array_filter(Perm::horseKeys(), fn ($k) => Perm::isRead($k)))],
+            ['label' => 'Vétérinaire', 'perms' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW, Perm::HEALTH_EDIT, Perm::TREATMENTS_VIEW, Perm::DOCUMENTS_VIEW, Perm::CALENDAR_VIEW]],
+            ['label' => 'Cavalier', 'perms' => [Perm::HORSE_VIEW, Perm::SESSIONS_VIEW, Perm::SESSIONS_CREATE, Perm::SESSIONS_EDIT_OWN, Perm::CALENDAR_VIEW, Perm::DAILYLOG_CREATE, Perm::COMMENTS_CREATE]],
+            ['label' => 'Tous les droits', 'perms' => Perm::horseKeys()],
+            ['label' => 'Fiche seule, 30 jours', 'perms' => [Perm::HORSE_VIEW], 'days' => 30],
+        ];
+    }
 
     public function __construct(private OrganizationService $organizations, private HorseService $horses) {}
 
@@ -77,6 +97,9 @@ class LoadSimulation
         if ($existing + $params['accounts'] > self::MAX_TOTAL) {
             throw ValidationException::withMessages(['accounts' => 'Au plus '.self::MAX_TOTAL.' comptes de test en tout ('.$existing.' existent déjà) : supprimez d\'anciennes simulations.']);
         }
+        $params['shares'] = min($params['shares'], $params['accounts'] * $params['horses']);
+        $params['shares_accept'] = (bool) ($input['shares_accept'] ?? false);
+        $params['share_to'] = $admin->id;
         // Un seul mot de passe aléatoire (inconnu) par lot : le hachage de chaque compte coûterait plusieurs secondes.
         $params['password_hash'] = Hash::make(Str::random(48));
         $batch = SimulationBatch::create(['created_by' => $admin->id, 'status' => 'running', 'params' => $params, 'counts' => []]);
@@ -190,6 +213,9 @@ class LoadSimulation
             $horse->forceFill(['is_demo' => true])->save();
             $this->bump($counts, 'horses');
             $this->activity($horse, $user, $p, $counts);
+            if (($counts['shares'] ?? 0) < ($p['shares'] ?? 0)) {
+                $this->share($horse, $user, $p, $counts);
+            }
         }
     }
 
@@ -231,6 +257,35 @@ class LoadSimulation
                 'appetite' => ['good', 'good', 'reduced'][random_int(0, 2)], 'general_state' => ['good', 'good', 'average'][random_int(0, 2)]]);
             $this->bump($counts, 'logs');
         }
+    }
+
+    /**
+     * Partage d'un cheval de test vers le compte qui lance la simulation : invitation en attente (à accepter depuis l'accueil)
+     * ou accès accordé d'office. Créé directement (les comptes de test sont sur l'offre gratuite, sans partage) et sans
+     * e-mail ni notification ; les droits reçus sont ensuite appliqués normalement.
+     */
+    private function share($horse, User $owner, array $p, array &$counts): void
+    {
+        $to = User::find($p['share_to'] ?? null);
+        if (! $to) {
+            return;
+        }
+        $profiles = self::shareProfiles();
+        $profile = $profiles[($counts['shares'] ?? 0) % count($profiles)];
+        $expires = isset($profile['days']) ? now()->addDays($profile['days']) : null;
+        $invitation = Invitation::create([
+            'type' => 'horse_access', 'email' => strtolower($to->email), 'horse_id' => $horse->id, 'organization_id' => $horse->organization_id,
+            'permissions' => array_values(array_unique([Perm::HORSE_VIEW, ...$profile['perms']])), 'access_expires_at' => $expires,
+            'invited_by' => $owner->id, 'token_hash' => hash('sha256', Str::random(48)), 'expires_at' => now()->addDays(14),
+        ]);
+        if (! empty($p['shares_accept'])) {
+            HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $to->id, 'permissions' => $invitation->permissions, 'expires_at' => $expires,
+                'granted_by' => $owner->id, 'invitation_id' => $invitation->id, 'label' => $profile['label'].' (simulation)']);
+            $invitation->update(['accepted_at' => now(), 'accepted_by' => $to->id]);
+        }
+        // Nom d'usage parlant : on voit tout de suite quels droits porte chaque cheval partagé.
+        $horse->forceFill(['usual_name' => Str::before($horse->official_name, ' SIM').' · '.$profile['label']])->saveQuietly();
+        $this->bump($counts, 'shares');
     }
 
     private function bump(array &$counts, string $key): void
