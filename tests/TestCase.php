@@ -5,6 +5,7 @@ namespace Tests;
 use App\Models\Horse;
 use App\Models\License;
 use App\Models\Organization;
+use App\Models\Role;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\HorseAccess;
@@ -12,6 +13,7 @@ use App\Services\HorseService;
 use App\Services\OrganizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Str;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -50,6 +52,21 @@ abstract class TestCase extends BaseTestCase
         $org ??= $owner->personalOrganization();
 
         return app(HorseService::class)->create($org, $owner, array_merge(['official_name' => 'TORNADE '.uniqid(), 'sex' => 'female'], $attributes), $org->isPersonal());
+    }
+
+    /**
+     * Membre de l'espace du cheval avec un rôle sur mesure : hors propriétaire, la seule façon d'avoir des droits
+     * sur le budget du cheval (un partage ne les donne jamais, 2.42.1).
+     */
+    protected function memberWith(Horse $horse, array $permissions, string $name = 'Comptable'): User
+    {
+        $user = $this->user();
+        $org = Organization::findOrFail($horse->organization_id);
+        $role = Role::create(['organization_id' => $org->id, 'key' => 'custom-'.Str::lower(Str::random(8)), 'name' => $name, 'is_system' => false]);
+        $role->syncPermissionKeys($permissions);
+        app(OrganizationService::class)->addMember($org, $user, $role);
+
+        return $user->fresh();
     }
 
     /** Plusieurs chevaux : affiche « Tous les chevaux » plutôt que le cheval actif. */

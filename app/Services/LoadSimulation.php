@@ -65,10 +65,10 @@ class LoadSimulation
         return [
             ['label' => 'Demi-pension', 'perms' => Perm::halfLeasePreset()],
             ['label' => 'Pension (écurie)', 'perms' => Perm::boardingPreset()],
-            ['label' => 'Lecture seule', 'perms' => array_values(array_filter(Perm::horseKeys(), fn ($k) => Perm::isRead($k)))],
+            ['label' => 'Lecture seule', 'perms' => array_values(array_filter(Perm::shareableKeys(), fn ($k) => Perm::isRead($k)))],
             ['label' => 'Vétérinaire', 'perms' => [Perm::HORSE_VIEW, Perm::HEALTH_VIEW, Perm::HEALTH_EDIT, Perm::TREATMENTS_VIEW, Perm::DOCUMENTS_VIEW, Perm::CALENDAR_VIEW]],
             ['label' => 'Cavalier', 'perms' => [Perm::HORSE_VIEW, Perm::SESSIONS_VIEW, Perm::SESSIONS_CREATE, Perm::SESSIONS_EDIT_OWN, Perm::CALENDAR_VIEW, Perm::DAILYLOG_CREATE, Perm::COMMENTS_CREATE]],
-            ['label' => 'Tous les droits', 'perms' => Perm::horseKeys()],
+            ['label' => 'Tous les droits', 'perms' => Perm::shareableKeys()],
             ['label' => 'Fiche seule, 30 jours', 'perms' => [Perm::HORSE_VIEW], 'days' => 30],
         ];
     }

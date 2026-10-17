@@ -175,8 +175,7 @@ class Version222RequestsTest extends TestCase
         $this->actingAs($stranger)->post(route('budget.incomes.store'), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '5'])->assertForbidden();
 
         // Lecture seule des dépenses : recettes visibles, sans modification.
-        $viewer = $this->user();
-        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $viewer->id, 'permissions' => ['horse.view', 'expenses.view']]);
+        $viewer = $this->memberWith($horse, ['horse.view', 'expenses.view']);
         $this->actingAs($viewer)->get('/budget')->assertOk()->assertSee('Léa')->assertDontSee(route('budget.incomes.edit', $half));
         $this->actingAs($viewer)->put(route('budget.incomes.update', $half), ['income_horse_id' => $horse->id, 'income_category' => 'prize', 'income_received_on' => now()->toDateString(), 'income_amount' => '1'])->assertForbidden();
     }

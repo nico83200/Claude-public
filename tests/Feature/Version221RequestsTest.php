@@ -200,8 +200,7 @@ class Version221RequestsTest extends TestCase
 
         // Sans droit de modifier la santé : rien n'est proposé ni supprimé côté soin.
         $add('60');
-        $keeper = $this->user();
-        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $keeper->id, 'permissions' => ['horse.view', 'expenses.view', 'expenses.create']]);
+        $keeper = $this->memberWith($horse, ['horse.view', 'expenses.view', 'expenses.create']);
         $expense = Expense::where('amount', 60)->sole();
         $expense->forceFill(['author_id' => $keeper->id])->save();
         $this->actingAs($keeper)->deleteJson("/budget/{$expense->id}", ['with_care' => '1'])->assertOk()->assertJsonMissingPath('care');

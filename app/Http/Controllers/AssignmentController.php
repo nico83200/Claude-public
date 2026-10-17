@@ -42,7 +42,7 @@ class AssignmentController extends Controller
 
         $assignment = HorseOrganizationAssignment::create([
             'horse_id' => $horse->id, 'organization_id' => $org->id, 'kind' => $data['kind'],
-            'permissions' => array_values(array_unique([Perm::HORSE_VIEW, ...($data['permissions'] ?? [])])),
+            'permissions' => array_values(array_unique([Perm::HORSE_VIEW, ...array_intersect($data['permissions'] ?? [], Perm::shareableKeys())])),
             'status' => 'pending', 'requested_by' => $request->user()->id,
         ]);
         Audit::log('assignment.requested', $assignment, ['organization' => $org->name], $horse->organization_id);
@@ -60,7 +60,7 @@ class AssignmentController extends Controller
     {
         $this->authorizeHorse($horse, Perm::HORSE_MANAGE);
         $data = $request->validate(['permissions' => ['array'], 'permissions.*' => [Rule::in(Perm::horseKeys())]]);
-        $assignment->update(['permissions' => array_values(array_unique([Perm::HORSE_VIEW, ...($data['permissions'] ?? [])]))]);
+        $assignment->update(['permissions' => array_values(array_unique([Perm::HORSE_VIEW, ...array_intersect($data['permissions'] ?? [], Perm::shareableKeys())]))]);
         Audit::log('assignment.permissions_changed', $assignment, ['permissions' => $assignment->permissions], $horse->organization_id);
 
         return back()->with('success', 'Droits de l\'écurie mis à jour.');

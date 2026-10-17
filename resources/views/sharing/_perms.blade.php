@@ -25,5 +25,6 @@
             <label class="flex min-h-10 items-center gap-2 text-sm"><input type="checkbox" name="{{ $prefix }}[]" value="{{ $key }}" x-model="sel" @change="profile = 'custom'" class="size-5 rounded" @if ($key === 'horse.view') onclick="return false" checked @endif> {{ $label }}@if ($key === 'horse.view')<span class="text-xs text-slate-400">(toujours inclus)</span>@endif</label>
         @endforeach
     </div>
+    <p class="text-xs text-slate-500" data-perm-budget-note>Le budget du cheval (dépenses et recettes) reste réservé au propriétaire.</p>
     {{-- Repliées, les cases restent envoyées avec le formulaire. --}}
 </div>

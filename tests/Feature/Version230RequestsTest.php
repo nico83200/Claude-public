@@ -8,7 +8,6 @@ use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\HealthObservation;
-use App\Models\HorseAccessGrant;
 use App\Models\Professional;
 use App\Models\RecurringExpense;
 use App\Models\Treatment;
@@ -89,19 +88,19 @@ class Version230RequestsTest extends TestCase
     {
         [$owner, $horses] = $this->owner(1);
         $horse = $horses[0];
-        $rider = $this->user();
-        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => [Perm::HORSE_VIEW, Perm::EXPENSES_VIEW, Perm::EXPENSES_CREATE]]);
+        // Membre de l'espace avec un rôle « dépenses » (un partage ne donne plus accès au budget, 2.42.1).
+        $rider = $this->memberWith($horse, [Perm::HORSE_VIEW, Perm::EXPENSES_VIEW, Perm::EXPENSES_CREATE]);
         $cat = ExpenseCategory::firstOrFail();
         $mk = fn ($author, $amount) => Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $author->id, 'horse_id' => $horse->id, 'expense_category_id' => $cat->id, 'amount' => $amount, 'spent_on' => now()->toDateString(), 'paid_on' => now()->toDateString()]);
         $byOwner = $mk($owner, 70);
         $byRider = $mk($rider, 107.2);
 
-        // Propriétaire : « Modifier » aussi sur la dépense saisie par la demi-pensionnaire (comme sur sa fiche).
+        // Propriétaire : « Modifier » aussi sur la dépense saisie par un autre membre (comme sur sa fiche).
         $html = $this->actingAs($owner)->get(route('budget.index'))->assertOk()->getContent();
         $this->assertSame(2, substr_count($html, 'data-expense-edit') / 2, 'Mobile et ordinateur : un lien par dépense.');
         $this->actingAs($owner)->get(route('budget.edit', $byRider))->assertOk();
 
-        // Demi-pensionnaire : seulement ses propres dépenses.
+        // Membre sans gestion du cheval : seulement ses propres dépenses.
         $this->allHorses($rider);
         $html = $this->actingAs($rider)->get(route('budget.index'))->assertOk()->getContent();
         $this->assertStringContainsString('href="'.route('budget.edit', $byRider).'" class="link" data-expense-edit', $html);

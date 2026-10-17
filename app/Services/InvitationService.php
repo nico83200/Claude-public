@@ -46,7 +46,7 @@ class InvitationService
             throw ValidationException::withMessages(['email' => 'Vous ne pouvez pas vous inviter vous-même.']);
         }
 
-        $permissions = array_values(array_unique([Perm::HORSE_VIEW, ...array_intersect($permissions, Perm::horseKeys())]));
+        $permissions = array_values(array_unique([Perm::HORSE_VIEW, ...array_intersect($permissions, Perm::shareableKeys())]));
 
         return $this->create([
             'type' => 'horse_access', 'email' => $email, 'horse_id' => $horse->id, 'organization_id' => $org->id,

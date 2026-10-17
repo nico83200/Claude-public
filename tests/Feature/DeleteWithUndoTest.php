@@ -49,8 +49,7 @@ class DeleteWithUndoTest extends TestCase
         $this->actingAs($owner)->post('/budget', ['horse_id' => $horse->id, 'expense_category_id' => ExpenseCategory::value('id'), 'spent_on' => now()->toDateString(), 'amount' => '12']);
         $expense = Expense::where('horse_id', $horse->id)->sole();
 
-        $viewer = $this->user();
-        HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $viewer->id, 'permissions' => ['horse.view', 'expenses.view']]);
+        $viewer = $this->memberWith($horse, ['horse.view', 'expenses.view']);
         $this->actingAs($viewer)->get('/budget')->assertOk()->assertSee('data-expense-link="'.$expense->id.'"', false)
             ->assertDontSee('data-swipe-row', false)->assertDontSee('data-swipe-hint', false);
         $this->actingAs($viewer)->deleteJson("/budget/{$expense->id}")->assertForbidden();

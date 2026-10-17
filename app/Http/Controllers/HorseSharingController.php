@@ -48,7 +48,7 @@ class HorseSharingController extends Controller
             'grants' => $horse->accessGrants()->with(['user', 'grantor'])->latest()->get(),
             'invitations' => $horse->invitations()->pending()->latest()->get(),
             'assignments' => $horse->assignments()->with('organization')->latest()->get(),
-            'labels' => Perm::horseLabels(),
+            'labels' => Perm::shareableLabels(),
             'presets' => ['half_lease' => Perm::halfLeasePreset(), 'boarding' => Perm::boardingPreset()],
             'kinds' => HorseOrganizationAssignment::KINDS,
             'sharingIncluded' => $this->entitlements()->hasFeature($org, 'sharing'),
@@ -69,6 +69,8 @@ class HorseSharingController extends Controller
             'starts_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after:today', 'after_or_equal:starts_at'],
         ]);
+        // Budget du cheval : réservé au propriétaire.
+        $data['permissions'] = array_values(array_intersect($data['permissions'] ?? [], Perm::shareableKeys()));
         [, $token] = $invitations->inviteToHorse($horse, $request->user(), $data['email'], $data['permissions'] ?? [], $data['label'] ?? null, $data['starts_at'] ?? null, $data['expires_at'] ?? null);
 
         // Lien montré une seule fois, à transmettre aussi par WhatsApp ou SMS (il ne fonctionne que pour l'adresse invitée).
@@ -106,6 +108,7 @@ class HorseSharingController extends Controller
             'starts_at' => ['nullable', 'date'],
             'expires_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ]);
+        $data['permissions'] = array_values(array_intersect($data['permissions'] ?? [], Perm::shareableKeys()));
         $before = $grant->permissions;
         $grant->update([
             'label' => $data['label'] ?? $grant->label,

@@ -112,6 +112,23 @@ final class Perm
         return array_keys(self::horseLabels());
     }
 
+    /**
+     * Budget du cheval (dépenses, recettes) : réservé au propriétaire, aux copropriétaires déclarés et aux membres
+     * de son espace ; jamais donné par un partage (demi-pension, cavalier…) ni à une écurie de rattachement.
+     */
+    public const OWNER_ONLY = [self::EXPENSES_VIEW, self::EXPENSES_CREATE];
+
+    /** Droits qu'un partage ou une écurie de rattachement peut recevoir. */
+    public static function shareableKeys(): array
+    {
+        return array_values(array_diff(self::horseKeys(), self::OWNER_ONLY));
+    }
+
+    public static function shareableLabels(): array
+    {
+        return array_diff_key(self::horseLabels(), array_flip(self::OWNER_ONLY));
+    }
+
     public static function allHorseKeys(): array
     {
         return [...self::horseKeys(), self::HORSE_MANAGE];

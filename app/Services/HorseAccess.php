@@ -76,7 +76,8 @@ class HorseAccess
     private function grantsOf(User $user): array
     {
         return $this->granted[$user->id] ??= HorseAccessGrant::active()->where('user_id', $user->id)->get()
-            ->groupBy('horse_id')->map(fn ($g) => $g->flatMap(fn ($grant) => $grant->permissions ?? [])->unique()->values()->all())->all();
+            // Le budget n'est jamais donné par un partage (droits enregistrés avant la 2.42.1 compris).
+            ->groupBy('horse_id')->map(fn ($g) => array_values(array_intersect($g->flatMap(fn ($grant) => $grant->permissions ?? [])->unique()->values()->all(), Perm::shareableKeys())))->all();
     }
 
     /** Rattachements des chevaux donnés, chargés en une requête pour ceux qui ne le sont pas encore. */
@@ -131,14 +132,14 @@ class HorseAccess
         }
 
         // 3. Partage direct
-        $perms = array_merge($perms, array_intersect($this->grantsOf($user)[$horse->id] ?? [], Perm::horseKeys()));
+        $perms = array_merge($perms, array_intersect($this->grantsOf($user)[$horse->id] ?? [], Perm::shareableKeys()));
 
         // 4. Écurie de rattachement
         $this->loadAssignments([$horse->id]);
         foreach ($this->assignments[$horse->id] as $assignment) {
             $m = $this->membershipsOf($user)->get($assignment->organization_id);
             if ($m) {
-                $perms = array_merge($perms, array_intersect($assignment->permissions ?? [], $m->role->permissionKeys(), Perm::horseKeys()));
+                $perms = array_merge($perms, array_intersect($assignment->permissions ?? [], $m->role->permissionKeys(), Perm::shareableKeys()));
             }
         }
 
