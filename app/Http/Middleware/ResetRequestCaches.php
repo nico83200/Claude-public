@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\CompetitionVaccines;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\ToValidate;
@@ -15,6 +16,7 @@ class ResetRequestCaches
         app(HorseAccess::class)->flush();
         app(Entitlements::class)->flush();
         app(ToValidate::class)->flush();
+        app(CompetitionVaccines::class)->flush();
 
         return $next($request);
     }

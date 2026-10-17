@@ -64,6 +64,7 @@ class AppNotification extends Notification implements ShouldQueue
         'vet_summary' => 'Résumé de santé envoyé à un professionnel',
         'referral' => 'Parrainage : jours offerts',
         'riding_day' => 'Jours de monte (échange, séance sur votre jour)',
+        'competition_vaccines' => 'Vaccins à revoir avant un concours',
     ];
 
     public function __construct(

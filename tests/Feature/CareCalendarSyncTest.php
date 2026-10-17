@@ -48,12 +48,16 @@ class CareCalendarSyncTest extends TestCase
         // Marqué « Réalisé » dans l'agenda → soin créé.
         $this->actingAs($user)->put("/calendrier/{$event->id}", ['horse_id' => $horse->id, 'type' => 'veterinary', 'title' => 'Vaccins', 'date' => now()->toDateString(), 'time' => '09:00', 'duration_minutes' => 30, 'status' => 'done'])->assertRedirect();
         $care = CareRecord::where('horse_id', $horse->id)->sole();
-        $this->assertSame('veterinary', $care->category->key);
+        // Rendez-vous vétérinaire « Vaccins » : enregistré comme vaccination (vérification des vaccins avant un concours, 2.42).
+        $this->assertSame('vaccination', $care->category->key);
         $this->assertSame($care->id, $event->fresh()->care_record_id);
+        // Un rendez-vous vétérinaire ordinaire reste une visite vétérinaire.
+        $this->actingAs($user)->post('/calendrier', ['horse_id' => $horse->id, 'type' => 'veterinary', 'title' => 'Échographie', 'date' => now()->subDay()->toDateString(), 'time' => '11:00', 'duration_minutes' => 30]);
+        $this->assertSame('veterinary', CareRecord::with('category')->where('horse_id', $horse->id)->where('reason', 'Échographie')->sole()->category->key);
 
         // Les autres types d'événements ne créent pas de soin.
         $this->actingAs($user)->post('/calendrier', ['horse_id' => $horse->id, 'type' => 'ride', 'title' => 'Balade', 'date' => now()->subDay()->toDateString(), 'time' => '10:00', 'duration_minutes' => 60]);
-        $this->assertSame(1, CareRecord::where('horse_id', $horse->id)->count());
+        $this->assertSame(2, CareRecord::where('horse_id', $horse->id)->count());
     }
 
     public function test_care_entered_in_health_appears_in_agenda(): void

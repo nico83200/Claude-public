@@ -98,6 +98,7 @@ class NavigationSimulation
             app(HorseAccess::class)->flush();
             app(Entitlements::class)->flush();
             app(ToValidate::class)->flush();
+            app(CompetitionVaccines::class)->flush();
             $response = app('router')->dispatch($sub);
             $status = $response->getStatusCode();
             $bytes = strlen((string) $response->getContent());
@@ -117,6 +118,7 @@ class NavigationSimulation
             app(HorseAccess::class)->flush();
             app(Entitlements::class)->flush();
             app(ToValidate::class)->flush();
+            app(CompetitionVaccines::class)->flush();
         }
 
         return ['path' => $path, 'status' => $status, 'ms' => $ms, 'queries' => $queries, 'kb' => round($bytes / 1024, 1)] + ($status >= 500 && $error ? ['error' => $error] : []);

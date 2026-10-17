@@ -72,6 +72,9 @@
                 <p class="mt-1 text-xs text-slate-500">Enregistre le soin réalisé et propose la date du prochain passage.</p>
             @endif
         </x-section>
+        @if ($vaccines)
+            @include('calendar._competition-vaccines')
+        @endif
         @if ($event->careRecord)
             <x-section title="Carnet de santé">
                 <p class="text-sm text-slate-600">Ce rendez-vous est enregistré comme soin réalisé{{ $event->careRecord->category ? ' (« '.$event->careRecord->category->name.' »)' : '' }} : il apparaît dans la santé de {{ $event->horse?->shortName() }} et se met à jour avec l'événement.</p>

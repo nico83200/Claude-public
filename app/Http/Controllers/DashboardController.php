@@ -14,6 +14,7 @@ use App\Models\Invitation;
 use App\Models\RecurringExpense;
 use App\Models\RidingSession;
 use App\Models\Treatment;
+use App\Services\CompetitionVaccines;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\Onboarding;
@@ -80,6 +81,8 @@ class DashboardController extends Controller
             'invitations' => $this->invitations($user),
             // Rendez-vous et séances passés à valider (tous les chevaux).
             'toValidate' => app(ToValidate::class)->items($user),
+            // Concours des prochaines semaines : vaccins à revoir.
+            'competitionAlerts' => app(CompetitionVaccines::class)->alerts($user),
             'pendingAssignments' => $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->isNotEmpty()
                 ? HorseOrganizationAssignment::with(['horse', 'organization'])->where('status', 'pending')
                     ->whereIn('organization_id', $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->pluck('organization_id'))->get()
@@ -107,6 +110,7 @@ class DashboardController extends Controller
             'emergencyCta' => $user->profile?->emergency_cta_dismissed_at || $horse->emergency_token || ! $has(Perm::HORSE_EDIT) ? null : $horse,
             'invitations' => $this->invitations($user),
             'toValidate' => app(ToValidate::class)->items($user, $horse),
+            'competitionAlerts' => app(CompetitionVaccines::class)->alerts($user, $horse),
             // Jours de monte des 7 prochains jours (cheval partagé).
             'ridingWeek' => $has(Perm::SESSIONS_VIEW) || $has(Perm::CALENDAR_VIEW) ? app(RidingDays::class)->between(collect([$horse]), today(), today()->addDays(6)) : [],
             'pendingAssignments' => collect(),

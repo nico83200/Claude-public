@@ -391,6 +391,9 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/codes/{promoCode}/qr/{source}', [Admin\PromoCodeController::class, 'qr'])->name('promo-codes.qr');
     Route::patch('/codes/{promoCode}', [Admin\PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::post('/facturation/evenements/{event}/retraiter', [Admin\BillingController::class, 'reprocess'])->name('billing.reprocess');
+    Route::get('/vaccins-concours', [Admin\VaccineRulesController::class, 'edit'])->name('vaccine-rules.edit');
+    Route::put('/vaccins-concours', [Admin\VaccineRulesController::class, 'update'])->name('vaccine-rules.update');
+    Route::post('/vaccins-concours/valeurs-verifiees', [Admin\VaccineRulesController::class, 'reset'])->name('vaccine-rules.reset');
     Route::get('/exercices', [Admin\ExerciseController::class, 'index'])->name('exercises.index');
     Route::get('/exercices/nouveau', [Admin\ExerciseController::class, 'create'])->name('exercises.create');
     Route::post('/exercices', [Admin\ExerciseController::class, 'store'])->name('exercises.store');

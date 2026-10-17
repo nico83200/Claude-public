@@ -16,7 +16,7 @@ class CareRecord extends Model
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['version' => 1];
 
-    protected $casts = ['performed_at' => 'datetime', 'next_check_on' => 'date', 'cost' => 'decimal:2'];
+    protected $casts = ['performed_at' => 'datetime', 'next_check_on' => 'date', 'cost' => 'decimal:2', 'vaccines' => 'array'];
 
     public function horse()
     {

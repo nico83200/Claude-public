@@ -8,6 +8,7 @@ use App\Models\CareRecord;
 use App\Models\Horse;
 use App\Models\Treatment;
 use App\Support\Perm;
+use App\Support\Vaccines;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -31,6 +32,14 @@ class CareCalendarSync
     private static bool $syncing = false;
 
     public function __construct(private CalendarService $calendar, private HorseAccess $access) {}
+
+    /** Catégorie de soin d'un rendez-vous : un rendez-vous vétérinaire « Vaccin grippe » est une vaccination. */
+    public static function categoryKeyFor(CalendarEvent $event): ?string
+    {
+        $key = self::CATEGORY_FOR_EVENT[$event->type] ?? null;
+
+        return $key === 'veterinary' && Vaccines::mentioned($event->title, $event->notes) ? 'vaccination' : $key;
+    }
 
     public static function eventTypeFor(?string $categoryKey): string
     {
@@ -192,7 +201,7 @@ class CareCalendarSync
 
             return;
         }
-        $key = self::CATEGORY_FOR_EVENT[$event->type] ?? null;
+        $key = self::categoryKeyFor($event);
         if (! $key || $event->status === 'cancelled') {
             return;
         }

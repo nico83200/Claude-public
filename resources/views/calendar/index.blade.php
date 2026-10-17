@@ -141,6 +141,9 @@
                             $choices = $deletable && $occDate ? \App\Http\Controllers\CalendarController::deleteChoices($ev, $occDate) : [];
                             $swipeDelete = $deletable && ! $occDate ? route('calendar.destroy', $ev) : null;
                             $toValidate = $editable && ! $ev->isSessionEvent() && in_array($ev->status, ['planned', 'confirmed'], true) && $o['at']->isPast();
+                            // Concours à venir : vaccins du cheval en règle ou à vérifier.
+                            $vax = empty($o['journal']) && $ev->type === 'competition' ? $vaccineCheck($ev, $o['at']) : null;
+                            [$vaxColor, $vaxLabel] = $vax ? \App\Services\CompetitionVaccines::badge($vax) : [null, null];
                         @endphp
                         <x-swipe.row :delete-url="$swipeDelete" :choices="$choices" :event-id="$ev->id" :date="$occDate" :validate-url="$toValidate ? route('calendar.done', array_filter([$ev, 'date' => $occDate])) : null" :text="'« '.$ev->title.' » supprimé'" :validate-text="'« '.$ev->title.' » validé'" rounded="" surface="bg-white" :data-swipe-event="$ev->id">
                         <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif @if ($highlight && empty($o['journal']) && $ev->id == $highlight) data-highlight @endif class="{{ $highlight && empty($o['journal']) && $ev->id == $highlight ? 'bg-brand-50 ring-2 ring-brand-500' : '' }} flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
@@ -149,6 +152,7 @@
                             <span class="min-w-0 flex-1">
                                 <span class="flex items-center gap-1.5 font-medium {{ $ev->status === 'cancelled' ? 'text-slate-500 line-through' : ($ev->status === 'done' ? 'text-slate-600' : 'text-slate-900') }}">@if ($ev->status === 'done' && empty($o['journal']))<x-icon name="check" class="size-4 shrink-0 text-emerald-600" />@endif<span class="min-w-0">{{ $ev->title }}</span></span>
                                 <span class="block text-xs text-slate-500">{{ collect([$typeLabels[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
+                                @if ($vax)<x-badge :color="$vaxColor" class="mt-1" data-competition-badge="{{ $vax['state'] }}">{{ $vaxLabel }}</x-badge>@endif
                             </span>
                             @if (empty($o['journal']))
                                 {{-- Prévu, en cours (de l'heure à la fin de la durée), à valider (fin passée), réalisé ou annulé. --}}

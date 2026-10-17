@@ -10,6 +10,7 @@ use App\Models\Treatment;
 use App\Services\AgendaJournal;
 use App\Services\CalendarFeed;
 use App\Services\CalendarService;
+use App\Services\CompetitionVaccines;
 use App\Services\HorseAccess;
 use App\Services\ProfessionalDirectory;
 use App\Services\RidingDays;
@@ -18,6 +19,7 @@ use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Fr;
 use App\Support\Perm;
+use App\Support\VaccineRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +61,9 @@ class CalendarController extends Controller
             'view' => $view, 'date' => $date, 'from' => $from, 'to' => $to,
             // Glissés de la liste (téléphone) : droits de modification de chaque événement.
             'canEditEvent' => fn (CalendarEvent $e) => $this->canEdit($request, $e),
+            // Concours à venir : vaccins du cheval selon le règlement choisi (pour qui voit sa santé).
+            'vaccineCheck' => fn (CalendarEvent $e, Carbon $at) => $e->type === 'competition' && $e->horse && $access->can($user, $e->horse, Perm::HEALTH_VIEW)
+                ? app(CompetitionVaccines::class)->forEvent($e, $at) : null,
             // Rendez-vous et tout ce qui est daté ailleurs dans l'application (pesées, observations, dépenses…).
             'occurrences' => $this->calendar->expand($events, $from, $to)
                 ->concat($request->query('vue') === 'rdv' ? [] : $journal->between($user, $from, $to, $request->integer('horse') ?: null, $request->query('type')))
@@ -86,8 +91,14 @@ class CalendarController extends Controller
         $occurrence = $event->recurrence && is_string($request->query('date')) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $request->query('date')) && $event->occursOn($request->query('date'))
             ? Carbon::parse($request->query('date').' '.$event->starts_at->format('H:i:s')) : null;
         $canEdit = $this->canEdit($request, $event);
+        $event->loadMissing('horse');
+        $vaccines = $event->type === 'competition' && $event->horse && $this->horseCan($event->horse, Perm::HEALTH_VIEW)
+            ? app(CompetitionVaccines::class)->forEvent($event, $occurrence) : null;
 
         return view('calendar.show', [
+            'vaccines' => $vaccines,
+            'vaccineLink' => $vaccines && $this->horseCan($event->horse, Perm::CALENDAR_EDIT) ? app(CompetitionVaccines::class)->appointmentUrl($vaccines) : null,
+            'canEditHealth' => $event->horse && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
             'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category', 'treatment']),
             'canEdit' => $canEdit,
             'occurrence' => $occurrence,
@@ -146,7 +157,8 @@ class CalendarController extends Controller
         $event->created_by = $request->user()->id;
         $event->save();
 
-        return redirect()->route('calendar.index', ['date' => $event->starts_at->toDateString(), 'view' => $request->input('return_view', 'month')])->with('success', '« '.$event->title.' » ajouté le '.$event->starts_at->translatedFormat('D j M').($event->all_day ? '' : ' à '.$event->starts_at->format('H:i')).'.')->with('highlight', $event->id);
+        return redirect()->route('calendar.index', ['date' => $event->starts_at->toDateString(), 'view' => $request->input('return_view', 'month')])->with('success', '« '.$event->title.' » ajouté le '.$event->starts_at->translatedFormat('D j M').($event->all_day ? '' : ' à '.$event->starts_at->format('H:i')).'.')->with('highlight', $event->id)
+            ->with($this->vaccineWarning($event));
     }
 
     public function update(Request $request, CalendarEvent $event)
@@ -169,7 +181,8 @@ class CalendarController extends Controller
             }
         }
 
-        return redirect()->route('calendar.show', $event)->with('success', 'Événement mis à jour.'.($moved ? ' Les '.Fr::count($moved, 'autre cheval', 'autres chevaux').' du rendez-vous suivent.' : ''));
+        return redirect()->route('calendar.show', $event)->with('success', 'Événement mis à jour.'.($moved ? ' Les '.Fr::count($moved, 'autre cheval', 'autres chevaux').' du rendez-vous suivent.' : ''))
+            ->with($this->vaccineWarning($event));
     }
 
     public function destroy(Request $request, CalendarEvent $event)
@@ -353,6 +366,20 @@ class CalendarController extends Controller
             : $request->user()->canInOrg($event->organization_id, Perm::CALENDAR_EDIT) && $this->entitlements()->writable($event->organization);
     }
 
+    /** Concours enregistré : message si les vaccins du cheval sont à revoir (pour qui voit sa santé). */
+    private function vaccineWarning(CalendarEvent $event): array
+    {
+        $event->load('horse'); // le cheval a pu changer
+        if ($event->type !== 'competition' || ! $event->horse || ! $this->horseCan($event->horse, Perm::HEALTH_VIEW)) {
+            return [];
+        }
+        $vaccines = app(CompetitionVaccines::class);
+        $vaccines->flush();
+        $check = $vaccines->forEvent($event);
+
+        return $check && ! in_array($check['state'], ['ok', 'planned'], true) ? ['warning' => 'Vaccins de '.$event->horse->shortName().' pour ce concours : '.lcfirst($vaccines->headline($check))] : [];
+    }
+
     private function validated(Request $request): array
     {
         $data = $request->validate([
@@ -369,7 +396,9 @@ class CalendarController extends Controller
             'recurrence' => ['nullable', Rule::in(['daily', 'weekly', 'monthly'])],
             'recurrence_interval' => ['nullable', 'integer', 'min:1', 'max:52'],
             'recurrence_until' => ['nullable', 'date', 'after_or_equal:date'],
+            'vaccine_rules' => ['nullable', Rule::in(array_keys(VaccineRules::options()))],
         ]);
+        $data['vaccine_rules'] = $data['type'] === 'competition' ? ($data['vaccine_rules'] ?? null) : null;
         // Les intervenants et responsables doivent appartenir aux espaces de l'utilisateur.
         $orgIds = $request->user()->memberships->pluck('organization_id');
         if (! empty($data['professional_id']) && ! app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {

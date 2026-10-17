@@ -146,12 +146,13 @@
                 @endif
             </x-section>
             <x-section title="Échéances" :action="route('health.index')" action-label="Santé">
+                @include('dashboard._competition-vaccines', ['alerts' => $competitionAlerts, 'showHorse' => true])
                 @forelse ($careDue as $c)
                     <a href="{{ route('horses.care.index', $c->horse_id) }}#controles" class="-mx-2 flex items-center justify-between gap-3 rounded-2xl px-2 py-2.5 hover:bg-slate-50">
                         <span class="min-w-0"><span class="block truncate font-medium">{{ $c->category->name }}</span><span class="block text-sm text-slate-500">{{ $c->horse->shortName() }}</span></span>
                         <x-badge :color="$c->next_check_on->isPast() ? 'red' : (today()->diffInDays($c->next_check_on) <= 7 ? 'amber' : 'slate')">{{ $c->next_check_on->isPast() ? 'En retard' : $c->next_check_on->translatedFormat('j M') }}</x-badge>
                     </a>
-                @empty <p class="py-2 text-[15px] text-slate-500">Aucune échéance dans le mois.</p> @endforelse
+                @empty @if ($competitionAlerts->isEmpty())<p class="py-2 text-[15px] text-slate-500">Aucune échéance dans le mois.</p>@endif @endforelse
             </x-section>
         </div>
 

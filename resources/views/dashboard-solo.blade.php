@@ -81,7 +81,8 @@
         <div class="space-y-4">
             {{-- 3. Aujourd'hui et 7 prochains jours --}}
             <x-section title="Aujourd'hui et 7 jours" :action="$can('calendar.view') ? route('calendar.index') : null" action-label="Agenda" data-solo-week>
-                @php $hasWeek = $week->isNotEmpty() || $treatments->isNotEmpty() || $soon->isNotEmpty(); @endphp
+                @php $hasWeek = $week->isNotEmpty() || $treatments->isNotEmpty() || $soon->isNotEmpty() || $competitionAlerts->isNotEmpty(); @endphp
+                @include('dashboard._competition-vaccines', ['alerts' => $competitionAlerts])
                 @if ($ridingWeek)
                     {{-- Jours de monte : qui monte quel jour cette semaine (cheval partagé). --}}
                     @php

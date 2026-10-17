@@ -16,6 +16,7 @@ use App\Services\CareCalendarSync;
 use App\Services\CareReminders;
 use App\Services\CareRhythm;
 use App\Support\Perm;
+use App\Support\Vaccines;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -93,9 +94,7 @@ class CareRecordController extends Controller
         // Validation d'une intervention prévue au calendrier : formulaire prérempli.
         $event = $request->integer('evenement') ? CalendarEvent::where('horse_id', $horse->id)->find($request->integer('evenement')) : null;
         if ($event) {
-            $key = match ($event->type) {
-                'farrier' => 'farrier', 'veterinary' => 'veterinary', default => null
-            };
+            $key = in_array($event->type, ['farrier', 'veterinary'], true) ? CareCalendarSync::categoryKeyFor($event) : null;
             $source = $event->source_type === (new CareRecord)->getMorphClass() ? CareRecord::find($event->source_id) : null;
             $record->fill([
                 'performed_at' => $event->starts_at->isFuture() ? now() : $event->starts_at,
@@ -269,6 +268,8 @@ class CareRecordController extends Controller
             'care_performed' => ['nullable', 'string', 'max:10000'],
             'diagnosis' => ['nullable', 'string', 'max:10000'],
             'instructions' => ['nullable', 'string', 'max:10000'],
+            'vaccines' => ['nullable', 'array'],
+            'vaccines.*' => [Rule::in(array_keys(Vaccines::TYPES))],
             'cost' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
             'next_check_on' => ['nullable', 'date'],
             'next_mode' => ['nullable', Rule::in(['interval', 'date', 'none'])],
@@ -287,6 +288,9 @@ class CareRecordController extends Controller
         if (! empty($data['next_check_on'])) {
             $data['next_check_done_at'] = null;
         }
+        // Vaccins reçus : seulement pour une vaccination ; rien de coché = reconnus dans le texte du soin.
+        $isVaccination = CareCategory::whereKey($data['care_category_id'])->value('key') === 'vaccination';
+        $data['vaccines'] = $isVaccination && ! empty($data['vaccines']) ? array_values(array_unique($data['vaccines'])) : null;
         unset($data['attachment'], $data['next_mode'], $data['next_interval_value'], $data['next_interval_unit'], $data['remember_frequency'], $data['calendar_event_id']);
 
         return $data;
@@ -298,6 +302,7 @@ class CareRecordController extends Controller
             'horse' => $horse,
             'record' => $record,
             'categories' => CareCategory::visibleTo($horse->organization_id)->orderBy('name')->pluck('name', 'id'),
+            'vaccinationIds' => CareCategory::visibleTo($horse->organization_id)->where('key', 'vaccination')->pluck('id')->map(fn ($id) => (string) $id)->all(),
             'professionals' => Professional::where('organization_id', $horse->organization_id)->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName().' – '.$p->kindLabel()]),
             'canExpense' => $this->horseCan($horse, Perm::EXPENSES_CREATE),
             'docCategories' => HorseDocument::CATEGORIES,

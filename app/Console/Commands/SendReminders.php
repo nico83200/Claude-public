@@ -10,13 +10,15 @@ use App\Models\Treatment;
 use App\Models\User;
 use App\Notifications\AppNotification;
 use App\Services\CareReminders;
+use App\Services\CompetitionVaccines;
 use App\Services\HorseAccess;
 use App\Support\Perm;
+use App\Support\VaccineRules;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
 /**
- * Rappels : rendez-vous du lendemain, échéances de soins, fins de traitement.
+ * Rappels : rendez-vous du lendemain, échéances de soins, fins de traitement, vaccins à revoir avant un concours.
  * Chaque rappel n'est envoyé qu'une fois (table reminders, clé unique) et
  * uniquement aux personnes ayant accès à l'information concernée.
  */
@@ -26,7 +28,7 @@ class SendReminders extends Command
 
     protected $description = 'Envoie les rappels (rendez-vous, échéances de soins, fins de traitement)';
 
-    public function handle(HorseAccess $access, CareReminders $reminders): int
+    public function handle(HorseAccess $access, CareReminders $reminders, CompetitionVaccines $vaccines): int
     {
         $sent = 0;
         $tomorrow = [now()->addDay()->startOfDay(), now()->addDay()->endOfDay()];
@@ -34,9 +36,23 @@ class SendReminders extends Command
         foreach (CalendarEvent::with('horse.organization')->whereNotNull('horse_id')->whereIn('status', ['planned', 'confirmed'])->whereBetween('starts_at', $tomorrow)->get() as $event) {
             $sent += $this->dispatch($access, $event, $event->horse, $event->isSessionEvent() ? Perm::SESSIONS_VIEW : Perm::CALENDAR_VIEW, 'appointment', $event->isSessionEvent() ? 'Séance demain' : 'Rendez-vous demain', $event->title.' le '.$event->starts_at->format('d/m/Y à H:i').'.', route('calendar.show', $event), $event->starts_at);
         }
+        // Concours : vaccins à refaire, trop récents ou à préciser, N jours avant (réglage du super-administrateur), à qui voit la santé du cheval.
+        $today = now()->startOfDay();
+        $vaccines->flush();
+        if ($days = VaccineRules::reminderDays()) {
+            $competitions = CalendarEvent::with('horse.organization')->where('type', 'competition')->whereNotNull('horse_id')->whereIn('status', ['planned', 'confirmed'])
+                ->whereNull('recurrence')->whereBetween('starts_at', [$today, $today->copy()->addDays(max($days))->endOfDay()])->get();
+            foreach ($competitions as $event) {
+                $left = (int) $today->diffInDays($event->starts_at->copy()->startOfDay());
+                $check = in_array($left, $days, true) ? $vaccines->forEvent($event) : null;
+                if ($check && in_array($check['state'], ['ko', 'unsure', 'conflict'], true)) {
+                    $sent += $this->dispatch($access, $event, $event->horse, Perm::HEALTH_VIEW, 'competition_vaccines', 'Concours dans '.$left.' jours : vaccins de '.$event->horse->shortName(),
+                        $vaccines->headline($check).' '.$event->title.', '.$event->starts_at->translatedFormat('l j F').' ('.$check['rule']['short'].').', route('calendar.show', $event), $today->copy()->addMinute());
+                }
+            }
+        }
         // Échéances de suivi : règle du cheval (maréchal, vaccination… actifs par défaut),
         // rappel N jours avant puis le jour même ; un contrôle déjà remplacé par un soin plus récent est ignoré.
-        $today = now()->startOfDay();
         $rulesCache = [];
         $dueRecords = CareRecord::with(['horse.organization', 'category'])->whereNotNull('next_check_on')->whereNull('next_check_done_at')
             ->whereBetween('next_check_on', [$today->toDateString(), $today->copy()->addDays(60)->toDateString()])->get();

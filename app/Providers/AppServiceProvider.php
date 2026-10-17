@@ -12,6 +12,7 @@ use App\Models\Treatment;
 use App\Models\User;
 use App\Services\CareCalendarSync;
 use App\Services\CareExpenseSync;
+use App\Services\CompetitionVaccines;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
@@ -47,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(HorseAccess::class);
         $this->app->scoped(IntegrationSettings::class);
         $this->app->scoped(ToValidate::class);
+        $this->app->scoped(CompetitionVaccines::class);
     }
 
     public function boot(): void

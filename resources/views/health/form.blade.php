@@ -12,6 +12,22 @@
                     <x-select name="care_category_id" label="Catégorie" :options="$categories" :value="$record->care_category_id" required placeholder="Choisir…" x-model="cat" />
                     <p x-show="rhythms[cat]" x-cloak x-text="rhythms[cat]" class="mt-1.5 flex gap-1.5 rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600" data-rhythm-info></p>
                 </div>
+                @php
+                    $checkedVaccines = old('vaccines', $record->vaccines ?? \App\Support\Vaccines::infer($record->reason, $record->care_performed, $record->observations));
+                @endphp
+                {{-- Vaccination : vaccins reçus (vérifiés avant un concours). --}}
+                <div x-show="@js($vaccinationIds).includes(String(cat))" x-cloak class="sm:col-span-2" data-care-vaccines>
+                    <p class="label">Vaccins reçus</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (\App\Support\Vaccines::TYPES as $vk => $vl)
+                            <label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-sand-200 bg-white px-3 text-sm has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-900">
+                                <input type="checkbox" name="vaccines[]" value="{{ $vk }}" class="size-4 rounded" @checked(in_array($vk, (array) $checkedVaccines, true))> {{ $vl }}
+                            </label>
+                        @endforeach
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500">Utile avant un concours (grippe, rhinopneumonie). Rien de coché : les vaccins sont reconnus dans le motif, par exemple « Rappel grippe-tétanos ».</p>
+                    @error('vaccines.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
                 <x-field name="performed_at" type="datetime-local" label="Date et heure" :value="$record->performed_at?->format('Y-m-d\TH:i')" required x-model="performed" />
                 <x-professional-select label="Professionnel" :options="$professionals" :value="$record->professional_id" :org="$horse->organization" help="Absent de la liste ? Ajoutez-le dans Intervenants." />
                 <x-field name="reason" label="Motif" :value="$record->reason" />

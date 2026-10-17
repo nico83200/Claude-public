@@ -9,6 +9,7 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <x-section class="lg:col-span-2">
             <x-dl :items="[
+                'Vaccins' => $record->category?->key === 'vaccination' ? (\App\Support\Vaccines::of($record) ? ucfirst(\App\Support\Vaccines::names(\App\Support\Vaccines::of($record))).($record->vaccines ? '' : ' (d\'après le motif)') : 'Non précisés') : null,
                 'Professionnel' => $record->professional?->fullName(),
                 'Coût' => $record->cost ? number_format((float) $record->cost, 2, ',', ' ').' €' : null,
                 'Prochain contrôle' => $record->next_check_on?->format('d/m/Y'),
