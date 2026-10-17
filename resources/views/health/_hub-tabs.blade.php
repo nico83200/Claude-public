@@ -4,7 +4,7 @@
     $hubTabs = ['sante' => 'Santé', 'alimentation' => 'Alimentation', 'suivi' => 'Suivi', 'poids' => 'Poids'];
     $hubHorse = $healthHub['horse'] ?? null;
 @endphp
-<nav class="no-scrollbar -mx-4 mb-3 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Sections de la santé" data-health-tabs>
+<nav class="jc-sticky-strip no-scrollbar -mx-4 mb-3 overflow-x-auto px-4 sm:mx-0 sm:px-0" aria-label="Sections de la santé" data-health-tabs>
     <div class="flex w-max gap-1.5 rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
         @foreach ($hubTabs as $key => $label)
             @php $params = $key === 'sante' ? [] : array_filter(['onglet' => $key, 'cheval' => $hubHorse?->id]); @endphp

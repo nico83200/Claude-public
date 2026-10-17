@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasClientUuid;
+use App\Services\CalendarService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class CalendarEvent extends Model
 {
@@ -15,7 +18,7 @@ class CalendarEvent extends Model
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['status' => 'planned', 'duration_minutes' => 60, 'recurrence_interval' => 1];
 
-    protected $casts = ['starts_at' => 'datetime', 'all_day' => 'boolean', 'recurrence_until' => 'date'];
+    protected $casts = ['starts_at' => 'datetime', 'all_day' => 'boolean', 'recurrence_until' => 'date', 'recurrence_exceptions' => 'array'];
 
     public const TYPES = [
         'veterinary' => 'Vétérinaire', 'farrier' => 'Maréchalerie', 'care' => 'Soin', 'treatment' => 'Traitement',
@@ -67,7 +70,36 @@ class CalendarEvent extends Model
         return $this->source_type === (new RidingSession)->getMorphClass();
     }
 
-    /** Masque les événements de séance des chevaux dont l'utilisateur ne peut pas voir les séances. */
+    /** Date retirée de la série (occurrence supprimée, ou validée et devenue un événement à part). */
+    public function isExcluded(string $date): bool
+    {
+        return in_array($date, $this->recurrence_exceptions ?? [], true);
+    }
+
+    public function exclude(string $date): void
+    {
+        $this->recurrence_exceptions = collect($this->recurrence_exceptions ?? [])->push($date)->unique()->sort()->values()->all();
+    }
+
+    public function reinclude(string $date): void
+    {
+        $this->recurrence_exceptions = collect($this->recurrence_exceptions ?? [])->reject(fn ($d) => $d === $date)->values()->all() ?: null;
+    }
+
+    /** Occurrences de la série entre deux dates (exceptions retirées). */
+    public function occurrencesBetween(Carbon $from, Carbon $to): Collection
+    {
+        return app(CalendarService::class)->expand(collect([$this]), $from, $to)->pluck('at');
+    }
+
+    /** La date est-elle une occurrence de la série ? */
+    public function occursOn(string $date): bool
+    {
+        $day = Carbon::parse($date);
+
+        return $this->recurrence && $this->occurrencesBetween($day->copy()->startOfDay(), $day->copy()->endOfDay())->isNotEmpty();
+    }
+
     /** Autres événements du même rendez-vous groupé (un passage pour plusieurs chevaux). */
     public function groupSiblings()
     {

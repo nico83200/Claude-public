@@ -4,7 +4,8 @@
     $q = fn ($d, $v = null) => array_filter(['view' => $v ?? $view, 'date' => $d->toDateString(), 'horse' => request('horse'), 'type' => request('type'), 'vue' => request('vue')]);
     $typeLabels = \App\Models\CalendarEvent::TYPES + \App\Services\AgendaJournal::TYPES;
     $typeColors = \App\Models\CalendarEvent::COLORS + \App\Services\AgendaJournal::COLORS;
-    $href = fn ($o) => $o['url'] ?? route('calendar.show', $o['event']);
+    // Événement récurrent : la fiche s'ouvre sur l'occurrence choisie (?date=).
+    $href = fn ($o) => $o['url'] ?? route('calendar.show', array_filter([$o['event'], 'date' => $o['event']->recurrence ? $o['at']->toDateString() : null]));
     $byDay = $occurrences->groupBy(fn ($o) => $o['at']->toDateString());
     $colors = ['red' => 'bg-red-100 text-red-800', 'amber' => 'bg-amber-100 text-amber-800', 'rose' => 'bg-rose-100 text-rose-800', 'purple' => 'bg-violet-100 text-violet-800', 'emerald' => 'bg-emerald-100 text-emerald-800', 'teal' => 'bg-teal-100 text-teal-800', 'blue' => 'bg-blue-100 text-blue-800', 'lime' => 'bg-lime-100 text-lime-800', 'slate' => 'bg-slate-100 text-slate-700', 'sky' => 'bg-sky-100 text-sky-800'];
     $dots = ['red' => 'bg-red-500', 'amber' => 'bg-amber-500', 'rose' => 'bg-rose-500', 'purple' => 'bg-violet-500', 'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'blue' => 'bg-blue-500', 'lime' => 'bg-lime-500', 'slate' => 'bg-slate-400', 'sky' => 'bg-sky-500'];
@@ -66,7 +67,7 @@
             @endforeach
         </div>
     </div>
-    <x-filters :fields="$horses->count() > 1 ? ['horse', 'type', 'vue'] : ['type', 'vue']" :keep="['view' => $view, 'date' => $date->toDateString()]">
+    <x-filters :sticky="false" :fields="$horses->count() > 1 ? ['horse', 'type', 'vue'] : ['type', 'vue']" :keep="['view' => $view, 'date' => $date->toDateString()]">
         @if ($horses->count() > 1)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endif
         <x-select name="vue" label="Afficher" :options="['rdv' => 'Rendez-vous et séances', 'journal' => 'Suivi (pesées, observations, dépenses…)']" :value="request('vue')" placeholder="Tout" />
         <x-select name="type" label="Type" :options="$typeLabels" :value="request('type')" placeholder="Tous" />
@@ -117,10 +118,14 @@
                             $ev = $o['event'];
                             // Téléphone : glisser à gauche pour supprimer, à droite pour valider un rendez-vous « À valider ».
                             $editable = empty($o['journal']) && $ev->exists && $canEditEvent($ev);
-                            $swipeDelete = $editable && \App\Http\Controllers\CalendarController::swipeDeletable($ev) ? route('calendar.destroy', $ev) : null;
-                            $toValidate = $editable && ! $ev->isSessionEvent() && ! $ev->recurrence && in_array($ev->status, ['planned', 'confirmed'], true) && $o['at']->isPast();
+                            $deletable = $editable && \App\Http\Controllers\CalendarController::swipeDeletable($ev);
+                            $occDate = $ev->recurrence ? $o['at']->toDateString() : null;
+                            // Série : choix entre cette occurrence, celle-ci et les suivantes, ou toute la série.
+                            $choices = $deletable && $occDate ? \App\Http\Controllers\CalendarController::deleteChoices($ev, $occDate) : [];
+                            $swipeDelete = $deletable && ! $occDate ? route('calendar.destroy', $ev) : null;
+                            $toValidate = $editable && ! $ev->isSessionEvent() && in_array($ev->status, ['planned', 'confirmed'], true) && $o['at']->isPast();
                         @endphp
-                        <x-swipe.row :delete-url="$swipeDelete" :validate-url="$toValidate ? route('calendar.done', $ev) : null" :text="'« '.$ev->title.' » supprimé'" :validate-text="'« '.$ev->title.' » validé'" rounded="" surface="bg-white" :data-swipe-event="$ev->id">
+                        <x-swipe.row :delete-url="$swipeDelete" :choices="$choices" :event-id="$ev->id" :date="$occDate" :validate-url="$toValidate ? route('calendar.done', array_filter([$ev, 'date' => $occDate])) : null" :text="'« '.$ev->title.' » supprimé'" :validate-text="'« '.$ev->title.' » validé'" rounded="" surface="bg-white" :data-swipe-event="$ev->id">
                         <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif @if ($highlight && empty($o['journal']) && $ev->id == $highlight) data-highlight @endif class="{{ $highlight && empty($o['journal']) && $ev->id == $highlight ? 'bg-brand-50 ring-2 ring-brand-500' : '' }} flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
                             <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
                             <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>

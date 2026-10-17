@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.32.0' => ['2026-10-17', 'Séries récurrentes de l\'agenda : chaque occurrence se valide (elle devient un événement réalisé, la série continue) ou se supprime au choix — cette occurrence, cette occurrence et les suivantes (la série s\'arrête à l\'occurrence précédente), ou toute la série — par glissé ou depuis sa fiche, avec « Annuler » ; dates retirées publiées dans l\'agenda synchronisé. Téléphone : onglets du cheval, onglets Santé, Paramètres et recherche des listes fixés sous l\'en-tête.'],
     '2.31.0' => ['2026-10-17', 'Calendrier sur téléphone : titre, boutons et filtres fixes, seule la liste défile et s\'ouvre centrée sur aujourd\'hui (« Auj. » y revient) ; glisser un rendez-vous à gauche pour le supprimer (avec « Annuler »), à droite pour valider un rendez-vous « À valider ».'],
     '2.30.2' => ['2026-10-16', 'Budget : en modifiant une échéance d\'une dépense récurrente, choix entre cette échéance uniquement, cette échéance et les suivantes, ou toute la série.'],
     '2.30.1' => ['2026-10-16', 'Budget : « Modifier » proposé dans la liste pour toutes les dépenses que la personne peut modifier (le propriétaire aussi pour celles saisies par une demi-pensionnaire), comme sur la fiche de la dépense.'],

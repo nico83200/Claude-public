@@ -1,11 +1,12 @@
-@props(['fields' => [], 'search' => null, 'placeholder' => 'Rechercher…', 'keep' => []])
+@props(['fields' => [], 'search' => null, 'placeholder' => 'Rechercher…', 'keep' => [], 'sticky' => true])
 @php
     // Barre de filtres compacte : recherche toujours visible, critères repliés derrière « Filtres ».
     // Les listes déroulantes s'appliquent dès qu'on les change ; « Effacer » remet tout à zéro.
+    // Téléphone : avec une recherche, la barre reste sous l'en-tête pendant le défilement (repliée seulement).
     $active = collect($fields)->filter(fn ($f) => filled(request($f)))->count();
     $resetParams = collect($keep)->filter(fn ($v) => filled($v))->all();
 @endphp
-<form method="GET" {{ $attributes->merge(['class' => 'mb-5']) }} x-data="{ open: {{ $active ? 'true' : 'false' }} }"
+<form method="GET" {{ $attributes->merge(['class' => 'mb-5']) }} x-data="{ open: {{ $active ? 'true' : 'false' }} }" @if ($sticky && $search) :class="{ 'jc-sticky-strip': ! open }" @endif
       @submit="[...$el.elements].forEach((e) => { if (e.name && e.value === '') e.disabled = true })"
       @change="if ($event.target.tagName === 'SELECT' || $event.target.type === 'checkbox') $el.requestSubmit()">
     @foreach ($keep as $k => $v)@if (filled($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif @endforeach

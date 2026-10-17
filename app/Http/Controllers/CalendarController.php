@@ -18,6 +18,8 @@ use App\Support\Fr;
 use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CalendarController extends Controller
@@ -74,12 +76,20 @@ class CalendarController extends Controller
         }
         $this->authorizeEvent($request, $event, Perm::CALENDAR_VIEW);
         $orgIds = $request->user()->memberships->pluck('organization_id');
+        // Série : la fiche porte sur l'occurrence ouverte depuis l'agenda (?date=), si elle en fait partie.
+        $occurrence = $event->recurrence && is_string($request->query('date')) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $request->query('date')) && $event->occursOn($request->query('date'))
+            ? Carbon::parse($request->query('date').' '.$event->starts_at->format('H:i:s')) : null;
+        $canEdit = $this->canEdit($request, $event);
 
         return view('calendar.show', [
             'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category', 'treatment']),
-            'canEdit' => $this->canEdit($request, $event),
+            'canEdit' => $canEdit,
+            'occurrence' => $occurrence,
+            'deleteChoices' => $occurrence && $canEdit && self::swipeDeletable($event) ? self::deleteChoices($event, $occurrence->toDateString()) : [],
+            'canMarkDone' => $canEdit && ! $event->isSessionEvent() && in_array($event->status, ['planned', 'confirmed'], true)
+                && ($event->recurrence ? $occurrence && $occurrence->isPast() : $event->starts_at->isPast()),
             'siblings' => $event->groupSiblings()->filter(fn ($e) => $e->horse && $this->horseCan($e->horse, Perm::CALENDAR_VIEW))->values(),
-            'canValidate' => $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
+            'canValidate' => ! $event->recurrence && $event->horse && in_array($event->type, ['veterinary', 'farrier', 'care'], true) && in_array($event->status, ['planned', 'confirmed'], true)
                 && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
             'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
         ]);
@@ -163,13 +173,82 @@ class CalendarController extends Controller
         if ($event->treatment && $event->treatment->administrations()->exists()) {
             return back()->with('error', 'Ce traitement a déjà des administrations enregistrées : arrêtez-le depuis la page Santé du cheval pour garder son historique.');
         }
+        // Événement récurrent : cette occurrence, cette occurrence et les suivantes, ou toute la série.
+        if ($event->recurrence && in_array($request->input('scope'), ['occurrence', 'following'], true)) {
+            $date = $this->occurrenceDate($request, $event);
+
+            return $request->input('scope') === 'occurrence'
+                ? $this->deleteOccurrence($request, $event, $date)
+                : $this->deleteFollowing($request, $event, $date);
+        }
         $event->delete();
+        $text = $event->recurrence ? 'Série « '.$event->title.' » supprimée' : 'Événement supprimé';
         // Glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
         if ($request->wantsJson()) {
-            return response()->json(['restore_url' => route('calendar.restore', $event->id)]);
+            return response()->json(['restore_url' => route('calendar.restore', $event->id), 'text' => $text, 'reload' => (bool) $event->recurrence]);
         }
 
-        return redirect()->route('calendar.index')->with('success', 'Événement supprimé.');
+        return redirect()->route('calendar.index')->with('success', $text.'.');
+    }
+
+    /** Une occurrence retirée de la série (les autres restent). */
+    private function deleteOccurrence(Request $request, CalendarEvent $event, string $date)
+    {
+        $event->exclude($date);
+        $event->save();
+        $text = 'Occurrence du '.Carbon::parse($date)->format('d/m').' supprimée';
+
+        return $request->wantsJson()
+            ? response()->json(['restore_url' => route('calendar.occurrence.restore', [$event, 'date' => $date]), 'text' => $text])
+            : redirect()->route('calendar.index', ['date' => $date])->with('success', $text.'.');
+    }
+
+    /** Cette occurrence et les suivantes : la série s'arrête à l'occurrence précédente (ou disparaît si c'est la première). */
+    private function deleteFollowing(Request $request, CalendarEvent $event, string $date)
+    {
+        $previous = $event->occurrencesBetween($event->starts_at->copy()->startOfDay(), Carbon::parse($date)->subDay()->endOfDay())->last();
+        if (! $previous) {
+            $request->merge(['scope' => 'series']);
+
+            return $this->destroy($request, $event);
+        }
+        $before = $event->recurrence_until?->toDateString();
+        $event->update(['recurrence_until' => $previous->toDateString()]);
+        $text = 'Série « '.$event->title.' » arrêtée au '.$previous->format('d/m/Y');
+
+        return $request->wantsJson()
+            ? response()->json(['restore_url' => route('calendar.recurrence.until', array_filter([$event, 'until' => $before])), 'text' => $text, 'reload' => true])
+            : redirect()->route('calendar.index', ['date' => $date])->with('success', $text.'.');
+    }
+
+    /** « Annuler » : l'occurrence revient dans la série. */
+    public function restoreOccurrence(Request $request, CalendarEvent $event)
+    {
+        abort_unless($this->canEdit($request, $event), 403);
+        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+        $event->reinclude($date);
+        $event->save();
+
+        return $request->wantsJson() ? response()->json(['ok' => true]) : redirect()->route('calendar.index', ['date' => $date]);
+    }
+
+    /** « Annuler » : la série reprend sa date de fin précédente (aucune si vide). */
+    public function restoreUntil(Request $request, CalendarEvent $event)
+    {
+        abort_unless($this->canEdit($request, $event) && $event->recurrence, 403);
+        $until = $request->validate(['until' => ['nullable', 'date_format:Y-m-d']])['until'] ?? null;
+        $event->update(['recurrence_until' => $until]);
+
+        return $request->wantsJson() ? response()->json(['ok' => true]) : redirect()->route('calendar.show', $event);
+    }
+
+    /** Date d'occurrence demandée (?date=AAAA-MM-JJ), qui doit appartenir à la série. */
+    private function occurrenceDate(Request $request, CalendarEvent $event): string
+    {
+        $date = $request->validate(['date' => ['required', 'date_format:Y-m-d']])['date'];
+        abort_unless($event->occursOn($date), 422, 'Cette date ne fait pas partie de la série.');
+
+        return $date;
     }
 
     /** « Annuler » après un glissé : l'événement revient. */
@@ -184,25 +263,55 @@ class CalendarController extends Controller
 
     /**
      * Événement passé validé d'un geste (glissé vers la droite) : « Réalisé », comme depuis sa modification
-     * (un rendez-vous de soin rejoint alors le carnet de santé).
+     * (un rendez-vous de soin rejoint alors le carnet de santé). Pour une série, seule l'occurrence du jour est validée :
+     * elle devient un événement à part, retiré de la série.
      */
     public function markDone(Request $request, CalendarEvent $event)
     {
         abort_unless($this->canEdit($request, $event), 403);
         abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : validez la séance.');
         abort_unless(in_array($event->status, ['planned', 'confirmed'], true), 422, 'Cet événement est déjà validé ou annulé.');
-        abort_if((bool) $event->recurrence, 422, 'Événement récurrent : validez-le depuis sa fiche.');
-        $event->update(['status' => 'done']);
+        if ($event->recurrence) {
+            $date = $this->occurrenceDate($request, $event);
+            $at = Carbon::parse($date.' '.$event->starts_at->format('H:i:s'));
+            abort_if($at->isFuture(), 422, 'Cette occurrence n\'a pas encore eu lieu.');
+            $done = DB::transaction(function () use ($event, $date, $at) {
+                $done = $event->replicate(['uuid', 'recurrence', 'recurrence_interval', 'recurrence_until', 'recurrence_exceptions', 'group_uuid']);
+                $done->uuid = (string) Str::uuid();
+                $done->forceFill(['starts_at' => $at, 'status' => 'done', 'recurrence_parent_id' => $event->id, 'organization_id' => $event->organization_id, 'created_by' => $event->created_by])->save();
+                $event->exclude($date);
+                $event->save();
 
-        return $request->wantsJson()
-            ? response()->json(['text' => '« '.$event->title.' » validé'])
-            : back()->with('success', '« '.$event->title.' » validé.');
+                return $done;
+            });
+            $text = '« '.$event->title.' » du '.$at->format('d/m').' validé';
+            if (! $request->wantsJson()) {
+                return redirect()->route('calendar.show', $done)->with('success', $text.'.');
+            }
+        } else {
+            $event->update(['status' => 'done']);
+            $text = '« '.$event->title.' » validé';
+        }
+
+        return $request->wantsJson() ? response()->json(['text' => $text]) : back()->with('success', $text.'.');
+    }
+
+    /** Choix de suppression d'une occurrence de série (glissé dans la liste, fiche de l'occurrence). */
+    public static function deleteChoices(CalendarEvent $event, string $date): array
+    {
+        $day = Carbon::parse($date);
+
+        return [
+            ['scope' => 'occurrence', 'label' => 'Cette occurrence', 'help' => 'Seulement le '.$day->translatedFormat('j F').'.', 'url' => route('calendar.destroy', [$event, 'scope' => 'occurrence', 'date' => $date])],
+            ['scope' => 'following', 'label' => 'Cette occurrence et les suivantes', 'help' => 'La série s\'arrête à l\'occurrence précédente.', 'url' => route('calendar.destroy', [$event, 'scope' => 'following', 'date' => $date])],
+            ['scope' => 'series', 'label' => 'Toute la série', 'help' => 'Toutes les occurrences, passées comprises.', 'url' => route('calendar.destroy', [$event, 'scope' => 'series'])],
+        ];
     }
 
     /** Suppression d'un glissé : seulement si elle ne retire rien d'autre (soin du carnet, traitement). */
     public static function swipeDeletable(CalendarEvent $event): bool
     {
-        return ! $event->isSessionEvent() && ! $event->recurrence && ! $event->care_record_id && ! $event->treatment_id
+        return ! $event->isSessionEvent() && ! $event->care_record_id && ! $event->treatment_id
             && ! in_array($event->source_type, [(new CareRecord)->getMorphClass(), (new Treatment)->getMorphClass()], true);
     }
 

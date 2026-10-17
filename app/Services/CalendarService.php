@@ -57,7 +57,7 @@ class CalendarService
             $step = max(1, (int) $event->recurrence_interval);
             $guard = 0;
             while ($at->lte($to) && $at->lte($until) && $guard++ < 1000) {
-                if ($at->gte($from)) {
+                if ($at->gte($from) && ! $event->isExcluded($at->toDateString())) {
                     $out->push(['event' => $event, 'at' => $at->copy()]);
                 }
                 $at = match ($event->recurrence) {

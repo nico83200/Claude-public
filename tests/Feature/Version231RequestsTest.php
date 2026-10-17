@@ -54,13 +54,13 @@ class Version231RequestsTest extends TestCase
         $html = $this->actingAs($user)->get(route('calendar.index'))->assertOk()->getContent();
         $this->assertSame([true, true], $this->swipe($html, $past), 'Passé et prévu : supprimer ou valider.');
         $this->assertSame([true, false], $this->swipe($html, $future), 'À venir : pas de validation.');
-        $this->assertNull($this->swipe($html, $recurring), 'Récurrent : ni suppression ni validation d\'un glissé.');
+        $this->assertSame([false, true], $this->swipe($html, $recurring), 'Récurrent : choix de suppression (voir 2.32) et validation de l\'occurrence.');
 
         // Valider (glissé à droite).
         $this->actingAs($user)->postJson(route('calendar.done', $past))->assertOk()->assertJson(['text' => '« Concours passé » validé']);
         $this->assertSame('done', $past->fresh()->status);
         $this->actingAs($user)->postJson(route('calendar.done', $past))->assertStatus(422);
-        $this->actingAs($user)->postJson(route('calendar.done', $recurring))->assertStatus(422);
+        $this->actingAs($user)->postJson(route('calendar.done', $recurring))->assertStatus(422); // occurrence (date) requise
 
         // Supprimer (glissé à gauche) puis « Annuler ».
         $res = $this->actingAs($user)->deleteJson(route('calendar.destroy', $future))->assertOk()->json();

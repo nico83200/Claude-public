@@ -78,10 +78,12 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
 }
 
 /** Une ligne : suit le doigt, révèle « Supprimer », supprime puis se replie. */
-export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateText = 'Validé' }) {
+export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateText = 'Validé', choices = [], eventId = null, date = null }) {
     return {
         x: 0,
         done: false,
+        choosing: false, // série récurrente : choix de ce qui est supprimé
+        choices,
         dragging: false,
         open: false,
         busy: false,
@@ -91,6 +93,7 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
         _width: 0,
         init() {
             const el = this.$el;
+            this._row = el; // la feuille de choix est téléportée : on garde la ligne pour les mesures et les événements
             el.addEventListener('pointerdown', (e) => this.down(e));
             el.addEventListener('pointermove', (e) => this.move(e));
             el.addEventListener('pointerup', (e) => this.up(e));
@@ -101,6 +104,10 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
                 if (this._moved || this.open) { e.preventDefault(); e.stopPropagation(); if (this.open) this.close(); }
             }, true);
             el.addEventListener('swipe-peek', () => this.peek());
+            // Suppression d'une série (ou de la suite) : les autres lignes de la même série disparaissent aussi.
+            window.addEventListener('swipe-series-removed', (e) => {
+                if (e.detail.eventId === eventId && el !== e.detail.source && (!e.detail.from || (date && date >= e.detail.from))) this.gone = true;
+            });
             window.addEventListener('swipe-open', (e) => { if (e.detail !== el && this.open) this.close(); });
         },
         // Objet (et non chaîne) : Alpine fusionne avec le style déjà posé (touch-action), au lieu de le remplacer.
@@ -128,7 +135,7 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
             // Vers la gauche (suppression) et, si la ligne se valide, vers la droite ; sinon un léger rebond.
             const next = s.base + dx;
             const right = validateUrl && !this.done;
-            const left = !!deleteUrl;
+            const left = !!deleteUrl || choices.length > 0;
             this.x = next > 0 ? (right ? Math.min(next, this._width) : next / 4) : (left ? Math.max(next, -this._width) : next / 4);
         },
         up() {
@@ -136,12 +143,12 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
             this._start = null;
             if (!s || s.axis !== 'x') { this.dragging = false; return; }
             this.dragging = false;
-            if (deleteUrl && -this.x > this._width * COMMIT) return this.remove();
+            if ((deleteUrl || choices.length) && -this.x > this._width * COMMIT) return this.askOrRemove();
             if (validateUrl && !this.done && this.x > this._width * COMMIT) return this.validate();
             if (validateUrl && !this.done && this.x > OPEN * 0.6) {
                 this.x = OPEN; this.open = true;
                 window.dispatchEvent(new CustomEvent('swipe-open', { detail: this.$el }));
-            } else if (deleteUrl && -this.x > OPEN * 0.6) {
+            } else if ((deleteUrl || choices.length) && -this.x > OPEN * 0.6) {
                 this.x = -OPEN; this.open = true;
                 window.dispatchEvent(new CustomEvent('swipe-open', { detail: this.$el }));
             } else {
@@ -175,20 +182,31 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
                 this.busy = false;
             }
         },
-        async remove() {
+        /** Série récurrente : on demande quoi supprimer ; sinon suppression directe. */
+        askOrRemove() {
+            if (!choices.length) return this.remove();
+            this.x = -OPEN; this.open = true;
+            this.choosing = true;
+        },
+        async remove(choice = null) {
             if (this.busy) return;
+            this.choosing = false;
             this.busy = true;
-            this.x = -(this._width || this.$el.offsetWidth);
+            const row = this._row || this.$el;
+            this.x = -(this._width || row.offsetWidth);
             try {
-                const res = await fetch(deleteUrl, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
+                const res = await fetch(choice ? choice.url : deleteUrl, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
                 if (!res.ok) throw new Error(res.status === 403 ? 'Vous n\'avez pas le droit de supprimer cet élément.' : '');
                 const data = await res.json().catch(() => ({}));
                 this.gone = true; // repli de la ligne (animation de hauteur)
-                this.$dispatch('swipe-deleted', { text, restoreUrl: data.restore_url, linked: data.care || null });
+                if (choice?.scope === 'series' || choice?.scope === 'following') {
+                    window.dispatchEvent(new CustomEvent('swipe-series-removed', { detail: { eventId, from: choice.scope === 'following' ? date : null, source: row } }));
+                }
+                row.dispatchEvent(new CustomEvent('swipe-deleted', { bubbles: true, detail: { text: data.text || text, restoreUrl: data.restore_url, linked: data.care || null } }));
             } catch (err) {
                 this.busy = false;
                 this.close();
-                this.$dispatch('swipe-failed', err?.message || (navigator.onLine ? 'Suppression impossible. Réessayez.' : 'Suppression impossible sans connexion.'));
+                row.dispatchEvent(new CustomEvent('swipe-failed', { bubbles: true, detail: err?.message || (navigator.onLine ? 'Suppression impossible. Réessayez.' : 'Suppression impossible sans connexion.') }));
             }
         },
     };

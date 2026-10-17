@@ -322,3 +322,8 @@ html.jc-sheet-open, html.jc-sheet-open body { overflow: hidden; }
 @media (max-width: 767px) {
     html.agenda-locked, html.agenda-locked body { overflow: hidden; overscroll-behavior: none; }
 }
+
+/* Téléphone : barre d'onglets ou de filtres qui reste sous l'en-tête pendant le défilement (même fond flouté que l'en-tête). */
+@media (max-width: 639px) {
+    .jc-sticky-strip { position: sticky; top: 4rem; z-index: 20; margin-inline: -1rem; padding: .375rem 1rem .5rem; background: color-mix(in srgb, var(--color-slate-50) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+}

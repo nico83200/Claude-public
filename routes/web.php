@@ -205,6 +205,8 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::delete('/calendrier/{event}', [Controllers\CalendarController::class, 'destroy'])->name('calendar.destroy');
     Route::post('/calendrier/{event}/realise', [Controllers\CalendarController::class, 'markDone'])->name('calendar.done');
     Route::post('/calendrier/{eventId}/restaurer', [Controllers\CalendarController::class, 'restore'])->whereNumber('eventId')->name('calendar.restore');
+    Route::post('/calendrier/{event}/occurrence/restaurer', [Controllers\CalendarController::class, 'restoreOccurrence'])->name('calendar.occurrence.restore');
+    Route::post('/calendrier/{event}/fin-de-serie', [Controllers\CalendarController::class, 'restoreUntil'])->name('calendar.recurrence.until');
 
     // Séances
     Route::get('/seances', [Controllers\RidingSessionController::class, 'index'])->name('sessions.index');

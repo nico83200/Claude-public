@@ -42,7 +42,7 @@
     </div>
 </nav>
 {{-- Téléphone : 4 onglets + « Plus » (feuille avec les autres sections). --}}
-<nav class="mb-6 sm:hidden" aria-label="Sections du dossier (téléphone)" x-data="{ more: false }" @keydown.escape.window="more = false" data-horse-tabs-mobile>
+<nav class="jc-sticky-strip mb-6 sm:hidden" aria-label="Sections du dossier (téléphone)" x-data="{ more: false }" @keydown.escape.window="more = false" data-horse-tabs-mobile>
     <div class="flex gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
         @foreach ($primary as $t)
             <a href="{{ $t['url'] }}" @if ($t['active']) aria-current="page" @endif class="{{ $pill($t) }} flex-1 justify-center px-2 text-[13px]">{{ $t['label'] }}{!! $lock($t) !!}</a>

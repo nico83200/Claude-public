@@ -65,7 +65,8 @@ class CalendarFeed
                 $desc = collect([CalendarEvent::TYPES[$e->type] ?? null, $e->horse ? 'Cheval : '.$e->horse->shortName() : null,
                     $e->professional ? 'Intervenant : '.$e->professional->fullName() : null, $e->notes])->filter()->implode("\n");
                 $lines = array_merge($lines, $this->vevent('event-'.$e->id, $e->starts_at, $e->all_day, (int) $e->duration_minutes ?: 60, $title, $desc,
-                    route('calendar.show', $e), $e->status === 'cancelled' ? 'CANCELLED' : ($e->status === 'planned' ? 'TENTATIVE' : 'CONFIRMED'), $this->rrule($e), $e->updated_at ?? now()));
+                    route('calendar.show', $e), $e->status === 'cancelled' ? 'CANCELLED' : ($e->status === 'planned' ? 'TENTATIVE' : 'CONFIRMED'), $this->rrule($e), $e->updated_at ?? now(),
+                    $e->recurrence ? $this->exdates($e) : []));
             }
         }
         $lines[] = 'END:VCALENDAR';
@@ -97,7 +98,15 @@ class CalendarFeed
             .($e->recurrence_until ? ';UNTIL='.Carbon::parse($e->recurrence_until)->endOfDay()->utc()->format('Ymd\THis\Z') : '');
     }
 
-    private function vevent(string $uid, Carbon $start, bool $allDay, int $minutes, string $title, string $desc, string $url, string $status, ?string $rrule, Carbon $stamp): array
+    /** Occurrences retirées de la série (supprimées ou validées à part). */
+    private function exdates(CalendarEvent $e): array
+    {
+        return collect($e->recurrence_exceptions ?? [])->map(fn ($d) => $e->all_day
+            ? 'EXDATE;VALUE=DATE:'.Carbon::parse($d)->format('Ymd')
+            : 'EXDATE:'.Carbon::parse($d.' '.$e->starts_at->format('H:i:s'))->utc()->format('Ymd\THis\Z'))->all();
+    }
+
+    private function vevent(string $uid, Carbon $start, bool $allDay, int $minutes, string $title, string $desc, string $url, string $status, ?string $rrule, Carbon $stamp, array $exdates = []): array
     {
         $lines = ['BEGIN:VEVENT', 'UID:'.$uid.'@'.parse_url(config('app.url'), PHP_URL_HOST), 'DTSTAMP:'.$stamp->copy()->utc()->format('Ymd\THis\Z')];
         if ($allDay) {
@@ -109,6 +118,7 @@ class CalendarFeed
         }
         if ($rrule) {
             $lines[] = 'RRULE:'.$rrule;
+            array_push($lines, ...$exdates);
         }
         $lines[] = 'SUMMARY:'.$this->text($title);
         if ($desc !== '') {
