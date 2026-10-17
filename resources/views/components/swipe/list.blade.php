@@ -1,7 +1,7 @@
 @props(['hintKey', 'hint' => null, 'hintClass' => ''])
 {{-- Liste dont les lignes (<x-swipe.row>) se glissent vers la gauche pour être supprimées, avec « Annuler » (resources/js/swipe-delete.js).
      L'astuce s'affiche sur téléphone et tablette jusqu'à ce que le geste soit utilisé ou l'astuce fermée. --}}
-<div x-data="swipeList({ hintKey: @js($hintKey) })" @swipe-deleted="deleted($event.detail)" @swipe-failed="failed($event.detail)" {{ $attributes }}>
+<div x-data="swipeList({ hintKey: @js($hintKey) })" @swipe-deleted="deleted($event.detail)" @swipe-validated="validated($event.detail)" @swipe-failed="failed($event.detail)" {{ $attributes }}>
     @if ($hint)
         <div x-show="hint" x-cloak class="mb-3 flex items-center gap-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-900 {{ $hintClass }}" data-swipe-hint>
             <x-icon name="arrow-left" class="size-5 shrink-0 text-brand-700" />

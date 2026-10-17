@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\CalendarEvent;
+use App\Models\CareRecord;
 use App\Models\Horse;
 use App\Models\OrganizationMember;
+use App\Models\Treatment;
 use App\Services\AgendaJournal;
 use App\Services\CalendarFeed;
 use App\Services\CalendarService;
@@ -35,7 +37,7 @@ class CalendarController extends Controller
 
         $horseIds = $access->horseIdsWith($user, Perm::CALENDAR_VIEW);
         $orgIds = $user->memberships->pluck('organization_id');
-        $events = CalendarEvent::with(['horse', 'responsible', 'professional'])
+        $events = CalendarEvent::with(['horse', 'responsible', 'professional', 'organization'])
             ->where(fn ($q) => $q->whereIn('horse_id', $horseIds)->orWhere(fn ($w) => $w->whereNull('horse_id')->whereIn('organization_id', $orgIds)))
             ->visibleSessions($access->horseIdsWith($user, Perm::SESSIONS_VIEW))
             ->when($request->integer('horse'), fn ($q, $h) => $q->where('horse_id', $h))
@@ -49,6 +51,8 @@ class CalendarController extends Controller
 
         return view('calendar.index', [
             'view' => $view, 'date' => $date, 'from' => $from, 'to' => $to,
+            // Glissés de la liste (téléphone) : droits de modification de chaque événement.
+            'canEditEvent' => fn (CalendarEvent $e) => $this->canEdit($request, $e),
             // Rendez-vous et tout ce qui est daté ailleurs dans l'application (pesées, observations, dépenses…).
             'occurrences' => $this->calendar->expand($events, $from, $to)
                 ->concat($request->query('vue') === 'rdv' ? [] : $journal->between($user, $from, $to, $request->integer('horse') ?: null, $request->query('type')))
@@ -160,8 +164,46 @@ class CalendarController extends Controller
             return back()->with('error', 'Ce traitement a déjà des administrations enregistrées : arrêtez-le depuis la page Santé du cheval pour garder son historique.');
         }
         $event->delete();
+        // Glissé dans la liste (téléphone) : réponse JSON avec l'adresse d'annulation.
+        if ($request->wantsJson()) {
+            return response()->json(['restore_url' => route('calendar.restore', $event->id)]);
+        }
 
         return redirect()->route('calendar.index')->with('success', 'Événement supprimé.');
+    }
+
+    /** « Annuler » après un glissé : l'événement revient. */
+    public function restore(Request $request, int $eventId)
+    {
+        $event = CalendarEvent::onlyTrashed()->findOrFail($eventId);
+        abort_unless($this->canEdit($request, $event), 403);
+        $event->restore();
+
+        return $request->wantsJson() ? response()->json(['ok' => true]) : redirect()->route('calendar.show', $event)->with('success', 'Événement restauré.');
+    }
+
+    /**
+     * Événement passé validé d'un geste (glissé vers la droite) : « Réalisé », comme depuis sa modification
+     * (un rendez-vous de soin rejoint alors le carnet de santé).
+     */
+    public function markDone(Request $request, CalendarEvent $event)
+    {
+        abort_unless($this->canEdit($request, $event), 403);
+        abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : validez la séance.');
+        abort_unless(in_array($event->status, ['planned', 'confirmed'], true), 422, 'Cet événement est déjà validé ou annulé.');
+        abort_if((bool) $event->recurrence, 422, 'Événement récurrent : validez-le depuis sa fiche.');
+        $event->update(['status' => 'done']);
+
+        return $request->wantsJson()
+            ? response()->json(['text' => '« '.$event->title.' » validé'])
+            : back()->with('success', '« '.$event->title.' » validé.');
+    }
+
+    /** Suppression d'un glissé : seulement si elle ne retire rien d'autre (soin du carnet, traitement). */
+    public static function swipeDeletable(CalendarEvent $event): bool
+    {
+        return ! $event->isSessionEvent() && ! $event->recurrence && ! $event->care_record_id && ! $event->treatment_id
+            && ! in_array($event->source_type, [(new CareRecord)->getMorphClass(), (new Treatment)->getMorphClass()], true);
     }
 
     private function authorizeEvent(Request $request, CalendarEvent $event, string $perm): void

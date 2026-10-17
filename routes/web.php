@@ -203,6 +203,8 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::get('/calendrier/{event}/modifier', [Controllers\CalendarController::class, 'edit'])->name('calendar.edit');
     Route::put('/calendrier/{event}', [Controllers\CalendarController::class, 'update'])->name('calendar.update');
     Route::delete('/calendrier/{event}', [Controllers\CalendarController::class, 'destroy'])->name('calendar.destroy');
+    Route::post('/calendrier/{event}/realise', [Controllers\CalendarController::class, 'markDone'])->name('calendar.done');
+    Route::post('/calendrier/{eventId}/restaurer', [Controllers\CalendarController::class, 'restore'])->whereNumber('eventId')->name('calendar.restore');
 
     // Séances
     Route::get('/seances', [Controllers\RidingSessionController::class, 'index'])->name('sessions.index');

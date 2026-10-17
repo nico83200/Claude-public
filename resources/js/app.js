@@ -16,6 +16,7 @@ import { swipeList, swipeRow } from './swipe-delete.js';
 import { startConfirm } from './confirm.js';
 import { loadMore } from './load-more.js';
 import { fileDrop } from './file-drop.js';
+import { agendaScroll } from './agenda-scroll.js';
 
 window.Alpine = Alpine;
 // Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
@@ -33,6 +34,7 @@ Alpine.data('swipeList', swipeList);
 Alpine.data('swipeRow', swipeRow);
 Alpine.data('loadMore', loadMore);
 Alpine.data('fileDrop', fileDrop);
+Alpine.data('agendaScroll', agendaScroll);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));

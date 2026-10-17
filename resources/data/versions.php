@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.31.0' => ['2026-10-17', 'Calendrier sur téléphone : titre, boutons et filtres fixes, seule la liste défile et s\'ouvre centrée sur aujourd\'hui (« Auj. » y revient) ; glisser un rendez-vous à gauche pour le supprimer (avec « Annuler »), à droite pour valider un rendez-vous « À valider ».'],
     '2.30.2' => ['2026-10-16', 'Budget : en modifiant une échéance d\'une dépense récurrente, choix entre cette échéance uniquement, cette échéance et les suivantes, ou toute la série.'],
     '2.30.1' => ['2026-10-16', 'Budget : « Modifier » proposé dans la liste pour toutes les dépenses que la personne peut modifier (le propriétaire aussi pour celles saisies par une demi-pensionnaire), comme sur la fiche de la dépense.'],
     '2.30.0' => ['2026-10-16', 'Plusieurs chevaux (lot F) : « À prévoir ensemble » (même soin dû pour plusieurs chevaux, intervenant habituel, rendez-vous groupé en un geste), puces pour passer d\'un cheval à l\'autre depuis l\'accueil, recherche dans le choix du cheval et filtres d\'écurie (à surveiller, en traitement, suivi à faire, lieu).'],

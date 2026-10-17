@@ -1,4 +1,5 @@
-// Glisser une ligne vers la gauche pour la supprimer (téléphone et tablette, au doigt).
+// Glisser une ligne vers la gauche pour la supprimer (téléphone et tablette, au doigt) ;
+// vers la droite pour la valider, quand la ligne le permet (ex. rendez-vous « À valider » du calendrier).
 // - glissé court : la ligne reste ouverte sur le bouton « Supprimer » ;
 // - glissé long (plus de 45 % de la largeur) : suppression directe ;
 // - un message « … supprimée · Annuler » permet de revenir en arrière quelques secondes.
@@ -23,6 +24,13 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
         dismissHint() {
             this.hint = false;
             try { localStorage.setItem(hintKey, '1'); } catch { /* sans effet */ }
+        },
+        /** Ligne validée d'un glissé vers la droite : simple message (la ligne affiche déjà son nouvel état). */
+        validated(detail) {
+            this.dismissHint();
+            clearTimeout(this._timer);
+            this.toast = { text: detail.text || 'Validé', restoreUrl: null, linked: null, error: false };
+            this._timer = setTimeout(() => { this.toast = null; }, TOAST_MS);
         },
         deleted(detail) {
             // Le geste a été compris : l'astuce n'est plus utile.
@@ -70,9 +78,10 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
 }
 
 /** Une ligne : suit le doigt, révèle « Supprimer », supprime puis se replie. */
-export function swipeRow({ deleteUrl, text }) {
+export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateText = 'Validé' }) {
     return {
         x: 0,
+        done: false,
         dragging: false,
         open: false,
         busy: false,
@@ -116,17 +125,23 @@ export function swipeRow({ deleteUrl, text }) {
             }
             if (s.axis !== 'x') return;
             this._moved = true;
-            // Vers la gauche seulement ; un léger rebond si l'on tire vers la droite.
+            // Vers la gauche (suppression) et, si la ligne se valide, vers la droite ; sinon un léger rebond.
             const next = s.base + dx;
-            this.x = next > 0 ? next / 4 : Math.max(next, -this._width);
+            const right = validateUrl && !this.done;
+            const left = !!deleteUrl;
+            this.x = next > 0 ? (right ? Math.min(next, this._width) : next / 4) : (left ? Math.max(next, -this._width) : next / 4);
         },
         up() {
             const s = this._start;
             this._start = null;
             if (!s || s.axis !== 'x') { this.dragging = false; return; }
             this.dragging = false;
-            if (-this.x > this._width * COMMIT) return this.remove();
-            if (-this.x > OPEN * 0.6) {
+            if (deleteUrl && -this.x > this._width * COMMIT) return this.remove();
+            if (validateUrl && !this.done && this.x > this._width * COMMIT) return this.validate();
+            if (validateUrl && !this.done && this.x > OPEN * 0.6) {
+                this.x = OPEN; this.open = true;
+                window.dispatchEvent(new CustomEvent('swipe-open', { detail: this.$el }));
+            } else if (deleteUrl && -this.x > OPEN * 0.6) {
                 this.x = -OPEN; this.open = true;
                 window.dispatchEvent(new CustomEvent('swipe-open', { detail: this.$el }));
             } else {
@@ -139,9 +154,26 @@ export function swipeRow({ deleteUrl, text }) {
         close() { this.x = 0; this.open = false; },
         peek() {
             if (this.open || this.busy || this.dragging) return;
-            this.x = -56;
+            this.x = deleteUrl ? -56 : 56;
             // Ne pas reprendre la main si l'utilisateur a commencé à glisser entre-temps.
             setTimeout(() => { if (!this.open && !this.busy && !this._start) this.x = 0; }, 650);
+        },
+        async validate() {
+            if (this.busy || !validateUrl) return;
+            this.busy = true;
+            try {
+                const res = await fetch(validateUrl, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() } });
+                if (!res.ok) throw new Error(res.status === 403 ? 'Vous n\'avez pas le droit de valider cet élément.' : '');
+                const data = await res.json().catch(() => ({}));
+                this.done = true;
+                this.close();
+                this.$dispatch('swipe-validated', { text: data.text || validateText });
+            } catch (err) {
+                this.close();
+                this.$dispatch('swipe-failed', err?.message || (navigator.onLine ? 'Validation impossible. Réessayez.' : 'Validation impossible sans connexion.'));
+            } finally {
+                this.busy = false;
+            }
         },
         async remove() {
             if (this.busy) return;

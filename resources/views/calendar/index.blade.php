@@ -12,6 +12,8 @@
     $chip = fn ($ev) => $colors[$typeColors[$ev->type] ?? 'sky'];
 @endphp
 <x-layouts.app title="Calendrier">
+    {{-- Téléphone : ce haut de page reste fixe, seule la liste défile (voir agenda-scroll.js). --}}
+    <div data-calendar-top>
     <x-page-header title="Calendrier" :subtitle="ucfirst($view === 'month' ? $date->translatedFormat('F Y') : ($view === 'week' ? 'Semaine du '.$from->format('d/m').' au '.$to->format('d/m/Y') : $date->translatedFormat('l j F Y')))">
         @if ($editableHorses->isNotEmpty() || ($currentOrganization && auth()->user()->canInOrg($currentOrganization, 'calendar.edit')))
             <button type="button" class="btn-primary" onclick="document.getElementById('new-event').showModal()"><x-icon name="plus" /> Événement</button>
@@ -51,15 +53,16 @@
         <x-upsell :offer="$syncUpsell" class="mb-4" />
     @endif
 
-    <div class="mb-3 flex flex-wrap items-center gap-2">
+    <div class="mb-3 flex flex-wrap items-center gap-2 max-sm:flex-nowrap">
         <div class="flex shrink-0 items-center rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200/70">
             <a href="{{ route('calendar.index', $q($prev)) }}" class="flex size-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Précédent"><x-icon name="back" class="size-4" /></a>
-            <a href="{{ route('calendar.index', $q(now())) }}" class="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">Aujourd'hui</a>
+            <a href="{{ route('calendar.index', $q(now())) }}" class="rounded-full px-2 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 sm:px-3" data-calendar-today
+               @click="if (document.querySelector('[data-agenda-list] [data-today-divider]') && window.matchMedia('(max-width: 767px)').matches) { $event.preventDefault(); $dispatch('agenda-today') }"><span class="sm:hidden">Auj.</span><span class="hidden sm:inline">Aujourd'hui</span></a>
             <a href="{{ route('calendar.index', $q($next)) }}" class="flex size-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Suivant"><x-icon name="chevron" class="size-4" /></a>
         </div>
         <div class="ml-auto flex shrink-0 items-center rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200/70">
             @foreach (['day' => 'Jour', 'week' => 'Sem.', 'month' => 'Mois'] as $v => $label)
-                <a href="{{ route('calendar.index', $q($date, $v)) }}" @if ($view === $v) aria-current="page" @endif class="rounded-full px-3 py-1.5 font-medium {{ $view === $v ? 'bg-brand-800 text-white' : 'text-slate-600 hover:bg-slate-100' }}">{{ $label }}</a>
+                <a href="{{ route('calendar.index', $q($date, $v)) }}" @if ($view === $v) aria-current="page" @endif class="rounded-full px-2.5 py-1.5 font-medium sm:px-3 {{ $view === $v ? 'bg-brand-800 text-white' : 'text-slate-600 hover:bg-slate-100' }}">{{ $label }}</a>
             @endforeach
         </div>
     </div>
@@ -68,6 +71,7 @@
         <x-select name="vue" label="Afficher" :options="['rdv' => 'Rendez-vous et séances', 'journal' => 'Suivi (pesées, observations, dépenses…)']" :value="request('vue')" placeholder="Tout" />
         <x-select name="type" label="Type" :options="$typeLabels" :value="request('type')" placeholder="Tous" />
     </x-filters>
+    </div>
 
     @if ($view === 'month')
         <div class="card hidden overflow-hidden md:block">
@@ -96,8 +100,9 @@
         $dividerDone = false;
         $highlight = session('highlight');
     @endphp
-    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} space-y-3" data-agenda-list
-         x-data x-init="$nextTick(() => ($el.querySelector('[data-highlight]') || $el.querySelector('[data-today-divider]'))?.scrollIntoView({ block: 'center' }))">
+    <div class="{{ $view === 'month' ? 'md:hidden' : '' }} relative space-y-3 max-md:-mx-4 max-md:overflow-y-auto max-md:overscroll-contain max-md:px-4 max-md:pb-4" data-agenda-list
+         x-data="agendaScroll" @agenda-today.window="center() || (location.href = @js(route('calendar.index', $q(now()))))">
+        <x-swipe.list hint-key="jc-hint-swipe-agenda" hint="glissez un rendez-vous vers la gauche pour le supprimer, vers la droite pour valider un rendez-vous passé." hint-class="md:hidden" class="space-y-3">
         @forelse ($listDays as $day => $items)
             @if ($showDivider && ! $dividerDone && $day >= $todayKey)
                 @php $dividerDone = true; @endphp
@@ -106,9 +111,16 @@
             <div class="{{ $day < $todayKey ? 'opacity-60' : '' }}" @if ($day === $todayKey) id="aujourdhui" @endif>
                 @php $dayC = \Illuminate\Support\Carbon::parse($day); @endphp
                 <p class="mb-2 text-sm font-semibold text-slate-500">{{ $dayC->isToday() ? 'Aujourd\'hui' : ($dayC->isTomorrow() ? 'Demain' : ucfirst($dayC->translatedFormat('l j F'))) }}</p>
-                <div class="card divide-y divide-slate-100">
+                <div class="card divide-y divide-slate-100 overflow-hidden">
                     @foreach ($items as $o)
-                        @php $ev = $o['event']; @endphp
+                        @php
+                            $ev = $o['event'];
+                            // Téléphone : glisser à gauche pour supprimer, à droite pour valider un rendez-vous « À valider ».
+                            $editable = empty($o['journal']) && $ev->exists && $canEditEvent($ev);
+                            $swipeDelete = $editable && \App\Http\Controllers\CalendarController::swipeDeletable($ev) ? route('calendar.destroy', $ev) : null;
+                            $toValidate = $editable && ! $ev->isSessionEvent() && ! $ev->recurrence && in_array($ev->status, ['planned', 'confirmed'], true) && $o['at']->isPast();
+                        @endphp
+                        <x-swipe.row :delete-url="$swipeDelete" :validate-url="$toValidate ? route('calendar.done', $ev) : null" :text="'« '.$ev->title.' » supprimé'" :validate-text="'« '.$ev->title.' » validé'" rounded="" surface="bg-white" :data-swipe-event="$ev->id">
                         <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif @if ($highlight && empty($o['journal']) && $ev->id == $highlight) data-highlight @endif class="{{ $highlight && empty($o['journal']) && $ev->id == $highlight ? 'bg-brand-50 ring-2 ring-brand-500' : '' }} flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
                             <span class="w-12 shrink-0 text-sm font-semibold text-slate-900">{{ $ev->all_day ? 'Jour' : $o['at']->format('H:i') }}</span>
                             <span class="size-2.5 shrink-0 rounded-full {{ $dot($ev) }}" aria-hidden="true"></span>
@@ -119,11 +131,12 @@
                             @if (empty($o['journal']))
                                 @if ($ev->status === 'done')<x-badge color="green">Réalisé</x-badge>
                                 @elseif ($ev->status === 'cancelled')<x-badge>Annulé</x-badge>
-                                @elseif ($o['at']->isPast())<x-badge color="amber">À valider</x-badge>
+                                @elseif ($o['at']->isPast())<x-badge color="amber" x-show="! (typeof done !== 'undefined' && done)">À valider</x-badge>@if ($toValidate)<x-badge color="green" x-show="done" x-cloak>Réalisé</x-badge>@endif
                                 @else<x-badge color="brand">À venir</x-badge>@endif
                             @endif
                             <x-icon name="chevron" class="size-4 shrink-0 text-slate-300" />
                         </a>
+                        </x-swipe.row>
                     @endforeach
                 </div>
             </div>
@@ -134,6 +147,7 @@
         @empty
             <x-empty title="Aucun événement sur cette période" icon="calendar" />
         @endforelse
+        </x-swipe.list>
     </div>
 
     <dialog id="new-event" class="m-auto w-[calc(100%-2rem)] max-w-2xl rounded-3xl p-0 backdrop:bg-slate-900/40">

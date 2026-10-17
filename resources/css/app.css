@@ -317,3 +317,8 @@ input[type=date]::-webkit-calendar-picker-indicator, input[type=time]::-webkit-c
 /* Fenêtre ouverte en plein écran sur téléphone (voir partials/head : champs date et heure). */
 dialog.jc-sheet { position: fixed; inset: 0; z-index: 80; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; border-radius: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: env(safe-area-inset-bottom); }
 html.jc-sheet-open, html.jc-sheet-open body { overflow: hidden; }
+
+/* Calendrier sur téléphone : la page ne défile plus, seule la liste du calendrier défile (voir agenda-scroll.js). */
+@media (max-width: 767px) {
+    html.agenda-locked, html.agenda-locked body { overflow: hidden; overscroll-behavior: none; }
+}
