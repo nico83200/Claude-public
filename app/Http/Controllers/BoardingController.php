@@ -6,6 +6,8 @@ use App\Models\BoardingCharge;
 use App\Models\BoardingContract;
 use App\Models\BoardingStatement;
 use App\Models\Horse;
+use App\Models\LessonCharge;
+use App\Models\Professional;
 use App\Models\User;
 use App\Services\Audit;
 use App\Services\BoardingBilling;
@@ -37,6 +39,10 @@ class BoardingController extends Controller
             'charges' => BoardingCharge::with('horse')->where('organization_id', $org->id)->where('charged_on', '>=', Carbon::createFromFormat('Y-m-d', $period.'-01'))
                 ->where('charged_on', '<=', Carbon::createFromFormat('Y-m-d', $period.'-01')->endOfMonth())->orderByDesc('charged_on')->get(),
             'statements' => BoardingStatement::where('organization_id', $org->id)->where('period', $period)->orderBy('owner_name')->get(),
+            // Cours du mois donnés par les enseignants de l'écurie (frais de cours de leurs cavaliers).
+            'lessons' => LessonCharge::with(['horse', 'payer'])->where('amount', '>', 0)->whereIn('professional_id', Professional::where('organization_id', $org->id)->select('id'))
+                ->whereBetween('charged_on', [Carbon::createFromFormat('Y-m-d', $period.'-01')->toDateString(), Carbon::createFromFormat('Y-m-d', $period.'-01')->endOfMonth()->toDateString()])
+                ->orderByDesc('charged_on')->get(),
             'unpaid' => BoardingStatement::where('organization_id', $org->id)->where('status', 'sent')->sum('total'),
         ]);
     }

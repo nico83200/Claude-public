@@ -8,7 +8,9 @@ use App\Models\BoardingStatement;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Horse;
+use App\Models\LessonCharge;
 use App\Models\Organization;
+use App\Models\Professional;
 use App\Models\User;
 use App\Notifications\AppNotification;
 use App\Support\Perm;
@@ -21,6 +23,9 @@ use Illuminate\Support\Facades\DB;
  * Chaque mois, un relevé par propriétaire : pension de chacun de ses chevaux (au prorata des jours
  * de présence) et prestations du mois. À l'envoi, le propriétaire qui a un compte est prévenu et la
  * somme apparaît « à payer » dans son budget ; elle passe à « payée » quand l'écurie note le paiement.
+ * Les cours donnés par les enseignants de l'écurie y sont repris, au nom de la personne qui les paie
+ * (propriétaire, demi-pension, cavalier) : ils figurent déjà dans ses frais de cours (et dans son budget
+ * s'il est propriétaire), le relevé ne les ajoute donc pas une seconde fois ; le paiement les marque payés.
  */
 class BoardingBilling
 {
@@ -60,6 +65,7 @@ class BoardingBilling
             // Brouillons recalculés : leurs prestations redeviennent disponibles.
             $drafts = BoardingStatement::where('organization_id', $stable->id)->where('period', $period)->where('status', 'draft')->pluck('id');
             BoardingCharge::whereIn('statement_id', $drafts)->update(['statement_id' => null]);
+            LessonCharge::whereIn('boarding_statement_id', $drafts)->update(['boarding_statement_id' => null]);
             BoardingStatement::whereIn('id', $drafts)->delete();
             $locked = BoardingStatement::where('organization_id', $stable->id)->where('period', $period)->get()
                 ->map(fn ($s) => $s->owner_user_id ? 'u'.$s->owner_user_id : 'n'.md5(mb_strtolower(trim($s->owner_name).'|'.trim((string) $s->owner_email))))->all();
@@ -95,20 +101,39 @@ class BoardingBilling
                 ];
             }
 
+            // Cours donnés par les enseignants de l'écurie : sur le relevé de la personne qui les paie.
+            $lessons = LessonCharge::with(['horse', 'payer'])->whereNull('boarding_statement_id')->where('amount', '>', 0)
+                ->whereIn('professional_id', Professional::where('organization_id', $stable->id)->select('id'))
+                ->whereBetween('charged_on', [$start->toDateString(), $end->toDateString()])->orderBy('charged_on')->orderBy('id')->get();
+            foreach ($lessons as $l) {
+                // Pas de relevé à soi-même : cours notés au nom de quelqu'un qui gère la facturation de l'écurie.
+                if (! $l->payer || $l->payer->canInOrg($stable->id, Perm::EXPENSES_ORG_VIEW)) {
+                    continue;
+                }
+                $key = 'u'.$l->payer_id;
+                $groups[$key]['payer'] ??= $l->payer;
+                $groups[$key]['lines'][] = [
+                    'horse' => $l->horse?->shortName(), 'horse_id' => $l->horse_id, 'kind' => 'lesson', 'label' => $l->label, 'detail' => $l->charged_on->format('d/m'),
+                    'quantity' => 1, 'unit_price' => (float) $l->amount, 'amount' => (float) $l->amount, 'lesson_charge_id' => $l->id,
+                ];
+            }
+
             $created = collect();
             foreach ($groups as $key => $g) {
                 if (in_array($key, $locked, true)) {
                     continue;
                 }
-                $c = $g['contract'];
+                $c = $g['contract'] ?? null;
+                $payer = $g['payer'] ?? null;
                 $statement = new BoardingStatement([
-                    'number' => $this->nextNumber($stable, $period), 'period' => $period, 'owner_user_id' => $c->owner_user_id,
-                    'owner_name' => $c->owner_name, 'owner_email' => $c->owner_email, 'lines' => $g['lines'],
+                    'number' => $this->nextNumber($stable, $period), 'period' => $period, 'owner_user_id' => $c ? $c->owner_user_id : $payer->id,
+                    'owner_name' => $c ? $c->owner_name : $payer->name, 'owner_email' => $c ? $c->owner_email : $payer->email, 'lines' => $g['lines'],
                     'total' => round(array_sum(array_column($g['lines'], 'amount')), 2), 'status' => 'draft',
                 ]);
                 $statement->organization_id = $stable->id;
                 $statement->save();
                 BoardingCharge::whereIn('id', array_filter(array_column($g['lines'], 'charge_id')))->update(['statement_id' => $statement->id]);
+                LessonCharge::whereIn('id', array_filter(array_column($g['lines'], 'lesson_charge_id')))->update(['boarding_statement_id' => $statement->id]);
                 $created->push($statement);
             }
 
@@ -126,7 +151,8 @@ class BoardingBilling
                 return;
             }
             $category = ExpenseCategory::where('key', 'boarding')->value('id') ?? ExpenseCategory::value('id');
-            foreach (collect($statement->lines)->groupBy('horse_id') as $horseId => $lines) {
+            // Les cours sont déjà dans les frais de cours (et le budget du propriétaire) : seules la pension et les prestations y sont ajoutées.
+            foreach (collect($statement->lines)->reject(fn ($l) => ($l['kind'] ?? null) === 'lesson')->groupBy('horse_id') as $horseId => $lines) {
                 $horse = Horse::find($horseId);
                 // Seulement pour un cheval de l'espace du propriétaire : l'écurie n'écrit jamais dans son propre budget ici.
                 if (! $horse || $horse->organization_id === $statement->organization_id || ! $owner->memberships->contains('organization_id', $horse->organization_id)) {
@@ -140,7 +166,7 @@ class BoardingBilling
                 $expense->paid_on = null;
                 $expense->save();
             }
-            $owner->notify(new AppNotification('payment_due', 'Relevé de pension – '.$statement->periodLabel(),
+            $owner->notify(new AppNotification('payment_due', $statement->title().' – '.$statement->periodLabel(),
                 $statement->organization->name.' vous adresse le relevé '.$statement->number.' : '.number_format((float) $statement->total, 2, ',', ' ').' €.',
                 route('boarding.statement', $statement)));
         });
@@ -152,6 +178,10 @@ class BoardingBilling
             $statement->update(['status' => 'paid', 'paid_on' => $on->toDateString()]);
             Expense::where('boarding_statement_id', $statement->id)->whereNull('paid_on')->update(['paid_on' => $on->toDateString()]);
         });
+        // Cours du relevé : payés dans les frais de cours (et dans le budget du propriétaire).
+        foreach (LessonCharge::where('boarding_statement_id', $statement->id)->whereNull('paid_on')->get() as $charge) {
+            app(LessonCosts::class)->markPaid($charge, $on);
+        }
     }
 
     public function canView(User $user, BoardingStatement $statement): bool

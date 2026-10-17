@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BoardingStatement;
 use App\Models\Horse;
 use App\Models\LessonCharge;
 use App\Models\LessonPackage;
@@ -27,7 +28,7 @@ class LessonCostController extends Controller
         $this->costs->monthlyFees($user);
         $packages = LessonPackage::with(['professional', 'horse'])->where('payer_id', $user->id)->orderByDesc('starts_on')->get();
         // Le cours avant le déplacement du même jour.
-        $all = LessonCharge::with(['horse', 'professional'])->where('payer_id', $user->id)->orderByDesc('charged_on')->orderByRaw("kind = 'travel'")->orderBy('id')->get();
+        $all = LessonCharge::with(['horse', 'professional', 'statement'])->where('payer_id', $user->id)->orderByDesc('charged_on')->orderByRaw("kind = 'travel'")->orderBy('id')->get();
         $horse = $request->integer('horse') ?: null;
         $charges = $horse ? $all->where('horse_id', $horse)->values() : $all;
 
@@ -38,6 +39,12 @@ class LessonCostController extends Controller
             'horses' => $all->pluck('horse')->filter()->unique('id')->sortBy(fn ($h) => mb_strtolower($h->shortName()))->values(),
             'horse' => $horse,
             'packages' => $packages,
+            // Mes cours cette année, par enseignant (cours particuliers et collectifs, coachings).
+            'byCoach' => $all->filter(fn (LessonCharge $c) => $c->charged_on->isSameYear(now()) && in_array($c->kind, [...LessonCosts::LESSONS, 'coaching'], true))
+                ->groupBy(fn (LessonCharge $c) => $c->professional?->fullName() ?? 'Sans enseignant')
+                ->map(fn ($list) => ['count' => $list->count(), 'total' => (float) $list->sum('amount'), 'last' => $list->max('charged_on')])->sortByDesc('count'),
+            // Relevés reçus d'une écurie (pension et cours).
+            'statements' => BoardingStatement::with('organization')->where('owner_user_id', $user->id)->where('status', '!=', 'draft')->latest('id')->limit(12)->get(),
             // Cours décomptés : sur toute la carte, ou dans le mois en cours pour un forfait.
             'usage' => $packages->mapWithKeys(fn (LessonPackage $p) => [$p->id => LessonCharge::where('package_id', $p->id)->whereIn('kind', LessonCosts::LESSONS)
                 ->when($p->kind === 'monthly', fn ($q) => $q->whereBetween('charged_on', [today()->startOfMonth()->toDateString(), today()->endOfMonth()->toDateString()]))->count()]),

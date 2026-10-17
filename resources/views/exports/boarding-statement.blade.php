@@ -3,7 +3,7 @@
 <table style="border:0;margin-bottom:18px"><tr>
     <td style="border:0;vertical-align:top"><strong style="font-size:15px">{{ $o->name }}</strong><br>
         <span class="small">{{ $o->address_line }}@if ($o->postal_code || $o->city)<br>{{ trim($o->postal_code.' '.$o->city) }}@endif @if ($o->email)<br>{{ $o->email }}@endif @if ($o->phone)<br>{{ $o->phone }}@endif</span></td>
-    <td style="border:0;vertical-align:top;text-align:right"><strong>Relevé de pension</strong><br>N° {{ $statement->number }}<br>{{ $statement->periodLabel() }}<br><span class="small">Émis le {{ ($statement->sent_at ?? $statement->created_at)->format('d/m/Y') }}</span></td>
+    <td style="border:0;vertical-align:top;text-align:right"><strong>{{ $statement->title() }}</strong><br>N° {{ $statement->number }}<br>{{ $statement->periodLabel() }}<br><span class="small">Émis le {{ ($statement->sent_at ?? $statement->created_at)->format('d/m/Y') }}</span></td>
 </tr></table>
 <p><strong>À l'attention de :</strong> {{ $statement->owner_name }}@if ($statement->owner_email) <span class="muted">({{ $statement->owner_email }})</span>@endif</p>
 <table>
@@ -15,6 +15,6 @@
 </table>
 <p class="small muted" style="margin-top:14px">
     @if ($statement->status === 'paid')Réglé le {{ $statement->paid_on->format('d/m/Y') }}. Merci !@else À régler à réception.@endif
-    Relevé établi avec Jack&amp;Cie. Montants indiqués toutes taxes comprises, selon les conditions de pension convenues avec l'écurie.
+    Relevé établi avec Jack&amp;Cie. Montants indiqués toutes taxes comprises, selon les conditions convenues avec l'écurie.
 </p>
 </body></html>

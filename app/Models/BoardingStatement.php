@@ -24,6 +24,16 @@ class BoardingStatement extends Model
         return $this->belongsTo(User::class, 'owner_user_id');
     }
 
+    /** « Relevé de pension », « Relevé de cours », « Relevé de pension et de cours » */
+    public function title(): string
+    {
+        $kinds = collect($this->lines)->pluck('kind');
+        $lessons = $kinds->contains('lesson');
+        $boarding = $kinds->contains(fn ($k) => $k !== 'lesson');
+
+        return 'Relevé de '.($lessons && $boarding ? 'pension et de cours' : ($lessons ? 'cours' : 'pension'));
+    }
+
     public function periodLabel(): string
     {
         return ucfirst(Carbon::createFromFormat('Y-m-d', $this->period.'-01')->translatedFormat('F Y'));

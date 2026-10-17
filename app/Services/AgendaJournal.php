@@ -124,7 +124,7 @@ class AgendaJournal
         if ($want('boarding') && ! $horseId) {
             $orgs = $user->memberships->pluck('organization_id')->filter(fn ($o) => $user->canInOrg($o, Perm::EXPENSES_ORG_VIEW));
             foreach (BoardingStatement::whereIn('organization_id', $orgs)->whereNotNull('sent_at')->where(fn ($q) => $q->whereBetween('sent_at', [$from, $to])->orWhereBetween('paid_on', [$d0, $d1]))->get() as $s) {
-                $label = 'Relevé de pension '.$s->number.' – '.($s->owner_name ?: 'propriétaire').' – '.$money($s->total);
+                $label = $s->title().' '.$s->number.' – '.($s->owner_name ?: 'propriétaire').' – '.$money($s->total);
                 if ($s->sent_at->between($from, $to)) {
                     $add('boarding', null, $s->sent_at, $label.' (envoyé)', route('boarding.statement', $s), true, $s->paid_on ? 'done' : 'planned');
                 }

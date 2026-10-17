@@ -52,6 +52,12 @@ class LessonCharge extends Model
         return $this->belongsTo(LessonPackage::class)->withTrashed();
     }
 
+    /** Relevé de l'écurie sur lequel le cours est repris. */
+    public function statement()
+    {
+        return $this->belongsTo(BoardingStatement::class, 'boarding_statement_id');
+    }
+
     public function expense()
     {
         return $this->belongsTo(Expense::class)->withTrashed();

@@ -30,7 +30,7 @@
             @forelse ($statements as $s)
                 <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 py-3 first:border-0" data-statement="{{ $s->number }}">
                     <span class="min-w-0 flex-1"><a href="{{ route('boarding.statement', $s) }}" class="font-medium text-slate-900 hover:underline">{{ $s->owner_name }}</a>
-                        <span class="block text-xs text-slate-500">N° {{ $s->number }} · {{ count($s->lines) }} ligne(s) · {{ collect($s->lines)->pluck('horse')->unique()->implode(', ') }}</span></span>
+                        <span class="block text-xs text-slate-500">{{ $s->title() }} · N° {{ $s->number }} · {{ count($s->lines) }} ligne(s) · {{ collect($s->lines)->pluck('horse')->unique()->implode(', ') }}</span></span>
                     <span class="font-semibold tabular-nums">{{ $eur($s->total) }}</span>
                     <x-badge :color="['draft' => 'slate', 'sent' => 'amber', 'paid' => 'green'][$s->status]">{{ \App\Models\BoardingStatement::STATUSES[$s->status] }}</x-badge>
                     <span class="flex gap-1">
@@ -43,7 +43,7 @@
                     </span>
                 </div>
             @empty
-                <p class="text-sm text-slate-500">Aucun relevé pour {{ mb_strtolower($periodLabel) }}. « Préparer les relevés » calcule un relevé par propriétaire : pension au prorata des jours de présence et prestations du mois.</p>
+                <p class="text-sm text-slate-500">Aucun relevé pour {{ mb_strtolower($periodLabel) }}. « Préparer les relevés » calcule un relevé par propriétaire : pension au prorata des jours de présence et prestations du mois, avec les cours donnés par les enseignants de l'écurie (un relevé de cours pour les cavaliers sans pension).</p>
             @endforelse
         </x-section>
 
@@ -76,6 +76,18 @@
                 </div>
             @empty
                 <p class="text-sm text-slate-500">Ferrure avancée, sortie au paddock, complément alimentaire… : notez ici ce qui s'ajoute à la pension.</p>
+            @endforelse
+        </x-section>
+
+        {{-- Cours donnés par les enseignants de l'écurie : repris sur le relevé de la personne qui paie. --}}
+        <x-section :title="'Cours · '.$periodLabel" data-stable-lessons>
+            @forelse ($lessons as $l)
+                <div class="flex items-center justify-between gap-2 border-t border-slate-100 py-2.5 text-sm first:border-0" data-stable-lesson="{{ $l->id }}">
+                    <span class="min-w-0"><span class="font-medium text-slate-900">{{ $l->label }}</span> · {{ $l->horse?->shortName() }}<span class="block text-xs text-slate-500">{{ $l->charged_on->format('d/m') }} · {{ $l->payer?->name }}{{ $l->boarding_statement_id ? ' · facturé' : '' }}{{ $l->paid_on ? ' · payé' : '' }}</span></span>
+                    <span class="shrink-0 whitespace-nowrap tabular-nums">{{ $eur($l->amount) }}</span>
+                </div>
+            @empty
+                <p class="text-sm text-slate-500">Les cours notés avec les enseignants de l'écurie (et leurs tarifs, dans Intervenants) apparaissent ici et sur le relevé de la personne qui les paie.</p>
             @endforelse
         </x-section>
     </div>

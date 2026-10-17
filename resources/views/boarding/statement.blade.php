@@ -1,6 +1,6 @@
 @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
 <x-layouts.app :title="'Relevé '.$statement->number">
-    <x-page-header :title="'Relevé de pension · '.$statement->periodLabel()" :subtitle="$statement->organization->name.' · N° '.$statement->number" :back="$isStable ? route('boarding.index', ['mois' => $statement->period]) : route('budget.index')">
+    <x-page-header :title="$statement->title().' · '.$statement->periodLabel()" :subtitle="$statement->organization->name.' · N° '.$statement->number" :back="$isStable ? route('boarding.index', ['mois' => $statement->period]) : (collect($statement->lines)->every(fn ($l) => ($l['kind'] ?? null) === 'lesson') ? route('lesson-costs.index') : route('budget.index'))">
         <a href="{{ route('boarding.statement', [$statement, 'format' => 'pdf']) }}" class="btn-secondary"><x-icon name="download" class="size-4" /> PDF</a>
     </x-page-header>
     <div class="card max-w-2xl p-5 sm:p-6">

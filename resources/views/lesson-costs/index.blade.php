@@ -14,6 +14,27 @@
         </div>
     @endif
     <div class="space-y-4">
+        @if ($byCoach->isNotEmpty())
+            {{-- Mes cours cette année, par enseignant. --}}
+            <x-section :title="'Mes cours en '.now()->year" data-costs-coaches>
+                @foreach ($byCoach as $name => $row)
+                    <div class="flex items-center justify-between gap-3 border-t border-slate-100 py-2.5 text-sm first:border-0">
+                        <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $name }}</span><span class="block text-xs text-slate-500">{{ $row['count'] }} cours · dernier le {{ $row['last']->translatedFormat('j F') }}</span></span>
+                        <span class="shrink-0 whitespace-nowrap font-semibold tabular-nums">{{ $money($row['total']) }}</span>
+                    </div>
+                @endforeach
+            </x-section>
+        @endif
+        @if ($statements->isNotEmpty())
+            <x-section title="Relevés reçus" data-costs-statements>
+                @foreach ($statements as $st)
+                    <a href="{{ route('boarding.statement', $st) }}" class="flex items-center justify-between gap-3 border-t border-slate-100 py-2.5 text-sm first:border-0">
+                        <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $st->title() }} · {{ $st->periodLabel() }}</span><span class="block text-xs text-slate-500">{{ $st->organization?->name }} · N° {{ $st->number }}</span></span>
+                        <span class="flex shrink-0 items-center gap-2"><span class="whitespace-nowrap tabular-nums">{{ $money($st->total) }}</span><x-badge :color="$st->status === 'paid' ? 'green' : 'amber'">{{ $st->status === 'paid' ? 'Payé' : 'À payer' }}</x-badge></span>
+                    </a>
+                @endforeach
+            </x-section>
+        @endif
         {{-- Cartes et forfaits : les cours faits avec l'enseignant y sont décomptés au lieu d'être comptés au tarif. --}}
         <x-section title="Cartes et forfaits" data-packages>
             @forelse ($packages as $pkg)
@@ -66,7 +87,7 @@
                         <span class="w-12 shrink-0 text-xs font-medium text-slate-500 uppercase">{{ $c->charged_on->translatedFormat('j M') }}</span>
                         <span class="min-w-0 flex-1">
                             @if ($c->sourceUrl())<a href="{{ $c->sourceUrl() }}" class="block font-medium text-slate-900 hover:underline">{{ $c->label }}</a>@else<span class="block font-medium text-slate-900">{{ $c->label }}</span>@endif
-                            <span class="block text-xs text-slate-500">{{ $c->horse?->shortName() }}{{ $c->expense_id ? ' · aussi dans le budget du cheval' : '' }}</span>
+                            <span class="block text-xs text-slate-500">{{ $c->horse?->shortName() }}{{ $c->expense_id ? ' · aussi dans le budget du cheval' : '' }}{{ $c->statement && $c->statement->status !== 'draft' ? ' · relevé n° '.$c->statement->number : '' }}</span>
                         </span>
                         <span class="font-semibold text-slate-900">{{ $money($c->amount) }}</span>
                         <form method="POST" action="{{ route('lesson-costs.paid', $c) }}">@csrf<input type="hidden" name="paid" value="{{ $c->paid_on ? 0 : 1 }}">
