@@ -7,6 +7,7 @@ use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\Horse;
+use App\Models\Invitation;
 use App\Models\Treatment;
 use App\Models\User;
 use App\Services\CareCalendarSync;
@@ -137,6 +138,8 @@ class AppServiceProvider extends ServiceProvider
             $orgPerms = $user ? $user->memberships->flatMap(fn ($m) => $m->role->permissionKeys())->all() : [];
             $view->with('navPerms', $user ? array_values(array_unique([...app(HorseAccess::class)->navPermissions($user), ...$orgPerms])) : []);
             $view->with('unreadNotifications', $user ? $user->unreadNotifications()->count() : 0);
+            // Partages reçus en attente : pastille sur « Partages » dans le menu et sur le bouton Menu.
+            $view->with('pendingShares', $user ? Invitation::pending()->where('email', strtolower($user->email))->count() : 0);
             // Un seul cheval suivi : « Cheval » au lieu de « Chevaux » dans le menu (liste déjà lue pour les droits).
             $access = app(HorseAccess::class);
             $solo = $user ? $access->soloHorse($user) : null;

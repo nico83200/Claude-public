@@ -57,6 +57,7 @@ Route::get('/invitations/{token}', [Controllers\InvitationController::class, 'sh
 
 // Adresse e-mail à confirmer dans les 7 jours (bandeau de rappel en attendant) ; l'administration l'exige toujours.
 Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
+    Route::post('/invitations/recues/tout-accepter', [Controllers\InvitationController::class, 'acceptAll'])->name('invitations.accept-all');
     Route::post('/invitations/recues/{invitation}', [Controllers\InvitationController::class, 'respond'])->name('invitations.respond');
     Route::post('/invitations/{token}/accepter', [Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
     Route::post('/invitations/{token}/refuser', [Controllers\InvitationController::class, 'decline'])->name('invitations.decline');

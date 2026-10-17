@@ -14,6 +14,7 @@ use App\Models\RidingSession;
 use App\Models\SimulationBatch;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Notifications\AppNotification;
 use App\Support\Perm;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,9 @@ use Illuminate\Validation\ValidationException;
 class LoadSimulation
 {
     public const DOMAIN = 'simulation.invalid';
+
+    /** Fin du texte des notifications de partage simulé (pour les retirer avec la simulation). */
+    public const NOTE_MARK = ' (simulation).';
 
     /** Comptes de test au plus, tous lots confondus. */
     public const MAX_TOTAL = 10000;
@@ -185,11 +189,14 @@ class LoadSimulation
         $t0 = microtime(true);
         $users = User::withTrashed()->where('simulation_batch_id', $batch->id)->where('email', 'like', '%@'.self::DOMAIN)->limit($limit)->pluck('id');
         if ($users->isNotEmpty()) {
-            DB::transaction(function () use ($users) {
+            DB::transaction(function () use ($users, $batch) {
                 $orgs = DB::table('organizations')->whereIn('owner_id', $users)->pluck('id');
                 $horses = DB::table('horses')->whereIn('organization_id', $orgs)->pluck('id');
                 DB::table('audit_logs')->whereIn('organization_id', $orgs)->orWhereIn('user_id', $users)->delete();
                 DB::table('notifications')->where('notifiable_type', (new User)->getMorphClass())->whereIn('notifiable_id', $users)->delete();
+                // Notifications des partages simulés reçues par le compte qui a lancé la simulation.
+                DB::table('notifications')->where('notifiable_type', (new User)->getMorphClass())->where('notifiable_id', $batch->params['share_to'] ?? 0)
+                    ->where('data', 'like', '%'.str_replace(['(', ')'], ['%', '%'], self::NOTE_MARK).'%')->delete();
                 // Suppression en base (sans corbeille) : les données des chevaux et des espaces partent en cascade.
                 DB::table('calendar_events')->whereIn('horse_id', $horses)->orWhereIn('organization_id', $orgs)->delete();
                 DB::table('horses')->whereIn('id', $horses)->delete();
@@ -309,6 +316,11 @@ class LoadSimulation
         }
         // Nom d'usage parlant : on voit tout de suite quels droits porte chaque cheval partagé.
         $horse->forceFill(['usual_name' => Str::before($horse->official_name, ' SIM').' · '.$profile['label']])->saveQuietly();
+        if (empty($p['shares_accept'])) {
+            // Comme une vraie invitation : notification dans l'app (ni e-mail ni téléphone), qui mène à la page Partages.
+            $to->notifyNow(new AppNotification('invitation', 'Accès au dossier de '.$horse->shortName(),
+                $owner->name.' vous invite à accéder au dossier du cheval '.$horse->shortName().self::NOTE_MARK, route('sharing.index')), ['database']);
+        }
         $this->bump($counts, 'shares');
     }
 

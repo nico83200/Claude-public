@@ -25,7 +25,8 @@
             ['budget.index', 'Budget', 'wallet', $sCan('expenses.view'), $fh, ['budget.*'], 'budget'],
             ['horses.documents.index', 'Documents', 'doc', $sCan('documents.view'), [$focusHorse], ['horses.documents.*'], 'documents'],
             ['professionals.index', 'Intervenants', 'users', $sCan('health.view') || in_array('professionals.manage', $navPerms), [], ['professionals.*', 'horses.professionals*']],
-            $sCan('horse.manage') ? ['horses.sharing', 'Partage', 'share', true, [$focusHorse], ['horses.sharing*', 'sharing.*']] : ['sharing.index', 'Partage', 'share', true, [], ['sharing.*']],
+            // Partage reçu en attente : « Partage » mène à la page où l'accepter.
+            $sCan('horse.manage') && ! ($pendingShares ?? 0) ? ['horses.sharing', 'Partage', 'share', true, [$focusHorse], ['horses.sharing*', 'sharing.*']] : ['sharing.index', 'Partage', 'share', true, [], ['sharing.*', 'horses.sharing*']],
             ['horses.show', 'Fiche de '.$focusHorse->shortName(), 'horse', true, [$focusHorse], ['horses.show', 'horses.edit', 'horses.pedigree*', 'horses.emergency.*', 'horses.history', 'horses.photos.*', 'horses.ownerships.*']],
         ];
     } else {
@@ -126,6 +127,7 @@
                     <a href="{{ route($item[0], $item[4] ?? []) }}" class="flex min-h-11 items-center gap-3 rounded-full px-4 text-[15px] font-medium transition {{ $active ? 'bg-white text-brand-900 shadow-[var(--shadow-card)] lg:bg-white' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900' }}" @if ($active) aria-current="page" @endif data-nav="{{ $item[0] }}">
                         <x-icon :name="$item[2]" class="size-5 {{ $active ? 'text-brand-700' : '' }}" /> <span class="min-w-0 truncate">{{ $item[1] }}</span>
                         @if ($navLocked($item))<x-icon name="sparkles" class="ml-auto size-4 text-gold-500" /><span class="sr-only"> (offre supérieure)</span>@endif
+                        @if ($item[0] === 'sharing.index' && ($pendingShares ?? 0) > 0)<span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white" data-pending-shares>{{ $pendingShares }}</span><span class="sr-only"> en attente</span>@endif
                     </a>
                 @endif
             @endforeach
@@ -247,7 +249,8 @@
         </div>
         @php $active = $navActive($barRight); @endphp
         <a href="{{ route($barRight[0], $barRight[4] ?? []) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}" data-bar="{{ $barRight[0] }}"><x-icon :name="$barRight[2]" class="size-6" />{{ $barRight[1] }}</a>
-        <button type="button" @click="menu = true" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-400"><x-icon name="menu" class="size-6" />Menu</button>
+        <button type="button" @click="menu = true" class="relative flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-400"><x-icon name="menu" class="size-6" />Menu
+            @if (($pendingShares ?? 0) > 0)<span class="absolute top-2 left-1/2 ml-2 flex size-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white" aria-label="{{ $pendingShares }} partage(s) en attente" data-pending-shares-bar>{{ min($pendingShares, 9) }}</span>@endif</button>
     </div>
 </nav>
 @include('partials.assistant', ['contextHorseId' => $contextHorseId])

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invitation;
 use App\Services\InvitationService;
+use App\Support\Fr;
 use Illuminate\Http\Request;
 
 class InvitationController extends Controller
@@ -41,10 +42,28 @@ class InvitationController extends Controller
             return back()->with('success', 'Invitation refusée.');
         }
         $service->accept($invitation, $request->user());
+        // Depuis la page Partages : on y reste pour traiter les invitations suivantes.
+        if ($request->boolean('stay')) {
+            return back()->with('success', $invitation->type === 'horse_access' ? 'Accès à '.$invitation->horse?->shortName().' activé.' : 'Vous avez rejoint l\'espace '.$invitation->organization->name.'.');
+        }
 
         return $invitation->type === 'horse_access'
             ? redirect()->route('horses.show', $invitation->horse_id)->with('success', 'Accès activé.')
             : redirect()->route('dashboard')->with('success', 'Vous avez rejoint l\'espace '.$invitation->organization->name.'.');
+    }
+
+    /** Toutes les invitations reçues en attente, acceptées d'un geste (page Partages). */
+    public function acceptAll(Request $request, InvitationService $service)
+    {
+        $user = $request->user();
+        abort_unless($user->hasVerifiedEmail(), 403);
+        $accepted = 0;
+        foreach (Invitation::pending()->where('email', strtolower($user->email))->with(['inviter', 'organization', 'role'])->get() as $invitation) {
+            $service->accept($invitation, $user);
+            $accepted++;
+        }
+
+        return back()->with('success', $accepted ? Fr::count($accepted, 'invitation acceptée', 'invitations acceptées').'.' : 'Aucune invitation en attente.');
     }
 
     public function decline(Request $request, string $token, InvitationService $service)
