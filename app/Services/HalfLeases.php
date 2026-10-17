@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\HorseAccessGrant;
+use App\Models\HorseDocument;
 use App\Models\Invitation;
 use App\Models\RidingDay;
 use App\Models\RidingDayChange;
@@ -188,6 +189,32 @@ class HalfLeases
         foreach (HalfLease::where('status', 'active')->whereNotNull('ends_on')->where('ends_on', '<', today()->toDateString())->get() as $lease) {
             $lease->update(['status' => 'ended']);
             $this->releaseDays($lease);
+        }
+
+        return $sent + $this->documentReminders();
+    }
+
+    /** Assurance, licence… : rappel aux deux 30 jours avant la fin de validité, puis une fois expirée. */
+    public function documentReminders(): int
+    {
+        $sent = 0;
+        $docs = HorseDocument::where('attachable_type', HalfLease::class)->whereNotNull('valid_until')
+            ->where(fn ($q) => $q->where(fn ($w) => $w->whereNull('expiry_warned_at')->whereBetween('valid_until', [today()->toDateString(), today()->addDays(30)->toDateString()]))
+                ->orWhere(fn ($w) => $w->whereNull('expired_notified_at')->where('valid_until', '<', today()->toDateString())))->get();
+        foreach ($docs as $doc) {
+            $lease = HalfLease::with(['horse', 'user', 'creator'])->find($doc->attachable_id);
+            $expired = $doc->valid_until->lt(today());
+            $doc->forceFill($expired ? ['expired_notified_at' => now(), 'expiry_warned_at' => $doc->expiry_warned_at ?? now()] : ['expiry_warned_at' => now()])->save();
+            if (! $lease || $lease->status !== 'active') {
+                continue;
+            }
+            $kind = HorseDocument::HALF_LEASE_CATEGORIES[$doc->category] ?? 'Document';
+            foreach (collect([$lease->user, $lease->creator])->filter()->unique('id') as $person) {
+                $person->notify(new AppNotification('half_lease', ($expired ? $kind.' expirée' : $kind.' à renouveler').' : '.$lease->riderName(),
+                    '« '.$doc->title.' » '.($expired ? 'n\'est plus valable depuis le ' : 'est valable jusqu\'au ').Fr::day($doc->valid_until).' (demi-pension sur '.$lease->horse->shortName().'). Déposez la nouvelle version sur la fiche.',
+                    route('half-leases.show', $lease)));
+                $sent++;
+            }
         }
 
         return $sent;

@@ -298,6 +298,9 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::get('/demi-pensions/{halfLease}/modifier', [Controllers\HalfLeaseController::class, 'edit'])->name('half-leases.edit');
     Route::put('/demi-pensions/{halfLease}', [Controllers\HalfLeaseController::class, 'update'])->name('half-leases.update');
     Route::post('/demi-pensions/{halfLease}/fin', [Controllers\HalfLeaseController::class, 'end'])->name('half-leases.end');
+    Route::post('/demi-pensions/{halfLease}/documents', [Controllers\HalfLeaseDocumentController::class, 'store'])->name('half-leases.documents.store');
+    Route::get('/demi-pensions/{halfLease}/documents/{document}', [Controllers\HalfLeaseDocumentController::class, 'show'])->scopeBindings()->name('half-leases.documents.show');
+    Route::delete('/demi-pensions/{halfLease}/documents/{document}', [Controllers\HalfLeaseDocumentController::class, 'destroy'])->scopeBindings()->name('half-leases.documents.destroy');
     Route::post('/demi-pensions/{halfLease}/mois', [Controllers\HalfLeaseController::class, 'skipMonth'])->name('half-leases.skip-month');
     Route::post('/demi-pensions/{halfLease}/annuler', [Controllers\HalfLeaseController::class, 'cancel'])->name('half-leases.cancel');
     Route::post('/demi-pensions/{halfLease}/renvoyer', [Controllers\HalfLeaseController::class, 'resend'])->middleware('throttle:invitations')->name('half-leases.resend');

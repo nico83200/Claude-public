@@ -11,7 +11,10 @@ class HorseDocument extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = ['is_sensitive' => 'boolean'];
+    protected $casts = ['is_sensitive' => 'boolean', 'valid_until' => 'date', 'expiry_warned_at' => 'datetime', 'expired_notified_at' => 'datetime'];
+
+    /** Documents d'une demi-pension (rattachés à sa fiche). */
+    public const HALF_LEASE_CATEGORIES = ['contract' => 'Contrat signé', 'insurance' => 'Attestation d\'assurance', 'license' => 'Licence', 'rules' => 'Règlement de l\'écurie', 'parental' => 'Autorisation parentale', 'other' => 'Autre'];
 
     public const CATEGORIES = ['report' => 'Compte rendu', 'prescription' => 'Ordonnance', 'invoice' => 'Facture', 'exam' => 'Résultat d\'examen', 'identification' => 'Identification', 'photo' => 'Photographie', 'other' => 'Autre'];
 

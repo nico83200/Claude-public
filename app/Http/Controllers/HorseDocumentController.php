@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\HorseDocument;
 use App\Services\Audit;
@@ -18,7 +19,8 @@ class HorseDocumentController extends Controller
     {
         $this->authorizeHorse($horse, Perm::DOCUMENTS_VIEW);
         $perms = $this->horsePerms($horse);
-        $docs = $horse->documents()->with('uploader')->get()
+        // Documents d'une demi-pension (assurance, licence…) : sur sa fiche seulement.
+        $docs = $horse->documents()->with('uploader')->where(fn ($q) => $q->whereNull('attachable_type')->orWhere('attachable_type', '!=', HalfLease::class))->get()
             ->filter(fn ($d) => ! $d->is_sensitive || in_array(Perm::HEALTH_VIEW, $perms, true));
 
         $canUpload = $this->horseCan($horse, Perm::DOCUMENTS_CREATE);
@@ -69,12 +71,20 @@ class HorseDocumentController extends Controller
 
     public function download(Request $request, Horse $horse, HorseDocument $document)
     {
+        abort_if($document->attachable_type === HalfLease::class, 404);
         $this->authorizeHorse($horse, Perm::DOCUMENTS_VIEW);
         if ($document->is_sensitive) {
             $this->authorizeHorse($horse, Perm::HEALTH_VIEW);
         }
+
+        return self::serve($request, $document, $horse->organization_id);
+    }
+
+    /** Fichier d'un document, accès déjà vérifié : affiché dans la visionneuse (image, PDF) ou téléchargé. */
+    public static function serve(Request $request, HorseDocument $document, ?int $organizationId)
+    {
         abort_unless(Storage::disk('local')->exists($document->path), 404);
-        Audit::log('document.downloaded', $document, [], $horse->organization_id);
+        Audit::log('document.downloaded', $document, [], $organizationId);
 
         // Image ou PDF : affiché en plein écran dans l'application (visionneuse) ; sinon, ou sur demande, téléchargé.
         if ($request->boolean('telecharger') || ! $document->viewerType()) {
@@ -91,6 +101,7 @@ class HorseDocumentController extends Controller
 
     public function destroy(Request $request, Horse $horse, HorseDocument $document)
     {
+        abort_if($document->attachable_type === HalfLease::class, 404);
         $this->authorizeHorse($horse, Perm::DOCUMENTS_CREATE);
         abort_unless($document->uploaded_by === $request->user()->id || $this->horseCan($horse, Perm::HORSE_MANAGE), 403);
         $document->delete();

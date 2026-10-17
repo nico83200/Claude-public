@@ -59,6 +59,9 @@ class HalfLeaseController extends Controller
             'next' => $this->fees->next($halfLease),
             'viaStatement' => $this->fees->viaStatement($halfLease),
             'canReceive' => $manager && $this->horseCan($halfLease->horse, Perm::EXPENSES_CREATE),
+            'documents' => $halfLease->documents()->with('uploader')->get(),
+            'canUpload' => $halfLease->isOpen() && ($manager || $halfLease->user_id === $user->id),
+            'docsIncluded' => $this->entitlements()->hasFeature($halfLease->horse->organization, 'documents'),
         ]);
     }
 

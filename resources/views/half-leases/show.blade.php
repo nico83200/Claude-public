@@ -91,6 +91,43 @@
             </x-section>
         @endif
 
+        {{-- Documents : visibles du propriétaire et de la demi-pension seulement (ni des autres partages, ni de l'écurie). --}}
+        <x-section title="Documents" data-half-lease-documents>
+            @php $byKind = $documents->groupBy('category'); @endphp
+            <ul class="mb-3 grid gap-1.5 text-sm sm:grid-cols-3" data-half-lease-checklist>
+                @foreach (['contract', 'insurance', 'license'] as $kind)
+                    @php $doc = $byKind[$kind][0] ?? null; @endphp
+                    <li class="flex items-center gap-2 rounded-xl px-3 py-2 {{ $doc ? 'bg-emerald-50 text-emerald-900' : 'bg-slate-50 text-slate-600' }}">
+                        <x-icon :name="$doc ? 'check' : 'doc'" class="size-4 shrink-0" /><span class="min-w-0">{{ \App\Models\HorseDocument::HALF_LEASE_CATEGORIES[$kind] }}<span class="block text-xs opacity-80">{{ $doc ? ($doc->valid_until ? 'jusqu\'au '.$doc->valid_until->format('d/m/Y') : 'déposé le '.$doc->created_at->format('d/m/Y')) : 'à déposer' }}</span></span>
+                    </li>
+                @endforeach
+            </ul>
+            @foreach ($documents as $d)
+                @php $state = $d->valid_until ? ($d->valid_until->lt(today()) ? ['red', 'Expirée'] : ($d->valid_until->lte(today()->addDays(30)) ? ['amber', 'Expire le '.$d->valid_until->format('d/m')] : ['green', 'Valide'])) : null; @endphp
+                <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-slate-100 py-2.5 text-sm" data-half-lease-document>
+                    <span class="min-w-0 flex-1 basis-60"><x-document-link :horse="$horse" :document="$d" :url="route('half-leases.documents.show', [$lease, $d])" group="half-lease-docs" class="font-medium">{{ $d->title }}</x-document-link>
+                        <span class="block text-xs text-slate-500">{{ \App\Models\HorseDocument::HALF_LEASE_CATEGORIES[$d->category] ?? 'Document' }} · {{ $d->uploader?->name }} · {{ $d->created_at->format('d/m/Y') }}{{ $d->valid_until ? ' · valable jusqu\'au '.$d->valid_until->format('d/m/Y') : '' }}</span></span>
+                    <span class="flex shrink-0 items-center gap-1">
+                        @if ($state)<x-badge :color="$state[0]">{{ $state[1] }}</x-badge>@endif
+                        @if ($d->uploaded_by === auth()->id() || $manager)<x-confirm-delete :action="route('half-leases.documents.destroy', [$lease, $d])" message="Retirer ce document de la fiche ?" />@endif
+                    </span>
+                </div>
+            @endforeach
+            @if ($canUpload && $docsIncluded)
+                <form method="POST" action="{{ route('half-leases.documents.store', $lease) }}" enctype="multipart/form-data" class="mt-3 grid gap-3 rounded-2xl bg-slate-50 p-3 sm:grid-cols-2" data-half-lease-upload>
+                    @csrf
+                    <x-select name="category" label="Type" :options="\App\Models\HorseDocument::HALF_LEASE_CATEGORIES" :value="$manager ? 'contract' : 'insurance'" />
+                    <x-field name="valid_until" type="date" label="Valable jusqu'au" help="Assurance, licence : rappel 30 jours avant." />
+                    <x-field name="title" label="Titre" placeholder="Facultatif" class="sm:col-span-2" />
+                    <div class="sm:col-span-2"><label for="f_hl_file" class="label">Fichier</label><input id="f_hl_file" name="file" type="file" required class="input" accept=".pdf,image/*,.doc,.docx">@error('file')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+                    <button class="btn-secondary min-h-11 sm:col-span-2"><x-icon name="upload" class="size-4" /> Ajouter le document</button>
+                </form>
+            @elseif ($canUpload)
+                <p class="mt-2 text-sm text-slate-500">Le dépôt de documents n'est pas inclus dans l'offre de l'espace {{ $horse->organization->name }}.</p>
+            @endif
+            <p class="mt-2 text-xs text-slate-500">Visibles par {{ $manager ? $lease->riderName() : $lease->creator?->name }} et vous seulement.</p>
+        </x-section>
+
         <x-section title="Contacts">
             <ul class="space-y-1 text-sm">
                 <li><span class="text-slate-500">Demi-pension :</span> <span class="font-medium">{{ $lease->riderName() }}</span> · <a href="mailto:{{ $lease->email }}" class="link">{{ $lease->email }}</a>@if ($lease->phone) · <a href="tel:{{ preg_replace('/[^0-9+]/', '', $lease->phone) }}" class="link">{{ $lease->phone }}</a>@endif</li>

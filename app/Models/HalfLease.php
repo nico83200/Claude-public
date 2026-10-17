@@ -48,6 +48,12 @@ class HalfLease extends Model
         return $this->belongsTo(HorseAccessGrant::class, 'grant_id');
     }
 
+    /** Contrat, assurance, licence… : visibles du propriétaire et de la demi-pension seulement. */
+    public function documents()
+    {
+        return $this->morphMany(HorseDocument::class, 'attachable')->latest();
+    }
+
     /** Proposée ou en cours (pas refusée, annulée ni terminée). */
     public function scopeOpen($q)
     {
