@@ -105,6 +105,12 @@ class RidingSession extends Model
         return TimeStatus::resolve($this->status, $this->scheduled_at, $this->scheduled_at->copy()->addMinutes((int) $this->planned_minutes ?: 60), true);
     }
 
+    /** Durée retenue : la durée réelle saisie, sinon la durée prévue (comme dans la liste des séances). */
+    public function durationMinutes(): int
+    {
+        return (int) ($this->actual_minutes ?: $this->planned_minutes);
+    }
+
     public function isCompleted(): bool
     {
         return $this->status === 'completed';

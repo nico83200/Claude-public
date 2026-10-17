@@ -74,9 +74,10 @@ class RidingSessionController extends Controller
 
         return [
             'count_90' => (clone $done)->where('scheduled_at', '>=', $since)->count(),
-            'minutes_90' => (int) (clone $done)->where('scheduled_at', '>=', $since)->sum('actual_minutes'),
-            'by_week' => (clone $done)->where('scheduled_at', '>=', now()->subWeeks(12))->get(['scheduled_at', 'actual_minutes'])
-                ->groupBy(fn ($s) => $s->scheduled_at->startOfWeek()->format('d/m'))->map(fn ($g) => ['count' => $g->count(), 'minutes' => (int) $g->sum('actual_minutes')]),
+            // Durée réelle, sinon durée prévue : une séance terminée sans durée saisie compte quand même.
+            'minutes_90' => (clone $done)->where('scheduled_at', '>=', $since)->get(['actual_minutes', 'planned_minutes'])->sum->durationMinutes(),
+            'by_week' => (clone $done)->where('scheduled_at', '>=', now()->subWeeks(12))->get(['scheduled_at', 'actual_minutes', 'planned_minutes'])
+                ->groupBy(fn ($s) => $s->scheduled_at->startOfWeek()->format('d/m'))->map(fn ($g) => ['count' => $g->count(), 'minutes' => $g->sum->durationMinutes()]),
             'by_type' => (clone $done)->where('scheduled_at', '>=', $since)->selectRaw('session_type, count(*) as c')->groupBy('session_type')->pluck('c', 'session_type'),
             'top_exercises' => \DB::table('session_exercises')->join('riding_sessions', 'riding_sessions.id', '=', 'session_exercises.riding_session_id')
                 ->where('riding_sessions.horse_id', $horseId)->where('session_exercises.status', 'done')->whereNull('riding_sessions.deleted_at')
