@@ -1,18 +1,6 @@
 <x-layouts.app :title="'Partage · '.$horse->shortName()">
     <x-horse-header :horse="$horse" />
-    @if ($link = session('invite_link'))
-        {{-- L'e-mail part toujours ; le même lien peut être envoyé par message (il ne s'ouvre que pour l'adresse invitée). --}}
-        @php $msg = 'Je te partage le dossier de '.$horse->shortName().' sur Jack&Cie. Crée ton compte ou connecte-toi avec '.$link['email'].' : '.$link['url']; @endphp
-        <div class="card mb-4 p-4" data-invite-link x-data="{ copied: false }">
-            <p class="font-semibold">Prévenez aussi la personne par message</p>
-            <p class="mt-1 text-sm text-slate-600">L'invitation est partie à {{ $link['email'] }}. Les e-mails arrivent parfois dans les indésirables : envoyez aussi le lien. Il ne fonctionne qu'avec cette adresse.</p>
-            <div class="mt-3 grid gap-2 sm:grid-cols-3">
-                <a href="https://wa.me/?text={{ rawurlencode($msg) }}" target="_blank" rel="noopener" class="btn-primary min-h-11 justify-center" data-invite-whatsapp><x-icon name="send" class="size-4" /> WhatsApp</a>
-                <a href="sms:?&body={{ rawurlencode($msg) }}" class="btn-secondary min-h-11 justify-center" data-invite-sms><x-icon name="sms" class="size-4" /> SMS</a>
-                <button type="button" class="btn-secondary min-h-11 justify-center" @click="navigator.clipboard?.writeText(@js($link['url'])).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"><x-icon name="doc" class="size-4" /> <span x-text="copied ? 'Lien copié' : 'Copier le lien'">Copier le lien</span></button>
-            </div>
-        </div>
-    @endif
+    @include('sharing._invite-link', ['inviteHorse' => $horse])
     @if ($sharingIncluded && $sharesFull)
         {{-- Limite atteinte : le dire clairement, avec la limite de l'offre. --}}
         <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" data-shares-full>
@@ -26,6 +14,21 @@
     @endif
     <div class="grid gap-4 lg:grid-cols-2">
         <div class="space-y-4">
+            {{-- Demi-pensions : fiche avec dates, jours, tarif ; l'accès s'ouvre à l'acceptation. --}}
+            <x-section title="Demi-pensions" data-half-leases>
+                @forelse ($halfLeases as $hl)
+                    <a href="{{ route('half-leases.show', $hl) }}" class="flex items-center justify-between gap-3 border-t border-slate-100 py-3 text-sm first:border-0 {{ $hl->isOpen() ? '' : 'opacity-60' }}" data-half-lease="{{ $hl->id }}">
+                        <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $hl->riderName() }}</span>
+                            <span class="block text-xs text-slate-500">{{ collect([$hl->weekdays ? ucfirst($hl->daysLabel()) : null, $hl->priceLabel(), ($hl->starts_on->isFuture() ? 'à partir du ' : 'depuis le ').$hl->starts_on->format('d/m/Y')])->filter()->implode(' · ') }}</span></span>
+                        <x-badge :color="$hl->statusColor()" class="shrink-0">{{ $hl->statusLabel() }}</x-badge>
+                    </a>
+                @empty
+                    <p class="text-sm text-slate-600">Une fiche par demi-pension : ses jours, son tarif, la période d'essai et le préavis. Elle reçoit la proposition (dans l'appli si elle a un compte, sinon par e-mail) et son accès s'ouvre quand elle l'accepte.</p>
+                @endforelse
+                @if ($sharingIncluded && ! $upsell)
+                    <a href="{{ route('horses.half-leases.create', $horse) }}" class="btn-primary mt-3 min-h-11 w-full justify-center" data-add-half-lease><x-icon name="plus" class="size-4" /> Ajouter une demi-pension</a>
+                @endif
+            </x-section>
             <x-section title="Personnes ayant accès">
                 @forelse ($grants as $g)
                     <div class="border-t border-slate-100 py-3 first:border-0 {{ ! $g->isActive() ? 'opacity-60' : '' }}" x-data="{ edit: false }">
@@ -95,11 +98,12 @@
         </div>
 
         <div class="space-y-4">
-            <x-section title="Inviter une personne (demi-pension, cavalier…)">
+            <x-section title="Inviter une autre personne (cavalier, coach, vétérinaire…)">
                 <form method="POST" action="{{ route('horses.sharing.invite', $horse) }}" class="space-y-3">
                     @csrf
+                    <p class="text-xs text-slate-500">Pour une demi-pension (jours, tarif, préavis), utilisez « Ajouter une demi-pension ».</p>
                     <x-field name="email" type="email" label="Email" required />
-                    <x-field name="label" label="Libellé" value="Demi-pension" />
+                    <x-field name="label" label="Libellé" value="Cavalier" help="Affiché dans la liste des accès." />
                     @include('sharing._perms', ['selected' => old('permissions', $presets['half_lease']), 'prefix' => 'permissions'])
                     <div class="grid grid-cols-2 gap-2"><x-field name="starts_at" type="date" label="Début de l'accès" /><x-field name="expires_at" type="date" label="Fin de l'accès" /></div>
                     <button class="btn-primary w-full" @disabled(! $sharingIncluded || $upsell)>Envoyer l'invitation</button>

@@ -66,6 +66,7 @@ class AppNotification extends Notification implements ShouldQueue
         'riding_day' => 'Jours de monte (échange, séance sur votre jour)',
         'competition_vaccines' => 'Vaccins à revoir avant un concours',
         'lesson_cost' => 'Frais de cours notés à votre charge',
+        'half_lease' => 'Demi-pension (proposition, réponse, période d\'essai, fin)',
     ];
 
     public function __construct(

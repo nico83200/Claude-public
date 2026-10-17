@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HalfLease;
 use App\Models\Invitation;
 use App\Services\InvitationService;
 use App\Support\Fr;
@@ -23,6 +24,9 @@ class InvitationController extends Controller
         $invitation = $service->findByToken($token);
         abort_unless($invitation, 404);
         $service->accept($invitation, $request->user());
+        if ($lease = HalfLease::where('invitation_id', $invitation->id)->first()) {
+            return $this->accepted($lease);
+        }
 
         return $invitation->type === 'horse_access'
             ? redirect()->route('horses.show', $invitation->horse_id)->with('success', 'Accès activé.')
@@ -37,11 +41,14 @@ class InvitationController extends Controller
     {
         abort_unless(strtolower($invitation->email) === strtolower($request->user()->email) && $request->user()->hasVerifiedEmail() && $invitation->isPending(), 404);
         if ($request->input('decision') === 'decline') {
-            $invitation->update(['revoked_at' => now()]);
+            $service->decline($invitation);
 
             return back()->with('success', 'Invitation refusée.');
         }
         $service->accept($invitation, $request->user());
+        if ($lease = HalfLease::where('invitation_id', $invitation->id)->first()) {
+            return $this->accepted($lease);
+        }
         // Depuis la page Partages : on y reste pour traiter les invitations suivantes.
         if ($request->boolean('stay')) {
             return back()->with('success', $invitation->type === 'horse_access' ? 'Accès à '.$invitation->horse?->shortName().' activé.' : 'Vous avez rejoint l\'espace '.$invitation->organization->name.'.');
@@ -58,7 +65,8 @@ class InvitationController extends Controller
         $user = $request->user();
         abort_unless($user->hasVerifiedEmail(), 403);
         $accepted = 0;
-        foreach (Invitation::pending()->where('email', strtolower($user->email))->with(['inviter', 'organization', 'role'])->get() as $invitation) {
+        $leases = HalfLease::whereNotNull('invitation_id')->where('status', 'proposed')->pluck('invitation_id');
+        foreach (Invitation::pending()->where('email', strtolower($user->email))->whereNotIn('id', $leases)->with(['inviter', 'organization', 'role'])->get() as $invitation) {
             $service->accept($invitation, $user);
             $accepted++;
         }
@@ -66,11 +74,18 @@ class InvitationController extends Controller
         return back()->with('success', $accepted ? Fr::count($accepted, 'invitation acceptée', 'invitations acceptées').'.' : 'Aucune invitation en attente.');
     }
 
+    /** Demi-pension acceptée : retour sur sa fiche. */
+    private function accepted(HalfLease $lease)
+    {
+        return redirect()->route('half-leases.show', $lease)->with('success', 'Demi-pension acceptée : vous avez accès au dossier de '.$lease->horse->shortName()
+            .($lease->weekdays ? ', vos jours habituels ('.$lease->daysLabel().') '.($lease->starts_on->isFuture() ? 'commencent le '.$lease->starts_on->format('d/m/Y') : 'sont dans les jours de monte') : '').'.');
+    }
+
     public function decline(Request $request, string $token, InvitationService $service)
     {
         $invitation = $service->findByToken($token);
         abort_unless($invitation && strtolower($invitation->email) === strtolower($request->user()->email), 404);
-        $invitation->update(['revoked_at' => now()]);
+        $service->decline($invitation);
 
         return redirect()->route('dashboard')->with('success', 'Invitation refusée.');
     }

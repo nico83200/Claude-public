@@ -113,6 +113,7 @@ class RidingDays
             }
         });
         $after = $this->weekly($horse);
+        app(HalfLeases::class)->syncFromWeek($horse);
         $daysOf = fn (array $map, int $id) => collect($map)->filter(fn ($u) => $u->id === $id)->keys()->sort()->values()->all();
         $people = collect($before)->merge($after)->unique('id')->reject(fn ($u) => $u->id === $by->id);
         foreach ($people as $person) {

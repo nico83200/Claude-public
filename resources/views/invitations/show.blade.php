@@ -7,6 +7,16 @@
             @if ($invitation->type === 'horse_access') vous invite à accéder au dossier du cheval <strong>{{ $invitation->horse->shortName() }}</strong>.
             @else vous invite à rejoindre <strong>{{ $invitation->organization->name }}</strong> en tant que « {{ $invitation->role?->name }} ».@endif
         </p>
+        @php $lease = \App\Models\HalfLease::where('invitation_id', $invitation->id)->where('status', 'proposed')->first(); @endphp
+        @if ($lease)
+            <div class="mt-3 rounded-xl bg-brand-50 p-3 text-sm text-brand-900" data-half-lease-terms>
+                <p class="font-semibold">Proposition de demi-pension</p>
+                <p class="mt-1">{{ app(\App\Services\HalfLeases::class)->summary($lease) }}</p>
+                @if ($lease->trial_ends_on)<p class="mt-1 text-xs">Période d'essai jusqu'au {{ \App\Support\Fr::day($lease->trial_ends_on) }}.</p>@endif
+                @if ($lease->notice_days)<p class="mt-1 text-xs">Préavis : {{ \App\Models\HalfLease::NOTICES[$lease->notice_days] ?? $lease->notice_days.' jours' }}.</p>@endif
+                @if ($lease->notes)<p class="mt-1 text-xs whitespace-pre-line">{{ $lease->notes }}</p>@endif
+            </div>
+        @endif
         @if ($invitation->type === 'horse_access')
             <ul class="mt-3 list-disc pl-5 text-sm text-slate-600">@foreach ($invitation->permissions as $p)<li>{{ \App\Support\Perm::horseLabels()[$p] ?? $p }}</li>@endforeach</ul>
             @if ($invitation->access_expires_at)<p class="mt-2 text-xs text-slate-500">Accès jusqu'au {{ $invitation->access_expires_at->format('d/m/Y') }}.</p>@endif

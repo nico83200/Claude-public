@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\CareRecord;
+use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\HorseAccessGrant;
 use App\Models\HorseOrganizationAssignment;
@@ -11,6 +12,7 @@ use App\Models\Invitation;
 use App\Models\RidingSession;
 use App\Notifications\AppNotification;
 use App\Services\Audit;
+use App\Services\HalfLeases;
 use App\Services\HorseAccess;
 use App\Services\InvitationService;
 use App\Services\Upsell;
@@ -33,7 +35,10 @@ class HorseSharingController extends Controller
             'managed' => $managed->load(['accessGrants' => fn ($q) => $q->current()->with('user')]),
             // Accès reçus en cours, suspendus compris (pour pouvoir les reprendre).
             'received' => HorseAccessGrant::current()->where('user_id', $user->id)->with(['horse', 'grantor'])->orderByRaw('paused_at is not null')->get(),
-            'invitations' => Invitation::pending()->where('email', $user->email)->with(['horse', 'organization', 'inviter'])->get(),
+            'invitations' => $invitations = Invitation::pending()->where('email', $user->email)->with(['horse', 'organization', 'inviter'])->get(),
+            'halfLeaseInvitations' => HalfLease::whereIn('invitation_id', $invitations->pluck('id'))->where('status', 'proposed')->get()->keyBy('invitation_id'),
+            // Demi-pensions reçues : lien vers leur fiche depuis l'accès.
+            'halfLeaseGrants' => HalfLease::where('user_id', $user->id)->whereNotNull('grant_id')->pluck('id', 'grant_id'),
         ]);
     }
 
@@ -46,6 +51,8 @@ class HorseSharingController extends Controller
         return view('sharing.horse', [
             'horse' => $horse,
             'grants' => $horse->accessGrants()->with(['user', 'grantor'])->latest()->get(),
+            // Demi-pensions : proposées et en cours d'abord, puis les dernières terminées.
+            'halfLeases' => HalfLease::with('user')->where('horse_id', $horse->id)->orderByRaw("status in ('proposed', 'active') desc")->latest('id')->limit(12)->get(),
             'invitations' => $horse->invitations()->pending()->latest()->get(),
             'assignments' => $horse->assignments()->with('organization')->latest()->get(),
             'labels' => Perm::shareableLabels(),
@@ -92,6 +99,7 @@ class HorseSharingController extends Controller
     {
         $this->authorizeHorse($horse, Perm::HORSE_MANAGE);
         $invitation->update(['revoked_at' => now()]);
+        app(HalfLeases::class)->invitationRevoked($invitation);
         Audit::log('invitation.revoked', $invitation, [], $horse->organization_id);
 
         return back()->with('success', 'Invitation annulée.');

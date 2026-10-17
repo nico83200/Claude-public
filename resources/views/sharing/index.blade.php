@@ -11,11 +11,19 @@
         <section id="en-attente" class="mb-4 scroll-mt-32" data-pending-invitations>
             <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
                 <h2 class="text-lg font-semibold text-slate-900">{{ \App\Support\Fr::count($invitations->count(), 'invitation en attente', 'invitations en attente') }}</h2>
-                @if ($invitations->count() > 1)
-                    <form method="POST" action="{{ route('invitations.accept-all') }}" data-confirm="Accepter les {{ $invitations->count() }} invitations ?" data-confirm-ok="Tout accepter" data-confirm-tone="neutral">@csrf<button class="btn-secondary min-h-10" data-accept-all>Tout accepter</button></form>
+                @if ($invitations->count() - $halfLeaseInvitations->count() > 1)
+                    <form method="POST" action="{{ route('invitations.accept-all') }}" data-confirm="Accepter les {{ $invitations->count() - $halfLeaseInvitations->count() }} invitations ? (Les demi-pensions s'acceptent une à une, depuis leur fiche.)" data-confirm-ok="Tout accepter" data-confirm-tone="neutral">@csrf<button class="btn-secondary min-h-10" data-accept-all>Tout accepter</button></form>
                 @endif
             </div>
             @foreach ($invitations as $inv)
+                @if ($lease = $halfLeaseInvitations[$inv->id] ?? null)
+                    <div class="mb-3 rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-invitation="{{ $inv->id }}" data-half-lease-invitation="{{ $lease->id }}">
+                        <p><strong>{{ $inv->inviter->name }}</strong> vous propose une demi-pension sur <strong>{{ $inv->horse?->shortName() }}</strong>.</p>
+                        <p class="mt-1 text-slate-600">{{ app(\App\Services\HalfLeases::class)->summary($lease) }}</p>
+                        <a href="{{ route('half-leases.show', $lease) }}" class="btn-primary mt-3 min-h-11 w-full justify-center">Voir la proposition</a>
+                    </div>
+                    @continue
+                @endif
                 <div class="mb-3 rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-invitation="{{ $inv->id }}">
                     <p><strong>{{ $inv->inviter->name }}</strong> {{ $inv->type === 'horse_access' ? 'vous donne accès à '.$inv->horse?->shortName() : 'vous invite à rejoindre '.$inv->organization?->name }}.</p>
                     @if ($inv->type === 'horse_access')
@@ -52,7 +60,10 @@
                                 <span class="font-medium">{{ $g->horse->shortName() }}</span>
                             @endif
                             <span class="text-slate-600"> — par {{ $g->grantor?->name }}</span>
-                            <span class="block text-xs text-slate-500">{{ count($g->permissions) }} droit(s){{ $g->starts_at?->isFuture() ? ' · à partir du '.$g->starts_at->format('d/m/Y') : '' }}{{ $g->expires_at ? ' · expire le '.$g->expires_at->format('d/m/Y') : '' }}</span>
+                            <span class="block text-xs text-slate-500">{{ $g->label && $g->label !== 'Partage' ? $g->label.' · ' : '' }}{{ count($g->permissions) }} droit(s){{ $g->starts_at?->isFuture() ? ' · à partir du '.$g->starts_at->format('d/m/Y') : '' }}{{ $g->expires_at ? ' · expire le '.$g->expires_at->format('d/m/Y') : '' }}</span>
+                            @if ($leaseId = $halfLeaseGrants[$g->id] ?? null)
+                                <a href="{{ route('half-leases.show', $leaseId) }}" class="mt-1 inline-flex text-xs font-medium link" data-half-lease-link>Fiche de la demi-pension</a>
+                            @endif
                             @if ($g->paused_at)
                                 <span class="mt-1 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Suspendu depuis le {{ $g->paused_at->format('d/m/Y') }}</span>
                             @endif

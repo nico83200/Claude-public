@@ -7,6 +7,7 @@ use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\Horse;
+use App\Models\HorseAccessGrant;
 use App\Models\Invitation;
 use App\Models\LessonCharge;
 use App\Models\Treatment;
@@ -15,6 +16,7 @@ use App\Services\CareCalendarSync;
 use App\Services\CareExpenseSync;
 use App\Services\CompetitionVaccines;
 use App\Services\Entitlements;
+use App\Services\HalfLeases;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
 use App\Services\LessonCosts;
@@ -85,6 +87,8 @@ class AppServiceProvider extends ServiceProvider
         CalendarEvent::deleted(fn ($event) => app(CareCalendarSync::class)->eventDeleted($event));
         // Frais de cours : coaching d'un concours validé ; dépense recopiée dans le budget modifiée, supprimée ou rétablie.
         CalendarEvent::saved(fn ($event) => app(LessonCosts::class)->fromEvent($event));
+        // Accès d'une demi-pension retiré (« Révoquer », « Quitter ») : la demi-pension se termine.
+        HorseAccessGrant::updated(fn ($grant) => $grant->wasChanged('revoked_at') && $grant->revoked_at ? app(HalfLeases::class)->grantRevoked($grant) : null);
         CalendarEvent::deleted(fn ($event) => app(LessonCosts::class)->eventDeleted($event));
         Expense::updated(fn ($expense) => app(LessonCosts::class)->fromExpense($expense));
         Expense::deleted(fn ($expense) => app(LessonCosts::class)->expenseDeleted($expense));

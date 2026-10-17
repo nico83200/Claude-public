@@ -35,6 +35,8 @@ rm -f "$STAGE"/vendor/dompdf/dompdf/lib/fonts/DejaVuSansMono* "$STAGE"/vendor/do
 php -r '$f=$argv[1]; $j=json_decode(file_get_contents($f), true); unset($j["dejavu sans mono"]); $j["dejavu serif"]["italic"] = "DejaVuSerif"; $j["dejavu serif"]["bold_italic"] = "DejaVuSerif-Bold"; file_put_contents($f, json_encode($j, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));' "$STAGE/vendor/dompdf/dompdf/lib/fonts/installed-fonts.dist.json"
 rm -rf "$STAGE/vendor/laravel/framework/bin" "$STAGE/vendor/nunomaduro/termwind/art" "$STAGE/vendor/anthropic-ai/sdk/scripts" "$STAGE/vendor/anthropic-ai/sdk/fixtures"
 find "$STAGE/vendor" -type f \( -iname '*.md' -o -name 'phpunit.xml*' -o -name '.php-cs-fixer*' -o -name 'psalm.xml' -o -name 'phpstan.neon*' \) ! -iname 'LICENSE*' -delete
+# Traductions de dates : l'application n'affiche que le français (anglais en secours) ; les ~670 autres langues de Carbon restent hors de l'archive.
+find "$STAGE/vendor/nesbot/carbon/src/Carbon/Lang" -type f ! -name 'fr*.php' ! -name 'en*.php' -delete
 rm -f "$STAGE/.env" "$STAGE/storage/app/installed.json" "$STAGE/public/hot"
 find "$STAGE/storage" -type f ! -name '.gitignore' -delete
 rm -rf "$STAGE/bootstrap/cache/"*.php

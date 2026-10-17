@@ -172,6 +172,8 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
         Route::delete('/journal/{log}', [Controllers\DailyLogController::class, 'destroy'])->withoutScopedBindings()->name('logs.destroy');
 
         Route::get('/partage', [Controllers\HorseSharingController::class, 'show'])->name('sharing');
+        Route::get('/demi-pensions/nouvelle', [Controllers\HalfLeaseController::class, 'create'])->name('half-leases.create');
+        Route::post('/demi-pensions', [Controllers\HalfLeaseController::class, 'store'])->middleware('throttle:invitations')->name('half-leases.store');
         Route::post('/partage/invitations', [Controllers\HorseSharingController::class, 'invite'])->middleware('throttle:invitations')->name('sharing.invite');
         Route::post('/partage/invitations/{invitation}/renvoyer', [Controllers\HorseSharingController::class, 'resendInvitation'])->middleware('throttle:invitations')->name('sharing.invitations.resend');
         Route::delete('/partage/invitations/{invitation}', [Controllers\HorseSharingController::class, 'revokeInvitation'])->name('sharing.invitations.revoke');
@@ -292,6 +294,12 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
 
     // Partages (vue d'ensemble)
     Route::get('/partages', [Controllers\HorseSharingController::class, 'overview'])->name('sharing.index');
+    Route::get('/demi-pensions/{halfLease}', [Controllers\HalfLeaseController::class, 'show'])->name('half-leases.show');
+    Route::get('/demi-pensions/{halfLease}/modifier', [Controllers\HalfLeaseController::class, 'edit'])->name('half-leases.edit');
+    Route::put('/demi-pensions/{halfLease}', [Controllers\HalfLeaseController::class, 'update'])->name('half-leases.update');
+    Route::post('/demi-pensions/{halfLease}/fin', [Controllers\HalfLeaseController::class, 'end'])->name('half-leases.end');
+    Route::post('/demi-pensions/{halfLease}/annuler', [Controllers\HalfLeaseController::class, 'cancel'])->name('half-leases.cancel');
+    Route::post('/demi-pensions/{halfLease}/renvoyer', [Controllers\HalfLeaseController::class, 'resend'])->middleware('throttle:invitations')->name('half-leases.resend');
     Route::post('/partages/recus/{grant}/suspendre', [Controllers\HorseSharingController::class, 'pauseReceived'])->name('sharing.received.pause');
     Route::post('/partages/recus/{grant}/reprendre', [Controllers\HorseSharingController::class, 'resumeReceived'])->name('sharing.received.resume');
     Route::post('/partages/recus/{grant}/quitter', [Controllers\HorseSharingController::class, 'leaveReceived'])->name('sharing.received.leave');
