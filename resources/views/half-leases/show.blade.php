@@ -42,8 +42,11 @@
                 <div><dt class="text-xs text-slate-500">Tarif</dt><dd class="font-medium text-slate-900">{{ $lease->priceLabel() ?? 'Non précisé' }}</dd></div>
             </dl>
             @if ($lease->notes)<p class="mt-3 rounded-2xl bg-slate-50 p-3 text-sm whitespace-pre-line text-slate-700">{{ $lease->notes }}</p>@endif
+            @if ($month)
+                <p class="mt-3 text-sm text-slate-600" data-half-lease-month>{{ ucfirst(today()->translatedFormat('F')) }} : {{ \App\Support\Fr::count($month['planned'], 'jour prévu', 'jours prévus') }} · {{ \App\Support\Fr::count($month['sessions'], 'séance notée', 'séances notées') }}</p>
+            @endif
             @if ($lease->status === 'active')
-                <a href="{{ route('horses.riding-days', $horse) }}" class="btn-ghost mt-3 min-h-10 px-2 text-sm"><x-icon name="calendar" class="size-4" /> Jours de monte</a>
+                <a href="{{ route('horses.riding-days', $horse) }}" class="btn-ghost mt-3 min-h-10 px-2 text-sm"><x-icon name="calendar" class="size-4" /> Jours de monte : demander, échanger, absence</a>
             @endif
         </x-section>
 

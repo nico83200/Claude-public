@@ -182,6 +182,10 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
         Route::get('/jours-de-monte', [Controllers\RidingDayController::class, 'show'])->name('riding-days');
         Route::put('/jours-de-monte', [Controllers\RidingDayController::class, 'update'])->name('riding-days.update');
         Route::post('/jours-de-monte/echange', [Controllers\RidingDayController::class, 'give'])->name('riding-days.give');
+        Route::post('/jours-de-monte/demandes', [Controllers\RidingDayController::class, 'requestDay'])->name('riding-days.request');
+        Route::post('/jours-de-monte/demandes/{dayRequest}', [Controllers\RidingDayController::class, 'answer'])->withoutScopedBindings()->name('riding-days.answer');
+        Route::delete('/jours-de-monte/demandes/{dayRequest}', [Controllers\RidingDayController::class, 'cancelRequest'])->withoutScopedBindings()->name('riding-days.cancel-request');
+        Route::post('/jours-de-monte/absence', [Controllers\RidingDayController::class, 'absence'])->name('riding-days.absence');
         Route::post('/partage/ecurie', [Controllers\AssignmentController::class, 'request'])->name('assignments.request');
         Route::put('/partage/ecurie/{assignment}', [Controllers\AssignmentController::class, 'update'])->name('assignments.update');
         Route::get('/historique', [Controllers\HorseSharingController::class, 'history'])->name('history');

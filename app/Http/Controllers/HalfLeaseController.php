@@ -62,6 +62,7 @@ class HalfLeaseController extends Controller
             'documents' => $halfLease->documents()->with('uploader')->get(),
             'canUpload' => $halfLease->isOpen() && ($manager || $halfLease->user_id === $user->id),
             'docsIncluded' => $this->entitlements()->hasFeature($halfLease->horse->organization, 'documents'),
+            'month' => $halfLease->status === 'active' && $halfLease->user_id ? (app(RidingDays::class)->monthCount($halfLease->horse, today())[$halfLease->user_id] ?? null) : null,
         ]);
     }
 

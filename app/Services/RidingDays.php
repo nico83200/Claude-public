@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\RidingDay;
 use App\Models\RidingDayChange;
+use App\Models\RidingDayRequest;
 use App\Models\RidingSession;
 use App\Models\User;
 use App\Notifications\AppNotification;
+use App\Support\Fr;
 use App\Support\Perm;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -171,6 +174,133 @@ class RidingDays
         }
 
         return $change;
+    }
+
+    /**
+     * « Puis-je monter samedi ? » : demande à la personne du jour (au propriétaire pour un jour libre),
+     * éventuellement contre un de ses propres jours (échange).
+     */
+    public function request(Horse $horse, Carbon $date, User $by, ?Carbon $swap = null): RidingDayRequest
+    {
+        $day = $date->copy()->startOfDay();
+        if ($day->lt(today())) {
+            throw ValidationException::withMessages(['date' => 'Ce jour est passé.']);
+        }
+        if (! $this->mayRide($by, $horse)) {
+            throw ValidationException::withMessages(['date' => 'Vous ne pouvez pas monter ce cheval.']);
+        }
+        $holder = $this->on($horse, $day)['user'];
+        if ($holder?->id === $by->id) {
+            throw ValidationException::withMessages(['date' => 'C\'est déjà votre jour.']);
+        }
+        if ($swap) {
+            $swap = $swap->copy()->startOfDay();
+            if (! $holder || $swap->lt(today()) || $swap->isSameDay($day) || $this->on($horse, $swap)['user']?->id !== $by->id) {
+                throw ValidationException::withMessages(['swap_date' => 'L\'échange se fait contre un de vos jours à venir, avec la personne du jour.']);
+            }
+        }
+        if (RidingDayRequest::pending()->where('horse_id', $horse->id)->where('requester_id', $by->id)->whereDate('date', $day)->exists()) {
+            throw ValidationException::withMessages(['date' => 'Vous avez déjà demandé ce jour.']);
+        }
+        $request = RidingDayRequest::create(['horse_id' => $horse->id, 'requester_id' => $by->id, 'holder_id' => $holder?->id,
+            'date' => $day->toDateString(), 'swap_date' => $swap?->toDateString()]);
+        $when = $day->translatedFormat('l j F');
+        $text = $by->name.' aimerait monter '.$horse->shortName().' '.$when.($swap ? ', en échange de son '.$swap->translatedFormat('l j F') : '').'.';
+        $recipients = $holder ? collect([$holder]) : $this->candidates($horse)->filter(fn ($u) => $u->id !== $by->id && $this->access->can($u, $horse, Perm::HORSE_MANAGE));
+        foreach ($recipients as $person) {
+            $person->notify(new AppNotification('riding_day', 'Demande de jour : '.$when, $text, route('horses.riding-days', $horse)));
+        }
+
+        return $request;
+    }
+
+    /** Réponse de la personne du jour (ou du propriétaire) : le jour, et l'échange s'il y en a un, sont appliqués à l'accord. */
+    public function answer(RidingDayRequest $request, bool $accept, User $by): void
+    {
+        $horse = $request->horse;
+        if ($request->status !== 'pending' || $request->date->lt(today())) {
+            throw ValidationException::withMessages(['request' => 'Cette demande n\'est plus en attente.']);
+        }
+        $holder = $this->on($horse, $request->date)['user'];
+        if ($holder?->id !== $by->id && ! $this->access->can($by, $horse, Perm::HORSE_MANAGE)) {
+            throw ValidationException::withMessages(['request' => 'Seule la personne du jour (ou le propriétaire) peut répondre.']);
+        }
+        $requester = $request->requester;
+        DB::transaction(function () use ($request, $accept, $by, $horse, $holder, $requester) {
+            $request->update(['status' => $accept ? 'accepted' : 'declined', 'answered_by' => $by->id, 'answered_at' => now()]);
+            if (! $accept) {
+                return;
+            }
+            $this->give($horse, $request->date, $requester, $by);
+            // Échange : le jour proposé en retour revient à la personne qui a laissé le sien.
+            if ($request->swap_date && $holder && $request->swap_date->gte(today()) && $this->on($horse, $request->swap_date)['user']?->id === $requester->id) {
+                $this->give($horse, $request->swap_date, $holder, $requester);
+            }
+        });
+        if (! $accept) {
+            $requester->notify(new AppNotification('riding_day', 'Jour de monte : '.$request->date->translatedFormat('l j F'),
+                $by->name.' ne peut pas vous laisser '.$request->date->translatedFormat('l j F').' avec '.$horse->shortName().'.', route('horses.riding-days', $horse)));
+        }
+    }
+
+    /**
+     * Absence : tous ses jours de la période libérés (ou laissés à quelqu'un) en une fois, une seule notification.
+     *
+     * @return int nombre de jours concernés
+     */
+    public function absence(Horse $horse, User $by, Carbon $from, Carbon $to, ?User $giveTo = null): int
+    {
+        $from = $from->copy()->startOfDay()->max(today());
+        $to = $to->copy()->startOfDay();
+        if ($to->lt($from) || $from->diffInDays($to) > 92) {
+            throw ValidationException::withMessages(['to' => 'Période de 3 mois au plus, à venir.']);
+        }
+        if ($giveTo && (! $this->candidates($horse)->contains('id', $giveTo->id) || $giveTo->id === $by->id)) {
+            throw ValidationException::withMessages(['give_to' => 'Cette personne ne peut pas monter ce cheval.']);
+        }
+        $weekly = $this->weekly($horse);
+        $days = collect($this->between(collect([$horse]), $from, $to))->filter(fn ($byHorse) => ($byHorse[$horse->id]['user'] ?? null)?->id === $by->id)->keys();
+        DB::transaction(function () use ($days, $horse, $by, $giveTo, $weekly) {
+            foreach ($days as $date) {
+                $usual = $weekly[Carbon::parse($date)->isoWeekday()] ?? null;
+                if ($giveTo && $usual?->id === $giveTo->id) {
+                    RidingDayChange::where('horse_id', $horse->id)->whereDate('date', $date)->delete();
+                } else {
+                    RidingDayChange::updateOrCreate(['horse_id' => $horse->id, 'date' => $date], ['user_id' => $giveTo?->id, 'from_user_id' => $by->id, 'created_by' => $by->id]);
+                }
+            }
+        });
+        if ($days->isNotEmpty()) {
+            $list = $days->map(fn ($d) => Carbon::parse($d)->translatedFormat('l j'))->implode(', ');
+            $period = 'du '.$from->translatedFormat('j F').' au '.$to->translatedFormat('j F');
+            $recipients = $giveTo ? collect([$giveTo]) : $this->candidates($horse)->filter(fn ($u) => $u->id !== $by->id && $this->access->can($u, $horse, Perm::HORSE_MANAGE));
+            foreach ($recipients as $person) {
+                $person->notify(new AppNotification('riding_day', 'Absence : jours de monte de '.$horse->shortName(), $giveTo
+                    ? $by->name.' vous laisse ses jours avec '.$horse->shortName().' '.$period.' : '.$list.'.'
+                    : $by->name.' ne monte pas '.$period.' : '.Fr::count($days->count(), 'jour libéré', 'jours libérés').' ('.$list.').', route('horses.riding-days', $horse)));
+            }
+        }
+
+        return $days->count();
+    }
+
+    /** Mois en cours (ou donné) : jours prévus et séances notées, par personne. */
+    public function monthCount(Horse $horse, Carbon $month): array
+    {
+        $start = $month->copy()->startOfMonth();
+        $end = $month->copy()->endOfMonth();
+        // Demi-pension : seulement les jours entre son début et sa fin.
+        $leases = HalfLease::where('horse_id', $horse->id)->whereIn('status', ['active', 'ended'])->whereNotNull('user_id')->get()->keyBy('user_id');
+        $planned = collect($this->between(collect([$horse]), $start, $end))
+            ->map(fn ($byHorse, $date) => ($u = $byHorse[$horse->id]['user'] ?? null) && (! ($l = $leases->get($u->id)) || ($date >= $l->starts_on->toDateString() && (! $l->ends_on || $date <= $l->ends_on->toDateString()))) ? $u : null)
+            ->filter()->countBy(fn ($u) => $u->id);
+        $sessions = RidingSession::where('horse_id', $horse->id)->where('status', 'completed')->whereBetween('scheduled_at', [$start, $end])->get(['rider_id', 'created_by'])
+            ->countBy(fn ($s) => $s->rider_id ?: $s->created_by);
+        $people = $this->candidates($horse)->keyBy('id');
+
+        return collect($planned->keys())->merge($sessions->keys())->unique()->filter(fn ($id) => $people->has($id))
+            ->mapWithKeys(fn ($id) => [$id => ['user' => $people[$id], 'planned' => (int) ($planned[$id] ?? 0), 'sessions' => (int) ($sessions[$id] ?? 0)]])
+            ->sortByDesc('planned')->all();
     }
 
     /** Séance prévue le jour de quelqu'un d'autre : la personne du jour (ou null). */
