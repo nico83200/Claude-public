@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\RidingDay;
+use App\Services\HalfLeaseFees;
 use App\Services\HalfLeases;
 use App\Services\InvitationService;
 use App\Services\RidingDays;
@@ -16,7 +17,7 @@ use Illuminate\Validation\Rule;
 /** Fiche demi-pension : proposée par le propriétaire depuis la page Partage, consultée par les deux parties. */
 class HalfLeaseController extends Controller
 {
-    public function __construct(private HalfLeases $leases) {}
+    public function __construct(private HalfLeases $leases, private HalfLeaseFees $fees) {}
 
     public function create(Horse $horse, RidingDays $days)
     {
@@ -54,6 +55,10 @@ class HalfLeaseController extends Controller
             'summary' => $this->leases->summary($halfLease),
             'labels' => Perm::horseLabels(),
             'pendingInvitation' => $halfLease->status === 'proposed' && $halfLease->invitation?->isPending() ? $halfLease->invitation : null,
+            'fees' => $this->fees->schedule($halfLease),
+            'next' => $this->fees->next($halfLease),
+            'viaStatement' => $this->fees->viaStatement($halfLease),
+            'canReceive' => $manager && $this->horseCan($halfLease->horse, Perm::EXPENSES_CREATE),
         ]);
     }
 
@@ -95,6 +100,18 @@ class HalfLeaseController extends Controller
         return redirect()->route('horses.sharing', $halfLease->horse)->with('success', 'Proposition de demi-pension annulée.');
     }
 
+    /** Mois sans mensualité (vacances…), ou rétabli. */
+    public function skipMonth(Request $request, HalfLease $halfLease)
+    {
+        $this->authorizeHorse($halfLease->horse, Perm::HORSE_MANAGE);
+        abort_unless($halfLease->isOpen(), 404);
+        $data = $request->validate(['month' => ['required', 'date_format:Y-m'], 'restore' => ['nullable', 'boolean']]);
+        $request->boolean('restore') ? $this->fees->unskipMonth($halfLease, $data['month']) : $this->fees->skipMonth($halfLease, $data['month']);
+        $label = Carbon::createFromFormat('Y-m-d', $data['month'].'-01')->translatedFormat('F Y');
+
+        return back()->with('success', $request->boolean('restore') ? 'Mensualité de '.$label.' rétablie.' : 'Pas de mensualité en '.$label.'.');
+    }
+
     /** Relance de la proposition : nouveau lien valable 14 jours. */
     public function resend(Request $request, HalfLease $halfLease, InvitationService $invitations)
     {
@@ -120,6 +137,7 @@ class HalfLeaseController extends Controller
             'weekdays.*' => ['integer', Rule::in(array_keys(RidingDay::WEEKDAYS))],
             'monthly_amount' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'payment_day' => ['nullable', 'integer', 'min:1', 'max:28'],
+            'first_month' => ['nullable', Rule::in(array_keys(HalfLeaseFees::FIRST_MONTH))],
             'notes' => ['nullable', 'string', 'max:2000'],
             'permissions' => ['array'],
             'permissions.*' => [Rule::in(Perm::horseKeys())],

@@ -6,6 +6,7 @@ use App\Models\ApplicationSetting;
 use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Expense;
+use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\HorseAccessGrant;
 use App\Models\Invitation;
@@ -166,8 +167,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('focusHorse', $focus);
             // « À valider » (rendez-vous et séances passés) : pastille sur l'accueil, même portée que l'accueil.
             $view->with('toValidateCount', $user ? app(ToValidate::class)->count($user, $focus) : 0);
-            // Frais de cours à son nom : entrée « Frais de cours » du menu.
-            $view->with('hasLessonCosts', $user ? LessonCharge::where('payer_id', $user->id)->exists() : false);
+            // Frais de cours ou demi-pension à son nom : entrée « Mes frais » du menu.
+            $view->with('hasLessonCosts', $user ? LessonCharge::where('payer_id', $user->id)->exists() || HalfLease::where('user_id', $user->id)->whereIn('status', ['active', 'ended'])->exists() : false);
             $view->with('soloPerms', $focus ? $access->permissions($user, $focus) : []);
             // Plusieurs chevaux : choix du cheval actif en tête du menu.
             $view->with('focusChoices', $user && ! $solo && $access->hasSeveralHorses($user)

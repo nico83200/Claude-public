@@ -7,6 +7,7 @@ use App\Models\BoardingContract;
 use App\Models\BoardingStatement;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\HalfLease;
 use App\Models\Horse;
 use App\Models\LessonCharge;
 use App\Models\Organization;
@@ -101,6 +102,26 @@ class BoardingBilling
                 ];
             }
 
+            // Demi-pensions sur les chevaux de l'écurie : la mensualité du mois, au nom de la personne (prorata au premier mois si convenu).
+            $leases = HalfLease::with(['user', 'horse'])->whereIn('status', ['active', 'ended'])->where('monthly_amount', '>', 0)
+                ->whereIn('horse_id', Horse::where('organization_id', $stable->id)->select('id'))
+                ->where('starts_on', '<=', $end->toDateString())->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>=', $start->toDateString()))->get();
+            foreach ($leases as $lease) {
+                if (! $lease->user || in_array($period, $lease->skipped_months ?? [], true) || $lease->user->canInOrg($stable->id, Perm::EXPENSES_ORG_VIEW)) {
+                    continue;
+                }
+                $first = $lease->starts_on->gt($start) && $lease->first_month === 'prorata';
+                $left = (int) $lease->starts_on->diffInDays($end) + 1;
+                $amount = $first ? round((float) $lease->monthly_amount * $left / $days, 2) : (float) $lease->monthly_amount;
+                $key = 'u'.$lease->user_id;
+                $groups[$key]['payer'] ??= $lease->user;
+                $groups[$key]['lines'][] = [
+                    'horse' => $lease->horse->shortName(), 'horse_id' => $lease->horse_id, 'kind' => 'half_lease', 'label' => 'Demi-pension',
+                    'detail' => $first ? $left.' jours sur '.$days.' ('.$lease->starts_on->format('d/m').' – '.$end->format('d/m').')' : 'Mois complet',
+                    'quantity' => 1, 'unit_price' => $amount, 'amount' => $amount, 'half_lease_id' => $lease->id,
+                ];
+            }
+
             // Cours donnés par les enseignants de l'écurie : sur le relevé de la personne qui les paie.
             $lessons = LessonCharge::with(['horse', 'payer'])->whereNull('boarding_statement_id')->where('amount', '>', 0)
                 ->whereIn('professional_id', Professional::where('organization_id', $stable->id)->select('id'))
@@ -152,7 +173,7 @@ class BoardingBilling
             }
             $category = ExpenseCategory::where('key', 'boarding')->value('id') ?? ExpenseCategory::value('id');
             // Les cours sont déjà dans les frais de cours (et le budget du propriétaire) : seules la pension et les prestations y sont ajoutées.
-            foreach (collect($statement->lines)->reject(fn ($l) => ($l['kind'] ?? null) === 'lesson')->groupBy('horse_id') as $horseId => $lines) {
+            foreach (collect($statement->lines)->reject(fn ($l) => in_array($l['kind'] ?? null, ['lesson', 'half_lease'], true))->groupBy('horse_id') as $horseId => $lines) {
                 $horse = Horse::find($horseId);
                 // Seulement pour un cheval de l'espace du propriétaire : l'écurie n'écrit jamais dans son propre budget ici.
                 if (! $horse || $horse->organization_id === $statement->organization_id || ! $owner->memberships->contains('organization_id', $horse->organization_id)) {

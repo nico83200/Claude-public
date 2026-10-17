@@ -298,6 +298,7 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::get('/demi-pensions/{halfLease}/modifier', [Controllers\HalfLeaseController::class, 'edit'])->name('half-leases.edit');
     Route::put('/demi-pensions/{halfLease}', [Controllers\HalfLeaseController::class, 'update'])->name('half-leases.update');
     Route::post('/demi-pensions/{halfLease}/fin', [Controllers\HalfLeaseController::class, 'end'])->name('half-leases.end');
+    Route::post('/demi-pensions/{halfLease}/mois', [Controllers\HalfLeaseController::class, 'skipMonth'])->name('half-leases.skip-month');
     Route::post('/demi-pensions/{halfLease}/annuler', [Controllers\HalfLeaseController::class, 'cancel'])->name('half-leases.cancel');
     Route::post('/demi-pensions/{halfLease}/renvoyer', [Controllers\HalfLeaseController::class, 'resend'])->middleware('throttle:invitations')->name('half-leases.resend');
     Route::post('/partages/recus/{grant}/suspendre', [Controllers\HorseSharingController::class, 'pauseReceived'])->name('sharing.received.pause');

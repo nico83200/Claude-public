@@ -44,8 +44,10 @@
 <x-section title="Tarif">
     <div class="grid gap-3 sm:grid-cols-2">
         <x-field name="monthly_amount" type="number" step="0.01" min="0" inputmode="decimal" label="Montant par mois (€)" :value="$lease->monthly_amount" help="0 : demi-pension sans contrepartie financière." />
-        <x-field name="payment_day" type="number" min="1" max="28" inputmode="numeric" label="Jour de paiement" :value="$lease->payment_day" help="Par exemple 5 pour le 5 du mois." />
+        <x-field name="payment_day" type="number" min="1" max="28" inputmode="numeric" label="Jour de paiement" :value="$lease->payment_day" help="Par exemple 5 pour le 5 du mois. Vide : le jour du début." />
+        <x-select name="first_month" label="Premier mois, si le début tombe après le jour de paiement" :options="\App\Services\HalfLeaseFees::FIRST_MONTH" :value="$lease->first_month ?? 'full'" class="sm:col-span-2" />
     </div>
+    <p class="mt-2 text-xs text-slate-500">{{ $horse->organization?->type === 'stable' ? 'Cheval de l\'écurie : la mensualité figure sur le relevé mensuel de la personne, avec ses cours.' : 'Chaque mois, la mensualité arrive dans le budget du cheval (recette « Demi-pension ») ; la demi-pension la voit dans ses frais, vous la notez reçue.' }}</p>
     <div class="mt-3">
         <label for="f_notes" class="label">Conditions particulières</label>
         <textarea id="f_notes" name="notes" rows="3" class="input" placeholder="Ce qui est compris, balades, concours, soins à faire, vacances…">{{ old('notes', $lease->notes) }}</textarea>

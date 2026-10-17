@@ -24,14 +24,18 @@ class BoardingStatement extends Model
         return $this->belongsTo(User::class, 'owner_user_id');
     }
 
-    /** « Relevé de pension », « Relevé de cours », « Relevé de pension et de cours » */
+    /** « Relevé de pension », « Relevé de cours », « Relevé de pension et de cours », « Relevé de demi-pension et de cours »… */
     public function title(): string
     {
         $kinds = collect($this->lines)->pluck('kind');
-        $lessons = $kinds->contains('lesson');
-        $boarding = $kinds->contains(fn ($k) => $k !== 'lesson');
+        $parts = array_values(array_filter([
+            $kinds->contains(fn ($k) => ! in_array($k, ['lesson', 'half_lease'], true)) ? 'pension' : null,
+            $kinds->contains('half_lease') ? 'demi-pension' : null,
+            $kinds->contains('lesson') ? 'cours' : null,
+        ])) ?: ['pension'];
+        $last = array_pop($parts);
 
-        return 'Relevé de '.($lessons && $boarding ? 'pension et de cours' : ($lessons ? 'cours' : 'pension'));
+        return 'Relevé de '.($parts ? implode(', de ', $parts).' et de ' : '').$last;
     }
 
     public function periodLabel(): string

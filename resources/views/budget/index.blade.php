@@ -17,6 +17,20 @@
         </x-page-header>
     @endif
     <x-upsell :offer="$upsell" class="mb-5" />
+    {{-- Demi-pension (côté cavalier) : ses mensualités, sans accès au budget du cheval. --}}
+    @php $riderFees = $contextHorse ? collect() : app(\App\Services\HalfLeaseFees::class)->forRider(auth()->user()); @endphp
+    @if ($riderFees->isNotEmpty())
+        <x-section title="Ma demi-pension" class="mb-4" :action="route('lesson-costs.index')" action-label="Mes frais" data-budget-half-lease>
+            @foreach ($riderFees as $row)
+                @php $last = $row['schedule']->first(); @endphp
+                <a href="{{ route('half-leases.show', $row['lease']) }}" class="flex items-center justify-between gap-3 border-t border-slate-100 py-2.5 text-sm first:border-0">
+                    <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $row['lease']->horse->shortName() }} · {{ $row['lease']->priceLabel() }}</span>
+                        <span class="block text-xs text-slate-500">{{ $last ? $last['month'].' : '.($last['paid'] ? 'payée' : 'à régler') : 'Première mensualité à venir' }}{{ $row['next'] ? ' · prochaine le '.\App\Support\Fr::day($row['next']['due'], false) : '' }}</span></span>
+                    @if ($last)<x-badge :color="$last['paid'] ? 'green' : 'amber'" class="shrink-0">{{ $eur($last['amount']) }}</x-badge>@endif
+                </a>
+            @endforeach
+        </x-section>
+    @endif
     @if ($newExpense)@include('budget._invoice-card')@endif
     <x-filters :fields="array_values(array_filter(['category', $contextHorse || $singleHorse ? null : 'horse']))" :keep="['horse' => $contextHorse?->id, 'year' => request('year')]">
         @unless ($contextHorse || $singleHorse)<x-select name="horse" label="Cheval" :options="$horses" :value="request('horse')" placeholder="Tous" />@endunless

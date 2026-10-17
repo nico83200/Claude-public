@@ -66,6 +66,7 @@ class HalfLeases
     {
         $lease->update(['user_id' => $user->id, 'grant_id' => $grant->id, 'status' => 'active', 'accepted_at' => now(), 'answered_at' => now()]);
         $this->applyDays($lease);
+        app(HalfLeaseFees::class)->sync($lease);
         $horse = $lease->horse;
         Audit::log('half_lease.accepted', $lease, ['user' => $user->email], $horse->organization_id);
         $lease->creator?->notify(new AppNotification('half_lease', 'Demi-pension acceptée : '.$horse->shortName(),
@@ -119,6 +120,7 @@ class HalfLeases
                 }
                 $this->applyDays($lease);
             }
+            app(HalfLeaseFees::class)->sync($lease);
         });
         if ($lease->status === 'active' && $lease->user && $lease->user_id !== $by->id) {
             $lease->user->notify(new AppNotification('half_lease', 'Demi-pension modifiée : '.$lease->horse->shortName(),
@@ -144,6 +146,7 @@ class HalfLeases
         $lastDay = $lastDay->copy()->startOfDay();
         $lease->update(['ends_on' => $lastDay->toDateString()]);
         $lease->grant?->update(['expires_at' => $lastDay->copy()->addDay()]);
+        app(HalfLeaseFees::class)->sync($lease);
         Audit::log('half_lease.ended', $lease, ['ends_on' => $lastDay->toDateString()], $lease->horse->organization_id);
         $other = $by->id === $lease->user_id ? $lease->creator : $lease->user;
         $other?->notify(new AppNotification('half_lease', 'Fin de la demi-pension : '.$lease->horse->shortName(),
@@ -157,6 +160,7 @@ class HalfLeases
         foreach (HalfLease::where('grant_id', $grant->id)->where('status', 'active')->get() as $lease) {
             $lease->update(['status' => 'ended', 'ends_on' => ($lease->ends_on && $lease->ends_on->lt(today()) ? $lease->ends_on : today())->toDateString()]);
             $this->releaseDays($lease);
+            app(HalfLeaseFees::class)->sync($lease);
         }
     }
 
@@ -246,7 +250,7 @@ class HalfLeases
             'starts_on' => $data['starts_on'], 'trial_ends_on' => $data['trial_ends_on'] ?? null, 'ends_on' => $data['ends_on'] ?? null,
             'notice_days' => $data['notice_days'] ?? null, 'weekdays' => $days,
             'monthly_amount' => isset($data['monthly_amount']) && $data['monthly_amount'] !== '' ? $data['monthly_amount'] : null,
-            'payment_day' => $data['payment_day'] ?? null, 'notes' => $data['notes'] ?? null,
+            'payment_day' => $data['payment_day'] ?? null, 'first_month' => ($data['first_month'] ?? 'full') === 'prorata' ? 'prorata' : 'full', 'notes' => $data['notes'] ?? null,
             'permissions' => array_values(array_intersect($data['permissions'] ?? Perm::halfLeasePreset(), Perm::shareableKeys())),
         ];
     }

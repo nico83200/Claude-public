@@ -8,6 +8,7 @@ use App\Models\LessonCharge;
 use App\Models\LessonPackage;
 use App\Models\Professional;
 use App\Models\RidingSession;
+use App\Services\HalfLeaseFees;
 use App\Services\HorseAccess;
 use App\Services\LessonCosts;
 use App\Services\RidingSessionService;
@@ -32,10 +33,15 @@ class LessonCostController extends Controller
         $horse = $request->integer('horse') ?: null;
         $charges = $horse ? $all->where('horse_id', $horse)->values() : $all;
 
+        // Demi-pension : ses mensualités (budget du propriétaire ou relevés de l'écurie) comptent dans « Ce mois-ci » et « À payer ».
+        $halfLeases = $horse ? collect() : app(HalfLeaseFees::class)->forRider($user);
+        $fees = $halfLeases->flatMap(fn ($row) => $row['schedule']);
+
         return view('lesson-costs.index', [
             'months' => $charges->groupBy(fn (LessonCharge $c) => $c->charged_on->format('Y-m')),
-            'unpaid' => (float) $charges->whereNull('paid_on')->sum('amount'),
-            'thisMonth' => (float) $charges->filter(fn (LessonCharge $c) => $c->charged_on->isSameMonth(now()))->sum('amount'),
+            'unpaid' => (float) $charges->whereNull('paid_on')->sum('amount') + (float) $fees->reject(fn ($f) => $f['paid'] || ($f['statement'] && $f['statement']->status === 'paid'))->sum('amount'),
+            'thisMonth' => (float) $charges->filter(fn (LessonCharge $c) => $c->charged_on->isSameMonth(now()))->sum('amount') + (float) $fees->filter(fn ($f) => $f['due']?->isSameMonth(now()))->sum('amount'),
+            'halfLeases' => $halfLeases,
             'horses' => $all->pluck('horse')->filter()->unique('id')->sortBy(fn ($h) => mb_strtolower($h->shortName()))->values(),
             'horse' => $horse,
             'packages' => $packages,

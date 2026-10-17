@@ -47,6 +47,50 @@
             @endif
         </x-section>
 
+        {{-- Mensualités : budget du propriétaire (noté « Reçu » par lui seul) ou relevé de l'écurie. --}}
+        @if ((float) $lease->monthly_amount > 0 && $lease->status !== 'proposed')
+            @php $eur = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
+            <x-section title="Mensualités" data-half-lease-fees>
+                @if ($next)
+                    <p class="mb-2 text-sm text-slate-600">Prochaine mensualité : <strong class="text-slate-900">{{ $eur($next['amount']) }}</strong> le {{ \App\Support\Fr::day($next['due']) }}.</p>
+                @endif
+                @if ($viaStatement)<p class="mb-2 text-sm text-slate-600">Facturée chaque mois sur le relevé de l'écurie, avec les cours.</p>@endif
+                @forelse ($fees as $fee)
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 py-2.5 text-sm first:border-0" data-half-lease-fee>
+                        <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $fee['month'] }}</span>
+                            <span class="block text-xs text-slate-500">{{ $fee['statement'] ? 'Relevé n° '.$fee['statement']->number : 'Échéance du '.$fee['due']?->format('d/m/Y') }}</span></span>
+                        <span class="flex shrink-0 items-center gap-2">
+                            <span class="whitespace-nowrap tabular-nums">{{ $eur($fee['amount']) }}</span>
+                            @if ($fee['paid'])
+                                <x-badge color="green">{{ $fee['paid_on'] ? 'Reçue le '.$fee['paid_on']->format('d/m') : 'Payée' }}</x-badge>
+                            @else
+                                <x-badge :color="$fee['due'] && $fee['due']->lt(today()->subDays(\App\Services\HalfLeaseFees::OVERDUE_DAYS)) ? 'red' : 'amber'">{{ $manager ? 'À recevoir' : 'À régler' }}</x-badge>
+                                @if ($canReceive && $fee['income'])
+                                    <form method="POST" action="{{ route('budget.incomes.receive', $fee['income']) }}">@csrf<input type="hidden" name="received" value="1"><button class="btn-secondary min-h-9 px-3 text-sm" data-fee-receive>Reçu</button></form>
+                                @endif
+                            @endif
+                        </span>
+                    </div>
+                @empty
+                    <p class="text-sm text-slate-500">{{ $viaStatement ? 'Les mensualités apparaîtront avec les relevés envoyés par l\'écurie.' : 'La première mensualité arrivera à son échéance.' }}</p>
+                @endforelse
+                @if (! $manager)<p class="mt-2 text-xs text-slate-500">{{ $viaStatement ? 'Payée quand l\'écurie note le relevé réglé.' : 'Notée reçue par '.$lease->creator?->name.' à réception de votre paiement.' }}</p>@endif
+                @if ($manager && $lease->isRunning())
+                    {{-- Mois sans mensualité : vacances, cheval au repos… --}}
+                    @php $months = collect(range(0, 11))->mapWithKeys(fn ($i) => [today()->startOfMonth()->addMonthsNoOverflow($i)->format('Y-m') => ucfirst(today()->startOfMonth()->addMonthsNoOverflow($i)->translatedFormat('F Y'))])->except($lease->skipped_months ?? [])->except($fees->where('paid', true)->map(fn ($f) => $f['due']?->format('Y-m'))->filter()->all()); @endphp
+                    <form method="POST" action="{{ route('half-leases.skip-month', $lease) }}" class="mt-3 flex flex-wrap items-end gap-2 rounded-2xl bg-slate-50 p-3" data-skip-month>
+                        @csrf
+                        <x-select name="month" label="Mois sans mensualité" :options="$months" class="min-w-44 flex-1" />
+                        <button class="btn-secondary min-h-11">Ne pas compter ce mois</button>
+                    </form>
+                    @foreach ($lease->skipped_months ?? [] as $m)
+                        <form method="POST" action="{{ route('half-leases.skip-month', $lease) }}" class="mt-1 flex items-center justify-between gap-2 text-sm">@csrf<input type="hidden" name="month" value="{{ $m }}"><input type="hidden" name="restore" value="1">
+                            <span class="text-slate-600">Sans mensualité : {{ \Illuminate\Support\Carbon::createFromFormat('Y-m-d', $m.'-01')->translatedFormat('F Y') }}</span><button class="btn-ghost min-h-9 px-2 text-sm">Rétablir</button></form>
+                    @endforeach
+                @endif
+            </x-section>
+        @endif
+
         <x-section title="Contacts">
             <ul class="space-y-1 text-sm">
                 <li><span class="text-slate-500">Demi-pension :</span> <span class="font-medium">{{ $lease->riderName() }}</span> · <a href="mailto:{{ $lease->email }}" class="link">{{ $lease->email }}</a>@if ($lease->phone) · <a href="tel:{{ preg_replace('/[^0-9+]/', '', $lease->phone) }}" class="link">{{ $lease->phone }}</a>@endif</li>

@@ -1,5 +1,5 @@
-<x-layouts.app title="Frais de cours">
-    <x-page-header title="Frais de cours" subtitle="Vos cours, coachings et déplacements d'enseignants, comptés d'après leurs tarifs" :back="route('sessions.index')" />
+<x-layouts.app title="Mes frais">
+    <x-page-header title="Mes frais" :subtitle="$halfLeases->isNotEmpty() ? 'Demi-pension, cours, coachings et déplacements d\'enseignants' : 'Vos cours, coachings et déplacements d\'enseignants, comptés d\'après leurs tarifs'" :back="route('sessions.index')" />
     @php $money = fn ($v) => number_format((float) $v, 2, ',', ' ').' €'; @endphp
     <div class="mb-4 grid grid-cols-2 gap-3">
         <div class="card p-4"><p class="text-xs text-slate-500">Ce mois-ci</p><p class="mt-1 text-2xl font-bold text-slate-900" data-costs-month>{{ $money($thisMonth) }}</p></div>
@@ -14,6 +14,27 @@
         </div>
     @endif
     <div class="space-y-4">
+        @if ($halfLeases->isNotEmpty())
+            {{-- Demi-pension : mensualités du budget du propriétaire (notées reçues par lui) ou des relevés de l'écurie. --}}
+            <x-section title="Demi-pension" data-costs-half-lease>
+                @foreach ($halfLeases as $row)
+                    @php $hl = $row['lease']; @endphp
+                    <div class="border-t border-slate-100 py-2.5 first:border-0">
+                        <a href="{{ route('half-leases.show', $hl) }}" class="flex items-center justify-between gap-3 text-sm">
+                            <span class="min-w-0"><span class="block font-medium text-slate-900">{{ $hl->horse->shortName() }} · {{ $hl->priceLabel() }}</span>
+                                <span class="block text-xs text-slate-500">{{ $row['next'] ? 'Prochaine mensualité le '.\App\Support\Fr::day($row['next']['due'], false) : ($hl->status === 'ended' ? 'Terminée' : 'Avec le relevé de l\'écurie') }}</span></span>
+                            <x-icon name="chevron" class="size-4 shrink-0 text-slate-400" />
+                        </a>
+                        @foreach ($row['schedule']->take(4) as $fee)
+                            <div class="flex items-center justify-between gap-2 py-1 pl-1 text-sm">
+                                <span class="text-slate-600">{{ $fee['month'] }}</span>
+                                <span class="flex shrink-0 items-center gap-2"><span class="whitespace-nowrap tabular-nums">{{ $money($fee['amount']) }}</span><x-badge :color="$fee['paid'] ? 'green' : 'amber'">{{ $fee['paid'] ? 'Payée' : 'À régler' }}</x-badge></span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endforeach
+            </x-section>
+        @endif
         @if ($byCoach->isNotEmpty())
             {{-- Mes cours cette année, par enseignant. --}}
             <x-section :title="'Mes cours en '.now()->year" data-costs-coaches>
