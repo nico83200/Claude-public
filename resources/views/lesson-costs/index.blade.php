@@ -14,6 +14,50 @@
         </div>
     @endif
     <div class="space-y-4">
+        {{-- Cartes et forfaits : les cours faits avec l'enseignant y sont décomptés au lieu d'être comptés au tarif. --}}
+        <x-section title="Cartes et forfaits" data-packages>
+            @forelse ($packages as $pkg)
+                @php
+                    $used = $usage[$pkg->id] ?? 0;
+                    $ended = $pkg->ends_on && $pkg->ends_on->lt(today());
+                @endphp
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-100 py-2.5 text-sm first:border-0 {{ $ended ? 'opacity-60' : '' }}" data-package="{{ $pkg->id }}">
+                    <span class="min-w-0 flex-1">
+                        <span class="block font-medium text-slate-900">{{ $pkg->title() }}</span>
+                        <span class="block text-xs text-slate-500">{{ $pkg->horse?->shortName() }} · {{ $money($pkg->price) }}{{ $pkg->kind === 'monthly' ? ' par mois' : '' }} · depuis le {{ $pkg->starts_on->format('d/m/Y') }}{{ $pkg->ends_on ? ($ended ? ', terminé le ' : ', jusqu\'au ').$pkg->ends_on->format('d/m/Y') : '' }}</span>
+                    </span>
+                    <span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $used >= $pkg->lessons ? 'bg-amber-100 text-amber-800' : 'bg-brand-50 text-brand-900' }}" data-package-usage>
+                        {{ $pkg->kind === 'card' ? $used.' / '.$pkg->lessons.' cours utilisés' : $used.' / '.$pkg->lessons.' ce mois-ci' }}
+                    </span>
+                    <form method="POST" action="{{ route('lesson-packages.destroy', $pkg) }}" data-confirm="Supprimer {{ $pkg->kind === 'card' ? 'cette carte' : 'ce forfait' }} ? Les cours qu'il couvrait seront de nouveau comptés au tarif." data-confirm-ok="Supprimer">
+                        @csrf @method('DELETE')<button class="btn-ghost min-h-10 px-2 text-red-600" aria-label="Supprimer"><x-icon name="trash" class="size-4" /></button>
+                    </form>
+                </div>
+            @empty
+                <p class="text-sm text-slate-500">Carte de cours (des cours payés d'avance) ou forfait mensuel avec un enseignant : les cours faits y sont décomptés, au lieu d'être comptés au tarif.</p>
+            @endforelse
+            @if ($instructors->isNotEmpty() && $packageHorses->isNotEmpty())
+                <details class="group mt-3 rounded-2xl bg-slate-50 p-3" @if ($errors->hasAny(['professional_id', 'horse_id', 'kind', 'lessons', 'price', 'starts_on', 'ends_on'])) open @endif data-package-form>
+                    <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-medium text-slate-700">Ajouter une carte ou un forfait<x-icon name="chevron" class="size-4 transition group-open:rotate-90" /></summary>
+                    <form method="POST" action="{{ route('lesson-packages.store') }}" class="mt-3 grid gap-3 sm:grid-cols-2" x-data="{ kind: @js(old('kind', 'card')) }">
+                        @csrf
+                        <x-select name="kind" label="Type" :options="\App\Models\LessonPackage::KINDS" value="card" x-model="kind" />
+                        <x-select name="professional_id" label="Enseignant" :options="$instructors" required />
+                        <x-horse-select name="horse_id" :options="$packageHorses" :value="$horse ?? array_key_first($packageHorses->all())" required />
+                        <div><x-field name="lessons" type="number" min="1" max="200" required label="Nombre de cours" />
+                            <p class="mt-1 text-xs text-slate-500" x-text="kind === 'card' ? 'Cours compris dans la carte.' : 'Cours compris chaque mois.'"></p></div>
+                        <div><x-field name="price" type="number" step="0.01" min="0" required label="Prix (€)" inputmode="decimal" />
+                            <p class="mt-1 text-xs text-slate-500" x-text="kind === 'card' ? 'Prix de la carte.' : 'Prix par mois.'"></p></div>
+                        <x-field name="starts_on" type="date" label="À partir du" :value="today()->toDateString()" required />
+                        <div><x-field name="ends_on" type="date" label="Jusqu'au (facultatif)" />
+                            <p class="mt-1 text-xs text-slate-500" x-text="kind === 'card' ? 'Date de validité de la carte.' : 'Fin du forfait.'"></p></div>
+                        <div class="sm:col-span-2"><button class="btn-primary">Ajouter</button></div>
+                    </form>
+                </details>
+            @elseif ($instructors->isEmpty())
+                <p class="mt-2 text-xs text-slate-500">Ajoutez d'abord votre enseignant dans <a href="{{ route('professionals.index') }}" class="link">Intervenants</a> (type « Enseignant »).</p>
+            @endif
+        </x-section>
         @forelse ($months as $ym => $list)
             <x-section :title="ucfirst(\Illuminate\Support\Carbon::parse($ym.'-01')->translatedFormat('F Y'))" :data-costs-month-block="$ym">
                 <p class="-mt-2 mb-2 text-sm text-slate-500">{{ $money($list->sum('amount')) }}{{ $list->whereNull('paid_on')->isNotEmpty() ? ' · '.$money($list->whereNull('paid_on')->sum('amount')).' à payer' : ' · tout est payé' }}</p>
@@ -32,7 +76,7 @@
                 @endforeach
             </x-section>
         @empty
-            <x-empty title="Aucun frais de cours pour l'instant" icon="wallet">
+            <x-empty title="Aucun frais de cours pour l'instant" icon="wallet" data-costs-empty>
                 Ajoutez les tarifs de vos enseignants (Intervenants › l'enseignant › Tarifs) : le coût de chaque cours fait est compté ici, à votre nom. Vous pouvez aussi indiquer le prix sur la séance.
             </x-empty>
         @endforelse

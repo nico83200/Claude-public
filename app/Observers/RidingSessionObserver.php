@@ -17,9 +17,15 @@ class RidingSessionObserver
 {
     public function __construct(private CalendarService $calendar, private LessonCosts $costs) {}
 
-    /** Enseignant saisi : relié à sa fiche d'intervenant (ses tarifs) quand le nom correspond à un enseignant de l'utilisateur. */
+    /**
+     * Annulation datée (annulation tardive d'un cours) ; enseignant saisi relié à sa fiche d'intervenant (ses tarifs)
+     * quand le nom correspond à un enseignant de l'utilisateur.
+     */
     public function saving(RidingSession $session): void
     {
+        if ($session->isDirty('status')) {
+            $session->cancelled_at = $session->status === 'cancelled' ? now() : null;
+        }
         if (! $session->isDirty('instructor') && ($session->exists || $session->professional_id)) {
             return;
         }

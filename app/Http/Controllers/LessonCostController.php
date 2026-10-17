@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Horse;
 use App\Models\LessonCharge;
+use App\Models\LessonPackage;
+use App\Models\Professional;
 use App\Models\RidingSession;
+use App\Services\HorseAccess;
 use App\Services\LessonCosts;
 use App\Services\RidingSessionService;
+use App\Support\Perm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -15,9 +20,12 @@ class LessonCostController extends Controller
 {
     public function __construct(private LessonCosts $costs) {}
 
-    public function index(Request $request)
+    public function index(Request $request, HorseAccess $access)
     {
         $user = $request->user();
+        // Forfaits : le montant du mois en cours est compté dès l'ouverture (la tâche quotidienne le fait aussi).
+        $this->costs->monthlyFees($user);
+        $packages = LessonPackage::with(['professional', 'horse'])->where('payer_id', $user->id)->orderByDesc('starts_on')->get();
         // Le cours avant le déplacement du même jour.
         $all = LessonCharge::with(['horse', 'professional'])->where('payer_id', $user->id)->orderByDesc('charged_on')->orderByRaw("kind = 'travel'")->orderBy('id')->get();
         $horse = $request->integer('horse') ?: null;
@@ -29,6 +37,13 @@ class LessonCostController extends Controller
             'thisMonth' => (float) $charges->filter(fn (LessonCharge $c) => $c->charged_on->isSameMonth(now()))->sum('amount'),
             'horses' => $all->pluck('horse')->filter()->unique('id')->sortBy(fn ($h) => mb_strtolower($h->shortName()))->values(),
             'horse' => $horse,
+            'packages' => $packages,
+            // Cours décomptés : sur toute la carte, ou dans le mois en cours pour un forfait.
+            'usage' => $packages->mapWithKeys(fn (LessonPackage $p) => [$p->id => LessonCharge::where('package_id', $p->id)->whereIn('kind', LessonCosts::LESSONS)
+                ->when($p->kind === 'monthly', fn ($q) => $q->whereBetween('charged_on', [today()->startOfMonth()->toDateString(), today()->endOfMonth()->toDateString()]))->count()]),
+            'instructors' => Professional::whereIn('organization_id', $user->memberships->pluck('organization_id'))->where('kind', 'instructor')->whereNull('archived_at')
+                ->orderBy('first_name')->get()->mapWithKeys(fn (Professional $p) => [$p->id => $p->fullName()]),
+            'packageHorses' => Horse::whereIn('id', $access->horseIdsWith($user, Perm::SESSIONS_VIEW))->whereNull('archived_at')->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
         ]);
     }
 

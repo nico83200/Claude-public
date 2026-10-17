@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\InstructorRate;
 use App\Models\LessonCharge;
+use App\Models\LessonPackage;
 use App\Models\Professional;
 use App\Models\RidingSession;
 use App\Models\User;
@@ -132,36 +133,189 @@ class LessonCosts
         if (self::$syncing) {
             return;
         }
-        $this->guard(function () use ($session) {
-            $session->loadMissing('horse');
-            $charge = LessonCharge::withTrashed()->where('riding_session_id', $session->id)->whereIn('kind', self::LESSONS)->first();
-            $price = $this->sessionPrice($session);
-            $payer = $this->payerOf($session);
-            $due = $price && $payer && $session->horse && $session->status === 'completed' && ! $session->trashed();
-            if (! $due) {
-                // Plus de frais (séance pas faite, annulée, cours offert…) : retirés tant qu'ils ne sont pas payés.
-                if ($charge && ! $charge->trashed() && ! $charge->paid_on) {
-                    $this->forget($charge);
-                }
-            } elseif (! $charge?->trashed()) {
-                $isNew = ! $charge;
-                $charge ??= new LessonCharge(['riding_session_id' => $session->id, 'created_by' => auth()->id() ?? $session->created_by]);
-                $charge->fill(['horse_id' => $session->horse_id, 'payer_id' => $payer->id, 'professional_id' => $session->professional_id, 'kind' => $session->session_type,
-                    'label' => Str::limit($price['label'], 150, ''), 'amount' => $price['amount'], 'charged_on' => $session->scheduled_at->toDateString()])->save();
-                $this->mirror($charge);
-                if ($isNew) {
-                    $this->tell($charge);
+        $this->guard(fn () => $this->syncSession($session));
+    }
+
+    /** Annulé moins de N heures avant (règle de l'enseignant) : le cours reste dû. */
+    public function lateCancelled(RidingSession $session): bool
+    {
+        $session->loadMissing('coach');
+        $hours = (int) $session->coach?->cancel_notice_hours;
+
+        return $session->status === 'cancelled' && $hours > 0 && $session->cancelled_at && $session->scheduled_at
+            && $session->cancelled_at->gt($session->scheduled_at->copy()->subHours($hours));
+    }
+
+    private function syncSession(RidingSession $session): void
+    {
+        $session->loadMissing('horse');
+        $charge = LessonCharge::withTrashed()->where('riding_session_id', $session->id)->whereIn('kind', self::LESSONS)->first();
+        $late = $this->lateCancelled($session);
+        $price = $this->sessionPrice($session);
+        $payer = $this->payerOf($session);
+        $due = $price && $payer && $session->horse && ($session->status === 'completed' || $late) && ! $session->trashed();
+        if (! $due) {
+            // Plus de frais (séance pas faite, annulée à temps, cours offert…) : retirés tant qu'ils ne sont pas payés.
+            if ($charge && ! $charge->trashed() && ! $charge->paid_on) {
+                $this->forget($charge);
+            }
+        } elseif ($charge && ($charge->trashed() || $charge->paid_on)) {
+            // Retiré à la main, ou déjà payé : on n'y touche plus.
+        } else {
+            $isNew = ! $charge;
+            $charge ??= new LessonCharge(['riding_session_id' => $session->id, 'created_by' => auth()->id() ?? $session->created_by]);
+            // Carte ou forfait de cours : le cours y est décompté (sauf prix saisi à la main).
+            $use = $price['manual'] ? null : $this->packageFor($session, $payer, $charge->exists ? $charge : null);
+            $label = $price['label'].($late ? ' · annulé tardivement' : '').($use ? ' · '.$use['label'] : '');
+            $charge->fill(['horse_id' => $session->horse_id, 'payer_id' => $payer->id, 'professional_id' => $session->professional_id, 'kind' => $session->session_type,
+                'package_id' => $use['package']->id ?? null, 'label' => Str::limit($label, 150, ''), 'amount' => $use ? 0 : $price['amount'],
+                'charged_on' => $session->scheduled_at->toDateString()])->save();
+            $this->mirror($charge);
+            if ($isNew) {
+                $this->tell($charge);
+                if ($use) {
+                    $this->alertBalance($use['package'], $use['left']);
                 }
             }
-            // Déplacement : une fois par jour, par enseignant et par personne qui paie (ancien jour compris si la séance a bougé).
-            $this->syncTravel($session->professional_id, $payer?->id, $session->scheduled_at);
-            $previous = $session->getPrevious();
-            if (array_intersect(array_keys($previous), ['professional_id', 'payer_id', 'rider_id', 'scheduled_at'])) {
-                $old = array_merge($session->getAttributes(), $previous);
-                $this->syncTravel($old['professional_id'] ? (int) $old['professional_id'] : null, (int) (($old['payer_id'] ?: $old['rider_id']) ?: $old['created_by']) ?: null,
-                    $old['scheduled_at'] ? Carbon::parse($old['scheduled_at']) : null);
+        }
+        // Déplacement : une fois par jour, par enseignant et par personne qui paie (ancien jour compris si la séance a bougé).
+        $this->syncTravel($session->professional_id, $payer?->id, $session->scheduled_at);
+        $previous = $session->getPrevious();
+        if (array_intersect(array_keys($previous), ['professional_id', 'payer_id', 'rider_id', 'scheduled_at'])) {
+            $old = array_merge($session->getAttributes(), $previous);
+            $this->syncTravel($old['professional_id'] ? (int) $old['professional_id'] : null, (int) (($old['payer_id'] ?: $old['rider_id']) ?: $old['created_by']) ?: null,
+                $old['scheduled_at'] ? Carbon::parse($old['scheduled_at']) : null);
+        }
+    }
+
+    /**
+     * Carte ou forfait qui couvre le cours : même personne, même cheval, même enseignant, valable ce jour-là et pas épuisé
+     * (forfait : dans le mois). Un cours déjà décompté le reste tant que sa carte est valable.
+     */
+    private function packageFor(RidingSession $session, User $payer, ?LessonCharge $current): ?array
+    {
+        if (! $session->professional_id) {
+            return null;
+        }
+        $day = $session->scheduled_at;
+        $packages = LessonPackage::with('professional')->where('payer_id', $payer->id)->where('horse_id', $session->horse_id)->where('professional_id', $session->professional_id)
+            ->orderByRaw("kind = 'card'")->orderBy('starts_on')->get()->filter(fn (LessonPackage $p) => $p->covers($day));
+        if ($current?->package_id) {
+            $packages = $packages->sortBy(fn (LessonPackage $p) => $p->id === $current->package_id ? 0 : 1);
+        }
+        foreach ($packages as $p) {
+            $used = LessonCharge::where('package_id', $p->id)->whereIn('kind', self::LESSONS)->when($current, fn ($q) => $q->whereKeyNot($current->id))
+                ->when($p->kind === 'monthly', fn ($q) => $q->whereBetween('charged_on', [$day->copy()->startOfMonth()->toDateString(), $day->copy()->endOfMonth()->toDateString()]))->count();
+            if ($used < $p->lessons) {
+                $n = $used + 1;
+
+                return ['package' => $p, 'left' => $p->lessons - $n, 'label' => $p->kind === 'card'
+                    ? 'carte ('.$n.'/'.$p->lessons.')' : 'forfait ('.$n.'/'.$p->lessons.' en '.$day->translatedFormat('F').')'];
+            }
+        }
+
+        return null;
+    }
+
+    /** « Forfait d'octobre 2026 », « Forfait de novembre 2026 » */
+    private static function monthTitle(Carbon $day): string
+    {
+        $month = $day->translatedFormat('F Y');
+
+        return (preg_match('/^[aeiouyàâéèêîôû]/iu', $month) ? 'Forfait d\'' : 'Forfait de ').$month;
+    }
+
+    /** Carte presque épuisée : la personne est prévenue (plus que 2 cours, puis plus aucun). */
+    private function alertBalance(LessonPackage $package, int $left): void
+    {
+        if ($package->kind !== 'card' || ! in_array($left, [2, 0], true)) {
+            return;
+        }
+        $package->loadMissing(['payer', 'horse']);
+        $package->payer?->notify(new AppNotification('lesson_cost', $left ? 'Carte de cours : plus que 2 cours' : 'Carte de cours utilisée',
+            $package->title().' ('.$package->horse?->shortName().') : '.($left ? 'plus que 2 cours.' : 'tous les cours sont utilisés ; les prochains seront comptés au tarif.'),
+            route('lesson-costs.index')));
+    }
+
+    /** Carte ou forfait ajouté : son prix (la carte, ou chaque mois du forfait) et les cours déjà faits qu'il couvre. */
+    public function packageSaved(LessonPackage $package): void
+    {
+        $this->guard(function () use ($package) {
+            $this->syncPackageFees($package, false);
+            $sessions = LessonCharge::with('session')->where('payer_id', $package->payer_id)->where('horse_id', $package->horse_id)->where('professional_id', $package->professional_id)
+                ->whereIn('kind', self::LESSONS)->whereNull('package_id')->whereNull('paid_on')->whereDate('charged_on', '>=', $package->starts_on)
+                ->when($package->ends_on, fn ($q) => $q->whereDate('charged_on', '<=', $package->ends_on))->orderBy('charged_on')->orderBy('id')->get()->pluck('session')->filter();
+            $sessions->each(fn (RidingSession $s) => $this->syncSession($s));
+        });
+    }
+
+    /** Carte ou forfait supprimé : son prix est retiré et les cours qu'il couvrait sont de nouveau comptés au tarif. */
+    public function packageDeleted(LessonPackage $package): void
+    {
+        $this->guard(function () use ($package) {
+            LessonCharge::where('package_id', $package->id)->whereIn('kind', ['card', 'monthly'])->get()->each(fn ($c) => $this->trash($c, true));
+            foreach (LessonCharge::with('session')->where('package_id', $package->id)->whereIn('kind', self::LESSONS)->whereNull('paid_on')->get() as $charge) {
+                $charge->forceFill(['package_id' => null])->save();
+                $charge->session && $this->syncSession($charge->session);
             }
         });
+    }
+
+    /** Forfaits en cours : le montant du nouveau mois (tâche quotidienne, la personne étant prévenue ; ou à l'ouverture de ses frais). */
+    public function monthlyFees(?User $user = null): int
+    {
+        $count = 0;
+        $this->guard(function () use (&$count, $user) {
+            $active = LessonPackage::with(['professional', 'payer'])->where('kind', 'monthly')->whereDate('starts_on', '<=', today())
+                ->when($user, fn ($q) => $q->where('payer_id', $user->id))
+                ->where(fn ($q) => $q->whereNull('ends_on')->orWhereDate('ends_on', '>=', today()->startOfMonth()))->get();
+            foreach ($active as $package) {
+                $count += $this->syncPackageFees($package, $user === null);
+            }
+        });
+
+        return $count;
+    }
+
+    /** Prix d'une carte (une fois) ou d'un forfait (chaque mois jusqu'au mois en cours) ; renvoie le nombre de montants ajoutés. */
+    private function syncPackageFees(LessonPackage $package, bool $tell): int
+    {
+        $package->loadMissing(['professional', 'payer']);
+        $added = 0;
+        $months = $package->kind === 'card' ? [$package->starts_on->copy()] : [];
+        if ($package->kind === 'monthly') {
+            $end = $package->ends_on && $package->ends_on->lt(today()) ? $package->ends_on : today();
+            for ($m = $package->starts_on->copy()->startOfMonth(); $m->lte($end); $m->addMonth()) {
+                $months[] = $m->isSameMonth($package->starts_on) ? $package->starts_on->copy() : $m->copy();
+            }
+        }
+        foreach ($months as $day) {
+            $fee = LessonCharge::withTrashed()->where('package_id', $package->id)->where('kind', $package->kind)
+                ->when($package->kind === 'monthly', fn ($q) => $q->whereYear('charged_on', $day->year)->whereMonth('charged_on', $day->month))->first();
+            if ($fee?->trashed() && ! $fee->removed_with_source) {
+                continue; // retiré à la main
+            }
+            if ($fee?->trashed()) {
+                $this->untrash($fee);
+            }
+            $isNew = ! $fee;
+            $fee ??= new LessonCharge(['package_id' => $package->id, 'kind' => $package->kind, 'created_by' => auth()->id() ?? $package->payer_id]);
+            if ($fee->paid_on) {
+                continue;
+            }
+            $fee->fill(['horse_id' => $package->horse_id, 'payer_id' => $package->payer_id, 'professional_id' => $package->professional_id, 'amount' => $package->price, 'charged_on' => $day->toDateString(),
+                'label' => Str::limit($package->kind === 'card' ? $package->title() : self::monthTitle($day).' ('.$package->lessons.' cours) avec '.$package->professional?->fullName(), 150, '')])->save();
+            $this->mirror($fee);
+            if ($isNew) {
+                $added++;
+                if ($tell) {
+                    $package->payer?->notify(new AppNotification('lesson_cost', 'Forfait de cours : '.$day->translatedFormat('F'),
+                        $fee->label.' : '.number_format((float) $fee->amount, 2, ',', ' ').' €.', route('lesson-costs.index')));
+                }
+            }
+        }
+
+        return $added;
     }
 
     /** Séance supprimée : ses frais aussi (retrouvés si la suppression est annulée). */
@@ -177,8 +331,8 @@ class LessonCosts
     {
         $this->guard(function () use ($session) {
             LessonCharge::onlyTrashed()->where('riding_session_id', $session->id)->where('removed_with_source', true)->get()->each(fn ($c) => $this->untrash($c));
+            $this->syncSession($session);
         });
-        $this->fromSession($session);
     }
 
     /** Déplacement de l'enseignant : sur le premier cours fait du jour (pour cette personne), selon son tarif « par venue ». */
@@ -317,7 +471,7 @@ class LessonCosts
     {
         $charge->loadMissing(['horse', 'payer', 'professional']);
         $expense = $charge->expense_id ? Expense::withTrashed()->find($charge->expense_id) : null;
-        $inBudget = $charge->horse && $charge->payer && ! $charge->trashed()
+        $inBudget = $charge->horse && $charge->payer && ! $charge->trashed() && (float) $charge->amount > 0
             && in_array(Perm::EXPENSES_VIEW, $this->access->permissions($charge->payer, $charge->horse), true);
         if (! $inBudget) {
             if ($expense && $charge->trashed()) {

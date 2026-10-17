@@ -47,6 +47,11 @@ class LessonCharge extends Model
         return $this->belongsTo(Professional::class);
     }
 
+    public function package()
+    {
+        return $this->belongsTo(LessonPackage::class)->withTrashed();
+    }
+
     public function expense()
     {
         return $this->belongsTo(Expense::class)->withTrashed();

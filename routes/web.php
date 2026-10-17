@@ -201,12 +201,15 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::post('/intervenants/{professional}/archiver', [Controllers\ProfessionalController::class, 'archive'])->name('professionals.archive');
     Route::post('/intervenants/{professional}/tarifs', [Controllers\InstructorRateController::class, 'store'])->name('professionals.rates.store');
     Route::delete('/intervenants/{professional}/tarifs/{rate}', [Controllers\InstructorRateController::class, 'destroy'])->scopeBindings()->name('professionals.rates.destroy');
+    Route::put('/intervenants/{professional}/annulation', [Controllers\InstructorRateController::class, 'notice'])->name('professionals.cancel-notice');
 
     // Frais de cours (chacun les siens)
     Route::get('/frais-de-cours', [Controllers\LessonCostController::class, 'index'])->name('lesson-costs.index');
     Route::post('/frais-de-cours/{charge}/paye', [Controllers\LessonCostController::class, 'paid'])->name('lesson-costs.paid');
     Route::delete('/frais-de-cours/{charge}', [Controllers\LessonCostController::class, 'destroy'])->name('lesson-costs.destroy');
     Route::post('/frais-de-cours/{charge}/retablir', [Controllers\LessonCostController::class, 'restore'])->withTrashed()->name('lesson-costs.restore');
+    Route::post('/frais-de-cours/cartes', [Controllers\LessonPackageController::class, 'store'])->name('lesson-packages.store');
+    Route::delete('/frais-de-cours/cartes/{package}', [Controllers\LessonPackageController::class, 'destroy'])->name('lesson-packages.destroy');
 
     // Calendrier
     Route::get('/calendrier', [Controllers\CalendarController::class, 'index'])->name('calendar.index');

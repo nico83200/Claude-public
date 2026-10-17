@@ -12,6 +12,7 @@ use App\Notifications\AppNotification;
 use App\Services\CareReminders;
 use App\Services\CompetitionVaccines;
 use App\Services\HorseAccess;
+use App\Services\LessonCosts;
 use App\Support\Perm;
 use App\Support\VaccineRules;
 use Illuminate\Console\Command;
@@ -51,6 +52,8 @@ class SendReminders extends Command
                 }
             }
         }
+        // Forfaits de cours : le montant du nouveau mois, la personne qui paie étant prévenue.
+        $sent += app(LessonCosts::class)->monthlyFees();
         // Échéances de suivi : règle du cheval (maréchal, vaccination… actifs par défaut),
         // rappel N jours avant puis le jour même ; un contrôle déjà remplacé par un soin plus récent est ignoré.
         $rulesCache = [];

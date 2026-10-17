@@ -39,6 +39,9 @@
                 @empty
                     <p class="text-sm text-slate-500">Aucun tarif : ajoutez-en pour que le coût de chaque cours avec {{ $professional->fullName() }} soit compté automatiquement, au nom de la personne qui paie.</p>
                 @endforelse
+                @if ($professional->cancel_notice_hours)
+                    <p class="border-t border-slate-100 py-2.5 text-sm" data-cancel-rule>Annulation moins de {{ $professional->cancel_notice_hours }} h avant : cours dû.</p>
+                @endif
                 @if ($canManage)
                     <form method="POST" action="{{ route('professionals.rates.store', $professional) }}" class="mt-4 grid gap-3 rounded-2xl bg-slate-50 p-3 sm:grid-cols-4" x-data="{ kind: @js(old('kind', 'private_lesson')) }" data-rate-form>
                         @csrf
@@ -50,6 +53,11 @@
                         <div x-show="kind === 'private_lesson' || kind === 'group_lesson'"><x-field name="duration_minutes" type="number" min="5" max="600" label="Durée (min)" help="Facultatif : tarif d'un cours de cette durée." /></div>
                         <div class="sm:col-span-4"><button class="btn-primary">Ajouter le tarif</button>
                             <p class="mt-2 text-xs text-slate-500">Cours collectif : prix par cavalier. Déplacement : compté une fois par jour de cours. Coaching : sur un concours de l'agenda dont {{ $professional->fullName() }} est l'intervenant, une fois le concours validé.</p></div>
+                    </form>
+                    <form method="POST" action="{{ route('professionals.cancel-notice', $professional) }}" class="mt-3 flex flex-wrap items-end gap-2" data-cancel-notice>
+                        @csrf @method('PUT')
+                        <x-field name="cancel_notice_hours" type="number" min="1" max="168" label="Annulation tardive : cours dû s'il est annulé moins de … heures avant" :value="$professional->cancel_notice_hours" placeholder="Pas de règle" class="min-w-64 flex-1" />
+                        <button class="btn-secondary min-h-11">Enregistrer</button>
                     </form>
                 @endif
             </x-section>

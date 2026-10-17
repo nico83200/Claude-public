@@ -34,6 +34,16 @@ class InstructorRateController extends Controller
         return back()->with('success', 'Tarif ajouté : il s\'applique aux prochains cours faits avec '.$professional->fullName().'.');
     }
 
+    /** Annulation tardive : cours dû s'il est annulé moins de N heures avant (vide : pas de règle). */
+    public function notice(Request $request, Professional $professional)
+    {
+        $this->authorizeOrg($professional->organization, Perm::PROFESSIONALS_MANAGE);
+        $data = $request->validate(['cancel_notice_hours' => ['nullable', 'integer', 'min:1', 'max:168']]);
+        $professional->forceFill(['cancel_notice_hours' => $data['cancel_notice_hours'] ?? null])->save();
+
+        return back()->with('success', $professional->cancel_notice_hours ? 'Cours dû s\'il est annulé moins de '.$professional->cancel_notice_hours.' h avant.' : 'Pas de règle d\'annulation.');
+    }
+
     public function destroy(Professional $professional, InstructorRate $rate)
     {
         $this->authorizeOrg($professional->organization, Perm::PROFESSIONALS_MANAGE);
