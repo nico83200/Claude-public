@@ -15,12 +15,13 @@ class RidingSession extends Model
 {
     use HasClientUuid, SoftDeletes, Versioned;
 
-    protected $guarded = ['id', 'horse_id', 'created_by', 'version'];
+    // Enseignant relié, personne qui paie et prix du cours : fixés par LessonCosts et la carte « Coût du cours », jamais en masse.
+    protected $guarded = ['id', 'horse_id', 'created_by', 'version', 'professional_id', 'payer_id', 'lesson_price'];
 
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['version' => 1, 'status' => 'planned'];
 
-    protected $casts = ['scheduled_at' => 'datetime', 'completed_at' => 'datetime'];
+    protected $casts = ['scheduled_at' => 'datetime', 'completed_at' => 'datetime', 'lesson_price' => 'decimal:2'];
 
     /** Types proposés à la saisie d'une séance. */
     public const TYPES = ['private_lesson' => 'Cours particulier', 'group_lesson' => 'Cours collectif', 'free' => 'Monte libre', 'ride' => 'Balade'];
@@ -67,6 +68,23 @@ class RidingSession extends Model
     public function horse()
     {
         return $this->belongsTo(Horse::class);
+    }
+
+    /** Enseignant du cours, relié à sa fiche d'intervenant (ses tarifs). */
+    public function coach()
+    {
+        return $this->belongsTo(Professional::class, 'professional_id');
+    }
+
+    /** Personne qui paie le cours (par défaut le cavalier). */
+    public function payer()
+    {
+        return $this->belongsTo(User::class, 'payer_id');
+    }
+
+    public function lessonCharges()
+    {
+        return $this->hasMany(LessonCharge::class);
     }
 
     public function rider()

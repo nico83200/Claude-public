@@ -44,7 +44,7 @@ class ReferenceDataSeeder extends Seeder
         $expenses = [
             'boarding' => 'Pension', 'feed' => 'Alimentation', 'veterinary' => 'Vétérinaire', 'farrier' => 'Maréchal-ferrant',
             'osteopathy' => 'Ostéopathe', 'dentistry' => 'Dentiste', 'tack' => 'Matériel', 'equipment' => 'Équipement',
-            'competition' => 'Concours', 'transport' => 'Transport', 'insurance' => 'Assurance', 'other' => 'Autres',
+            'competition' => 'Concours', 'lessons' => 'Cours et coaching', 'transport' => 'Transport', 'insurance' => 'Assurance', 'other' => 'Autres',
         ];
         foreach ($expenses as $key => $name) {
             ExpenseCategory::updateOrCreate(['key' => $key], ['name' => $name]);

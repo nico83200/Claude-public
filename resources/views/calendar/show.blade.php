@@ -75,6 +75,18 @@
         @if ($vaccines)
             @include('calendar._competition-vaccines')
         @endif
+        @if ($coaching->isNotEmpty())
+            <x-section title="Coaching" data-event-coaching-cost>
+                @foreach ($coaching as $c)
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                        <span class="min-w-0 flex-1"><span class="block font-medium {{ $c->trashed() ? 'text-slate-400 line-through' : 'text-slate-900' }}">{{ $c->label }}</span><span class="block text-xs text-slate-500">À la charge de {{ $c->payer_id === auth()->id() ? 'vous' : $c->payer?->name }}</span></span>
+                        <span class="font-semibold">{{ number_format((float) $c->amount, 2, ',', ' ') }} €</span>
+                        @unless ($c->trashed())<x-badge :color="$c->paid_on ? 'green' : 'amber'">{{ $c->paid_on ? 'Payé' : 'À payer' }}</x-badge>@endunless
+                    </div>
+                @endforeach
+                <a href="{{ route('lesson-costs.index') }}" class="mt-2 inline-flex min-h-11 items-center gap-1 text-sm link">Tous mes frais de cours <x-icon name="chevron" class="size-4" /></a>
+            </x-section>
+        @endif
         @if ($event->careRecord)
             <x-section title="Carnet de santé">
                 <p class="text-sm text-slate-600">Ce rendez-vous est enregistré comme soin réalisé{{ $event->careRecord->category ? ' (« '.$event->careRecord->category->name.' »)' : '' }} : il apparaît dans la santé de {{ $event->horse?->shortName() }} et se met à jour avec l'événement.</p>

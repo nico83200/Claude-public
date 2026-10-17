@@ -23,6 +23,12 @@ class Professional extends Model
         return $this->belongsToMany(Horse::class, 'horse_professionals')->withPivot('is_primary')->withTimestamps();
     }
 
+    /** Tarifs (enseignant). */
+    public function rates()
+    {
+        return $this->hasMany(InstructorRate::class)->orderBy('kind')->orderBy('duration_minutes');
+    }
+
     public function careRecords()
     {
         return $this->hasMany(CareRecord::class)->orderByDesc('performed_at');

@@ -8,6 +8,7 @@ use App\Models\CareRecord;
 use App\Models\Expense;
 use App\Models\Horse;
 use App\Models\Invitation;
+use App\Models\LessonCharge;
 use App\Models\Treatment;
 use App\Models\User;
 use App\Services\CareCalendarSync;
@@ -16,6 +17,7 @@ use App\Services\CompetitionVaccines;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
+use App\Services\LessonCosts;
 use App\Services\LoadSimulation;
 use App\Services\MailDesign;
 use App\Services\ToValidate;
@@ -81,6 +83,12 @@ class AppServiceProvider extends ServiceProvider
         CalendarEvent::created(fn ($event) => app(CareCalendarSync::class)->fromEvent($event, true));
         CalendarEvent::updated(fn ($event) => app(CareCalendarSync::class)->fromEvent($event));
         CalendarEvent::deleted(fn ($event) => app(CareCalendarSync::class)->eventDeleted($event));
+        // Frais de cours : coaching d'un concours validé ; dépense recopiée dans le budget modifiée, supprimée ou rétablie.
+        CalendarEvent::saved(fn ($event) => app(LessonCosts::class)->fromEvent($event));
+        CalendarEvent::deleted(fn ($event) => app(LessonCosts::class)->eventDeleted($event));
+        Expense::updated(fn ($expense) => app(LessonCosts::class)->fromExpense($expense));
+        Expense::deleted(fn ($expense) => app(LessonCosts::class)->expenseDeleted($expense));
+        Expense::restored(fn ($expense) => app(LessonCosts::class)->expenseRestored($expense));
 
         // HTTPS forcé seulement une fois installé et si l'adresse configurée est en https
         // (l'installeur doit rester accessible sur un domaine pas encore certifié).
@@ -154,6 +162,8 @@ class AppServiceProvider extends ServiceProvider
             $view->with('focusHorse', $focus);
             // « À valider » (rendez-vous et séances passés) : pastille sur l'accueil, même portée que l'accueil.
             $view->with('toValidateCount', $user ? app(ToValidate::class)->count($user, $focus) : 0);
+            // Frais de cours à son nom : entrée « Frais de cours » du menu.
+            $view->with('hasLessonCosts', $user ? LessonCharge::where('payer_id', $user->id)->exists() : false);
             $view->with('soloPerms', $focus ? $access->permissions($user, $focus) : []);
             // Plusieurs chevaux : choix du cheval actif en tête du menu.
             $view->with('focusChoices', $user && ! $solo && $access->hasSeveralHorses($user)

@@ -37,6 +37,10 @@
     <div x-show="type === 'competition'" x-cloak class="sm:col-span-2" data-event-vaccine-rules>
         <x-select name="vaccine_rules" label="Vaccins exigés (règlement)" :options="$ruleOptions" :value="$ruleValue" help="Le carnet de santé du cheval est vérifié pour ce concours : grippe, et rhinopneumonie selon le règlement." />
     </div>
+    <div x-show="type === 'competition'" x-cloak data-event-coaching>
+        <x-field name="coaching_rounds" type="number" min="1" max="50" label="Parcours coachés (facultatif)" :value="$e->coaching_rounds"
+            help="Coaching : choisissez l'enseignant comme intervenant (Plus d'options) ; son tarif au jour ou au parcours est compté une fois le concours validé." />
+    </div>
     <details class="group rounded-2xl bg-slate-50 p-3 sm:col-span-2" @if ($hasOptions) open @endif data-event-options>
         <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-medium text-slate-700">Plus d'options (intervenant, récurrence, observations)<x-icon name="chevron" class="size-4 transition group-open:rotate-90" /></summary>
         <div class="mt-3 grid gap-3 sm:grid-cols-2">

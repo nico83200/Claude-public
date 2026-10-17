@@ -44,6 +44,9 @@
                 <div class="mt-4"></div>
                 <x-dl :items="['Durée prévue' => $session->planned_minutes ? $session->planned_minutes.' min' : null, 'Durée réelle' => $session->actual_minutes ? $session->actual_minutes.' min' : null, 'Lieu' => $session->location, 'État avant la séance' => $session->horse_state_before, 'Précautions' => $session->precautions, 'Notes' => $session->notes]" />
             </x-section>
+            @if ($session->isLesson())
+                @include('sessions._lesson-cost')
+            @endif
 
             <x-section title="Exercices">
                 @forelse (\App\Models\RidingSession::PHASES as $phase => $label)

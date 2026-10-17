@@ -65,6 +65,7 @@ class AppNotification extends Notification implements ShouldQueue
         'referral' => 'Parrainage : jours offerts',
         'riding_day' => 'Jours de monte (échange, séance sur votre jour)',
         'competition_vaccines' => 'Vaccins à revoir avant un concours',
+        'lesson_cost' => 'Frais de cours notés à votre charge',
     ];
 
     public function __construct(

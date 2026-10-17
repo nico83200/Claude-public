@@ -31,6 +31,11 @@ class CalendarEvent extends Model
 
     public const COLORS = ['veterinary' => 'red', 'farrier' => 'amber', 'care' => 'rose', 'treatment' => 'purple', 'session' => 'emerald', 'lesson' => 'teal', 'competition' => 'blue', 'ride' => 'lime', 'rest' => 'slate', 'custom' => 'sky'];
 
+    public function lessonCharges()
+    {
+        return $this->hasMany(LessonCharge::class);
+    }
+
     public function treatment()
     {
         return $this->belongsTo(Treatment::class);

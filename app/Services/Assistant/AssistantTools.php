@@ -40,7 +40,7 @@ class AssistantTools
 {
     public const CARE_KEYS = ['veterinary', 'farrier', 'osteopathy', 'dentistry', 'vaccination', 'deworming', 'exams', 'imaging', 'injury', 'treatment', 'routine', 'specialist'];
 
-    public const EXPENSE_KEYS = ['boarding', 'feed', 'veterinary', 'farrier', 'osteopathy', 'dentistry', 'tack', 'equipment', 'competition', 'transport', 'insurance', 'other'];
+    public const EXPENSE_KEYS = ['boarding', 'feed', 'veterinary', 'farrier', 'osteopathy', 'dentistry', 'tack', 'equipment', 'competition', 'lessons', 'transport', 'insurance', 'other'];
 
     public const APPOINTMENT_TYPES = ['veterinary', 'farrier', 'care', 'lesson', 'competition', 'ride', 'rest', 'custom'];
 

@@ -49,6 +49,7 @@
         ['horses.index', $soloHorse ? 'Mes chevaux' : 'Tous mes chevaux', $soloHorse ? 'plus' : 'horse', (bool) $focusHorse],
         ['boarding.index', 'Pension', 'receipt', $currentOrganization && ! $currentOrganization->isPersonal() && in_array('expenses.org_view', $navPerms)],
         ['billing.index', 'Abonnement', 'card', in_array('billing.manage', $navPerms)],
+        ['lesson-costs.index', 'Frais de cours', 'wallet', $hasLessonCosts ?? false],
         ['referral.index', 'Parrainage', 'gift', true],
         ['settings.profile', 'Paramètres', 'cog', true],
         ['videos.index', 'Tutoriels', 'play', true],

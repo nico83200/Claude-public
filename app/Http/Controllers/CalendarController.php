@@ -12,6 +12,7 @@ use App\Services\CalendarFeed;
 use App\Services\CalendarService;
 use App\Services\CompetitionVaccines;
 use App\Services\HorseAccess;
+use App\Services\LessonCosts;
 use App\Services\ProfessionalDirectory;
 use App\Services\RidingDays;
 use App\Services\RidingSessionService;
@@ -99,6 +100,8 @@ class CalendarController extends Controller
             'vaccines' => $vaccines,
             'vaccineLink' => $vaccines && $this->horseCan($event->horse, Perm::CALENDAR_EDIT) ? app(CompetitionVaccines::class)->appointmentUrl($vaccines) : null,
             'canEditHealth' => $event->horse && $this->horseCan($event->horse, Perm::HEALTH_EDIT),
+            // Coaching du concours (frais de cours de la personne qui paie).
+            'coaching' => $event->type === 'competition' ? app(LessonCosts::class)->visibleEventCharges($event, $request->user()) : collect(),
             'event' => $event->load(['horse', 'responsible', 'professional', 'careRecord.category', 'treatment']),
             'canEdit' => $canEdit,
             'occurrence' => $occurrence,
@@ -397,8 +400,10 @@ class CalendarController extends Controller
             'recurrence_interval' => ['nullable', 'integer', 'min:1', 'max:52'],
             'recurrence_until' => ['nullable', 'date', 'after_or_equal:date'],
             'vaccine_rules' => ['nullable', Rule::in(array_keys(VaccineRules::options()))],
+            'coaching_rounds' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
         $data['vaccine_rules'] = $data['type'] === 'competition' ? ($data['vaccine_rules'] ?? null) : null;
+        $data['coaching_rounds'] = $data['type'] === 'competition' ? ($data['coaching_rounds'] ?? null) : null;
         // Les intervenants et responsables doivent appartenir aux espaces de l'utilisateur.
         $orgIds = $request->user()->memberships->pluck('organization_id');
         if (! empty($data['professional_id']) && ! app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereKey($data['professional_id'])->exists()) {
