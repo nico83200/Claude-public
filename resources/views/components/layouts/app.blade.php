@@ -219,6 +219,7 @@
                     </div>
                 @endunless
             @endauth
+            <x-horse-switch />
             {{ $slot }}
         </main>
     </div>
