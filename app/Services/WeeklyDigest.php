@@ -175,7 +175,8 @@ class WeeklyDigest
     /** Introduction IA possible : réglage actif, semaine non vide, service prêt et offre avec l'assistant. */
     public function introEligible(User $user, array $d): bool
     {
-        if (! (ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d)) {
+        // Comptes de simulation de charge : jamais d'appel (payant) à l'IA.
+        if (! (ApplicationSetting::get('digest_ai') ?? true) || $this->isEmpty($d) || LoadSimulation::isSimulated($user)) {
             return false;
         }
         $entitlements = app(Entitlements::class);

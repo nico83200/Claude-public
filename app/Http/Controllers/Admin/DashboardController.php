@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', [
             'counts' => [
-                'users' => User::count(),
+                'users' => User::whereNull('simulation_batch_id')->count(), // hors comptes de simulation de charge
                 'organizations' => Organization::where('is_demo', false)->count(),
                 'stables' => Organization::where('type', 'stable')->where('is_demo', false)->count(),
                 'horses' => Horse::where('is_demo', false)->count(),

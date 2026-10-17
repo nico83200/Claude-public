@@ -14,6 +14,7 @@ use App\Services\CareExpenseSync;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
+use App\Services\LoadSimulation;
 use App\Services\MailDesign;
 use App\Services\Upsell;
 use App\Support\Installation;
@@ -23,8 +24,10 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +48,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Simulation de charge : aucun e-mail ne part vers les comptes de test (@simulation.invalid).
+        Event::listen(MessageSending::class, function (MessageSending $event) {
+            $to = $event->message->getTo();
+            if ($to && collect($to)->every(fn ($a) => str_ends_with(strtolower($a->getAddress()), '@'.LoadSimulation::DOMAIN))) {
+                return false;
+            }
+        });
         // Hors production : les chargements paresseux (N+1) sont journalisés pour optimisation, sans casser la page.
         Model::preventLazyLoading(! $this->app->isProduction());
         // En test : un chargement en cascade fait échouer le test (requêtes répétées à corriger par un with()).

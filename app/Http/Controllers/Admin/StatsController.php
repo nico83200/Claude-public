@@ -32,7 +32,7 @@ class StatsController extends Controller
     {
         $days = array_key_exists($request->integer('jours'), self::PERIODS) ? $request->integer('jours') : 30;
         $from = now()->subDays($days)->startOfDay();
-        $users = User::query()->whereNull('deleted_at');
+        $users = User::query()->whereNull('deleted_at')->whereNull('simulation_batch_id'); // hors simulation de charge
 
         // Inscriptions par semaine (≤ 90 jours) ou par mois.
         $byMonth = $days > 90;

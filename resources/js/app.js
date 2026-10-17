@@ -18,6 +18,7 @@ import { loadMore } from './load-more.js';
 import { fileDrop } from './file-drop.js';
 import { agendaScroll } from './agenda-scroll.js';
 import { startTimeStatus } from './time-status.js';
+import { loadSimulation, serverMonitor } from './simulation.js';
 
 window.Alpine = Alpine;
 // Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
@@ -36,6 +37,8 @@ Alpine.data('swipeRow', swipeRow);
 Alpine.data('loadMore', loadMore);
 Alpine.data('fileDrop', fileDrop);
 Alpine.data('agendaScroll', agendaScroll);
+Alpine.data('loadSimulation', loadSimulation);
+Alpine.data('serverMonitor', serverMonitor);
 Alpine.store('contactForm', contactFormStore((() => {
     try { return JSON.parse(document.getElementById('contact-config')?.textContent || '{}'); } catch { return {}; }
 })()));

@@ -412,6 +412,13 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::delete('/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('videos.destroy');
     Route::get('/parametres', [Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('/parametres', [Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/simulation', [Admin\SimulationController::class, 'index'])->name('simulation.index');
+    Route::post('/simulation', [Admin\SimulationController::class, 'store'])->middleware('throttle:10,1')->name('simulation.store');
+    Route::post('/simulation/{batch}/etape', [Admin\SimulationController::class, 'step'])->middleware('throttle:120,1')->name('simulation.step');
+    Route::post('/simulation/{batch}/arret', [Admin\SimulationController::class, 'stop'])->name('simulation.stop');
+    Route::post('/simulation/{batch}/reprise', [Admin\SimulationController::class, 'resume'])->name('simulation.resume');
+    Route::post('/simulation/{batch}/suppression', [Admin\SimulationController::class, 'purge'])->middleware('throttle:240,1')->name('simulation.purge');
+    Route::get('/serveur', [Admin\SimulationController::class, 'status'])->name('simulation.status');
     Route::get('/journal', [Admin\AuditController::class, 'index'])->name('audit.index');
     Route::get('/erreurs', [Admin\AuditController::class, 'errors'])->name('errors.index');
     Route::get('/demandes-rgpd', [Admin\DataRequestController::class, 'index'])->name('data-requests.index');
