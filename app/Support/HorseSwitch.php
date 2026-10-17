@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Route;
 final class HorseSwitch
 {
     /** Pages de liste : le cheval passe en paramètre (?horse= ; ?cheval= pour les onglets de la page Santé). */
-    public const QUERY_ROUTES = ['budget.index' => 'horse', 'sessions.index' => 'horse', 'calendar.index' => 'horse', 'health.index' => 'cheval'];
+    public const QUERY_ROUTES = ['budget.index' => 'horse', 'sessions.index' => 'horse', 'calendar.index' => 'horse', 'health.index' => 'cheval', 'todo.index' => 'horse'];
+
+    /** Pages qui, sans cheval dans l'adresse, montrent le cheval actif. */
+    public const FOCUS_FALLBACK = ['health.index', 'todo.index'];
 
     /** Pages d'un cheval : même page pour l'autre cheval ; « Tous » mène à la page commune correspondante. */
     public const HORSE_ROUTES = [
@@ -51,8 +54,8 @@ final class HorseSwitch
             return (int) ($horse instanceof Horse ? $horse->id : $horse);
         }
         $value = request()->query(self::QUERY_ROUTES[$route]);
-        if ($route === 'health.index' && $value === null) {
-            return $focus; // Santé : le dossier du cheval actif
+        if (in_array($route, self::FOCUS_FALLBACK, true) && $value === null) {
+            return $focus; // Santé, À valider : le cheval actif
         }
 
         return ctype_digit((string) $value) ? (int) $value : null;

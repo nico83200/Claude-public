@@ -18,6 +18,7 @@ use App\Services\DebriefQuestions;
 use App\Services\ExerciseSuggestions;
 use App\Services\HorseAccess;
 use App\Services\RidingSessionService;
+use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
@@ -276,6 +277,17 @@ class RidingSessionController extends Controller
         }
 
         return view('sessions.live', ['session' => $session->load(['horse', 'exercises'])]);
+    }
+
+    /** Séance prévue qui n'a pas eu lieu (liste « À valider ») : « Annulée », sans passer par la modification. */
+    public function cancel(Request $request, RidingSession $session)
+    {
+        $this->authorizeEdit($request, $session);
+        abort_unless(in_array($session->status, ['planned', 'in_progress'], true), 422, 'Cette séance est déjà terminée ou annulée.');
+        $session->update(['status' => 'cancelled']);
+        app(ToValidate::class)->flush();
+
+        return $request->wantsJson() ? response()->json(['text' => 'Séance annulée']) : back()->with('success', 'Séance du '.$session->scheduled_at->format('d/m').' marquée « Annulée ».');
     }
 
     public function debrief(Request $request, RidingSession $session)

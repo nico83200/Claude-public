@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.40.0' => ['2026-10-17', 'Accueil : liste « À valider » (rendez-vous passés, occurrences récentes des séries, séances sans bilan) avec « Valider », « Pas eu lieu » et « Faire le bilan », glissés comme dans l\'agenda, pastille sur « Accueil » ; un rendez-vous de soin validé rejoint le carnet ; un contrôle prévu qui n\'a pas eu lieu redevient à prévoir.'],
     '2.39.0' => ['2026-10-17', 'Plusieurs chevaux : puces « Tous · cheval… » en haut du budget, des séances, de l\'agenda, de la santé et des pages d\'un cheval (fiche, carnet, suivi, poids, alimentation, documents, intervenants, généalogie) ; un toucher change le cheval actif et rouvre la même page pour ce cheval, filtres gardés.'],
     '2.38.0' => ['2026-10-17', 'Simulation de navigation (rendu interne) : le serveur génère les pages les plus consultées comme les comptes de test, avec plusieurs visiteurs simultanés, et mesure chaque page (durée moyenne, 95 %, maximum, requêtes en base, erreurs) ; sans session enregistrée ni nouvel accès depuis l\'extérieur.'],
     '2.37.0' => ['2026-10-17', 'Partages reçus acceptés dans l\'app (Accepter / Refuser / Tout accepter sur la page Partages, droits détaillés) ; pastille du nombre de partages en attente sur « Partages » et sur le bouton Menu ; notification dans l\'app pour les partages simulés ; haut de page fixe sur téléphone (Partages, administration) ; date des notifications sans débordement.'],

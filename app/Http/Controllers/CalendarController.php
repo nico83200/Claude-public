@@ -13,6 +13,7 @@ use App\Services\CalendarService;
 use App\Services\HorseAccess;
 use App\Services\ProfessionalDirectory;
 use App\Services\RidingSessionService;
+use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Fr;
 use App\Support\Perm;
@@ -262,36 +263,53 @@ class CalendarController extends Controller
     }
 
     /**
-     * Événement passé validé d'un geste (glissé vers la droite) : « Réalisé », comme depuis sa modification
+     * Événement passé validé d'un geste (glissé vers la droite, liste « À valider ») : « Réalisé », comme depuis sa modification
      * (un rendez-vous de soin rejoint alors le carnet de santé). Pour une série, seule l'occurrence du jour est validée :
      * elle devient un événement à part, retiré de la série.
      */
     public function markDone(Request $request, CalendarEvent $event)
     {
+        return $this->settle($request, $event, 'done');
+    }
+
+    /** Rendez-vous passé qui n'a pas eu lieu : « Annulé », gardé dans l'historique (même règle pour une série). */
+    public function cancel(Request $request, CalendarEvent $event)
+    {
+        return $this->settle($request, $event, 'cancelled');
+    }
+
+    private function settle(Request $request, CalendarEvent $event, string $status)
+    {
         abort_unless($this->canEdit($request, $event), 403);
-        abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : validez la séance.');
+        abort_if($event->isSessionEvent(), 422, 'Cet événement suit la séance : '.($status === 'done' ? 'validez' : 'annulez').' la séance.');
         abort_unless(in_array($event->status, ['planned', 'confirmed'], true), 422, 'Cet événement est déjà validé ou annulé.');
+        $verb = $status === 'done' ? 'validé' : 'annulé';
         if ($event->recurrence) {
             $date = $this->occurrenceDate($request, $event);
             $at = Carbon::parse($date.' '.$event->starts_at->format('H:i:s'));
             abort_if($at->isFuture(), 422, 'Cette occurrence n\'a pas encore eu lieu.');
-            $done = DB::transaction(function () use ($event, $date, $at) {
-                $done = $event->replicate(['uuid', 'recurrence', 'recurrence_interval', 'recurrence_until', 'recurrence_exceptions', 'group_uuid']);
-                $done->uuid = (string) Str::uuid();
-                $done->forceFill(['starts_at' => $at, 'status' => 'done', 'recurrence_parent_id' => $event->id, 'organization_id' => $event->organization_id, 'created_by' => $event->created_by])->save();
+            $copy = DB::transaction(function () use ($event, $date, $at, $status) {
+                $copy = $event->replicate(['uuid', 'recurrence', 'recurrence_interval', 'recurrence_until', 'recurrence_exceptions', 'group_uuid']);
+                $copy->uuid = (string) Str::uuid();
+                $copy->forceFill(['starts_at' => $at, 'status' => $status, 'recurrence_parent_id' => $event->id, 'organization_id' => $event->organization_id, 'created_by' => $event->created_by])->save();
                 $event->exclude($date);
                 $event->save();
 
-                return $done;
+                return $copy;
             });
-            $text = '« '.$event->title.' » du '.$at->format('d/m').' validé';
-            if (! $request->wantsJson()) {
-                return redirect()->route('calendar.show', $done)->with('success', $text.'.');
+            $text = '« '.$event->title.' » du '.$at->format('d/m').' '.$verb;
+            if (! $request->wantsJson() && ! $request->boolean('stay')) {
+                return redirect()->route('calendar.show', $copy)->with('success', $text.'.');
             }
+        } elseif ($status === 'cancelled' && $event->source_type === (new CareRecord)->getMorphClass()) {
+            // Contrôle prévu qui n'a pas eu lieu : l'événement annulé reste dans l'historique, le contrôle redevient « à prévoir ».
+            $event->forceFill(['status' => 'cancelled', 'source_type' => null, 'source_id' => null])->saveQuietly();
+            $text = '« '.$event->title.' » annulé : contrôle à reprogrammer';
         } else {
-            $event->update(['status' => 'done']);
-            $text = '« '.$event->title.' » validé';
+            $event->update(['status' => $status]);
+            $text = '« '.$event->title.' » '.$verb;
         }
+        app(ToValidate::class)->flush();
 
         return $request->wantsJson() ? response()->json(['text' => $text]) : back()->with('success', $text.'.');
     }

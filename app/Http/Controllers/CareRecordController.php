@@ -69,7 +69,7 @@ class CareRecordController extends Controller
             ->join('care_records as prev', fn ($j) => $j->on('prev.horse_id', '=', 'later.horse_id')->on('prev.care_category_id', '=', 'later.care_category_id')->on('later.performed_at', '>', 'prev.performed_at'))
             ->whereNull('later.deleted_at')->where('later.horse_id', $horse->id)->select('prev.id'))
             ->whereNotNull('next_check_on')->whereNull('next_check_done_at')->get()->sortBy('next_check_on')->values();
-        $events = CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereIn('source_id', $latest->pluck('id'))->get()->keyBy('source_id');
+        $events = CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereIn('source_id', $latest->pluck('id'))->where('status', '!=', 'cancelled')->get()->keyBy('source_id');
 
         return $latest->map(fn (CareRecord $c) => ['care' => $c, 'event' => $events->get($c->id)]);
     }

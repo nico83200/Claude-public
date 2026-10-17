@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::post('/invitations/{token}/refuser', [Controllers\InvitationController::class, 'decline'])->name('invitations.decline');
 
     Route::get('/dashboard', Controllers\DashboardController::class)->name('dashboard');
+    Route::get('/a-valider', Controllers\ToValidateController::class)->name('todo.index');
     Route::post('/cheval-actif', Controllers\FocusHorseController::class)->name('focus.set');
     Route::post('/suivi/tout-va-bien', [Controllers\DailyLogController::class, 'allGood'])->name('logs.all-good');
     Route::get('/ma-semaine', Controllers\DigestController::class)->name('digest.show');
@@ -205,6 +206,7 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::put('/calendrier/{event}', [Controllers\CalendarController::class, 'update'])->name('calendar.update');
     Route::delete('/calendrier/{event}', [Controllers\CalendarController::class, 'destroy'])->name('calendar.destroy');
     Route::post('/calendrier/{event}/realise', [Controllers\CalendarController::class, 'markDone'])->name('calendar.done');
+    Route::post('/calendrier/{event}/annule', [Controllers\CalendarController::class, 'cancel'])->name('calendar.cancel');
     Route::post('/calendrier/{eventId}/restaurer', [Controllers\CalendarController::class, 'restore'])->whereNumber('eventId')->name('calendar.restore');
     Route::post('/calendrier/{event}/occurrence/restaurer', [Controllers\CalendarController::class, 'restoreOccurrence'])->name('calendar.occurrence.restore');
     Route::post('/calendrier/{event}/fin-de-serie', [Controllers\CalendarController::class, 'restoreUntil'])->name('calendar.recurrence.until');
@@ -222,6 +224,7 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     Route::get('/seances/{session}/en-cours', [Controllers\RidingSessionController::class, 'live'])->name('sessions.live');
     Route::post('/seances/{session}/plan', [Controllers\RidingSessionController::class, 'plan'])->middleware('throttle:10,1')->name('sessions.plan');
     Route::get('/seances/{session}/bilan', [Controllers\RidingSessionController::class, 'debrief'])->name('sessions.debrief');
+    Route::post('/seances/{session}/annulee', [Controllers\RidingSessionController::class, 'cancel'])->name('sessions.cancel');
     Route::put('/seances/{session}/bilan', [Controllers\RidingSessionController::class, 'saveDebrief'])->name('sessions.debrief.save');
     Route::post('/seances/{session}/dupliquer', [Controllers\RidingSessionController::class, 'duplicate'])->name('sessions.duplicate');
     Route::post('/seances/{session}/modele', [Controllers\SessionTemplateController::class, 'storeFromSession'])->name('sessions.template');

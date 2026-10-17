@@ -17,6 +17,7 @@ use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
 use App\Services\LoadSimulation;
 use App\Services\MailDesign;
+use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(Entitlements::class);
         $this->app->scoped(HorseAccess::class);
         $this->app->scoped(IntegrationSettings::class);
+        $this->app->scoped(ToValidate::class);
     }
 
     public function boot(): void
@@ -148,6 +150,8 @@ class AppServiceProvider extends ServiceProvider
             // Cheval unique ou cheval actif : menu organisé autour du cheval (droits de la personne sur ce cheval).
             $view->with('soloHorse', $solo);
             $view->with('focusHorse', $focus);
+            // « À valider » (rendez-vous et séances passés) : pastille sur l'accueil, même portée que l'accueil.
+            $view->with('toValidateCount', $user ? app(ToValidate::class)->count($user, $focus) : 0);
             $view->with('soloPerms', $focus ? $access->permissions($user, $focus) : []);
             // Plusieurs chevaux : choix du cheval actif en tête du menu.
             $view->with('focusChoices', $user && ! $solo && $access->hasSeveralHorses($user)

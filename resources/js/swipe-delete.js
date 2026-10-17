@@ -78,7 +78,7 @@ export function swipeList({ hintKey, label = 'Élément supprimé', undoLabel = 
 }
 
 /** Une ligne : suit le doigt, révèle « Supprimer », supprime puis se replie. */
-export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateText = 'Validé', choices = [], eventId = null, date = null }) {
+export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateText = 'Validé', choices = [], eventId = null, date = null, dismiss = false }) {
     return {
         x: 0,
         done: false,
@@ -174,6 +174,7 @@ export function swipeRow({ deleteUrl = null, text, validateUrl = null, validateT
                 const data = await res.json().catch(() => ({}));
                 this.done = true;
                 this.close();
+                if (dismiss) this.gone = true; // liste « À valider » : la ligne validée s'en va
                 this.$dispatch('swipe-validated', { text: data.text || validateText });
             } catch (err) {
                 this.close();

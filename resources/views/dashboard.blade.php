@@ -15,6 +15,7 @@
             @if (in_array('health.edit', $np))<a href="{{ route('health.index') }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="health" class="size-4" /> Noter un soin</a>@endif
             <a href="{{ route('health.index', ['onglet' => 'poids']) }}" class="pill min-h-11 shrink-0 gap-2 bg-white px-4 text-slate-700 ring-1 ring-slate-200"><x-icon name="scale" class="size-4" /> Pesée</a>
         </div>
+        @include('dashboard._to-validate')
         {{-- Tous les chevaux : l'état du jour de chacun, et le suivi en un toucher (un par cheval ou pour tous). --}}
         @php $pendingLog = $horses->filter(fn ($h) => in_array($h->id, $logIds) && ! $todayLogs->has($h->id)); @endphp
         @php

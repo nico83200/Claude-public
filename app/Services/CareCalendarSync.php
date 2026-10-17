@@ -96,7 +96,8 @@ class CareCalendarSync
             return null;
         }
         $care->loadMissing(['category', 'horse', 'professional']);
-        $existing = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->first();
+        // Un rendez-vous annulé ne compte pas : le contrôle peut être reprogrammé.
+        $existing = CalendarEvent::where('source_type', $care->getMorphClass())->where('source_id', $care->id)->where('status', '!=', 'cancelled')->first();
         if ($existing) {
             return $existing;
         }

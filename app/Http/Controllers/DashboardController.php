@@ -17,6 +17,7 @@ use App\Models\Treatment;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
 use App\Services\Onboarding;
+use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Perm;
 use Illuminate\Http\Request;
@@ -76,6 +77,8 @@ class DashboardController extends Controller
             'logs' => DailyLog::with(['horse', 'author'])->whereIn('horse_id', $horses->pluck('id'))->latest('logged_at')->limit(5)->get(),
             'expenses' => Expense::with(['horse', 'category'])->whereIn('horse_id', $expenseIds)->orderByDesc('spent_on')->limit(5)->get(),
             'invitations' => $this->invitations($user),
+            // Rendez-vous et séances passés à valider (tous les chevaux).
+            'toValidate' => app(ToValidate::class)->items($user),
             'pendingAssignments' => $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->isNotEmpty()
                 ? HorseOrganizationAssignment::with(['horse', 'organization'])->where('status', 'pending')
                     ->whereIn('organization_id', $user->memberships->filter(fn ($m) => in_array(Perm::ORG_MANAGE, $m->role->permissionKeys(), true))->pluck('organization_id'))->get()
@@ -102,6 +105,7 @@ class DashboardController extends Controller
             'onboarding' => app(Onboarding::class)->steps($user, collect([$horse])),
             'emergencyCta' => $user->profile?->emergency_cta_dismissed_at || $horse->emergency_token || ! $has(Perm::HORSE_EDIT) ? null : $horse,
             'invitations' => $this->invitations($user),
+            'toValidate' => app(ToValidate::class)->items($user, $horse),
             'pendingAssignments' => collect(),
             'todayLog' => DailyLog::where('horse_id', $horse->id)->where('logged_at', '>=', today())->latest('logged_at')->first(),
             // Régularité du suivi : jours notés sur les 7 derniers jours.
@@ -157,7 +161,7 @@ class DashboardController extends Controller
             ->where('next_check_on', '<=', now()->addDays($days)->toDateString())
             ->whereNotExists(fn ($q) => $q->selectRaw(1)->from('care_records as later')->whereColumn('later.horse_id', 'care_records.horse_id')
                 ->whereColumn('later.care_category_id', 'care_records.care_category_id')->whereColumn('later.performed_at', '>', 'care_records.performed_at')->whereNull('later.deleted_at'))
-            ->whereNotIn('id', CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereNotNull('source_id')->select('source_id'))
+            ->whereNotIn('id', CalendarEvent::where('source_type', (new CareRecord)->getMorphClass())->whereNotNull('source_id')->where('status', '!=', 'cancelled')->select('source_id'))
             ->orderBy('next_check_on')->get();
     }
 

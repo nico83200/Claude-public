@@ -18,7 +18,7 @@
         $sp = $soloPerms ?? [];
         $sCan = fn (...$keys) => (bool) array_intersect($keys, $sp);
         $nav = [
-            ['dashboard', 'Tableau de bord', 'home', true, [], ['dashboard', 'digest.*']],
+            ['dashboard', 'Tableau de bord', 'home', true, [], ['dashboard', 'digest.*', 'todo.*']],
             ['calendar.index', 'Agenda', 'calendar', $sCan('calendar.view'), $fh, ['calendar.*']],
             ['sessions.index', 'Séances', 'session', $sCan('sessions.view'), $fh, ['sessions.*', 'exercises.*']],
             ['health.index', 'Santé', 'health', $sCan('health.view', 'treatments.view'), [], ['health.*', 'horses.care.*', 'horses.feeding*', 'horses.logs.*', 'horses.weight*', 'horses.treatments.*', 'horses.prescription*', 'horses.vet-summary*']],
@@ -31,7 +31,7 @@
         ];
     } else {
         $nav = [
-            ['dashboard', 'Accueil', 'home', true],
+            ['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*', 'todo.*']],
             ['digest.show', 'Ma semaine', 'clock', true],
             ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true],
             ['calendar.index', 'Agenda', 'calendar', in_array('calendar.view', $navPerms)],
@@ -127,6 +127,7 @@
                     <a href="{{ route($item[0], $item[4] ?? []) }}" class="flex min-h-11 items-center gap-3 rounded-full px-4 text-[15px] font-medium transition {{ $active ? 'bg-white text-brand-900 shadow-[var(--shadow-card)] lg:bg-white' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900' }}" @if ($active) aria-current="page" @endif data-nav="{{ $item[0] }}">
                         <x-icon :name="$item[2]" class="size-5 {{ $active ? 'text-brand-700' : '' }}" /> <span class="min-w-0 truncate">{{ $item[1] }}</span>
                         @if ($navLocked($item))<x-icon name="sparkles" class="ml-auto size-4 text-gold-500" /><span class="sr-only"> (offre supérieure)</span>@endif
+                        @if ($item[0] === 'dashboard' && ($toValidateCount ?? 0) > 0)<span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white" title="À valider" data-to-validate-count>{{ $toValidateCount }}</span><span class="sr-only"> à valider</span>@endif
                         @if ($item[0] === 'sharing.index' && ($pendingShares ?? 0) > 0)<span class="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white" data-pending-shares>{{ $pendingShares }}</span><span class="sr-only"> en attente</span>@endif
                     </a>
                 @endif
@@ -236,12 +237,12 @@
             $slots = $focusHorse ? collect([$byRoute['sessions.index'] ?? null, $byRoute['health.index'] ?? null, $calendarItem,
                 ['horses.show', 'Fiche', 'horse', true, ['horse' => $focusHorse->id], ['horses.show']]])->filter(fn ($i) => $i && ($i[3] ?? false))->values() : null;
             [$barLeft, $barRight] = $focusHorse
-                ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*']], $slots[0]], $slots[1]]
-                : [[['dashboard', 'Accueil', 'home', true], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true]], $calendarItem];
+                ? [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*', 'todo.*']], $slots[0]], $slots[1]]
+                : [[['dashboard', 'Accueil', 'home', true, [], ['dashboard', 'digest.*', 'todo.*']], ['horses.index', $navHorseLabel ?? 'Chevaux', 'horse', true]], $calendarItem];
         @endphp
         @foreach ($barLeft as $item)
             @php $active = $navActive($item); @endphp
-            <a href="{{ route($item[0], $item[4] ?? []) }}" class="flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}" data-bar="{{ $item[0] }}"><x-icon :name="$item[2]" class="size-6" />{{ $item[1] }}</a>
+            <a href="{{ route($item[0], $item[4] ?? []) }}" class="relative flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium {{ $active ? 'text-brand-800' : 'text-slate-400' }}" data-bar="{{ $item[0] }}"><x-icon :name="$item[2]" class="size-6" />@if ($item[0] === 'dashboard' && ($toValidateCount ?? 0) > 0)<span class="absolute top-2 left-1/2 ml-2 flex size-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white" aria-label="{{ $toValidateCount }} à valider" data-to-validate-bar>{{ min($toValidateCount, 9) }}</span>@endif{{ $item[1] }}</a>
         @endforeach
         <div class="flex justify-center">
             <button type="button" @click="$store.assistant.open(true)" class="relative -mt-7 flex size-16 items-center justify-center rounded-full bg-brand-800 text-white shadow-[var(--shadow-float)] ring-4 ring-white transition active:scale-95" aria-label="Parler à l'assistant">

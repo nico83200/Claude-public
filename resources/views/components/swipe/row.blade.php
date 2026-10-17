@@ -1,9 +1,9 @@
 @props(['deleteUrl' => null, 'text' => 'Élément supprimé', 'rounded' => 'rounded-3xl', 'surface' => '', 'validateUrl' => null, 'validateText' => 'Validé',
-    'choices' => [], 'eventId' => null, 'date' => null, 'choiceTitle' => 'Que supprimer ?'])
+    'choices' => [], 'eventId' => null, 'date' => null, 'choiceTitle' => 'Que supprimer ?', 'dismiss' => false])
 {{-- Ligne d'une <x-swipe.list> : glisser à gauche pour supprimer, à droite pour valider (si une adresse est donnée).
      Sans aucune adresse (pas le droit), la ligne reste une ligne ordinaire. --}}
 @if ($deleteUrl || $validateUrl || $choices)
-    <div {{ $attributes->merge(['class' => 'relative']) }} data-swipe-row x-data="swipeRow({ deleteUrl: @js($deleteUrl), text: @js($text), validateUrl: @js($validateUrl), validateText: @js($validateText), choices: @js(array_values($choices)), eventId: @js($eventId), date: @js($date) })" x-show="! gone" x-transition:leave="transition duration-300" x-transition:leave-end="opacity-0 scale-y-75">
+    <div {{ $attributes->merge(['class' => 'relative']) }} data-swipe-row x-data="swipeRow({ deleteUrl: @js($deleteUrl), text: @js($text), validateUrl: @js($validateUrl), validateText: @js($validateText), choices: @js(array_values($choices)), eventId: @js($eventId), date: @js($date), dismiss: @js((bool) $dismiss) })" x-show="! gone" x-transition:leave="transition duration-300" x-transition:leave-end="opacity-0 scale-y-75">
         {{-- Actions révélées par le glissé (invisibles au repos et à la souris) ; touchables seulement une fois la ligne ouverte,
              jamais pendant l'animation de démonstration. --}}
         @if ($deleteUrl || $choices)

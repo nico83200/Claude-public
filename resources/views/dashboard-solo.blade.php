@@ -75,6 +75,8 @@
         @if ($can('dailylog.create'))<a href="{{ route('horses.logs.index', $horse) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="doc" class="size-4" /> Suivi détaillé</a>@endif
     </div>
 
+    @include('dashboard._to-validate')
+
     <div class="grid gap-4 lg:grid-cols-2 lg:items-start">
         <div class="space-y-4">
             {{-- 3. Aujourd'hui et 7 prochains jours --}}
