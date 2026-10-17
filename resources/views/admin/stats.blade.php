@@ -10,10 +10,11 @@
 <x-layouts.app title="Statistiques · Admin">
     <x-page-header title="Statistiques d'usage" :subtitle="'Depuis le '.$since->translatedFormat('j F Y')" />
     @include('admin._nav')
+    @include('admin._simulation-scope', ['route' => 'admin.stats.index'])
 
     <nav class="mb-5 flex gap-2" aria-label="Période">
         @foreach ($periods as $value => $label)
-            <a href="{{ route('admin.stats.index', ['jours' => $value]) }}" @if ($value === $days) aria-current="page" @endif class="pill {{ $value === $days ? 'bg-brand-800 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100' }}">{{ $label }}</a>
+            <a href="{{ route('admin.stats.index', ['jours' => $value] + ($simulations ? [] : ['simulations' => 0])) }}" @if ($value === $days) aria-current="page" @endif class="pill {{ $value === $days ? 'bg-brand-800 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100' }}">{{ $label }}</a>
         @endforeach
     </nav>
 

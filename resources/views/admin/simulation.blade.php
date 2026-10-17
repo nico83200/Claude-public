@@ -120,7 +120,7 @@
                 <ul class="mt-4 space-y-1 text-xs text-slate-500">
                     <li>• Comptes en « @simulation.invalid » : adresse non distribuable, aucun e-mail n'est envoyé, aucune notification sur téléphone, aucun appel à l'IA.</li>
                     <li>• Aucun abonnement ni licence : les comptes de test sont sur l'offre gratuite, comme une vraie inscription.</li>
-                    <li>• Exclus des indicateurs et statistiques (espaces et chevaux marqués « démo »).</li>
+                    <li>• Comptés dans les indicateurs et statistiques, avec un bandeau et le lien « Voir sans les simulations ».</li>
                     <li>• Création par étapes de quelques secondes : le site reste disponible pour les vrais utilisateurs ; au plus {{ number_format(\App\Services\LoadSimulation::MAX_TOTAL, 0, ',', ' ') }} comptes de test en tout.</li>
                 </ul>
             </x-section>

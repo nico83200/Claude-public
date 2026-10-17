@@ -71,6 +71,30 @@ class LoadSimulation
 
     public function __construct(private OrganizationService $organizations, private HorseService $horses) {}
 
+    /** Indicateurs et statistiques : les simulations sont comptées, sauf avec « ?simulations=0 ». */
+    public static function counted(): bool
+    {
+        return request()->query('simulations') !== '0';
+    }
+
+    /** Sous-requête : espaces des comptes de test. */
+    public static function organizationIds()
+    {
+        return DB::table('organizations')->select('id')->whereIn('owner_id', DB::table('users')->select('id')->whereNotNull('simulation_batch_id'));
+    }
+
+    /** Sous-requête : chevaux des comptes de test. */
+    public static function horseIds()
+    {
+        return DB::table('horses')->select('id')->whereIn('organization_id', self::organizationIds());
+    }
+
+    /** Part des simulations dans les chiffres (bandeau des indicateurs). */
+    public static function weight(): array
+    {
+        return ['users' => User::whereNotNull('simulation_batch_id')->count(), 'horses' => DB::table('horses')->whereIn('id', self::horseIds())->count()];
+    }
+
     public static function isSimulated(?User $user): bool
     {
         return $user && ($user->simulation_batch_id !== null || str_ends_with(strtolower((string) $user->email), '@'.self::DOMAIN));

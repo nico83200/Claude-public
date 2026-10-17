@@ -10,6 +10,7 @@ use App\Models\PaymentRecord;
 use App\Models\StripeEvent;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\LoadSimulation;
 
 class DashboardController extends Controller
 {
@@ -17,13 +18,15 @@ class DashboardController extends Controller
     {
         $active = Subscription::whereIn('stripe_status', ['active', 'trialing', 'past_due'])->with('plan')->get();
         $monthStart = now()->startOfMonth();
+        $sim = LoadSimulation::counted();
 
         return view('admin.dashboard', [
             'counts' => [
-                'users' => User::whereNull('simulation_batch_id')->count(), // hors comptes de simulation de charge
-                'organizations' => Organization::where('is_demo', false)->count(),
+                // Simulations de charge comptées (sauf « ?simulations=0 ») ; les données de démonstration jamais.
+                'users' => User::when(! $sim, fn ($q) => $q->whereNull('simulation_batch_id'))->count(),
+                'organizations' => Organization::where(fn ($q) => $q->where('is_demo', false)->when($sim, fn ($q) => $q->orWhereIn('id', LoadSimulation::organizationIds())))->count(),
                 'stables' => Organization::where('type', 'stable')->where('is_demo', false)->count(),
-                'horses' => Horse::where('is_demo', false)->count(),
+                'horses' => Horse::where(fn ($q) => $q->where('is_demo', false)->when($sim, fn ($q) => $q->orWhereIn('id', LoadSimulation::horseIds())))->count(),
                 'active_subscriptions' => $active->count(),
                 'trialing' => $active->where('stripe_status', 'trialing')->count(),
                 'manual_licenses' => License::where('source', 'manual')->whereIn('status', License::WRITABLE)->count(),

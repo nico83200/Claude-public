@@ -81,8 +81,20 @@ class LoadSimulationTest extends TestCase
         $this->assertGreaterThanOrEqual(6, CalendarEvent::whereIn('horse_id', $horses->pluck('id'))->count());
         // Aucune licence ni abonnement pour les comptes de test.
         $this->assertSame(0, License::whereIn('organization_id', $horses->pluck('organization_id'))->count());
-        // Indicateurs : comptes de test exclus.
-        $this->assertSame(User::whereNull('simulation_batch_id')->count(), $this->as($admin)->get(route('admin.dashboard'))->viewData('counts')['users']);
+        // Indicateurs : simulations comptées par défaut (bandeau), retirées avec « ?simulations=0 ».
+        $with = $this->as($admin)->get(route('admin.dashboard'))->assertSee('data-simulation-scope="with"', false)->assertSee('3 comptes de test')->viewData('counts');
+        $without = $this->as($admin)->get(route('admin.dashboard', ['simulations' => 0]))->assertSee('data-simulation-scope="without"', false)->viewData('counts');
+        $this->assertSame(User::count(), $with['users']);
+        $this->assertSame(User::whereNull('simulation_batch_id')->count(), $without['users']);
+        $this->assertSame(3, $with['horses'] - $without['horses']);
+        $this->assertSame(3, $with['organizations'] - $without['organizations']);
+        $statsWith = $this->as($admin)->get(route('admin.stats.index'))->assertOk();
+        $statsWithout = $this->as($admin)->get(route('admin.stats.index', ['simulations' => 0]))->assertOk()
+            ->assertSee(e(route('admin.stats.index', ['jours' => 90, 'simulations' => 0])), false);
+        $this->assertSame(3, $statsWith->viewData('kpis')['users'] - $statsWithout->viewData('kpis')['users']);
+        $this->assertSame(6, $statsWith->viewData('usage')['Séances et cours'] - $statsWithout->viewData('usage')['Séances et cours']);
+        $this->assertSame(3, $statsWith->viewData('usage')['Soins'] - $statsWithout->viewData('usage')['Soins']);
+        $this->assertSame(3, $statsWith->viewData('usage')['Dépenses'] - $statsWithout->viewData('usage')['Dépenses']);
 
         // État du serveur.
         $this->as($admin)->getJson(route('admin.simulation.status'))->assertOk()

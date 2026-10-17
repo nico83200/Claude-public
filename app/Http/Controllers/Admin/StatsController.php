@@ -16,6 +16,7 @@ use App\Models\RidingSession;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\AcquisitionTracker;
+use App\Services\LoadSimulation;
 use App\Services\Upsell;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,10 @@ class StatsController extends Controller
     {
         $days = array_key_exists($request->integer('jours'), self::PERIODS) ? $request->integer('jours') : 30;
         $from = now()->subDays($days)->startOfDay();
-        $users = User::query()->whereNull('deleted_at')->whereNull('simulation_batch_id'); // hors simulation de charge
+        // Simulations de charge comptées, sauf « ?simulations=0 » (comptes et activité des chevaux de test retirés).
+        $sim = LoadSimulation::counted();
+        $users = User::query()->whereNull('deleted_at')->when(! $sim, fn ($q) => $q->whereNull('simulation_batch_id'));
+        $real = fn ($query) => $sim ? $query : $query->where(fn ($q) => $q->whereNull('horse_id')->orWhereNotIn('horse_id', LoadSimulation::horseIds()));
 
         // Inscriptions par semaine (≤ 90 jours) ou par mois.
         $byMonth = $days > 90;
@@ -55,14 +59,14 @@ class StatsController extends Controller
         $converted = $trialsEnded->filter(fn ($s) => in_array($s->stripe_status, ['active', 'past_due'], true))->count();
 
         $usage = [
-            'Séances et cours' => RidingSession::where('created_at', '>=', $from)->count(),
-            'Soins' => CareRecord::where('created_at', '>=', $from)->count(),
-            'Dépenses' => Expense::where('created_at', '>=', $from)->count(),
+            'Séances et cours' => $real(RidingSession::where('created_at', '>=', $from))->count(),
+            'Soins' => $real(CareRecord::where('created_at', '>=', $from))->count(),
+            'Dépenses' => $real(Expense::where('created_at', '>=', $from))->count(),
             'Consignes à l\'assistant' => AssistantRequest::where('created_at', '>=', $from)->where('input_mode', '!=', 'document')->count(),
             'Factures lues' => AssistantRequest::where('created_at', '>=', $from)->where('input_mode', 'document')->count(),
-            'Mesures de poids' => HorseMeasurement::where('created_at', '>=', $from)->count(),
-            'Documents' => HorseDocument::where('created_at', '>=', $from)->count(),
-            'Partages' => HorseAccessGrant::where('created_at', '>=', $from)->count(),
+            'Mesures de poids' => $real(HorseMeasurement::where('created_at', '>=', $from))->count(),
+            'Documents' => $real(HorseDocument::where('created_at', '>=', $from))->count(),
+            'Partages' => $real(HorseAccessGrant::where('created_at', '>=', $from))->count(),
         ];
         arsort($usage);
 
@@ -74,6 +78,7 @@ class StatsController extends Controller
 
         return view('admin.stats', [
             'days' => $days,
+            'simulations' => $sim,
             'periods' => self::PERIODS,
             'kpis' => [
                 'users' => (clone $users)->count(),

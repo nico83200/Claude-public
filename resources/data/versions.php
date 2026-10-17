@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.36.0' => ['2026-10-17', 'Administration : les simulations de charge sont comptées dans les indicateurs et les statistiques (comptes, espaces, chevaux, activité), avec un bandeau qui indique leur part et le lien « Voir sans les simulations ».'],
     '2.35.1' => ['2026-10-17', 'Séances : le temps de travail de la progression (90 jours, graphique par semaine) et de l\'export compte la durée prévue des séances terminées sans durée réelle saisie (comme dans la liste).'],
     '2.35.0' => ['2026-10-17', 'Simulation : partages de chevaux de test proposés à votre compte (en attente sur l\'accueil ou acceptés d\'office), avec des droits différents (demi-pension, pension, lecture seule, vétérinaire, cavalier, tous les droits, fiche seule 30 jours) pour voir l\'affichage avec plusieurs chevaux ; supprimés avec la simulation. Barre du bas : plus d\'entrée en double pour un cheval aux droits limités.'],
     '2.34.0' => ['2026-10-17', 'Administration › Simulation : simulation de charge (inscriptions, chevaux, rendez-vous, séances, soins, dépenses, suivis) créée par étapes, avec arrêt et reprise ; état du serveur en direct (temps de réponse, charge, base de données, mémoire, disque, file d\'attente, cron, erreurs) ; suppression complète des données de test. Comptes de test sans e-mail, sans IA, sans abonnement et hors indicateurs.'],

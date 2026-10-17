@@ -2,6 +2,7 @@
 <x-layouts.app title="Administration">
     <x-page-header title="Administration" subtitle="Espace super-administrateur" />
     @include('admin._nav')
+    @include('admin._simulation-scope', ['route' => 'admin.dashboard'])
     @if ($failedEvents)<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900">{{ $failedEvents }} webhook(s) Stripe en échec. <a href="{{ route('admin.billing.index', ['status' => 'failed']) }}" class="link">Voir</a></div>@endif
     <div class="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         @foreach (['users' => 'Comptes', 'organizations' => 'Organisations', 'stables' => 'Écuries', 'horses' => 'Chevaux', 'active_subscriptions' => 'Abonnements actifs', 'trialing' => 'En essai', 'manual_licenses' => 'Licences manuelles'] as $k => $l)
