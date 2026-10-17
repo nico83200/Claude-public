@@ -17,6 +17,7 @@ import { startConfirm } from './confirm.js';
 import { loadMore } from './load-more.js';
 import { fileDrop } from './file-drop.js';
 import { agendaScroll } from './agenda-scroll.js';
+import { startTimeStatus } from './time-status.js';
 
 window.Alpine = Alpine;
 // Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
@@ -61,6 +62,7 @@ Alpine.store('network', {
 Alpine.start();
 startSelectEnhancer();
 startLightbox();
+startTimeStatus();
 
 // Application installée sur l'écran d'accueil : la déconnexion ramène à la connexion de l'application
 // (et non vers le site, qui s'ouvrirait dans le navigateur).

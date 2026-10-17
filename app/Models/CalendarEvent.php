@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasClientUuid;
 use App\Services\CalendarService;
+use App\Support\TimeStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -68,6 +69,17 @@ class CalendarEvent extends Model
     public function isSessionEvent(): bool
     {
         return $this->source_type === (new RidingSession)->getMorphClass();
+    }
+
+    /** Statut affiché selon l'heure (prévu, en cours, à valider…) ; $at : début de l'occurrence pour une série. */
+    public function timeStatus(?Carbon $at = null): TimeStatus
+    {
+        $start = ($at ?? $this->starts_at)->copy();
+        if ($this->all_day) {
+            return TimeStatus::resolve($this->status, $start->startOfDay(), $start->copy()->endOfDay());
+        }
+
+        return TimeStatus::resolve($this->status, $start, $start->copy()->addMinutes((int) $this->duration_minutes ?: 60));
     }
 
     /** Date retirée de la série (occurrence supprimée, ou validée et devenue un événement à part). */

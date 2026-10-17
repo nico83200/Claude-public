@@ -202,7 +202,7 @@
                 @forelse ($sessions as $s)
                     <a href="{{ route('sessions.show', $s) }}" class="flex items-center justify-between border-t border-slate-100 py-2 text-sm first:border-0">
                         <span><span class="font-medium">{{ $s->horse->shortName() }}</span> · {{ $s->typeLabel() }}<span class="block text-xs text-slate-500">{{ $s->scheduled_at->format('d/m H:i') }} · {{ $s->riderLabel() }}</span></span>
-                        <x-badge :color="$s->status === 'completed' ? 'green' : 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge>
+                        <x-time-status :status="$s->timeStatus()" />
                     </a>
                 @empty <p class="text-sm text-slate-500">Aucune séance enregistrée.</p> @endforelse
             </x-section>

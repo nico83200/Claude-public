@@ -37,7 +37,7 @@
                                 @if ($s->objective)<p class="line-clamp-1 text-sm text-slate-600">{{ $s->objective }}</p>@endif
                                 <p class="mt-0.5 text-xs text-slate-500">{{ $s->scheduled_at->format('H:i') }} · {{ $s->riderLabel() }}{{ $s->actual_minutes ? ' · '.$s->actual_minutes.' min' : ($s->planned_minutes ? ' · '.$s->planned_minutes.' min' : '') }}</p>
                             </div>
-                            <x-badge :color="['completed' => 'green', 'in_progress' => 'amber', 'cancelled' => 'red'][$s->status] ?? 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge>
+                            <x-time-status :status="$s->timeStatus()" class="shrink-0" />
                         </a>
                     </x-swipe.row>
                 @endforeach

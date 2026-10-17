@@ -21,10 +21,14 @@
         @if ($canEdit)
             <div class="mt-4 flex flex-wrap gap-2">
                 @unless ($session->isCompleted())
-                    @php $canStart = $session->usesExercises() && $session->exercises->isNotEmpty() && $session->status !== 'cancelled'; @endphp
+                    @php
+                        $canStart = $session->usesExercises() && $session->exercises->isNotEmpty() && $session->status !== 'cancelled';
+                        // Heure de fin passée : le bilan devient l'action principale.
+                        $debriefFirst = ! $canStart || $session->timeStatus()->is('to_validate');
+                    @endphp
                     {{-- Séance préparée : le mode séance (grandes commandes, au bord de la carrière) en action principale. --}}
-                    @if ($canStart)<a href="{{ route('sessions.live', $session) }}" class="btn-primary" data-live-link><x-icon name="play" class="size-4" /> {{ $session->status === 'in_progress' ? 'Reprendre la séance' : 'Démarrer la séance' }}</a>@endif
-                    <a href="{{ route('sessions.debrief', $session) }}" class="{{ $canStart ? 'btn-secondary' : 'btn-primary' }}" data-debrief-link><x-icon name="check" class="size-4" /> Faire le bilan</a>
+                    @if ($canStart)<a href="{{ route('sessions.live', $session) }}" class="{{ $debriefFirst ? 'btn-secondary' : 'btn-primary' }}" data-live-link><x-icon name="play" class="size-4" /> {{ $session->status === 'in_progress' ? 'Reprendre la séance' : 'Démarrer la séance' }}</a>@endif
+                    <a href="{{ route('sessions.debrief', $session) }}" class="{{ $debriefFirst ? 'btn-primary' : 'btn-secondary' }}" data-debrief-link><x-icon name="check" class="size-4" /> Faire le bilan</a>
                     @if ($session->usesExercises())<a href="{{ route('sessions.edit', $session) }}" class="btn-secondary" data-prepare-link><x-icon name="session" class="size-4" /> Préparer</a>@endif
                 @endunless
                 <a href="{{ route('sessions.details', $session) }}" class="btn-secondary" data-edit-session><x-icon name="pencil" class="size-4" /> Modifier</a>
@@ -35,7 +39,7 @@
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             <x-section>
-                <div class="flex flex-wrap gap-1.5"><x-badge :color="$session->isCompleted() ? 'green' : ($session->status === 'in_progress' ? 'amber' : 'slate')">{{ \App\Models\RidingSession::STATUSES[$session->status] }}</x-badge>@if ($session->discipline)<x-badge>{{ \App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline }}</x-badge>@endif @if ($session->actual_minutes || $session->planned_minutes)<x-badge color="brand">{{ $session->actual_minutes ?: $session->planned_minutes }} min</x-badge>@endif</div>
+                <div class="flex flex-wrap gap-1.5"><x-time-status :status="$session->timeStatus()" />@if ($session->discipline)<x-badge>{{ \App\Models\Horse::DISCIPLINES[$session->discipline] ?? $session->discipline }}</x-badge>@endif @if ($session->actual_minutes || $session->planned_minutes)<x-badge color="brand">{{ $session->actual_minutes ?: $session->planned_minutes }} min</x-badge>@endif</div>
                 @if ($session->objective)<p class="mt-3 text-lg font-medium text-slate-900">{{ $session->objective }}</p>@endif
                 <div class="mt-4"></div>
                 <x-dl :items="['Durée prévue' => $session->planned_minutes ? $session->planned_minutes.' min' : null, 'Durée réelle' => $session->actual_minutes ? $session->actual_minutes.' min' : null, 'Lieu' => $session->location, 'État avant la séance' => $session->horse_state_before, 'Précautions' => $session->precautions, 'Notes' => $session->notes]" />

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasClientUuid;
 use App\Models\Concerns\Versioned;
 use App\Observers\RidingSessionObserver;
+use App\Support\TimeStatus;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -96,6 +97,12 @@ class RidingSession extends Model
     public function media()
     {
         return $this->hasMany(SessionMedia::class);
+    }
+
+    /** Statut affiché selon l'heure : prévue, en cours (de l'heure prévue à la fin de la durée prévue, 1 h par défaut), à valider (bilan à faire)… */
+    public function timeStatus(): TimeStatus
+    {
+        return TimeStatus::resolve($this->status, $this->scheduled_at, $this->scheduled_at->copy()->addMinutes((int) $this->planned_minutes ?: 60), true);
     }
 
     public function isCompleted(): bool

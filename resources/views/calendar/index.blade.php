@@ -134,10 +134,9 @@
                                 <span class="block text-xs text-slate-500">{{ collect([$typeLabels[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
                             </span>
                             @if (empty($o['journal']))
-                                @if ($ev->status === 'done')<x-badge color="green">Réalisé</x-badge>
-                                @elseif ($ev->status === 'cancelled')<x-badge>Annulé</x-badge>
-                                @elseif ($o['at']->isPast())<x-badge color="amber" x-show="! (typeof done !== 'undefined' && done)">À valider</x-badge>@if ($toValidate)<x-badge color="green" x-show="done" x-cloak>Réalisé</x-badge>@endif
-                                @else<x-badge color="brand">À venir</x-badge>@endif
+                                {{-- Prévu, en cours (de l'heure à la fin de la durée), à valider (fin passée), réalisé ou annulé. --}}
+                                @if ($toValidate)<x-time-status :status="$ev->timeStatus($o['at'])" class="shrink-0" x-show="! done" /><x-badge color="green" x-show="done" x-cloak>Réalisé</x-badge>
+                                @else<x-time-status :status="$ev->timeStatus($o['at'])" class="shrink-0" />@endif
                             @endif
                             <x-icon name="chevron" class="size-4 shrink-0 text-slate-300" />
                         </a>

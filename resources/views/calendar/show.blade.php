@@ -47,7 +47,7 @@
             @endif
             <x-dl :items="[
                 'Cheval' => $event->horse?->shortName(),
-                'Statut' => \App\Models\CalendarEvent::STATUSES[$event->status],
+                'Statut' => $event->timeStatus($occurrence)->label,
                 'Durée' => $event->all_day ? 'Toute la journée' : $event->duration_minutes.' min',
                 'Responsable' => $event->responsible?->name,
                 'Récurrence' => $event->recurrence ? ['daily' => 'Quotidienne', 'weekly' => 'Hebdomadaire', 'monthly' => 'Mensuelle'][$event->recurrence].($event->recurrence_until ? ' jusqu\'au '.$event->recurrence_until->format('d/m/Y') : '') : null,

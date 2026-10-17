@@ -91,7 +91,7 @@
             @if ($can('sessions.view'))
             <x-section title="Dernières séances" :action="route('sessions.index', ['horse' => $horse->id])">
                 @forelse ($sessions as $s)
-                    <a href="{{ route('sessions.show', $s) }}" class="flex justify-between border-t border-slate-100 py-2 text-sm first:border-0"><span>{{ $s->scheduled_at->format('d/m/Y H:i') }} · {{ $s->typeLabel() }}<span class="block text-xs text-slate-500">{{ $s->objective }} · {{ $s->riderLabel() }}</span></span><x-badge :color="$s->status === 'completed' ? 'green' : 'slate'">{{ \App\Models\RidingSession::STATUSES[$s->status] }}</x-badge></a>
+                    <a href="{{ route('sessions.show', $s) }}" class="flex justify-between border-t border-slate-100 py-2 text-sm first:border-0"><span>{{ $s->scheduled_at->format('d/m/Y H:i') }} · {{ $s->typeLabel() }}<span class="block text-xs text-slate-500">{{ $s->objective }} · {{ $s->riderLabel() }}</span></span><x-time-status :status="$s->timeStatus()" /></a>
                 @empty <p class="text-sm text-slate-500">Aucune séance.</p> @endforelse
             </x-section>
             @endif
