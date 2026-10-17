@@ -160,3 +160,66 @@ export function serverMonitor({ url, every = 3 }) {
         pct(a, b) { return a !== null && b ? Math.round(a / b * 100) : null; },
     };
 }
+
+/**
+ * Simulation de navigation (rendu interne) : le serveur génère de vraies pages comme des comptes de test ;
+ * plusieurs étapes en parallèle occupent plusieurs processus PHP, comme des visiteurs simultanés.
+ */
+export function navigationSimulation({ url }) {
+    return {
+        opts: { parallel: 2, seconds: 60, pages: 10 },
+        running: false,
+        stopAsked: false,
+        error: null,
+        elapsed: 0,
+        total: { n: 0, errors: 0, ms: 0, queries: 0 },
+        pages: {}, // libellé → { n, errors, ms, max, queries, samples[] }
+        recent: [],
+        async start() {
+            if (this.running) return;
+            Object.assign(this, { running: true, stopAsked: false, error: null, elapsed: 0, pages: {}, recent: [], total: { n: 0, errors: 0, ms: 0, queries: 0 } });
+            const t0 = performance.now();
+            const end = t0 + this.opts.seconds * 1000;
+            const timer = setInterval(() => { this.elapsed = Math.round((performance.now() - t0) / 1000); }, 500);
+            const worker = async () => {
+                while (!this.stopAsked && performance.now() < end) {
+                    try {
+                        const data = await post(url, { pages: this.opts.pages });
+                        data.visits.forEach((v) => this.record(v));
+                    } catch (e) { this.error = e.message; this.stopAsked = true; }
+                }
+            };
+            await Promise.all(Array.from({ length: Math.max(1, Math.min(6, +this.opts.parallel || 1)) }, worker));
+            clearInterval(timer);
+            this.elapsed = Math.max(1, Math.round((performance.now() - t0) / 1000));
+            this.running = false;
+        },
+        stop() { this.stopAsked = true; },
+        record(v) {
+            const p = this.pages[v.label] ??= { n: 0, errors: 0, ms: 0, max: 0, queries: 0, samples: [] };
+            const bad = v.status >= 400;
+            p.n++; p.ms += v.ms; p.max = Math.max(p.max, v.ms); p.queries += v.queries; p.samples = [...p.samples.slice(-199), v.ms];
+            if (bad) p.errors++;
+            this.total.n++; this.total.ms += v.ms; this.total.queries += v.queries;
+            if (bad) this.total.errors++;
+            this.recent = [...this.recent.slice(-119), v.ms];
+        },
+        p95(s) {
+            if (!s?.length) return null;
+            const a = [...s].sort((x, y) => x - y);
+            return Math.round(a[Math.min(a.length - 1, Math.floor(a.length * 0.95))]);
+        },
+        rate() { return this.elapsed ? (this.total.n / this.elapsed).toFixed(1) : '0'; },
+        avg() { return this.total.n ? Math.round(this.total.ms / this.total.n) : 0; },
+        rows() {
+            return Object.entries(this.pages).map(([label, p]) => ({ label, n: p.n, errors: p.errors, avg: Math.round(p.ms / p.n), p95: this.p95(p.samples), max: Math.round(p.max), queries: Math.round(p.queries / p.n) }))
+                .sort((a, b) => b.avg - a.avg);
+        },
+        path() {
+            const s = this.recent;
+            if (s.length < 2) return '';
+            const max = Math.max(...s, 1);
+            return s.map((v, i) => `${i ? 'L' : 'M'}${(i / (s.length - 1) * 100).toFixed(1)},${(30 - v / max * 28).toFixed(1)}`).join(' ');
+        },
+    };
+}

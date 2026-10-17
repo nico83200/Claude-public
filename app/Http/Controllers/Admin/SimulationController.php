@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SimulationBatch;
 use App\Services\LoadSimulation;
+use App\Services\NavigationSimulation;
 use App\Services\ServerStatus;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,18 @@ class SimulationController extends Controller
     public function purge(SimulationBatch $batch)
     {
         return response()->json($this->simulation->purgeStep($batch));
+    }
+
+    /** Simulation de navigation (rendu interne) : une étape de pages générées comme des comptes de test. */
+    public function navigation(Request $request, NavigationSimulation $navigation)
+    {
+        $pages = $request->validate(['pages' => ['required', 'integer', 'min:1', 'max:'.NavigationSimulation::MAX_PAGES]])['pages'];
+        $visits = $navigation->step($pages);
+        if (! $visits) {
+            return response()->json(['message' => 'Aucun compte de test : lancez d\'abord une simulation de création.'], 422);
+        }
+
+        return response()->json(['visits' => $visits])->header('Cache-Control', 'no-store');
     }
 
     public function status(ServerStatus $status)

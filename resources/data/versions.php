@@ -6,6 +6,7 @@
  * À compléter à chaque nouvelle version (le détail complet reste dans docs/ETAT-FONCTIONNALITES.md).
  */
 return [
+    '2.38.0' => ['2026-10-17', 'Simulation de navigation (rendu interne) : le serveur génère les pages les plus consultées comme les comptes de test, avec plusieurs visiteurs simultanés, et mesure chaque page (durée moyenne, 95 %, maximum, requêtes en base, erreurs) ; sans session enregistrée ni nouvel accès depuis l\'extérieur.'],
     '2.37.0' => ['2026-10-17', 'Partages reçus acceptés dans l\'app (Accepter / Refuser / Tout accepter sur la page Partages, droits détaillés) ; pastille du nombre de partages en attente sur « Partages » et sur le bouton Menu ; notification dans l\'app pour les partages simulés ; haut de page fixe sur téléphone (Partages, administration) ; date des notifications sans débordement.'],
     '2.36.0' => ['2026-10-17', 'Administration : les simulations de charge sont comptées dans les indicateurs et les statistiques (comptes, espaces, chevaux, activité), avec un bandeau qui indique leur part et le lien « Voir sans les simulations ».'],
     '2.35.1' => ['2026-10-17', 'Séances : le temps de travail de la progression (90 jours, graphique par semaine) et de l\'export compte la durée prévue des séances terminées sans durée réelle saisie (comme dans la liste).'],

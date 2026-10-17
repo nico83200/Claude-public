@@ -420,6 +420,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::post('/simulation/{batch}/reprise', [Admin\SimulationController::class, 'resume'])->name('simulation.resume');
     Route::post('/simulation/{batch}/suppression', [Admin\SimulationController::class, 'purge'])->middleware('throttle:240,1')->name('simulation.purge');
     Route::get('/serveur', [Admin\SimulationController::class, 'status'])->name('simulation.status');
+    Route::post('/simulation/navigation', [Admin\SimulationController::class, 'navigation'])->middleware('throttle:600,1')->name('simulation.navigation');
     Route::get('/journal', [Admin\AuditController::class, 'index'])->name('audit.index');
     Route::get('/erreurs', [Admin\AuditController::class, 'errors'])->name('errors.index');
     Route::get('/demandes-rgpd', [Admin\DataRequestController::class, 'index'])->name('data-requests.index');

@@ -173,4 +173,41 @@
             </div>
         </x-section>
     </div>
+
+    {{-- Navigation simulée : pages générées par le serveur comme les verraient les comptes de test. --}}
+    <x-section title="Simulation de navigation" class="mt-4" data-navigation-simulation>
+        <div x-data="navigationSimulation({ url: @js(route('admin.simulation.navigation')) })">
+            <p class="mb-3 text-sm text-slate-600">Le serveur ouvre les pages les plus consultées (accueil, cheval, agenda, séances, santé, budget…) comme les comptes de test et mesure chacune : durée de génération, requêtes en base, taille. Plusieurs étapes en parallèle occupent plusieurs processus PHP, comme des visiteurs simultanés. Les comptes de test doivent exister (simulation ci-dessus).</p>
+            <form @submit.prevent="start()" class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <label class="block text-sm"><span class="font-medium text-slate-700">Visiteurs simultanés</span><input type="number" min="1" max="6" class="input mt-1" x-model.number="opts.parallel"><span class="text-xs text-slate-500">1 à 6</span></label>
+                <label class="block text-sm"><span class="font-medium text-slate-700">Durée (secondes)</span><input type="number" min="10" max="600" class="input mt-1" x-model.number="opts.seconds"><span class="text-xs text-slate-500">10 à 600</span></label>
+                <label class="block text-sm"><span class="font-medium text-slate-700">Pages par étape</span><input type="number" min="1" max="{{ \App\Services\NavigationSimulation::MAX_PAGES }}" class="input mt-1" x-model.number="opts.pages"><span class="text-xs text-slate-500">par requête</span></label>
+                <div class="flex items-end gap-2">
+                    <button class="btn-primary flex-1 justify-center" x-show="! running" data-navigation-start><x-icon name="play" class="size-4" /> Lancer</button>
+                    <button type="button" class="btn-secondary flex-1 justify-center" x-show="running" x-cloak @click="stop()" data-navigation-stop>Arrêter</button>
+                </div>
+            </form>
+            <p x-show="error" x-cloak class="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-100" x-text="error" data-navigation-error></p>
+            <div x-show="total.n" x-cloak class="mt-4" data-navigation-results>
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div class="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/70"><p class="text-xs text-slate-500">Pages générées</p><p class="text-xl font-semibold" x-text="total.n.toLocaleString('fr-FR')"></p><p class="text-xs text-slate-500" x-text="rate() + ' pages/s · ' + elapsed + ' s' + (running ? ' (en cours)' : '')"></p></div>
+                    <div class="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/70"><p class="text-xs text-slate-500">Durée moyenne</p><p class="text-xl font-semibold" :class="avg() > 1000 ? 'text-red-700' : (avg() > 400 ? 'text-amber-700' : 'text-slate-900')" x-text="avg() + ' ms'"></p>
+                        <svg viewBox="0 0 100 30" class="mt-1 h-8 w-full" preserveAspectRatio="none" aria-hidden="true"><path :d="path()" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-600" vector-effect="non-scaling-stroke" /></svg></div>
+                    <div class="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/70"><p class="text-xs text-slate-500">Requêtes en base par page</p><p class="text-xl font-semibold" x-text="total.n ? Math.round(total.queries / total.n) : 0"></p></div>
+                    <div class="rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200/70"><p class="text-xs text-slate-500">Erreurs</p><p class="text-xl font-semibold" :class="total.errors ? 'text-red-700' : 'text-slate-900'" x-text="total.errors"></p><p class="text-xs text-slate-500">détail dans Administration › Erreurs</p></div>
+                </div>
+                <div class="mt-3 overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs text-slate-500"><tr><th class="py-2">Page</th><th>Vues</th><th>Moyenne</th><th>95 %</th><th>Max</th><th>Requêtes</th><th>Erreurs</th></tr></thead>
+                        <tbody>
+                            <template x-for="r in rows()" :key="r.label">
+                                <tr class="border-t border-slate-100" :data-navigation-row="r.label"><td class="py-1.5 font-medium" x-text="r.label"></td><td x-text="r.n"></td><td :class="r.avg > 1000 ? 'text-red-700' : (r.avg > 400 ? 'text-amber-700' : '')" x-text="r.avg + ' ms'"></td><td x-text="r.p95 + ' ms'"></td><td x-text="r.max + ' ms'"></td><td x-text="r.queries"></td><td :class="r.errors ? 'font-semibold text-red-700' : 'text-slate-400'" x-text="r.errors"></td></tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <p class="mt-3 text-xs text-slate-500">Durées mesurées dans PHP (génération de la page), sans le réseau ni le serveur web : pour le temps de réponse vu par un visiteur, regardez « Temps de réponse » dans l'état du serveur pendant le test. Aucune session n'est enregistrée ; les comptes de test sont notés « vus » (dernière visite), comme de vrais utilisateurs.</p>
+        </div>
+    </x-section>
 </x-layouts.app>

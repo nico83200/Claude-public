@@ -14,6 +14,7 @@ use App\Models\SimulationBatch;
 use App\Models\User;
 use App\Services\HorseAccess;
 use App\Services\LoadSimulation;
+use App\Services\NavigationSimulation;
 use App\Services\WeeklyDigest;
 use App\Support\Perm;
 use Illuminate\Mail\Events\MessageSent;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 /** Simulation de charge (super-admin) : comptes de test créés par étapes, état du serveur, suppression complète. */
@@ -208,5 +210,33 @@ class LoadSimulationTest extends TestCase
         preg_match_all('/data-bar="([^"]+)"/', $html, $m);
         $this->assertSame($m[1], array_values(array_unique($m[1])), 'Chaque entrée de la barre du bas est unique.');
         $this->assertSame(['dashboard', 'calendar.index', 'horses.show'], $m[1]);
+    }
+
+    public function test_navigation_renders_real_pages_as_test_accounts(): void
+    {
+        $admin = $this->admin();
+        $this->as($admin)->postJson(route('admin.simulation.navigation'), ['pages' => 3])->assertStatus(422); // pas encore de comptes de test
+        $run = $this->as($admin)->postJson(route('admin.simulation.store'), ['accounts' => 2, 'chunk' => 2] + self::PARAMS)->json();
+        $this->as($admin)->postJson(route('admin.simulation.step', $run['id']));
+        $driver = config('session.driver');
+
+        $visits = $this->as($admin)->postJson(route('admin.simulation.navigation'), ['pages' => 20])->assertOk()->json('visits');
+        $this->assertCount(20, $visits);
+        foreach ($visits as $v) {
+            $this->assertLessThan(400, $v['status'], $v['label'].' ('.$v['path'].') : '.$v['status']);
+            $this->assertGreaterThan(0, $v['queries']);
+        }
+        $this->assertGreaterThan(0, collect($visits)->firstWhere('status', 200)['kb']);
+        // L'administrateur garde son identité et sa session ; pilote de session rétabli.
+        $this->assertSame($driver, config('session.driver'));
+        $this->assertSame($admin->id, auth()->id());
+        $this->as($admin)->get(route('admin.simulation.index'))->assertOk()->assertSee('data-navigation-simulation', false);
+        // Les comptes de test sont notés vus.
+        $this->assertGreaterThan(0, User::whereNotNull('simulation_batch_id')->whereNotNull('last_seen_at')->count());
+
+        // Réservé au super-admin, et jamais au nom d'un vrai compte.
+        $this->actingAs($this->user())->postJson(route('admin.simulation.navigation'), ['pages' => 1])->assertNotFound();
+        $this->expectException(HttpException::class);
+        app(NavigationSimulation::class)->render($this->user(), '/dashboard');
     }
 }
