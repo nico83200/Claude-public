@@ -87,16 +87,17 @@
                     {{-- Jours de monte : qui monte quel jour cette semaine (cheval partagé). --}}
                     @php
                         $todayRider = $ridingWeek[today()->toDateString()][$horse->id]['user'] ?? null;
+                        $todayRest = ! empty($ridingWeek[today()->toDateString()][$horse->id]['rest']);
                         $firstName = fn ($u) => \Illuminate\Support\Str::limit(\Illuminate\Support\Str::before($u->name.' ', ' '), 7, '');
                     @endphp
                     <a href="{{ route('horses.riding-days', $horse) }}" class="mb-3 block" data-solo-riding>
-                        <span class="block text-sm text-slate-700">Aujourd'hui : <strong>{{ $todayRider ? ($todayRider->id === auth()->id() ? 'votre jour de monte' : 'jour de '.$todayRider->name) : 'jour libre' }}</strong></span>
+                        <span class="block text-sm text-slate-700">Aujourd'hui : <strong>{{ $todayRest ? 'jour de repos' : ($todayRider ? ($todayRider->id === auth()->id() ? 'votre jour de monte' : 'jour de '.$todayRider->name) : 'jour libre') }}</strong></span>
                         <span class="no-scrollbar mt-1.5 flex gap-1 overflow-x-auto">
                             @for ($i = 0; $i < 7; $i++)
-                                @php $d = today()->addDays($i); $u = $ridingWeek[$d->toDateString()][$horse->id]['user'] ?? null; $mine = $u?->id === auth()->id(); @endphp
+                                @php $d = today()->addDays($i); $u = $ridingWeek[$d->toDateString()][$horse->id]['user'] ?? null; $mine = $u?->id === auth()->id(); $resting = ! empty($ridingWeek[$d->toDateString()][$horse->id]['rest']); @endphp
                                 <span class="flex min-w-11 flex-1 flex-col items-center rounded-xl py-1 text-[11px] leading-tight {{ $mine ? 'bg-brand-100 text-brand-900' : ($u ? 'bg-slate-100 text-slate-700' : 'bg-slate-50 text-slate-400') }}" data-solo-riding-day="{{ $d->toDateString() }}">
                                     <span class="uppercase">{{ $i === 0 ? 'Auj.' : $d->translatedFormat('D') }}</span>
-                                    <span class="font-semibold">{{ $u ? ($mine ? 'Moi' : $firstName($u)) : '—' }}</span>
+                                    <span class="font-semibold">{{ $resting ? 'Repos' : ($u ? ($mine ? 'Moi' : $firstName($u)) : '—') }}</span>
                                 </span>
                             @endfor
                         </span>

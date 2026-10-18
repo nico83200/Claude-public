@@ -11,6 +11,9 @@ class RidingDay extends Model
 
     protected $guarded = ['id'];
 
+    /** Jour de repos du cheval : sans cavalier. */
+    protected $casts = ['is_rest' => 'boolean'];
+
     public const WEEKDAYS = [1 => 'Lundi', 2 => 'Mardi', 3 => 'Mercredi', 4 => 'Jeudi', 5 => 'Vendredi', 6 => 'Samedi', 7 => 'Dimanche'];
 
     public function horse()

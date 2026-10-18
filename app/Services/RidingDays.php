@@ -52,17 +52,23 @@ class RidingDays
             ->mapWithKeys(fn (RidingDay $d) => [$d->weekday => $d->user])->all();
     }
 
+    /** Jours de repos de la semaine type (1 = lundi). */
+    public function restWeekdays(Horse $horse): array
+    {
+        return RidingDay::where('horse_id', $horse->id)->where('is_rest', true)->orderBy('weekday')->pluck('weekday')->map(fn ($d) => (int) $d)->all();
+    }
+
     public function hasAny(Horse $horse): bool
     {
         return RidingDay::where('horse_id', $horse->id)->exists() || RidingDayChange::where('horse_id', $horse->id)->where('date', '>=', today())->exists();
     }
 
-    /** Qui monte ce jour-là : ['user' => ?User, 'changed' => échange ponctuel, 'change' => ?RidingDayChange]. */
+    /** Qui monte ce jour-là : ['user' => ?User, 'changed' => échange ponctuel, 'change' => ?RidingDayChange, 'rest' => jour de repos]. */
     public function on(Horse $horse, Carbon|string $date): array
     {
         $day = Carbon::parse($date)->startOfDay();
 
-        return $this->between(collect([$horse]), $day, $day)[$day->toDateString()][$horse->id] ?? ['user' => null, 'changed' => false, 'change' => null];
+        return $this->between(collect([$horse]), $day, $day)[$day->toDateString()][$horse->id] ?? ['user' => null, 'changed' => false, 'change' => null, 'rest' => false];
     }
 
     /**
@@ -86,12 +92,15 @@ class RidingDays
         for ($d = $from->copy()->startOfDay(); $d->lte($to); $d->addDay()) {
             foreach ($ids as $id) {
                 $change = $changes->get($id.':'.$d->toDateString());
-                $user = $change ? $change->user : $weekly->get($id)?->firstWhere('weekday', $d->isoWeekday())?->user;
+                $row = $weekly->get($id)?->firstWhere('weekday', $d->isoWeekday());
+                // Repos : jour de repos de la semaine type, ou repos posé pour cette date.
+                $rest = $change ? (bool) $change->is_rest : (bool) $row?->is_rest;
+                $user = $rest ? null : ($change ? $change->user : $row?->user);
                 if ($user && ! $this->mayRide($user, $byId[$id])) {
                     $user = null;
                 }
-                if ($user || $change) {
-                    $out[$d->toDateString()][$id] = ['user' => $user, 'changed' => (bool) $change, 'change' => $change];
+                if ($user || $change || $rest) {
+                    $out[$d->toDateString()][$id] = ['user' => $user, 'changed' => (bool) $change, 'change' => $change, 'rest' => $rest];
                 }
             }
         }
@@ -106,12 +115,17 @@ class RidingDays
         $before = $this->weekly($horse);
         DB::transaction(function () use ($horse, $assignments, $allowed) {
             foreach (array_keys(RidingDay::WEEKDAYS) as $weekday) {
+                if (($assignments[$weekday] ?? null) === 'rest') {
+                    RidingDay::updateOrCreate(['horse_id' => $horse->id, 'weekday' => $weekday], ['user_id' => null, 'is_rest' => true]);
+
+                    continue;
+                }
                 $userId = (int) ($assignments[$weekday] ?? 0);
                 if ($userId && ! $allowed->has($userId)) {
                     throw ValidationException::withMessages(['days.'.$weekday => 'Cette personne ne peut pas monter ce cheval.']);
                 }
                 $userId
-                    ? RidingDay::updateOrCreate(['horse_id' => $horse->id, 'weekday' => $weekday], ['user_id' => $userId])
+                    ? RidingDay::updateOrCreate(['horse_id' => $horse->id, 'weekday' => $weekday], ['user_id' => $userId, 'is_rest' => false])
                     : RidingDay::where('horse_id', $horse->id)->where('weekday', $weekday)->delete();
             }
         });
@@ -134,8 +148,9 @@ class RidingDays
      * Échange ponctuel : la personne du jour (ou le propriétaire, le gérant) laisse ce jour à quelqu'un d'autre, ou le laisse libre.
      * Prévient la personne qui reçoit le jour ; un jour libéré par une demi-pension est signalé au propriétaire.
      */
-    public function give(Horse $horse, Carbon $date, ?User $to, User $by): RidingDayChange
+    public function give(Horse $horse, Carbon $date, ?User $to, User $by, bool $rest = false): RidingDayChange
     {
+        $to = $rest ? null : $to;
         $day = $date->copy()->startOfDay();
         if ($day->lt(today())) {
             throw ValidationException::withMessages(['date' => 'Ce jour est passé.']);
@@ -149,13 +164,14 @@ class RidingDays
             throw ValidationException::withMessages(['to' => 'Cette personne ne peut pas monter ce cheval.']);
         }
         $usual = $this->weekly($horse)[$day->isoWeekday()] ?? null;
-        // Retour au jour habituel : l'échange disparaît.
-        if ($to?->id === $usual?->id) {
+        $usualRest = in_array($day->isoWeekday(), $this->restWeekdays($horse), true);
+        // Retour au jour habituel (même personne, ou repos un jour de repos) : l'échange disparaît.
+        if ($rest ? $usualRest : (! $usualRest && $to?->id === $usual?->id)) {
             RidingDayChange::where('horse_id', $horse->id)->whereDate('date', $day)->delete();
-            $change = new RidingDayChange(['horse_id' => $horse->id, 'date' => $day, 'user_id' => $to?->id, 'from_user_id' => $current?->id, 'created_by' => $by->id]);
+            $change = new RidingDayChange(['horse_id' => $horse->id, 'date' => $day, 'user_id' => $to?->id, 'is_rest' => $rest, 'from_user_id' => $current?->id, 'created_by' => $by->id]);
         } else {
             $change = RidingDayChange::updateOrCreate(['horse_id' => $horse->id, 'date' => $day->toDateString()],
-                ['user_id' => $to?->id, 'from_user_id' => $current?->id, 'created_by' => $by->id]);
+                ['user_id' => $to?->id, 'is_rest' => $rest, 'from_user_id' => $current?->id, 'created_by' => $by->id]);
         }
         $when = $day->translatedFormat('l j F');
         if ($to && $to->id !== $by->id) {
@@ -164,12 +180,12 @@ class RidingDays
         }
         if ($current && $current->id !== $by->id && $current->id !== $to?->id) {
             $current->notify(new AppNotification('riding_day', 'Jour de monte : '.$when,
-                $by->name.' a attribué '.$when.' '.($to ? 'à '.$to->name : 'comme jour libre').' pour '.$horse->shortName().'.', route('horses.riding-days', $horse)));
+                $by->name.' a attribué '.$when.' '.($to ? 'à '.$to->name : ($rest ? 'comme jour de repos' : 'comme jour libre')).' pour '.$horse->shortName().'.', route('horses.riding-days', $horse)));
         }
         if (! $to && ! $manager) {
             foreach ($this->candidates($horse)->filter(fn ($u) => $u->id !== $by->id && $this->access->can($u, $horse, Perm::HORSE_MANAGE)) as $owner) {
-                $owner->notify(new AppNotification('riding_day', 'Jour de monte libéré : '.$when,
-                    $by->name.' laisse '.$when.' libre pour '.$horse->shortName().'.', route('horses.riding-days', $horse)));
+                $owner->notify(new AppNotification('riding_day', ($rest ? 'Jour de repos : ' : 'Jour de monte libéré : ').$when,
+                    $by->name.($rest ? ' met '.$horse->shortName().' au repos '.$when.'.' : ' laisse '.$when.' libre pour '.$horse->shortName().'.'), route('horses.riding-days', $horse)));
             }
         }
 
@@ -189,7 +205,8 @@ class RidingDays
         if (! $this->mayRide($by, $horse)) {
             throw ValidationException::withMessages(['date' => 'Vous ne pouvez pas monter ce cheval.']);
         }
-        $holder = $this->on($horse, $day)['user'];
+        $info = $this->on($horse, $day);
+        $holder = $info['user'];
         if ($holder?->id === $by->id) {
             throw ValidationException::withMessages(['date' => 'C\'est déjà votre jour.']);
         }
@@ -205,7 +222,7 @@ class RidingDays
         $request = RidingDayRequest::create(['horse_id' => $horse->id, 'requester_id' => $by->id, 'holder_id' => $holder?->id,
             'date' => $day->toDateString(), 'swap_date' => $swap?->toDateString()]);
         $when = $day->translatedFormat('l j F');
-        $text = $by->name.' aimerait monter '.$horse->shortName().' '.$when.($swap ? ', en échange de son '.$swap->translatedFormat('l j F') : '').'.';
+        $text = $by->name.' aimerait monter '.$horse->shortName().' '.$when.(! empty($info['rest']) ? ' (jour de repos)' : '').($swap ? ', en échange de son '.$swap->translatedFormat('l j F') : '').'.';
         $recipients = $holder ? collect([$holder]) : $this->candidates($horse)->filter(fn ($u) => $u->id !== $by->id && $this->access->can($u, $horse, Perm::HORSE_MANAGE));
         foreach ($recipients as $person) {
             $person->notify(new AppNotification('riding_day', 'Demande de jour : '.$when, $text, route('horses.riding-days', $horse)));

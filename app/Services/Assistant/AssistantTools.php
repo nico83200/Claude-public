@@ -25,6 +25,7 @@ use App\Services\CareExpenseSync;
 use App\Services\CareReminders;
 use App\Services\Entitlements;
 use App\Services\HorseAccess;
+use App\Services\RestDays;
 use App\Services\RidingSessionService;
 use App\Support\Perm;
 use Illuminate\Support\Carbon;
@@ -338,12 +339,14 @@ class AssistantTools
             'location' => $this->clip($in['location'] ?? null, 255), 'status' => 'planned',
             'instructor' => $this->clip($in['instructor'] ?? null, 100),
         ], $items);
+        // Jour de repos du cheval : signalé dans le résumé (le propriétaire est prévenu).
+        $rest = app(RestDays::class)->checkSession($session, $ctx->user);
         $summary = $session->title().' – '.$horse->shortName().' – '.$this->human($at)
             .($items || $session->usesExercises() ? ' · '.count($items).' exercice'.(count($items) > 1 ? 's' : '') : '').' · '.$session->planned_minutes.' min'
-            .($session->isCompleted() ? ' · terminée' : '');
+            .($session->isCompleted() ? ' · terminée' : '').($rest ? ' · attention : jour de repos' : '');
         $ctx->record('session.created', $session, $summary, route('sessions.show', $session), ['delete' => [RidingSession::class, $session->id]]);
 
-        return ['ok' => true, 'session_id' => $session->id, 'summary' => $summary, 'exercises' => $session->items()->orderBy('position')->get()->map(fn ($i) => $i->phase.' : '.$i->name.($i->planned_minutes ? ' ('.$i->planned_minutes.' min)' : ''))->all()];
+        return ['ok' => true, 'session_id' => $session->id, 'summary' => $summary, 'warning' => $rest, 'exercises' => $session->items()->orderBy('position')->get()->map(fn ($i) => $i->phase.' : '.$i->name.($i->planned_minutes ? ' ('.$i->planned_minutes.' min)' : ''))->all()];
     }
 
     private function updateSession(array $in, AssistantContext $ctx): array

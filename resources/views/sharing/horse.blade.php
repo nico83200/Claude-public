@@ -61,13 +61,14 @@
                 @endif
                 <p class="mt-3 text-xs text-slate-500">La révocation est immédiate.</p>
             </x-section>
-            @php $ridingWeek = app(\App\Services\RidingDays::class)->weekly($horse); @endphp
+            @php $ridingWeek = app(\App\Services\RidingDays::class)->weekly($horse); $restWeek = app(\App\Services\RidingDays::class)->restWeekdays($horse); @endphp
             <x-section title="Jours de monte" :action="route('horses.riding-days', $horse)" action-label="Organiser" data-sharing-riding-days>
-                @if ($ridingWeek)
+                @if ($ridingWeek || $restWeek)
                     <ul class="text-sm">
                         @foreach (collect($ridingWeek)->groupBy(fn ($u) => $u->id, true) as $days)
                             <li class="flex justify-between gap-3 py-1"><span class="font-medium">{{ $days->first()->name }}</span><span class="text-slate-600">{{ ucfirst(\App\Services\RidingDays::list($days->keys()->all())) }}</span></li>
                         @endforeach
+                        @if ($restWeek)<li class="flex justify-between gap-3 py-1"><span class="font-medium">Repos</span><span class="text-slate-600">{{ ucfirst(\App\Services\RidingDays::list($restWeek)) }}</span></li>@endif
                     </ul>
                 @else
                     <p class="text-sm text-slate-600">Répartissez les jours de la semaine entre vous et la demi-pension : ils s'affichent dans l'agenda, et chacun peut laisser un jour à l'autre.</p>

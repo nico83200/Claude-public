@@ -36,6 +36,12 @@
         @endif
     </div>
 
+    @if ($restReasons)
+        <div class="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900" data-session-rest>
+            <p class="font-semibold">{{ ucfirst($session->scheduled_at->translatedFormat('l j F')) }} est un jour de repos pour {{ $session->horse->shortName() }}.</p>
+            <p class="mt-1">{{ ucfirst(implode(', ', $restReasons)) }}. {{ $session->status === 'completed' ? 'La séance a été faite quand même.' : 'Déplacez la séance, ou gardez-la si le repos a changé.' }}</p>
+        </div>
+    @endif
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             <x-section>

@@ -31,6 +31,7 @@ class RidingDayController extends Controller
         return view('riding-days.show', [
             'horse' => $horse,
             'weekly' => $this->days->weekly($horse),
+            'restWeekdays' => $this->days->restWeekdays($horse),
             'candidates' => $this->days->candidates($horse),
             'upcoming' => $upcoming,
             'canManage' => $canManage,
@@ -48,7 +49,7 @@ class RidingDayController extends Controller
     public function update(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HORSE_MANAGE);
-        $data = $request->validate(['days' => ['nullable', 'array'], 'days.*' => ['nullable', 'integer']]);
+        $data = $request->validate(['days' => ['nullable', 'array'], 'days.*' => ['nullable', 'regex:/^(\d+|rest)$/']]);
         $this->days->setWeekly($horse, collect($data['days'] ?? [])->only(array_keys(RidingDay::WEEKDAYS))->all(), $request->user());
 
         return back()->with('success', 'Jours de monte enregistrés. Les personnes concernées sont prévenues.');
@@ -98,12 +99,14 @@ class RidingDayController extends Controller
     public function give(Request $request, Horse $horse)
     {
         $this->authorizeHorse($horse, Perm::HORSE_VIEW);
-        $data = $request->validate(['date' => ['required', 'date_format:Y-m-d'], 'to' => ['nullable', 'integer']]);
-        $to = ! empty($data['to']) ? User::find($data['to']) : null;
-        abort_if(! empty($data['to']) && ! $to, 422);
-        $this->days->give($horse, Carbon::parse($data['date']), $to, $request->user());
+        $data = $request->validate(['date' => ['required', 'date_format:Y-m-d'], 'to' => ['nullable', 'regex:/^(\d+|rest)$/']]);
+        // « Repos » : le cheval ne travaille pas ce jour-là.
+        $rest = ($data['to'] ?? null) === 'rest';
+        $to = ! $rest && ! empty($data['to']) ? User::find($data['to']) : null;
+        abort_if(! $rest && ! empty($data['to']) && ! $to, 422);
+        $this->days->give($horse, Carbon::parse($data['date']), $to, $request->user(), $rest);
         $when = Carbon::parse($data['date'])->translatedFormat('l j F');
 
-        return back()->with('success', $to ? ucfirst($when).' : '.$to->name.' monte '.$horse->shortName().'.' : ucfirst($when).' laissé libre.');
+        return back()->with('success', $rest ? ucfirst($when).' : jour de repos pour '.$horse->shortName().'.' : ($to ? ucfirst($when).' : '.$to->name.' monte '.$horse->shortName().'.' : ucfirst($when).' laissé libre.'));
     }
 }

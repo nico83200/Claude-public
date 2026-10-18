@@ -17,6 +17,7 @@ use App\Services\Assistant\ClaudeGateway;
 use App\Services\DebriefQuestions;
 use App\Services\ExerciseSuggestions;
 use App\Services\HorseAccess;
+use App\Services\RestDays;
 use App\Services\RidingDays;
 use App\Services\RidingSessionService;
 use App\Services\ToValidate;
@@ -99,6 +100,9 @@ class RidingSessionController extends Controller
         return view('sessions.create', [
             // Jours de monte des prochaines semaines : aide si la date choisie est le jour de quelqu'un d'autre.
             'ridingHints' => app(RidingDays::class)->hintsFor($horses->values()),
+            'restHints' => app(RestDays::class)->hintsFor($horses->values()),
+            // Chevaux dont l'utilisateur est le propriétaire (ou gérant) : pas de « le propriétaire sera prévenu ».
+            'managedHorses' => $horses->filter(fn ($h) => $access->can($user, $h, Perm::HORSE_MANAGE))->pluck('id')->values(),
             'horses' => $horses->pipe(Horse::options(...)),
             'templates' => SessionTemplate::where('user_id', $user->id)->orWhereIn('organization_id', $user->memberships->pluck('organization_id'))->orderBy('name')->pluck('name', 'id'),
             // Cheval présélectionné : celui demandé, sinon le seul cheval, sinon celui de la dernière séance saisie.
@@ -125,12 +129,19 @@ class RidingSessionController extends Controller
             $session = $this->sessions->create($horse, $request->user(), $data);
         }
 
+        // Jour de repos du cheval (jours de monte, « Repos » de l'agenda) : signalé, le propriétaire est prévenu.
+        $restWarning = app(RestDays::class)->checkSession($session, $request->user());
         if ($session->isCompleted()) {
-            return redirect()->route('sessions.debrief', $session)->with('success', 'Séance passée enregistrée comme terminée : notez les exercices travaillés et votre bilan.');
+            return redirect()->route('sessions.debrief', $session)->with('success', 'Séance passée enregistrée comme terminée : notez les exercices travaillés et votre bilan.')
+                ->with('warning', $restWarning);
         }
         // Séance prévue le jour de monte de quelqu'un d'autre : la personne est prévenue.
+        $warnings = [$restWarning];
         if ($dayOwner = app(RidingDays::class)->notifyConflict($session, $request->user())) {
-            session()->flash('warning', 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.');
+            $warnings[] = 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.';
+        }
+        if ($warning = implode(' ', array_filter($warnings))) {
+            session()->flash('warning', $warning);
         }
 
         // Cours et balade : pas de préparation d'exercices.
@@ -157,6 +168,8 @@ class RidingSessionController extends Controller
             'canEdit' => $this->sessions->canEdit($request->user(), $session),
             'canComment' => $this->horseCan($session->horse, Perm::COMMENTS_CREATE),
             'canCreate' => $this->horseCan($session->horse, Perm::SESSIONS_CREATE),
+            // Séance un jour de repos du cheval : rappel en tête de la fiche.
+            'restReasons' => $session->status !== 'cancelled' ? app(RestDays::class)->on($session->horse, $session->scheduled_at) : [],
         ]);
     }
 
@@ -240,8 +253,15 @@ class RidingSessionController extends Controller
         $hadExercises = $session->usesExercises();
         $session->update($this->sessions->sanitizeRider($session->horse, $data, $request->user()));
         $this->notifyChange($request, $session);
+        $warnings = [];
+        if ($session->wasChanged(['scheduled_at', 'status'])) {
+            $warnings[] = app(RestDays::class)->checkSession($session, $request->user());
+        }
         if ($session->wasChanged(['scheduled_at', 'rider_id']) && ($dayOwner = app(RidingDays::class)->notifyConflict($session, $request->user()))) {
-            session()->flash('warning', 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.');
+            $warnings[] = 'C\'est le jour de monte de '.$dayOwner->name.' : une notification lui a été envoyée.';
+        }
+        if ($warning = implode(' ', array_filter($warnings))) {
+            session()->flash('warning', $warning);
         }
         // Devenue un cours ou une balade : pas d'exercices préparés (le travail se note au bilan).
         $removed = 0;

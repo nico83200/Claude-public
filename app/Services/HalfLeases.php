@@ -243,7 +243,7 @@ class HalfLeases
             return;
         }
         foreach (array_map('intval', $lease->weekdays ?? []) as $day) {
-            RidingDay::updateOrCreate(['horse_id' => $lease->horse_id, 'weekday' => $day], ['user_id' => $lease->user_id]);
+            RidingDay::updateOrCreate(['horse_id' => $lease->horse_id, 'weekday' => $day], ['user_id' => $lease->user_id, 'is_rest' => false]);
         }
         $lease->forceFill(['days_applied_at' => now()])->save();
     }

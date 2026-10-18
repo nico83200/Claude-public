@@ -52,7 +52,9 @@ class InvitationService
     public function inviteHalfLease(HalfLease $lease, User $inviter): array
     {
         $horse = $lease->horse;
-        $this->ensureCanShare($horse->organization, $inviter, strtolower($lease->email));
+        // Demi-pension déjà partagée (avant sa fiche) : son accès sera repris, pas de partage en plus dans les limites de l'offre.
+        $shared = HorseAccessGrant::current()->where('horse_id', $horse->id)->whereHas('user', fn ($q) => $q->where('email', strtolower($lease->email)))->exists();
+        $this->ensureCanShare($horse->organization, $inviter, strtolower($lease->email), ! $shared);
         $halfLeases = app(HalfLeases::class);
 
         return $this->create([
@@ -62,12 +64,12 @@ class InvitationService
         ], 'Proposition de demi-pension : '.$horse->shortName(), $inviter->name.' vous propose une demi-pension sur '.$horse->shortName().' : '.$halfLeases->summary($lease).'.');
     }
 
-    private function ensureCanShare(Organization $org, User $inviter, string $email): void
+    private function ensureCanShare(Organization $org, User $inviter, string $email, bool $newShare = true): void
     {
         if (! $this->entitlements->hasFeature($org, 'sharing')) {
             throw ValidationException::withMessages(['email' => 'Le partage n\'est pas inclus dans l\'offre de cet espace.']);
         }
-        if (! $this->entitlements->withinLimit($org, 'max_invitations', $this->horseSharesUsed($org))) {
+        if ($newShare && ! $this->entitlements->withinLimit($org, 'max_invitations', $this->horseSharesUsed($org))) {
             throw ValidationException::withMessages(['email' => 'Le nombre maximal de partages de votre offre est atteint.']);
         }
         if ($email === strtolower($inviter->email)) {
@@ -152,7 +154,12 @@ class InvitationService
 
         $lease = HalfLease::where('invitation_id', $invitation->id)->where('status', 'proposed')->first();
         DB::transaction(function () use ($invitation, $user, $lease) {
-            if ($invitation->type === 'horse_access') {
+            // Demi-pension déjà partagée : son accès devient celui de la fiche (droits, libellé, fin), sans second accès.
+            $existing = $lease ? HorseAccessGrant::current()->where('horse_id', $invitation->horse_id)->where('user_id', $user->id)->first() : null;
+            if ($existing) {
+                $existing->update(['permissions' => $invitation->permissions, 'label' => $invitation->label ?: $existing->label, 'expires_at' => $invitation->access_expires_at]);
+                $grant = $existing;
+            } elseif ($invitation->type === 'horse_access') {
                 $grant = HorseAccessGrant::create([
                     'horse_id' => $invitation->horse_id, 'user_id' => $user->id, 'permissions' => $invitation->permissions,
                     'starts_at' => $invitation->access_starts_at, 'expires_at' => $invitation->access_expires_at,

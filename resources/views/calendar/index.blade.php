@@ -14,7 +14,7 @@
     // Jours de monte : « Jour de Léa » (nom du cheval en plus quand plusieurs chevaux sont affichés).
     $riderLabel = function (string $day) use ($ridingDays, $ridingHorses) {
         return collect($ridingDays[$day] ?? [])->map(function ($info, $horseId) use ($ridingDays, $ridingHorses) {
-            $who = $info['user'] ? ($info['user']->id === auth()->id() ? 'mon jour' : 'jour de '.$info['user']->name) : 'jour libre';
+            $who = ! empty($info['rest']) ? 'repos' : ($info['user'] ? ($info['user']->id === auth()->id() ? 'mon jour' : 'jour de '.$info['user']->name) : 'jour libre');
             $several = collect($ridingDays)->flatMap(fn ($h) => array_keys($h))->unique()->count() > 1;
 
             return ['horse' => $ridingHorses[$horseId] ?? null, 'text' => ($several && isset($ridingHorses[$horseId]) ? $ridingHorses[$horseId]->shortName().' : ' : '').ucfirst($who), 'mine' => $info['user']?->id === auth()->id(), 'changed' => $info['changed']];
@@ -92,7 +92,7 @@
                         <a href="{{ route('calendar.index', $q($d, 'day')) }}" class="text-xs font-semibold {{ $d->isToday() ? 'rounded-full bg-brand-600 px-1.5 text-white' : '' }}">{{ $d->day }}</a>
                         @foreach ($riderLabel($d->toDateString()) as $r)<a href="{{ $r['horse'] ? route('horses.riding-days', $r['horse']) : '#' }}" class="block truncate text-[11px] {{ $r['mine'] ? 'font-semibold text-brand-800' : 'text-slate-500' }}" data-riding-day-cell>{{ $r['text'] }}{{ $r['changed'] ? ' ⇄' : '' }}</a>@endforeach
                         @foreach (($byDay[$d->toDateString()] ?? collect())->take(4) as $o)
-                            <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : ($o['at']->lt(now()->startOfDay()) ? 'opacity-70' : '') }}">{{ $o['event']->status === 'done' && empty($o['journal']) ? '✓ ' : '' }}{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
+                            <a href="{{ $href($o) }}" class="mt-1 block truncate rounded px-1 text-[11px] {{ $chip($o['event']) }} {{ $o['event']->status === 'cancelled' ? 'line-through opacity-60' : ($o['at']->lt(now()->startOfDay()) ? 'opacity-70' : '') }}">{{ $o['event']->status === 'done' && empty($o['journal']) ? '✓ ' : '' }}@if (empty($o['journal']) && $o['event']->isSessionEvent() && $o['event']->status !== 'cancelled' && isset($restDays[$d->toDateString()][$o['event']->horse_id]))<span class="font-bold text-red-700" title="Jour de repos" data-rest-cell>⚠ </span>@endif{{ $o['event']->all_day ? '' : $o['at']->format('H:i') }} {{ $o['event']->title }}</a>
                         @endforeach
                         @if (($byDay[$d->toDateString()] ?? collect())->count() > 4)<span class="text-[11px] text-slate-500">+{{ $byDay[$d->toDateString()]->count() - 4 }}</span>@endif
                     </div>
@@ -144,6 +144,8 @@
                             // Concours à venir : vaccins du cheval en règle ou à vérifier.
                             $vax = empty($o['journal']) && $ev->type === 'competition' ? $vaccineCheck($ev, $o['at']) : null;
                             [$vaxColor, $vaxLabel] = $vax ? \App\Services\CompetitionVaccines::badge($vax) : [null, null];
+                            // Séance un jour de repos du cheval : signalée.
+                            $restReasons = empty($o['journal']) && $ev->isSessionEvent() && $ev->status !== 'cancelled' ? ($restDays[$o['at']->toDateString()][$ev->horse_id] ?? null) : null;
                         @endphp
                         <x-swipe.row :delete-url="$swipeDelete" :choices="$choices" :event-id="$ev->id" :date="$occDate" :validate-url="$toValidate ? route('calendar.done', array_filter([$ev, 'date' => $occDate])) : null" :text="'« '.$ev->title.' » supprimé'" :validate-text="'« '.$ev->title.' » validé'" rounded="" surface="bg-white" :data-swipe-event="$ev->id">
                         <a href="{{ $href($o) }}" @if (! empty($o['journal'])) data-journal-item @endif @if ($highlight && empty($o['journal']) && $ev->id == $highlight) data-highlight @endif class="{{ $highlight && empty($o['journal']) && $ev->id == $highlight ? 'bg-brand-50 ring-2 ring-brand-500' : '' }} flex items-center gap-3 p-4 first:rounded-t-3xl last:rounded-b-3xl hover:bg-slate-50 {{ $ev->status === 'cancelled' ? 'opacity-60' : '' }}">
@@ -153,6 +155,7 @@
                                 <span class="flex items-center gap-1.5 font-medium {{ $ev->status === 'cancelled' ? 'text-slate-500 line-through' : ($ev->status === 'done' ? 'text-slate-600' : 'text-slate-900') }}">@if ($ev->status === 'done' && empty($o['journal']))<x-icon name="check" class="size-4 shrink-0 text-emerald-600" />@endif<span class="min-w-0">{{ $ev->title }}</span></span>
                                 <span class="block text-xs text-slate-500">{{ collect([$typeLabels[$ev->type] ?? null, $ev->horse?->shortName(), $ev->professional?->fullName(), $ev->recurrence ? 'récurrent' : null])->filter()->implode(' · ') }}</span>
                                 @if ($vax)<x-badge :color="$vaxColor" class="mt-1" data-competition-badge="{{ $vax['state'] }}">{{ $vaxLabel }}</x-badge>@endif
+                                @if ($restReasons)<x-badge color="red" class="mt-1" data-rest-badge title="{{ implode(', ', $restReasons) }}">Jour de repos</x-badge>@endif
                             </span>
                             @if (empty($o['journal']))
                                 {{-- Prévu, en cours (de l'heure à la fin de la durée), à valider (fin passée), réalisé ou annulé. --}}

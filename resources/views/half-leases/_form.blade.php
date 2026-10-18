@@ -34,6 +34,9 @@
     </div>
     <ul class="mt-2 space-y-0.5 text-xs text-slate-500">
         @foreach ($taken as $num => $who)<li>{{ \App\Models\RidingDay::WEEKDAYS[$num] }} : jour de {{ $who }} (autre demi-pension).</li>@endforeach
+        @foreach ($restWeek ?? [] as $num)
+            @if (! isset($taken[$num]))<li>{{ \App\Models\RidingDay::WEEKDAYS[$num] }} : jour de repos du cheval ; il deviendra son jour si vous le cochez.</li>@endif
+        @endforeach
         @foreach ($week as $num => $who)
             @if (! isset($taken[$num]) && $who->id !== $lease->user_id)<li>{{ \App\Models\RidingDay::WEEKDAYS[$num] }} : aujourd'hui le jour de {{ $who->name }} ; il passera à la demi-pension à son début si vous le cochez.</li>@endif
         @endforeach

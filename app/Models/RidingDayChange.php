@@ -11,7 +11,7 @@ class RidingDayChange extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = ['date' => 'date'];
+    protected $casts = ['date' => 'date', 'is_rest' => 'boolean'];
 
     public function horse()
     {

@@ -155,6 +155,7 @@ class HalfLeaseController extends Controller
             'lease' => $lease,
             'taken' => $this->leases->takenDays($horse, $lease->exists ? $lease : null),
             'week' => $days->weekly($horse),
+            'restWeek' => $days->restWeekdays($horse),
             'labels' => Perm::shareableLabels(),
             'presets' => ['half_lease' => Perm::halfLeasePreset(), 'boarding' => Perm::boardingPreset()],
         ];

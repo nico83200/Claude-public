@@ -6,6 +6,7 @@ use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Horse;
 use App\Models\OrganizationMember;
+use App\Models\RidingSession;
 use App\Models\Treatment;
 use App\Services\AgendaJournal;
 use App\Services\CalendarFeed;
@@ -14,6 +15,7 @@ use App\Services\CompetitionVaccines;
 use App\Services\HorseAccess;
 use App\Services\LessonCosts;
 use App\Services\ProfessionalDirectory;
+use App\Services\RestDays;
 use App\Services\RidingDays;
 use App\Services\RidingSessionService;
 use App\Services\ToValidate;
@@ -72,6 +74,8 @@ class CalendarController extends Controller
             'horses' => Horse::whereIn('id', $horseIds)->get(['id', 'official_name', 'usual_name'])->pipe(Horse::options(...)),
             'ridingDays' => $request->query('vue') === 'journal' ? [] : app(RidingDays::class)->between($ridingHorses, $from, $to),
             'ridingHorses' => $ridingHorses->keyBy('id'),
+            // Jours de repos (jours de monte, « Repos » de l'agenda) : une séance ces jours-là est signalée.
+            'restDays' => app(RestDays::class)->map($ridingHorses, $from, $to),
             'editableHorses' => $editableHorses,
             'professionals' => app(ProfessionalDirectory::class)->visibleQuery($request->user())->whereNull('archived_at')->orderBy('last_name')->get()->mapWithKeys(fn ($p) => [$p->id => $p->fullName()]),
             // Synchronisation Google / Apple (offres payantes), sinon proposition d'offre.
@@ -153,7 +157,7 @@ class CalendarController extends Controller
             ]);
 
             return redirect()->route('calendar.index', ['date' => $data['starts_at']->toDateString(), 'view' => $request->input('return_view', 'month')])
-                ->with('success', 'Séance ajoutée à l\'agenda et au suivi des séances.');
+                ->with('success', 'Séance ajoutée à l\'agenda et au suivi des séances.')->with('warning', app(RestDays::class)->checkSession($session, $request->user()));
         }
         $event = new CalendarEvent($data);
         $event->organization_id = $orgId;
@@ -161,7 +165,22 @@ class CalendarController extends Controller
         $event->save();
 
         return redirect()->route('calendar.index', ['date' => $event->starts_at->toDateString(), 'view' => $request->input('return_view', 'month')])->with('success', '« '.$event->title.' » ajouté le '.$event->starts_at->translatedFormat('D j M').($event->all_day ? '' : ' à '.$event->starts_at->format('H:i')).'.')->with('highlight', $event->id)
-            ->with($this->vaccineWarning($event));
+            ->with($this->vaccineWarning($event))->with($this->restWarning($event));
+    }
+
+    /** Repos posé un jour où une séance est déjà prévue : on le signale (la séance n'est pas modifiée). */
+    private function restWarning(CalendarEvent $event): array
+    {
+        if ($event->type !== 'rest' || ! $event->horse_id) {
+            return [];
+        }
+        [$first, $last] = RestDays::days($event->starts_at, $event);
+        $sessions = RidingSession::where('horse_id', $event->horse_id)->whereIn('status', ['planned', 'in_progress'])
+            ->whereBetween('scheduled_at', [$first, $event->recurrence ? $first->copy()->addDays(90)->endOfDay() : $last->copy()->endOfDay()])->orderBy('scheduled_at')->get()
+            ->filter(fn (RidingSession $s) => app(RestDays::class)->on($event->horse, $s->scheduled_at));
+
+        return $sessions->isEmpty() ? [] : ['warning' => Fr::count($sessions->count(), 'séance déjà prévue', 'séances déjà prévues').' un jour de repos : '
+            .$sessions->take(3)->map(fn ($s) => $s->scheduled_at->translatedFormat('l j F').' à '.$s->scheduled_at->format('H:i'))->implode(', ').'. Déplacez-la ou annulez-la si besoin.'];
     }
 
     public function update(Request $request, CalendarEvent $event)
