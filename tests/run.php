@@ -303,6 +303,16 @@ $gnm = one('SELECT * FROM products WHERE reference = ?', ['GN-M']);
 $eq = cheaper_equivalent($gnm, $c1);
 check($eq !== null && $eq['reference'] === 'HPS-GNM', 'équivalent moins cher trouvé chez un autre fournisseur');
 check(count(recent_price_increases()) >= 1, 'hausse de prix détectée dans l\'historique');
+$zp = (int)val('SELECT id FROM products ORDER BY id DESC LIMIT 1');
+insert('price_history', ['product_id' => $zp, 'catalog_price' => 0, 'negotiated_price' => null, 'source' => 'test', 'created_at' => date('Y-m-d H:i:s', strtotime('-2 days'))]);
+insert('price_history', ['product_id' => $zp, 'catalog_price' => 12.5, 'negotiated_price' => null, 'source' => 'test', 'created_at' => date('Y-m-d H:i:s', strtotime('-1 day'))]);
+try {
+    $ri = recent_price_increases(90, 50);
+    check(!in_array($zp, array_column($ri, 'product_id')), 'article passé de 0 € à un vrai prix : pas une « hausse », pas d\'erreur (division par zéro)');
+} catch (Throwable $e) {
+    check(false, 'article passé de 0 € à un vrai prix : ' . $e->getMessage());
+}
+q('DELETE FROM price_history WHERE source = ?', ['test']);
 $before = (int)val('SELECT COUNT(*) FROM price_history WHERE product_id = ?', [$gnm['id']]);
 price_record((int)$gnm['id'], (float)$gnm['catalog_price'], (float)$gnm['negotiated_price'], 'test');
 check((int)val('SELECT COUNT(*) FROM price_history WHERE product_id = ?', [$gnm['id']]) === $before, 'pas de doublon d\'historique si le prix ne change pas');

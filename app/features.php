@@ -135,7 +135,8 @@ function recent_price_increases(int $days = 90, int $limit = 8): array
             continue;
         }
         $eff = fn($r) => ($r['negotiated_price'] !== null && (float)$r['negotiated_price'] > 0) ? (float)$r['negotiated_price'] : (float)$r['catalog_price'];
-        if ($eff($h) > $eff($prev) * 1.005) {
+        // Ancien prix nul (article ajouté sans prix, puis tarifé) : ce n'est pas une hausse
+        if ($eff($prev) > 0 && $eff($h) > $eff($prev) * 1.005) {
             $out[$h['product_id']] = $h + ['old' => $eff($prev), 'new' => $eff($h), 'pct' => round(($eff($h) / $eff($prev) - 1) * 100, 1)];
         }
         if (count($out) >= $limit) {

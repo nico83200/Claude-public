@@ -80,6 +80,9 @@ function app_error_page(string $message): void
         . '<p><a href="javascript:history.back()">← Revenir à la page précédente</a></p></div>';
 }
 set_exception_handler(function (Throwable $e) {
+    while (ob_get_level() > 0) {
+        ob_end_clean(); // rien d'une page interrompue ne doit précéder la page d'erreur
+    }
     $msg = get_class($e) . ' : ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
     error_log('[exception] ' . $msg);
     app_error_page($msg);

@@ -196,8 +196,17 @@ function app_name(): string
 function render(string $view, array $data = [], ?string $layout = 'layout'): void
 {
     extract($data, EXTR_SKIP);
+    $level = ob_get_level();
     ob_start();
-    require APP . '/views/' . $view . '.php';
+    try {
+        require APP . '/views/' . $view . '.php';
+    } catch (Throwable $e) {
+        // Page à moitié construite : on la jette, pour que la page d'erreur s'affiche proprement (et non sous un bout de page sans mise en forme)
+        while (ob_get_level() > $level) {
+            ob_end_clean();
+        }
+        throw $e;
+    }
     $content = ob_get_clean();
     if ($layout === null) {
         echo $content;

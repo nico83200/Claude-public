@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 1.28.1
+- **Correctif** : le tableau de bord du service achats s'affichait sans menu ni mise en forme quand un article passait d'un prix de 0 € à un vrai prix (division par zéro dans l'encadré « Hausses de prix »). Un article sans prix qui en reçoit un n'est plus compté comme une hausse.
+- Si une page rencontre malgré tout une erreur, le message d'erreur s'affiche proprement au lieu d'une page à moitié construite.
+
 ## 1.28.0
 - **Une seule page de connexion** : le super administrateur se connecte sur la même page que tout le monde (centriva.fr ou la page de connexion d'un espace) et arrive dans l'administration de la plateforme, double authentification comprise.
 - **Paramètres en catégories** : sous-menu Identité, Règles de gestion, Sécurité, Assistant IA, E-mails et notifications, Abonnement (et Assistance NLapps hors plateforme), dans le menu et en onglets.
