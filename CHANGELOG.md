@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 1.28.2
+- **Bons de commande : TVA et total TTC** sous le total HT, sur la page du bon, sa version imprimable et le PDF envoyé au fournisseur (bon groupé compris). La TVA est calculée au taux de chaque article (fiche article, 20 % à défaut), détaillée par taux (20 %, 5,5 %…), frais de port à 20 %.
+
 ## 1.28.1
 - **Correctif** : le tableau de bord du service achats s'affichait sans menu ni mise en forme quand un article passait d'un prix de 0 € à un vrai prix (division par zéro dans l'encadré « Hausses de prix »). Un article sans prix qui en reçoit un n'est plus compté comme une hausse.
 - Si une page rencontre malgré tout une erreur, le message d'erreur s'affiche proprement au lieu d'une page à moitié construite.

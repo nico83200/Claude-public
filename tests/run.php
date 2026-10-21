@@ -313,6 +313,21 @@ try {
     check(false, 'article passé de 0 € à un vrai prix : ' . $e->getMessage());
 }
 q('DELETE FROM price_history WHERE source = ?', ['test']);
+
+section('TVA et total TTC des bons de commande');
+$vpo = (int)val('SELECT po.id FROM purchase_orders po JOIN purchase_order_lines l ON l.purchase_order_id = po.id JOIN suppliers s ON s.id = po.supplier_id JOIN centers c ON c.id = po.center_id ORDER BY po.id LIMIT 1');
+$vt = po_vat_totals($vpo, 10.0);
+$expect = 0.0;
+foreach (all('SELECT l.qty, l.unit_price, COALESCE(p.vat_rate, 20) r FROM purchase_order_lines l LEFT JOIN products p ON p.id = l.product_id WHERE l.purchase_order_id = ?', [$vpo]) as $l) {
+    $expect += $l['qty'] * $l['unit_price'] * $l['r'] / 100;
+}
+check(abs($vt['ht'] - (po_totals($vpo)['total'] + 10)) < 0.01 && abs($vt['vat'] - ($expect + 2)) < 0.05 && abs($vt['ttc'] - $vt['ht'] - $vt['vat']) < 0.001,
+    'bon de commande : total HT (frais de port compris), TVA par taux (articles + port à 20 %), total TTC');
+check(vat_label('5.5') === '5,5 %' && vat_label(20) === '20 %', 'libellé des taux de TVA');
+$pdfTxt = implode('', array_map(fn($m) => (string)@gzuncompress($m), preg_match_all('/stream\n(.*?)\nendstream/s', po_pdf([$vpo]), $mm) ? $mm[1] : []));
+check(str_contains($pdfTxt, 'TOTAL TTC') && str_contains($pdfTxt, 'TVA 20 %'), 'le PDF du bon affiche la TVA et le total TTC');
+check($vpo > 0, 'bon de commande de test trouvé');
+
 $before = (int)val('SELECT COUNT(*) FROM price_history WHERE product_id = ?', [$gnm['id']]);
 price_record((int)$gnm['id'], (float)$gnm['catalog_price'], (float)$gnm['negotiated_price'], 'test');
 check((int)val('SELECT COUNT(*) FROM price_history WHERE product_id = ?', [$gnm['id']]) === $before, 'pas de doublon d\'historique si le prix ne change pas');

@@ -235,6 +235,7 @@ function po_pdf(array $poIds): string
 
     $grand = 0.0;
     $grandShip = 0.0;
+    $grandVat = [];
     foreach ($pos as $po) {
         if ($y > 230) {
             $pdf->addPage();
@@ -302,6 +303,9 @@ function po_pdf(array $poIds): string
         }
         $grand += $sub;
         $grandShip += (float)$po['shipping_fee'];
+        foreach (po_vat_totals((int)$po['id'], (float)$po['shipping_fee'])['rates'] as $rate => $v) {
+            $grandVat[$rate] = ($grandVat[$rate] ?? 0) + $v;
+        }
         $pdf->text(120, $y + 1, $grouped ? 'Sous-total ' . $po['center_name'] : 'Sous-total HT', 9, false, $muted, 'R', 45);
         $pdf->text(165, $y + 1, money($sub), 9, true, [30, 35, 53], 'R', 30);
         $y += 10;
@@ -319,7 +323,15 @@ function po_pdf(array $poIds): string
     }
     $pdf->line(110, $y, 195, $y, $violet, 0.5);
     $y += 6;
-    foreach ([['Total articles HT', $grand, false], ['Frais de port HT', $grandShip, false], ['TOTAL HT', $grand + $grandShip, true]] as [$t, $v, $b]) {
+    krsort($grandVat, SORT_NUMERIC);
+    $vatRows = array_map(fn($r, $v) => ['TVA ' . vat_label($r), $v, false], array_keys($grandVat), $grandVat);
+    $totalRows = array_merge([['Total articles HT', $grand, false], ['Frais de port HT', $grandShip, false], ['Total HT', $grand + $grandShip, false]], $vatRows,
+        [['TOTAL TTC', $grand + $grandShip + array_sum($grandVat), true]]);
+    if ($y + count($totalRows) * 5 + 10 > 280) {
+        $pdf->addPage();
+        $header();
+    }
+    foreach ($totalRows as [$t, $v, $b]) {
         $pdf->text(110, $y, $t, $b ? 11 : 9, $b, $b ? $violet : $muted, 'R', 55);
         $pdf->text(165, $y, money($v), $b ? 11 : 9, $b, $b ? $violet : [30, 35, 53], 'R', 30);
         $y += $b ? 8 : 5;

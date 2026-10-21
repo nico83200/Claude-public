@@ -69,7 +69,11 @@
   <tfoot>
     <tr><td colspan="5" class="num">Sous-total HT</td><td class="num"><?= money($totals['total']) ?></td></tr>
     <tr><td colspan="5" class="num">Frais de port HT</td><td class="num"><?= money($po['shipping_fee']) ?></td></tr>
-    <tr class="total"><td colspan="5" class="num">Total HT</td><td class="num"><?= money($totals['total'] + (float)$po['shipping_fee']) ?></td></tr>
+    <tr><td colspan="5" class="num">Total HT</td><td class="num"><?= money($totals['total'] + (float)$po['shipping_fee']) ?></td></tr>
+    <?php $vt = po_vat_totals((int)$po['id'], (float)$po['shipping_fee']); foreach ($vt['rates'] as $rate => $v): ?>
+    <tr><td colspan="5" class="num">TVA <?= e(vat_label($rate)) ?></td><td class="num"><?= money($v) ?></td></tr>
+    <?php endforeach; ?>
+    <tr class="total"><td colspan="5" class="num">Total TTC</td><td class="num"><?= money($vt['ttc']) ?></td></tr>
   </tfoot>
 </table>
 <?php if ($po['notes']): ?><p><strong>Instructions :</strong> <?= nl2br(e($po['notes'])) ?></p><?php endif; ?>

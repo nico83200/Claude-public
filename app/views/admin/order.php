@@ -60,7 +60,11 @@ $minOk = (float)$po['min_order_amount'] <= 0 || $totals['total'] >= (float)$po['
           <tr><td colspan="4" class="text-right">Sous-total HT</td><td class="num"><?= money($totals['total']) ?></td><td></td></tr>
           <tr><td colspan="4" class="text-right">Frais de port <?= $po['free_shipping_from'] > 0 ? '<small class="muted">(franco dès ' . money($po['free_shipping_from']) . ')</small>' : '' ?></td>
             <td class="num"><?php if ($editable): ?><input type="text" name="shipping_fee" value="<?= e(number_format((float)$po['shipping_fee'], 2, ',', '')) ?>" style="width:90px;text-align:right"><?php else: ?><?= money($po['shipping_fee']) ?><?php endif; ?></td><td></td></tr>
-          <tr><td colspan="4" class="text-right">Total HT</td><td class="num" style="font-size:1.1rem"><?= money($grand) ?></td><td></td></tr>
+          <tr><td colspan="4" class="text-right">Total HT</td><td class="num"><?= money($grand) ?></td><td></td></tr>
+          <?php $vt = po_vat_totals((int)$po['id'], (float)$po['shipping_fee']); foreach ($vt['rates'] as $rate => $v): ?>
+          <tr><td colspan="4" class="text-right muted">TVA <?= e(vat_label($rate)) ?></td><td class="num muted"><?= money($v) ?></td><td></td></tr>
+          <?php endforeach; ?>
+          <tr><td colspan="4" class="text-right strong">Total TTC</td><td class="num strong" style="font-size:1.1rem"><?= money($vt['ttc']) ?></td><td></td></tr>
         </tfoot>
       </table></div>
       <?php if ($editable): ?>

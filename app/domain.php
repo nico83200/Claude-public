@@ -259,6 +259,37 @@ function po_totals(int $poId): array
     ];
 }
 
+/**
+ * TVA et total TTC d'un bon : TVA de chaque article (taux de sa fiche, 20 % à défaut) et des frais de port (20 %).
+ * Renvoie ['ht', 'vat', 'ttc', 'rates' => [taux => montant de TVA]].
+ */
+function po_vat_totals(int $poId, ?float $shipping = null): array
+{
+    $shipping ??= (float)val('SELECT shipping_fee FROM purchase_orders WHERE id = ?', [$poId]);
+    $rows = all('SELECT COALESCE(p.vat_rate, 20) AS rate, SUM(l.qty * l.unit_price) AS ht FROM purchase_order_lines l
+                 LEFT JOIN products p ON p.id = l.product_id WHERE l.purchase_order_id = ? GROUP BY COALESCE(p.vat_rate, 20)', [$poId]);
+    $rates = [];
+    $ht = 0.0;
+    foreach ($rows as $r) {
+        $ht += (float)$r['ht'];
+        $k = rtrim(rtrim(number_format((float)$r['rate'], 2, '.', ''), '0'), '.');
+        $rates[$k] = ($rates[$k] ?? 0) + round((float)$r['ht'] * (float)$r['rate'] / 100, 2);
+    }
+    if ($shipping > 0) {
+        $ht += $shipping;
+        $rates['20'] = ($rates['20'] ?? 0) + round($shipping * 0.2, 2);
+    }
+    krsort($rates, SORT_NUMERIC);
+    $vat = array_sum($rates);
+    return ['ht' => round($ht, 2), 'vat' => round($vat, 2), 'ttc' => round($ht + $vat, 2), 'rates' => $rates];
+}
+
+/** Libellé d'un taux de TVA : « 20 % », « 5,5 % ». */
+function vat_label(string|float $rate): string
+{
+    return str_replace('.', ',', rtrim(rtrim(number_format((float)$rate, 2, '.', ''), '0'), '.')) . ' %';
+}
+
 /** Frais de port appliqués automatiquement selon le franco du fournisseur. */
 function po_recompute_shipping(int $poId, ?array $supplier = null): void
 {
