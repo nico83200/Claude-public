@@ -16,7 +16,12 @@ h2{position:absolute;left:84px;top:640px;font-weight:500;font-size:86px;line-hei
 .notch{position:absolute;left:50%;top:26px;width:110px;height:30px;margin-left:-55px;border-radius:16px;background:#0b0f0d}
 .badge{position:absolute;left:530px;top:1330px;padding:18px 24px;border-radius:24px;background:#fff;box-shadow:0 18px 44px rgba(0,0,0,.18);font-size:26px;font-weight:700;line-height:1.25;z-index:2}
 .badge small{display:block;font-size:20px;font-weight:600;color:#a8875e;letter-spacing:.08em;text-transform:uppercase}
-</style></head><body>
+.photo{display:none;position:absolute;right:60px;top:1210px;width:620px;height:650px;border-radius:48px;overflow:hidden;box-shadow:0 40px 90px rgba(13,49,34,.3)}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:62% 40%;display:block}
+body.photo-mode .photo{display:block}body.photo-mode .phone{display:none}
+body.photo-mode .badge{left:84px;top:1700px}
+body.photo-mode .sub{top:900px;width:900px}body.photo-mode .cta{top:1060px}
+</style></head><body><script>if(location.hash==="#photo")document.body.classList.add("photo-mode")</script>
 <div class="glow" style="width:900px;height:900px;right:-360px;top:-260px;background:#e7c9a3;opacity:.75"></div>
 <div class="glow" style="width:700px;height:700px;left:-300px;bottom:-200px;background:#b9d8c6;opacity:.7"></div>
 <div class="glow" style="width:500px;height:500px;right:-120px;bottom:300px;background:#e7dac3;opacity:.6"></div>
@@ -25,6 +30,6 @@ h2{position:absolute;left:84px;top:640px;font-weight:500;font-size:86px;line-hei
 <h2>Et si vous passiez<br>à Jack&amp;Cie ?</h2>
 <p class="sub">Le suivi de votre cheval,<br>gratuit ou tout inclus dès <b>6,90 € par mois</b></p>
 <div class="cta">Essayer gratuitement</div>
-<div class="phone"><img src="mobile-accueil.webp"><div class="notch"></div></div>
+<div class="phone"><img src="mobile-accueil.webp"><div class="notch"></div></div><div class="photo"><img src="cavaliere.jpg"></div>
 <div class="badge"><small>Rappel</small>Vaccin grippe dans 15 jours</div>
 </body></html>
