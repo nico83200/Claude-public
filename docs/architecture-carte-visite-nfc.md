@@ -1,4 +1,10 @@
-# Architecture — Carte de visite imprimée RFID/NFC paramétrable
+# Architecture — Tapikard, carte de visite imprimée RFID/NFC paramétrable
+
+> **Marque** : **Tapikard** (« tap » + « card », prononçable en français comme en anglais).
+> **Domaines** : `tapikard.com` (principal, gravé dans les puces) et `tapikard.fr` (redirection),
+> tous deux libres lors de la vérification RDAP du 22/10/2026. À réserver rapidement, après une
+> recherche d'antériorité de marque INPI/EUIPO. Alternatives libres en .com et .fr :
+> `kontakard`, `vizikarte`, `tapkarte`, `bipkard`.
 
 > Objectif : vendre des cartes de visite physiques, personnalisables (design + données),
 > qu'un simple téléphone peut scanner pour afficher les coordonnées du porteur
@@ -32,9 +38,11 @@ Compatibilité : tous les Android NFC, et iPhone XS et ultérieurs en **lecture 
 | Fonctionne sans Internet | ❌ | ✅ |
 | Photo, liens, vidéo, formulaire de contact | ✅ | ❌ (mémoire trop petite) |
 
-**Décision** : la puce contient `https://<domaine-court>/c/<cardId>` ; la page servie propose
+**Décision** : puce **NTAG 424 DNA** pour toutes les cartes, encodées en interne
+(voir le [guide d'encodage](encodage-ntag424.md)). La puce génère `https://tapikard.com/c?e=<…>&m=<…>`, une URL signée et différente à chaque scan ; ; la page servie propose
 le bouton « Ajouter aux contacts » (fichier `.vcf` généré à la volée).
-Un **QR code** imprimé au verso encode la même URL (repli pour les téléphones sans NFC).
+Un **QR code** imprimé au verso encode une URL statique `https://tapikard.com/q/<cardId>`
+(repli pour les téléphones sans NFC ; elle sert aussi à associer la carte imprimée à la puce lors de l'encodage).
 
 ---
 
@@ -98,11 +106,12 @@ flowchart LR
   malveillante. Pour NTAG 424 DNA : configuration SDM avec clé AES propre à chaque carte.
 
 ### 3.2 Résolution de scan (le chemin critique)
-1. Le téléphone ouvre `https://c.marque.fr/c/AbC123x` (ou avec paramètres SUN :
-   `?e=<données chiffrées>&m=<CMAC>` pour NTAG 424).
-2. L'Edge (Cloudflare Workers / équivalent) :
-   - résout `cardId → profileId` (cache KV, invalidé à chaque modification) ;
-   - vérifie le CMAC et le compteur anti-rejeu si carte sécurisée ;
+1. Le téléphone ouvre `https://tapikard.com/c?e=<UID+compteur chiffrés>&m=<CMAC>` (NFC)
+   ou `https://tapikard.com/q/<cardId>` (QR).
+2. L'API (le CDN se contente de transmettre, car il ne détient pas les clés) :
+   - déchiffre `e`, retrouve la carte par son UID, vérifie le CMAC et le compteur anti-rejeu
+     ([`tools/sun_verify.py`](../tools/sun_verify.py)) ;
+   - résout `carte → profil` (cache Redis/KV invalidé à chaque modification) ;
    - enregistre un événement de scan de façon asynchrone (ne bloque jamais l'affichage) ;
    - sert la page profil.
 3. Selon l'état de la carte :
@@ -142,9 +151,9 @@ Exigence : **affichage < 1 s en 4G**, page légère, aucune app requise.
 - Génération du **lot de production** pour l'imprimeur : PDF d'impression + CSV
   (`numéro de série, URL à encoder, [clé AES]`).
 - Encodage :
-  - soit chez l'imprimeur (fourniture du CSV, contrôle qualité par échantillonnage) ;
-  - soit en interne : poste avec lecteur USB (ex. ACR1252U) ou app mobile d'encodage
-    qui écrit l'URL, verrouille, lit l'UID et le renvoie à l'API (`UID ↔ cardId`).
+  **en interne** (décision prise) : poste dédié avec lecteur USB ACR1252U et douchette QR.
+    Le script lit le QR (`cardId`), configure SUN, change les clés, vérifie, puis renvoie
+    `UID ↔ cardId` à l'API. Voir le [guide d'encodage NTAG 424](encodage-ntag424.md).
 - Contrôle qualité : scan de chaque carte (ou échantillon) → statut `encodée_ok`.
 - SAV : remplacement de carte, ré-attribution.
 
@@ -278,12 +287,13 @@ sequenceDiagram
     participant E as Edge/CDN
     participant A as API
     V->>T: Approche la carte
-    T->>E: GET /c/AbC123x[?e=..&m=..]
-    E->>E: Cache cardId→profil, vérif CMAC (si 424)
-    E-->>T: Page profil (HTML léger)
-    E--)A: Événement scan (asynchrone)
+    T->>E: GET /c?e=..&m=..
+    E->>A: Transmet
+    A->>A: Déchiffre e, vérifie CMAC + compteur
+    A-->>T: Page profil (HTML léger, badge « authentique »)
+    A--)A: Événement scan (asynchrone)
     V->>T: « Ajouter aux contacts »
-    T->>E: GET /c/AbC123x.vcf
+    T->>E: GET /c/<cardId>.vcf
     E-->>T: text/vcard
 ```
 
@@ -293,8 +303,8 @@ sequenceDiagram
 
 | Risque | Mesure |
 |---|---|
-| Réécriture de la puce par un tiers | Verrouillage permanent après encodage (lock bits) |
-| Clonage de carte (copie de l'URL) | NTAG 424 DNA + SUN : URL unique à chaque scan, CMAC vérifié serveur, compteur anti-rejeu |
+| Réécriture de la puce par un tiers | Écriture et configuration réservées à la clé 0, diversifiée par carte |
+| Clonage de carte (copie de l'URL) | NTAG 424 DNA + SUN (sur toutes les cartes) : URL unique à chaque scan, CMAC vérifié serveur, compteur anti-rejeu |
 | Énumération des profils | `cardId` aléatoire, rate-limiting par IP, profils non indexés (`noindex`) par défaut |
 | Carte perdue/volée | Désactivation instantanée depuis l'espace client |
 | Fuite des clés AES | Clés chiffrées par KMS, jamais en clair dans la base ni les logs ; diversification par carte |
@@ -318,7 +328,8 @@ sequenceDiagram
 | Analytics | Table d'événements Postgres au départ, puis ClickHouse | Coût faible au démarrage, scalable |
 | Paiement | Stripe (Checkout + Billing pour les abonnements) | Hardware + récurrent dans un seul outil |
 | E-mail | Resend / Brevo | Transactionnel |
-| Encodage | App mobile (React Native + `react-native-nfc-manager`) ou poste USB ACR1252U | Encodage interne en petite série |
+| Encodage | Poste dédié + ACR1252U + script Python (`pyscard`) | Encodage NTAG 424 en interne |
+| Secrets SUN | KMS (Scaleway / AWS) ou Vault | 3 clés maîtres, jamais dans le code |
 | Hébergement | UE (Scaleway, OVH, ou Vercel/AWS région Paris/Francfort) | RGPD |
 | Observabilité | Sentry + logs structurés + uptime monitoring de `/c/*` | La page de scan est le produit |
 
@@ -328,12 +339,12 @@ sequenceDiagram
 
 | Offre | Contenu | Prix indicatif |
 |---|---|---|
-| **Carte seule** | Carte personnalisée NTAG213 + profil de base gratuit à vie | 19–39 € / carte |
+| **Carte seule** | Carte personnalisée NTAG 424 (anti-clonage) + profil de base gratuit à vie | 24–39 € / carte |
 | **Pro** (abonnement) | Statistiques, échange de contact/leads, multi-profils, thèmes, Wallet | 3–6 € / mois |
-| **Premium** | Carte métal ou bois, NTAG 424 anti-clonage | 49–99 € / carte |
+| **Premium** | Carte métal ou bois | 49–99 € / carte |
 | **Entreprise** | Charte imposée, gestion centralisée, import CSV, SSO, synchro CRM, facturation | sur devis, par utilisateur / mois |
 
-Coûts unitaires (ordre de grandeur en volume) : carte PVC imprimée avec puce NTAG213 ≈ 0,50–2 € ;
+Coûts unitaires (ordre de grandeur en volume) : carte PVC imprimée avec puce NTAG 424 DNA ≈ 1,50–3 € ;
 le gros de la marge vient de la personnalisation et de l'abonnement, rendu possible par l'**URL dynamique**.
 
 Leviers de croissance : chaque scan est une vitrine (« Créez votre carte » discret en pied de page
@@ -345,16 +356,17 @@ du profil, désactivable en Pro), parrainage, offres équipes.
 
 | Phase | Périmètre |
 |---|---|
-| **MVP (2–3 mois)** | Modèles de carte fixes + personnalisation texte/logo, NTAG213, QR, page profil + vCard, espace client (édition, activation, désactivation), Stripe, encodage interne, un imprimeur partenaire |
+| **MVP (2–3 mois)** | Modèles de carte fixes + personnalisation texte/logo, NTAG 424 + SUN, QR, page profil + vCard, espace client (édition, activation, désactivation), Stripe, encodage interne, un imprimeur partenaire |
 | **V2** | Configurateur visuel complet, abonnement Pro (stats, leads), multi-profils, Apple/Google Wallet, supports bois/métal |
-| **V3** | Offre Entreprise (organisations, CSV, SSO, CRM), NTAG 424 DNA + SUN, API publique & webhooks, marque blanche pour revendeurs |
+| **V3** | Offre Entreprise (organisations, CSV, SSO, CRM), API publique & webhooks, marque blanche pour revendeurs |
 
 ---
 
-## 11. Décisions à valider
+## 11. Décisions
 
-1. **Encodage interne ou chez l'imprimeur** dès le départ ? (interne = contrôle qualité, imprimeur = volume).
-2. **Domaine court** de redirection (ex. `c.votremarque.fr`) — il est gravé à vie dans les puces :
-   à choisir avant la première production, et à ne **jamais** laisser expirer.
-3. Niveau de sécurité par défaut : NTAG213 (simple, pas cher) vs NTAG 424 (anti-clonage).
-4. Profil de base **gratuit à vie** inclus dans le prix de la carte (recommandé : c'est la promesse client).
+| Sujet | Décision |
+|---|---|
+| Marque / domaine | **Tapikard** : `tapikard.com` (dans les puces, à ne **jamais** laisser expirer) + `tapikard.fr` |
+| Puce | **NTAG 424 DNA** + SUN sur toutes les cartes |
+| Encodage | **En interne**, voir le [guide](encodage-ntag424.md) |
+| Profil de base | Gratuit à vie, inclus dans le prix de la carte (recommandé) |
