@@ -1,0 +1,138 @@
+import type { DatabaseSync, SQLInputValue } from "node:sqlite";
+import fs from "node:fs";
+import path from "node:path";
+import { seedDemo } from "./seed";
+
+// node:sqlite est chargé hors bundler (module natif de Node ≥ 22).
+const { DatabaseSync: Database } = process.getBuiltinModule("node:sqlite") as typeof import("node:sqlite");
+
+const SCHEMA = `
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT,
+  is_admin INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS login_tokens (
+  token_hash TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at TEXT NOT NULL,
+  used INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS profiles (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  label TEXT NOT NULL DEFAULT 'Professionnel',
+  display_name TEXT NOT NULL DEFAULT '',
+  title TEXT, company TEXT, bio TEXT,
+  phone TEXT, mobile TEXT, email TEXT, website TEXT, address TEXT,
+  avatar TEXT,
+  links TEXT NOT NULL DEFAULT '[]',
+  accent TEXT NOT NULL DEFAULT '#5b3df5',
+  dark INTEGER NOT NULL DEFAULT 0,
+  lead_capture INTEGER NOT NULL DEFAULT 1,
+  is_public INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS orders (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  profile_id TEXT REFERENCES profiles(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'pending_payment',
+  design TEXT NOT NULL,
+  material TEXT NOT NULL, finish TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  amount_cents INTEGER NOT NULL,
+  shipping TEXT NOT NULL,
+  proof_comment TEXT,
+  tracking TEXT,
+  stripe_session_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  paid_at TEXT, proof_approved_at TEXT, shipped_at TEXT
+);
+CREATE TABLE IF NOT EXISTS batches (
+  id TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  note TEXT
+);
+CREATE TABLE IF NOT EXISTS cards (
+  id TEXT PRIMARY KEY,
+  order_id TEXT REFERENCES orders(id),
+  user_id TEXT REFERENCES users(id),
+  profile_id TEXT REFERENCES profiles(id) ON DELETE SET NULL,
+  batch_id TEXT REFERENCES batches(id),
+  label TEXT,
+  uid TEXT UNIQUE,
+  status TEXT NOT NULL DEFAULT 'provisioned',
+  activation_code TEXT NOT NULL,
+  last_counter INTEGER NOT NULL DEFAULT -1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  encoded_at TEXT, activated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS scan_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  card_id TEXT REFERENCES cards(id) ON DELETE CASCADE,
+  profile_id TEXT,
+  at TEXT NOT NULL DEFAULT (datetime('now')),
+  channel TEXT NOT NULL,
+  verified INTEGER NOT NULL DEFAULT 0,
+  action TEXT NOT NULL DEFAULT 'view',
+  target TEXT,
+  country TEXT,
+  device TEXT
+);
+CREATE INDEX IF NOT EXISTS scan_events_profile_at ON scan_events(profile_id, at);
+CREATE TABLE IF NOT EXISTS leads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  card_id TEXT,
+  name TEXT NOT NULL, email TEXT, phone TEXT, company TEXT, message TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+`;
+
+const g = globalThis as unknown as { __tapikardDb?: DatabaseSync };
+
+export function db(): DatabaseSync {
+  if (g.__tapikardDb) return g.__tapikardDb;
+  const file = process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "tapikard.db");
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const d = new Database(file);
+  d.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
+  d.exec(SCHEMA);
+  g.__tapikardDb = d;
+  const demo = process.env.SEED_DEMO ?? (process.env.NODE_ENV === "production" ? "0" : "1");
+  if (demo === "1") seedDemo();
+  return d;
+}
+
+type P = SQLInputValue | boolean | undefined;
+const norm = (ps: P[]) => ps.map((p) => (p === undefined ? null : typeof p === "boolean" ? (p ? 1 : 0) : p));
+
+// node:sqlite renvoie des objets sans prototype, que React refuse de transmettre aux composants client.
+const plain = <T>(row: unknown) => ({ ...(row as object) }) as T;
+
+export function all<T>(sql: string, ...params: P[]): T[] {
+  return db().prepare(sql).all(...norm(params)).map((r) => plain<T>(r));
+}
+export function get<T>(sql: string, ...params: P[]): T | undefined {
+  const row = db().prepare(sql).get(...norm(params));
+  return row ? plain<T>(row) : undefined;
+}
+export function run(sql: string, ...params: P[]) {
+  return db().prepare(sql).run(...norm(params));
+}
+export function tx<T>(fn: () => T): T {
+  const d = db();
+  d.exec("BEGIN");
+  try {
+    const r = fn();
+    d.exec("COMMIT");
+    return r;
+  } catch (e) {
+    d.exec("ROLLBACK");
+    throw e;
+  }
+}

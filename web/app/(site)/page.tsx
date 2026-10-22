@@ -1,0 +1,122 @@
+import Link from "next/link";
+import { CardPreview } from "@/components/CardPreview";
+import { DEFAULT_DESIGN, MATERIALS, euros } from "@/lib/catalog";
+
+const demoQr = "https://tapikard.com/q/demo424sun";
+
+export default function Home() {
+  return (
+    <>
+      <section className="hero">
+        <div className="container">
+          <div>
+            <span className="badge badge-brand">Puce NFC sécurisée NTAG 424 DNA</span>
+            <h1 style={{ marginTop: 16 }}>Votre carte de visite,<br />partagée d’un simple geste.</h1>
+            <p className="lead">
+              Une carte imprimée à votre image, avec une puce NFC. Approchez-la d’un téléphone : vos coordonnées s’affichent
+              et s’enregistrent en un clic. Sans application. Modifiable à vie, sans réimpression.
+            </p>
+            <div className="row" style={{ marginTop: 24 }}>
+              <Link href="/creer" className="btn btn-lg">Créer ma carte</Link>
+              <Link href="/q/demo424sun" className="btn btn-lg btn-secondary">Voir un profil exemple</Link>
+            </div>
+            <p className="muted" style={{ marginTop: 16, fontSize: ".9rem" }}>
+              À partir de {euros(MATERIALS.pvc_blanc.unitCents)} · Profil en ligne gratuit à vie · iPhone et Android
+            </p>
+          </div>
+          <div className="hero-cards" aria-hidden>
+            <CardPreview className="back" design={{ ...DEFAULT_DESIGN }} side="verso" qrUrl={demoQr} />
+            <CardPreview className="front" design={{ ...DEFAULT_DESIGN }} side="recto" qrUrl={demoQr} />
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="fonctionnement">
+        <div className="container">
+          <div className="section-title">
+            <h2>Comment ça marche</h2>
+            <p className="muted">Trois étapes, et vous ne distribuez plus jamais une carte obsolète.</p>
+          </div>
+          <div className="grid grid-3">
+            {[
+              ["Personnalisez", "Choisissez la matière, le modèle, vos couleurs et votre logo. Saisissez vos coordonnées : votre profil en ligne est créé en même temps."],
+              ["Recevez", "Nous imprimons, encodons et vérifions chaque puce dans notre atelier. Validez le BAT, vos cartes partent sous quelques jours."],
+              ["Partagez", "Approchez la carte d’un téléphone ou faites scanner le QR code. Votre contact s’enregistre en un clic, et vous suivez vos statistiques."],
+            ].map(([t, d], i) => (
+              <div className="panel" key={t}>
+                <div className="step-num">{i + 1}</div>
+                <h3>{t}</h3>
+                <p className="muted" style={{ margin: 0 }}>{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container grid grid-2" style={{ alignItems: "center" }}>
+          <div>
+            <h2>Une carte, mille mises à jour</h2>
+            <p className="muted">La puce contient un lien vers votre profil, pas vos coordonnées figées. Changez de poste, de numéro ou de photo : la carte que vous avez donnée l’an dernier affiche toujours vos informations à jour.</p>
+            <ul className="checks">
+              <li>Bouton « Ajouter aux contacts » (vCard avec photo)</li>
+              <li>Appel, email, WhatsApp, itinéraire et liens en un geste</li>
+              <li>Formulaire d’échange : vos interlocuteurs vous laissent leurs coordonnées</li>
+              <li>Statistiques de scans, contacts reçus et export CSV</li>
+              <li>Carte perdue ? Désactivez-la en un clic</li>
+            </ul>
+          </div>
+          <div className="panel">
+            <h3>Infalsifiable, pour de vrai</h3>
+            <p className="muted">Chaque carte embarque une puce <strong>NTAG 424 DNA</strong>. À chaque scan, elle signe cryptographiquement une URL unique (AES-128). Une carte copiée ou un lien recopié sont détectés : seul le scan de la vraie carte affiche le badge « Carte authentique ».</p>
+            <p className="muted" style={{ margin: 0 }}>Données hébergées en Europe, aucun cookie de suivi pour vos visiteurs.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="tarifs">
+        <div className="container">
+          <div className="section-title">
+            <h2>Tarifs</h2>
+            <p className="muted">Payez la carte une fois. Le profil en ligne est inclus à vie.</p>
+          </div>
+          <div className="grid grid-4">
+            {(Object.keys(MATERIALS) as (keyof typeof MATERIALS)[]).map((m, i) => (
+              <div className={`panel ${i === 0 ? "plan-featured" : ""}`} key={m}>
+                {i === 0 && <span className="badge badge-brand">Le plus choisi</span>}
+                <h3 style={{ marginTop: 8 }}>{MATERIALS[m].label}</h3>
+                <div className="price">{euros(MATERIALS[m].unitCents)}</div>
+                <p className="muted" style={{ fontSize: ".9rem" }}>{MATERIALS[m].description}</p>
+                <Link href={`/creer?matiere=${m}`} className={`btn btn-block ${i === 0 ? "" : "btn-secondary"}`}>Choisir</Link>
+              </div>
+            ))}
+          </div>
+          <p className="muted" style={{ textAlign: "center", marginTop: 18 }}>
+            Dégressif : −10 % dès 2 cartes, −20 % dès 5, −30 % dès 10, −40 % dès 25. Offre équipes et entreprises sur demande.
+          </p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container" style={{ maxWidth: 760 }}>
+          <h2 style={{ textAlign: "center" }}>Questions fréquentes</h2>
+          {[
+            ["Faut-il une application ?", "Non. Les iPhone (XS et plus récents) et la quasi-totalité des Android lisent la carte nativement. Pour les autres, le QR code au verso ouvre le même profil."],
+            ["Puis-je modifier mes informations après l’impression ?", "Oui, à tout moment et autant de fois que vous le souhaitez depuis votre espace. La carte n’a pas besoin d’être réimprimée."],
+            ["Que se passe-t-il si je perds ma carte ?", "Déclarez-la perdue depuis votre espace : elle n’affiche plus aucune donnée personnelle. Vous pouvez en commander une autre reliée au même profil."],
+            ["La carte métal fonctionne-t-elle vraiment ?", "Oui. Nos cartes métal intègrent un inlay ferrite qui isole l’antenne du métal."],
+            ["Mes données sont-elles protégées ?", "Hébergement en Europe, vous choisissez chaque information publiée, et les statistiques ne conservent ni adresse IP ni cookie de suivi."],
+          ].map(([q, a]) => (
+            <details className="faq" key={q}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+          <div style={{ textAlign: "center", marginTop: 32 }}>
+            <Link href="/creer" className="btn btn-lg">Créer ma carte maintenant</Link>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
