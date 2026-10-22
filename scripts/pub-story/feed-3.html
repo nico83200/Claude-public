@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Publicité story v3 (1080 × 1920) : utilisatrice à la fenêtre, téléphone en main ; les notifications de l'appli
+   empilées sous la photo comme sur un écran verrouillé. Bas (≈ 260 px) libre pour l'autocollant Instagram. */
+@font-face{font-family:Fraunces;font-weight:600;src:url(fraunces-600.ttf)}
+@font-face{font-family:Fraunces;font-weight:500;font-style:italic;src:url(fraunces-500-italic.ttf)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;position:relative;background:#0d3122;color:#f6efe2;font-family:Inter,system-ui;-webkit-font-smoothing:antialiased}
+.glow{position:absolute;border-radius:50%;filter:blur(120px)}
+.grain{position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+.brand{position:absolute;left:84px;top:150px;display:flex;align-items:center;gap:18px;font-weight:700;font-size:40px}
+.brand img{width:68px;height:68px;border-radius:22%;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+h1{position:absolute;left:84px;top:280px;font-family:Fraunces;font-weight:600;font-size:116px;line-height:1;letter-spacing:-.035em}
+h1 em{font-style:italic;font-weight:500;color:#d9b37e}
+.photo{position:absolute;left:60px;top:560px;width:960px;height:640px;border-radius:44px;overflow:hidden;box-shadow:0 40px 90px rgba(0,0,0,.45)}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:60% 40%;display:block}
+.stack{position:absolute;left:110px;top:1060px;width:860px;display:flex;flex-direction:column;gap:16px;z-index:2}
+.note{display:flex;align-items:center;gap:20px;padding:22px 28px 22px 22px;border-radius:32px;background:rgba(250,248,243,.97);color:#0d3122;box-shadow:0 22px 50px rgba(0,0,0,.35)}
+.note img{flex:none;width:60px;height:60px;border-radius:15px}
+.note div{flex:1}.note small{display:flex;justify-content:space-between;font-size:21px;font-weight:600;color:#7d7466}
+.note b{display:block;font-size:30px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+.note:nth-child(2){margin:0 22px;opacity:.97}.note:nth-child(3){margin:0 44px}
+.pitch{position:absolute;left:84px;top:1520px;width:912px;font-size:38px;line-height:1.35;font-weight:500;color:#e6decd}
+.pitch b{color:#fff;font-weight:700}
+.cta{position:absolute;left:84px;top:1640px;display:flex;align-items:center;gap:22px}
+.cta div{padding:28px 46px;border-radius:999px;background:#d9b37e;color:#0d3122;font-weight:800;font-size:38px;box-shadow:0 16px 36px rgba(0,0,0,.3)}
+.cta p{font-size:30px;line-height:1.3;color:#cfc6b3}.cta p b{color:#fff}
+</style><style>
+/* Format fil Instagram 4:5 (1080 × 1350) : mêmes éléments resserrés. */
+html,body{height:1350px}.brand{top:70px}h1{top:150px;font-size:100px}
+.photo{top:390px;height:540px}.stack{top:830px}.note:nth-child(3){display:none}
+.pitch{top:1080px;font-size:34px}.cta{top:1170px}.cta div{padding:24px 40px;font-size:34px}
+</style></head><body>
+<div class="glow" style="width:900px;height:900px;right:-420px;top:-300px;background:#d9b37e;opacity:.28"></div>
+<div class="glow" style="width:900px;height:900px;left:-450px;top:1000px;background:#2f7a57;opacity:.55"></div>
+<div class="grain"></div>
+<div class="brand"><img src="icon-192.png">Jack&amp;Cie</div>
+<h1>Votre cheval,<br><em>dans votre poche.</em></h1>
+<div class="photo"><img src="utilisatrice-fenetre-hd.jpg"></div>
+<div class="stack">
+  <div class="note"><img src="icon-192.png"><div><small><span>JACK&amp;CIE</span><span>maintenant</span></small><b>Uni : maréchal demain à 10 h</b></div></div>
+  <div class="note"><img src="icon-192.png"><div><small><span>JACK&amp;CIE</span><span>il y a 5 min</span></small><b>Séance notée : 45 min, plat et barres</b></div></div>
+  <div class="note"><img src="icon-192.png"><div><small><span>JACK&amp;CIE</span><span>hier</span></small><b>Mensualité de Léa reçue · 150 €</b></div></div>
+</div>
+<p class="pitch"><b>Plus rien ne vous échappe.</b></p>
+<div class="cta"><div>Essayer gratuitement</div><p>Ou tout inclus<br>dès <b>6,90 €/mois</b></p></div>
+</body></html>

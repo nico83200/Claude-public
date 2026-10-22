@@ -22,3 +22,8 @@ await b.close();
   const p3 = await b3.newPage({ viewport: { width: 1080, height: 1920 } });
   for (const n of [3, 4, 5, 6]) { await p3.goto('file://' + D + 'story-' + n + '.html'); await p3.waitForTimeout(800); await p3.screenshot({ path: D + 'jackcie-pub-story-v' + n + '.png' }); }
   await b3.close(); }
+// Format fil Instagram 4:5 (1080 × 1350) des versions 2 à 6 : feed-N.html → jackcie-pub-feed-vN.png.
+{ const b4 = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const p4 = await b4.newPage({ viewport: { width: 1080, height: 1350 } });
+  for (const n of [2, 3, 4, 5, 6]) { await p4.goto('file://' + D + 'feed-' + n + '.html'); await p4.waitForTimeout(800); await p4.screenshot({ path: D + 'jackcie-pub-feed-v' + n + '.png' }); }
+  await b4.close(); }
