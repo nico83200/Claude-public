@@ -17,8 +17,8 @@ await b.close();
   const p2 = await b2.newPage({ viewport: { width: 1080, height: 1920 } });
   await p2.goto('file://' + D + 'story-2.html'); await p2.waitForTimeout(800);
   await p2.screenshot({ path: D + 'jackcie-pub-story-v2.png' }); await b2.close(); }
-// Variantes avec les utilisatrices de l'appli : story-3 (fenêtre, fond vert) et story-4 (fond beige).
+// Variantes avec les utilisatrices de l'appli : story-3 (fenêtre, fond vert), story-4 (fond beige) ; versions plus masculines : story-5 (manège), story-6 (cavalier barbu).
 { const b3 = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
   const p3 = await b3.newPage({ viewport: { width: 1080, height: 1920 } });
-  for (const n of [3, 4]) { await p3.goto('file://' + D + 'story-' + n + '.html'); await p3.waitForTimeout(800); await p3.screenshot({ path: D + 'jackcie-pub-story-v' + n + '.png' }); }
+  for (const n of [3, 4, 5, 6]) { await p3.goto('file://' + D + 'story-' + n + '.html'); await p3.waitForTimeout(800); await p3.screenshot({ path: D + 'jackcie-pub-story-v' + n + '.png' }); }
   await b3.close(); }
