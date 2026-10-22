@@ -12,3 +12,8 @@ await p.screenshot({ path: D + 'jackcie-pub-story-photo.png' });
 await p.goto('file://' + D + 'story.html#photo2'); await p.reload(); await p.waitForTimeout(500);
 await p.screenshot({ path: D + 'jackcie-pub-story-photo-2.png' });
 await b.close();
+// Nouvelle version (story-2.html) : fond vert, les deux photos en tirages, notifications de l'appli.
+{ const b2 = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const p2 = await b2.newPage({ viewport: { width: 1080, height: 1920 } });
+  await p2.goto('file://' + D + 'story-2.html'); await p2.waitForTimeout(800);
+  await p2.screenshot({ path: D + 'jackcie-pub-story-v2.png' }); await b2.close(); }

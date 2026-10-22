@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Publicité story v2 (1080 × 1920) : fond vert profond, titre Fraunces, les deux photos en tirages photo
+   entourés des notifications de l'appli. Bas (≈ 260 px) laissé libre pour l'autocollant Instagram. */
+@font-face{font-family:Fraunces;font-weight:600;src:url(fraunces-600.ttf)}
+@font-face{font-family:Fraunces;font-weight:500;font-style:italic;src:url(fraunces-500-italic.ttf)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;position:relative;background:#0d3122;color:#f6efe2;font-family:Inter,system-ui;-webkit-font-smoothing:antialiased}
+.glow{position:absolute;border-radius:50%;filter:blur(120px)}
+.grain{position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+.brand{position:absolute;left:84px;top:150px;display:flex;align-items:center;gap:18px;font-weight:700;font-size:40px;letter-spacing:-.01em}
+.brand img{width:68px;height:68px;border-radius:22%;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+h1{position:absolute;left:84px;top:290px;font-family:Fraunces;font-weight:600;font-size:124px;line-height:.98;letter-spacing:-.035em}
+h1 em{font-style:italic;font-weight:500;color:#d9b37e}
+.print{position:absolute;background:#fbf7ee;padding:22px 22px 86px;border-radius:6px;box-shadow:0 40px 80px rgba(0,0,0,.45),0 6px 14px rgba(0,0,0,.25)}
+.print img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(1.05) contrast(1.03)}
+.print span{position:absolute;left:0;right:0;bottom:24px;text-align:center;font-family:Fraunces;font-style:italic;font-weight:500;font-size:34px;color:#0d3122}
+.p1{left:70px;top:750px;width:560px;height:470px;transform:rotate(-6deg)}
+.p2{left:470px;top:860px;width:560px;height:470px;transform:rotate(5deg)}
+.note{position:absolute;display:flex;align-items:center;gap:18px;padding:20px 28px 20px 20px;border-radius:30px;background:rgba(255,255,255,.96);color:#0d3122;box-shadow:0 22px 50px rgba(0,0,0,.35);z-index:3}
+.note i{flex:none;width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-style:normal;font-size:32px}
+.note small{display:block;font-size:20px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8a6d47}
+.note b{display:block;font-size:29px;font-weight:700;line-height:1.2;letter-spacing:-.01em}
+.n1{left:560px;top:700px;transform:rotate(2deg)}
+.n2{left:40px;top:1225px;transform:rotate(-2deg)}
+.n3{left:600px;top:1335px;transform:rotate(1.5deg)}
+.pitch{position:absolute;left:84px;top:1530px;width:912px;font-size:38px;line-height:1.35;font-weight:500;color:#e6decd}
+.pitch b{color:#fff;font-weight:700}
+.cta{position:absolute;left:84px;top:1640px;display:flex;align-items:center;gap:22px}
+.cta div{padding:28px 46px;border-radius:999px;background:#d9b37e;color:#0d3122;font-weight:800;font-size:38px;box-shadow:0 16px 36px rgba(0,0,0,.3)}
+.cta p{font-size:30px;line-height:1.3;color:#cfc6b3}.cta p b{color:#fff}
+</style></head><body>
+<div class="glow" style="width:900px;height:900px;right:-420px;top:-300px;background:#d9b37e;opacity:.28"></div>
+<div class="glow" style="width:900px;height:900px;left:-450px;top:900px;background:#2f7a57;opacity:.55"></div>
+<div class="grain"></div>
+<div class="brand"><img src="icon-192.png">Jack&amp;Cie</div>
+<h1>Vous montez.<br>On s’occupe<br><em>du reste.</em></h1>
+<div class="print p1"><img src="cavaliere.jpg" style="object-position:55% 40%"><span style="text-align:left;padding-left:44px">Mardi, à l’écurie</span></div>
+<div class="print p2"><img src="cavaliere-2.jpg" style="object-position:55% 50%"><span>Samedi, en balade</span></div>
+<div class="note n1"><i style="background:#f3e6d2">🩺</i><div><small>Rappel</small><b>Vaccin grippe<br>dans 15 jours</b></div></div>
+<div class="note n2"><i style="background:#dcebe2">🔨</i><div><small>Maréchal</small><b>Jeudi, 10 h</b></div></div>
+<div class="note n3"><i style="background:#e7e1f3">🐴</i><div><small>Demi-pension</small><b>Léa monte mardi</b></div></div>
+<p class="pitch">Santé, séances, budget, demi-pension :<br><b>tout votre cheval dans une seule appli.</b></p>
+<div class="cta"><div>Essayer gratuitement</div><p>Ou tout inclus<br>dès <b>6,90 €/mois</b></p></div>
+</body></html>
