@@ -15,7 +15,7 @@ npm run build >/dev/null
 
 echo "→ Copie des fichiers suivis par Git (état de travail courant)"
 mkdir -p "$STAGE"
-git ls-files -co --exclude-standard | grep -vE '^(site/|tests/|\.github/|scripts/|dist/|phpunit\.xml|vite\.config\.js|package(-lock)?\.json|\.editorconfig|\.gitattributes|\.npmrc)' \
+git ls-files -co --exclude-standard | grep -vE '^(site/|tests/|\.claude/|\.agents/|skills-lock\.json|\.github/|scripts/|dist/|phpunit\.xml|vite\.config\.js|package(-lock)?\.json|\.editorconfig|\.gitattributes|\.npmrc)' \
   | while read -r f; do [ -e "$f" ] && mkdir -p "$STAGE/$(dirname "$f")" && cp -p "$f" "$STAGE/$f"; done
 cp -R public/build "$STAGE/public/build"
 
