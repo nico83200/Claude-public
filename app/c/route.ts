@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { get, run } from "@/lib/db";
+import { redirectTo } from "@/lib/redirect";
 import { recordScan } from "@/lib/scans";
 import { makeScanToken } from "@/lib/scanToken";
 import { sunKeys, verifySun } from "@/lib/sun";
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const e = url.searchParams.get("e") ?? "";
   const m = url.searchParams.get("m") ?? "";
-  const go = (path: string) => NextResponse.redirect(new URL(path, req.url), 302);
+  const go = (path: string) => redirectTo(path);
 
   let uid: string, counter: number;
   try {

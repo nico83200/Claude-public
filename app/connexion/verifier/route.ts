@@ -1,11 +1,10 @@
-import { NextResponse } from "next/server";
 import { consumeLoginToken, startSession } from "@/lib/auth";
+import { redirectTo } from "@/lib/redirect";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const userId = consumeLoginToken(url.searchParams.get("token") ?? "");
-  if (!userId) return NextResponse.redirect(new URL("/connexion?erreur=lien", req.url));
+  if (!userId) return redirectTo("/connexion?erreur=lien");
   await startSession(userId);
-  const next = url.searchParams.get("next") ?? "/compte";
-  return NextResponse.redirect(new URL(next.startsWith("/") && !next.startsWith("//") ? next : "/compte", req.url));
+  return redirectTo(url.searchParams.get("next") ?? "/compte");
 }
