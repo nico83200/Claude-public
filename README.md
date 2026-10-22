@@ -66,7 +66,7 @@ Copier `.env.example` en `.env.local` (en local) ou saisir les variables dans l'
 - `SUN_K_META` et `SUN_MASTER_K1`
 - `ENCODING_API_KEY`
 - `APP_URL=https://tapikard.com`
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` et `EMAIL_FROM` (ou `RESEND_API_KEY`) : la connexion se fait par lien envoyé par email.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` et `EMAIL_FROM` : la connexion se fait par lien envoyé par email.
 
 Variables optionnelles :
 

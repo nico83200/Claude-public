@@ -327,7 +327,7 @@ sequenceDiagram
 | Stockage | S3 compatible (photos, logos, BAT) | Standard |
 | Analytics | Table d'événements Postgres au départ, puis ClickHouse | Coût faible au démarrage, scalable |
 | Paiement | Stripe (Checkout + Billing pour les abonnements) | Hardware + récurrent dans un seul outil |
-| E-mail | Resend / Brevo | Transactionnel |
+| E-mail | SMTP (boîte mail Hostinger, via nodemailer) | Transactionnel, sans service tiers |
 | Encodage | Poste dédié + ACR1252U + script Python (`pyscard`) | Encodage NTAG 424 en interne |
 | Secrets SUN | KMS (Scaleway / AWS) ou Vault | 3 clés maîtres, jamais dans le code |
 | Hébergement | UE (Scaleway, OVH, ou Vercel/AWS région Paris/Francfort) | RGPD |

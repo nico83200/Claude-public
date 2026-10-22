@@ -108,6 +108,8 @@ Le script d'encodage (voir `docs/encodage-ntag424.md` dans le dépôt) appelle :
 
 | Symptôme | Solution |
 |---|---|
+| `GLIBC_2.29 not found` / `Failed to load next.config.ts` pendant le build | Ancien zip : utilisez la dernière version (configuration `next.config.mjs` et build webpack, compatibles avec les serveurs Hostinger) |
+| Le build affiche « using WASM bindings » et prend quelques minutes | Normal sur l'hébergement mutualisé : le compilateur natif n'y fonctionne pas, la version WebAssembly prend le relais |
 | Erreur `No such built-in module: node:sqlite` dans les journaux | Passez la version de Node.js à **24.x** dans les paramètres de build, puis redéployez |
 | Le build échoue sur une erreur de mémoire | Redéployez une fois (pics passagers). Si l'erreur persiste, contactez le support Hostinger ou passez à une offre Cloud |
 | Je ne reçois pas l'email de connexion | Vérifiez `SMTP_USER`, `SMTP_PASS` et que `EMAIL_FROM` utilise la même adresse que `SMTP_USER`. Regardez dans les spams |

@@ -1,6 +1,8 @@
-import type { NextConfig } from "next";
+// Configuration en JavaScript (et non TypeScript) : sur les hébergements mutualisés au système ancien
+// (Hostinger : glibc < 2.29), le compilateur natif SWC ne se charge pas et next.config.ts ne peut pas être compilé.
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // NEXT_OUTPUT=standalone : build autonome pour un VPS (`node server.js`, voir deploy/build-package.sh).
   // Sans cette variable (Hostinger), build classique lancé avec `npm start`.
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,

@@ -48,7 +48,7 @@ Laissez `SEED_DEMO` absent (pas de données de démonstration en production) et 
 
 ⚠️ Sauvegardez `SUN_K_META` et `SUN_MASTER_K1` hors du serveur (coffre + papier). Si vous les perdez, aucune carte déjà vendue ne pourra plus être vérifiée.
 
-**Emails (indispensable pour recevoir les liens de connexion)** : `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` — ou `RESEND_API_KEY`.
+**Emails (indispensable pour recevoir les liens de connexion)** : `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`.
 
 Optionnel : `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` (sinon le paiement est simulé).
 
