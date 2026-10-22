@@ -31,9 +31,9 @@ Il est validé avec le vecteur de test officiel NXP (AN12196) : `python3 tools/s
 
 | Élément | Recommandation | Prix indicatif |
 |---|---|---|
-| Lecteur/encodeur NFC USB (PC/SC) | **ACS ACR1252U** (ou Identiv uTrust 3700 F) | 35–50 € |
-| Douchette QR USB | n'importe quel modèle 2D en « émulation clavier » | 20–40 € |
-| Ordinateur | Linux, macOS ou Windows avec Python 3 ; **dédié**, chiffré, sans autre usage | — |
+| Lecteur/encodeur NFC USB (PC/SC) | **ACR122U** (ACS ou GOTOP) — ou ACS ACR1252U, plus récent | 30–50 € |
+| Douchette QR USB (facultative) | n'importe quel modèle 2D en « émulation clavier » ; sinon on tape l'identifiant ou on utilise le mode `--lot` | 20–40 € |
+| Ordinateur | Mac (ou Linux/Windows) avec Python 3.9+ ; idéalement dédié, disque chiffré (FileVault) | — |
 | Cartes | Imprimées par l'imprimeur avec inlay **NTAG 424 DNA** vierge (clés d'usine) | — |
 
 À demander à l'imprimeur :
@@ -127,19 +127,85 @@ Faites aussi un test réel avec un iPhone et un Android sur les premières carte
 
 ---
 
-## 5. Mise en route progressive
+## 5. Le script d'encodage (`tools/encodeur/`)
 
-| Étape | Outil | Objectif |
-|---|---|---|
-| 1. Découverte (5–10 cartes de test) | **NXP TagXplorer** (logiciel PC gratuit, compte NXP) + ACR1252U | Configurer SUN à la main pour comprendre chaque réglage ; lire la carte avec l'app **NXP TagInfo** |
-| 2. Vérification | `tools/sun_verify.py` + scan au téléphone | Vérifier que le serveur accepte les URL générées |
-| 3. Production | Script Python (`pyscard`) qui automatise la section 4 | Encodage en série, liaison QR ↔ UID, appel de l'API |
+Le script `encodeur.py` fait toute la séquence de la section 4 et l'enregistre sur le site.
+Son protocole est vérifié octet par octet contre les exemples chiffrés de NXP (AN12196),
+puis testé de bout en bout sur une carte NTAG 424 émulée (`python3 encodeur.py --test`).
 
-Le projet open source **sdm-backend** de nfc-developer sur GitHub est une bonne source d'inspiration
-pour la vérification SUN. Les outils de la communauté « Bolt Card », qui programment des NTAG 424 en
-SUN, peuvent servir de référence pour le script d'encodage. Vérifiez la licence avant de réutiliser du code.
+### Installation sur Mac (une seule fois, 10 min)
 
----
+1. **Branchez le lecteur ACR122U** en USB. macOS le reconnaît sans pilote dans la plupart des cas.
+2. Ouvrez le **Terminal** (⌘ + Espace → « Terminal ») et placez-vous dans le dossier du script :
+   ```bash
+   git clone https://github.com/nico83200/Claude-public.git tapikard   # ou téléchargez le dépôt en zip
+   cd tapikard/tools/encodeur
+   ```
+3. Créez l'environnement Python et installez les deux dépendances :
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   python3 -m pip install -r requirements.txt
+   ```
+   Si `python3` est introuvable, macOS propose d'installer les « outils de ligne de commande » : acceptez.
+4. Vérifiez que le lecteur est vu :
+   ```bash
+   python3 encodeur.py --lecteurs        # doit afficher « ACS ACR122U PICC Interface » ou similaire
+   python3 encodeur.py --test            # 14 tests, tous « ok »
+   ```
+5. Créez la configuration :
+   ```bash
+   cp encodeur.env.example encodeur.env
+   open -e encodeur.env
+   ```
+   Renseignez `TAPIKARD_URL` (votre site, **gravé à vie dans les puces**), `ENCODING_API_KEY`, `SUN_K_META` et
+   `SUN_MASTER_K1` (**les mêmes valeurs que sur Hostinger**), et générez `SUN_MASTER_K0` avec `openssl rand -hex 16`.
+   Ce fichier ne doit jamais être envoyé sur GitHub (il est ignoré par git).
+
+À chaque nouvelle session de Terminal : `cd tapikard/tools/encodeur && source .venv/bin/activate`.
+
+### Encoder un lot
+
+1. Back-office → **Production & encodage** → créez le lot → **CSV**, enregistrez-le (ex. dans Téléchargements).
+2. Lancez :
+   ```bash
+   python3 encodeur.py --lot ~/Downloads/LOT-20261022-ABCD.csv
+   ```
+3. Le script affiche la carte attendue (« Posez la carte **Ab3dE5gH7j** ») : posez la carte imprimée **dont le QR code
+   porte cet identifiant**, attendez le ✓ vert (2 à 3 secondes), retirez-la, passez à la suivante.
+
+Sans CSV, `python3 encodeur.py` demande l'identifiant de chaque carte : scannez son QR code avec une douchette
+(ou tapez l'identifiant imprimé), puis posez la carte.
+
+Pour chaque carte, le script :
+- écrit l'URL, configure SUN, installe les 5 clés (section 4) ;
+- relit la carte comme un téléphone et vérifie la signature ;
+- l'enregistre sur le site (`POST /api/encodage`) ;
+- **rejoue le scan auprès du site** : si le site ne reconnaît pas la signature (clés différentes entre le poste et
+  Hostinger), le script s'arrête immédiatement, pour ne pas produire une série de cartes inutilisables ;
+- note le résultat dans `encodage-journal.csv`.
+
+Une carte en échec peut être reposée et relancée sans risque : le script reprend une carte partiellement
+configurée (par exemple retirée trop tôt) avec ses clés Tapikard.
+
+### Vérifier une carte
+
+```bash
+python3 encodeur.py --verifier
+```
+Lit les cartes posées sur le lecteur sans les modifier et indique si leur signature est valide, avec l'UID et le compteur.
+
+### Dépannage
+
+| Symptôme | Solution |
+|---|---|
+| `Aucun lecteur détecté` | Débranchez/rebranchez le lecteur (sans hub USB si possible). Si le problème persiste, installez le pilote macOS « ACR122U » depuis le site d'ACS (acs.com.hk → Support → Drivers), puis redémarrez |
+| `pyscard n'est pas installé` | Activez l'environnement (`source .venv/bin/activate`) puis `python3 -m pip install -r requirements.txt`. Si l'installation de pyscard échoue : `brew install swig` puis recommencez |
+| Le lecteur bipe mais le script attend toujours | Certains clones d'ACR122U gèrent mal les cartes ISO 14443-4. Essayez `python3 encodeur.py --verifier` avec une carte NTAG 424 ; en cas d'erreur `6300`/`6A81`, utilisez un lecteur ACS d'origine (ACR122U ou ACR1252U) |
+| `erreur d'authentification` sur une carte neuve | La carte n'est pas une NTAG 424 DNA vierge (vérifiez avec l'app NXP TagInfo) ou elle a été configurée ailleurs |
+| `CERTIFICATE_VERIFY_FAILED` | Python installé depuis python.org : lancez « Install Certificates.command » dans le dossier Applications/Python 3.x |
+| `Le site ne reconnaît pas la signature` | `SUN_K_META` / `SUN_MASTER_K1` du poste différentes de celles de Hostinger : corrigez avant de continuer |
+| Carte encodée sans connexion Internet | `python3 encodeur.py --hors-ligne`, puis saisissez l'UID (journal) dans le back-office → Production → « Saisie manuelle » |
 
 ## 6. Côté serveur
 
@@ -163,6 +229,7 @@ SUN, peuvent servir de référence pour le script d'encodage. Vérifiez la licen
 - [ ] Domaines `tapikard.com` et `tapikard.fr` achetés, en **renouvellement automatique** sur 10 ans
 - [ ] Marque « Tapikard » vérifiée et déposée (INPI / EUIPO, classes 16, 35, 42)
 - [ ] 3 secrets générés, sauvegardés en double (coffre numérique + papier)
-- [ ] 10 cartes de test configurées à la main avec TagXplorer, et vérifiées avec un iPhone et un Android
-- [ ] Script d'encodage testé sur 50 cartes, avec 0 échec de vérification
+- [ ] `python3 encodeur.py --test` : tous les tests « ok »
+- [ ] 3 à 5 cartes de test encodées avec le script, puis scannées avec un iPhone et un Android (badge « Carte authentique »)
+- [ ] `SUN_MASTER_K0` sauvegardée avec les deux autres clés
 - [ ] CSV `cardId → URL QR` transmis à l'imprimeur, BAT du QR validé

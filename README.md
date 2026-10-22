@@ -8,6 +8,7 @@ Application web Next.js 16 (App Router) + TypeScript ; base SQLite intégrée à
 - [Architecture du système](docs/architecture-carte-visite-nfc.md)
 - [Guide d'encodage des cartes NTAG 424 DNA](docs/encodage-ntag424.md)
 - [Mise en ligne sur Hostinger](deploy/HOSTINGER.md) · [Installation sur un VPS](deploy/INSTALL.md)
+- [`tools/encodeur/`](tools/encodeur/) — **script d'encodage des cartes** (Python, lecteur ACR122U) : `python3 encodeur.py --lot LOT.csv`
 - [`tools/sun_verify.py`](tools/sun_verify.py) — vérification SUN en Python (`python3 tools/sun_verify.py` lance le test NXP)
 - [Captures d'écran](docs/captures/)
 

@@ -21,7 +21,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
           <li><strong>Commande payée.</strong> Personnalisée : le client valide son BAT depuis sa page de commande (ou vous le validez pour lui dans Commandes). Basic : rien à valider.</li>
           <li><strong>Créer un lot</strong> (section 1 ci-dessous) : regroupe toutes les cartes prêtes à produire. Pour du stock Basic sans commande, utilisez « Créer un lot de stock ».</li>
           <li><strong>Télécharger le CSV du lot</strong> (section 2) et l’envoyer à l’imprimeur avec les BAT : chaque ligne donne l’URL du QR code à imprimer (unique par carte) et le code d’activation de l’encart.</li>
-          <li><strong>Encoder chaque carte imprimée</strong> avec le lecteur NFC : le script du poste écrit la puce NTAG 424, puis enregistre la carte ici (section 3). La barre « encodées » du lot avance.</li>
+          <li><strong>Encoder chaque carte imprimée</strong> avec le lecteur NFC (ACR122U) : sur le Mac du poste d’encodage, lancez <code>python3 encodeur.py --lot LOT-….csv</code> (dossier <code>tools/encodeur</code>, voir <code>docs/encodage-ntag424.md</code>) et posez les cartes une à une. Chaque carte est écrite, vérifiée et enregistrée ici automatiquement ; la barre « encodées » du lot avance.</li>
           <li><strong>Expédier</strong> : Commandes → la commande → numéro de suivi → « Marquer expédiée » (possible quand toutes ses cartes sont encodées).</li>
           <li><strong>Le client active</strong> sa carte en la scannant à réception.</li>
         </ol>

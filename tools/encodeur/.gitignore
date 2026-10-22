@@ -1,0 +1,4 @@
+encodeur.env
+encodage-journal.csv
+.venv/
+__pycache__/
