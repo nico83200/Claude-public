@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0d3122; }
+      #root { position: relative; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <!-- Publicité Jack&Cie, 30 s, 1080 × 1920 : trois scènes, les sous-titres, la voix off et quelques bruitages. -->
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+      <div id="papier" data-composition-id="papier" data-composition-src="compositions/papier.html"
+        data-start="0" data-duration="7.9" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="appli" data-composition-id="appli" data-composition-src="compositions/appli.html"
+        data-start="7.9" data-duration="15.9" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="fin" data-composition-id="fin" data-composition-src="compositions/fin.html"
+        data-start="23.8" data-duration="6.2" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="soustitres" data-composition-id="soustitres" data-composition-src="compositions/soustitres.html"
+        data-start="0" data-duration="30" data-track-index="2" data-track-kind="captions" data-width="1080" data-height="1920"></div>
+
+      <!-- Voix off (Kokoro, voix française « Siwis ») : une phrase par fichier, placée sur sa scène. -->
+      <audio id="voix-1" class="clip" src="assets/voice/l1.wav" data-start="0.3" data-duration="2.3" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-2" class="clip" src="assets/voice/l2.wav" data-start="2.9" data-duration="4.69" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-3" class="clip" src="assets/voice/l3.wav" data-start="7.9" data-duration="4.07" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-4" class="clip" src="assets/voice/l4.wav" data-start="12.3" data-duration="3.58" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-5" class="clip" src="assets/voice/l5.wav" data-start="16.2" data-duration="1.7" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-6" class="clip" src="assets/voice/l6.wav" data-start="18.2" data-duration="1.79" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-7" class="clip" src="assets/voice/l7.wav" data-start="20.3" data-duration="3.28" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-8" class="clip" src="assets/voice/l8.wav" data-start="23.9" data-duration="4.26" data-track-index="3" data-volume="1"></audio>
+      <audio id="voix-9" class="clip" src="assets/voice/l9.wav" data-start="28.4" data-duration="1.34" data-track-index="3" data-volume="1"></audio>
+
+      <!-- Bruitages : chacun a sa cause à l'écran. -->
+      <audio id="sfx-carnet" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="2.95" data-duration="0.57" data-track-index="4" data-volume="0.35"></audio>
+      <audio id="sfx-facture-1" class="clip" src="assets/sfx/whoosh.mp3" data-start="4.7" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-facture-2" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="5.0" data-duration="0.57" data-track-index="5" data-volume="0.3"></audio>
+      <audio id="sfx-ordonnance" class="clip" src="assets/sfx/whoosh.mp3" data-start="5.35" data-duration="0.57" data-track-index="4" data-volume="0.28"></audio>
+      <audio id="sfx-postit" class="clip" src="assets/sfx/pop.mp3" data-start="6.38" data-duration="0.71" data-track-index="4" data-volume="0.45"></audio>
+      <audio id="sfx-tampon" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="6.97" data-duration="2.11" data-track-index="5" data-volume="0.5"></audio>
+      <audio id="sfx-aspiration" class="clip" src="assets/sfx/whoosh-cinematic.mp3" data-start="7.15" data-duration="1.4" data-track-index="4" data-volume="0.4"></audio>
+      <audio id="sfx-notification" class="clip" src="assets/sfx/notification.mp3" data-start="12.85" data-duration="2.45" data-track-index="4" data-volume="0.45"></audio>
+      <audio id="sfx-seances" class="clip" src="assets/sfx/whoosh.mp3" data-start="15.95" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-budget" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="18.05" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-jours" class="clip" src="assets/sfx/whoosh.mp3" data-start="20.15" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio>
+      <audio id="sfx-montee" class="clip" src="assets/sfx/riser.mp3" data-start="22.9" data-duration="1.2" data-media-start="6.19" data-track-index="6" data-volume="0.3"></audio>
+      <audio id="sfx-marque" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="24.1" data-duration="2.11" data-track-index="5" data-volume="0.45"></audio>
+      <audio id="sfx-bouton" class="clip" src="assets/sfx/pop.mp3" data-start="27.88" data-duration="0.71" data-track-index="5" data-volume="0.4"></audio>
+    </div>
+    <script>
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
