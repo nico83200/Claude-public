@@ -37,14 +37,15 @@ Connexion par lien magique : sans service d'email configuré, le lien s'affiche 
 | Espace | URL | Contenu |
 |---|---|---|
 | Vitrine | `/` | Accueil, fonctionnement, tarifs, FAQ |
+| | `/carte-basic` | **Carte Basic** prête à l'emploi (design Tapikard noir ou blanc, NFC + QR), sans BAT |
 | | `/creer` | **Configurateur** : matière, finition, modèle, police, couleurs, logo, informations, quantité ; aperçu recto/verso en direct ; prix dégressif |
 | | `/commande/[id]` | Suivi, paiement (Stripe ou simulé), **validation du BAT**, demande de modification, BAT SVG à l'échelle (fonds perdus, traits de coupe) |
 | Scan | `/c?e=…&m=…` | Vérification SUN NTAG 424 (déchiffrement, CMAC, anti-rejeu), puis redirection vers le profil |
-| | `/q/[carte]` | Profil public (QR code ou après scan) : actions rapides, vCard, liens, formulaire « échanger mes coordonnées » |
+| | `/q/[carte]` | Profil public (QR code ou après scan) : actions rapides, vCard, liens. Après « Ajouter aux contacts », **proposition d'échange de coordonnées** : le porteur reçoit le contact par email (fiche .vcf jointe), le visiteur reçoit la fiche du porteur |
 | | `/vcard/[carte]` | Fiche contact `.vcf` (vCard 3.0 avec photo) |
-| Client | `/compte` | Aperçu, **éditeur de profil avec aperçu téléphone**, multi-profils, gestion des cartes (profil affiché, activation, désactivation, perte), statistiques, contacts reçus + export CSV, commandes |
+| Client | `/compte` | Aperçu, **éditeur de profil avec aperçu téléphone**, multi-profils, gestion des cartes (profil affiché, activation, désactivation, perte), statistiques, **contacts reçus** (statut de suivi, notes, fiche .vcf, export CSV, synchronisation CRM par webhook Zapier/Make/n8n), commandes |
 | | `/activer` | Activation d'une carte reçue (code de l'encart si on n'est pas l'acheteur) |
-| Back-office | `/admin` | Tableau de bord, commandes (paiement manuel, BAT, expédition avec suivi, annulation), **production** (création de lots, CSV imprimeur/encodage), recherche de cartes |
+| Back-office | `/admin` | Tableau de bord, commandes (paiement manuel, BAT, expédition avec suivi, annulation), **production** (guide pas à pas, lots, **stock de cartes Basic non attribuées**, CSV imprimeur/encodage), recherche de cartes |
 | API | `POST /api/encodage` | Poste d'encodage : liaison carte ↔ UID de la puce (`Authorization: Bearer ENCODING_API_KEY`) |
 | | `POST /api/stripe/webhook` | Confirmation de paiement (signature vérifiée) |
 | | `POST /api/leads`, `POST /api/evenements` | Formulaire de contact et clics (limités en débit) |

@@ -94,6 +94,22 @@ CREATE TABLE IF NOT EXISTS leads (
 );
 `;
 
+// Évolutions du schéma appliquées aux bases existantes (déploiements déjà en ligne) : ajout de colonnes uniquement.
+const COLUMNS: [table: string, column: string, definition: string][] = [
+  ["orders", "product", "TEXT NOT NULL DEFAULT 'custom'"], // 'custom' (personnalisée) | 'basic' (prête à l'emploi)
+  ["cards", "variant", "TEXT"], // carte Basic de stock : 'noir' | 'blanc'
+  ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],
+  ["leads", "note", "TEXT"],
+  ["users", "webhook_url", "TEXT"],
+];
+
+function migrate(d: DatabaseSync) {
+  for (const [table, column, definition] of COLUMNS) {
+    const cols = d.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    if (!cols.some((c) => c.name === column)) d.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
 const g = globalThis as unknown as { __tapikardDb?: DatabaseSync };
 
 export function db(): DatabaseSync {
@@ -107,6 +123,7 @@ export function db(): DatabaseSync {
   const d = new Database(file);
   d.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
   d.exec(SCHEMA);
+  migrate(d);
   g.__tapikardDb = d;
   const demo = process.env.SEED_DEMO ?? (process.env.NODE_ENV === "production" ? "0" : "1");
   if (demo === "1") seedDemo();

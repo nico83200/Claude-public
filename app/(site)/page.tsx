@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CardPreview } from "@/components/CardPreview";
-import { DEFAULT_DESIGN, MATERIALS, euros } from "@/lib/catalog";
+import { BASIC_UNIT_CENTS, DEFAULT_DESIGN, MATERIALS, basicDesign, euros } from "@/lib/catalog";
 
 const demoQr = "https://tapikard.com/q/demo424sun";
 
@@ -21,7 +21,7 @@ export default function Home() {
               <Link href="/q/demo424sun" className="btn btn-lg btn-secondary">Voir un profil exemple</Link>
             </div>
             <p className="muted" style={{ marginTop: 16, fontSize: ".9rem" }}>
-              À partir de {euros(MATERIALS.pvc_blanc.unitCents)} · Profil en ligne gratuit à vie · iPhone et Android
+              Carte Basic dès {euros(BASIC_UNIT_CENTS)} · Personnalisée dès {euros(MATERIALS.pvc_blanc.unitCents)} · Profil en ligne gratuit à vie
             </p>
           </div>
           <div className="hero-cards" aria-hidden>
@@ -74,13 +74,70 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section">
+        <div className="container">
+          <div className="section-title">
+            <h2>Deux façons de commencer</h2>
+            <p className="muted">Même puce NFC sécurisée, même QR code, même profil en ligne illimité.</p>
+          </div>
+          <div className="grid grid-2">
+            <div className="panel">
+              <CardPreview design={basicDesign("noir")} side="recto" qrUrl={demoQr} />
+              <h3 style={{ marginTop: 18 }}>Carte Basic — {euros(BASIC_UNIT_CENTS)}</h3>
+              <p className="muted">Prête à l’emploi, design Tapikard noir ou blanc. Pas de BAT : expédiée plus vite. Vous complétez votre profil à réception.</p>
+              <Link href="/carte-basic" className="btn btn-block">Commander la Basic</Link>
+            </div>
+            <div className="panel">
+              <CardPreview design={{ ...DEFAULT_DESIGN }} side="recto" qrUrl={demoQr} />
+              <h3 style={{ marginTop: 18 }}>Carte personnalisée — dès {euros(MATERIALS.pvc_blanc.unitCents)}</h3>
+              <p className="muted">Votre logo, vos couleurs, vos informations imprimées. PVC, bambou ou métal, avec BAT à valider avant impression.</p>
+              <Link href="/creer" className="btn btn-block btn-secondary">Personnaliser ma carte</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container grid grid-2" style={{ alignItems: "center" }}>
+          <div>
+            <span className="badge badge-brand">Nouveau</span>
+            <h2 style={{ marginTop: 12 }}>Récupérez les coordonnées de ceux qui vous scannent</h2>
+            <p className="muted">Votre interlocuteur enregistre votre contact… et dans la foulée, il peut vous laisser le sien. Fini les cartes de visite perdues au fond d’une poche.</p>
+            <ul className="checks">
+              <li>Formulaire pré-rempli par le téléphone du visiteur : 10 secondes</li>
+              <li>Notification par email avec sa fiche contact à ajouter en un clic</li>
+              <li>Il reçoit votre fiche contact par email en retour</li>
+              <li>Suivi de vos prospects : statut, notes, export Excel</li>
+              <li>Synchronisation CRM : HubSpot, Pipedrive, Google Sheets… via Zapier ou Make</li>
+              <li>Consentement RGPD recueilli à chaque échange</li>
+            </ul>
+          </div>
+          <div className="panel">
+            <h3>Comment ça se passe</h3>
+            <ol style={{ paddingLeft: 20, margin: 0 }} className="muted">
+              <li style={{ marginBottom: 8 }}>Vous approchez votre carte du téléphone de votre interlocuteur.</li>
+              <li style={{ marginBottom: 8 }}>Votre profil s’ouvre ; il touche « Ajouter aux contacts ».</li>
+              <li style={{ marginBottom: 8 }}>Tapikard lui propose aussitôt d’échanger ses coordonnées.</li>
+              <li>Vous recevez son contact par email et dans votre espace, prêt à relancer.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
       <section className="section" id="tarifs">
         <div className="container">
           <div className="section-title">
             <h2>Tarifs</h2>
             <p className="muted">Payez la carte une fois. Le profil en ligne est inclus à vie.</p>
           </div>
-          <div className="grid grid-4">
+          <div className="grid grid-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
+            <div className="panel">
+              <span className="badge">Prête à l’emploi</span>
+              <h3 style={{ marginTop: 8 }}>Basic</h3>
+              <div className="price">{euros(BASIC_UNIT_CENTS)}</div>
+              <p className="muted" style={{ fontSize: ".9rem" }}>Design Tapikard noir ou blanc, NFC + QR code</p>
+              <Link href="/carte-basic" className="btn btn-block btn-secondary">Choisir</Link>
+            </div>
             {(Object.keys(MATERIALS) as (keyof typeof MATERIALS)[]).map((m, i) => (
               <div className={`panel ${i === 0 ? "plan-featured" : ""}`} key={m}>
                 {i === 0 && <span className="badge badge-brand">Le plus choisi</span>}

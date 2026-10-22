@@ -97,6 +97,16 @@ export function cardSvg(d: CardDesign, { side, qrUrl, proof = false }: Opts): st
           t(CARD_W / 2, 315, 24, d.title.toUpperCase(), `fill="${accent}" text-anchor="middle" letter-spacing="4"`) +
           t(CARD_W / 2, 470, 21, contacts.join("   ·   "), `fill="${d.ink}" opacity="0.7" text-anchor="middle"`);
         break;
+      case "basic": {
+        // Design Tapikard fixe : logo, ondes NFC et invitation à scanner.
+        const cx = CARD_W / 2;
+        body =
+          `<rect x="${cx - 70}" y="120" width="140" height="140" rx="36" fill="${d.accent}"/>` +
+          nfcIcon(cx - 48, 140, 100, "#ffffff") +
+          t(cx, 340, 58, "Tapikard", `font-weight="800" fill="${d.ink}" text-anchor="middle" letter-spacing="-1"`) +
+          t(cx, 395, 24, "Approchez votre téléphone", `fill="${d.ink}" opacity="0.7" text-anchor="middle"`);
+        break;
+      }
       case "audacieux": {
         const ink = printable ? "#ffffff" : d.ink;
         body =
@@ -110,14 +120,16 @@ export function cardSvg(d: CardDesign, { side, qrUrl, proof = false }: Opts): st
       }
     }
   } else {
-    const bg = printable ? accent : "transparent";
-    const ink = printable ? "#ffffff" : d.ink;
+    // La Basic garde son fond (noir ou blanc) au verso ; les cartes personnalisées passent à la couleur principale.
+    const basic = d.template === "basic";
+    const bg = basic ? d.background : printable ? accent : "transparent";
+    const ink = basic ? d.ink : printable ? "#ffffff" : d.ink;
     const qrSize = 250;
     const qx = CARD_W - qrSize - 70;
     const qy = (CARD_H - qrSize) / 2 - 20;
     body =
       (printable ? `<rect x="${-pad}" y="${-pad}" width="${W}" height="${H}" fill="${bg}"/>` : "") +
-      (d.logo ? logo(70, 70, 260, 110) : t(70, 140, 40, d.company || d.name, `font-weight="700" fill="${ink}"`)) +
+      (d.logo ? logo(70, 70, 260, 110) : t(70, 140, 40, d.company || d.name || "Tapikard", `font-weight="700" fill="${ink}"`)) +
       nfcIcon(70, 300, 90, ink) +
       t(180, 340, 24, "Approchez votre téléphone", `fill="${ink}" font-weight="600"`) +
       t(180, 372, 20, "ou scannez le QR code", `fill="${ink}" opacity="0.8"`) +

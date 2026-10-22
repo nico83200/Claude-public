@@ -197,3 +197,8 @@ details.faq p { margin: 10px 0 0; color: var(--muted); }
 .p-item svg, .p-save svg { width: 20px; height: 20px; flex-shrink: 0; }
 .p-item svg { color: var(--p-accent); }
 td code, td small { white-space: nowrap; word-break: normal; }
+.p-sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(10, 10, 15, .55); display: flex; align-items: flex-end; justify-content: center; animation: p-fade .2s ease; }
+.p-sheet { width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; background: var(--p-bg); color: var(--p-ink); border-radius: 22px 22px 0 0; padding: 20px 16px 28px; animation: p-up .25s ease; }
+.p-sheet-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 12px; text-align: center; }
+@keyframes p-fade { from { opacity: 0; } }
+@keyframes p-up { from { transform: translateY(40px); opacity: 0; } }

@@ -1,4 +1,4 @@
-export type User = { id: string; email: string; name: string | null; is_admin: number; created_at: string };
+export type User = { id: string; email: string; name: string | null; is_admin: number; webhook_url: string | null; created_at: string };
 
 export type ProfileLink = { label: string; url: string };
 
@@ -15,7 +15,7 @@ export type OrderStatus = "pending_payment" | "paid" | "proof_approved" | "in_pr
 export type Shipping = { name: string; address: string; zip: string; city: string; country: string };
 
 export type Order = {
-  id: string; user_id: string; profile_id: string | null; status: OrderStatus;
+  id: string; user_id: string; profile_id: string | null; status: OrderStatus; product: "custom" | "basic";
   design: string; material: string; finish: string; quantity: number; amount_cents: number;
   shipping: string; proof_comment: string | null; tracking: string | null; stripe_session_id: string | null;
   created_at: string; paid_at: string | null; proof_approved_at: string | null; shipped_at: string | null;
@@ -25,13 +25,24 @@ export type CardStatus = "provisioned" | "encoded" | "shipped" | "active" | "dis
 
 export type Card = {
   id: string; order_id: string | null; user_id: string | null; profile_id: string | null; batch_id: string | null;
-  label: string | null; uid: string | null; status: CardStatus; activation_code: string; last_counter: number;
+  label: string | null; uid: string | null; status: CardStatus; activation_code: string; last_counter: number; variant: string | null;
   created_at: string; encoded_at: string | null; activated_at: string | null;
 };
 
 export type Lead = {
   id: number; profile_id: string; card_id: string | null; name: string; email: string | null;
   phone: string | null; company: string | null; message: string | null; created_at: string;
+  status: LeadStatus; note: string | null;
+};
+
+export type LeadStatus = "nouveau" | "a_relancer" | "en_cours" | "client" | "sans_suite";
+
+export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
+  nouveau: "Nouveau",
+  a_relancer: "À relancer",
+  en_cours: "En discussion",
+  client: "Client",
+  sans_suite: "Sans suite",
 };
 
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {

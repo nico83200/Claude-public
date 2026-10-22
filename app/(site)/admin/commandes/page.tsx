@@ -34,7 +34,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
                 <td>{new Date(o.created_at + "Z").toLocaleDateString("fr-FR")}</td>
                 <td><Link href={`/admin/commandes/${o.id}`}><code>{o.id}</code></Link></td>
                 <td>{o.email}</td>
-                <td>{o.quantity} × {MATERIALS[o.material as MaterialId]?.label ?? o.material}</td>
+                <td>{o.product === "basic" ? "Basic · " : ""}{o.quantity} × {MATERIALS[o.material as MaterialId]?.label ?? o.material}</td>
                 <td>{euros(o.amount_cents)}</td>
                 <td><OrderBadge status={o.status} /></td>
               </tr>

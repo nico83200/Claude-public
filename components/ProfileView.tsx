@@ -1,6 +1,7 @@
 import { parseLinks, type Profile } from "@/lib/types";
 import { IconChat, IconGlobe, IconLink, IconMail, IconPhone, IconPin, IconShield, IconUserPlus } from "./Icons";
 import { LeadForm } from "./LeadForm";
+import { SaveContact } from "./SaveContact";
 import { TrackedLink } from "./TrackedLink";
 
 type Verification = "verified" | "replay" | null;
@@ -52,7 +53,7 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
         {preview || !cardId ? (
           <span className="p-save"><IconUserPlus /> Ajouter aux contacts</span>
         ) : (
-          <a className="p-save" href={`/vcard/${cardId}`}><IconUserPlus /> Ajouter aux contacts</a>
+          <SaveContact cardId={cardId} ownerFirstName={firstName} leadCapture={!!profile.lead_capture} />
         )}
 
         <div className="p-list">

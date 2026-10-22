@@ -43,7 +43,11 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
 
       {order.status !== "cancelled" && (
         <div className="timeline" style={{ marginBottom: 28 }}>
-          {FLOW.map((f) => <div key={f.label} className={`t-step ${f.s.includes(order.status) ? "done" : ""}`}>{f.label}</div>)}
+          {FLOW.map((f) => (
+            <div key={f.label} className={`t-step ${f.s.includes(order.status) ? "done" : ""}`}>
+              {order.product === "basic" && f.label === "BAT validé" ? "Commande validée" : f.label}
+            </div>
+          ))}
         </div>
       )}
 
@@ -91,6 +95,7 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           <h3>Récapitulatif</h3>
           <table>
             <tbody>
+              {order.product === "basic" && <tr><td className="muted">Produit</td><td>Carte Basic (prête à l’emploi)</td></tr>}
               <tr><td className="muted">Matière</td><td>{MATERIALS[design.material].label}</td></tr>
               <tr><td className="muted">Finition</td><td>{FINISHES[design.finish].label}</td></tr>
               <tr><td className="muted">Quantité</td><td>{order.quantity}</td></tr>

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { run } from "@/lib/db";
-import { approveProof, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
+import { approveProof, createBasicStock, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
 
 export async function adminMarkPaid(orderId: string) {
   await requireAdmin();
@@ -43,4 +43,13 @@ export async function adminRegisterEncoding(form: FormData) {
   const cardId = String(form.get("cardId") ?? "").trim();
   const err = registerEncodedCard(cardId, String(form.get("uid") ?? "").trim().toUpperCase(), 0);
   redirect(`/admin/production?${err ? `erreur=${encodeURIComponent(err)}` : `encodee=${cardId}`}`);
+}
+
+export async function adminCreateBasicStock(form: FormData) {
+  await requireAdmin();
+  const variant = form.get("variant") === "blanc" ? "blanc" : "noir";
+  const qty = Math.floor(Number(form.get("quantity")));
+  if (!(qty >= 1 && qty <= 1000)) redirect("/admin/production?erreur=" + encodeURIComponent("Quantité entre 1 et 1000."));
+  const b = createBasicStock(variant, qty, String(form.get("note") ?? "").trim().slice(0, 200) || undefined);
+  redirect(`/admin/production?lot=${b.id}`);
 }

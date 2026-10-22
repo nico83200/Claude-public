@@ -62,7 +62,7 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
         <div className="panel">
           <table><tbody>
             <tr><td className="muted">Client</td><td>{user.name ?? "—"}<br /><a href={`mailto:${user.email}`}>{user.email}</a></td></tr>
-            <tr><td className="muted">Produit</td><td>{order.quantity} × {MATERIALS[design.material].label}, {FINISHES[design.finish].label}, modèle {design.template}</td></tr>
+            <tr><td className="muted">Produit</td><td>{order.product === "basic" ? <span className="badge badge-brand">Basic</span> : <span className="badge">Personnalisée</span>} {order.quantity} × {MATERIALS[design.material].label}, {FINISHES[design.finish].label}, modèle {design.template}</td></tr>
             <tr><td className="muted">Montant</td><td>{euros(order.amount_cents)}{order.stripe_session_id && <><br /><small className="muted">Stripe {order.stripe_session_id.slice(0, 18)}…</small></>}</td></tr>
             <tr><td className="muted">Livraison</td><td>{shipping.name}<br />{shipping.address}<br />{shipping.zip} {shipping.city}</td></tr>
             <tr><td className="muted">Dates</td><td><small>Créée {order.created_at}<br />Payée {order.paid_at ?? "—"}<br />BAT {order.proof_approved_at ?? "—"}<br />Expédiée {order.shipped_at ?? "—"}{order.tracking && ` (${order.tracking})`}</small></td></tr>

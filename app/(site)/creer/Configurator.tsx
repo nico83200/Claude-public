@@ -3,8 +3,8 @@
 import { useActionState, useMemo, useState } from "react";
 import { CardPreview } from "@/components/CardPreview";
 import {
-  DEFAULT_DESIGN, FINISHES, FONTS, MATERIALS, QUANTITIES, TEMPLATES, euros, priceCents,
-  type CardDesign, type FinishId, type FontId, type MaterialId, type TemplateId,
+  CUSTOM_TEMPLATES, DEFAULT_DESIGN, FINISHES, FONTS, MATERIALS, QUANTITIES, TEMPLATES, euros, priceCents,
+  type CardDesign, type FinishId, type FontId, type MaterialId,
 } from "@/lib/catalog";
 import { createOrder, type CreateOrderState } from "./actions";
 
@@ -99,7 +99,7 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
               <div>
                 <h3>Modèle</h3>
                 <div className="choices">
-                  {(Object.keys(TEMPLATES) as TemplateId[]).map((t) => (
+                  {CUSTOM_TEMPLATES.map((t) => (
                     <label className="choice" key={t}>
                       <input type="radio" name="template" checked={design.template === t} onChange={() => set("template", t)} />
                       <strong>{TEMPLATES[t].label}</strong>

@@ -10,6 +10,7 @@ export async function SiteHeader() {
         <Logo />
         <nav className="nav">
           <Link href="/#fonctionnement" className="hide-sm">Comment ça marche</Link>
+          <Link href="/carte-basic" className="hide-sm">Carte Basic</Link>
           <Link href="/#tarifs" className="hide-sm">Tarifs</Link>
           {user ? <Link href={user.is_admin ? "/admin" : "/compte"}>{user.is_admin ? "Back-office" : "Mon espace"}</Link> : <Link href="/connexion">Connexion</Link>}
           <Link href="/creer" className="btn btn-sm">Créer ma carte</Link>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { all } from "@/lib/db";
-import { adminCreateBatch, adminRegisterEncoding } from "../actions";
+import { adminCreateBasicStock, adminCreateBatch, adminRegisterEncoding } from "../actions";
 
 export const metadata = { title: "Production & encodage" };
 
@@ -15,6 +15,17 @@ export default async function Production({ searchParams }: { searchParams: Promi
   return (
     <div className="stack">
       <div className="page-head"><h1>Production & encodage</h1></div>
+      <details className="panel" open={!sp.lot}>
+        <summary style={{ cursor: "pointer", fontWeight: 700 }}>Comment produire une carte ?</summary>
+        <ol style={{ paddingLeft: 20, margin: "12px 0 0" }}>
+          <li><strong>Commande payée.</strong> Personnalisée : le client valide son BAT depuis sa page de commande (ou vous le validez pour lui dans Commandes). Basic : rien à valider.</li>
+          <li><strong>Créer un lot</strong> (section 1 ci-dessous) : regroupe toutes les cartes prêtes à produire. Pour du stock Basic sans commande, utilisez « Créer un lot de stock ».</li>
+          <li><strong>Télécharger le CSV du lot</strong> (section 2) et l’envoyer à l’imprimeur avec les BAT : chaque ligne donne l’URL du QR code à imprimer (unique par carte) et le code d’activation de l’encart.</li>
+          <li><strong>Encoder chaque carte imprimée</strong> avec le lecteur NFC : le script du poste écrit la puce NTAG 424, puis enregistre la carte ici (section 3). La barre « encodées » du lot avance.</li>
+          <li><strong>Expédier</strong> : Commandes → la commande → numéro de suivi → « Marquer expédiée » (possible quand toutes ses cartes sont encodées).</li>
+          <li><strong>Le client active</strong> sa carte en la scannant à réception.</li>
+        </ol>
+      </details>
       {sp.lot && <div className="alert alert-ok">Lot {sp.lot} créé. Téléchargez le CSV pour l’imprimeur et le poste d’encodage.</div>}
       {sp.vide && <div className="alert alert-warn">Aucune carte à mettre en production.</div>}
       {sp.erreur && <div className="alert alert-danger">{sp.erreur}</div>}
@@ -33,6 +44,24 @@ export default async function Production({ searchParams }: { searchParams: Promi
             </form>
           </>
         )}
+      </div>
+
+      <div className="panel">
+        <h3>Stock de cartes Basic (non attribuées)</h3>
+        <p className="muted" style={{ fontSize: ".9rem" }}>
+          Pour les salons, revendeurs ou ventes directes : des cartes Basic prêtes à l’emploi, rattachées à personne.
+          La personne qui en reçoit une la scanne, crée son compte et l’active avec le code de l’encart.
+          BAT générique : <a href="/admin/production/bat-basic?couleur=noir&face=recto" target="_blank">noir recto</a> ·{" "}
+          <a href="/admin/production/bat-basic?couleur=noir&face=verso" target="_blank">noir verso</a> ·{" "}
+          <a href="/admin/production/bat-basic?couleur=blanc&face=recto" target="_blank">blanc recto</a> ·{" "}
+          <a href="/admin/production/bat-basic?couleur=blanc&face=verso" target="_blank">blanc verso</a>
+        </p>
+        <form action={adminCreateBasicStock} className="row">
+          <select name="variant" style={{ maxWidth: 160 }} aria-label="Couleur"><option value="noir">Noir mat</option><option value="blanc">Blanc</option></select>
+          <input type="number" name="quantity" min={1} max={1000} defaultValue={50} style={{ maxWidth: 110 }} aria-label="Quantité" />
+          <input type="text" name="note" placeholder="Note (salon, revendeur…)" style={{ maxWidth: 260 }} />
+          <button className="btn btn-secondary">Créer un lot de stock</button>
+        </form>
       </div>
 
       <div className="panel">

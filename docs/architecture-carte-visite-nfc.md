@@ -337,20 +337,20 @@ sequenceDiagram
 
 ## 9. Modèle économique (lié à l'architecture)
 
+Positionnement inspiré de vkard.io (carte prête à l'emploi + cartes personnalisées + récupération des contacts).
+
 | Offre | Contenu | Prix indicatif |
 |---|---|---|
-| **Carte seule** | Carte personnalisée NTAG 424 (anti-clonage) + profil de base gratuit à vie | 24–39 € / carte |
-| **Pro** (abonnement) | Statistiques, échange de contact/leads, multi-profils, thèmes, Wallet | 3–6 € / mois |
-| **Premium** | Carte métal ou bois | 49–99 € / carte |
-| **Entreprise** | Charte imposée, gestion centralisée, import CSV, SSO, synchro CRM, facturation | sur devis, par utilisateur / mois |
+| **Carte Basic** | Prête à l'emploi, design Tapikard noir ou blanc, NFC NTAG 424 + QR code, sans BAT. Vendue en ligne ou en stock (salons, revendeurs), activée par le client avec le code de l'encart | 19 € / carte |
+| **Carte personnalisée** | Logo, couleurs, informations imprimées ; PVC, bambou ou métal ; BAT à valider | 24–69 € / carte |
+| **Profil en ligne** | Inclus à vie : profil modifiable, vCard, statistiques, échange de coordonnées, notification email, export CSV, webhook CRM | Gratuit |
+| **Pro** (à venir) | Multi-profils d'équipe, tags et attribution de prospects, signatures email, scanner de cartes papier | ~3 € / profil / mois |
+| **Entreprise** | Charte imposée, gestion centralisée, import CSV, SSO, facturation | Sur devis |
+
+**Récupération des contacts (échange de coordonnées)** : après avoir enregistré le contact du porteur, le visiteur se voit proposer de laisser le sien (formulaire pré-rempli par le navigateur, consentement RGPD explicite). Le porteur est prévenu par email avec la fiche .vcf du prospect, le visiteur reçoit la fiche du porteur, et le contact est envoyé au CRM du porteur via webhook (Zapier, Make, n8n → HubSpot, Pipedrive, Google Sheets…).
 
 Coûts unitaires (ordre de grandeur en volume) : carte PVC imprimée avec puce NTAG 424 DNA ≈ 1,50–3 € ;
-le gros de la marge vient de la personnalisation et de l'abonnement, rendu possible par l'**URL dynamique**.
-
-Leviers de croissance : chaque scan est une vitrine (« Créez votre carte » discret en pied de page
-du profil, désactivable en Pro), parrainage, offres équipes.
-
----
+la marge vient de la carte, puis de l'abonnement Pro et des offres équipes, rendus possibles par l'**URL dynamique**.
 
 ## 10. Feuille de route
 

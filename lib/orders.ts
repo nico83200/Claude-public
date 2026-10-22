@@ -17,7 +17,12 @@ export function markOrderPaid(orderId: string): boolean {
   const done = tx(() => {
     const o = getOrder(orderId);
     if (!o || o.status !== "pending_payment") return false;
-    run("UPDATE orders SET status = 'paid', paid_at = datetime('now') WHERE id = ?", orderId);
+    // Une carte Basic (design fixe) n'a pas de BAT à valider : elle part directement en production.
+    if (o.product === "basic") {
+      run("UPDATE orders SET status = 'proof_approved', paid_at = datetime('now'), proof_approved_at = datetime('now') WHERE id = ?", orderId);
+    } else {
+      run("UPDATE orders SET status = 'paid', paid_at = datetime('now') WHERE id = ?", orderId);
+    }
     for (let i = 0; i < o.quantity; i++) {
       run(
         "INSERT INTO cards (id, order_id, user_id, profile_id, activation_code, label) VALUES (?, ?, ?, ?, ?, ?)",
@@ -28,7 +33,16 @@ export function markOrderPaid(orderId: string): boolean {
   });
   if (done) {
     const u = get<User>("SELECT u.* FROM users u JOIN orders o ON o.user_id = u.id WHERE o.id = ?", orderId);
-    if (u) void sendMail(u.email, "Commande confirmée — validez votre BAT", `<p>Merci pour votre commande !</p><p>Validez le bon à tirer pour lancer la production : <a href="${APP_URL}/commande/${orderId}">voir ma commande</a>.</p>`);
+    const basic = getOrder(orderId)?.product === "basic";
+    if (u) {
+      void sendMail(
+        u.email,
+        basic ? "Commande confirmée" : "Commande confirmée — validez votre BAT",
+        basic
+          ? `<p>Merci pour votre commande !</p><p>Vos cartes Tapikard sont en préparation. Suivi : <a href="${APP_URL}/commande/${orderId}">voir ma commande</a>.</p>`
+          : `<p>Merci pour votre commande !</p><p>Validez le bon à tirer pour lancer la production : <a href="${APP_URL}/commande/${orderId}">voir ma commande</a>.</p>`,
+      );
+    }
   }
   return done;
 }
@@ -50,6 +64,19 @@ export function createBatch(note?: string): { id: string; count: number } | null
     for (const c of cards) run("UPDATE cards SET batch_id = ? WHERE id = ?", id, c.id);
     for (const oid of new Set(cards.map((c) => c.order_id))) run("UPDATE orders SET status = 'in_production' WHERE id = ?", oid);
     return { id, count: cards.length };
+  });
+}
+
+/** Stock de cartes Basic non attribuées (salons, revendeurs) : un lot prêt à imprimer et encoder.
+ *  Chaque carte est activée par la personne qui la reçoit, grâce au code de l'encart. */
+export function createBasicStock(variant: "noir" | "blanc", quantity: number, note?: string): { id: string; count: number } {
+  return tx(() => {
+    const id = `STOCK-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${randomId(4).toUpperCase()}`;
+    run("INSERT INTO batches (id, note) VALUES (?, ?)", id, note ?? `Stock Basic ${variant}`);
+    for (let i = 0; i < quantity; i++) {
+      run("INSERT INTO cards (id, batch_id, variant, activation_code, label) VALUES (?, ?, ?, ?, 'Carte Basic')", randomId(10), id, variant, activationCode());
+    }
+    return { id, count: quantity };
   });
 }
 

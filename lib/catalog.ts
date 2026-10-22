@@ -2,7 +2,7 @@
 
 export type MaterialId = "pvc_blanc" | "pvc_noir" | "bambou" | "metal_noir";
 export type FinishId = "mat" | "brillant" | "soft_touch";
-export type TemplateId = "classique" | "moderne" | "minimal" | "audacieux";
+export type TemplateId = "classique" | "moderne" | "minimal" | "audacieux" | "basic";
 export type FontId = "sans" | "serif" | "mono";
 
 export const MATERIALS: Record<MaterialId, { label: string; description: string; unitCents: number; printable: boolean; base: string; ink: string }> = {
@@ -23,7 +23,11 @@ export const TEMPLATES: Record<TemplateId, { label: string }> = {
   moderne: { label: "Moderne" },
   minimal: { label: "Minimal" },
   audacieux: { label: "Audacieux" },
+  basic: { label: "Basic Tapikard" }, // design fixe de la carte prête à l'emploi (non proposé dans le configurateur)
 };
+
+/** Modèles proposés dans le configurateur de carte personnalisée. */
+export const CUSTOM_TEMPLATES = (Object.keys(TEMPLATES) as TemplateId[]).filter((t) => t !== "basic");
 
 export const FONTS: Record<FontId, { label: string; css: string }> = {
   sans: { label: "Sans serif", css: "Inter, 'Helvetica Neue', Arial, sans-serif" },
@@ -73,6 +77,31 @@ export const DEFAULT_DESIGN: CardDesign = {
   website: "ateliernova.fr",
   logo: null,
 };
+
+// --- Carte Basic : prête à l'emploi, non personnalisée (design Tapikard, NFC + QR code unique) ---
+
+export type BasicVariant = "noir" | "blanc";
+
+export const BASIC_UNIT_CENTS = 1900;
+
+export const BASIC_VARIANTS: Record<BasicVariant, { label: string; material: MaterialId; background: string; ink: string }> = {
+  noir: { label: "Noir mat", material: "pvc_noir", background: "#141418", ink: "#ffffff" },
+  blanc: { label: "Blanc", material: "pvc_blanc", background: "#ffffff", ink: "#14121f" },
+};
+
+export function basicDesign(variant: BasicVariant): CardDesign {
+  const v = BASIC_VARIANTS[variant];
+  return {
+    template: "basic", material: v.material, finish: "mat", font: "sans", accent: "#5b3df5",
+    background: v.background, ink: v.ink, name: "", title: "", company: "", phone: "", email: "", website: "", logo: null,
+  };
+}
+
+export function basicPriceCents(quantity: number) {
+  const tier = [...QUANTITIES].reverse().find((t) => quantity >= t.qty) ?? QUANTITIES[0];
+  const unit = Math.round(BASIC_UNIT_CENTS * (1 - tier.discount));
+  return { unit, total: unit * quantity, discount: tier.discount };
+}
 
 export function priceCents(material: MaterialId, finish: FinishId, quantity: number) {
   const tier = [...QUANTITIES].reverse().find((t) => quantity >= t.qty) ?? QUANTITIES[0];

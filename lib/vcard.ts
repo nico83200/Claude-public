@@ -1,4 +1,4 @@
-import type { Profile } from "./types";
+import type { Lead, Profile } from "./types";
 import { parseLinks } from "./types";
 
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
@@ -20,6 +20,19 @@ export function buildVCard(p: Profile): string {
   if (p.bio) lines.push(`NOTE:${esc(p.bio)}`);
   const photo = p.avatar?.match(/^data:image\/(png|jpeg);base64,(.+)$/);
   if (photo) lines.push(`PHOTO;ENCODING=b;TYPE=${photo[1] === "png" ? "PNG" : "JPEG"}:${photo[2]}`);
+  lines.push("END:VCARD");
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
+
+/** Fiche contact d'un prospect (contact reçu), à ajouter au carnet d'adresses du porteur. */
+export function buildLeadVCard(l: Pick<Lead, "name" | "email" | "phone" | "company" | "message" | "created_at">): string {
+  const parts = l.name.trim().split(/\s+/);
+  const last = parts.length > 1 ? parts.pop()! : "";
+  const lines = ["BEGIN:VCARD", "VERSION:3.0", `N:${esc(last)};${esc(parts.join(" "))};;;`, `FN:${esc(l.name)}`];
+  if (l.company) lines.push(`ORG:${esc(l.company)}`);
+  if (l.phone) lines.push(`TEL;TYPE=CELL:${l.phone}`);
+  if (l.email) lines.push(`EMAIL;TYPE=INTERNET:${l.email}`);
+  lines.push(`NOTE:${esc(`Rencontré via Tapikard le ${l.created_at.slice(0, 10)}${l.message ? ` — ${l.message}` : ""}`)}`);
   lines.push("END:VCARD");
   return lines.map(fold).join("\r\n") + "\r\n";
 }
