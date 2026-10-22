@@ -21,7 +21,7 @@ h2{position:absolute;left:84px;top:640px;font-weight:500;font-size:86px;line-hei
 body.photo-mode .photo{display:block}body.photo-mode .phone{display:none}
 body.photo-mode .badge{left:60px;top:1300px}body.photo-mode .cta{z-index:2}
 body.photo-mode .sub{top:900px;width:900px}body.photo-mode .cta{top:1060px}
-</style></head><body><script>if(location.hash==="#photo")document.body.classList.add("photo-mode")</script>
+</style></head><body><script>if(location.hash.startsWith("#photo"))document.body.classList.add("photo-mode")</script>
 <div class="glow" style="width:900px;height:900px;right:-360px;top:-260px;background:#e7c9a3;opacity:.75"></div>
 <div class="glow" style="width:700px;height:700px;left:-300px;bottom:-200px;background:#b9d8c6;opacity:.7"></div>
 <div class="glow" style="width:500px;height:500px;right:-120px;bottom:300px;background:#e7dac3;opacity:.6"></div>
@@ -30,6 +30,6 @@ body.photo-mode .sub{top:900px;width:900px}body.photo-mode .cta{top:1060px}
 <h2>Et si vous passiez<br>à Jack&amp;Cie ?</h2>
 <p class="sub">Le suivi de votre cheval,<br>gratuit ou tout inclus dès <b>6,90 € par mois</b></p>
 <div class="cta">Essayer gratuitement</div>
-<div class="phone"><img src="mobile-accueil.webp"><div class="notch"></div></div><div class="photo"><img src="cavaliere.jpg"></div>
+<div class="phone"><img src="mobile-accueil.webp"><div class="notch"></div></div><div class="photo"><img src="cavaliere.jpg"></div><script>if(location.hash==="#photo2"){const i=document.querySelector(".photo img");i.src="cavaliere-2.jpg";i.style.objectPosition="62% 50%"}</script>
 <div class="badge"><small>Rappel</small>Vaccin grippe dans 15 jours</div>
 </body></html>
