@@ -1,5 +1,6 @@
 import type { DatabaseSync, SQLInputValue } from "node:sqlite";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { seedDemo } from "./seed";
 
@@ -97,7 +98,11 @@ const g = globalThis as unknown as { __tapikardDb?: DatabaseSync };
 
 export function db(): DatabaseSync {
   if (g.__tapikardDb) return g.__tapikardDb;
-  const file = process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "tapikard.db");
+  // En production, la base est par défaut hors du dossier de l'application : les hébergeurs
+  // (Hostinger…) remplacent ce dossier à chaque déploiement.
+  const file =
+    process.env.DATABASE_PATH ??
+    (process.env.NODE_ENV === "production" ? path.join(os.homedir(), "tapikard-data", "tapikard.db") : path.join(process.cwd(), "data", "tapikard.db"));
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const d = new Database(file);
   d.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");

@@ -26,7 +26,7 @@ export default async function AdminHome() {
 
   return (
     <div className="stack">
-      <div className="page-head"><h1>Tableau de bord</h1></div>
+      <div className="page-head"><h1>Tableau de bord</h1><a className="btn btn-secondary btn-sm" href="/admin/sauvegarde">Télécharger une sauvegarde de la base</a></div>
       <div className="grid grid-4">
         <div className="panel"><div className="kpi-label">CA encaissé (30 j)</div><div className="kpi">{euros(k.revenue30)}</div></div>
         <Link href="/admin/commandes?statut=paid" className="panel" style={{ color: "inherit" }}><div className="kpi-label">BAT en attente client</div><div className="kpi">{k.toProof}</div></Link>

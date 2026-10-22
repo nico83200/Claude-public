@@ -1,0 +1,26 @@
+# /etc/systemd/system/tapikard.service
+[Unit]
+Description=Tapikard (application web)
+After=network.target
+
+[Service]
+Type=simple
+User=tapikard
+Group=tapikard
+WorkingDirectory=/opt/tapikard
+EnvironmentFile=/etc/tapikard/tapikard.env
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=3000
+ExecStart=/usr/bin/node /opt/tapikard/server.js
+Restart=always
+RestartSec=3
+# Durcissement
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/tapikard
+
+[Install]
+WantedBy=multi-user.target
