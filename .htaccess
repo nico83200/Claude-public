@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------------------
+# Hostinger (mutualisé) : à placer dans public_html/ avec tout le projet.
+# Le dossier public/ devient la racine web ; le code, la configuration et les
+# données (app/, config/, storage/…) restent inaccessibles depuis le web.
+# ---------------------------------------------------------------------------
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Forcer HTTPS (certificat SSL gratuit à activer dans hPanel > Sécurité > SSL)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Rediriger www vers le domaine nu (décommentez si souhaité)
+    # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+    # Bloquer l'accès direct aux dossiers privés et fichiers sensibles
+    RewriteRule ^(app|config|database|storage|cron|bin|docs|tests|\.git|\.github)(/|$) - [F,L]
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule \.(sql|sqlite|log|md|lock|ini|sh)$ - [F,L]
+
+    # Tout le reste est servi depuis public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

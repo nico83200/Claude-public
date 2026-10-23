@@ -1,0 +1,5 @@
+# Aucun script exécutable dans les téléversements
+<FilesMatch "\.(php|phtml|php\d|phar|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI

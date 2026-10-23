@@ -1,0 +1,1 @@
+<p style="text-align:center;margin:28px 0;"><a href="<?= e($href) ?>" style="display:inline-block;background:#1f2a44;color:#ffffff;text-decoration:none;padding:13px 26px;border-radius:999px;font-weight:bold;"><?= e($label) ?></a></p>

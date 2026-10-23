@@ -1,0 +1,15 @@
+/config/config.php
+/storage/installed.lock
+/storage/database.sqlite
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/designs/*
+!/storage/designs/.gitkeep
+/public/uploads/products/*
+!/public/uploads/products/.gitkeep
+/public/uploads/print/*
+!/public/uploads/print/.gitkeep
+.DS_Store
+/vendor/

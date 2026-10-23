@@ -1,0 +1,57 @@
+name: Tests & déploiement Hostinger
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, gd, intl, mbstring, curl
+      - name: Vérification syntaxique
+        run: find . -name "*.php" -not -path "./.git/*" -print0 | xargs -0 -n1 php -l > /dev/null
+      - name: Tests de bout en bout (SQLite)
+        run: |
+          php bin/install-local.php admin@example.com admin12345
+          php tests/run.php
+
+  deploy:
+    # Déploiement FTP vers Hostinger : définissez les secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+    # (hPanel › Fichiers › Comptes FTP). Ignoré tant que FTP_SERVER n'est pas défini.
+    needs: tests
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.FTP_SERVER != ''
+      - name: Envoi FTP vers public_html
+        if: env.FTP_SERVER != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ${{ secrets.FTP_DIR || 'public_html/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            tests/**
+            config/config.php
+            storage/installed.lock
+            storage/database.sqlite
+            storage/logs/**
+            storage/cache/**
+            storage/designs/**
+            public/uploads/products/**
+            public/uploads/print/**
