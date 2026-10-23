@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { findOrCreateUser, normalizeEmail } from "@/lib/auth";
 import { priceCents, sanitizeDesign, verifierStock, QUANTITIES } from "@/lib/catalog";
 import { ruptures } from "@/lib/stock";
-import { STRIPE_ENABLED } from "@/lib/config";
+import { OFFRE_PERSONNALISEE, STRIPE_ENABLED } from "@/lib/config";
 import { get, run } from "@/lib/db";
 import { randomId } from "@/lib/ids";
 import { createCheckoutSession } from "@/lib/stripe";
@@ -13,6 +13,7 @@ import type { Order } from "@/lib/types";
 export type CreateOrderState = { error?: string };
 
 export async function createOrder(_prev: CreateOrderState, form: FormData): Promise<CreateOrderState> {
+  if (!OFFRE_PERSONNALISEE) return { error: "La carte personnalisée n’est pas encore disponible : découvrez la carte Basic." };
   let payload: Record<string, unknown>;
   try {
     payload = JSON.parse(String(form.get("payload") ?? "{}"));

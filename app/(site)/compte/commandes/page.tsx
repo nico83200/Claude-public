@@ -12,7 +12,7 @@ export default async function CommandesPage() {
   const orders = all<Order>("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC", user.id);
   return (
     <div>
-      <div className="page-head"><h1>Mes commandes</h1><Link href="/creer" className="btn">Nouvelle commande</Link></div>
+      <div className="page-head"><h1>Mes commandes</h1><Link href="/carte-basic" className="btn">Nouvelle commande</Link></div>
       {orders.length === 0 ? <div className="panel"><p className="muted" style={{ margin: 0 }}>Aucune commande.</p></div> : (
         <div className="table-wrap">
           <table>

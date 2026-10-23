@@ -343,3 +343,52 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .nfc-pulse { width: 74px; height: 74px; margin: 0 auto; border-radius: 22px; background: var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='18' cy='50' r='7' fill='white'/%3E%3Cg fill='none' stroke='white' stroke-width='7.5' stroke-linecap='round'%3E%3Cpath d='M30 32.5A17.5 17.5 0 0 1 30 67.5'/%3E%3Cpath d='M30 19A31 31 0 0 1 30 81'/%3E%3Cpath d='M30 5A45 45 0 0 1 30 95'/%3E%3C/g%3E%3C/svg%3E") center / 62% no-repeat; box-shadow: 0 0 0 0 rgba(91, 61, 245, .45); animation: nfc-pulse 1.8s infinite; }
 .nfc-pulse.actif { animation-duration: .7s; }
 @keyframes nfc-pulse { 70% { box-shadow: 0 0 0 22px rgba(91, 61, 245, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 61, 245, 0); } }
+.scan-qr { position: fixed; inset: 0; z-index: 50; background: #000; }
+.scan-qr video { width: 100%; height: 100%; object-fit: cover; }
+.scan-qr-cadre { position: absolute; left: 50%; top: 42%; width: min(68vw, 300px); aspect-ratio: 1; transform: translate(-50%, -50%); border: 3px solid #fff; border-radius: 22px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45); }
+.scan-qr-bas { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); text-align: center; color: #fff; }
+.scan-qr-bas p { margin: 0 0 14px; font-weight: 600; }
+
+/* --- Offre de lancement (tunnel de vente Basic) ------------------------------------- */
+.badge-lancement { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #ffd84d; color: #1d1600; font-weight: 700; font-size: .82rem; letter-spacing: .02em; }
+.offre-prix { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 22px 0 6px; }
+.offre-prix s { font-size: 1.15rem; color: var(--muted); text-decoration-thickness: 2px; }
+.offre-prix strong { font-family: var(--font-display); font-weight: 400; font-size: 3.2rem; line-height: 1; color: var(--ink); }
+.offre-prix.clair s { color: var(--night-muted); }
+.offre-prix.clair strong { color: #fff; }
+.offre-remise { align-self: center; padding: 4px 10px; border-radius: 8px; background: #ffd84d; color: #1d1600; font-weight: 800; font-size: .95rem; }
+.hero-economie { margin: 0 0 26px; color: var(--night-muted); font-size: .95rem; }
+.garanties { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; padding: 0; margin: 22px 0 0; font-size: .88rem; color: var(--ink-soft); }
+.garanties li::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: 6px; }
+.garanties.clair { color: var(--night-muted); }
+.garanties.clair li::before { color: #7ee2a8; }
+.comparaison { max-width: 900px; margin: 0 auto; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.comparaison-ligne { display: grid; grid-template-columns: 1.1fr 1fr 1.2fr; gap: 16px; padding: 16px 22px; border-top: 1px solid var(--line); align-items: center; font-size: .95rem; }
+.comparaison-tete { border-top: 0; background: var(--surface-2); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
+.comparaison-ligne > span:first-child { font-weight: 600; }
+.comparaison .non { color: var(--muted); }
+.comparaison .oui { color: var(--ink); font-weight: 600; }
+.comparaison .oui::before { content: "✓ "; color: var(--ok); }
+@media (max-width: 640px) {
+  .comparaison-ligne { grid-template-columns: 1fr 1fr; gap: 6px 14px; padding: 14px 16px; }
+  .comparaison-ligne > span:first-child { grid-column: 1 / -1; }
+  .comparaison-tete > span:first-child { display: none; }
+}
+.offre-packs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1000px; margin: 0 auto; }
+@media (max-width: 900px) { .offre-packs { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .offre-packs { grid-template-columns: 1fr; } }
+.offre-pack { display: flex; flex-direction: column; gap: 6px; padding: 24px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.offre-pack .badge { align-self: flex-start; }
+.offre-pack h3 { margin: 10px 0 0; }
+.offre-pack .btn { margin-top: auto; }
+.offre-pack small { margin-bottom: 14px; }
+.offre-pack-prix { font-family: var(--font-display); font-size: 2.4rem; line-height: 1.05; }
+.offre-pack.vedette { border: 2px solid var(--brand); box-shadow: var(--shadow-lg); }
+.barre-achat { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: none; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -10px 30px -18px rgba(0, 0, 0, .35);
+  transform: translateY(110%); transition: transform .25s ease; }
+.barre-achat.visible { transform: none; }
+.barre-achat s { color: var(--muted); font-size: .9rem; }
+.barre-achat strong { font-size: 1.25rem; }
+.barre-achat small { display: block; color: var(--muted); font-size: .78rem; }
+@media (max-width: 760px) { .barre-achat { display: flex; } }

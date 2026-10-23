@@ -45,6 +45,29 @@ export function emailConnexion(lienConnexion: string, code: string, nom?: string
   };
 }
 
+/** Remboursement effectué (total ou partiel). */
+export function emailRemboursement(o: Order, montantCents: number, total: boolean, nom?: string | null): Email {
+  const sujet = total ? "Votre commande Tapikard a été remboursée" : "Remboursement de votre commande Tapikard";
+  return {
+    sujet,
+    html: document({
+      sujet,
+      preheader: `${euros(montantCents)} vous ont été remboursés. Le crédit apparaît sous 5 à 10 jours ouvrés.`,
+      raison: "Vous recevez cet email suite à votre commande sur Tapikard.",
+      sections: [
+        section(
+          surtitre("Remboursement") +
+            titre("C’est fait,", "votre remboursement est parti.") +
+            para(`${bonjour(nom)} nous avons remboursé <strong>${euros(montantCents)}</strong>${total ? " : votre commande est entièrement remboursée." : " sur votre commande."} Le crédit apparaît sur votre moyen de paiement sous 5 à 10 jours ouvrés, selon votre banque.`) +
+            recap([["Commande", `<span style="font-family:monospace;font-size:13px;">${h(o.id)}</span>`], ["Montant remboursé", `<strong>${euros(montantCents)}</strong>`]]) +
+            para("Une question ? Répondez simplement à cet email, nous vous répondons rapidement."),
+          { bas: 28 },
+        ),
+      ],
+    }),
+  };
+}
+
 /** Commande payée : BAT à valider (personnalisée) ou mise en préparation (Basic). */
 export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | null): Email {
   const basic = o.product === "basic";

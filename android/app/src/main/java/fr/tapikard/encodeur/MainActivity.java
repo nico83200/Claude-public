@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Insets;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -20,6 +21,8 @@ import android.text.InputType;
 import android.view.WindowInsets;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -51,6 +54,8 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
     private volatile IsoDep carte;
     private volatile String uidCarte = "";
     private volatile boolean pageDuSite = false;
+    // Demande d'accès à la caméra (scan des QR codes) en attente de l'autorisation Android.
+    private PermissionRequest demandeCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +119,39 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
                 if (req.isForMainFrame()) afficherHorsLigne(String.valueOf(err.getDescription()));
             }
         });
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest req) {
+                boolean camera = false;
+                for (String r : req.getResources()) camera |= PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r);
+                if (!camera || !estDuSite(req.getOrigin())) {
+                    req.deny();
+                    return;
+                }
+                if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    req.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                } else {
+                    demandeCamera = req;
+                    requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 1);
+                }
+            }
+        });
         web.addJavascriptInterface(new Pont(), "TapikardNfc");
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(site + CHEMIN);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] permissions, int[] resultats) {
+        super.onRequestPermissionsResult(code, permissions, resultats);
+        if (demandeCamera == null) return;
+        if (resultats.length > 0 && resultats[0] == PackageManager.PERMISSION_GRANTED) {
+            demandeCamera.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+        } else {
+            demandeCamera.deny();
+        }
+        demandeCamera = null;
     }
 
     @Override

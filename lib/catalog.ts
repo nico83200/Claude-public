@@ -82,7 +82,11 @@ export const DEFAULT_DESIGN: CardDesign = {
 
 export type BasicVariant = "noir" | "blanc";
 
-export const BASIC_UNIT_CENTS = 1900;
+/** Prix de référence de la carte Basic, et remise immédiate de lancement. */
+export const BASIC_PRIX_REFERENCE_CENTS = 3499;
+export const REMISE_LANCEMENT = 0.4;
+/** Prix payé pour une carte : 34,99 € − 40 % = 20,99 €. */
+export const BASIC_UNIT_CENTS = Math.round(BASIC_PRIX_REFERENCE_CENTS * (1 - REMISE_LANCEMENT));
 
 export const BASIC_VARIANTS: Record<BasicVariant, { label: string; material: MaterialId; background: string; ink: string }> = {
   noir: { label: "Noir mat", material: "pvc_noir", background: "#141418", ink: "#ffffff" },
@@ -100,7 +104,8 @@ export function basicDesign(variant: BasicVariant): CardDesign {
 export function basicPriceCents(quantity: number) {
   const tier = [...QUANTITIES].reverse().find((t) => quantity >= t.qty) ?? QUANTITIES[0];
   const unit = Math.round(BASIC_UNIT_CENTS * (1 - tier.discount));
-  return { unit, total: unit * quantity, discount: tier.discount };
+  const reference = BASIC_PRIX_REFERENCE_CENTS * quantity;
+  return { unit, total: unit * quantity, discount: tier.discount, reference, economie: reference - unit * quantity };
 }
 
 export function priceCents(material: MaterialId, finish: FinishId, quantity: number) {

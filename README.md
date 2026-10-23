@@ -80,7 +80,10 @@ Variables optionnelles :
 - `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET` (paiement réel ; sinon paiement simulé) ;
 - `DATABASE_PATH` (par défaut `~/tapikard-data/tapikard.db` en production, hors du dossier de l'application) ;
 - `SUN_MASTER_K0` (encodage depuis le téléphone ; même valeur que sur le poste d'encodage) ;
-- `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` (recommandée : les formulaires restent valides d'une mise à jour à l'autre).
+- `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` (recommandée : les formulaires restent valides d'une mise à jour à l'autre) ;
+- `OFFRE_PERSONNALISEE=1` pour réafficher la carte personnalisée (masquée par défaut : seule la carte Basic est vendue).
+
+Prix : `BASIC_PRIX_REFERENCE_CENTS` (34,99 €) et `REMISE_LANCEMENT` (40 %) dans `lib/catalog.ts`.
 
 ### Application Android
 

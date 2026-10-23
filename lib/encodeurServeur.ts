@@ -2,11 +2,43 @@
 // Même séquence que tools/encodeur/encodeur.py : reprise d'une carte interrompue, refus d'une carte tierce.
 import * as n from "./ntag424.ts";
 import { diversifyKey, verifySun } from "./sun.ts";
+import { desfireCompatible, estDesfire, lireUrlType4, programmerDesfire } from "./desfire.ts";
 
 export class EncodageError extends Error {}
 
 export type Cles = { kMeta: Buffer; masterK1: Buffer; masterK0: Buffer };
-export type Resultat = { uid: string; compteur: number; reparation: boolean; url: string };
+export type Resultat = {
+  uid: string; compteur: number; reparation: boolean; url: string;
+  /** Nom de la puce ; `simple` : DESFire programmée avec une URL fixe (non sécurisée). */
+  puce: string; simple: boolean; verrouillee?: boolean;
+};
+
+/** Carte DESFire détectée : l'opérateur doit accepter explicitement une carte non sécurisée. */
+export class ConfirmationRequise extends Error {
+  puce: string;
+  constructor(puce: string) {
+    super(`${puce} : carte non sécurisée, confirmation requise`);
+    this.puce = puce;
+  }
+}
+
+/** Clés de la DESFire (clé maître de la carte et clé de l'application), diversifiées par puce. */
+export const clesDesfire = (c: Cles, uid: Buffer) => ({ picc: diversifyKey(c.masterK0, uid, 0x20), app: diversifyKey(c.masterK0, uid, 0x21) });
+
+async function version(t: n.Transmit): Promise<Buffer | null> {
+  try {
+    return await n.lireVersion(t);
+  } catch {
+    return null;
+  }
+}
+
+/** Lecture pour la vérification : URL et type de puce (NTAG 424 DNA signée, ou DESFire en NFC simple). */
+export async function lireCarte(t: n.Transmit): Promise<{ url: string; simple: boolean; puce: string | null }> {
+  const v = await version(t);
+  if (v && estDesfire(v)) return { url: await lireUrlType4(t), simple: true, puce: n.decrireVersion(v).nom };
+  return { url: await lireUrl(t), simple: false, puce: v ? n.decrireVersion(v).nom : null };
+}
 
 const VERSION_CLES = 0x01;
 
@@ -58,7 +90,23 @@ export function verifierUrl(url: string, c: Pick<Cles, "kMeta" | "masterK1">): {
   return { uid: r.uid, compteur: r.counter };
 }
 
-export async function encoderCarte(t: n.Transmit, baseUrl: string, cles: Cles, uidLecteur: Buffer | null, log: (m: string) => void = () => {}): Promise<Resultat> {
+export async function encoderCarte(
+  t: n.Transmit, baseUrl: string, cles: Cles, uidLecteur: Buffer | null, log: (m: string) => void = () => {},
+  options: { cardId?: string; accepterNonSecurisee?: boolean } = {},
+): Promise<Resultat> {
+  // 0. Type de puce : une DESFire EV2/EV3 peut servir de dépannage, en NFC simple (URL fixe, sans signature).
+  const v = await version(t);
+  if (v && estDesfire(v)) {
+    const { nom } = n.decrireVersion(v);
+    if (!desfireCompatible(v)) throw new EncodageError(`Cette carte est une ${nom} : seules les DESFire EV2 et EV3 peuvent être programmées en NFC simple. Utilisez des cartes NTAG 424 DNA.`);
+    if (!uidLecteur || !options.cardId) throw new EncodageError("UID ou identifiant de carte manquant");
+    if (!options.accepterNonSecurisee) throw new ConfirmationRequise(nom);
+    log(`${nom} : programmation en NFC simple (non sécurisée)`);
+    const url = `${baseUrl.replace(/\/$/, "")}/q/${options.cardId}`;
+    const r = await programmerDesfire(t, url, clesDesfire(cles, uidLecteur), log);
+    return { uid: uidLecteur.toString("hex").toUpperCase(), compteur: 0, reparation: false, url, puce: nom, simple: true, verrouillee: r.verrouillee };
+  }
+
   const gabarit = n.gabaritSun(baseUrl);
 
   // 1. URL : écriture libre sur une carte neuve (refusée si la carte est déjà verrouillée).
@@ -132,8 +180,8 @@ export async function encoderCarte(t: n.Transmit, baseUrl: string, cles: Cles, u
   // 6. Contrôle final, comme un téléphone puis comme le serveur.
   const url = await lireUrl(t);
   if (!url.startsWith(baseUrl.replace(/\/$/, "") + "/c?")) throw new EncodageError(`URL inattendue sur la carte : ${url}`);
-  const v = verifierUrl(url, cles);
-  if (v.uid !== uid.toString("hex").toUpperCase()) throw new EncodageError("la signature ne correspond pas à cette puce");
-  log(`signature vérifiée (compteur ${v.compteur})`);
-  return { uid: v.uid, compteur: v.compteur, reparation, url };
+  const sun = verifierUrl(url, cles);
+  if (sun.uid !== uid.toString("hex").toUpperCase()) throw new EncodageError("la signature ne correspond pas à cette puce");
+  log(`signature vérifiée (compteur ${sun.compteur})`);
+  return { uid: sun.uid, compteur: sun.compteur, reparation, url, puce: "NTAG 424 DNA", simple: false };
 }

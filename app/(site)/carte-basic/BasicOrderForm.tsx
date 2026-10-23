@@ -2,14 +2,14 @@
 
 import { useActionState, useState } from "react";
 import { CardPreview } from "@/components/CardPreview";
-import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, enRupture, euros, libelleRupture, type BasicVariant, type Ruptures } from "@/lib/catalog";
+import { BASIC_VARIANTS, QUANTITIES, REMISE_LANCEMENT, basicDesign, basicPriceCents, enRupture, euros, libelleRupture, type BasicVariant, type Ruptures } from "@/lib/catalog";
 import { createBasicOrder, type BasicOrderState } from "./actions";
 
-export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} }: { stripe: boolean; initialVariant?: BasicVariant; ruptures?: Ruptures }) {
+export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantity = 1, ruptures = {} }: { stripe: boolean; initialVariant?: BasicVariant; initialQuantity?: number; ruptures?: Ruptures }) {
   const disponibles = (Object.keys(BASIC_VARIANTS) as BasicVariant[]).filter((v) => !enRupture(ruptures, "basic", v));
   const [variant, setVariant] = useState<BasicVariant>(disponibles.includes(initialVariant) ? initialVariant : disponibles[0] ?? initialVariant);
   const indisponible = enRupture(ruptures, "basic", variant);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(initialQuantity);
   const [side, setSide] = useState<"recto" | "verso">("recto");
   const [state, action, pending] = useActionState<BasicOrderState, FormData>(createBasicOrder, {});
   const price = basicPriceCents(quantity);
@@ -36,7 +36,7 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} 
             <label className="choice" key={q.qty}>
               <input type="radio" name="q" checked={quantity === q.qty} onChange={() => setQuantity(q.qty)} />
               <strong>{q.qty} carte{q.qty > 1 ? "s" : ""}</strong>
-              <span>{euros(basicPriceCents(q.qty).unit)} / carte{q.discount ? ` (−${q.discount * 100} %)` : ""}</span>
+              <span><s>{euros(basicPriceCents(q.qty).reference)}</s> {euros(basicPriceCents(q.qty).total)}{q.qty > 1 ? ` · ${euros(basicPriceCents(q.qty).unit)} / carte` : ""}</span>
             </label>
           ))}
         </div>
@@ -56,10 +56,16 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} 
           <span>J’accepte les conditions de vente et la <a href="/confidentialite" target="_blank">politique de confidentialité</a>.</span>
         </label>
         {state.error && <div className="alert alert-danger" style={{ marginBottom: 14 }}>{state.error}</div>}
-        {indisponible && <div className="alert alert-warn" style={{ marginBottom: 14 }}>La carte Basic est momentanément en rupture de stock. <a href="/creer">La carte personnalisée</a> reste disponible.</div>}
+        {indisponible && <div className="alert alert-warn" style={{ marginBottom: 14 }}>Ce coloris est momentanément en rupture de stock.</div>}
         <button className="btn btn-lg btn-block" disabled={pending || indisponible}>
-          {pending ? "Un instant…" : stripe ? `Payer ${euros(price.total)}` : `Commander — ${euros(price.total)}`}
+          {pending ? "Un instant…" : stripe ? `Payer ${euros(price.total)} en toute sécurité` : `Commander — ${euros(price.total)}`}
         </button>
+        <p style={{ textAlign: "center", margin: "10px 0 0", fontWeight: 600, color: "var(--ok)" }}>Vous économisez {euros(price.economie)}</p>
+        <ul className="garanties" style={{ justifyContent: "center", marginTop: 12 }}>
+          <li>Paiement sécurisé</li>
+          <li>Livraison offerte</li>
+          <li>Rétractation 14 jours</li>
+        </ul>
         {!stripe && <p className="muted" style={{ fontSize: ".85rem", marginTop: 10 }}>Mode démo : le paiement sera simulé à l’étape suivante.</p>}
       </form>
 
@@ -70,8 +76,8 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} 
           <button type="button" className={`btn btn-sm ${side === "verso" ? "" : "btn-secondary"}`} onClick={() => setSide("verso")}>Verso (QR code)</button>
         </div>
         <div className="panel panel-flat" style={{ marginTop: 18 }}>
-          <div className="row between"><span>Carte Basic · {BASIC_VARIANTS[variant].label}</span><span>{euros(price.unit)} × {quantity}</span></div>
-          {price.discount > 0 && <div className="row between muted" style={{ fontSize: ".9rem" }}><span>Remise quantité</span><span>−{price.discount * 100} %</span></div>}
+          <div className="row between"><span>Carte Tapikard · {BASIC_VARIANTS[variant].label} × {quantity}</span><span>{euros(price.reference)}</span></div>
+          <div className="row between" style={{ fontSize: ".9rem", color: "var(--ok)", fontWeight: 600 }}><span>Offre de lancement −{REMISE_LANCEMENT * 100} %{price.discount > 0 ? ` et remise quantité −${price.discount * 100} %` : ""}</span><span>−{euros(price.economie)}</span></div>
           <div className="row between muted" style={{ fontSize: ".9rem" }}><span>Livraison</span><span>Offerte</span></div>
           <hr style={{ border: 0, borderTop: "1px solid var(--line)", margin: "12px 0" }} />
           <div className="row between" style={{ fontWeight: 700, fontSize: "1.2rem" }}><span>Total TTC</span><span>{euros(price.total)}</span></div>
@@ -80,7 +86,8 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} 
           <li>Puce NFC sécurisée NTAG 424 DNA + QR code</li>
           <li>Profil en ligne illimité, modifiable à vie</li>
           <li>Échange de coordonnées et statistiques</li>
-          <li>Livraison offerte, sans BAT à valider</li>
+          <li>Livraison offerte, sans maquette à valider</li>
+          <li>Sans abonnement</li>
         </ul>
       </aside>
     </div>

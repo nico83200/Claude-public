@@ -6,23 +6,25 @@ import { ORDER_STATUS_LABEL, type Order, type OrderStatus } from "@/lib/types";
 
 export const metadata = { title: "Commandes" };
 
-export default async function AdminOrders({ searchParams }: { searchParams: Promise<{ statut?: string; q?: string }> }) {
-  const { statut, q } = await searchParams;
+export default async function AdminOrders({ searchParams }: { searchParams: Promise<{ statut?: string; q?: string; archives?: string; supprimee?: string }> }) {
+  const { statut, q, archives, supprimee } = await searchParams;
   const filter = statut && statut in ORDER_STATUS_LABEL ? statut : null;
   const search = q?.trim() ? `%${q.trim()}%` : null;
   const orders = all<Order & { email: string }>(
     `SELECT o.*, u.email FROM orders o JOIN users u ON u.id = o.user_id
-     WHERE (? IS NULL OR o.status = ?) AND (? IS NULL OR o.id LIKE ? OR u.email LIKE ?)
-     ORDER BY o.created_at DESC LIMIT 200`, filter, filter, search, search, search);
+     WHERE (? IS NULL OR o.status = ?) AND (? IS NULL OR o.id LIKE ? OR u.email LIKE ?) AND ((o.archived_at IS NOT NULL) = ?)
+     ORDER BY o.created_at DESC LIMIT 200`, filter, filter, search, search, search, archives ? 1 : 0);
   return (
     <div>
-      <div className="page-head"><h1>Commandes</h1></div>
+      <div className="page-head"><h1>{archives ? "Commandes archivées" : "Commandes"}</h1><Link href={archives ? "/admin/commandes" : "/admin/commandes?archives=1"} className="btn btn-secondary btn-sm">{archives ? "← Commandes en cours" : "Voir les archivées"}</Link></div>
+      {supprimee && <div className="alert alert-ok">Commande {supprimee} supprimée.</div>}
       <form className="row" style={{ marginBottom: 16 }}>
         <input type="search" name="q" defaultValue={q} placeholder="N° de commande ou email" style={{ maxWidth: 300 }} />
         <select name="statut" defaultValue={filter ?? ""} style={{ maxWidth: 240 }}>
           <option value="">Tous les statuts</option>
           {(Object.keys(ORDER_STATUS_LABEL) as OrderStatus[]).map((s) => <option key={s} value={s}>{ORDER_STATUS_LABEL[s]}</option>)}
         </select>
+        {archives && <input type="hidden" name="archives" value="1" />}
         <button className="btn btn-secondary">Filtrer</button>
       </form>
       <div className="table-wrap">
@@ -36,7 +38,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
                 <td>{o.email}</td>
                 <td>{o.product === "basic" ? "Basic · " : ""}{o.quantity} × {MATERIALS[o.material as MaterialId]?.label ?? o.material}</td>
                 <td>{euros(o.amount_cents)}</td>
-                <td><OrderBadge status={o.status} /></td>
+                <td><OrderBadge status={o.status} />{o.refunded_cents > 0 && o.status !== "refunded" && <> <span className="badge badge-danger">remb. {euros(o.refunded_cents)}</span></>}</td>
               </tr>
             ))}
             {orders.length === 0 && <tr><td colSpan={6} className="muted">Aucune commande.</td></tr>}

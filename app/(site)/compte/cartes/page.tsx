@@ -24,7 +24,7 @@ export default async function CartesPage({ searchParams }: { searchParams: Promi
         </div>
       </div>
       {activee && <div className="alert alert-ok" style={{ marginBottom: 16 }}>Carte activée ! Faites un essai : approchez-la de votre téléphone.</div>}
-      {cards.length === 0 && <div className="panel"><p className="muted" style={{ margin: 0 }}>Aucune carte. <a href="/creer">Commander mes premières cartes</a></p></div>}
+      {cards.length === 0 && <div className="panel"><p className="muted" style={{ margin: 0 }}>Aucune carte. <a href="/carte-basic">Commander mes premières cartes</a></p></div>}
       <div className="stack">
         {cards.map((c) => (
           <div className="panel" key={c.id}>

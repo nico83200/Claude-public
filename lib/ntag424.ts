@@ -218,6 +218,17 @@ export function gabaritSun(baseUrl: string): { fichier: Buffer; url: string; sdm
   return { fichier: Buffer.concat([nlen, record]), url, sdm: { picc: e, macInput: m, mac: m } };
 }
 
+/** Fichier NDEF (NLEN + enregistrement URI) contenant une URL fixe. */
+export function fichierUrl(url: string): Buffer {
+  const prefixe = url.startsWith("https://") ? "https://" : url.startsWith("http://") ? "http://" : null;
+  if (!prefixe) throw new Error("URL invalide");
+  const payload = Buffer.concat([Buffer.from([prefixe === "https://" ? 0x04 : 0x03]), Buffer.from(url.slice(prefixe.length))]);
+  const record = Buffer.concat([Buffer.from([0xd1, 0x01, payload.length, 0x55]), payload]);
+  const nlen = Buffer.alloc(2);
+  nlen.writeUInt16BE(record.length);
+  return Buffer.concat([nlen, record]);
+}
+
 export function lireUri(fichier: Buffer): string {
   const nlen = fichier.readUInt16BE(0);
   const rec = fichier.subarray(2, 2 + nlen);

@@ -9,6 +9,7 @@ import { enregistrerRuptures } from "@/lib/stock";
 import { emailParId } from "@/lib/emails/catalogue";
 import type { Outil } from "@/lib/emails/campagnes";
 import { sendMail } from "@/lib/mail";
+import { archiverCommande, enregistrerRetour, rembourser, refuserRetour, supprimerCommande, type Motif } from "@/lib/retours";
 import { approveProof, createBasicStock, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
 
 export async function adminMarkPaid(orderId: string) {
@@ -77,4 +78,52 @@ export async function adminEnvoyerTestEmail(id: string, outil: Outil) {
   if (!trouve) redirect("/admin/emails");
   const ok = await sendMail(admin.email, `[Test] ${trouve.email.sujet}`, trouve.email.html);
   redirect(`/admin/emails?voir=${id}&outil=${outil}&${ok ? "envoye=1" : "erreur=" + encodeURIComponent("L’email de test n’a pas pu être envoyé : vérifiez la configuration SMTP.")}`);
+}
+
+// --- Retours, remboursements, archivage, suppression ----------------------------------------
+
+const versCommande = (id: string, q: string) => redirect(`/admin/commandes/${id}?${q}`);
+const montantCents = (v: FormDataEntryValue | null) => Math.round(Number(String(v ?? "").replace(",", ".").replace(/[^\d.]/g, "")) * 100);
+
+export async function adminRetour(orderId: string, form: FormData) {
+  await requireAdmin();
+  const mode = form.get("mode");
+  const err = await enregistrerRetour({
+    orderId,
+    motif: String(form.get("motif")) as Motif,
+    note: String(form.get("note") ?? "").trim(),
+    cartes: form.getAll("cartes").map(String),
+    desactiver: form.get("desactiver") === "on",
+    montantCents: montantCents(form.get("montant")),
+    mode: mode === "stripe" || mode === "manuel" ? mode : null,
+  });
+  versCommande(orderId, err ? `erreur=${encodeURIComponent(err)}` : "info=" + encodeURIComponent("Retour enregistré."));
+}
+
+export async function adminRembourser(orderId: string, retourId: number, form: FormData) {
+  await requireAdmin();
+  const err = await rembourser(retourId, montantCents(form.get("montant")), form.get("mode") === "stripe" ? "stripe" : "manuel");
+  versCommande(orderId, err ? `erreur=${encodeURIComponent(err)}` : "info=" + encodeURIComponent("Remboursement effectué : le client a été prévenu par email."));
+}
+
+export async function adminRefuserRetour(orderId: string, retourId: number) {
+  await requireAdmin();
+  refuserRetour(retourId);
+  versCommande(orderId, "info=" + encodeURIComponent("Retour refusé."));
+}
+
+export async function adminArchiver(orderId: string, archiver: boolean) {
+  await requireAdmin();
+  archiverCommande(orderId, archiver);
+  versCommande(orderId, "info=" + encodeURIComponent(archiver ? "Commande archivée : elle n’apparaît plus dans la liste par défaut." : "Commande désarchivée."));
+}
+
+export async function adminSupprimer(orderId: string, form: FormData) {
+  await requireAdmin();
+  if (String(form.get("confirmation") ?? "").trim().toUpperCase() !== "SUPPRIMER") {
+    versCommande(orderId, "erreur=" + encodeURIComponent("Tapez SUPPRIMER pour confirmer la suppression."));
+  }
+  const err = supprimerCommande(orderId);
+  if (err) versCommande(orderId, `erreur=${encodeURIComponent(err)}`);
+  redirect(`/admin/commandes?supprimee=${encodeURIComponent(orderId)}`);
 }

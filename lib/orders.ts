@@ -104,7 +104,7 @@ export function problemeUid(uid: string): string | null {
   return null;
 }
 
-export function registerEncodedCard(cardId: string, uidSaisi: string, counter: number): string | null {
+export function registerEncodedCard(cardId: string, uidSaisi: string, counter: number, puce: "desfire" | null = null): string | null {
   const card = get<Card>("SELECT * FROM cards WHERE id = ?", cardId);
   if (!card) return "Carte inconnue";
   const uid = uidSaisi.replace(/[\s:.-]/g, "").toUpperCase();
@@ -114,8 +114,8 @@ export function registerEncodedCard(cardId: string, uidSaisi: string, counter: n
   const other = get<{ id: string }>("SELECT id FROM cards WHERE uid = ? AND id <> ?", uid, cardId);
   if (other) return `Cette puce est déjà associée à la carte ${other.id}`;
   run(
-    "UPDATE cards SET uid = ?, last_counter = MAX(last_counter, ?), status = CASE status WHEN 'provisioned' THEN 'encoded' ELSE status END, encoded_at = COALESCE(encoded_at, datetime('now')) WHERE id = ?",
-    uid, counter, cardId,
+    "UPDATE cards SET uid = ?, puce = ?, last_counter = MAX(last_counter, ?), status = CASE status WHEN 'provisioned' THEN 'encoded' ELSE status END, encoded_at = COALESCE(encoded_at, datetime('now')) WHERE id = ?",
+    uid, puce, counter, cardId,
   );
   return null;
 }

@@ -21,7 +21,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
           <li><strong>Commande payée.</strong> Personnalisée : le client valide son BAT depuis sa page de commande (ou vous le validez pour lui dans Commandes). Basic : rien à valider.</li>
           <li><strong>Créer un lot</strong> (section 1 ci-dessous) : regroupe toutes les cartes prêtes à produire. Pour du stock Basic sans commande, utilisez « Créer un lot de stock ».</li>
           <li><strong>Télécharger le CSV du lot</strong> (section 2) et l’envoyer à l’imprimeur avec les BAT : chaque ligne donne l’URL du QR code à imprimer (unique par carte) et le code d’activation de l’encart.</li>
-          <li><strong>Encoder chaque carte imprimée</strong> avec le lecteur NFC (ACR122U) : sur le Mac du poste d’encodage, lancez <code>python3 encodeur.py --lot LOT-….csv</code> (dossier <code>tools/encodeur</code>, voir <code>docs/encodage-ntag424.md</code>) et posez les cartes une à une. Chaque carte est écrite, vérifiée et enregistrée ici automatiquement ; la barre « encodées » du lot avance.</li>
+          <li><strong>Encoder chaque carte imprimée</strong> avec l’application mobile (section 3) : choisissez le lot ou scannez le QR code de la carte, puis posez-la au dos du téléphone. Chaque carte est écrite, vérifiée et enregistrée ici automatiquement ; la barre « encodées » du lot avance.</li>
           <li><strong>Expédier</strong> : Commandes → la commande → numéro de suivi → « Marquer expédiée » (possible quand toutes ses cartes sont encodées).</li>
           <li><strong>Le client active</strong> sa carte en la scannant à réception.</li>
         </ol>
@@ -66,7 +66,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
 
       <div className="panel">
         <h3>2. Lots</h3>
-        <p className="muted" style={{ fontSize: ".9rem" }}>Le CSV contient, pour chaque carte : l’identifiant, l’URL à imprimer en QR (données variables), le code d’activation de l’encart et le design. L’imprimeur imprime ; vous encodez ensuite chaque carte avec le poste NTAG 424 (voir <code>docs/encodage-ntag424.md</code>).</p>
+        <p className="muted" style={{ fontSize: ".9rem" }}>Le CSV contient, pour chaque carte : l’identifiant, l’URL à imprimer en QR (données variables), le code d’activation de l’encart et le design. L’imprimeur imprime ; vous encodez ensuite chaque carte avec l’application mobile (section 3).</p>
         <div className="table-wrap">
           <table>
             <thead><tr><th>Lot</th><th>Créé le</th><th>Note</th><th>Encodage</th><th /></tr></thead>
@@ -90,15 +90,16 @@ export default async function Production({ searchParams }: { searchParams: Promi
       </div>
 
       <div className="panel">
-        <h3>3. Poste d’encodage</h3>
-        <p className="muted" style={{ fontSize: ".9rem" }}>
-          Le script du poste appelle <code>POST /api/encodage</code> avec l’en-tête <code>Authorization: Bearer ENCODING_API_KEY</code> et
-          le corps <code>{`{"cardId":"…","uid":"04…","counter":1}`}</code> après avoir écrit, configuré SUN, changé les clés et vérifié la carte.
+        <h3>3. Encodage des cartes</h3>
+        <p style={{ margin: "0 0 14px" }}>
+          Encodez avec votre téléphone Android : ouvrez <Link href="/encodage"><strong>la page d’encodage</strong></Link> sur le téléphone,
+          installez l’application <strong>Tapikard Encodeur</strong> proposée sur cette page, puis connectez-vous avec le code reçu par email.
         </p>
-        <details>
-          <summary style={{ cursor: "pointer", fontWeight: 600 }}>Saisie manuelle (dépannage)</summary>
-          <p className="muted" style={{ fontSize: ".88rem", margin: "10px 0 0" }}>
-            Uniquement pour une carte NTAG 424 DNA déjà encodée par le script (ex. encodée hors ligne). Son UID fait 7 octets :
+        <Link href="/encodage" className="btn">Ouvrir la page d’encodage</Link>
+        <div style={{ marginTop: 18 }}>
+          <strong>Saisie manuelle</strong>
+          <p className="muted" style={{ fontSize: ".88rem", margin: "6px 0 0" }}>
+            Pour une carte NTAG 424 DNA déjà encodée mais pas enregistrée (ex. encodée hors ligne). Son UID fait 7 octets :
             14 caractères hexadécimaux commençant par 04 (espaces et « : » acceptés).
           </p>
           <form action={adminRegisterEncoding} className="row" style={{ marginTop: 10 }}>
@@ -106,7 +107,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
             <input type="text" name="uid" placeholder="UID, ex. 04DE5F1EACC040" required style={{ maxWidth: 240 }} />
             <button className="btn btn-secondary">Enregistrer</button>
           </form>
-        </details>
+        </div>
       </div>
     </div>
   );

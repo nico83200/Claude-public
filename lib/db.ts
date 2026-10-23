@@ -97,12 +97,28 @@ CREATE TABLE IF NOT EXISTS leads (
   name TEXT NOT NULL, email TEXT, phone TEXT, company TEXT, message TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS retours (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  motif TEXT NOT NULL,               -- defaut | erreur | retractation | non_recu | autre
+  note TEXT,
+  cartes TEXT NOT NULL DEFAULT '[]', -- identifiants des cartes retournées (JSON)
+  statut TEXT NOT NULL DEFAULT 'ouvert', -- ouvert | rembourse | refuse
+  montant_cents INTEGER NOT NULL DEFAULT 0,
+  mode TEXT,                         -- stripe | manuel
+  stripe_refund_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  rembourse_at TEXT
+);
 `;
 
 // Évolutions du schéma appliquées aux bases existantes (déploiements déjà en ligne) : ajout de colonnes uniquement.
 const COLUMNS: [table: string, column: string, definition: string][] = [
   ["orders", "product", "TEXT NOT NULL DEFAULT 'custom'"], // 'custom' (personnalisée) | 'basic' (prête à l'emploi)
   ["cards", "variant", "TEXT"], // carte Basic de stock : 'noir' | 'blanc'
+  ["cards", "puce", "TEXT"], // 'desfire' : MIFARE DESFire en NFC simple (URL fixe, non sécurisée) ; vide : NTAG 424 DNA
+  ["orders", "archived_at", "TEXT"], // commande archivée : masquée de la liste par défaut
+  ["orders", "refunded_cents", "INTEGER NOT NULL DEFAULT 0"], // total remboursé
   ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],
   ["leads", "note", "TEXT"],
   ["users", "webhook_url", "TEXT"],

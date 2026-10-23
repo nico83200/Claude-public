@@ -211,6 +211,10 @@ téléphone se contente de la transmettre à la carte, puis de renvoyer la répo
    6 chiffres** reçu par email (le lien de l'email s'ouvrirait dans Chrome, pas dans l'application).
    La connexion est conservée 30 jours.
 
+**Encoder une carte en scannant son QR code :** touchez **Scanner le QR code d'une carte**, visez le QR code
+imprimé au verso (l'application demande l'accès à la caméra la première fois), puis posez la carte au dos du téléphone.
+Pratique pour encoder les cartes dans n'importe quel ordre, ou pour reprendre une carte précise.
+
 **Encoder un lot :**
 1. Créez le lot dans Back-office → Production, comme d'habitude.
 2. Dans l'application, choisissez le lot. Elle affiche la carte attendue (« Ab3dE5gH7j ») : posez au dos du
@@ -236,6 +240,7 @@ arrêtée. Le téléphone a besoin d'Internet pendant l'encodage (Wi-Fi conseill
 | `CERTIFICATE_VERIFY_FAILED` | Python installé depuis python.org : lancez « Install Certificates.command » dans le dossier Applications/Python 3.x |
 | `Le site ne reconnaît pas la signature` | `SUN_K_META` / `SUN_MASTER_K1` du poste différentes de celles de Hostinger : corrigez avant de continuer |
 | « Cette carte est une MIFARE DESFire… / MIFARE Plus…, pas une NTAG 424 DNA » (ou `sélection de l'application NDEF : SW 6A82`) | La puce n'a pas l'application NDEF d'une NTAG 424 DNA : ce ne sont pas les bonnes cartes. Vérifiez la référence auprès du fournisseur (« NTAG 424 DNA », réf. NXP NT4H2421) ou contrôlez avec l'application NXP TagInfo |
+| Rupture de NTAG 424 DNA : cartes MIFARE DESFire EV2 ou EV3 | L'application les reconnaît et propose de les programmer en **NFC simple** après un avertissement : adresse fixe `/q/<carte>` comme le QR code, lisible par tous les téléphones, mais copiable et sans badge « Carte authentique ». La puce est effacée puis verrouillée par des clés Tapikard (dérivées de `SUN_MASTER_K0`). Ces cartes portent le badge « ⚠ NFC simple » dans le back-office. Les DESFire EV1 ne sont pas prises en charge |
 | Application Android : « Carte non compatible » | Même cause que l'UID de 4 octets ci-dessus : ce n'est pas une NTAG 424 DNA |
 | Application Android : « Encodage mobile indisponible » | Ajoutez `SUN_MASTER_K0` (même valeur que dans `encodeur.env`) aux variables Hostinger et redéployez |
 | Application Android : la carte n'est pas détectée | Activez le NFC (Réglages → Appareils connectés), retirez la coque si elle est épaisse ou métallique, et cherchez la zone NFC en déplaçant lentement la carte au dos du téléphone |

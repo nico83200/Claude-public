@@ -1,24 +1,17 @@
 import Link from "next/link";
 import { CardPreview } from "@/components/CardPreview";
-import { BASIC_UNIT_CENTS, BASIC_VARIANTS, DEFAULT_DESIGN, MATERIALS, basicCommandable, basicDesign, enRupture, euros, libelleRupture, matiereCommandable, type BasicVariant, type CardDesign } from "@/lib/catalog";
+import { BarreAchat } from "@/components/BarreAchat";
+import {
+  BASIC_PRIX_REFERENCE_CENTS, BASIC_UNIT_CENTS, BASIC_VARIANTS, QUANTITIES, REMISE_LANCEMENT,
+  basicCommandable, basicDesign, basicPriceCents, enRupture, euros, libelleRupture, type BasicVariant,
+} from "@/lib/catalog";
 import { ruptures } from "@/lib/stock";
 import { APP_URL } from "@/lib/config";
 
 // Le QR code des cartes affichées est réel : il ouvre le profil d'exemple.
 const demoQr = `${APP_URL}/exemple`;
-const prix = (c: number) => euros(c).replace(",00", "");
-
-const SHOWCASE: { design: CardDesign; titre: string; detail: string }[] = [
-  { design: { ...DEFAULT_DESIGN }, titre: "PVC blanc · Moderne", detail: "Impression quadri, vos couleurs et votre logo" },
-  {
-    design: { ...DEFAULT_DESIGN, template: "classique", material: "bambou", background: "#d9b483", ink: "#3b2614", name: "Jules Bernard", title: "Architecte", company: "Bernard & Associés", phone: "+33 6 45 12 78 90", email: "jules@bernard-associes.fr", website: "bernard-associes.fr" },
-    titre: "Bambou · Classique", detail: "Bois naturel gravé au laser",
-  },
-  {
-    design: { ...DEFAULT_DESIGN, template: "minimal", material: "metal_noir", background: "#1f2024", ink: "#d6b25e", name: "Léa Fontaine", title: "Fondatrice", company: "Maison Fontaine", phone: "+33 6 01 02 03 04", email: "lea@maisonfontaine.fr", website: "maisonfontaine.fr" },
-    titre: "Métal noir · Minimal", detail: "Acier brossé, gravure or ou argent",
-  },
-];
+const REMISE = `−${Math.round(REMISE_LANCEMENT * 100)} %`;
+const ECONOMIE = euros(BASIC_PRIX_REFERENCE_CENTS - BASIC_UNIT_CENTS);
 
 const Icon = ({ d }: { d: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={d} /></svg>
@@ -30,53 +23,72 @@ const TRUST = [
   ["M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "Imprimée et encodée en France"],
 ];
 
+const COMPARAISON: [string, string, string][] = [
+  ["Coordonnées enregistrées", "Recopiées à la main… ou jamais", "En un geste, directement dans le téléphone"],
+  ["Changement de poste ou de numéro", "Toute la boîte à réimprimer", "Modifié en 10 secondes depuis votre espace"],
+  ["Contact de la personne rencontrée", "Vous ne l’avez pas", "Elle vous laisse le sien, vous le recevez par email"],
+  ["Durée de vie", "Une centaine de cartes, puis on recommence", "Une seule carte, pendant des années"],
+];
+
 const FAQ = [
   ["Faut-il une application ?", "Non. Les iPhone (XS et plus récents) et la quasi-totalité des Android lisent la carte nativement. Pour les autres, le QR code au verso ouvre le même profil."],
-  ["Quelle différence entre la Basic et la carte personnalisée ?", "La puce, le QR code et le profil en ligne sont identiques. La Basic porte le design Tapikard (noir mat ou blanc) et part sans BAT à valider ; la personnalisée reçoit votre logo, vos couleurs et vos informations imprimées."],
+  ["Pourquoi 40 % de remise ?", `C’est notre offre de lancement : la carte Basic est à ${euros(BASIC_UNIT_CENTS)} au lieu de ${euros(BASIC_PRIX_REFERENCE_CENTS)}, remise appliquée immédiatement, sans code promo. Elle peut s’arrêter à tout moment.`],
+  ["Que contient la carte ?", "Une carte PVC noir mat ou blanc au design Tapikard, une puce NFC sécurisée et un QR code de secours au verso. Votre profil en ligne (photo, coordonnées, liens, rendez-vous) est inclus à vie, sans abonnement."],
   ["Puis-je modifier mes informations après réception ?", "Oui, à tout moment et autant de fois que vous le souhaitez depuis votre espace. La carte n’a jamais besoin d’être réimprimée."],
   ["Que se passe-t-il si je perds ma carte ?", "Déclarez-la perdue depuis votre espace : elle n’affiche plus aucune donnée personnelle. Vous pouvez en commander une autre reliée au même profil."],
   ["Comment récupérer les coordonnées des personnes qui me scannent ?", "Après avoir enregistré votre contact, votre interlocuteur peut vous laisser le sien en quelques secondes. Vous le recevez par email avec sa fiche à ajouter à votre carnet, et dans votre espace (export Excel, synchronisation CRM)."],
+  ["Et si la carte ne me convient pas ?", "Vous disposez de 14 jours après réception pour exercer votre droit de rétractation : écrivez-nous et nous vous remboursons."],
   ["Mes données sont-elles protégées ?", "Hébergement en Europe, vous choisissez chaque information publiée, et les statistiques ne conservent ni adresse IP ni cookie de suivi."],
 ];
 
-/** Bouton remplacé par une mention quand l'option est en rupture. */
-function Indispo({ texte, light = false }: { texte: string; light?: boolean }) {
-  return <span className={`btn btn-block ${light ? "btn-outline-light" : "btn-secondary"}`} aria-disabled style={{ opacity: .6, cursor: "default", whiteSpace: "normal" }}>{texte}</span>;
+function Prix({ clair = false }: { clair?: boolean }) {
+  return (
+    <div className={`offre-prix${clair ? " clair" : ""}`}>
+      <span className="offre-remise">{REMISE}</span>
+      <s aria-label={`Prix de référence ${euros(BASIC_PRIX_REFERENCE_CENTS)}`}>{euros(BASIC_PRIX_REFERENCE_CENTS)}</s>
+      <strong>{euros(BASIC_UNIT_CENTS)}</strong>
+    </div>
+  );
 }
 
 export default function Home() {
   const r = ruptures();
+  const dispo = basicCommandable(r);
   const coloris = (Object.keys(BASIC_VARIANTS) as BasicVariant[]).filter((v) => !enRupture(r, "basic", v));
+  const cta = dispo ? `Je commande ma carte · ${euros(BASIC_UNIT_CENTS)}` : "Bientôt de retour en stock";
+
   return (
     <>
-      {/* --- Hero : la carte Basic ------------------------------------------------ */}
+      {/* --- Hero : l'offre ---------------------------------------------------------- */}
       <section className="hero dark">
         <div className="container">
           <div>
-            <span className="eyebrow">Carte Basic · prête à l’emploi</span>
+            <span className="badge-lancement">Offre de lancement · {REMISE} immédiatement</span>
             <h1>Votre carte de visite, <em>d’un simple geste.</em></h1>
             <p className="lead">
-              Une carte NFC sobre et élégante, noir mat ou blanc. Approchez-la d’un téléphone : vos coordonnées
-              s’affichent et s’enregistrent. Sans application, modifiables à vie.
+              Approchez la carte d’un téléphone : vos coordonnées s’affichent et s’enregistrent. Sans application,
+              modifiables à vie, et vous récupérez le contact de la personne en face.
             </p>
-            <div className="hero-price">
-              <strong>{prix(BASIC_UNIT_CENTS)}</strong>
-              <span>la carte · livraison offerte<br />dégressif dès 2 cartes</span>
-            </div>
+            <Prix clair />
+            <p className="hero-economie">Vous économisez {ECONOMIE} · livraison offerte · profil inclus à vie</p>
             <div className="hero-actions">
-              <Link href="/carte-basic" className="btn btn-light btn-lg">Commander la carte Basic</Link>
+              {dispo
+                ? <Link href="/carte-basic" className="btn btn-light btn-lg">{cta}</Link>
+                : <span className="btn btn-outline-light btn-lg" aria-disabled>{cta}</span>}
               <Link href="/exemple" className="btn btn-outline-light btn-lg">Voir un profil exemple</Link>
             </div>
-            <p className="hero-note">
-              {coloris.length > 0 ? (
+            <ul className="garanties clair">
+              <li>Paiement sécurisé</li>
+              <li>Livraison offerte</li>
+              <li>Rétractation 14 jours</li>
+            </ul>
+            {coloris.length > 0 && (
+              <p className="hero-note">
                 <span className="swatch-row">Disponible en {coloris.map((v) => (
                   <span key={v} className="swatch-row"><span className="swatch-dot" style={{ background: BASIC_VARIANTS[v].background }} /> {BASIC_VARIANTS[v].label.toLowerCase()}</span>
                 ))}</span>
-              ) : (
-                <span className="swatch-row">Carte Basic momentanément en rupture de stock</span>
-              )}
-              <br />Votre logo et vos couleurs ? <Link href="/creer">Carte personnalisée</Link>, dès {prix(MATERIALS.pvc_blanc.unitCents)}.
-            </p>
+              </p>
+            )}
           </div>
           <div className="hero-cards" aria-hidden>
             <CardPreview className="back" design={basicDesign("blanc")} side="recto" qrUrl={demoQr} />
@@ -91,8 +103,29 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- La Basic en détail --------------------------------------------------- */}
+      {/* --- Le problème ------------------------------------------------------------- */}
       <section className="section">
+        <div className="container">
+          <div className="section-title">
+            <span className="eyebrow">Pourquoi passer au NFC</span>
+            <h2 style={{ marginTop: 14 }}>La carte papier finit <em>au fond d’une poche.</em></h2>
+            <p>La vôtre s’enregistre directement dans le téléphone de votre interlocuteur, et vous rapporte son contact.</p>
+          </div>
+          <div className="comparaison">
+            <div className="comparaison-ligne comparaison-tete"><span /><span>Carte papier</span><span>Carte Tapikard</span></div>
+            {COMPARAISON.map(([critere, papier, nfc]) => (
+              <div className="comparaison-ligne" key={critere}>
+                <span>{critere}</span>
+                <span className="non">{papier}</span>
+                <span className="oui">{nfc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- La carte ------------------------------------------------------------------ */}
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="container spotlight">
           <div className="spotlight-visual">
             <CardPreview design={basicDesign("noir")} side="recto" qrUrl={demoQr} />
@@ -102,10 +135,9 @@ export default function Home() {
             <span className="eyebrow">La carte Basic</span>
             <h2 style={{ marginTop: 14 }}>Tout l’essentiel, <em>rien de superflu.</em></h2>
             <p className="muted" style={{ fontSize: "1.05rem" }}>
-              La même technologie que nos cartes sur mesure, avec le design Tapikard. Pas de maquette, pas de BAT :
-              vous commandez, vous recevez, vous scannez votre carte pour l’activer et vous complétez votre profil.
+              Une carte sobre et élégante, prête à l’emploi. Pas de maquette à valider : vous commandez, vous recevez,
+              vous scannez votre carte pour l’activer et vous complétez votre profil en deux minutes.
             </p>
-            <div className="price-tag"><strong>{prix(BASIC_UNIT_CENTS)}</strong><span className="muted">TTC la carte · livraison offerte</span></div>
             <ul className="includes">
               <li>Carte PVC noir mat ou blanc, finition mate</li>
               <li>Puce NFC sécurisée NTAG 424 DNA et QR code de secours</li>
@@ -113,7 +145,8 @@ export default function Home() {
               <li>Échange de coordonnées avec les personnes qui vous scannent</li>
               <li>Statistiques, export des contacts, désactivation en cas de perte</li>
             </ul>
-            <div className="row">
+            <Prix />
+            <div className="row" style={{ marginTop: 18 }}>
               {enRupture(r, "basic", "noir")
                 ? <span className="btn btn-secondary btn-lg" aria-disabled style={{ opacity: .6, cursor: "default" }}>Noir mat : {libelleRupture(r, "basic", "noir").toLowerCase()}</span>
                 : <Link href="/carte-basic?couleur=noir" className="btn btn-lg">Commander en noir mat</Link>}
@@ -134,7 +167,7 @@ export default function Home() {
           </div>
           <div className="steps">
             {[
-              ["Commandez", "Choisissez le noir mat ou le blanc. Votre carte est imprimée, encodée et vérifiée dans notre atelier, puis expédiée."],
+              ["Commandez", "Choisissez le noir mat ou le blanc. Votre carte est imprimée, encodée et vérifiée dans notre atelier, puis expédiée gratuitement."],
               ["Activez", "À réception, scannez votre carte : votre compte s’ouvre. Ajoutez votre photo, vos coordonnées et vos liens."],
               ["Partagez", "Approchez la carte d’un téléphone. Votre contact s’enregistre en un geste, et vous recevez le sien en retour."],
             ].map(([t, d], i) => (
@@ -144,6 +177,9 @@ export default function Home() {
                 <p className="muted" style={{ margin: 0 }}>{d}</p>
               </div>
             ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 36 }}>
+            <Link href="/exemple" className="btn btn-secondary btn-lg">Voir ce que verra votre interlocuteur</Link>
           </div>
         </div>
       </section>
@@ -179,28 +215,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- Cartes personnalisées --------------------------------------------------- */}
-      <section className="section">
-        <div className="container">
-          <div className="section-title">
-            <span className="eyebrow">Sur mesure</span>
-            <h2 style={{ marginTop: 14 }}>Ou une carte <em>à votre image.</em></h2>
-            <p>Votre logo, vos couleurs, vos informations imprimées. PVC, bambou ou métal, avec un BAT à valider avant impression.</p>
-          </div>
-          <div className="showcase">
-            {SHOWCASE.map((s) => (
-              <figure key={s.titre}>
-                <CardPreview design={s.design} side="recto" qrUrl={demoQr} />
-                <figcaption><strong>{s.titre}</strong>{s.detail}</figcaption>
-              </figure>
-            ))}
-          </div>
-          <div style={{ textAlign: "center", marginTop: 40 }}>
-            <Link href="/creer" className="btn btn-secondary btn-lg">Personnaliser ma carte</Link>
-          </div>
-        </div>
-      </section>
-
       {/* --- Sécurité ---------------------------------------------------------------- */}
       <section className="section-tight">
         <div className="container">
@@ -218,39 +232,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- Tarifs -------------------------------------------------------------------- */}
-      <section className="section" id="tarifs">
+      {/* --- L'offre ------------------------------------------------------------------- */}
+      <section className="section" id="offre">
         <div className="container">
           <div className="section-title">
-            <span className="eyebrow">Tarifs</span>
-            <h2 style={{ marginTop: 14 }}>Payez la carte, <em>le profil est offert.</em></h2>
-            <p>Profil en ligne inclus à vie. Livraison offerte. −10 % dès 2 cartes, −20 % dès 5, −30 % dès 10, −40 % dès 25.</p>
+            <span className="eyebrow">Offre de lancement</span>
+            <h2 style={{ marginTop: 14 }}>{REMISE} sur votre carte, <em>tout de suite.</em></h2>
+            <p>Remise appliquée automatiquement, sans code. Profil en ligne inclus à vie, sans abonnement. Livraison offerte.</p>
           </div>
-          <div className="plans">
-            <div className="plan plan-featured">
-              {basicCommandable(r)
-                ? <span className="badge badge-brand" style={{ alignSelf: "flex-start" }}>Prête à l’emploi</span>
-                : <span className="badge badge-warn" style={{ alignSelf: "flex-start" }}>Rupture de stock</span>}
-              <h3 style={{ marginTop: 14 }}>Carte Basic</h3>
-              <div className="price">{prix(BASIC_UNIT_CENTS)}</div>
-              <p>Design Tapikard noir mat ou blanc, NFC + QR code. Sans BAT.</p>
-              {basicCommandable(r) ? <Link href="/carte-basic" className="btn btn-light btn-block">Commander</Link> : <Indispo light texte="Bientôt de retour" />}
-            </div>
-            {(Object.keys(MATERIALS) as (keyof typeof MATERIALS)[]).map((m) => (
-              <div className="plan" key={m}>
-                {matiereCommandable(m, r)
-                  ? <span className="badge" style={{ alignSelf: "flex-start" }}>Personnalisée</span>
-                  : <span className="badge badge-warn" style={{ alignSelf: "flex-start" }}>Rupture de stock</span>}
-                <h3 style={{ marginTop: 14 }}>{MATERIALS[m].label}</h3>
-                <div className="price">{prix(MATERIALS[m].unitCents)}</div>
-                <p>{MATERIALS[m].description}</p>
-                {matiereCommandable(m, r)
-                  ? <Link href={`/creer?matiere=${m}`} className="btn btn-secondary btn-block">Personnaliser</Link>
-                  : <Indispo texte={enRupture(r, "material", m) ? (r[`material:${m}`] || "Bientôt de retour") : "Bientôt de retour"} />}
-              </div>
-            ))}
+          <div className="offre-packs">
+            {QUANTITIES.filter((q) => q.qty <= 10).map((q) => {
+              const p = basicPriceCents(q.qty);
+              const vedette = q.qty === 1;
+              return (
+                <div className={`offre-pack${vedette ? " vedette" : ""}`} key={q.qty}>
+                  {vedette ? <span className="badge badge-brand">Le plus choisi</span> : <span className="badge">Équipe</span>}
+                  <h3>{q.qty} carte{q.qty > 1 ? "s" : ""}</h3>
+                  <s className="muted">{euros(p.reference)}</s>
+                  <div className="offre-pack-prix">{euros(p.total)}</div>
+                  <small className="muted">{q.qty > 1 ? `${euros(p.unit)} la carte · ` : ""}vous économisez {euros(p.economie)}</small>
+                  {dispo
+                    ? <Link href={`/carte-basic?quantite=${q.qty}`} className={`btn btn-block ${vedette ? "" : "btn-secondary"}`}>Commander</Link>
+                    : <span className="btn btn-secondary btn-block" aria-disabled style={{ opacity: .6 }}>Bientôt de retour</span>}
+                </div>
+              );
+            })}
           </div>
-          <p className="muted" style={{ textAlign: "center", marginTop: 22, fontSize: ".92rem" }}>Équipes et entreprises : charte imposée, gestion centralisée, facturation — <a href="mailto:bonjour@tapikard.com">contactez-nous</a>.</p>
+          <ul className="garanties" style={{ justifyContent: "center", marginTop: 26 }}>
+            <li>Paiement sécurisé</li>
+            <li>Livraison offerte en France</li>
+            <li>Rétractation 14 jours</li>
+            <li>Sans abonnement</li>
+          </ul>
+          <p className="muted" style={{ textAlign: "center", marginTop: 14, fontSize: ".92rem" }}>Plus de 10 cartes pour votre équipe ? <a href="mailto:bonjour@tapikard.com">Écrivez-nous</a> pour un devis.</p>
         </div>
       </section>
 
@@ -275,16 +289,19 @@ export default function Home() {
       <section className="container">
         <div className="cta-band dark">
           <div>
-            <h2 style={{ marginBottom: 12 }}>Prête en quelques jours, <em>utile pendant des années.</em></h2>
-            <p className="lead" style={{ marginBottom: 26 }}>La carte Basic à {prix(BASIC_UNIT_CENTS)}, livraison offerte. Votre profil reste modifiable à vie.</p>
+            <h2 style={{ marginBottom: 12 }}>Votre prochaine rencontre <em>mérite mieux qu’un bout de papier.</em></h2>
+            <Prix clair />
+            <p className="lead" style={{ margin: "14px 0 26px" }}>Livraison offerte. Profil modifiable à vie. Offre de lancement limitée dans le temps.</p>
             <div className="row">
-              <Link href="/carte-basic" className="btn btn-light btn-lg">Commander la carte Basic</Link>
-              <Link href="/creer" className="btn btn-outline-light btn-lg">Personnaliser</Link>
+              {dispo && <Link href="/carte-basic" className="btn btn-light btn-lg">{cta}</Link>}
+              <Link href="/exemple" className="btn btn-outline-light btn-lg">Voir un exemple</Link>
             </div>
           </div>
           <CardPreview design={basicDesign("noir")} side="verso" qrUrl={demoQr} style={{ transform: "rotate(-4deg)", maxWidth: 420, justifySelf: "center" }} />
         </div>
       </section>
+
+      {dispo && <BarreAchat />}
     </>
   );
 }

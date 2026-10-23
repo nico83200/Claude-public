@@ -14,7 +14,7 @@ export default async function CompteLayout({ children }: { children: React.React
         <Link href="/compte/commandes">Commandes</Link>
         <div className="sep" />
         {!!user.is_admin && <Link href="/admin">Back-office</Link>}
-        <Link href="/creer">Commander des cartes</Link>
+        <Link href="/carte-basic">Commander des cartes</Link>
         <form action="/deconnexion" method="post"><button className="btn btn-ghost btn-sm" style={{ paddingLeft: 12 }}>Se déconnecter</button></form>
         <small className="muted" style={{ padding: "4px 12px" }}>{user.email}</small>
       </nav>

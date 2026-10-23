@@ -95,14 +95,15 @@ export function section(html: string, opts: Omit<Section, "html"> = {}): Section
 type Options = {
   sujet: string;
   preheader: string;
-  sections: Section[];
+  sections: (Section | false)[];
   /** Raison de l'envoi, rappelée dans le pied de page (emails automatiques). */
   raison?: string;
   /** Campagne : ajoute le lien de désinscription (balise de l'outil d'emailing). */
   desinscription?: string;
 };
 
-export function document({ sujet, preheader, sections, raison, desinscription }: Options): string {
+export function document({ sujet, preheader, sections: toutes, raison, desinscription }: Options): string {
+  const sections = toutes.filter((s): s is Section => s !== false);
   const debutSombre = sections[0]?.fond === "nuit";
   const lignes = sections
     .map((s, i) => {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { currentUser } from "@/lib/auth";
 import { BASIC_UNIT_CENTS, euros } from "@/lib/catalog";
+import { OFFRE_PERSONNALISEE } from "@/lib/config";
 import { Logo } from "./Logo";
 
 export async function SiteHeader() {
@@ -10,11 +11,12 @@ export async function SiteHeader() {
       <div className="container">
         <Logo />
         <nav className="nav" aria-label="Navigation principale">
-          <Link href="/carte-basic" className="hide-sm">Carte Basic</Link>
-          <Link href="/creer" className="hide-sm">Personnalisée</Link>
-          <Link href="/#tarifs" className="hide-sm">Tarifs</Link>
+          <Link href="/#fonctionnement" className="hide-sm">Comment ça marche</Link>
+          <Link href="/exemple" className="hide-sm">Exemple</Link>
+          {OFFRE_PERSONNALISEE && <Link href="/creer" className="hide-sm">Personnalisée</Link>}
+          <Link href="/#offre" className="hide-sm">Tarifs</Link>
           {user ? <Link href={user.is_admin ? "/admin" : "/compte"}>{user.is_admin ? "Back-office" : "Mon espace"}</Link> : <Link href="/connexion">Connexion</Link>}
-          <Link href="/carte-basic" className="btn btn-sm"><span>Commander<span className="hide-xs"> · {euros(BASIC_UNIT_CENTS).replace(",00", "")}</span></span></Link>
+          <Link href="/carte-basic" className="btn btn-sm"><span>Commander<span className="hide-xs"> · {euros(BASIC_UNIT_CENTS)}</span></span></Link>
         </nav>
       </div>
     </header>
@@ -33,10 +35,10 @@ export function SiteFooter() {
           <div>
             <h4>Cartes</h4>
             <ul>
-              <li><Link href="/carte-basic">Carte Basic</Link></li>
-              <li><Link href="/creer">Carte personnalisée</Link></li>
+              <li><Link href="/carte-basic">Commander la carte</Link></li>
+              {OFFRE_PERSONNALISEE && <li><Link href="/creer">Carte personnalisée</Link></li>}
               <li><Link href="/exemple">Voir un profil exemple</Link></li>
-              <li><Link href="/#tarifs">Tarifs</Link></li>
+              <li><Link href="/#offre">Tarifs</Link></li>
             </ul>
           </div>
           <div>

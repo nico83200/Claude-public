@@ -1,11 +1,13 @@
+import { redirect } from "next/navigation";
 import { Configurator } from "./Configurator";
-import { STRIPE_ENABLED } from "@/lib/config";
+import { OFFRE_PERSONNALISEE, STRIPE_ENABLED } from "@/lib/config";
 import { MATERIALS, personnaliseeCommandable, type MaterialId } from "@/lib/catalog";
 import { ruptures } from "@/lib/stock";
 
 export const metadata = { title: "Créer ma carte" };
 
 export default async function CreerPage({ searchParams }: { searchParams: Promise<{ matiere?: string }> }) {
+  if (!OFFRE_PERSONNALISEE) redirect("/carte-basic");
   const { matiere } = await searchParams;
   const initialMaterial = matiere && matiere in MATERIALS ? (matiere as MaterialId) : undefined;
   const r = ruptures();

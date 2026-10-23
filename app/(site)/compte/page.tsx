@@ -39,7 +39,7 @@ export default async function ComptePage() {
       <div className="grid grid-2">
         <div className="panel">
           <div className="row between"><h3>Mes cartes</h3><Link href="/compte/cartes">Gérer</Link></div>
-          {cards.length === 0 ? <p className="muted">Aucune carte pour l’instant. <Link href="/creer">Commander</Link></p> : (
+          {cards.length === 0 ? <p className="muted">Aucune carte pour l’instant. <Link href="/carte-basic">Commander</Link></p> : (
             <table><tbody>
               {cards.map((c) => <tr key={c.id}><td>{c.label ?? c.id}<br /><small className="muted">{c.profile_name ?? "Sans profil"}</small></td><td style={{ textAlign: "right" }}><CardBadge status={c.status} /></td></tr>)}
             </tbody></table>

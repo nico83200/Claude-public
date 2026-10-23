@@ -1,25 +1,32 @@
-import Link from "next/link";
 import { STRIPE_ENABLED } from "@/lib/config";
-import { BASIC_UNIT_CENTS, euros } from "@/lib/catalog";
+import { BASIC_PRIX_REFERENCE_CENTS, BASIC_UNIT_CENTS, QUANTITIES, REMISE_LANCEMENT, euros } from "@/lib/catalog";
 import { ruptures } from "@/lib/stock";
 import { BasicOrderForm } from "./BasicOrderForm";
 
-export const metadata = { title: "Carte Basic — prête à l’emploi" };
+export const metadata = {
+  title: `Commander votre carte de visite NFC — ${euros(BASIC_UNIT_CENTS)}`,
+  description: `Carte de visite NFC Tapikard : ${euros(BASIC_UNIT_CENTS)} au lieu de ${euros(BASIC_PRIX_REFERENCE_CENTS)} (offre de lancement −${REMISE_LANCEMENT * 100} %). Livraison offerte, profil modifiable à vie.`,
+};
 
-export default async function CarteBasicPage({ searchParams }: { searchParams: Promise<{ couleur?: string }> }) {
-  const { couleur } = await searchParams;
+export default async function CarteBasicPage({ searchParams }: { searchParams: Promise<{ couleur?: string; quantite?: string }> }) {
+  const { couleur, quantite } = await searchParams;
+  const q = Number(quantite);
   return (
     <div className="container">
       <div className="page-intro">
-        <span className="eyebrow">Prête à l’emploi · {euros(BASIC_UNIT_CENTS).replace(",00", "")} la carte</span>
-        <h1>La carte <em>Basic</em></h1>
+        <span className="badge-lancement">Offre de lancement · −{REMISE_LANCEMENT * 100} % immédiatement</span>
+        <h1 style={{ marginTop: 16 }}>Votre carte <em>Tapikard</em></h1>
         <p className="lead" style={{ maxWidth: 720 }}>
-          La même puce NFC sécurisée et le même QR code que nos cartes sur mesure, avec le design Tapikard, en noir mat ou en blanc.
-          Pas de BAT à valider : vous complétez votre profil à réception, et vous le modifiez à vie.
-          Envie de votre logo et de vos couleurs ? <Link href="/creer">Créez une carte personnalisée</Link>.
+          {euros(BASIC_UNIT_CENTS)} au lieu de {euros(BASIC_PRIX_REFERENCE_CENTS)}, livraison offerte. Puce NFC sécurisée et QR code, en noir mat ou en blanc.
+          Pas de maquette à valider : vous complétez votre profil à réception, et vous le modifiez à vie.
         </p>
       </div>
-      <BasicOrderForm stripe={STRIPE_ENABLED} initialVariant={couleur === "blanc" ? "blanc" : "noir"} ruptures={ruptures()} />
+      <BasicOrderForm
+        stripe={STRIPE_ENABLED}
+        initialVariant={couleur === "blanc" ? "blanc" : "noir"}
+        initialQuantity={QUANTITIES.some((x) => x.qty === q) ? q : 1}
+        ruptures={ruptures()}
+      />
     </div>
   );
 }

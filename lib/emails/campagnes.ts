@@ -1,6 +1,7 @@
 // Emails de campagne (promotion), à importer dans un outil d'emailing (Brevo, Mailchimp…) qui gère
 // les listes, le consentement et la désinscription. Aucun envoi en masse depuis le site.
-import { BASIC_UNIT_CENTS, MATERIALS, euros } from "../catalog";
+import { BASIC_PRIX_REFERENCE_CENTS, BASIC_UNIT_CENTS, MATERIALS, REMISE_LANCEMENT, euros } from "../catalog";
+import { OFFRE_PERSONNALISEE } from "../config";
 import { COULEURS as C, SANS, bouton, coches, document, encart, etapes, h, image, lien, para, section, surtitre, titre, visuel } from "./gabarit";
 import type { Email } from "./messages";
 
@@ -30,8 +31,8 @@ function colonnes(items: [string, string][]): string {
 function offreBasic(): string {
   return encart(`<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
 <td class="col" valign="middle" style="font-family:${SANS};">
-<div style="font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${C.gris};margin-bottom:6px;">Carte Basic · prête à l’emploi</div>
-<div style="font-family:Georgia,'Times New Roman',serif;font-size:44px;line-height:1;color:${C.encre};">${prix(BASIC_UNIT_CENTS)}</div>
+<div style="font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${C.gris};margin-bottom:6px;">Offre de lancement · −${REMISE_LANCEMENT * 100} %</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:44px;line-height:1;color:${C.encre};">${prix(BASIC_UNIT_CENTS)} <s style="font-family:${SANS};font-size:18px;color:${C.gris};">${prix(BASIC_PRIX_REFERENCE_CENTS)}</s></div>
 <div style="font-size:14px;color:${C.gris};margin-top:6px;">la carte · livraison offerte · noir mat ou blanc</div></td>
 <td class="col" align="right" valign="middle">${bouton("Commander", lien("/carte-basic"))}</td></tr></table>`);
 }
@@ -70,7 +71,7 @@ export function campagneDecouverte(outil: Outil = "brevo"): Email {
             coches(["Formulaire pré-rempli par son téléphone", "Fiche contact jointe à votre notification", "Suivi, notes et export Excel de vos contacts", "Synchronisation CRM via Zapier ou Make"]),
           { haut: 28, bas: 8 },
         ),
-        section(offreBasic() + para(`Envie de votre logo et de vos couleurs ? Carte personnalisée en PVC, bambou ou métal, dès ${prix(MATERIALS.pvc_blanc.unitCents)}. <a href="${lien("/creer")}" style="color:${C.violet};">Créer la mienne</a>`, { petit: true, marge: 0 }), { haut: 8, bas: 34 }),
+        section(offreBasic() + (OFFRE_PERSONNALISEE ? para(`Envie de votre logo et de vos couleurs ? Carte personnalisée en PVC, bambou ou métal, dès ${prix(MATERIALS.pvc_blanc.unitCents)}. <a href="${lien("/creer")}" style="color:${C.violet};">Créer la mienne</a>`, { petit: true, marge: 0 }) : ""), { haut: 8, bas: 34 }),
       ],
     }),
   };
@@ -137,7 +138,7 @@ export function campagneConseils(outil: Outil = "brevo"): Email {
             bouton("Améliorer mon profil", lien("/compte/profils")),
           { bas: 28 },
         ),
-        section(
+        OFFRE_PERSONNALISEE && section(
           `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
 <td class="col" width="56%" valign="middle" style="padding-right:18px;">${surtitre("Pour votre équipe")}${para("Des cartes pour vos collaborateurs, à vos couleurs, avec une gestion centralisée.", { marge: 12 })}${bouton("Personnaliser des cartes", lien("/creer"), "contour")}</td>
 <td class="col" width="44%" valign="middle">${visuel("cartes-perso.png", "Cartes personnalisées Tapikard", 230)}</td>
