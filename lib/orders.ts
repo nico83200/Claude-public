@@ -1,3 +1,4 @@
+import { codeDe } from "./promo";
 import { all, get, run, tx } from "./db";
 import { activationCode, randomId } from "./ids";
 import { sendMail } from "./mail";
@@ -36,7 +37,8 @@ export function markOrderPaid(orderId: string): boolean {
     const u = get<User>("SELECT u.* FROM users u JOIN orders o ON o.user_id = u.id WHERE o.id = ?", orderId);
     const o = getOrder(orderId);
     if (u && o) {
-      const e = emailCommandeConfirmee(o, sanitizeDesign(JSON.parse(o.design)), u.name);
+      // Le client reçoit son code « entourage » (−25 % pour ses proches) dès sa première commande payée.
+      const e = emailCommandeConfirmee(o, sanitizeDesign(JSON.parse(o.design)), u.name, codeDe(u));
       void sendMail(u.email, e.sujet, e.html);
     }
   }

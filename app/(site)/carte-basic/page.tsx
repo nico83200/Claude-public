@@ -8,8 +8,8 @@ export const metadata = {
   description: `Carte de visite NFC Tapikard : ${euros(BASIC_UNIT_CENTS)} au lieu de ${euros(BASIC_PRIX_REFERENCE_CENTS)} (offre de lancement −${REMISE_LANCEMENT * 100} %). Livraison offerte, profil modifiable à vie.`,
 };
 
-export default async function CarteBasicPage({ searchParams }: { searchParams: Promise<{ couleur?: string; quantite?: string }> }) {
-  const { couleur, quantite } = await searchParams;
+export default async function CarteBasicPage({ searchParams }: { searchParams: Promise<{ couleur?: string; quantite?: string; code?: string }> }) {
+  const { couleur, quantite, code } = await searchParams;
   const q = Number(quantite);
   return (
     <div className="container">
@@ -25,6 +25,7 @@ export default async function CarteBasicPage({ searchParams }: { searchParams: P
         stripe={STRIPE_ENABLED}
         initialVariant={couleur === "blanc" ? "blanc" : "noir"}
         initialQuantity={QUANTITIES.some((x) => x.qty === q) ? q : 1}
+        initialCode={(code ?? "").toUpperCase().slice(0, 24)}
         ruptures={ruptures()}
       />
     </div>

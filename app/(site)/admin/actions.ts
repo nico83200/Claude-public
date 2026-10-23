@@ -3,14 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { run } from "@/lib/db";
+import { all, get, run } from "@/lib/db";
+import { genererEtiquette } from "@/lib/colissimo";
+import type { User } from "@/lib/types";
 import { STOCK_OPTIONS, stockKey } from "@/lib/catalog";
 import { enregistrerRuptures } from "@/lib/stock";
 import { emailParId } from "@/lib/emails/catalogue";
 import type { Outil } from "@/lib/emails/campagnes";
 import { sendMail } from "@/lib/mail";
 import { archiverCommande, enregistrerRetour, rembourser, refuserRetour, supprimerCommande, type Motif } from "@/lib/retours";
-import { approveProof, createBasicStock, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
+import { approveProof, createBasicStock, createBatch, getOrder, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
 
 export async function adminMarkPaid(orderId: string) {
   await requireAdmin();
@@ -126,4 +128,47 @@ export async function adminSupprimer(orderId: string, form: FormData) {
   const err = supprimerCommande(orderId);
   if (err) versCommande(orderId, `erreur=${encodeURIComponent(err)}`);
   redirect(`/admin/commandes?supprimee=${encodeURIComponent(orderId)}`);
+}
+
+// --- Expédition : étiquettes Colissimo ----------------------------------------------------
+
+/** Génère l'étiquette Colissimo d'une commande : numéro de suivi enregistré, PDF conservé pour l'impression. */
+async function etiquettePour(orderId: string): Promise<string | null> {
+  const o = getOrder(orderId);
+  if (!o) return "Commande introuvable.";
+  const u = get<User>("SELECT * FROM users WHERE id = ?", o.user_id);
+  try {
+    const { numero, pdf } = await genererEtiquette(o, { email: u?.email ?? "" });
+    run("UPDATE orders SET tracking = ?, etiquette_pdf = ? WHERE id = ?", numero, pdf.toString("base64"), orderId);
+    return null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "Étiquette impossible.";
+  }
+}
+
+export async function adminEtiquette(orderId: string, retour: string) {
+  await requireAdmin();
+  const err = await etiquettePour(orderId);
+  redirect(`${retour}${retour.includes("?") ? "&" : "?"}${err ? `erreur=${encodeURIComponent(err)}` : "info=" + encodeURIComponent("Étiquette Colissimo créée : numéro de suivi enregistré.")}`);
+}
+
+/** Étiquettes de toutes les commandes d'un lot qui n'en ont pas encore. */
+export async function adminEtiquettesLot(lot: string) {
+  await requireAdmin();
+  const commandes = all<{ id: string }>(
+    `SELECT DISTINCT o.id FROM orders o JOIN cards c ON c.order_id = o.id WHERE c.batch_id = ? AND o.etiquette_pdf IS NULL AND o.status NOT IN ('cancelled', 'refunded')`, lot);
+  const erreurs: string[] = [];
+  for (const c of commandes) {
+    const err = await etiquettePour(c.id);
+    if (err) erreurs.push(`${c.id} : ${err}`);
+  }
+  const ok = commandes.length - erreurs.length;
+  redirect(`/admin/expedition/${lot}?${erreurs.length ? `erreur=${encodeURIComponent(erreurs.join(" · "))}&` : ""}info=${encodeURIComponent(`${ok} étiquette${ok > 1 ? "s" : ""} créée${ok > 1 ? "s" : ""}.`)}`);
+}
+
+export async function adminExpedier(orderId: string, retour: string) {
+  await requireAdmin();
+  const o = getOrder(orderId);
+  const err = o ? shipOrder(orderId, o.tracking ?? "") : "Commande introuvable.";
+  redirect(`${retour}${retour.includes("?") ? "&" : "?"}${err ? `erreur=${encodeURIComponent(err)}` : "info=" + encodeURIComponent("Commande expédiée : le client a reçu le numéro de suivi.")}`);
 }

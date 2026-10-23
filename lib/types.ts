@@ -14,7 +14,7 @@ export type Profile = {
 
 export type OrderStatus = "pending_payment" | "paid" | "proof_approved" | "in_production" | "shipped" | "delivered" | "cancelled" | "refunded";
 
-export type Shipping = { name: string; address: string; zip: string; city: string; country: string };
+export type Shipping = { name: string; address: string; address2?: string; zip: string; city: string; country: string; phone?: string };
 
 export type Order = {
   id: string; user_id: string; profile_id: string | null; status: OrderStatus; product: "custom" | "basic";
@@ -22,6 +22,7 @@ export type Order = {
   shipping: string; proof_comment: string | null; tracking: string | null; stripe_session_id: string | null;
   created_at: string; paid_at: string | null; proof_approved_at: string | null; shipped_at: string | null;
   archived_at: string | null; refunded_cents: number;
+  code_promo: string | null; remise_cents: number; etiquette_pdf: string | null;
 };
 
 export type CardStatus = "provisioned" | "encoded" | "shipped" | "active" | "disabled" | "lost";

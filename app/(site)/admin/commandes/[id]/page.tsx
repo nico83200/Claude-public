@@ -7,8 +7,9 @@ import { APP_URL } from "@/lib/config";
 import { get } from "@/lib/db";
 import { getOrder, orderCards } from "@/lib/orders";
 import type { Shipping, User } from "@/lib/types";
+import { colissimoConfigure } from "@/lib/colissimo";
 import { MOTIFS, STATUT_RETOUR, resteARembourser, retoursDe, stripePossible } from "@/lib/retours";
-import { adminApproveProof, adminArchiver, adminCancel, adminMarkPaid, adminRefuserRetour, adminRembourser, adminRetour, adminShip, adminSupprimer } from "../../actions";
+import { adminApproveProof, adminArchiver, adminEtiquette, adminCancel, adminMarkPaid, adminRefuserRetour, adminRembourser, adminRetour, adminShip, adminSupprimer } from "../../actions";
 
 export const metadata = { title: "Commande" };
 
@@ -55,7 +56,7 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
           {order.status === "proof_approved" && <Link className="btn" href="/admin/production">Mettre en production (créer un lot)</Link>}
           {order.status === "in_production" && (
             <form action={adminShip.bind(null, id)} className="row">
-              <input type="text" name="tracking" placeholder="N° de suivi Colissimo" style={{ maxWidth: 240 }} />
+              <input type="text" name="tracking" placeholder="N° de suivi Colissimo" defaultValue={order.tracking ?? ""} style={{ maxWidth: 240 }} />
               <button className="btn" disabled={encoded < cards.length}>Marquer expédiée</button>
               <small className="muted">{encoded}/{cards.length} cartes encodées</small>
             </form>
@@ -68,6 +69,26 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
         </div>
       </div>
 
+      {order.paid_at && (
+        <div className="panel">
+          <h3>Expédition</h3>
+          <div className="row">
+            {colissimoConfigure() && !order.etiquette_pdf && (
+              <form action={adminEtiquette.bind(null, id, `/admin/commandes/${id}`)}><button className="btn">Créer l’étiquette Colissimo</button></form>
+            )}
+            <a className={`btn ${order.etiquette_pdf ? "" : "btn-secondary"}`} href={`/admin/commandes/${id}/etiquette`} target="_blank">
+              {order.etiquette_pdf ? `Imprimer l’étiquette Colissimo (${order.tracking})` : "Étiquette d’adresse à imprimer"}
+            </a>
+            <a className="btn btn-secondary" href={`/impression/courriers?commande=${id}`} target="_blank">Courrier d’accompagnement</a>
+          </div>
+          {!colissimoConfigure() && (
+            <p className="muted" style={{ fontSize: ".86rem", marginBottom: 0 }}>
+              Pour des étiquettes Colissimo pré-remplies avec suivi automatique, ajoutez votre contrat Colissimo dans les variables d’environnement (voir LISEZ-MOI).
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-2">
         <div>
           <CardPreview design={design} side="recto" qrUrl={qrUrl} />
@@ -79,7 +100,8 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
             <tr><td className="muted">Client</td><td>{user.name ?? "—"}<br /><a href={`mailto:${user.email}`}>{user.email}</a></td></tr>
             <tr><td className="muted">Produit</td><td>{order.product === "basic" ? <span className="badge badge-brand">Basic</span> : <span className="badge">Personnalisée</span>} {order.quantity} × {MATERIALS[design.material].label}, {FINISHES[design.finish].label}, modèle {design.template}</td></tr>
             <tr><td className="muted">Montant</td><td>{euros(order.amount_cents)}{order.refunded_cents > 0 && <> · <span style={{ color: "var(--danger)" }}>remboursé {euros(order.refunded_cents)}</span></>}{order.stripe_session_id && <><br /><small className="muted">Stripe {order.stripe_session_id.slice(0, 18)}…</small></>}</td></tr>
-            <tr><td className="muted">Livraison</td><td>{shipping.name}<br />{shipping.address}<br />{shipping.zip} {shipping.city}</td></tr>
+            <tr><td className="muted">Livraison</td><td>{shipping.name}<br />{shipping.address}{shipping.address2 && <><br />{shipping.address2}</>}<br />{shipping.zip} {shipping.city}{shipping.phone && <><br /><small className="muted">Tél. {shipping.phone}</small></>}</td></tr>
+            {order.code_promo && <tr><td className="muted">Code promo</td><td><code>{order.code_promo}</code> · −{euros(order.remise_cents)}</td></tr>}
             <tr><td className="muted">Dates</td><td><small>Créée {order.created_at}<br />Payée {order.paid_at ?? "—"}<br />BAT {order.proof_approved_at ?? "—"}<br />Expédiée {order.shipped_at ?? "—"}{order.tracking && ` (${order.tracking})`}</small></td></tr>
           </tbody></table>
         </div>

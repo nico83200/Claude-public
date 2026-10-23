@@ -1,18 +1,32 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { CardPreview } from "@/components/CardPreview";
 import { BASIC_VARIANTS, QUANTITIES, REMISE_LANCEMENT, basicDesign, basicPriceCents, enRupture, euros, libelleRupture, type BasicVariant, type Ruptures } from "@/lib/catalog";
-import { createBasicOrder, type BasicOrderState } from "./actions";
+import { createBasicOrder, verifierCodePromo, type BasicOrderState } from "./actions";
 
-export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantity = 1, ruptures = {} }: { stripe: boolean; initialVariant?: BasicVariant; initialQuantity?: number; ruptures?: Ruptures }) {
+export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantity = 1, initialCode = "", ruptures = {} }: { stripe: boolean; initialVariant?: BasicVariant; initialQuantity?: number; initialCode?: string; ruptures?: Ruptures }) {
   const disponibles = (Object.keys(BASIC_VARIANTS) as BasicVariant[]).filter((v) => !enRupture(ruptures, "basic", v));
   const [variant, setVariant] = useState<BasicVariant>(disponibles.includes(initialVariant) ? initialVariant : disponibles[0] ?? initialVariant);
   const indisponible = enRupture(ruptures, "basic", variant);
   const [quantity, setQuantity] = useState(initialQuantity);
   const [side, setSide] = useState<"recto" | "verso">("recto");
   const [state, action, pending] = useActionState<BasicOrderState, FormData>(createBasicOrder, {});
-  const price = basicPriceCents(quantity);
+  const base = basicPriceCents(quantity);
+  // Code « entourage » : vérifié à la saisie, puis de nouveau par le serveur à la commande.
+  const [code, setCode] = useState(initialCode);
+  const [promo, setPromo] = useState<{ remise: number; message: string } | null>(null);
+  const [messagePromo, setMessagePromo] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const appliquer = async (c = code) => {
+    if (!c.trim()) { setPromo(null); setMessagePromo(null); return; }
+    const r = await verifierCodePromo(c, email);
+    setPromo(r.ok ? { remise: r.remise!, message: r.message } : null);
+    setMessagePromo(r.message);
+  };
+  useEffect(() => { if (initialCode) void appliquer(initialCode); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const remisePromo = promo ? Math.round(base.total * promo.remise) : 0;
+  const price = { ...base, total: base.total - remisePromo, economie: base.economie + remisePromo };
   const design = basicDesign(variant);
 
   return (
@@ -40,17 +54,25 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantit
             </label>
           ))}
         </div>
-        <div className="field"><label htmlFor="email">Votre email (accès à votre espace) *</label><input id="email" name="email" type="email" required autoComplete="email" /></div>
+        <div className="field"><label htmlFor="email">Votre email (accès à votre espace) *</label><input id="email" name="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         <div className="field"><label htmlFor="name">Nom et prénom *</label><input id="name" name="name" type="text" required autoComplete="name" /></div>
-        {!stripe && (
-          <>
-            <div className="field"><label htmlFor="address">Adresse *</label><input id="address" name="address" type="text" autoComplete="street-address" /></div>
-            <div className="grid" style={{ gridTemplateColumns: "1fr 2fr", gap: 12 }}>
-              <div className="field"><label htmlFor="zip">Code postal *</label><input id="zip" name="zip" type="text" inputMode="numeric" autoComplete="postal-code" /></div>
-              <div className="field"><label htmlFor="city">Ville *</label><input id="city" name="city" type="text" autoComplete="address-level2" /></div>
-            </div>
-          </>
-        )}
+        <h3 style={{ marginTop: 6 }}>Adresse de livraison</h3>
+        <div className="field"><label htmlFor="address">Adresse *</label><input id="address" name="address" type="text" required autoComplete="address-line1" placeholder="N° et rue" /></div>
+        <div className="field"><label htmlFor="address2">Complément</label><input id="address2" name="address2" type="text" autoComplete="address-line2" placeholder="Bâtiment, étage, société…" /></div>
+        <div className="grid" style={{ gridTemplateColumns: "1fr 2fr", gap: 12 }}>
+          <div className="field"><label htmlFor="zip">Code postal *</label><input id="zip" name="zip" type="text" required inputMode="numeric" pattern="\d{5}" maxLength={5} autoComplete="postal-code" /></div>
+          <div className="field"><label htmlFor="city">Ville *</label><input id="city" name="city" type="text" required autoComplete="address-level2" /></div>
+        </div>
+        <div className="field"><label htmlFor="phone">Téléphone (pour le transporteur)</label><input id="phone" name="phone" type="tel" autoComplete="tel" /></div>
+        <div className="field">
+          <label htmlFor="code_promo">Code promo</label>
+          <div className="row" style={{ flexWrap: "nowrap", gap: 8 }}>
+            <input id="code_promo" name="code_promo" type="text" value={code} autoCapitalize="characters" placeholder="Ex. CAMILLE-4K7Q"
+              onChange={(e) => { setCode(e.target.value.toUpperCase()); setPromo(null); setMessagePromo(null); }} style={{ textTransform: "uppercase" }} />
+            <button type="button" className="btn btn-secondary" onClick={() => appliquer()}>Appliquer</button>
+          </div>
+          {messagePromo && <small style={{ color: promo ? "var(--ok)" : "var(--danger)", fontWeight: 600 }}>{messagePromo}</small>}
+        </div>
         <label className="check" style={{ margin: "8px 0 18px" }}>
           <input type="checkbox" name="cgv" />
           <span>J’accepte les conditions de vente et la <a href="/confidentialite" target="_blank">politique de confidentialité</a>.</span>
@@ -77,7 +99,8 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantit
         </div>
         <div className="panel panel-flat" style={{ marginTop: 18 }}>
           <div className="row between"><span>Carte Tapikard · {BASIC_VARIANTS[variant].label} × {quantity}</span><span>{euros(price.reference)}</span></div>
-          <div className="row between" style={{ fontSize: ".9rem", color: "var(--ok)", fontWeight: 600 }}><span>Offre de lancement −{REMISE_LANCEMENT * 100} %{price.discount > 0 ? ` et remise quantité −${price.discount * 100} %` : ""}</span><span>−{euros(price.economie)}</span></div>
+          <div className="row between" style={{ fontSize: ".9rem", color: "var(--ok)", fontWeight: 600 }}><span>Offre de lancement −{REMISE_LANCEMENT * 100} %{price.discount > 0 ? ` et remise quantité −${price.discount * 100} %` : ""}</span><span>−{euros(base.economie)}</span></div>
+          {promo && <div className="row between" style={{ fontSize: ".9rem", color: "var(--ok)", fontWeight: 600 }}><span>Code {code} −{Math.round(promo.remise * 100)} %</span><span>−{euros(remisePromo)}</span></div>}
           <div className="row between muted" style={{ fontSize: ".9rem" }}><span>Livraison</span><span>Offerte</span></div>
           <hr style={{ border: 0, borderTop: "1px solid var(--line)", margin: "12px 0" }} />
           <div className="row between" style={{ fontWeight: 700, fontSize: "1.2rem" }}><span>Total TTC</span><span>{euros(price.total)}</span></div>

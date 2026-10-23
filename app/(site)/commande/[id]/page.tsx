@@ -4,6 +4,8 @@ import { CardPreview } from "@/components/CardPreview";
 import { OrderBadge } from "@/components/Badges";
 import { FINISHES, MATERIALS, euros, sanitizeDesign } from "@/lib/catalog";
 import { APP_URL, STRIPE_ENABLED } from "@/lib/config";
+import { CodeEntourage } from "@/components/CodeEntourage";
+import { get } from "@/lib/db";
 import { getOrder, orderCards } from "@/lib/orders";
 import type { OrderStatus, Shipping } from "@/lib/types";
 import { approveOrderProof, requestProofChange, simulatePayment } from "./actions";
@@ -59,6 +61,11 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
         </div>
       )}
 
+      {order.paid_at && (() => {
+        const c = get<{ code: string }>("SELECT code FROM codes_promo WHERE user_id = ? AND actif = 1 ORDER BY created_at LIMIT 1", order.user_id)?.code;
+        return c ? <div style={{ marginBottom: 20 }}><CodeEntourage code={c} /></div> : null;
+      })()}
+
       {order.status === "paid" && (
         <div className="panel" style={{ marginBottom: 20, borderColor: "var(--brand)" }}>
           <h3>Validez votre BAT (bon à tirer)</h3>
@@ -105,8 +112,9 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
               <tr><td className="muted">Finition</td><td>{FINISHES[design.finish].label}</td></tr>
               <tr><td className="muted">Quantité</td><td>{order.quantity}</td></tr>
               <tr><td className="muted">Puce</td><td>NFC NTAG 424 DNA</td></tr>
+              {order.remise_cents > 0 && <tr><td className="muted">Code {order.code_promo}</td><td style={{ color: "var(--ok)" }}>−{euros(order.remise_cents)}</td></tr>}
               <tr><td className="muted">Total TTC</td><td><strong>{euros(order.amount_cents)}</strong></td></tr>
-              {shipping.name && <tr><td className="muted">Livraison</td><td>{shipping.name}<br />{shipping.address}<br />{shipping.zip} {shipping.city}</td></tr>}
+              {shipping.name && <tr><td className="muted">Livraison</td><td>{shipping.name}<br />{shipping.address}{shipping.address2 && <><br />{shipping.address2}</>}<br />{shipping.zip} {shipping.city}</td></tr>}
             </tbody>
           </table>
           <p style={{ marginTop: 16 }}>

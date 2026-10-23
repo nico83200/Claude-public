@@ -98,6 +98,17 @@ Ne les changez jamais une fois des cartes encodées.
 2. **Développeurs → Webhooks → Ajouter un endpoint** : URL `https://tapikard.com/api/stripe/webhook`, événement `checkout.session.completed`. Copiez le **secret de signature** (`whsec_…`).
 3. Ajoutez dans les variables d'environnement Hostinger : `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET`, puis **redéployez**.
 
+## Étiquettes La Poste (Colissimo)
+
+1. Ouvrez un compte professionnel Colissimo (colissimo.entreprise.laposte.fr, offre « Colissimo Box » sans engagement
+   ou contrat Entreprise) et activez l'accès aux **services web** : vous obtenez un numéro de contrat et un mot de passe.
+2. Ajoutez dans les variables d'environnement : `COLISSIMO_CONTRAT`, `COLISSIMO_MOT_DE_PASSE`, `EXPEDITEUR_NOM`,
+   `EXPEDITEUR_ADRESSE`, `EXPEDITEUR_CP`, `EXPEDITEUR_VILLE` (et `EXPEDITEUR_TEL`), puis redéployez.
+3. Back-office → Production → **Expédier** (sur un lot) : « Créer les étiquettes Colissimo » crée toutes les étiquettes
+   du lot, enregistre les numéros de suivi, et « Marquer expédiée » envoie l'email de suivi au client.
+
+Sans contrat, la même page propose une étiquette d'adresse 10 × 15 cm à imprimer (lettre suivie, dépôt au guichet).
+
 ## Mettre à jour le site
 
 Poussez (`git push`) sur la branche connectée : Hostinger recompile et redéploie tout seul.

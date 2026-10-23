@@ -80,7 +80,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
                     <div style={{ height: 6, width: 120, background: "var(--surface-2)", borderRadius: 99 }}><div style={{ height: 6, width: `${(100 * (b.encoded ?? 0)) / Math.max(1, b.total)}%`, background: "var(--ok)", borderRadius: 99 }} /></div>
                     <small className="muted">{b.encoded ?? 0}/{b.total} encodées</small>
                   </td>
-                  <td><div className="row" style={{ gap: 6, flexWrap: "nowrap" }}><Link className="btn btn-sm" href={`/impression/${b.id}`}>Imprimer</Link><a className="btn btn-secondary btn-sm" href={`/admin/production/${b.id}/csv`}>CSV</a></div></td>
+                  <td><div className="row" style={{ gap: 6, flexWrap: "nowrap" }}><Link className="btn btn-sm" href={`/impression/${b.id}`}>Imprimer</Link><Link className="btn btn-sm btn-secondary" href={`/admin/expedition/${b.id}`}>Expédier</Link><a className="btn btn-secondary btn-sm" href={`/admin/production/${b.id}/csv`}>CSV</a></div></td>
                 </tr>
               ))}
               {batches.length === 0 && <tr><td colSpan={5} className="muted">Aucun lot.</td></tr>}

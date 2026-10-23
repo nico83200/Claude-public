@@ -69,7 +69,7 @@ export function emailRemboursement(o: Order, montantCents: number, total: boolea
 }
 
 /** Commande payée : BAT à valider (personnalisée) ou mise en préparation (Basic). */
-export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | null): Email {
+export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | null, codeEntourage?: string | null): Email {
   const basic = o.product === "basic";
   const sujet = basic ? "Merci ! Votre carte Basic est en préparation" : "Merci ! Validez le BAT de votre carte";
   const suivi = lien(`/commande/${o.id}`);
@@ -98,6 +98,7 @@ export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | n
                 ["Quantité", `${o.quantity} carte${o.quantity > 1 ? "s" : ""}`],
                 ["Puce", "NFC sécurisée NTAG 424 DNA"],
                 ["Livraison", "Offerte"],
+                ...(o.remise_cents > 0 ? [["Code " + h(o.code_promo ?? ""), `−${euros(o.remise_cents)}`] as [string, string]] : []),
               ],
               ["Total TTC", euros(o.amount_cents)],
             ),
@@ -118,8 +119,19 @@ export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | n
                     ["Expédition et activation", "Suivi par email, puis activation en scannant votre carte."],
                   ],
             ),
-          { haut: 8, bas: 28 },
+          { haut: 8, bas: codeEntourage ? 8 : 28 },
         ),
+        codeEntourage
+          ? section(
+              encart(
+                surtitre("Pour votre entourage") +
+                  para(`Faites profiter vos proches de <strong>25 % de remise supplémentaire</strong> sur leur carte Tapikard avec votre code personnel :`) +
+                  `<div style="font-family:monospace;font-size:26px;font-weight:700;letter-spacing:3px;color:#121117;margin:6px 0 14px;">${h(codeEntourage)}</div>` +
+                  bouton("Partager le lien", lien(`/carte-basic?code=${encodeURIComponent(codeEntourage)}`), "contour"),
+              ),
+              { haut: 8, bas: 28 },
+            )
+          : false,
       ],
     }),
   };

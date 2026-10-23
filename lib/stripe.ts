@@ -14,7 +14,6 @@ export async function createCheckoutSession(order: Order, email: string): Promis
     "metadata[order_id]": order.id,
     success_url: `${APP_URL}/commande/${order.id}?paiement=ok`,
     cancel_url: `${APP_URL}/commande/${order.id}?paiement=annule`,
-    "shipping_address_collection[allowed_countries][0]": "FR",
   });
   const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",

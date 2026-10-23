@@ -97,6 +97,13 @@ CREATE TABLE IF NOT EXISTS leads (
   name TEXT NOT NULL, email TEXT, phone TEXT, company TEXT, message TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS codes_promo (
+  code TEXT PRIMARY KEY,             -- ex. CAMILLE-4K7Q : code « entourage » d'un client
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  remise REAL NOT NULL DEFAULT 0.25,
+  actif INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 CREATE TABLE IF NOT EXISTS retours (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -119,7 +126,10 @@ const COLUMNS: [table: string, column: string, definition: string][] = [
   ["cards", "puce", "TEXT"], // 'desfire' | 'ntag21x' : puce de dépannage en NFC simple (URL fixe, non sécurisée) ; vide : NTAG 424 DNA
   ["profiles", "logo", "TEXT"], // logo affiché à la place du bandeau coloré (data URL PNG/JPEG)
   ["profiles", "logo_fond", "TEXT NOT NULL DEFAULT 'clair'"], // fond du bandeau logo : clair | couleur | sombre
-  ["orders", "archived_at", "TEXT"], // commande archivée : masquée de la liste par défaut
+  ["orders", "archived_at", "TEXT"],
+  ["orders", "code_promo", "TEXT"], // code « entourage » utilisé à la commande
+  ["orders", "remise_cents", "INTEGER NOT NULL DEFAULT 0"], // remise apportée par ce code
+  ["orders", "etiquette_pdf", "TEXT"], // étiquette Colissimo (PDF en base64) // commande archivée : masquée de la liste par défaut
   ["orders", "refunded_cents", "INTEGER NOT NULL DEFAULT 0"], // total remboursé
   ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],
   ["leads", "note", "TEXT"],

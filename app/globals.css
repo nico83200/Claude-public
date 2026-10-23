@@ -425,3 +425,25 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .p-cover-logo img { display: block; height: 100%; width: auto; max-width: 60%; object-fit: contain; object-position: right center; }
 .p-cover-logo.allonge { align-items: flex-start; }
 .p-cover-logo.allonge img { height: auto; max-height: 58px; max-width: 100%; object-position: right top; }
+.code-entourage { border: 2px dashed var(--brand); background: var(--brand-soft); }
+.code-entourage-code { font-family: ui-monospace, Menlo, monospace; font-size: 1.7rem; font-weight: 700; letter-spacing: .12em; }
+
+/* --- Courrier d'accompagnement (A5) -------------------------------------------------- */
+.courrier { width: 148mm; height: 210mm; box-sizing: border-box; padding: 12mm 12mm 10mm; display: flex; flex-direction: column; font-size: 10pt; line-height: 1.45; color: #14121f; }
+.courrier-tete { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13pt; }
+.courrier h1 { font-family: var(--font-display); font-weight: 400; font-size: 22pt; margin: 9mm 0 3mm; }
+.courrier-intro { margin: 0 0 5mm; }
+.courrier-etapes { margin: 0 0 5mm; padding-left: 5mm; }
+.courrier-etapes li { margin-bottom: 2.5mm; }
+.courrier-codes { border: .3mm solid #d8d4e6; border-radius: 3mm; padding: 4mm; margin-bottom: 5mm; }
+.courrier-codes table { width: 100%; margin: 2mm 0; border-collapse: collapse; }
+.courrier-codes td { padding: 1mm 0; border: 0; font-size: 10pt; }
+.courrier-codes td:last-child { text-align: right; }
+.courrier-codes code { font-size: 12pt; font-weight: 700; letter-spacing: .08em; background: none; }
+.courrier-codes small { color: #666277; font-size: 8pt; }
+.courrier-promo { display: flex; gap: 5mm; align-items: center; background: #eeeafe; border-radius: 3mm; padding: 4mm; }
+.courrier-promo p { margin: 1mm 0 2mm; font-size: 9pt; }
+.courrier-promo-code { font-family: ui-monospace, Menlo, monospace; font-size: 15pt; font-weight: 700; letter-spacing: .1em; }
+.courrier-qr { width: 24mm; height: 24mm; flex-shrink: 0; }
+.courrier-qr svg { width: 100%; height: 100%; display: block; }
+.courrier-pied { margin-top: auto; font-size: 8pt; color: #666277; text-align: center; }

@@ -11,7 +11,7 @@ const commande = (product: "custom" | "basic"): Order => ({
   design: "", material: product === "basic" ? "pvc_noir" : "pvc_blanc", finish: "mat", quantity: 2,
   amount_cents: product === "basic" ? basicPriceCents(2).total : priceCents("pvc_blanc", "mat", 2).total,
   shipping: "{}", proof_comment: null, tracking: "6A12345678901", stripe_session_id: null,
-  created_at: "", paid_at: null, proof_approved_at: null, shipped_at: null, archived_at: null, refunded_cents: 0,
+  created_at: "", paid_at: null, proof_approved_at: null, shipped_at: null, archived_at: null, refunded_cents: 0, code_promo: null, remise_cents: 0, etiquette_pdf: null,
 });
 const prospect = { name: "Hugo Lambert", email: "hugo@studio-lambert.fr", phone: "+33 6 98 76 54 32", company: "Studio Lambert", message: "Ravi de notre échange au salon, on se rappelle la semaine prochaine ?" };
 
