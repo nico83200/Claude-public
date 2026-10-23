@@ -5,16 +5,16 @@ import { LogoMark } from "@/components/Logo";
 import { requireAdmin } from "@/lib/auth";
 import { APP_URL } from "@/lib/config";
 import { all, get } from "@/lib/db";
-import { REMISE_ENTOURAGE, codeDe } from "@/lib/promo";
+import { REMISE_ENTOURAGE, codeDe, finLisible, type CodeValide } from "@/lib/promo";
 import type { Shipping, User } from "@/lib/types";
 import { BoutonImprimer } from "./BoutonImprimer";
 
 export const metadata = { title: "Courriers d’accompagnement", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-type Courrier = { cle: string; prenom: string; commande: string | null; cartes: { id: string; code: string }[]; codePromo: string | null };
+type Courrier = { cle: string; prenom: string; commande: string | null; cartes: { id: string; code: string }[]; codePromo: CodeValide | null };
 
-/** Courriers A5 glissés avec les cartes : codes d'activation, mode d'emploi, code « entourage ». */
+/** Courriers A4 glissés avec les cartes : codes d'activation, mode d'emploi, code « entourage ». */
 export default async function Courriers({ searchParams }: { searchParams: Promise<{ lot?: string; commande?: string }> }) {
   await requireAdmin();
   const { lot, commande } = await searchParams;
@@ -41,22 +41,22 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
   }
   const qrs = new Map<string, string>();
   for (const c of courriers) {
-    if (c.codePromo && !qrs.has(c.codePromo)) {
-      qrs.set(c.codePromo, await QRCode.toString(`${APP_URL}/carte-basic?code=${encodeURIComponent(c.codePromo)}`, { type: "svg", margin: 0, errorCorrectionLevel: "M" }));
+    if (c.codePromo && !qrs.has(c.codePromo.code)) {
+      qrs.set(c.codePromo.code, await QRCode.toString(`${APP_URL}/carte-basic?code=${encodeURIComponent(c.codePromo.code)}`, { type: "svg", margin: 0, errorCorrectionLevel: "M" }));
     }
   }
   const site = APP_URL.replace(/^https?:\/\//, "");
 
   return (
     <main className="courriers">
-      <style>{"@page { size: A5; margin: 0; }"}</style>
+      <style>{"@page { size: A4; margin: 0; }"}</style>
       <div className="imp-outils">
         <div className="container" style={{ maxWidth: 900 }}>
           <p className="muted" style={{ margin: "0 0 4px" }}><Link href={lot ? `/admin/expedition/${lot}` : `/admin/commandes/${commande}`}>← Retour</Link></p>
           <h1 style={{ fontSize: "1.9rem", margin: "0 0 6px" }}>Courriers d’accompagnement</h1>
           <p className="muted" style={{ marginTop: 0 }}>
-            {courriers.length} courrier{courriers.length > 1 ? "s" : ""} au format A5 (une feuille A4 pliée en deux convient aussi) · imprimez-les puis glissez chacun avec sa carte.
-            Dans la fenêtre d’impression : format A5 (ou A4 « 2 pages par feuille »), marges aucune.
+            {courriers.length} courrier{courriers.length > 1 ? "s" : ""} au format A4 · imprimez-les puis glissez chacun avec sa carte.
+            Dans la fenêtre d’impression : format A4, marges aucune, échelle 100 %.
           </p>
           <BoutonImprimer texte={`Imprimer ${courriers.length} courrier${courriers.length > 1 ? "s" : ""}`} />
           <h2 style={{ fontSize: "1.3rem", margin: "28px 0 10px" }}>Aperçu</h2>
@@ -65,7 +65,7 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
       <div className="imp-feuilles">
         {courriers.map((c) => (
           <section className="imp-page courrier" key={c.cle}>
-            <header className="courrier-tete"><LogoMark size={30} /><span>Tapikard</span></header>
+            <header className="courrier-tete"><LogoMark size={40} /><span>Tapikard</span></header>
             <h1>{c.prenom ? `Bonjour ${c.prenom},` : "Bonjour,"}</h1>
             <p className="courrier-intro">
               {c.cartes.length > 1 ? `Voici vos ${c.cartes.length} cartes Tapikard. Elles partagent` : "Voici votre carte Tapikard. Elle partage"} vos coordonnées d’un simple geste,
@@ -89,10 +89,10 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
               <div className="courrier-promo">
                 <div>
                   <strong>Pour vos proches : −{REMISE_ENTOURAGE * 100} % supplémentaires</strong>
-                  <p>Offrez-leur votre code personnel, valable sur leur carte Tapikard :</p>
-                  <div className="courrier-promo-code">{c.codePromo}</div>
+                  <p>Offrez-leur votre code personnel, valable sur leur carte Tapikard jusqu’au <strong>{finLisible(c.codePromo.fin)}</strong> :</p>
+                  <div className="courrier-promo-code">{c.codePromo.code}</div>
                 </div>
-                <div className="courrier-qr" dangerouslySetInnerHTML={{ __html: qrs.get(c.codePromo)! }} />
+                <div className="courrier-qr" dangerouslySetInnerHTML={{ __html: qrs.get(c.codePromo.code)! }} />
               </div>
             )}
             <footer className="courrier-pied">Une question ? bonjour@tapikard.com · {site}{c.commande ? ` · Commande ${c.commande}` : ""}</footer>

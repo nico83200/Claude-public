@@ -4,7 +4,7 @@ import { BarChart } from "@/components/BarChart";
 import { CardBadge } from "@/components/Badges";
 import { CodeEntourage } from "@/components/CodeEntourage";
 import { all, get } from "@/lib/db";
-import { utilisationsDe } from "@/lib/promo";
+import { codeActif, utilisationsDe } from "@/lib/promo";
 import { userStats } from "@/lib/stats";
 import type { Card, Lead } from "@/lib/types";
 
@@ -16,7 +16,7 @@ export default async function ComptePage() {
   const cards = all<Card & { profile_name: string | null }>(
     "SELECT c.*, p.display_name profile_name FROM cards c LEFT JOIN profiles p ON p.id = c.profile_id WHERE c.user_id = ? ORDER BY c.created_at DESC LIMIT 5", user.id);
   const leads = all<Lead>("SELECT l.* FROM leads l JOIN profiles p ON p.id = l.profile_id WHERE p.user_id = ? ORDER BY l.created_at DESC LIMIT 4", user.id);
-  const code = get<{ code: string }>("SELECT code FROM codes_promo WHERE user_id = ? AND actif = 1 ORDER BY created_at LIMIT 1", user.id)?.code;
+  const code = codeActif(user.id);
   const toActivate = cards.filter((c) => c.status === "shipped" || c.status === "encoded");
 
   return (
@@ -30,7 +30,7 @@ export default async function ComptePage() {
           {toActivate.length} carte{toActivate.length > 1 ? "s" : ""} en attente d’activation. <Link href="/compte/cartes">Activer maintenant</Link>
         </div>
       )}
-      {code && <CodeEntourage code={code} utilisations={utilisationsDe(user.id)} />}
+      {code && <CodeEntourage code={code.code} fin={code.fin} utilisations={utilisationsDe(user.id)} />}
       <div className="grid grid-4">
         {[["Vues (30 j)", stats.views], ["Ajouts aux contacts", stats.vcf], ["Clics sur liens", stats.clicks], ["Contacts reçus", stats.leads]].map(([l, v]) => (
           <div className="panel" key={l}><div className="kpi-label">{l}</div><div className="kpi">{v}</div></div>

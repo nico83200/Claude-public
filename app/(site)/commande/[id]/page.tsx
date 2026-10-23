@@ -5,7 +5,7 @@ import { OrderBadge } from "@/components/Badges";
 import { FINISHES, MATERIALS, euros, sanitizeDesign } from "@/lib/catalog";
 import { APP_URL, STRIPE_ENABLED } from "@/lib/config";
 import { CodeEntourage } from "@/components/CodeEntourage";
-import { get } from "@/lib/db";
+import { codeActif } from "@/lib/promo";
 import { getOrder, orderCards } from "@/lib/orders";
 import type { OrderStatus, Shipping } from "@/lib/types";
 import { approveOrderProof, requestProofChange, simulatePayment } from "./actions";
@@ -62,8 +62,8 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
       )}
 
       {order.paid_at && (() => {
-        const c = get<{ code: string }>("SELECT code FROM codes_promo WHERE user_id = ? AND actif = 1 ORDER BY created_at LIMIT 1", order.user_id)?.code;
-        return c ? <div style={{ marginBottom: 20 }}><CodeEntourage code={c} /></div> : null;
+        const c = codeActif(order.user_id);
+        return c ? <div style={{ marginBottom: 20 }}><CodeEntourage code={c.code} fin={c.fin} /></div> : null;
       })()}
 
       {order.status === "paid" && (

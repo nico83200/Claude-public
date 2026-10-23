@@ -428,22 +428,22 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .code-entourage { border: 2px dashed var(--brand); background: var(--brand-soft); }
 .code-entourage-code { font-family: ui-monospace, Menlo, monospace; font-size: 1.7rem; font-weight: 700; letter-spacing: .12em; }
 
-/* --- Courrier d'accompagnement (A5) -------------------------------------------------- */
-.courrier { width: 148mm; height: 210mm; box-sizing: border-box; padding: 12mm 12mm 10mm; display: flex; flex-direction: column; font-size: 10pt; line-height: 1.45; color: #14121f; }
-.courrier-tete { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13pt; }
-.courrier h1 { font-family: var(--font-display); font-weight: 400; font-size: 22pt; margin: 9mm 0 3mm; }
-.courrier-intro { margin: 0 0 5mm; }
-.courrier-etapes { margin: 0 0 5mm; padding-left: 5mm; }
-.courrier-etapes li { margin-bottom: 2.5mm; }
-.courrier-codes { border: .3mm solid #d8d4e6; border-radius: 3mm; padding: 4mm; margin-bottom: 5mm; }
-.courrier-codes table { width: 100%; margin: 2mm 0; border-collapse: collapse; }
-.courrier-codes td { padding: 1mm 0; border: 0; font-size: 10pt; }
+/* --- Courrier d'accompagnement (A4) -------------------------------------------------- */
+.courrier { width: 210mm; height: 297mm; box-sizing: border-box; padding: 20mm 22mm 16mm; display: flex; flex-direction: column; font-size: 11.5pt; line-height: 1.5; color: #14121f; }
+.courrier-tete { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16pt; }
+.courrier h1 { font-family: var(--font-display); font-weight: 400; font-size: 30pt; margin: 16mm 0 5mm; }
+.courrier-intro { margin: 0 0 8mm; font-size: 12.5pt; }
+.courrier-etapes { margin: 0 0 9mm; padding-left: 6mm; }
+.courrier-etapes li { margin-bottom: 4mm; }
+.courrier-codes { border: .3mm solid #d8d4e6; border-radius: 4mm; padding: 6mm 7mm; margin-bottom: 8mm; }
+.courrier-codes table { width: 100%; margin: 3mm 0; border-collapse: collapse; }
+.courrier-codes td { padding: 1.5mm 0; border: 0; font-size: 11.5pt; }
 .courrier-codes td:last-child { text-align: right; }
-.courrier-codes code { font-size: 12pt; font-weight: 700; letter-spacing: .08em; background: none; }
-.courrier-codes small { color: #666277; font-size: 8pt; }
-.courrier-promo { display: flex; gap: 5mm; align-items: center; background: #eeeafe; border-radius: 3mm; padding: 4mm; }
-.courrier-promo p { margin: 1mm 0 2mm; font-size: 9pt; }
-.courrier-promo-code { font-family: ui-monospace, Menlo, monospace; font-size: 15pt; font-weight: 700; letter-spacing: .1em; }
-.courrier-qr { width: 24mm; height: 24mm; flex-shrink: 0; }
+.courrier-codes code { font-size: 15pt; font-weight: 700; letter-spacing: .08em; background: none; }
+.courrier-codes small { color: #666277; font-size: 9pt; }
+.courrier-promo { display: flex; gap: 8mm; align-items: center; background: #eeeafe; border-radius: 4mm; padding: 7mm; }
+.courrier-promo p { margin: 1.5mm 0 3mm; font-size: 11pt; }
+.courrier-promo-code { font-family: ui-monospace, Menlo, monospace; font-size: 20pt; font-weight: 700; letter-spacing: .1em; }
+.courrier-qr { width: 32mm; height: 32mm; flex-shrink: 0; }
 .courrier-qr svg { width: 100%; height: 100%; display: block; }
-.courrier-pied { margin-top: auto; font-size: 8pt; color: #666277; text-align: center; }
+.courrier-pied { margin-top: auto; font-size: 9pt; color: #666277; text-align: center; }
