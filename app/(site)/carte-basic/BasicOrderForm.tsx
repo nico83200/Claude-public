@@ -67,7 +67,7 @@ export function BasicOrderForm({ stripe, initialVariant = "noir", initialQuantit
         <div className="field">
           <label htmlFor="code_promo">Code promo</label>
           <div className="row" style={{ flexWrap: "nowrap", gap: 8 }}>
-            <input id="code_promo" name="code_promo" type="text" value={code} autoCapitalize="characters" placeholder="Ex. CAMILLE-4K7Q"
+            <input id="code_promo" name="code_promo" type="text" value={code} autoCapitalize="characters" placeholder="Ex. K7QM-2XRA"
               onChange={(e) => { setCode(e.target.value.toUpperCase()); setPromo(null); setMessagePromo(null); }} style={{ textTransform: "uppercase" }} />
             <button type="button" className="btn btn-secondary" onClick={() => appliquer()}>Appliquer</button>
           </div>

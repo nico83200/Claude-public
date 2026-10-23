@@ -9,16 +9,17 @@ export type CodePromo = { code: string; user_id: string; remise: number; actif: 
 
 export const normaliserCode = (c: string) => c.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 24);
 
-/** Code du client, créé à sa première commande payée : prénom (sans accents) + 4 caractères. */
+/** Code du client, créé à sa première commande payée : propre à lui, mais aléatoire (rien ne permet de
+ *  le deviner ni de remonter au client), ex. K7QM-2XRA. Alphabet sans 0/O/1/I pour éviter les confusions. */
 export function codeDe(user: Pick<User, "id" | "name" | "email">): string {
   const existant = get<{ code: string }>("SELECT code FROM codes_promo WHERE user_id = ? ORDER BY created_at LIMIT 1", user.id);
   if (existant) return existant.code;
-  const base = (user.name || user.email.split("@")[0]).split(/\s+/)[0].normalize("NFD").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 10) || "AMI";
   const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   for (;;) {
-    const code = `${base}-${Array.from({ length: 4 }, () => A[randomInt(A.length)]).join("")}`;
+    const c = Array.from({ length: 8 }, () => A[randomInt(A.length)]).join("");
+    const code = `${c.slice(0, 4)}-${c.slice(4)}`;
     if (!get("SELECT 1 FROM codes_promo WHERE code = ?", code)) {
-      run("INSERT INTO codes_promo (code, user_id, remise) VALUES (?, ?, ?)", code, user.id, REMISE_ENTOURAGE);
+      run("INSERT INTO codes_promo (code, user_id, remise, aleatoire) VALUES (?, ?, ?, 1)", code, user.id, REMISE_ENTOURAGE);
       return code;
     }
   }

@@ -2,6 +2,7 @@ import type { DatabaseSync, SQLInputValue } from "node:sqlite";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { randomInt } from "node:crypto";
 import { seedDemo } from "./seed";
 
 // node:sqlite est chargé hors bundler (module natif de Node ≥ 22).
@@ -98,7 +99,7 @@ CREATE TABLE IF NOT EXISTS leads (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE TABLE IF NOT EXISTS codes_promo (
-  code TEXT PRIMARY KEY,             -- ex. CAMILLE-4K7Q : code « entourage » d'un client
+  code TEXT PRIMARY KEY,             -- ex. K7QM-2XRA : code « entourage » d'un client, aléatoire
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   remise REAL NOT NULL DEFAULT 0.25,
   actif INTEGER NOT NULL DEFAULT 1,
@@ -127,6 +128,7 @@ const COLUMNS: [table: string, column: string, definition: string][] = [
   ["profiles", "logo", "TEXT"], // logo affiché à la place du bandeau coloré (data URL PNG/JPEG)
   ["profiles", "logo_fond", "TEXT NOT NULL DEFAULT 'clair'"], // fond du bandeau logo : clair | couleur | sombre
   ["orders", "archived_at", "TEXT"],
+  ["codes_promo", "aleatoire", "INTEGER NOT NULL DEFAULT 0"], // 1 : code aléatoire (les premiers codes contenaient le prénom)
   ["orders", "code_promo", "TEXT"], // code « entourage » utilisé à la commande
   ["orders", "remise_cents", "INTEGER NOT NULL DEFAULT 0"], // remise apportée par ce code
   ["orders", "etiquette_pdf", "TEXT"], // étiquette Colissimo (PDF en base64) // commande archivée : masquée de la liste par défaut
@@ -141,6 +143,18 @@ function migrate(d: DatabaseSync) {
   for (const [table, column, definition] of COLUMNS) {
     const cols = d.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
     if (!cols.some((c) => c.name === column)) d.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+  // Codes entourage de la première version (prénom + 4 caractères) : remplacés par un code aléatoire
+  // s'ils n'ont encore servi à aucune commande ; ceux déjà utilisés restent valables.
+  const anciens = d.prepare("SELECT code FROM codes_promo WHERE aleatoire = 0 AND code NOT IN (SELECT code_promo FROM orders WHERE code_promo IS NOT NULL)").all() as { code: string }[];
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  for (const { code } of anciens) {
+    let nouveau: string;
+    do {
+      const c = Array.from({ length: 8 }, () => A[randomInt(A.length)]).join("");
+      nouveau = `${c.slice(0, 4)}-${c.slice(4)}`;
+    } while (d.prepare("SELECT 1 FROM codes_promo WHERE code = ?").get(nouveau));
+    d.prepare("UPDATE codes_promo SET code = ?, aleatoire = 1 WHERE code = ?").run(nouveau, code);
   }
 }
 
