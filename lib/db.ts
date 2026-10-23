@@ -117,6 +117,8 @@ const COLUMNS: [table: string, column: string, definition: string][] = [
   ["orders", "product", "TEXT NOT NULL DEFAULT 'custom'"], // 'custom' (personnalisée) | 'basic' (prête à l'emploi)
   ["cards", "variant", "TEXT"], // carte Basic de stock : 'noir' | 'blanc'
   ["cards", "puce", "TEXT"], // 'desfire' | 'ntag21x' : puce de dépannage en NFC simple (URL fixe, non sécurisée) ; vide : NTAG 424 DNA
+  ["profiles", "logo", "TEXT"], // logo affiché à la place du bandeau coloré (data URL PNG/JPEG)
+  ["profiles", "logo_fond", "TEXT NOT NULL DEFAULT 'clair'"], // fond du bandeau logo : clair | couleur | sombre
   ["orders", "archived_at", "TEXT"], // commande archivée : masquée de la liste par défaut
   ["orders", "refunded_cents", "INTEGER NOT NULL DEFAULT 0"], // total remboursé
   ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],

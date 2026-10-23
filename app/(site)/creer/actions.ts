@@ -47,10 +47,12 @@ export async function createOrder(_prev: CreateOrderState, form: FormData): Prom
   // Le profil en ligne est pré-rempli à partir des informations imprimées.
   const profileId = randomId(12);
   run(
-    `INSERT INTO profiles (id, user_id, display_name, title, company, phone, email, website, accent, avatar)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)`,
+    `INSERT INTO profiles (id, user_id, display_name, title, company, phone, email, website, accent, avatar, logo)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)`,
     profileId, user.id, design.name, design.title || null, design.company || null, design.phone || null,
     design.email || email, design.website || null, design.accent,
+    // Le logo imprimé sur la carte apparaît aussi en haut de la fiche en ligne.
+    design.logo && /^data:image\/(png|jpeg);base64,/.test(design.logo) && design.logo.length < 400_000 ? design.logo : null,
   );
 
   const { total } = priceCents(design.material, design.finish, qty);

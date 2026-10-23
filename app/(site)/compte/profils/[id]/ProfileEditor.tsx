@@ -18,6 +18,23 @@ async function toAvatar(file: File): Promise<string> {
   return c.toDataURL("image/jpeg", 0.85);
 }
 
+/** Logo redimensionné (600 × 200 px au plus, proportions conservées), en PNG pour garder la transparence. */
+async function toLogo(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  await new Promise((ok, ko) => { img.onload = ok; img.onerror = ko; img.src = url; });
+  const k = Math.min(1, 600 / img.width, 200 / img.height);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(img.width * k));
+  c.height = Math.max(1, Math.round(img.height * k));
+  c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+  URL.revokeObjectURL(url);
+  const png = c.toDataURL("image/png");
+  return png.length < 380_000 ? png : c.toDataURL("image/jpeg", 0.9);
+}
+
+const FONDS_LOGO = [["clair", "Clair"], ["couleur", "Couleur du profil"], ["sombre", "Sombre"]] as const;
+
 const FIELDS = [
   ["display_name", "Nom affiché *", "text"], ["title", "Fonction", "text"], ["company", "Entreprise", "text"],
   ["mobile", "Mobile", "tel"], ["phone", "Téléphone fixe", "tel"], ["email", "Email", "email"],
@@ -69,6 +86,28 @@ export function ProfileEditor({ profile, publicUrl }: { profile: Profile; public
             <label htmlFor="bio">Présentation courte</label>
             <textarea id="bio" name="bio" value={p.bio ?? ""} maxLength={300} onChange={(e) => set("bio", e.target.value)} />
           </div>
+        </div>
+
+        <div className="panel" style={{ marginTop: 16 }}>
+          <h3>Logo</h3>
+          <p className="muted" style={{ marginTop: 0, fontSize: ".9rem" }}>
+            Votre logo remplace le bandeau coloré en haut de votre fiche, et il est ajouté à la fiche contact enregistrée dans le téléphone.
+            PNG avec fond transparent conseillé.
+          </p>
+          <input type="hidden" name="logo" value={p.logo ?? ""} />
+          <input type="hidden" name="logo_fond" value={p.logo_fond ?? "clair"} />
+          <div className="row">
+            <input type="file" accept="image/png,image/jpeg" aria-label="Logo" onChange={async (e) => { const f = e.target.files?.[0]; if (f) set("logo", await toLogo(f)); }} />
+            {p.logo && <button type="button" className="btn btn-ghost btn-sm" onClick={() => set("logo", null)}>Retirer le logo (revenir au bandeau)</button>}
+          </div>
+          {p.logo && (
+            <div className="row" style={{ marginTop: 12 }}>
+              <span style={{ fontSize: ".9rem", fontWeight: 600 }}>Fond derrière le logo</span>
+              {FONDS_LOGO.map(([v, l]) => (
+                <button type="button" key={v} className={`btn btn-sm ${p.logo_fond === v ? "" : "btn-secondary"}`} onClick={() => set("logo_fond", v)}>{l}</button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="panel" style={{ marginTop: 16 }}>

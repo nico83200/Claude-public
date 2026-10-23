@@ -20,6 +20,8 @@ export function buildVCard(p: Profile): string {
   if (p.bio) lines.push(`NOTE:${esc(p.bio)}`);
   const photo = p.avatar?.match(/^data:image\/(png|jpeg);base64,(.+)$/);
   if (photo) lines.push(`PHOTO;ENCODING=b;TYPE=${photo[1] === "png" ? "PNG" : "JPEG"}:${photo[2]}`);
+  const logo = p.logo?.match(/^data:image\/(png|jpeg);base64,(.+)$/);
+  if (logo) lines.push(`LOGO;ENCODING=b;TYPE=${logo[1] === "png" ? "PNG" : "JPEG"}:${logo[2]}`);
   lines.push("END:VCARD");
   return lines.map(fold).join("\r\n") + "\r\n";
 }

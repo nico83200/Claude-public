@@ -416,3 +416,9 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
   .imp-a4 .imp-case { outline: .1mm solid #d0d0d0; } /* repère de découpe */
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+/* Bandeau logo (fiche publique) : le logo remplace le bandeau coloré, au-dessus de la photo. */
+.p-cover-logo { height: 150px; display: flex; align-items: center; justify-content: center; padding: 16px 28px 58px; background-image: none; }
+.p-cover-logo img { max-width: min(78%, 320px); max-height: 74px; object-fit: contain; }
+.p-cover-logo.fond-clair { background: #ffffff; border-bottom: 1px solid var(--p-line); }
+.p-cover-logo.fond-couleur { background: var(--p-accent); }
+.p-cover-logo.fond-sombre { background: #14121f; }

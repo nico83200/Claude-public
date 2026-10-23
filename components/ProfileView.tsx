@@ -40,7 +40,11 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
 
   return (
     <div className="profile-page" style={vars}>
-      <div className="p-cover" />
+      {profile.logo ? (
+        <div className={`p-cover p-cover-logo fond-${profile.logo_fond ?? "clair"}`}>
+          <img src={profile.logo} alt={profile.company ? `Logo ${profile.company}` : "Logo"} />
+        </div>
+      ) : <div className="p-cover" />}
       <div className="p-wrap">
         {profile.avatar ? <img className="p-avatar" src={profile.avatar} alt="" /> : <div className="p-avatar">{initials}</div>}
         <h1 className="p-name">{profile.display_name || "Votre nom"}</h1>

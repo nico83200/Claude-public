@@ -35,15 +35,19 @@ export async function saveProfile(id: string, _prev: SaveState, form: FormData):
   const avatar = String(form.get("avatar") ?? "");
   if (avatar && !/^data:image\/(png|jpeg);base64,/.test(avatar)) return { error: "Photo invalide." };
   if (avatar.length > 400_000) return { error: "Photo trop lourde." };
+  const logo = String(form.get("logo") ?? "");
+  if (logo && !/^data:image\/(png|jpeg);base64,/.test(logo)) return { error: "Logo invalide (PNG ou JPEG)." };
+  if (logo.length > 400_000) return { error: "Logo trop lourd." };
+  const logoFond = ["clair", "couleur", "sombre"].includes(String(form.get("logo_fond"))) ? String(form.get("logo_fond")) : "clair";
   const email = s(form.get("email"), 120);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Email invalide." };
 
   run(
     `UPDATE profiles SET label = ?, display_name = ?, title = ?, company = ?, bio = ?, phone = ?, mobile = ?, email = ?, website = ?, address = ?,
-       avatar = ?, links = ?, accent = ?, dark = ?, lead_capture = ?, is_public = ?, updated_at = datetime('now') WHERE id = ?`,
+       avatar = ?, logo = ?, logo_fond = ?, links = ?, accent = ?, dark = ?, lead_capture = ?, is_public = ?, updated_at = datetime('now') WHERE id = ?`,
     s(form.get("label"), 30) ?? "Profil", name, s(form.get("title"), 60), s(form.get("company"), 60), s(form.get("bio"), 300),
     s(form.get("phone"), 30), s(form.get("mobile"), 30), email, s(form.get("website"), 120), s(form.get("address"), 160),
-    avatar || null, JSON.stringify(links), /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : "#5b3df5",
+    avatar || null, logo || null, logoFond, JSON.stringify(links), /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : "#5b3df5",
     form.get("dark") === "on", form.get("lead_capture") === "on", form.get("is_public") === "on", id,
   );
   revalidatePath("/compte/profils");

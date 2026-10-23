@@ -15,6 +15,8 @@ export const DEMO_PROFILE: Profile = {
   website: "ateliernova.fr",
   address: "12 rue des Arts, 69002 Lyon",
   avatar: null,
+  logo: null,
+  logo_fond: "clair",
   links: JSON.stringify([
     { label: "LinkedIn", url: "https://www.linkedin.com/" },
     { label: "Portfolio", url: "https://ateliernova.fr/realisations" },

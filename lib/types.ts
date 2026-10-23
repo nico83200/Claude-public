@@ -7,6 +7,8 @@ export type Profile = {
   display_name: string; title: string | null; company: string | null; bio: string | null;
   phone: string | null; mobile: string | null; email: string | null; website: string | null; address: string | null;
   avatar: string | null; links: string; accent: string; dark: number;
+  /** Logo à la place du bandeau coloré, sur fond clair, couleur du profil ou sombre. */
+  logo: string | null; logo_fond: "clair" | "couleur" | "sombre";
   lead_capture: number; is_public: number; created_at: string; updated_at: string;
 };
 
