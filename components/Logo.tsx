@@ -1,22 +1,22 @@
 import Link from "next/link";
+import { BRAND_NAME, brandMark } from "@/lib/brand";
 
+/** Symbole Tapikard (même dessin que sur la carte Basic et le favicon). */
 export function LogoMark({ size = 30 }: { size?: number }) {
   return (
-    <span className="logo-mark" style={{ width: size, height: size }} aria-hidden>
-      <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round">
-        <circle cx="6" cy="12" r="1.6" fill="#fff" stroke="none" />
-        <path d="M10 8a5 5 0 0 1 0 8" />
-        <path d="M14 5a9 9 0 0 1 0 14" />
-        <path d="M18 2.5a13 13 0 0 1 0 19" />
-      </svg>
-    </span>
+    <svg className="logo-mark" width={size} height={size} viewBox="0 0 140 140" aria-hidden
+      dangerouslySetInnerHTML={{ __html: brandMark(0, 0, 140) }} />
   );
 }
 
-export function Logo() {
-  return (
-    <Link href="/" className="logo">
-      <LogoMark /> Tapikard
-    </Link>
+/** Logo complet : symbole + mot-symbole. `tone="light"` sur fond sombre. */
+export function Logo({ size = 30, tone = "dark", href = "/" }: { size?: number; tone?: "dark" | "light"; href?: string | null }) {
+  const content = (
+    <>
+      <LogoMark size={size} />
+      <span className="logo-word" style={{ fontSize: size * 0.62 }}>{BRAND_NAME}</span>
+    </>
   );
+  const cls = `logo ${tone === "light" ? "logo-light" : ""}`;
+  return href ? <Link href={href} className={cls} aria-label={`${BRAND_NAME} — accueil`}>{content}</Link> : <span className={cls}>{content}</span>;
 }

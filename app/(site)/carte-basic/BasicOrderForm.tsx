@@ -5,8 +5,8 @@ import { CardPreview } from "@/components/CardPreview";
 import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, euros, type BasicVariant } from "@/lib/catalog";
 import { createBasicOrder, type BasicOrderState } from "./actions";
 
-export function BasicOrderForm({ stripe }: { stripe: boolean }) {
-  const [variant, setVariant] = useState<BasicVariant>("noir");
+export function BasicOrderForm({ stripe, initialVariant = "noir" }: { stripe: boolean; initialVariant?: BasicVariant }) {
+  const [variant, setVariant] = useState<BasicVariant>(initialVariant);
   const [quantity, setQuantity] = useState(1);
   const [side, setSide] = useState<"recto" | "verso">("recto");
   const [state, action, pending] = useActionState<BasicOrderState, FormData>(createBasicOrder, {});
@@ -70,8 +70,14 @@ export function BasicOrderForm({ stripe }: { stripe: boolean }) {
           {price.discount > 0 && <div className="row between muted" style={{ fontSize: ".9rem" }}><span>Remise quantité</span><span>−{price.discount * 100} %</span></div>}
           <div className="row between muted" style={{ fontSize: ".9rem" }}><span>Livraison</span><span>Offerte</span></div>
           <hr style={{ border: 0, borderTop: "1px solid var(--line)", margin: "12px 0" }} />
-          <div className="row between" style={{ fontWeight: 800, fontSize: "1.2rem" }}><span>Total TTC</span><span>{euros(price.total)}</span></div>
+          <div className="row between" style={{ fontWeight: 700, fontSize: "1.2rem" }}><span>Total TTC</span><span>{euros(price.total)}</span></div>
         </div>
+        <ul className="includes" style={{ fontSize: ".92rem", margin: "22px 4px 0" }}>
+          <li>Puce NFC sécurisée NTAG 424 DNA + QR code</li>
+          <li>Profil en ligne illimité, modifiable à vie</li>
+          <li>Échange de coordonnées et statistiques</li>
+          <li>Livraison offerte, sans BAT à valider</li>
+        </ul>
       </aside>
     </div>
   );

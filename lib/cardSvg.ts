@@ -1,6 +1,7 @@
 // Rendu SVG d'une carte (85,6 × 54 mm, unité = 0,1 mm). Utilisé pour l'aperçu du configurateur
 // et pour le BAT téléchargeable. Fonction pure : fonctionne côté client et côté serveur.
 import QRCode from "qrcode";
+import { BRAND_NAME, WORDMARK_TRACKING_EM, WORDMARK_WEIGHT, brandMark, brandWaves } from "./brand";
 import { FONTS, MATERIALS, type CardDesign } from "./catalog";
 
 export const CARD_W = 856;
@@ -25,15 +26,26 @@ function qrPath(text: string, x: number, y: number, size: number): string {
   return d;
 }
 
+/** Domaine imprimé sous le QR code : celui vers lequel pointe réellement le QR. */
+function domaine(url: string): string {
+  try {
+    return new URL(url).host.replace(/^www\./, "");
+  } catch {
+    return "tapikard.com";
+  }
+}
+
 function nfcIcon(x: number, y: number, s: number, color: string): string {
-  // Ondes NFC stylisées
-  const arcs = [0.35, 0.62, 0.9]
-    .map((k) => {
-      const r = s * k * 0.5;
-      return `<path d="M${x + s * 0.3} ${y + s / 2 - r} A ${r} ${r} 0 0 1 ${x + s * 0.3} ${y + s / 2 + r}" fill="none" stroke="${color}" stroke-width="${s * 0.075}" stroke-linecap="round"/>`;
-    })
-    .join("");
-  return `<circle cx="${x + s * 0.18}" cy="${y + s / 2}" r="${s * 0.07}" fill="${color}"/>${arcs}`;
+  return brandWaves(x, y, s, color);
+}
+
+/** Logo Tapikard complet (symbole + mot-symbole), identique au site. */
+function brandLockup(x: number, y: number, markSize: number, ink: string, font: string): string {
+  const fs = markSize * 0.62;
+  return (
+    brandMark(x, y, markSize) +
+    `<text x="${x + markSize * 1.25}" y="${y + markSize * 0.5 + fs * 0.36}" font-family="${font}" font-size="${fs}" font-weight="${WORDMARK_WEIGHT}" letter-spacing="${(WORDMARK_TRACKING_EM * fs).toFixed(2)}" fill="${ink}">${BRAND_NAME}</text>`
+  );
 }
 
 function materialFill(d: CardDesign): { defs: string; fill: string } {
@@ -101,9 +113,8 @@ export function cardSvg(d: CardDesign, { side, qrUrl, proof = false }: Opts): st
         // Design Tapikard fixe : logo, ondes NFC et invitation à scanner.
         const cx = CARD_W / 2;
         body =
-          `<rect x="${cx - 70}" y="120" width="140" height="140" rx="36" fill="${d.accent}"/>` +
-          nfcIcon(cx - 48, 140, 100, "#ffffff") +
-          t(cx, 340, 58, "Tapikard", `font-weight="800" fill="${d.ink}" text-anchor="middle" letter-spacing="-1"`) +
+          brandMark(cx - 70, 120, 140, { tile: d.accent }) +
+          t(cx, 340, 58, BRAND_NAME, `font-weight="${WORDMARK_WEIGHT}" fill="${d.ink}" text-anchor="middle" letter-spacing="${(WORDMARK_TRACKING_EM * 58).toFixed(2)}"`) +
           t(cx, 395, 24, "Approchez votre téléphone", `fill="${d.ink}" opacity="0.7" text-anchor="middle"`);
         break;
       }
@@ -129,13 +140,15 @@ export function cardSvg(d: CardDesign, { side, qrUrl, proof = false }: Opts): st
     const qy = (CARD_H - qrSize) / 2 - 20;
     body =
       (printable ? `<rect x="${-pad}" y="${-pad}" width="${W}" height="${H}" fill="${bg}"/>` : "") +
-      (d.logo ? logo(70, 70, 260, 110) : t(70, 140, 40, d.company || d.name || "Tapikard", `font-weight="700" fill="${ink}"`)) +
+      (basic
+        ? brandLockup(70, 80, 64, ink, FONTS.sans.css)
+        : d.logo ? logo(70, 70, 260, 110) : t(70, 140, 40, d.company || d.name, `font-weight="700" fill="${ink}"`)) +
       nfcIcon(70, 300, 90, ink) +
       t(180, 340, 24, "Approchez votre téléphone", `fill="${ink}" font-weight="600"`) +
       t(180, 372, 20, "ou scannez le QR code", `fill="${ink}" opacity="0.8"`) +
       `<rect x="${qx}" y="${qy}" width="${qrSize}" height="${qrSize}" rx="18" fill="#ffffff"/>` +
       `<path d="${qrPath(qrUrl, qx, qy, qrSize)}" fill="#111111"/>` +
-      t(qx + qrSize / 2, qy + qrSize + 40, 17, "tapikard.com", `fill="${ink}" opacity="0.7" text-anchor="middle" letter-spacing="1"`);
+      t(qx + qrSize / 2, qy + qrSize + 40, 17, domaine(qrUrl), `fill="${ink}" opacity="0.7" text-anchor="middle" letter-spacing="1"`);
   }
 
   const marks = proof

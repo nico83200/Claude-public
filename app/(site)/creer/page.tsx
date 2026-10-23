@@ -8,9 +8,12 @@ export default async function CreerPage({ searchParams }: { searchParams: Promis
   const { matiere } = await searchParams;
   const initialMaterial = matiere && matiere in MATERIALS ? (matiere as MaterialId) : undefined;
   return (
-    <div className="container" style={{ paddingTop: 32 }}>
-      <h1>Créez votre carte</h1>
-      <p className="muted">Votre aperçu se met à jour en direct. Vous validerez un BAT (bon à tirer) avant la production.</p>
+    <div className="container">
+      <div className="page-intro">
+        <span className="eyebrow">Carte personnalisée</span>
+        <h1>Créez votre carte, <em>à votre image.</em></h1>
+        <p className="lead">L’aperçu se met à jour en direct. Vous validerez un BAT (bon à tirer) avant l’impression.</p>
+      </div>
       <Configurator stripe={STRIPE_ENABLED} initialMaterial={initialMaterial} />
     </div>
   );

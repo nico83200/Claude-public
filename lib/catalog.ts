@@ -30,7 +30,7 @@ export const TEMPLATES: Record<TemplateId, { label: string }> = {
 export const CUSTOM_TEMPLATES = (Object.keys(TEMPLATES) as TemplateId[]).filter((t) => t !== "basic");
 
 export const FONTS: Record<FontId, { label: string; css: string }> = {
-  sans: { label: "Sans serif", css: "Inter, 'Helvetica Neue', Arial, sans-serif" },
+  sans: { label: "Sans serif", css: "'Inter Variable', Inter, 'Helvetica Neue', Arial, sans-serif" },
   serif: { label: "Serif", css: "Georgia, 'Times New Roman', serif" },
   mono: { label: "Mono", css: "'SF Mono', Menlo, Consolas, monospace" },
 };

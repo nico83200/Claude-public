@@ -1,6 +1,7 @@
 import { parseLinks, type Profile } from "@/lib/types";
 import { IconChat, IconGlobe, IconLink, IconMail, IconPhone, IconPin, IconShield, IconUserPlus } from "./Icons";
 import { LeadForm } from "./LeadForm";
+import { LogoMark } from "./Logo";
 import { SaveContact } from "./SaveContact";
 import { TrackedLink } from "./TrackedLink";
 
@@ -89,7 +90,7 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
         )}
 
         <div className="p-footer">
-          Carte de visite NFC <a href="/">Tapikard</a> · <a href="/confidentialite">Confidentialité</a>
+          <LogoMark size={15} />Carte de visite NFC <a href="/">Tapikard</a> · <a href="/confidentialite">Confidentialité</a>
         </div>
       </div>
     </div>
