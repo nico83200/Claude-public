@@ -1,4 +1,5 @@
 import { formeImage } from "@/lib/image";
+import { reseauDe } from "@/lib/reseaux";
 import { parseLinks, type Profile } from "@/lib/types";
 import { IconChat, IconGlobe, IconLink, IconMail, IconPhone, IconPin, IconShield, IconUserPlus } from "./Icons";
 import { LeadForm } from "./LeadForm";
@@ -27,7 +28,10 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
     "--p-muted": dark ? "#a1a1b0" : "#666277",
     "--p-line": dark ? "#2a2a35" : "#e7e5ef",
   } as React.CSSProperties;
-  const links = parseLinks(profile);
+  const tous = parseLinks(profile);
+  // Réseaux sociaux reconnus (LinkedIn, Instagram…) : affichés en logos ; les autres liens restent en liste.
+  const reseaux = tous.map((l) => ({ ...l, r: reseauDe(l.url) })).filter((l) => l.r);
+  const links = tous.filter((l) => !reseauDe(l.url));
   const mainPhone = profile.mobile || profile.phone;
   const firstName = profile.display_name.split(" ")[0] || profile.display_name;
   const initials = profile.display_name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
@@ -65,7 +69,20 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
         ) : preview || !cardId ? (
           <span className="p-save"><IconUserPlus /> Ajouter aux contacts</span>
         ) : (
-          <SaveContact cardId={cardId} ownerFirstName={firstName} leadCapture={!!profile.lead_capture} />
+          <SaveContact cardId={cardId} ownerFirstName={firstName} leadCapture={!!profile.lead_capture} contact={{
+            nom: profile.display_name, mobile: profile.mobile, telephone: profile.phone, email: profile.email, entreprise: profile.company,
+            fonction: profile.title, adresse: profile.address, site: profile.website,
+          }} />
+        )}
+
+        {reseaux.length > 0 && (
+          <div className="p-reseaux">
+            {reseaux.map((l, i) => (
+              <TrackedLink key={i} cardId={cardId} target={l.r!.nom} href={l.url} className={`p-reseau p-reseau-${l.r!.id}`} style={{ background: l.r!.couleur }} aria-label={l.r!.nom} title={l.r!.nom}>
+                <svg viewBox="0 0 24 24" aria-hidden><path d={l.r!.d} /></svg>
+              </TrackedLink>
+            ))}
+          </div>
         )}
 
         <div className="p-list">

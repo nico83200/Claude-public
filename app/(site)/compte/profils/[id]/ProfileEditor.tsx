@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { ProfileView } from "@/components/ProfileView";
+import { RESEAUX, reseauDe } from "@/lib/reseaux";
 import { parseLinks, type Profile, type ProfileLink } from "@/lib/types";
 import { deleteProfile, saveProfile, type SaveState } from "../actions";
 
@@ -141,10 +142,25 @@ export function ProfileEditor({ profile, publicUrl }: { profile: Profile; public
         </div>
 
         <div className="panel" style={{ marginTop: 16 }}>
-          <h3>Liens</h3>
+          <h3>Réseaux sociaux et liens</h3>
+          <p className="muted" style={{ marginTop: 0, fontSize: ".9rem" }}>
+            Les réseaux sociaux s’affichent avec leur logo en haut de votre fiche ; les autres liens (site, portfolio, prise de rendez-vous…) en liste.
+          </p>
+          <div className="reseaux-ajout">
+            {RESEAUX.map((r) => {
+              const deja = links.some((l) => reseauDe(l.url)?.id === r.id);
+              return (
+                <button type="button" key={r.id} className={`reseau-choix${deja ? " actif" : ""}`} title={deja ? `${r.nom} déjà ajouté` : `Ajouter ${r.nom}`} disabled={deja || links.length >= 10}
+                  onClick={() => setLinks([...links, { label: r.nom, url: r.modele }])}>
+                  <span style={{ background: r.couleur, color: r.id === "snapchat" ? "#111" : "#fff" }}><svg viewBox="0 0 24 24" aria-hidden><path d={r.d} /></svg></span>{r.nom}
+                </button>
+              );
+            })}
+          </div>
           <input type="hidden" name="links" value={JSON.stringify(links)} />
           {links.map((l, i) => (
             <div className="row" key={i} style={{ marginBottom: 8, flexWrap: "nowrap" }}>
+              {(() => { const r = reseauDe(l.url); return r ? <span className="reseau-pastille" style={{ background: r.couleur, color: r.id === "snapchat" ? "#111" : "#fff" }} title={r.nom}><svg viewBox="0 0 24 24" aria-hidden><path d={r.d} /></svg></span> : <span className="reseau-pastille vide" aria-hidden>🔗</span>; })()}
               <input type="text" aria-label="Libellé" placeholder="LinkedIn" value={l.label} style={{ flex: 1 }} onChange={(e) => setLinks(links.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
               <input type="url" aria-label="URL" placeholder="https://…" value={l.url} style={{ flex: 2 }} onChange={(e) => setLinks(links.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))} />
               <button type="button" className="btn btn-ghost btn-sm" aria-label="Supprimer" onClick={() => setLinks(links.filter((_, j) => j !== i))}>✕</button>

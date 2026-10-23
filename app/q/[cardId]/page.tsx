@@ -12,7 +12,25 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ cardId: string }> }) {
   const { cardId } = await params;
   const p = get<Profile>("SELECT p.* FROM profiles p JOIN cards c ON c.profile_id = p.id WHERE c.id = ? AND c.status = 'active' AND p.is_public = 1", cardId);
-  return { title: p ? p.display_name : "Carte Tapikard", robots: { index: false, follow: false } };
+  if (!p) return { title: "Carte Tapikard", robots: { index: false, follow: false } };
+  // Titre, description et image soignés : c’est ce qu’affichent les messageries quand le lien est partagé.
+  const titre = [p.display_name, [p.title, p.company].filter(Boolean).join(" · ")].filter(Boolean).join(" — ");
+  const description = p.bio || `Enregistrez les coordonnées de ${p.display_name} en un geste.`;
+  const image = { url: `/apercu/${cardId}`, width: 1200, height: 630, alt: p.display_name };
+  return {
+    title: { absolute: titre },
+    description,
+    robots: { index: false, follow: false },
+    openGraph: { title: titre, description, images: [image], type: "profile" },
+    twitter: { card: "summary_large_image", title: titre, description, images: [image.url] },
+  };
+}
+
+/** La barre du navigateur prend la couleur du profil. */
+export async function generateViewport({ params }: { params: Promise<{ cardId: string }> }) {
+  const { cardId } = await params;
+  const p = get<Profile>("SELECT p.accent, p.dark FROM profiles p JOIN cards c ON c.profile_id = p.id WHERE c.id = ?", cardId);
+  return { themeColor: p ? (p.dark ? "#0f0f14" : "#f6f6f9") : "#121117" };
 }
 
 function Neutral({ title, children }: { title: string; children: React.ReactNode }) {

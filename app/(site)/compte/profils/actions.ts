@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { get, run } from "@/lib/db";
 import { randomId } from "@/lib/ids";
+import { RESEAUX } from "@/lib/reseaux";
 import type { Profile, ProfileLink } from "@/lib/types";
 
 export type SaveState = { ok?: boolean; error?: string };
@@ -27,6 +28,7 @@ export async function saveProfile(id: string, _prev: SaveState, form: FormData):
   try {
     links = (JSON.parse(String(form.get("links") ?? "[]")) as ProfileLink[])
       .filter((l) => l && typeof l.label === "string" && typeof l.url === "string" && l.label.trim() && /^https?:\/\/\S+$/.test(l.url.trim()))
+      .filter((l) => !RESEAUX.some((r) => r.modele === l.url.trim())) // modèle d’adresse non complété
       .slice(0, 10)
       .map((l) => ({ label: l.label.trim().slice(0, 40), url: l.url.trim().slice(0, 300) }));
   } catch {

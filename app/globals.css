@@ -453,3 +453,18 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .courrier-signature-main { font-family: "Great Vibes", cursive; font-size: 34pt; line-height: 1.1; color: #2c2380; margin: 2mm 0 0 2mm; transform: rotate(-3deg); transform-origin: left center; }
 .courrier-signature-nom { font-weight: 600; font-size: 10.5pt; }
 .courrier-signature-nom span { font-weight: 400; color: #666277; }
+/* Logos des réseaux sociaux (fiche publique) */
+.p-reseaux { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 18px; }
+.p-reseau { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #fff; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, .45); transition: transform .15s ease; }
+.p-reseau:active { transform: scale(.94); }
+.p-reseau svg { width: 22px; height: 22px; fill: currentColor; }
+.p-reseau-snapchat { color: #111 !important; }
+.p-reseau-x, .p-reseau-tiktok, .p-reseau-threads, .p-reseau-github { outline: 1px solid var(--p-line); }
+.reseaux-ajout { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.reseau-choix { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: .82rem; cursor: pointer; }
+.reseau-choix:disabled { opacity: .45; cursor: default; }
+.reseau-choix span, .reseau-pastille { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+.reseau-choix svg, .reseau-pastille svg { width: 13px; height: 13px; fill: currentColor; }
+.reseau-pastille { width: 30px; height: 30px; }
+.reseau-pastille svg { width: 15px; height: 15px; }
+.reseau-pastille.vide { background: var(--surface-2); font-size: .8rem; }

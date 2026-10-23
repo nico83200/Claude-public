@@ -3,7 +3,7 @@ import { recordScan } from "@/lib/scans";
 import { buildVCard } from "@/lib/vcard";
 import type { Card, Profile } from "@/lib/types";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ cardId: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ cardId: string }> }) {
   const { cardId } = await params;
   const card = get<Card>("SELECT * FROM cards WHERE id = ? AND status = 'active'", cardId);
   const profile = card?.profile_id ? get<Profile>("SELECT * FROM profiles WHERE id = ? AND is_public = 1", card.profile_id) : undefined;
@@ -13,7 +13,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ cardId:
   return new Response(buildVCard(profile), {
     headers: {
       "Content-Type": "text/vcard; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}.vcf"`,
+      // iPhone : affichage direct dans la fiche native « Nouveau contact » ; ailleurs : fichier à ouvrir.
+      "Content-Disposition": `${/iPhone|iPad|iPod/i.test(req.headers.get("user-agent") ?? "") ? "inline" : "attachment"}; filename="${filename}.vcf"`,
       "Cache-Control": "no-store",
     },
   });
