@@ -65,33 +65,33 @@
     const hl = (sel, at) => tl.fromTo(sel, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, at);
 
     // Le nom s'écrit sur « Avec Jack&Cie ».
-    tl.fromTo("#pb-lock img", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.5)" }, 0.15);
-    tl.fromTo("#pb-lock h2 span", { opacity: 0.25, filter: "blur(5px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.12, stagger: 0.07, ease: "power2.out" }, 0.25);
+    tl.fromTo("#pb-lock img", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.5)" }, 0.13);
+    tl.fromTo("#pb-lock h2 span", { opacity: 0.25, filter: "blur(5px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.12, stagger: 0.07, ease: "power2.out" }, 0.43);
 
     // Poussée dans l'écran, puis l'écran Santé à la taille de la vidéo.
     tl.to("#pb-lock", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 4.15);
     tl.fromTo("#pb-phonewrap", { scale: 1, y: 0, transformOrigin: "50% 61%" }, { scale: 3.4, y: -209, duration: 0.6, ease: "power2.inOut" }, 4.2);
     tl.fromTo("#pb-sante", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.22, ease: "power2.out" }, 4.6);
     tl.fromTo("#pb-notif", { y: -420 }, { y: 0, duration: 0.55, ease: "expo.out" }, 4.95);
-    hl("#pb-hl-vac", 6.2);
-    hl("#pb-hl-mar", 7.24);
+    hl("#pb-hl-vac", 6.51);
+    hl("#pb-hl-mar", 8.07);
 
     // Glissés vers Séances, Budget et Jours de monte.
     const whip = (from, to, at) => {
       tl.to(from, { x: -1080, filter: "blur(14px)", duration: 0.28, ease: "power3.in" }, at);
       tl.fromTo(to, { opacity: 1, x: 1080, filter: "blur(14px)" }, { x: 0, filter: "blur(0px)", duration: 0.38, ease: "power3.out" }, at + 0.12);
     };
-    whip("#pb-sante", "#pb-seances", 8.05);
-    hl("#pb-hl-seance", 9.35);
-    whip("#pb-seances", "#pb-budget", 10.15);
-    hl("#pb-hl-mois", 10.9);
-    hl("#pb-hl-cat", 11.35);
-    whip("#pb-budget", "#pb-jours", 12.25);
-    hl("#pb-hl-lea", 13.0);
-    hl("#pb-hl-repos", 14.45);
+    whip("#pb-sante", "#pb-seances", 8.75);
+    hl("#pb-hl-seance", 10.35);
+    whip("#pb-seances", "#pb-budget", 11.05);
+    hl("#pb-hl-mois", 11.79);
+    hl("#pb-hl-cat", 12.23);
+    whip("#pb-budget", "#pb-jours", 13.0);
+    hl("#pb-hl-lea", 13.75);
+    hl("#pb-hl-repos", 14.8);
 
     // Le vert se rouvre depuis le haut de l'écran vers la carte de fin.
-    tl.fromTo("#pb-iris", { clipPath: "circle(0% at 50% 34%)" }, { clipPath: "circle(130% at 50% 34%)", duration: 0.55, ease: "power2.inOut" }, 15.3);
+    tl.fromTo("#pb-iris", { clipPath: "circle(0% at 50% 34%)" }, { clipPath: "circle(130% at 50% 34%)", duration: 0.55, ease: "power2.inOut" }, 15.75);
     window.__timelines["appli"] = tl;
   </script>
 </template>
