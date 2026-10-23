@@ -1,7 +1,7 @@
 // Emails automatiques envoyés par le site.
 import { BASIC_VARIANTS, FINISHES, MATERIALS, euros, type CardDesign } from "../catalog";
 import type { Lead, Order, Profile } from "../types";
-import { finLisible } from "../promo";
+import { validite } from "../promo";
 import { bouton, coches, document, encart, etapes, h, lien, para, recap, section, surtitre, titre, visuel } from "./gabarit";
 
 export type Email = { sujet: string; html: string };
@@ -70,7 +70,7 @@ export function emailRemboursement(o: Order, montantCents: number, total: boolea
 }
 
 /** Commande payée : BAT à valider (personnalisée) ou mise en préparation (Basic). */
-export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | null, entourage?: { code: string; fin: string } | null): Email {
+export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | null, entourage?: { code: string; fin: string | null } | null): Email {
   const codeEntourage = entourage?.code;
   const basic = o.product === "basic";
   const sujet = basic ? "Merci ! Votre carte Basic est en préparation" : "Merci ! Validez le BAT de votre carte";
@@ -127,7 +127,7 @@ export function emailCommandeConfirmee(o: Order, d: CardDesign, nom?: string | n
           ? section(
               encart(
                 surtitre("Pour votre entourage") +
-                  para(`Faites profiter vos proches de <strong>25 % de remise supplémentaire</strong> sur leur carte Tapikard avec votre code personnel, valable jusqu’au <strong>${finLisible(entourage!.fin)}</strong> :`) +
+                  para(`Faites profiter vos proches de <strong>25 % de remise supplémentaire</strong> sur leur carte Tapikard avec votre code personnel, valable <strong>${validite(entourage!.fin)}</strong> :`) +
                   `<div style="font-family:monospace;font-size:26px;font-weight:700;letter-spacing:3px;color:#121117;margin:6px 0 14px;">${h(codeEntourage)}</div>` +
                   bouton("Partager le lien", lien(`/carte-basic?code=${encodeURIComponent(codeEntourage)}`), "contour"),
               ),

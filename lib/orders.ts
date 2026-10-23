@@ -1,4 +1,4 @@
-import { codeDe } from "./promo";
+import { codeDe, demarrerValidite } from "./promo";
 import { all, get, run, tx } from "./db";
 import { activationCode, randomId } from "./ids";
 import { sendMail } from "./mail";
@@ -88,6 +88,7 @@ export function shipOrder(orderId: string, tracking: string): string | null {
   });
   const u = get<User>("SELECT u.* FROM users u JOIN orders o ON o.user_id = u.id WHERE o.id = ?", orderId);
   const o = getOrder(orderId);
+  if (u) demarrerValidite(u.id); // le code entourage est valable un mois à compter de l'expédition
   if (u && o) {
     const e = emailCommandeExpediee(o, tracking || null, u.name);
     void sendMail(u.email, e.sujet, e.html);

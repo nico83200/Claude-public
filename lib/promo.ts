@@ -4,20 +4,31 @@ import { all, get, run } from "./db";
 import type { User } from "./types";
 
 export const REMISE_ENTOURAGE = 0.25;
-/** Durée de validité d'un code, à compter de sa création (première commande payée du client). */
+/** Durée de validité d'un code, à compter de l'expédition de la commande (colonne `debut`). Avant l'expédition,
+ *  le code est déjà utilisable et le mois n'a pas commencé. */
 export const VALIDITE_SQL = "+1 month";
+const VALIDE = `(debut IS NULL OR datetime(debut, '${VALIDITE_SQL}') > datetime('now'))`;
+const FIN = `CASE WHEN debut IS NULL THEN NULL ELSE date(debut, '${VALIDITE_SQL}') END`;
 
-export type CodeValide = { code: string; fin: string };
+/** `fin` est vide tant que la commande n'est pas expédiée. */
+export type CodeValide = { code: string; fin: string | null };
 
 /** Date de fin lisible : « 24 novembre 2026 ». */
 export const finLisible = (fin: string) => new Date(fin + "T12:00:00Z").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
+/** « jusqu’au 24 novembre 2026 », ou « un mois à compter de l’expédition » si le mois n'a pas commencé. */
+export const validite = (fin: string | null) => (fin ? `jusqu’au ${finLisible(fin)}` : "pendant un mois à compter de l’expédition de votre commande");
+
 /** Code encore valable du client, s'il en a un. */
 export function codeActif(userId: string): CodeValide | null {
   return get<CodeValide>(
-    `SELECT code, date(created_at, '${VALIDITE_SQL}') fin FROM codes_promo
-     WHERE user_id = ? AND actif = 1 AND datetime(created_at, '${VALIDITE_SQL}') > datetime('now') ORDER BY created_at DESC LIMIT 1`, userId,
+    `SELECT code, ${FIN} fin FROM codes_promo WHERE user_id = ? AND actif = 1 AND ${VALIDE} ORDER BY created_at DESC LIMIT 1`, userId,
   ) ?? null;
+}
+
+/** Commande expédiée (ou courrier imprimé juste avant l'envoi) : le mois de validité commence. */
+export function demarrerValidite(userId: string) {
+  run("UPDATE codes_promo SET debut = datetime('now') WHERE user_id = ? AND actif = 1 AND debut IS NULL", userId);
 }
 
 export type CodePromo = { code: string; user_id: string; remise: number; actif: number; created_at: string };
@@ -43,10 +54,10 @@ export function codeDe(user: Pick<User, "id" | "name" | "email">): CodeValide {
 /** Vérifie un code pour une commande passée avec cet email. Un client ne peut pas utiliser son propre code. */
 export function verifierCode(saisi: string, email: string | null): { ok: true; code: CodePromo } | { ok: false; erreur: string } {
   const code = get<CodePromo & { valide: number; fin: string }>(
-    `SELECT *, datetime(created_at, '${VALIDITE_SQL}') > datetime('now') valide, date(created_at, '${VALIDITE_SQL}') fin FROM codes_promo WHERE code = ? AND actif = 1`,
+    `SELECT *, ${VALIDE} valide, ${FIN} fin FROM codes_promo WHERE code = ? AND actif = 1`,
     normaliserCode(saisi));
   if (!code) return { ok: false, erreur: "Code promo inconnu." };
-  if (!code.valide) return { ok: false, erreur: `Ce code a expiré le ${finLisible(code.fin)} (il est valable un mois).` };
+  if (!code.valide) return { ok: false, erreur: `Ce code a expiré le ${finLisible(code.fin!)} (il est valable un mois).` };
   if (email) {
     const titulaire = get<{ email: string }>("SELECT email FROM users WHERE id = ?", code.user_id);
     if (titulaire?.email === email) return { ok: false, erreur: "Ce code est réservé à vos proches : partagez-le !" };

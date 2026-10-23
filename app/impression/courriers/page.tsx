@@ -5,7 +5,7 @@ import { LogoMark } from "@/components/Logo";
 import { requireAdmin } from "@/lib/auth";
 import { APP_URL } from "@/lib/config";
 import { all, get } from "@/lib/db";
-import { REMISE_ENTOURAGE, codeDe, finLisible, type CodeValide } from "@/lib/promo";
+import { REMISE_ENTOURAGE, codeDe, demarrerValidite, validite, type CodeValide } from "@/lib/promo";
 import type { Shipping, User } from "@/lib/types";
 import { BoutonImprimer } from "./BoutonImprimer";
 
@@ -34,7 +34,8 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
     if (!c) {
       const u = get<User>("SELECT * FROM users WHERE id = ?", l.user_id ?? "");
       const nom = (l.shipping ? (JSON.parse(l.shipping) as Shipping).name : "") || u?.name || "";
-      c = { cle: l.order_id, prenom: nom.trim().split(/\s+/)[0] ?? "", commande: l.order_id, cartes: [], codePromo: u ? codeDe(u) : null };
+      c = { cle: l.order_id, prenom: nom.trim().split(/\s+/)[0] ?? "", commande: l.order_id, cartes: [], // Le courrier part avec la commande : il démarre le mois de validité du code, pour y imprimer la date de fin.
+      codePromo: u ? (demarrerValidite(u.id), codeDe(u)) : null };
       courriers.push(c);
     }
     c.cartes.push({ id: l.id, code: l.activation_code });
@@ -89,7 +90,7 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
               <div className="courrier-promo">
                 <div>
                   <strong>Pour vos proches : −{REMISE_ENTOURAGE * 100} % supplémentaires</strong>
-                  <p>Offrez-leur votre code personnel, valable sur leur carte Tapikard jusqu’au <strong>{finLisible(c.codePromo.fin)}</strong> :</p>
+                  <p>Offrez-leur votre code personnel, valable sur leur carte Tapikard <strong>{validite(c.codePromo.fin)}</strong> :</p>
                   <div className="courrier-promo-code">{c.codePromo.code}</div>
                 </div>
                 <div className="courrier-qr" dangerouslySetInnerHTML={{ __html: qrs.get(c.codePromo.code)! }} />

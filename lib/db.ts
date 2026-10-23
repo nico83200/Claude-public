@@ -128,6 +128,7 @@ const COLUMNS: [table: string, column: string, definition: string][] = [
   ["profiles", "logo", "TEXT"], // logo affiché à la place du bandeau coloré (data URL PNG/JPEG)
   ["profiles", "logo_fond", "TEXT NOT NULL DEFAULT 'clair'"], // fond du bandeau logo : clair | couleur | sombre
   ["orders", "archived_at", "TEXT"],
+  ["codes_promo", "debut", "TEXT"], // début du mois de validité : expédition de la commande
   ["codes_promo", "aleatoire", "INTEGER NOT NULL DEFAULT 0"], // 1 : code aléatoire (les premiers codes contenaient le prénom)
   ["orders", "code_promo", "TEXT"], // code « entourage » utilisé à la commande
   ["orders", "remise_cents", "INTEGER NOT NULL DEFAULT 0"], // remise apportée par ce code
@@ -144,6 +145,9 @@ function migrate(d: DatabaseSync) {
     const cols = d.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
     if (!cols.some((c) => c.name === column)) d.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   }
+  // Codes créés avant la validité à partir de l'expédition : le mois part de l'expédition déjà faite, s'il y en a une.
+  d.exec(`UPDATE codes_promo SET debut = (SELECT MIN(o.shipped_at) FROM orders o WHERE o.user_id = codes_promo.user_id AND o.shipped_at >= codes_promo.created_at)
+           WHERE debut IS NULL AND EXISTS (SELECT 1 FROM orders o WHERE o.user_id = codes_promo.user_id AND o.shipped_at >= codes_promo.created_at)`);
   // Codes entourage de la première version (prénom + 4 caractères) : remplacés par un code aléatoire
   // s'ils n'ont encore servi à aucune commande ; ceux déjà utilisés restent valables.
   const anciens = d.prepare("SELECT code FROM codes_promo WHERE aleatoire = 0 AND code NOT IN (SELECT code_promo FROM orders WHERE code_promo IS NOT NULL)").all() as { code: string }[];
