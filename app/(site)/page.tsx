@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CardPreview } from "@/components/CardPreview";
 import { BASIC_UNIT_CENTS, DEFAULT_DESIGN, MATERIALS, basicDesign, euros } from "@/lib/catalog";
 
-const demoQr = "https://tapikard.com/q/demo424sun";
+const demoQr = "https://tapikard.com/exemple";
 
 export default function Home() {
   return (
@@ -18,7 +18,7 @@ export default function Home() {
             </p>
             <div className="row" style={{ marginTop: 24 }}>
               <Link href="/creer" className="btn btn-lg">Créer ma carte</Link>
-              <Link href="/q/demo424sun" className="btn btn-lg btn-secondary">Voir un profil exemple</Link>
+              <Link href="/exemple" className="btn btn-lg btn-secondary">Voir un profil exemple</Link>
             </div>
             <p className="muted" style={{ marginTop: 16, fontSize: ".9rem" }}>
               Carte Basic dès {euros(BASIC_UNIT_CENTS)} · Personnalisée dès {euros(MATERIALS.pvc_blanc.unitCents)} · Profil en ligne gratuit à vie

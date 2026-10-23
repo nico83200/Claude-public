@@ -11,7 +11,11 @@ const waHref = (n: string) => `https://wa.me/${n.replace(/[^\d]/g, "").replace(/
 const webHref = (w: string) => (/^https?:\/\//.test(w) ? w : `https://${w}`);
 
 /** Profil public affiché au scan. Sans hook : utilisable côté serveur et dans l'aperçu de l'éditeur. */
-export function ProfileView({ profile, cardId, verification = null, preview = false }: { profile: Profile; cardId?: string; verification?: Verification; preview?: boolean }) {
+export function ProfileView({ profile, cardId, verification = null, preview = false, vcardHref }: {
+  profile: Profile; cardId?: string; verification?: Verification; preview?: boolean;
+  /** Lien vCard pour un profil sans carte (page d'exemple). */
+  vcardHref?: string;
+}) {
   const dark = !!profile.dark;
   const vars = {
     "--p-accent": profile.accent,
@@ -50,7 +54,9 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
           </div>
         )}
 
-        {preview || !cardId ? (
+        {vcardHref ? (
+          <a className="p-save" href={vcardHref}><IconUserPlus /> Ajouter aux contacts</a>
+        ) : preview || !cardId ? (
           <span className="p-save"><IconUserPlus /> Ajouter aux contacts</span>
         ) : (
           <SaveContact cardId={cardId} ownerFirstName={firstName} leadCapture={!!profile.lead_capture} />
