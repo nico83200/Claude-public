@@ -1,3 +1,4 @@
+import "@fontsource/great-vibes/latin-400.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
@@ -47,6 +48,11 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
     }
   }
   const site = APP_URL.replace(/^https?:\/\//, "");
+  // Date du jour et signature : le courrier est personnel. Signataire réglable par SIGNATAIRE_NOM et SIGNATAIRE_TITRE.
+  const ville = process.env.EXPEDITEUR_VILLE?.trim();
+  const jour = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
+  const signataire = process.env.SIGNATAIRE_NOM?.trim() || "L’équipe Tapikard";
+  const titre = process.env.SIGNATAIRE_TITRE?.trim() ?? (process.env.SIGNATAIRE_NOM ? "Tapikard" : "");
 
   return (
     <main className="courriers">
@@ -66,7 +72,7 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
       <div className="imp-feuilles">
         {courriers.map((c) => (
           <section className="imp-page courrier" key={c.cle}>
-            <header className="courrier-tete"><LogoMark size={40} /><span>Tapikard</span></header>
+            <header className="courrier-tete"><LogoMark size={40} /><span>Tapikard</span><time className="courrier-date">{ville ? `${ville}, le ${jour}` : `Le ${jour}`}</time></header>
             <h1>{c.prenom ? `Bonjour ${c.prenom},` : "Bonjour,"}</h1>
             <p className="courrier-intro">
               {c.cartes.length > 1 ? `Voici vos ${c.cartes.length} cartes Tapikard. Elles partagent` : "Voici votre carte Tapikard. Elle partage"} vos coordonnées d’un simple geste,
@@ -96,6 +102,11 @@ export default async function Courriers({ searchParams }: { searchParams: Promis
                 <div className="courrier-qr" dangerouslySetInnerHTML={{ __html: qrs.get(c.codePromo.code)! }} />
               </div>
             )}
+            <div className="courrier-signature">
+              <p>Merci pour votre confiance, et à très bientôt,</p>
+              <div className="courrier-signature-main" aria-hidden>{signataire}</div>
+              {process.env.SIGNATAIRE_NOM && <p className="courrier-signature-nom">{signataire}{titre && <><br /><span>{titre}</span></>}</p>}
+            </div>
             <footer className="courrier-pied">Une question ? bonjour@tapikard.com · {site}{c.commande ? ` · Commande ${c.commande}` : ""}</footer>
           </section>
         ))}

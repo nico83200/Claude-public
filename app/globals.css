@@ -431,7 +431,7 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 /* --- Courrier d'accompagnement (A4) -------------------------------------------------- */
 .courrier { width: 210mm; height: 297mm; box-sizing: border-box; padding: 20mm 22mm 16mm; display: flex; flex-direction: column; font-size: 11.5pt; line-height: 1.5; color: #14121f; }
 .courrier-tete { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16pt; }
-.courrier h1 { font-family: var(--font-display); font-weight: 400; font-size: 30pt; margin: 16mm 0 5mm; }
+.courrier h1 { font-family: var(--font-display); font-weight: 400; font-size: 30pt; margin: 13mm 0 5mm; }
 .courrier-intro { margin: 0 0 8mm; font-size: 12.5pt; }
 .courrier-etapes { margin: 0 0 9mm; padding-left: 6mm; }
 .courrier-etapes li { margin-bottom: 4mm; }
@@ -446,4 +446,10 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .courrier-promo-code { font-family: ui-monospace, Menlo, monospace; font-size: 20pt; font-weight: 700; letter-spacing: .1em; }
 .courrier-qr { width: 32mm; height: 32mm; flex-shrink: 0; }
 .courrier-qr svg { width: 100%; height: 100%; display: block; }
-.courrier-pied { margin-top: auto; font-size: 9pt; color: #666277; text-align: center; }
+.courrier-pied { margin-top: auto; padding-top: 6mm; font-size: 9pt; color: #666277; text-align: center; }
+.courrier-date { margin-left: auto; font-weight: 400; font-size: 10.5pt; color: #666277; }
+.courrier-signature { margin-top: 8mm; }
+.courrier-signature p { margin: 0; }
+.courrier-signature-main { font-family: "Great Vibes", cursive; font-size: 34pt; line-height: 1.1; color: #2c2380; margin: 2mm 0 0 2mm; transform: rotate(-3deg); transform-origin: left center; }
+.courrier-signature-nom { font-weight: 600; font-size: 10.5pt; }
+.courrier-signature-nom span { font-weight: 400; color: #666277; }

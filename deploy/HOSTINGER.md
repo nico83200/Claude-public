@@ -109,6 +109,9 @@ Ne les changez jamais une fois des cartes encodées.
 
 Sans contrat, la même page propose une étiquette d'adresse 10 × 15 cm à imprimer (lettre suivie, dépôt au guichet).
 
+Le courrier d'accompagnement est daté (ville : `EXPEDITEUR_VILLE`) et signé : ajoutez `SIGNATAIRE_NOM` (votre prénom et nom)
+et, si vous voulez, `SIGNATAIRE_TITRE` (par exemple « Fondateur de Tapikard »). Sans eux, il est signé « L’équipe Tapikard ».
+
 ## Mettre à jour le site
 
 Poussez (`git push`) sur la branche connectée : Hostinger recompile et redéploie tout seul.
