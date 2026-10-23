@@ -1,3 +1,4 @@
+import { formeImage } from "@/lib/image";
 import { parseLinks, type Profile } from "@/lib/types";
 import { IconChat, IconGlobe, IconLink, IconMail, IconPhone, IconPin, IconShield, IconUserPlus } from "./Icons";
 import { LeadForm } from "./LeadForm";
@@ -41,7 +42,7 @@ export function ProfileView({ profile, cardId, verification = null, preview = fa
   return (
     <div className="profile-page" style={vars}>
       {profile.logo ? (
-        <div className={`p-cover p-cover-logo fond-${profile.logo_fond ?? "clair"}`}>
+        <div className={`p-cover p-cover-logo ${formeImage(profile.logo)}`}>
           <img src={profile.logo} alt={profile.company ? `Logo ${profile.company}` : "Logo"} />
         </div>
       ) : <div className="p-cover" />}

@@ -18,22 +18,61 @@ async function toAvatar(file: File): Promise<string> {
   return c.toDataURL("image/jpeg", 0.85);
 }
 
-/** Logo redimensionné (600 × 200 px au plus, proportions conservées), en PNG pour garder la transparence. */
+/**
+ * Logo prêt pour le bandeau : marges vides (transparentes ou blanches) retirées, pour qu'il occupe toute la
+ * hauteur quelle que soit sa forme, puis redimensionné (720 × 240 px au plus) en PNG (transparence conservée).
+ */
 async function toLogo(file: File): Promise<string> {
   const url = URL.createObjectURL(file);
   const img = new Image();
   await new Promise((ok, ko) => { img.onload = ok; img.onerror = ko; img.src = url; });
-  const k = Math.min(1, 600 / img.width, 200 / img.height);
-  const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(img.width * k));
-  c.height = Math.max(1, Math.round(img.height * k));
-  c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
   URL.revokeObjectURL(url);
+  const src = document.createElement("canvas");
+  src.width = img.width;
+  src.height = img.height;
+  const sx = src.getContext("2d", { willReadFrequently: true })!;
+  sx.drawImage(img, 0, 0);
+  const pixels = sx.getImageData(0, 0, src.width, src.height);
+  const { data, width: w, height: h } = pixels;
+  // Logo sur fond blanc (JPEG, PNG sans transparence) : le blanc relié aux bords devient transparent,
+  // pour que le logo se pose directement sur la fiche, sans rectangle blanc.
+  const transparent = data[3] < 250 || data[(w * h - 1) * 4 + 3] < 250;
+  if (!transparent) {
+    const blanc = (i: number) => data[i] > 235 && data[i + 1] > 235 && data[i + 2] > 235;
+    const vu = new Uint8Array(w * h);
+    const pile: number[] = [];
+    for (let x = 0; x < w; x++) pile.push(x, (h - 1) * w + x);
+    for (let y = 0; y < h; y++) pile.push(y * w, y * w + w - 1);
+    while (pile.length) {
+      const q = pile.pop()!;
+      if (vu[q] || !blanc(q * 4)) continue;
+      vu[q] = 1;
+      data[q * 4 + 3] = 0;
+      const x = q % w;
+      if (x > 0) pile.push(q - 1);
+      if (x < w - 1) pile.push(q + 1);
+      if (q >= w) pile.push(q - w);
+      if (q < w * (h - 1)) pile.push(q + w);
+    }
+    sx.putImageData(pixels, 0, 0);
+  }
+  const vide = (i: number) => data[i + 3] < 16;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!vide((y * w + x) * 4)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 < 0) { x0 = 0; y0 = 0; x1 = w - 1; y1 = h - 1; }
+  const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+  const k = Math.min(1, 720 / cw, 240 / ch);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(cw * k));
+  c.height = Math.max(1, Math.round(ch * k));
+  const cx = c.getContext("2d")!;
+  cx.imageSmoothingQuality = "high";
+  cx.drawImage(src, x0, y0, cw, ch, 0, 0, c.width, c.height);
   const png = c.toDataURL("image/png");
   return png.length < 380_000 ? png : c.toDataURL("image/jpeg", 0.9);
 }
-
-const FONDS_LOGO = [["clair", "Clair"], ["couleur", "Couleur du profil"], ["sombre", "Sombre"]] as const;
 
 const FIELDS = [
   ["display_name", "Nom affiché *", "text"], ["title", "Fonction", "text"], ["company", "Entreprise", "text"],
@@ -91,23 +130,14 @@ export function ProfileEditor({ profile, publicUrl }: { profile: Profile; public
         <div className="panel" style={{ marginTop: 16 }}>
           <h3>Logo</h3>
           <p className="muted" style={{ marginTop: 0, fontSize: ".9rem" }}>
-            Votre logo remplace le bandeau coloré en haut de votre fiche, et il est ajouté à la fiche contact enregistrée dans le téléphone.
+            Votre logo remplace le bandeau coloré en haut de votre fiche (à droite ; les marges vides et un fond blanc sont retirés automatiquement, et la mise en page s’adapte à la forme du logo), et il est ajouté à la fiche contact enregistrée dans le téléphone.
             PNG avec fond transparent conseillé.
           </p>
           <input type="hidden" name="logo" value={p.logo ?? ""} />
-          <input type="hidden" name="logo_fond" value={p.logo_fond ?? "clair"} />
           <div className="row">
             <input type="file" accept="image/png,image/jpeg" aria-label="Logo" onChange={async (e) => { const f = e.target.files?.[0]; if (f) set("logo", await toLogo(f)); }} />
             {p.logo && <button type="button" className="btn btn-ghost btn-sm" onClick={() => set("logo", null)}>Retirer le logo (revenir au bandeau)</button>}
           </div>
-          {p.logo && (
-            <div className="row" style={{ marginTop: 12 }}>
-              <span style={{ fontSize: ".9rem", fontWeight: 600 }}>Fond derrière le logo</span>
-              {FONDS_LOGO.map(([v, l]) => (
-                <button type="button" key={v} className={`btn btn-sm ${p.logo_fond === v ? "" : "btn-secondary"}`} onClick={() => set("logo_fond", v)}>{l}</button>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="panel" style={{ marginTop: 16 }}>
