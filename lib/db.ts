@@ -85,6 +85,11 @@ CREATE TABLE IF NOT EXISTS scan_events (
   device TEXT
 );
 CREATE INDEX IF NOT EXISTS scan_events_profile_at ON scan_events(profile_id, at);
+CREATE TABLE IF NOT EXISTS stock_ruptures (
+  cle TEXT PRIMARY KEY,          -- « type:id », ex. material:bambou, finish:soft_touch, template:minimal, basic:blanc
+  message TEXT,                  -- affiché aux clients, ex. « Retour prévu fin novembre »
+  depuis TEXT NOT NULL DEFAULT (datetime('now'))
+);
 CREATE TABLE IF NOT EXISTS leads (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,

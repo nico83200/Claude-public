@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CardPreview } from "@/components/CardPreview";
-import { BASIC_UNIT_CENTS, DEFAULT_DESIGN, MATERIALS, basicDesign, euros, type CardDesign } from "@/lib/catalog";
+import { BASIC_UNIT_CENTS, BASIC_VARIANTS, DEFAULT_DESIGN, MATERIALS, basicCommandable, basicDesign, enRupture, euros, libelleRupture, matiereCommandable, type BasicVariant, type CardDesign } from "@/lib/catalog";
+import { ruptures } from "@/lib/stock";
 import { APP_URL } from "@/lib/config";
 
 // Le QR code des cartes affichées est réel : il ouvre le profil d'exemple.
@@ -38,7 +39,14 @@ const FAQ = [
   ["Mes données sont-elles protégées ?", "Hébergement en Europe, vous choisissez chaque information publiée, et les statistiques ne conservent ni adresse IP ni cookie de suivi."],
 ];
 
+/** Bouton remplacé par une mention quand l'option est en rupture. */
+function Indispo({ texte, light = false }: { texte: string; light?: boolean }) {
+  return <span className={`btn btn-block ${light ? "btn-outline-light" : "btn-secondary"}`} aria-disabled style={{ opacity: .6, cursor: "default", whiteSpace: "normal" }}>{texte}</span>;
+}
+
 export default function Home() {
+  const r = ruptures();
+  const coloris = (Object.keys(BASIC_VARIANTS) as BasicVariant[]).filter((v) => !enRupture(r, "basic", v));
   return (
     <>
       {/* --- Hero : la carte Basic ------------------------------------------------ */}
@@ -60,7 +68,13 @@ export default function Home() {
               <Link href="/exemple" className="btn btn-outline-light btn-lg">Voir un profil exemple</Link>
             </div>
             <p className="hero-note">
-              <span className="swatch-row">Disponible en <span className="swatch-dot" style={{ background: "#141418" }} /> noir mat <span className="swatch-dot" style={{ background: "#fff" }} /> blanc</span>
+              {coloris.length > 0 ? (
+                <span className="swatch-row">Disponible en {coloris.map((v) => (
+                  <span key={v} className="swatch-row"><span className="swatch-dot" style={{ background: BASIC_VARIANTS[v].background }} /> {BASIC_VARIANTS[v].label.toLowerCase()}</span>
+                ))}</span>
+              ) : (
+                <span className="swatch-row">Carte Basic momentanément en rupture de stock</span>
+              )}
               <br />Votre logo et vos couleurs ? <Link href="/creer">Carte personnalisée</Link>, dès {prix(MATERIALS.pvc_blanc.unitCents)}.
             </p>
           </div>
@@ -100,8 +114,12 @@ export default function Home() {
               <li>Statistiques, export des contacts, désactivation en cas de perte</li>
             </ul>
             <div className="row">
-              <Link href="/carte-basic?couleur=noir" className="btn btn-lg">Commander en noir mat</Link>
-              <Link href="/carte-basic?couleur=blanc" className="btn btn-secondary btn-lg">En blanc</Link>
+              {enRupture(r, "basic", "noir")
+                ? <span className="btn btn-secondary btn-lg" aria-disabled style={{ opacity: .6, cursor: "default" }}>Noir mat : {libelleRupture(r, "basic", "noir").toLowerCase()}</span>
+                : <Link href="/carte-basic?couleur=noir" className="btn btn-lg">Commander en noir mat</Link>}
+              {enRupture(r, "basic", "blanc")
+                ? <span className="btn btn-secondary btn-lg" aria-disabled style={{ opacity: .6, cursor: "default" }}>Blanc : {libelleRupture(r, "basic", "blanc").toLowerCase()}</span>
+                : <Link href="/carte-basic?couleur=blanc" className="btn btn-secondary btn-lg">En blanc</Link>}
             </div>
           </div>
         </div>
@@ -210,19 +228,25 @@ export default function Home() {
           </div>
           <div className="plans">
             <div className="plan plan-featured">
-              <span className="badge badge-brand" style={{ alignSelf: "flex-start" }}>Prête à l’emploi</span>
+              {basicCommandable(r)
+                ? <span className="badge badge-brand" style={{ alignSelf: "flex-start" }}>Prête à l’emploi</span>
+                : <span className="badge badge-warn" style={{ alignSelf: "flex-start" }}>Rupture de stock</span>}
               <h3 style={{ marginTop: 14 }}>Carte Basic</h3>
               <div className="price">{prix(BASIC_UNIT_CENTS)}</div>
               <p>Design Tapikard noir mat ou blanc, NFC + QR code. Sans BAT.</p>
-              <Link href="/carte-basic" className="btn btn-light btn-block">Commander</Link>
+              {basicCommandable(r) ? <Link href="/carte-basic" className="btn btn-light btn-block">Commander</Link> : <Indispo light texte="Bientôt de retour" />}
             </div>
             {(Object.keys(MATERIALS) as (keyof typeof MATERIALS)[]).map((m) => (
               <div className="plan" key={m}>
-                <span className="badge" style={{ alignSelf: "flex-start" }}>Personnalisée</span>
+                {matiereCommandable(m, r)
+                  ? <span className="badge" style={{ alignSelf: "flex-start" }}>Personnalisée</span>
+                  : <span className="badge badge-warn" style={{ alignSelf: "flex-start" }}>Rupture de stock</span>}
                 <h3 style={{ marginTop: 14 }}>{MATERIALS[m].label}</h3>
                 <div className="price">{prix(MATERIALS[m].unitCents)}</div>
                 <p>{MATERIALS[m].description}</p>
-                <Link href={`/creer?matiere=${m}`} className="btn btn-secondary btn-block">Personnaliser</Link>
+                {matiereCommandable(m, r)
+                  ? <Link href={`/creer?matiere=${m}`} className="btn btn-secondary btn-block">Personnaliser</Link>
+                  : <Indispo texte={enRupture(r, "material", m) ? (r[`material:${m}`] || "Bientôt de retour") : "Bientôt de retour"} />}
               </div>
             ))}
           </div>

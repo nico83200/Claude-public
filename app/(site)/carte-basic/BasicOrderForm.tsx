@@ -2,11 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { CardPreview } from "@/components/CardPreview";
-import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, euros, type BasicVariant } from "@/lib/catalog";
+import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, enRupture, euros, libelleRupture, type BasicVariant, type Ruptures } from "@/lib/catalog";
 import { createBasicOrder, type BasicOrderState } from "./actions";
 
-export function BasicOrderForm({ stripe, initialVariant = "noir" }: { stripe: boolean; initialVariant?: BasicVariant }) {
-  const [variant, setVariant] = useState<BasicVariant>(initialVariant);
+export function BasicOrderForm({ stripe, initialVariant = "noir", ruptures = {} }: { stripe: boolean; initialVariant?: BasicVariant; ruptures?: Ruptures }) {
+  const disponibles = (Object.keys(BASIC_VARIANTS) as BasicVariant[]).filter((v) => !enRupture(ruptures, "basic", v));
+  const [variant, setVariant] = useState<BasicVariant>(disponibles.includes(initialVariant) ? initialVariant : disponibles[0] ?? initialVariant);
+  const indisponible = enRupture(ruptures, "basic", variant);
   const [quantity, setQuantity] = useState(1);
   const [side, setSide] = useState<"recto" | "verso">("recto");
   const [state, action, pending] = useActionState<BasicOrderState, FormData>(createBasicOrder, {});
@@ -22,8 +24,9 @@ export function BasicOrderForm({ stripe, initialVariant = "noir" }: { stripe: bo
         <div className="choices" style={{ marginBottom: 18 }}>
           {(Object.keys(BASIC_VARIANTS) as BasicVariant[]).map((v) => (
             <label className="choice" key={v}>
-              <input type="radio" name="v" checked={variant === v} onChange={() => setVariant(v)} />
+              <input type="radio" name="v" checked={variant === v} disabled={enRupture(ruptures, "basic", v)} onChange={() => setVariant(v)} />
               <strong><span className="swatch" style={{ background: BASIC_VARIANTS[v].background }} />{BASIC_VARIANTS[v].label}</strong>
+              {enRupture(ruptures, "basic", v) && <span style={{ display: "block", marginTop: 6, color: "var(--warn)", fontWeight: 600, fontSize: ".78rem" }}>{libelleRupture(ruptures, "basic", v)}</span>}
             </label>
           ))}
         </div>
@@ -53,7 +56,8 @@ export function BasicOrderForm({ stripe, initialVariant = "noir" }: { stripe: bo
           <span>J’accepte les conditions de vente et la <a href="/confidentialite" target="_blank">politique de confidentialité</a>.</span>
         </label>
         {state.error && <div className="alert alert-danger" style={{ marginBottom: 14 }}>{state.error}</div>}
-        <button className="btn btn-lg btn-block" disabled={pending}>
+        {indisponible && <div className="alert alert-warn" style={{ marginBottom: 14 }}>La carte Basic est momentanément en rupture de stock. <a href="/creer">La carte personnalisée</a> reste disponible.</div>}
+        <button className="btn btn-lg btn-block" disabled={pending || indisponible}>
           {pending ? "Un instant…" : stripe ? `Payer ${euros(price.total)}` : `Commander — ${euros(price.total)}`}
         </button>
         {!stripe && <p className="muted" style={{ fontSize: ".85rem", marginTop: 10 }}>Mode démo : le paiement sera simulé à l’étape suivante.</p>}

@@ -94,10 +94,22 @@ export function shipOrder(orderId: string, tracking: string): string | null {
 }
 
 /** Enregistrement par le poste d'encodage : liaison cardId ↔ UID de la puce. */
-export function registerEncodedCard(cardId: string, uid: string, counter: number): string | null {
+/** Explique pourquoi un UID ne peut pas être celui d'une NTAG 424 DNA (UID de 7 octets, fabricant NXP = 04). */
+export function problemeUid(uid: string): string | null {
+  if (/^[0-9A-F]{8}$/.test(uid)) {
+    return `UID de 4 octets (${uid}) : cette carte n'est pas une NTAG 424 DNA. C'est probablement une MIFARE Classic (souvent fournie avec les lecteurs ACR122U), illisible par les iPhone et sans signature SUN. Utilisez des cartes NTAG 424 DNA : leur UID fait 7 octets (14 caractères) et commence par 04.`;
+  }
+  if (!/^[0-9A-F]{14}$/.test(uid)) return `UID invalide (${uid || "vide"}) : 14 caractères hexadécimaux attendus (7 octets), commençant par 04.`;
+  if (!uid.startsWith("04")) return `UID ${uid} : une puce NXP NTAG 424 DNA a un UID qui commence par 04. Vérifiez la saisie ou le type de carte.`;
+  return null;
+}
+
+export function registerEncodedCard(cardId: string, uidSaisi: string, counter: number): string | null {
   const card = get<Card>("SELECT * FROM cards WHERE id = ?", cardId);
   if (!card) return "Carte inconnue";
-  if (!/^[0-9A-F]{14}$/.test(uid)) return "UID invalide (7 octets hex attendus)";
+  const uid = uidSaisi.replace(/[\s:.-]/g, "").toUpperCase();
+  const probleme = problemeUid(uid);
+  if (probleme) return probleme;
   if (card.status !== "provisioned" && card.uid !== uid) return `Carte déjà encodée (statut ${card.status})`;
   const other = get<{ id: string }>("SELECT id FROM cards WHERE uid = ? AND id <> ?", uid, cardId);
   if (other) return `Cette puce est déjà associée à la carte ${other.id}`;

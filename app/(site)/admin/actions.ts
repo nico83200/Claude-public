@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { run } from "@/lib/db";
+import { STOCK_OPTIONS, stockKey } from "@/lib/catalog";
+import { enregistrerRuptures } from "@/lib/stock";
 import { approveProof, createBasicStock, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
 
 export async function adminMarkPaid(orderId: string) {
@@ -41,7 +43,7 @@ export async function adminCreateBatch(form: FormData) {
 export async function adminRegisterEncoding(form: FormData) {
   await requireAdmin();
   const cardId = String(form.get("cardId") ?? "").trim();
-  const err = registerEncodedCard(cardId, String(form.get("uid") ?? "").trim().toUpperCase(), 0);
+  const err = registerEncodedCard(cardId, String(form.get("uid") ?? ""), 0);
   redirect(`/admin/production?${err ? `erreur=${encodeURIComponent(err)}` : `encodee=${cardId}`}`);
 }
 
@@ -52,4 +54,16 @@ export async function adminCreateBasicStock(form: FormData) {
   if (!(qty >= 1 && qty <= 1000)) redirect("/admin/production?erreur=" + encodeURIComponent("Quantité entre 1 et 1000."));
   const b = createBasicStock(variant, qty, String(form.get("note") ?? "").trim().slice(0, 200) || undefined);
   redirect(`/admin/production?lot=${b.id}`);
+}
+
+export async function adminEnregistrerStocks(form: FormData) {
+  await requireAdmin();
+  enregistrerRuptures(
+    STOCK_OPTIONS.flatMap((g) => g.items.map((i) => {
+      const cle = stockKey(g.kind, i.id);
+      return { cle, rupture: form.get(`rupture:${cle}`) === "on", message: String(form.get(`message:${cle}`) ?? "") };
+    })),
+  );
+  revalidatePath("/", "layout");
+  redirect("/admin/stocks?enregistre=1");
 }

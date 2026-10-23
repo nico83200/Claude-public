@@ -97,9 +97,13 @@ export default async function Production({ searchParams }: { searchParams: Promi
         </p>
         <details>
           <summary style={{ cursor: "pointer", fontWeight: 600 }}>Saisie manuelle (dépannage)</summary>
+          <p className="muted" style={{ fontSize: ".88rem", margin: "10px 0 0" }}>
+            Uniquement pour une carte NTAG 424 DNA déjà encodée par le script (ex. encodée hors ligne). Son UID fait 7 octets :
+            14 caractères hexadécimaux commençant par 04 (espaces et « : » acceptés).
+          </p>
           <form action={adminRegisterEncoding} className="row" style={{ marginTop: 10 }}>
             <input type="text" name="cardId" placeholder="Identifiant carte" required style={{ maxWidth: 200 }} />
-            <input type="text" name="uid" placeholder="UID (14 caractères hex)" required pattern="[0-9A-Fa-f]{14}" style={{ maxWidth: 240 }} />
+            <input type="text" name="uid" placeholder="UID, ex. 04DE5F1EACC040" required style={{ maxWidth: 240 }} />
             <button className="btn btn-secondary">Enregistrer</button>
           </form>
         </details>

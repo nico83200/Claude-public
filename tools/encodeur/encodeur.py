@@ -310,7 +310,18 @@ def transport(conn) -> n.Transmit:
 
 def uid_pcsc(t: n.Transmit) -> Optional[bytes]:
     data, sw = n.split(t(bytes.fromhex("FFCA000000")))     # GET DATA (UID) — commande du lecteur PC/SC
-    return data if sw == 0x9000 and len(data) == 7 else None
+    return data if sw == 0x9000 and data else None
+
+
+def probleme_uid(uid: Optional[bytes]) -> Optional[str]:
+    """Une NTAG 424 DNA a un UID de 7 octets commençant par 04 (fabricant NXP)."""
+    if uid is None or (len(uid) == 7 and uid[0] == 0x04):
+        return None
+    if len(uid) == 4:
+        return (f"carte non compatible : UID de 4 octets ({uid.hex().upper()}). Ce n'est pas une NTAG 424 DNA, "
+                "mais probablement une MIFARE Classic (souvent fournie avec les lecteurs ACR122U) : "
+                "illisible par les iPhone et sans signature SUN. Utilisez des cartes NTAG 424 DNA.")
+    return f"carte non compatible : UID {uid.hex().upper()} ({len(uid)} octets) — une NTAG 424 DNA a un UID de 7 octets commençant par 04."
 
 
 # --- Interface ------------------------------------------------------------------------------
@@ -344,7 +355,11 @@ def encoder_une(card_id: str, lecteur, conf: dict, cles: Cles, api: Optional[Api
     conn = attendre_carte(lecteur)
     t = transport(conn)
     try:
-        r = encoder_carte(t, base, cles, uid_lecteur=uid_pcsc(t), log=lambda m: print(f"   · {m}"))
+        uid_lecteur = uid_pcsc(t)
+        probleme = probleme_uid(uid_lecteur)
+        if probleme:
+            raise EncodageError(probleme)
+        r = encoder_carte(t, base, cles, uid_lecteur=uid_lecteur, log=lambda m: print(f"   · {m}"))
     except (n.CardError, n.IntegrityError, EncodageError) as e:
         print(f"{ROUGE}✗ Échec : {e}{FIN}\n   Mettez cette carte de côté ou recommencez (l'opération peut être relancée sans risque).")
         journaliser(card_id, "", 0, f"échec : {e}")
@@ -377,6 +392,9 @@ def mode_verifier(lecteur, conf: dict, cles: Cles):
         conn = attendre_carte(lecteur)
         t = transport(conn)
         try:
+            probleme = probleme_uid(uid_pcsc(t))
+            if probleme:
+                raise EncodageError(probleme)
             url = lire_ndef(t)
             print(f"  URL : {url}")
             e, m = parametres_sun(url)

@@ -100,6 +100,15 @@ class AN12196(unittest.TestCase):
         self.assertEqual((uid.hex().upper(), ctr), ("04DE5F1EACC040", 61))
 
 
+class DetectionCarte(unittest.TestCase):
+    def test_uid_4_octets_refuse(self):
+        from encodeur import probleme_uid
+        self.assertIn("MIFARE Classic", probleme_uid(H("8A30CB4A")))
+        self.assertIsNone(probleme_uid(H("04DE5F1EACC040")))
+        self.assertIsNone(probleme_uid(None))
+        self.assertIn("7 octets", probleme_uid(H("1122334455667788")))
+
+
 class EncodageSurCarteEmulee(unittest.TestCase):
     def test_encodage_complet_puis_reparation(self):
         from carte_emulee import CarteEmulee

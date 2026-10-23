@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { STRIPE_ENABLED } from "@/lib/config";
 import { BASIC_UNIT_CENTS, euros } from "@/lib/catalog";
+import { ruptures } from "@/lib/stock";
 import { BasicOrderForm } from "./BasicOrderForm";
 
 export const metadata = { title: "Carte Basic — prête à l’emploi" };
@@ -18,7 +19,7 @@ export default async function CarteBasicPage({ searchParams }: { searchParams: P
           Envie de votre logo et de vos couleurs ? <Link href="/creer">Créez une carte personnalisée</Link>.
         </p>
       </div>
-      <BasicOrderForm stripe={STRIPE_ENABLED} initialVariant={couleur === "blanc" ? "blanc" : "noir"} />
+      <BasicOrderForm stripe={STRIPE_ENABLED} initialVariant={couleur === "blanc" ? "blanc" : "noir"} ruptures={ruptures()} />
     </div>
   );
 }

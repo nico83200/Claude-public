@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { findOrCreateUser, normalizeEmail } from "@/lib/auth";
-import { priceCents, sanitizeDesign, QUANTITIES } from "@/lib/catalog";
+import { priceCents, sanitizeDesign, verifierStock, QUANTITIES } from "@/lib/catalog";
+import { ruptures } from "@/lib/stock";
 import { STRIPE_ENABLED } from "@/lib/config";
 import { get, run } from "@/lib/db";
 import { randomId } from "@/lib/ids";
@@ -30,6 +31,8 @@ export async function createOrder(_prev: CreateOrderState, form: FormData): Prom
     country: "FR",
   };
   if (!design.name) return { error: "Indiquez le nom à imprimer sur la carte." };
+  const rupture = verifierStock(design, ruptures());
+  if (rupture) return { error: rupture };
   if (!email) return { error: "Adresse email invalide." };
   if (!QUANTITIES.some((q) => q.qty === qty)) return { error: "Quantité invalide." };
   if (!STRIPE_ENABLED && (!shipping.name || !shipping.address || !/^\d{5}$/.test(shipping.zip) || !shipping.city)) {

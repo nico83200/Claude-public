@@ -3,8 +3,9 @@
 import { useActionState, useMemo, useState } from "react";
 import { CardPreview } from "@/components/CardPreview";
 import {
-  CUSTOM_TEMPLATES, DEFAULT_DESIGN, FINISHES, FONTS, MATERIALS, QUANTITIES, TEMPLATES, euros, priceCents,
-  type CardDesign, type FinishId, type FontId, type MaterialId,
+  CUSTOM_TEMPLATES, DEFAULT_DESIGN, FINISHES, FONTS, MATERIALS, QUANTITIES, TEMPLATES, enRupture, euros, finitionsDisponibles,
+  libelleRupture, matiereCommandable, personnaliseeCommandable, priceCents, verifierStock,
+  type CardDesign, type FinishId, type FontId, type MaterialId, type Ruptures,
 } from "@/lib/catalog";
 import { createOrder, type CreateOrderState } from "./actions";
 
@@ -24,10 +25,22 @@ async function resizeImage(file: File, max = 600): Promise<string> {
   return c.toDataURL("image/png");
 }
 
-export function Configurator({ stripe, initialMaterial }: { stripe: boolean; initialMaterial?: MaterialId }) {
+/** Petite mention sous une option en rupture. */
+function Rupture({ texte }: { texte: string }) {
+  return <span style={{ display: "block", marginTop: 6, color: "var(--warn)", fontWeight: 600, fontSize: ".78rem" }}>{texte}</span>;
+}
+
+export function Configurator({ stripe, initialMaterial, ruptures = {} }: { stripe: boolean; initialMaterial?: MaterialId; ruptures?: Ruptures }) {
   const [design, setDesign] = useState<CardDesign>(() => {
-    const m = initialMaterial ?? DEFAULT_DESIGN.material;
-    return { ...DEFAULT_DESIGN, material: m, background: MATERIALS[m].base, ink: MATERIALS[m].ink };
+    // Point de départ : la matière demandée (ou par défaut) si elle est commandable, sinon la première disponible.
+    const toutes = Object.keys(MATERIALS) as MaterialId[];
+    const voulue = initialMaterial ?? DEFAULT_DESIGN.material;
+    const m = matiereCommandable(voulue, ruptures) ? voulue : toutes.find((x) => matiereCommandable(x, ruptures)) ?? voulue;
+    const finitions = finitionsDisponibles(m, ruptures);
+    const template = enRupture(ruptures, "template", DEFAULT_DESIGN.template)
+      ? CUSTOM_TEMPLATES.find((t) => !enRupture(ruptures, "template", t)) ?? DEFAULT_DESIGN.template
+      : DEFAULT_DESIGN.template;
+    return { ...DEFAULT_DESIGN, material: m, finish: finitions.includes("mat") ? "mat" : finitions[0] ?? "mat", template, background: MATERIALS[m].base, ink: MATERIALS[m].ink };
   });
   const [step, setStep] = useState(0);
   const [side, setSide] = useState<"recto" | "verso">("recto");
@@ -43,13 +56,14 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
     setDesign((d) => ({
       ...d,
       material: m,
-      finish: FINISHES[d.finish].materials.includes(m) ? d.finish : "mat",
+      finish: finitionsDisponibles(m, ruptures).includes(d.finish) ? d.finish : finitionsDisponibles(m, ruptures)[0] ?? "mat",
       background: MATERIALS[m].base,
       ink: MATERIALS[m].ink,
     }));
   const price = useMemo(() => priceCents(design.material, design.finish, quantity), [design.material, design.finish, quantity]);
   const printable = MATERIALS[design.material].printable;
   const payload = JSON.stringify({ design, quantity, email, shipping, consent });
+  const indisponible = personnaliseeCommandable(ruptures) ? verifierStock(design, ruptures) : "La carte personnalisée est momentanément indisponible.";
 
   return (
     <div className="configurator" style={{ marginTop: 20 }}>
@@ -70,10 +84,13 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
                 <div className="choices">
                   {(Object.keys(MATERIALS) as MaterialId[]).map((m) => (
                     <label className="choice" key={m}>
-                      <input type="radio" name="material" checked={design.material === m} onChange={() => setMaterial(m)} />
+                      <input type="radio" name="material" checked={design.material === m} disabled={!matiereCommandable(m, ruptures)} onChange={() => setMaterial(m)} />
                       <strong><span className="swatch" style={{ background: MATERIALS[m].base }} />{MATERIALS[m].label}</strong>
                       <span>{MATERIALS[m].description}</span>
                       <span style={{ display: "block", marginTop: 4, color: "var(--ink)", fontWeight: 600 }}>{euros(MATERIALS[m].unitCents)}</span>
+                      {!matiereCommandable(m, ruptures) && (
+                        <Rupture texte={enRupture(ruptures, "material", m) ? libelleRupture(ruptures, "material", m) : "Finition indisponible"} />
+                      )}
                     </label>
                   ))}
                 </div>
@@ -83,9 +100,10 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
                 <div className="choices">
                   {(Object.keys(FINISHES) as FinishId[]).map((f) => (
                     <label className="choice" key={f}>
-                      <input type="radio" name="finish" checked={design.finish === f} disabled={!FINISHES[f].materials.includes(design.material)} onChange={() => set("finish", f)} />
+                      <input type="radio" name="finish" checked={design.finish === f} disabled={!FINISHES[f].materials.includes(design.material) || enRupture(ruptures, "finish", f)} onChange={() => set("finish", f)} />
                       <strong>{FINISHES[f].label}</strong>
                       <span>{FINISHES[f].extraCents ? `+ ${euros(FINISHES[f].extraCents)} / carte` : "Inclus"}</span>
+                      {enRupture(ruptures, "finish", f) && <Rupture texte={libelleRupture(ruptures, "finish", f)} />}
                     </label>
                   ))}
                 </div>
@@ -101,8 +119,9 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
                 <div className="choices">
                   {CUSTOM_TEMPLATES.map((t) => (
                     <label className="choice" key={t}>
-                      <input type="radio" name="template" checked={design.template === t} onChange={() => set("template", t)} />
+                      <input type="radio" name="template" checked={design.template === t} disabled={enRupture(ruptures, "template", t)} onChange={() => set("template", t)} />
                       <strong>{TEMPLATES[t].label}</strong>
+                      {enRupture(ruptures, "template", t) && <Rupture texte={libelleRupture(ruptures, "template", t)} />}
                     </label>
                   ))}
                 </div>
@@ -219,7 +238,8 @@ export function Configurator({ stripe, initialMaterial }: { stripe: boolean; ini
                 <span>J’accepte que les informations saisies soient publiées sur mon profil Tapikard (modifiables à tout moment) et j’ai lu la <a href="/confidentialite" target="_blank">politique de confidentialité</a>.</span>
               </label>
               {state.error && <div className="alert alert-danger" style={{ marginBottom: 14 }}>{state.error}</div>}
-              <button className="btn btn-lg btn-block" disabled={pending}>
+              {indisponible && !state.error && <div className="alert alert-warn" style={{ marginBottom: 14 }}>{indisponible}</div>}
+              <button className="btn btn-lg btn-block" disabled={pending || !!indisponible}>
                 {pending ? "Un instant…" : stripe ? `Payer ${euros(price.total)}` : `Commander — ${euros(price.total)}`}
               </button>
               {!stripe && <p className="muted" style={{ fontSize: ".85rem", marginTop: 10 }}>Mode démo : le paiement sera simulé à l’étape suivante.</p>}

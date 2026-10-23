@@ -143,3 +143,56 @@ export function sanitizeDesign(input: unknown): CardDesign {
     logo,
   };
 }
+
+// --- Ruptures de stock (déclarées dans le back-office) ------------------------------
+
+export type StockKind = "basic" | "material" | "finish" | "template";
+
+/** Options en rupture : clé « type:id » → message affiché aux clients (peut être vide). */
+export type Ruptures = Record<string, string>;
+
+export const stockKey = (kind: StockKind, id: string) => `${kind}:${id}`;
+
+export function enRupture(r: Ruptures, kind: StockKind, id: string): boolean {
+  return stockKey(kind, id) in r;
+}
+
+/** Texte court pour les clients : « Rupture de stock — Retour prévu fin novembre ». */
+export function libelleRupture(r: Ruptures, kind: StockKind, id: string): string {
+  const m = r[stockKey(kind, id)];
+  return m ? `Rupture de stock — ${m}` : "Rupture de stock";
+}
+
+/** Finitions compatibles avec la matière et disponibles. */
+export function finitionsDisponibles(material: MaterialId, r: Ruptures): FinishId[] {
+  return (Object.keys(FINISHES) as FinishId[]).filter((f) => FINISHES[f].materials.includes(material) && !enRupture(r, "finish", f));
+}
+
+/** Une matière est commandable si elle est en stock et qu'au moins une de ses finitions l'est. */
+export function matiereCommandable(m: MaterialId, r: Ruptures): boolean {
+  return !enRupture(r, "material", m) && finitionsDisponibles(m, r).length > 0;
+}
+
+export function basicCommandable(r: Ruptures): boolean {
+  return (Object.keys(BASIC_VARIANTS) as BasicVariant[]).some((v) => !enRupture(r, "basic", v));
+}
+
+export function personnaliseeCommandable(r: Ruptures): boolean {
+  return (Object.keys(MATERIALS) as MaterialId[]).some((m) => matiereCommandable(m, r)) && CUSTOM_TEMPLATES.some((t) => !enRupture(r, "template", t));
+}
+
+/** Contrôle serveur d'une carte personnalisée : message d'erreur, ou null si tout est disponible. */
+export function verifierStock(d: CardDesign, r: Ruptures): string | null {
+  if (enRupture(r, "material", d.material)) return `${MATERIALS[d.material].label} : ${libelleRupture(r, "material", d.material).toLowerCase()}. Choisissez une autre matière.`;
+  if (enRupture(r, "finish", d.finish)) return `Finition ${FINISHES[d.finish].label.toLowerCase()} : ${libelleRupture(r, "finish", d.finish).toLowerCase()}. Choisissez une autre finition.`;
+  if (enRupture(r, "template", d.template)) return `Modèle ${TEMPLATES[d.template].label} : ${libelleRupture(r, "template", d.template).toLowerCase()}. Choisissez un autre modèle.`;
+  return null;
+}
+
+/** Options gérables dans le back-office, par catégorie. */
+export const STOCK_OPTIONS: { kind: StockKind; titre: string; items: { id: string; label: string; detail?: string }[] }[] = [
+  { kind: "basic", titre: "Carte Basic (coloris)", items: (Object.keys(BASIC_VARIANTS) as BasicVariant[]).map((v) => ({ id: v, label: BASIC_VARIANTS[v].label })) },
+  { kind: "material", titre: "Matières (cartes personnalisées)", items: (Object.keys(MATERIALS) as MaterialId[]).map((m) => ({ id: m, label: MATERIALS[m].label, detail: MATERIALS[m].description })) },
+  { kind: "finish", titre: "Finitions", items: (Object.keys(FINISHES) as FinishId[]).map((f) => ({ id: f, label: FINISHES[f].label, detail: FINISHES[f].materials.map((m) => MATERIALS[m].label).join(", ") })) },
+  { kind: "template", titre: "Modèles de design", items: CUSTOM_TEMPLATES.map((t) => ({ id: t, label: TEMPLATES[t].label })) },
+];

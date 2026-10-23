@@ -202,6 +202,7 @@ Lit les cartes posées sur le lecteur sans les modifier et indique si leur signa
 | `Aucun lecteur détecté` | Débranchez/rebranchez le lecteur (sans hub USB si possible). Si le problème persiste, installez le pilote macOS « ACR122U » depuis le site d'ACS (acs.com.hk → Support → Drivers), puis redémarrez |
 | `pyscard n'est pas installé` | Activez l'environnement (`source .venv/bin/activate`) puis `python3 -m pip install -r requirements.txt`. Si l'installation de pyscard échoue : `brew install swig` puis recommencez |
 | Le lecteur bipe mais le script attend toujours | Certains clones d'ACR122U gèrent mal les cartes ISO 14443-4. Essayez `python3 encodeur.py --verifier` avec une carte NTAG 424 ; en cas d'erreur `6300`/`6A81`, utilisez un lecteur ACS d'origine (ACR122U ou ACR1252U) |
+| `carte non compatible : UID de 4 octets` (ex. 8A30CB4A) | Ce n'est pas une NTAG 424 DNA mais probablement une MIFARE Classic, souvent livrée avec les lecteurs ACR122U : illisible par les iPhone et sans signature. Commandez des cartes NTAG 424 DNA (UID de 7 octets commençant par 04) |
 | `erreur d'authentification` sur une carte neuve | La carte n'est pas une NTAG 424 DNA vierge (vérifiez avec l'app NXP TagInfo) ou elle a été configurée ailleurs |
 | `CERTIFICATE_VERIFY_FAILED` | Python installé depuis python.org : lancez « Install Certificates.command » dans le dossier Applications/Python 3.x |
 | `Le site ne reconnaît pas la signature` | `SUN_K_META` / `SUN_MASTER_K1` du poste différentes de celles de Hostinger : corrigez avant de continuer |

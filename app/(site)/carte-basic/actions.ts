@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { findOrCreateUser, normalizeEmail } from "@/lib/auth";
-import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, type BasicVariant } from "@/lib/catalog";
+import { BASIC_VARIANTS, QUANTITIES, basicDesign, basicPriceCents, enRupture, libelleRupture, type BasicVariant } from "@/lib/catalog";
+import { ruptures } from "@/lib/stock";
 import { STRIPE_ENABLED } from "@/lib/config";
 import { get, run } from "@/lib/db";
 import { randomId } from "@/lib/ids";
@@ -19,6 +20,8 @@ export async function createBasicOrder(_prev: BasicOrderState, form: FormData): 
   const shipping = { name: str("name", 80), address: str("address", 160), zip: str("zip", 10), city: str("city", 80), country: "FR" };
   if (!(variant in BASIC_VARIANTS)) return { error: "Choisissez une couleur." };
   if (!QUANTITIES.some((q) => q.qty === qty)) return { error: "Quantité invalide." };
+  const r = ruptures();
+  if (enRupture(r, "basic", variant)) return { error: `Carte Basic ${BASIC_VARIANTS[variant].label.toLowerCase()} : ${libelleRupture(r, "basic", variant).toLowerCase()}.` };
   if (!email) return { error: "Adresse email invalide." };
   if (!shipping.name) return { error: "Indiquez votre nom." };
   if (!STRIPE_ENABLED && (!shipping.address || !/^\d{5}$/.test(shipping.zip) || !shipping.city)) {

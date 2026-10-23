@@ -15,6 +15,7 @@ export default async function AdminHome() {
     (SELECT COUNT(*) FROM cards WHERE batch_id IS NOT NULL AND status = 'provisioned') toEncode,
     (SELECT COUNT(*) FROM orders WHERE status = 'in_production') inProd,
     (SELECT COUNT(*) FROM users) users,
+    (SELECT COUNT(*) FROM stock_ruptures) ruptures,
     (SELECT COUNT(*) FROM scan_events WHERE action = 'view' AND at >= datetime('now', '-30 days')) scans30`)!;
   const cardsByStatus = all<{ status: CardStatus; n: number }>("SELECT status, COUNT(*) n FROM cards GROUP BY status");
   const recent = all<Order & { email: string }>("SELECT o.*, u.email FROM orders o JOIN users u ON u.id = o.user_id ORDER BY o.created_at DESC LIMIT 6");
@@ -33,6 +34,11 @@ export default async function AdminHome() {
         <Link href="/admin/production" className="panel" style={{ color: "inherit" }}><div className="kpi-label">Cartes à mettre en lot</div><div className="kpi">{k.toBatch}</div></Link>
         <Link href="/admin/production" className="panel" style={{ color: "inherit" }}><div className="kpi-label">Cartes à encoder</div><div className="kpi">{k.toEncode}</div></Link>
       </div>
+      {k.ruptures > 0 && (
+        <div className="alert alert-warn">
+          {k.ruptures} option{k.ruptures > 1 ? "s" : ""} en rupture de stock, non commandable{k.ruptures > 1 ? "s" : ""} sur le site. <Link href="/admin/stocks">Gérer les stocks</Link>
+        </div>
+      )}
       <div className="grid grid-2">
         <div className="panel">
           <h3>Scans sur la plateforme (30 j) — {k.scans30}</h3>

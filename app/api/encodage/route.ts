@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const body = await req.json().catch(() => null);
   const cardId = typeof body?.cardId === "string" ? body.cardId : "";
-  const uid = typeof body?.uid === "string" ? body.uid.toUpperCase() : "";
+  const uid = typeof body?.uid === "string" ? body.uid : "";
   const counter = Number.isInteger(body?.counter) ? body.counter : 0;
   const error = registerEncodedCard(cardId, uid, counter);
   if (error) return NextResponse.json({ error }, { status: 409 });
