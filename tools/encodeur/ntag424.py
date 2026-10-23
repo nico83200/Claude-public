@@ -246,6 +246,65 @@ def get_file_settings(s: Session) -> bytes:
     return s.send(0xF5, bytes([NDEF_FILE_NO]), full=False, what="GetFileSettings")
 
 
+# --- Identification de la puce (GetVersion) ----------------------------------------
+
+def lire_version(transmit: Transmit) -> Optional[bytes]:
+    """GetVersion (commande native 60) : 7 octets « matériel », ou None si la carte ne la comprend pas."""
+    data, sw = split(transmit(native(0x60)))
+    if sw != 0x91AF or len(data) < 7:
+        return None
+    materiel = data[:7]
+    for _ in range(2):                                   # trames logiciel et numéro de série
+        if sw != 0x91AF:
+            break
+        data, sw = split(transmit(native(0xAF)))
+    return materiel
+
+
+def _memoire(code: int) -> str:
+    octets = 2 ** (code >> 1)
+    txt = f"{octets // 1024} Ko" if octets >= 1024 else f"{octets} octets"
+    return f"plus de {txt}" if code & 1 else txt
+
+
+def decrire_version(v: bytes) -> tuple[str, bool]:
+    """(nom lisible, est une NTAG 424 DNA) d'après les octets « matériel » de GetVersion."""
+    fabricant, type_, sous_type, majeure, _, stockage = v[:6]
+    if fabricant != 0x04:
+        return f"puce d'un autre fabricant que NXP (code {fabricant:02X})", False
+    taille = _memoire(stockage)
+    if type_ == 0x04:
+        if majeure == 0x30:
+            return ("NTAG 424 DNA TagTamper" if sous_type == 0x08 else "NTAG 424 DNA"), True
+        if majeure == 0x10:
+            return "NTAG 413 DNA", False
+        return "puce NXP NTAG (autre que NTAG 424 DNA)", False
+    if type_ == 0x01:
+        ev = {0x00: "", 0x01: " EV1", 0x12: " EV2", 0x22: " EV2 XL", 0x33: " EV3"}.get(majeure, "")
+        return f"MIFARE DESFire{ev} ({taille})", False
+    if type_ == 0x08:
+        return f"MIFARE DESFire Light ({taille})", False
+    if type_ == 0x02:
+        return f"MIFARE Plus ({taille})", False
+    if type_ in (0x81, 0x91):
+        return "carte à microprocesseur NXP (Java Card / JCOP)", False
+    return f"puce NXP de type inconnu ({taille})", False
+
+
+def diagnostic_puce(sw: int, version: Optional[bytes]) -> str:
+    """Explication quand l'application NDEF est introuvable : la puce n'est presque toujours pas une NTAG 424 DNA."""
+    code = f"SW {sw:04X}"
+    if version is None:
+        return (f"Cette carte n'est pas une NTAG 424 DNA : elle n'a pas d'application NDEF ({code}) et ne répond pas "
+                "comme une puce NXP (carte bancaire, de transport, d'accès…). Utilisez des cartes NTAG 424 DNA.")
+    nom, ntag424 = decrire_version(version)
+    ref = f"version de la puce : {version.hex().upper()}"
+    if ntag424:
+        return f"Puce identifiée comme {nom}, mais son application NDEF est introuvable ({code}, {ref}). Mettez cette carte de côté."
+    return (f"Cette carte est une {nom}, pas une NTAG 424 DNA : elle n'a pas l'application NDEF nécessaire à la "
+            f"signature SUN et ne peut pas être encodée. Utilisez des cartes NTAG 424 DNA ({ref}).")
+
+
 # --- NDEF ------------------------------------------------------------------------
 
 URI_PREFIXES = {"https://": 0x04, "http://": 0x03}

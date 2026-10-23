@@ -11,9 +11,18 @@ import os
 import ntag424 as n
 
 
+# Réponses GetVersion (trames matériel et logiciel) des puces émulées.
+VERSIONS = {
+    "ntag424": (bytes.fromhex("04040230001105"), bytes.fromhex("04040201021105")),
+    "desfire_ev3": (bytes.fromhex("04010133001805"), bytes.fromhex("04010103001805")),
+}
+
+
 class CarteEmulee:
-    def __init__(self, uid: bytes):
+    def __init__(self, uid: bytes, puce: str = "ntag424"):
         self.uid = uid
+        self.puce = puce                                        # « desfire_ev3 » : carte vierge sans application NDEF
+        self.version_etape = 0
         self.cles = [bytes(16)] * 5
         self.fichier = bytearray(256)                          # fichier NDEF vide (NLEN = 0)
         self.acces = {"read": 0xE, "write": 0xE, "rw": 0xE, "change": 0x0}
@@ -68,7 +77,9 @@ class CarteEmulee:
         if cla == 0x00:
             return self._iso(apdu)
         if cla == 0x90:
-            lc = apdu[4] if len(apdu) > 5 else 0
+            if len(apdu) == 5:                                  # sans données : CLA INS P1 P2 Le
+                return self._natif(ins, b"") if apdu[4] == 0x00 else self._sw(0x917E)
+            lc = apdu[4]
             data = apdu[5:5 + lc]
             if len(apdu) != 5 + lc + 1 or apdu[-1] != 0x00:
                 return self._sw(0x917E)
@@ -80,7 +91,7 @@ class CarteEmulee:
         if ins == 0xA4:
             lc = apdu[4]
             cible = apdu[5:5 + lc]
-            if p1 == 0x04 and cible == n.NDEF_AID:
+            if p1 == 0x04 and cible == n.NDEF_AID and self.puce == "ntag424":
                 self.app, self.fichier_iso, self.session = True, None, None
                 return self._sw(0x9000)
             if p1 == 0x00 and self.app and cible in (b"\xE1\x03", b"\xE1\x04"):
@@ -106,6 +117,16 @@ class CarteEmulee:
         return self._sw(0x6D00)
 
     def _natif(self, ins: int, data: bytes) -> bytes:
+        if ins == 0x60:                                         # GetVersion (niveau PICC)
+            self.version_etape = 1
+            return self._sw(0x91AF, VERSIONS[self.puce][0])
+        if ins == 0xAF and self.version_etape:
+            self.version_etape += 1
+            if self.version_etape == 2:
+                return self._sw(0x91AF, VERSIONS[self.puce][1])
+            self.version_etape = 0
+            return self._sw(0x9100, self.uid + bytes.fromhex("BA34999F50031200"))
+        self.version_etape = 0
         if not self.app:
             return self._sw(0x91CA)
         if ins == 0x71:

@@ -55,3 +55,19 @@ test("Gabarit NDEF : positions SUN et relecture", () => {
   assert.deepEqual([g.sdm.picc, g.sdm.mac], [0x20 + 2, 0x43 + 2]);
   assert.equal(n.lireUri(g.fichier), g.url);
 });
+
+test("Identification de la puce (GetVersion)", async () => {
+  assert.deepEqual(n.decrireVersion(H("04040230001105")), { nom: "NTAG 424 DNA", ntag424: true });
+  assert.equal(n.decrireVersion(H("04010133001805")).nom, "MIFARE DESFire EV3 (4 Ko)");
+  assert.equal(n.decrireVersion(H("04010101001805")).nom, "MIFARE DESFire EV1 (4 Ko)");
+  assert.equal(n.decrireVersion(H("04080130001305")).nom, "MIFARE DESFire Light (plus de 512 octets)");
+  // Carte DESFire vierge : pas d'application NDEF, la version explique pourquoi.
+  const t = scripte([
+    ["9060000000", "04010133001805" + "91AF"],
+    ["90AF000000", "04010103001805" + "91AF"],
+    ["90AF000000", "04A1B2C3D4E5F6BA34999F5003120091" + "9100"],
+  ]);
+  const v = await n.lireVersion(t);
+  assert.match(n.diagnosticPuce(0x6a82, v), /MIFARE DESFire EV3 \(4 Ko\), pas une NTAG 424 DNA/);
+  assert.match(n.diagnosticPuce(0x6a82, null), /ne répond pas comme une puce NXP/);
+});

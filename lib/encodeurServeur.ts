@@ -27,9 +27,22 @@ async function ok(t: n.Transmit, apdu: Buffer, quoi: string): Promise<Buffer> {
   return data;
 }
 
+/** Sélectionne l'application NDEF ; si la puce ne l'a pas, l'identifie pour expliquer pourquoi. */
+async function selectionnerNdef(t: n.Transmit) {
+  const [, sw] = n.split(await t(n.isoSelectApp()));
+  if (sw === 0x9000) return;
+  let version: Buffer | null = null;
+  try {
+    version = await n.lireVersion(t);
+  } catch {
+    /* carte retirée ou muette : diagnostic sans version */
+  }
+  throw new EncodageError(n.diagnosticPuce(sw, version));
+}
+
 /** Lit l'URL comme un téléphone (déclenche le miroir SUN). */
 export async function lireUrl(t: n.Transmit): Promise<string> {
-  await ok(t, n.isoSelectApp(), "sélection de l'application NDEF");
+  await selectionnerNdef(t);
   await ok(t, n.isoSelectFile(n.NDEF_FILE_ID), "sélection du fichier NDEF");
   const nlen = (await ok(t, n.isoReadBinary(0, 2), "lecture NDEF")).readUInt16BE(0);
   if (nlen === 0 || nlen > 254) throw new EncodageError("la carte ne contient pas d'URL");
@@ -49,7 +62,7 @@ export async function encoderCarte(t: n.Transmit, baseUrl: string, cles: Cles, u
   const gabarit = n.gabaritSun(baseUrl);
 
   // 1. URL : écriture libre sur une carte neuve (refusée si la carte est déjà verrouillée).
-  await ok(t, n.isoSelectApp(), "sélection de l'application NDEF");
+  await selectionnerNdef(t);
   await ok(t, n.isoSelectFile(n.NDEF_FILE_ID), "sélection du fichier NDEF");
   const [, sw] = n.split(await t(n.isoUpdateBinary(0, gabarit.fichier)));
   const urlEcrite = sw === 0x9000;

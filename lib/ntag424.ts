@@ -150,6 +150,57 @@ export async function changeFileSettings(s: Session, c: SdmConfig) {
   await s.send(0x5f, Buffer.from([NDEF_FILE_NO]), encoderSdm(c), true, "ChangeFileSettings");
 }
 
+// --- Identification de la puce (GetVersion) ---------------------------------------------------------
+
+/** GetVersion (commande native 60) : 7 octets « matériel » (fabricant, type, sous-type, version, mémoire, protocole),
+ *  ou null si la carte ne la comprend pas (puce non NXP, carte bancaire, Java Card…). */
+export async function lireVersion(t: Transmit): Promise<Buffer | null> {
+  let [data, sw] = split(await t(native(0x60)));
+  if (sw !== 0x91af || data.length < 7) return null;
+  const materiel = Buffer.from(data.subarray(0, 7));
+  // Lire les deux trames suivantes (logiciel, numéro de série) pour laisser la carte dans un état propre.
+  for (let i = 0; i < 2 && sw === 0x91af; i++) [data, sw] = split(await t(native(0xaf)));
+  return materiel;
+}
+
+function memoire(code: number): string {
+  const octets = 2 ** (code >> 1);
+  const txt = octets >= 1024 ? `${octets / 1024} Ko` : `${octets} octets`;
+  return code & 1 ? `plus de ${txt}` : txt;
+}
+
+/** Nom lisible de la puce d'après les octets « matériel » de GetVersion. */
+export function decrireVersion(v: Buffer): { nom: string; ntag424: boolean } {
+  const [fabricant, type, sousType, majeure, , stockage] = v;
+  if (fabricant !== 0x04) return { nom: `puce d'un autre fabricant que NXP (code ${fabricant.toString(16).padStart(2, "0").toUpperCase()})`, ntag424: false };
+  const taille = memoire(stockage);
+  if (type === 0x04) {
+    if (majeure === 0x30) return { nom: sousType === 0x08 ? "NTAG 424 DNA TagTamper" : "NTAG 424 DNA", ntag424: true };
+    if (majeure === 0x10) return { nom: "NTAG 413 DNA", ntag424: false };
+    return { nom: "puce NXP NTAG (autre que NTAG 424 DNA)", ntag424: false };
+  }
+  if (type === 0x01) {
+    const ev = ({ 0x00: "", 0x01: " EV1", 0x12: " EV2", 0x22: " EV2 XL", 0x33: " EV3" } as Record<number, string>)[majeure] ?? "";
+    return { nom: `MIFARE DESFire${ev} (${taille})`, ntag424: false };
+  }
+  if (type === 0x08) return { nom: `MIFARE DESFire Light (${taille})`, ntag424: false };
+  if (type === 0x02) return { nom: `MIFARE Plus (${taille})`, ntag424: false };
+  if (type === 0x81 || type === 0x91) return { nom: "carte à microprocesseur NXP (Java Card / JCOP)", ntag424: false };
+  return { nom: `puce NXP de type inconnu (${taille})`, ntag424: false };
+}
+
+/** Explication quand l'application NDEF est introuvable : la puce n'est presque toujours pas une NTAG 424 DNA. */
+export function diagnosticPuce(sw: number, version: Buffer | null): string {
+  const code = `SW ${sw.toString(16).toUpperCase().padStart(4, "0")}`;
+  if (!version) {
+    return `Cette carte n’est pas une NTAG 424 DNA : elle n’a pas d’application NDEF (${code}) et ne répond pas comme une puce NXP (carte bancaire, de transport, d’accès…). Utilisez des cartes NTAG 424 DNA.`;
+  }
+  const { nom, ntag424 } = decrireVersion(version);
+  const ref = `version de la puce : ${version.toString("hex").toUpperCase()}`;
+  if (ntag424) return `Puce identifiée comme ${nom}, mais son application NDEF est introuvable (${code}, ${ref}). Mettez cette carte de côté.`;
+  return `Cette carte est une ${nom}, pas une NTAG 424 DNA : elle n’a pas l’application NDEF nécessaire à la signature SUN et ne peut pas être encodée. Utilisez des cartes NTAG 424 DNA (${ref}).`;
+}
+
 // --- NDEF ----------------------------------------------------------------------------------------
 
 export function gabaritSun(baseUrl: string): { fichier: Buffer; url: string; sdm: SdmConfig } {

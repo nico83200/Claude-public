@@ -101,6 +101,16 @@ class AN12196(unittest.TestCase):
 
 
 class DetectionCarte(unittest.TestCase):
+    def test_desfire_identifiee(self):
+        from carte_emulee import CarteEmulee
+        from encodeur import Cles, EncodageError, encoder_carte
+        cles = Cles(k_meta=H("11" * 16), master_k1=H("22" * 16), master_k0=H("33" * 16))
+        c = CarteEmulee(uid=H("04A1B2C3D4E5F6"), puce="desfire_ev3")
+        with self.assertRaises(EncodageError) as ctx:
+            encoder_carte(c.transmit, "https://tapikard.com", cles)
+        self.assertIn("MIFARE DESFire EV3 (4 Ko), pas une NTAG 424 DNA", str(ctx.exception))
+        self.assertEqual(n.decrire_version(H("04040230001105")), ("NTAG 424 DNA", True))
+
     def test_uid_4_octets_refuse(self):
         from encodeur import probleme_uid
         self.assertIn("MIFARE Classic", probleme_uid(H("8A30CB4A")))

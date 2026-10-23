@@ -235,6 +235,7 @@ arrêtée. Le téléphone a besoin d'Internet pendant l'encodage (Wi-Fi conseill
 | `erreur d'authentification` sur une carte neuve | La carte n'est pas une NTAG 424 DNA vierge (vérifiez avec l'app NXP TagInfo) ou elle a été configurée ailleurs |
 | `CERTIFICATE_VERIFY_FAILED` | Python installé depuis python.org : lancez « Install Certificates.command » dans le dossier Applications/Python 3.x |
 | `Le site ne reconnaît pas la signature` | `SUN_K_META` / `SUN_MASTER_K1` du poste différentes de celles de Hostinger : corrigez avant de continuer |
+| « Cette carte est une MIFARE DESFire… / MIFARE Plus…, pas une NTAG 424 DNA » (ou `sélection de l'application NDEF : SW 6A82`) | La puce n'a pas l'application NDEF d'une NTAG 424 DNA : ce ne sont pas les bonnes cartes. Vérifiez la référence auprès du fournisseur (« NTAG 424 DNA », réf. NXP NT4H2421) ou contrôlez avec l'application NXP TagInfo |
 | Application Android : « Carte non compatible » | Même cause que l'UID de 4 octets ci-dessus : ce n'est pas une NTAG 424 DNA |
 | Application Android : « Encodage mobile indisponible » | Ajoutez `SUN_MASTER_K0` (même valeur que dans `encodeur.env`) aux variables Hostinger et redéployez |
 | Application Android : la carte n'est pas détectée | Activez le NFC (Réglages → Appareils connectés), retirez la coque si elle est épaisse ou métallique, et cherchez la zone NFC en déplaçant lentement la carte au dos du téléphone |

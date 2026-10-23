@@ -70,9 +70,21 @@ def _ok(resp: bytes, quoi: str) -> bytes:
     return data
 
 
+def selectionner_ndef(transmit: n.Transmit) -> None:
+    """Sélectionne l'application NDEF ; si la puce ne l'a pas, l'identifie pour expliquer pourquoi."""
+    _, sw = n.split(transmit(n.iso_select_ndef_app()))
+    if sw == 0x9000:
+        return
+    try:
+        version = n.lire_version(transmit)
+    except Exception:                                    # carte retirée ou muette : diagnostic sans version
+        version = None
+    raise EncodageError(n.diagnostic_puce(sw, version))
+
+
 def lire_ndef(transmit: n.Transmit) -> str:
     """Lit l'URL comme le ferait un téléphone (déclenche le miroir SUN)."""
-    _ok(transmit(n.iso_select_ndef_app()), "sélection de l'application NDEF")
+    selectionner_ndef(transmit)
     _ok(transmit(n.iso_select_file(n.NDEF_FILE_ID)), "sélection du fichier NDEF")
     nlen = int.from_bytes(_ok(transmit(n.iso_read_binary(0, 2)), "lecture NDEF"), "big")
     if nlen == 0 or nlen > 254:
@@ -98,7 +110,7 @@ def encoder_carte(transmit: n.Transmit, base_url: str, cles: Cles, uid_lecteur: 
     gabarit = n.sun_template(base_url)
 
     # 1. URL : écriture libre sur une carte neuve (refusée si la carte est déjà verrouillée).
-    _ok(transmit(n.iso_select_ndef_app()), "sélection de l'application NDEF")
+    selectionner_ndef(transmit)
     _ok(transmit(n.iso_select_file(n.NDEF_FILE_ID)), "sélection du fichier NDEF")
     _, sw = n.split(transmit(n.iso_update_binary(0, gabarit.file)))
     url_ecrite = sw == 0x9000
