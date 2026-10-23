@@ -6,6 +6,9 @@ import { requireAdmin } from "@/lib/auth";
 import { run } from "@/lib/db";
 import { STOCK_OPTIONS, stockKey } from "@/lib/catalog";
 import { enregistrerRuptures } from "@/lib/stock";
+import { emailParId } from "@/lib/emails/catalogue";
+import type { Outil } from "@/lib/emails/campagnes";
+import { sendMail } from "@/lib/mail";
 import { approveProof, createBasicStock, createBatch, markOrderPaid, registerEncodedCard, shipOrder } from "@/lib/orders";
 
 export async function adminMarkPaid(orderId: string) {
@@ -66,4 +69,12 @@ export async function adminEnregistrerStocks(form: FormData) {
   );
   revalidatePath("/", "layout");
   redirect("/admin/stocks?enregistre=1");
+}
+
+export async function adminEnvoyerTestEmail(id: string, outil: Outil) {
+  const admin = await requireAdmin();
+  const trouve = emailParId(id, outil);
+  if (!trouve) redirect("/admin/emails");
+  const ok = await sendMail(admin.email, `[Test] ${trouve.email.sujet}`, trouve.email.html);
+  redirect(`/admin/emails?voir=${id}&outil=${outil}&${ok ? "envoye=1" : "erreur=" + encodeURIComponent("L’email de test n’a pas pu être envoyé : vérifiez la configuration SMTP.")}`);
 }

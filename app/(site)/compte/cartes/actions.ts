@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { get, run } from "@/lib/db";
+import { notifierActivation } from "@/lib/orders";
 import type { Card } from "@/lib/types";
 
 async function ownedCard(id: string) {
@@ -31,5 +32,6 @@ export async function setCardStatus(id: string, status: "active" | "disabled" | 
   if (!allowed[status].includes(card.status)) return;
   run(`UPDATE cards SET status = ?, activated_at = COALESCE(activated_at, CASE WHEN ? = 'active' THEN datetime('now') END) WHERE id = ?`, status, status, id);
   if (status === "active" && card.order_id) run("UPDATE orders SET status = 'delivered' WHERE id = ? AND status = 'shipped'", card.order_id);
+  if (status === "active" && !card.activated_at) notifierActivation(card.user_id!, card.profile_id);
   revalidatePath("/compte/cartes");
 }

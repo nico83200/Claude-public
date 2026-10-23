@@ -11,6 +11,8 @@ Application web Next.js 16 (App Router) + TypeScript ; base SQLite intégrée à
 - [`tools/encodeur/`](tools/encodeur/) — **script d'encodage des cartes** (Python, lecteur ACR122U) : `python3 encodeur.py --lot LOT.csv`
 - [`tools/sun_verify.py`](tools/sun_verify.py) — vérification SUN en Python (`python3 tools/sun_verify.py` lance le test NXP)
 - [Captures d'écran](docs/captures/)
+- **Emails** : gabarit et modèles dans [`lib/emails/`](lib/emails/) — aperçu, envoi de test et export des campagnes dans Back-office → Emails.
+  Les images des emails sont dans `public/email/` et se régénèrent avec [`scripts/generer-visuels.mjs`](scripts/generer-visuels.mjs).
 
 ## Démarrer
 
@@ -46,7 +48,7 @@ Connexion par lien magique : sans service d'email configuré, le lien s'affiche 
 | | `/vcard/[carte]` | Fiche contact `.vcf` (vCard 3.0 avec photo) |
 | Client | `/compte` | Aperçu, **éditeur de profil avec aperçu téléphone**, multi-profils, gestion des cartes (profil affiché, activation, désactivation, perte), statistiques, **contacts reçus** (statut de suivi, notes, fiche .vcf, export CSV, synchronisation CRM par webhook Zapier/Make/n8n), commandes |
 | | `/activer` | Activation d'une carte reçue (code de l'encart si on n'est pas l'acheteur) |
-| Back-office | `/admin` | Tableau de bord, commandes (paiement manuel, BAT, expédition avec suivi, annulation), **production** (guide pas à pas, lots, **stock de cartes Basic non attribuées**, CSV imprimeur/encodage), recherche de cartes |
+| Back-office | `/admin` | Tableau de bord, commandes (paiement manuel, BAT, expédition avec suivi, annulation), **production** (guide pas à pas, lots, **stock de cartes Basic non attribuées**, CSV imprimeur/encodage), **stocks** (ruptures par coloris, matière, finition ou modèle), **emails** (aperçu, test, export des campagnes), recherche de cartes |
 | API | `POST /api/encodage` | Poste d'encodage : liaison carte ↔ UID de la puce (`Authorization: Bearer ENCODING_API_KEY`) |
 | | `POST /api/stripe/webhook` | Confirmation de paiement (signature vérifiée) |
 | | `POST /api/leads`, `POST /api/evenements` | Formulaire de contact et clics (limités en débit) |

@@ -5,6 +5,7 @@ import { get, run } from "./db";
 import { adminEmails, APP_URL, IS_PROD, sessionSecret } from "./config";
 import { randomId, randomToken } from "./ids";
 import { sendMail } from "./mail";
+import { emailConnexion } from "./emails/messages";
 import type { User } from "./types";
 
 const COOKIE = "tk_session";
@@ -43,11 +44,8 @@ export async function sendLoginLink(email: string, next = "/compte"): Promise<st
   run("INSERT INTO login_tokens (token_hash, user_id, expires_at) VALUES (?, ?, ?)", hash(token), user.id, expires);
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/compte";
   const link = `${APP_URL}/connexion/verifier?token=${token}&next=${encodeURIComponent(safeNext)}`;
-  const sent = await sendMail(
-    email,
-    "Votre lien de connexion Tapikard",
-    `<p>Bonjour,</p><p>Cliquez pour vous connecter à votre espace Tapikard (lien valable 20 minutes) :</p><p><a href="${link}">Se connecter</a></p><p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>`,
-  );
+  const e = emailConnexion(link, user.name);
+  const sent = await sendMail(email, e.sujet, e.html);
   return sent || IS_PROD ? null : link;
 }
 

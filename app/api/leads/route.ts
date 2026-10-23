@@ -3,13 +3,12 @@ import { get, run } from "@/lib/db";
 import { sendMail } from "@/lib/mail";
 import { rateLimit } from "@/lib/ratelimit";
 import { recordScan, visitorContext } from "@/lib/scans";
-import { APP_URL } from "@/lib/config";
 import { buildLeadVCard, buildVCard } from "@/lib/vcard";
+import { emailFicheContact, emailNouveauContact } from "@/lib/emails/messages";
 import { sendLeadWebhook } from "@/lib/webhook";
 import type { Card, Lead, Profile, User } from "@/lib/types";
 
 const s = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const h = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const fileName = (name: string) => name.normalize("NFD").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "contact";
 
 /**
@@ -45,27 +44,15 @@ export async function POST(req: Request) {
   const owner = get<User>("SELECT * FROM users WHERE id = ?", profile.user_id);
   const tasks: Promise<unknown>[] = [];
   if (owner) {
-    const rows = [["Nom", name], ["Entreprise", company], ["Email", email], ["Téléphone", phone], ["Message", message]]
-      .filter(([, v]) => v)
-      .map(([k, v]) => `<tr><td style="color:#666;padding:4px 12px 4px 0">${k}</td><td style="padding:4px 0"><strong>${h(v)}</strong></td></tr>`)
-      .join("");
-    tasks.push(sendMail(
-      owner.email,
-      `Nouveau contact : ${name}${company ? ` (${company})` : ""}`,
-      `<p>${h(name)} a scanné votre carte Tapikard et vous a laissé ses coordonnées :</p><table>${rows}</table>
-       <p>La fiche contact est jointe : ouvrez-la pour l’ajouter à votre carnet d’adresses.</p>
-       <p><a href="${APP_URL}/compte/contacts">Voir tous mes contacts</a></p>`,
+    const e = emailNouveauContact(lead, profile);
+    tasks.push(sendMail(owner.email, e.sujet, e.html,
       [{ filename: `${fileName(name)}.vcf`, content: buildLeadVCard(lead), contentType: "text/vcard; charset=utf-8" }],
     ));
     if (owner.webhook_url) tasks.push(sendLeadWebhook(owner.webhook_url, lead, profile));
   }
   if (email && body.sendCopy === true) {
-    tasks.push(sendMail(
-      email,
-      `La fiche contact de ${profile.display_name}`,
-      `<p>Bonjour ${h(name)},</p><p>Merci pour l’échange ! Voici la fiche contact de <strong>${h(profile.display_name)}</strong>${profile.company ? ` (${h(profile.company)})` : ""}, jointe à cet email : ouvrez-la pour l’enregistrer dans vos contacts.</p>
-       <p>Vous pouvez aussi revoir son profil : <a href="${APP_URL}/q/${card.id}">${APP_URL}/q/${card.id}</a></p>
-       <p style="color:#888;font-size:12px">Vous recevez cet email car vous avez échangé vos coordonnées via une carte Tapikard.</p>`,
+    const e = emailFicheContact(name, profile, card.id);
+    tasks.push(sendMail(email, e.sujet, e.html,
       [{ filename: `${fileName(profile.display_name)}.vcf`, content: buildVCard(profile), contentType: "text/vcard; charset=utf-8" }],
     ));
   }

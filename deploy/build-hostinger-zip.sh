@@ -10,7 +10,7 @@ rm -f "$OUT/$NAME"
 cp deploy/HOSTINGER.md ./LISEZ-MOI-HOSTINGER.md
 zip -qr "$OUT/$NAME" \
   package.json package-lock.json next.config.mjs tsconfig.json .env.example README.md LISEZ-MOI-HOSTINGER.md \
-  app components lib tests \
+  app components lib tests public \
   -x "*.DS_Store"
 rm ./LISEZ-MOI-HOSTINGER.md
 echo "$OUT/$NAME"

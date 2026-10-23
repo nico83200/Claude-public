@@ -14,7 +14,7 @@ export async function SiteHeader() {
           <Link href="/creer" className="hide-sm">Personnalisée</Link>
           <Link href="/#tarifs" className="hide-sm">Tarifs</Link>
           {user ? <Link href={user.is_admin ? "/admin" : "/compte"}>{user.is_admin ? "Back-office" : "Mon espace"}</Link> : <Link href="/connexion">Connexion</Link>}
-          <Link href="/carte-basic" className="btn btn-sm">Commander<span className="hide-xs">· {euros(BASIC_UNIT_CENTS).replace(",00", "")}</span></Link>
+          <Link href="/carte-basic" className="btn btn-sm"><span>Commander<span className="hide-xs"> · {euros(BASIC_UNIT_CENTS).replace(",00", "")}</span></span></Link>
         </nav>
       </div>
     </header>

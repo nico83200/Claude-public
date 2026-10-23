@@ -1,4 +1,5 @@
 import { EMAIL_ENABLED } from "./config";
+import { versionTexte } from "./emails/gabarit";
 
 /** Envoie un email par SMTP (ex. boîte mail Hostinger). Sans SMTP_HOST, l'email est seulement journalisé. */
 export type MailAttachment = { filename: string; content: string; contentType: string };
@@ -17,7 +18,7 @@ export async function sendMail(to: string, subject: string, html: string, attach
       secure: port === 465,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
-    await transport.sendMail({ from: process.env.EMAIL_FROM ?? process.env.SMTP_USER, to, subject, html, attachments });
+    await transport.sendMail({ from: process.env.EMAIL_FROM ?? process.env.SMTP_USER, to, subject, html, text: versionTexte(html), attachments });
     return true;
   } catch (e) {
     console.error("Échec envoi email", e);

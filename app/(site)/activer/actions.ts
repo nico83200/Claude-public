@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { get, run } from "@/lib/db";
 import { randomId } from "@/lib/ids";
+import { notifierActivation } from "@/lib/orders";
 import { rateLimit } from "@/lib/ratelimit";
 import type { Card } from "@/lib/types";
 
@@ -36,5 +37,6 @@ export async function activateCard(_prev: ActivateState, form: FormData): Promis
   }
   run("UPDATE cards SET status = 'active', user_id = ?, profile_id = ?, activated_at = datetime('now') WHERE id = ?", user.id, profileId, card.id);
   if (card.order_id) run("UPDATE orders SET status = 'delivered' WHERE id = ? AND status = 'shipped'", card.order_id);
+  if (!card.activated_at) notifierActivation(user.id, profileId);
   redirect(newProfile ? `/compte/profils/${profileId}?bienvenue=1` : `/compte/cartes?activee=${card.id}`);
 }

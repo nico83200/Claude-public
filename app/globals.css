@@ -337,3 +337,4 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
   .hero .hero-cards { order: -1; max-width: 380px; width: 100%; margin: 0 auto; padding: 2% 6% 16% 0; }
 }
 .center-page h1 { font-size: 2.1rem !important; margin-top: 18px !important; }
+@media (max-width: 980px) { .emails-grid { grid-template-columns: 1fr !important; } }

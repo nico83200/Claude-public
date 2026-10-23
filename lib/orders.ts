@@ -1,7 +1,8 @@
 import { all, get, run, tx } from "./db";
 import { activationCode, randomId } from "./ids";
 import { sendMail } from "./mail";
-import { APP_URL } from "./config";
+import { sanitizeDesign } from "./catalog";
+import { emailCarteActivee, emailCommandeConfirmee, emailCommandeExpediee } from "./emails/messages";
 import type { Card, Order, User } from "./types";
 
 export function getOrder(id: string) {
@@ -33,15 +34,10 @@ export function markOrderPaid(orderId: string): boolean {
   });
   if (done) {
     const u = get<User>("SELECT u.* FROM users u JOIN orders o ON o.user_id = u.id WHERE o.id = ?", orderId);
-    const basic = getOrder(orderId)?.product === "basic";
-    if (u) {
-      void sendMail(
-        u.email,
-        basic ? "Commande confirmée" : "Commande confirmée — validez votre BAT",
-        basic
-          ? `<p>Merci pour votre commande !</p><p>Vos cartes Tapikard sont en préparation. Suivi : <a href="${APP_URL}/commande/${orderId}">voir ma commande</a>.</p>`
-          : `<p>Merci pour votre commande !</p><p>Validez le bon à tirer pour lancer la production : <a href="${APP_URL}/commande/${orderId}">voir ma commande</a>.</p>`,
-      );
+    const o = getOrder(orderId);
+    if (u && o) {
+      const e = emailCommandeConfirmee(o, sanitizeDesign(JSON.parse(o.design)), u.name);
+      void sendMail(u.email, e.sujet, e.html);
     }
   }
   return done;
@@ -89,7 +85,11 @@ export function shipOrder(orderId: string, tracking: string): string | null {
     run("UPDATE cards SET status = 'shipped' WHERE order_id = ? AND status = 'encoded'", orderId);
   });
   const u = get<User>("SELECT u.* FROM users u JOIN orders o ON o.user_id = u.id WHERE o.id = ?", orderId);
-  if (u) void sendMail(u.email, "Vos cartes Tapikard sont en route", `<p>Vos cartes ont été expédiées${tracking ? ` (suivi : ${tracking})` : ""}.</p><p>À réception, scannez une carte avec votre téléphone pour l'activer.</p>`);
+  const o = getOrder(orderId);
+  if (u && o) {
+    const e = emailCommandeExpediee(o, tracking || null, u.name);
+    void sendMail(u.email, e.sujet, e.html);
+  }
   return null;
 }
 
@@ -118,4 +118,12 @@ export function registerEncodedCard(cardId: string, uidSaisi: string, counter: n
     uid, counter, cardId,
   );
   return null;
+}
+
+/** Email de bienvenue à la première activation d'une carte. */
+export function notifierActivation(userId: string, profileId: string | null) {
+  const u = get<User>("SELECT * FROM users WHERE id = ?", userId);
+  if (!u || !profileId) return;
+  const e = emailCarteActivee(profileId, u.name);
+  void sendMail(u.email, e.sujet, e.html);
 }

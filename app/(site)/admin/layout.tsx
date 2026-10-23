@@ -11,6 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin/commandes">Commandes</Link>
         <Link href="/admin/production">Production & encodage</Link>
         <Link href="/admin/stocks">Stocks</Link>
+        <Link href="/admin/emails">Emails</Link>
         <Link href="/admin/cartes">Cartes</Link>
         <div className="sep" />
         <Link href="/compte">Mon espace client</Link>
