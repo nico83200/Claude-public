@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { get, run } from "./db";
@@ -36,17 +36,32 @@ export function findOrCreateUser(email: string, name?: string): User {
   return get<User>("SELECT * FROM users WHERE id = ?", id)!;
 }
 
-/** Crée un lien de connexion à usage unique (20 min). Renvoie le lien si l'email n'a pas pu être envoyé (dev). */
-export async function sendLoginLink(email: string, next = "/compte"): Promise<string | null> {
+/** Crée un lien de connexion à usage unique (20 min) et un code à 6 chiffres équivalent.
+ *  En dev sans email configuré, renvoie le lien et le code pour les afficher. */
+export async function sendLoginLink(email: string, next = "/compte"): Promise<{ lien: string; code: string } | null> {
   const user = findOrCreateUser(email);
   const token = randomToken();
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   const expires = new Date(Date.now() + 20 * 60_000).toISOString();
-  run("INSERT INTO login_tokens (token_hash, user_id, expires_at) VALUES (?, ?, ?)", hash(token), user.id, expires);
+  run("INSERT INTO login_tokens (token_hash, user_id, expires_at, code_hash) VALUES (?, ?, ?, ?)", hash(token), user.id, expires, hash(`${user.id}:${code}`));
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/compte";
   const link = `${APP_URL}/connexion/verifier?token=${token}&next=${encodeURIComponent(safeNext)}`;
-  const e = emailConnexion(link, user.name);
+  const e = emailConnexion(link, code, user.name);
   const sent = await sendMail(email, e.sujet, e.html);
-  return sent || IS_PROD ? null : link;
+  return sent || IS_PROD ? null : { lien: link, code };
+}
+
+/** Connexion par code (6 chiffres) : renvoie l'utilisateur si le code est valide, non expiré et pas encore utilisé. */
+export function consumeLoginCode(email: string, code: string): string | null {
+  const user = get<User>("SELECT * FROM users WHERE email = ?", email);
+  if (!user || !/^\d{6}$/.test(code)) return null;
+  const row = get<{ token_hash: string }>(
+    "SELECT token_hash FROM login_tokens WHERE user_id = ? AND code_hash = ? AND used = 0 AND expires_at > ?",
+    user.id, hash(`${user.id}:${code}`), new Date().toISOString(),
+  );
+  if (!row) return null;
+  run("UPDATE login_tokens SET used = 1 WHERE token_hash = ?", row.token_hash);
+  return user.id;
 }
 
 export function consumeLoginToken(token: string): string | null {

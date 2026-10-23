@@ -16,7 +16,7 @@ const commande = (product: "custom" | "basic"): Order => ({
 const prospect = { name: "Hugo Lambert", email: "hugo@studio-lambert.fr", phone: "+33 6 98 76 54 32", company: "Studio Lambert", message: "Ravi de notre échange au salon, on se rappelle la semaine prochaine ?" };
 
 export const EMAILS_AUTO: { id: string; nom: string; quand: string; exemple: () => Email }[] = [
-  { id: "connexion", nom: "Lien de connexion", quand: "À chaque demande de connexion", exemple: () => emailConnexion(`${APP_URL}/connexion/verifier?token=exemple`, "Camille Martin") },
+  { id: "connexion", nom: "Lien de connexion", quand: "À chaque demande de connexion", exemple: () => emailConnexion(`${APP_URL}/connexion/verifier?token=exemple`, "482913", "Camille Martin") },
   { id: "commande-perso", nom: "Commande confirmée — personnalisée", quand: "Paiement reçu, BAT à valider", exemple: () => emailCommandeConfirmee(commande("custom"), DEFAULT_DESIGN, "Camille Martin") },
   { id: "commande-basic", nom: "Commande confirmée — Basic", quand: "Paiement reçu d’une carte Basic", exemple: () => emailCommandeConfirmee(commande("basic"), basicDesign("noir"), "Camille Martin") },
   { id: "expedition", nom: "Commande expédiée", quand: "Commande marquée expédiée", exemple: () => emailCommandeExpediee(commande("custom"), "6A12345678901", "Camille Martin") },

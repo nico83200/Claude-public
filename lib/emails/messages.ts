@@ -17,13 +17,13 @@ function produit(o: Pick<Order, "product" | "material" | "finish" | "quantity">,
 }
 
 /** Lien de connexion (sans mot de passe). */
-export function emailConnexion(lienConnexion: string, nom?: string | null): Email {
+export function emailConnexion(lienConnexion: string, code: string, nom?: string | null): Email {
   const sujet = "Votre lien de connexion Tapikard";
   return {
     sujet,
     html: document({
       sujet,
-      preheader: "Un clic pour accéder à votre espace. Lien valable 20 minutes.",
+      preheader: `Code de connexion : ${code}. Ou un clic pour accéder à votre espace (20 minutes).`,
       raison: "Vous recevez cet email car une connexion à votre espace Tapikard a été demandée.",
       sections: [
         section(
@@ -31,7 +31,9 @@ export function emailConnexion(lienConnexion: string, nom?: string | null): Emai
             titre("Votre lien", "de connexion") +
             para(`${bonjour(nom)} voici votre accès à votre espace Tapikard. Pas de mot de passe à retenir : ce lien vous connecte en un clic.`) +
             bouton("Me connecter à mon espace", lienConnexion) +
-            para("Ce lien est personnel, valable <strong>20 minutes</strong> et utilisable une seule fois.", { petit: true, marge: 0 }),
+            encart(`<p style="margin:0 0 6px;font-family:Inter,Helvetica,Arial,sans-serif;font-size:13px;color:#7a7682;">Sur un autre appareil (ex. l’application Tapikard Encodeur), saisissez ce code :</p>
+<p style="margin:0;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:30px;font-weight:700;letter-spacing:6px;color:#121117;">${h(code.slice(0, 3))} ${h(code.slice(3))}</p>`) +
+            para("Lien et code personnels, valables <strong>20 minutes</strong>, utilisables une seule fois.", { petit: true, marge: 0 }),
           { bas: 28 },
         ),
         section(

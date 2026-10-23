@@ -106,6 +106,7 @@ const COLUMNS: [table: string, column: string, definition: string][] = [
   ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],
   ["leads", "note", "TEXT"],
   ["users", "webhook_url", "TEXT"],
+  ["login_tokens", "code_hash", "TEXT"], // code à 6 chiffres (connexion depuis un autre appareil, ex. l'application)
 ];
 
 function migrate(d: DatabaseSync) {

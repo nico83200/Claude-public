@@ -9,6 +9,7 @@ Application web Next.js 16 (App Router) + TypeScript ; base SQLite intégrée à
 - [Guide d'encodage des cartes NTAG 424 DNA](docs/encodage-ntag424.md)
 - [Mise en ligne sur Hostinger](deploy/HOSTINGER.md) · [Installation sur un VPS](deploy/INSTALL.md)
 - [`tools/encodeur/`](tools/encodeur/) — **script d'encodage des cartes** (Python, lecteur ACR122U) : `python3 encodeur.py --lot LOT.csv`
+- [`android/`](android/) — **application Android « Tapikard Encodeur »** : encode les cartes avec le NFC du téléphone, depuis la page `/encodage`
 - [`tools/sun_verify.py`](tools/sun_verify.py) — vérification SUN en Python (`python3 tools/sun_verify.py` lance le test NXP)
 - [Captures d'écran](docs/captures/)
 - **Emails** : gabarit et modèles dans [`lib/emails/`](lib/emails/) — aperçu, envoi de test et export des campagnes dans Back-office → Emails.
@@ -19,7 +20,7 @@ Application web Next.js 16 (App Router) + TypeScript ; base SQLite intégrée à
 ```bash
 npm install
 npm run dev          # http://localhost:3000
-npm test             # tests crypto SUN (RFC 4493 + vecteur NXP AN12196)
+npm test             # tests crypto SUN et protocole NTAG 424 (RFC 4493 + vecteurs NXP AN12196)
 ```
 
 Node ≥ 22.13 requis. En développement, des données de démonstration sont créées automatiquement (`data/tapikard.db`) :
@@ -49,7 +50,9 @@ Connexion par lien magique : sans service d'email configuré, le lien s'affiche 
 | Client | `/compte` | Aperçu, **éditeur de profil avec aperçu téléphone**, multi-profils, gestion des cartes (profil affiché, activation, désactivation, perte), statistiques, **contacts reçus** (statut de suivi, notes, fiche .vcf, export CSV, synchronisation CRM par webhook Zapier/Make/n8n), commandes |
 | | `/activer` | Activation d'une carte reçue (code de l'encart si on n'est pas l'acheteur) |
 | Back-office | `/admin` | Tableau de bord, commandes (paiement manuel, BAT, expédition avec suivi, annulation), **production** (guide pas à pas, lots, **stock de cartes Basic non attribuées**, CSV imprimeur/encodage), **stocks** (ruptures par coloris, matière, finition ou modèle), **emails** (aperçu, test, export des campagnes), recherche de cartes |
+| Encodage | `/encodage` | **Encodage avec un téléphone Android** (dans l'application Tapikard Encodeur) : choix du lot, carte attendue, encodage, vérification |
 | API | `POST /api/encodage` | Poste d'encodage : liaison carte ↔ UID de la puce (`Authorization: Bearer ENCODING_API_KEY`) |
+| | `POST /api/encodage-mobile` | Encodage mobile : le serveur fait la cryptographie NTAG 424, le téléphone relaie les commandes (session administrateur) |
 | | `POST /api/stripe/webhook` | Confirmation de paiement (signature vérifiée) |
 | | `POST /api/leads`, `POST /api/evenements` | Formulaire de contact et clics (limités en débit) |
 
@@ -75,7 +78,23 @@ Copier `.env.example` en `.env.local` (en local) ou saisir les variables dans l'
 Variables optionnelles :
 
 - `STRIPE_SECRET_KEY` et `STRIPE_WEBHOOK_SECRET` (paiement réel ; sinon paiement simulé) ;
-- `DATABASE_PATH` (par défaut `~/tapikard-data/tapikard.db` en production, hors du dossier de l'application).
+- `DATABASE_PATH` (par défaut `~/tapikard-data/tapikard.db` en production, hors du dossier de l'application) ;
+- `SUN_MASTER_K0` (encodage depuis le téléphone ; même valeur que sur le poste d'encodage) ;
+- `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` (recommandée : les formulaires restent valides d'une mise à jour à l'autre).
+
+### Application Android
+
+Projet Java sans dépendance dans [`android/`](android/) : une WebView sur `/encodage` et un pont NFC (`window.TapikardNfc.transceive`).
+Les clés ne quittent jamais le serveur : le site calcule chaque commande NTAG 424 (`lib/ntag424.ts`, `lib/encodeurServeur.ts`)
+et le téléphone ne fait que la transmettre à la carte (`lib/relaisNfc.ts`, sessions en mémoire : une seule instance du site).
+
+```bash
+cd android
+./gradlew assembleRelease     # SDK Android requis (ANDROID_HOME ou local.properties)
+```
+
+L'APK est publié dans `public/telechargements/tapikard-encodeur.apk`. Pour signer avec votre propre clé, créez
+`android/keystore.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`) ; ce fichier et la clé ne doivent jamais être commités.
 
 ## Avant la mise en production
 

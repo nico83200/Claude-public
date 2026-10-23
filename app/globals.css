@@ -338,3 +338,8 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 }
 .center-page h1 { font-size: 2.1rem !important; margin-top: 18px !important; }
 @media (max-width: 980px) { .emails-grid { grid-template-columns: 1fr !important; } }
+
+/* --- Encodage mobile ----------------------------------------------------------- */
+.nfc-pulse { width: 74px; height: 74px; margin: 0 auto; border-radius: 22px; background: var(--brand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='18' cy='50' r='7' fill='white'/%3E%3Cg fill='none' stroke='white' stroke-width='7.5' stroke-linecap='round'%3E%3Cpath d='M30 32.5A17.5 17.5 0 0 1 30 67.5'/%3E%3Cpath d='M30 19A31 31 0 0 1 30 81'/%3E%3Cpath d='M30 5A45 45 0 0 1 30 95'/%3E%3C/g%3E%3C/svg%3E") center / 62% no-repeat; box-shadow: 0 0 0 0 rgba(91, 61, 245, .45); animation: nfc-pulse 1.8s infinite; }
+.nfc-pulse.actif { animation-duration: .7s; }
+@keyframes nfc-pulse { 70% { box-shadow: 0 0 0 22px rgba(91, 61, 245, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 61, 245, 0); } }

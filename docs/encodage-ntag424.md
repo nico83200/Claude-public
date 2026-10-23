@@ -195,6 +195,35 @@ python3 encodeur.py --verifier
 ```
 Lit les cartes posées sur le lecteur sans les modifier et indique si leur signature est valide, avec l'UID et le compteur.
 
+### Encoder avec un téléphone Android (sans ordinateur)
+
+Le téléphone remplace le lecteur USB. Il ne connaît aucune clé : le site calcule chaque commande NTAG 424 et le
+téléphone se contente de la transmettre à la carte, puis de renvoyer la réponse. Les clés restent sur Hostinger.
+
+**Une seule fois :**
+1. Sur Hostinger, ajoutez la variable `SUN_MASTER_K0` avec **la même valeur que dans `encodeur.env`** du poste
+   (voir `deploy/HOSTINGER.md`), puis redéployez. Sans elle, la page d'encodage l'indique et reste inactive.
+2. Sur le téléphone (Android 8 ou plus récent, avec NFC), ouvrez `https://<votre site>/encodage` dans Chrome et
+   touchez **Télécharger l'application**. Ouvrez le fichier `tapikard-encodeur.apk` et autorisez l'installation
+   (« Installer des applications inconnues » pour Chrome). Si Play Protect affiche un avertissement, choisissez
+   **Installer quand même** : l'application n'est pas sur le Play Store.
+3. Ouvrez **Tapikard Encodeur** et connectez-vous avec votre email d'administrateur : saisissez le **code à
+   6 chiffres** reçu par email (le lien de l'email s'ouvrirait dans Chrome, pas dans l'application).
+   La connexion est conservée 30 jours.
+
+**Encoder un lot :**
+1. Créez le lot dans Back-office → Production, comme d'habitude.
+2. Dans l'application, choisissez le lot. Elle affiche la carte attendue (« Ab3dE5gH7j ») : posez au dos du
+   téléphone la carte imprimée **dont le QR code porte cet identifiant**. La zone NFC est en général au centre du dos,
+   près de l'appareil photo.
+3. Gardez la carte immobile jusqu'au ✓ et à la vibration (2 à 4 secondes selon le réseau), retirez-la, posez la suivante.
+
+Le site vérifie lui-même la signature produite par la carte avant de l'enregistrer : une carte marquée ✓ est
+prête à être expédiée. **Vérifier une carte** lit une carte sans la modifier (UID, compteur, carte associée).
+
+En cas d'échec (carte retirée trop tôt, réseau coupé), touchez **Réessayer** : la carte est reprise là où elle s'était
+arrêtée. Le téléphone a besoin d'Internet pendant l'encodage (Wi-Fi conseillé).
+
 ### Dépannage
 
 | Symptôme | Solution |
@@ -206,6 +235,9 @@ Lit les cartes posées sur le lecteur sans les modifier et indique si leur signa
 | `erreur d'authentification` sur une carte neuve | La carte n'est pas une NTAG 424 DNA vierge (vérifiez avec l'app NXP TagInfo) ou elle a été configurée ailleurs |
 | `CERTIFICATE_VERIFY_FAILED` | Python installé depuis python.org : lancez « Install Certificates.command » dans le dossier Applications/Python 3.x |
 | `Le site ne reconnaît pas la signature` | `SUN_K_META` / `SUN_MASTER_K1` du poste différentes de celles de Hostinger : corrigez avant de continuer |
+| Application Android : « Carte non compatible » | Même cause que l'UID de 4 octets ci-dessus : ce n'est pas une NTAG 424 DNA |
+| Application Android : « Encodage mobile indisponible » | Ajoutez `SUN_MASTER_K0` (même valeur que dans `encodeur.env`) aux variables Hostinger et redéployez |
+| Application Android : la carte n'est pas détectée | Activez le NFC (Réglages → Appareils connectés), retirez la coque si elle est épaisse ou métallique, et cherchez la zone NFC en déplaçant lentement la carte au dos du téléphone |
 | Carte encodée sans connexion Internet | `python3 encodeur.py --hors-ligne`, puis saisissez l'UID (journal) dans le back-office → Production → « Saisie manuelle » |
 
 ## 6. Côté serveur

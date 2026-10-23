@@ -1,0 +1,45 @@
+plugins {
+    id "com.android.application"
+}
+
+// Signature : créez android/keystore.properties (jamais commité) avec storeFile, storePassword, keyAlias, keyPassword.
+// Sans ce fichier, la version « release » est signée avec la clé de débogage.
+def proprietesSignature = new Properties()
+def fichierSignature = rootProject.file("keystore.properties")
+if (fichierSignature.exists()) fichierSignature.withInputStream { proprietesSignature.load(it) }
+
+android {
+    namespace "fr.tapikard.encodeur"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "fr.tapikard.encodeur"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            if (fichierSignature.exists()) {
+                storeFile rootProject.file(proprietesSignature["storeFile"])
+                storePassword proprietesSignature["storePassword"]
+                keyAlias proprietesSignature["keyAlias"]
+                keyPassword proprietesSignature["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig fichierSignature.exists() ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

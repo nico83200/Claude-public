@@ -30,8 +30,16 @@ node -e "console.log(require('crypto').randomBytes(16).toString('hex'))"
 | `SUN_K_META` | 3ᵉ résultat |
 | `SUN_MASTER_K1` | 4ᵉ résultat |
 | `ENCODING_API_KEY` | relancez une 5ᵉ fois |
+| `SUN_MASTER_K0` | **la valeur déjà présente dans `encodeur.env` de votre poste d'encodage** (sinon, relancez une 6ᵉ fois et reportez-la aussi dans `encodeur.env`) |
 
-⚠️ **`SUN_K_META` et `SUN_MASTER_K1` sont les clés de vos puces NTAG 424.** Ce sont les mêmes que sur votre poste d'encodage.
+Et, pour `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, une valeur d'un autre format :
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+⚠️ **`SUN_K_META`, `SUN_MASTER_K1` et `SUN_MASTER_K0` sont les clés de vos puces NTAG 424.** Ce sont les mêmes que sur votre poste d'encodage.
+`SUN_MASTER_K0` ne sert qu'à l'encodage depuis le téléphone (application Android) : sans elle, le site fonctionne, mais l'encodage mobile est désactivé.
 Conservez-les en double (gestionnaire de mots de passe **et** papier dans un coffre). Si vous les perdez, aucune carte vendue ne pourra plus être vérifiée.
 Ne les changez jamais une fois des cartes encodées.
 
@@ -61,6 +69,8 @@ Ne les changez jamais une fois des cartes encodées.
    | `SUN_K_META` | voir étape 2 |
    | `SUN_MASTER_K1` | voir étape 2 |
    | `ENCODING_API_KEY` | voir étape 2 |
+   | `SUN_MASTER_K0` | voir étape 2 (encodage avec le téléphone) |
+   | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` | voir étape 2 : évite les erreurs de formulaire après chaque mise à jour |
    | `SMTP_HOST` | `smtp.hostinger.com` |
    | `SMTP_PORT` | `465` |
    | `SMTP_USER` | `bonjour@tapikard.com` |
@@ -99,6 +109,12 @@ Back-office → **Tableau de bord** → **Télécharger une sauvegarde de la bas
 Faites-le au moins une fois par semaine et rangez le fichier hors de Hostinger (Google Drive, disque externe…).
 Ne copiez pas le fichier directement depuis le gestionnaire de fichiers pendant que le site tourne : utilisez ce bouton, qui produit une copie cohérente.
 
+## Encodage avec un téléphone Android
+
+Ouvrez `https://<votre site>/encodage` sur le téléphone et suivez le lien de téléchargement de l'application
+**Tapikard Encodeur** (voir `docs/encodage-ntag424.md`, section « Encoder avec un téléphone Android »).
+Nécessite `SUN_MASTER_K0` dans les variables d'environnement.
+
 ## Poste d'encodage
 
 Le script d'encodage (voir `docs/encodage-ntag424.md` dans le dépôt) appelle :
@@ -114,6 +130,8 @@ Le script d'encodage (voir `docs/encodage-ntag424.md` dans le dépôt) appelle :
 | Le build échoue sur une erreur de mémoire | Redéployez une fois (pics passagers). Si l'erreur persiste, contactez le support Hostinger ou passez à une offre Cloud |
 | Je ne reçois pas l'email de connexion | Vérifiez `SMTP_USER`, `SMTP_PASS` et que `EMAIL_FROM` utilise la même adresse que `SMTP_USER`. Regardez dans les spams |
 | « SESSION_SECRET … obligatoire » ou « SUN_K_META … obligatoires » dans les journaux | Une variable d'environnement manque ou est mal recopiée (32 caractères hexadécimaux pour les clés SUN) |
+| « This page couldn’t load » en validant un formulaire, juste après une mise à jour du site | La page avait été ouverte avant la mise à jour. Rechargez-la (le site le fait désormais tout seul). Pour l'éviter, ajoutez `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` (étape 2) et redéployez |
+| L'application Android affiche « Le serveur a changé de processus » à chaque carte | L'hébergement répartit les requêtes sur plusieurs processus : l'encodage mobile n'y fonctionne pas, utilisez le poste avec lecteur USB |
 | Le scan d'une carte affiche « Carte non reconnue » | Les clés SUN du site ne sont pas les mêmes que celles utilisées à l'encodage |
 
 ## Limites à connaître
