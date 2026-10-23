@@ -195,6 +195,18 @@ python3 encodeur.py --verifier
 ```
 Lit les cartes posées sur le lecteur sans les modifier et indique si leur signature est valide, avec l'UID et le compteur.
 
+### Imprimer les cartes (QR code propre à chaque carte)
+
+Back-office → Production → lot → **Imprimer**. La page affiche toutes les faces du lot, le verso de chaque carte
+portant déjà son QR code unique :
+- **Imprimante à cartes PVC** (Evolis Primacy, Zebra ZC300… avec cartes NFC blanches NTAG 424 DNA) : format
+  « Imprimante à cartes », bouton Imprimer, imprimante à cartes, CR80, recto-verso, marges aucune, échelle 100 %.
+  Une page = une face : c'est la solution la plus rapide pour de petites séries.
+- **Imprimeur** : même page, « Enregistrer au format PDF » : un PDF de 85,6 × 54 mm par face, données variables intégrées.
+- **Planches A4** (10 cartes, recto puis verso) pour une épreuve papier ou un imprimeur qui découpe.
+
+Par défaut, seules les cartes pas encore encodées sont imprimées.
+
 ### Encoder avec un téléphone Android (sans ordinateur)
 
 Le téléphone remplace le lecteur USB. Il ne connaît aucune clé : le site calcule chaque commande NTAG 424 et le

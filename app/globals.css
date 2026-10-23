@@ -395,3 +395,24 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .cartes-commande { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
 .cartes-commande figure { margin: 0; }
 .cartes-commande figcaption { margin-top: 8px; font-size: .9rem; line-height: 1.5; }
+
+/* --- Impression des cartes (lot) ---------------------------------------------------- */
+.imp-outils { padding: 24px 0 0; }
+.imp-feuilles { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; padding: 0 16px 60px; }
+.imp-carte { width: 85.6mm; height: 54mm; overflow: hidden; }
+.imp-carte svg { display: block; width: 85.6mm; height: 54mm; }
+.imp-page { position: relative; background: #fff; box-shadow: 0 6px 20px -10px rgba(0, 0, 0, .3); }
+.imp-page::after { content: attr(data-legende); position: absolute; left: 0; top: 100%; margin-top: 4px; font-size: .75rem; color: var(--muted); white-space: nowrap; }
+.imp-a4 { width: 210mm; height: 297mm; display: grid; grid-template-columns: repeat(2, 85.6mm); grid-template-rows: repeat(5, 54mm);
+  column-gap: 8mm; row-gap: 4mm; justify-content: center; align-content: center; }
+.imp-case { width: 85.6mm; height: 54mm; outline: .1mm dashed #bbb; }
+@media print {
+  html, body { background: #fff !important; }
+  .imp-outils { display: none; }
+  .imp-feuilles { display: block; padding: 0; }
+  .imp-page { box-shadow: none; break-after: page; page-break-after: always; margin: 0; }
+  .imp-page:last-child { break-after: auto; page-break-after: auto; }
+  .imp-page::after { display: none; }
+  .imp-a4 .imp-case { outline: .1mm solid #d0d0d0; } /* repère de découpe */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

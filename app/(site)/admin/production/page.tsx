@@ -20,7 +20,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
         <ol style={{ paddingLeft: 20, margin: "12px 0 0" }}>
           <li><strong>Commande payée.</strong> Personnalisée : le client valide son BAT depuis sa page de commande (ou vous le validez pour lui dans Commandes). Basic : rien à valider.</li>
           <li><strong>Créer un lot</strong> (section 1 ci-dessous) : regroupe toutes les cartes prêtes à produire. Pour du stock Basic sans commande, utilisez « Créer un lot de stock ».</li>
-          <li><strong>Télécharger le CSV du lot</strong> (section 2) et l’envoyer à l’imprimeur avec les BAT : chaque ligne donne l’URL du QR code à imprimer (unique par carte) et le code d’activation de l’encart.</li>
+          <li><strong>Imprimer le lot</strong> (section 2, bouton « Imprimer ») : sur une imprimante à cartes PVC directement depuis le navigateur, ou en PDF prêt à envoyer à l’imprimeur. Chaque verso porte déjà le QR code unique de sa carte. Le CSV reste disponible pour les imprimeurs qui gèrent eux-mêmes les données variables.</li>
           <li><strong>Encoder chaque carte imprimée</strong> avec l’application mobile (section 3) : choisissez le lot ou scannez le QR code de la carte, puis posez-la au dos du téléphone. Chaque carte est écrite, vérifiée et enregistrée ici automatiquement ; la barre « encodées » du lot avance.</li>
           <li><strong>Expédier</strong> : Commandes → la commande → numéro de suivi → « Marquer expédiée » (possible quand toutes ses cartes sont encodées).</li>
           <li><strong>Le client active</strong> sa carte en la scannant à réception.</li>
@@ -80,7 +80,7 @@ export default async function Production({ searchParams }: { searchParams: Promi
                     <div style={{ height: 6, width: 120, background: "var(--surface-2)", borderRadius: 99 }}><div style={{ height: 6, width: `${(100 * (b.encoded ?? 0)) / Math.max(1, b.total)}%`, background: "var(--ok)", borderRadius: 99 }} /></div>
                     <small className="muted">{b.encoded ?? 0}/{b.total} encodées</small>
                   </td>
-                  <td><a className="btn btn-secondary btn-sm" href={`/admin/production/${b.id}/csv`}>CSV</a></td>
+                  <td><div className="row" style={{ gap: 6, flexWrap: "nowrap" }}><Link className="btn btn-sm" href={`/impression/${b.id}`}>Imprimer</Link><a className="btn btn-secondary btn-sm" href={`/admin/production/${b.id}/csv`}>CSV</a></div></td>
                 </tr>
               ))}
               {batches.length === 0 && <tr><td colSpan={5} className="muted">Aucun lot.</td></tr>}
