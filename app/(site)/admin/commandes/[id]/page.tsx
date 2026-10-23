@@ -112,7 +112,7 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
           <thead><tr><th>Carte</th><th>URL du QR</th><th>Code d’activation</th><th>Lot</th><th>UID puce</th><th>Statut</th></tr></thead>
           <tbody>
             {cards.map((c) => (
-              <tr key={c.id}><td><code>{c.id}</code></td><td><small>{APP_URL}/q/{c.id}</small></td><td><code>{c.activation_code}</code></td><td>{c.batch_id ?? "—"}</td><td>{c.uid ?? "—"}{c.puce === "desfire" && <> <span className="badge badge-warn" title="MIFARE DESFire programmée avec une URL fixe : copiable, sans badge « Carte authentique »">⚠ NFC simple</span></>}</td><td><CardBadge status={c.status} /></td></tr>
+              <tr key={c.id}><td><code>{c.id}</code></td><td><small>{APP_URL}/q/{c.id}</small></td><td><code>{c.activation_code}</code></td><td>{c.batch_id ?? "—"}</td><td>{c.uid ?? "—"}{c.puce && <> <span className="badge badge-warn" title="Puce de dépannage (DESFire ou NTAG21x) programmée avec une URL fixe : copiable, sans badge « Carte authentique »">⚠ NFC simple</span></>}</td><td><CardBadge status={c.status} /></td></tr>
             ))}
             {cards.length === 0 && <tr><td colSpan={6} className="muted">Les cartes sont créées au paiement.</td></tr>}
           </tbody>

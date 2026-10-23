@@ -12,6 +12,8 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
 import android.nfc.tech.IsoDep;
+import android.nfc.tech.NfcA;
+import android.nfc.tech.TagTechnology;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -51,7 +53,9 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
     private String etatNfc = "";
 
     // Accédés depuis le fil NFC et le fil du pont JavaScript.
-    private volatile IsoDep carte;
+    // Carte posée : IsoDep (NTAG 424 DNA, DESFire) ou NfcA (NTAG213/215/216), et son type pour la page.
+    private volatile TagTechnology carte;
+    private volatile String technoCarte = "";
     private volatile String uidCarte = "";
     private volatile boolean pageDuSite = false;
     // Demande d'accès à la caméra (scan des QR codes) en attente de l'autorisation Android.
@@ -191,19 +195,30 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
     @Override
     public void onTagDiscovered(Tag tag) {
         String uid = hex(tag.getId());
-        IsoDep d = IsoDep.get(tag);
-        boolean compatible = false;
-        if (d != null) {
-            try {
-                d.connect();
-                d.setTimeout(3000);
-                compatible = true;
-            } catch (IOException e) {
-                d = null;
+        TagTechnology d = null;
+        String techno = "";
+        try {
+            IsoDep iso = IsoDep.get(tag);
+            NfcA a = NfcA.get(tag);
+            if (iso != null) {
+                iso.connect();
+                iso.setTimeout(3000);
+                d = iso;
+                techno = "isodep";
+            } else if (a != null && tag.getId().length == 7) {
+                a.connect();
+                a.setTimeout(1000);
+                d = a;
+                techno = "nfca";
             }
+        } catch (IOException e) {
+            d = null;
+            techno = "";
         }
-        IsoDep ancienne = carte;
-        carte = compatible ? d : null;
+        boolean compatible = d != null;
+        TagTechnology ancienne = carte;
+        carte = d;
+        technoCarte = techno;
         uidCarte = compatible ? uid : "";
         if (ancienne != null) {
             try {
@@ -211,7 +226,7 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
             } catch (IOException ignored) {
             }
         }
-        final String js = "window.tapikardCarte&&window.tapikardCarte('" + uid + "'," + compatible + ")";
+        final String js = "window.tapikardCarte&&window.tapikardCarte('" + uid + "'," + compatible + ",'" + techno + "')";
         runOnUiThread(() -> web.evaluateJavascript(js, null));
     }
 
@@ -231,10 +246,11 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
         @JavascriptInterface
         public String transceive(String apduHex) {
             if (!pageDuSite) return "ERR:page non autorisée";
-            IsoDep d = carte;
+            TagTechnology d = carte;
             if (d == null) return "ERR:aucune carte";
             try {
-                return hex(d.transceive(unhex(apduHex)));
+                byte[] commande = unhex(apduHex);
+                return hex(d instanceof IsoDep ? ((IsoDep) d).transceive(commande) : ((NfcA) d).transceive(commande));
             } catch (TagLostException e) {
                 return "ERR:carte retirée trop tôt";
             } catch (IOException | IllegalArgumentException | IllegalStateException e) {
@@ -246,8 +262,14 @@ public class MainActivity extends Activity implements NfcAdapter.ReaderCallback 
         @JavascriptInterface
         public String carteActuelle() {
             if (!pageDuSite) return "";
-            IsoDep d = carte;
+            TagTechnology d = carte;
             return d != null && d.isConnected() ? uidCarte : "";
+        }
+
+        /** Type de la carte posée : « isodep » ou « nfca ». */
+        @JavascriptInterface
+        public String technoActuelle() {
+            return pageDuSite ? technoCarte : "";
         }
 
         @JavascriptInterface

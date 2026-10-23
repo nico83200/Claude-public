@@ -13,13 +13,15 @@ type Pont = {
   version(): string;
   /** UID de la carte posée en ce moment (vide s'il n'y en a pas). */
   carteActuelle?(): string;
+  /** « isodep » (NTAG 424 DNA, DESFire) ou « nfca » (NTAG213/215/216), depuis la version 1.2. */
+  technoActuelle?(): string;
   reglagesNfc?(): void;
   reglerSite?(): void;
 };
 declare global {
   interface Window {
     TapikardNfc?: Pont;
-    tapikardCarte?: (uid: string, compatible: boolean) => void;
+    tapikardCarte?: (uid: string, compatible: boolean, techno?: string) => void;
   }
 }
 
@@ -71,6 +73,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
   const [faites, setFaites] = useState<string[]>([]);
   const [simples, setSimples] = useState(0);
   const desfireAcceptees = useRef(false);
+  const techno = useRef("isodep");
   const [scan, setScan] = useState(false);
   const [parScan, setParScan] = useState(false);
   const [messageScan, setMessageScan] = useState<string | null>(null);
@@ -87,14 +90,14 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
   const surCarte = useCallback(async (uid: string, compatible: boolean, forcer = false) => {
     if (!pont || occupe.current) return;
     if (!compatible) {
-      setEtat({ t: "erreur", message: `Carte non compatible (UID ${uid}) : ce n’est pas une NTAG 424 DNA (MIFARE Classic ?).` });
+      setEtat({ t: "erreur", message: `Carte non compatible (UID ${uid}) : ni NTAG 424 DNA, ni DESFire EV2/EV3, ni NTAG213/215/216. Probablement une MIFARE Classic, illisible par les iPhone.` });
       pont.vibrer(400);
       return;
     }
     if (mode === "verifier") {
       occupe.current = true;
       setEtat({ t: "encours", echanges: 0 });
-      const r = await relayer(pont, { action: "verifier", uid }, (n) => setEtat({ t: "encours", echanges: n }));
+      const r = await relayer(pont, { action: "verifier", uid, techno: techno.current }, (n) => setEtat({ t: "encours", echanges: n }));
       occupe.current = false;
       if (r.termine && r.resultat) {
         const c = r.resultat.carte as { id: string; statut: string } | null;
@@ -116,7 +119,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
     if (uid === dernierUid.current) return; // carte précédente encore posée
     occupe.current = true;
     setEtat({ t: "encours", echanges: 0 });
-    const r = await relayer(pont, { action: "demarrer", cardId: courante.id, uid, nonSecurisee: forcer || desfireAcceptees.current }, (n) => setEtat({ t: "encours", echanges: n }));
+    const r = await relayer(pont, { action: "demarrer", cardId: courante.id, uid, techno: techno.current, nonSecurisee: forcer || desfireAcceptees.current }, (n) => setEtat({ t: "encours", echanges: n }));
     occupe.current = false;
     const res = r.resultat as { confirmer?: string; simple?: boolean; verrouillee?: boolean; puce?: string; reparation?: boolean } | undefined;
     if (r.termine && res?.confirmer) {
@@ -149,7 +152,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
   }, [pont, mode, courante]);
 
   useEffect(() => {
-    window.tapikardCarte = (uid, compatible) => { void surCarte(uid, compatible); };
+    window.tapikardCarte = (uid, compatible, t) => { techno.current = t || "isodep"; void surCarte(uid, compatible); };
     return () => { window.tapikardCarte = undefined; };
   }, [surCarte]);
 
@@ -177,7 +180,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
   const relancer = (avecCarteEnPlace = true) => {
     setEtat({ t: "attente" });
     const uid = avecCarteEnPlace && pont ? pont.carteActuelle?.() : "";
-    if (uid) setTimeout(() => window.tapikardCarte?.(uid, true), 200);
+    if (uid) setTimeout(() => window.tapikardCarte?.(uid, true, pont?.technoActuelle?.() || "isodep"), 200);
   };
 
   if (pont === undefined) return null;
@@ -223,7 +226,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
           <small className="muted" style={{ display: "block", marginBottom: 14 }}>À réserver au dépannage (rupture de NTAG 424 DNA). Tout le contenu actuel de la puce sera effacé.</small>
           <div className="stack" style={{ gap: 8 }}>
             <button className="btn btn-block" onClick={() => void surCarte(etat.uid, true, true)}>Programmer cette carte quand même</button>
-            {file.length - index > 1 && <button className="btn btn-secondary btn-block" onClick={() => { desfireAcceptees.current = true; void surCarte(etat.uid, true, true); }}>Accepter les DESFire pour tout ce lot</button>}
+            {file.length - index > 1 && <button className="btn btn-secondary btn-block" onClick={() => { desfireAcceptees.current = true; void surCarte(etat.uid, true, true); }}>Accepter ces cartes de dépannage pour tout ce lot</button>}
             <button className="btn btn-ghost btn-block" onClick={() => setEtat({ t: "attente" })}>Annuler</button>
           </div>
         </>
@@ -273,7 +276,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
           <div className="panel" style={{ textAlign: "center", padding: 28 }}>
             <div style={{ fontSize: "3rem", color: faites.length ? "var(--ok)" : "var(--muted)" }}>{faites.length ? "✓" : "–"}</div>
             <h2 style={{ fontSize: "1.6rem" }}>{faites.length ? `Carte ${file[0]?.id} encodée` : "Carte passée"}</h2>
-            {simples > 0 && <div className="alert alert-warn" style={{ margin: "0 0 14px" }}>⚠ Programmée en NFC simple (DESFire, non sécurisée à 100 %).</div>}
+            {simples > 0 && <div className="alert alert-warn" style={{ margin: "0 0 14px" }}>⚠ Programmée en NFC simple (carte de dépannage, non sécurisée à 100 %).</div>}
             {boutonScan("Scanner la carte suivante", "btn btn-lg")}
           </div>
         ) : fini ? (
@@ -281,7 +284,7 @@ export function EncodageMobile({ lots, clesOk }: { lots: LotMobile[]; clesOk: bo
             <div style={{ fontSize: "3rem", color: "var(--ok)" }}>✓</div>
             <h2 style={{ fontSize: "1.8rem" }}>Lot terminé</h2>
             <p className="muted">{faites.length} carte{faites.length > 1 ? "s" : ""} encodée{faites.length > 1 ? "s" : ""} et enregistrée{faites.length > 1 ? "s" : ""}.</p>
-            {simples > 0 && <div className="alert alert-warn" style={{ margin: 0 }}>⚠ Dont {simples} en NFC simple (DESFire, non sécurisée{simples > 1 ? "s" : ""} à 100 %).</div>}
+            {simples > 0 && <div className="alert alert-warn" style={{ margin: 0 }}>⚠ Dont {simples} en NFC simple (cartes de dépannage, non sécurisée{simples > 1 ? "s" : ""} à 100 %).</div>}
           </div>
         ) : (
           <>

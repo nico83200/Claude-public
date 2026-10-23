@@ -33,8 +33,8 @@ export default async function AdminCards({ searchParams }: { searchParams: Promi
               <tr key={c.id}>
                 <td><code>{c.id}</code></td>
                 <td>{c.email ?? "—"}{c.order_id && <><br /><Link href={`/admin/commandes/${c.order_id}`}><small>commande</small></Link></>}</td>
-                <td><small>{c.uid ?? "—"}</small>{c.puce === "desfire" && <><br /><span className="badge badge-warn" title="MIFARE DESFire programmée avec une URL fixe : copiable, sans badge « Carte authentique »">⚠ NFC simple</span></>}</td>
-                <td>{c.puce === "desfire" ? "—" : c.last_counter >= 0 ? c.last_counter : "—"}</td>
+                <td><small>{c.uid ?? "—"}</small>{c.puce && <><br /><span className="badge badge-warn" title="Puce de dépannage (DESFire ou NTAG21x) programmée avec une URL fixe : copiable, sans badge « Carte authentique »">⚠ NFC simple</span></>}</td>
+                <td>{c.puce ? "—" : c.last_counter >= 0 ? c.last_counter : "—"}</td>
                 <td><small>{c.batch_id ?? "—"}</small></td>
                 <td><small>{c.last_scan ? new Date(c.last_scan + "Z").toLocaleString("fr-FR") : "—"}</small></td>
                 <td><CardBadge status={c.status} /></td>

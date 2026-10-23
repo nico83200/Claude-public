@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
     const hex = String(body.reponse ?? "");
-    relais.fournir(/^([0-9A-Fa-f]{2}){2,}$/.test(hex) ? Buffer.from(hex, "hex") : new Error(`communication avec la carte interrompue${hex ? ` (${hex.slice(0, 80)})` : ""}`));
+    relais.fournir(/^([0-9A-Fa-f]{2})+$/.test(hex) ? Buffer.from(hex, "hex") : new Error(`communication avec la carte interrompue${hex ? ` (${hex.slice(0, 80)})` : ""}`));
     return repondre(relais, await relais.prochaineEtape());
   }
 
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
   if (body.action === "verifier") {
     const relais = new Relais(user.id, async (t) => {
-      const lu = await lireCarte(t);
+      const lu = await lireCarte(t, body.techno === "nfca" ? "nfca" : "isodep");
       // DESFire en NFC simple : pas de signature à vérifier, seulement l'URL fixe.
       const v = lu.simple ? { uid: uidHex, compteur: 0 } : verifierUrl(lu.url, cles);
       const carte = get<Card>("SELECT id, status FROM cards WHERE uid = ?", v.uid);
@@ -79,12 +79,12 @@ export async function POST(req: Request) {
     const relais = new Relais(user.id, async (t, log) => {
       let r;
       try {
-        r = await encoderCarte(t, APP_URL, cles, uid, log, { cardId, accepterNonSecurisee: body.nonSecurisee === true });
+        r = await encoderCarte(t, APP_URL, cles, uid, log, { cardId, accepterNonSecurisee: body.nonSecurisee === true, techno: body.techno === "nfca" ? "nfca" : "isodep" });
       } catch (e) {
         if (e instanceof ConfirmationRequise) return { confirmer: e.puce };
         throw e;
       }
-      const err = registerEncodedCard(cardId, r.uid, r.compteur, r.simple ? "desfire" : null);
+      const err = registerEncodedCard(cardId, r.uid, r.compteur, r.simple ? (r.puce.startsWith("NTAG2") ? "ntag21x" : "desfire") : null);
       if (err) throw new EncodageError(err);
       return { cardId, uid: r.uid, compteur: r.compteur, reparation: r.reparation, puce: r.puce, simple: r.simple, verrouillee: r.verrouillee };
     });

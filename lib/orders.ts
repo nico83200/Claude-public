@@ -104,7 +104,7 @@ export function problemeUid(uid: string): string | null {
   return null;
 }
 
-export function registerEncodedCard(cardId: string, uidSaisi: string, counter: number, puce: "desfire" | null = null): string | null {
+export function registerEncodedCard(cardId: string, uidSaisi: string, counter: number, puce: "desfire" | "ntag21x" | null = null): string | null {
   const card = get<Card>("SELECT * FROM cards WHERE id = ?", cardId);
   if (!card) return "Carte inconnue";
   const uid = uidSaisi.replace(/[\s:.-]/g, "").toUpperCase();

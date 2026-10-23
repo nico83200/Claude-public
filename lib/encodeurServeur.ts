@@ -3,6 +3,7 @@
 import * as n from "./ntag424.ts";
 import { diversifyKey, verifySun } from "./sun.ts";
 import { desfireCompatible, estDesfire, lireUrlType4, programmerDesfire } from "./desfire.ts";
+import { identifier as identifierNtag21x, lireUrlType2, programmerNtag21x } from "./ntag21x.ts";
 
 export class EncodageError extends Error {}
 
@@ -34,7 +35,11 @@ async function version(t: n.Transmit): Promise<Buffer | null> {
 }
 
 /** Lecture pour la vérification : URL et type de puce (NTAG 424 DNA signée, ou DESFire en NFC simple). */
-export async function lireCarte(t: n.Transmit): Promise<{ url: string; simple: boolean; puce: string | null }> {
+export async function lireCarte(t: n.Transmit, techno = "isodep"): Promise<{ url: string; simple: boolean; puce: string | null }> {
+  if (techno === "nfca") {
+    const m = await identifierNtag21x(t);
+    return { url: await lireUrlType2(t), simple: true, puce: m?.nom ?? "puce NFC-A" };
+  }
   const v = await version(t);
   if (v && estDesfire(v)) return { url: await lireUrlType4(t), simple: true, puce: n.decrireVersion(v).nom };
   return { url: await lireUrl(t), simple: false, puce: v ? n.decrireVersion(v).nom : null };
@@ -92,8 +97,20 @@ export function verifierUrl(url: string, c: Pick<Cles, "kMeta" | "masterK1">): {
 
 export async function encoderCarte(
   t: n.Transmit, baseUrl: string, cles: Cles, uidLecteur: Buffer | null, log: (m: string) => void = () => {},
-  options: { cardId?: string; accepterNonSecurisee?: boolean } = {},
+  options: { cardId?: string; accepterNonSecurisee?: boolean; techno?: string } = {},
 ): Promise<Resultat> {
+  // NTAG213/215/216 (NFC-A, sans ISO-DEP) : NFC simple aussi, protégée en écriture par mot de passe.
+  if (options.techno === "nfca") {
+    const m = await identifierNtag21x(t);
+    if (!m) throw new EncodageError("Puce non reconnue : seules les NTAG 424 DNA (et, en dépannage, les DESFire EV2/EV3 et NTAG213/215/216) sont prises en charge. Une MIFARE Classic n’est pas lisible par les iPhone.");
+    if (!uidLecteur || !options.cardId) throw new EncodageError("UID ou identifiant de carte manquant");
+    if (!options.accepterNonSecurisee) throw new ConfirmationRequise(m.nom);
+    log(`${m.nom} : programmation en NFC simple (non sécurisée)`);
+    const url = `${baseUrl.replace(/\/$/, "")}/q/${options.cardId}`;
+    await programmerNtag21x(t, url, uidLecteur, diversifyKey(cles.masterK0, uidLecteur, 0x30), log);
+    return { uid: uidLecteur.toString("hex").toUpperCase(), compteur: 0, reparation: false, url, puce: m.nom, simple: true, verrouillee: true };
+  }
+
   // 0. Type de puce : une DESFire EV2/EV3 peut servir de dépannage, en NFC simple (URL fixe, sans signature).
   const v = await version(t);
   if (v && estDesfire(v)) {

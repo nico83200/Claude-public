@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS retours (
 const COLUMNS: [table: string, column: string, definition: string][] = [
   ["orders", "product", "TEXT NOT NULL DEFAULT 'custom'"], // 'custom' (personnalisée) | 'basic' (prête à l'emploi)
   ["cards", "variant", "TEXT"], // carte Basic de stock : 'noir' | 'blanc'
-  ["cards", "puce", "TEXT"], // 'desfire' : MIFARE DESFire en NFC simple (URL fixe, non sécurisée) ; vide : NTAG 424 DNA
+  ["cards", "puce", "TEXT"], // 'desfire' | 'ntag21x' : puce de dépannage en NFC simple (URL fixe, non sécurisée) ; vide : NTAG 424 DNA
   ["orders", "archived_at", "TEXT"], // commande archivée : masquée de la liste par défaut
   ["orders", "refunded_cents", "INTEGER NOT NULL DEFAULT 0"], // total remboursé
   ["leads", "status", "TEXT NOT NULL DEFAULT 'nouveau'"],
