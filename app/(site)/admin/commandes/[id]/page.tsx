@@ -85,6 +85,28 @@ export default async function AdminOrder({ params, searchParams }: { params: Pro
         </div>
       </div>
 
+      {cards.length > 1 && (
+        <div className="panel">
+          <h3>Les {cards.length} cartes de la commande</h3>
+          <p className="muted" style={{ marginTop: 0, fontSize: ".9rem" }}>
+            Même recto pour toutes ; au verso, chaque carte a son propre QR code (et sa propre puce), relié à la même commande.
+            L’imprimeur trouve l’URL de chaque QR code dans le CSV du lot.
+          </p>
+          <div className="cartes-commande">
+            {cards.map((c, i) => (
+              <figure key={c.id}>
+                <CardPreview design={design} side="verso" qrUrl={`${APP_URL}/q/${c.id}`} />
+                <figcaption>
+                  <strong>Carte {i + 1}</strong> · <code>{c.id}</code><br />
+                  <small className="muted">Code d’activation <code>{c.activation_code}</code></small><br />
+                  <a href={`/commande/${id}/bat?face=verso&carte=${c.id}`} target="_blank"><small>BAT verso de cette carte</small></a>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="table-wrap">
         <table>
           <thead><tr><th>Carte</th><th>URL du QR</th><th>Code d’activation</th><th>Lot</th><th>UID puce</th><th>Statut</th></tr></thead>

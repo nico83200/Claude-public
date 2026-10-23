@@ -90,6 +90,11 @@ export default async function OrderPage({ params, searchParams }: { params: Prom
           <CardPreview design={design} side="recto" qrUrl={qrUrl} />
           <div style={{ height: 16 }} />
           <CardPreview design={design} side="verso" qrUrl={qrUrl} />
+          {cards.length > 1 && (
+            <p className="muted" style={{ fontSize: ".9rem", marginTop: 12 }}>
+              Aperçu de la 1<sup>re</sup> carte. Chacune de vos {cards.length} cartes a son propre QR code et sa propre puce ; elles ouvrent toutes votre profil.
+            </p>
+          )}
         </div>
         <div className="panel">
           <h3>Récapitulatif</h3>

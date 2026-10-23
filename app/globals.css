@@ -392,3 +392,6 @@ details.faq p { margin: 12px 0 0; color: var(--muted); max-width: 64ch; }
 .barre-achat strong { font-size: 1.25rem; }
 .barre-achat small { display: block; color: var(--muted); font-size: .78rem; }
 @media (max-width: 760px) { .barre-achat { display: flex; } }
+.cartes-commande { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+.cartes-commande figure { margin: 0; }
+.cartes-commande figcaption { margin-top: 8px; font-size: .9rem; line-height: 1.5; }

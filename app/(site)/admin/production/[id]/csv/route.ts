@@ -19,7 +19,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       const variant = r.variant === "blanc" ? "blanc" : "noir";
       const d = r.design ? JSON.parse(r.design) : basicDesign(variant);
       const bat = (face: string) =>
-        r.order_id ? `${APP_URL}/commande/${r.order_id}/bat?face=${face}` : `${APP_URL}/admin/production/bat-basic?couleur=${variant}&face=${face}`;
+        (r.order_id ? `${APP_URL}/commande/${r.order_id}/bat?face=${face}` : `${APP_URL}/admin/production/bat-basic?couleur=${variant}&face=${face}`) +
+        (face === "verso" ? `&carte=${r.id}` : ""); // verso : QR code propre à chaque carte
       return [r.id, `${APP_URL}/q/${r.id}`, r.activation_code, r.order_id ?? "STOCK", d.name || "", d.material, d.template, d.finish, bat("recto"), bat("verso"), r.status, r.uid];
     }),
   ]);
