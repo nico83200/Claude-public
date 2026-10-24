@@ -361,6 +361,14 @@ App\Core\Settings::set('home_img_hero', '');
 check('retour à l\'image d\'origine (fichier supprimé, thème intact)', App\Services\HomeImages::src('hero') === 'assets/img/hero.jpg' && !is_file(PUBLIC_PATH . '/' . $stored) && is_file(PUBLIC_PATH . '/assets/img/hero.jpg'));
 $_SERVER['REQUEST_URI'] = '/';
 
+echo "Descriptions mises en forme\n";
+$plain = rich_text("Un sweat **tout doux**.\nLavable à 30°.\n\n- coton bio\n- brodé\n\n## Entretien");
+check('texte brut : retours à la ligne, gras, liste, intertitre', str_contains($plain, '<strong>tout doux</strong>.<br>Lavable') && str_contains($plain, '<ul><li>coton bio</li><li>brodé</li></ul>') && str_contains($plain, '<h3>Entretien</h3>'));
+check('texte brut échappé', rich_text('<3 & "x"') === '<p>&lt;3 &amp; &quot;x&quot;</p>');
+$dirty = rich_text('<p style="color:red" class="MsoNormal" onclick="x()">Texte <b>gras</b><script>alert(1)</script> <a href="javascript:alert(1)">lien</a></p><div>bloc</div><p class="lead">Intro</p>');
+check('HTML nettoyé (styles, scripts, liens dangereux)', $dirty === '<p>Texte <b>gras</b> <a>lien</a></p><p>bloc</p><p class="lead">Intro</p>');
+check('pages d\'origine intactes', str_contains(rich_text('<table><tr><td colspan="2">A</td></tr></table>'), '<td colspan="2">A</td>'));
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');

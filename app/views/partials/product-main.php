@@ -195,7 +195,7 @@ if ($cfg) {
 
         <details class="accordion" <?= $detailsOpen ? 'open' : '' ?>>
           <summary>Description</summary>
-          <div class="rich"><?= $product['description'] /* HTML saisi par l'administrateur */ ?></div>
+          <div class="rich"><?= rich_text($product['description']) /* texte mis en forme ou HTML nettoyé */ ?></div>
         </details>
         <?php if ($cfg): ?>
         <details class="accordion">

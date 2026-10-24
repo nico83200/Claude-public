@@ -350,3 +350,9 @@ function gd_resize(\GdImage $src, int $width, int $height = 0): \GdImage
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $width, $height, imagesx($src), imagesy($src));
     return $dst;
 }
+
+/** Description mise en forme (texte brut ou HTML nettoyé), prête à afficher. */
+function rich_text(?string $text): string
+{
+    return App\Services\RichText::render($text);
+}

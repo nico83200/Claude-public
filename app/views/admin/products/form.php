@@ -12,8 +12,8 @@ $blankRows = $variants ? 2 : 4;
       <section class="card">
         <label>Nom <input name="name" required value="<?= e($product['name']) ?>"></label>
         <label>Accroche (courte) <input name="short_description" maxlength="300" value="<?= e($product['short_description']) ?>"></label>
-        <label>Description (HTML autorisé : &lt;p&gt;, &lt;ul&gt;, &lt;strong&gt;…)
-          <textarea name="description" rows="9"><?= e($product['description']) ?></textarea></label>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="12" data-rich-editor><?= e(rich_text($product['description'])) ?></textarea>
       </section>
 
       <section class="card">

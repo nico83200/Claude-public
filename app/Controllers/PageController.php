@@ -17,7 +17,7 @@ final class PageController
             'metaDescription' => $page['meta_description'] ?: excerpt($page['content']),
             'canonical'       => url('page/' . $page['slug']),
             'page'            => $page,
-            'html'            => self::placeholders((string) $page['content']),
+            'html'            => self::placeholders(rich_text((string) $page['content'])),
         ]);
     }
 

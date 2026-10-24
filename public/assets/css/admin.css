@@ -149,3 +149,17 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 .home-slot-preview { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #f4ebe8; display: grid; place-items: center; }
 .home-slot-preview.is-arch { aspect-ratio: 4 / 5; border-radius: 999px 999px 12px 12px; }
 .home-slot-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Éditeur de texte mis en forme */
+.rte { border: 1px solid #e3d8cf; border-radius: 10px; background: #fff; margin: .4rem 0 1rem; overflow: hidden; }
+.rte-toolbar { display: flex; flex-wrap: wrap; gap: .25rem; padding: .45rem; border-bottom: 1px solid #efe6de; background: #faf6f2; position: sticky; top: 0; z-index: 1; }
+.rte-toolbar button { border: 1px solid transparent; background: none; border-radius: 6px; padding: .3rem .6rem; font: inherit; font-size: .85rem; cursor: pointer; color: inherit; }
+.rte-toolbar button:hover, .rte-toolbar button.active { background: #fff; border-color: #e3d8cf; }
+.rte-area { min-height: 220px; max-height: 70vh; overflow-y: auto; padding: .9rem 1.1rem; line-height: 1.6; outline: none; }
+.rte-area:focus { box-shadow: inset 0 0 0 2px rgba(90, 42, 58, .15); }
+.rte-area h2, .rte-area h3 { margin: 1rem 0 .4rem; }
+.rte-area p { margin: 0 0 .7rem; }
+.rte-area ul, .rte-area ol { padding-left: 1.4rem; margin: 0 0 .7rem; }
+.rte-area a { color: #5a2a3a; }
+.rte-area table { border-collapse: collapse; } .rte-area td, .rte-area th { border: 1px solid #eee; padding: .3rem .5rem; }
+.rte .rte-source { border: 0; border-radius: 0; width: 100%; min-height: 300px; margin: 0; }

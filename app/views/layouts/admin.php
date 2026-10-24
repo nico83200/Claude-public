@@ -50,6 +50,55 @@ $nav = [
   <?= $content ?>
 </main>
 <script>
+// Éditeur de texte mis en forme (descriptions produits, pages) -------------------------
+document.querySelectorAll('textarea[data-rich-editor]').forEach(function (textarea) {
+  var tools = [
+    ['bold', '<b>G</b>', 'Gras (Ctrl+B)'], ['italic', '<i>I</i>', 'Italique (Ctrl+I)'], ['underline', '<u>S</u>', 'Souligné (Ctrl+U)'],
+    ['h3', 'Titre', 'Intertitre'], ['p', '¶', 'Paragraphe normal'],
+    ['insertUnorderedList', '• Liste', 'Liste à puces'], ['insertOrderedList', '1. Liste', 'Liste numérotée'],
+    ['link', '🔗 Lien', 'Ajouter un lien sur le texte sélectionné'], ['unlink', 'Retirer le lien', 'Retirer le lien'],
+    ['removeFormat', 'Effacer', 'Retirer la mise en forme du texte sélectionné'], ['source', '&lt;/&gt; HTML', 'Voir / modifier le code HTML']
+  ];
+  var wrap = document.createElement('div');
+  wrap.className = 'rte';
+  var bar = document.createElement('div');
+  bar.className = 'rte-toolbar';
+  var area = document.createElement('div');
+  area.className = 'rte-area';
+  area.contentEditable = 'true';
+  area.innerHTML = textarea.value;
+  tools.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.innerHTML = t[1]; b.title = t[2]; b.dataset.cmd = t[0];
+    bar.appendChild(b);
+  });
+  textarea.parentNode.insertBefore(wrap, textarea);
+  wrap.appendChild(bar); wrap.appendChild(area); wrap.appendChild(textarea);
+  textarea.classList.add('rte-source', 'mono');
+  textarea.hidden = true;
+  try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (e) {}
+  var sync = function () { if (textarea.hidden) textarea.value = area.innerHTML; };
+  bar.addEventListener('mousedown', function (e) { if (e.target.closest('button')) e.preventDefault(); });
+  bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var cmd = b.dataset.cmd;
+    if (cmd === 'source') {
+      if (textarea.hidden) { textarea.value = area.innerHTML; textarea.hidden = false; area.hidden = true; }
+      else { area.innerHTML = textarea.value; textarea.hidden = true; area.hidden = false; }
+      b.classList.toggle('active', !textarea.hidden);
+      return;
+    }
+    if (!textarea.hidden) return;
+    area.focus();
+    if (cmd === 'h3' || cmd === 'p') document.execCommand('formatBlock', false, cmd);
+    else if (cmd === 'link') { var url = prompt('Adresse du lien (ex. https://… ou /boutique) :'); if (url) document.execCommand('createLink', false, url); }
+    else document.execCommand(cmd, false, null);
+    sync();
+  });
+  area.addEventListener('input', sync);
+  if (textarea.form) textarea.form.addEventListener('submit', sync);
+});
+
 document.querySelectorAll('[data-confirm]').forEach(function (f) {
   f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
 });

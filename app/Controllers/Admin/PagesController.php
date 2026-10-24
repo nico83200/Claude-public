@@ -36,7 +36,7 @@ final class PagesController extends BaseController
         $data = [
             'title'            => mb_substr($title, 0, 190),
             'slug'             => $slug,
-            'content'          => (string) input('content'),
+            'content'          => \App\Services\RichText::render((string) input('content')),
             'meta_description' => mb_substr((string) input('meta_description'), 0, 300),
             'in_footer'        => input('in_footer') ? 1 : 0,
             'updated_at'       => now(),

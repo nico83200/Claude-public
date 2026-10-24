@@ -160,7 +160,7 @@ final class ProductsController extends BaseController
             'slug'              => $slug,
             'category_id'       => (int) input('category_id') ?: null,
             'short_description' => mb_substr((string) input('short_description'), 0, 300),
-            'description'       => (string) input('description'),
+            'description'       => \App\Services\RichText::render((string) input('description')),
             'price'             => to_cents(input('price')),
             'compare_at_price'  => input('compare_at_price') !== '' ? to_cents(input('compare_at_price')) : null,
             'images'            => json_encode($images, JSON_UNESCAPED_SLASHES),
