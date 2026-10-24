@@ -49,6 +49,7 @@ final class Cron
             return count($orders) . ' commande(s) vérifiée(s)';
         });
 
+        $step('Demandes d\'avis envoyées', static fn (): string => (string) Reviews::sendRequests());
         $step('Paniers abandonnés annulés', static fn (): string => (string) OrderService::cancelAbandoned());
         $step('Newsletter synchronisée vers Brevo', static fn (): string => (string) Newsletter::syncPending());
 

@@ -21,7 +21,7 @@ final class InstallController
                 'app_url'  => self::guessUrl(),
                 'db_host'  => 'localhost',
                 'db_port'  => '3306',
-                'shop_name' => 'Crinière & Co',
+                'shop_name' => 'Crinière Club',
             ],
         ], null);
     }

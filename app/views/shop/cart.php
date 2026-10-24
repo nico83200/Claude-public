@@ -1,55 +1,37 @@
-<section class="page-head">
-  <div class="container"><h1>Mon panier</h1></div>
+<section class="page-hero page-hero-sm">
+  <div class="container"><h1>Mon <em>panier</em></h1></div>
 </section>
 
 <section class="section section-tight">
   <div class="container">
     <?php if (isset($_GET['annule'])): ?>
-      <div class="flash flash-info">Paiement annulé : votre panier a été conservé.</div>
+      <div class="flash flash-info">Paiement annulé : votre panier vous attend toujours ♡</div>
     <?php endif; ?>
 
     <?php if (!$items): ?>
       <div class="empty">
-        <p>Votre panier est vide… pour l'instant !</p>
+        <p class="script-accent">votre panier est vide</p>
+        <p>Laissez-vous tenter par nos trois collections.</p>
         <a class="btn btn-primary" href="<?= e(url('boutique')) ?>">Découvrir la boutique</a>
       </div>
     <?php else: ?>
     <div class="cart-layout">
-      <form action="<?= e(url('panier/modifier')) ?>" method="post" class="cart-items" id="cart-form">
-        <?= csrf_field() ?>
-        <?php foreach ($items as $item): ?>
-          <div class="cart-item">
-            <a href="<?= e(url('produit/' . $item['slug'])) ?>" class="cart-item-media"><img src="<?= e(image_url($item['image'])) ?>" alt="" width="96" height="96"></a>
-            <div class="cart-item-info">
-              <a href="<?= e(url('produit/' . $item['slug'])) ?>" class="cart-item-name"><?= e($item['product_name']) ?></a>
-              <span class="muted"><?= e($item['variant_name']) ?></span>
-              <?php if ($item['text'] !== ''): ?><span class="personalized-tag">✦ <?= e($item['personalization_label']) ?> : <strong><?= e($item['text']) ?></strong></span><?php endif; ?>
-              <span class="muted small"><?= e(money($item['unit_price'])) ?> l'unité</span>
-            </div>
-            <div class="cart-item-qty">
-              <label class="sr-only" for="qty-<?= e($item['key']) ?>">Quantité</label>
-              <input id="qty-<?= e($item['key']) ?>" type="number" min="0" max="20" name="qty[<?= e($item['key']) ?>]" value="<?= (int) $item['qty'] ?>" data-autosubmit>
-              <button class="link-button small" type="submit" form="remove-<?= e($item['key']) ?>">Retirer</button>
-            </div>
-            <div class="cart-item-total"><?= e(money($item['line_total'])) ?></div>
+      <div>
+        <form action="<?= e(url('panier/modifier')) ?>" method="post" id="cart-form"><?= csrf_field() ?><noscript><button class="btn btn-ghost btn-sm" type="submit">Mettre à jour les quantités</button></noscript></form>
+        <div class="cart-items">
+          <?php foreach ($items as $item) { partial('line-item', ['item' => $item]); } ?>
+        </div>
+        <?php if ($boosters): ?>
+          <div class="boosters">
+            <h3><?= icon('truck', 18) ?> Plus que <?= e(money($remaining)) ?> pour la livraison offerte — complétez avec :</h3>
+            <div class="booster-list"><?php foreach ($boosters as $b) { partial('booster', ['product' => $b]); } ?></div>
           </div>
-        <?php endforeach; ?>
-        <noscript><button class="btn btn-ghost" type="submit">Mettre à jour</button></noscript>
-      </form>
-      <?php foreach ($items as $item): ?>
-        <form id="remove-<?= e($item['key']) ?>" action="<?= e(url('panier/supprimer')) ?>" method="post" hidden><?= csrf_field() ?><input type="hidden" name="key" value="<?= e($item['key']) ?>"></form>
-      <?php endforeach; ?>
-
-      <aside class="cart-summary">
-        <h2>Récapitulatif</h2>
-        <?php if ($remaining > 0): ?>
-          <div class="free-shipping">
-            <p>Plus que <strong><?= e(money($remaining)) ?></strong> pour la livraison offerte !</p>
-            <div class="progress"><span style="width: <?= min(100, (int) round($subtotal * 100 / max(1, (int) setting('shipping_free_threshold')))) ?>%"></span></div>
-          </div>
-        <?php elseif ((int) setting('shipping_free_threshold') > 0): ?>
-          <p class="free-shipping ok">🎉 Livraison standard offerte !</p>
         <?php endif; ?>
+      </div>
+
+      <aside class="summary-card" id="paiement">
+        <h2>Récapitulatif</h2>
+        <?php partial('shipping-progress', ['remaining' => $remaining, 'progress' => $progress]); ?>
         <dl>
           <dt>Sous-total</dt><dd><?= e(money($subtotal)) ?></dd>
           <dt>Livraison</dt><dd><?= $shipping[0]['price'] === 0 ? 'Offerte' : 'dès ' . e(money($shipping[0]['price'])) ?></dd>
@@ -59,12 +41,17 @@
 
         <form action="<?= e(url('commande')) ?>" method="post" class="checkout-form">
           <?= csrf_field() ?>
-          <label class="checkbox"><input type="checkbox" name="cgv" value="1" required> <span>J'ai lu et j'accepte les <a href="<?= e(url('page/cgv')) ?>" target="_blank">conditions générales de vente</a>, et je reconnais que les articles personnalisés ne sont pas soumis au droit de rétractation.</span></label>
-          <label class="checkbox"><input type="checkbox" name="newsletter" value="1"> <span>Je souhaite recevoir la newsletter (nouveautés, offres).</span></label>
-          <button class="btn btn-primary btn-lg btn-block" type="submit" <?= $stripeReady ? '' : 'disabled' ?>>Commander et payer</button>
-          <?php if (!$stripeReady): ?><p class="muted small">Paiement en ligne bientôt disponible.</p><?php endif; ?>
+          <label class="checkbox"><input type="checkbox" name="cgv" value="1" required> <span>J'accepte les <a href="<?= e(url('page/cgv')) ?>" target="_blank">conditions générales de vente</a> et je reconnais que les articles personnalisés ne sont pas soumis au droit de rétractation.</span></label>
+          <label class="checkbox"><input type="checkbox" name="newsletter" value="1"> <span>Je rejoins le club : nouveautés et offres par e-mail.</span></label>
+          <button class="btn btn-primary btn-lg btn-block" type="submit" <?= $stripeReady ? '' : 'disabled' ?>><?= icon('lock', 18) ?> Paiement sécurisé</button>
+          <?php if (!$stripeReady): ?><p class="muted small center">Paiement en ligne bientôt disponible.</p><?php endif; ?>
         </form>
-        <p class="payment-note">🔒 Paiement sécurisé par Stripe · CB · Apple Pay · Google Pay</p>
+        <p class="pay-methods center-flex" aria-label="Moyens de paiement"><span>CB</span><span>VISA</span><span>Mastercard</span><span>Apple Pay</span><span>Google Pay</span></p>
+        <ul class="summary-perks">
+          <li><?= icon('leaf', 16) ?> Imprimé rien que pour vous en Europe</li>
+          <li><?= icon('refresh', 16) ?> Un défaut ? Nous réimprimons gratuitement</li>
+          <li><?= icon('heart', 16) ?> Une question ? <a href="<?= e(url('contact')) ?>">Écrivez-nous</a></li>
+        </ul>
       </aside>
     </div>
     <?php endif; ?>

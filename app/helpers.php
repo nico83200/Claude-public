@@ -57,7 +57,9 @@ function image_url(?string $path): string
 
 function money(int|string|null $cents, string $currency = 'EUR'): string
 {
-    $amount = number_format(((int) $cents) / 100, 2, ',', "\u{202F}");
+    $cents = (int) $cents;
+    // « 69 € » plutôt que « 69,00 € » pour les montants ronds
+    $amount = number_format($cents / 100, $cents % 100 === 0 ? 0 : 2, ',', "\u{202F}");
     return $currency === 'EUR' ? $amount . "\u{00A0}€" : $amount . "\u{00A0}" . $currency;
 }
 
@@ -252,10 +254,83 @@ function fulfillment_status_label(string $status): string
     return [
         'none'      => '—',
         'pending'   => 'À transmettre',
+        'artwork'   => 'Portrait à réaliser',
         'draft'     => 'Brouillon Printful (à confirmer)',
         'submitted' => 'Transmise à Printful',
         'error'     => 'Erreur de transmission',
         'shipped'   => 'Expédiée',
         'canceled'  => 'Annulée',
     ][$status] ?? $status;
+}
+
+/** Échappe un texte et met en italique les passages entre *astérisques* (titres éditables). */
+function emphasis(?string $text): string
+{
+    return (string) preg_replace('/\*(.+?)\*/u', '<em>$1</em>', e($text));
+}
+
+/** Étoiles de notation accessibles (remplissage partiel en CSS). */
+function stars(float $rating, ?int $count = null, string $class = ''): string
+{
+    $label = 'Note : ' . number_format($rating, 1, ',', '') . ' sur 5' . ($count !== null ? ' (' . $count . ' avis)' : '');
+    $html = '<span class="stars ' . e($class) . '" style="--rating: ' . number_format($rating, 2, '.', '') . '" role="img" aria-label="' . e($label) . '"></span>';
+    if ($count !== null) {
+        $html .= ' <span class="stars-count">' . number_format($rating, 1, ',', '') . ' (' . $count . ')</span>';
+    }
+    return $html;
+}
+
+function add_business_days(int $timestamp, int $days): int
+{
+    while ($days > 0) {
+        $timestamp += 86400;
+        if ((int) date('N', $timestamp) < 6) {
+            $days--;
+        }
+    }
+    return $timestamp;
+}
+
+/** « jeu. 6 nov. » */
+function date_short_fr(int $timestamp): string
+{
+    $days = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+    $months = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+    return $days[(int) date('N', $timestamp) - 1] . ' ' . date('j', $timestamp) . ' ' . $months[(int) date('n', $timestamp) - 1];
+}
+
+/** Fenêtre de livraison estimée (fabrication + transport, en jours ouvrés). */
+function delivery_window(string $method = 'standard', int $extraDays = 0): array
+{
+    $prefix = $method === 'express' ? 'shipping_express_' : 'shipping_standard_';
+    $min = (int) setting('production_min', 2) + (int) setting($prefix . 'min', 4) + $extraDays;
+    $max = (int) setting('production_max', 5) + (int) setting($prefix . 'max', 8) + $extraDays;
+    return ['from' => date_short_fr(add_business_days(time(), $min)), 'to' => date_short_fr(add_business_days(time(), $max))];
+}
+
+/** Icônes SVG au trait (24 × 24), sans dépendance externe. */
+function icon(string $name, int $size = 20): string
+{
+    $paths = [
+        'bag'      => 'M6 8h12l-1 12H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2',
+        'search'   => 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14Zm5-2 5 5',
+        'truck'    => 'M3 6h11v10H3zM14 9h4l3 3.5V16h-7M7 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z',
+        'lock'     => 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+        'sparkle'  => 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z',
+        'heart'    => 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
+        'refresh'  => 'M20 11a8 8 0 0 0-14.7-4M4 4v4h4M4 13a8 8 0 0 0 14.7 4M20 20v-4h-4',
+        'gift'     => 'M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1.5-3-5-3.5-5-1.5S10 7 12 7Zm0 0c1.5-3 5-3.5 5-1.5S14 7 12 7Z',
+        'check'    => 'M5 12.5l4.5 4.5L19 7',
+        'close'    => 'M6 6l12 12M18 6 6 18',
+        'menu'     => 'M4 7h16M4 12h16M4 17h10',
+        'leaf'     => 'M5 19c0-8 6-14 14-14 0 8-6 14-14 14Zm0 0 7-7',
+        'ruler'    => 'M3 15 15 3l6 6L9 21Zm4-4 2 2m2-6 2 2m2-6 2 2',
+        'arrow'    => 'M5 12h14m-5-5 5 5-5 5',
+        'brush'    => 'M14 4l6 6-8.5 8.5a3 3 0 0 1-4.2 0l-1.8-1.8a3 3 0 0 1 0-4.2Zm-4 9 3 3M4 20l3-3',
+        'calendar' => 'M4 6h16v14H4zM4 10h16M8 3v4m8-4v4',
+        'star'     => 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z',
+        'copy'     => 'M9 9h11v11H9zM5 15H4V4h11v1',
+    ];
+    $d = $paths[$name] ?? $paths['sparkle'];
+    return '<svg class="icon icon-' . e($name) . '" width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' . $d . '"/></svg>';
 }

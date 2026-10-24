@@ -20,12 +20,23 @@ final class Cart
         return $_SESSION['cart'];
     }
 
-    public static function add(int $variantId, int $qty, string $text = ''): void
+    public static function add(int $variantId, int $qty, string $text = '', ?string $photo = null): void
     {
         $cart = &self::store();
-        $key = $variantId . ':' . substr(sha1($text), 0, 12);
+        $key = $variantId . ':' . substr(sha1($text . '|' . $photo), 0, 12);
         $current = $cart[$key]['qty'] ?? 0;
-        $cart[$key] = ['variant_id' => $variantId, 'qty' => min(self::MAX_QTY, $current + max(1, $qty)), 'text' => $text];
+        $cart[$key] = ['variant_id' => $variantId, 'qty' => min(self::MAX_QTY, $current + max(1, $qty)), 'text' => $text, 'photo' => $photo];
+    }
+
+    /** Vrai si la photo appartient à une ligne du panier de cette session (accès à la vignette). */
+    public static function ownsPhoto(string $photo): bool
+    {
+        foreach (self::store() as $line) {
+            if (($line['photo'] ?? null) === $photo) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function update(string $key, int $qty): void
@@ -85,6 +96,7 @@ final class Cart
             }
             $unit = (int) ($row['variant_price'] ?? $row['base_price']);
             $images = json_field($row['images']);
+            $cfg = $row['personalizable'] ? Personalizer::config($row['personalization']) : null;
             $items[] = [
                 'key'          => $key,
                 'variant_id'   => (int) $row['id'],
@@ -98,7 +110,9 @@ final class Cart
                 'qty'          => (int) $line['qty'],
                 'line_total'   => $unit * (int) $line['qty'],
                 'text'         => (string) ($line['text'] ?? ''),
-                'personalization_label' => $row['personalizable'] ? Personalizer::config($row['personalization'])['label'] : null,
+                'photo'        => $line['photo'] ?? null,
+                'mode'         => $cfg['mode'] ?? null,
+                'personalization_label' => $cfg['label'] ?? null,
             ];
         }
         return $items;

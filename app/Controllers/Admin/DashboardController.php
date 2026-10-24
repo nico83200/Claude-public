@@ -44,7 +44,7 @@ final class DashboardController extends BaseController
             'pageTitle'  => 'Tableau de bord',
             'stats'      => $stats,
             'daily'      => $daily,
-            'attention'  => Database::all("SELECT * FROM orders WHERE (fulfillment_status IN ('error','draft','pending') AND status IN ('paid','in_production')) ORDER BY id DESC LIMIT 10"),
+            'attention'  => Database::all("SELECT * FROM orders WHERE (fulfillment_status IN ('error','draft','pending','artwork') AND status IN ('paid','in_production')) ORDER BY id DESC LIMIT 10"),
             'recent'     => Database::all("SELECT * FROM orders WHERE paid_at IS NOT NULL ORDER BY id DESC LIMIT 8"),
             'topProducts' => Database::all('SELECT i.product_name, SUM(i.quantity) AS qty, SUM(i.quantity * i.unit_price) AS revenue FROM order_items i JOIN orders o ON o.id = i.order_id WHERE o.status IN ' . self::PAID . ' AND o.paid_at >= ? GROUP BY i.product_name ORDER BY qty DESC LIMIT 5', [$last30]),
             'checklist'  => self::checklist(),

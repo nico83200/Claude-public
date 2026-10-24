@@ -12,7 +12,7 @@ use App\Services\Stripe;
 
 final class SettingsController extends BaseController
 {
-    private const MONEY_KEYS = ['shipping_standard_price', 'shipping_free_threshold', 'shipping_express_price'];
+    private const MONEY_KEYS = ['shipping_standard_price', 'shipping_free_threshold', 'shipping_express_price', 'gift_max_price'];
 
     public function index(): void
     {

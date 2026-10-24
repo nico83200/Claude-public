@@ -23,116 +23,126 @@ function seed_database(string $shopName, string $contactEmail, bool $demo = true
 
 function seed_demo_catalog(): void
 {
-    $categories = [
-        ['Sweats & hoodies', 'sweats-hoodies', 'Des sweats doux et chauds pour les matinées à l\'écurie comme pour les soirées après concours.'],
-        ['T-shirts', 't-shirts', 'Des t-shirts en coton bio, imprimés à la demande, pour afficher votre discipline préférée.'],
-        ['Accessoires', 'accessoires', 'Casquettes, tote bags et indispensables du cavalier, à personnaliser au nom de votre cheval ou de votre écurie.'],
-        ['Déco & maison', 'deco-maison', 'Affiches, mugs et coussins pour faire entrer le monde du cheval à la maison.'],
+    $collections = [
+        ['Le Club', 'le-club', 'Vêtements et accessoires à l\'effigie de Crinière Club, le club des passionnées. À adopter tout de suite, pour l\'écurie comme pour la ville.', 'assets/img/products/club-hoodie.jpg'],
+        ['Mon cheval, ma fierté', 'mon-cheval-ma-fierte', 'Son nom, sa photo ou son portrait illustré : des créations uniques, imprimées rien que pour vous et votre cheval.', 'assets/img/products/cheval-mug-photo.jpg'],
+        ['Les petites attentions', 'les-petites-attentions', 'Mugs, affiches, carnets et petites douceurs : les cadeaux qui font plaisir aux cavalières.', 'assets/img/products/attentions-mug.jpg'],
     ];
     $catIds = [];
-    foreach ($categories as $pos => [$name, $slug, $desc]) {
+    foreach ($collections as $pos => [$name, $slug, $desc, $image]) {
         $catIds[$slug] = Database::insert('categories', [
-            'name' => $name, 'slug' => $slug, 'description' => $desc, 'position' => $pos, 'active' => 1,
+            'name' => $name, 'slug' => $slug, 'description' => $desc, 'image' => $image, 'position' => $pos, 'active' => 1,
         ]);
     }
 
-    $design = seed_demo_design();
-    $apparelSizes = ['S', 'M', 'L', 'XL', '2XL'];
+    $designs = seed_demo_designs();
+    $sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
+    $img = static fn (string ...$names) => array_map(static fn ($n) => 'assets/img/products/' . $n . '.jpg', $names);
+    $nameCfg = static fn (array $extra) => $extra + ['mode' => 'text', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => true, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a'];
+    $photoCfg = static fn (array $extra) => $extra + [
+        'mode' => 'photo', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => false, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a',
+        'photo_x' => 0.2, 'photo_y' => 0.08, 'photo_w' => 0.6, 'photo_h' => 0.62, 'photo_shape' => 'arch', 'x' => 0.5, 'y' => 0.84, 'size' => 0.1, 'max_width' => 0.7,
+    ];
 
     $products = [
-        [
-            'cat' => 'sweats-hoodies', 'name' => 'Sweat à capuche « Fer à cheval » personnalisé', 'price' => 5490, 'compare' => null,
-            'image' => 'hoodie-navy.svg', 'featured' => 1, 'personalizable' => 1, 'placement' => 'front',
-            'short' => 'Le sweat signature, brodé au nom de votre cheval.',
-            'desc' => '<p>Notre best-seller : un sweat à capuche épais (coton bio 80 % / polyester recyclé 20 %), avec le fer à cheval porte-bonheur et <strong>le nom de votre cheval</strong> imprimé sous le motif.</p><ul><li>Coupe unisexe, capuche doublée</li><li>Poche kangourou</li><li>Lavage à 30 °C sur l\'envers</li></ul><p>Fabriqué à la demande dans un atelier européen de notre partenaire d\'impression : pas de stock, pas de gaspillage.</p>',
-            'colors' => [['Bleu marine', '#1f2a44'], ['Sable', '#d9c7a7']], 'sizes' => $apparelSizes,
-            'pers' => ['label' => 'Nom de votre cheval', 'max_length' => 16, 'preview_y' => 0.6, 'preview_size' => 0.05, 'preview_color' => '#f5efe3'],
-        ],
-        [
-            'cat' => 'sweats-hoodies', 'name' => 'Sweat col rond « Horse Girl »', 'price' => 4490, 'compare' => 4990,
-            'image' => 'sweat-sand.svg', 'featured' => 1, 'personalizable' => 0, 'placement' => 'front',
-            'short' => 'Le sweat cosy pour toutes celles qui vivent au rythme des chevaux.',
-            'desc' => '<p>Sweat col rond molletonné, imprimé « Horse Girl » façon college. Parfait pour les journées de concours ou les dimanches au pré.</p><ul><li>Molleton gratté intérieur</li><li>Bords côtes aux poignets</li></ul>',
-            'colors' => [['Sable', '#d9c7a7'], ['Vert sapin', '#2f4a3a']], 'sizes' => $apparelSizes,
-        ],
-        [
-            'cat' => 't-shirts', 'name' => 'T-shirt « Dressage Club »', 'price' => 2790, 'compare' => null,
-            'image' => 'tshirt-cream.svg', 'featured' => 1, 'personalizable' => 0, 'placement' => 'front',
-            'short' => 'Un t-shirt en coton bio au style vintage pour les amoureux du dressage.',
-            'desc' => '<p>T-shirt 100 % coton biologique, coupe droite, impression DTG aux encres à base d\'eau.</p>',
-            'colors' => [['Crème', '#f3ead8'], ['Noir', '#1d1d1b']], 'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
-        ],
-        [
-            'cat' => 't-shirts', 'name' => 'T-shirt enfant « Mon poney et moi »', 'price' => 2290, 'compare' => null,
-            'image' => 'tshirt-kid.svg', 'featured' => 0, 'personalizable' => 1, 'placement' => 'front',
-            'short' => 'Le t-shirt des petits cavaliers, avec le prénom de leur poney.',
-            'desc' => '<p>T-shirt enfant en coton doux, avec le nom du poney imprimé sous l\'illustration. Idéal pour un cadeau d\'anniversaire ou de passage de Galop.</p>',
-            'colors' => [['Rose poudré', '#e8c4c0'], ['Bleu ciel', '#b9d3e6']], 'sizes' => ['4 ans', '6 ans', '8 ans', '10 ans', '12 ans'],
-            'pers' => ['label' => 'Prénom du poney', 'max_length' => 14, 'preview_y' => 0.58, 'preview_size' => 0.05, 'preview_color' => '#1f2a44'],
-        ],
-        [
-            'cat' => 'accessoires', 'name' => 'Casquette brodée « Écurie »', 'price' => 2990, 'compare' => null,
-            'image' => 'cap.svg', 'featured' => 1, 'personalizable' => 1, 'placement' => 'embroidery_front',
-            'short' => 'Une casquette brodée au nom de votre écurie ou de votre cheval.',
-            'desc' => '<p>Casquette 6 pans en sergé de coton, fermeture réglable en laiton. Broderie fine sur le devant.</p>',
-            'colors' => [['Bleu marine', '#1f2a44'], ['Kaki', '#6b6b4a']], 'sizes' => ['Taille unique'],
-            'pers' => ['label' => 'Texte brodé (écurie, cheval…)', 'max_length' => 14, 'preview_y' => 0.5, 'preview_size' => 0.045, 'preview_color' => '#f5efe3'],
-        ],
-        [
-            'cat' => 'accessoires', 'name' => 'Tote bag « Équitation »', 'price' => 2190, 'compare' => null,
-            'image' => 'tote.svg', 'featured' => 0, 'personalizable' => 0, 'placement' => 'front',
-            'short' => 'Le sac idéal pour transporter brosses, carottes et bombe.',
-            'desc' => '<p>Tote bag en toile de coton épaisse, anses longues, impression durable.</p>',
-            'colors' => [['Naturel', '#efe6d2']], 'sizes' => ['Unique'],
-        ],
-        [
-            'cat' => 'deco-maison', 'name' => 'Mug personnalisé « Propriété de… »', 'price' => 1890, 'compare' => null,
-            'image' => 'mug.svg', 'featured' => 1, 'personalizable' => 1, 'placement' => 'default',
-            'short' => 'Le mug du café avant la monte, au nom de votre cheval.',
-            'desc' => '<p>Mug en céramique 33 cl, compatible lave-vaisselle et micro-ondes, impression par sublimation.</p>',
-            'colors' => [['Blanc', '#ffffff']], 'sizes' => ['33 cl'],
-            'pers' => ['label' => 'Nom de votre cheval', 'max_length' => 16, 'preview_y' => 0.62, 'preview_size' => 0.05, 'preview_color' => '#1f2a44'],
-        ],
-        [
-            'cat' => 'deco-maison', 'name' => 'Affiche « Anatomie du cheval »', 'price' => 2490, 'compare' => null,
-            'image' => 'poster.svg', 'featured' => 1, 'personalizable' => 0, 'placement' => 'default',
-            'short' => 'Une planche d\'inspiration naturaliste sur papier mat premium.',
-            'desc' => '<p>Affiche imprimée sur papier mat 200 g/m², livrée roulée dans un tube protecteur. Cadre non inclus.</p>',
-            'colors' => [], 'sizes' => ['30 × 40 cm', '50 × 70 cm'], 'size_prices' => [2490, 3490],
-        ],
-        [
-            'cat' => 'deco-maison', 'name' => 'Coussin « Galop »', 'price' => 3490, 'compare' => null,
-            'image' => 'cushion.svg', 'featured' => 0, 'personalizable' => 0, 'placement' => 'front',
-            'short' => 'Un coussin tout doux pour un salon aux couleurs de l\'écurie.',
-            'desc' => '<p>Housse en polyester effet daim et garnissage inclus, impression recto verso.</p>',
-            'colors' => [], 'sizes' => ['45 × 45 cm'],
-        ],
+        // ---------------------------------------------------------------- Le Club
+        ['le-club', 'Sweat à capuche « Crinière Club »', 5490, null, $img('club-hoodie'), 1, 'back', $designs['logo'], null,
+            'Le sweat signature du club, logo brodé façon trait fin dans le dos.',
+            '<p>Notre pièce iconique : un sweat à capuche épais et tout doux, avec le logo Crinière Club dans le dos. Celui qu\'on ne quitte plus, de la sellerie au canapé.</p><ul><li>Coton bio 80 % / polyester recyclé 20 %, molleton gratté</li><li>Coupe unisexe, légèrement oversize</li><li>Lavage à 30 °C sur l\'envers</li></ul>',
+            [['Crème', '#F3EEE6'], ['Rose poudré', '#D9B8B3'], ['Bordeaux', '#5A2A3A']], $sizes],
+        ['le-club', 'Sweat « Le club des passionnées »', 4990, 5490, $img('club-sweat-rose'), 1, 'front', $designs['signature'], null,
+            'L\'écriture manuscrite du club sur un sweat rose poudré.',
+            '<p>Un sweat col rond à porter fièrement : « Le club des passionnées », notre signature, en écriture manuscrite.</p><ul><li>Molleton doux, bords côtes</li><li>Coupe unisexe</li></ul>',
+            [['Rose poudré', '#D9B8B3'], ['Crème', '#F3EEE6']], $sizes],
+        ['le-club', 'T-shirt « Crinière Club »', 2990, null, $img('club-tee'), 0, 'front', $designs['cheval'], null,
+            'Le cheval du club, discret, côté cœur.',
+            '<p>T-shirt en coton biologique avec le cheval Crinière Club côté cœur. Simple, élégant, parfait sous une veste d\'équitation.</p>',
+            [['Crème', '#F7F3EC'], ['Beige', '#E8DCCB']], ['XS', 'S', 'M', 'L', 'XL']],
+        ['le-club', 'Casquette brodée Crinière Club', 2990, null, $img('club-cap'), 1, 'embroidery_front', $designs['cheval'], null,
+            'Casquette délavée rose ancien, cheval brodé crème.',
+            '<p>Casquette 6 pans en coton délavé, cheval Crinière Club brodé. Fermeture réglable.</p>',
+            [['Rose ancien', '#B88A86'], ['Crème', '#F1EADF']], ['Taille unique']],
+        ['le-club', 'Tote bag « Crinière Club »', 2290, null, $img('club-tote'), 0, 'front', $designs['logo'], null,
+            'Le sac des cavalières, de l\'écurie au marché.',
+            '<p>Tote bag en toile de coton épaisse, anses longues, logo Crinière Club.</p>',
+            [['Naturel', '#F1EADF']], ['Unique']],
+        ['le-club', 'Gourde isotherme « Better with horses »', 2790, null, $img('club-gourde'), 0, 'default', $designs['better'], null,
+            'Garde l\'eau fraîche 24 h et chaude 12 h, même en concours.',
+            '<p>Gourde isotherme en inox double paroi, 500 ml. Écriture manuscrite « Better with horses ».</p>',
+            [], ['500 ml']],
+
+        // ---------------------------------------------------- Mon cheval, ma fierté
+        ['mon-cheval-ma-fierte', 'Sweat brodé au nom de votre cheval', 5990, null, $img('cheval-sweat-nom', 'cheval-sweat-nom-vierge'), 1, 'front', $designs['cheval'],
+            $nameCfg(['preview_image' => 'assets/img/products/cheval-sweat-nom-vierge.jpg', 'x' => 0.5, 'y' => 0.6, 'size' => 0.11, 'max_width' => 0.8, 'preview_x' => 0.5, 'preview_y' => 0.535, 'preview_size' => 0.083]),
+            'Son prénom en écriture manuscrite, sous le cheval du club.',
+            '<p>Le sweat qui raconte votre histoire : le cheval Crinière Club et <strong>le nom de votre cheval</strong> en écriture manuscrite. Un cadeau qui fait toujours son effet.</p><ul><li>Molleton épais, coupe unisexe</li><li>Aperçu en direct avant de commander</li></ul>',
+            [['Crème', '#F3EEE6'], ['Bordeaux', '#5A2A3A'], ['Beige', '#E8DCCB']], $sizes],
+        ['mon-cheval-ma-fierte', 'Mug photo de votre cheval', 2490, null, $img('cheval-mug-photo', 'cheval-mug-photo-vierge'), 1, 'default', $designs['cadre'],
+            $photoCfg(['preview_image' => 'assets/img/products/cheval-mug-photo-vierge.jpg', 'preview_photo_x' => 0.393, 'preview_photo_y' => 0.38, 'preview_photo_w' => 0.213, 'preview_photo_h' => 0.25, 'preview_x' => 0.5, 'preview_y' => 0.703, 'preview_size' => 0.057]),
+            'Sa plus belle photo, dans une arche élégante, avec son nom.',
+            '<p>Envoyez votre plus belle photo : nous la cadrons dans notre arche signature, avec le nom de votre cheval en écriture manuscrite.</p><ul><li>Céramique 33 cl, lave-vaisselle et micro-ondes</li><li>Conseil : une photo nette, prise de face ou de profil</li></ul>',
+            [], ['33 cl']],
+        ['mon-cheval-ma-fierte', 'Portrait illustré de votre cheval', 5990, null, $img('cheval-portrait', 'cheval-portrait-vierge'), 1, 'default', null,
+            ['mode' => 'portrait', 'label' => 'Nom à inscrire sous le portrait', 'max_length' => 18, 'required' => false, 'font' => 'script', 'uppercase' => false, 'extra_days' => 5,
+             'preview_image' => 'assets/img/products/cheval-portrait-vierge.jpg', 'preview_x' => 0.5, 'preview_y' => 0.668, 'preview_size' => 0.073],
+            'Un portrait au trait fin, dessiné à la main d\'après votre photo.',
+            '<p>Notre illustratrice dessine <strong>le portrait de votre cheval</strong> au trait fin, dans le style du club, à partir de votre photo. Imprimé sur papier d\'art mat, c\'est le cadeau le plus personnel qui soit.</p><ul><li>Création à la main sous 5 jours ouvrés</li><li>Papier mat premium 200 g/m², cadre non inclus</li></ul>',
+            [], ['30 × 40 cm', '50 × 70 cm'], [5990, 7990]],
+        ['mon-cheval-ma-fierte', 'Coussin photo de votre cheval', 4490, null, $img('cheval-coussin-photo', 'cheval-coussin-photo-vierge'), 0, 'front', $designs['cadre'],
+            $photoCfg(['preview_image' => 'assets/img/products/cheval-coussin-photo-vierge.jpg', 'preview_photo_x' => 0.37, 'preview_photo_y' => 0.327, 'preview_photo_w' => 0.26, 'preview_photo_h' => 0.327, 'preview_x' => 0.5, 'preview_y' => 0.718, 'preview_size' => 0.063]),
+            'Sa photo et son nom sur un coussin tout doux.',
+            '<p>Un coussin effet daim avec la photo de votre cheval dans notre arche signature. Garnissage inclus.</p>',
+            [], ['45 × 45 cm']],
+        ['mon-cheval-ma-fierte', 'Casquette au nom de votre cheval', 3490, null, $img('cheval-casquette-nom', 'cheval-casquette-nom-vierge'), 0, 'embroidery_front', $designs['texte'],
+            $nameCfg(['preview_image' => 'assets/img/products/cheval-casquette-nom-vierge.jpg', 'max_length' => 12, 'x' => 0.5, 'y' => 0.62, 'size' => 0.32, 'max_width' => 0.9, 'preview_x' => 0.5, 'preview_y' => 0.43, 'preview_size' => 0.077]),
+            'Son nom brodé en écriture manuscrite.',
+            '<p>Casquette en coton, avec le nom de votre cheval brodé en écriture manuscrite. Taille réglable.</p>',
+            [['Crème', '#F1EADF']], ['Taille unique']],
+
+        // --------------------------------------------------- Les petites attentions
+        ['les-petites-attentions', 'Mug « Le club des passionnées »', 1790, null, $img('attentions-mug'), 1, 'default', $designs['signature'], null,
+            'Le mug du café avant la monte.',
+            '<p>Mug en céramique 33 cl, écriture manuscrite « Le club des passionnées ».</p>',
+            [], ['33 cl']],
+        ['les-petites-attentions', 'Affiche « Anatomie du cheval »', 2490, null, $img('attentions-affiche'), 1, 'default', $designs['cheval'], null,
+            'Une planche naturaliste au trait fin pour la maison.',
+            '<p>Affiche sur papier mat 200 g/m², livrée roulée dans un tube. Cadre non inclus.</p>',
+            [], ['30 × 40 cm', '50 × 70 cm'], [2490, 3490]],
+        ['les-petites-attentions', 'Planche de stickers Crinière Club', 690, null, $img('attentions-stickers'), 0, 'default', $designs['logo'], null,
+            'Pour personnaliser coffre de sellerie, gourde et ordinateur.',
+            '<p>Planche de stickers vinyle résistants à l\'eau : cheval, cœur, fer à cheval, « Horse girl »…</p>',
+            [], ['Planche A5']],
+        ['les-petites-attentions', 'Carnet « Mes séances à cheval »', 1690, null, $img('attentions-carnet'), 0, 'default', $designs['cheval'], null,
+            'Pour noter progrès, exercices et petites victoires.',
+            '<p>Carnet à couverture rigide, 128 pages lignées. Le compagnon de chaque séance.</p>',
+            [], ['A5']],
     ];
 
     foreach ($products as $p) {
+        [$cat, $name, $price, $compare, $images, $featured, $placement, $design, $perso, $short, $desc, $colors, $variantSizes] = $p;
+        $sizePrices = $p[13] ?? [];
         $id = Database::insert('products', [
-            'category_id'       => $catIds[$p['cat']],
-            'name'              => $p['name'],
-            'slug'              => slugify($p['name']),
-            'short_description' => $p['short'],
-            'description'       => $p['desc'],
-            'price'             => $p['price'],
-            'compare_at_price'  => $p['compare'],
-            'images'            => json_encode(['assets/img/products/' . $p['image']]),
-            'featured'          => $p['featured'],
+            'category_id'       => $catIds[$cat],
+            'name'              => $name,
+            'slug'              => slugify($name),
+            'short_description' => $short,
+            'description'       => $desc,
+            'price'             => $price,
+            'compare_at_price'  => $compare,
+            'images'            => json_encode($images),
+            'featured'          => $featured,
             'active'            => 1,
-            'personalizable'    => $p['personalizable'],
-            'personalization'   => isset($p['pers']) ? json_encode($p['pers'], JSON_UNESCAPED_UNICODE) : null,
+            'personalizable'    => $perso ? 1 : 0,
+            'personalization'   => $perso ? json_encode($perso, JSON_UNESCAPED_UNICODE) : null,
             'design_file'       => $design,
-            'print_placement'   => $p['placement'],
+            'print_placement'   => $placement,
             'created_at'        => now(),
             'updated_at'        => now(),
         ]);
 
-        $colors = $p['colors'] ?: [[null, null]];
         $position = 0;
-        foreach ($colors as [$color, $hex]) {
-            foreach ($p['sizes'] as $i => $size) {
+        foreach ($colors ?: [[null, null]] as [$color, $hex]) {
+            foreach ($variantSizes as $i => $size) {
                 Database::insert('product_variants', [
                     'product_id' => $id,
                     'name'       => trim(($color ? $color . ' / ' : '') . $size),
@@ -140,7 +150,7 @@ function seed_demo_catalog(): void
                     'color_hex'  => $hex,
                     'size'       => $size,
                     'sku'        => 'DEMO-' . $id . '-' . (++$position),
-                    'price'      => $p['size_prices'][$i] ?? null,
+                    'price'      => $sizePrices[$i] ?? null,
                     'position'   => $position,
                     'active'     => 1,
                 ]);
@@ -149,62 +159,71 @@ function seed_demo_catalog(): void
     }
 }
 
-/** Visuel d'impression de démonstration (fer à cheval) généré avec GD — remplacez-le par vos créations. */
-function seed_demo_design(): ?string
+/** Copie les visuels d'impression de démonstration (PNG HD transparents) dans storage/designs. */
+function seed_demo_designs(): array
 {
-    if (!function_exists('imagecreatetruecolor')) {
-        return null;
+    $files = ['logo' => 'club-logo.png', 'signature' => 'club-signature.png', 'cheval' => 'cheval-nom.png', 'cadre' => 'cadre-photo.png', 'better' => 'better-with-horses.png'];
+    foreach ($files as $file) {
+        if (is_file(BASE_PATH . '/database/designs/' . $file)) {
+            copy(BASE_PATH . '/database/designs/' . $file, STORAGE_PATH . '/designs/' . $file);
+        }
     }
-    $w = 3600;
-    $h = 3600;
-    $img = imagecreatetruecolor($w, $h);
-    imagesavealpha($img, true);
-    imagefill($img, 0, 0, imagecolorallocatealpha($img, 0, 0, 0, 127));
-    $gold = imagecolorallocate($img, 184, 134, 74);
-    $clear = imagecolorallocatealpha($img, 0, 0, 0, 127);
-    [$cx, $cy, $outer, $inner, $legEnd] = [1800, 1350, 950, 640, 2150];
-    // Fer à cheval : anneau supérieur + deux branches arrondies, trous de clous.
-    imagefilledellipse($img, $cx, $cy, $outer * 2, $outer * 2, $gold);
-    imagefilledrectangle($img, $cx - $outer, $cy, $cx - $inner, $legEnd, $gold);
-    imagefilledrectangle($img, $cx + $inner, $cy, $cx + $outer, $legEnd, $gold);
-    $legWidth = $outer - $inner;
-    imagefilledellipse($img, $cx - $inner - (int) ($legWidth / 2), $legEnd, $legWidth, $legWidth, $gold);
-    imagefilledellipse($img, $cx + $inner + (int) ($legWidth / 2), $legEnd, $legWidth, $legWidth, $gold);
-    imagealphablending($img, false);
-    imagefilledellipse($img, $cx, $cy, $inner * 2, $inner * 2, $clear);
-    imagefilledrectangle($img, $cx - $inner, $cy, $cx + $inner, $h - 1, $clear);
-    $mid = (int) (($outer + $inner) / 2);
-    foreach ([195, 225, 255, 285, 315, 345] as $angle) {
-        $rad = deg2rad($angle);
-        imagefilledellipse($img, (int) ($cx + cos($rad) * $mid), (int) ($cy + sin($rad) * $mid), 80, 80, $clear);
+    // Support transparent pour les textes seuls (broderie du nom)
+    if (function_exists('imagecreatetruecolor')) {
+        $img = imagecreatetruecolor(3000, 1200);
+        imagesavealpha($img, true);
+        imagefill($img, 0, 0, imagecolorallocatealpha($img, 0, 0, 0, 127));
+        imagepng($img, STORAGE_PATH . '/designs/texte-seul.png');
+        imagedestroy($img);
+        $files['texte'] = 'texte-seul.png';
     }
-    imagealphablending($img, true);
-    $font = STORAGE_PATH . '/fonts/LiberationSerif-Bold.ttf';
-    if (function_exists('imagettftext') && is_file($font)) {
-        $navy = imagecolorallocate($img, 31, 42, 68);
-        $box = imagettfbbox(150, 0, $font, 'EST. ÉCURIE');
-        imagettftext($img, 150, 0, (int) ($w / 2 - ($box[2] - $box[0]) / 2), 2650, $navy, $font, 'EST. ÉCURIE');
-    }
-    $name = 'demo-fer-a-cheval.png';
-    imagepng($img, STORAGE_PATH . '/designs/' . $name, 6);
-    imagedestroy($img);
-    return $name;
+    return $files + ['texte' => null];
+}
+
+function seed_size_guide(): array
+{
+    return [
+        'slug' => 'guide-des-tailles', 'title' => 'Guide des tailles', 'in_footer' => 1,
+        'meta_description' => 'Trouvez la taille idéale pour nos sweats et t-shirts d\'équitation.',
+        'content' => <<<'HTML'
+<p>Nos coupes sont <strong>unisexes</strong>. Pour un tombé ajusté, prenez votre taille habituelle ; pour un style <em>oversize</em> (très tendance avec un legging d'équitation), prenez une taille au-dessus.</p>
+<h2>Sweats & t-shirts — mesures indicatives</h2>
+<table>
+<thead><tr><th>Taille</th><th>Demi-tour de poitrine (à plat)</th><th>Longueur</th><th>Équivalence femme</th></tr></thead>
+<tbody>
+<tr><td>XS</td><td>44 cm</td><td>66 cm</td><td>34</td></tr>
+<tr><td>S</td><td>48 cm</td><td>69 cm</td><td>36</td></tr>
+<tr><td>M</td><td>53 cm</td><td>71 cm</td><td>38–40</td></tr>
+<tr><td>L</td><td>58 cm</td><td>74 cm</td><td>42</td></tr>
+<tr><td>XL</td><td>63 cm</td><td>76 cm</td><td>44–46</td></tr>
+<tr><td>2XL</td><td>68 cm</td><td>79 cm</td><td>48</td></tr>
+</tbody>
+</table>
+<p>Astuce : mesurez à plat un sweat que vous aimez porter et comparez. Une hésitation ? <a href="/contact">Écrivez-nous</a>, on vous conseille avec plaisir.</p>
+HTML,
+    ];
 }
 
 function seed_pages(): array
 {
     return [
+        seed_size_guide(),
         [
             'slug' => 'a-propos', 'title' => 'Notre histoire', 'in_footer' => 1,
-            'meta_description' => 'Une boutique née aux écuries : vêtements et accessoires équestres imprimés à la demande.',
+            'meta_description' => 'Crinière Club, le club des passionnées : une marque qui réunit les cavalières autour de leur passion.',
             'content' => <<<'HTML'
-<p class="lead">{{shop_name}} est né d'une évidence : les cavalières et cavaliers méritent mieux que des produits génériques.</p>
+<p class="lead">{{shop_name}} est né d'une évidence : les cavalières forment une vraie communauté, et elles méritaient une marque qui leur ressemble.</p>
+<h2>Le club des passionnées</h2>
+<p>Un esprit lifestyle et communautaire, pour celles qui passent leurs week-ends en concours, leurs soirées à l'écurie et parlent de leur cheval comme d'un membre de la famille. Nos créations se portent à cheval comme en ville.</p>
+<h2>Trois collections</h2>
+<ul>
+<li><strong>Le Club</strong> : vêtements et accessoires à l'effigie de la marque, à adopter tout de suite.</li>
+<li><strong>Mon cheval, ma fierté</strong> : son nom, sa photo ou son portrait illustré sur des pièces uniques.</li>
+<li><strong>Les petites attentions</strong> : mugs, affiches et cadeaux pour faire plaisir aux cavalières.</li>
+</ul>
 <h2>Imprimé pour vous, pas pour un entrepôt</h2>
-<p>Chaque article est fabriqué <strong>uniquement après votre commande</strong>, dans les ateliers européens de notre partenaire d'impression. Pas de stock dormant, pas d'invendus détruits : seulement ce qui est réellement porté.</p>
-<h2>Votre cheval au cœur du design</h2>
-<p>Parce que chaque cheval est unique, la plupart de nos créations se personnalisent avec son nom, celui de votre poney ou de votre écurie.</p>
-<h2>Une petite équipe passionnée</h2>
-<p>Nous dessinons nos motifs entre deux séances de travail à pied et deux concours. Une question ? <a href="/contact">Écrivez-nous</a>, on répond toujours.</p>
+<p>Chaque article est fabriqué <strong>uniquement après votre commande</strong>, dans les ateliers européens de notre partenaire d'impression. Pas de stock dormant, pas d'invendus détruits.</p>
+<p>Une question, une idée de création ? <a href="/contact">Écrivez-nous</a>, on répond toujours.</p>
 HTML,
         ],
         [
@@ -231,7 +250,11 @@ HTML,
             'meta_description' => 'Tailles, personnalisation, délais, entretien : toutes les réponses à vos questions.',
             'content' => <<<'HTML'
 <h2>Comment fonctionne la personnalisation ?</h2>
-<p>Sur les articles marqués « Personnalisable », saisissez le nom de votre cheval dans le champ prévu : un aperçu s'affiche instantanément. Le texte est intégré au fichier d'impression et imprimé exactement comme saisi (pensez à vérifier l'orthographe !).</p>
+<p>Dans la collection « Mon cheval, ma fierté », saisissez le nom de votre cheval et/ou ajoutez sa photo : un aperçu s'affiche instantanément sur l'article. Le texte est imprimé exactement comme saisi (pensez à vérifier l'orthographe !).</p>
+<h2>Quelle photo choisir ?</h2>
+<p>Une photo nette et bien éclairée, prise de face ou de trois quarts, où la tête de votre cheval est bien visible. Les photos de téléphone conviennent parfaitement (format JPG ou PNG, 20 Mo maximum).</p>
+<h2>Comment se passe un portrait illustré ?</h2>
+<p>Notre illustratrice dessine le portrait de votre cheval à la main, au trait fin, d'après votre photo. Comptez 5 jours ouvrés de création en plus de la fabrication et de la livraison.</p>
 <h2>Comment choisir ma taille ?</h2>
 <p>Nos coupes sont unisexes et plutôt standard. En cas de doute entre deux tailles, prenez la plus grande pour un style confortable.</p>
 <h2>Quand vais-je recevoir ma commande ?</h2>

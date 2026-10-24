@@ -5,8 +5,9 @@
       <h1>Paiement en cours de validation</h1>
       <p class="lead">Votre paiement est en cours de traitement. Vous recevrez un e-mail de confirmation dès sa validation.</p>
     <?php else: ?>
-      <div class="success-icon" aria-hidden="true">✓</div>
-      <h1>Merci pour votre commande !</h1>
+      <div class="success-icon" aria-hidden="true"><?= icon('heart', 34) ?></div>
+      <p class="script-accent">bienvenue au club</p>
+      <h1>Merci pour votre <em>commande</em> !</h1>
       <p class="lead">Votre commande <strong><?= e($order['number']) ?></strong> est confirmée. Un e-mail récapitulatif a été envoyé à <strong><?= e($order['email']) ?></strong>.</p>
       <p>Votre article va être imprimé spécialement pour vous, puis expédié sous 2 à 5 jours ouvrés. Vous recevrez le lien de suivi dès l'expédition.</p>
     <?php endif; ?>

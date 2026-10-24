@@ -37,7 +37,7 @@ Installer::migrate($pdo, 'sqlite');
 Database::setPdo($pdo);
 App\Core\Migrator::markAllApplied();
 require BASE_PATH . '/database/seed.php';
-seed_database('Crinière & Co', $email, true);
+seed_database('Crinière Club', $email, true);
 Database::insert('admins', ['email' => $email, 'name' => 'Admin', 'password_hash' => password_hash($password, PASSWORD_DEFAULT), 'created_at' => now()]);
 Installer::writeConfig($config);
 Installer::lock();

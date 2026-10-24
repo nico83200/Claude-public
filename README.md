@@ -1,13 +1,18 @@
-# Crinière & Co — boutique équestre en impression à la demande
+# Crinière Club — le club des passionnées
 
-Boutique en ligne clé en main pour vendre des **vêtements, accessoires et objets déco sur le thème de l'équitation**, fabriqués **à la demande** par Printful et **personnalisables au nom du cheval**. Pensée pour un **hébergement mutualisé Hostinger** : PHP 8.1+ et MySQL, **aucune dépendance** (ni Composer ni Node), rien à compiler.
+Boutique de print on demand pour cavalières
+
+Boutique en ligne clé en main pour vendre des **vêtements, accessoires et cadeaux pour cavalières**, fabriqués **à la demande** par Printful, organisés en trois collections : **Le Club** (pièces à l'effigie de la marque), **Mon cheval, ma fierté** (nom, photo ou portrait illustré du cheval) et **Les petites attentions** (mugs, affiches, cadeaux). Pensée pour un **hébergement mutualisé Hostinger** : PHP 8.1+ et MySQL, **aucune dépendance** (ni Composer ni Node), rien à compiler.
 
 ## Ce qui est inclus
 
 | Domaine | Fonctionnalités |
 |---|---|
 | **Boutique** | Accueil, catalogue filtrable (catégories, recherche, tri, « personnalisables »), fiches produit avec couleurs, tailles et prix par variante, panier, suivi de commande client, pages éditables, contact, newsletter |
-| **Personnalisation** | Champ « nom du cheval » avec **aperçu en direct** sur la photo ; génération automatique du **fichier d'impression HD** (PNG) envoyé à Printful |
+| **Personnalisation** | Trois modes : **nom** (écriture manuscrite, aperçu en direct), **photo du cheval** (téléversée par la cliente, cadrée automatiquement dans une arche/un cercle, aperçu en direct) et **portrait illustré** (la commande attend que l'illustratrice dépose le portrait final dans l'admin). Fichier d'impression HD généré automatiquement pour Printful |
+| **Conversion** | Mini-panier latéral sans rechargement, barre de progression et suggestions pour atteindre la livraison offerte, date de livraison estimée, meilleures ventes et badges, filtre « idées cadeaux », guide des tailles, barre d'achat collante sur mobile, popup de bienvenue avec code promo, mention de paiement en 3× (Klarna) |
+| **Avis clients vérifiés** | Invitation par e-mail après livraison, formulaire sécurisé par commande, modération, étoiles sur les fiches et cartes, données structurées Google (étoiles dans les résultats) |
+| **Identité** | Charte Crinière Club : logo vectorisé, bordeaux / rose poudré / beige / taupe / crème, Playfair Display + Montserrat + Allura (polices hébergées sur le site, conformes RGPD) |
 | **Paiement — Stripe Checkout** | CB, Apple Pay, Google Pay (+ PayPal, Bancontact… activables dans Stripe), codes promo Stripe, livraison standard/express, livraison offerte dès un seuil, webhooks signés et idempotents, remboursements depuis l'admin |
 | **Production — Printful** | Transmission automatique de chaque commande payée (brouillon ou confirmation automatique), import des produits Printful en un clic, webhooks expédition/échec/annulation, relance automatique en cas d'échec |
 | **E-mails** | SMTP Hostinger : confirmation de commande, expédition avec suivi, alertes à l'admin (nouvelle commande, échec Printful, message de contact) |

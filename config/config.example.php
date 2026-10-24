@@ -8,7 +8,7 @@
  */
 return [
     'app' => [
-        'name'     => 'Crinière & Co',
+        'name'     => 'Crinière Club',
         'url'      => '',                        // URL publique sans slash final (renseignée par l'installateur)
         'env'      => 'production',              // production | local
         'debug'    => false,
@@ -52,7 +52,7 @@ return [
         'username'    => '',
         'password'    => '',
         'from_email'  => '',
-        'from_name'   => 'Crinière & Co',
+        'from_name'   => 'Crinière Club',
         'admin_email' => '',                      // reçoit les alertes (nouvelles commandes, erreurs)
     ],
 

@@ -13,7 +13,9 @@ use App\Core\Database;
 use App\Services\Cart;
 use App\Services\OrderService;
 use App\Services\Personalizer;
+use App\Services\Reviews;
 use App\Services\Stripe;
+use App\Services\Upload;
 
 $failures = 0;
 function check(string $label, bool $ok, string $detail = ''): void
@@ -30,6 +32,7 @@ if (config('db.driver') !== 'sqlite') {
 echo "Utilitaires\n";
 check('to_cents("29,90") = 2990', to_cents('29,90') === 2990);
 check('money(2990)', money(2990) === "29,90\u{00A0}€");
+check('money(6900) sans décimales', money(6900) === "69\u{00A0}€");
 check('slugify', slugify('Sweat « Fer à cheval » !') === 'sweat-fer-a-cheval');
 check('sanitize personnalisation', Personalizer::sanitize('<b>Tornado</b> 🐴 du Pré', 30) === 'bTornadob du Pré');
 
@@ -49,8 +52,8 @@ foreach (['mauvais secret' => [$sig, 'whsec_y'], 'expirée' => ['t=' . ($t - 100
 
 echo "Panier & commande\n";
 $_SESSION = [];
-$hoodie = Database::one("SELECT v.id FROM product_variants v JOIN products p ON p.id = v.product_id WHERE p.personalizable = 1 AND p.print_placement = 'front' ORDER BY v.id LIMIT 1");
-$poster = Database::one("SELECT v.id, v.price FROM product_variants v JOIN products p ON p.id = v.product_id WHERE v.price IS NOT NULL ORDER BY v.price DESC LIMIT 1");
+$hoodie = Database::one("SELECT v.id FROM product_variants v JOIN products p ON p.id = v.product_id WHERE p.personalizable = 1 AND p.print_placement = 'front' AND p.personalization LIKE '%\"mode\":\"text\"%' ORDER BY v.id LIMIT 1");
+$poster = Database::one("SELECT v.id, v.price FROM product_variants v JOIN products p ON p.id = v.product_id WHERE v.price IS NOT NULL AND p.personalizable = 0 ORDER BY v.price DESC LIMIT 1");
 Cart::add((int) $hoodie['id'], 2, 'Tornado');
 Cart::add((int) $hoodie['id'], 1, 'Tornado');
 Cart::add((int) $poster['id'], 1);
@@ -111,6 +114,69 @@ $old = OrderService::createFromCart(Cart::items());
 Database::update('orders', ['created_at' => date('Y-m-d H:i:s', time() - 72 * 3600)], 'id = :id', ['id' => $old['id']]);
 check('panier abandonné annulé', OrderService::cancelAbandoned() === 1 && OrderService::find((int) $old['id'])['status'] === 'canceled');
 
+echo "Photo du cheval & portrait illustré\n";
+$makeJpeg = static function (int $w, int $h): string {
+    $path = tempnam(sys_get_temp_dir(), 'photo');
+    $img = imagecreatetruecolor($w, $h);
+    imagefill($img, 0, 0, imagecolorallocate($img, 120, 90, 60));
+    imagejpeg($img, $path, 90);
+    return $path;
+};
+try {
+    Upload::customerPhoto(['error' => UPLOAD_ERR_OK, 'size' => 1000, 'tmp_name' => $makeJpeg(300, 300), 'name' => 'petite.jpg']);
+    check('photo trop petite refusée', false);
+} catch (RuntimeException) {
+    check('photo trop petite refusée', true);
+}
+$photo = Upload::customerPhoto(['error' => UPLOAD_ERR_OK, 'size' => 50000, 'tmp_name' => $makeJpeg(1600, 1200), 'name' => 'tornado.jpg']);
+check('photo enregistrée hors du web', Upload::customerPhotoPath($photo) !== null && !str_contains(Upload::customerPhotoPath($photo), '/public/'));
+check('nom de photo malveillant refusé', Upload::customerPhotoPath('../../config/config.php') === null);
+
+$mug = Database::one("SELECT p.*, v.id AS variant_id FROM products p JOIN product_variants v ON v.product_id = p.id WHERE p.slug = 'mug-photo-de-votre-cheval'");
+$cfg = Personalizer::config($mug['personalization']);
+$printFile = Personalizer::render($mug['design_file'], 'Tornado', $cfg, Upload::customerPhotoPath($photo));
+$im = imagecreatefrompng(PUBLIC_PATH . '/' . $printFile);
+$cx = (int) (($cfg['photo_x'] + $cfg['photo_w'] / 2) * imagesx($im));
+$cy = (int) (($cfg['photo_y'] + $cfg['photo_h'] * 0.75) * imagesy($im));
+$corner = imagecolorat($im, (int) ($cfg['photo_x'] * imagesx($im)) + 5, (int) ($cfg['photo_y'] * imagesy($im)) + 5);
+check('photo composée dans l\'arche', ((imagecolorat($im, $cx, $cy) >> 24) & 127) === 0);
+check('coins de l\'arche laissés transparents', (($corner >> 24) & 127) === 127);
+
+$portrait = Database::one("SELECT v.id FROM product_variants v JOIN products p ON p.id = v.product_id WHERE p.slug = 'portrait-illustre-de-votre-cheval' LIMIT 1");
+$_SESSION = [];
+Cart::add((int) $mug['variant_id'], 1, 'Tornado', $photo);
+Cart::add((int) $portrait['id'], 1, 'Tornado', $photo);
+check('photo rattachée au panier de la session', Cart::ownsPhoto($photo) && !Cart::ownsPhoto('20260101-' . str_repeat('a', 24) . '.jpg'));
+$order2 = OrderService::createFromCart(Cart::items());
+Database::update('orders', ['stripe_session_id' => 'cs_test_456'], 'id = :id', ['id' => $order2['id']]);
+$paid2 = OrderService::handleCheckoutCompleted(['id' => 'cs_test_456', 'payment_status' => 'paid', 'metadata' => ['order_id' => (string) $order2['id']],
+    'amount_total' => 8480, 'customer_details' => ['email' => 'lea@example.com', 'name' => 'Léa Martin'],
+    'shipping_details' => ['name' => 'Léa Martin', 'address' => ['line1' => '1 rue du Haras', 'postal_code' => '61310', 'city' => 'Le Pin-au-Haras', 'country' => 'FR']]]);
+check('commande en attente du portrait', $paid2['fulfillment_status'] === 'artwork');
+$portraitItem = Database::one("SELECT * FROM order_items WHERE order_id = ? AND personalization_mode = 'portrait'", [$order2['id']]);
+check('photo enregistrée sur l\'article commandé', $portraitItem['photo_file'] === $photo);
+Database::update('order_items', ['print_file_url' => 'https://exemple.fr/uploads/print/portrait.png'], 'id = :id', ['id' => $portraitItem['id']]);
+Database::query('UPDATE product_variants SET printful_variant_id = 1320 WHERE id IN (?, ?)', [$mug['variant_id'], $portrait['id']]);
+$payload2 = OrderService::buildPrintfulPayload(OrderService::find((int) $order2['id']));
+check('mug photo : fichier composé envoyé', str_contains($payload2['items'][0]['files'][0]['url'] ?? '', '/uploads/print/'));
+check('portrait : fichier de l\'illustratrice envoyé', ($payload2['items'][1]['files'][0]['url'] ?? '') === 'https://exemple.fr/uploads/print/portrait.png');
+check('délai de création ajouté à la date estimée', delivery_window('standard', 5) !== delivery_window());
+
+echo "Avis clients & conversion\n";
+Database::update('orders', ['status' => 'shipped', 'shipped_at' => date('Y-m-d H:i:s', time() - 20 * 86400)], 'id = :id', ['id' => $order2['id']]);
+check('demande d\'avis envoyée après livraison', Reviews::sendRequests() === 1 && Reviews::sendRequests() === 0);
+$order2 = OrderService::find((int) $order2['id']);
+check('avis accepté pour un article acheté', Reviews::submit($order2, (int) $mug['id'], 5, 'Léa M.', 'Magnifique', 'La photo de Tornado est superbe !'));
+check('un seul avis par article et par commande', !Reviews::submit($order2, (int) $mug['id'], 1, 'Léa M.', '', ''));
+check('avis refusé pour un article non acheté', !Reviews::submit($order2, (int) $hoodie['id'] + 999, 5, 'X', '', ''));
+check('avis en attente de modération', Reviews::summary((int) $mug['id'])['count'] === 0);
+Database::query("UPDATE reviews SET status = 'approved'");
+$summary = Reviews::summary((int) $mug['id']);
+check('note publiée après modération', $summary['count'] === 1 && $summary['avg'] === 5.0);
+check('note visible sur la fiche', App\Services\Catalog::product('mug-photo-de-votre-cheval')['rating_count'] === 1);
+$boost = App\Services\Catalog::shippingBoosters(4410, [(int) $mug['id']]);
+check('suggestions couvrant le montant manquant', $boost && min(array_column($boost, 'price')) >= 4410 && !in_array((int) $mug['id'], array_map('intval', array_column($boost, 'id')), true));
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
@@ -164,6 +230,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
+check('quatre migrations connues', count(App\Core\Migrator::files()) === 4);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

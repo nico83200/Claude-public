@@ -1,5 +1,5 @@
 <?php use App\Core\View; use App\Services\OrderService; ?>
-<h1 style="font-family:Georgia,serif;font-size:24px;color:#1f2a44;margin:0 0 12px;">Merci <?= e(explode(' ', (string) $order['customer_name'])[0]) ?> !</h1>
+<h1 style="font-family:Georgia,serif;font-size:24px;color:#5a2a3a;margin:0 0 12px;">Merci <?= e(explode(' ', (string) $order['customer_name'])[0]) ?> !</h1>
 <p>Votre commande <strong><?= e($order['number']) ?></strong> est confirmée. Chaque article va être imprimé spécialement pour vous dans notre atelier partenaire, puis expédié sous 2 à 5 jours ouvrés.</p>
 <?= View::capture('emails/_items', ['items' => $items, 'order' => $order]) ?>
 <p style="margin:0 0 4px;"><strong>Livraison à :</strong></p>

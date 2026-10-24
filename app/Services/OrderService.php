@@ -79,6 +79,8 @@ final class OrderService
                     'unit_price'   => $item['unit_price'],
                     'quantity'     => $item['qty'],
                     'personalization_text' => $item['text'] !== '' ? $item['text'] : null,
+                    'personalization_mode' => $item['mode'] ?? null,
+                    'photo_file'   => $item['photo'] ?? null,
                 ]);
             }
             return $id;
@@ -202,6 +204,22 @@ final class OrderService
             return false;
         }
 
+        // Portraits illustrés : la commande attend que l'illustration finale soit déposée.
+        $missing = (int) Database::value(
+            "SELECT COUNT(*) FROM order_items WHERE order_id = ? AND personalization_mode = 'portrait' AND (print_file_url IS NULL OR print_file_url = '')",
+            [$orderId]
+        );
+        if ($missing > 0) {
+            Database::update('orders', ['fulfillment_status' => 'artwork', 'updated_at' => now()], 'id = :id', ['id' => $orderId]);
+            self::event($orderId, 'fulfillment', $missing . ' portrait(s) illustré(s) à réaliser avant l\'envoi en fabrication.');
+            Mailer::notifyAdmin('🎨 Portrait à réaliser — commande ' . $order['number'], 'admin_alert', [
+                'title'   => 'Un portrait illustré vous attend',
+                'message' => 'Téléchargez la photo du cheval depuis la commande, réalisez le portrait puis déposez le fichier final (PNG haute définition) : la commande partira alors en fabrication.',
+                'order'   => $order,
+            ]);
+            return false;
+        }
+
         try {
             if (!Printful::configured()) {
                 throw new \RuntimeException('Printful n\'est pas configuré (jeton API manquant).');
@@ -268,8 +286,25 @@ final class OrderService
                 'name'         => trim($row['product_name'] . ' — ' . $row['variant_name'], ' —'),
             ];
             $text = (string) $row['personalization_text'];
+            $mode = (string) $row['personalization_mode'];
+            $placement = $row['print_placement'] ?: 'front';
 
-            if ($text !== '' && $row['design_file'] && $row['printful_variant_id']) {
+            if ($mode === 'portrait') {
+                if (!$row['print_file_url'] || !$row['printful_variant_id']) {
+                    throw new \RuntimeException("Portrait de « {$row['product_name']} » : fichier final ou ID variante Printful catalogue manquant.");
+                }
+                $line['variant_id'] = (int) $row['printful_variant_id'];
+                $line['files'] = [['type' => $placement, 'url' => $row['print_file_url']]];
+            } elseif ($mode === 'photo') {
+                $photo = Upload::customerPhotoPath($row['photo_file']);
+                if (!$photo || !$row['design_file'] || !$row['printful_variant_id']) {
+                    throw new \RuntimeException("« {$row['product_name']} » : photo client, visuel d'impression ou ID variante Printful catalogue manquant.");
+                }
+                $fileUrl = url(Personalizer::render($row['design_file'], $text, Personalizer::config($row['personalization']), $photo));
+                Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);
+                $line['variant_id'] = (int) $row['printful_variant_id'];
+                $line['files'] = [['type' => $placement, 'url' => $fileUrl]];
+            } elseif ($text !== '' && $row['design_file'] && $row['printful_variant_id']) {
                 $file = Personalizer::render($row['design_file'], $text, Personalizer::config($row['personalization']));
                 $fileUrl = url($file);
                 Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);

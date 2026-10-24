@@ -14,7 +14,21 @@
             <td>
               <strong><?= e($item['product_name']) ?></strong><br><span class="muted"><?= e($item['variant_name']) ?><?= $item['sku'] ? ' · ' . e($item['sku']) : '' ?></span>
               <?php if ($item['personalization_text']): ?><br><span class="perso">✦ « <?= e($item['personalization_text']) ?> »</span><?php endif; ?>
+              <?php if ($item['photo_file']): ?>
+                <div class="photo-row">
+                  <img src="<?= e(url('admin/photo/' . $item['photo_file'], ['vignette' => 1])) ?>" alt="Photo du cheval" width="72" height="72">
+                  <a class="small" href="<?= e(url('admin/photo/' . $item['photo_file'])) ?>">Télécharger la photo originale</a>
+                </div>
+              <?php endif; ?>
               <?php if ($item['print_file_url']): ?><br><a class="small" href="<?= e($item['print_file_url']) ?>" target="_blank">Fichier d'impression ↗</a><?php endif; ?>
+              <?php if ($item['personalization_mode'] === 'portrait' && in_array($order['status'], ['paid', 'in_production'], true) && in_array($order['fulfillment_status'], ['artwork', 'pending', 'error'], true)): ?>
+                <form method="post" action="<?= e(url('admin/commandes/' . $order['id'] . '/portrait/' . $item['id'])) ?>" enctype="multipart/form-data" class="artwork-form">
+                  <?= csrf_field() ?>
+                  <label class="small"><?= $item['print_file_url'] ? 'Remplacer le portrait' : '🎨 Déposer le portrait final' ?> (PNG/JPG HD)
+                    <input type="file" name="artwork" accept="image/png,image/jpeg" required></label>
+                  <button class="btn btn-sm btn-primary">Enregistrer</button>
+                </form>
+              <?php endif; ?>
             </td>
             <td><?= (int) $item['quantity'] ?> × <?= e(money($item['unit_price'])) ?></td>
             <td class="right"><?= e(money($item['unit_price'] * $item['quantity'])) ?></td>

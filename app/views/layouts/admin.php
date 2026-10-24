@@ -1,7 +1,8 @@
 <?php
 use App\Core\Database;
 $unread = (int) Database::value('SELECT COUNT(*) FROM contact_messages WHERE is_read = 0');
-$attention = (int) Database::value("SELECT COUNT(*) FROM orders WHERE fulfillment_status IN ('error','draft') AND status IN ('paid','in_production')");
+$pendingReviews = App\Services\Reviews::pendingCount();
+$attention = (int) Database::value("SELECT COUNT(*) FROM orders WHERE fulfillment_status IN ('error','draft','artwork') AND status IN ('paid','in_production')");
 $success = flash('success');
 $error = flash('error');
 $nav = [
@@ -9,6 +10,7 @@ $nav = [
     'admin/commandes'    => ['Commandes' . ($attention ? " <span class=\"pill\">$attention</span>" : ''), '/admin/commandes', false],
     'admin/produits'     => ['Produits', '/admin/produits', false],
     'admin/categories'   => ['Catégories', '/admin/categories', false],
+    'admin/avis'         => ['Avis clients' . ($pendingReviews ? " <span class=\"pill\">$pendingReviews</span>" : ''), '/admin/avis', false],
     'admin/clients'      => ['Clients & newsletter', '/admin/clients', false],
     'admin/messages'     => ['Messages' . ($unread ? " <span class=\"pill\">$unread</span>" : ''), '/admin/messages', false],
     'admin/pages'        => ['Pages', '/admin/pages', false],
@@ -28,7 +30,7 @@ $nav = [
 </head>
 <body class="admin">
 <aside class="sidebar">
-  <a class="sidebar-brand" href="<?= e(url('admin')) ?>"><?= e(setting('shop_name')) ?></a>
+  <a class="sidebar-brand" href="<?= e(url('admin')) ?>"><img src="<?= e(url('assets/img/brand/logo-creme.svg')) ?>" alt="<?= e(setting('shop_name')) ?>" height="44"></a>
   <nav>
     <?php foreach ($nav as $path => [$label, $prefix, $exact]): ?>
       <a href="<?= e(url($path)) ?>" class="<?= ($exact ? request_path() === $prefix : is_active($prefix)) ? 'active' : '' ?>"><?= $label ?></a>

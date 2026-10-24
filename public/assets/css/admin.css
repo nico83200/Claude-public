@@ -1,5 +1,5 @@
 /* Administration */
-:root { --navy: #1f2a44; --gold: #c89b5d; --bg: #f4f2ee; --line: #e3ded4; --muted: #6f6b63; --danger: #a23b2a; --ok: #2f6b46; }
+:root { --navy: #5a2a3a; --gold: #d9b8b3; --bg: #f4f2ee; --line: #e3ded4; --muted: #6f6b63; --danger: #a23b2a; --ok: #2f6b46; }
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #222; background: var(--bg); }
 a { color: var(--navy); }
@@ -130,3 +130,8 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
   .form-grid.four { grid-template-columns: 1fr 1fr; }
   .checks { columns: 1; }
 }
+.photo-row { display: flex; gap: .6rem; align-items: center; margin-top: .4rem; }
+.photo-row img { border-radius: 8px; object-fit: cover; }
+.artwork-form { margin-top: .6rem; padding: .6rem; background: #fbf5ef; border-radius: 8px; display: flex; gap: .5rem; align-items: end; flex-wrap: wrap; }
+.artwork-form label { margin: 0; flex: 1; min-width: 200px; }
+.status-artwork { background: #f3e3ef; color: #6b2d5a; }

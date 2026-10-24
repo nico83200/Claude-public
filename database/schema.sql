@@ -101,6 +101,7 @@ CREATE TABLE orders (
     tracking_number VARCHAR(190) NULL,
     tracking_url VARCHAR(500) NULL,
     newsletter_optin TINYINT(1) NOT NULL DEFAULT 0,
+    review_requested_at DATETIME NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     paid_at DATETIME NULL,
@@ -122,6 +123,8 @@ CREATE TABLE order_items (
     unit_price INT NOT NULL,
     quantity INT NOT NULL,
     personalization_text VARCHAR(100) NULL,
+    personalization_mode VARCHAR(20) NULL,
+    photo_file VARCHAR(190) NULL,
     print_file_url VARCHAR(500) NULL,
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -175,3 +178,19 @@ CREATE TABLE contact_messages (
     is_read TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE reviews (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    product_id INT UNSIGNED NOT NULL,
+    order_id INT UNSIGNED NULL,
+    author_name VARCHAR(80) NOT NULL,
+    rating TINYINT NOT NULL,
+    title VARCHAR(120) NULL,
+    body TEXT NULL,
+    verified TINYINT(1) NOT NULL DEFAULT 1,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_reviews_product ON reviews (product_id, status);
+CREATE INDEX idx_reviews_order ON reviews (order_id);

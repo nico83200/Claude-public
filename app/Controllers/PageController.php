@@ -73,14 +73,29 @@ final class PageController
 
     public function newsletter(): void
     {
+        $ajax = input('ajax') === '1';
         if ((string) input('website') !== '') {
+            $ajax ? json_response(['ok' => true]) : back('/');
+        }
+        $email = mb_strtolower(trim((string) input('email')));
+        $isNew = !Newsletter::exists($email);
+        if (input('consent') !== '1' || !Newsletter::subscribe($email, in_array(input('source'), ['popup', 'footer'], true) ? input('source') : 'footer')) {
+            $error = 'Merci d\'indiquer une adresse e-mail valide et d\'accepter de recevoir notre newsletter.';
+            $ajax ? json_response(['ok' => false, 'message' => $error], 422) : flash('error', $error);
             back('/');
         }
-        if (input('consent') !== '1' || !Newsletter::subscribe((string) input('email'))) {
-            flash('error', 'Merci d\'indiquer une adresse e-mail valide et d\'accepter de recevoir notre newsletter.');
-        } else {
-            flash('success', 'Bienvenue au club ! Vous recevrez bientôt nos nouveautés.');
+
+        $code = (string) setting('welcome_code');
+        if ($isNew && $code !== '') {
+            Mailer::sendTemplate($email, 'Votre cadeau de bienvenue 🎁', 'welcome', ['code' => $code, 'discount' => setting('welcome_discount')]);
         }
+        $message = $code !== ''
+            ? 'Bienvenue au club ! Votre code ' . setting('welcome_discount') . ' : ' . $code . ' (envoyé aussi par e-mail).'
+            : 'Bienvenue au club ! Vous recevrez bientôt nos nouveautés.';
+        if ($ajax) {
+            json_response(['ok' => true, 'message' => $message, 'code' => $code !== '' ? $code : null]);
+        }
+        flash('success', $message);
         back('/');
     }
 }

@@ -7,6 +7,7 @@ use App\Core\Database;
 use App\Services\OrderService;
 use App\Services\Printful;
 use App\Services\Stripe;
+use App\Services\Upload;
 
 final class OrdersController extends BaseController
 {
@@ -19,7 +20,7 @@ final class OrdersController extends BaseController
         if ($status === 'abandoned') {
             $where[] = "o.status IN ('pending','canceled') AND o.paid_at IS NULL";
         } elseif ($status === 'attention') {
-            $where[] = "o.fulfillment_status IN ('error','draft','pending') AND o.status IN ('paid','in_production')";
+            $where[] = "o.fulfillment_status IN ('error','draft','pending','artwork') AND o.status IN ('paid','in_production')";
         } elseif ($status !== '') {
             $where[] = 'o.status = ?';
             $params[] = $status;
@@ -165,6 +166,50 @@ final class OrdersController extends BaseController
             flash('error', $e->getMessage());
         }
         redirect('admin/commandes/' . $id);
+    }
+
+    /** Dépôt du portrait illustré final pour un article ; la commande part en fabrication quand tout est prêt. */
+    public function artwork(string $id, string $itemId): void
+    {
+        $order = $this->order($id);
+        $item = Database::one("SELECT * FROM order_items WHERE id = ? AND order_id = ? AND personalization_mode = 'portrait'", [(int) $itemId, $order['id']]) ?? abort(404);
+        $file = Upload::files('artwork')[0] ?? null;
+        if (!$file) {
+            flash('error', 'Choisissez le fichier du portrait (PNG ou JPG haute définition).');
+            redirect('admin/commandes/' . $id);
+        }
+        try {
+            $path = Upload::printFile($file);
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+            redirect('admin/commandes/' . $id);
+        }
+        Database::update('order_items', ['print_file_url' => url($path)], 'id = :id', ['id' => $item['id']]);
+        OrderService::event((int) $order['id'], 'fulfillment', 'Portrait illustré déposé pour « ' . $item['product_name'] . ' ».');
+
+        $missing = (int) Database::value("SELECT COUNT(*) FROM order_items WHERE order_id = ? AND personalization_mode = 'portrait' AND (print_file_url IS NULL OR print_file_url = '')", [$order['id']]);
+        if ($missing === 0 && $order['fulfillment_status'] === 'artwork') {
+            Database::update('orders', ['fulfillment_status' => 'pending'], 'id = :id', ['id' => $order['id']]);
+            OrderService::fulfill((int) $order['id'])
+                ? flash('success', 'Portrait enregistré : la commande est transmise à Printful.')
+                : flash('error', 'Portrait enregistré, mais la transmission a échoué : ' . (OrderService::find((int) $order['id'])['last_error'] ?? 'voir l\'historique'));
+        } else {
+            flash('success', 'Portrait enregistré.' . ($missing ? " Encore $missing portrait(s) à déposer." : ''));
+        }
+        redirect('admin/commandes/' . $id);
+    }
+
+    /** Photo originale envoyée par la cliente (pour l'illustratrice). */
+    public function photo(string $name): void
+    {
+        $path = Upload::customerPhotoPath($name) ?? abort(404);
+        if (input('vignette') === '1') {
+            \App\Controllers\CartController::sendThumbnail($path, 240);
+        }
+        header('Content-Type: image/jpeg');
+        header('Content-Disposition: attachment; filename="photo-cheval-' . $name . '"');
+        readfile($path);
+        exit;
     }
 
     public function note(string $id): void

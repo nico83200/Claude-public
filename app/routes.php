@@ -8,6 +8,7 @@ use App\Controllers\CronController;
 use App\Controllers\HomeController;
 use App\Controllers\OrderController;
 use App\Controllers\PageController;
+use App\Controllers\ReviewController;
 use App\Controllers\SeoController;
 use App\Controllers\ShopController;
 use App\Controllers\WebhookController;
@@ -23,6 +24,8 @@ $r->get('/produit/{slug}', [ShopController::class, 'product']);
 
 // Panier & paiement
 $r->get('/panier', [CartController::class, 'show']);
+$r->get('/panier/apercu', [CartController::class, 'drawer']);
+$r->get('/panier/photo/{name}', [CartController::class, 'photo']);
 $r->post('/panier/ajouter', [CartController::class, 'add']);
 $r->post('/panier/modifier', [CartController::class, 'update']);
 $r->post('/panier/supprimer', [CartController::class, 'remove']);
@@ -39,6 +42,10 @@ $r->get('/page/{slug}', [PageController::class, 'show']);
 $r->get('/contact', [PageController::class, 'contact']);
 $r->post('/contact', [PageController::class, 'sendContact']);
 $r->post('/newsletter', [PageController::class, 'newsletter']);
+
+// Avis clients (lien personnel envoyé après livraison)
+$r->get('/avis/{number}', [ReviewController::class, 'form']);
+$r->post('/avis/{number}', [ReviewController::class, 'submit']);
 
 // SEO & flux
 $r->get('/sitemap.xml', [SeoController::class, 'sitemap']);
@@ -65,6 +72,8 @@ $r->post('/admin/commandes/{id}/synchroniser', [Admin\OrdersController::class, '
 $r->post('/admin/commandes/{id}/expedier', [Admin\OrdersController::class, 'ship']);
 $r->post('/admin/commandes/{id}/rembourser', [Admin\OrdersController::class, 'refund']);
 $r->post('/admin/commandes/{id}/note', [Admin\OrdersController::class, 'note']);
+$r->post('/admin/commandes/{id}/portrait/{item}', [Admin\OrdersController::class, 'artwork']);
+$r->get('/admin/photo/{name}', [Admin\OrdersController::class, 'photo']);
 
 $r->get('/admin/produits', [Admin\ProductsController::class, 'index']);
 $r->get('/admin/produits/nouveau', [Admin\ProductsController::class, 'create']);
@@ -75,6 +84,9 @@ $r->get('/admin/produits/{id}', [Admin\ProductsController::class, 'edit']);
 $r->post('/admin/produits/{id}', [Admin\ProductsController::class, 'update']);
 $r->post('/admin/produits/{id}/supprimer', [Admin\ProductsController::class, 'destroy']);
 $r->get('/admin/produits/{id}/apercu-impression', [Admin\ProductsController::class, 'printPreview']);
+
+$r->get('/admin/avis', [Admin\ReviewsController::class, 'index']);
+$r->post('/admin/avis/{id}/{action}', [Admin\ReviewsController::class, 'action']);
 
 $r->get('/admin/categories', [Admin\CategoriesController::class, 'index']);
 $r->post('/admin/categories', [Admin\CategoriesController::class, 'save']);

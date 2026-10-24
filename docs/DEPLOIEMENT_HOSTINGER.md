@@ -65,6 +65,18 @@ Carte de test : `4242 4242 4242 4242`, date future, n'importe quel CVC.
    Chaque commande génère alors un fichier propre à la commande, envoyé à Printful avec l'ID catalogue de la variante (déjà renseigné par l'import).
 6. Par défaut, `auto_confirm = false` : les commandes arrivent chez Printful **en brouillon**, à confirmer depuis l'admin (bouton « Confirmer chez Printful ») ou depuis Printful. Une fois vos produits validés, passez `auto_confirm` à `true` pour un fonctionnement 100 % automatique. Pensez à enregistrer un moyen de paiement dans Printful (*Billing*).
 
+### Les trois modes de personnalisation
+
+Dans la fiche d'un produit personnalisable (*Admin › Produits*), section *Personnalisation* :
+
+| Mode | Ce que fait la cliente | Ce que fait le site |
+|---|---|---|
+| **Nom** | Saisit le nom de son cheval (aperçu en direct) | Écrit le nom sur votre visuel PNG (police Playfair, Allura ou Montserrat) |
+| **Photo** | Ajoute la photo de son cheval + son nom (aperçu en direct) | Cadre la photo dans la zone définie (rectangle, cercle ou arche) puis ajoute le nom |
+| **Portrait illustré** | Ajoute la photo de son cheval | La commande passe en « Portrait à réaliser » : vous téléchargez la photo, dessinez le portrait, déposez le PNG final dans la commande, et elle part automatiquement chez Printful |
+
+Pour chaque produit, renseignez le **visuel d'impression** (PNG transparent), les **zones** (valeurs de 0 à 1) et testez avec le bouton **Tester le fichier d'impression**. L'« image vierge » est la photo produit sans exemple de nom/photo, utilisée pendant l'aperçu en direct.
+
 ## 6. Tâche planifiée (cron)
 
 *Avancé › Tâches Cron* → type **PHP**, toutes les 15 minutes (`*/15 * * * *`) :
@@ -83,6 +95,10 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 - Facultatif dans `config.php` :
   - `brevo.api_key` et `brevo.list_id` (newsletter) ;
   - `analytics.ga4_id` et `analytics.meta_pixel_id` (chargés seulement après consentement).
+- *Réglages › Conversion* :
+  - créez dans Stripe un code promo de bienvenue (*Produits › Coupons*, ex. `BIENVENUE10`) et reportez-le dans « Code promo de bienvenue » : la popup et l'e-mail de bienvenue l'offrent aux nouvelles inscrites ;
+  - si vous activez Klarna dans Stripe, passez « Afficher paiement en 3x » à Oui.
+- *Réglages › Avis clients* : les invitations à laisser un avis partent automatiquement X jours après l'expédition ; les avis se modèrent dans *Admin › Avis clients* (ne refusez jamais un avis au seul motif qu'il est négatif).
 - Google Search Console : déclarez `https://votre-domaine.fr/sitemap.xml`.
 - Google Merchant Center : ajoutez le flux `https://votre-domaine.fr/flux/google-merchant.xml` (fiches produits gratuites dans Google Shopping).
 - Passez une **commande réelle de test** (avec un code promo à 100 % ou un petit montant), puis remboursez-la depuis l'admin.

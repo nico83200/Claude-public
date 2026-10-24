@@ -4,28 +4,60 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Database;
+use App\Core\View;
 use App\Services\Cart;
+use App\Services\Catalog;
 use App\Services\Personalizer;
+use App\Services\Upload;
 
 final class CartController
 {
-    public function show(): void
+    /** Données communes au panier et au mini-panier. */
+    public static function summary(int $suggestions = 3): array
     {
         $items = Cart::items();
         $subtotal = Cart::subtotal($items);
-        view('shop/cart', [
-            'pageTitle' => 'Mon panier',
-            'noindex'   => true,
+        $remaining = Cart::remainingForFreeShipping($subtotal);
+        $threshold = (int) setting('shipping_free_threshold', 0);
+        return [
             'items'     => $items,
             'subtotal'  => $subtotal,
             'shipping'  => Cart::shippingOptions($subtotal),
-            'remaining' => Cart::remainingForFreeShipping($subtotal),
+            'remaining' => $remaining,
+            'progress'  => $threshold > 0 ? min(100, (int) round($subtotal * 100 / $threshold)) : 100,
+            'boosters'  => $items && $remaining > 0 && $suggestions > 0
+                ? Catalog::shippingBoosters($remaining, array_column($items, 'product_id'), $suggestions)
+                : [],
+        ];
+    }
+
+    public function show(): void
+    {
+        view('shop/cart', self::summary() + [
+            'pageTitle'   => 'Mon panier',
+            'noindex'     => true,
             'stripeReady' => (string) config('stripe.secret_key') !== '',
         ]);
     }
 
+    /** Contenu du mini-panier latéral (chargé en AJAX). */
+    public function drawer(): void
+    {
+        header('Cache-Control: no-store');
+        echo View::capture('partials/cart-drawer', self::summary(2));
+    }
+
     public function add(): void
     {
+        $ajax = input('ajax') === '1';
+        $fail = static function (string $message, string $back) use ($ajax): never {
+            if ($ajax) {
+                json_response(['ok' => false, 'message' => $message], 422);
+            }
+            flash('error', $message);
+            back($back);
+        };
+
         $variantId = (int) input('variant_id');
         $row = Database::one(
             'SELECT v.id, p.personalizable, p.personalization, p.slug FROM product_variants v
@@ -33,26 +65,57 @@ final class CartController
             [$variantId]
         );
         if (!$row) {
-            flash('error', 'Cet article n\'est plus disponible.');
-            back('/boutique');
+            $fail('Cet article n\'est plus disponible.', '/boutique');
         }
 
         $text = '';
+        $photo = null;
         if ($row['personalizable']) {
             $cfg = Personalizer::config($row['personalization']);
             $text = Personalizer::sanitize((string) input('personalization', ''), (int) $cfg['max_length']);
             if ($text === '' && !empty($cfg['required'])) {
-                flash('error', 'Merci de renseigner : ' . $cfg['label'] . '.');
-                back('/produit/' . $row['slug']);
+                $fail('Merci de renseigner : ' . $cfg['label'] . '.', '/produit/' . $row['slug']);
+            }
+            if (Personalizer::needsPhoto($cfg)) {
+                $file = Upload::files('photo')[0] ?? null;
+                if (!$file) {
+                    $fail('Ajoutez la photo de votre cheval pour personnaliser cet article.', '/produit/' . $row['slug']);
+                }
+                try {
+                    $photo = Upload::customerPhoto($file);
+                } catch (\RuntimeException $e) {
+                    $fail($e->getMessage(), '/produit/' . $row['slug']);
+                }
             }
         }
 
-        Cart::add($variantId, (int) input('qty', 1), $text);
-        if (input('ajax') === '1') {
-            json_response(['ok' => true, 'count' => Cart::count()]);
+        Cart::add($variantId, (int) input('qty', 1), $text, $photo);
+        if ($ajax) {
+            json_response(['ok' => true, 'count' => Cart::count(), 'html' => View::capture('partials/cart-drawer', self::summary(2) + ['justAdded' => true])]);
         }
         flash('success', 'Article ajouté au panier.');
         redirect('panier');
+    }
+
+    /** Vignette de la photo d'une cliente, visible seulement depuis son propre panier. */
+    public function photo(string $name): void
+    {
+        $path = Upload::customerPhotoPath($name);
+        if (!$path || !Cart::ownsPhoto($name)) {
+            abort(404);
+        }
+        self::sendThumbnail($path);
+    }
+
+    public static function sendThumbnail(string $path, int $size = 400): never
+    {
+        $img = imagecreatefromjpeg($path);
+        $ratio = $size / max(imagesx($img), imagesy($img));
+        $thumb = $ratio < 1 ? imagescale($img, (int) round(imagesx($img) * $ratio), -1, IMG_BICUBIC) : $img;
+        header('Content-Type: image/jpeg');
+        header('Cache-Control: private, max-age=3600');
+        imagejpeg($thumb, null, 82);
+        exit;
     }
 
     public function update(): void

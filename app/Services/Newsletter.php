@@ -7,6 +7,11 @@ use App\Core\Database;
 
 final class Newsletter
 {
+    public static function exists(string $email): bool
+    {
+        return (bool) Database::value('SELECT id FROM newsletter_subscribers WHERE email = ?', [mb_strtolower(trim($email))]);
+    }
+
     public static function subscribe(string $email, string $source = 'footer'): bool
     {
         $email = mb_strtolower(trim($email));

@@ -11,12 +11,15 @@ final class Settings
 {
     public const DEFAULTS = [
         // Boutique
-        'shop_name'        => 'Crinière & Co',
-        'shop_tagline'     => 'L\'univers équestre imprimé à la demande',
-        'announcement'     => 'Livraison offerte dès 69 € d\'achat · Chaque pièce est imprimée pour vous',
-        'hero_title'       => 'Portez votre passion du cheval',
-        'hero_subtitle'    => 'Sweats, t-shirts, accessoires et déco d\'écurie, imprimés à la demande et personnalisables au nom de votre cheval.',
-        'home_meta_description' => 'Boutique en ligne de vêtements et accessoires d\'équitation imprimés à la demande : sweats, t-shirts, mugs, posters personnalisés au nom de votre cheval.',
+        'shop_name'        => 'Crinière Club',
+        'shop_tagline'     => 'Le club des passionnées',
+        'announcement'     => 'Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour vous',
+        'hero_eyebrow'     => 'Bienvenue au club',
+        'hero_title'       => 'Pour celles qui vivent *au rythme du galop*',
+        'hero_subtitle'    => 'Vêtements, accessoires et cadeaux pour cavalières, à porter fièrement ou à personnaliser avec le nom, la photo ou le portrait de votre cheval.',
+        'usp_marquee'      => 'Le club des passionnées|Son nom, sa photo, son portrait|Imprimé à la demande en Europe|Livraison offerte dès 69 €|Paiement 100 % sécurisé',
+        'home_meta_description' => 'Crinière Club, le club des passionnées : vêtements et accessoires d\'équitation pour cavalières, cadeaux personnalisés avec le nom, la photo ou le portrait de votre cheval.',
+        'gift_max_price'   => '3000',
         'contact_email'    => '',
         'contact_phone'    => '',
         'company_name'     => '[RAISON SOCIALE]',
@@ -43,10 +46,29 @@ final class Settings
         'shipping_express_min'    => '2',
         'shipping_express_max'    => '4',
 
+        // Délais de fabrication (jours ouvrés) pour la date de livraison estimée
+        'production_min'        => '2',
+        'production_max'        => '5',
+
+        // Popup de bienvenue (code promo à créer dans Stripe)
+        'popup_enabled'    => '1',
+        'popup_delay'      => '15',
+        'welcome_code'     => '',
+        'welcome_discount' => '-10 %',
+        'popup_title'      => 'Rejoignez le club ♡',
+
+        // Avis clients
+        'reviews_enabled'      => '1',
+        'review_request_days'  => '10',
+        'reviews_auto_publish' => '0',
+
+        // Paiement en plusieurs fois (à activer d'abord dans Stripe : Klarna)
+        'show_installments' => '0',
+
         // Commandes
         'order_prefix'          => 'CC',
         'pending_order_ttl_hours' => '48',
-        'packing_slip_message'  => 'Merci pour votre commande ! Votre article a été imprimé spécialement pour vous. À bientôt aux écuries 🐴',
+        'packing_slip_message'  => 'Merci d\'avoir rejoint le club ! Votre article a été imprimé rien que pour vous. À très vite aux écuries ♡ Crinière Club',
     ];
 
     private static ?array $cache = null;

@@ -13,3 +13,5 @@
 !/public/uploads/print/.gitkeep
 .DS_Store
 /vendor/
+/storage/customer-photos/*
+!/storage/customer-photos/.gitkeep

@@ -2,17 +2,23 @@
 <article class="product-card">
   <a href="<?= e(url('produit/' . $product['slug'])) ?>" class="product-card-link">
     <div class="product-card-media">
-      <img src="<?= e(image_url($product['main_image'])) ?>" alt="<?= e($product['name']) ?>" loading="lazy" width="600" height="600">
-      <?php if ($product['personalizable']): ?><span class="badge badge-gold">Personnalisable</span><?php endif; ?>
-      <?php if ($product['compare_at_price'] && $product['compare_at_price'] > $product['price']): ?><span class="badge badge-sale">-<?= (int) round(100 - $product['price'] * 100 / $product['compare_at_price']) ?> %</span><?php endif; ?>
+      <img src="<?= e(image_url($product['main_image'])) ?>" alt="<?= e($product['name']) ?>" loading="lazy" width="600" height="750">
+      <?php if ($product['hover_image']): ?><img class="img-hover" src="<?= e(image_url($product['hover_image'])) ?>" alt="" loading="lazy" width="600" height="750"><?php endif; ?>
+      <div class="badges">
+        <span><?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?></span>
+        <?php if ($product['discount']): ?><span class="pill pill-ink">-<?= (int) $product['discount'] ?> %</span><?php endif; ?>
+      </div>
+      <?php if ($product['personalizable']): ?><span class="pill perso-tag"><?= icon('sparkle', 13) ?> À personnaliser</span><?php endif; ?>
+      <span class="card-cta" aria-hidden="true"><?= icon('arrow', 18) ?></span>
     </div>
     <div class="product-card-body">
       <?php if (!empty($product['category_name'])): ?><span class="product-card-cat"><?= e($product['category_name']) ?></span><?php endif; ?>
       <h3><?= e($product['name']) ?></h3>
-      <p class="price">
-        <?= e(money($product['price'])) ?>
-        <?php if ($product['compare_at_price'] && $product['compare_at_price'] > $product['price']): ?><s><?= e(money($product['compare_at_price'])) ?></s><?php endif; ?>
-      </p>
+      <?php if ($product['rating_count'] > 0): ?><div class="rating-row"><?= stars($product['rating_avg'], $product['rating_count']) ?></div><?php endif; ?>
+      <div class="price-row">
+        <p class="price <?= $product['discount'] ? 'is-sale' : '' ?>"><?= e(money($product['price'])) ?></p>
+        <?php if ($product['discount']): ?><span class="price-old"><?= e(money($product['compare_at_price'])) ?></span><?php endif; ?>
+      </div>
     </div>
   </a>
 </article>

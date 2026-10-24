@@ -102,6 +102,18 @@ final class ProductsController extends BaseController
 
         $p = (array) ($_POST['perso'] ?? []);
         $personalization = [
+            'mode'          => array_key_exists((string) ($p['mode'] ?? ''), Personalizer::MODES) ? $p['mode'] : 'text',
+            'photo_shape'   => array_key_exists((string) ($p['photo_shape'] ?? ''), Personalizer::SHAPES) ? $p['photo_shape'] : 'arch',
+            'photo_x'       => self::ratio($p['photo_x'] ?? 0.2),
+            'photo_y'       => self::ratio($p['photo_y'] ?? 0.08),
+            'photo_w'       => self::ratio($p['photo_w'] ?? 0.6),
+            'photo_h'       => self::ratio($p['photo_h'] ?? 0.62),
+            'preview_photo_x' => self::ratio($p['preview_photo_x'] ?? 0.3),
+            'preview_photo_y' => self::ratio($p['preview_photo_y'] ?? 0.22),
+            'preview_photo_w' => self::ratio($p['preview_photo_w'] ?? 0.4),
+            'preview_photo_h' => self::ratio($p['preview_photo_h'] ?? 0.38),
+            'extra_days'    => max(0, min(30, (int) ($p['extra_days'] ?? 0))),
+            'preview_image' => mb_substr(trim((string) ($p['preview_image'] ?? '')), 0, 500),
             'label'         => mb_substr(trim((string) ($p['label'] ?? '')) ?: Personalizer::DEFAULTS['label'], 0, 80),
             'max_length'    => max(1, min(40, (int) ($p['max_length'] ?? 18))),
             'required'      => !empty($p['required']),
@@ -216,11 +228,32 @@ final class ProductsController extends BaseController
             abort(404, 'Aucun visuel d\'impression pour ce produit.');
         }
         $text = Personalizer::sanitize((string) input('texte', 'Tornado'), 40) ?: 'Tornado';
-        $file = Personalizer::render($product['design_file'], $text, Personalizer::config($product['personalization']));
+        $cfg = Personalizer::config($product['personalization']);
+        $file = Personalizer::render($product['design_file'], $text, $cfg, $cfg['mode'] === 'photo' ? self::samplePhoto() : null);
         header('Content-Type: image/png');
         header('Cache-Control: no-store');
         readfile(PUBLIC_PATH . '/' . $file);
         exit;
+    }
+
+    /** Photo d'exemple (dégradé et repère de cadrage) pour tester la zone photo. */
+    private static function samplePhoto(): string
+    {
+        $path = STORAGE_PATH . '/cache/photo-exemple.jpg';
+        if (!is_file($path)) {
+            $img = imagecreatetruecolor(1600, 1200);
+            for ($y = 0; $y < 1200; $y++) {
+                $c = imagecolorallocate($img, 140 + (int) ($y / 12), 122 + (int) ($y / 14), 107 + (int) ($y / 16));
+                imageline($img, 0, $y, 1599, $y, $c);
+            }
+            $light = imagecolorallocate($img, 249, 247, 243);
+            imagesetthickness($img, 6);
+            imageline($img, 800, 0, 800, 1199, $light);
+            imageline($img, 0, 600, 1599, 600, $light);
+            imageellipse($img, 800, 600, 700, 700, $light);
+            imagejpeg($img, $path, 85);
+        }
+        return $path;
     }
 
     public function printfulList(): void

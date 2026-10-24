@@ -53,12 +53,18 @@ $blankRows = $variants ? 2 : 4;
 
       <section class="card">
         <h2>Personnalisation</h2>
-        <label class="checkbox"><input type="checkbox" name="personalizable" value="1" <?= $product['personalizable'] ? 'checked' : '' ?>> Proposer un texte personnalisé (nom du cheval, de l'écurie…)</label>
+        <label class="checkbox"><input type="checkbox" name="personalizable" value="1" <?= $product['personalizable'] ? 'checked' : '' ?>> Article personnalisable (collection « Mon cheval, ma fierté »)</label>
+        <div class="form-grid">
+          <label>Type de personnalisation
+            <select name="perso[mode]"><?php foreach (App\Services\Personalizer::MODES as $k => $label): ?><option value="<?= $k ?>" <?= $perso['mode'] === $k ? 'selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
+          <label>Délai de fabrication en plus (jours ouvrés)<input name="perso[extra_days]" type="number" min="0" max="30" value="<?= (int) $perso['extra_days'] ?>"></label>
+        </div>
+        <p class="muted small">« Portrait illustré » : la cliente envoie sa photo, la commande attend que vous déposiez le portrait final (PNG HD) dans la commande avant de partir chez Printful. Pensez à prévoir le délai de création ci-dessus.</p>
         <div class="form-grid">
           <label>Libellé du champ <input name="perso[label]" value="<?= e($perso['label']) ?>"></label>
           <label>Longueur max. <input name="perso[max_length]" type="number" min="1" max="40" value="<?= (int) $perso['max_length'] ?>"></label>
           <label>Police
-            <select name="perso[font]"><option value="serif" <?= $perso['font'] === 'serif' ? 'selected' : '' ?>>Serif (élégante)</option><option value="sans" <?= $perso['font'] === 'sans' ? 'selected' : '' ?>>Sans-serif (moderne)</option></select></label>
+            <select name="perso[font]"><option value="serif" <?= $perso['font'] === 'serif' ? 'selected' : '' ?>>Playfair Display (élégante)</option><option value="script" <?= $perso['font'] === 'script' ? 'selected' : '' ?>>Allura (manuscrite)</option><option value="sans" <?= $perso['font'] === 'sans' ? 'selected' : '' ?>>Montserrat (moderne)</option></select></label>
           <label>Couleur d'impression <input name="perso[color]" type="color" value="<?= e($perso['color']) ?>"></label>
           <label class="checkbox"><input type="checkbox" name="perso[uppercase]" value="1" <?= $perso['uppercase'] ? 'checked' : '' ?>> En majuscules</label>
           <label class="checkbox"><input type="checkbox" name="perso[required]" value="1" <?= !empty($perso['required']) ? 'checked' : '' ?>> Obligatoire</label>
@@ -70,7 +76,21 @@ $blankRows = $variants ? 2 : 4;
           <label>Hauteur police <input name="perso[size]" value="<?= e($perso['size']) ?>"></label>
           <label>Largeur max. <input name="perso[max_width]" value="<?= e($perso['max_width']) ?>"></label>
         </div>
-        <h3>Aperçu sur la photo produit (valeurs de 0 à 1)</h3>
+        <h3>Zone de la photo du cheval (modes photo — valeurs de 0 à 1)</h3>
+        <div class="form-grid four">
+          <label>Forme <select name="perso[photo_shape]"><?php foreach (App\Services\Personalizer::SHAPES as $k => $label): ?><option value="<?= $k ?>" <?= $perso['photo_shape'] === $k ? 'selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
+          <label>Gauche <input name="perso[photo_x]" value="<?= e($perso['photo_x']) ?>"></label>
+          <label>Haut <input name="perso[photo_y]" value="<?= e($perso['photo_y']) ?>"></label>
+          <label>Largeur <input name="perso[photo_w]" value="<?= e($perso['photo_w']) ?>"></label>
+          <label>Hauteur <input name="perso[photo_h]" value="<?= e($perso['photo_h']) ?>"></label>
+          <label>Aperçu : gauche <input name="perso[preview_photo_x]" value="<?= e($perso['preview_photo_x']) ?>"></label>
+          <label>Aperçu : haut <input name="perso[preview_photo_y]" value="<?= e($perso['preview_photo_y']) ?>"></label>
+          <label>Aperçu : largeur <input name="perso[preview_photo_w]" value="<?= e($perso['preview_photo_w']) ?>"></label>
+          <label>Aperçu : hauteur <input name="perso[preview_photo_h]" value="<?= e($perso['preview_photo_h']) ?>"></label>
+        </div>
+        <label>Image vierge pour l'aperçu en direct (chemin ou URL, facultatif — sinon l'image principale)
+          <input name="perso[preview_image]" value="<?= e($perso['preview_image']) ?>" placeholder="assets/img/products/mon-article-vierge.jpg"></label>
+        <h3>Aperçu du texte sur la photo produit (valeurs de 0 à 1)</h3>
         <div class="form-grid four">
           <label>Centre X <input name="perso[preview_x]" value="<?= e($perso['preview_x']) ?>"></label>
           <label>Centre Y <input name="perso[preview_y]" value="<?= e($perso['preview_y']) ?>"></label>
