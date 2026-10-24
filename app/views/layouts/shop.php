@@ -48,9 +48,11 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
 
 <header class="site-header">
   <div class="container header-inner">
-    <div class="header-left">
-      <button class="icon-btn nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Menu"><?= icon('menu', 22) ?></button>
-      <nav id="main-nav" class="main-nav" aria-label="Navigation principale">
+    <button class="icon-btn nav-toggle" aria-expanded="false" aria-controls="main-nav" aria-label="Menu"><?= icon('menu', 22) ?></button>
+    <a class="brand" href="<?= e(url('/')) ?>" aria-label="<?= e($shopName) ?> — accueil">
+      <img class="logo-img" src="<?= e(url('assets/img/brand/logo.svg')) ?>" alt="<?= e($shopName) ?>" width="148" height="50">
+    </a>
+    <nav id="main-nav" class="main-nav" aria-label="Navigation principale">
         <a href="<?= e(url('boutique')) ?>" class="<?= is_active('/boutique') && empty($_GET) ? 'active' : '' ?>">Collection</a>
         <?php foreach ($navCategories as $c): ?>
           <a href="<?= e(url('categorie/' . $c['slug'])) ?>" class="<?= is_active('/categorie/' . $c['slug']) ? 'active' : '' ?>"><?= e($c['name']) ?></a>
@@ -60,11 +62,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
         <?php else: ?>
           <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>" class="nav-highlight"><?= icon('sparkle', 15) ?>Personnalisés</a>
         <?php endif; ?>
-      </nav>
-    </div>
-    <a class="brand" href="<?= e(url('/')) ?>" aria-label="<?= e($shopName) ?> — accueil">
-      <img class="logo-img" src="<?= e(url('assets/img/brand/logo.svg')) ?>" alt="<?= e($shopName) ?>" width="148" height="50">
-    </a>
+    </nav>
     <div class="header-actions">
       <button class="icon-btn" type="button" data-search-toggle aria-expanded="false" aria-controls="search-bar" aria-label="Rechercher"><?= icon('search', 21) ?></button>
       <a class="icon-btn" href="<?= e(url('panier')) ?>" data-cart-open aria-label="Panier (<?= $cartCount ?> article<?= $cartCount > 1 ? 's' : '' ?>)">
