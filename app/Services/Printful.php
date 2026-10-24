@@ -63,6 +63,12 @@ final class Printful
         return $this->request('GET', 'orders/' . rawurlencode($id))['result'];
     }
 
+    /** Annule une commande en brouillon ou en attente (refusé par Printful si elle est déjà en production). */
+    public function cancelOrder(string $id): array
+    {
+        return $this->request('DELETE', 'orders/' . rawurlencode($id))['result'] ?? [];
+    }
+
     public function confirmOrder(string $id): array
     {
         return $this->request('POST', 'orders/' . rawurlencode($id) . '/confirm')['result'];

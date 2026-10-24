@@ -112,7 +112,7 @@
         <dt>Payée</dt><dd><?= e(date_fr($order['paid_at'])) ?></dd>
         <?php if ($order['stripe_payment_intent']): ?><dt>Stripe</dt><dd><a href="https://dashboard.stripe.com/payments/<?= e($order['stripe_payment_intent']) ?>" target="_blank"><?= e(substr($order['stripe_payment_intent'], 0, 18)) ?>… ↗</a></dd><?php endif; ?>
       </dl>
-      <?php if ($order['stripe_payment_intent'] && $order['status'] !== 'refunded'): ?>
+      <?php if ($order['stripe_payment_intent'] && $order['status'] !== 'refunded' && $order['status'] !== 'canceled'): ?>
         <form method="post" action="<?= e(url('admin/commandes/' . $order['id'] . '/rembourser')) ?>" class="form-grid" data-confirm="Confirmer le remboursement via Stripe ?">
           <?= csrf_field() ?>
           <label>Montant (vide = total) <input name="amount" placeholder="<?= e(number_format($order['total'] / 100, 2, ',', '')) ?>"></label>
@@ -120,5 +120,38 @@
         </form>
       <?php endif; ?>
     </section>
+
+    <?php if (OrderService::canCancel($order) || OrderService::canDelete($order)): ?>
+    <section class="card card-danger">
+      <h2>Annuler ou supprimer</h2>
+      <?php if (OrderService::canCancel($order)): ?>
+        <details <?= $order['paid_at'] ? '' : 'open' ?>>
+          <summary class="btn btn-danger">Annuler la commande</summary>
+          <form method="post" action="<?= e(url('admin/commandes/' . $order['id'] . '/annuler')) ?>" class="mt" data-confirm="Annuler la commande <?= e($order['number']) ?> ?">
+            <?= csrf_field() ?>
+            <?php if ($order['printful_order_id'] && in_array($order['fulfillment_status'], ['draft', 'submitted'], true)): ?>
+              <p class="small">La commande sera aussi annulée chez Printful (impossible si elle est déjà en production).</p>
+            <?php endif; ?>
+            <?php if ($order['paid_at'] && $order['stripe_payment_intent'] && $order['status'] !== 'refunded'): ?>
+              <label class="checkbox"><input type="checkbox" name="refund" value="1" checked> Rembourser intégralement la cliente (<?= e(money($order['total'])) ?>) via Stripe</label>
+            <?php endif; ?>
+            <?php if ($order['paid_at'] && $order['email']): ?>
+              <label class="checkbox"><input type="checkbox" name="notify" value="1" checked> Prévenir la cliente par e-mail</label>
+            <?php endif; ?>
+            <label>Motif (facultatif, inclus dans l'e-mail) <input name="reason" maxlength="300" placeholder="Ex. : à votre demande, rupture chez notre atelier…"></label>
+            <button class="btn btn-danger">Confirmer l'annulation</button>
+          </form>
+        </details>
+      <?php endif; ?>
+      <?php if (OrderService::canDelete($order)): ?>
+        <form method="post" action="<?= e(url('admin/commandes/' . $order['id'] . '/supprimer')) ?>" class="mt" data-confirm="Supprimer définitivement la commande <?= e($order['number']) ?> ? Cette action est irréversible.">
+          <?= csrf_field() ?><button class="btn btn-danger">Supprimer définitivement</button>
+        </form>
+        <p class="muted small">Commande jamais payée : elle peut être supprimée.</p>
+      <?php elseif ($order['paid_at']): ?>
+        <p class="muted small">Une commande payée ne peut pas être supprimée : la loi impose de conserver les ventes 10 ans. Annulez-la : elle n'apparaîtra plus dans les commandes à traiter.</p>
+      <?php endif; ?>
+    </section>
+    <?php endif; ?>
   </div>
 </div>

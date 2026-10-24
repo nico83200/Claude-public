@@ -163,3 +163,11 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 .rte-area a { color: #5a2a3a; }
 .rte-area table { border-collapse: collapse; } .rte-area td, .rte-area th { border: 1px solid #eee; padding: .3rem .5rem; }
 .rte .rte-source { border: 0; border-radius: 0; width: 100%; min-height: 300px; margin: 0; }
+
+/* Annulation / suppression de commande */
+.card-danger { border: 1px solid #ecc9c2; }
+.card-danger summary { list-style: none; display: inline-flex; cursor: pointer; }
+.card-danger summary::-webkit-details-marker { display: none; }
+.card-danger .checkbox { display: flex; gap: .5rem; align-items: flex-start; font-weight: 400; }
+.card-danger .checkbox input { width: auto; margin-top: .2rem; }
+form.inline.right { float: right; }

@@ -70,4 +70,8 @@ if ($method === 'POST' && $path === '/stripe/promotion_codes') {
     $record(['route' => 'stripe.promo', 'fields' => $_POST]);
     $json(['id' => 'promo_' . ($_POST['code'] ?? ''), 'code' => $_POST['code'] ?? '']);
 }
+if ($method === 'POST' && $path === '/stripe/refunds') {
+    $record(['route' => 'stripe.refund', 'fields' => $_POST]);
+    $json(['id' => 're_test', 'status' => 'succeeded']);
+}
 $json(['error' => 'not found: ' . $method . ' ' . $path], 404);

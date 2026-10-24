@@ -474,6 +474,101 @@ final class OrderService
         }
     }
 
+    /** Une commande peut être annulée tant qu'elle n'est pas expédiée. */
+    public static function canCancel(array $order): bool
+    {
+        return !in_array($order['status'], ['shipped', 'canceled'], true) && $order['fulfillment_status'] !== 'shipped';
+    }
+
+    /** Seules les commandes jamais payées peuvent être supprimées (les ventes se conservent 10 ans en comptabilité). */
+    public static function canDelete(array $order): bool
+    {
+        return $order['paid_at'] === null && in_array($order['status'], ['pending', 'canceled'], true);
+    }
+
+    /**
+     * Annule une commande : annulation chez Printful si elle y a été transmise, remboursement Stripe
+     * intégral si demandé, e-mail à la cliente si demandé. Lève une exception si Printful refuse
+     * (commande déjà en production) : rien n'est alors modifié.
+     */
+    public static function cancel(int $orderId, bool $refund, bool $notify, string $reason = ''): array
+    {
+        $order = self::find($orderId);
+        if (!$order || !self::canCancel($order)) {
+            throw new \RuntimeException('Cette commande ne peut plus être annulée (déjà expédiée ou annulée).');
+        }
+        $notes = [];
+        if ($order['printful_order_id'] && in_array($order['fulfillment_status'], ['draft', 'submitted'], true)) {
+            try {
+                Printful::fromConfig()->cancelOrder((string) $order['printful_order_id']);
+                $notes[] = 'annulée chez Printful';
+            } catch (\Throwable $e) {
+                throw new \RuntimeException('Printful refuse l\'annulation (commande sans doute déjà en production) : ' . $e->getMessage() . ' — contactez le support Printful, puis réessayez.');
+            }
+        }
+        if ($order['status'] === 'pending' && $order['stripe_session_id']) {
+            try {
+                Stripe::fromConfig()->expireCheckoutSession((string) $order['stripe_session_id']);
+            } catch (\Throwable) {
+                // session déjà expirée ou terminée
+            }
+        }
+        $refunded = false;
+        if ($refund && $order['stripe_payment_intent'] && $order['paid_at'] && $order['status'] !== 'refunded') {
+            try {
+                Stripe::fromConfig()->refund((string) $order['stripe_payment_intent']);
+                $refunded = true;
+                $notes[] = 'remboursée intégralement (' . money($order['total']) . ')';
+            } catch (\Throwable $e) {
+                self::event($orderId, 'error', 'Remboursement Stripe impossible lors de l\'annulation : ' . $e->getMessage());
+                $notes[] = 'REMBOURSEMENT ÉCHOUÉ : ' . $e->getMessage();
+            }
+        }
+        Database::update('orders', [
+            'status'             => $refunded || $order['status'] === 'refunded' ? 'refunded' : 'canceled',
+            'fulfillment_status' => $order['fulfillment_status'] === 'none' ? 'none' : 'canceled',
+            'updated_at'         => now(),
+        ], 'id = :id', ['id' => $orderId]);
+        self::event($orderId, 'canceled', 'Commande annulée par l\'administration' . ($notes ? ' : ' . implode(', ', $notes) : '') . ($reason !== '' ? '. Motif : ' . $reason : '') . '.');
+
+        $order = self::find($orderId);
+        if ($notify && $order['email'] && $order['paid_at']) {
+            Mailer::sendTemplate($order['email'], 'Annulation de votre commande ' . $order['number'], 'order_canceled', [
+                'order'    => $order,
+                'items'    => self::items($orderId),
+                'refunded' => $refunded || $order['status'] === 'refunded',
+                'reason'   => $reason,
+            ]);
+            self::event($orderId, 'email', 'E-mail d\'annulation envoyé à la cliente.');
+        }
+        return $order;
+    }
+
+    /** Supprime définitivement une commande jamais payée (et ses lignes, son historique). */
+    public static function delete(int $orderId): void
+    {
+        $order = self::find($orderId);
+        if (!$order || !self::canDelete($order)) {
+            throw new \RuntimeException('Seules les commandes jamais payées (paniers abandonnés, annulées avant paiement) peuvent être supprimées.');
+        }
+        Database::query('DELETE FROM order_events WHERE order_id = ?', [$orderId]);
+        Database::query('DELETE FROM order_items WHERE order_id = ?', [$orderId]);
+        Database::query('DELETE FROM orders WHERE id = ?', [$orderId]);
+    }
+
+    /** Supprime les commandes jamais payées de plus de $days jours. */
+    public static function purgeAbandoned(int $days = 7): int
+    {
+        $ids = array_column(Database::all(
+            "SELECT id FROM orders WHERE paid_at IS NULL AND status IN ('pending', 'canceled') AND created_at < ?",
+            [date('Y-m-d H:i:s', time() - $days * 86400)]
+        ), 'id');
+        foreach ($ids as $id) {
+            self::delete((int) $id);
+        }
+        return count($ids);
+    }
+
     public static function handleSessionExpired(array $session): void
     {
         $order = self::orderForSession($session);

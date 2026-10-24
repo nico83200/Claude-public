@@ -373,6 +373,31 @@ echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
 Config::set('stripe.secret_key', 'sk_test_fake');
+
+echo "Annulation et suppression de commande\n";
+$toCancel = Database::one("SELECT * FROM orders WHERE paid_at IS NOT NULL AND status IN ('paid', 'in_production') AND printful_order_id IS NULL AND fulfillment_status <> 'shipped' ORDER BY id LIMIT 1");
+if (!$toCancel) {
+    $toCancel = Database::one("SELECT * FROM orders WHERE paid_at IS NOT NULL ORDER BY id LIMIT 1");
+    Database::update('orders', ['status' => 'paid', 'fulfillment_status' => 'pending', 'printful_order_id' => null, 'stripe_payment_intent' => 'pi_test_cancel'], 'id = :id', ['id' => $toCancel['id']]);
+} elseif (!$toCancel['stripe_payment_intent']) {
+    Database::update('orders', ['stripe_payment_intent' => 'pi_test_cancel'], 'id = :id', ['id' => $toCancel['id']]);
+}
+file_put_contents($aiLog, '[]');
+$canceled = OrderService::cancel((int) $toCancel['id'], true, true, 'à votre demande');
+$refunds = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true) ?: [], fn ($c) => $c['route'] === 'stripe.refund'));
+check('commande payée annulée et remboursée', $canceled['status'] === 'refunded' && count($refunds) === 1 && $refunds[0]['fields']['payment_intent'] !== '');
+check('annulation tracée dans l\'historique', str_contains(implode(' ', array_column(OrderService::events((int) $toCancel['id']), 'message')), 'Motif : à votre demande'));
+check('e-mail d\'annulation envoyé', str_contains((string) file_get_contents(STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log'), 'Annulation de votre commande ' . $toCancel['number']));
+$refused = false;
+try { OrderService::delete((int) $toCancel['id']); } catch (RuntimeException) { $refused = true; }
+check('commande payée non supprimable', $refused && OrderService::find((int) $toCancel['id']) !== null);
+$cancelAgain = false;
+try { OrderService::cancel((int) $toCancel['id'], true, false); } catch (RuntimeException) { $cancelAgain = true; }
+check('pas de double annulation', $cancelAgain || OrderService::find((int) $toCancel['id'])['status'] === 'refunded');
+$abandonedId = Database::insert('orders', ['number' => 'TEST-ABANDON', 'access_token' => 'x', 'status' => 'pending', 'subtotal' => 1000, 'total' => 1000, 'created_at' => date('Y-m-d H:i:s', time() - 9 * 86400), 'updated_at' => now()]);
+Database::insert('order_items', ['order_id' => $abandonedId, 'product_name' => 'Test', 'variant_name' => 'Test', 'quantity' => 1, 'unit_price' => 1000]);
+check('paniers abandonnés de plus de 7 jours supprimés', OrderService::purgeAbandoned(7) >= 1 && OrderService::find($abandonedId) === null && !Database::value('SELECT COUNT(*) FROM order_items WHERE order_id = ?', [$abandonedId]));
+
 file_put_contents($aiLog, '[]');
 App\Services\Newsletter::subscribe('club1@example.com', 'popup');
 $code1 = App\Services\WelcomeOffer::codeFor('club1@example.com');

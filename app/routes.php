@@ -88,6 +88,7 @@ $r->get('/admin', [Admin\DashboardController::class, 'index']);
 
 $r->get('/admin/commandes', [Admin\OrdersController::class, 'index']);
 $r->get('/admin/commandes/export', [Admin\OrdersController::class, 'export']);
+$r->post('/admin/commandes/purger-abandonnees', [Admin\OrdersController::class, 'purgeAbandoned']);
 $r->get('/admin/commandes/{id}', [Admin\OrdersController::class, 'show']);
 $r->post('/admin/commandes/{id}/transmettre', [Admin\OrdersController::class, 'fulfill']);
 $r->post('/admin/commandes/{id}/confirmer-printful', [Admin\OrdersController::class, 'confirmPrintful']);
@@ -95,6 +96,8 @@ $r->post('/admin/commandes/{id}/synchroniser', [Admin\OrdersController::class, '
 $r->post('/admin/commandes/{id}/expedier', [Admin\OrdersController::class, 'ship']);
 $r->post('/admin/commandes/{id}/rembourser', [Admin\OrdersController::class, 'refund']);
 $r->post('/admin/commandes/{id}/note', [Admin\OrdersController::class, 'note']);
+$r->post('/admin/commandes/{id}/annuler', [Admin\OrdersController::class, 'cancel']);
+$r->post('/admin/commandes/{id}/supprimer', [Admin\OrdersController::class, 'destroy']);
 $r->post('/admin/commandes/{id}/portrait/{item}', [Admin\OrdersController::class, 'artwork']);
 $r->get('/admin/photo/{name}', [Admin\OrdersController::class, 'photo']);
 $r->get('/admin/portrait-ia/{token}', [Admin\OrdersController::class, 'aiArtwork']);

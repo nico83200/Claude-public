@@ -20,6 +20,8 @@ final class OrdersController extends BaseController
         $params = [];
         if ($status === 'abandoned') {
             $where[] = "o.status IN ('pending','canceled') AND o.paid_at IS NULL";
+        } elseif ($status === 'canceled') {
+            $where[] = "o.status = 'canceled' AND o.paid_at IS NOT NULL";
         } elseif ($status === 'attention') {
             $where[] = "o.fulfillment_status IN ('error','draft','pending','artwork') AND o.status IN ('paid','in_production')";
         } elseif ($status !== '') {
@@ -167,6 +169,38 @@ final class OrdersController extends BaseController
             flash('error', $e->getMessage());
         }
         redirect('admin/commandes/' . $id);
+    }
+
+    public function cancel(string $id): void
+    {
+        $order = $this->order($id);
+        try {
+            $order = OrderService::cancel((int) $order['id'], input('refund') === '1', input('notify') === '1', mb_substr(trim((string) input('reason')), 0, 300));
+            flash('success', 'Commande ' . $order['number'] . ' annulée' . ($order['status'] === 'refunded' ? ' et remboursée' : '') . '.');
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+        }
+        redirect('admin/commandes/' . $id);
+    }
+
+    public function destroy(string $id): void
+    {
+        $order = $this->order($id);
+        try {
+            OrderService::delete((int) $order['id']);
+            flash('success', 'Commande ' . $order['number'] . ' supprimée.');
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+            redirect('admin/commandes/' . $id);
+        }
+        redirect('admin/commandes?statut=abandoned');
+    }
+
+    public function purgeAbandoned(): void
+    {
+        $count = OrderService::purgeAbandoned(max(0, (int) input('days', 7)));
+        flash('success', $count . ' panier(s) abandonné(s) supprimé(s).');
+        redirect('admin/commandes?statut=abandoned');
     }
 
     /** Dépôt du portrait illustré final pour un article ; la commande part en fabrication quand tout est prêt. */
