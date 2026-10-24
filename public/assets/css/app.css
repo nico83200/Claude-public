@@ -865,3 +865,13 @@ h1 em, h2 em, h3 em { color: var(--rose); }
   .account-shell, .account-grid, .account-offer .field-row { grid-template-columns: 1fr; }
   .account-head form { margin-left: 0; }
 }
+
+/* Barre d'édition (administratrice connectée) -------------------------------- */
+.admin-bar { position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 80; display: flex; align-items: center; gap: .2rem; padding: .3rem; border-radius: 999px; background: var(--ink); box-shadow: 0 10px 30px rgba(46, 34, 38, .25); font-size: .84rem; }
+.admin-bar a { color: #fff; text-decoration: none; padding: .55rem .9rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+.admin-bar a:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+.admin-bar .admin-bar-edit { background: var(--rose); font-weight: 600; }
+.admin-bar .admin-bar-edit:hover { background: var(--rose-700); }
+@media (max-width: 960px) {
+  .admin-bar { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}

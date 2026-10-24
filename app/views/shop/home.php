@@ -26,7 +26,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       </div>
     </div>
     <div class="hero-visual">
-      <div class="arch"><img src="<?= e(url('assets/img/hero.jpg')) ?>" alt="Sweat Crinière Club crème avec le logo brodé" width="480" height="600" fetchpriority="high"></div>
+      <div class="arch"><img src="<?= e(image_url(App\Services\HomeImages::src('hero'))) ?>" alt="<?= e(App\Services\HomeImages::alt('hero')) ?>" width="480" height="600" fetchpriority="high"></div>
       <div class="float-card float-card-1"><?= icon('sparkle', 20) ?><span>Personnalisé pour<strong class="float-name">Tornado</strong></span></div>
       <div class="float-card float-card-2"><img src="<?= e(url('assets/img/brand/cheval.svg')) ?>" alt="" width="34" height="26"><span class="script-sm">Le club des passionnées</span></div>
     </div>
@@ -90,14 +90,14 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <a class="btn btn-primary btn-lg" href="<?= e(url('portrait-aquarelle')) ?>"><?= icon('sparkle', 16) ?> Découvrir le portrait</a>
       <span class="feature-price">dès <?= e(money($modes['ai_portrait']['price'])) ?></span>
     </div>
-    <a class="feature-visual" href="<?= e(url('portrait-aquarelle')) ?>"><img src="<?= e(image_url($modes['ai_portrait']['image'])) ?>" alt="Portrait aquarelle d'un cheval, encadré, avec son nom et son année de naissance" loading="lazy" width="600" height="600"></a>
+    <a class="feature-visual" href="<?= e(url('portrait-aquarelle')) ?>"><img src="<?= e(image_url(App\Services\HomeImages::src('portrait', $modes['ai_portrait']['image']))) ?>" alt="<?= e(App\Services\HomeImages::alt('portrait')) ?>" loading="lazy" width="600" height="600"></a>
   </div>
 </section>
 <?php endif; ?>
 
 <section class="section">
   <div class="container feature">
-    <div class="feature-visual"><img src="<?= e(url('assets/img/products/cheval-sweat-nom.jpg')) ?>" alt="Sweat personnalisé au nom du cheval" loading="lazy" width="600" height="600"></div>
+    <div class="feature-visual"><img src="<?= e(image_url(App\Services\HomeImages::src('perso'))) ?>" alt="<?= e(App\Services\HomeImages::alt('perso')) ?>" loading="lazy" width="600" height="600"></div>
     <div>
       <p class="script-accent">mon cheval, ma fierté</p>
       <h2>Une pièce unique, <em>à son image</em></h2>

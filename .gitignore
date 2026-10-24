@@ -17,3 +17,5 @@
 !/storage/customer-photos/.gitkeep
 /storage/ai-portraits/*
 !/storage/ai-portraits/.gitkeep
+/public/uploads/site/*
+!/public/uploads/site/.gitkeep

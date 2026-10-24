@@ -116,6 +116,25 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
   </div>
 </section>
 
+<?php if (App\Core\Auth::admin()):
+    // Barre d'édition rapide, visible uniquement par l'administratrice connectée
+    $adminEdit = null;
+    if (isset($product['id']) && (is_active('/produit/') || is_active('/portrait-aquarelle'))) {
+        $adminEdit = ['admin/produits/' . (int) $product['id'], 'Modifier l\'article'];
+    } elseif (request_path() === '/') {
+        $adminEdit = ['admin/accueil', 'Modifier la page d\'accueil'];
+    } elseif (isset($category['id'])) {
+        $adminEdit = ['admin/categories', 'Modifier la catégorie'];
+    } elseif (is_array($page ?? null) && isset($page['id'])) {
+        $adminEdit = ['admin/pages/' . (int) $page['id'], 'Modifier la page'];
+    }
+?>
+<div class="admin-bar" role="region" aria-label="Administration">
+  <?php if ($adminEdit): ?><a class="admin-bar-edit" href="<?= e(url($adminEdit[0])) ?>"><?= icon('brush', 16) ?> <?= e($adminEdit[1]) ?></a><?php endif; ?>
+  <a href="<?= e(url('admin')) ?>">Administration</a>
+</div>
+<?php endif; ?>
+
 <footer class="site-footer">
   <div class="container footer-grid">
     <div>

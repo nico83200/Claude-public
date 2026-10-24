@@ -118,6 +118,9 @@ $r->get('/admin/categories', [Admin\CategoriesController::class, 'index']);
 $r->post('/admin/categories', [Admin\CategoriesController::class, 'save']);
 $r->post('/admin/categories/{id}/supprimer', [Admin\CategoriesController::class, 'destroy']);
 
+$r->get('/admin/accueil', [Admin\HomePageController::class, 'index']);
+$r->post('/admin/accueil', [Admin\HomePageController::class, 'update']);
+
 $r->get('/admin/pages', [Admin\PagesController::class, 'index']);
 $r->get('/admin/pages/{id}', [Admin\PagesController::class, 'edit']);
 $r->post('/admin/pages/{id}', [Admin\PagesController::class, 'update']);
