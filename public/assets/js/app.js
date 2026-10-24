@@ -439,7 +439,7 @@
       };
       var handle = function (state, started) {
         if (state.status === 'ready') { ready(state); if (state.upscaling) followUpscale(state.token, 15); }
-        else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message); }
+        else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message + (state.admin ? '\n\n🔧 Diagnostic (visible car vous êtes connectée à l\u2019administration) :\n' + state.admin : '')); }
         else poll(state.token, started);
       };
 

@@ -284,6 +284,12 @@ check('Replicate : modèle, format 3:4, photo et attente synchrone', ($creates[0
     && str_starts_with((string) ($creates[0]['input']['input_image'] ?? ''), 'data:image/jpeg;base64,') && ($creates[0]['prefer'] ?? '') === 'wait=50' && ($creates[0]['auth'] ?? '') === 'Bearer r8_test');
 proc_terminate($server);
 @unlink($aiLog);
+check('diagnostic admin : jeton refusé', str_contains(AiPortrait::adminDiagnostic(['error' => 'Replicate : HTTP 401 — Unauthenticated', 'provider' => 'replicate']), 'jeton'));
+check('diagnostic admin : crédit manquant', str_contains(AiPortrait::adminDiagnostic(['error' => 'Replicate : HTTP 402 — Insufficient credit', 'provider' => 'replicate']), 'Crédit'));
+$_SESSION['admin_id'] = 1;
+check('cause visible pour l\'administratrice', str_contains((string) AiPortrait::publicState($failed)['admin'], 'Modèle introuvable'));
+unset($_SESSION['admin_id']);
+check('cause masquée aux clientes', AiPortrait::publicState($failed)['admin'] === null);
 $stale = AiPortrait::create($aiFile());
 Database::update('ai_portraits', ['status' => 'processing', 'updated_at' => date('Y-m-d H:i:s', time() - 900)], 'id = :id', ['id' => $stale['id']]);
 check('création bloquée trop longtemps passée en échec', AiPortrait::refresh(AiPortrait::find($stale['token']))['status'] === 'failed');

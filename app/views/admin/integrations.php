@@ -25,6 +25,26 @@ $rows = [
   </table>
 </section>
 
+<?php
+$aiFailures = App\Services\AiPortrait::enabled()
+    ? App\Core\Database::all("SELECT * FROM ai_portraits WHERE status = 'failed' AND created_at >= ? ORDER BY id DESC LIMIT 5", [date('Y-m-d H:i:s', time() - 7 * 86400)])
+    : [];
+?>
+<?php if ($aiFailures): ?>
+<section class="card">
+  <h2>Portrait IA : derniers échecs (7 jours)</h2>
+  <p class="muted small">Les clientes voient seulement « Le dessin n'a pas pu être réalisé ». Voici la cause technique et la piste de solution.</p>
+  <table class="table">
+    <?php foreach ($aiFailures as $f): ?>
+      <tr>
+        <td class="small" style="white-space:nowrap"><?= e(date_fr($f['created_at'])) ?></td>
+        <td class="small" style="white-space:pre-line"><?= e(App\Services\AiPortrait::adminDiagnostic($f)) ?></td>
+      </tr>
+    <?php endforeach; ?>
+  </table>
+</section>
+<?php endif; ?>
+
 <section class="card">
   <h2>Webhooks</h2>
   <dl class="kv">

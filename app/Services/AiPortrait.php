@@ -287,6 +287,37 @@ final class AiPortrait
         return 'Le dessin n\'a pas pu être réalisé cette fois-ci. Réessayez dans un instant : cette tentative ne compte pas dans vos créations.';
     }
 
+    /** Explication de l'échec pour l'administratrice (jamais montrée aux clientes). */
+    public static function adminDiagnostic(array $row): string
+    {
+        $raw = (string) $row['error'];
+        $e = mb_strtolower($raw);
+        $hint = match (true) {
+            str_contains($e, 'http 401') || str_contains($e, 'unauthenticated') || str_contains($e, 'invalid token') || str_contains($e, 'incorrect api key')
+                => 'Clé ou jeton refusé : vérifiez le jeton dans Intégrations › Portrait IA (il commence par r8_ pour Replicate), puis cliquez sur « Tester ».',
+            str_contains($e, 'http 402') || str_contains($e, 'billing') || str_contains($e, 'credit') || str_contains($e, 'payment') || str_contains($e, 'quota')
+                => 'Crédit ou moyen de paiement manquant chez le service d\'IA : ajoutez une carte ou du crédit (Replicate : Account › Billing).',
+            str_contains($e, 'http 429') || str_contains($e, 'throttled') || str_contains($e, 'rate limit')
+                => 'Trop de requêtes pour votre compte : les comptes Replicate sans moyen de paiement sont très limités. Ajoutez une carte puis réessayez.',
+            str_contains($e, 'http 404') || str_contains($e, 'not found') || str_contains($e, 'modèle replicate invalide')
+                => 'Modèle introuvable : vérifiez le champ « Modèle Replicate » (par défaut black-forest-labs/flux-kontext-pro).',
+            str_contains($e, 'http 422') || str_contains($e, 'invalid input') || str_contains($e, 'http 400')
+                => 'Paramètres refusés par le service (photo ou réglages). Le détail ci-dessous indique le champ en cause.',
+            (bool) preg_match('/safety|moderation|nsfw|content_policy|flagged/', $e)
+                => 'Photo refusée par le filtre de sécurité du service : essayez une photo où le cheval est seul.',
+            str_contains($e, 'délai dépassé')
+                => 'Aucune réponse en 5 minutes : l\'hébergement a peut-être interrompu la requête, ou le service était saturé. Réessayez ; si cela se répète, consultez storage/logs/ai-*.log.',
+            str_contains($e, 'erreur réseau') || str_contains($e, 'could not resolve') || str_contains($e, 'timed out') || str_contains($e, 'ssl')
+                => 'Le serveur n\'arrive pas à joindre le service d\'IA (réseau, pare-feu ou délai). Réessayez ; si cela persiste, contactez le support Hostinger.',
+            str_contains($e, 'photo du cheval introuvable')
+                => 'La photo envoyée n\'a pas été retrouvée sur le serveur : vérifiez les droits d\'écriture du dossier storage/customer-photos.',
+            str_contains($e, 'image produite')
+                => 'Le dessin a été produit mais n\'a pas pu être téléchargé ou lu par le serveur (extension GD/WebP, espace disque).',
+            default => 'Consultez le détail ci-dessous et le journal storage/logs/ai-*.log.',
+        };
+        return $hint . "\nService : " . $row['provider'] . ' · Détail : ' . ($raw !== '' ? $raw : 'aucun');
+    }
+
     /** Photo réduite à 1024 px et compressée (< 250 Ko) pour l'envoi au service d'IA. */
     private static function aiInput(string $photoPath): string
     {
@@ -511,6 +542,8 @@ final class AiPortrait
             'status'  => $row['status'],
             'preview' => $row['status'] === 'ready' ? url('portrait-ia/' . $row['token'] . '/apercu', ['v' => strtotime($row['updated_at'])]) : null,
             'message' => $row['status'] === 'failed' ? self::customerError($row) : null,
+            // Visible uniquement par une administratrice connectée : cause technique et piste de solution
+            'admin'   => $row['status'] === 'failed' && !empty($_SESSION['admin_id']) ? self::adminDiagnostic($row) : null,
             'upscaling' => $row['status'] === 'ready' && $row['master_prediction_id'] && !$row['master_file'],
         ];
     }

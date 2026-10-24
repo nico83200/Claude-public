@@ -772,3 +772,4 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 }
 @media (prefers-reduced-motion: reduce) { .lp-ribbon-track, .lp-pin { animation: none; } }
 @media (max-width: 640px) { .buy-row .btn-lg { padding-left: 1rem; padding-right: 1rem; } }
+.ai-box .form-error { white-space: pre-line; }
