@@ -206,6 +206,21 @@ check('base de boutique reconnue', App\Core\Installer::isShopDatabase($pdo));
 @unlink(STORAGE_PATH . '/installed.lock');
 check('verrou perdu recréé automatiquement', App\Core\Installer::recover() && is_file(STORAGE_PATH . '/installed.lock'));
 
+echo "Bibliothèque d'illustrations\n";
+$library = App\Services\DesignLibrary::all();
+check('10 illustrations dont 4 personnalisables', count($library) === 10 && count(array_filter($library, static fn ($d) => $d['personalizable'])) === 4);
+$installed = App\Services\DesignLibrary::install('06-mon-cheval-ma-fierte', 'creme');
+check('visuel copié dans storage/designs', is_file(STORAGE_PATH . '/designs/' . $installed['file']));
+check('réglage du nom en couleur crème', ($installed['preset']['color'] ?? '') === '#f9f7f3' && $installed['preset']['font'] === 'script');
+$out = Personalizer::render($installed['file'], 'Tornado', Personalizer::config(json_encode($installed['preset'])));
+check('nom imprimé sur le visuel de la bibliothèque', is_file(PUBLIC_PATH . '/' . $out));
+try {
+    App\Services\DesignLibrary::install('../../config', 'creme');
+    check('visuel inconnu refusé', false);
+} catch (RuntimeException) {
+    check('visuel inconnu refusé', true);
+}
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {

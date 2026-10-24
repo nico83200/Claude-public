@@ -1,0 +1,96 @@
+{
+  "01-sceau-du-club": {
+    "title": "Le Sceau du Club",
+    "personalizable": false,
+    "preset": null
+  },
+  "02-horse-girl": {
+    "title": "Horse Girl",
+    "personalizable": false,
+    "preset": null
+  },
+  "03-desolee-jai-ecurie": {
+    "title": "Désolée, j'ai écurie",
+    "personalizable": false,
+    "preset": null
+  },
+  "04-pas-trot-galop": {
+    "title": "Pas, trot, galop",
+    "personalizable": false,
+    "preset": null
+  },
+  "05-nuancier-des-robes": {
+    "title": "Le nuancier des robes",
+    "personalizable": false,
+    "preset": null
+  },
+  "06-mon-cheval-ma-fierte": {
+    "title": "Mon cheval, ma fierté",
+    "personalizable": true,
+    "preset": {
+      "mode": "text",
+      "label": "Nom de votre cheval",
+      "max_length": 16,
+      "required": true,
+      "font": "script",
+      "uppercase": false,
+      "x": 0.5,
+      "y": 0.69,
+      "size": 0.15,
+      "max_width": 0.82
+    }
+  },
+  "07-fer-porte-bonheur": {
+    "title": "Mon porte-bonheur",
+    "personalizable": true,
+    "preset": {
+      "mode": "text",
+      "label": "Nom de votre cheval",
+      "max_length": 16,
+      "required": true,
+      "font": "script",
+      "uppercase": false,
+      "x": 0.5,
+      "y": 0.545,
+      "size": 0.0975,
+      "max_width": 0.42
+    }
+  },
+  "08-blason-ecurie": {
+    "title": "Le blason d'écurie",
+    "personalizable": true,
+    "preset": {
+      "mode": "text",
+      "label": "Nom de votre écurie (ou de votre cheval)",
+      "max_length": 16,
+      "required": true,
+      "font": "serif",
+      "uppercase": true,
+      "x": 0.5,
+      "y": 0.705,
+      "size": 0.0525,
+      "max_width": 0.44
+    }
+  },
+  "09-cheval-de-coeur": {
+    "title": "Mon cheval de cœur",
+    "personalizable": true,
+    "preset": {
+      "mode": "text",
+      "label": "Nom de votre cheval",
+      "max_length": 16,
+      "required": true,
+      "font": "script",
+      "uppercase": false,
+      "x": 0.5,
+      "y": 0.8619,
+      "size": 0.1214,
+      "max_width": 0.8
+    }
+  },
+  "10-allure-cadence-impulsion": {
+    "title": "Allure, cadence, impulsion",
+    "personalizable": false,
+    "preset": null
+  }
+}

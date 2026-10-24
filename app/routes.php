@@ -84,6 +84,7 @@ $r->get('/admin/produits/{id}', [Admin\ProductsController::class, 'edit']);
 $r->post('/admin/produits/{id}', [Admin\ProductsController::class, 'update']);
 $r->post('/admin/produits/{id}/supprimer', [Admin\ProductsController::class, 'destroy']);
 $r->get('/admin/produits/{id}/apercu-impression', [Admin\ProductsController::class, 'printPreview']);
+$r->get('/admin/produits/{id}/fichier-impression', [Admin\ProductsController::class, 'downloadDesign']);
 
 $r->get('/admin/avis', [Admin\ReviewsController::class, 'index']);
 $r->post('/admin/avis/{id}/{action}', [Admin\ReviewsController::class, 'action']);

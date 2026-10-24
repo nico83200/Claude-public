@@ -118,9 +118,23 @@ $blankRows = $variants ? 2 : 4;
 
       <section class="card">
         <h2>Fichier d'impression</h2>
+        <?php if (!empty($library)): ?>
+          <label>Choisir dans la bibliothèque Crinière Club
+            <select name="library_design">
+              <option value="">— Aucun (fichier téléversé ci-dessous) —</option>
+              <?php foreach ($library as $key => $d): ?>
+                <optgroup label="<?= e($d['title']) ?><?= $d['personalizable'] ? ' ✦ personnalisable' : '' ?>">
+                  <?php foreach (App\Services\DesignLibrary::COLORS as $color => [$label]): $file = 'bibliotheque-' . $key . '-' . $color . '.png'; ?>
+                    <option value="<?= e($key . '|' . $color) ?>" <?= $product['design_file'] === $file ? 'selected' : '' ?>><?= e($d['title'] . ' — ' . $label) ?></option>
+                  <?php endforeach; ?>
+                </optgroup>
+              <?php endforeach; ?>
+            </select></label>
+          <p class="muted small">Un visuel personnalisable active la personnalisation et règle automatiquement la zone du nom (police, position, taille). Téléchargez le même fichier dans Printful pour créer le produit.</p>
+        <?php endif; ?>
         <p class="muted small">PNG transparent haute définition (≥ 150 dpi à la taille d'impression, ex. 3600 × 4800 px pour un t-shirt). Stocké hors du site public.</p>
         <?php if ($product['design_file']): ?>
-          <p class="small">Actuel : <code><?= e($product['design_file']) ?></code></p>
+          <p class="small">Actuel : <code><?= e($product['design_file']) ?></code><?php if ($product['id']): ?> · <a href="<?= e(url('admin/produits/' . $product['id'] . '/fichier-impression')) ?>">Télécharger</a><?php endif; ?></p>
           <label class="checkbox"><input type="checkbox" name="remove_design" value="1"> Retirer</label>
         <?php endif; ?>
         <input type="file" name="design_file" accept="image/png">

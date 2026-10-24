@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Database;
 use App\Services\Catalog;
+use App\Services\DesignLibrary;
 use App\Services\Personalizer;
 use App\Services\Printful;
 use App\Services\Upload;
@@ -55,6 +56,7 @@ final class ProductsController extends BaseController
             'variants'   => $variants,
             'categories' => Catalog::categories(false),
             'perso'      => Personalizer::config($product['personalization']),
+            'library'    => DesignLibrary::all(),
         ]);
     }
 
@@ -95,6 +97,12 @@ final class ProductsController extends BaseController
             foreach (Upload::files('design_file') as $file) {
                 $designFile = Upload::design($file);
             }
+            // Visuel choisi dans la bibliothèque Crinière Club (prioritaire sur le téléversement)
+            $library = null;
+            if (preg_match('/^([a-z0-9-]+)\|(bordeaux|creme)$/', (string) input('library_design'), $m)) {
+                $library = DesignLibrary::install($m[1], $m[2]);
+                $designFile = $library['file'];
+            }
         } catch (\Throwable $e) {
             flash('error', $e->getMessage());
             redirect($id ? 'admin/produits/' . $id : 'admin/produits/nouveau');
@@ -130,6 +138,13 @@ final class ProductsController extends BaseController
             'preview_color' => preg_match('/^#[0-9a-f]{6}$/i', (string) ($p['preview_color'] ?? '')) ? $p['preview_color'] : '',
         ];
 
+        $personalizable = input('personalizable') ? 1 : 0;
+        if (!empty($library['preset'])) {
+            // Réglage de la zone du nom fourni avec le visuel ; les réglages d'aperçu restent ceux du formulaire.
+            $personalization = array_replace($personalization, $library['preset']);
+            $personalizable = 1;
+        }
+
         $slug = slugify((string) (input('slug') ?: $name));
         if (Database::value('SELECT id FROM products WHERE slug = ? AND id <> ?', [$slug, (int) $id])) {
             $slug .= '-' . substr(bin2hex(random_bytes(2)), 0, 4);
@@ -146,7 +161,7 @@ final class ProductsController extends BaseController
             'images'            => json_encode($images, JSON_UNESCAPED_SLASHES),
             'featured'          => input('featured') ? 1 : 0,
             'active'            => input('active') ? 1 : 0,
-            'personalizable'    => input('personalizable') ? 1 : 0,
+            'personalizable'    => $personalizable,
             'personalization'   => json_encode($personalization, JSON_UNESCAPED_UNICODE),
             'design_file'       => $designFile,
             'print_placement'   => preg_replace('/[^a-z0-9_]/', '', (string) input('print_placement', 'front')) ?: 'front',
@@ -233,6 +248,20 @@ final class ProductsController extends BaseController
         header('Content-Type: image/png');
         header('Cache-Control: no-store');
         readfile(PUBLIC_PATH . '/' . $file);
+        exit;
+    }
+
+    /** Téléchargement du fichier d'impression (pour le déposer dans Printful). */
+    public function downloadDesign(string $id): void
+    {
+        $product = Database::one('SELECT name, design_file FROM products WHERE id = ?', [(int) $id]) ?? abort(404);
+        $path = $product['design_file'] ? STORAGE_PATH . '/designs/' . basename($product['design_file']) : null;
+        if (!$path || !is_file($path)) {
+            abort(404);
+        }
+        header('Content-Type: image/png');
+        header('Content-Disposition: attachment; filename="' . slugify($product['name']) . '-impression.png"');
+        readfile($path);
         exit;
     }
 
