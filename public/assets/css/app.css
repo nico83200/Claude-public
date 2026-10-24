@@ -281,6 +281,15 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--r
 .gallery-main { position: relative; border-radius: var(--r-lg); overflow: hidden; background: var(--blush-50); aspect-ratio: 1; container-type: inline-size; }
 .gallery-main img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-main .pill { position: absolute; top: 1rem; left: 1rem; z-index: 2; }
+/* Zoom au survol : l'image (et l'aperçu personnalisé) s'agrandit et suit la souris */
+.gallery-zoom { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .3s ease; }
+.gallery-main.is-zooming { cursor: zoom-in; }
+.gallery-main.is-zooming .gallery-zoom { transform: scale(var(--zoom, 2.2)); transition: transform .25s ease; }
+.zoom-hint { display: none; position: absolute; right: .9rem; bottom: .9rem; z-index: 2; align-items: center; gap: .35rem; padding: .35rem .7rem; border-radius: 999px; background: rgba(255, 255, 255, .88); color: var(--ink); font-size: .74rem; font-weight: 600; pointer-events: none; transition: opacity .25s; }
+@media (hover: hover) and (pointer: fine) {
+  .zoom-hint { display: inline-flex; }
+}
+.gallery-main.is-zooming .zoom-hint { opacity: 0; }
 .preview-text { position: absolute; left: var(--px, 50%); top: var(--py, 60%); transform: translate(-50%, -50%); font-family: var(--serif); font-weight: 700; font-size: calc(var(--ps, .05) * 100cqw); color: var(--pc, var(--ink)); white-space: nowrap; letter-spacing: .06em; pointer-events: none; max-width: 80%; overflow: hidden; }
 .preview-text.is-sans { font-family: var(--sans); }
 .preview-text.is-upper { text-transform: uppercase; }

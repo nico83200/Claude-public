@@ -53,6 +53,7 @@ if ($cfg) {
         <div class="gallery-main" data-preview-stage <?= $cfg ? 'style="' . $stageStyle . '"' : '' ?>
              <?= $cfg && $cfg['preview_image'] ? 'data-preview-base="' . e(image_url($cfg['preview_image'])) . '"' : '' ?>>
           <?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?>
+          <div class="gallery-zoom" data-zoom-layer>
           <img src="<?= e(image_url($images[0])) ?>" alt="<?= e($product['name']) ?>" data-main-image width="800" height="800">
           <?php if ($cfg && $mode === 'photo'): ?>
             <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
@@ -63,6 +64,8 @@ if ($cfg) {
           <?php if ($isAi): ?>
             <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null, 'visible' => $previewFirst]); ?>
           <?php endif; ?>
+          </div>
+          <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> Survolez pour zoomer</span>
         </div>
         <?php if (count($images) > 1 || $isAi): ?>
           <div class="gallery-thumbs">

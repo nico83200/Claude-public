@@ -111,6 +111,28 @@
     });
   });
 
+  // Zoom au survol de la photo produit (souris uniquement) -------------------
+  var zoomStage = mainImage && mainImage.closest('.gallery-main');
+  var zoomLayer = zoomStage && $('[data-zoom-layer]', zoomStage);
+  if (zoomLayer) {
+    var zoomAt = function (e) {
+      var r = zoomStage.getBoundingClientRect();
+      var x = Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100));
+      var y = Math.min(100, Math.max(0, (e.clientY - r.top) / r.height * 100));
+      zoomLayer.style.transformOrigin = x + '% ' + y + '%';
+    };
+    zoomStage.addEventListener('pointerenter', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      // Grossissement selon la définition réelle de l'image (entre ×2,2 et ×3)
+      var ratio = mainImage.naturalWidth ? mainImage.naturalWidth / zoomStage.clientWidth : 0;
+      zoomStage.style.setProperty('--zoom', Math.min(3, Math.max(2.2, ratio)).toFixed(2));
+      zoomAt(e);
+      zoomStage.classList.add('is-zooming');
+    });
+    zoomStage.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') zoomAt(e); });
+    zoomStage.addEventListener('pointerleave', function () { zoomStage.classList.remove('is-zooming'); });
+  }
+
   // Mini-panier ------------------------------------------------------------
   var drawer = $('[data-drawer]');
   var backdrop = $('[data-drawer-backdrop]');
