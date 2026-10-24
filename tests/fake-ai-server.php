@@ -62,4 +62,12 @@ if ($method === 'GET' && preg_match('#^/replicate/files/(\w+)\.png$#', $path, $m
     echo $m[1] === 'up1' ? $png(3520, 4704) : $png(880, 1184);
     exit;
 }
+if ($method === 'POST' && $path === '/stripe/coupons') {
+    $record(['route' => 'stripe.coupon', 'fields' => $_POST]);
+    $json(['id' => 'coupon_bienvenue', 'amount_off' => (int) ($_POST['amount_off'] ?? 0)]);
+}
+if ($method === 'POST' && $path === '/stripe/promotion_codes') {
+    $record(['route' => 'stripe.promo', 'fields' => $_POST]);
+    $json(['id' => 'promo_' . ($_POST['code'] ?? ''), 'code' => $_POST['code'] ?? '']);
+}
 $json(['error' => 'not found: ' . $method . ' ' . $path], 404);

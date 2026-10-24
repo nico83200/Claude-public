@@ -53,8 +53,9 @@ final class Settings
         // Popup de bienvenue (code promo à créer dans Stripe)
         'popup_enabled'    => '1',
         'popup_delay'      => '15',
+        'welcome_amount'   => '500',   // cadeau de bienvenue en centimes : code personnel à usage unique créé dans Stripe
         'welcome_code'     => '',
-        'welcome_discount' => '-10 %',
+        'welcome_discount' => '5 € offerts',
         'popup_title'      => 'Rejoignez le club ♡',
 
         // Avis clients

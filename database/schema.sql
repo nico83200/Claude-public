@@ -188,6 +188,7 @@ CREATE TABLE newsletter_subscribers (
     source VARCHAR(40) NOT NULL DEFAULT 'footer',
     ip VARCHAR(45) NULL,
     synced TINYINT(1) NOT NULL DEFAULT 0,
+    welcome_code VARCHAR(40) NULL,
     created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

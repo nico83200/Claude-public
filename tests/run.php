@@ -282,6 +282,25 @@ check('version agrandie retenue pour l\'impression', (string) $rep['master_file'
 $creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create'));
 check('Replicate : modèle, format 3:4, photo et attente synchrone', ($creates[0]['model'] ?? '') === 'black-forest-labs/flux-kontext-pro' && ($creates[0]['input']['aspect_ratio'] ?? '') === '3:4'
     && str_starts_with((string) ($creates[0]['input']['input_image'] ?? ''), 'data:image/jpeg;base64,') && ($creates[0]['prefer'] ?? '') === 'wait=50' && ($creates[0]['auth'] ?? '') === 'Bearer r8_test');
+echo "Code de bienvenue\n";
+Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
+$oldKey = config('stripe.secret_key');
+Config::set('stripe.secret_key', 'sk_test_fake');
+file_put_contents($aiLog, '[]');
+App\Services\Newsletter::subscribe('club1@example.com', 'popup');
+$code1 = App\Services\WelcomeOffer::codeFor('club1@example.com');
+App\Services\Newsletter::subscribe('club2@example.com', 'popup');
+$code2 = App\Services\WelcomeOffer::codeFor('club2@example.com');
+$calls = json_decode((string) file_get_contents($aiLog), true) ?: [];
+$coupons = array_values(array_filter($calls, fn ($c) => $c['route'] === 'stripe.coupon'));
+$promos = array_values(array_filter($calls, fn ($c) => $c['route'] === 'stripe.promo'));
+check('code personnel CLUB-XXXXXX', (bool) preg_match('/^CLUB-[A-Z0-9]{6}$/', (string) $code1) && $code1 !== $code2);
+check('coupon Stripe de 5 € créé une seule fois', count($coupons) === 1 && $coupons[0]['fields']['amount_off'] === '500' && $coupons[0]['fields']['duration'] === 'once');
+check('code limité à une utilisation', count($promos) === 2 && $promos[0]['fields']['max_redemptions'] === '1');
+check('même code redonné à une inscrite', App\Services\WelcomeOffer::codeFor('club1@example.com') === $code1);
+check('libellé « 5 € offerts »', App\Services\WelcomeOffer::label() === "5\u{00A0}€ offerts");
+Config::set('stripe.secret_key', $oldKey);
+
 proc_terminate($server);
 @unlink($aiLog);
 check('diagnostic admin : jeton refusé', str_contains(AiPortrait::adminDiagnostic(['error' => 'Replicate : HTTP 401 — Unauthenticated', 'provider' => 'replicate']), 'jeton'));
@@ -427,7 +446,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('huit migrations connues', count(App\Core\Migrator::files()) === 8);
+check('neuf migrations connues', count(App\Core\Migrator::files()) === 9);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

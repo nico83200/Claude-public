@@ -33,7 +33,7 @@ final class Stripe
         if ($idempotencyKey) {
             $headers[] = 'Idempotency-Key: ' . $idempotencyKey;
         }
-        $url = self::API . ltrim($path, '/');
+        $url = rtrim((string) config('stripe.api_base', self::API), '/') . '/' . ltrim($path, '/');
         $body = null;
         if ($method === 'GET') {
             if ($params) {

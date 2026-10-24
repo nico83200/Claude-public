@@ -13,7 +13,7 @@ $success = flash('success');
 $error = flash('error');
 $socials = array_filter(['Instagram' => setting('social_instagram'), 'Facebook' => setting('social_facebook'), 'TikTok' => setting('social_tiktok'), 'Pinterest' => setting('social_pinterest')]);
 $announcements = array_values(array_filter(array_map('trim', explode('|', (string) setting('announcement')))));
-$welcomeCode = (string) setting('welcome_code');
+$welcomeOffer = App\Services\WelcomeOffer::active() ? App\Services\WelcomeOffer::label() : '';
 $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
 ?>
 <!doctype html>
@@ -139,7 +139,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
     </div>
     <div>
       <h3>Rejoindre le club</h3>
-      <p><?= $welcomeCode !== '' ? e(setting('welcome_discount')) . ' sur votre première commande, puis nos nouveautés en avant-première.' : 'Nouveautés en avant-première, éditions limitées et petites surprises.' ?></p>
+      <p><?= $welcomeOffer !== '' ? e($welcomeOffer) . ' sur votre première commande, puis nos nouveautés en avant-première.' : 'Nouveautés en avant-première, éditions limitées et petites surprises.' ?></p>
       <form class="newsletter" action="<?= e(url('newsletter')) ?>" method="post" data-newsletter>
         <?= csrf_field() ?>
         <input type="hidden" name="source" value="footer">
@@ -179,8 +179,8 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
     <div class="welcome-body">
       <p class="script-accent">le club des passionnées</p>
       <h2 id="welcome-title"><?= e(setting('popup_title')) ?></h2>
-      <?php if ($welcomeCode !== ''): ?>
-        <p class="welcome-offer"><?= e(setting('welcome_discount')) ?></p>
+      <?php if ($welcomeOffer !== ''): ?>
+        <p class="welcome-offer"><?= e($welcomeOffer) ?></p>
         <p>sur votre première commande en rejoignant notre newsletter, + les nouveautés en avant-première.</p>
       <?php else: ?>
         <p>Recevez nos nouveautés en avant-première, les éditions limitées et nos idées cadeaux.</p>
@@ -191,7 +191,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <div class="field"><label class="sr-only" for="welcome-email">Adresse e-mail</label><input id="welcome-email" type="email" name="email" required placeholder="votre@email.fr" autocomplete="email" autofocus></div>
         <label class="checkbox small"><input type="checkbox" name="consent" value="1" required> <span>J'accepte de recevoir la newsletter. Désinscription en un clic, <a href="<?= e(url('page/confidentialite')) ?>">données protégées</a>.</span></label>
-        <button class="btn btn-primary btn-block" type="submit"><?= $welcomeCode !== '' ? 'Je reçois mon code' : 'Je m\'inscris' ?></button>
+        <button class="btn btn-primary btn-block" type="submit"><?= $welcomeOffer !== '' ? 'Je reçois mon code' : 'Je m\'inscris' ?></button>
         <p class="small" data-newsletter-message role="status"></p>
       </form>
       <button class="link-button small muted mt" type="button" data-modal-close>Non merci</button>

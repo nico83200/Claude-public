@@ -85,15 +85,17 @@ final class PageController
             back('/');
         }
 
-        $code = (string) setting('welcome_code');
-        if ($isNew && $code !== '') {
-            Mailer::sendTemplate($email, 'Votre cadeau de bienvenue 🎁', 'welcome', ['code' => $code, 'discount' => setting('welcome_discount')]);
+        // Code personnel à usage unique (créé dans Stripe), envoyé par e-mail à la première inscription
+        $code = \App\Services\WelcomeOffer::active() ? \App\Services\WelcomeOffer::codeFor($email) : null;
+        $label = \App\Services\WelcomeOffer::label();
+        if ($isNew && $code) {
+            Mailer::sendTemplate($email, 'Votre cadeau de bienvenue 🎁', 'welcome', ['code' => $code, 'discount' => $label]);
         }
-        $message = $code !== ''
-            ? 'Bienvenue au club ! Votre code ' . setting('welcome_discount') . ' : ' . $code . ' (envoyé aussi par e-mail).'
+        $message = $code
+            ? 'Bienvenue au club ! Votre code ' . $label . ' : ' . $code . ' (envoyé aussi par e-mail, valable une fois).'
             : 'Bienvenue au club ! Vous recevrez bientôt nos nouveautés.';
         if ($ajax) {
-            json_response(['ok' => true, 'message' => $message, 'code' => $code !== '' ? $code : null]);
+            json_response(['ok' => true, 'message' => $message, 'code' => $code]);
         }
         flash('success', $message);
         back('/');

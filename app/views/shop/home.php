@@ -168,8 +168,8 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       </div>
       <div>
         <h2>Rejoignez <em>le club</em></h2>
-        <?php if (setting('welcome_code')): ?>
-          <p class="club-offer"><?= e(setting('welcome_discount')) ?> sur votre première commande</p>
+        <?php if (App\Services\WelcomeOffer::active()): ?>
+          <p class="club-offer"><?= e(App\Services\WelcomeOffer::label()) ?> sur votre première commande</p>
         <?php endif; ?>
         <p>Nouveautés en avant-première, éditions limitées, idées cadeaux et petites surprises réservées aux membres. Pas plus d'un ou deux e-mails par mois.</p>
         <form action="<?= e(url('newsletter')) ?>" method="post" data-newsletter>
