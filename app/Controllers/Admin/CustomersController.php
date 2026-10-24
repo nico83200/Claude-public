@@ -16,6 +16,9 @@ final class CustomersController extends BaseController
         $this->render('customers', [
             'pageTitle'   => 'Clients & newsletter',
             'customers'   => $customers,
+            'accounts'    => array_flip(array_column(Database::all('SELECT email FROM customers'), 'email')),
+            'accountCount' => (int) Database::value('SELECT COUNT(*) FROM customers'),
+            'latestAccounts' => Database::all('SELECT email, name, created_at, email_verified_at FROM customers ORDER BY id DESC LIMIT 20'),
             'subscribers' => Database::all('SELECT * FROM newsletter_subscribers ORDER BY id DESC LIMIT 100'),
             'subCount'    => (int) Database::value('SELECT COUNT(*) FROM newsletter_subscribers'),
         ]);

@@ -17,6 +17,19 @@ CREATE TABLE login_attempts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_login_attempts_ip ON login_attempts (ip, created_at);
 
+CREATE TABLE customers (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(190) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL DEFAULT '',
+    password_hash VARCHAR(255) NOT NULL,
+    email_verified_at DATETIME NULL,
+    token_hash VARCHAR(64) NULL,
+    token_expires_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    last_login_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_customers_token ON customers (token_hash);
+
 CREATE TABLE settings (
     name VARCHAR(100) NOT NULL PRIMARY KEY,
     value TEXT NULL
@@ -101,6 +114,7 @@ CREATE TABLE orders (
     tracking_number VARCHAR(190) NULL,
     tracking_url VARCHAR(500) NULL,
     newsletter_optin TINYINT(1) NOT NULL DEFAULT 0,
+    customer_id INT UNSIGNED NULL,
     review_requested_at DATETIME NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -110,6 +124,7 @@ CREATE TABLE orders (
 CREATE INDEX idx_orders_status ON orders (status, fulfillment_status);
 CREATE INDEX idx_orders_session ON orders (stripe_session_id);
 CREATE INDEX idx_orders_email ON orders (email);
+CREATE INDEX idx_orders_customer ON orders (customer_id);
 
 CREATE TABLE order_items (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

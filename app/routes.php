@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Controllers\AccountController;
 use App\Controllers\Admin;
 use App\Controllers\AiPortraitController;
 use App\Controllers\CartController;
@@ -36,6 +37,23 @@ $r->post('/panier/modifier', [CartController::class, 'update']);
 $r->post('/panier/supprimer', [CartController::class, 'remove']);
 $r->post('/commande', [CheckoutController::class, 'start']);
 $r->get('/commande/merci', [CheckoutController::class, 'success']);
+
+// Compte cliente
+$r->get('/compte', [AccountController::class, 'index']);
+$r->get('/compte/connexion', [AccountController::class, 'loginForm']);
+$r->post('/compte/connexion', [AccountController::class, 'login']);
+$r->post('/compte/inscription', [AccountController::class, 'register']);
+$r->post('/compte/deconnexion', [AccountController::class, 'logout']);
+$r->get('/compte/confirmer/{token}', [AccountController::class, 'verify']);
+$r->post('/compte/confirmation', [AccountController::class, 'resendVerification']);
+$r->get('/compte/mot-de-passe-oublie', [AccountController::class, 'forgotForm']);
+$r->post('/compte/mot-de-passe-oublie', [AccountController::class, 'forgot']);
+$r->get('/compte/nouveau-mot-de-passe/{token}', [AccountController::class, 'resetForm']);
+$r->post('/compte/nouveau-mot-de-passe/{token}', [AccountController::class, 'reset']);
+$r->post('/compte/informations', [AccountController::class, 'updateProfile']);
+$r->post('/compte/mot-de-passe', [AccountController::class, 'changePassword']);
+$r->post('/compte/supprimer', [AccountController::class, 'destroy']);
+$r->post('/commande/merci/compte', [AccountController::class, 'fromOrder']);
 
 // Suivi de commande
 $r->get('/suivi', [OrderController::class, 'trackForm']);

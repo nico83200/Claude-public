@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Database;
+use App\Services\Account;
 use App\Services\Cart;
 use App\Services\OrderService;
 use App\Services\Stripe;
@@ -27,6 +28,11 @@ final class CheckoutController
         }
 
         $order = OrderService::createFromCart($items, input('newsletter') === '1');
+        $customer = Account::current();
+        if ($customer) {
+            Database::update('orders', ['customer_id' => $customer['id']], 'id = :id', ['id' => $order['id']]);
+        }
+        $_SESSION['want_account'] = !$customer && input('create_account') === '1';
         $subtotal = Cart::subtotal($items);
 
         $lineItems = [];
@@ -82,6 +88,9 @@ final class CheckoutController
             ],
             'expires_at'           => time() + 23 * 3600,
         ];
+        if ($customer) {
+            $params['customer_email'] = $customer['email'];
+        }
 
         try {
             $session = Stripe::fromConfig()->createCheckoutSession($params, 'order-' . $order['number']);
@@ -124,6 +133,9 @@ final class CheckoutController
             'noindex'   => true,
             'order'     => $order,
             'items'     => OrderService::items((int) $order['id']),
+            'customer'  => Account::current(),
+            'accountExists' => $order['email'] ? (bool) Account::findByEmail((string) $order['email']) : false,
+            'wantAccount'   => !empty($_SESSION['want_account']),
         ]);
     }
 }

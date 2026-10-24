@@ -43,6 +43,15 @@
           <?= csrf_field() ?>
           <label class="checkbox"><input type="checkbox" name="cgv" value="1" required> <span>J'accepte les <a href="<?= e(url('page/cgv')) ?>" target="_blank">conditions générales de vente</a> et je reconnais que les articles personnalisés ne sont pas soumis au droit de rétractation.</span></label>
           <label class="checkbox"><input type="checkbox" name="newsletter" value="1"> <span>Je rejoins le club : nouveautés et offres par e-mail.</span></label>
+          <?php $shopper = App\Services\Account::current(); ?>
+          <div class="checkout-account">
+            <?php if ($shopper): ?>
+              <p><?= icon('user', 16) ?> Commande rattachée à votre compte <strong><?= e($shopper['email']) ?></strong>.</p>
+            <?php else: ?>
+              <label class="checkbox"><input type="checkbox" name="create_account" value="1" checked> <span><strong>Créer mon compte client</strong> après le paiement : suivi de commande, historique et commandes plus rapides.</span></label>
+              <p class="muted">Déjà cliente ? <a href="<?= e(url('compte/connexion', ['retour' => 'panier'])) ?>">Connectez-vous</a></p>
+            <?php endif; ?>
+          </div>
           <button class="btn btn-primary btn-lg btn-block" type="submit" <?= $stripeReady ? '' : 'disabled' ?>><?= icon('lock', 18) ?> Paiement sécurisé</button>
           <?php if (!$stripeReady): ?><p class="muted small center">Paiement en ligne bientôt disponible.</p><?php endif; ?>
         </form>

@@ -330,6 +330,7 @@ function icon(string $name, int $size = 20): string
         'calendar' => 'M4 6h16v14H4zM4 10h16M8 3v4m8-4v4',
         'star'     => 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z',
         'copy'     => 'M9 9h11v11H9zM5 15H4V4h11v1',
+        'user'     => 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7.5 8a7.5 7.5 0 0 1 15 0',
     ];
     $d = $paths[$name] ?? $paths['sparkle'];
     return '<svg class="icon icon-' . e($name) . '" width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' . $d . '"/></svg>';

@@ -282,6 +282,57 @@ check('version agrandie retenue pour l\'impression', (string) $rep['master_file'
 $creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create'));
 check('Replicate : modèle, format 3:4, photo et attente synchrone', ($creates[0]['model'] ?? '') === 'black-forest-labs/flux-kontext-pro' && ($creates[0]['input']['aspect_ratio'] ?? '') === '3:4'
     && str_starts_with((string) ($creates[0]['input']['input_image'] ?? ''), 'data:image/jpeg;base64,') && ($creates[0]['prefer'] ?? '') === 'wait=50' && ($creates[0]['auth'] ?? '') === 'Bearer r8_test');
+echo "Comptes clientes\n";
+$mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
+$lastLink = static function (string $path) use ($mailLog): ?string {
+    preg_match_all('#' . preg_quote($path, '#') . '/([a-f0-9]{48})#', (string) @file_get_contents($mailLog), $m);
+    return $m[1] ? end($m[1]) : null;
+};
+$paidOrder = Database::one("SELECT * FROM orders WHERE email = 'cliente@example.com' AND status <> 'pending' ORDER BY id LIMIT 1");
+// Une inconnue s'inscrit avec l'adresse d'une cliente : les commandes ne sont pas visibles avant confirmation
+$acc = App\Services\Account::register('Cliente@Example.com', 'motdepasse1', 'Léa Martin');
+check('compte créé (adresse normalisée, mot de passe haché)', $acc['email'] === 'cliente@example.com' && password_verify('motdepasse1', $acc['password_hash']) && !$acc['email_verified_at']);
+check('commandes cachées avant confirmation', App\Services\Account::orders($acc) === []);
+$refused = false;
+try { App\Services\Account::register('cliente@example.com', 'autremotdepasse'); } catch (RuntimeException) { $refused = true; }
+check('doublon refusé', $refused);
+$short = false;
+try { App\Services\Account::register('court@example.com', 'abc'); } catch (RuntimeException) { $short = true; }
+check('mot de passe trop court refusé', $short);
+check('mauvais mot de passe refusé', App\Services\Account::attempt('cliente@example.com', 'faux', '10.9.9.9') === null);
+check('connexion acceptée', App\Services\Account::attempt('cliente@example.com', 'motdepasse1', '10.9.9.9') !== null);
+$verifyToken = $lastLink('compte/confirmer');
+$verified = $verifyToken ? App\Services\Account::verify($verifyToken) : null;
+check('lien de confirmation envoyé et valide', $verified && $verified['email_verified_at']);
+check('commandes de l\'adresse visibles après confirmation', in_array($paidOrder['number'], array_column(App\Services\Account::orders($verified), 'number'), true));
+check('lien de confirmation à usage unique', App\Services\Account::verify((string) $verifyToken) === null);
+App\Services\Account::sendReset('cliente@example.com');
+App\Services\Account::sendReset('inconnue@example.com');
+$resetToken = $lastLink('compte/nouveau-mot-de-passe');
+App\Services\Account::resetPassword((string) $resetToken, 'nouveau-secret');
+check('mot de passe réinitialisé par e-mail', App\Services\Account::attempt('cliente@example.com', 'nouveau-secret', '10.9.9.9') !== null);
+$reused = false;
+try { App\Services\Account::resetPassword((string) $resetToken, 'encore-un-autre'); } catch (RuntimeException) { $reused = true; }
+check('lien de réinitialisation à usage unique', $reused);
+for ($i = 0; $i < 8; $i++) { App\Services\Account::attempt('cliente@example.com', 'faux', '10.8.8.8'); }
+check('connexion bloquée après trop d\'essais', App\Services\Account::isLocked('10.8.8.8') && !App\Core\Auth::isLocked('10.8.8.8'));
+// Compte créé juste après paiement : adresse prouvée, commande rattachée tout de suite
+Database::update('orders', ['email' => 'acheteuse@example.com', 'customer_id' => null], 'id = :id', ['id' => $paidOrder['id']]);
+$buyer = App\Services\Account::register('acheteuse@example.com', 'motdepasse2', 'Zoé', true);
+check('compte après paiement : commande rattachée', (int) Database::value('SELECT customer_id FROM orders WHERE id = ?', [$paidOrder['id']]) === (int) $buyer['id'] && count(App\Services\Account::orders($buyer)) >= 1);
+App\Services\Account::login($buyer);
+ob_start();
+(new App\Controllers\AccountController())->index();
+$accountPage = (string) ob_get_clean();
+check('page « Mon compte » : commandes et bouton d\'en-tête', str_contains($accountPage, 'Bonjour <em>Zoé</em>') && str_contains($accountPage, e($paidOrder['number'])) && str_contains($accountPage, 'account-btn is-logged'));
+App\Services\Account::logout();
+ob_start();
+(new App\Controllers\ShopController())->portraitLanding();
+check('visuel « Mon compte » dans le menu', str_contains((string) ob_get_clean(), 'Mon compte — se connecter ou créer un compte'));
+App\Services\Account::delete($buyer);
+check('suppression du compte (commandes conservées)', App\Services\Account::findByEmail('acheteuse@example.com') === null && OrderService::find((int) $paidOrder['id'])['customer_id'] === null);
+Database::update('orders', ['email' => 'cliente@example.com'], 'id = :id', ['id' => $paidOrder['id']]);
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -446,7 +497,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('neuf migrations connues', count(App\Core\Migrator::files()) === 9);
+check('dix migrations connues', count(App\Core\Migrator::files()) === 10);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

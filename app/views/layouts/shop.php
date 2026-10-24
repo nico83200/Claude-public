@@ -14,6 +14,7 @@ $error = flash('error');
 $socials = array_filter(['Instagram' => setting('social_instagram'), 'Facebook' => setting('social_facebook'), 'TikTok' => setting('social_tiktok'), 'Pinterest' => setting('social_pinterest')]);
 $announcements = array_values(array_filter(array_map('trim', explode('|', (string) setting('announcement')))));
 $welcomeOffer = App\Services\WelcomeOffer::active() ? App\Services\WelcomeOffer::label() : '';
+$customer = App\Services\Account::current();
 $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
 ?>
 <!doctype html>
@@ -70,9 +71,14 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
       <?php endif; ?>
       <a href="<?= e(url('page/a-propos')) ?>" class="<?= is_active('/page/a-propos') ? 'active' : '' ?>">Notre histoire</a>
       <a href="<?= e(url('contact')) ?>" class="<?= is_active('/contact') ? 'active' : '' ?>">Contact</a>
+      <a href="<?= e(url('compte')) ?>" class="nav-account <?= is_active('/compte') ? 'active' : '' ?>"><?= icon('user', 17) ?><?= $customer ? 'Mon compte · ' . e(App\Services\Account::firstName($customer)) : 'Mon compte / Connexion' ?></a>
     </nav>
     <div class="header-actions">
       <button class="icon-btn" type="button" data-search-toggle aria-expanded="false" aria-controls="search-bar" aria-label="Rechercher"><?= icon('search', 21) ?></button>
+      <a class="account-btn <?= $customer ? 'is-logged' : '' ?> <?= is_active('/compte') ? 'active' : '' ?>" href="<?= e(url('compte')) ?>" aria-label="<?= $customer ? 'Mon compte (connectée en tant que ' . e(App\Services\Account::firstName($customer)) . ')' : 'Mon compte — se connecter ou créer un compte' ?>">
+        <span class="account-avatar" aria-hidden="true"><?= $customer ? e(mb_strtoupper(mb_substr(App\Services\Account::firstName($customer), 0, 1))) : icon('user', 21) ?></span>
+        <span class="account-label"><small><?= $customer ? 'Bonjour ' . e(App\Services\Account::firstName($customer)) : 'Bonjour !' ?></small>Mon compte</span>
+      </a>
       <a class="icon-btn" href="<?= e(url('panier')) ?>" data-cart-open aria-label="Panier (<?= $cartCount ?> article<?= $cartCount > 1 ? 's' : '' ?>)">
         <?= icon('bag', 22) ?>
         <span class="cart-count" data-cart-count <?= $cartCount ? '' : 'hidden' ?>><?= $cartCount ?></span>
