@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Core\Database;
 use App\Core\View;
+use App\Services\AiPortrait;
 use App\Services\Cart;
 use App\Services\Catalog;
 use App\Services\Personalizer;
@@ -70,13 +71,26 @@ final class CartController
 
         $text = '';
         $photo = null;
+        $extra = [];
         if ($row['personalizable']) {
             $cfg = Personalizer::config($row['personalization']);
             $text = Personalizer::sanitize((string) input('personalization', ''), (int) $cfg['max_length']);
             if ($text === '' && !empty($cfg['required'])) {
                 $fail('Merci de renseigner : ' . $cfg['label'] . '.', '/produit/' . $row['slug']);
             }
-            if (Personalizer::needsPhoto($cfg)) {
+            if ($cfg['mode'] === 'ai_portrait') {
+                $token = (string) input('ai_portrait');
+                $portrait = AiPortrait::owns($token) ? AiPortrait::find($token) : null;
+                if (!$portrait || $portrait['status'] !== 'ready') {
+                    $fail('Créez d\'abord le portrait de votre cheval à partir de sa photo.', '/produit/' . $row['slug']);
+                }
+                try {
+                    $year = !empty($cfg['year_enabled']) ? AiPortrait::sanitizeYear(input('year', '')) : '';
+                } catch (\InvalidArgumentException $e) {
+                    $fail($e->getMessage(), '/produit/' . $row['slug']);
+                }
+                $extra = ['portrait' => $token, 'year' => $year];
+            } elseif (Personalizer::needsPhoto($cfg)) {
                 $file = Upload::files('photo')[0] ?? null;
                 if (!$file) {
                     $fail('Ajoutez la photo de votre cheval pour personnaliser cet article.', '/produit/' . $row['slug']);
@@ -89,7 +103,7 @@ final class CartController
             }
         }
 
-        Cart::add($variantId, (int) input('qty', 1), $text, $photo);
+        Cart::add($variantId, (int) input('qty', 1), $text, $photo, $extra);
         if ($ajax) {
             json_response(['ok' => true, 'count' => Cart::count(), 'html' => View::capture('partials/cart-drawer', self::summary(2) + ['justAdded' => true])]);
         }

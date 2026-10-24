@@ -125,10 +125,33 @@ CREATE TABLE order_items (
     personalization_text VARCHAR(100) NULL,
     personalization_mode VARCHAR(20) NULL,
     photo_file VARCHAR(190) NULL,
+    personalization_year VARCHAR(10) NULL,
+    ai_portrait CHAR(32) NULL,
     print_file_url VARCHAR(500) NULL,
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_order_items_order ON order_items (order_id);
+
+-- Portraits redessinés par IA d'après la photo d'une cliente (voir App\Services\AiPortrait)
+CREATE TABLE ai_portraits (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    token CHAR(32) NOT NULL UNIQUE,
+    session_hash CHAR(40) NOT NULL,
+    ip_hash CHAR(40) NOT NULL,
+    provider VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'queued',
+    photo_file VARCHAR(190) NOT NULL,
+    result_file VARCHAR(190) NULL,
+    prediction_id VARCHAR(120) NULL,
+    master_file VARCHAR(190) NULL,
+    master_prediction_id VARCHAR(120) NULL,
+    error VARCHAR(500) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_ai_portraits_session ON ai_portraits (session_hash, created_at);
+CREATE INDEX idx_ai_portraits_ip ON ai_portraits (ip_hash, created_at);
+CREATE INDEX idx_ai_portraits_created ON ai_portraits (created_at);
 
 CREATE TABLE order_events (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

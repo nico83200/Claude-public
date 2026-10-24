@@ -74,6 +74,7 @@ Dans la fiche d'un produit personnalisable (*Admin › Produits*), section *Pers
 | **Nom** | Saisit le nom de son cheval (aperçu en direct) | Écrit le nom sur votre visuel PNG (police Playfair, Allura ou Montserrat) |
 | **Photo** | Ajoute la photo de son cheval + son nom (aperçu en direct) | Cadre la photo dans la zone définie (rectangle, cercle ou arche) puis ajoute le nom |
 | **Portrait illustré** | Ajoute la photo de son cheval | La commande passe en « Portrait à réaliser » : vous téléchargez la photo, dessinez le portrait, déposez le PNG final dans la commande, et elle part automatiquement chez Printful |
+| **Portrait IA** | Ajoute la photo, clique sur « Créer mon portrait », saisit le nom et l'année (aperçu encadré en direct) | L'IA redessine la photo dans le style « Encre & Poudre » ; à la commande, l'affiche (dessin + nom + année) est composée et envoyée à Printful. Mise en service : [`PORTRAIT_IA.md`](PORTRAIT_IA.md) |
 
 Pour chaque produit, renseignez le **visuel d'impression** (PNG transparent), les **zones** (valeurs de 0 à 1) et testez avec le bouton **Tester le fichier d'impression**. L'« image vierge » est la photo produit sans exemple de nom/photo, utilisée pendant l'aperçu en direct.
 
@@ -85,7 +86,7 @@ Pour chaque produit, renseignez le **visuel d'impression** (PNG transparent), le
 /usr/bin/php /home/<UTILISATEUR>/domains/<DOMAINE>/public_html/cron/cron.php
 ```
 
-La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relance les transmissions Printful en échec, rattrape les expéditions, annule les paniers non payés et synchronise la newsletter avec Brevo.
+La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relance les transmissions Printful en échec, rattrape les expéditions, annule les paniers non payés, synchronise la newsletter avec Brevo et supprime les photos et portraits IA non commandés après 30 jours.
 
 ## 7. Finaliser
 
@@ -94,7 +95,8 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 - *Intégrations › Envoyer un test* : vérifiez la réception des e-mails. Pour éviter le dossier spam, contrôlez dans *E-mails › Paramètres DNS* que les enregistrements SPF, DKIM et DMARC sont actifs.
 - Facultatif, dans *Admin › Intégrations › Clés et jetons* :
   - clé API et n° de liste Brevo (newsletter) ;
-  - identifiants Google Analytics 4 et Meta Pixel (chargés seulement après consentement).
+  - identifiants Google Analytics 4 et Meta Pixel (chargés seulement après consentement) ;
+  - service de dessin du **portrait IA** (Replicate ou OpenAI) : voir [`PORTRAIT_IA.md`](PORTRAIT_IA.md). Sans clé, le portrait fonctionne en mode démonstration.
 - *Réglages › Conversion* :
   - créez dans Stripe un code promo de bienvenue (*Produits › Coupons*, ex. `BIENVENUE10`) et reportez-le dans « Code promo de bienvenue » : la popup et l'e-mail de bienvenue l'offrent aux nouvelles inscrites ;
   - si vous activez Klarna dans Stripe, passez « Afficher paiement en 3x » à Oui.

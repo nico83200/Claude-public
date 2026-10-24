@@ -19,7 +19,7 @@ final class HomeController
         $modes = [];
         foreach (Catalog::products(['personalizable' => true, 'sort' => 'price_asc'], 50) as $p) {
             $mode = Personalizer::config($p['personalization'])['mode'];
-            $modes[$mode] ??= ['price' => (int) $p['price'], 'slug' => $p['slug']];
+            $modes[$mode] ??= ['price' => (int) $p['price'], 'slug' => $p['slug'], 'image' => json_field($p['images'])[0] ?? null];
         }
         $global = Reviews::enabled() ? Reviews::global() : ['avg' => 0, 'count' => 0];
         view('shop/home', [

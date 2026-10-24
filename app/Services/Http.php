@@ -6,9 +6,10 @@ namespace App\Services;
 final class Http
 {
     /**
+     * @param string|array|null $body tableau = envoi multipart (champs + \CURLFile)
      * @return array{status:int, body:string, json:?array}
      */
-    public static function request(string $method, string $url, array $headers = [], ?string $body = null, int $timeout = 30): array
+    public static function request(string $method, string $url, array $headers = [], string|array|null $body = null, int $timeout = 30): array
     {
         $ch = curl_init($url);
         curl_setopt_array($ch, [

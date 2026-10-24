@@ -16,12 +16,17 @@ $variantsJson = array_map(static fn ($v) => [
     'price'      => (int) ($v['price'] ?? $product['price']),
     'priceLabel' => money($v['price'] ?? $product['price']),
     'image'      => $v['image'] ? image_url($v['image']) : null,
+    'colorHex'   => $v['color_hex'],
 ], $variants);
 $first = $variants[0] ?? null;
 $images = $product['images_list'] ?: [null];
 $cfg = $personalization;
 $mode = $cfg['mode'] ?? null;
 $needsPhoto = $cfg && in_array($mode, ['photo', 'portrait'], true);
+$isAi = $cfg && $mode === 'ai_portrait' && App\Services\AiPortrait::enabled();
+if ($cfg && $mode === 'ai_portrait' && !$isAi) {
+    $variants = []; // migration 006 en attente : article indisponible
+}
 $price = (int) ($first['price'] ?? $product['price']);
 $saving = $product['discount'] ? (int) $product['compare_at_price'] - (int) $product['price'] : 0;
 $stageStyle = '';
@@ -51,12 +56,18 @@ if ($cfg) {
           <?php if ($cfg && $mode === 'photo'): ?>
             <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
           <?php endif; ?>
-          <?php if ($cfg): ?>
+          <?php if ($cfg && !$isAi): ?>
             <span class="preview-text font-<?= e($cfg['font']) ?> <?= $cfg['uppercase'] && $cfg['font'] !== 'script' ? 'is-upper' : '' ?>" data-preview-text aria-hidden="true"></span>
           <?php endif; ?>
+          <?php if ($isAi): ?>
+            <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null]); ?>
+          <?php endif; ?>
         </div>
-        <?php if (count($images) > 1): ?>
+        <?php if (count($images) > 1 || $isAi): ?>
           <div class="gallery-thumbs">
+            <?php if ($isAi): ?>
+              <button type="button" class="thumb thumb-preview" data-ai-show aria-label="Voir l'aperçu de votre portrait"><?= icon('sparkle', 20) ?><span>Aperçu</span></button>
+            <?php endif; ?>
             <?php foreach ($images as $i => $img): ?>
               <button type="button" class="thumb <?= $i === 0 ? 'active' : '' ?>" data-thumb="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
                 <img src="<?= e(image_url($img)) ?>" alt="" loading="lazy" width="120" height="120">
@@ -124,7 +135,9 @@ if ($cfg) {
           </fieldset>
           <?php endif; ?>
 
-          <?php if ($cfg): ?>
+          <?php if ($isAi): ?>
+            <?php partial('ai-portrait-box', ['cfg' => $cfg, 'product' => $product]); ?>
+          <?php elseif ($cfg): ?>
           <div class="perso-box">
             <p class="perso-title"><?= icon('sparkle', 16) ?> Votre personnalisation <span class="pill pill-blush">Offerte</span></p>
             <?php if ($needsPhoto): ?>
@@ -184,7 +197,10 @@ if ($cfg) {
         <details class="accordion">
           <summary>Comment se passe la personnalisation ?</summary>
           <div class="rich">
-            <?php if ($mode === 'portrait'): ?>
+            <?php if ($isAi): ?>
+              <p>Ajoutez une photo nette de votre cheval puis cliquez sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans le style « Encre & Poudre », un trait fin bordeaux rehaussé d'aquarelle aux tons poudrés. Saisissez son nom et, si vous le souhaitez, son année de naissance : ils s'inscrivent sous le portrait, comme sur l'aperçu.</p>
+              <p>Vous pouvez créer plusieurs versions et garder votre préférée. L'aperçu est volontairement réduit et filigrané : votre portrait est imprimé en haute définition, sans filigrane, sur papier d'art mat, puis encadré.</p>
+            <?php elseif ($mode === 'portrait'): ?>
               <p>Ajoutez une photo nette de votre cheval : notre illustratrice réalise son portrait au trait fin, dans le style Crinière Club, puis il part à l'impression. Comptez <?= (int) $cfg['extra_days'] ?> jours ouvrés de création.</p>
             <?php elseif ($mode === 'photo'): ?>
               <p>Votre photo est cadrée automatiquement dans notre arche signature, avec le nom de votre cheval si vous le souhaitez. Choisissez une photo nette où sa tête est bien visible.</p>

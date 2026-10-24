@@ -317,7 +317,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--r
 .qty button { background: none; border: 0; width: 42px; height: 100%; font-size: 1.15rem; cursor: pointer; color: var(--ink); }
 .qty input { width: 38px; border: 0; text-align: center; padding: 0; -moz-appearance: textfield; background: transparent; box-shadow: none; }
 .qty input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.buy-row .btn-primary { flex: 1; }
+.buy-row .btn-primary { flex: 1; min-width: 0; white-space: normal; }
 .variant-unavailable { color: var(--danger); font-size: .9rem; margin: .8rem 0 0; }
 .delivery-box { display: flex; gap: .8rem; align-items: flex-start; background: var(--surface); border-radius: var(--r); padding: 1rem 1.1rem; margin: 1.2rem 0; box-shadow: var(--shadow-sm); font-size: .9rem; }
 .delivery-box .icon { color: var(--rose); margin-top: .1rem; }
@@ -621,3 +621,37 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 @media (max-width: 640px) {
   .product-card-cat { display: none; }
 }
+
+/* Portrait IA « Encre & Poudre » ------------------------------------------------ */
+.ai-stage { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; background: radial-gradient(120% 90% at 50% 20%, #f3ece2 0%, #e8dccb 70%, #dccdb8 100%); }
+.ai-stage[hidden] { display: none; }
+.ai-frame { width: 54%; padding: 0; border: 2.4cqw solid var(--frame, #231f20); background: #f9f7f3; box-shadow: 0 2.2cqw 4cqw rgba(60, 35, 30, .28), 0 .4cqw .8cqw rgba(60, 35, 30, .2), inset 0 0 0 1px rgba(0, 0, 0, .08); transition: width .35s ease, border-color .25s; }
+.ai-stage.is-large .ai-frame { width: 64%; }
+.ai-frame svg { display: block; width: 100%; height: auto; }
+.ai-stage-note { position: absolute; left: 50%; bottom: 3.5%; transform: translateX(-50%); margin: 0; padding: .3rem .8rem; border-radius: 999px; background: rgba(249, 247, 243, .85); font-size: .75rem; color: var(--muted); max-width: 92%; width: max-content; text-align: center; line-height: 1.4; }
+.thumb-preview { display: grid; place-items: center; align-content: center; gap: .15rem; color: var(--rose); font-size: .72rem; font-weight: 600; background: var(--blush); }
+.ai-box .ai-step { margin-top: .9rem; }
+.ai-box .ai-step:first-of-type { margin-top: .3rem; }
+.ai-step-title { display: flex; align-items: center; gap: .55rem; margin: 0 0 .6rem; font-weight: 600; font-size: .92rem; }
+.ai-num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--rose); color: #fff; font-size: .78rem; flex-shrink: 0; }
+.perso-box .ai-consent { display: flex; align-items: flex-start; justify-content: flex-start; gap: .55rem; font-weight: 400; font-size: .8rem; line-height: 1.45; color: var(--muted); margin: 0 0 .8rem; }
+.ai-consent input { width: 18px; height: 18px; margin-top: .1rem; flex-shrink: 0; accent-color: var(--rose); }
+.ai-hint { margin: .55rem 0 0; font-size: .78rem; color: var(--muted); text-align: center; }
+.btn-block { width: 100%; justify-content: center; }
+.ai-progress { padding: .9rem 0 .2rem; text-align: center; }
+.ai-progress p { margin: .6rem 0 0; font-family: var(--serif); font-style: italic; color: var(--rose); }
+.ai-progress-bar { height: 8px; border-radius: 999px; background: var(--surface); overflow: hidden; box-shadow: inset 0 0 0 1px var(--powder); }
+.ai-progress-bar span { display: block; height: 100%; width: 3%; border-radius: inherit; background: linear-gradient(90deg, var(--powder), var(--rose)); }
+.ai-result { display: flex; align-items: center; gap: .9rem; padding: .7rem; border-radius: var(--r); background: var(--surface); margin-top: .3rem; }
+.ai-result img { width: 64px; height: 85px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 8px rgba(90, 42, 58, .18); }
+.ai-result div { display: flex; flex-direction: column; align-items: flex-start; gap: .1rem; }
+.ai-result .small { font-size: .8rem; }
+.ai-box .form-error { margin: .6rem 0 0; }
+.ai-fields { display: grid; grid-template-columns: 1.35fr 1fr; gap: .7rem; align-items: end; }
+.ai-fields .field { margin: 0; }
+@media (max-width: 420px) { .ai-fields { grid-template-columns: 1fr; } }
+.feature-checks { list-style: none; padding: 0; margin: 1.2rem 0 1.8rem; display: grid; gap: .55rem; }
+.feature-checks li { display: flex; align-items: center; gap: .6rem; font-weight: 500; }
+.feature-checks svg { color: var(--rose); flex-shrink: 0; }
+.feature-price { margin-left: 1rem; font-weight: 700; color: var(--rose); }
+@media (max-width: 960px) { .feature-reverse > .feature-visual { order: -1; } }

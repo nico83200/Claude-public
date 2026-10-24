@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use App\Controllers\Admin;
+use App\Controllers\AiPortraitController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\CronController;
@@ -27,6 +28,9 @@ $r->get('/panier', [CartController::class, 'show']);
 $r->get('/panier/apercu', [CartController::class, 'drawer']);
 $r->get('/panier/photo/{name}', [CartController::class, 'photo']);
 $r->post('/panier/ajouter', [CartController::class, 'add']);
+$r->post('/portrait-ia', [AiPortraitController::class, 'create']);
+$r->get('/portrait-ia/{token}', [AiPortraitController::class, 'status']);
+$r->get('/portrait-ia/{token}/apercu', [AiPortraitController::class, 'preview']);
 $r->post('/panier/modifier', [CartController::class, 'update']);
 $r->post('/panier/supprimer', [CartController::class, 'remove']);
 $r->post('/commande', [CheckoutController::class, 'start']);
@@ -74,11 +78,13 @@ $r->post('/admin/commandes/{id}/rembourser', [Admin\OrdersController::class, 're
 $r->post('/admin/commandes/{id}/note', [Admin\OrdersController::class, 'note']);
 $r->post('/admin/commandes/{id}/portrait/{item}', [Admin\OrdersController::class, 'artwork']);
 $r->get('/admin/photo/{name}', [Admin\OrdersController::class, 'photo']);
+$r->get('/admin/portrait-ia/{token}', [Admin\OrdersController::class, 'aiArtwork']);
 
 $r->get('/admin/produits', [Admin\ProductsController::class, 'index']);
 $r->get('/admin/produits/nouveau', [Admin\ProductsController::class, 'create']);
 $r->post('/admin/produits/nouveau', [Admin\ProductsController::class, 'store']);
 $r->get('/admin/produits/printful', [Admin\ProductsController::class, 'printfulList']);
+$r->get('/admin/produits/catalogue-printful', [Admin\ProductsController::class, 'printfulCatalog']);
 $r->post('/admin/produits/printful/{id}', [Admin\ProductsController::class, 'printfulImport']);
 $r->get('/admin/produits/{id}', [Admin\ProductsController::class, 'edit']);
 $r->post('/admin/produits/{id}', [Admin\ProductsController::class, 'update']);

@@ -75,6 +75,26 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
   </div>
 </section>
 
+<?php if (isset($modes['ai_portrait'])): ?>
+<section class="section">
+  <div class="container feature feature-reverse">
+    <div>
+      <p class="script-accent">nouveau au club</p>
+      <h2>Son portrait aquarelle, <em>en quelques secondes</em></h2>
+      <p class="lead">Envoyez sa photo : notre IA la redessine dans notre style « Encre &amp; Poudre », un trait fin bordeaux rehaussé d'aquarelle poudrée. Ajoutez son nom et son année de naissance, choisissez son cadre, et découvrez l'aperçu avant de commander.</p>
+      <ul class="feature-checks">
+        <li><?= icon('check', 16) ?> Aperçu offert, sans engagement</li>
+        <li><?= icon('check', 16) ?> Imprimé en haute définition sur papier d'art</li>
+        <li><?= icon('check', 16) ?> Cadre noir, blanc ou chêne, prêt à accrocher</li>
+      </ul>
+      <a class="btn btn-primary btn-lg" href="<?= e(url('produit/' . $modes['ai_portrait']['slug'])) ?>"><?= icon('sparkle', 16) ?> Créer son portrait</a>
+      <span class="feature-price">dès <?= e(money($modes['ai_portrait']['price'])) ?></span>
+    </div>
+    <a class="feature-visual" href="<?= e(url('produit/' . $modes['ai_portrait']['slug'])) ?>"><img src="<?= e(image_url($modes['ai_portrait']['image'])) ?>" alt="Portrait aquarelle d'un cheval, encadré, avec son nom et son année de naissance" loading="lazy" width="600" height="600"></a>
+  </div>
+</section>
+<?php endif; ?>
+
 <section class="section">
   <div class="container feature">
     <div class="feature-visual"><img src="<?= e(url('assets/img/products/cheval-sweat-nom.jpg')) ?>" alt="Sweat personnalisé au nom du cheval" loading="lazy" width="600" height="600"></div>
@@ -83,7 +103,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <h2>Une pièce unique, <em>à son image</em></h2>
       <p class="lead">Parce qu'il n'y a qu'un seul cheval comme le vôtre, chaque création se personnalise en quelques secondes, avec un aperçu en direct.</p>
       <div class="perso-ways">
-        <?php foreach (['text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après votre photo']] as $mode => [$title, $ic, $desc]): ?>
+        <?php foreach (['ai_portrait' => ['Son portrait aquarelle', 'sparkle', 'Redessiné par IA en quelques secondes, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après votre photo']] as $mode => [$title, $ic, $desc]): ?>
           <?php if (isset($modes[$mode])): ?>
             <a class="perso-way" href="<?= e(url('produit/' . $modes[$mode]['slug'])) ?>">
               <span class="ic"><?= icon($ic, 22) ?></span>

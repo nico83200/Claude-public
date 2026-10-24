@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Database;
+
 final class Upload
 {
     private const IMAGE_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
@@ -119,6 +121,30 @@ final class Upload
         }
         $path = self::PHOTO_DIR . '/' . $name;
         return is_file($path) ? $path : null;
+    }
+
+    /**
+     * Supprime les photos clientes de plus de $days jours qui ne servent à aucune commande payée
+     * ni à un portrait IA conservé (paniers abandonnés, essais) : minimisation des données (RGPD).
+     */
+    public static function cleanupCustomerPhotos(int $days = 30): int
+    {
+        $keep = array_flip(array_column(Database::all(
+            "SELECT i.photo_file FROM order_items i JOIN orders o ON o.id = i.order_id
+             WHERE i.photo_file IS NOT NULL AND o.status NOT IN ('pending', 'canceled')"
+        ), 'photo_file'));
+        if (AiPortrait::enabled()) {
+            $keep += array_flip(array_column(Database::all('SELECT photo_file FROM ai_portraits'), 'photo_file'));
+        }
+        $limit = date('Ymd', time() - $days * 86400);
+        $deleted = 0;
+        foreach (glob(self::PHOTO_DIR . '/*.jpg') ?: [] as $path) {
+            $name = basename($path);
+            if (preg_match('/^(\d{8})-[a-f0-9]{24}\.jpg$/', $name, $m) && $m[1] < $limit && !isset($keep[$name])) {
+                $deleted += @unlink($path) ? 1 : 0;
+            }
+        }
+        return $deleted;
     }
 
     private static function validate(array $file, array $types, int $maxMb): string

@@ -157,6 +157,62 @@ function seed_demo_catalog(): void
             }
         }
     }
+    seed_ai_portrait_product($catIds['mon-cheval-ma-fierte']);
+}
+
+/**
+ * Affiche encadrée « Portrait aquarelle de votre cheval » (portrait redessiné par IA, style Encre & Poudre).
+ * Support Printful : « Enhanced Matte Paper Framed Poster (cm) » (produit catalogue n° 304, emplacement
+ * « default ») — 30 × 40 cm en cadre noir, blanc ou chêne, 45 × 61 cm en noir ou blanc.
+ * Les ID variantes catalogue sont renseignés : la boutique est prête dès que le jeton Printful est saisi.
+ */
+function seed_ai_portrait_product(int $categoryId): int
+{
+    $id = Database::insert('products', [
+        'category_id'       => $categoryId,
+        'name'              => 'Portrait aquarelle de votre cheval, encadré',
+        'slug'              => 'portrait-aquarelle-de-votre-cheval-encadre',
+        'short_description' => 'Sa photo redessinée au trait fin et à l\'aquarelle, avec son nom et son année de naissance.',
+        'description'       => '<p>Envoyez sa plus belle photo : en quelques secondes, notre IA la redessine dans notre style signature <strong>« Encre &amp; Poudre »</strong>, un trait fin bordeaux rehaussé d\'aquarelle aux tons poudrés. Son nom s\'inscrit dessous en écriture manuscrite, avec son année de naissance si vous le souhaitez.</p><ul><li>Aperçu immédiat et gratuit, avant de commander</li><li>Papier d\'art mat épais, impression haute définition sans filigrane</li><li>Cadre noir, blanc ou chêne, prêt à accrocher</li></ul>',
+        'price'             => 7900,
+        'compare_at_price'  => null,
+        'images'            => json_encode(['assets/img/products/portrait-ia.jpg', 'assets/img/products/portrait-ia-avant-apres.jpg', 'assets/img/products/portrait-ia-detail.jpg']),
+        'featured'          => 1,
+        'active'            => 1,
+        'personalizable'    => 1,
+        'personalization'   => json_encode([
+            'mode' => 'ai_portrait', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => true, 'font' => 'script',
+            'uppercase' => false, 'color' => '#5a2a3a', 'year_enabled' => true, 'year_label' => 'Année de naissance',
+            'print_w' => 3600, 'print_h' => 4800, 'extra_days' => 0,
+        ], JSON_UNESCAPED_UNICODE),
+        'design_file'       => null,
+        'print_placement'   => 'default',
+        'created_at'        => now(),
+        'updated_at'        => now(),
+    ]);
+    $variants = [
+        // couleur, code couleur, format, prix TTC (centimes), ID variante catalogue Printful
+        ['Noir', '#231f20', '30 × 40 cm', 7900, 9357],
+        ['Noir', '#231f20', '45 × 61 cm', 11900, 19646],
+        ['Blanc', '#f4f1ec', '30 × 40 cm', 7900, 10297],
+        ['Blanc', '#f4f1ec', '45 × 61 cm', 11900, 19651],
+        ['Chêne', '#dcb68f', '30 × 40 cm', 8400, 11791],
+    ];
+    foreach ($variants as $i => [$color, $hex, $size, $price, $printfulId]) {
+        Database::insert('product_variants', [
+            'product_id'          => $id,
+            'name'                => $color . ' / ' . $size,
+            'color'               => $color,
+            'color_hex'           => $hex,
+            'size'                => $size,
+            'sku'                 => 'CC-PIA-' . ($i + 1),
+            'price'               => $price,
+            'printful_variant_id' => $printfulId,
+            'position'            => $i + 1,
+            'active'              => 1,
+        ]);
+    }
+    return $id;
 }
 
 /** Copie les visuels d'impression de démonstration (PNG HD transparents) dans storage/designs. */
@@ -253,6 +309,8 @@ HTML,
 <p>Dans la collection « Mon cheval, ma fierté », saisissez le nom de votre cheval et/ou ajoutez sa photo : un aperçu s'affiche instantanément sur l'article. Le texte est imprimé exactement comme saisi (pensez à vérifier l'orthographe !).</p>
 <h2>Quelle photo choisir ?</h2>
 <p>Une photo nette et bien éclairée, prise de face ou de trois quarts, où la tête de votre cheval est bien visible. Les photos de téléphone conviennent parfaitement (format JPG ou PNG, 20 Mo maximum).</p>
+<h2>Comment fonctionne le portrait aquarelle par IA ?</h2>
+<p>Sur la fiche du portrait encadré, ajoutez une photo de votre cheval et cliquez sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans notre style « Encre &amp; Poudre » (trait fin bordeaux et aquarelle poudrée). Vous voyez l'aperçu dans son cadre, avec son nom et son année de naissance, avant de commander. Vous pouvez créer plusieurs versions et garder votre préférée.</p>
 <h2>Comment se passe un portrait illustré ?</h2>
 <p>Notre illustratrice dessine le portrait de votre cheval à la main, au trait fin, d'après votre photo. Comptez 5 jours ouvrés de création en plus de la fabrication et de la livraison.</p>
 <h2>Comment choisir ma taille ?</h2>
@@ -320,9 +378,10 @@ HTML,
 <li><strong>Commandes</strong> : nom, adresse, e-mail, téléphone, contenu de la commande — exécution du contrat (fabrication, livraison, service client). Conservation : 10 ans (obligations comptables).</li>
 <li><strong>Newsletter</strong> : e-mail — avec votre consentement, retirable à tout moment via le lien de désinscription.</li>
 <li><strong>Formulaire de contact</strong> : nom, e-mail, message — réponse à votre demande. Conservation : 3 ans.</li>
+<li><strong>Photos de votre cheval et portraits IA</strong> : la photo que vous envoyez sert uniquement à fabriquer votre article. Pour le portrait aquarelle, elle est transmise, avec votre accord, à notre prestataire de dessin par IA (OpenAI ou Replicate, selon le service activé), uniquement pour créer le dessin. Photos et portraits non commandés sont supprimés automatiquement après 30 jours ; ceux des articles commandés sont conservés avec la commande.</li>
 </ul>
 <h2>Destinataires</h2>
-<p>Stripe (paiement), Printful (fabrication et expédition — reçoit vos nom, adresse et téléphone), Hostinger (hébergement), Brevo (newsletter, le cas échéant). Certains prestataires peuvent transférer des données hors UE dans le cadre de clauses contractuelles types.</p>
+<p>Stripe (paiement), Printful (fabrication et expédition — reçoit vos nom, adresse et téléphone), Hostinger (hébergement), Brevo (newsletter, le cas échéant), OpenAI ou Replicate (dessin du portrait par IA, uniquement si vous créez un portrait). Certains prestataires peuvent transférer des données hors UE dans le cadre de clauses contractuelles types.</p>
 <h2>Cookies</h2>
 <p>Nous utilisons un cookie de session indispensable au panier. Les cookies de mesure d'audience ou publicitaires ne sont déposés qu'avec votre accord, via le bandeau affiché lors de votre première visite. Vous pouvez modifier votre choix à tout moment avec le lien « Gérer les cookies » en bas de page.</p>
 <h2>Vos droits</h2>

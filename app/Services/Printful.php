@@ -79,6 +79,31 @@ final class Printful
         return $this->request('GET', 'store/products/' . rawurlencode((string) $id))['result'];
     }
 
+    /** Catalogue Printful (produits « vierges ») : liste filtrée sur le titre. */
+    public function catalogProducts(string $search = ''): array
+    {
+        $products = $this->request('GET', 'products')['result'] ?? [];
+        if ($search !== '') {
+            $words = preg_split('/\s+/', mb_strtolower(trim($search)));
+            $products = array_filter($products, static function ($p) use ($words) {
+                $title = mb_strtolower(($p['title'] ?? '') . ' ' . ($p['type_name'] ?? '') . ' ' . ($p['model'] ?? ''));
+                foreach ($words as $w) {
+                    if (!str_contains($title, $w)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+        return array_values($products);
+    }
+
+    /** Un produit du catalogue et ses variantes (ID à saisir dans « ID variante catalogue »). */
+    public function catalogProduct(int $id): array
+    {
+        return $this->request('GET', 'products/' . $id)['result'] ?? [];
+    }
+
     public function shippingRates(array $recipient, array $items): array
     {
         return $this->request('POST', 'shipping/rates', ['recipient' => $recipient, 'items' => $items, 'currency' => 'EUR', 'locale' => 'fr_FR'])['result'] ?? [];

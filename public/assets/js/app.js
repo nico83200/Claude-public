@@ -79,10 +79,12 @@
 
   // Galerie ----------------------------------------------------------------
   var mainImage = $('[data-main-image]');
+  var aiStage = $('[data-ai-stage]');
   $$('[data-thumb]').forEach(function (thumb) {
     thumb.addEventListener('click', function () {
       mainImage.src = thumb.dataset.thumb;
-      $$('[data-thumb]').forEach(function (t) { t.classList.remove('active'); });
+      if (aiStage) aiStage.hidden = true;
+      $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
       thumb.classList.add('active');
     });
   });
@@ -143,6 +145,7 @@
     var unavailable = $('[data-unavailable]', form);
     var errorBox = $('[data-form-error]', form);
     var stage = $('[data-preview-stage]');
+    var aiLocked = !!$('[data-ai-box]', form);
     var baseSwapped = false;
     var useBaseImage = function () {
       if (!baseSwapped && stage && stage.dataset.previewBase && mainImage) {
@@ -151,6 +154,7 @@
       }
     };
 
+    var sizeList = variants.map(function (v) { return v.size; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
     var selected = function (name) {
       var el = $('input[data-option="' + name + '"]:checked', form);
       return el ? el.value : null;
@@ -170,7 +174,9 @@
         variantInput.value = match.id;
         priceEls.forEach(function (el) { el.textContent = match.priceLabel; });
         if (match.image && mainImage && !baseSwapped) mainImage.src = match.image;
-        addBtn.disabled = false;
+        if (aiStage && match.colorHex) aiStage.style.setProperty('--frame', match.colorHex);
+        if (aiStage) aiStage.classList.toggle('is-large', sizeList.indexOf(match.size) > 0); // grand format : cadre plus grand sur le mur
+        addBtn.disabled = aiLocked;
         unavailable.hidden = true;
       } else {
         addBtn.disabled = true;
@@ -228,6 +234,245 @@
       });
     }
 
+    // Portrait IA « Encre & Poudre » : photo → dessin → aperçu encadré avec nom et année
+    var aiBox = $('[data-ai-box]', form);
+    if (aiBox && aiStage) {
+      var geo = JSON.parse(aiStage.dataset.geo);
+      var svg = $('[data-ai-svg]', aiStage);
+      var art = $('[data-ai-art]', svg);
+      var nameEl = $('[data-ai-name]', svg);
+      var yearEl = $('[data-ai-year]', svg);
+      var rules = $$('[data-ai-rule]', svg);
+      var maskRect = $('[data-ai-mask]', svg);
+      var note = $('[data-ai-stage-note]', aiStage);
+      var aiPhoto = $('[data-ai-photo]', aiBox);
+      var aiConsent = $('[data-ai-consent]', aiBox);
+      var genBtn = $('[data-ai-generate]', aiBox);
+      var startBox = $('[data-ai-start]', aiBox);
+      var progress = $('[data-ai-progress]', aiBox);
+      var bar = $('[data-ai-bar]', aiBox);
+      var progressText = $('[data-ai-progress-text]', aiBox);
+      var resultBox = $('[data-ai-result]', aiBox);
+      var aiThumb = $('[data-ai-thumb]', aiBox);
+      var aiError = $('[data-ai-error]', aiBox);
+      var remainingEl = $('[data-ai-remaining]', aiBox);
+      var tokenInput = $('[data-ai-token]', form);
+      var yearInput = $('[data-ai-year-input]', form);
+      var addLabel = addBtn.textContent;
+      var showBtn = $('[data-ai-show]');
+      var hasOwnPortrait = false;
+
+      var showStage = function () {
+        aiStage.hidden = false;
+        $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
+        if (showBtn) showBtn.classList.add('active');
+      };
+      if (showBtn) showBtn.addEventListener('click', showStage);
+
+      var setLocked = function (locked) {
+        aiLocked = locked;
+        addBtn.disabled = locked;
+        addBtn.textContent = locked ? 'Créez son portrait \u2191' : addLabel;
+      };
+      setLocked(true);
+
+      // Mise en page identique au fichier d'impression (voir AiPortrait::composePrint)
+      var layout = function () {
+        var typedName = persoInput ? persoInput.value.trim() : '';
+        var typedYear = yearInput ? yearInput.value : '';
+        var example = !hasOwnPortrait && !typedName && !typedYear; // exemple tant que rien n'est saisi
+        var name = example ? 'Tornado' : typedName;
+        var year = example && yearInput ? '2014' : typedYear;
+        nameEl.textContent = name;
+        nameEl.setAttribute('font-size', geo.nameSize);
+        var size = geo.nameSize;
+        while (name && size > 30 && nameEl.getComputedTextLength() > geo.nameMaxW) {
+          size *= 0.95;
+          nameEl.setAttribute('font-size', size);
+        }
+        nameEl.setAttribute('y', year ? geo.nameY : geo.nameYAlone);
+        yearEl.textContent = year;
+        yearEl.setAttribute('y', name ? geo.yearY : geo.nameYAlone);
+        yearEl.setAttribute('dx', geo.yearSpacing / 2); // l'espacement final décale le centrage
+        var width = year ? yearEl.getComputedTextLength() - geo.yearSpacing : 0;
+        var mid = (name ? geo.yearY : geo.nameYAlone) - geo.yearSize * 0.36;
+        rules.forEach(function (r) {
+          var side = parseInt(r.dataset.aiRule, 10);
+          var from = 1800 + side * (width / 2 + geo.ruleGap);
+          r.setAttribute('x', side < 0 ? from - geo.ruleLen : from);
+          r.setAttribute('y', mid - geo.ruleThick / 2);
+          r.style.display = year ? '' : 'none';
+        });
+      };
+      // Le fondu des bords suit les proportions réelles du dessin
+      var fitMask = function (w, h) {
+        var scale = Math.min(geo.artW / w, geo.artH / h);
+        var dw = w * scale, dh = h * scale, inset = Math.min(dw, dh) * 0.035;
+        maskRect.setAttribute('x', geo.artX + (geo.artW - dw) / 2 + inset);
+        maskRect.setAttribute('y', geo.artY + (geo.artH - dh) / 2 + inset);
+        maskRect.setAttribute('width', dw - 2 * inset);
+        maskRect.setAttribute('height', dh - 2 * inset);
+      };
+      var setArt = function (src) {
+        var probe = new Image();
+        probe.onload = function () { fitMask(probe.naturalWidth, probe.naturalHeight); art.setAttribute('href', src); };
+        probe.src = src;
+      };
+      setArt(art.getAttribute('href'));
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+      layout();
+      if (persoInput) persoInput.addEventListener('input', function () { showStage(); layout(); });
+      if (yearInput) {
+        yearInput.addEventListener('input', function () {
+          var clean = yearInput.value.replace(/\D/g, '').slice(0, 4);
+          if (clean !== yearInput.value) yearInput.value = clean;
+          showStage();
+          layout();
+        });
+      }
+
+      var fail = function (message) {
+        aiError.textContent = message || 'Une erreur est survenue, merci de réessayer.';
+        aiError.hidden = false;
+        progress.hidden = true;
+        startBox.hidden = false;
+        if (hasOwnPortrait) resultBox.hidden = false;
+        updateGenerate();
+      };
+      var updateGenerate = function () {
+        genBtn.disabled = !(aiPhoto.files && aiPhoto.files[0] && aiConsent.checked);
+      };
+      var updateRemaining = function (n) {
+        if (typeof n !== 'number' || !remainingEl) return;
+        remainingEl.textContent = n > 0
+          ? 'Environ 30 secondes · ' + n + ' création' + (n > 1 ? 's' : '') + ' offerte' + (n > 1 ? 's' : '') + ' aujourd’hui'
+          : 'C’était votre dernière création offerte du jour ♡';
+      };
+
+      aiPhoto.addEventListener('change', function () {
+        var file = aiPhoto.files && aiPhoto.files[0];
+        aiError.hidden = true;
+        if (file && file.size > 20 * 1024 * 1024) {
+          aiPhoto.value = '';
+          fail('Votre photo est trop lourde (20 Mo maximum).');
+          return;
+        }
+        if (file) {
+          var thumbEl = $('[data-photo-thumb]', aiBox);
+          thumbEl.style.backgroundImage = 'url("' + URL.createObjectURL(file) + '")';
+          thumbEl.hidden = false;
+          $('[data-photo-drop]', aiBox).classList.add('has-photo');
+          $('[data-photo-label]', aiBox).textContent = 'Photo ajoutée ✓ (cliquez pour changer)';
+        }
+        updateGenerate();
+      });
+      aiConsent.addEventListener('change', updateGenerate);
+      var aiDrop = $('[data-photo-drop]', aiBox);
+      ['dragenter', 'dragover'].forEach(function (ev) { aiDrop.addEventListener(ev, function () { aiDrop.classList.add('dragover'); }); });
+      ['dragleave', 'drop'].forEach(function (ev) { aiDrop.addEventListener(ev, function () { aiDrop.classList.remove('dragover'); }); });
+
+      var steps = ['Analyse de la photo…', 'Esquisse de la tête et des oreilles…', 'Tracé à l’encre bordeaux…', 'Lavis d’aquarelle poudrée…', 'Derniers détails dans le regard…', 'Encore quelques secondes, on peaufine…'];
+      var stepTimer = null;
+      var startProgress = function () {
+        var i = 0;
+        startBox.hidden = true;
+        resultBox.hidden = true;
+        aiError.hidden = true;
+        progress.hidden = false;
+        progressText.textContent = steps[0];
+        bar.style.transition = 'none';
+        bar.style.width = '3%';
+        void bar.offsetWidth;
+        bar.style.transition = 'width 45s cubic-bezier(.2,.6,.3,1)';
+        bar.style.width = '92%';
+        clearInterval(stepTimer);
+        stepTimer = setInterval(function () { i = Math.min(steps.length - 1, i + 1); progressText.textContent = steps[i]; }, 7000);
+      };
+      var ready = function (state) {
+        clearInterval(stepTimer);
+        bar.style.transition = 'width .3s';
+        bar.style.width = '100%';
+        hasOwnPortrait = true;
+        tokenInput.value = state.token;
+        aiThumb.src = state.preview;
+        setArt(state.preview);
+        note.textContent = 'Aperçu réduit et filigrané · impression en haute définition';
+        setTimeout(function () {
+          progress.hidden = true;
+          resultBox.hidden = false;
+          startBox.hidden = true;
+        }, 400);
+        showStage();
+        layout();
+        setLocked(false);
+        if (persoInput && !persoInput.value) persoInput.focus({ preventScroll: true });
+        track('ai_portrait_ready');
+      };
+      var poll = function (token, started) {
+        if (Date.now() - started > 4 * 60 * 1000) { clearInterval(stepTimer); fail('Le dessin prend plus de temps que prévu. Réessayez dans un instant.'); return; }
+        setTimeout(function () {
+          fetch(aiBox.dataset.aiUrl + '/' + token, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (state) { handle(state, started); })
+            .catch(function () { poll(token, started); });
+        }, 3000);
+      };
+      var handle = function (state, started) {
+        if (state.status === 'ready') ready(state);
+        else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message); }
+        else poll(state.token, started);
+      };
+
+      // Photo réduite à 2400 px dans le navigateur : envoi rapide en 4G, sans buter sur les limites du serveur
+      var shrink = function (file) {
+        return new Promise(function (resolve) {
+          if (!window.createImageBitmap || !/^image\/(jpeg|png|webp)$/.test(file.type)) { resolve(file); return; }
+          createImageBitmap(file).then(function (bmp) {
+            var scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+            if (scale === 1 && file.size < 1.5 * 1024 * 1024) { resolve(file); return; }
+            var c = document.createElement('canvas');
+            c.width = Math.round(bmp.width * scale);
+            c.height = Math.round(bmp.height * scale);
+            var ctx = c.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.drawImage(bmp, 0, 0, c.width, c.height);
+            c.toBlob(function (blob) { resolve(blob ? new File([blob], 'cheval.jpg', { type: 'image/jpeg' }) : file); }, 'image/jpeg', 0.9);
+          }).catch(function () { resolve(file); });
+        });
+      };
+
+      genBtn.addEventListener('click', function () {
+        var file = aiPhoto.files && aiPhoto.files[0];
+        if (!file || !aiConsent.checked) return;
+        genBtn.disabled = true;
+        startProgress();
+        showStage();
+        track('ai_portrait_start');
+        shrink(file).then(function (photo) {
+          var data = new FormData();
+          data.append('_token', $('input[name="_token"]', form).value);
+          data.append('product_id', aiBox.dataset.productId);
+          data.append('consent', '1');
+          data.append('photo', photo);
+          return fetch(aiBox.dataset.aiUrl, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+        })
+          .then(function (r) { return r.json().catch(function () { throw new Error('L\u2019envoi de la photo a échoué, merci de réessayer.'); }); })
+          .then(function (state) {
+            if (!state.ok) throw new Error(state.message);
+            updateRemaining(state.remaining);
+            handle(state, Date.now());
+          })
+          .catch(function (err) { clearInterval(stepTimer); fail(err.message); });
+      });
+      $('[data-ai-retry]', aiBox).addEventListener('click', function () {
+        resultBox.hidden = true;
+        startBox.hidden = false;
+        updateGenerate();
+        aiPhoto.focus();
+      });
+    }
+
     // Ajout au panier sans quitter la page
     form.addEventListener('submit', function (e) {
       if (!window.fetch || !window.FormData || !drawer) return;
@@ -264,8 +509,9 @@
       }).observe(addBtn);
       $('[data-sticky-add]', sticky).addEventListener('click', function () {
         if (persoInput || photoInput) {
+          var target = (aiLocked && $('[data-ai-photo]', form)) || photoInput || persoInput;
           form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(function () { (photoInput || persoInput).focus(); }, 500);
+          setTimeout(function () { target.focus(); }, 500);
         } else if (form.requestSubmit) {
           form.requestSubmit();
         } else {

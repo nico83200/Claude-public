@@ -68,6 +68,7 @@ final class OrderService
             Database::update('orders', ['number' => $number], 'id = :id', ['id' => $id]);
 
             foreach ($items as $item) {
+                $portrait = !empty($item['portrait']) ? AiPortrait::find($item['portrait']) : null;
                 Database::insert('order_items', [
                     'order_id'     => $id,
                     'product_id'   => $item['product_id'],
@@ -80,7 +81,9 @@ final class OrderService
                     'quantity'     => $item['qty'],
                     'personalization_text' => $item['text'] !== '' ? $item['text'] : null,
                     'personalization_mode' => $item['mode'] ?? null,
-                    'photo_file'   => $item['photo'] ?? null,
+                    'photo_file'   => $item['photo'] ?? ($portrait['photo_file'] ?? null),
+                    'personalization_year' => ($item['year'] ?? '') !== '' ? $item['year'] : null,
+                    'ai_portrait'  => $portrait['token'] ?? null,
                 ]);
             }
             return $id;
@@ -289,7 +292,27 @@ final class OrderService
             $mode = (string) $row['personalization_mode'];
             $placement = $row['print_placement'] ?: 'front';
 
-            if ($mode === 'portrait') {
+            if ($mode === 'ai_portrait') {
+                $portrait = AiPortrait::find((string) $row['ai_portrait']);
+                if (!$portrait || $portrait['status'] !== 'ready' || !$row['printful_variant_id']) {
+                    throw new \RuntimeException("Portrait IA de « {$row['product_name']} » : dessin introuvable ou ID variante Printful catalogue manquant.");
+                }
+                if ($portrait['master_prediction_id'] && !$portrait['master_file']) {
+                    $portrait = AiPortrait::refresh($portrait); // agrandissement terminé entre-temps ?
+                }
+                $cfg = Personalizer::config($row['personalization']);
+                // Proportions de la feuille d'après le format de la variante (ex. « 45 × 61 cm »)
+                if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', (string) $row['variant_name'], $m)) {
+                    [$a, $b] = [(float) str_replace(',', '.', $m[1]), (float) str_replace(',', '.', $m[2])];
+                    if ($a > 0 && $b > 0) {
+                        $cfg['print_h'] = (int) round((int) $cfg['print_w'] * max($a, $b) / min($a, $b));
+                    }
+                }
+                $fileUrl = url(AiPortrait::composePrint($portrait, $text, (string) $row['personalization_year'], $cfg));
+                Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);
+                $line['variant_id'] = (int) $row['printful_variant_id'];
+                $line['files'] = [['type' => $placement, 'url' => $fileUrl]];
+            } elseif ($mode === 'portrait') {
                 if (!$row['print_file_url'] || !$row['printful_variant_id']) {
                     throw new \RuntimeException("Portrait de « {$row['product_name']} » : fichier final ou ID variante Printful catalogue manquant.");
                 }

@@ -40,6 +40,16 @@ final class Secrets
         'analytics.ga4_id'        => ['Google Analytics 4 (G-XXXXXXX)', 'Mesure d\'audience', 'text'],
         'analytics.meta_pixel_id' => ['Meta Pixel (ID)', 'Mesure d\'audience', 'text'],
         'cron.token'              => ['Jeton de la tâche planifiée (URL)', 'Tâche planifiée', 'secret'],
+        'ai.provider'             => ['Service de dessin (demo = effet croquis local, sans IA)', 'Portrait IA', 'select:demo,openai,replicate'],
+        'ai.openai_key'           => ['Clé API OpenAI (sk-…)', 'Portrait IA', 'secret'],
+        'ai.openai_model'         => ['Modèle OpenAI', 'Portrait IA', 'text'],
+        'ai.openai_quality'       => ['Qualité OpenAI (coût par portrait croissant)', 'Portrait IA', 'select:medium,high,low'],
+        'ai.replicate_token'      => ['Jeton API Replicate (r8_…)', 'Portrait IA', 'secret'],
+        'ai.replicate_model'      => ['Modèle Replicate', 'Portrait IA', 'text'],
+        'ai.upscale'              => ['Agrandir le dessin par IA avant impression (nécessite Replicate)', 'Portrait IA', 'bool'],
+        'ai.upscale_model'        => ['Modèle d\'agrandissement Replicate', 'Portrait IA', 'text'],
+        'ai.daily_per_visitor'    => ['Créations offertes par visiteuse et par jour', 'Portrait IA', 'int'],
+        'ai.daily_budget'         => ['Créations maximum par jour pour toute la boutique (plafond de coût)', 'Portrait IA', 'int'],
     ];
 
     /** Jetons générés automatiquement s'ils n'existent pas encore. */

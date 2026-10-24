@@ -14,6 +14,13 @@
             <td>
               <strong><?= e($item['product_name']) ?></strong><br><span class="muted"><?= e($item['variant_name']) ?><?= $item['sku'] ? ' · ' . e($item['sku']) : '' ?></span>
               <?php if ($item['personalization_text']): ?><br><span class="perso">✦ « <?= e($item['personalization_text']) ?> »</span><?php endif; ?>
+              <?php if (!empty($item['personalization_year'])): ?><br><span class="perso">✦ Année : <?= e($item['personalization_year']) ?></span><?php endif; ?>
+              <?php if (!empty($item['ai_portrait'])): ?>
+                <div class="photo-row">
+                  <img src="<?= e(url('admin/portrait-ia/' . $item['ai_portrait'], ['vignette' => 1])) ?>" alt="Portrait IA" width="72" height="96">
+                  <a class="small" href="<?= e(url('admin/portrait-ia/' . $item['ai_portrait'])) ?>">Télécharger le dessin IA (sans nom)</a>
+                </div>
+              <?php endif; ?>
               <?php if ($item['photo_file']): ?>
                 <div class="photo-row">
                   <img src="<?= e(url('admin/photo/' . $item['photo_file'], ['vignette' => 1])) ?>" alt="Photo du cheval" width="72" height="72">
@@ -94,7 +101,7 @@
         <?= e($order['phone']) ?></p>
       <?php if ($address): ?>
         <h3>Livraison</h3>
-        <p><?= e($address['name']) ?><br><?= e($address['line1']) ?><?= $address['line2'] ? '<br>' . e($address['line2']) : '' ?><br><?= e($address['postal_code'] . ' ' . $address['city']) ?><br><?= e($address['country']) ?></p>
+        <p><?= e($address['name']) ?><br><?= e($address['line1']) ?><?= !empty($address['line2']) ? '<br>' . e($address['line2']) : '' ?><br><?= e($address['postal_code'] . ' ' . $address['city']) ?><br><?= e($address['country']) ?></p>
       <?php endif; ?>
       <p class="small"><a href="<?= e(OrderService::trackingUrl($order)) ?>" target="_blank">Page de suivi client ↗</a></p>
     </section>

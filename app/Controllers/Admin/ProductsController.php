@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Database;
+use App\Services\AiPortrait;
 use App\Services\Catalog;
 use App\Services\DesignLibrary;
 use App\Services\Personalizer;
@@ -136,6 +137,10 @@ final class ProductsController extends BaseController
             'preview_y'     => self::ratio($p['preview_y'] ?? 0.62),
             'preview_size'  => self::ratio($p['preview_size'] ?? 0.045),
             'preview_color' => preg_match('/^#[0-9a-f]{6}$/i', (string) ($p['preview_color'] ?? '')) ? $p['preview_color'] : '',
+            'year_enabled'  => !empty($p['year_enabled']),
+            'year_label'    => mb_substr(trim((string) ($p['year_label'] ?? '')) ?: Personalizer::DEFAULTS['year_label'], 0, 60),
+            'print_w'       => max(1200, min(9000, (int) ($p['print_w'] ?? 3600))),
+            'print_h'       => max(1600, min(12000, (int) ($p['print_h'] ?? 4800))),
         ];
 
         $personalizable = input('personalizable') ? 1 : 0;
@@ -239,11 +244,20 @@ final class ProductsController extends BaseController
     public function printPreview(string $id): void
     {
         $product = Database::one('SELECT * FROM products WHERE id = ?', [(int) $id]) ?? abort(404);
+        $text = Personalizer::sanitize((string) input('texte', 'Tornado'), 40) ?: 'Tornado';
+        $cfg = Personalizer::config($product['personalization']);
+        if ($product['personalizable'] && $cfg['mode'] === 'ai_portrait') {
+            // Affiche du portrait IA composée avec le dessin d'exemple
+            $target = STORAGE_PATH . '/cache/apercu-portrait-ia.png';
+            AiPortrait::compose(PUBLIC_PATH . '/assets/img/products/portrait-ia-exemple.jpg', $text, '2014', $cfg, $target);
+            header('Content-Type: image/png');
+            header('Cache-Control: no-store');
+            readfile($target);
+            exit;
+        }
         if (!$product['design_file']) {
             abort(404, 'Aucun visuel d\'impression pour ce produit.');
         }
-        $text = Personalizer::sanitize((string) input('texte', 'Tornado'), 40) ?: 'Tornado';
-        $cfg = Personalizer::config($product['personalization']);
         $file = Personalizer::render($product['design_file'], $text, $cfg, $cfg['mode'] === 'photo' ? self::samplePhoto() : null);
         header('Content-Type: image/png');
         header('Cache-Control: no-store');
@@ -283,6 +297,32 @@ final class ProductsController extends BaseController
             imagejpeg($img, $path, 85);
         }
         return $path;
+    }
+
+    /** Recherche dans le catalogue Printful pour trouver les ID variantes (articles personnalisés). */
+    public function printfulCatalog(): void
+    {
+        $search = mb_substr(trim((string) input('q', '')), 0, 80);
+        $productId = (int) input('produit', 0);
+        $products = [];
+        $product = null;
+        $error = null;
+        try {
+            if ($productId > 0) {
+                $product = Printful::fromConfig()->catalogProduct($productId);
+            } elseif ($search !== '') {
+                $products = array_slice(Printful::fromConfig()->catalogProducts($search), 0, 60);
+            }
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+        }
+        $this->render('products/catalogue', [
+            'pageTitle' => 'Catalogue Printful',
+            'search'    => $search,
+            'products'  => $products,
+            'product'   => $product,
+            'error'     => $error,
+        ]);
     }
 
     public function printfulList(): void

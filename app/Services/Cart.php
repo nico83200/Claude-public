@@ -20,12 +20,20 @@ final class Cart
         return $_SESSION['cart'];
     }
 
-    public static function add(int $variantId, int $qty, string $text = '', ?string $photo = null): void
+    /**
+     * @param array{year?:string, portrait?:string} $extra année de naissance et jeton du portrait IA
+     */
+    public static function add(int $variantId, int $qty, string $text = '', ?string $photo = null, array $extra = []): void
     {
         $cart = &self::store();
-        $key = $variantId . ':' . substr(sha1($text . '|' . $photo), 0, 12);
+        $year = (string) ($extra['year'] ?? '');
+        $portrait = $extra['portrait'] ?? null;
+        $key = $variantId . ':' . substr(sha1($text . '|' . $photo . '|' . $year . '|' . $portrait), 0, 12);
         $current = $cart[$key]['qty'] ?? 0;
-        $cart[$key] = ['variant_id' => $variantId, 'qty' => min(self::MAX_QTY, $current + max(1, $qty)), 'text' => $text, 'photo' => $photo];
+        $cart[$key] = [
+            'variant_id' => $variantId, 'qty' => min(self::MAX_QTY, $current + max(1, $qty)),
+            'text' => $text, 'photo' => $photo, 'year' => $year, 'portrait' => $portrait,
+        ];
     }
 
     /** Vrai si la photo appartient à une ligne du panier de cette session (accès à la vignette). */
@@ -90,7 +98,9 @@ final class Cart
         $items = [];
         foreach ($cart as $key => $line) {
             $row = $byId[$line['variant_id']] ?? null;
-            if (!$row) {
+            // Portrait IA expiré (supprimé après 30 jours sans commande) : la ligne n'est plus valable
+            $portrait = $line['portrait'] ?? null;
+            if (!$row || ($portrait && (AiPortrait::find($portrait)['status'] ?? '') !== 'ready')) {
                 unset($cart[$key]);
                 continue;
             }
@@ -111,6 +121,8 @@ final class Cart
                 'line_total'   => $unit * (int) $line['qty'],
                 'text'         => (string) ($line['text'] ?? ''),
                 'photo'        => $line['photo'] ?? null,
+                'year'         => (string) ($line['year'] ?? ''),
+                'portrait'     => $line['portrait'] ?? null,
                 'mode'         => $cfg['mode'] ?? null,
                 'personalization_label' => $cfg['label'] ?? null,
             ];

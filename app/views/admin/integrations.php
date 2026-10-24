@@ -6,6 +6,9 @@ $rows = [
     ['Brevo (newsletter)', config('brevo.api_key') !== '', config('brevo.list_id') ? 'Liste #' . config('brevo.list_id') : 'Facultatif', null, null],
     ['Google Analytics 4', config('analytics.ga4_id') !== '', config('analytics.ga4_id') ?: 'Facultatif — chargé après consentement', null, null],
     ['Meta Pixel', config('analytics.meta_pixel_id') !== '', config('analytics.meta_pixel_id') ?: 'Facultatif — chargé après consentement', null, null],
+    ['Portrait IA (' . App\Services\AiImage::provider() . ')', App\Services\AiImage::provider() !== 'demo',
+        App\Services\AiImage::provider() === 'demo' ? 'Mode démonstration : effet croquis local, sans IA — choisissez OpenAI ou Replicate ci-dessous' : 'Limite : ' . (int) config('ai.daily_per_visitor') . ' créations par visiteuse, ' . (int) config('ai.daily_budget') . ' par jour au total',
+        'test-ai', 'Tester'],
 ];
 ?>
 <section class="card">

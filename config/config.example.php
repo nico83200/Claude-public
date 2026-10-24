@@ -72,4 +72,18 @@ return [
     'cron' => [
         'token' => '',                            // protège /tache-planifiee/{token}
     ],
+
+    // Portrait redessiné par IA (Administration › Intégrations › Portrait IA)
+    'ai' => [
+        'provider'          => 'demo',            // demo (effet croquis local, sans IA) | openai | replicate
+        'openai_key'        => '',                // https://platform.openai.com/api-keys
+        'openai_model'      => 'gpt-image-1.5',
+        'openai_quality'    => 'medium',          // low | medium | high
+        'replicate_token'   => '',                // https://replicate.com/account/api-tokens
+        'replicate_model'   => 'black-forest-labs/flux-kontext-pro',
+        'upscale'           => false,
+        'upscale_model'     => 'recraft-ai/recraft-crisp-upscale',
+        'daily_per_visitor' => 3,
+        'daily_budget'      => 60,
+    ],
 ];

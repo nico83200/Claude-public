@@ -6,6 +6,7 @@ namespace App\Controllers\Admin;
 use App\Core\Database;
 use App\Core\Secrets;
 use App\Core\Settings;
+use App\Services\AiImage;
 use App\Services\Cron;
 use App\Services\Mailer;
 use App\Services\Printful;
@@ -120,6 +121,13 @@ final class SettingsController extends BaseController
                 case 'test-mail':
                     $ok = Mailer::sendTemplate($this->admin['email'], 'Test d\'envoi — ' . setting('shop_name'), 'test');
                     $ok ? flash('success', 'E-mail de test envoyé à ' . $this->admin['email'] . '.') : flash('error', 'Échec de l\'envoi : consultez storage/logs/mail-*.log.');
+                    break;
+                case 'test-ai':
+                    flash('success', match (AiImage::provider()) {
+                        'openai'    => AiImage::openaiCheck(),
+                        'replicate' => AiImage::replicateCheck(),
+                        default     => 'Mode démonstration actif : aucun service d\'IA n\'est appelé.',
+                    });
                     break;
                 case 'cles':
                     $this->saveKeys();

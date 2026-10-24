@@ -8,7 +8,8 @@ use App\Core\Database;
 /**
  * Tâche planifiée (toutes les 15 min recommandé sur Hostinger) :
  * relance des transmissions Printful en échec, rattrapage des expéditions,
- * annulation des paniers abandonnés, synchronisation newsletter, nettoyage.
+ * annulation des paniers abandonnés, synchronisation newsletter, nettoyage (dont photos et portraits IA
+ * non commandés après 30 jours).
  */
 final class Cron
 {
@@ -52,6 +53,20 @@ final class Cron
         $step('Demandes d\'avis envoyées', static fn (): string => (string) Reviews::sendRequests());
         $step('Paniers abandonnés annulés', static fn (): string => (string) OrderService::cancelAbandoned());
         $step('Newsletter synchronisée vers Brevo', static fn (): string => (string) Newsletter::syncPending());
+
+        $step('Portraits IA', static function (): string {
+            if (!AiPortrait::enabled()) {
+                return 'non installé';
+            }
+            // Agrandissements encore en cours pour des portraits commandés
+            $rows = Database::all("SELECT p.* FROM ai_portraits p JOIN order_items i ON i.ai_portrait = p.token
+                WHERE p.status = 'ready' AND p.master_prediction_id IS NOT NULL AND p.master_file IS NULL LIMIT 10");
+            foreach ($rows as $row) {
+                AiPortrait::refresh($row);
+            }
+            return AiPortrait::cleanup() . ' portrait(s) non commandé(s) supprimé(s), '
+                . Upload::cleanupCustomerPhotos() . ' photo(s) cliente(s) expirée(s) supprimée(s)';
+        });
 
         $step('Nettoyage', static function (): string {
             $limit = date('Y-m-d H:i:s', time() - 30 * 86400);

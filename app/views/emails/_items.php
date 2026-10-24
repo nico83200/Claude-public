@@ -5,6 +5,7 @@
       <strong><?= e($item['product_name']) ?></strong><br>
       <span style="color:#777;font-size:13px;"><?= e($item['variant_name']) ?> · Qté <?= (int) $item['quantity'] ?></span>
       <?php if ($item['personalization_text']): ?><br><span style="color:#5a2a3a;font-size:13px;">✦ Personnalisation : <?= e($item['personalization_text']) ?></span><?php endif; ?>
+      <?php if (!empty($item['personalization_year'])): ?><br><span style="color:#5a2a3a;font-size:13px;">✦ Année : <?= e($item['personalization_year']) ?></span><?php endif; ?>
     </td>
     <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;white-space:nowrap;"><?= e(money($item['unit_price'] * $item['quantity'])) ?></td>
   </tr>

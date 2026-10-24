@@ -26,7 +26,7 @@ $blankRows = $variants ? 2 : 4;
 
       <section class="card">
         <h2>Variantes</h2>
-        <p class="muted small">Chaque variante doit être reliée à Printful : <strong>ID variante synchronisée</strong> (produit créé dans Printful avec son visuel) ou <strong>ID variante catalogue</strong> + visuel d'impression ci-contre (obligatoire pour la personnalisation). Prix vide = prix de base.</p>
+        <p class="muted small">Chaque variante doit être reliée à Printful : <strong>ID variante synchronisée</strong> (produit créé dans Printful avec son visuel) ou <strong>ID variante catalogue</strong> + visuel d'impression ci-contre (obligatoire pour la personnalisation). Prix vide = prix de base. <a href="<?= e(url('admin/produits/catalogue-printful')) ?>" target="_blank">Trouver un ID variante catalogue ↗</a></p>
         <div class="table-scroll">
         <table class="table variants">
           <thead><tr><th>Couleur</th><th>Hex</th><th>Taille</th><th>Prix €</th><th>SKU</th><th>ID catalogue</th><th>ID synchro</th><th>Image</th><th>Actif</th><th>Suppr.</th></tr></thead>
@@ -60,6 +60,13 @@ $blankRows = $variants ? 2 : 4;
           <label>Délai de fabrication en plus (jours ouvrés)<input name="perso[extra_days]" type="number" min="0" max="30" value="<?= (int) $perso['extra_days'] ?>"></label>
         </div>
         <p class="muted small">« Portrait illustré » : la cliente envoie sa photo, la commande attend que vous déposiez le portrait final (PNG HD) dans la commande avant de partir chez Printful. Pensez à prévoir le délai de création ci-dessus.</p>
+        <p class="muted small">« Portrait IA » : la cliente crée elle-même son portrait « Encre &amp; Poudre » sur la fiche produit, puis le fichier d'impression (dessin + nom + année) est composé automatiquement à la commande. Reliez les variantes à l'<strong>affiche encadrée</strong> Printful (ID variante catalogue, emplacement « default ») et choisissez le service d'IA dans <a href="<?= e(url('admin/integrations')) ?>#cles">Intégrations</a>.</p>
+        <div class="form-grid four">
+          <label class="checkbox"><input type="checkbox" name="perso[year_enabled]" value="1" <?= !empty($perso['year_enabled']) ? 'checked' : '' ?>> Portrait IA : année sous le nom</label>
+          <label>Libellé de l'année <input name="perso[year_label]" value="<?= e($perso['year_label']) ?>"></label>
+          <label>Fichier d'impression : largeur (px) <input name="perso[print_w]" type="number" min="1200" max="9000" value="<?= (int) $perso['print_w'] ?>"></label>
+          <label>Hauteur (px) <input name="perso[print_h]" type="number" min="1600" max="12000" value="<?= (int) $perso['print_h'] ?>"></label>
+        </div>
         <div class="form-grid">
           <label>Libellé du champ <input name="perso[label]" value="<?= e($perso['label']) ?>"></label>
           <label>Longueur max. <input name="perso[max_length]" type="number" min="1" max="40" value="<?= (int) $perso['max_length'] ?>"></label>
@@ -97,7 +104,7 @@ $blankRows = $variants ? 2 : 4;
           <label>Taille <input name="perso[preview_size]" value="<?= e($perso['preview_size']) ?>"></label>
           <label>Couleur aperçu <input name="perso[preview_color]" value="<?= e($perso['preview_color']) ?>" placeholder="(couleur d'impression)"></label>
         </div>
-        <?php if ($product['id'] && $product['design_file']): ?>
+        <?php if ($product['id'] && ($product['design_file'] || $perso['mode'] === 'ai_portrait')): ?>
           <p><a class="btn" target="_blank" href="<?= e(url('admin/produits/' . $product['id'] . '/apercu-impression', ['texte' => 'Tornado'])) ?>">Tester le fichier d'impression ↗</a></p>
         <?php endif; ?>
       </section>

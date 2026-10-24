@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Database;
+use App\Services\AiPortrait;
 use App\Services\OrderService;
 use App\Services\Printful;
 use App\Services\Stripe;
@@ -208,6 +209,25 @@ final class OrdersController extends BaseController
         }
         header('Content-Type: image/jpeg');
         header('Content-Disposition: attachment; filename="photo-cheval-' . $name . '"');
+        readfile($path);
+        exit;
+    }
+
+    /** Dessin produit par l'IA pour un portrait commandé (contrôle avant impression, retouche éventuelle). */
+    public function aiArtwork(string $token): void
+    {
+        $row = AiPortrait::find($token) ?? abort(404);
+        $path = AiPortrait::artworkPath($row) ?? abort(404);
+        if (input('vignette') === '1') {
+            $img = imagecreatefrompng($path);
+            $thumb = imagescale($img, 240, -1, IMG_BICUBIC);
+            header('Content-Type: image/jpeg');
+            header('Cache-Control: private, max-age=3600');
+            imagejpeg($thumb, null, 82);
+            exit;
+        }
+        header('Content-Type: image/png');
+        header('Content-Disposition: attachment; filename="portrait-ia-' . $row['token'] . '.png"');
         readfile($path);
         exit;
     }

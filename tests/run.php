@@ -3,13 +3,16 @@
  * Tests de bout en bout sans réseau (SQLite) :
  *   php bin/install-local.php && php tests/run.php
  * Couvre : panier, création de commande, webhook Stripe signé (idempotence),
- * construction de la commande Printful, webhook Printful d'expédition.
+ * construction de la commande Printful, webhook Printful d'expédition, portrait IA (faux serveur d'API).
  */
 declare(strict_types=1);
 
 require dirname(__DIR__) . '/app/bootstrap.php';
 
+use App\Core\Config;
 use App\Core\Database;
+use App\Services\AiImage;
+use App\Services\AiPortrait;
 use App\Services\Cart;
 use App\Services\OrderService;
 use App\Services\Personalizer;
@@ -221,6 +224,112 @@ try {
     check('visuel inconnu refusé', true);
 }
 
+echo "Portrait IA « Encre & Poudre »\n";
+check('clés du service d\'IA gérées en base', (App\Core\Secrets::KEYS['ai.openai_key'][2] ?? '') === 'secret' && (App\Core\Secrets::KEYS['ai.replicate_token'][2] ?? '') === 'secret');
+Config::set('ai.provider', 'openai');
+Config::set('ai.openai_key', '');
+check('sans clé : mode démonstration', AiImage::provider() === 'demo');
+Config::set('ai.provider', 'demo');
+Config::set('ai.daily_per_visitor', 2);
+$aiFile = static fn () => ['error' => UPLOAD_ERR_OK, 'size' => 60000, 'tmp_name' => $makeJpeg(1600, 1200), 'name' => 'cheval.jpg'];
+$demo = AiPortrait::run(AiPortrait::create($aiFile()));
+check('portrait de démonstration créé', $demo['status'] === 'ready' && is_file(AiPortrait::DIR . '/' . $demo['result_file']));
+$preview = AiPortrait::previewPath($demo);
+check('aperçu réduit et filigrané', $preview !== null && getimagesize($preview)[0] === 720);
+check('portrait rattaché à la session', AiPortrait::owns($demo['token']) && !AiPortrait::owns(str_repeat('a', 32)));
+check('jeton malveillant refusé', AiPortrait::find('../../config') === null);
+
+// Faux serveur OpenAI / Replicate
+$port = 18765 + random_int(0, 500);
+$aiLog = sys_get_temp_dir() . '/fake-ai-' . getmypid() . '.json';
+@unlink($aiLog);
+$server = proc_open([PHP_BINARY, '-S', "127.0.0.1:$port", __DIR__ . '/fake-ai-server.php'], [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes, null, ['FAKE_AI_LOG' => $aiLog] + getenv());
+for ($i = 0; $i < 30 && !@fsockopen('127.0.0.1', $port); $i++) {
+    usleep(100000);
+}
+Config::set('ai.openai_base', "http://127.0.0.1:$port/openai");
+Config::set('ai.replicate_base', "http://127.0.0.1:$port/replicate");
+Config::set('ai.provider', 'openai');
+Config::set('ai.openai_key', 'sk-test');
+$openai = AiPortrait::run(AiPortrait::create($aiFile()));
+$sent = json_decode((string) @file_get_contents($aiLog), true)[0] ?? [];
+check('OpenAI : portrait reçu', $openai['status'] === 'ready' && $openai['provider'] === 'openai', (string) $openai['error']);
+check('OpenAI : photo JPEG, style, format et fidélité envoyés', ($sent['file']['type'] ?? '') === 'image/jpeg' && str_contains($sent['fields']['prompt'] ?? '', 'Encre & Poudre')
+    && ($sent['fields']['size'] ?? '') === '1024x1536' && ($sent['fields']['input_fidelity'] ?? '') === 'high' && ($sent['fields']['model'] ?? '') === 'gpt-image-1.5');
+check('limite quotidienne par visiteuse atteinte', AiPortrait::remaining() === 0);
+try {
+    AiPortrait::create($aiFile());
+    check('création refusée au-delà de la limite', false);
+} catch (RuntimeException) {
+    check('création refusée au-delà de la limite', true);
+}
+
+Config::set('ai.daily_per_visitor', 6);
+Config::set('ai.provider', 'replicate');
+Config::set('ai.replicate_token', 'r8_test');
+Config::set('ai.replicate_model', 'pas un modèle');
+$failed = AiPortrait::run(AiPortrait::create($aiFile()));
+check('échec du service : message clair, création non décomptée', $failed['status'] === 'failed' && AiPortrait::customerError($failed) !== '' && AiPortrait::remaining() === 4);
+Config::set('ai.replicate_model', 'black-forest-labs/flux-kontext-pro');
+Config::set('ai.upscale', true);
+$rep = AiPortrait::run(AiPortrait::create($aiFile()));
+check('Replicate : prédiction lancée puis suivie', $rep['status'] === 'processing' && $rep['prediction_id'] === 'pred1');
+$rep = AiPortrait::refresh(AiPortrait::refresh($rep));
+check('Replicate : portrait téléchargé', $rep['status'] === 'ready' && is_file(AiPortrait::DIR . '/' . $rep['result_file']));
+check('agrandissement lancé en arrière-plan', $rep['master_prediction_id'] === 'up1' && !$rep['master_file']);
+$rep = AiPortrait::refresh(AiPortrait::refresh($rep));
+check('version agrandie retenue pour l\'impression', (string) $rep['master_file'] !== '' && str_ends_with((string) AiPortrait::artworkPath($rep), '-hd.png'));
+$creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create'));
+check('Replicate : modèle, format 3:4, photo et attente synchrone', ($creates[0]['model'] ?? '') === 'black-forest-labs/flux-kontext-pro' && ($creates[0]['input']['aspect_ratio'] ?? '') === '3:4'
+    && str_starts_with((string) ($creates[0]['input']['input_image'] ?? ''), 'data:image/jpeg;base64,') && ($creates[0]['prefer'] ?? '') === 'wait=50' && ($creates[0]['auth'] ?? '') === 'Bearer r8_test');
+proc_terminate($server);
+@unlink($aiLog);
+$stale = AiPortrait::create($aiFile());
+Database::update('ai_portraits', ['status' => 'processing', 'updated_at' => date('Y-m-d H:i:s', time() - 900)], 'id = :id', ['id' => $stale['id']]);
+check('création bloquée trop longtemps passée en échec', AiPortrait::refresh(AiPortrait::find($stale['token']))['status'] === 'failed');
+
+$refusedYear = static function (string $year): bool {
+    try {
+        AiPortrait::sanitizeYear($year);
+        return false;
+    } catch (InvalidArgumentException) {
+        return true;
+    }
+};
+check('année de naissance contrôlée', AiPortrait::sanitizeYear('2014') === '2014' && AiPortrait::sanitizeYear('') === '' && $refusedYear('1850') && $refusedYear('3000') && $refusedYear('14'));
+$frames = Database::all("SELECT v.id, v.size, v.printful_variant_id FROM product_variants v JOIN products p ON p.id = v.product_id WHERE p.slug = 'portrait-aquarelle-de-votre-cheval-encadre' ORDER BY v.id");
+$frame = $frames[0] ?? null;
+check('produit « portrait aquarelle encadré » installé, variantes Printful renseignées', count($frames) === 5 && (int) $frame['printful_variant_id'] === 9357);
+Cart::clear();
+Cart::add((int) $frame['id'], 1, 'Tornado', null, ['portrait' => $rep['token'], 'year' => '2014']);
+$line3 = Cart::items()[0];
+check('panier : portrait et année', $line3['portrait'] === $rep['token'] && $line3['year'] === '2014' && $line3['mode'] === 'ai_portrait');
+Cart::add((int) $frames[1]['id'], 1, 'Tornado', null, ['portrait' => $rep['token'], 'year' => '2014']);
+$order3 = OrderService::createFromCart(Cart::items());
+$item3 = Database::one('SELECT * FROM order_items WHERE order_id = ?', [$order3['id']]);
+check('commande : portrait, année et photo d\'origine enregistrés', $item3['ai_portrait'] === $rep['token'] && $item3['personalization_year'] === '2014' && $item3['photo_file'] === $rep['photo_file']);
+Database::update('orders', ['status' => 'paid', 'email' => 'zoe@example.com', 'shipping_address' => json_encode(['name' => 'Zoé', 'line1' => '2 allée des Pins', 'postal_code' => '33000', 'city' => 'Bordeaux', 'country' => 'FR'])], 'id = :id', ['id' => $order3['id']]);
+$payload3 = OrderService::buildPrintfulPayload(OrderService::find((int) $order3['id']));
+$file3 = $payload3['items'][0]['files'][0] ?? [];
+$path3 = PUBLIC_PATH . '/' . ltrim((string) parse_url((string) ($file3['url'] ?? ''), PHP_URL_PATH), '/');
+check('affiche encadrée : fichier composé 3600 × 4800 (emplacement default)', ($file3['type'] ?? '') === 'default' && str_contains((string) ($file3['url'] ?? ''), 'portrait-ia-') && is_file($path3) && getimagesize($path3)[0] === 3600 && getimagesize($path3)[1] === 4800);
+$im3 = imagecreatefrompng($path3);
+$inked = false;
+for ($x = 900; $x < 2700 && !$inked; $x += 3) {
+    for ($y = (int) (0.79 * 4800); $y < (int) (0.84 * 4800) && !$inked; $y += 3) {
+        $inked = ((imagecolorat($im3, $x, $y) >> 16) & 0xFF) < 140;
+    }
+}
+check('nom imprimé sous le portrait', $inked);
+$path45 = PUBLIC_PATH . '/' . ltrim((string) parse_url((string) ($payload3['items'][1]['files'][0]['url'] ?? ''), PHP_URL_PATH), '/');
+check('format 45 × 61 cm : feuille aux bonnes proportions', $frames[1]['size'] === '45 × 61 cm' && is_file($path45) && getimagesize($path45)[1] === 4880 && ($payload3['items'][1]['variant_id'] ?? 0) === 19646);
+Database::update('ai_portraits', ['created_at' => date('Y-m-d H:i:s', time() - 40 * 86400)], 'token IN (:a, :b)', ['a' => $demo['token'], 'b' => $rep['token']]);
+$oldPhoto = Upload::PHOTO_DIR . '/20200101-' . str_repeat('b', 24) . '.jpg';
+copy($makeJpeg(600, 600), $oldPhoto);
+check('portrait non commandé supprimé après 30 jours', AiPortrait::cleanup() === 1 && AiPortrait::find($demo['token']) === null && !is_file(AiPortrait::DIR . '/' . $demo['result_file']));
+check('portrait commandé conservé', AiPortrait::find($rep['token']) !== null);
+check('photo cliente expirée supprimée', Upload::cleanupCustomerPhotos() >= 1 && !is_file($oldPhoto) && Upload::customerPhotoPath($rep['photo_file']) !== null);
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
@@ -274,7 +383,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('cinq migrations connues', count(App\Core\Migrator::files()) === 5);
+check('six migrations connues', count(App\Core\Migrator::files()) === 6);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

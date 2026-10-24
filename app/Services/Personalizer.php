@@ -8,7 +8,8 @@ namespace App\Services;
  * - mode « text »     : nom du cheval (ou de l'écurie) ;
  * - mode « photo »    : photo du cheval cadrée dans une forme (rectangle, cercle, arche) + nom facultatif ;
  * - mode « portrait » : portrait illustré réalisé à la main d'après la photo — le fichier final est
- *                       déposé par l'administratrice sur la commande (voir OrderService::fulfill).
+ *                       déposé par l'administratrice sur la commande (voir OrderService::fulfill) ;
+ * - mode « ai_portrait » : portrait redessiné par IA, composé avec le nom et l'année (voir AiPortrait).
  * Le PNG produit est publié dans /uploads/print/ pour que Printful puisse le télécharger.
  */
 final class Personalizer
@@ -23,6 +24,7 @@ final class Personalizer
         'text'     => 'Nom (texte)',
         'photo'    => 'Photo du cheval (+ nom facultatif)',
         'portrait' => 'Portrait illustré d\'après photo (création manuelle)',
+        'ai_portrait' => 'Portrait IA « Encre & Poudre » d\'après photo (affiche encadrée)',
     ];
 
     public const SHAPES = ['rect' => 'Rectangle', 'circle' => 'Cercle', 'arch' => 'Arche'];
@@ -58,6 +60,11 @@ final class Personalizer
         'preview_image' => '',
         // Délai de fabrication supplémentaire (jours ouvrés), ex. création d'un portrait
         'extra_days'   => 0,
+        // Portrait IA : année de naissance facultative sous le nom, taille du fichier d'impression (px)
+        'year_enabled' => true,
+        'year_label'   => 'Année de naissance',
+        'print_w'      => 3600,
+        'print_h'      => 4800,
     ];
 
     public static function config(?string $json): array
