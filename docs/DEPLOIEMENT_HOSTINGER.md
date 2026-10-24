@@ -123,5 +123,6 @@ Votre configuration, vos données et vos images ne sont jamais touchées. En cas
 | Commande payée mais restée « Payée » | Webhook Stripe mal configuré : *Stripe › Webhooks › endpoint › tentatives*. Le secret `whsec_` doit correspondre. |
 | « Erreur de transmission » Printful | Le message exact apparaît dans la commande (admin). Cause habituelle : une variante sans ID Printful. Corrigez-la, puis cliquez sur « Transmettre à Printful ». |
 | E-mails non reçus | `storage/logs/mail-AAAA-MM.log`. Essayez le port `587` avec `'encryption' => 'tls'`. |
+| L'assistant d'installation réapparaît | Les fichiers `config/config.php` ou `storage/installed.lock` ont été écrasés (extraction d'un ZIP par-dessus le site, par exemple). Si seul le verrou manque, le site se répare tout seul. Sinon, remplissez l'assistant avec **la même base MySQL** : la boutique est reconnectée sans rien effacer et les clés Stripe, Printful et e-mail sont restaurées. Pour éviter cela, faites les mises à jour via *Admin › Mise à jour*. |
 | Mise à jour bloquée en « maintenance » | Le mode maintenance se lève tout seul au bout de 10 minutes. Vous pouvez aussi supprimer `storage/maintenance.flag`. |
 | Téléversement refusé (visuel HD) | Le fichier `.user.ini` relève la limite à 64 Mo ; sinon *Configuration PHP › Options PHP* → `upload_max_filesize`. |

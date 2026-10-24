@@ -135,3 +135,4 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 .artwork-form { margin-top: .6rem; padding: .6rem; background: #fbf5ef; border-radius: 8px; display: flex; gap: .5rem; align-items: end; flex-wrap: wrap; }
 .artwork-form label { margin: 0; flex: 1; min-width: 200px; }
 .status-artwork { background: #f3e3ef; color: #6b2d5a; }
+.alert-info { background: #f4ebe8; color: #5a2a3a; border: 1px solid #e3cfca; }

@@ -41,4 +41,63 @@ final class Installer
     {
         file_put_contents(STORAGE_PATH . '/installed.lock', date('c'));
     }
+
+    /** Vrai si la base contient déjà une boutique installée (table des administrateurs présente). */
+    public static function isShopDatabase(PDO $pdo): bool
+    {
+        try {
+            $pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn();
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * Copie de secours de la configuration (clés Stripe/Printful, e-mail, jetons des webhooks…) dans la base,
+     * pour pouvoir la restaurer si config/config.php est perdu (réinstallation, extraction de ZIP…).
+     * Les identifiants de la base elle-même ne sont pas copiés : il faut les connaître pour lire cette copie.
+     */
+    public static function backupConfig(PDO $pdo, array $config): void
+    {
+        unset($config['db']);
+        $json = json_encode($config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $exists = (int) $pdo->query("SELECT COUNT(*) FROM settings WHERE name = '_config_backup'")->fetchColumn();
+        $stmt = $exists
+            ? $pdo->prepare("UPDATE settings SET value = ? WHERE name = '_config_backup'")
+            : $pdo->prepare("INSERT INTO settings (name, value) VALUES ('_config_backup', ?)");
+        $stmt->execute([$json]);
+    }
+
+    public static function restoreConfig(PDO $pdo): array
+    {
+        try {
+            $json = $pdo->query("SELECT value FROM settings WHERE name = '_config_backup'")->fetchColumn();
+            $data = $json ? json_decode((string) $json, true) : null;
+            return is_array($data) ? $data : [];
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * config/config.php présent mais storage/installed.lock perdu : si la base contient bien la boutique,
+     * on recrée le verrou au lieu de relancer l'assistant.
+     */
+    public static function recover(): bool
+    {
+        if (!is_file(CONFIG_FILE)) {
+            return false;
+        }
+        try {
+            if (!self::isShopDatabase(Database::pdo())) {
+                return false;
+            }
+            self::lock();
+            log_message('install', 'Verrou d\'installation absent : recréé automatiquement.');
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
 }

@@ -41,6 +41,9 @@ if ((new App\Services\Updater())->inMaintenance() && !str_starts_with($path, '/a
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
+    if (!Config::installed() && App\Core\Installer::recover()) {
+        Config::markInstalled();
+    }
     if (!Config::installed()) {
         $installer = new InstallController();
         $method === 'POST' ? $installer->store() : $installer->show();

@@ -13,7 +13,7 @@ if (PHP_SAPI !== 'cli') {
 
 require dirname(__DIR__) . '/app/bootstrap.php';
 
-if (!App\Core\Config::installed()) {
+if (!App\Core\Config::installed() && !App\Core\Installer::recover()) {
     fwrite(STDERR, "Boutique non installée.\n");
     exit(1);
 }

@@ -24,6 +24,11 @@ final class Config
         return self::$installed;
     }
 
+    public static function markInstalled(): void
+    {
+        self::$installed = true;
+    }
+
     public static function get(string $key, mixed $default = null): mixed
     {
         $value = self::$items;

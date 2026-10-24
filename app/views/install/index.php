@@ -11,6 +11,10 @@
   <h1>Installation de la boutique</h1>
   <p class="muted">Renseignez les informations ci-dessous. Les clés Stripe, Printful et e-mail peuvent être ajoutées plus tard dans <code>config/config.php</code>.</p>
 
+  <div class="alert alert-info">
+    <strong>Réinstallation ?</strong> Indiquez simplement <strong>la même base MySQL</strong> : la boutique existante est reconnectée sans rien effacer (produits, commandes, clientes, réglages), et vos clés Stripe, Printful et e-mail sont restaurées automatiquement — laissez ces champs vides. Le compte administrateur saisi ci-dessous est créé, ou son mot de passe remplacé.
+  </div>
+
   <h2>Vérifications du serveur</h2>
   <ul class="checks">
     <?php foreach ($checks as $label => $ok): ?><li class="<?= $ok ? 'ok' : 'ko' ?>"><?= $ok ? '✔' : '✘' ?> <?= e($label) ?></li><?php endforeach; ?>
@@ -54,7 +58,7 @@
     </fieldset>
 
     <fieldset>
-      <legend>E-mails (facultatif)</legend>
+      <legend>E-mails (facultatif — vide = conserver l'existant)</legend>
       <p class="muted">hPanel › E-mails : créez une boîte (ex. contact@votre-domaine.fr).</p>
       <div class="grid-2">
         <label>Serveur SMTP <input name="mail_host" value="<?= e($old['mail_host'] ?? 'smtp.hostinger.com') ?>"></label>
@@ -68,6 +72,7 @@
 
     <fieldset>
       <legend>Stripe & Printful (facultatif)</legend>
+      <p class="muted">Laissez vide pour conserver les clés déjà enregistrées lors d'une précédente installation.</p>
       <label>Stripe — clé secrète <input name="stripe_secret" placeholder="sk_live_…" autocomplete="off" value="<?= e($old['stripe_secret'] ?? '') ?>"></label>
       <label>Stripe — clé publique <input name="stripe_public" placeholder="pk_live_…" autocomplete="off" value="<?= e($old['stripe_public'] ?? '') ?>"></label>
       <label>Stripe — secret du webhook <input name="stripe_webhook" placeholder="whsec_…" autocomplete="off" value="<?= e($old['stripe_webhook'] ?? '') ?>"></label>

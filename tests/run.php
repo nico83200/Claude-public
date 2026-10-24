@@ -177,6 +177,17 @@ check('note visible sur la fiche', App\Services\Catalog::product('mug-photo-de-v
 $boost = App\Services\Catalog::shippingBoosters(4410, [(int) $mug['id']]);
 check('suggestions couvrant le montant manquant', $boost && min(array_column($boost, 'price')) >= 4410 && !in_array((int) $mug['id'], array_map('intval', array_column($boost, 'id')), true));
 
+echo "Réinstallation sans perte\n";
+$pdo = Database::pdo();
+check('base de boutique reconnue', App\Core\Installer::isShopDatabase($pdo));
+App\Core\Installer::backupConfig($pdo, ['db' => ['pass' => 'secret-db'], 'stripe' => ['secret_key' => 'sk_test_X'], 'printful' => ['webhook_token' => 'tok123']]);
+$restored = App\Core\Installer::restoreConfig($pdo);
+check('configuration restaurée depuis la base', ($restored['stripe']['secret_key'] ?? '') === 'sk_test_X' && ($restored['printful']['webhook_token'] ?? '') === 'tok123');
+check('identifiants de la base jamais copiés', !isset($restored['db']));
+check('copie de secours invisible dans les réglages', !array_key_exists('_config_backup', App\Core\Settings::DEFAULTS));
+@unlink(STORAGE_PATH . '/installed.lock');
+check('verrou perdu recréé automatiquement', App\Core\Installer::recover() && is_file(STORAGE_PATH . '/installed.lock'));
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
