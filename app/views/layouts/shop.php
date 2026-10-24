@@ -53,15 +53,23 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
       <img class="logo-img" src="<?= e(url('assets/img/brand/logo.svg')) ?>" alt="<?= e($shopName) ?>" width="148" height="50">
     </a>
     <nav id="main-nav" class="main-nav" aria-label="Navigation principale">
-        <a href="<?= e(url('boutique')) ?>" class="<?= is_active('/boutique') && empty($_GET) ? 'active' : '' ?>">Collection</a>
-        <?php foreach ($navCategories as $c): ?>
-          <a href="<?= e(url('categorie/' . $c['slug'])) ?>" class="<?= is_active('/categorie/' . $c['slug']) ? 'active' : '' ?>"><?= e($c['name']) ?></a>
-        <?php endforeach; ?>
-        <?php if (App\Services\AiPortrait::landingAvailable()): ?>
-          <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= is_active('/portrait-aquarelle') ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Portrait aquarelle</a>
-        <?php else: ?>
-          <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>" class="nav-highlight"><?= icon('sparkle', 15) ?>Personnalisés</a>
-        <?php endif; ?>
+      <div class="nav-group" data-nav-group>
+        <button type="button" class="nav-parent <?= is_active('/boutique') || is_active('/categorie/') ? 'active' : '' ?>" aria-expanded="false" aria-controls="nav-shop" data-nav-parent>Boutique <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="nav-sub" id="nav-shop">
+          <a href="<?= e(url('boutique')) ?>"><strong>Toute la collection</strong></a>
+          <?php foreach ($navCategories as $c): ?>
+            <a href="<?= e(url('categorie/' . $c['slug'])) ?>" class="<?= is_active('/categorie/' . $c['slug']) ? 'active' : '' ?>"><?= e($c['name']) ?></a>
+          <?php endforeach; ?>
+          <span class="nav-sub-sep" aria-hidden="true"></span>
+          <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a>
+          <a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a>
+        </div>
+      </div>
+      <?php if (App\Services\AiPortrait::landingAvailable()): ?>
+        <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= is_active('/portrait-aquarelle') ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Portrait aquarelle</a>
+      <?php endif; ?>
+      <a href="<?= e(url('page/a-propos')) ?>" class="<?= is_active('/page/a-propos') ? 'active' : '' ?>">Notre histoire</a>
+      <a href="<?= e(url('contact')) ?>" class="<?= is_active('/contact') ? 'active' : '' ?>">Contact</a>
     </nav>
     <div class="header-actions">
       <button class="icon-btn" type="button" data-search-toggle aria-expanded="false" aria-controls="search-bar" aria-label="Rechercher"><?= icon('search', 21) ?></button>

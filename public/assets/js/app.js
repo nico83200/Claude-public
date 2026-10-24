@@ -22,6 +22,18 @@
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
+  // Sous-menu « Boutique » : clic (tactile, clavier) en plus du survol
+  $$('[data-nav-group]').forEach(function (group) {
+    var parent = $('[data-nav-parent]', group);
+    parent.addEventListener('click', function () {
+      var open = group.classList.toggle('open');
+      parent.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!group.contains(e.target) && window.innerWidth > 960) { group.classList.remove('open'); parent.setAttribute('aria-expanded', 'false'); }
+    });
+    group.addEventListener('keydown', function (e) { if (e.key === 'Escape') { group.classList.remove('open'); parent.setAttribute('aria-expanded', 'false'); parent.focus(); } });
+  });
   // Ordinateur : si le menu ne tient pas à côté du logo, il passe sur une seconde ligne (jamais de burger)
   var siteHeader = $('.site-header');
   var fitNav = function () {
