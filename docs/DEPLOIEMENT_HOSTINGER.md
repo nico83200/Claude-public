@@ -35,7 +35,7 @@ Ouvrez `https://votre-domaine.fr/` : l'assistant d'installation s'affiche automa
 
 En fin d'installation, l'assistant affiche les **URL de webhooks** et la **commande cron** : notez-les. Il est ensuite désactivé définitivement (fichier `storage/installed.lock`).
 
-> Pour modifier des clés plus tard : *Gestionnaire de fichiers › public_html/config/config.php*.
+> Les clés (Stripe, Printful, e-mail, Brevo, Analytics) sont enregistrées **dans la base de données** : elles se modifient à tout moment dans *Admin › Intégrations › Clés et jetons* (confirmation par votre mot de passe) et ne sont jamais perdues lors d'une mise à jour ou d'une réinstallation. Le fichier `config/config.php` ne contient que l'adresse du site et l'accès à la base.
 
 ## 4. Stripe (paiement)
 
@@ -44,7 +44,7 @@ En fin d'installation, l'assistant affiche les **URL de webhooks** et la **comma
    - URL : `https://votre-domaine.fr/webhooks/stripe`
    - Événements : `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `charge.refunded`
    - Copiez le **secret de signature** (`whsec_…`).
-3. Reportez ces trois valeurs dans `config/config.php`, rubrique `stripe`.
+3. Saisissez ces trois valeurs dans *Admin › Intégrations › Clés et jetons*, rubrique Stripe.
 4. Facultatif :
    - *Paramètres › Moyens de paiement* : activez Apple Pay, Google Pay, PayPal, Bancontact…
    - *Produits › Coupons* : créez vos codes promo. Le champ « code promo » apparaît automatiquement sur la page de paiement.
@@ -54,7 +54,7 @@ Carte de test : `4242 4242 4242 4242`, date future, n'importe quel CVC.
 ## 5. Printful (fabrication et expédition)
 
 1. Sur Printful, créez une boutique de type **« Manual order platform / API »**.
-2. Sur https://developers.printful.com/tokens, créez un **jeton privé** couvrant cette boutique, avec les droits *orders*, *sync products*, *webhooks* et *stores*. Reportez-le dans `printful.api_token`, ainsi que l'**ID de la boutique** dans `printful.store_id`.
+2. Sur https://developers.printful.com/tokens, créez un **jeton privé** couvrant cette boutique, avec les droits *orders*, *sync products*, *webhooks* et *stores*. Saisissez-le dans *Admin › Intégrations › Clés et jetons* (rubrique Printful).
 3. Dans l'admin, ouvrez *Intégrations* et cliquez sur **Tester** dans la ligne Printful, puis sur **Enregistrer chez Printful** pour le webhook : expéditions, numéros de suivi et incidents remonteront automatiquement.
 4. **Ajouter vos produits** : créez-les dans Printful (support, couleurs, tailles, visuel, prix de vente), puis dans l'admin ouvrez *Produits › Importer depuis Printful*. Le produit est importé en **brouillon** : complétez la description, choisissez une catégorie, puis cochez « En ligne ».
 5. **Produits personnalisables (nom du cheval)** : dans la fiche produit,
@@ -63,7 +63,7 @@ Carte de test : `4242 4242 4242 4242`, date future, n'importe quel CVC.
    - réglez la position du texte et cliquez sur **Tester le fichier d'impression**.
 
    Chaque commande génère alors un fichier propre à la commande, envoyé à Printful avec l'ID catalogue de la variante (déjà renseigné par l'import).
-6. Par défaut, `auto_confirm = false` : les commandes arrivent chez Printful **en brouillon**, à confirmer depuis l'admin (bouton « Confirmer chez Printful ») ou depuis Printful. Une fois vos produits validés, passez `auto_confirm` à `true` pour un fonctionnement 100 % automatique. Pensez à enregistrer un moyen de paiement dans Printful (*Billing*).
+6. Par défaut, la confirmation automatique est désactivée : les commandes arrivent chez Printful **en brouillon**, à confirmer depuis l'admin (bouton « Confirmer chez Printful ») ou depuis Printful. Une fois vos produits validés, cochez « Confirmer automatiquement les commandes » dans *Intégrations › Clés et jetons* pour un fonctionnement 100 % automatique. Pensez à enregistrer un moyen de paiement dans Printful (*Billing*).
 
 ### Les trois modes de personnalisation
 
@@ -92,9 +92,9 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 - *Admin › Réglages* : renseignez la raison sociale, l'adresse, le SIRET, la TVA, le médiateur de la consommation, les frais de port, les réseaux sociaux… Les pages légales se remplissent automatiquement.
 - *Admin › Pages* : relisez les CGV (modèle à faire valider par un juriste).
 - *Intégrations › Envoyer un test* : vérifiez la réception des e-mails. Pour éviter le dossier spam, contrôlez dans *E-mails › Paramètres DNS* que les enregistrements SPF, DKIM et DMARC sont actifs.
-- Facultatif dans `config.php` :
-  - `brevo.api_key` et `brevo.list_id` (newsletter) ;
-  - `analytics.ga4_id` et `analytics.meta_pixel_id` (chargés seulement après consentement).
+- Facultatif, dans *Admin › Intégrations › Clés et jetons* :
+  - clé API et n° de liste Brevo (newsletter) ;
+  - identifiants Google Analytics 4 et Meta Pixel (chargés seulement après consentement).
 - *Réglages › Conversion* :
   - créez dans Stripe un code promo de bienvenue (*Produits › Coupons*, ex. `BIENVENUE10`) et reportez-le dans « Code promo de bienvenue » : la popup et l'e-mail de bienvenue l'offrent aux nouvelles inscrites ;
   - si vous activez Klarna dans Stripe, passez « Afficher paiement en 3x » à Oui.
@@ -123,6 +123,6 @@ Votre configuration, vos données et vos images ne sont jamais touchées. En cas
 | Commande payée mais restée « Payée » | Webhook Stripe mal configuré : *Stripe › Webhooks › endpoint › tentatives*. Le secret `whsec_` doit correspondre. |
 | « Erreur de transmission » Printful | Le message exact apparaît dans la commande (admin). Cause habituelle : une variante sans ID Printful. Corrigez-la, puis cliquez sur « Transmettre à Printful ». |
 | E-mails non reçus | `storage/logs/mail-AAAA-MM.log`. Essayez le port `587` avec `'encryption' => 'tls'`. |
-| L'assistant d'installation réapparaît | Les fichiers `config/config.php` ou `storage/installed.lock` ont été écrasés (extraction d'un ZIP par-dessus le site, par exemple). Si seul le verrou manque, le site se répare tout seul. Sinon, remplissez l'assistant avec **la même base MySQL** : la boutique est reconnectée sans rien effacer et les clés Stripe, Printful et e-mail sont restaurées. Pour éviter cela, faites les mises à jour via *Admin › Mise à jour*. |
+| L'assistant d'installation réapparaît | Les fichiers `config/config.php` ou `storage/installed.lock` ont été écrasés (extraction d'un ZIP par-dessus le site, par exemple). Si seul le verrou manque, le site se répare tout seul. Sinon, remplissez l'assistant avec **la même base MySQL** : la boutique est reconnectée sans rien effacer, et comme les clés sont stockées en base, elles sont conservées (laissez leurs champs vides). Pour éviter cela, faites les mises à jour via *Admin › Mise à jour*. |
 | Mise à jour bloquée en « maintenance » | Le mode maintenance se lève tout seul au bout de 10 minutes. Vous pouvez aussi supprimer `storage/maintenance.flag`. |
 | Téléversement refusé (visuel HD) | Le fichier `.user.ini` relève la limite à 64 Mo ; sinon *Configuration PHP › Options PHP* → `upload_max_filesize`. |

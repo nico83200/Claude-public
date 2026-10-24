@@ -49,7 +49,8 @@ Tâche cron (15 min) : relance des transmissions en échec, rattrapage des statu
 
 ```
 app/            code (contrôleurs, services Stripe/Printful/Mailer/Personalizer, vues)
-config/         config.example.php (référence) — config.php est généré à l'installation
+config/         config.example.php (référence) — config.php (URL + accès base) est généré à l'installation ;
+                les clés des intégrations sont stockées en base (Admin › Intégrations)
 database/       schema.sql (MySQL, converti en SQLite pour le dev) et données initiales
 public/         racine web : index.php, CSS/JS, images, téléversements
 storage/        journaux, visuels d'impression privés, polices (Liberation, licence SIL OFL)

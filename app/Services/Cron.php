@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Database;
-use App\Core\Installer;
 
 /**
  * Tâche planifiée (toutes les 15 min recommandé sur Hostinger) :
@@ -53,11 +52,6 @@ final class Cron
         $step('Demandes d\'avis envoyées', static fn (): string => (string) Reviews::sendRequests());
         $step('Paniers abandonnés annulés', static fn (): string => (string) OrderService::cancelAbandoned());
         $step('Newsletter synchronisée vers Brevo', static fn (): string => (string) Newsletter::syncPending());
-
-        $step('Copie de secours de la configuration', static function (): string {
-            Installer::backupConfig(Database::pdo(), require CONFIG_FILE);
-            return 'ok';
-        });
 
         $step('Nettoyage', static function (): string {
             $limit = date('Y-m-d H:i:s', time() - 30 * 86400);

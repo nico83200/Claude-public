@@ -27,3 +27,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', config('app.debug') ? '1' : '0');
 ini_set('log_errors', '1');
 ini_set('error_log', STORAGE_PATH . '/logs/php-error.log');
+
+// Clés et jetons des intégrations : la base de données fait référence (voir App\Core\Secrets).
+if (is_file(CONFIG_FILE)) {
+    try {
+        App\Core\Secrets::apply();
+    } catch (\Throwable) {
+        // Base indisponible : on garde les valeurs de config/config.php.
+    }
+}

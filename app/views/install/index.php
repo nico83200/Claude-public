@@ -9,10 +9,10 @@
 <body class="install">
 <main class="install-card">
   <h1>Installation de la boutique</h1>
-  <p class="muted">Renseignez les informations ci-dessous. Les clés Stripe, Printful et e-mail peuvent être ajoutées plus tard dans <code>config/config.php</code>.</p>
+  <p class="muted">Renseignez les informations ci-dessous. Les clés Stripe, Printful et e-mail peuvent être ajoutées plus tard dans Administration › Intégrations ; elles sont enregistrées dans la base de données et ne sont jamais perdues lors d'une mise à jour.</p>
 
   <div class="alert alert-info">
-    <strong>Réinstallation ?</strong> Indiquez simplement <strong>la même base MySQL</strong> : la boutique existante est reconnectée sans rien effacer (produits, commandes, clientes, réglages), et vos clés Stripe, Printful et e-mail sont restaurées automatiquement — laissez ces champs vides. Le compte administrateur saisi ci-dessous est créé, ou son mot de passe remplacé.
+    <strong>Réinstallation ?</strong> Indiquez simplement <strong>la même base MySQL</strong> : la boutique existante est reconnectée sans rien effacer (produits, commandes, clientes, réglages), et vos clés Stripe, Printful et e-mail, enregistrées en base, sont conservées — laissez ces champs vides. Le compte administrateur saisi ci-dessous est créé, ou son mot de passe remplacé.
   </div>
 
   <h2>Vérifications du serveur</h2>

@@ -27,10 +27,13 @@ final class Installer
         }
     }
 
+    /** config/config.php ne contient que l'URL, la clé de l'application et l'accès à la base. */
     public static function writeConfig(array $config): void
     {
+        $config = array_intersect_key($config, ['app' => 1, 'db' => 1]);
         $export = var_export($config, true);
-        $php = "<?php\n// Généré par l'installateur le " . date('d/m/Y H:i') . ". Ne pas commiter.\nreturn $export;\n";
+        $php = "<?php\n// Généré par l'installateur le " . date('d/m/Y H:i') . ". Ne pas commiter.\n"
+            . "// Les clés Stripe, Printful, e-mail… sont enregistrées en base : Administration › Intégrations.\nreturn $export;\n";
         if (file_put_contents(CONFIG_FILE, $php, LOCK_EX) === false) {
             throw new \RuntimeException('Impossible d\'écrire config/config.php (droits d\'écriture ?)');
         }
@@ -53,22 +56,7 @@ final class Installer
         }
     }
 
-    /**
-     * Copie de secours de la configuration (clés Stripe/Printful, e-mail, jetons des webhooks…) dans la base,
-     * pour pouvoir la restaurer si config/config.php est perdu (réinstallation, extraction de ZIP…).
-     * Les identifiants de la base elle-même ne sont pas copiés : il faut les connaître pour lire cette copie.
-     */
-    public static function backupConfig(PDO $pdo, array $config): void
-    {
-        unset($config['db']);
-        $json = json_encode($config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $exists = (int) $pdo->query("SELECT COUNT(*) FROM settings WHERE name = '_config_backup'")->fetchColumn();
-        $stmt = $exists
-            ? $pdo->prepare("UPDATE settings SET value = ? WHERE name = '_config_backup'")
-            : $pdo->prepare("INSERT INTO settings (name, value) VALUES ('_config_backup', ?)");
-        $stmt->execute([$json]);
-    }
-
+    /** Copie de secours écrite par la version 1.2.1 (reprise par la migration 005). */
     public static function restoreConfig(PDO $pdo): array
     {
         try {

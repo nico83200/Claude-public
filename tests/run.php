@@ -177,14 +177,32 @@ check('note visible sur la fiche', App\Services\Catalog::product('mug-photo-de-v
 $boost = App\Services\Catalog::shippingBoosters(4410, [(int) $mug['id']]);
 check('suggestions couvrant le montant manquant', $boost && min(array_column($boost, 'price')) >= 4410 && !in_array((int) $mug['id'], array_map('intval', array_column($boost, 'id')), true));
 
-echo "Réinstallation sans perte\n";
+echo "Clés en base de données\n";
 $pdo = Database::pdo();
+$configFile = require CONFIG_FILE;
+check('config.php limité à l\'URL et à la base', array_keys($configFile) === ['app', 'db']);
+check('clés de l\'installation enregistrées en base', (App\Core\Secrets::stored()['stripe.webhook_secret'] ?? '') === 'whsec_local_test');
+App\Core\Secrets::set('printful.api_token', 'pf_TEST_123');
+check('clé appliquée immédiatement', config('printful.api_token') === 'pf_TEST_123');
+App\Core\Config::set('printful.api_token', 'valeur-du-fichier');
+App\Core\Secrets::apply();
+check('la base l\'emporte sur config.php', config('printful.api_token') === 'pf_TEST_123');
+check('clé masquée à l\'affichage', App\Core\Secrets::mask('sk_live_abcdef1234567890') === 'sk_live_••••••••7890');
+check('clés invisibles dans la page Réglages', !array_filter(array_keys(App\Core\Settings::DEFAULTS), static fn ($k) => str_starts_with($k, 'config.')));
+
+// Migration 005 : reprise des clés d'une ancienne installation (copie de secours 1.2.1 + config.php)
+$pdo->exec("DELETE FROM settings WHERE name LIKE 'config.%'");
+$pdo->exec("DELETE FROM migrations WHERE name = '005_cles_en_base'");
+$pdo->prepare("INSERT INTO settings (name, value) VALUES ('_config_backup', ?)")->execute([json_encode(['stripe' => ['secret_key' => 'sk_test_SAUVEGARDE'], 'printful' => ['webhook_token' => 'tok-ancien']])]);
+App\Core\Config::set('printful.api_token', 'pf_DU_FICHIER');
+App\Core\Migrator::run();
+$stored = App\Core\Secrets::stored();
+check('migration : clé reprise de la copie de secours', ($stored['stripe.secret_key'] ?? '') === 'sk_test_SAUVEGARDE');
+check('migration : jeton webhook conservé', ($stored['printful.webhook_token'] ?? '') === 'tok-ancien');
+check('migration : clé reprise de config.php', ($stored['printful.api_token'] ?? '') === 'pf_DU_FICHIER');
+check('migration : jeton de tâche planifiée créé', ($stored['cron.token'] ?? '') !== '');
+check('migration : ancienne copie supprimée', !Database::value("SELECT COUNT(*) FROM settings WHERE name = '_config_backup'"));
 check('base de boutique reconnue', App\Core\Installer::isShopDatabase($pdo));
-App\Core\Installer::backupConfig($pdo, ['db' => ['pass' => 'secret-db'], 'stripe' => ['secret_key' => 'sk_test_X'], 'printful' => ['webhook_token' => 'tok123']]);
-$restored = App\Core\Installer::restoreConfig($pdo);
-check('configuration restaurée depuis la base', ($restored['stripe']['secret_key'] ?? '') === 'sk_test_X' && ($restored['printful']['webhook_token'] ?? '') === 'tok123');
-check('identifiants de la base jamais copiés', !isset($restored['db']));
-check('copie de secours invisible dans les réglages', !array_key_exists('_config_backup', App\Core\Settings::DEFAULTS));
 @unlink(STORAGE_PATH . '/installed.lock');
 check('verrou perdu recréé automatiquement', App\Core\Installer::recover() && is_file(STORAGE_PATH . '/installed.lock'));
 
@@ -241,7 +259,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('quatre migrations connues', count(App\Core\Migrator::files()) === 4);
+check('cinq migrations connues', count(App\Core\Migrator::files()) === 5);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

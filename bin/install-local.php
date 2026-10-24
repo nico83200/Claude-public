@@ -39,6 +39,8 @@ App\Core\Migrator::markAllApplied();
 require BASE_PATH . '/database/seed.php';
 seed_database('Crinière Club', $email, true);
 Database::insert('admins', ['email' => $email, 'name' => 'Admin', 'password_hash' => password_hash($password, PASSWORD_DEFAULT), 'created_at' => now()]);
+App\Core\Secrets::import($config);
+App\Core\Secrets::ensureGenerated();
 Installer::writeConfig($config);
 Installer::lock();
 

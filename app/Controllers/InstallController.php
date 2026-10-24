@@ -7,6 +7,7 @@ use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
 use App\Core\Migrator;
+use App\Core\Secrets;
 use App\Core\View;
 
 /** Assistant d'installation : actif uniquement tant que storage/installed.lock n'existe pas. */
@@ -70,47 +71,32 @@ final class InstallController
 
         // Base déjà utilisée par la boutique ? On s'y reconnecte sans rien effacer.
         $existing = Installer::isShopDatabase($pdo);
-        $backup = $existing ? Installer::restoreConfig($pdo) : [];
-        $keep = static fn (string $key, mixed $fromForm, mixed $default = '') => ($fromForm !== null && $fromForm !== '')
-            ? $fromForm
-            : (self::dig($backup, $key) ?? $default);
-
-        $mailPort = (int) $keep('mail.port', $in['mail_port'] ?? '', 465);
         $config = [
             'app' => [
                 'name'  => $in['shop_name'],
                 'url'   => rtrim($in['app_url'], '/'),
                 'env'   => 'production',
                 'debug' => false,
-                'key'   => self::dig($backup, 'app.key') ?: bin2hex(random_bytes(32)),
+                'key'   => bin2hex(random_bytes(32)),
             ],
-            'db'       => $db,
-            'stripe'   => [
-                'secret_key'      => $keep('stripe.secret_key', $in['stripe_secret'] ?? ''),
-                'publishable_key' => $keep('stripe.publishable_key', $in['stripe_public'] ?? ''),
-                'webhook_secret'  => $keep('stripe.webhook_secret', $in['stripe_webhook'] ?? ''),
-            ],
-            'printful' => [
-                'api_token'     => $keep('printful.api_token', $in['printful_token'] ?? ''),
-                'store_id'      => $keep('printful.store_id', $in['printful_store'] ?? ''),
-                'auto_confirm'  => (bool) (self::dig($backup, 'printful.auto_confirm') ?? false),
-                'webhook_token' => self::dig($backup, 'printful.webhook_token') ?: bin2hex(random_bytes(20)),
-            ],
-            'mail'     => [
-                'transport'   => self::dig($backup, 'mail.transport') ?: 'smtp',
-                'host'        => $keep('mail.host', $in['mail_host'] ?? '', 'smtp.hostinger.com'),
-                'port'        => $mailPort,
-                'encryption'  => $mailPort === 587 ? 'tls' : 'ssl',
-                'username'    => $keep('mail.username', $in['mail_user'] ?? ''),
-                'password'    => $keep('mail.password', $in['mail_pass'] ?? ''),
-                'from_email'  => $keep('mail.from_email', $in['mail_user'] ?? ''),
-                'from_name'   => $in['shop_name'],
-                'admin_email' => $keep('mail.admin_email', $in['admin_email']),
-            ],
-            'brevo'     => self::dig($backup, 'brevo') ?: ['api_key' => '', 'list_id' => 0],
-            'analytics' => self::dig($backup, 'analytics') ?: ['ga4_id' => '', 'meta_pixel_id' => ''],
-            'cron'      => ['token' => self::dig($backup, 'cron.token') ?: bin2hex(random_bytes(20))],
+            'db' => $db,
         ];
+
+        // Clés saisies dans le formulaire (vides = conserver celles déjà enregistrées en base).
+        $mailPort = (int) ($in['mail_port'] ?? 0);
+        $secrets = array_filter([
+            'stripe.secret_key'      => $in['stripe_secret'] ?? '',
+            'stripe.publishable_key' => $in['stripe_public'] ?? '',
+            'stripe.webhook_secret'  => $in['stripe_webhook'] ?? '',
+            'printful.api_token'     => $in['printful_token'] ?? '',
+            'printful.store_id'      => $in['printful_store'] ?? '',
+            'mail.host'              => $in['mail_host'] ?? '',
+            'mail.port'              => $mailPort ?: '',
+            'mail.encryption'        => $mailPort ? ($mailPort === 587 ? 'tls' : 'ssl') : '',
+            'mail.username'          => $in['mail_user'] ?? '',
+            'mail.password'          => $in['mail_pass'] ?? '',
+            'mail.from_email'        => $in['mail_user'] ?? '',
+        ], static fn ($v) => $v !== '' && $v !== null);
 
         try {
             Database::setPdo($pdo);
@@ -120,41 +106,38 @@ final class InstallController
             $hash = password_hash($in['admin_password'], PASSWORD_DEFAULT);
 
             if ($existing) {
-                // Reconnexion : données conservées, migrations éventuelles appliquées, accès admin (ré)initialisé.
+                // Reconnexion : données et clés conservées, migrations éventuelles appliquées, accès admin (ré)initialisé.
                 $applied = Migrator::run();
                 $adminId = Database::value('SELECT id FROM admins WHERE email = ?', [$email]);
                 $adminId
                     ? Database::update('admins', ['password_hash' => $hash], 'id = :id', ['id' => $adminId])
                     : Database::insert('admins', ['email' => $email, 'name' => 'Administrateur', 'password_hash' => $hash, 'created_at' => now()]);
-                log_message('install', 'Boutique existante reconnectée', ['migrations' => $applied, 'config_restauree' => (bool) $backup]);
+                log_message('install', 'Boutique existante reconnectée', ['migrations' => $applied]);
             } else {
                 Installer::migrate($pdo, $driver);
                 Migrator::markAllApplied();
                 require_once BASE_PATH . '/database/seed.php';
                 seed_database($in['shop_name'], $email, !empty($in['demo']));
                 Database::insert('admins', ['email' => $email, 'name' => 'Administrateur', 'password_hash' => $hash, 'created_at' => now()]);
+                $secrets += ['mail.transport' => 'smtp', 'mail.host' => 'smtp.hostinger.com', 'mail.port' => 465, 'mail.encryption' => 'ssl', 'mail.admin_email' => $email, 'mail.from_name' => $in['shop_name']];
             }
+            $hadKeys = (bool) Secrets::stored();
+            foreach ($secrets as $key => $value) {
+                Secrets::set($key, $value);
+            }
+            Secrets::ensureGenerated();
             Installer::writeConfig($config);
-            Installer::backupConfig($pdo, $config);
             Installer::lock();
         } catch (\Throwable $e) {
             $this->show(['Installation interrompue : ' . $e->getMessage()], $in);
             return;
         }
 
-        echo View::render('install/done', ['config' => $config, 'reconnected' => $existing, 'restored' => (bool) $backup], null);
-    }
-
-    /** Lecture « a.b.c » dans un tableau. */
-    private static function dig(array $data, string $path): mixed
-    {
-        foreach (explode('.', $path) as $key) {
-            if (!is_array($data) || !array_key_exists($key, $data)) {
-                return null;
-            }
-            $data = $data[$key];
-        }
-        return $data;
+        echo View::render('install/done', [
+            'config'      => ['app' => $config['app'], 'printful' => ['webhook_token' => config('printful.webhook_token')], 'cron' => ['token' => config('cron.token')]],
+            'reconnected' => $existing,
+            'restored'    => $existing && $hadKeys,
+        ], null);
     }
 
     private static function checks(): array

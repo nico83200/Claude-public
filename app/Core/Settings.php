@@ -5,7 +5,7 @@ namespace App\Core;
 
 /**
  * Réglages éditables depuis l'administration (table `settings`).
- * Les secrets restent dans config/config.php.
+ * Les clés des intégrations sont stockées dans la même table (préfixe « config. ») : voir App\Core\Secrets.
  */
 final class Settings
 {
@@ -86,6 +86,12 @@ final class Settings
             }
         }
         return self::$cache;
+    }
+
+    /** Oublie les valeurs en mémoire (après une modification directe en base). */
+    public static function flush(): void
+    {
+        self::$cache = null;
     }
 
     public static function get(string $key, mixed $default = null): mixed

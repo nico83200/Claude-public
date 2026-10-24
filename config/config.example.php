@@ -2,9 +2,10 @@
 /**
  * Configuration de référence.
  *
- * Ne modifiez pas ce fichier : l'installateur (/install) génère config/config.php
- * qui surcharge ces valeurs. Les secrets (clés API, mots de passe) ne doivent
- * jamais être commités.
+ * Ne modifiez pas ce fichier : l'installateur génère config/config.php (URL et accès à la base).
+ * Les clés Stripe, Printful, e-mail, Brevo, Analytics et les jetons des webhooks sont enregistrés
+ * en base de données et se modifient dans Administration › Intégrations : les valeurs ci-dessous
+ * ne servent que de valeurs par défaut.
  */
 return [
     'app' => [
