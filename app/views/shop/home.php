@@ -87,10 +87,10 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
         <li><?= icon('check', 16) ?> Imprimé en haute définition sur papier d'art</li>
         <li><?= icon('check', 16) ?> Cadre noir, blanc ou chêne, prêt à accrocher</li>
       </ul>
-      <a class="btn btn-primary btn-lg" href="<?= e(url('produit/' . $modes['ai_portrait']['slug'])) ?>"><?= icon('sparkle', 16) ?> Créer son portrait</a>
+      <a class="btn btn-primary btn-lg" href="<?= e(url('portrait-aquarelle')) ?>"><?= icon('sparkle', 16) ?> Découvrir le portrait</a>
       <span class="feature-price">dès <?= e(money($modes['ai_portrait']['price'])) ?></span>
     </div>
-    <a class="feature-visual" href="<?= e(url('produit/' . $modes['ai_portrait']['slug'])) ?>"><img src="<?= e(image_url($modes['ai_portrait']['image'])) ?>" alt="Portrait aquarelle d'un cheval, encadré, avec son nom et son année de naissance" loading="lazy" width="600" height="600"></a>
+    <a class="feature-visual" href="<?= e(url('portrait-aquarelle')) ?>"><img src="<?= e(image_url($modes['ai_portrait']['image'])) ?>" alt="Portrait aquarelle d'un cheval, encadré, avec son nom et son année de naissance" loading="lazy" width="600" height="600"></a>
   </div>
 </section>
 <?php endif; ?>
@@ -105,7 +105,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <div class="perso-ways">
         <?php foreach (['ai_portrait' => ['Son portrait aquarelle', 'sparkle', 'Redessiné par IA en quelques secondes, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après votre photo']] as $mode => [$title, $ic, $desc]): ?>
           <?php if (isset($modes[$mode])): ?>
-            <a class="perso-way" href="<?= e(url('produit/' . $modes[$mode]['slug'])) ?>">
+            <a class="perso-way" href="<?= e($mode === 'ai_portrait' ? url('portrait-aquarelle') : url('produit/' . $modes[$mode]['slug'])) ?>">
               <span class="ic"><?= icon($ic, 22) ?></span>
               <span><strong><?= e($title) ?></strong><small><?= e($desc) ?></small></span>
               <span class="perso-way-price">dès <?= e(money($modes[$mode]['price'])) ?></span>

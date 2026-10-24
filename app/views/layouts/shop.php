@@ -55,7 +55,11 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
         <?php foreach ($navCategories as $c): ?>
           <a href="<?= e(url('categorie/' . $c['slug'])) ?>" class="<?= is_active('/categorie/' . $c['slug']) ? 'active' : '' ?>"><?= e($c['name']) ?></a>
         <?php endforeach; ?>
-        <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>" class="nav-highlight"><?= icon('sparkle', 15) ?>Personnalisés</a>
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?>
+          <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= is_active('/portrait-aquarelle') ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Portrait aquarelle</a>
+        <?php else: ?>
+          <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>" class="nav-highlight"><?= icon('sparkle', 15) ?>Personnalisés</a>
+        <?php endif; ?>
       </nav>
     </div>
     <a class="brand" href="<?= e(url('/')) ?>" aria-label="<?= e($shopName) ?> — accueil">
@@ -113,6 +117,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
       <h3>Boutique</h3>
       <ul>
         <?php foreach ($navCategories as $c): ?><li><a href="<?= e(url('categorie/' . $c['slug'])) ?>"><?= e($c['name']) ?></a></li><?php endforeach; ?>
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de votre cheval</a></li><?php endif; ?>
         <li><a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a></li>
         <li><a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a></li>
         <li><a href="<?= e(url('suivi')) ?>">Suivre ma commande</a></li>

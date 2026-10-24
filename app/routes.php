@@ -22,6 +22,7 @@ $r->get('/', [HomeController::class, 'index']);
 $r->get('/boutique', [ShopController::class, 'catalog']);
 $r->get('/categorie/{slug}', [ShopController::class, 'category']);
 $r->get('/produit/{slug}', [ShopController::class, 'product']);
+$r->get('/portrait-aquarelle', [ShopController::class, 'portraitLanding']);
 
 // Panier & paiement
 $r->get('/panier', [CartController::class, 'show']);

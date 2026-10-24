@@ -78,6 +78,23 @@ final class AiPortrait
         $_SESSION['ai_portraits'] = array_slice($list, -30, null, true);
     }
 
+    /** Vrai si un produit « portrait IA » est en ligne : la page /portrait-aquarelle est alors proposée. */
+    public static function landingAvailable(): bool
+    {
+        static $available = null;
+        if ($available === null) {
+            try {
+                $available = self::enabled() && (bool) Database::value(
+                    "SELECT COUNT(*) FROM products WHERE active = 1 AND personalizable = 1 AND personalization LIKE ?",
+                    ['%"mode":"ai_portrait"%']
+                );
+            } catch (\Throwable) {
+                $available = false;
+            }
+        }
+        return $available;
+    }
+
     public static function enabled(): bool
     {
         try {
@@ -189,13 +206,21 @@ final class AiPortrait
                 }
             } elseif ($row['status'] === 'ready' && $row['master_prediction_id'] && !$row['master_file']) {
                 $prediction = AiImage::replicateGet($row['master_prediction_id']);
+                $error = null;
                 if ($prediction['status'] === 'succeeded' && ($url = AiImage::outputUrl($prediction['output']))) {
-                    $file = $row['token'] . '-hd.png';
-                    self::savePng(AiImage::download($url), self::DIR . '/' . $file);
-                    Database::update('ai_portraits', ['master_file' => $file, 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
+                    try {
+                        $file = $row['token'] . '-hd.png';
+                        self::savePng(AiImage::download($url), self::DIR . '/' . $file);
+                        Database::update('ai_portraits', ['master_file' => $file], 'id = :id', ['id' => $row['id']]);
+                    } catch (\Throwable $e) {
+                        $error = $e->getMessage(); // fichier expiré chez Replicate (1 h) : version standard
+                    }
                 } elseif (in_array($prediction['status'], ['failed', 'canceled'], true)) {
-                    log_message('ai', 'Agrandissement échoué', ['token' => $row['token'], 'error' => $prediction['error']]);
-                    Database::update('ai_portraits', ['master_prediction_id' => null, 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
+                    $error = $prediction['error'] ?: $prediction['status'];
+                }
+                if ($error !== null) {
+                    log_message('ai', 'Agrandissement abandonné', ['token' => $row['token'], 'error' => $error]);
+                    Database::update('ai_portraits', ['master_prediction_id' => null], 'id = :id', ['id' => $row['id']]);
                 }
                 return self::find($row['token']);
             }
@@ -486,6 +511,7 @@ final class AiPortrait
             'status'  => $row['status'],
             'preview' => $row['status'] === 'ready' ? url('portrait-ia/' . $row['token'] . '/apercu', ['v' => strtotime($row['updated_at'])]) : null,
             'message' => $row['status'] === 'failed' ? self::customerError($row) : null,
+            'upscaling' => $row['status'] === 'ready' && $row['master_prediction_id'] && !$row['master_file'],
         ];
     }
 

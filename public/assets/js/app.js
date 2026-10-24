@@ -417,8 +417,18 @@
             .catch(function () { poll(token, started); });
         }, 3000);
       };
+      // Pendant que la cliente personnalise, le serveur récupère la version agrandie pour l'impression
+      var followUpscale = function (token, tries) {
+        if (tries <= 0) return;
+        setTimeout(function () {
+          fetch(aiBox.dataset.aiUrl + '/' + token, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (state) { if (state.upscaling) followUpscale(token, tries - 1); })
+            .catch(function () {});
+        }, 6000);
+      };
       var handle = function (state, started) {
-        if (state.status === 'ready') ready(state);
+        if (state.status === 'ready') { ready(state); if (state.upscaling) followUpscale(state.token, 15); }
         else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message); }
         else poll(state.token, started);
       };

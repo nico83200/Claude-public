@@ -330,6 +330,32 @@ check('portrait non commandé supprimé après 30 jours', AiPortrait::cleanup() 
 check('portrait commandé conservé', AiPortrait::find($rep['token']) !== null);
 check('photo cliente expirée supprimée', Upload::cleanupCustomerPhotos() >= 1 && !is_file($oldPhoto) && Upload::customerPhotoPath($rep['photo_file']) !== null);
 
+echo "Page dédiée au portrait aquarelle\n";
+check('page proposée (produit portrait IA en ligne)', AiPortrait::landingAvailable() && (App\Controllers\ShopController::aiPortraitProduct()['slug'] ?? '') === 'portrait-aquarelle-de-votre-cheval-encadre');
+ob_start();
+(new App\Controllers\ShopController())->portraitLanding();
+$landing = (string) ob_get_clean();
+check('page affichée avec créateur intégré', str_contains($landing, 'data-ai-box') && str_contains($landing, 'id="creer"') && str_contains($landing, 'Encre &amp; Poudre'));
+check('exemples, formats et prix réels', substr_count($landing, 'class="lp-example"') === 6 && str_contains($landing, '45 × 61 cm') && str_contains($landing, money(11900)));
+check('FAQ transmise à Google (FAQPage)', str_contains($landing, '"@type":"FAQPage"') && str_contains($landing, '"@type":"Product"'));
+check('une seule balise h1', substr_count($landing, '<h1') === 1);
+foreach (['exemple-alezan', 'exemple-bai', 'exemple-gris', 'exemple-palomino', 'exemple-noir', 'exemple-clair', 'affiche-tornado'] as $visual) {
+    if (!is_file(PUBLIC_PATH . '/assets/img/portrait-ia/' . $visual . '.jpg')) {
+        check('visuel ' . $visual, false);
+    }
+}
+
+echo "Migration 007 (Replicate par défaut)\n";
+App\Core\Settings::set('config.ai.provider', 'demo');
+App\Core\Settings::set('config.ai.upscale', '0');
+App\Core\Settings::set('announcement', 'Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour vous');
+(require BASE_PATH . '/database/migrations/007_replicate_par_defaut.php')($pdo, 'sqlite');
+check('service passé à Replicate, agrandissement activé', App\Core\Secrets::stored()['ai.provider'] === 'replicate' && App\Core\Secrets::stored()['ai.upscale'] === '1');
+check('annonce du portrait aquarelle', str_starts_with((string) setting('announcement'), 'Nouveau : son portrait aquarelle'));
+App\Core\Settings::set('announcement', 'Mon annonce');
+(require BASE_PATH . '/database/migrations/007_replicate_par_defaut.php')($pdo, 'sqlite');
+check('annonce personnalisée conservée', setting('announcement') === 'Mon annonce');
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
@@ -383,7 +409,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('six migrations connues', count(App\Core\Migrator::files()) === 6);
+check('sept migrations connues', count(App\Core\Migrator::files()) === 7);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

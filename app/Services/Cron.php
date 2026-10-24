@@ -58,9 +58,9 @@ final class Cron
             if (!AiPortrait::enabled()) {
                 return 'non installé';
             }
-            // Agrandissements encore en cours pour des portraits commandés
-            $rows = Database::all("SELECT p.* FROM ai_portraits p JOIN order_items i ON i.ai_portrait = p.token
-                WHERE p.status = 'ready' AND p.master_prediction_id IS NOT NULL AND p.master_file IS NULL LIMIT 10");
+            // Agrandissements terminés chez Replicate à récupérer (fichiers conservés environ 1 h)
+            $rows = Database::all("SELECT * FROM ai_portraits WHERE status = 'ready' AND master_prediction_id IS NOT NULL
+                AND master_file IS NULL AND created_at >= ? ORDER BY id DESC LIMIT 20", [date('Y-m-d H:i:s', time() - 3 * 3600)]);
             foreach ($rows as $row) {
                 AiPortrait::refresh($row);
             }

@@ -13,7 +13,7 @@ final class Settings
         // Boutique
         'shop_name'        => 'Crinière Club',
         'shop_tagline'     => 'Le club des passionnées',
-        'announcement'     => 'Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour vous',
+        'announcement'     => 'Nouveau : son portrait aquarelle en quelques secondes ✦|Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour vous',
         'hero_eyebrow'     => 'Bienvenue au club',
         'hero_title'       => 'Pour celles qui vivent *au rythme du galop*',
         'hero_subtitle'    => 'Vêtements, accessoires et cadeaux pour cavalières, à porter fièrement ou à personnaliser avec le nom, la photo ou le portrait de votre cheval.',

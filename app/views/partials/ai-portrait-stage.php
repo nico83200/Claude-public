@@ -16,7 +16,7 @@ $geo = [
     'ruleLen' => $L['year_rule'] * $W, 'ruleGap' => $W * 0.028, 'ruleThick' => max(2, round($H * 0.0011)),
 ];
 ?>
-<div class="ai-stage" data-ai-stage data-geo="<?= e(json_encode($geo)) ?>" style="--frame: <?= e($firstColor ?: '#231f20') ?>" hidden>
+<div class="ai-stage" data-ai-stage data-geo="<?= e(json_encode($geo)) ?>" style="--frame: <?= e($firstColor ?: '#231f20') ?>" <?= empty($visible) ? 'hidden' : '' ?>>
   <div class="ai-frame" data-ai-frame>
     <svg viewBox="0 0 <?= $W ?> <?= $H ?>" role="img" aria-label="Aperçu de votre portrait encadré" data-ai-svg>
       <defs>

@@ -1,5 +1,8 @@
 # Portrait aquarelle par IA : le style « Encre & Poudre »
 
+> **Service retenu : Replicate.** Il est sélectionné par défaut ; il suffit d'enregistrer le jeton (voir « Mise en service »).
+> **Page de vente dédiée : `/portrait-aquarelle`** (voir plus bas), à utiliser dans vos publicités, votre bio Instagram et vos e-mails.
+
 La cliente envoie la photo de son cheval. En quelques secondes, l'IA la redessine dans le style maison. Elle voit l'aperçu dans son cadre, avec le nom et l'année de naissance du cheval, puis commande une **affiche encadrée** fabriquée par Printful.
 
 ![Exemple de style](../public/assets/img/products/portrait-ia-exemple.jpg)
@@ -30,9 +33,11 @@ Dans l'administration, chaque article commandé montre la photo d'origine et le 
 
 ## Mise en service (10 minutes)
 
-Tant qu'aucun service n'est configuré, la boutique fonctionne en **mode démonstration**. Le dessin est alors un simple effet croquis calculé sur votre serveur, sans IA : il sert à tester le parcours de bout en bout, pas à vendre.
+Replicate est le service sélectionné par défaut. Tant que son jeton n'est pas enregistré, la boutique fonctionne en **mode démonstration**. Le dessin est alors un simple effet croquis calculé sur votre serveur, sans IA : il sert à tester le parcours de bout en bout, pas à vendre.
 
-### 1. Choisir un service
+### 1. Le service : Replicate
+
+Replicate est le service retenu. OpenAI reste disponible comme solution de secours :
 
 | Service | Modèle par défaut | Points forts | Coût indicatif par création* |
 |---|---|---|---|
@@ -41,17 +46,20 @@ Tant qu'aucun service n'est configuré, la boutique fonctionne en **mode démons
 
 \* Indicatif : vérifiez les tarifs en vigueur sur le site du service. Une création en échec ne compte pas dans le quota de la cliente.
 
-### 2. Créer la clé
+### 2. Créer le jeton Replicate
 
-- **Replicate** : créez un compte sur [replicate.com](https://replicate.com), ajoutez un moyen de paiement (*Account › Billing*), puis créez un jeton dans *Account › API tokens* (`r8_…`).
-- **OpenAI** : créez un compte sur [platform.openai.com](https://platform.openai.com), ajoutez du crédit (*Settings › Billing*), puis créez une clé dans *API keys* (`sk-…`). OpenAI peut demander de **vérifier votre organisation** avant d'ouvrir ses modèles d'image : suivez leur procédure si le test le signale.
+1. Créez un compte sur [replicate.com](https://replicate.com) (connexion possible avec un compte GitHub ou Google).
+2. Ajoutez un moyen de paiement dans *Account › Billing*. Replicate facture à l'usage ; vous pouvez y fixer une limite de dépense mensuelle, en plus du plafond quotidien de la boutique.
+3. Créez un jeton dans *Account › API tokens* (il commence par `r8_`). Gardez-le pour l'étape suivante, sans l'envoyer par e-mail ni par message.
+
+- **OpenAI (secours)** : créez un compte sur [platform.openai.com](https://platform.openai.com), ajoutez du crédit (*Settings › Billing*), puis créez une clé dans *API keys* (`sk-…`). OpenAI peut demander de **vérifier votre organisation** avant d'ouvrir ses modèles d'image : suivez leur procédure si le test le signale.
 
 ### 3. L'enregistrer dans la boutique
 
 Dans **Administration › Intégrations › Clés et jetons › Portrait IA** :
 
-1. Dans **Service de dessin**, choisissez `replicate` ou `openai`.
-2. Collez la clé, puis confirmez avec votre mot de passe administrateur. La clé est enregistrée **en base de données**, jamais dans les fichiers : elle est conservée lors des mises à jour.
+1. **Service de dessin** : `replicate` (déjà sélectionné).
+2. Collez le jeton dans **Jeton API Replicate**, puis confirmez avec votre mot de passe administrateur. La clé est enregistrée **en base de données**, jamais dans les fichiers : elle est conservée lors des mises à jour.
 3. En haut de la page, cliquez sur **Tester** sur la ligne « Portrait IA ».
 
 Les clés ne doivent jamais être envoyées par e-mail ou par message. En cas de doute, révoquez-les et recréez-en une.
@@ -86,11 +94,26 @@ Le produit est créé automatiquement, avec les **ID variantes du catalogue Prin
 - Pour ajouter un format ou vérifier un ID : **Produits › (fiche) › Trouver un ID variante catalogue ↗**. Recherchez par exemple « framed poster », ouvrez le produit, puis copiez l'ID de chaque variante.
 - Par défaut, Printful reçoit les commandes **en brouillon** : vous les confirmez depuis l'administration. C'est l'occasion de jeter un œil au fichier avant la fabrication. Passez en confirmation automatique quand vous êtes en confiance (*Intégrations › Printful*).
 
-## Option : agrandissement IA avant impression
+## Agrandissement IA avant impression (activé)
 
-Les services de dessin produisent des images d'environ 1 à 1,5 million de pixels. La boutique les agrandit pour l'impression, et le rendu aquarelle le supporte bien.
+FLUX Kontext produit des images d'environ 1 million de pixels. Pour un trait net en 30 × 40 cm comme en 45 × 61 cm, chaque dessin est **agrandi par IA** avec `recraft-ai/recraft-crisp-upscale` (≈ 0,004 $ par image), en arrière-plan dès qu'il est prêt. La boutique récupère la version agrandie pendant que la cliente saisit le nom, ou au plus tard grâce à la tâche planifiée : Replicate ne conserve les fichiers qu'environ une heure. Si l'agrandissement n'a pas abouti au moment de la commande, la version standard est imprimée. L'option se désactive dans *Intégrations › Portrait IA*.
 
-Pour un trait encore plus net, cochez **« Agrandir le dessin par IA avant impression »** (cela nécessite un jeton Replicate, même si le dessin est fait avec OpenAI). Le modèle par défaut est `recraft-ai/recraft-crisp-upscale`, à environ 0,004 $ par image. L'agrandissement est lancé en arrière-plan dès que le dessin est prêt et utilisé s'il a abouti au moment de la commande ; sinon, la version standard est imprimée.
+## La page de vente `/portrait-aquarelle`
+
+Une page entière est consacrée au portrait, accessible depuis le menu (« ✦ Portrait aquarelle »), l'accueil, le pied de page et le plan du site. Elle enchaîne :
+
+1. **L'accroche** : promesse, bénéfices, double appel à l'action (« Créer son portrait gratuitement » / « Voir des exemples »), prix d'appel, réassurance et, à l'approche des fêtes, la **date limite pour Noël**, calculée d'après vos délais de fabrication et de livraison.
+2. **Le style expliqué** : un portrait annoté de 5 repères (regard, trait, marques, aquarelle, nom).
+3. **Six exemples** de robes et de cadres différents (alezan, bai, gris pommelé, palomino, noir, gris clair).
+4. **Comment ça marche** en 3 étapes.
+5. **Le créateur intégré** : le même bloc que la fiche produit (photo, création, aperçu encadré, nom, année, cadre, format, panier), sans quitter la page.
+6. **Les occasions** (pour soi, à offrir, pour dire merci, en souvenir), puis les cadres, formats, prix réels et la date de livraison estimée.
+7. **Les garanties**, les **avis** dès qu'il y en a, une **FAQ** (transmise à Google pour les résultats enrichis) et un dernier appel à l'action.
+
+Conseils :
+- Utilisez l'adresse `https://votre-domaine/portrait-aquarelle` dans vos publicités Meta et Pinterest et dans votre bio Instagram : c'est la page la plus convaincante pour un nouveau visiteur.
+- Dès vos premières ventes, **remplacez les exemples** par de vrais portraits de clientes, avec leur accord : c'est la meilleure preuve sociale. Les fichiers sont dans `public/assets/img/portrait-ia/` (`exemple-*.jpg`, 600 × 800 px).
+- Le compteur « Déjà N portraits créés » s'affiche automatiquement à partir de 100 portraits.
 
 ## Confidentialité (RGPD)
 

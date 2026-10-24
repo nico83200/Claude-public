@@ -40,7 +40,7 @@ final class Secrets
         'analytics.ga4_id'        => ['Google Analytics 4 (G-XXXXXXX)', 'Mesure d\'audience', 'text'],
         'analytics.meta_pixel_id' => ['Meta Pixel (ID)', 'Mesure d\'audience', 'text'],
         'cron.token'              => ['Jeton de la tâche planifiée (URL)', 'Tâche planifiée', 'secret'],
-        'ai.provider'             => ['Service de dessin (demo = effet croquis local, sans IA)', 'Portrait IA', 'select:demo,openai,replicate'],
+        'ai.provider'             => ['Service de dessin (replicate recommandé ; demo = effet croquis sans IA)', 'Portrait IA', 'select:replicate,openai,demo'],
         'ai.openai_key'           => ['Clé API OpenAI (sk-…)', 'Portrait IA', 'secret'],
         'ai.openai_model'         => ['Modèle OpenAI', 'Portrait IA', 'text'],
         'ai.openai_quality'       => ['Qualité OpenAI (coût par portrait croissant)', 'Portrait IA', 'select:medium,high,low'],

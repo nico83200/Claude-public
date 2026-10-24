@@ -96,7 +96,7 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 - Facultatif, dans *Admin › Intégrations › Clés et jetons* :
   - clé API et n° de liste Brevo (newsletter) ;
   - identifiants Google Analytics 4 et Meta Pixel (chargés seulement après consentement) ;
-  - service de dessin du **portrait IA** (Replicate ou OpenAI) : voir [`PORTRAIT_IA.md`](PORTRAIT_IA.md). Sans clé, le portrait fonctionne en mode démonstration.
+  - jeton **Replicate** du portrait IA (rubrique « Portrait IA ») : voir [`PORTRAIT_IA.md`](PORTRAIT_IA.md). Sans jeton, le portrait fonctionne en mode démonstration. La page de vente est en ligne à l'adresse `/portrait-aquarelle`.
 - *Réglages › Conversion* :
   - créez dans Stripe un code promo de bienvenue (*Produits › Coupons*, ex. `BIENVENUE10`) et reportez-le dans « Code promo de bienvenue » : la popup et l'e-mail de bienvenue l'offrent aux nouvelles inscrites ;
   - si vous activez Klarna dans Stripe, passez « Afficher paiement en 3x » à Oui.

@@ -12,6 +12,9 @@ final class SeoController
     {
         header('Content-Type: application/xml; charset=utf-8');
         $urls = [['loc' => url('/'), 'priority' => '1.0'], ['loc' => url('boutique'), 'priority' => '0.9'], ['loc' => url('contact'), 'priority' => '0.3']];
+        if (\App\Services\AiPortrait::landingAvailable()) {
+            $urls[] = ['loc' => url('portrait-aquarelle'), 'priority' => '0.9'];
+        }
         foreach (Catalog::categories() as $c) {
             $urls[] = ['loc' => url('categorie/' . $c['slug']), 'priority' => '0.8'];
         }
