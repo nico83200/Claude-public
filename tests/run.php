@@ -111,5 +111,59 @@ $old = OrderService::createFromCart(Cart::items());
 Database::update('orders', ['created_at' => date('Y-m-d H:i:s', time() - 72 * 3600)], 'id = :id', ['id' => $old['id']]);
 check('panier abandonné annulé', OrderService::cancelAbandoned() === 1 && OrderService::find((int) $old['id'])['status'] === 'canceled');
 
+echo "Mise à jour par ZIP\n";
+$root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
+foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
+    mkdir("$root/$d", 0755, true);
+}
+file_put_contents("$root/VERSION", "1.0.0\n");
+file_put_contents("$root/app/bootstrap.php", "<?php // v1");
+file_put_contents("$root/config/config.php", "<?php return ['secret' => 'garder'];");
+$makeZip = static function (array $files, string $prefix = 'boutique-main/') use ($root): string {
+    $path = "$root/../pkg-" . bin2hex(random_bytes(4)) . '.zip';
+    $zip = new ZipArchive();
+    $zip->open($path, ZipArchive::CREATE);
+    foreach ($files as $name => $content) {
+        $zip->addFromString($name[0] === '!' ? substr($name, 1) : $prefix . $name, $content);
+    }
+    $zip->close();
+    return $path;
+};
+$base = ['VERSION' => "1.2.0\n", 'app/bootstrap.php' => '<?php // v2', 'public/index.php' => '<?php echo 1;', 'database/schema.sql' => '--'];
+$updater = new App\Services\Updater($root);
+
+$refused = static function (string $zip, bool $downgrade = false) use ($updater): bool {
+    try {
+        $updater->install($zip, $downgrade);
+        return false;
+    } catch (RuntimeException) {
+        return true;
+    }
+};
+check('ZIP avec « ../ » refusé', $refused($makeZip($base + ['!../evil.php' => '<?php'])));
+check('ZIP avec erreur de syntaxe refusé', $refused($makeZip($base + ['app/casse.php' => '<?php function ('])));
+check('ZIP étranger refusé', $refused($makeZip(['index.html' => 'x'])));
+check('rien modifié après refus', trim(file_get_contents("$root/VERSION")) === '1.0.0' && !is_file("$root/app/casse.php"));
+
+$result = $updater->install($makeZip($base + [
+    'app/nouveau.php'      => '<?php // ajouté',
+    'config/config.php'    => '<?php return [];',
+    'storage/database.sqlite' => 'écrasé ?',
+    'storage/fonts/x.ttf'  => 'police',
+]));
+check('mise à jour 1.0.0 → 1.2.0', $result['from'] === '1.0.0' && $result['to'] === '1.2.0' && $updater->currentVersion() === '1.2.0');
+check('nouveaux fichiers installés', is_file("$root/app/nouveau.php") && is_file("$root/storage/fonts/x.ttf"));
+check('configuration et données préservées', str_contains(file_get_contents("$root/config/config.php"), 'garder') && !is_file("$root/storage/database.sqlite"));
+check('sauvegarde créée', count($updater->backups()) === 1 && !$updater->inMaintenance());
+check('version plus ancienne refusée', $refused($makeZip(['VERSION' => "1.1.0\n"] + $base)));
+
+$restored = $updater->restore($result['backup']);
+check('restauration de la sauvegarde', $restored['version'] === '1.0.0' && file_get_contents("$root/app/bootstrap.php") === '<?php // v1');
+exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . '/pkg-*.zip');
+
+echo "Migrations\n";
+App\Core\Migrator::ensureTable();
+check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
+
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

@@ -14,6 +14,7 @@ Boutique en ligne clé en main pour vendre des **vêtements, accessoires et obje
 | **Administration** | Tableau de bord (CA, panier moyen, paniers abandonnés, graphique), commandes (historique, notes, export CSV), produits et variantes, catégories, pages, clients, newsletter (export CSV + synchro **Brevo**), messages, réglages, page Intégrations avec tests de connexion |
 | **SEO & marketing** | URLs propres, balises meta/Open Graph, données structurées Product, `sitemap.xml`, `robots.txt`, flux **Google Merchant Center**, GA4 et Meta Pixel chargés **après consentement** |
 | **Légal (France)** | Bandeau cookies, modèles CGV / mentions légales / confidentialité / livraison & retours (exception de rétractation des produits personnalisés, art. L221-28), acceptation des CGV avant paiement |
+| **Mises à jour** | Import d'un ZIP de nouvelle version depuis l'admin : contrôle du paquet, sauvegarde automatique, migrations de base, restauration en un clic |
 | **Sécurité** | CSRF, requêtes préparées, mots de passe hachés, limitation des tentatives de connexion, téléversements contrôlés, dossiers privés hors web, HTTPS forcé |
 
 ## Démarrage rapide
@@ -47,6 +48,8 @@ config/         config.example.php (référence) — config.php est généré à
 database/       schema.sql (MySQL, converti en SQLite pour le dev) et données initiales
 public/         racine web : index.php, CSS/JS, images, téléversements
 storage/        journaux, visuels d'impression privés, polices (Liberation, licence SIL OFL)
+database/migrations/  migrations appliquées lors des mises à jour
+VERSION         numéro de version (à incrémenter à chaque livraison)
 cron/cron.php   tâche planifiée
 bin/            installation locale
 tests/          tests de bout en bout

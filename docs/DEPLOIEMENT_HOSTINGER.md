@@ -87,6 +87,18 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 - Google Merchant Center : ajoutez le flux `https://votre-domaine.fr/flux/google-merchant.xml` (fiches produits gratuites dans Google Shopping).
 - Passez une **commande réelle de test** (avec un code promo à 100 % ou un petit montant), puis remboursez-la depuis l'admin.
 
+## Mettre à jour le site
+
+1. Récupérez le ZIP de la nouvelle version : celui qu'on vous a fourni, ou dans GitHub, onglet *Actions*, dernière exécution, rubrique *Artifacts*.
+2. Dans l'administration, ouvrez **Mise à jour**, choisissez le ZIP et cliquez sur **Installer la mise à jour**.
+
+Le site vérifie d'abord le paquet : structure, chemins, numéro de version, syntaxe PHP. En cas de problème, rien n'est modifié. Sinon il :
+- sauvegarde les fichiers remplacés ;
+- copie les nouveaux fichiers (quelques secondes de maintenance) ;
+- met à jour la base de données si besoin.
+
+Votre configuration, vos données et vos images ne sont jamais touchées. En cas de souci, le bouton **Restaurer** remet les fichiers de la version précédente. Les modifications de base de données, elles, ne sont pas annulées : pour une mise à jour importante, exportez aussi la base via phpMyAdmin.
+
 ## Dépannage
 
 | Symptôme | Piste |
@@ -95,4 +107,5 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 | Commande payée mais restée « Payée » | Webhook Stripe mal configuré : *Stripe › Webhooks › endpoint › tentatives*. Le secret `whsec_` doit correspondre. |
 | « Erreur de transmission » Printful | Le message exact apparaît dans la commande (admin). Cause habituelle : une variante sans ID Printful. Corrigez-la, puis cliquez sur « Transmettre à Printful ». |
 | E-mails non reçus | `storage/logs/mail-AAAA-MM.log`. Essayez le port `587` avec `'encryption' => 'tls'`. |
+| Mise à jour bloquée en « maintenance » | Le mode maintenance se lève tout seul au bout de 10 minutes. Vous pouvez aussi supprimer `storage/maintenance.flag`. |
 | Téléversement refusé (visuel HD) | Le fichier `.user.ini` relève la limite à 64 Mo ; sinon *Configuration PHP › Options PHP* → `upload_max_filesize`. |

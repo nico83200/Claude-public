@@ -14,6 +14,7 @@ $nav = [
     'admin/pages'        => ['Pages', '/admin/pages', false],
     'admin/reglages'     => ['Réglages', '/admin/reglages', false],
     'admin/integrations' => ['Intégrations', '/admin/integrations', false],
+    'admin/mise-a-jour'  => ['Mise à jour', '/admin/mise-a-jour', false],
 ];
 ?>
 <!doctype html>
@@ -35,6 +36,7 @@ $nav = [
   </nav>
   <div class="sidebar-foot">
     <a href="<?= e(url('/')) ?>" target="_blank">Voir la boutique ↗</a>
+    <span>Version <?= e((new App\Services\Updater())->currentVersion()) ?></span>
     <form method="post" action="<?= e(url('admin/deconnexion')) ?>"><?= csrf_field() ?><button class="link" type="submit">Déconnexion</button></form>
   </div>
 </aside>

@@ -22,6 +22,23 @@ jobs:
           php bin/install-local.php admin@example.com admin12345
           php tests/run.php
 
+  package:
+    # ZIP prêt à importer dans Administration › Mise à jour (onglet Actions › exécution › Artifacts)
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construction du ZIP
+        run: |
+          VERSION=$(cat VERSION)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          git archive --format=zip -o "boutique-v$VERSION.zip" HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boutique-v${{ env.VERSION }}
+          path: boutique-v${{ env.VERSION }}.zip
+
   deploy:
     # Déploiement FTP vers Hostinger : définissez les secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
     # (hPanel › Fichiers › Comptes FTP). Ignoré tant que FTP_SERVER n'est pas défini.

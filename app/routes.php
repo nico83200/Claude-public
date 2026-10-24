@@ -91,6 +91,11 @@ $r->get('/admin/messages', [Admin\CustomersController::class, 'messages']);
 $r->get('/admin/reglages', [Admin\SettingsController::class, 'index']);
 $r->post('/admin/reglages', [Admin\SettingsController::class, 'update']);
 $r->post('/admin/reglages/mot-de-passe', [Admin\SettingsController::class, 'password']);
+$r->get('/admin/mise-a-jour', [Admin\UpdateController::class, 'index']);
+$r->post('/admin/mise-a-jour', [Admin\UpdateController::class, 'upload']);
+$r->get('/admin/mise-a-jour/finaliser', [Admin\UpdateController::class, 'finalize']);
+$r->post('/admin/mise-a-jour/migrations', [Admin\UpdateController::class, 'migrate']);
+$r->post('/admin/mise-a-jour/restaurer/{name}', [Admin\UpdateController::class, 'restore']);
 $r->get('/admin/integrations', [Admin\SettingsController::class, 'integrations']);
 $r->post('/admin/integrations/{action}', [Admin\SettingsController::class, 'integrationAction']);
 

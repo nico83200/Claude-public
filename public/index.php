@@ -30,6 +30,14 @@ session_set_cookie_params([
 session_start();
 
 $path = request_path();
+
+// Mode maintenance pendant l'installation d'une mise à jour (quelques secondes).
+if ((new App\Services\Updater())->inMaintenance() && !str_starts_with($path, '/admin')) {
+    http_response_code(503);
+    header('Retry-After: 30');
+    echo '<!doctype html><meta charset="utf-8"><title>Maintenance</title><p style="font:18px Georgia,serif;text-align:center;margin-top:20vh">Le site se refait une beauté… revenez dans quelques secondes 🐴</p>';
+    exit;
+}
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {

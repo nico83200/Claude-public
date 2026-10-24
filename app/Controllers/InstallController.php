@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Config;
 use App\Core\Database;
 use App\Core\Installer;
+use App\Core\Migrator;
 use App\Core\View;
 
 /** Assistant d'installation : actif uniquement tant que storage/installed.lock n'existe pas. */
@@ -95,6 +96,7 @@ final class InstallController
         try {
             Installer::migrate($pdo, $driver);
             Database::setPdo($pdo);
+            Migrator::markAllApplied();
             Config::set('db', $db);
             Config::set('app.url', $config['app']['url']);
             require_once BASE_PATH . '/database/seed.php';
@@ -125,6 +127,7 @@ final class InstallController
             'Extension GD + FreeType'        => function_exists('imagettftext'),
             'Extension mbstring'             => extension_loaded('mbstring'),
             'Extension intl'                 => extension_loaded('intl'),
+            'Extension zip (mises à jour)'   => class_exists(\ZipArchive::class),
             'Dossier config/ inscriptible'   => $writable('config'),
             'Dossier storage/ inscriptible'  => $writable('storage') && $writable('storage/logs') && $writable('storage/designs'),
             'Dossier public/uploads/ inscriptible' => $writable('public/uploads/products') && $writable('public/uploads/print'),

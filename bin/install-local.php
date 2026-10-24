@@ -35,6 +35,7 @@ Config::set('app.url', $config['app']['url']);
 $pdo = Database::connect(Config::get('db'));
 Installer::migrate($pdo, 'sqlite');
 Database::setPdo($pdo);
+App\Core\Migrator::markAllApplied();
 require BASE_PATH . '/database/seed.php';
 seed_database('Crinière & Co', $email, true);
 Database::insert('admins', ['email' => $email, 'name' => 'Admin', 'password_hash' => password_hash($password, PASSWORD_DEFAULT), 'created_at' => now()]);
