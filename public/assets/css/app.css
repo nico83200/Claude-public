@@ -103,7 +103,7 @@ p { margin: 0 0 1em; }
 .brand { grid-area: brand; display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--ink); justify-self: start; }
 .brand-name { font-family: var(--serif); font-size: 1.45rem; font-weight: 600; white-space: nowrap; letter-spacing: -.01em; }
 .brand-name em { color: var(--rose); }
-.main-nav { grid-area: nav; display: flex; justify-content: center; gap: 1.6rem; white-space: nowrap; }
+.main-nav { grid-area: nav; display: flex; justify-content: center; gap: 1.6rem; white-space: nowrap; min-width: 0; overflow: hidden; }
 .main-nav a { text-decoration: none; font-weight: 500; font-size: .93rem; padding: .35rem 0; border-bottom: 1.5px solid transparent; transition: border-color .2s, color .2s; }
 .main-nav a.active, .main-nav a:hover { border-color: var(--rose); color: var(--ink); }
 .main-nav .nav-highlight { color: var(--rose); display: inline-flex; gap: .3rem; align-items: center; }
@@ -487,11 +487,18 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--r
   .float-card-1 { left: -10px; }
   .float-card-2 { right: -6px; }
 }
+/* Menu trop long pour l'écran (nombreuses catégories) : replié par app.js, comme sur tablette */
+.site-header.is-compact .header-inner { grid-template-columns: auto 1fr auto auto; grid-template-areas: "brand . actions toggle"; gap: .35rem; }
+.site-header.is-compact .nav-toggle { display: inline-grid; }
+.site-header.is-compact .main-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); flex-direction: column; padding: .5rem 24px 1.5rem; gap: 0; border-bottom: 1px solid var(--line); box-shadow: var(--shadow); overflow: visible; }
+.site-header.is-compact .main-nav.open { display: flex; }
+.site-header.is-compact .main-nav a { padding: .95rem 0; border-bottom: 1px solid var(--line); font-size: 1rem; }
+
 /* Tablette et petits écrans : menu replié, logo toujours à gauche */
 @media (max-width: 1060px) {
   .header-inner { grid-template-columns: auto 1fr auto auto; grid-template-areas: "brand . actions toggle"; gap: .35rem; }
   .nav-toggle { display: inline-grid; }
-  .main-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); flex-direction: column; padding: .5rem 24px 1.5rem; gap: 0; border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
+  .main-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); flex-direction: column; padding: .5rem 24px 1.5rem; gap: 0; border-bottom: 1px solid var(--line); box-shadow: var(--shadow); overflow: visible; }
   .main-nav.open { display: flex; }
   .main-nav a { padding: .95rem 0; border-bottom: 1px solid var(--line); font-size: 1rem; }
 }

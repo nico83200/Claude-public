@@ -128,6 +128,7 @@ Conseils :
 | « Le dessin n'a pas pu être réalisé » | Consultez `storage/logs/ai-AAAA-MM.log` : clé invalide, crédit épuisé, organisation OpenAI non vérifiée… Le bouton **Tester** donne aussi le détail. |
 | « Cette photo n'a pas pu être dessinée » | Le filtre de sécurité du service a refusé la photo (personne en gros plan, par exemple). Conseillez une photo où le cheval est seul. |
 | La création tourne sans fin | Si l'hébergement interrompt une requête longue, la création passe en échec au bout de 5 minutes et ne compte pas. Replicate, plus rapide, est moins exposé. |
+| La page `/portrait-aquarelle` répond « page introuvable » | La page s'affiche dès qu'un produit « Portrait IA » est **en ligne**. Depuis la version 1.6.2, il est créé automatiquement, avec la collection « Mon cheval, ma fierté » si elle manque. Vérifiez dans *Produits* qu'il n'a pas été mis hors ligne. |
 | La commande reste « en erreur » | Vérifiez la ligne « Portrait IA » dans *Commandes › (commande)*, puis cliquez sur « Transmettre à Printful ». La tâche planifiée relance aussi automatiquement. |
 
 ## Personnaliser le style

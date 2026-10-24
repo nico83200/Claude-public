@@ -22,6 +22,16 @@
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
+  // Menu trop long pour la largeur (nombreuses catégories) : bascule en menu replié
+  var siteHeader = $('.site-header');
+  var fitNav = function () {
+    if (!siteHeader || !nav) return;
+    siteHeader.classList.remove('is-compact');
+    if (window.innerWidth > 1060 && nav.scrollWidth > nav.clientWidth + 1) siteHeader.classList.add('is-compact');
+  };
+  fitNav();
+  window.addEventListener('resize', fitNav);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
   var searchToggle = $('[data-search-toggle]');
   var searchBar = $('#search-bar');
   if (searchToggle && searchBar) {

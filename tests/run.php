@@ -356,6 +356,18 @@ App\Core\Settings::set('announcement', 'Mon annonce');
 (require BASE_PATH . '/database/migrations/007_replicate_par_defaut.php')($pdo, 'sqlite');
 check('annonce personnalisée conservée', setting('announcement') === 'Mon annonce');
 
+echo "Migration 008 (boutique restée sur l'ancien catalogue)\n";
+$aiProduct = (int) Database::value("SELECT id FROM products WHERE slug = 'portrait-aquarelle-de-votre-cheval-encadre'");
+Database::query('DELETE FROM product_variants WHERE product_id = ?', [$aiProduct]);
+Database::query('DELETE FROM products WHERE id = ?', [$aiProduct]);
+Database::query("UPDATE categories SET slug = 'ancienne-collection' WHERE slug = 'mon-cheval-ma-fierte'");
+check('page indisponible sans le produit', !App\Controllers\ShopController::aiPortraitProduct());
+(require BASE_PATH . '/database/migrations/008_portrait_ia_produit.php')($pdo, 'sqlite');
+$created = App\Controllers\ShopController::aiPortraitProduct();
+check('collection « Mon cheval, ma fierté » recréée et produit installé', $created && $created['category_slug'] === 'mon-cheval-ma-fierte' && count(App\Services\Catalog::variants((int) $created['id'])) === 5);
+(require BASE_PATH . '/database/migrations/008_portrait_ia_produit.php')($pdo, 'sqlite');
+check('pas de doublon si la migration est rejouée', (int) Database::value("SELECT COUNT(*) FROM products WHERE personalization LIKE ?", ['%"mode":"ai_portrait"%']) === 1);
+
 echo "Mise à jour par ZIP\n";
 $root = sys_get_temp_dir() . '/cc-update-' . bin2hex(random_bytes(4));
 foreach (['app', 'public', 'database', 'config', 'storage/fonts'] as $d) {
@@ -409,7 +421,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('sept migrations connues', count(App\Core\Migrator::files()) === 7);
+check('huit migrations connues', count(App\Core\Migrator::files()) === 8);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);
