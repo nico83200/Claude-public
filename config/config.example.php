@@ -9,7 +9,7 @@
 return [
     'app' => [
         'name'     => 'Crinière & Co',
-        'url'      => 'http://localhost:8000',   // URL publique, sans slash final
+        'url'      => '',                        // URL publique sans slash final (renseignée par l'installateur)
         'env'      => 'production',              // production | local
         'debug'    => false,
         'timezone' => 'Europe/Paris',

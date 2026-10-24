@@ -20,9 +20,17 @@ function e(mixed $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/** URL publique du site ; avant l'installation, déduite de la requête (le domaine n'est pas encore configuré). */
 function base_url(): string
 {
-    return rtrim((string) config('app.url'), '/');
+    $url = rtrim((string) config('app.url'), '/');
+    if ($url === '' && PHP_SAPI !== 'cli') {
+        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+        $host = preg_replace('/[^a-z0-9.\-:\[\]]/i', '', (string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+        $url = ($https ? 'https' : 'http') . '://' . $host;
+    }
+    return $url;
 }
 
 function url(string $path = '', array $query = []): string
