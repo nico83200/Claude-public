@@ -98,7 +98,7 @@ final class Upload
         $max = 4000;
         if (max(imagesx($img), imagesy($img)) > $max) {
             $ratio = $max / max(imagesx($img), imagesy($img));
-            $img = imagescale($img, (int) round(imagesx($img) * $ratio), (int) round(imagesy($img) * $ratio), IMG_BICUBIC);
+            $img = gd_resize($img, (int) round(imagesx($img) * $ratio), (int) round(imagesy($img) * $ratio));
         }
         // Fond blanc sous une éventuelle transparence (PNG)
         $flat = imagecreatetruecolor(imagesx($img), imagesy($img));

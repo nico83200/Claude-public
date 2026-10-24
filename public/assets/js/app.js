@@ -22,12 +22,12 @@
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
-  // Menu trop long pour la largeur (nombreuses catégories) : bascule en menu replié
+  // Ordinateur : si le menu ne tient pas à côté du logo, il passe sur une seconde ligne (jamais de burger)
   var siteHeader = $('.site-header');
   var fitNav = function () {
     if (!siteHeader || !nav) return;
-    siteHeader.classList.remove('is-compact');
-    if (window.innerWidth > 1060 && nav.scrollWidth > nav.clientWidth + 1) siteHeader.classList.add('is-compact');
+    siteHeader.classList.remove('is-two-rows');
+    if (window.innerWidth > 960 && nav.scrollWidth > nav.clientWidth + 1) siteHeader.classList.add('is-two-rows');
   };
   fitNav();
   window.addEventListener('resize', fitNav);

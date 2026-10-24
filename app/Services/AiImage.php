@@ -242,8 +242,8 @@ final class AiImage
             imagefilter($blur, IMG_FILTER_GAUSSIAN_BLUR);
         }
         // Lavis : couleurs d'origine très floutées et adoucies
-        $wash = imagescale($base, 60, 80, IMG_BILINEAR_FIXED);
-        $wash = imagescale($wash, $w, $h, IMG_BICUBIC);
+        $wash = gd_resize($base, 60, 80);
+        $wash = gd_resize($wash, $w, $h);
         imagefilter($wash, IMG_FILTER_GAUSSIAN_BLUR);
 
         $paper = [249, 247, 243];

@@ -125,7 +125,7 @@ final class CartController
     {
         $img = imagecreatefromjpeg($path);
         $ratio = $size / max(imagesx($img), imagesy($img));
-        $thumb = $ratio < 1 ? imagescale($img, (int) round(imagesx($img) * $ratio), -1, IMG_BICUBIC) : $img;
+        $thumb = $ratio < 1 ? gd_resize($img, (int) round(imagesx($img) * $ratio)) : $img;
         header('Content-Type: image/jpeg');
         header('Cache-Control: private, max-age=3600');
         imagejpeg($thumb, null, 82);

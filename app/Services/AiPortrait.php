@@ -327,7 +327,7 @@ final class AiPortrait
         }
         foreach ([[1024, 86], [1024, 72], [896, 70], [768, 68]] as [$max, $quality]) {
             $ratio = min(1, $max / max(imagesx($img), imagesy($img)));
-            $small = $ratio < 1 ? imagescale($img, (int) round(imagesx($img) * $ratio), (int) round(imagesy($img) * $ratio), IMG_BICUBIC) : $img;
+            $small = $ratio < 1 ? gd_resize($img, (int) round(imagesx($img) * $ratio), (int) round(imagesy($img) * $ratio)) : $img;
             ob_start();
             imagejpeg($small, null, $quality);
             $jpeg = (string) ob_get_clean();

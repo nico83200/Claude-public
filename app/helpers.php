@@ -334,3 +334,18 @@ function icon(string $name, int $size = 20): string
     $d = $paths[$name] ?? $paths['sparkle'];
     return '<svg class="icon icon-' . e($name) . '" width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' . $d . '"/></svg>';
 }
+
+/**
+ * Redimensionne une image GD (hauteur déduite si $height <= 0).
+ * N'utilise pas imagescale(), qui renvoie false avec certaines versions de libgd (hébergements mutualisés).
+ */
+function gd_resize(\GdImage $src, int $width, int $height = 0): \GdImage
+{
+    $width = max(1, $width);
+    $height = $height > 0 ? $height : max(1, (int) round(imagesy($src) * $width / imagesx($src)));
+    $dst = imagecreatetruecolor($width, $height);
+    imagealphablending($dst, false);
+    imagesavealpha($dst, true);
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $width, $height, imagesx($src), imagesy($src));
+    return $dst;
+}

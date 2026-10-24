@@ -220,7 +220,7 @@ final class OrdersController extends BaseController
         $path = AiPortrait::artworkPath($row) ?? abort(404);
         if (input('vignette') === '1') {
             $img = imagecreatefrompng($path);
-            $thumb = imagescale($img, 240, -1, IMG_BICUBIC);
+            $thumb = gd_resize($img, 240);
             header('Content-Type: image/jpeg');
             header('Cache-Control: private, max-age=3600');
             imagejpeg($thumb, null, 82);
