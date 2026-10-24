@@ -43,7 +43,7 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 try {
     if (!Config::installed()) {
         $installer = new InstallController();
-        $method === 'POST' && $path === '/install' ? $installer->store() : $installer->show();
+        $method === 'POST' ? $installer->store() : $installer->show();
         exit;
     }
 

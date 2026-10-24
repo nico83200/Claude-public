@@ -24,7 +24,13 @@ DirectoryIndex index.php
     RewriteRule (^|/)\.(?!well-known/) - [F,L]
     RewriteRule \.(sql|sqlite|log|md|lock|ini|sh)$ - [F,L]
 
-    # Tout le reste est servi depuis public/
+    # Fichiers statiques publics (CSS, JS, images, téléversements)
     RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    RewriteRule ^((assets|uploads)/.*|favicon\.ico)$ public/$1 [L]
+
+    # Toutes les autres adresses (/boutique, /panier, /admin, /install…) sont traitées par public/index.php.
+    # Règle autonome : ne dépend pas du .htaccess de public/ (LiteSpeed ne l'applique pas toujours
+    # après une réécriture depuis le dossier parent).
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^ public/index.php [L,QSA]
 </IfModule>

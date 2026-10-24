@@ -18,7 +18,7 @@
 
   <?php if ($errors): ?><div class="alert alert-error"><?php foreach ($errors as $err): ?><p><?= e($err) ?></p><?php endforeach; ?></div><?php endif; ?>
 
-  <form method="post" action="<?= e(url('install')) ?>">
+  <form method="post" action="<?= e(url('/')) ?>">
     <?= csrf_field() ?>
     <fieldset>
       <legend>Boutique</legend>
