@@ -135,6 +135,13 @@
       zoomStage.style.setProperty('--zoom', Math.min(3, Math.max(2.2, ratio)).toFixed(2));
       zoomAt(e);
       zoomStage.classList.add('is-zooming');
+      // Pour le zoom, l'image d'origine (pleine définition) remplace la version optimisée
+      var full = mainImage.dataset.full;
+      if (full && mainImage.currentSrc !== full && mainImage.getAttribute('srcset')) {
+        var hi = new Image();
+        hi.onload = function () { mainImage.removeAttribute('srcset'); mainImage.src = full; };
+        hi.src = full;
+      }
     });
     zoomStage.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') zoomAt(e); });
     zoomStage.addEventListener('pointerleave', function () { zoomStage.classList.remove('is-zooming'); });
