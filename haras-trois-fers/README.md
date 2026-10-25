@@ -9,7 +9,7 @@ est dans le jeu.
 
 | # | Mission | Difficulté | Durée | Statut |
 |---|---|---|---|---|
-| 1 | [La Disparition d'Éclipse](mission-1-disparition-eclipse.md) | 🟢 Accessible | 60 min | Scénario et voix écrits |
+| 1 | [La Disparition d'Éclipse](mission-1-disparition-eclipse.md) · [déroulé](mission-1-deroule.md) | 🟢 Accessible | 60 min | Scénario, déroulé et voix écrits |
 | 2 | Course Truquée à Longchamp | 🟠 Intermédiaire | 60 min | À écrire |
 | 3 | Le Testament du Fondateur | 🔴 Difficile | 75 min | À écrire |
 
