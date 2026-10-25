@@ -32,7 +32,12 @@ final class CategoriesController extends BaseController
             'position'    => (int) input('position'),
             'active'      => input('active') ? 1 : 0,
         ];
-        $id ? Database::update('categories', $data, 'id = :id', ['id' => $id]) : Database::insert('categories', $data);
+        if ($id) {
+            Catalog::rememberSlug((string) Database::value('SELECT slug FROM categories WHERE id = ?', [$id]), $slug);
+            Database::update('categories', $data, 'id = :id', ['id' => $id]);
+        } else {
+            Database::insert('categories', $data);
+        }
         flash('success', 'Catégorie enregistrée.');
         redirect('admin/categories');
     }

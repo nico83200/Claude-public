@@ -20,7 +20,11 @@ final class ShopController
 
     public function category(string $slug): void
     {
-        $category = Catalog::category($slug) ?? abort(404);
+        $category = Catalog::category($slug);
+        if (!$category) {
+            $target = Catalog::categoryRedirect($slug) ?? abort(404);
+            redirect('categorie/' . $target . (($q = $_SERVER['QUERY_STRING'] ?? '') !== '' ? '?' . $q : ''), 301);
+        }
         $this->listing($category);
     }
 

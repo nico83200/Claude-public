@@ -44,6 +44,31 @@ final class Catalog
         return Database::one('SELECT * FROM categories WHERE slug = ? AND active = 1', [$slug]);
     }
 
+    /** Nouvelle adresse d'une catégorie renommée ou fusionnée (redirection 301), sinon null. */
+    public static function categoryRedirect(string $slug): ?string
+    {
+        $map = json_decode((string) setting('category_redirects', ''), true) ?: [];
+        for ($i = 0; $i < 5 && isset($map[$slug]); $i++) {
+            $slug = $map[$slug];
+            if (self::category($slug)) {
+                return $slug;
+            }
+        }
+        return null;
+    }
+
+    /** Mémorise l'ancienne adresse d'une catégorie pour que ses liens restent valables. */
+    public static function rememberSlug(string $old, string $new): void
+    {
+        if ($old === '' || $old === $new) {
+            return;
+        }
+        $map = json_decode((string) setting('category_redirects', ''), true) ?: [];
+        unset($map[$new]); // l'adresse redevient celle d'une vraie catégorie
+        $map[$old] = $new;
+        \App\Core\Settings::set('category_redirects', json_encode($map, JSON_UNESCAPED_SLASHES));
+    }
+
     /** Colonnes calculées : note moyenne, nombre d'avis, ventes récentes. */
     private static function computedColumns(): string
     {

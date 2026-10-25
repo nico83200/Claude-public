@@ -674,7 +674,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('dix-sept migrations connues', count(App\Core\Migrator::files()) === 17);
+check('dix-huit migrations connues', count(App\Core\Migrator::files()) === 18);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');
@@ -701,6 +701,46 @@ check('FAQ d\'origine passée au tutoiement', str_contains((string) Database::va
 check('page modifiée conservée', str_contains((string) Database::value("SELECT content FROM pages WHERE slug = 'a-propos'"), 'Ajout perso'));
 check('article de départ passé au tutoiement', !str_contains((string) Database::value('SELECT content FROM journal_posts WHERE id = ?', [$post['id']]), 'Écrivez-nous'));
 check('article modifié conservé', Database::value('SELECT content FROM journal_posts WHERE id = ?', [$edited['id']]) === '<p>Mon texte</p>');
+
+echo "Catégories par univers (migration 018)\n";
+$catIds = [];
+foreach (['t-shirts' => 'T-shirts', 'sweats-hoodies' => 'Sweats & hoodies', 'pour-les-conjoints' => 'Pour les conjoints', 'accessoires' => 'Accessoires', 'deco-maison' => 'Déco maison'] as $slug => $name) {
+    $catIds[$slug] = Database::insert('categories', ['name' => $name, 'slug' => $slug, 'position' => 1, 'active' => 1]);
+}
+$mkProduct = static fn (string $slug, string $name, string $cat, ?string $audience = null) => Database::insert('products', [
+    'category_id' => $catIds[$cat], 'name' => $name, 'slug' => $slug, 'price' => 1000, 'audience' => $audience,
+    'created_at' => now(), 'updated_at' => now(),
+]);
+$mkProduct('t-shirt-desolee-j-ai-ecurie', 'T-shirt femme "Désolée, j\'ai écurie"', 't-shirts', 'elle');
+$mkProduct('t-shirt-homme-cache', 'T-shirt homme rangé avec les femmes', 't-shirts', 'lui');
+$mkProduct('sweet-a-capuche-desolee-j-ai-ecurie', 'sweet à capuche "Désolée, j\'ai écurie"', 'sweats-hoodies', 'elle');
+$mkProduct('t-shirt-homme-le-prefere', 'T-shirt homme "le préféré"', 'pour-les-conjoints', 'lui');
+$mkProduct('bonnet-cheval', 'Bonnet "cheval"', 'accessoires');
+$mkProduct('cadre-elle-moi-et-son-cheval', 'Cadre "Elle, moi et son cheval"', 'deco-maison');
+$mkProduct('sous-verre-criniere-club', 'Sous verre "Crinière Club"', 'deco-maison');
+$mkProduct('decoration-en-bois-personnalisable', 'Décoration en bois personnalisable', 'deco-maison');
+(require BASE_PATH . '/database/migrations/018_categories_par_univers.php')(Database::pdo(), Database::driver());
+App\Core\Settings::flush();
+$catOf = static fn (string $slug) => Database::value('SELECT c.slug FROM products p JOIN categories c ON c.id = p.category_id WHERE p.slug = ?', [$slug]);
+$active = array_column(Database::all('SELECT slug FROM categories WHERE active = 1 ORDER BY position'), 'slug');
+check('4 univers dans l\'ordre', array_slice($active, 0, 4) === ['mon-cheval-ma-fierte', 'tenues-de-cavaliere', 'pour-son-cheri', 'petites-attentions']);
+check('anciennes catégories fusionnées masquées', !Database::value("SELECT active FROM categories WHERE slug IN ('sweats-hoodies', 'deco-maison') AND active = 1"));
+check('sweat rangé dans les tenues', $catOf('sweet-a-capuche-desolee-j-ai-ecurie') === 'tenues-de-cavaliere');
+check('vêtement homme rangé pour son chéri', $catOf('t-shirt-homme-cache') === 'pour-son-cheri' && $catOf('t-shirt-homme-le-prefere') === 'pour-son-cheri');
+check('cadre « Elle, moi et son cheval » pour son chéri', $catOf('cadre-elle-moi-et-son-cheval') === 'pour-son-cheri');
+check('déco personnalisable dans Mon cheval', $catOf('decoration-en-bois-personnalisable') === 'mon-cheval-ma-fierte');
+check('déco et accessoires en petites attentions', $catOf('sous-verre-criniere-club') === 'petites-attentions' && $catOf('bonnet-cheval') === 'petites-attentions');
+check('titres harmonisés', Database::value("SELECT name FROM products WHERE slug = 'sweet-a-capuche-desolee-j-ai-ecurie'") === 'Sweat à capuche "Désolée, j\'ai écurie"'
+    && Database::value("SELECT name FROM products WHERE slug = 'sous-verre-criniere-club'") === 'Sous-verre "Crinière Club"');
+check('anciennes adresses redirigées', App\Services\Catalog::categoryRedirect('t-shirts') === 'tenues-de-cavaliere'
+    && App\Services\Catalog::categoryRedirect('deco-maison') === 'petites-attentions' && App\Services\Catalog::categoryRedirect('inconnue') === null);
+$before = Database::value('SELECT COUNT(*) FROM categories');
+(require BASE_PATH . '/database/migrations/018_categories_par_univers.php')(Database::pdo(), Database::driver());
+check('migration 018 rejouable sans effet', Database::value('SELECT COUNT(*) FROM categories') === $before && $catOf('bonnet-cheval') === 'petites-attentions');
+App\Services\Catalog::rememberSlug('petites-attentions', 'cadeaux');
+Database::query("UPDATE categories SET slug = 'cadeaux' WHERE slug = 'petites-attentions'");
+App\Core\Settings::flush();
+check('renommage admin : chaîne de redirections suivie', App\Services\Catalog::categoryRedirect('accessoires') === 'cadeaux');
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);
