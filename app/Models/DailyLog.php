@@ -25,4 +25,10 @@ class DailyLog extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    /** Point d'attention qui a complété ce suivi du jour. */
+    public function attentionPoint()
+    {
+        return $this->belongsTo(HealthObservation::class, 'health_observation_id');
+    }
 }

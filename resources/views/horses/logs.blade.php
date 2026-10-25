@@ -16,7 +16,10 @@
                     @if ($log->behavior)<p class="mt-1"><span class="text-slate-500">Comportement :</span> {{ $log->behavior }}</p>@endif
                     @if ($log->activity)<p><span class="text-slate-500">Activité :</span> {{ $log->activity }}</p>@endif
                     @if ($log->observations)<p class="whitespace-pre-line">{{ $log->observations }}</p>@endif
-                    @if ($log->anomalies)<p class="mt-1 text-red-700">⚠ {{ $log->anomalies }}</p>@endif
+                    @if ($log->anomalies)<p class="mt-1 whitespace-pre-line text-amber-800">{{ $log->anomalies }}</p>@endif
+                    @if ($log->health_observation_id)
+                        <a href="{{ route('horses.observations.show', [$horse, $log->health_observation_id]) }}" class="mt-1 inline-flex min-h-11 items-center gap-1 text-sm link" data-log-attention-link><x-icon name="alert" class="size-4 text-amber-600" /> Voir le point d'attention</a>
+                    @endif
                 </div>
             @empty
                 <x-empty title="Aucun suivi saisi" icon="doc">Notez chaque jour l'appétit, l'état général et les observations.</x-empty>
@@ -33,7 +36,8 @@
                     <button class="btn-secondary min-h-12 w-full gap-2"><x-icon name="check" class="size-4 text-brand-700" /> Rien à signaler</button>
                 </form>
             @endunless
-            <details class="card p-4" open data-log-detailed>
+            {{-- Replié quand le suivi du jour est déjà noté (ou complété par un point d'attention) : l'historique reste visible. --}}
+            <details class="card p-4" @if ($errors->any() || ! $logs->first()?->logged_at?->isToday()) open @endif data-log-detailed>
                 <summary class="flex min-h-11 cursor-pointer items-center font-semibold">Saisie détaillée</summary>
                 <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="mt-3 space-y-3">
                     @csrf

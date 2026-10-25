@@ -438,6 +438,7 @@ class AssistantTools
         $obs = HealthObservation::create(['horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'observed_at' => now(), 'severity' => $severity, 'body' => $this->clip($in['body'], 5000),
             'follow_up_at' => AttentionPoints::nextFollowUp($severity)]);
         $url = route('horses.observations.show', [$horse, $obs]);
+        app(AttentionPoints::class)->noteInDailyLog($obs, $ctx->user, 'anomalies', $this->clip($obs->body, 300), $severity === 'info' ? null : 'average');
         if ($severity !== 'info') {
             ObservationController::notifyManagers($horse, $ctx->user, $this->access, 'Point d\'attention : '.$horse->shortName(), $ctx->user->name.' a noté : '.$obs->label().'.', $url);
         }

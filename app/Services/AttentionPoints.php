@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Controllers\ObservationController;
+use App\Models\DailyLog;
 use App\Models\HealthObservation;
 use App\Models\HealthObservationPhoto;
 use App\Models\HealthObservationUpdate;
@@ -65,6 +66,7 @@ class AttentionPoints
                 'follow_up_at' => self::nextFollowUp($data['severity']),
             ]);
             $this->storePhotos($point, $author, $photos);
+            $this->noteInDailyLog($point, $author, 'anomalies', ($point->title ? $point->title.' : ' : '').Str::limit($point->body, 300), $point->severity === 'info' ? null : 'average');
 
             return $point;
         });
@@ -82,6 +84,8 @@ class AttentionPoints
             $this->storePhotos($point, $author, $photos, $update);
             // Une nouvelle relance la conversation : prochaine question plus tard, compteur remis à zéro.
             $point->update(['follow_up_at' => self::nextFollowUp($trend === 'worse' ? 'alert' : $point->severity), 'follow_up_count' => 0]);
+            $news = collect([$trend ? mb_strtolower(HealthObservation::TRENDS[$trend]) : null, $body ? Str::limit($body, 300) : null])->filter()->implode(' – ');
+            $this->noteInDailyLog($point, $author, 'anomalies', $point->label().($news ? ' : '.$news : ' : nouvelle photo'), $trend === 'worse' ? 'average' : null);
 
             return $update;
         });
@@ -95,8 +99,33 @@ class AttentionPoints
     public function close(HealthObservation $point, User $by, ?string $note = null): void
     {
         $point->update(['resolved_at' => now(), 'resolved_by' => $by->id, 'resolution_note' => $note ?: null, 'follow_up_at' => null]);
+        $this->noteInDailyLog($point, $by, 'observations', $point->label().' : rentré dans l\'ordre'.($note ? ' – '.Str::limit($note, 300) : ''));
         ObservationController::notifyManagers($point->horse, $by, $this->access, $point->horse->shortName().' : point d\'attention clos',
             $point->label().' : rentré dans l\'ordre selon '.$by->name.'.', route('horses.observations.show', [$point->horse, $point]));
+    }
+
+    /**
+     * Suivi du jour du cheval complété par le point d'attention : créé s'il n'existe pas encore,
+     * sinon la ligne est ajoutée (sans doublon) et l'état général « bon » passe à « moyen » si besoin
+     * (jamais remonté, jamais « mauvais » d'office : c'est à la personne d'en juger).
+     */
+    public function noteInDailyLog(HealthObservation $point, User $by, string $field, string $line, ?string $state = null): DailyLog
+    {
+        $log = DailyLog::where('horse_id', $point->horse_id)->whereBetween('logged_at', [today(), today()->endOfDay()])
+            ->orderByRaw('health_observation_id = ? desc', [$point->id])->latest('logged_at')->first();
+        if (! $log) {
+            return DailyLog::create(['horse_id' => $point->horse_id, 'author_id' => $by->id, 'logged_at' => now(),
+                'general_state' => $state, $field => $line, 'health_observation_id' => $point->id]);
+        }
+        $current = (string) $log->{$field};
+        $log->{$field} = str_contains($current, $line) ? $current : trim($current."\n".$line);
+        if ($state === 'average' && in_array($log->general_state, [null, 'good'], true)) {
+            $log->general_state = 'average';
+        }
+        $log->health_observation_id = $point->id;
+        $log->save();
+
+        return $log;
     }
 
     public function reopen(HealthObservation $point): void
