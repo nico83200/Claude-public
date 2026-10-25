@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mode d'emploi · Les Mystères du Haras des Trois Fers</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  @page { size: A4; margin: 14mm 15mm 16mm; }
+  @page :first { margin: 0; }
+
+  .couverture { height: 297mm; background: var(--vert); color: #fff; display: flex; flex-direction: column;
+                justify-content: center; align-items: center; text-align: center; padding: 0 22mm; position: relative; }
+  .couverture .cadre { position: absolute; inset: 10mm; border: 1.5px solid var(--or); border-radius: 4px; }
+  .couverture .cadre::after { content: ""; position: absolute; inset: 3mm; border: .6px solid rgba(184, 137, 58, .6); }
+  .couverture .sur { font-family: "Playfair"; font-style: italic; font-size: 15pt; color: #f2d9a6; }
+  .couverture h1 { color: #fff; font-size: 44pt; margin: 6mm 0 3mm; line-height: 1.05; }
+  .couverture .fers { font-size: 30pt; color: var(--or); letter-spacing: .4em; margin: 6mm 0; }
+  .couverture .sous { font-size: 13pt; letter-spacing: .3em; text-transform: uppercase; color: #f2d9a6; }
+  .couverture .infos { display: flex; gap: 10mm; margin-top: 18mm; font-size: 11pt; }
+  .couverture .infos div { border-top: 1px solid var(--or); padding-top: 3mm; min-width: 32mm; }
+  .couverture .infos strong { display: block; font-family: "Playfair"; font-size: 17pt; color: #fff; }
+
+  .chapitre { display: flex; align-items: baseline; gap: 10px; }
+  .chapitre .num { font-family: "Playfair"; font-weight: 900; font-size: 22pt; color: var(--or); }
+  h2 { border-bottom: 0; }
+  section { margin-bottom: 4mm; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .trois { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .carte { background: #fff; border: 1px solid var(--filet); border-radius: 6px; padding: 9px 11px; break-inside: avoid; }
+  .carte h4 { margin: 0 0 3px; }
+  .carte p { margin: 0; font-size: 9.5pt; }
+  .pastille { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 3px; }
+  .etapes { counter-reset: e; list-style: none; padding: 0; }
+  .etapes li { counter-increment: e; position: relative; padding-left: 30px; margin-bottom: 6px; }
+  .etapes li::before { content: counter(e); position: absolute; left: 0; top: -1px; width: 21px; height: 21px; border-radius: 50%;
+                       background: var(--vert); color: #fff; font-weight: 700; font-size: 9.5pt; display: flex; align-items: center; justify-content: center; }
+  .console svg { width: 100%; height: auto; display: block; }
+  .regle-or { text-align: center; font-family: "Playfair"; font-size: 15pt; font-style: italic; color: var(--vert); margin: 4mm 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<div class="couverture">
+  <div class="cadre"></div>
+  <div class="sur">Un escape game de table</div>
+  <h1>Les Mystères<br>du Haras<br>des Trois Fers</h1>
+  <div class="fers">∩ ∩ ∩</div>
+  <div class="sous">Mode d'emploi</div>
+  <div class="infos">
+    <div><strong>2 à 6</strong>joueurs</div>
+    <div><strong>Adultes</strong>aucune connaissance équestre requise</div>
+    <div><strong>60 min</strong>par mission</div>
+  </div>
+</div>
+
+<!-- ============ 1. LE PRINCIPE ============ -->
+<section>
+  <div class="chapitre"><span class="num">1</span><h2>Le principe</h2></div>
+  <p>Bienvenue au <strong>Haras des Trois Fers</strong>, un vieux domaine normand où il se passe des choses étranges. Dans chaque mission, votre équipe mène l'enquête autour d'une <strong>console</strong> posée au centre de la table. Elle raconte l'histoire, fait parler les personnages, garde les portes fermées et surveille le chrono.</p>
+  <p>Vous jouez <strong>ensemble, contre la montre</strong>. Vous fouillez les lieux, interrogez les suspects, confrontez les témoins à leurs mensonges, résolvez des énigmes, puis vous désignez le coupable.</p>
+  <div class="encadre vert">
+    <h4>Pas besoin de savoir monter à cheval</h4>
+    <p style="margin:0">Le cheval, c'est le décor. Tout ce dont vous avez besoin pour résoudre une énigme se trouve <strong>dans le jeu</strong> : sur les cartes, dans les documents ou dans la bouche des personnages. Si un mot du métier compte, il est expliqué.</p>
+  </div>
+
+  <h3>Les trois missions</h3>
+  <div class="trois">
+    <div class="carte"><h4><span class="pastille" style="background:#4f8a3a"></span>1 · La Disparition d'Éclipse</h4><p><strong>Accessible.</strong> Une enquête pour découvrir le jeu.</p></div>
+    <div class="carte"><h4><span class="pastille" style="background:#d08a2a"></span>2 · Course Truquée à Longchamp</h4><p><strong>Intermédiaire.</strong> De l'action, des paris et du bluff.</p></div>
+    <div class="carte"><h4><span class="pastille" style="background:#a3392b"></span>3 · Le Testament du Fondateur</h4><p><strong>Difficile.</strong> Une chasse au trésor pour enquêteurs aguerris.</p></div>
+  </div>
+  <p class="petit">Les missions se jouent de préférence dans l'ordre. Chacune peut toutefois être jouée seule.</p>
+</section>
+
+<!-- ============ 2. CONTENU ============ -->
+<section>
+  <div class="chapitre"><span class="num">2</span><h2>Contenu de la boîte</h2></div>
+  <div class="deux">
+    <div>
+      <ul>
+        <li><strong>1 console</strong> et son alimentation</li>
+        <li><strong>9 cartes Lieu</strong> : Écurie, Sellerie, Bureau, Manège, Carrière, Pré du Bas, Forge, Sentier des bois, Vieille Grange</li>
+        <li><strong>6 cartes Rôle</strong>, avec leurs documents secrets</li>
+        <li><strong>1 carte Papy Marcel</strong> pour les indices</li>
+      </ul>
+    </div>
+    <div>
+      <p><strong>Un paquet par mission</strong>, à n'ouvrir qu'au moment de la jouer :</p>
+      <ul>
+        <li>la <strong>fiche de mission</strong> (l'histoire, les personnages, les plans)</li>
+        <li>les <strong>cartes Personnage</strong></li>
+        <li>les <strong>enveloppes numérotées</strong>, avec les cartes Objet et les indices</li>
+        <li>les <strong>documents secrets</strong> de chaque rôle</li>
+      </ul>
+    </div>
+  </div>
+  <p class="petit">Toutes les cartes contiennent une puce : la console les reconnaît quand on les pose.</p>
+</section>
+
+<!-- ============ 3. LA CONSOLE ============ -->
+<section class="saut">
+  <div class="chapitre"><span class="num">3</span><h2>La console</h2></div>
+  <div class="console carte">
+  <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans, sans-serif">
+    <rect x="20" y="20" width="660" height="340" rx="22" fill="#6b4523"/>
+    <rect x="32" y="32" width="636" height="316" rx="16" fill="#8a5a2b"/>
+    <!-- écran -->
+    <rect x="235" y="45" width="230" height="140" rx="8" fill="#1d1d1d"/>
+    <rect x="245" y="55" width="210" height="120" rx="3" fill="#2f4c3c"/>
+    <text x="350" y="112" font-size="14" fill="#f2d9a6" text-anchor="middle" font-family="Playfair, serif">8:14</text>
+    <text x="350" y="130" font-size="9" fill="#e3ebe2" text-anchor="middle">QUI : —   OÙ : Écurie   QUOI : —</text>
+    <!-- anneau LED -->
+    <g transform="translate(120 110)">
+      <circle r="44" fill="#4e321a"/>
+      <g fill="#7fd36b">
+        <circle cx="0" cy="-34" r="5"/><circle cx="17" cy="-29.4" r="5"/><circle cx="29.4" cy="-17" r="5"/><circle cx="34" cy="0" r="5"/>
+        <circle cx="29.4" cy="17" r="5"/><circle cx="17" cy="29.4" r="5"/><circle cx="0" cy="34" r="5"/><circle cx="-17" cy="29.4" r="5"/>
+        <circle cx="-29.4" cy="17" r="5" fill="#3d3d3d"/><circle cx="-34" cy="0" r="5" fill="#3d3d3d"/><circle cx="-29.4" cy="-17" r="5" fill="#3d3d3d"/><circle cx="-17" cy="-29.4" r="5" fill="#3d3d3d"/>
+      </g>
+    </g>
+    <!-- haut-parleur -->
+    <g transform="translate(580 110)" fill="#4e321a">
+      <circle r="44"/>
+      <g fill="#2e1e10"><circle r="3" cx="-16" cy="-16"/><circle r="3" cx="0" cy="-20"/><circle r="3" cx="16" cy="-16"/><circle r="3" cx="-20" cy="0"/><circle r="3"/><circle r="3" cx="20" cy="0"/><circle r="3" cx="-16" cy="16"/><circle r="3" cx="0" cy="20"/><circle r="3" cx="16" cy="16"/></g>
+    </g>
+    <!-- zones -->
+    <g font-weight="700" font-size="15" text-anchor="middle">
+      <rect x="95" y="205" width="140" height="80" rx="10" fill="#f3ead8" stroke="#b8893a" stroke-width="3"/>
+      <text x="165" y="252" fill="#1f3b2d">👤 QUI</text>
+      <rect x="280" y="205" width="140" height="80" rx="10" fill="#f3ead8" stroke="#b8893a" stroke-width="3"/>
+      <text x="350" y="252" fill="#1f3b2d">📍 OÙ</text>
+      <rect x="465" y="205" width="140" height="80" rx="10" fill="#f3ead8" stroke="#b8893a" stroke-width="3"/>
+      <text x="535" y="252" fill="#1f3b2d">🔍 QUOI</text>
+    </g>
+    <g fill="#fff"><circle cx="165" cy="275" r="4"/><circle cx="350" cy="275" r="4"/><circle cx="535" cy="275" r="4"/></g>
+    <!-- boutons -->
+    <circle cx="95" cy="320" r="15" fill="#c8372d" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="140" cy="320" r="15" fill="#2a63b8" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="185" cy="320" r="15" fill="#e3b92a" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="230" cy="320" r="15" fill="#3e9a48" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="350" cy="320" r="17" fill="#3a3a3a" stroke="#1d1d1d" stroke-width="3"/><circle cx="350" cy="320" r="8" fill="#5a5a5a"/>
+    <circle cx="560" cy="318" r="24" fill="#c8372d" stroke="#3a2412" stroke-width="4"/>
+    <!-- légendes -->
+    <g font-size="12" fill="#fff" font-weight="600">
+      <text x="120" y="174" text-anchor="middle">chrono</text>
+      <text x="580" y="174" text-anchor="middle">haut-parleur</text>
+      <text x="162" y="350" text-anchor="middle">4 boutons de couleur</text>
+      <text x="350" y="350" text-anchor="middle">molette</text>
+      <text x="610" y="324">accusation</text>
+    </g>
+  </svg>
+  </div>
+
+  <table>
+    <thead><tr><th style="width:26%">Élément</th><th>À quoi il sert</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Écran</strong></td><td>Il affiche l'histoire, les dialogues en sous-titres, les énigmes et l'heure. En bas, il rappelle les cartes posées sur chaque zone.</td></tr>
+      <tr><td><strong>Haut-parleur</strong></td><td>Chaque personnage a <strong>sa propre voix</strong>. Écoutez bien : les détails comptent.</td></tr>
+      <tr><td><strong>Zones QUI · OÙ · QUOI</strong></td><td>On y <strong>pose</strong> les cartes : un personnage sur QUI, un lieu sur OÙ, un objet sur QUOI. La petite lumière de chaque zone confirme que la carte est reconnue.</td></tr>
+      <tr><td><strong>4 boutons de couleur</strong></td><td>Ils servent à répondre aux choix proposés à l'écran, à suivre une piste ou à réagir aux imprévus.</td></tr>
+      <tr><td><strong>Molette</strong></td><td>On la tourne pour choisir un chiffre et on appuie pour valider : codes, heures, nombres. Elle sert aussi à naviguer dans les menus.</td></tr>
+      <tr><td><strong>Gros bouton rouge</strong></td><td>Il sert à <strong>accuser</strong>, et parfois à agir lors d'un imprévu.</td></tr>
+      <tr><td><strong>Anneau lumineux</strong></td><td>C'est le chrono : <strong>une lumière s'éteint toutes les 5 minutes</strong>. Il passe du vert à l'orange, puis au rouge.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 4. MISE EN PLACE ============ -->
+<section class="saut">
+  <div class="chapitre"><span class="num">4</span><h2>Mise en place</h2></div>
+  <p class="petit">Comptez 5 minutes. Idéalement, une personne qui ne joue pas prépare la table, mais un joueur peut aussi le faire, à condition de ne pas lire le contenu des enveloppes.</p>
+  <ol class="etapes">
+    <li>Placez la console au centre de la table, branchez-la et allumez-la.</li>
+    <li>Ouvrez le <strong>paquet de la mission</strong>. Posez sur la table la <strong>fiche de mission</strong>, les <strong>cartes Lieu</strong>, les <strong>cartes Personnage</strong> et la carte <strong>Papy Marcel</strong>.</li>
+    <li>Empilez les <strong>enveloppes</strong> fermées dans l'ordre, sur le côté. On ne les ouvre que lorsque la console le demande.</li>
+    <li>Distribuez les <strong>6 rôles</strong> (voir le tableau ci-dessous). Chacun prend sa carte Rôle et son <strong>document secret</strong>, sans le montrer.</li>
+    <li>Choisissez la mission avec la molette, puis appuyez pour commencer. La console vous demande alors de poser chaque carte Rôle.</li>
+    <li>Un joueur lit la <strong>fiche de mission</strong> à voix haute, puis la console lance le chrono.</li>
+  </ol>
+
+  <div class="deux">
+    <table>
+      <thead><tr><th>Joueurs</th><th>Rôles par joueur</th></tr></thead>
+      <tbody>
+        <tr><td>2</td><td>3 rôles chacun</td></tr>
+        <tr><td>3</td><td>2 rôles chacun</td></tr>
+        <tr><td>4</td><td>2 · 2 · 1 · 1</td></tr>
+        <tr><td>5</td><td>2 · 1 · 1 · 1 · 1</td></tr>
+        <tr><td>6</td><td>1 rôle chacun</td></tr>
+      </tbody>
+    </table>
+    <div class="encadre or">
+      <h4>Les 6 rôles sont toujours en jeu</h4>
+      <p style="margin:0;font-size:9.5pt">🔨 Maréchal-ferrant · 🩺 Vétérinaire · 📰 Journaliste · 💼 Expert-comptable · 🎲 Parieur · 👮 Ancien gendarme. Chacun a un <strong>document secret</strong> et un <strong>pouvoir</strong>, décrits sur la fiche de mission.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. JOUER ============ -->
+<section>
+  <div class="chapitre"><span class="num">5</span><h2>Comment jouer</h2></div>
+
+  <h3>Poser les cartes</h3>
+  <p>Pas besoin de tour de jeu : tout le monde peut poser une carte à tout moment. Posez-la <strong>bien à plat, au centre de la zone</strong>, et laissez-la tant que vous en avez besoin.</p>
+  <table>
+    <thead><tr><th style="width:38%">Je pose…</th><th>Ce qui se passe</th></tr></thead>
+    <tbody>
+      <tr><td>un <strong>Lieu</strong> sur 📍 OÙ</td><td>Vous vous y rendez. La console décrit ce que vous voyez et vous demande parfois d'ouvrir une enveloppe. Certains lieux sont <strong>fermés</strong> ou <strong>introuvables</strong> au début.</td></tr>
+      <tr><td>un <strong>Personnage</strong> sur 👤 QUI</td><td>Vous l'interrogez : il vous raconte sa version des faits.</td></tr>
+      <tr><td>un <strong>Personnage</strong> sur QUI et un <strong>Objet</strong> sur 🔍 QUOI</td><td>Vous lui <strong>montrez l'objet</strong>. Observez sa réaction : c'est souvent là qu'on démasque un menteur.</td></tr>
+      <tr><td>un <strong>Objet</strong> seul sur QUOI</td><td>La console vous rappelle ce que c'est.</td></tr>
+      <tr><td>une carte <strong>Rôle</strong> sur une zone libre</td><td>Vous utilisez votre <strong>pouvoir</strong> sur les cartes posées à côté.</td></tr>
+      <tr><td>la carte <strong>Papy Marcel</strong> sur n'importe quelle zone</td><td>Vous demandez un <strong>indice</strong> (voir chapitre 6).</td></tr>
+    </tbody>
+  </table>
+  <p class="petit">Retirer puis reposer une carte donne un <strong>résumé</strong> de ce qui a déjà été dit. Une carte posée sur la mauvaise zone est refusée, et la console vous dit où la mettre.</p>
+
+  <h3>Les enveloppes</h3>
+  <p>Quand la console annonce <em>« Ouvrez l'enveloppe E3 »</em>, ouvrez <strong>uniquement</strong> celle-ci. Elle contient des preuves, des photos et souvent des <strong>cartes Objet</strong>, que vous pourrez poser sur la zone QUOI.</p>
+
+  <h3>Les documents secrets</h3>
+  <p class="regle-or">« On ne montre pas ses documents : on les raconte. »</p>
+  <p>Votre document de rôle ne quitte <strong>jamais</strong> vos mains. Lisez-le, décrivez-le, résumez-le, posez des questions aux autres… mais ne le passez pas. C'est en parlant que l'équipe résout l'enquête. Les documents trouvés dans les enveloppes, eux, se partagent librement.</p>
+
+  <h3>Les énigmes</h3>
+  <div class="deux">
+    <div class="carte"><h4>🔢 Les codes</h4><p>Une porte fermée ? L'écran affiche des cases. <strong>Tournez la molette</strong> pour choisir le chiffre, <strong>appuyez</strong> pour passer au suivant. Le bouton rouge efface. Un code faux ne coûte rien… sauf du temps.</p></div>
+    <div class="carte"><h4>🔴🔵🟡🟢 Les choix</h4><p>Quand l'écran propose plusieurs réponses en couleur, appuyez sur le <strong>bouton de la même couleur</strong>. Certains mauvais choix coûtent quelques minutes.</p></div>
+  </div>
+</section>
+
+<!-- ============ 6. AIDES ET IMPRÉVUS ============ -->
+<section>
+  <div class="chapitre"><span class="num">6</span><h2>Indices et imprévus</h2></div>
+  <div class="deux insecable">
+    <div>
+      <h3 style="margin-top:0">👴 Papy Marcel, les indices</h3>
+      <p>L'ancien palefrenier du haras connaît tout le monde. Posez sa carte sur une zone : il vous donne un coup de main sur le point où vous êtes bloqués.</p>
+      <ul>
+        <li><strong>Les 3 premiers indices sont gratuits</strong> dans les missions 1 et 2 (2 dans la mission 3).</li>
+        <li>Les suivants coûtent <strong>2 minutes</strong> chacun.</li>
+        <li>Reposer la carte une seconde fois donne un indice <strong>plus précis</strong>.</li>
+        <li>Si vous tardez trop sur une étape, son portrait <strong>clignote</strong> à l'écran : il propose son aide.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">🚨 Les imprévus</h3>
+      <p>La vie d'un haras n'attend pas ! Plusieurs fois par partie, la console sonne l'alarme : un cheval s'échappe, un visiteur débarque, le téléphone sonne…</p>
+      <ul>
+        <li><strong>Lâchez tout</strong> et suivez les instructions de l'écran.</li>
+        <li>Certains se jouent <strong>à plusieurs</strong>, en appuyant sur plusieurs boutons en même temps.</li>
+        <li>Un imprévu raté coûte en général <strong>2 minutes</strong>. Un imprévu réussi peut vous en <strong>faire gagner</strong>.</li>
+        <li>Quand un personnage entre dans la pièce, <strong>retournez vos documents</strong> !</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. ACCUSATION ============ -->
+<section class="saut">
+  <div class="chapitre"><span class="num">7</span><h2>L'accusation</h2></div>
+  <p>Quand vous pensez avoir trouvé la solution :</p>
+  <ol class="etapes">
+    <li>Posez vos trois cartes : le <strong>coupable</strong> sur 👤 QUI, le <strong>lieu</strong> sur 📍 OÙ, et l'<strong>objet</strong> qui prouve le mobile sur 🔍 QUOI. Prenez le temps d'en débattre : tant que vous n'avez pas appuyé, vous pouvez changer d'avis.</li>
+    <li>Appuyez sur le <strong>gros bouton rouge</strong>. L'écran récapitule votre accusation.</li>
+    <li>Confirmez avec le bouton <strong>vert</strong> (ou annulez avec le rouge).</li>
+    <li>Roulement de tambour… Si les trois zones s'allument <strong>en vert</strong>, l'affaire est résolue !</li>
+  </ol>
+  <div class="encadre or">
+    <p style="margin:0"><strong>En cas d'erreur</strong>, la console vous dit seulement <strong>combien</strong> d'éléments sont justes, et vous perdez <strong>5 minutes</strong>. Au bout de <strong>3 erreurs</strong>, l'enquête est perdue. Pensez au <strong>Coup de poker</strong> du Parieur avant une accusation risquée.</p>
+  </div>
+
+  <div class="chapitre"><span class="num">8</span><h2>Fin de partie et score</h2></div>
+  <p>La partie s'arrête quand l'accusation est juste, quand le chrono atteint zéro ou après la troisième erreur. Dans tous les cas, la console raconte la fin de l'histoire et révèle la vérité.</p>
+  <table>
+    <thead><tr><th>Récompense</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr><td>🥇 <strong>Flot bleu</strong></td><td>Plus de 15 minutes d'avance et aucune erreur d'accusation</td></tr>
+      <tr><td>🥈 <strong>Flot rouge</strong></td><td>Plus de 5 minutes d'avance</td></tr>
+      <tr><td>🥉 <strong>Flot jaune</strong></td><td>Affaire résolue dans le temps</td></tr>
+    </tbody>
+  </table>
+  <p>Le temps restant, les indices payants et les erreurs donnent un <strong>score</strong>. Entrez le nom de votre équipe à la molette pour figurer au <strong>tableau d'honneur</strong> de la console.</p>
+</section>
+
+<!-- ============ 9. CONSEILS ============ -->
+<section class="saut">
+  <div class="chapitre"><span class="num">9</span><h2>Conseils d'enquêteurs</h2></div>
+  <div class="deux">
+    <ul>
+      <li><strong>Parlez !</strong> Dites à voix haute ce que vous lisez, même si ça vous semble sans intérêt.</li>
+      <li><strong>Séparez-vous</strong> : pendant que deux joueurs déchiffrent un document, les autres peuvent interroger un suspect.</li>
+      <li><strong>Prenez des notes</strong> : heures, alibis, contradictions. Un crayon et une feuille sont vos meilleurs alliés.</li>
+    </ul>
+    <ul>
+      <li><strong>Méfiez-vous des évidences</strong> : le suspect idéal est rarement le bon.</li>
+      <li><strong>Confrontez</strong> : montrez les objets aux personnages. Un menteur finit toujours par se contredire.</li>
+      <li><strong>Ne forcez rien</strong> : aucune énigme ne demande de démonter, de plier ou de déchirer quoi que ce soit, sauf mention contraire.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 10. ORGANISATEUR ============ -->
+<section>
+  <div class="chapitre"><span class="num">10</span><h2>Pour l'organisateur</h2></div>
+  <h3>Après la partie</h3>
+  <p>Remettez chaque carte Objet et chaque document <strong>dans son enveloppe d'origine</strong> (la liste figure au dos de chaque enveloppe), refermez-les et rangez le paquet de la mission. Le jeu est prêt pour un autre groupe.</p>
+  <h3>En cas de souci</h3>
+  <table>
+    <thead><tr><th style="width:36%">Problème</th><th>Solution</th></tr></thead>
+    <tbody>
+      <tr><td>Une carte n'est pas reconnue</td><td>Posez-la bien à plat, au centre de la zone, et attendez une seconde. Ne posez qu'une carte par zone.</td></tr>
+      <tr><td>Plus de son</td><td>Vérifiez le volume. Si le problème persiste, éteignez et rallumez la console.</td></tr>
+      <tr><td>La console redémarre en cours de partie</td><td>Choisissez <strong>« Reprendre la partie »</strong> au menu : le chrono et l'avancée de l'enquête sont conservés.</td></tr>
+      <tr><td>Un joueur a ouvert une enveloppe trop tôt</td><td>Refermez-la et continuez : c'est l'honneur des enquêteurs qui est en jeu !</td></tr>
+      <tr><td>Panneau du maître du jeu</td><td>La console crée un réseau Wi-Fi « Haras-Trois-Fers ». Depuis un téléphone, il permet de suivre la partie, d'envoyer un indice, de mettre en pause ou d'ajouter du temps.</td></tr>
+    </tbody>
+  </table>
+  <p class="petit" style="margin-top:6mm;text-align:center">Les Mystères du Haras des Trois Fers · Un jeu fait maison, avec amour et quelques fers à cheval.</p>
+</section>
+
+</body>
+</html>

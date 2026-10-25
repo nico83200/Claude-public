@@ -168,12 +168,11 @@ Pour utiliser un pouvoir, on scanne **sa carte Rôle, puis la carte visée**.
    ┌─────┬─────┬─────┬─────┐
    │  1  │  2  │  3  │  4  │
    └─────┴─────┴─────┴─────┘
-   ═══════════ ALLÉE ═══════════   ← porte arrière (vers le sentier)
+   porte principale + caméra →  ═══════ ALLÉE ═══════  → porte arrière (vers le sentier)
    ┌─────┬─────┬─────┬─────┐
    │  5  │  6  │  7  │  8  │
    └─────┴─────┴─────┴─────┘
             CÔTÉ SUD
-   Porte principale + caméra ↑
 
    Les boxes se font face deux à deux : 1↔5, 2↔6, 3↔7, 4↔8.
    Box 7 : « ÉCLIPSE ». Les autres boxes ne portent pas de nom.

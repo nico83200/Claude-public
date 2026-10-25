@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche de mission 1 · La Disparition d'Éclipse</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  @page { size: A4; margin: 13mm 14mm 16mm; }
+  
+
+  .bandeau { display: flex; justify-content: space-between; align-items: baseline;
+             font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase; color: var(--cuir);
+             border-bottom: 1px solid var(--or); padding-bottom: 4px; margin-bottom: 14px; }
+  .titre { text-align: center; margin: 4px 0 14px; }
+  .titre .sur { font-family: "Playfair"; font-style: italic; color: var(--cuir); font-size: 12pt; }
+  .titre h1 { font-size: 34pt; margin: 2px 0 4px; }
+  .titre .fer { font-size: 20pt; color: var(--or); letter-spacing: .5em; }
+
+  .lettre { position: relative; background: #fffdf6; border: 1px solid var(--filet);
+            box-shadow: 0 1px 0 var(--filet), 3px 4px 0 rgba(0,0,0,.05);
+            padding: 16px 22px 14px; margin: 0 6mm 16px; transform: rotate(-.6deg);
+            font-family: "Caveat", cursive; font-size: 15.5pt; line-height: 1.22; color: #24324a; }
+  .lettre p { margin: 0 0 .35em; }
+  .lettre .signature { text-align: right; font-size: 18pt; margin-top: .2em; }
+  .lettre .ps { font-size: 13.5pt; }
+
+  .mission { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 10px; }
+  .question { background: var(--vert); color: #fff; border-radius: 8px; padding: 12px 10px; text-align: center; }
+  .question .ico { font-size: 22pt; line-height: 1; }
+  .question .mot { font-family: "Playfair"; font-weight: 900; font-size: 19pt; color: #f2d9a6; margin: 4px 0 2px; }
+  .question .detail { font-size: 9.5pt; opacity: .92; }
+
+  .chrono { display: flex; align-items: center; gap: 14px; border: 1.5px solid var(--or); border-radius: 8px;
+            padding: 8px 14px; background: #fff; margin-bottom: 12px; }
+  .chrono .grand { font-family: "Playfair"; font-weight: 900; font-size: 24pt; color: var(--rouge); white-space: nowrap; }
+
+  .eclipse { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; }
+  .medaillon { width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f4f1ea, #b9b4aa);
+               border: 3px solid var(--or); display: flex; align-items: center; justify-content: center; }
+  .eclipse dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 0; font-size: 10pt; }
+  .eclipse dt { font-weight: 700; color: var(--vert); }
+  .eclipse dd { margin: 0; }
+
+  .persos { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .perso { display: grid; grid-template-columns: 54px 1fr; gap: 10px; background: #fff; border: 1px solid var(--filet);
+           border-radius: 6px; padding: 9px 10px; break-inside: avoid; }
+  .initiales { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+               font-family: "Playfair"; font-weight: 700; font-size: 16pt; color: #fff; }
+  .perso h4 { margin: 0; font-size: 11.5pt; }
+  .perso .qualite { font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em; color: var(--cuir); margin-bottom: 3px; }
+  .perso p { margin: 0; font-size: 9.5pt; }
+  .perso .citation { font-family: "Playfair"; font-style: italic; color: var(--gris); margin-top: 3px; }
+
+  .roles td:first-child { white-space: nowrap; font-weight: 700; color: var(--vert); }
+  .plan { background: #fff; border: 1px solid var(--filet); border-radius: 6px; padding: 6px; margin-bottom: 10px; }
+  .plan svg { display: block; width: 100%; height: auto; }
+  .colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<div class="bandeau"><span>Haras des Trois Fers</span><span>Fiche de mission n° 1</span></div>
+
+<div class="titre">
+  <div class="sur">Les Mystères du Haras des Trois Fers</div>
+  <h1>La Disparition d'Éclipse</h1>
+  <div class="fer">∩ ∩ ∩</div>
+</div>
+
+<div class="lettre">
+  <p>Samedi, 7 h 15</p>
+  <p>Mes amis,</p>
+  <p>Je n'ai pas le temps de vous expliquer longuement : venez au haras, vite. Éclipse a disparu cette nuit. Lucas a trouvé son box grand ouvert à 6 h ce matin, et vide.</p>
+  <p>Demain, c'est le Grand Prix de Deauville. Elle en était la grande favorite. Hélène est effondrée, tout le monde se regarde de travers… et moi, je ne crois pas une seconde à un simple vol.</p>
+  <p>À 9 h, l'expert de l'assurance vient signer le constat. Une fois que ce sera fait, l'affaire sera classée et plus personne ne la cherchera. Vous êtes les seuls en qui j'ai confiance. Chacun de vous a un talent : servez-vous-en.</p>
+  <p>Retrouvez-la. Je vous en supplie.</p>
+  <p class="signature">Camille</p>
+  <p class="ps">P.-S. : ne dites rien à personne de ce que vous trouverez. À personne.</p>
+</div>
+
+<div class="mission">
+  <div class="question"><div class="ico">👤</div><div class="mot">QUI ?</div><div class="detail">a fait sortir Éclipse<br>de son box</div></div>
+  <div class="question"><div class="ico">📍</div><div class="mot">OÙ ?</div><div class="detail">se trouve-t-elle<br>en ce moment</div></div>
+  <div class="question"><div class="ico">🔍</div><div class="mot">POURQUOI ?</div><div class="detail">l'objet qui prouve<br>le mobile du coupable</div></div>
+</div>
+
+<div class="chrono">
+  <div class="grand">8 h → 9 h</div>
+  <div>Vous avez <strong>60 minutes</strong>, jusqu'à l'arrivée de l'expert. Quand vous êtes sûrs de vous, posez vos trois cartes sur la console et appuyez sur le <strong>gros bouton</strong>. Attention : chaque accusation fausse coûte <strong>5 minutes</strong>, et au bout de trois erreurs, l'enquête est perdue.</div>
+</div>
+
+<div class="eclipse">
+  <div class="medaillon">
+    <span style="font-size:58pt;line-height:1">🐴</span>
+  </div>
+  <div>
+    <h3 style="margin-top:0">Fiche signalétique : Éclipse</h3>
+    <dl>
+      <dt>Robe</dt><dd>Grise pommelée : robe claire parsemée de taches grises en anneaux</dd>
+      <dt>Âge et taille</dt><dd>9 ans · 1,68 m au garrot</dd>
+      <dt>Logement</dt><dd>Écurie principale, box n° 7</dd>
+      <dt>Palmarès</dt><dd>Gagnante du Grand Prix de Deauville en 2024 et en 2025</dd>
+      <dt>Caractère</dt><dd>Douce, très gourmande, n'aime pas les inconnus</dd>
+    </dl>
+  </div>
+</div>
+
+<!-- ============ PAGE 2 ============ -->
+<div class="saut"></div>
+<div class="bandeau"><span>Haras des Trois Fers</span><span>Fiche de mission n° 1</span></div>
+
+<h2 style="margin-top:0">Les gens du haras</h2>
+<p class="petit">Posez la carte d'un personnage sur la zone <strong>QUI</strong> pour l'interroger. Ajoutez un objet sur la zone <strong>QUOI</strong> pour le lui montrer.</p>
+
+<div class="persos">
+  <div class="perso"><div class="initiales" style="background:#7a4e6e">HV</div><div>
+    <h4>Hélène Vasseur</h4><div class="qualite">Propriétaire du haras · 58 ans</div>
+    <p>Elle a repris le haras de son père il y a trente ans. Éclipse est sa fierté.</p>
+    <p class="citation">« Ce haras, c'est toute ma vie. »</p></div></div>
+
+  <div class="perso"><div class="initiales" style="background:#4f6d3a">LB</div><div>
+    <h4>Lucas Bernier</h4><div class="qualite">Palefrenier · 24 ans</div>
+    <p>Il s'occupe des chevaux et loge au-dessus de l'écurie. C'est lui qui a découvert le box vide.</p>
+    <p class="citation">« Je connais chaque cheval par son prénom. »</p></div></div>
+
+  <div class="perso"><div class="initiales" style="background:#2f6680">CR</div><div>
+    <h4>Camille Roussel</h4><div class="qualite">Cavalière d'Éclipse · 31 ans</div>
+    <p>Votre amie. Elle monte Éclipse depuis quatre ans, et c'est elle qui vous a appelés.</p>
+    <p class="citation">« Elle et moi, on se comprend sans un mot. »</p></div></div>
+
+  <div class="perso"><div class="initiales" style="background:#9b6b2f">VL</div><div>
+    <h4>Victoire de Lancey</h4><div class="qualite">Cavalière rivale · 27 ans</div>
+    <p>Elle est venue reconnaître la carrière avant le Grand Prix. Elle a fini trois fois deuxième derrière Éclipse.</p>
+    <p class="citation">« Je n'aime pas perdre. Jamais. »</p></div></div>
+
+  <div class="perso"><div class="initiales" style="background:#5c5c6e">AV</div><div>
+    <h4>Antoine Vasseur</h4><div class="qualite">Fils d'Hélène · 33 ans</div>
+    <p>Revenu de Paris sans prévenir il y a une semaine. Il préfère les casinos aux écuries.</p>
+    <p class="citation">« Les chevaux, c'est le truc de ma mère. »</p></div></div>
+
+  <div class="perso"><div class="initiales" style="background:#7d3b30">MD</div><div>
+    <h4>Marc Delorme</h4><div class="qualite">Marchand de chevaux · 52 ans</div>
+    <p>Il achète et revend des chevaux dans toute l'Europe. Il était dans le coin cette nuit.</p>
+    <p class="citation">« Tout s'achète, il suffit d'y mettre le prix. »</p></div></div>
+</div>
+
+<h2>Vos rôles</h2>
+<p class="petit">Chacun reçoit au moins un rôle. Les 6 rôles sont toujours en jeu. Votre <strong>document secret</strong> ne se montre pas : <strong>on le raconte</strong>. Pour utiliser un pouvoir, posez votre carte Rôle sur un lecteur libre.</p>
+<table class="roles">
+  <thead><tr><th>Rôle</th><th>Votre atout</th><th>Votre pouvoir</th></tr></thead>
+  <tbody>
+    <tr><td>🔨 Maréchal-ferrant</td><td>Vous connaissez les fers de tous les chevaux du haras.</td><td><strong>Lire une piste</strong> : lors d'un choix de chemin, éliminez une mauvaise option. <em>1 fois.</em></td></tr>
+    <tr><td>🩺 Vétérinaire</td><td>Vous savez lire les notes de votre confrère, le Dr Morel.</td><td>Vous seul·e pouvez déchiffrer ses <strong>carnets de santé</strong>.</td></tr>
+    <tr><td>📰 Journaliste</td><td>Vos archives du <em>Courrier Équestre</em>.</td><td><strong>Insister</strong> : personnage sur QUI et votre carte, pour obtenir une nouvelle déclaration. <em>2 fois.</em></td></tr>
+    <tr><td>💼 Expert-comptable</td><td>Vous avez eu accès aux comptes du haras.</td><td><strong>Expertiser</strong> : votre carte sur QUI et un objet sur QUOI, pour une analyse financière. <em>2 fois.</em></td></tr>
+    <tr><td>🎲 Parieur</td><td>Vous connaissez le programme du Grand Prix et les rumeurs du milieu.</td><td><strong>Coup de poker</strong> : posez votre carte juste avant une accusation. Si elle est fausse, pas de pénalité, et vous saurez quel élément est faux. <em>1 fois.</em></td></tr>
+    <tr><td>👮 Ancien gendarme</td><td>Votre fiche sur la nuit du vol.</td><td><strong>Vérifier un alibi</strong> : personnage sur QUI et votre carte sur QUOI. <em>3 fois.</em> Vous pouvez aussi <strong>annuler une pénalité</strong> d'imprévu. <em>1 fois.</em></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ PAGE 3 ============ -->
+<div class="saut"></div>
+<div class="bandeau"><span>Haras des Trois Fers</span><span>Fiche de mission n° 1</span></div>
+
+<h2 style="margin-top:0">Plan du haras</h2>
+<div class="plan">
+<svg viewBox="0 0 680 450" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans, sans-serif">
+  <defs>
+    <pattern id="hachures" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#cfd8c8"/><line x1="0" y1="0" x2="0" y2="8" stroke="#7f8f78" stroke-width="2"/>
+    </pattern>
+    <pattern id="sable" width="6" height="6" patternUnits="userSpaceOnUse">
+      <rect width="6" height="6" fill="#ead9b4"/><circle cx="2" cy="2" r=".8" fill="#cdb684"/>
+    </pattern>
+    <pattern id="herbe" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#d7e6c4"/><path d="M2 8l1-3M6 9l1-3" stroke="#9fbb83" stroke-width="1"/>
+    </pattern>
+    <g id="pin"><circle r="9" fill="#2f5a3d"/><circle r="5" cx="-2" cy="-2" fill="#3f7350"/></g>
+  </defs>
+  <rect width="680" height="450" fill="#f3efe2"/>
+
+  <!-- Pinède -->
+  <path d="M250 0H680V150Q620 135 560 120Q480 105 420 100Q330 95 250 70Z" fill="#c7d6bf"/>
+  <g>
+    <use href="#pin" x="275" y="30"/><use href="#pin" x="305" y="55"/><use href="#pin" x="330" y="25"/><use href="#pin" x="360" y="60"/>
+    <use href="#pin" x="390" y="30"/><use href="#pin" x="420" y="70"/><use href="#pin" x="445" y="35"/><use href="#pin" x="480" y="80"/>
+    <use href="#pin" x="500" y="40"/><use href="#pin" x="530" y="95"/><use href="#pin" x="545" y="60"/><use href="#pin" x="575" y="110"/>
+    <use href="#pin" x="600" y="125"/><use href="#pin" x="640" y="130"/><use href="#pin" x="660" y="110"/>
+  </g>
+  <rect x="570" y="8" width="102" height="70" fill="url(#hachures)" stroke="#7f8f78"/>
+  <text x="621" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#33422e">BOIS PRIVÉ</text>
+  <text x="621" y="55" text-anchor="middle" font-size="10" fill="#33422e">accès interdit</text>
+  <text x="300" y="92" font-size="15" font-weight="700" fill="#1f3b2d" font-style="italic">La pinède</text>
+
+  <!-- Sentier -->
+  <path d="M478 165C510 150 520 120 540 105S590 90 600 78" stroke="#8a5a2b" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
+  <rect x="483" y="120" width="92" height="17" rx="3" fill="#fbf7ee" transform="rotate(-28 483 120)"/><text x="488" y="133" font-size="11" fill="#8a5a2b" font-weight="700" transform="rotate(-28 483 120)">Sentier des bois</text>
+
+  <!-- Route -->
+  <rect x="0" y="405" width="680" height="38" fill="#9a958c"/>
+  <line x1="0" y1="424" x2="680" y2="424" stroke="#fff" stroke-width="2" stroke-dasharray="16 12"/>
+  <text x="12" y="399" font-size="10.5" fill="#4d4943">◀ Deauville (20 min)</text>
+  <text x="668" y="399" font-size="10.5" fill="#4d4943" text-anchor="end">Haras des Ormes ▶</text>
+  <text x="340" y="439" font-size="10" fill="#fff" text-anchor="middle">ROUTE DÉPARTEMENTALE</text>
+
+  <!-- Chemin d'entrée et cour -->
+  <path d="M340 405V300" stroke="#cdbf9f" stroke-width="22"/>
+  <rect x="250" y="210" width="230" height="95" rx="6" fill="#e2d6bb"/>
+  <text x="365" y="268" font-size="12" fill="#6d665d" text-anchor="middle" font-style="italic">la cour</text>
+  <rect x="322" y="398" width="36" height="8" fill="#5a4630"/><text x="364" y="396" font-size="9.5" fill="#4d4943">portail</text>
+
+  <!-- Pré du Bas -->
+  <rect x="18" y="290" width="230" height="92" rx="4" fill="url(#herbe)" stroke="#7b8f63" stroke-dasharray="4 3"/>
+  <text x="133" y="341" font-size="14" font-weight="700" fill="#1f3b2d" text-anchor="middle">Pré du Bas</text>
+
+  <!-- Maison et bureau -->
+  <rect x="30" y="140" width="120" height="80" fill="#efe3cf" stroke="#5a4630" stroke-width="1.5"/>
+  <path d="M24 140L90 104L156 140Z" fill="#8a5a2b"/>
+  <text x="90" y="178" font-size="12" font-weight="700" fill="#2a2622" text-anchor="middle">Maison</text>
+  <text x="90" y="194" font-size="9.5" fill="#6d665d" text-anchor="middle">Hélène et Antoine</text>
+  <rect x="165" y="165" width="70" height="50" fill="#fff" stroke="#1f3b2d" stroke-width="2"/>
+  <text x="200" y="188" font-size="11.5" font-weight="700" fill="#1f3b2d" text-anchor="middle">Bureau</text>
+  <text x="200" y="203" font-size="12" text-anchor="middle">🔒</text>
+
+  <!-- Sellerie et écurie -->
+  <rect x="250" y="130" width="50" height="70" fill="#f0dcc0" stroke="#5a4630" stroke-width="1.5"/>
+  <text x="275" y="168" font-size="10.5" font-weight="700" fill="#2a2622" text-anchor="middle" transform="rotate(-90 275 168)">Sellerie</text>
+  <rect x="300" y="130" width="175" height="70" fill="#fff" stroke="#1f3b2d" stroke-width="2"/>
+  <text x="387" y="160" font-size="14" font-weight="700" fill="#1f3b2d" text-anchor="middle">Écurie</text>
+  <text x="387" y="176" font-size="9.5" fill="#6d665d" text-anchor="middle">8 boxes · logement de Lucas à l'étage</text>
+  <text x="387" y="191" font-size="9" fill="#6d665d" text-anchor="middle">entrée principale ◀ · porte arrière ▶</text>
+  <rect x="471" y="158" width="6" height="16" fill="#8a5a2b"/>
+
+  <!-- Forge -->
+  <rect x="560" y="160" width="70" height="45" fill="#e6ddd3" stroke="#5a4630" stroke-width="1.5"/>
+  <text x="595" y="187" font-size="11.5" font-weight="700" fill="#2a2622" text-anchor="middle">Forge</text>
+
+  <!-- Carrière -->
+  <rect x="395" y="320" width="130" height="75" rx="3" fill="url(#sable)" stroke="#a88a52"/>
+  <g stroke="#a3392b" stroke-width="3"><line x1="420" y1="345" x2="440" y2="345"/><line x1="470" y1="370" x2="490" y2="370"/><line x1="495" y1="340" x2="505" y2="355"/></g>
+  <text x="460" y="389" font-size="12" font-weight="700" fill="#5a4630" text-anchor="middle">Carrière</text>
+
+  <!-- Manège -->
+  <rect x="540" y="225" width="125" height="110" rx="4" fill="#fff" stroke="#1f3b2d" stroke-width="2"/>
+  <ellipse cx="602" cy="275" rx="46" ry="30" fill="url(#sable)" stroke="#a88a52"/>
+  <text x="602" y="279" font-size="13" font-weight="700" fill="#1f3b2d" text-anchor="middle">Manège</text>
+  <rect x="540" y="315" width="125" height="20" fill="#efe3cf" stroke="#5a4630"/>
+  <text x="602" y="329" font-size="9.5" fill="#2a2622" text-anchor="middle">club-house</text>
+
+  <!-- Rose des vents -->
+  <g transform="translate(40 50)">
+    <circle r="22" fill="#fff" stroke="#b8893a"/>
+    <path d="M0-18L5 0L0 18L-5 0Z" fill="#1f3b2d"/>
+    <text y="-26" font-size="11" font-weight="700" text-anchor="middle" fill="#1f3b2d">N</text>
+  </g>
+  <text x="18" y="100" font-size="9" fill="#6d665d">Échelle : 1 cm ≈ 40 m</text>
+</svg>
+</div>
+
+<div class="colonnes">
+  <div>
+    <h3 style="margin-top:4px">Plan de l'écurie</h3>
+    <div class="plan">
+    <svg viewBox="0 0 340 230" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans, sans-serif">
+      <rect width="340" height="230" fill="#fff"/>
+      <text x="170" y="16" font-size="10.5" font-weight="700" fill="#8a5a2b" text-anchor="middle" letter-spacing="2">CÔTÉ NORD</text>
+      <g stroke="#1f3b2d" stroke-width="2" fill="#f6f1e6">
+        <rect x="45" y="24" width="62" height="58"/><rect x="107" y="24" width="62" height="58"/><rect x="169" y="24" width="62" height="58"/><rect x="231" y="24" width="62" height="58"/>
+        <rect x="45" y="142" width="62" height="58"/><rect x="107" y="142" width="62" height="58"/><rect x="169" y="142" width="62" height="58" fill="#f2e2c2"/><rect x="231" y="142" width="62" height="58"/>
+      </g>
+      <g font-family="Playfair, serif" font-size="22" font-weight="700" fill="#1f3b2d" text-anchor="middle">
+        <text x="76" y="62">1</text><text x="138" y="62">2</text><text x="200" y="62">3</text><text x="262" y="62">4</text>
+        <text x="76" y="176">5</text><text x="138" y="176">6</text><text x="200" y="176">7</text><text x="262" y="176">8</text>
+      </g>
+      <text x="200" y="192" font-size="10" font-weight="700" fill="#a3392b" text-anchor="middle">ÉCLIPSE</text>
+      <rect x="45" y="82" width="248" height="60" fill="#ece5d6"/>
+      <text x="169" y="116" font-size="11" fill="#6d665d" text-anchor="middle" letter-spacing="3">ALLÉE</text>
+      <rect x="18" y="96" width="27" height="32" fill="#8a5a2b"/>
+      <text x="10" y="90" font-size="9" fill="#2a2622">entrée</text>
+      <text x="8" y="140" font-size="11">🎥</text>
+      <rect x="293" y="100" width="22" height="24" fill="#8a5a2b"/>
+      <text x="296" y="94" font-size="9" fill="#2a2622">porte</text>
+      <text x="296" y="140" font-size="9" fill="#2a2622">arrière</text>
+      <text x="170" y="220" font-size="10.5" font-weight="700" fill="#8a5a2b" text-anchor="middle" letter-spacing="2">CÔTÉ SUD</text>
+    </svg>
+    </div>
+  </div>
+  <div>
+    <h3 style="margin-top:4px">À savoir</h3>
+    <ul style="font-size:10pt">
+      <li>Les boxes <strong>se font face</strong> deux à deux : 1 et 5, 2 et 6, 3 et 7, 4 et 8.</li>
+      <li>🎥 Une <strong>caméra</strong> filme l'entrée principale de l'écurie.</li>
+      <li>La <strong>porte arrière</strong> de l'écurie donne sur le sentier des bois.</li>
+      <li>Le <strong>bureau</strong> est fermé par un code à 4 chiffres.</li>
+      <li>Le Grand Prix a lieu <strong>demain</strong>. Quatre chevaux du haras y sont engagés.</li>
+    </ul>
+    <div class="encadre or" style="font-size:9.5pt">
+      <strong>✉ Les enveloppes</strong> ne s'ouvrent <strong>que lorsque la console vous le demande</strong>. Ne trichez pas : c'est Éclipse qui en paierait le prix.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
