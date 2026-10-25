@@ -398,3 +398,11 @@ function img_attrs(?string $path, array $widths, string $sizes): string
 {
     return App\Services\Thumbs::attrs($path, $widths, $sizes);
 }
+
+/** Nombre écrit en toutes lettres (1 à 12, au féminin), en chiffres au-delà : « trois façons », « 14 façons ». */
+function number_words(int $n, bool $capital = false): string
+{
+    $words = [1 => 'une', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze'];
+    $word = $words[$n] ?? (string) $n;
+    return $capital ? mb_strtoupper(mb_substr($word, 0, 1)) . mb_substr($word, 1) : $word;
+}

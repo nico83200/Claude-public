@@ -44,7 +44,8 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
   <div class="container">
     <div class="section-head section-head-center">
       <p class="script-accent">nos collections</p>
-      <h2>Trois façons de <em>vivre votre passion</em></h2>
+      <?php $nbCollections = count($categories); ?>
+      <h2><?= $nbCollections > 1 ? e(number_words($nbCollections, true)) . ' façons' : 'Une façon' ?> de <em>vivre votre passion</em></h2>
     </div>
     <div class="collections">
       <?php foreach ($categories as $i => $c): ?>

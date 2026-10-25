@@ -448,6 +448,14 @@ $pdoJ->exec('DROP TABLE journal_posts');
 check('migration du journal rejouable (pas de doublon)', (int) Database::value('SELECT COUNT(*) FROM journal_posts') === 3);
 $_SERVER['REQUEST_URI'] = '/';
 
+echo "Titre des collections\n";
+check('nombre de collections en lettres', number_words(1, true) === 'Une' && number_words(3, true) === 'Trois' && number_words(6) === 'six' && number_words(14) === '14');
+$_SERVER['REQUEST_URI'] = '/';
+ob_start();
+(new App\Controllers\HomeController())->index();
+$homeTitle = (string) ob_get_clean();
+check('titre adapté au nombre de collections', str_contains($homeTitle, ucfirst(number_words(count(App\Services\Catalog::categories()))) . ' façons de'));
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');

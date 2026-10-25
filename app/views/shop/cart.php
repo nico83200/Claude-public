@@ -11,7 +11,8 @@
     <?php if (!$items): ?>
       <div class="empty">
         <p class="script-accent">votre panier est vide</p>
-        <p>Laissez-vous tenter par nos trois collections.</p>
+        <?php $nbCollections = count(App\Services\Catalog::categories()); ?>
+        <p>Laissez-vous tenter par <?= $nbCollections > 1 ? 'nos ' . e(number_words($nbCollections)) . ' collections' : 'notre collection' ?>.</p>
         <a class="btn btn-primary" href="<?= e(url('boutique')) ?>">Découvrir la boutique</a>
       </div>
     <?php else: ?>
