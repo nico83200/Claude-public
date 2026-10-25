@@ -241,7 +241,9 @@ final class Catalog
 
     public static function hydrate(array $p): array
     {
-        $p['images_list'] = json_field($p['images'] ?? null);
+        // Images introuvables sur le serveur (fichier supprimé) ignorées : pas de vignette cassée
+        $p['images_list'] = array_values(array_filter(json_field($p['images'] ?? null), static fn ($img) => is_string($img) && $img !== ''
+            && (preg_match('#^https?://#', $img) || is_file(PUBLIC_PATH . '/' . ltrim($img, '/')))));
         $p['main_image'] = $p['images_list'][0] ?? null;
         $p['hover_image'] = $p['images_list'][1] ?? null;
         $p['rating_avg'] = isset($p['rating_avg']) ? round((float) $p['rating_avg'], 1) : 0.0;

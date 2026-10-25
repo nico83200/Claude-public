@@ -379,7 +379,8 @@
     var revealIo = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('is-visible'); revealIo.unobserve(en.target); } });
     }, { rootMargin: '0px 0px -8% 0px' });
-    var revealSel = '.section-head, .product-grid > *, .collection-card, .feature-visual, .feature-text, .testimonial, .club, .gift-banner, .reassurance-grid > *, .lp-example, .lp-steps > li, .journal-card';
+    // (pas les cartes des carrousels horizontaux : hors écran sur le côté, elles resteraient invisibles)
+    var revealSel = '.section-head, .product-grid > *, .collections, .feature-visual, .feature-text, .testimonial, .club, .gift-banner, .reassurance-grid > *, .lp-example, .lp-steps > li, .journal-card';
     $$(revealSel).forEach(function (el) {
       if (el.getBoundingClientRect().top < window.innerHeight) return;
       var siblings = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
