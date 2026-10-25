@@ -153,8 +153,13 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
         Route::delete('/traitements/{treatment}', [Controllers\TreatmentController::class, 'destroy'])->name('treatments.destroy');
         Route::post('/traitements/{treatment}/administrer', [Controllers\TreatmentController::class, 'administer'])->name('treatments.administer');
 
+        Route::get('/points-attention/nouveau', [Controllers\ObservationController::class, 'create'])->name('observations.create');
         Route::post('/observations', [Controllers\ObservationController::class, 'store'])->name('observations.store');
+        Route::get('/points-attention/{observation}', [Controllers\ObservationController::class, 'show'])->whereNumber('observation')->name('observations.show');
+        Route::post('/points-attention/{observation}/nouvelles', [Controllers\ObservationController::class, 'addUpdate'])->name('observations.updates.store');
         Route::post('/observations/{observation}/resoudre', [Controllers\ObservationController::class, 'resolve'])->name('observations.resolve');
+        Route::post('/points-attention/{observation}/rouvrir', [Controllers\ObservationController::class, 'reopen'])->name('observations.reopen');
+        Route::get('/points-attention/{observation}/photos/{photo}', [Controllers\ObservationController::class, 'photo'])->name('observations.photo');
 
         Route::get('/alimentation', [Controllers\FeedingController::class, 'show'])->name('feeding');
         Route::post('/alimentation', [Controllers\FeedingController::class, 'store'])->name('feeding.store');
@@ -287,6 +292,9 @@ Route::middleware(['auth', 'verified.grace', 'org'])->group(function () {
     // Boutons des notifications de rappel de soin (service worker) : adresse signée, voir CareReminderActionController.
     Route::post('/rappels/soins/{care}/{action}', Controllers\CareReminderActionController::class)->whereIn('action', ['fait', 'reporter'])
         ->middleware(['signed', 'throttle:30,1'])->name('care.quick');
+    // Boutons de la relance « Des nouvelles ? » d'un point d'attention : adresse signée, voir ObservationActionController.
+    Route::post('/points-attention/{observation}/{action}', Controllers\ObservationActionController::class)->whereIn('action', ['mieux', 'clos'])
+        ->middleware(['signed', 'throttle:30,1'])->name('observations.quick');
     Route::post('/budget/{expense}/restaurer', [Controllers\ExpenseController::class, 'restore'])->withTrashed()->name('budget.restore');
     Route::post('/budget/{expense}/paiement', [Controllers\ExpenseController::class, 'pay'])->name('budget.pay');
     Route::put('/budget/recurrentes/{recurring}', [Controllers\RecurringExpenseController::class, 'update'])->name('budget.recurring.update');

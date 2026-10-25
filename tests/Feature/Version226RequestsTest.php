@@ -32,9 +32,9 @@ class Version226RequestsTest extends TestCase
         [$user, $horse] = $this->owner();
         $page = $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertViewIs('dashboard-solo');
         $page->assertSee('data-solo-hero', false)->assertSee('data-solo-state="slate"', false)->assertSee('Pas encore de suivi aujourd\'hui')
-            ->assertSee('data-solo-all-good', false)->assertDontSee('Vos chevaux');
+            ->assertDontSee('data-solo-all-good', false)->assertSee('data-solo-attention-new', false)->assertDontSee('Vos chevaux'); // 2.51 : « Tout va bien aujourd'hui » retiré
 
-        // « Tout va bien » depuis l'accueil : retour sur l'accueil, état vert, bouton remplacé.
+        // Suivi du jour « bon » (saisie détaillée) : retour sur l'accueil, état vert.
         $this->actingAs($user)->from(route('dashboard'))->post(route('horses.logs.store', $horse), ['appetite' => 'good', 'general_state' => 'good', 'all_good' => '1'])
             ->assertRedirect(route('dashboard'));
         $this->actingAs($user)->get(route('dashboard'))->assertSee('data-solo-state="green"', false)->assertSee('data-solo-log-done', false)
@@ -94,7 +94,7 @@ class Version226RequestsTest extends TestCase
         $rider = $this->user();
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $rider->id, 'permissions' => [Perm::HORSE_VIEW, Perm::SESSIONS_VIEW, Perm::SESSIONS_CREATE, Perm::DAILYLOG_CREATE]]);
         $page = $this->actingAs($rider)->get(route('dashboard'))->assertOk()->assertViewIs('dashboard-solo');
-        $page->assertSee('data-solo-all-good', false)->assertSee('Je viens de monter')->assertSee('data-solo-activity', false)
+        $page->assertDontSee('data-solo-all-good', false)->assertDontSee('data-solo-attention-new', false)->assertSee('Je viens de monter')->assertSee('data-solo-activity', false)
             ->assertDontSee('data-solo-health', false)->assertDontSee('data-solo-budget', false)->assertDontSee('data-solo-shares', false)
             ->assertDontSee('Noter un soin');
     }

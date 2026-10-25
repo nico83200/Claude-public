@@ -25,13 +25,8 @@
         </div>
         @if ($canCreate)
         <div class="order-1 space-y-3 lg:order-2">
-            {{-- Une journée sans histoire se note en un geste. --}}
-            <form method="POST" action="{{ route('horses.logs.store', $horse) }}" data-log-all-good>
-                @csrf
-                <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
-                <button class="btn-primary min-h-12 w-full gap-2"><x-icon name="check" class="size-5" /> Tout va bien aujourd'hui</button>
-            </form>
-            <details class="card p-4" @if ($errors->any()) open @endif data-log-detailed>
+            <a href="{{ route('horses.observations.create', $horse) }}" class="btn-secondary min-h-12 w-full gap-2" data-log-attention><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>
+            <details class="card p-4" open data-log-detailed>
                 <summary class="flex min-h-11 cursor-pointer items-center font-semibold">Saisie détaillée</summary>
                 <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="mt-3 space-y-3">
                     @csrf

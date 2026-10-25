@@ -26,6 +26,8 @@ $task('reminders:activity')->everyFiveMinutes();
 $task('expenses:recurring')->dailyAt('06:05');
 // Rappels intelligents : rythme habituel des soins (« on prend rendez-vous ? »).
 $task('reminders:rhythm')->dailyAt('08:50');
+// Points d'attention ouverts : « Des nouvelles ? » (le service ne relance jamais la nuit).
+$task('attention:follow-up')->hourlyAt(20);
 // Suggestion d'activer le rappel quotidien (au plus 3 fois, toutes les 2 semaines).
 $task('reminders:daily-nudge')->dailyAt('11:10');
 // Récapitulatif de la semaine, dimanche soir (relancé jusqu'à 21 h si le cron a manqué un passage).

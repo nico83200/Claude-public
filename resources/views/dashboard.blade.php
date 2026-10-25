@@ -54,19 +54,20 @@
                         ]));
                     @endphp
                     <div class="flex items-center gap-3 py-2.5" data-stable-horse="{{ $horse->id }}" x-show="f === 'all' || @js($tags).includes(f)">
-                        <a href="{{ route('horses.show', $horse) }}" class="flex min-w-0 flex-1 items-center gap-3">
-                            @if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="size-11 shrink-0 rounded-2xl object-cover">@else<span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</span>@endif
+                        <div class="flex min-w-0 flex-1 items-center gap-3">
+                            <a href="{{ route('horses.show', $horse) }}" class="shrink-0" aria-label="Fiche de {{ $horse->shortName() }}">@if ($horse->mainPhotoUrl())<img src="{{ $horse->mainPhotoUrl() }}" alt="" loading="lazy" class="size-11 shrink-0 rounded-2xl object-cover">@else<span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 font-bold text-brand-700">{{ mb_substr($horse->shortName(), 0, 1) }}</span>@endif</a>
                             <span class="min-w-0">
-                                <span class="block truncate font-semibold text-slate-900">{{ $horse->shortName() }}</span>
+                                <a href="{{ route('horses.show', $horse) }}" class="block truncate font-semibold text-slate-900">{{ $horse->shortName() }}</a>
                                 @if ($alert)
-                                    <span class="flex items-center gap-1.5 truncate text-xs text-red-600" data-horse-alert><span class="size-1.5 shrink-0 rounded-full bg-current"></span>{{ \Illuminate\Support\Str::limit($alert->body, 50) }}</span>
+                                    {{-- Point d'attention ouvert : le toucher ouvre son suivi. --}}
+                                    <a href="{{ route('horses.observations.show', [$horse, $alert]) }}" class="flex items-center gap-1.5 truncate text-xs {{ $alert->severity === 'alert' ? 'text-red-600' : 'text-amber-700' }} underline-offset-2 hover:underline" data-horse-alert><span class="size-1.5 shrink-0 rounded-full bg-current"></span>{{ \Illuminate\Support\Str::limit($alert->label(), 50) }}</a>
                                 @elseif ($due)
                                     <span data-horse-due class="flex items-center gap-1.5 text-xs {{ $due->next_check_on->lt(today()) ? 'text-red-600' : (today()->diffInDays($due->next_check_on) <= 14 ? 'text-amber-700' : 'text-slate-500') }}"><span class="size-1.5 rounded-full bg-current"></span>{{ $due->category->name }} {{ $due->next_check_on->lt(today()) ? 'en retard' : ($due->next_check_on->isToday() ? 'aujourd\'hui' : 'le '.$due->next_check_on->translatedFormat('j M')) }}</span>
                                 @else
                                     <span class="flex items-center gap-1.5 text-xs text-brand-700"><span class="size-1.5 rounded-full bg-current"></span>À jour</span>
                                 @endif
                             </span>
-                        </a>
+                        </div>
                         @if ($log)
                             <x-badge :color="$log->anomalies || $log->general_state === 'poor' ? 'amber' : 'green'"><x-icon name="check" class="size-3.5" /> Suivi {{ $log->logged_at->format('H:i') }}</x-badge>
                         @elseif (in_array($horse->id, $logIds))
@@ -211,7 +212,7 @@
             @if ($observations->isNotEmpty() || $logs->isNotEmpty())
             <x-section title="Observations récentes">
                 @foreach ($observations as $o)
-                    <div class="border-t border-slate-100 py-2 text-sm first:border-0"><x-badge :color="$o->severity === 'alert' ? 'red' : 'amber'">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> <span class="font-medium">{{ $o->horse->shortName() }}</span><p class="text-slate-700">{{ \Illuminate\Support\Str::limit($o->body, 140) }}</p><p class="text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</p></div>
+                    <a href="{{ route('horses.observations.show', [$o->horse_id, $o]) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0" data-dashboard-attention><x-badge :color="$o->severity === 'alert' ? 'red' : 'amber'">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> <span class="font-medium">{{ $o->horse->shortName() }}</span><p class="text-slate-700">{{ \Illuminate\Support\Str::limit($o->label(), 140) }}</p><p class="text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</p></a>
                 @endforeach
                 @foreach ($logs as $l)
                     <div class="border-t border-slate-100 py-2 text-sm first:border-0"><span class="font-medium">{{ $l->horse->shortName() }}</span> — suivi du {{ $l->logged_at->format('d/m H:i') }}{{ $l->anomalies ? ' · ⚠ '.\Illuminate\Support\Str::limit($l->anomalies, 80) : '' }}</div>

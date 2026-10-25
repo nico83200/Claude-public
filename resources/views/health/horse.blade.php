@@ -141,22 +141,17 @@
             </x-section>
         </div>
 
-        <x-section title="Observations">
+        <x-section title="Points d'attention" data-health-attention>
             @if ($canObserve)
-            <form method="POST" action="{{ route('horses.observations.store', $horse) }}" class="mb-3 space-y-2">
-                @csrf
-                <x-textarea name="body" rows="2" required aria-label="Observation" placeholder="Décrire ce qui a été constaté" />
-                <div class="flex gap-2"><x-select name="severity" :options="\App\Models\HealthObservation::SEVERITIES" value="info" class="flex-1" aria-label="Niveau" /><button class="btn-primary">Ajouter</button></div>
-            </form>
+                <a href="{{ route('horses.observations.create', $horse) }}" class="btn-secondary mb-3 min-h-11 w-full gap-2"><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>
             @endif
             @forelse ($observations as $o)
-                <div class="border-t border-slate-100 py-2 text-sm {{ $o->resolved_at ? 'opacity-60' : '' }}">
+                <a href="{{ route('horses.observations.show', [$horse, $o]) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0 {{ $o->resolved_at ? 'opacity-60' : '' }}">
                     <x-badge :color="['info' => 'slate', 'watch' => 'amber', 'alert' => 'red'][$o->severity]">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge>
-                    <p class="whitespace-pre-line">{{ $o->body }}</p>
-                    <p class="text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->format('d/m/Y H:i') }} {{ $o->resolved_at ? '· traité' : '' }}</p>
-                    @if (! $o->resolved_at && $canEdit)<form method="POST" action="{{ route('horses.observations.resolve', [$horse, $o]) }}">@csrf<button class="text-xs link">Marquer traité</button></form>@endif
-                </div>
-            @empty <p class="text-sm text-slate-500">Aucune observation.</p> @endforelse
+                    <span class="font-medium text-slate-900">{{ $o->label() }}</span>
+                    <span class="block text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->format('d/m/Y H:i') }} · {{ $o->resolved_at ? 'clos' : 'suivi en cours' }}</span>
+                </a>
+            @empty <p class="text-sm text-slate-500">Aucun point d'attention.</p> @endforelse
         </x-section>
     </div>
     <p class="mt-6 text-center text-xs text-slate-400">Carnet de suivi : il ne remplace pas l'avis d'un vétérinaire et ne produit aucun diagnostic ni prescription.</p>

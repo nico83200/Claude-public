@@ -20,6 +20,7 @@ use App\Models\HorseMeasurement;
 use App\Models\Professional;
 use App\Models\RidingSession;
 use App\Models\Treatment;
+use App\Services\AttentionPoints;
 use App\Services\CalendarService;
 use App\Services\CareExpenseSync;
 use App\Services\CareReminders;
@@ -434,12 +435,14 @@ class AssistantTools
     {
         $horse = $this->horse($ctx, $in['horse_id'], Perm::COMMENTS_CREATE);
         $severity = array_key_exists($in['severity'], HealthObservation::SEVERITIES) ? $in['severity'] : 'info';
-        $obs = HealthObservation::create(['horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'observed_at' => now(), 'severity' => $severity, 'body' => $this->clip($in['body'], 5000)]);
+        $obs = HealthObservation::create(['horse_id' => $horse->id, 'author_id' => $ctx->user->id, 'observed_at' => now(), 'severity' => $severity, 'body' => $this->clip($in['body'], 5000),
+            'follow_up_at' => AttentionPoints::nextFollowUp($severity)]);
+        $url = route('horses.observations.show', [$horse, $obs]);
         if ($severity !== 'info') {
-            ObservationController::notifyManagers($horse, $ctx->user, $this->access, 'Observation : '.$horse->shortName(), HealthObservation::SEVERITIES[$severity].' signalée par '.$ctx->user->name.'.');
+            ObservationController::notifyManagers($horse, $ctx->user, $this->access, 'Point d\'attention : '.$horse->shortName(), $ctx->user->name.' a noté : '.$obs->label().'.', $url);
         }
-        $summary = 'Observation ('.mb_strtolower(HealthObservation::SEVERITIES[$severity]).') – '.$horse->shortName().' : '.$this->clip($obs->body, 80);
-        $ctx->record('observation.created', $obs, $summary, route('horses.care.index', $horse), ['delete' => [HealthObservation::class, $obs->id]]);
+        $summary = 'Point d\'attention ('.mb_strtolower(HealthObservation::SEVERITIES[$severity]).') – '.$horse->shortName().' : '.$this->clip($obs->body, 80);
+        $ctx->record('observation.created', $obs, $summary, $url, ['delete' => [HealthObservation::class, $obs->id]]);
 
         return ['ok' => true, 'summary' => $summary];
     }

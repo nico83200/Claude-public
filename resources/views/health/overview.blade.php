@@ -19,10 +19,10 @@
                 </div>
             @empty <p class="text-sm text-slate-500">Aucune échéance.</p> @endforelse
         </x-section>
-        <x-section title="Alertes non traitées">
+        <x-section title="Points d'attention en cours">
             @forelse ($alerts as $o)
-                <a href="{{ route('horses.care.index', $o->horse_id) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0"><x-badge :color="$o->severity === 'alert' ? 'red' : 'amber'">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> <span class="font-medium">{{ $o->horse->shortName() }}</span> {{ \Illuminate\Support\Str::limit($o->body, 100) }}<span class="block text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</span></a>
-            @empty <p class="text-sm text-slate-500">Aucune alerte.</p> @endforelse
+                <a href="{{ route('horses.observations.show', [$o->horse_id, $o]) }}" class="block border-t border-slate-100 py-2 text-sm first:border-0" data-overview-attention><x-badge :color="$o->severity === 'alert' ? 'red' : 'amber'">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> <span class="font-medium">{{ $o->horse->shortName() }}</span> {{ \Illuminate\Support\Str::limit($o->label(), 100) }}<span class="block text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</span></a>
+            @empty <p class="text-sm text-slate-500">Aucun point d'attention en cours.</p> @endforelse
         </x-section>
         <x-section title="Traitements en cours">
             @forelse ($treatments as $t)

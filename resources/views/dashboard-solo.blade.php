@@ -6,10 +6,10 @@
         $alert = $observations->first();
         $meta = collect([$horse->age() !== null ? $horse->age().' ans' : null, \App\Models\Horse::DISCIPLINES[$horse->main_discipline] ?? null, $horse->breed?->name])->filter();
         [$stateTone, $stateText] = match (true) {
-            (bool) $alert => ['red', '⚠ '.\Illuminate\Support\Str::limit($alert->body, 70)],
+            (bool) $alert => [$alert->severity === 'alert' ? 'red' : 'amber', 'Point d\'attention : '.\Illuminate\Support\Str::limit($alert->label(), 60)],
             $late->isNotEmpty() => ['amber', $late->first()['care']->category->name.' en retard depuis le '.$late->first()['care']->next_check_on->format('d/m')],
             $todayLog && ($todayLog->anomalies || $todayLog->general_state === 'poor') => ['amber', 'Point d\'attention noté à '.$todayLog->logged_at->format('H:i')],
-            (bool) $todayLog => ['green', 'Tout va bien · suivi noté à '.$todayLog->logged_at->format('H:i')],
+            (bool) $todayLog => ['green', 'Suivi du jour noté à '.$todayLog->logged_at->format('H:i')],
             default => ['slate', 'Pas encore de suivi aujourd\'hui'],
         };
         $tones = ['red' => 'bg-red-50 text-red-800 ring-red-200', 'amber' => 'bg-amber-50 text-amber-900 ring-amber-200', 'green' => 'bg-brand-50 text-brand-900 ring-brand-200', 'slate' => 'bg-slate-100 text-slate-700 ring-slate-200'];
@@ -51,7 +51,12 @@
                 @endif
             </h1>
             @if ($meta->isNotEmpty())<p class="text-sm text-slate-500">{{ $meta->implode(' · ') }}</p>@endif
-            <p class="mt-2 inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-medium ring-1 {{ $tones[$stateTone] }}" data-solo-state="{{ $stateTone }}"><span class="truncate">{{ $stateText }}</span></p>
+            @if ($alert)
+                {{-- Point d'attention ouvert : un toucher ouvre son suivi (historique, nouvelles, vétérinaire). --}}
+                <a href="{{ route('horses.observations.show', [$horse, $alert]) }}" class="mt-2 inline-flex min-h-11 max-w-full items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ring-1 {{ $tones[$stateTone] }}" data-solo-state="{{ $stateTone }}" data-solo-attention><span class="truncate">{{ $stateText }}</span><x-icon name="chevron" class="size-4 shrink-0" /></a>
+            @else
+                <p class="mt-2 inline-flex max-w-full items-center rounded-full px-3 py-1 text-sm font-medium ring-1 {{ $tones[$stateTone] }}" data-solo-state="{{ $stateTone }}"><span class="truncate">{{ $stateText }}</span></p>
+            @endif
         </div>
     </section>
 
@@ -60,14 +65,9 @@
         @if ($can('dailylog.create'))
             @if ($todayLog)
                 <a href="{{ route('horses.logs.index', $horse) }}" class="pill col-span-2 min-h-12 justify-center gap-2 bg-brand-50 px-4 font-semibold text-brand-900 ring-1 ring-brand-200 sm:col-span-1" data-solo-log-done><x-icon name="check" class="size-5" /> Suivi du jour noté</a>
-            @else
-                <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="col-span-2 sm:col-span-1" data-solo-all-good>
-                    @csrf
-                    <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
-                    <button class="pill min-h-12 w-full justify-center gap-2 bg-brand-800 px-5 font-semibold text-white"><x-icon name="check" class="size-5" /> Tout va bien aujourd'hui</button>
-                </form>
             @endif
         @endif
+        @if ($can('comments.create'))<a href="{{ route('horses.observations.create', $horse) }}" class="pill col-span-2 min-h-12 justify-center gap-2 bg-white px-4 font-semibold text-slate-800 ring-1 ring-amber-300 sm:col-span-1" data-solo-attention-new><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>@endif
         @if ($can('sessions.create'))<a href="{{ route('sessions.create', ['fait' => 1]) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="session" class="size-4" /> Je viens de monter</a>@endif
         @if ($can('health.edit'))<a href="{{ route('horses.care.create', $horse) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="health" class="size-4" /> Noter un soin</a>@endif
         <a href="{{ route('horses.weight', $horse) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="scale" class="size-4" /> Pesée</a>

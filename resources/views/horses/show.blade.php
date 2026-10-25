@@ -4,7 +4,7 @@
         @unless ($horse->isArchived())
             @if ($can('sessions.create'))<a href="{{ route('sessions.create', ['horse' => $horse->id]) }}" class="btn-primary"><x-icon name="plus" class="size-4" /> Séance</a>@endif
             @if ($can('health.edit'))<a href="{{ route('horses.care.create', $horse) }}" class="btn-secondary"><x-icon name="health" class="size-4" /> Soin</a>@endif
-            @if ($can('comments.create'))<button type="button" class="btn-secondary" onclick="document.getElementById('observation').showModal()"><x-icon name="alert" class="size-4" /> Signaler</button>@endif
+            @if ($can('comments.create'))<a href="{{ route('horses.observations.create', $horse) }}" class="btn-secondary"><x-icon name="alert" class="size-4" /> Signaler</a>@endif
         @endunless
     </x-horse-header>
 
@@ -143,9 +143,9 @@
 
         <div class="space-y-4">
             @if ($observations->isNotEmpty())
-            <x-section title="Observations récentes">
+            <x-section title="Points d'attention en cours">
                 @foreach ($observations as $o)
-                    <div class="border-t border-slate-100 py-2.5 text-sm first:border-0 first:pt-0"><x-badge :color="['info' => 'slate', 'watch' => 'amber', 'alert' => 'red'][$o->severity]">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> {{ $o->body }}<p class="mt-0.5 text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</p></div>
+                    <a href="{{ route('horses.observations.show', [$horse, $o]) }}" class="block border-t border-slate-100 py-2.5 text-sm first:border-0 first:pt-0"><x-badge :color="['info' => 'slate', 'watch' => 'amber', 'alert' => 'red'][$o->severity]">{{ \App\Models\HealthObservation::SEVERITIES[$o->severity] }}</x-badge> {{ $o->label() }}<span class="mt-0.5 block text-xs text-slate-500">{{ $o->author?->name }} · {{ $o->observed_at->diffForHumans() }}</span></a>
                 @endforeach
             </x-section>
             @endif
@@ -204,18 +204,4 @@
         </div>
     </div>
 
-    @if ($can('comments.create'))
-    <dialog id="observation" class="m-auto w-[calc(100%-2rem)] max-w-md rounded-3xl p-0 backdrop:bg-slate-900/40">
-        <form method="POST" action="{{ route('horses.observations.store', $horse) }}" class="space-y-4 p-6">
-            @csrf
-            <div class="flex items-start justify-between gap-2">
-                <div><h2 class="text-lg font-semibold">Signaler une observation</h2><p class="text-sm text-slate-500">Les personnes concernées sont prévenues.</p></div>
-                <button type="button" class="btn-icon border-0" onclick="this.closest('dialog').close()" aria-label="Fermer"><x-icon name="x" /></button>
-            </div>
-            <x-textarea name="body" rows="3" placeholder="Boiterie, plaie, comportement inhabituel…" required aria-label="Observation" />
-            <x-select name="severity" label="Niveau" :options="\App\Models\HealthObservation::SEVERITIES" value="info" />
-            <button class="btn-primary w-full">Envoyer</button>
-        </form>
-    </dialog>
-    @endif
 </x-layouts.app>
