@@ -100,6 +100,34 @@ document.querySelectorAll('textarea[data-rich-editor]').forEach(function (textar
   if (textarea.form) textarea.form.addEventListener('submit', sync);
 });
 
+// Téléphone : libellés des colonnes sur chaque cellule (tableaux affichés en cartes)
+document.querySelectorAll('table.table').forEach(function (table) {
+  var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+  if (!heads.length) return;
+  table.querySelectorAll('tbody tr').forEach(function (tr) {
+    Array.prototype.forEach.call(tr.children, function (td, i) { if (heads[i] && !td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i]); });
+  });
+});
+// Téléphone : bouton « Enregistrer » du formulaire principal toujours visible en bas de l'écran
+(function () {
+  var best = null, bestHeight = 0;
+  document.querySelectorAll('.admin-main form[method="post"]').forEach(function (form) {
+    var btn = form.querySelector('button.btn-primary:not([form])') || document.querySelector('button.btn-primary[form="' + form.id + '"]');
+    var h = form.getBoundingClientRect().height;
+    if (btn && h > bestHeight && !form.closest('details:not([open])') && !form.closest('table')) { best = { form: form, btn: btn }; bestHeight = h; }
+  });
+  if (!best || bestHeight < 700) return;
+  if (!best.form.id) best.form.id = 'form-principal';
+  var bar = document.createElement('div');
+  bar.className = 'mobile-savebar';
+  var b = document.createElement('button');
+  b.type = 'submit';
+  b.className = 'btn btn-primary';
+  b.setAttribute('form', best.form.id);
+  b.textContent = best.btn.textContent.trim() || 'Enregistrer';
+  bar.appendChild(b);
+  document.body.appendChild(bar);
+})();
 document.querySelectorAll('[data-confirm]').forEach(function (f) {
   f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
 });
