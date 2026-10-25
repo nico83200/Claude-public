@@ -7,6 +7,7 @@ use App\Core\Database;
 use App\Services\AiPortrait;
 use App\Services\Catalog;
 use App\Services\Personalizer;
+use App\Services\PortraitStyles;
 use App\Services\Reviews;
 
 final class ShopController
@@ -149,8 +150,20 @@ final class ShopController
     /**
      * Page dédiée au portrait aquarelle par IA : exemples, explication du style, créateur intégré, FAQ.
      */
-    public function portraitLanding(): void
+    /** Page d'un style (/portrait-cheval/pop-art) : l'aquarelle garde son adresse historique. */
+    public function portraitStyle(string $slug): void
     {
+        $key = PortraitStyles::bySlug($slug) ?? abort(404);
+        if ($key === PortraitStyles::DEFAULT) {
+            redirect('portrait-aquarelle', 301);
+        }
+        $this->portraitLanding($key);
+    }
+
+    public function portraitLanding(?string $styleKey = null): void
+    {
+        $styleKey = isset(PortraitStyles::enabled()[$styleKey ?? PortraitStyles::DEFAULT]) ? ($styleKey ?? PortraitStyles::DEFAULT) : PortraitStyles::selected();
+        $page = PortraitStyles::PAGES[$styleKey];
         $product = self::aiPortraitProduct() ?? abort(404);
         $data = self::productData($product);
         $variants = $data['variants'];
@@ -196,10 +209,12 @@ final class ShopController
         ];
 
         view('shop/portrait-aquarelle', [
-            'pageTitle'       => 'Portrait aquarelle de ton cheval, créé en quelques secondes',
-            'metaDescription' => 'Envoie la photo de ton cheval : notre IA la redessine au trait fin et à l\'aquarelle, avec son nom et son année de naissance. Aperçu offert, affiche encadrée prête à accrocher.',
-            'ogImage'         => image_url($product['main_image']),
-            'canonical'       => url('portrait-aquarelle'),
+            'pageTitle'       => $page['title'],
+            'metaDescription' => $page['meta'],
+            'ogImage'         => ($example = PortraitStyles::example($styleKey)) && $styleKey !== PortraitStyles::DEFAULT ? url($example) : image_url($product['main_image']),
+            'canonical'       => $styleKey === PortraitStyles::DEFAULT ? url('portrait-aquarelle') : url('portrait-cheval/' . PortraitStyles::STYLES[$styleKey]['slug']),
+            'styleKey'        => $styleKey,
+            'stylePage'       => $page,
             'jsonLd'          => $jsonLd,
             'formats'         => $formats,
             'frames'          => $frames,
@@ -297,6 +312,7 @@ final class ShopController
         $frameList = mb_strtolower(implode(', ', array_keys($frames)));
         return [
             ['Quelle photo choisir ?', 'Une photo nette et bien éclairée, où la tête de ton cheval est bien visible, de profil ou de trois quarts. Une photo de téléphone suffit. Évite le contre-jour et les photos où il est très loin. Pour un résultat parfait, choisis une photo où il est seul.'],
+            ['Quels styles puis-je choisir ?', 'Avec la même photo, tu peux essayer ' . implode(', ', array_map(static fn ($s) => mb_strtolower($s['title']), PortraitStyles::enabled())) . '. Chaque style garde sa robe, ses marques et son regard : tu compares les aperçus et tu commandes celui que tu préfères, au même prix.'],
             ['Combien de temps faut-il pour créer le portrait ?', 'En général moins d\'une minute : tu suis l\'avancement en direct, puis l\'aperçu apparaît dans son cadre.'],
             ['Puis-je essayer avant de commander ?', 'Oui, l\'aperçu est offert et sans engagement. Tu peux créer jusqu\'à ' . $perDay . ' versions par jour et ne commander que celle qui te fait craquer.'],
             ['Le nom et l\'année sont-ils obligatoires ?', (!empty($cfg['required']) ? 'Le nom de ton cheval est inscrit sous le portrait, en écriture manuscrite.' : 'Le nom est facultatif.') . (!empty($cfg['year_enabled']) ? ' L\'année de naissance est facultative : sans elle, le nom est simplement centré un peu plus bas.' : '')],

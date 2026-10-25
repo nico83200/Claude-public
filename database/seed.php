@@ -174,10 +174,10 @@ function seed_ai_portrait_product(int $categoryId): int
 {
     $id = Database::insert('products', [
         'category_id'       => $categoryId,
-        'name'              => 'Portrait aquarelle de votre cheval, encadré',
+        'name'              => 'Portrait de ton cheval, encadré',
         'slug'              => 'portrait-aquarelle-de-votre-cheval-encadre',
-        'short_description' => 'Sa photo redessinée au trait fin et à l\'aquarelle, avec son nom et son année de naissance.',
-        'description'       => '<p>Envoie sa plus belle photo : en quelques secondes, notre IA la redessine dans notre style signature <strong>« Encre &amp; Poudre »</strong>, un trait fin bordeaux rehaussé d\'aquarelle aux tons poudrés. Son nom s\'inscrit dessous en écriture manuscrite, avec son année de naissance si tu le souhaites.</p><ul><li>Aperçu immédiat et gratuit, avant de commander</li><li>Papier d\'art mat épais, impression haute définition sans filigrane</li><li>Cadre noir, blanc ou chêne, prêt à accrocher</li></ul>',
+        'short_description' => 'Sa photo redessinée dans le style de ton choix, avec son nom et son année de naissance.',
+        'description'       => '<p>Envoie sa plus belle photo et choisis ton style : <strong>aquarelle « Encre &amp; Poudre »</strong>, <strong>d\'un seul trait</strong>, <strong>pop art</strong>, <strong>fusain</strong> ou <strong>gravure vintage</strong>. En quelques secondes, notre IA le redessine en gardant sa robe, ses marques et son regard. Son nom s\'inscrit dessous en écriture manuscrite, avec son année de naissance si tu le souhaites.</p><ul><li>Aperçu immédiat et gratuit, avant de commander</li><li>Papier d\'art mat épais, impression haute définition sans filigrane</li><li>Cadre noir, blanc ou chêne, prêt à accrocher</li></ul>',
         'price'             => 7900,
         'compare_at_price'  => null,
         'images'            => json_encode(['assets/img/products/portrait-ia.jpg', 'assets/img/products/portrait-ia-avant-apres.jpg', 'assets/img/products/portrait-ia-detail.jpg']),

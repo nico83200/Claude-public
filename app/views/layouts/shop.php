@@ -78,7 +78,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         </div>
       </div>
       <?php if (App\Services\AiPortrait::landingAvailable()): ?>
-        <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= is_active('/portrait-aquarelle') ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Portrait aquarelle</a>
+        <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= (is_active('/portrait-aquarelle') || is_active('/portrait-cheval')) ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Son portrait</a>
       <?php endif; ?>
       <a href="<?= e(url('page/a-propos')) ?>" class="<?= is_active('/page/a-propos') ? 'active' : '' ?>">Notre histoire</a>
       <?php if (App\Services\Journal::available()): ?><a href="<?= e(url('journal')) ?>" class="<?= is_active('/journal') ? 'active' : '' ?>">Journal</a><?php endif; ?>
@@ -108,7 +108,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <div class="search-results" id="search-results" role="listbox" hidden></div>
       </form>
       <p class="search-popular" data-search-popular>Populaire :
-        <?php if (App\Services\AiPortrait::landingAvailable()): ?><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle</a><?php endif; ?>
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait de son cheval</a><?php endif; ?>
         <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">À personnaliser</a>
         <a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a>
         <a href="<?= e(url('boutique', ['q' => 'sweat'])) ?>">Sweats</a>
@@ -173,7 +173,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <summary><h3>Boutique</h3></summary>
       <ul>
         <?php foreach ($navCategories as $c): ?><li><a href="<?= e(url('categorie/' . $c['slug'])) ?>"><?= e($c['name']) ?></a></li><?php endforeach; ?>
-        <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de ton cheval</a></li><?php endif; ?>
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait de ton cheval</a></li><?php endif; ?>
         <li><a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a></li>
         <li><a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a></li>
         <?php if (App\Services\Journal::available()): ?><li><a href="<?= e(url('journal')) ?>">Le journal : conseils &amp; idées cadeaux</a></li><?php endif; ?>

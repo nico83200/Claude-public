@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Database;
 use App\Services\AiPortrait;
 use App\Services\Personalizer;
+use App\Services\PortraitStyles;
 use App\Services\Upload;
 
 /**
@@ -26,12 +27,21 @@ final class AiPortraitController
         if (input('consent') !== '1') {
             json_response(['ok' => false, 'message' => 'Merci d\'accepter l\'envoi de ta photo au service de dessin.'], 422);
         }
-        $file = Upload::files('photo')[0] ?? null;
-        if (!$file) {
+        $style = PortraitStyles::valid((string) input('style'));
+        $marks = PortraitStyles::cleanMarks($_POST['marks'] ?? []);
+        // Autre style avec la même photo : pas besoin de la renvoyer
+        $from = AiPortrait::owns((string) input('from')) ? AiPortrait::find((string) input('from')) : null;
+        $file = $from ? null : (Upload::files('photo')[0] ?? null);
+        if (!$from && !$file) {
             json_response(['ok' => false, 'message' => 'Ajoute la photo de ton cheval.'], 422);
         }
         try {
-            $row = AiPortrait::create($file);
+            if ($from) {
+                AiPortrait::guard();
+                $row = AiPortrait::createFromPhoto($from['photo_file'], $style, $marks);
+            } else {
+                $row = AiPortrait::create($file, $style, $marks);
+            }
         } catch (\RuntimeException $e) {
             json_response(['ok' => false, 'message' => $e->getMessage()], 422);
         }

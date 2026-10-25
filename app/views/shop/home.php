@@ -89,8 +89,9 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
   <div class="container feature feature-reverse">
     <div>
       <p class="script-accent">nouveau au club</p>
-      <h2>Son portrait aquarelle, <em>en quelques secondes</em></h2>
-      <p class="lead">Envoie sa photo : notre IA la redessine dans notre style « Encre &amp; Poudre », un trait fin bordeaux rehaussé d'aquarelle poudrée. Ajoute son nom et son année de naissance, choisis son cadre, et découvre l'aperçu avant de commander.</p>
+      <?php $portraitStyles = App\Services\PortraitStyles::enabled(); ?>
+      <h2>Son portrait, <em><?= count($portraitStyles) > 1 ? e(number_words(count($portraitStyles))) . ' styles au choix' : 'en quelques secondes' ?></em></h2>
+      <p class="lead">Envoie sa photo : notre IA la redessine en gardant sa robe, ses marques et son regard<?= count($portraitStyles) > 1 ? ', ' . e(implode(', ', array_map(static fn ($s) => mb_strtolower($s['name']), array_slice($portraitStyles, 0, -1))) . ' ou ' . mb_strtolower(end($portraitStyles)['name'])) : '' ?>. Ajoute son nom et son année de naissance, choisis son cadre, et découvre l'aperçu avant de commander.</p>
       <ul class="feature-checks">
         <li><?= icon('check', 16) ?> Aperçu offert, sans engagement</li>
         <li><?= icon('check', 16) ?> Imprimé en haute définition sur papier d'art</li>
@@ -112,7 +113,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <h2>Une pièce unique, <em>à son image</em></h2>
       <p class="lead">Parce qu'il n'y a qu'un seul cheval comme le vôtre, chaque création se personnalise en quelques secondes, avec un aperçu en direct.</p>
       <div class="perso-ways">
-        <?php foreach (['ai_portrait' => ['Son portrait aquarelle', 'sparkle', 'Redessiné par IA en quelques secondes, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après ta photo']] as $mode => [$title, $ic, $desc]): ?>
+        <?php foreach (['ai_portrait' => ['Son portrait', 'sparkle', 'Aquarelle, pop art, fusain… redessiné par IA, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après ta photo']] as $mode => [$title, $ic, $desc]): ?>
           <?php if (isset($modes[$mode])): ?>
             <a class="perso-way" href="<?= e($mode === 'ai_portrait' ? url('portrait-aquarelle') : url('produit/' . $modes[$mode]['slug'])) ?>">
               <span class="ic"><?= icon($ic, 22) ?></span>

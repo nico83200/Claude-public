@@ -4,6 +4,9 @@
  * d'impression (AiPortrait::LAYOUT) : repère 3600 × 4800, tailles de police GD converties en px (× 96/72).
  */
 use App\Services\AiPortrait;
+use App\Services\PortraitStyles;
+
+$exampleArt = PortraitStyles::example(PortraitStyles::selected($aiStyle ?? null));
 
 $L = AiPortrait::LAYOUT;
 $W = 3600;
@@ -26,7 +29,7 @@ $geo = [
         </mask>
       </defs>
       <rect width="<?= $W ?>" height="<?= $H ?>" fill="<?= AiPortrait::PAPER ?>"/>
-      <image data-ai-art href="<?= e(asset('assets/img/products/portrait-ia-exemple.jpg')) ?>" x="<?= $geo['artX'] ?>" y="<?= $geo['artY'] ?>" width="<?= $geo['artW'] ?>" height="<?= $geo['artH'] ?>" preserveAspectRatio="xMidYMid meet" mask="url(#ai-feather)"/>
+      <image data-ai-art href="<?= e($exampleArt ? url($exampleArt) : asset('assets/img/products/portrait-ia-exemple.jpg')) ?>" x="<?= $geo['artX'] ?>" y="<?= $geo['artY'] ?>" width="<?= $geo['artW'] ?>" height="<?= $geo['artH'] ?>" preserveAspectRatio="xMidYMid meet" mask="url(#ai-feather)"/>
       <text data-ai-name x="1800" y="<?= $geo['nameY'] ?>" text-anchor="middle" font-family="Allura, cursive" font-size="<?= $geo['nameSize'] ?>" fill="<?= AiPortrait::INK ?>">Tornado</text>
       <text data-ai-year x="1800" y="<?= $geo['yearY'] ?>" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="600" font-size="<?= $geo['yearSize'] ?>" letter-spacing="<?= $geo['yearSpacing'] ?>" fill="<?= AiPortrait::TAUPE ?>">2014</text>
       <rect data-ai-rule="-1" y="0" width="<?= $geo['ruleLen'] ?>" height="<?= $geo['ruleThick'] ?>" fill="<?= AiPortrait::TAUPE ?>"/>

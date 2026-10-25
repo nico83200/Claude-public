@@ -26,6 +26,7 @@ $r->get('/idees-cadeaux', [ShopController::class, 'giftFinder']);
 $r->get('/categorie/{slug}', [ShopController::class, 'category']);
 $r->get('/produit/{slug}', [ShopController::class, 'product']);
 $r->get('/portrait-aquarelle', [ShopController::class, 'portraitLanding']);
+$r->get('/portrait-cheval/{slug}', [ShopController::class, 'portraitStyle']);
 
 // Panier & paiement
 $r->get('/panier', [CartController::class, 'show']);
@@ -136,6 +137,11 @@ $r->get('/admin/produits/{id}/fichier-impression', [Admin\ProductsController::cl
 $r->get('/admin/avis', [Admin\ReviewsController::class, 'index']);
 $r->post('/admin/avis/{id}/{action}', [Admin\ReviewsController::class, 'action']);
 
+$r->get('/admin/portrait-styles', [Admin\PortraitStylesController::class, 'index']);
+$r->post('/admin/portrait-styles', [Admin\PortraitStylesController::class, 'save']);
+$r->post('/admin/portrait-styles/photo', [Admin\PortraitStylesController::class, 'photo']);
+$r->post('/admin/portrait-styles/generer', [Admin\PortraitStylesController::class, 'generate']);
+$r->get('/admin/portrait-styles/etat/{token}', [Admin\PortraitStylesController::class, 'status']);
 $r->get('/admin/categories', [Admin\CategoriesController::class, 'index']);
 $r->post('/admin/categories', [Admin\CategoriesController::class, 'save']);
 $r->post('/admin/categories/{id}/supprimer', [Admin\CategoriesController::class, 'destroy']);

@@ -7,7 +7,7 @@
     <?php if ($item['text'] !== ''): ?><span class="personalized-tag"><?= icon('sparkle', 13) ?> <?= e($item['personalization_label']) ?> : <strong><?= e($item['text']) ?></strong></span><?php endif; ?>
     <?php if (!empty($item['year'])): ?><span class="personalized-tag">Année : <strong><?= e($item['year']) ?></strong></span><?php endif; ?>
     <?php if (!empty($item['portrait'])): ?>
-      <span class="personalized-tag"><?= icon('brush', 13) ?> Ton portrait « Encre &amp; Poudre »</span>
+      <span class="personalized-tag"><?= icon('brush', 13) ?> Ton portrait · <?= e($item['portrait_style'] ?? 'Aquarelle « Encre & Poudre »') ?></span>
     <?php endif; ?>
     <?php if (!empty($item['photo'])): ?>
       <span class="personalized-tag photo-tag"><img src="<?= e(url('panier/photo/' . $item['photo'])) ?>" alt="Ta photo" width="28" height="28"> <?= $item['mode'] === 'portrait' ? 'Photo pour le portrait' : 'Ta photo' ?></span>

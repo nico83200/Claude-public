@@ -13,7 +13,7 @@ final class Settings
         // Boutique
         'shop_name'        => 'Crinière Club',
         'shop_tagline'     => 'Le club des passionnées',
-        'announcement'     => 'Nouveau : son portrait aquarelle en quelques secondes ✦|Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour toi',
+        'announcement'     => 'Nouveau : son portrait en 5 styles, créé en quelques secondes ✦|Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour toi',
         'hero_eyebrow'     => 'Bienvenue au club',
         'hero_title'       => 'Pour celles qui vivent *au rythme du galop*',
         'hero_subtitle'    => 'Vêtements, accessoires et cadeaux pour cavalières, à porter fièrement ou à personnaliser avec le nom, la photo ou le portrait de ton cheval.',
@@ -54,6 +54,12 @@ final class Settings
         'popup_enabled'    => '1',
         'popup_delay'      => '15',
         'ai_prompt'        => '',      // vide = prompt d'origine du style « Encre & Poudre »
+        'ai_prompt_trait'  => '',      // vide = consigne d'origine de chaque style (Styles du portrait)
+        'ai_prompt_popart' => '',
+        'ai_prompt_fusain' => '',
+        'ai_prompt_gravure' => '',
+        'ai_styles'        => 'aquarelle,trait,popart,fusain,gravure', // styles proposés, dans l'ordre
+        'ai_style_examples' => '',     // images d'exemple générées (JSON style => chemin)
         'christmas_banner' => '1',      // compte à rebours de Noël dans le bandeau (novembre-décembre)
         'cart_recovery_enabled' => '1', // e-mail « ton panier t'attend » (avec consentement)
         'welcome_amount'   => '500',   // cadeau de bienvenue en centimes : code personnel à usage unique créé dans Stripe

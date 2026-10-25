@@ -192,6 +192,8 @@ CREATE TABLE ai_portraits (
     prediction_id VARCHAR(120) NULL,
     master_file VARCHAR(190) NULL,
     master_prediction_id VARCHAR(120) NULL,
+    style VARCHAR(20) NULL,
+    marks VARCHAR(200) NULL,
     error VARCHAR(500) NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL

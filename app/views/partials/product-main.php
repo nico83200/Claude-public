@@ -62,7 +62,7 @@ if ($cfg) {
             <span class="preview-text font-<?= e($cfg['font']) ?> <?= $cfg['uppercase'] && $cfg['font'] !== 'script' ? 'is-upper' : '' ?>" data-preview-text aria-hidden="true"></span>
           <?php endif; ?>
           <?php if ($isAi): ?>
-            <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null, 'visible' => $previewFirst]); ?>
+            <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null, 'visible' => $previewFirst, 'aiStyle' => $aiStyle ?? null]); ?>
           <?php endif; ?>
           </div>
           <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> <span class="hint-mouse">Survole pour zoomer</span><span class="hint-touch"><?= $cfg ? 'Glisse pour voir les photos' : 'Touche pour agrandir' ?></span></span>
@@ -158,7 +158,7 @@ if ($cfg) {
           <?php endif; ?>
 
           <?php if ($isAi): ?>
-            <?php partial('ai-portrait-box', ['cfg' => $cfg, 'product' => $product]); ?>
+            <?php partial('ai-portrait-box', ['cfg' => $cfg, 'product' => $product, 'aiStyle' => $aiStyle ?? null]); ?>
           <?php elseif ($cfg): ?>
           <div class="perso-box">
             <p class="perso-title"><?= icon('sparkle', 16) ?> Ta personnalisation <span class="pill pill-blush">Offerte</span></p>

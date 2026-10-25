@@ -106,7 +106,8 @@ final class Cart
             $row = $byId[$line['variant_id']] ?? null;
             // Portrait IA expiré (supprimé après 30 jours sans commande) : la ligne n'est plus valable
             $portrait = $line['portrait'] ?? null;
-            if (!$row || ($portrait && (AiPortrait::find($portrait)['status'] ?? '') !== 'ready')) {
+            $portraitRow = $portrait ? AiPortrait::find($portrait) : null;
+            if (!$row || ($portrait && ($portraitRow['status'] ?? '') !== 'ready')) {
                 unset($cart[$key]);
                 continue;
             }
@@ -129,6 +130,7 @@ final class Cart
                 'photo'        => $line['photo'] ?? null,
                 'year'         => (string) ($line['year'] ?? ''),
                 'portrait'     => $line['portrait'] ?? null,
+                'portrait_style' => $portraitRow ? PortraitStyles::name($portraitRow['style'] ?? null) : null,
                 'mode'         => $cfg['mode'] ?? null,
                 'personalization_label' => $cfg['label'] ?? null,
             ];

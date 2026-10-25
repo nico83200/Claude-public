@@ -587,6 +587,14 @@
       var addLabel = addBtn.textContent;
       var showBtn = $('[data-ai-show]');
       var hasOwnPortrait = false;
+      var styleInputs = $$('[data-ai-style]', aiBox);
+      var genLabel = $('[data-ai-generate-label]', aiBox);
+      var versions = [];          // créations de la visiteuse : { token, preview, style, name }
+      var photoToken = null;      // portrait déjà créé avec la photo actuelle : les autres styles la réutilisent
+      var currentStyle = function () {
+        var checked = styleInputs.filter(function (i) { return i.checked; })[0] || styleInputs[0];
+        return checked;
+      };
 
       var showStage = function () {
         aiStage.hidden = false;
@@ -666,8 +674,47 @@
         updateGenerate();
       };
       var updateGenerate = function () {
-        genBtn.disabled = !(aiPhoto.files && aiPhoto.files[0] && aiConsent.checked);
+        genBtn.disabled = !(((aiPhoto.files && aiPhoto.files[0]) || photoToken) && aiConsent.checked);
+        var style = currentStyle();
+        if (genLabel && style) {
+          genLabel.textContent = versions.length ? 'Créer la version « ' + style.dataset.name + ' »' : 'Créer mon portrait';
+        }
       };
+      // Liste des créations : on passe de l'une à l'autre sans rien recréer
+      var versionsBox = $('[data-ai-versions]', aiBox);
+      var versionsList = $('[data-ai-versions-list]', aiBox);
+      var selectVersion = function (v) {
+        tokenInput.value = v.token;
+        aiThumb.src = v.preview;
+        setArt(v.preview);
+        $('[data-ai-result-style]', aiBox).textContent = 'Style « ' + v.name + ' » · le nom s’ajoute ci-dessous';
+        $$('button', versionsList).forEach(function (b) { b.classList.toggle('active', b.dataset.token === v.token); });
+        showStage();
+      };
+      var renderVersions = function () {
+        versionsList.innerHTML = '';
+        versions.forEach(function (v) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ai-version';
+          b.dataset.token = v.token;
+          b.innerHTML = '<img alt="" width="54" height="72"><span></span>';
+          b.querySelector('img').src = v.preview;
+          b.querySelector('span').textContent = v.name;
+          b.addEventListener('click', function () { selectVersion(v); });
+          versionsList.appendChild(b);
+        });
+        versionsBox.hidden = versions.length < 2;
+      };
+      styleInputs.forEach(function (input) {
+        input.addEventListener('change', function () {
+          var mine = versions.filter(function (v) { return v.style === input.value; }).pop();
+          if (mine) selectVersion(mine);
+          else if (!hasOwnPortrait && input.dataset.example) { setArt(input.dataset.example); note.textContent = 'Exemple du style « ' + input.dataset.name + ' » · ton portrait apparaîtra ici'; showStage(); }
+          updateGenerate();
+          track('ai_portrait_style', { style: input.value });
+        });
+      });
       var updateRemaining = function (n) {
         if (typeof n !== 'number' || !remainingEl) return;
         remainingEl.textContent = n > 0
@@ -684,6 +731,7 @@
           return;
         }
         if (file) {
+          photoToken = null; // nouvelle photo : elle sera envoyée
           var thumbEl = $('[data-photo-thumb]', aiBox);
           thumbEl.style.backgroundImage = 'url("' + URL.createObjectURL(file) + '")';
           thumbEl.hidden = false;
@@ -697,10 +745,12 @@
       ['dragenter', 'dragover'].forEach(function (ev) { aiDrop.addEventListener(ev, function () { aiDrop.classList.add('dragover'); }); });
       ['dragleave', 'drop'].forEach(function (ev) { aiDrop.addEventListener(ev, function () { aiDrop.classList.remove('dragover'); }); });
 
-      var steps = ['Analyse de la photo…', 'Esquisse de la tête et des oreilles…', 'Tracé à l’encre bordeaux…', 'Lavis d’aquarelle poudrée…', 'Derniers détails dans le regard…', 'Encore quelques secondes, on peaufine…'];
       var stepTimer = null;
       var startProgress = function () {
         var i = 0;
+        var styleSteps = [];
+        try { styleSteps = JSON.parse(currentStyle().dataset.steps || '[]'); } catch (e) {}
+        var steps = ['Analyse de la photo…', 'Esquisse de la tête et des oreilles…'].concat(styleSteps, ['Derniers détails dans le regard…', 'Encore quelques secondes, on peaufine…']);
         startBox.hidden = true;
         resultBox.hidden = true;
         aiError.hidden = true;
@@ -719,9 +769,12 @@
         bar.style.transition = 'width .3s';
         bar.style.width = '100%';
         hasOwnPortrait = true;
-        tokenInput.value = state.token;
-        aiThumb.src = state.preview;
-        setArt(state.preview);
+        photoToken = state.token;
+        var version = { token: state.token, preview: state.preview, style: state.style, name: state.style_name };
+        versions.push(version);
+        renderVersions();
+        selectVersion(version);
+        updateGenerate();
         note.textContent = 'Aperçu réduit et filigrané · impression en haute définition';
         setTimeout(function () {
           progress.hidden = true;
@@ -732,7 +785,7 @@
         layout();
         setLocked(false);
         if (persoInput && !persoInput.value) persoInput.focus({ preventScroll: true });
-        track('ai_portrait_ready');
+        track('ai_portrait_ready', { style: state.style });
       };
       var poll = function (token, started) {
         if (Date.now() - started > 4 * 60 * 1000) { clearInterval(stepTimer); fail('Le dessin prend plus de temps que prévu. Réessaie dans un instant.'); return; }
@@ -780,17 +833,20 @@
 
       genBtn.addEventListener('click', function () {
         var file = aiPhoto.files && aiPhoto.files[0];
-        if (!file || !aiConsent.checked) return;
+        if ((!file && !photoToken) || !aiConsent.checked) return;
         genBtn.disabled = true;
         startProgress();
         showStage();
-        track('ai_portrait_start');
-        shrink(file).then(function (photo) {
+        track('ai_portrait_start', { style: currentStyle().value });
+        (photoToken ? Promise.resolve(null) : shrink(file)).then(function (photo) {
           var data = new FormData();
           data.append('_token', $('input[name="_token"]', form).value);
           data.append('product_id', aiBox.dataset.productId);
           data.append('consent', '1');
-          data.append('photo', photo);
+          data.append('style', currentStyle().value);
+          $$('[data-ai-mark]', aiBox).forEach(function (m) { if (m.checked) data.append('marks[]', m.value); });
+          if (photo) data.append('photo', photo);
+          else data.append('from', photoToken);
           return fetch(aiBox.dataset.aiUrl, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
         })
           .then(function (r) { return r.json().catch(function () { throw new Error('L\u2019envoi de la photo a échoué, merci de réessayer.'); }); })
@@ -804,8 +860,13 @@
       $('[data-ai-retry]', aiBox).addEventListener('click', function () {
         resultBox.hidden = true;
         startBox.hidden = false;
+        // Propose d'emblée un style pas encore essayé
+        var tried = versions.map(function (v) { return v.style; });
+        var next = styleInputs.filter(function (i) { return tried.indexOf(i.value) < 0; })[0];
+        if (next) next.checked = true;
         updateGenerate();
-        aiPhoto.focus();
+        var cards = $('.ai-styles', aiBox);
+        (cards || aiPhoto).scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
     }
 

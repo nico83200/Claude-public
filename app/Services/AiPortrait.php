@@ -30,11 +30,10 @@ final class AiPortrait
         . 'Mood: modern, minimalist, feminine, luminous, gallery quality, with lively detailed eyes and a soft highlight. '
         . 'Strictly no text, letters, numbers, signature, logo, frame or border.';
 
-    /** Prompt envoyé à l'IA : celui des Réglages s'il a été personnalisé, sinon le style d'origine. */
+    /** Prompt du style aquarelle : celui des Réglages s'il a été personnalisé, sinon le style d'origine. */
     public static function prompt(): string
     {
-        $custom = trim((string) setting('ai_prompt', ''));
-        return $custom !== '' ? $custom : self::STYLE_PROMPT;
+        return PortraitStyles::prompt(PortraitStyles::DEFAULT);
     }
 
     /**
@@ -141,7 +140,14 @@ final class AiPortrait
      * Enregistre la photo et crée le portrait « en file d'attente ». Le dessin est lancé par run().
      * @param array $file entrée de $_FILES
      */
-    public static function create(array $file): array
+    public static function create(array $file, string $style = PortraitStyles::DEFAULT, string $marks = ''): array
+    {
+        self::guard();
+        return self::createFromPhoto(Upload::customerPhoto($file), $style, $marks);
+    }
+
+    /** Refuse une nouvelle création si le quota du jour est atteint ou si un dessin est déjà en cours. */
+    public static function guard(): void
     {
         if (self::remaining() <= 0) {
             throw new \RuntimeException('Tu as atteint le nombre de créations offertes pour aujourd\'hui. Reviens demain, ou commande l\'un de tes portraits déjà créés ♡');
@@ -153,7 +159,11 @@ final class AiPortrait
         if ($busy) {
             throw new \RuntimeException('Un portrait est déjà en cours de création, patiente quelques secondes.');
         }
-        $photo = Upload::customerPhoto($file);
+    }
+
+    /** Nouveau portrait d'après une photo déjà enregistrée (autre style, exemples de l'administration). */
+    public static function createFromPhoto(string $photo, string $style, string $marks = ''): array
+    {
         $token = bin2hex(random_bytes(16));
         Database::insert('ai_portraits', [
             'token'        => $token,
@@ -162,6 +172,8 @@ final class AiPortrait
             'provider'     => AiImage::provider(),
             'status'       => 'queued',
             'photo_file'   => $photo,
+            'style'        => isset(PortraitStyles::STYLES[$style]) ? $style : PortraitStyles::DEFAULT,
+            'marks'        => $marks !== '' ? $marks : null,
             'created_at'   => now(),
             'updated_at'   => now(),
         ]);
@@ -182,12 +194,13 @@ final class AiPortrait
         $row['status'] = 'processing';
         try {
             $jpeg = self::aiInput((string) Upload::customerPhotoPath($row['photo_file']));
+            $prompt = PortraitStyles::prompt($row['style'] ?? null, array_filter(explode(',', (string) ($row['marks'] ?? ''))));
             switch ($row['provider']) {
                 case 'openai':
-                    return self::storeResult($row, AiImage::openaiEdit($jpeg, self::prompt()));
+                    return self::storeResult($row, AiImage::openaiEdit($jpeg, $prompt));
                 case 'replicate':
                     $prediction = AiImage::replicateCreate((string) config('ai.replicate_model') ?: 'black-forest-labs/flux-kontext-pro', [
-                        'prompt'           => self::prompt(),
+                        'prompt'           => $prompt,
                         'input_image'      => 'data:image/jpeg;base64,' . base64_encode($jpeg),
                         'aspect_ratio'     => '3:4',
                         'output_format'    => 'png',
@@ -551,6 +564,8 @@ final class AiPortrait
         return [
             'token'   => $row['token'],
             'status'  => $row['status'],
+            'style'   => $row['style'] ?? PortraitStyles::DEFAULT,
+            'style_name' => PortraitStyles::STYLES[$row['style'] ?? '']['name'] ?? PortraitStyles::STYLES[PortraitStyles::DEFAULT]['name'],
             'preview' => $row['status'] === 'ready' ? url('portrait-ia/' . $row['token'] . '/apercu', ['v' => strtotime($row['updated_at'])]) : null,
             'message' => $row['status'] === 'failed' ? self::customerError($row) : null,
             // Visible uniquement par une administratrice connectée : cause technique et piste de solution

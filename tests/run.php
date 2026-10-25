@@ -293,6 +293,40 @@ check('prompt personnalisé des Réglages envoyé à l\'IA', (end($creates)['inp
 check('administratrice : essais non limités à 3 par jour', $adminRemaining > 3);
 App\Core\Settings::set('ai_prompt', '');
 check('prompt d\'origine si le réglage est vide', AiPortrait::prompt() === AiPortrait::STYLE_PROMPT);
+
+echo "Portrait : styles\n";
+use App\Services\PortraitStyles;
+$_SESSION['admin_id'] = 1;
+$pop = AiPortrait::run(AiPortrait::create($aiFile(), 'popart', PortraitStyles::cleanMarks(['liste', 'pirate', 'etoile'])));
+$pop = AiPortrait::refresh(AiPortrait::refresh($pop));
+$creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create' && isset($c['input']['prompt'])));
+$sentPrompt = (string) (end($creates)['input']['prompt'] ?? '');
+check('style choisi enregistré avec ses signes particuliers', $pop['style'] === 'popart' && $pop['marks'] === 'liste,etoile');
+$expected = PortraitStyles::prompt('popart', ['liste', 'etoile']);
+check('consigne du style envoyée à l\'IA', str_ends_with($sentPrompt, '(' . strlen($expected) . ')') && str_starts_with($sentPrompt, substr($expected, 0, 40)));
+check('consigne : ressemblance + rendu + signes particuliers', str_starts_with($expected, PortraitStyles::IDENTITY) && str_contains($expected, 'pop art')
+    && str_ends_with($expected, 'a white blaze running down the face, a white star on the forehead.') && !str_contains($expected, 'Encre & Poudre'));
+$other = AiPortrait::createFromPhoto($pop['photo_file'], 'fusain');
+check('autre style avec la même photo', $other['photo_file'] === $pop['photo_file'] && $other['style'] === 'fusain' && AiPortrait::owns($other['token']));
+Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $other['id']]);
+unset($_SESSION['admin_id']);
+check('nom du style transmis au navigateur', AiPortrait::publicState($pop)['style'] === 'popart' && AiPortrait::publicState($pop)['style_name'] === 'Pop art');
+App\Core\Settings::set('ai_prompt_fusain', 'Charcoal please. No text.');
+check('consigne personnalisée par style', PortraitStyles::prompt('fusain') === 'Charcoal please. No text.' && PortraitStyles::prompt('trait') === PortraitStyles::defaultPrompt('trait'));
+App\Core\Settings::set('ai_prompt_fusain', '');
+App\Core\Settings::set('ai_styles', 'fusain,trait');
+check('styles proposés et ordre réglables', array_keys(PortraitStyles::enabled()) === ['trait', 'fusain'] || array_keys(PortraitStyles::enabled()) === ['fusain', 'trait']);
+check('style désactivé refusé', PortraitStyles::valid('popart') !== 'popart' && PortraitStyles::selected('un-seul-trait') === 'trait');
+App\Core\Settings::set('ai_styles', 'zzz');
+check('jamais sans style', array_keys(PortraitStyles::enabled()) === ['aquarelle']);
+App\Core\Settings::set('ai_styles', 'aquarelle,trait,popart,fusain,gravure');
+check('adresse de chaque style', PortraitStyles::bySlug('pop-art') === 'popart' && PortraitStyles::bySlug('gravure-vintage') === 'gravure' && PortraitStyles::bySlug('x') === null);
+$example = App\Controllers\Admin\PortraitStylesController::publishExample($pop);
+check('exemple généré publié pour le style', str_starts_with($example, 'uploads/site/styles/popart-') && PortraitStyles::example('popart') === $example
+    && getimagesize(PUBLIC_PATH . '/' . strtok($example, '?'))[1] === 800);
+@unlink(PUBLIC_PATH . '/' . strtok($example, '?'));
+App\Core\Settings::set('ai_style_examples', '');
+check('exemple aquarelle par défaut', PortraitStyles::example('aquarelle') === 'assets/img/portrait-ia/exemple-bai.jpg' && PortraitStyles::example('popart') === null);
 echo "Comptes clientes\n";
 $mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
 $lastLink = static function (string $path) use ($mailLog): ?string {
@@ -674,7 +708,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('dix-huit migrations connues', count(App\Core\Migrator::files()) === 18);
+check('dix-neuf migrations connues', count(App\Core\Migrator::files()) === 19);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');

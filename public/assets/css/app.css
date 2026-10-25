@@ -688,6 +688,36 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 .ai-result div { display: flex; flex-direction: column; align-items: flex-start; gap: .1rem; }
 .ai-result .small { font-size: .8rem; }
 .ai-box .form-error { margin: .6rem 0 0; }
+/* Portrait multi-styles : signes particuliers, choix du style, créations */
+.ai-marks { margin: -.3rem 0 1rem; font-size: .84rem; }
+.ai-marks summary { cursor: pointer; color: var(--rose); font-weight: 500; }
+.ai-marks-list { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+.chip-check { position: relative; display: inline-flex; cursor: pointer; }
+.chip-check input { position: absolute; opacity: 0; }
+.chip-check span { padding: .35rem .75rem; border-radius: 999px; border: 1px solid var(--powder); background: var(--surface); font-size: .8rem; transition: background .2s, border-color .2s; }
+.chip-check input:checked + span { background: var(--rose); border-color: var(--rose); color: #fff; }
+.chip-check input:focus-visible + span { outline: 2px solid var(--rose); outline-offset: 2px; }
+.product-layout > * { min-width: 0; } /* les listes défilantes (styles, créations) ne doivent pas élargir la page */
+.ai-styles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(104px, 1fr); gap: .55rem; overflow-x: auto; scroll-snap-type: x mandatory; padding: .15rem .1rem .6rem; margin-bottom: .6rem; }
+.ai-style { position: relative; display: flex; flex-direction: column; gap: .15rem; padding: .45rem; border-radius: var(--r-sm); border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; scroll-snap-align: start; transition: border-color .2s, box-shadow .2s; }
+.ai-style input { position: absolute; opacity: 0; }
+.ai-style:has(input:checked) { border-color: var(--rose); box-shadow: 0 0 0 2px var(--rose-100); }
+.ai-style:has(input:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+.ai-style strong { font-size: .8rem; line-height: 1.2; }
+.ai-style small { font-size: .68rem; line-height: 1.3; color: var(--muted); }
+.ai-style-img { display: grid; place-items: center; aspect-ratio: 3 / 4; border-radius: 6px; overflow: hidden; margin-bottom: .25rem; background: var(--blush-50); }
+.ai-style-img img { width: 100%; height: 100%; object-fit: cover; }
+.ai-style-img > span { width: 100%; height: 100%; display: grid; place-items: center; padding: .4rem; text-align: center; font-family: var(--serif); font-style: italic; font-size: .85rem; color: var(--rose); }
+.ai-style-trait > span { background: #f9f7f3; color: #2b2523; font-family: var(--script); font-size: 1.3rem; font-style: normal; }
+.ai-style-popart > span { background: radial-gradient(circle at 50% 45%, #f2c14e 0 38%, #f9f7f3 39%); color: #c2185b; font-weight: 700; font-style: normal; font-family: var(--sans); }
+.ai-style-fusain > span { background: linear-gradient(160deg, #f6f3ee, #d8d4cf); color: #3a3a3a; }
+.ai-style-gravure > span { background: repeating-linear-gradient(45deg, #f3ebdc 0 3px, #eadfca 3px 4px); color: #3b2a20; }
+.ai-versions { margin-top: .7rem; }
+.ai-versions p { margin: 0 0 .4rem; }
+.ai-versions-list { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .3rem; }
+.ai-version { display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: .3rem; border: 1.5px solid var(--line); border-radius: var(--r-sm); background: var(--surface); cursor: pointer; font: inherit; font-size: .68rem; color: var(--muted); }
+.ai-version img { width: 54px; height: 72px; object-fit: cover; border-radius: 4px; }
+.ai-version.active { border-color: var(--rose); color: var(--rose); }
 .ai-fields { display: grid; grid-template-columns: 1.35fr 1fr; gap: .7rem; align-items: end; }
 .ai-fields .field { margin: 0; }
 @media (max-width: 420px) { .ai-fields { grid-template-columns: 1fr; } }
@@ -1166,3 +1196,14 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 .gift-results { scroll-margin-top: 90px; }
 .gift-tip { display: flex; gap: .6rem; align-items: center; justify-content: center; background: var(--blush-50); border-radius: var(--r); padding: 1rem 1.2rem; margin-top: 2rem; font-size: .92rem; }
 .gift-tip .icon { color: var(--rose); flex-shrink: 0; }
+
+/* Pages par style du portrait : « Un cheval, cinq styles » */
+.lp-styles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+.lp-style-card { display: flex; flex-direction: column; gap: .25rem; padding: .6rem; border-radius: var(--r); background: var(--surface); border: 1.5px solid var(--line); color: inherit; text-decoration: none; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.lp-style-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+.lp-style-card.is-current { border-color: var(--rose); }
+.lp-style-card .ai-style-img { border-radius: var(--r-sm); margin-bottom: .35rem; }
+.lp-style-card strong { font-family: var(--serif); font-size: 1.05rem; }
+.lp-style-card small { color: var(--muted); font-size: .8rem; }
+.lp-style-placeholder { width: 100%; font-size: 1.6rem; border-radius: var(--r); }
+@media (max-width: 640px) { .lp-styles { grid-auto-flow: column; grid-auto-columns: 62%; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .4rem; } .lp-style-card { scroll-snap-align: start; } }

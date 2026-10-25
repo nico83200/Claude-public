@@ -13,6 +13,17 @@ $examples = [
     ['clair', 'Nuage', '', 'Gris clair, sans année', 'noir'],
 ];
 $img = static fn (string $name) => url('assets/img/portrait-ia/' . $name . '.jpg');
+use App\Services\PortraitStyles;
+$styleKey ??= PortraitStyles::DEFAULT;
+$isAquarelle = $styleKey === PortraitStyles::DEFAULT;
+$style = PortraitStyles::STYLES[$styleKey];
+$styles = PortraitStyles::enabled();
+$styleUrl = static fn (string $key) => $key === PortraitStyles::DEFAULT ? url('portrait-aquarelle') : url('portrait-cheval/' . PortraitStyles::STYLES[$key]['slug']);
+$exampleUrl = static fn (string $key) => ($ex = PortraitStyles::example($key)) ? url($ex) : null;
+// Visuels du haut de page : l'exemple du style, entouré de deux autres styles quand ils existent
+$heroMain = $isAquarelle ? $img('affiche-tornado') : ($exampleUrl($styleKey) ?? image_url($product['main_image']));
+$others = array_values(array_filter(array_map($exampleUrl, array_diff(array_keys($styles), [$styleKey]))));
+$heroBack = $isAquarelle || count($others) < 2 ? [$img('exemple-gris'), $img('exemple-bai')] : array_slice($others, 0, 2);
 $rating = $reviewSummary['count'] > 0 ? $reviewSummary : ($globalRating['count'] >= 3 ? $globalRating : null);
 $cameraIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="1"/><rect x="7" y="6" width="10" height="9"/><path d="M9 18h6"/></svg>';
@@ -21,8 +32,8 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
   <div class="container lp-hero-inner">
     <div class="lp-hero-text">
       <p class="eyebrow"><?= icon('sparkle', 14) ?> Nouveau au club</p>
-      <h1>Son portrait aquarelle, <em>en quelques secondes</em></h1>
-      <p class="lead">Envoie sa plus belle photo : notre IA la redessine au trait fin bordeaux et à l'aquarelle poudrée. Son nom, son année de naissance, un joli cadre… et toute votre complicité s'affiche au mur.</p>
+      <h1><?= $stylePage['h1'] ?? PortraitStyles::PAGES['aquarelle']['h1'] ?></h1>
+      <p class="lead"><?= e(($stylePage ?? PortraitStyles::PAGES['aquarelle'])['lead']) ?></p>
       <ul class="lp-checks">
         <li><?= icon('check', 16) ?> Aperçu offert avant de commander</li>
         <li><?= icon('check', 16) ?> Fidèle à sa robe et à ses marques</li>
@@ -30,7 +41,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
       </ul>
       <div class="lp-cta">
         <a class="btn btn-primary btn-lg" href="#creer" data-lp-cta><?= icon('sparkle', 16) ?> Créer son portrait gratuitement</a>
-        <a class="btn btn-ghost btn-lg" href="#exemples">Voir des exemples</a>
+        <a class="btn btn-ghost btn-lg" href="<?= $isAquarelle ? '#exemples' : '#styles' ?>">Voir des exemples</a>
       </div>
       <p class="lp-price">Aperçu gratuit · encadré dès <strong><?= e(money($minPrice)) ?></strong><?= $freeShipping ? ' · <strong>livraison offerte</strong>' : '' ?></p>
       <div class="lp-trust">
@@ -42,9 +53,9 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
       <?php if ($christmas): ?><p class="lp-season">🎄 Pour Noël, commande avant le <strong><?= e($christmas) ?></strong></p><?php endif; ?>
     </div>
     <div class="lp-hero-visual" aria-hidden="true">
-      <div class="lp-frame lp-frame-back lp-frame-1" style="--frame: <?= $frameColors['blanc'] ?>"><img src="<?= e($img('exemple-gris')) ?>" alt="" width="600" height="800"></div>
-      <div class="lp-frame lp-frame-back lp-frame-2" style="--frame: <?= $frameColors['noir'] ?>"><img src="<?= e($img('exemple-bai')) ?>" alt="" width="600" height="800"></div>
-      <div class="lp-frame lp-frame-main" style="--frame: <?= $frameColors['chene'] ?>"><img src="<?= e($img('affiche-tornado')) ?>" alt="" width="900" height="1200"></div>
+      <div class="lp-frame lp-frame-back lp-frame-1" style="--frame: <?= $frameColors['blanc'] ?>"><img src="<?= e($heroBack[0]) ?>" alt="" width="600" height="800"></div>
+      <div class="lp-frame lp-frame-back lp-frame-2" style="--frame: <?= $frameColors['noir'] ?>"><img src="<?= e($heroBack[1]) ?>" alt="" width="600" height="800"></div>
+      <div class="lp-frame lp-frame-main" style="--frame: <?= $frameColors['chene'] ?>"><img src="<?= e($heroMain) ?>" alt="" width="900" height="1200"></div>
       <span class="lp-chip lp-chip-1"><?= icon('sparkle', 14) ?> Prêt en quelques secondes</span>
       <span class="lp-chip lp-chip-2"><?= icon('heart', 14) ?> Aperçu offert</span>
     </div>
@@ -59,6 +70,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
   </div>
 </div>
 
+<?php if ($isAquarelle): ?>
 <section class="section" id="style">
   <div class="container lp-style">
     <figure class="lp-annotated">
@@ -101,6 +113,51 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
     <p class="lp-center"><a class="btn btn-primary btn-lg" href="#creer" data-lp-cta><?= icon('sparkle', 16) ?> À ton tour</a></p>
   </div>
 </section>
+<?php else: ?>
+<section class="section" id="style">
+  <div class="container lp-style">
+    <figure class="lp-annotated">
+      <?php if ($ex = $exampleUrl($styleKey)): ?>
+        <img src="<?= e($ex) ?>" alt="Exemple de portrait <?= e(mb_strtolower($style['title'])) ?>" width="600" height="800" loading="lazy">
+      <?php else: ?>
+        <div class="ai-style-img ai-style-<?= e($styleKey) ?> lp-style-placeholder"><span><?= e($style['name']) ?></span></div>
+      <?php endif; ?>
+    </figure>
+    <div>
+      <p class="script-accent">le style</p>
+      <h2><?= e($style['title']) ?>, <em>pensé pour lui</em></h2>
+      <p class="lead"><?= e($style['tagline']) ?>. <?= e($style['pick']) ?>.</p>
+      <ol class="lp-legend">
+        <?php foreach ($stylePage['points'] as [$title, $text]): ?>
+          <li><strong><?= e($title) ?></strong><span><?= e($text) ?></span></li>
+        <?php endforeach; ?>
+        <li><strong>Son nom, son année</strong><span>En écriture manuscrite, sous le portrait : c'est sa signature.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (count($styles) > 1): ?>
+<section class="section<?= $isAquarelle ? '' : ' section-blush' ?>" id="styles">
+  <div class="container">
+    <div class="section-head section-head-center">
+      <p class="script-accent">une photo, plusieurs artistes</p>
+      <h2>Un cheval, <em><?= e(number_words(count($styles))) ?> styles</em></h2>
+      <p>Avec la même photo, essaie les styles un à un et garde celui qui lui ressemble le plus… et qui te ressemble aussi.</p>
+    </div>
+    <div class="lp-styles">
+      <?php foreach ($styles as $key => $s): $ex = $exampleUrl($key); ?>
+        <a class="lp-style-card<?= $key === $styleKey ? ' is-current' : '' ?>" href="<?= e($key === $styleKey ? '#creer' : $styleUrl($key)) ?>">
+          <span class="ai-style-img ai-style-<?= e($key) ?>"><?= $ex ? '<img src="' . e($ex) . '" alt="" width="300" height="400" loading="lazy">' : '<span>' . e($s['name']) . '</span>' ?></span>
+          <strong><?= e($s['title']) ?></strong>
+          <small><?= e($key === $styleKey ? 'Tu es ici · ' . $s['pick'] : $s['pick']) ?></small>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 
 <section class="section" id="comment">
   <div class="container">
@@ -135,7 +192,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
       <h2>Crée son portrait <em>maintenant</em></h2>
       <p>Aperçu offert et sans engagement · <?= (int) $perDay ?> créations par jour · environ 30 secondes</p>
     </div>
-    <?php partial('product-main', compact('product', 'variants', 'personalization', 'reviewSummary', 'sizeGuide', 'delivery') + ['titleTag' => 'h2', 'previewFirst' => true, 'detailsOpen' => false]); ?>
+    <?php partial('product-main', compact('product', 'variants', 'personalization', 'reviewSummary', 'sizeGuide', 'delivery') + ['titleTag' => 'h2', 'previewFirst' => true, 'detailsOpen' => false, 'aiStyle' => $styleKey]); ?>
   </div>
 </section>
 

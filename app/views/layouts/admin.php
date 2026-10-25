@@ -14,12 +14,16 @@ $nav = [
     'admin/clients'      => ['Clients & newsletter', '/admin/clients', false],
     'admin/messages'     => ['Messages' . ($unread ? " <span class=\"pill\">$unread</span>" : ''), '/admin/messages', false],
     'admin/accueil'      => ['Page d\'accueil', '/admin/accueil', false],
+    'admin/portrait-styles' => ['Styles du portrait', '/admin/portrait-styles', false],
     'admin/journal'      => ['Journal', '/admin/journal', false],
     'admin/pages'        => ['Pages', '/admin/pages', false],
     'admin/reglages'     => ['Réglages', '/admin/reglages', false],
     'admin/integrations' => ['Intégrations', '/admin/integrations', false],
     'admin/mise-a-jour'  => ['Mise à jour', '/admin/mise-a-jour', false],
 ];
+if (!App\Services\AiPortrait::enabled()) {
+    unset($nav['admin/portrait-styles']);
+}
 ?>
 <!doctype html>
 <html lang="fr">
