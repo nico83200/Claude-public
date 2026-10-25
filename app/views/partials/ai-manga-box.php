@@ -59,5 +59,20 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
   </div>
   <p class="form-error" data-manga-error role="alert" hidden></p>
   <input type="hidden" name="ai_portrait" value="" data-manga-token>
+
+  <div class="ai-step">
+    <p class="ai-step-title"><span class="ai-num">3</span> Vos noms sous l'illustration <span class="muted">(facultatifs)</span></p>
+    <div class="ai-fields">
+      <div class="field">
+        <label for="manga-rider">Ton prénom</label>
+        <input id="manga-rider" name="rider_name" type="text" maxlength="16" placeholder="Ex. : Léa" autocomplete="given-name" data-manga-name>
+      </div>
+      <div class="field">
+        <label for="manga-horse">Nom de ton cheval</label>
+        <input id="manga-horse" name="horse_name" type="text" maxlength="16" placeholder="Ex. : Tornado" autocomplete="off" data-manga-name>
+      </div>
+    </div>
+    <small>Imprimés en écriture manuscrite sous l'illustration : « <span data-manga-names-sample>Léa &amp; Tornado</span> » · vérifie l'orthographe ♡</small>
+  </div>
 </div>
 <noscript><p class="flash flash-error">Active JavaScript pour créer ton illustration.</p></noscript>

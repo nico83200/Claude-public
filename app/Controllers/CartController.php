@@ -85,6 +85,11 @@ final class CartController
                     $fail('Crée d\'abord votre illustration à partir de vos deux photos.', '/produit/' . $row['slug']);
                 }
                 $extra = ['portrait' => $token];
+                // Prénom de la cavalière et nom du cheval, imprimés sous l'illustration
+                $text = \App\Services\MangaIllustration::names(
+                    Personalizer::sanitize((string) input('rider_name', ''), 16),
+                    Personalizer::sanitize((string) input('horse_name', ''), 16)
+                );
             } elseif ($cfg['mode'] === 'ai_portrait') {
                 $token = (string) input('ai_portrait');
                 $portrait = AiPortrait::owns($token) ? AiPortrait::find($token) : null;

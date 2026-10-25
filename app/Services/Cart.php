@@ -132,7 +132,7 @@ final class Cart
                 'portrait'     => $line['portrait'] ?? null,
                 'portrait_style' => $portraitRow ? AiPortrait::label($portraitRow) : null,
                 'mode'         => $cfg['mode'] ?? null,
-                'personalization_label' => $cfg['label'] ?? null,
+                'personalization_label' => ($cfg['mode'] ?? null) === 'ai_manga' ? 'Sous l\'illustration' : ($cfg['label'] ?? null),
             ];
         }
         return $items;

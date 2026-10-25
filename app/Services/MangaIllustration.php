@@ -278,23 +278,105 @@ TXT;
     }
 
     /**
-     * Fichier d'impression : l'illustration posée dans la zone prévue du visuel d'impression s'il y en a un,
-     * sinon l'illustration seule (Printful l'ajuste à la zone d'impression de l'emplacement choisi).
+     * Mise en page du fichier d'impression (proportions de la feuille, de 0 à 1), partagée avec l'aperçu :
+     * l'illustration en haut, bords en fondu léger, puis les prénoms en écriture manuscrite dessous.
+     */
+    public const LAYOUT = ['art_h' => 0.85, 'name_y' => 0.93, 'name_size' => 0.06, 'name_max_w' => 0.9, 'fade' => 0.07];
+
+    /** Texte imprimé sous l'illustration : « Léa & Tornado » (l'un ou l'autre seul s'il manque). */
+    public static function names(string $rider, string $horse): string
+    {
+        return implode(' & ', array_filter([trim($rider), trim($horse)], static fn ($v) => $v !== ''));
+    }
+
+    /**
+     * Fichier d'impression (PNG transparent) : illustration aux bords fondus et prénoms dessous.
+     * Printful l'ajuste à la zone d'impression de l'emplacement choisi (devant du t-shirt).
      * @return string chemin public relatif
      */
-    public static function printFile(array $row, ?string $designFile, string $text, array $cfg): string
+    public static function printFile(array $row, string $text, array $cfg): string
     {
         $art = AiPortrait::artworkPath($row) ?? throw new \RuntimeException('Illustration introuvable.');
-        if ($designFile) {
-            return Personalizer::render($designFile, $text, $cfg, $art);
-        }
-        $relative = 'uploads/print/manga-' . sha1(config('app.key') . '|' . $row['token'] . '|' . basename($art)) . '.png';
+        $W = max(1200, min(9000, (int) ($cfg['print_w'] ?? 3600)));
+        $H = max(1600, min(12000, (int) ($cfg['print_h'] ?? 4800)));
+        $color = (string) ($cfg['color'] ?? '#5a2a3a');
+        $relative = 'uploads/print/manga-' . sha1(config('app.key') . '|' . $row['token'] . '|' . basename($art) . "|$text|$W|$H|$color") . '.png';
         if (!is_file(PUBLIC_PATH . '/' . $relative)) {
-            if (!is_dir(PUBLIC_PATH . '/uploads/print')) {
-                mkdir(PUBLIC_PATH . '/uploads/print', 0755, true);
-            }
-            copy($art, PUBLIC_PATH . '/' . $relative);
+            self::compose($art, $text, $W, $H, $color, PUBLIC_PATH . '/' . $relative);
         }
         return $relative;
+    }
+
+    public static function compose(string $art, string $text, int $W, int $H, string $color, string $target): void
+    {
+        if ((int) ini_get('memory_limit') > 0 && (int) ini_get('memory_limit') < 512) {
+            @ini_set('memory_limit', '512M');
+        }
+        $L = self::LAYOUT;
+        $src = imagecreatefromstring((string) file_get_contents($art)) ?: throw new \RuntimeException('Illustration illisible.');
+        $img = imagecreatetruecolor($W, $H);
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
+        imagefill($img, 0, 0, imagecolorallocatealpha($img, 0, 0, 0, 127));
+
+        // Illustration ajustée dans le haut de la feuille, centrée
+        $boxH = $text !== '' ? $L['art_h'] * $H : $H;
+        $scale = min($W / imagesx($src), $boxH / imagesy($src));
+        $dw = (int) round(imagesx($src) * $scale);
+        $dh = (int) round(imagesy($src) * $scale);
+        $layer = imagecreatetruecolor($dw, $dh);
+        imagealphablending($layer, false);
+        imagesavealpha($layer, true);
+        imagecopyresampled($layer, $src, 0, 0, 0, 0, $dw, $dh, imagesx($src), imagesy($src));
+        imagedestroy($src);
+        self::fadeEdges($layer, (int) round(min($dw, $dh) * $L['fade']));
+        imagecopy($img, $layer, (int) round(($W - $dw) / 2), 0, 0, 0, $dw, $dh);
+        imagedestroy($layer);
+
+        if ($text !== '') {
+            imagealphablending($img, true);
+            $font = STORAGE_PATH . '/fonts/' . Personalizer::FONTS['script'];
+            $size = $L['name_size'] * $H;
+            $width = static fn (float $sz) => abs(imagettfbbox($sz, 0, $font, $text)[2] - imagettfbbox($sz, 0, $font, $text)[0]);
+            while ($size > 20 && $width($size) > $L['name_max_w'] * $W) {
+                $size *= 0.95;
+            }
+            $box = imagettfbbox($size, 0, $font, $text);
+            [$r, $g, $b] = Personalizer::hexToRgb($color);
+            imagettftext($img, $size, 0, (int) round($W / 2 - abs($box[2] - $box[0]) / 2 - $box[0]), (int) round($L['name_y'] * $H), imagecolorallocate($img, $r, $g, $b), $font, $text);
+        }
+
+        if (!is_dir(dirname($target))) {
+            mkdir(dirname($target), 0755, true);
+        }
+        imagepng($img, $target, 6);
+        imagedestroy($img);
+    }
+
+    /** Fondu léger des bords vers la transparence (coins arrondis), pixel par pixel sur la seule bande du bord. */
+    private static function fadeEdges(\GdImage $img, int $band): void
+    {
+        $w = imagesx($img);
+        $h = imagesy($img);
+        if ($band < 2) {
+            return;
+        }
+        for ($y = 0; $y < $h; $y++) {
+            $ey = min($y, $h - 1 - $y);
+            $xs = $ey < $band ? range(0, $w - 1) : array_merge(range(0, min($band, $w) - 1), range(max($band, $w - $band), $w - 1));
+            foreach ($xs as $x) {
+                $ex = min($x, $w - 1 - $x);
+                if ($ex >= $band && $ey >= $band) {
+                    continue;
+                }
+                $t = $ex < $band && $ey < $band
+                    ? max(0.0, 1 - sqrt(($band - $ex) ** 2 + ($band - $ey) ** 2) / $band)
+                    : min($ex, $ey) / $band;
+                $f = $t * $t * (3 - 2 * $t);
+                $c = imagecolorat($img, $x, $y);
+                $a = ($c >> 24) & 0x7F;
+                imagesetpixel($img, $x, $y, ($c & 0xFFFFFF) | ((int) round(127 - (127 - $a) * $f) << 24));
+            }
+        }
     }
 }

@@ -1219,3 +1219,11 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 .manga-views { display: flex; gap: .5rem; margin-bottom: 1rem; }
 .manga-views .chip-check span { padding: .5rem 1.1rem; font-size: .88rem; }
 .preview-photo.shape-rect { border-radius: 4px; }
+/* Aperçu du t-shirt manga : même mise en page que le fichier d'impression (MangaIllustration::LAYOUT) */
+.manga-print { container-type: size; background: none; }
+.manga-print-art { position: absolute; left: 0; right: 0; top: 0; height: var(--art-h); background: center top / contain no-repeat;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent), linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent), linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); mask-composite: intersect; }
+.manga-print-names { position: absolute; left: 0; right: 0; top: var(--art-h); bottom: 5%; display: flex; align-items: center; justify-content: center; font-family: var(--script); font-size: 8cqh; line-height: 1; color: var(--pc, #5a2a3a); white-space: nowrap; }
+.manga-only [data-main-image] { visibility: hidden; }
+.manga-only .manga-print { left: 17%; top: 3%; width: 66%; height: 94%; }

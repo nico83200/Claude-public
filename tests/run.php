@@ -363,8 +363,23 @@ check('consigne : base + vue de dos + référence', str_ends_with((string) $call
 check('photos et vue enregistrées', $manga['photo2_file'] === $rider && $manga['photo_file'] === $horse && $manga['view'] === 'dos' && $manga['step'] === 'style');
 $manga = AiPortrait::refresh(AiPortrait::refresh($manga));
 check('illustration prête', $manga['status'] === 'ready' && AiPortrait::label($manga) === 'Illustration manga · de dos' && AiPortrait::publicState($manga)['style_name'] === 'De dos');
-$print = MangaIllustration::printFile($manga, null, '', Personalizer::config(json_encode(['mode' => 'ai_manga'])));
-check('fichier d\'impression : l\'illustration seule, publiée pour Printful', str_starts_with($print, 'uploads/print/manga-') && is_file(PUBLIC_PATH . '/' . $print));
+$started = microtime(true);
+$print = MangaIllustration::printFile($manga, MangaIllustration::names('Léa', 'Tornado'), Personalizer::config(json_encode(['mode' => 'ai_manga'])));
+$elapsed = microtime(true) - $started;
+$sheet = imagecreatefrompng(PUBLIC_PATH . '/' . $print);
+$alphaAt = static fn (int $x, int $y) => (imagecolorat($sheet, $x, $y) >> 24) & 0x7F;
+$artW = (int) round(880 * min(3600 / 880, 0.85 * 4800 / 1184));
+$left = (int) round((3600 - $artW) / 2);
+check('fichier d\'impression 3600 × 4800, fond transparent', imagesx($sheet) === 3600 && imagesy($sheet) === 4800 && $alphaAt(5, 4790) === 127);
+check('bords de l\'illustration en fondu léger', $alphaAt($left + 1, 2000) > 120 && $alphaAt($left + 60, 2000) > 20 && $alphaAt($left + 60, 2000) < 120 && $alphaAt(1800, 2000) === 0);
+$inkRows = 0;
+for ($y = (int) (0.86 * 4800); $y < 4800; $y += 8) {
+    for ($x = 400; $x < 3200; $x += 8) {
+        if ($alphaAt($x, $y) < 64) { $inkRows++; break; }
+    }
+}
+check('noms imprimés sous l\'illustration', $inkRows > 10 && MangaIllustration::names('Léa', '') === 'Léa' && MangaIllustration::names('', 'Tornado') === 'Tornado');
+check('composition rapide (< 15 s)', $elapsed < 15);
 @unlink(PUBLIC_PATH . '/' . $print);
 App\Core\Settings::set('ai_manga_face', 'VUE DE FACE, cadrage serré');
 check('partie variable personnalisable', str_ends_with(MangaIllustration::prompt('face', false), "\n\nVUE DE FACE, cadrage serré") && MangaIllustration::view('xyz') === 'face');

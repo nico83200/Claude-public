@@ -75,8 +75,14 @@ if ($cfg) {
           <?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?>
           <div class="gallery-zoom" data-zoom-layer>
           <img <?= img_attrs($images[0] ?? null, [600, 800, 1200], '(max-width: 960px) 100vw, 640px') ?> alt="<?= e(isset($styleThumbs[$images[0] ?? '']) ? $product['name'] . ' — style ' . $styleThumbs[$images[0]][1] : $product['name']) ?>" data-main-image data-full="<?= e(image_url($images[0] ?? null)) ?>" width="800" height="800" fetchpriority="high">
-          <?php if ($cfg && ($mode === 'photo' || $isManga)): ?>
-            <span class="preview-photo shape-<?= e($isManga ? 'rect' : $cfg['photo_shape']) ?>" data-preview-photo hidden></span>
+          <?php if ($cfg && $mode === 'photo'): ?>
+            <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
+          <?php endif; ?>
+          <?php if ($isManga): $ML = App\Services\MangaIllustration::LAYOUT; ?>
+            <span class="preview-photo manga-print" data-manga-print style="--art-h: <?= $ML['art_h'] * 100 ?>%; --fade: <?= $ML['fade'] * 100 ?>%" hidden>
+              <span class="manga-print-art" data-manga-art></span>
+              <span class="manga-print-names" data-manga-names></span>
+            </span>
           <?php endif; ?>
           <?php if ($cfg && !$isAi && !$isManga): ?>
             <span class="preview-text font-<?= e($cfg['font']) ?> <?= $cfg['uppercase'] && $cfg['font'] !== 'script' ? 'is-upper' : '' ?>" data-preview-text aria-hidden="true"></span>

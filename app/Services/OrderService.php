@@ -320,7 +320,7 @@ final class OrderService
                 if ($portrait['master_prediction_id'] && !$portrait['master_file']) {
                     $portrait = AiPortrait::refresh($portrait); // agrandissement terminé entre-temps ?
                 }
-                $fileUrl = url(MangaIllustration::printFile($portrait, $row['design_file'] ?: null, $text, Personalizer::config($row['personalization'])));
+                $fileUrl = url(MangaIllustration::printFile($portrait, $text, Personalizer::config($row['personalization'])));
                 Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);
                 $line['variant_id'] = (int) $row['printful_variant_id'];
                 $line['files'] = [['type' => $placement, 'url' => $fileUrl]];

@@ -135,8 +135,8 @@
       var idx = $$('[data-thumb]').indexOf(thumb);
       $$('.gallery-dots span').forEach(function (d, i) { d.classList.toggle('active', i === idx); });
       if (aiStage) aiStage.hidden = true;
-      var mangaOverlay = $('[data-manga-box]') && $('[data-preview-photo]');
-      if (mangaOverlay) mangaOverlay.hidden = true; // l'illustration n'est posée que sur le t-shirt vierge
+      var mangaOverlay = $('[data-manga-print]');
+      if (mangaOverlay) { mangaOverlay.hidden = true; mangaOverlay.parentNode.closest('[data-preview-stage]').classList.remove('manga-only'); }
       $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
       thumb.classList.add('active');
     });
@@ -898,7 +898,23 @@
       var mToken = $('[data-manga-token]', mangaBox);
       var mVersionsBox = $('[data-manga-versions]', mangaBox);
       var mVersionsList = $('[data-manga-versions-list]', mangaBox);
-      var mOverlay = $('[data-preview-photo]');
+      var mOverlay = $('[data-manga-print]');
+      var mArt = $('[data-manga-art]');
+      var mNamesEl = $('[data-manga-names]');
+      var mNameInputs = $$('[data-manga-name]', mangaBox);
+      var mSample = $('[data-manga-names-sample]', mangaBox);
+      // Prénom de la cavalière & nom du cheval, comme sur le fichier d'impression
+      var mNames = function () {
+        var vals = mNameInputs.map(function (i) {
+          var clean = i.value.replace(/[^\p{L}\p{N} '’&.\-]/gu, '');
+          if (clean !== i.value) i.value = clean;
+          return clean.trim();
+        }).filter(Boolean);
+        var text = vals.join(' & ');
+        if (mNamesEl) mNamesEl.textContent = text;
+        if (mSample) mSample.textContent = text || 'Léa & Tornado';
+      };
+      mNameInputs.forEach(function (i) { i.addEventListener('input', mNames); });
       var mVersions = [];
       var mFrom = null; // création déjà faite avec ces photos : l'autre vue les réutilise
       var mTimer = null;
@@ -943,13 +959,12 @@
       // Aperçu posé sur la photo du t-shirt vierge ; sans photo de t-shirt, l'illustration s'affiche en grand
       var mShow = function (preview) {
         $$('[data-thumb]').forEach(function (t) { t.classList.remove('active'); });
-        if (mangaBox.dataset.baseImage && mOverlay) {
-          setMain(mangaBox.dataset.baseImage);
-          mOverlay.style.backgroundImage = 'url("' + preview + '")';
-          mOverlay.hidden = false;
-        } else {
-          setMain(preview);
-        }
+        if (!mOverlay) { setMain(preview); return; }
+        if (mangaBox.dataset.baseImage) setMain(mangaBox.dataset.baseImage);
+        stage.classList.toggle('manga-only', !mangaBox.dataset.baseImage); // sans photo de t-shirt vierge : la feuille seule
+        mArt.style.backgroundImage = 'url("' + preview + '")';
+        mOverlay.hidden = false;
+        mNames();
       };
       var mSelect = function (v) {
         mToken.value = v.token;
