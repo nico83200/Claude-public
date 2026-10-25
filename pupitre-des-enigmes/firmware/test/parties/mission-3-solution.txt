@@ -1,0 +1,129 @@
+# Mission 3 · Signal Perdu — partie gagnante, variante « traître à bord » à 4 joueurs
+pose QUI M3
+retire QUI
+appui
+pose QUI R1
+retire QUI
+pose QUI R2
+retire QUI
+pose QUI R3
+retire QUI
+pose QUI R4
+retire QUI
+pose QUI R5
+retire QUI
+pose QUI R6
+retire QUI
+calme
+
+# --- La variante : 4 joueurs passent le casque
+verifie epreuve choix
+bouton VERT
+verifie epreuve traitre
+appui
+appui
+attendre 3
+appui
+attendre 3
+appui
+attendre 3
+appui
+attendre 3
+calme
+verifie drapeau variante
+verifie phase jeu
+
+# --- J1 : le sas, à l'écoute de la balise
+pose OU L2
+verifie sans J1
+pose OU L1
+verifie epreuve code
+pose QUI R4
+code 4,7,1,9
+verifie drapeau J1
+retire QUI
+
+# --- J2 : l'énergie (une surcharge, le diagnostic, puis la bonne répartition)
+pose OU L2
+verifie epreuve energie
+energie 3,3,2,2,1,0
+verifie epreuve energie
+pose QUI R2
+verifie compteur pouvoir_R2 0
+retire QUI
+energie 3,2,2,2,1,0
+verifie drapeau J2
+
+# --- Micro-météorite (minute 8)
+avance 10
+verifie epreuve ensemble
+ensemble 3500
+
+# --- Tour de la station
+pose OU L3
+pose OU L4
+pose OU L5
+pose OU L6
+pose OU L7
+
+# --- La Hackeuse au Pont : deux intrusions
+pose OU L2
+pose QUI R6
+pose QUI R6
+verifie compteur pouvoir_R6 0
+retire QUI
+
+# --- La Serre refuse, puis J3 au noyau, puis J5
+pose OU L9
+verifie sans J5
+pose OU L8
+verifie epreuve lettres
+lettres SILENCE
+verifie drapeau J3
+pose OU L9
+verifie drapeau J5
+
+# --- J4 : la transmission décodée
+pose QUOI O3
+verifie epreuve choix
+bouton BLEU
+verifie drapeau J4
+retire QUOI
+
+# --- Médecin et Biologiste
+pose QUI P5
+pose QUOI R5
+verifie compteur pouvoir_R5 2
+retire QUOI
+pose QUOI O9
+retire QUI
+retire QUOI
+pose QUI R3
+pose QUOI O7
+verifie compteur pouvoir_R3 1
+retire QUI
+retire QUOI
+
+# --- Dépressurisation (minute 18)
+avance 10
+verifie epreuve sequence
+sequence
+
+# --- Contrôle Mission, puis la réserve de la Commandante
+pose OU A3
+verifie compteur indices 1
+pose OU R1
+verifie compteur pouvoir_R1 0
+
+# --- Accuser HÉLIOS coûte une erreur ; puis la bonne réponse
+pose QUI P7
+pose OU L9
+pose QUOI O3
+bouton GROS
+bouton VERT
+verifie compteur erreurs 1
+pose QUI P5
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire

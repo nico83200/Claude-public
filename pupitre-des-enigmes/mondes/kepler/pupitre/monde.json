@@ -1,0 +1,27 @@
+{
+  "id": "kepler",
+  "nom": "Station Kepler-9",
+  "carte": "M3",
+  "aide": "A3",
+  "theme": {
+    "fond": "#0b1622",
+    "texte": "#d8ecf7",
+    "accent": "#3fc1e8",
+    "alerte": "#ff4d3d",
+    "doux": "#5f7f96"
+  },
+  "accueil": {
+    "dossier": 30,
+    "dire": 13,
+    "jingle_dossier": 31,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 3,
+      "titre": "Signal Perdu",
+      "script": "mission-3.json",
+      "repliques": "repliques-3.json"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+# Mission 2 · Le Casse du Siècle — partie gagnante complète
+pose QUI M2
+retire QUI
+appui
+verifie phase roles
+pose QUI R1
+retire QUI
+pose QUI R2
+retire QUI
+pose QUI R3
+retire QUI
+pose QUI R4
+retire QUI
+pose QUI R5
+retire QUI
+pose QUI R6
+retire QUI
+calme
+verifie phase jeu
+
+# --- J1 : le bluff du sergent (un faux numéro, puis 428)
+pose OU L1
+verifie epreuve code
+code 1,2,3
+verifie compteur soupcon 2
+# Le Cerveau annule aussitôt la hausse (Plan B)
+pose QUOI R1
+verifie compteur soupcon 0
+verifie compteur pouvoir_R1 0
+retire QUOI
+pose OU L1
+code 4,2,8
+verifie drapeau J1
+
+# --- J2 : le bluff de Pujol (Odessa) puis le bureau
+pose OU L6
+pose QUI P3
+verifie epreuve choix
+bouton BLEU
+verifie drapeau J2
+pose OU L6
+
+# --- J3 : les poches d'Albert, de Pujol et du baron
+pose QUI P4
+pose QUOI R5
+verifie drapeau jeton
+verifie compteur soupcon 1
+pose QUI P3
+pose QUOI R5
+pose QUOI R5
+pose QUI P1
+pose QUOI R5
+verifie compteur pouvoir_R5 0
+verifie compteur soupcon 3
+retire QUOI
+
+# --- Le garde passe (minute 8) : on ne touche à rien
+avance 10
+verifie epreuve immobile
+attendre 16
+calme
+verifie phase jeu
+
+# --- J4 : le couloir (les rondes)
+pose OU L7
+verifie epreuve rondes
+rondes
+verifie drapeau J4
+
+# --- Le champagne (minute 16)
+avance 10
+verifie epreuve ensemble
+ensemble 1500
+
+# --- J5 : le coffre, au stéthoscope
+pose OU L9
+verifie epreuve code
+pose QUI R2
+code 17,34,22
+verifie drapeau J5
+retire QUI
+
+# --- Le Faussaire expertise la pierre et le poudrier
+pose QUI R3
+pose QUOI O6
+pose QUOI O9
+verifie drapeau faux
+verifie compteur pouvoir_R3 1
+retire QUI
+
+# --- J6 : la loge
+pose OU L8
+verifie drapeau J6
+pose QUI P5
+pose QUOI O8
+pose QUI P2
+pose QUOI O10
+
+# --- Fernand
+pose OU A2
+verifie compteur indices 1
+
+# --- Madame Rose (24) puis Pujol (32)
+restant 27
+verifie epreuve choix
+bouton JAUNE
+
+# --- La Belle parole
+pose QUOI R6
+verifie compteur pouvoir_R6 0
+
+# --- Le coup final : la pierre en QUOI ne coûte rien, puis la bonne réponse
+pose QUI P2
+pose OU L9
+pose QUOI O6
+bouton GROS
+bouton VERT
+verifie compteur erreurs 0
+pose OU L8
+pose QUOI O9
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire

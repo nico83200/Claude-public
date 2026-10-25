@@ -1,0 +1,27 @@
+{
+  "id": "casse",
+  "nom": "Monte-Carlo 1928",
+  "carte": "M2",
+  "aide": "A2",
+  "theme": {
+    "fond": "#141019",
+    "texte": "#f2e6c9",
+    "accent": "#d4af37",
+    "alerte": "#b3202c",
+    "doux": "#8c7a5b"
+  },
+  "accueil": {
+    "dossier": 20,
+    "dire": 13,
+    "jingle_dossier": 21,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 2,
+      "titre": "Le Casse du Siècle",
+      "script": "mission-2.json",
+      "repliques": "repliques-2.json"
+    }
+  ]
+}

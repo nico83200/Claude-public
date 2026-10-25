@@ -266,6 +266,7 @@ void Moteur::commencerJeu() {
   phase_ = Phase::JEU;
   chronoActif_ = true;
   debutJeu_ = maintenant();
+  finJeu_ = 0;
   cumulPause_ = 0;
   derniereSauvegarde_ = maintenant();
   vue_.ecran = Vue::PRINCIPAL;
@@ -278,6 +279,7 @@ void Moteur::terminer(bool victoire, const std::string& cause) {
   phase_ = Phase::FIN;
   victoire_ = victoire;
   chronoActif_ = false;
+  finJeu_ = maintenant();
   if (ep_.active) {
     ep_.active = false;
     p_.arreter(true);
@@ -325,6 +327,17 @@ void Moteur::carte(Zone zone, const std::string& uid) {
   if (uid.empty()) {
     zones_[zone].clear();
     majZones();
+    // Retirer la carte Lieu abandonne une épreuve « quitter » (on pourra revenir).
+    if (ep_.active && zone == OU && ep_.def["quitter"].as<bool>()) {
+      ep_.active = false;
+      drapeaux_.erase("__ecoute");
+      drapeaux_.erase("__stethoscope");
+      p_.arreter(true);
+      vue_.ecran = Vue::PRINCIPAL;
+      vue_.info.clear();
+      vue_.bandeau.clear();
+      rafraichir();
+    }
     return;
   }
   if (phase_ == Phase::ACCUEIL || phase_ == Phase::CHOIX_MONDE) {
@@ -428,6 +441,18 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
   } else if (type == "lieu") {
     ev.type = "lieu";
     ev.lieu = id;
+  } else if (type == "perso" && typeCarte(zones_[QUOI]) == "role") {
+    // Une carte Rôle attend déjà sur QUOI : le pouvoir s'applique à ce personnage.
+    ev.type = "role";
+    ev.role = zones_[QUOI];
+    ev.qui = id;
+    ev.lieu = zones_[OU];
+  } else if (type == "objet" && typeCarte(zones_[QUI]) == "role") {
+    // Une carte Rôle attend déjà sur QUI : le pouvoir s'applique à cet objet.
+    ev.type = "role";
+    ev.role = zones_[QUI];
+    ev.quoi = id;
+    ev.lieu = zones_[OU];
   } else if (type == "perso") {
     ev.qui = id;
     std::string q = zones_[QUOI];
@@ -915,10 +940,16 @@ void Moteur::executerInterne(const Action& a) {
 }
 
 void Moteur::ajouterCompteur(const std::string& nom, int delta) {
+  int avant = compteurs_[nom];
   compteurs_[nom] += delta;
   if (nom != "soupcon") return;
   JsonVariantConst s = script_["soupcon"];
   if (compteurs_[nom] < 0) compteurs_[nom] = 0;
+  // Un avertissement quand la jauge franchit le seuil d'alerte.
+  JsonVariantConst alerte = s["alerte"];
+  int seuil = alerte["seuil"].as<int>();
+  if (seuil > 0 && avant < seuil && compteurs_[nom] >= seuil && compteurs_[nom] < s["max"].as<int>())
+    ajouterInterne(Action::de(Action::DIRE, dossierVoix_, alerte["dire"].as<int>()));
   if (delta > 0) {
     effet_ = "echec";
     finEffet_ = maintenant() + 600;
@@ -1174,6 +1205,7 @@ void Moteur::finEpreuve(bool reussi) {
   ep_.reussi = reussi;
   if (!ep_.def["boucle_casque"].isNull() || drapeaux_.count("__ecoute")) p_.arreter(true);
   drapeaux_.erase("__ecoute");
+  drapeaux_.erase("__stethoscope");
   effet_ = reussi ? "succes" : "echec";
   finEffet_ = maintenant() + 700;
   vue_.ecran = Vue::PRINCIPAL;
@@ -1470,12 +1502,19 @@ void Moteur::epreuveCarte(const std::string& id) {
   }
   JsonVariantConst aide = ep_.def["aides"][id];
   if (aide.isNull()) return;
-  if (pouvoirs_.count(id) && pouvoirs_[id] <= 0 && texte(aide["type"]) != "ecoute") {
+  std::string type = texte(aide["type"]);
+  bool illimite = type == "ecoute" || type == "stethoscope";
+  if (pouvoirs_.count(id) && pouvoirs_[id] <= 0 && !illimite) {
     JsonVariantConst epuise = script_["pouvoir_epuise"];
     if (!epuise.isNull()) dire(dossierVoix_, epuise.as<int>(), false, false, false);
     return;
   }
-  std::string type = texte(aide["type"]);
+  if (type == "reussir") {  // le pouvoir fait sauter l'épreuve (ex. : le monte-plats)
+    pouvoirs_[id]--;
+    if (!aide["dire"].isNull()) dire(dossierVoix_, aide["dire"].as<int>(), false, false, false);
+    finEpreuve(true);
+    return;
+  }
   if (type == "barrer" && ep_.type == "choix" && ep_.barre < 0) {
     std::vector<int> faux;
     for (int i = 0; i < 4; i++)
@@ -1700,7 +1739,7 @@ void Moteur::enregistrerScore() {
 
 int Moteur::secondesEcoulees() const {
   if (!debutJeu_) return 0;
-  uint32_t t = p_.maintenant() + decalage_;
+  uint32_t t = finJeu_ ? finJeu_ : p_.maintenant() + decalage_;  // figé en fin de partie
   uint32_t pauses = cumulPause_ + (pause_ ? t - debutPause_ : 0);
   return static_cast<int>((t - debutJeu_ - pauses) / 1000);
 }
@@ -1876,6 +1915,7 @@ bool Moteur::restaurer() {
   for (JsonPairConst kv : d["pouvoirs"].as<JsonObjectConst>()) pouvoirs_[kv.key().c_str()] = kv.value().as<int>();
   for (JsonPairConst kv : d["aide"].as<JsonObjectConst>()) niveauxAide_[kv.key().c_str()] = kv.value().as<int>();
   debutJeu_ = maintenant() - d["ecoule"].as<uint32_t>() * 1000;
+  finJeu_ = 0;
   cumulPause_ = 0;
   for (JsonPairConst kv : script_["roles"].as<JsonObjectConst>()) rolesPresents_.insert(kv.key().c_str());
   return true;

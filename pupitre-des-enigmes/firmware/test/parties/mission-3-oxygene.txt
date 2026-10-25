@@ -1,0 +1,26 @@
+# Mission 3 · sans variante, on laisse filer l'oxygène et tous les imprévus échouent
+pose QUI M3
+retire QUI
+appui
+pose QUI R1
+retire QUI
+bouton VERT
+calme
+verifie epreuve choix
+bouton ROUGE
+verifie sans variante
+verifie phase jeu
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+calme
+verifie phase defaite

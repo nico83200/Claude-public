@@ -1,0 +1,34 @@
+# Mission 1 · pause, coupure de courant, puis reprise de la partie
+pose QUI M1
+retire QUI
+appui
+pose QUI R3
+retire QUI
+bouton VERT
+calme
+pose OU L1
+verifie drapeau J1
+pose OU L3
+code 3,7,1,5
+verifie drapeau J3
+
+# La pause fige le chrono
+commande pause
+attendre 120
+commande reprise
+
+# Le pupitre sauvegarde toutes les minutes : on laisse passer deux minutes
+avance 2
+redemarre
+verifie phase accueil
+pose QUI M1
+retire QUI
+verifie phase menu
+appui
+calme
+verifie phase jeu
+verifie drapeau J1
+verifie drapeau J3
+verifie sans J2
+verifie compteur pouvoir_R3 2
+verifie compteur pouvoir_R6 0

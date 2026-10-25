@@ -203,7 +203,7 @@ class Moteur {
   Fenetre fenetre_;
 
   // Chrono : secondes de jeu écoulées = (maintenant - debutJeu_ - pauses) / 1000.
-  uint32_t debutJeu_ = 0, debutPause_ = 0, cumulPause_ = 0, derniereSauvegarde_ = 0, derniereSeconde_ = 0;
+  uint32_t debutJeu_ = 0, finJeu_ = 0, debutPause_ = 0, cumulPause_ = 0, derniereSauvegarde_ = 0, derniereSeconde_ = 0;
   int bonusSecondes_ = 0;
   bool pause_ = false, chronoActif_ = false;
   int ambiance_ = 0;

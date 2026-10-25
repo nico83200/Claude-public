@@ -13,6 +13,7 @@
 //   ensemble <ms>             rythme <ms,ms,...> <n>  sequence      rondes      molette_zero
 //   commande <texte>          avance <minutes>        (fait passer le temps de jeu ;
 //                                                      s'arrête si une épreuve commence)
+//   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type>
 #include <cstdio>
@@ -20,6 +21,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -186,10 +188,10 @@ int main(int argc, char** argv) {
   srand(7);
   bool bavard = argc > 3 && std::string(argv[3]) == "--bavard";
   PlateformeSimulee p(argv[1], bavard);
-  Moteur m(p);
+  auto instance = std::make_unique<Moteur>(p);
   plateforme = &p;
-  moteur = &m;
-  m.demarrer();
+  moteur = instance.get();
+  moteur->demarrer();
   calme();
 
   std::ifstream partie(argv[2]);
@@ -201,6 +203,7 @@ int main(int argc, char** argv) {
     std::stringstream ss(ligne);
     std::string cmd, a, b, c;
     ss >> cmd >> a >> b >> c;
+    Moteur& m = *moteur;
     int restant = m.secondesRestantes();
     if (bavard) printf("%3d:%02d ▶ %s\n", restant / 60, std::abs(restant % 60), ligne.c_str());
 
@@ -233,6 +236,12 @@ int main(int argc, char** argv) {
       }
       if (m.attendJoueurs()) printf("  … épreuve « %s » lancée\n", m.epreuveType().c_str());
       else calme();
+    } else if (cmd == "redemarre") {
+      // Coupure de courant : un moteur neuf, la carte SD (et sa sauvegarde) restent.
+      instance = std::make_unique<Moteur>(p);
+      moteur = instance.get();
+      moteur->demarrer();
+      calme();
     } else if (cmd == "calme") {
       calme();
     } else if (cmd == "code") {
@@ -306,8 +315,8 @@ int main(int argc, char** argv) {
       echecs++;
     }
   }
-  int r = m.secondesRestantes();
-  printf("\nFin : phase %s, %d répliques jouées, temps restant %d:%02d, %d échec(s).\n", m.phaseTexte().c_str(), p.repliques,
+  int r = moteur->secondesRestantes();
+  printf("\nFin : phase %s, %d répliques jouées, temps restant %d:%02d, %d échec(s).\n", moteur->phaseTexte().c_str(), p.repliques,
          r / 60, std::abs(r % 60), echecs);
   return echecs ? 1 : 0;
 }
