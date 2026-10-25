@@ -69,7 +69,7 @@ class Version224RequestsTest extends TestCase
         $this->actingAs($user)->get(route('health.index', ['onglet' => 'suivi']))->assertOk()->assertDontSee('data-log-all-good', false)->assertSee('data-log-detailed', false);
 
         $this->actingAs($user)->post(route('horses.logs.store', $horse), ['appetite' => 'good', 'general_state' => 'good', 'all_good' => '1'])
-            ->assertSessionHas('success', 'C\'est noté : tout va bien aujourd\'hui.');
+            ->assertSessionHas('success', 'C\'est noté : rien à signaler aujourd\'hui.');
         $this->actingAs($user)->post(route('horses.logs.store', $horse), ['logged_at' => '2026-10-14 18:30', 'appetite' => 'reduced', 'general_state' => 'average', 'observations' => 'Un peu raide'])->assertSessionHas('success');
         $log = DailyLog::where('appetite', 'reduced')->sole();
         $this->assertSame('2026-10-14 18:30', $log->logged_at->format('Y-m-d H:i'));

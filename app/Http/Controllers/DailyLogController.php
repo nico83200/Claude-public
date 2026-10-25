@@ -33,6 +33,7 @@ class DailyLogController extends Controller
             'horse' => $horse,
             'logs' => $horse->dailyLogs()->with('author')->paginate(30)->withQueryString(),
             'canCreate' => $this->horseCan($horse, Perm::DAILYLOG_CREATE),
+            'openPoint' => $horse->observations()->whereNull('resolved_at')->exists(),
             'perms' => app(HorseAccess::class)->permissions(auth()->user(), $horse),
         ]);
     }
@@ -48,7 +49,7 @@ class DailyLogController extends Controller
             ObservationController::notifyManagers($horse, $request->user(), $access, 'Suivi quotidien : '.$horse->shortName(), 'Un point d\'attention a été noté dans le suivi quotidien par '.$request->user()->name.'.');
         }
 
-        return back()->with('success', $request->boolean('all_good') ? 'C\'est noté : tout va bien aujourd\'hui.' : 'Suivi quotidien enregistré.');
+        return back()->with('success', $request->boolean('all_good') ? 'C\'est noté : rien à signaler aujourd\'hui.' : 'Suivi quotidien enregistré.');
     }
 
     /** « Tout va bien pour tous » : un suivi « bon » pour chaque cheval choisi qui n'en a pas encore aujourd'hui. */

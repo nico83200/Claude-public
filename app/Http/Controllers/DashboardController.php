@@ -128,6 +128,8 @@ class DashboardController extends Controller
             // Rendez-vous groupé : autres chevaux avec la même échéance à prévoir (pas encore dans l'agenda).
             'groupable' => $has(Perm::HEALTH_EDIT) ? $this->groupable($user, $access, $horse, $checks) : collect(),
             'observations' => HealthObservation::where('horse_id', $horse->id)->whereNull('resolved_at')->where('severity', '!=', 'info')->latest('observed_at')->limit(3)->get(),
+            // « Rien à signaler » masqué tant qu'un point d'attention est en cours (même une simple remarque).
+            'openPoint' => HealthObservation::where('horse_id', $horse->id)->whereNull('resolved_at')->exists(),
             'weights' => $horse->measurements()->reorder()->whereNotNull('weight_kg')->latest('measured_on')->latest('id')->limit(2)->get(),
             'rations' => $has(Perm::FEEDING_VIEW) ? $horse->rations()->activeToday()->with('entries')->get() : collect(),
             'sessionsWeek' => $has(Perm::SESSIONS_VIEW) ? RidingSession::where('horse_id', $horse->id)->where('status', 'completed')

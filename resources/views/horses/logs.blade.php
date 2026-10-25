@@ -26,6 +26,13 @@
         @if ($canCreate)
         <div class="order-1 space-y-3 lg:order-2">
             <a href="{{ route('horses.observations.create', $horse) }}" class="btn-secondary min-h-12 w-full gap-2" data-log-attention><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>
+            @unless ($openPoint)
+                <form method="POST" action="{{ route('horses.logs.store', $horse) }}" data-log-nothing>
+                    @csrf
+                    <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
+                    <button class="btn-secondary min-h-12 w-full gap-2"><x-icon name="check" class="size-4 text-brand-700" /> Rien à signaler</button>
+                </form>
+            @endunless
             <details class="card p-4" open data-log-detailed>
                 <summary class="flex min-h-11 cursor-pointer items-center font-semibold">Saisie détaillée</summary>
                 <form method="POST" action="{{ route('horses.logs.store', $horse) }}" class="mt-3 space-y-3">

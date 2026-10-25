@@ -62,12 +62,19 @@
 
     {{-- 2. Gestes du jour : un toucher --}}
     <div class="mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" data-solo-actions>
+        @if ($can('comments.create'))<a href="{{ route('horses.observations.create', $horse) }}" class="pill col-span-2 min-h-12 justify-center gap-2 bg-white px-4 font-semibold text-slate-800 ring-1 ring-amber-300 sm:col-span-1" data-solo-attention-new><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>@endif
         @if ($can('dailylog.create'))
             @if ($todayLog)
                 <a href="{{ route('horses.logs.index', $horse) }}" class="pill col-span-2 min-h-12 justify-center gap-2 bg-brand-50 px-4 font-semibold text-brand-900 ring-1 ring-brand-200 sm:col-span-1" data-solo-log-done><x-icon name="check" class="size-5" /> Suivi du jour noté</a>
+            @elseif (! $openPoint)
+                {{-- Journée sans histoire, en un geste ; jamais tant qu'un point d'attention est en cours. --}}
+                <form method="POST" action="{{ route('horses.logs.store', $horse) }}" data-solo-nothing>
+                    @csrf
+                    <input type="hidden" name="appetite" value="good"><input type="hidden" name="general_state" value="good"><input type="hidden" name="all_good" value="1">
+                    <button class="pill min-h-12 w-full justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="check" class="size-4 text-brand-700" /> Rien à signaler</button>
+                </form>
             @endif
         @endif
-        @if ($can('comments.create'))<a href="{{ route('horses.observations.create', $horse) }}" class="pill col-span-2 min-h-12 justify-center gap-2 bg-white px-4 font-semibold text-slate-800 ring-1 ring-amber-300 sm:col-span-1" data-solo-attention-new><x-icon name="alert" class="size-4 text-amber-600" /> Quelque chose d'inhabituel ?</a>@endif
         @if ($can('sessions.create'))<a href="{{ route('sessions.create', ['fait' => 1]) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="session" class="size-4" /> Je viens de monter</a>@endif
         @if ($can('health.edit'))<a href="{{ route('horses.care.create', $horse) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="health" class="size-4" /> Noter un soin</a>@endif
         <a href="{{ route('horses.weight', $horse) }}" class="pill min-h-12 justify-center gap-2 bg-white px-4 text-slate-800 ring-1 ring-slate-200"><x-icon name="scale" class="size-4" /> Pesée</a>
