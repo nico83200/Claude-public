@@ -48,8 +48,15 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <h2><?= $nbCollections > 1 ? e(number_words($nbCollections, true)) . ' façons' : 'Une façon' ?> de <em>vivre votre passion</em></h2>
     </div>
     <div class="collections">
-      <?php foreach ($categories as $i => $c): ?>
-        <a class="collection-card" href="<?= e(url('categorie/' . $c['slug'])) ?>">
+      <?php
+      $nbCols = count($categories);
+      $lastRow = ($nbCols + 1) % 3; // la première carte occupe 2 cases
+      foreach ($categories as $i => $c):
+          $cls = $i === 0 && $nbCols > 2 ? 'is-feature' : '';
+          if ($i === $nbCols - 1 && $nbCols > 2 && $lastRow === 1) { $cls = 'is-wide-3'; }
+          if ($i === $nbCols - 1 && $nbCols > 2 && $lastRow === 2) { $cls = 'is-wide-2'; }
+      ?>
+        <a class="collection-card <?= $cls ?>" href="<?= e(url('categorie/' . $c['slug'])) ?>">
           <div class="collection-media"><img <?= img_attrs(Catalog::categoryImage($c), [400, 600, 800], '(max-width: 960px) 90vw, 400px') ?> alt="" loading="lazy" width="600" height="600"></div>
           <div class="collection-body">
             <span class="collection-index">0<?= $i + 1 ?></span>

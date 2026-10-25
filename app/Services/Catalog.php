@@ -125,6 +125,11 @@ final class Catalog
         if (!empty($filters['personalizable'])) {
             $where[] = 'p.personalizable = 1';
         }
+        if (!empty($filters['audience']) && isset(self::AUDIENCES[$filters['audience']])) {
+            // « Pour elle » : articles pour elle + articles pour tous
+            $where[] = "(p.audience = ? OR p.audience = 'tous' OR p.audience IS NULL)";
+            $params[] = $filters['audience'];
+        }
         if (!empty($filters['featured'])) {
             $where[] = 'p.featured = 1';
         }
@@ -168,6 +173,21 @@ final class Catalog
             }
         }
         return $out;
+    }
+
+    public const AUDIENCES = ['elle' => 'Pour elle', 'lui' => 'Pour lui'];
+
+    /** « elle », « lui » ou « tous », déduit du nom du produit et de sa collection. */
+    public static function guessAudience(string $name, string $category = ''): string
+    {
+        $text = mb_strtolower($name . ' ' . $category);
+        if (preg_match('/\b(homme|hommes|lui|mari|conjoint|conjoints|papa|monsieur)\b/u', $text)) {
+            return 'lui';
+        }
+        if (preg_match('/\b(femme|femmes|elle|cavalière|cavalières|maman|madame|fille)\b/u', $text)) {
+            return 'elle';
+        }
+        return 'tous';
     }
 
     /** Synonymes courants (« tee-shirt » trouve les t-shirts, « tasse » les mugs…). */

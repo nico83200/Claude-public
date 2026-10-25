@@ -165,6 +165,7 @@ final class ProductsController extends BaseController
             'compare_at_price'  => input('compare_at_price') !== '' ? to_cents(input('compare_at_price')) : null,
             'images'            => json_encode($images, JSON_UNESCAPED_SLASHES),
             'featured'          => input('featured') ? 1 : 0,
+            'audience'          => in_array(input('audience'), ['elle', 'lui', 'tous'], true) ? (string) input('audience') : Catalog::guessAudience($name),
             'active'            => input('active') ? 1 : 0,
             'personalizable'    => $personalizable,
             'personalization'   => json_encode($personalization, JSON_UNESCAPED_UNICODE),
@@ -407,6 +408,7 @@ final class ProductsController extends BaseController
                 }
                 $productId = Database::insert('products', $productData + [
                     'name'        => mb_substr($sp['name'], 0, 190),
+                    'audience'    => Catalog::guessAudience((string) $sp['name']),
                     'slug'        => $slug,
                     'category_id' => (int) input('category_id') ?: null,
                     'price'       => $basePrice,

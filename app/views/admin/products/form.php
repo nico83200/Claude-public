@@ -114,6 +114,14 @@ $blankRows = $variants ? 2 : 4;
       <section class="card">
         <label class="checkbox"><input type="checkbox" name="active" value="1" <?= $product['active'] ? 'checked' : '' ?>> En ligne</label>
         <label class="checkbox"><input type="checkbox" name="featured" value="1" <?= $product['featured'] ? 'checked' : '' ?>> Mis en avant sur l'accueil</label>
+        <label>Pour qui ? (filtres « Pour elle / Pour lui »)
+          <select name="audience">
+            <?php $aud = $product['audience'] ?? ($product['id'] ? 'tous' : ''); ?>
+            <?php if (!$product['id']): ?><option value="">Deviner d'après le nom</option><?php endif; ?>
+            <option value="tous" <?= $aud === 'tous' ? 'selected' : '' ?>>Pour tous</option>
+            <option value="elle" <?= $aud === 'elle' ? 'selected' : '' ?>>Pour elle</option>
+            <option value="lui" <?= $aud === 'lui' ? 'selected' : '' ?>>Pour lui</option>
+          </select></label>
         <label>Catégorie
           <select name="category_id"><option value="">—</option>
             <?php foreach ($categories as $c): ?><option value="<?= (int) $c['id'] ?>" <?= (int) $product['category_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?>

@@ -85,6 +85,7 @@ CREATE TABLE products (
     featured TINYINT(1) NOT NULL DEFAULT 0,
     active TINYINT(1) NOT NULL DEFAULT 1,
     personalizable TINYINT(1) NOT NULL DEFAULT 0,
+    audience VARCHAR(10) NULL,
     personalization TEXT NULL,
     design_file VARCHAR(255) NULL,
     print_placement VARCHAR(40) NOT NULL DEFAULT 'front',

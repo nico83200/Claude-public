@@ -31,6 +31,7 @@ final class ShopController
             'q'              => mb_substr((string) input('q', ''), 0, 80),
             'sort'           => (string) input('tri', 'featured'),
             'personalizable' => input('personnalisable') === '1',
+            'audience'       => in_array(input('pour'), ['elle', 'lui'], true) ? (string) input('pour') : null,
             'max_price'      => input('prix_max') ? max(0, (int) input('prix_max')) * 100 : null,
         ];
         if (!array_key_exists($filters['sort'], Catalog::SORTS)) {
@@ -43,6 +44,8 @@ final class ShopController
             $title = 'Idées cadeaux à moins de ' . ($filters['max_price'] / 100) . ' €';
         } elseif (!$category && $filters['personalizable']) {
             $title = 'À personnaliser';
+        } elseif (!$category && $filters['audience']) {
+            $title = $filters['audience'] === 'lui' ? 'Pour lui : idées pour les hommes de cavalières' : 'Pour elle : la boutique des cavalières';
         }
         $page = max(1, (int) input('page', 1));
         $total = Catalog::count($filters);
@@ -262,16 +265,7 @@ final class ShopController
     /** Date limite de commande pour une livraison avant Noël (affichée du 15 octobre à cette date). */
     private static function christmasDeadline(): ?string
     {
-        $year = (int) date('Y');
-        $deadline = mktime(12, 0, 0, 12, 22, $year);
-        $days = (int) setting('production_max', 5) + (int) setting('shipping_standard_max', 8);
-        while ($days > 0) {
-            $deadline -= 86400;
-            if ((int) date('N', $deadline) < 6) {
-                $days--;
-            }
-        }
-        $now = time();
-        return $now >= mktime(0, 0, 0, 10, 15, $year) && $now <= $deadline ? date_short_fr($deadline) : null;
+        $deadline = christmas_deadline();
+        return $deadline ? date_short_fr($deadline) : null;
     }
 }

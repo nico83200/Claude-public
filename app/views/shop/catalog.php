@@ -5,11 +5,12 @@ $query = array_filter([
     'tri'             => $filters['sort'] !== 'featured' ? $filters['sort'] : null,
     'personnalisable' => $filters['personalizable'] ? 1 : null,
     'prix_max'        => $filters['max_price'] ? $filters['max_price'] / 100 : null,
+    'pour'            => $filters['audience'] ?? null,
 ]);
 $base = $category ? 'categorie/' . $category['slug'] : 'boutique';
 $toggle = static fn (string $key, $value) => isset($query[$key]) ? array_diff_key($query, [$key => 1]) : $query + [$key => $value];
 $sorts = ['featured' => 'Nos coups de cœur', 'bestsellers' => 'Meilleures ventes', 'new' => 'Nouveautés', 'rating' => 'Mieux notés', 'price_asc' => 'Prix croissant', 'price_desc' => 'Prix décroissant'];
-$activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_price'] + (int) ($filters['sort'] !== 'featured');
+$activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_price'] + (int) ($filters['sort'] !== 'featured') + (int) !empty($filters['audience']);
 ?>
 <section class="page-hero">
   <div class="container">
@@ -27,6 +28,9 @@ $activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_p
         <a class="chip <?= !$category ? 'active' : '' ?>" href="<?= e(url('boutique', array_diff_key($query, ['q' => 1]))) ?>">Tout</a>
         <?php foreach ($categories as $c): ?>
           <a class="chip <?= $category && $category['id'] == $c['id'] ? 'active' : '' ?>" href="<?= e(url('categorie/' . $c['slug'], array_diff_key($query, ['q' => 1]))) ?>"><?= e($c['name']) ?></a>
+        <?php endforeach; ?>
+        <?php foreach (App\Services\Catalog::AUDIENCES as $k => $label): ?>
+          <a class="chip <?= ($filters['audience'] ?? null) === $k ? 'active' : '' ?>" href="<?= e(url($base, ($filters['audience'] ?? null) === $k ? array_diff_key($query, ['pour' => 1]) : ['pour' => $k] + $query)) ?>"><?= e($label) ?></a>
         <?php endforeach; ?>
         <a class="chip chip-rose <?= $filters['personalizable'] ? 'active' : '' ?>" href="<?= e(url($base, $toggle('personnalisable', 1))) ?>"><?= icon('sparkle', 14) ?> À personnaliser</a>
         <a class="chip chip-rose <?= $filters['max_price'] ? 'active' : '' ?>" href="<?= e(url($base, $toggle('prix_max', $giftMax))) ?>"><?= icon('gift', 14) ?> Moins de <?= (int) $giftMax ?> €</a>
@@ -64,6 +68,14 @@ $activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_p
           <div class="chips">
             <?php foreach ([0 => 'Tous les prix', 20 => 'Moins de 20 €', 30 => 'Moins de 30 €', 50 => 'Moins de 50 €', 80 => 'Moins de 80 €'] as $v => $label): ?>
               <label class="chip chip-radio"><input type="radio" name="prix_max" value="<?= $v ?: '' ?>" <?= (int) ($filters['max_price'] / 100) === $v ? 'checked' : '' ?>><span><?= e($label) ?></span></label>
+            <?php endforeach; ?>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Pour qui ?</legend>
+          <div class="chips">
+            <?php foreach (['' => 'Pour tous'] + App\Services\Catalog::AUDIENCES as $k => $label): ?>
+              <label class="chip chip-radio"><input type="radio" name="pour" value="<?= $k ?>" <?= ($filters['audience'] ?? '') === $k ? 'checked' : '' ?>><span><?= e($label) ?></span></label>
             <?php endforeach; ?>
           </div>
         </fieldset>

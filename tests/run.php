@@ -456,6 +456,14 @@ ob_start();
 $homeTitle = (string) ob_get_clean();
 check('titre adapté au nombre de collections', str_contains($homeTitle, ucfirst(number_words(count(App\Services\Catalog::categories()))) . ' façons de'));
 
+echo "Pour elle / pour lui, couleurs, Noël\n";
+check('public deviné d\'après le nom', App\Services\Catalog::guessAudience('T-shirt homme « J\'ai épousé la cavalière »') === 'lui'
+    && App\Services\Catalog::guessAudience('T-shirt femme « Où part tout mon argent ? »') === 'elle'
+    && App\Services\Catalog::guessAudience('T-shirt', 'Pour les conjoints') === 'lui' && App\Services\Catalog::guessAudience('Mug du club') === 'tous');
+check('couleurs Printful en français', color_label('Washed Lavender') === 'Lavande délavée' && color_label('Heather Navy') === 'Bleu marine chiné' && variant_label('Black / XL') === 'Noir / XL');
+$cartLine = ['x' => ['variant_id' => (int) $poster['id'], 'qty' => 2, 'text' => '', 'photo' => null, 'year' => '', 'portrait' => null]];
+check('achat express : article seul, hors panier', count(Cart::itemsFor($cartLine)) === 1 && Cart::itemsFor($cartLine)[0]['qty'] === 2);
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -645,7 +653,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('quatorze migrations connues', count(App\Core\Migrator::files()) === 14);
+check('quinze migrations connues', count(App\Core\Migrator::files()) === 15);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

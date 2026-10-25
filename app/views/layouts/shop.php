@@ -13,8 +13,14 @@ $success = flash('success');
 $error = flash('error');
 $socials = array_filter(['Instagram' => setting('social_instagram'), 'Facebook' => setting('social_facebook'), 'TikTok' => setting('social_tiktok'), 'Pinterest' => setting('social_pinterest')]);
 $announcements = array_values(array_filter(array_map('trim', explode('|', (string) setting('announcement')))));
+// Compte à rebours de Noël (novembre → date limite de livraison), en tête du bandeau
+if (setting('christmas_banner', '1') === '1' && ($xmas = christmas_deadline(11, 1))) {
+    $xmasDays = (int) ceil(($xmas - time()) / 86400);
+    array_unshift($announcements, '🎄 Livrée avant Noël : commande avant le ' . date_short_fr($xmas) . ($xmasDays <= 10 ? ' (plus que ' . $xmasDays . ' jour' . ($xmasDays > 1 ? 's' : '') . ' !)' : ''));
+}
 $welcomeOffer = App\Services\WelcomeOffer::active() ? App\Services\WelcomeOffer::label() : '';
 $customer = App\Services\Account::current();
+$bottomNav = !preg_match('#^/(commande|admin)#', request_path());
 // Popup newsletter : jamais pendant l'achat ni dans l'espace cliente
 $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
     && !preg_match('#^/(panier|commande|compte|suivi)#', request_path());
@@ -41,7 +47,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
 <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
 <?php if (!empty($jsonLd)): ?><script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script><?php endif; ?>
 </head>
-<body data-wishlist-url="<?= e(url('favoris')) ?>" data-wishlist-sync="<?= e(url('favoris/synchroniser')) ?>"<?= $customer ? ' data-wishlist-server="' . e(json_encode(App\Services\Wishlist::ids((int) $customer['id']))) . '"' : '' ?> data-ga4="<?= e(config('analytics.ga4_id')) ?>" data-pixel="<?= e(config('analytics.meta_pixel_id')) ?>" data-cart-url="<?= e(url('panier/apercu')) ?>">
+<body class="<?= $bottomNav ? 'has-bottom-nav' : '' ?>" data-wishlist-url="<?= e(url('favoris')) ?>" data-wishlist-sync="<?= e(url('favoris/synchroniser')) ?>"<?= $customer ? ' data-wishlist-server="' . e(json_encode(App\Services\Wishlist::ids((int) $customer['id']))) . '"' : '' ?> data-ga4="<?= e(config('analytics.ga4_id')) ?>" data-pixel="<?= e(config('analytics.meta_pixel_id')) ?>" data-cart-url="<?= e(url('panier/apercu')) ?>">
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 
 <?php if ($announcements): ?>
@@ -65,6 +71,8 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
             <a href="<?= e(url('categorie/' . $c['slug'])) ?>" class="<?= is_active('/categorie/' . $c['slug']) ? 'active' : '' ?>"><?= e($c['name']) ?></a>
           <?php endforeach; ?>
           <span class="nav-sub-sep" aria-hidden="true"></span>
+          <a href="<?= e(url('boutique', ['pour' => 'elle'])) ?>">Pour elle</a>
+          <a href="<?= e(url('boutique', ['pour' => 'lui'])) ?>">Pour lui</a>
           <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a>
           <a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a>
         </div>
@@ -204,6 +212,16 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
     <span class="pay-methods" aria-label="Moyens de paiement acceptés"><span>CB</span><span>VISA</span><span>Mastercard</span><span>Apple Pay</span><span>Google Pay</span></span>
   </div>
 </footer>
+
+<?php if ($bottomNav): ?>
+<nav class="bottom-nav" aria-label="Navigation rapide">
+  <a href="<?= e(url('/')) ?>" class="<?= request_path() === '/' ? 'active' : '' ?>"><?= icon('home', 22) ?>Accueil</a>
+  <a href="<?= e(url('boutique')) ?>" class="<?= is_active('/boutique') || is_active('/categorie') || is_active('/produit') ? 'active' : '' ?>"><?= icon('grid', 22) ?>Boutique</a>
+  <a href="<?= e(url('favoris')) ?>" data-wish-link class="<?= is_active('/favoris') ? 'active' : '' ?>"><?= icon('heart', 22) ?>Favoris<span class="cart-count" data-wish-count hidden>0</span></a>
+  <a href="<?= e(url('compte')) ?>" class="<?= is_active('/compte') ? 'active' : '' ?>"><?= icon('user', 22) ?>Compte</a>
+  <a href="<?= e(url('panier')) ?>" data-cart-open class="<?= is_active('/panier') ? 'active' : '' ?>"><?= icon('bag', 22) ?>Panier<span class="cart-count" data-cart-count <?= $cartCount ? '' : 'hidden' ?>><?= $cartCount ?></span></a>
+</nav>
+<?php endif; ?>
 
 <!-- Mini-panier -->
 <div class="drawer-backdrop" data-drawer-backdrop hidden></div>

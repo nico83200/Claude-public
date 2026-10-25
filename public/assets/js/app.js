@@ -392,16 +392,26 @@
     });
   }
 
+  // Transition de page : la photo du produit cliqué « glisse » vers la fiche produit
+  if (document.startViewTransition !== undefined || 'onpagereveal' in window) {
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('.product-card-link');
+      if (!link) return;
+      var img = link.querySelector('.product-card-media img');
+      if (img) img.style.viewTransitionName = 'product-photo';
+    });
+  }
+
   // Mini-panier ------------------------------------------------------------
   var drawer = $('[data-drawer]');
   var backdrop = $('[data-drawer-backdrop]');
   var drawerContent = $('[data-drawer-content]');
-  var cartCount = $('[data-cart-count]');
   var setCount = function (n) {
-    if (!cartCount) return;
-    cartCount.textContent = n;
-    cartCount.hidden = !n;
-    cartCount.classList.remove('bump'); void cartCount.offsetWidth; cartCount.classList.add('bump');
+    $$('[data-cart-count]').forEach(function (cartCount) {
+      cartCount.textContent = n;
+      cartCount.hidden = !n;
+      cartCount.classList.remove('bump'); void cartCount.offsetWidth; cartCount.classList.add('bump');
+    });
   };
   var openDrawer = function (html) {
     if (!drawer) return;
@@ -424,8 +434,7 @@
     $$('[data-drawer-close]').forEach(function (b) { b.addEventListener('click', closeDrawer); });
     backdrop.addEventListener('click', closeDrawer);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer(); });
-    var cartLink = $('[data-cart-open]');
-    if (cartLink && location.pathname.indexOf('/panier') === -1) {
+    if (location.pathname.indexOf('/panier') === -1) $$('[data-cart-open]').forEach(function (cartLink) {
       cartLink.addEventListener('click', function (e) {
         if (e.metaKey || e.ctrlKey) return;
         e.preventDefault();
@@ -435,7 +444,7 @@
           .then(function (html) { drawerContent.innerHTML = html; })
           .catch(function () { location.href = cartLink.href; });
       });
-    }
+    });
   }
 
   // Fiche produit : variantes, personnalisation, ajout au panier ----------

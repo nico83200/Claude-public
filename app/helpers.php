@@ -360,6 +360,8 @@ function icon(string $name, int $size = 20): string
         'calendar' => 'M4 6h16v14H4zM4 10h16M8 3v4m8-4v4',
         'star'     => 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z',
         'copy'     => 'M9 9h11v11H9zM5 15H4V4h11v1',
+        'home'     => 'M3 11.5 12 4l9 7.5M5.5 9.8V20h13V9.8',
+        'grid'     => 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
         'user'     => 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7.5 8a7.5 7.5 0 0 1 15 0',
     ];
     $d = $paths[$name] ?? $paths['sparkle'];
@@ -452,4 +454,23 @@ function color_label(?string $color): string
 function variant_label(?string $name): string
 {
     return implode(' / ', array_map(static fn ($p) => color_label($p) ?: $p, array_map('trim', explode('/', (string) $name))));
+}
+
+/**
+ * Dernier jour pour commander et être livré avant Noël (le 22 décembre au plus tard), en jours ouvrés
+ * de fabrication + livraison standard. Null en dehors de la période ($fromMonth/$fromDay → date limite).
+ */
+function christmas_deadline(int $fromMonth = 10, int $fromDay = 15): ?int
+{
+    $year = (int) date('Y');
+    $deadline = mktime(12, 0, 0, 12, 22, $year);
+    $days = (int) setting('production_max', 5) + (int) setting('shipping_standard_max', 8);
+    while ($days > 0) {
+        $deadline -= 86400;
+        if ((int) date('N', $deadline) < 6) {
+            $days--;
+        }
+    }
+    $now = time();
+    return $now >= mktime(0, 0, 0, $fromMonth, $fromDay, $year) && $now <= $deadline ? $deadline : null;
 }
