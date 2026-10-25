@@ -360,7 +360,7 @@ $_SERVER['REQUEST_URI'] = '/';
 ob_start();
 (new App\Controllers\HomeController())->index();
 $homeAdmin = (string) ob_get_clean();
-check('image d\'accueil remplacée et réduite à 2000 px', str_contains($homeAdmin, $stored) && str_contains($homeAdmin, 'alt="Ma jument au pré"') && getimagesize(PUBLIC_PATH . '/' . $stored)[0] === 2000);
+check('image d\'accueil remplacée et réduite à 2000 px', str_contains($homeAdmin, thumb($stored, 800)) && str_contains($homeAdmin, 'alt="Ma jument au pré"') && getimagesize(PUBLIC_PATH . '/' . $stored)[0] === 2000);
 check('bouton « Modifier la page d\'accueil »', str_contains($homeAdmin, 'Modifier la page d&#039;accueil'));
 unset($_SESSION['admin_id']);
 ob_start();
@@ -394,6 +394,18 @@ check('nouveau mot de passe admin actif', App\Core\Auth::attempt($adminRow['emai
 check('lien admin à usage unique', App\Core\Auth::resetAdmin((string) $adminToken) === null);
 Database::update('admins', ['password_hash' => $adminRow['password_hash']], 'id = :id', ['id' => $adminRow['id']]);
 unset($_SESSION['admin_id']);
+
+echo "Miniatures d'images\n";
+$thumbUrl = thumb('assets/img/products/club-hoodie.jpg', 380);
+check('URL de miniature WebP à la largeur utile', (bool) preg_match('#/uploads/thumbs/400/[a-f0-9]{20}\.webp$#', $thumbUrl));
+preg_match('#/(\d+)/([a-f0-9]{20})\.webp$#', $thumbUrl, $tm);
+$thumbPath = App\Services\Thumbs::generate((int) $tm[1], $tm[2]);
+check('miniature fabriquée (400 px, WebP, bien plus légère)', $thumbPath && getimagesize($thumbPath)[0] === 400 && getimagesize($thumbPath)['mime'] === 'image/webp'
+    && filesize($thumbPath) < filesize(PUBLIC_PATH . '/assets/img/products/club-hoodie.jpg') / 3);
+check('empreinte inconnue refusée', App\Services\Thumbs::generate(400, str_repeat('a', 20)) === null && App\Services\Thumbs::generate(333, $tm[2]) === null);
+check('SVG laissé tel quel', thumb('assets/img/brand/logo.svg', 400) === image_url('assets/img/brand/logo.svg'));
+check('srcset pour le navigateur', str_contains(img_attrs('assets/img/products/club-hoodie.jpg', [400, 800], '50vw'), 'srcset="') && str_contains(img_attrs('assets/img/products/club-hoodie.jpg', [400, 800], '50vw'), ' 800w'));
+@unlink($thumbPath);
 
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");

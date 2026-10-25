@@ -375,3 +375,15 @@ function rich_text(?string $text): string
 {
     return App\Services\RichText::render($text);
 }
+
+/** URL d'une miniature WebP de l'image à la largeur demandée (voir App\Services\Thumbs). */
+function thumb(?string $path, int $width): string
+{
+    return App\Services\Thumbs::url($path, $width);
+}
+
+/** Attributs src + srcset + sizes d'une image produit, pour laisser le navigateur choisir la bonne taille. */
+function img_attrs(?string $path, array $widths, string $sizes): string
+{
+    return App\Services\Thumbs::attrs($path, $widths, $sizes);
+}

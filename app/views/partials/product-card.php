@@ -2,8 +2,8 @@
 <article class="product-card">
   <a href="<?= e(url('produit/' . $product['slug'])) ?>" class="product-card-link">
     <div class="product-card-media">
-      <img src="<?= e(image_url($product['main_image'])) ?>" alt="<?= e($product['name']) ?>" loading="lazy" width="600" height="750">
-      <?php if ($product['hover_image']): ?><img class="img-hover" src="<?= e(image_url($product['hover_image'])) ?>" alt="" loading="lazy" width="600" height="750"><?php endif; ?>
+      <img <?= img_attrs($product['main_image'], [400, 600, 800], '(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 300px') ?> alt="<?= e($product['name']) ?>" loading="lazy" decoding="async" width="600" height="750">
+      <?php if ($product['hover_image']): ?><img class="img-hover" <?= img_attrs($product['hover_image'], [400, 600, 800], '(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 300px') ?> alt="" loading="lazy" decoding="async" width="600" height="750"><?php endif; ?>
       <div class="badges">
         <span><?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?></span>
         <?php if ($product['discount']): ?><span class="pill pill-ink">-<?= (int) $product['discount'] ?> %</span><?php endif; ?>

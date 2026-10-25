@@ -26,7 +26,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       </div>
     </div>
     <div class="hero-visual">
-      <div class="arch"><img src="<?= e(image_url(App\Services\HomeImages::src('hero'))) ?>" alt="<?= e(App\Services\HomeImages::alt('hero')) ?>" width="480" height="600" fetchpriority="high"></div>
+      <div class="arch"><img <?= img_attrs(App\Services\HomeImages::src('hero'), [600, 800, 1200], '(max-width: 960px) 90vw, 480px') ?> alt="<?= e(App\Services\HomeImages::alt('hero')) ?>" width="480" height="600" fetchpriority="high"></div>
       <div class="float-card float-card-1"><?= icon('sparkle', 20) ?><span>Personnalisé pour<strong class="float-name">Tornado</strong></span></div>
       <div class="float-card float-card-2"><img src="<?= e(url('assets/img/brand/cheval.svg')) ?>" alt="" width="34" height="26"><span class="script-sm">Le club des passionnées</span></div>
     </div>
@@ -49,7 +49,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
     <div class="collections">
       <?php foreach ($categories as $i => $c): ?>
         <a class="collection-card" href="<?= e(url('categorie/' . $c['slug'])) ?>">
-          <div class="collection-media"><img src="<?= e(image_url(Catalog::categoryImage($c))) ?>" alt="" loading="lazy" width="600" height="600"></div>
+          <div class="collection-media"><img <?= img_attrs(Catalog::categoryImage($c), [400, 600, 800], '(max-width: 960px) 90vw, 400px') ?> alt="" loading="lazy" width="600" height="600"></div>
           <div class="collection-body">
             <span class="collection-index">0<?= $i + 1 ?></span>
             <h3><?= e($c['name']) ?></h3>
@@ -90,14 +90,14 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <a class="btn btn-primary btn-lg" href="<?= e(url('portrait-aquarelle')) ?>"><?= icon('sparkle', 16) ?> Découvrir le portrait</a>
       <span class="feature-price">dès <?= e(money($modes['ai_portrait']['price'])) ?></span>
     </div>
-    <a class="feature-visual" href="<?= e(url('portrait-aquarelle')) ?>"><img src="<?= e(image_url(App\Services\HomeImages::src('portrait', $modes['ai_portrait']['image']))) ?>" alt="<?= e(App\Services\HomeImages::alt('portrait')) ?>" loading="lazy" width="600" height="600"></a>
+    <a class="feature-visual" href="<?= e(url('portrait-aquarelle')) ?>"><img <?= img_attrs(App\Services\HomeImages::src('portrait', $modes['ai_portrait']['image']), [400, 600, 800, 1200], '(max-width: 960px) 90vw, 600px') ?> alt="<?= e(App\Services\HomeImages::alt('portrait')) ?>" loading="lazy" width="600" height="600"></a>
   </div>
 </section>
 <?php endif; ?>
 
 <section class="section">
   <div class="container feature">
-    <div class="feature-visual"><img src="<?= e(image_url(App\Services\HomeImages::src('perso'))) ?>" alt="<?= e(App\Services\HomeImages::alt('perso')) ?>" loading="lazy" width="600" height="600"></div>
+    <div class="feature-visual"><img <?= img_attrs(App\Services\HomeImages::src('perso'), [400, 600, 800, 1200], '(max-width: 960px) 90vw, 600px') ?> alt="<?= e(App\Services\HomeImages::alt('perso')) ?>" loading="lazy" width="600" height="600"></div>
     <div>
       <p class="script-accent">mon cheval, ma fierté</p>
       <h2>Une pièce unique, <em>à son image</em></h2>
@@ -150,7 +150,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
           <?= stars((float) $t['rating']) ?>
           <blockquote>« <?= e(excerpt($t['body'], 220)) ?> »</blockquote>
           <footer>
-            <img src="<?= e(image_url($timg)) ?>" alt="" width="44" height="44" loading="lazy">
+            <img src="<?= e(thumb($timg, 160)) ?>" alt="" width="44" height="44" loading="lazy">
             <span><strong><?= e($t['author_name']) ?></strong><a href="<?= e(url('produit/' . $t['product_slug'])) ?>"><?= e($t['product_name']) ?></a><br><span class="verified"><?= icon('check', 12) ?> Achat vérifié</span></span>
           </footer>
         </figure>

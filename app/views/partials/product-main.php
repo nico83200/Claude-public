@@ -54,7 +54,7 @@ if ($cfg) {
              <?= $cfg && $cfg['preview_image'] ? 'data-preview-base="' . e(image_url($cfg['preview_image'])) . '"' : '' ?>>
           <?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?>
           <div class="gallery-zoom" data-zoom-layer>
-          <img src="<?= e(image_url($images[0])) ?>" alt="<?= e($product['name']) ?>" data-main-image width="800" height="800">
+          <img <?= img_attrs($images[0] ?? null, [600, 800, 1200], '(max-width: 960px) 100vw, 640px') ?> alt="<?= e($product['name']) ?>" data-main-image data-full="<?= e(image_url($images[0] ?? null)) ?>" width="800" height="800" fetchpriority="high">
           <?php if ($cfg && $mode === 'photo'): ?>
             <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
           <?php endif; ?>
@@ -73,8 +73,8 @@ if ($cfg) {
               <button type="button" class="thumb thumb-preview <?= $previewFirst ? 'active' : '' ?>" data-ai-show aria-label="Voir l'aperçu de votre portrait"><?= icon('sparkle', 20) ?><span>Aperçu</span></button>
             <?php endif; ?>
             <?php foreach ($images as $i => $img): ?>
-              <button type="button" class="thumb <?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?>" data-thumb="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
-                <img src="<?= e(image_url($img)) ?>" alt="" loading="lazy" width="120" height="120">
+              <button type="button" class="thumb <?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?>" data-thumb="<?= e(thumb($img, 800)) ?>" data-thumb-set="<?= e(thumb($img, 600) . ' 600w, ' . thumb($img, 800) . ' 800w, ' . thumb($img, 1200) . ' 1200w') ?>" data-full="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
+                <img src="<?= e(thumb($img, 160)) ?>" alt="" loading="lazy" width="120" height="120">
               </button>
             <?php endforeach; ?>
           </div>

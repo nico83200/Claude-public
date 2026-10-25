@@ -11,7 +11,7 @@
     <tbody>
     <?php foreach ($products as $p): ?>
       <tr>
-        <td style="width:64px"><img class="thumb" src="<?= e(image_url($p['main_image'])) ?>" alt="" width="56" height="56"></td>
+        <td style="width:64px"><img class="thumb" src="<?= e(thumb($p['main_image'], 160)) ?>" alt="" width="56" height="56"></td>
         <td><a href="<?= e(url('admin/produits/' . $p['id'])) ?>"><strong><?= e($p['name']) ?></strong></a>
           <?php if ($p['personalizable']): ?><span class="tag">Personnalisable</span><?php endif; ?>
           <?php if ($p['featured']): ?><span class="tag">Mis en avant</span><?php endif; ?></td>

@@ -101,10 +101,17 @@
 
   // Galerie ----------------------------------------------------------------
   var mainImage = $('[data-main-image]');
+  // Change l'image principale (srcset = versions optimisées ; data-full = original pour le zoom)
+  var setMain = function (src, set, full) {
+    if (!mainImage) return;
+    if (set) mainImage.srcset = set; else mainImage.removeAttribute('srcset');
+    mainImage.src = src;
+    mainImage.dataset.full = full || src;
+  };
   var aiStage = $('[data-ai-stage]');
   $$('[data-thumb]').forEach(function (thumb) {
     thumb.addEventListener('click', function () {
-      mainImage.src = thumb.dataset.thumb;
+      setMain(thumb.dataset.thumb, thumb.dataset.thumbSet, thumb.dataset.full);
       if (aiStage) aiStage.hidden = true;
       $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
       thumb.classList.add('active');
@@ -209,7 +216,7 @@
     var baseSwapped = false;
     var useBaseImage = function () {
       if (!baseSwapped && stage && stage.dataset.previewBase && mainImage) {
-        mainImage.src = stage.dataset.previewBase;
+        setMain(stage.dataset.previewBase);
         baseSwapped = true;
       }
     };
@@ -233,7 +240,7 @@
       if (match) {
         variantInput.value = match.id;
         priceEls.forEach(function (el) { el.textContent = match.priceLabel; });
-        if (match.image && mainImage && !baseSwapped) mainImage.src = match.image;
+        if (match.image && mainImage && !baseSwapped) setMain(match.image);
         if (aiStage && match.colorHex) aiStage.style.setProperty('--frame', match.colorHex);
         if (aiStage) aiStage.classList.toggle('is-large', sizeList.indexOf(match.size) > 0); // grand format : cadre plus grand sur le mur
         addBtn.disabled = aiLocked;

@@ -1,6 +1,6 @@
 <?php /** @var array $item */ $compact = !empty($compact); ?>
 <div class="line-item">
-  <a href="<?= e(url('produit/' . $item['slug'])) ?>" class="line-item-media"><img src="<?= e(!empty($item['portrait']) ? url('portrait-ia/' . $item['portrait'] . '/apercu') : image_url($item['image'])) ?>" alt="" width="96" height="96"></a>
+  <a href="<?= e(url('produit/' . $item['slug'])) ?>" class="line-item-media"><img src="<?= e(!empty($item['portrait']) ? url('portrait-ia/' . $item['portrait'] . '/apercu') : thumb($item['image'], 160)) ?>" alt="" width="96" height="96"></a>
   <div class="line-item-info">
     <a href="<?= e(url('produit/' . $item['slug'])) ?>" class="line-item-name"><?= e($item['product_name']) ?></a>
     <span class="muted small"><?= e($item['variant_name']) ?><?= $compact ? ' · Qté ' . (int) $item['qty'] : '' ?></span>

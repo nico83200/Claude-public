@@ -70,6 +70,9 @@ $r->post('/newsletter', [PageController::class, 'newsletter']);
 $r->get('/avis/{number}', [ReviewController::class, 'form']);
 $r->post('/avis/{number}', [ReviewController::class, 'submit']);
 
+// Miniatures d'images (fabriquées à la première demande)
+$r->get('/uploads/thumbs/{width}/{name}', [App\Controllers\ImageController::class, 'thumb']);
+
 // SEO & flux
 $r->get('/sitemap.xml', [SeoController::class, 'sitemap']);
 $r->get('/robots.txt', [SeoController::class, 'robots']);
