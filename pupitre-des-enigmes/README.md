@@ -29,6 +29,7 @@ Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
 
 | PDF | Pour qui |
 |---|---|
+| [Liste d'achat](pdf/liste-achats.pdf) | Le constructeur (source : `console/achats.json`) |
 | [Mode d'emploi du pupitre](pdf/mode-emploi.pdf) | Tout le monde, valable pour tous les mondes |
 | [Mission 1 · fiche de mission](pdf/mission-1-fiche-joueurs.pdf) | Les joueurs |
 | [Mission 1 · déroulé](pdf/mission-1-deroule-maitre-du-jeu.pdf) | Le maître du jeu (contient les solutions) |

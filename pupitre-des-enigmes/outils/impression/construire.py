@@ -138,6 +138,73 @@ def doublage(sources, cible, titre):
     cible.write_text(GABARIT_DOUBLAGE.format(corps="".join(corps)), encoding="utf-8")
 
 
+GABARIT_ACHATS = """<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Liste d'achat</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  :root {{ --vert: #23263a; --or: #c49a3a; --cuir: #7a4e8a; }}
+  @page {{ size: A4; margin: 13mm 13mm 15mm; }}
+  body {{ font-size: 9.8pt; }}
+  .entete {{ background: radial-gradient(circle at 80% 20%, #34385a, #191b2b 75%); color: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 10px; }}
+  .entete h1 {{ color: #fff; margin: 0; }}
+  .entete p {{ margin: 4px 0 0; color: #e9cf8f; }}
+  .totaux {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 4px; }}
+  .totaux div {{ background: #fff; border: 1px solid var(--filet); border-radius: 6px; padding: 8px 12px; }}
+  .totaux strong {{ display: block; font-family: "Playfair"; font-size: 18pt; color: var(--vert); }}
+  h2 {{ display: flex; justify-content: space-between; align-items: baseline; font-size: 13.5pt; margin-top: 14px; }}
+  h2 small {{ font-family: "Source Sans"; font-size: 10pt; color: var(--cuir); font-weight: 700; }}
+  .option {{ font-family: "Source Sans"; font-size: 8.5pt; color: var(--gris); font-weight: 400; font-style: italic; }}
+  table {{ break-inside: auto; }}
+  td.coche {{ width: 16px; font-size: 12pt; color: var(--gris); }}
+  td.article {{ width: 30%; font-weight: 600; }}
+  td.detail {{ color: var(--gris); font-size: 8.8pt; }}
+  td.nb {{ text-align: right; white-space: nowrap; width: 9%; }}
+  th.nb {{ text-align: right; }}
+</style></head>
+<body>{corps}</body></html>
+"""
+
+
+def euros(montant):
+    texte = f"{montant:,.2f}".replace(",", " ").replace(".", ",")
+    return (texte[:-3] if texte.endswith(",00") else texte) + " €"
+
+
+def achats(source, cible):
+    donnees = json.loads(source.read_text(encoding="utf-8"))
+    total_essentiel = total_option = 0
+    sections = []
+    for section in donnees["sections"]:
+        sous_total = sum(a["qte"] * a["prix"] for a in section["articles"])
+        if section.get("optionnel"):
+            total_option += sous_total
+        else:
+            total_essentiel += sous_total
+        lignes = "".join(
+            f"<tr><td class='coche'>☐</td><td class='article'>{escape(a['article'])}</td>"
+            f"<td class='detail'>{escape(a['detail'])}</td><td class='nb'>{a['qte']}</td>"
+            f"<td class='nb'>{euros(a['prix']) if a['prix'] else '—'}</td>"
+            f"<td class='nb'><strong>{euros(a['qte'] * a['prix']) if a['prix'] else '—'}</strong></td></tr>"
+            for a in section["articles"])
+        option = " <span class='option'>(selon besoin)</span>" if section.get("optionnel") else ""
+        sections.append(
+            f"<h2><span>{escape(section['nom'])}{option}</span><small>{euros(sous_total)}</small></h2>"
+            "<table><thead><tr><th></th><th>Article</th><th>Détail et mots-clés</th><th class='nb'>Qté</th>"
+            f"<th class='nb'>Prix unit.</th><th class='nb'>Total</th></tr></thead><tbody>{lignes}</tbody></table>")
+    conseils = "".join(f"<li>{escape(c)}</li>" for c in donnees["conseils"])
+    corps = f"""<div class="entete"><h1>{escape(donnees['titre'])}</h1>
+      <p>Console, casque, boîtier et matériel de la mission 1 · à cocher au fil des commandes</p></div>
+      <div class="totaux">
+        <div>Indispensable<strong>≈ {euros(total_essentiel)}</strong>électronique, boîtier, mission 1</div>
+        <div>Selon besoin<strong>≈ {euros(total_option)}</strong>outillage, ElevenLabs, fablab</div>
+        <div>Tout compris<strong>≈ {euros(total_essentiel + total_option)}</strong>si vous partez de zéro</div>
+      </div>
+      <p class="petit">{escape(donnees['note'])}</p>
+      {''.join(sections)}
+      <div class="encadre or insecable"><h4>Conseils</h4><ul style="margin:0">{conseils}</ul></div>"""
+    cible.write_text(GABARIT_ACHATS.format(corps=corps), encoding="utf-8")
+
+
 def rendre(html, pdf, paysage=False, pied=""):
     commande = ["node", str(ICI / "rendre.js"), str(html), str(pdf), "paysage" if paysage else "portrait"]
     if pied:
@@ -159,6 +226,13 @@ def main():
            pied="Le Haras des Trois Fers · Mission 1 · Fiche de mission")
     rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf",
            pied="Le Pupitre des Énigmes · Mode d'emploi")
+
+    temporaire = ICI / "_liste-achats.html"
+    achats(JEU / "console" / "achats.json", temporaire)
+    try:
+        rendre(temporaire, SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
+    finally:
+        temporaire.unlink()
 
     temporaire = ICI / "_doublage-mission-1.html"
     doublage([JEU / "console" / "audio" / "repliques.json", HARAS / "audio" / "mission-1.json"], temporaire,
