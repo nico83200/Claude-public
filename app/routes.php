@@ -57,6 +57,10 @@ $r->post('/compte/mot-de-passe', [AccountController::class, 'changePassword']);
 $r->post('/compte/supprimer', [AccountController::class, 'destroy']);
 $r->post('/commande/merci/compte', [AccountController::class, 'fromOrder']);
 
+// Journal
+$r->get('/journal', [App\Controllers\JournalController::class, 'index']);
+$r->get('/journal/{slug}', [App\Controllers\JournalController::class, 'show']);
+
 // Liste d'envies
 $r->get('/favoris', [App\Controllers\WishlistController::class, 'show']);
 $r->post('/favoris/synchroniser', [App\Controllers\WishlistController::class, 'sync']);
@@ -136,6 +140,11 @@ $r->post('/admin/categories/{id}/supprimer', [Admin\CategoriesController::class,
 
 $r->get('/admin/accueil', [Admin\HomePageController::class, 'index']);
 $r->post('/admin/accueil', [Admin\HomePageController::class, 'update']);
+
+$r->get('/admin/journal', [Admin\JournalController::class, 'index']);
+$r->get('/admin/journal/{id}', [Admin\JournalController::class, 'edit']);
+$r->post('/admin/journal/{id}', [Admin\JournalController::class, 'update']);
+$r->post('/admin/journal/{id}/supprimer', [Admin\JournalController::class, 'destroy']);
 
 $r->get('/admin/pages', [Admin\PagesController::class, 'index']);
 $r->get('/admin/pages/{id}', [Admin\PagesController::class, 'edit']);

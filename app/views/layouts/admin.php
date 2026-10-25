@@ -14,6 +14,7 @@ $nav = [
     'admin/clients'      => ['Clients & newsletter', '/admin/clients', false],
     'admin/messages'     => ['Messages' . ($unread ? " <span class=\"pill\">$unread</span>" : ''), '/admin/messages', false],
     'admin/accueil'      => ['Page d\'accueil', '/admin/accueil', false],
+    'admin/journal'      => ['Journal', '/admin/journal', false],
     'admin/pages'        => ['Pages', '/admin/pages', false],
     'admin/reglages'     => ['Réglages', '/admin/reglages', false],
     'admin/integrations' => ['Intégrations', '/admin/integrations', false],

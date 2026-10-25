@@ -40,6 +40,23 @@ CREATE TABLE wishlist_items (
     UNIQUE (customer_id, product_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE journal_posts (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(190) NOT NULL UNIQUE,
+    title VARCHAR(190) NOT NULL,
+    tag VARCHAR(60) NULL,
+    excerpt VARCHAR(400) NULL,
+    content MEDIUMTEXT NULL,
+    cover_image VARCHAR(500) NULL,
+    product_ids TEXT NULL,
+    meta_description VARCHAR(300) NULL,
+    published TINYINT(1) NOT NULL DEFAULT 0,
+    published_at DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_journal_published ON journal_posts (published, published_at);
+
 CREATE TABLE settings (
     name VARCHAR(100) NOT NULL PRIMARY KEY,
     value TEXT NULL

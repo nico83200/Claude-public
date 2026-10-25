@@ -430,6 +430,24 @@ Database::update('orders', ['email' => 'jamais-inscrite@example.com', 'status' =
 check('pas de relance sans consentement', OrderService::sendRecovery((int) $noConsent['id']) === false);
 $_SESSION = [];
 
+echo "Journal\n";
+check('3 articles de départ publiés', App\Services\Journal::available() && count(App\Services\Journal::published()) === 3);
+$_SERVER['REQUEST_URI'] = '/journal/idees-cadeaux-cavaliere';
+ob_start();
+(new App\Controllers\JournalController())->show('idees-cadeaux-cavaliere');
+$article = (string) ob_get_clean();
+check('article affiché avec produits cités et données Google', str_contains($article, '"@type":"BlogPosting"') && substr_count($article, 'class="product-card"') >= 3 && substr_count($article, '<h1') === 1);
+check('lien Journal dans le menu', str_contains($article, 'href="' . url('journal') . '"'));
+Database::update('journal_posts', ['published' => 0], "slug = 'entretenir-sweat-brode'");
+check('brouillon invisible', App\Services\Journal::find('entretenir-sweat-brode') === null && count(App\Services\Journal::published()) === 2);
+Database::update('journal_posts', ['published' => 1], "slug = 'entretenir-sweat-brode'");
+$pdoJ = Database::pdo();
+$pdoJ->exec('DROP TABLE journal_posts');
+(require BASE_PATH . '/database/migrations/014_journal.php')($pdoJ, 'sqlite');
+(require BASE_PATH . '/database/migrations/014_journal.php')($pdoJ, 'sqlite');
+check('migration du journal rejouable (pas de doublon)', (int) Database::value('SELECT COUNT(*) FROM journal_posts') === 3);
+$_SERVER['REQUEST_URI'] = '/';
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -619,7 +637,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('treize migrations connues', count(App\Core\Migrator::files()) === 13);
+check('quatorze migrations connues', count(App\Core\Migrator::files()) === 14);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

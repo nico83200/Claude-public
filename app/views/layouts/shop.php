@@ -73,6 +73,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <a href="<?= e(url('portrait-aquarelle')) ?>" class="nav-highlight <?= is_active('/portrait-aquarelle') ? 'active' : '' ?>"><?= icon('sparkle', 15) ?>Portrait aquarelle</a>
       <?php endif; ?>
       <a href="<?= e(url('page/a-propos')) ?>" class="<?= is_active('/page/a-propos') ? 'active' : '' ?>">Notre histoire</a>
+      <?php if (App\Services\Journal::available()): ?><a href="<?= e(url('journal')) ?>" class="<?= is_active('/journal') ? 'active' : '' ?>">Journal</a><?php endif; ?>
       <a href="<?= e(url('contact')) ?>" class="<?= is_active('/contact') ? 'active' : '' ?>">Contact</a>
       <a href="<?= e(url('favoris')) ?>" class="nav-account nav-wish" data-wish-link><?= icon('heart', 17) ?>Mes favoris</a>
       <a href="<?= e(url('compte')) ?>" class="nav-account <?= is_active('/compte') ? 'active' : '' ?>"><?= icon('user', 17) ?><?= $customer ? 'Mon compte · ' . e(App\Services\Account::firstName($customer)) : 'Mon compte / Connexion' ?></a>
@@ -137,6 +138,10 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         $adminEdit = ['admin/accueil', 'Modifier la page d\'accueil'];
     } elseif (isset($category['id'])) {
         $adminEdit = ['admin/categories', 'Modifier la catégorie'];
+    } elseif (isset($post['id']) && is_active('/journal/')) {
+        $adminEdit = ['admin/journal/' . (int) $post['id'], 'Modifier l\'article du journal'];
+    } elseif (is_active('/journal')) {
+        $adminEdit = ['admin/journal', 'Gérer le journal'];
     } elseif (is_array($page ?? null) && isset($page['id'])) {
         $adminEdit = ['admin/pages/' . (int) $page['id'], 'Modifier la page'];
     }
@@ -163,6 +168,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de votre cheval</a></li><?php endif; ?>
         <li><a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a></li>
         <li><a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a></li>
+        <?php if (App\Services\Journal::available()): ?><li><a href="<?= e(url('journal')) ?>">Le journal : conseils &amp; idées cadeaux</a></li><?php endif; ?>
         <li><a href="<?= e(url('suivi')) ?>">Suivre ma commande</a></li>
       </ul>
     </details>

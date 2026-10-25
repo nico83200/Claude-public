@@ -173,3 +173,4 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 form.inline.right { float: right; }
 .center { text-align: center; }
 .gift-quote { margin: .5rem 0; padding: .7rem 1rem; background: #f8f1ee; border-left: 3px solid #5a2a3a; border-radius: 6px; font-style: italic; }
+.check-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .2rem 1rem; } .check-list .checkbox { display: flex; gap: .5rem; font-weight: 400; margin: 0; } .check-list .checkbox input { width: auto; }

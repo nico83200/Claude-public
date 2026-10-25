@@ -19,6 +19,7 @@ function seed_database(string $shopName, string $contactEmail, bool $demo = true
     if ($demo) {
         seed_demo_catalog();
     }
+    App\Services\Journal::installStarter();
 }
 
 function seed_demo_catalog(): void

@@ -86,7 +86,9 @@ Pour chaque produit, renseignez le **visuel d'impression** (PNG transparent), le
 /usr/bin/php /home/<UTILISATEUR>/domains/<DOMAINE>/public_html/cron/cron.php
 ```
 
-La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relance les transmissions Printful en échec, rattrape les expéditions, annule les paniers non payés, synchronise la newsletter avec Brevo et supprime les photos et portraits IA non commandés après 30 jours.
+La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relance les transmissions Printful en échec, rattrape les expéditions, annule les paniers non payés et envoie la relance « votre panier vous attend » (une seule fois, aux clientes qui ont accepté nos e-mails), synchronise la newsletter avec Brevo, sauvegarde la base chaque semaine et supprime les photos et portraits IA non commandés après 30 jours.
+
+Si elle ne tourne plus depuis 3 heures, l'administratrice reçoit un e-mail d'alerte (au plus un par jour).
 
 ## 7. Finaliser
 
@@ -98,7 +100,8 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
   - identifiants Google Analytics 4 et Meta Pixel (chargés seulement après consentement) ;
   - jeton **Replicate** du portrait IA (rubrique « Portrait IA ») : voir [`PORTRAIT_IA.md`](PORTRAIT_IA.md). Sans jeton, le portrait fonctionne en mode démonstration. La page de vente est en ligne à l'adresse `/portrait-aquarelle`.
 - *Réglages › Conversion* :
-  - créez dans Stripe un code promo de bienvenue (*Produits › Coupons*, ex. `BIENVENUE10`) et reportez-le dans « Code promo de bienvenue » : la popup et l'e-mail de bienvenue l'offrent aux nouvelles inscrites ;
+  - le cadeau de bienvenue (5 € par défaut) est créé automatiquement dans Stripe : chaque nouvelle inscrite reçoit un code personnel utilisable une fois ;
+  - la relance des paniers abandonnés est active par défaut (désactivable) ;
   - si vous activez Klarna dans Stripe, passez « Afficher paiement en 3x » à Oui.
 - *Réglages › Avis clients* : les invitations à laisser un avis partent automatiquement X jours après l'expédition ; les avis se modèrent dans *Admin › Avis clients* (ne refusez jamais un avis au seul motif qu'il est négatif).
 - Google Search Console : déclarez `https://votre-domaine.fr/sitemap.xml`.
@@ -111,11 +114,12 @@ La commande exacte est affichée dans l'admin, page *Intégrations*. Elle relanc
 2. Dans l'administration, ouvrez **Mise à jour**, choisissez le ZIP et cliquez sur **Installer la mise à jour**.
 
 Le site vérifie d'abord le paquet : structure, chemins, numéro de version, syntaxe PHP. En cas de problème, rien n'est modifié. Sinon il :
+- sauvegarde la base de données (fichier `.sql.gz` téléchargeable sur la même page) ;
 - sauvegarde les fichiers remplacés ;
 - copie les nouveaux fichiers (quelques secondes de maintenance) ;
 - met à jour la base de données si besoin.
 
-Votre configuration, vos données et vos images ne sont jamais touchées. En cas de souci, le bouton **Restaurer** remet les fichiers de la version précédente. Les modifications de base de données, elles, ne sont pas annulées : pour une mise à jour importante, exportez aussi la base via phpMyAdmin.
+Votre configuration, vos données et vos images ne sont jamais touchées. En cas de souci, le bouton **Restaurer** remet les fichiers de la version précédente. Pour revenir aussi sur la base de données, téléchargez la sauvegarde `db-…-avant-mise-a-jour.sql.gz` (rubrique « Sauvegardes de la base de données ») et importez-la dans phpMyAdmin (*hPanel › Bases de données › phpMyAdmin › Importer*).
 
 ## Dépannage
 

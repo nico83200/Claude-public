@@ -21,6 +21,12 @@ final class SeoController
         foreach (Database::all('SELECT slug, updated_at FROM products WHERE active = 1') as $p) {
             $urls[] = ['loc' => url('produit/' . $p['slug']), 'priority' => '0.7', 'lastmod' => date('Y-m-d', strtotime($p['updated_at']))];
         }
+        if (\App\Services\Journal::available()) {
+            $urls[] = ['loc' => url('journal'), 'priority' => '0.6'];
+            foreach (\App\Services\Journal::published() as $p) {
+                $urls[] = ['loc' => url('journal/' . $p['slug']), 'priority' => '0.6', 'lastmod' => date('Y-m-d', strtotime($p['updated_at']))];
+            }
+        }
         foreach (Database::all('SELECT slug, updated_at FROM pages') as $p) {
             $urls[] = ['loc' => url('page/' . $p['slug']), 'priority' => '0.3', 'lastmod' => date('Y-m-d', strtotime($p['updated_at']))];
         }
