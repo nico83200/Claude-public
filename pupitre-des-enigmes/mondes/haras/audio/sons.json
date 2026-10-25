@@ -1,0 +1,20 @@
+{
+  "dossier": 11,
+  "description": "Bruitages et musiques du monde Haras (dossier /11/ des cartes SD).",
+  "sons": [
+    { "n": 1, "nom": "Hennissement proche", "duree": 3, "prompt": "A single loud horse neigh, close up, clear, inside a wooden barn" },
+    { "n": 2, "nom": "Hennissement lointain", "duree": 4, "prompt": "A distant horse neigh echoing in a pine forest, muffled, mysterious" },
+    { "n": 3, "nom": "Serrure du bureau", "duree": 2, "prompt": "An old metal door lock unlocking with a heavy click, then a wooden door creaking open" },
+    { "n": 4, "nom": "Oiseaux en forêt", "duree": 5, "prompt": "Birds chirping in a quiet pine forest, light breeze, early morning" },
+    { "n": 5, "nom": "Ambiance écurie", "duree": 20, "prompt": "Calm horse stable ambience, horses snorting and shuffling hay, distant hooves on concrete, birds outside, seamless loop" },
+    { "n": 6, "nom": "Un coup de sabot", "duree": 0.5, "prompt": "A single horse hoof hitting hard ground, one short sharp impact" },
+    { "n": 7, "nom": "Téléphone du haras", "duree": 3, "prompt": "Old landline telephone ringing twice in a quiet house" },
+    { "n": 8, "nom": "Fanfare de victoire", "duree": 6, "prompt": "Short triumphant brass fanfare, equestrian competition victory, celebratory" },
+    { "n": 9, "nom": "Musique de tension", "duree": 20, "prompt": "Tense suspenseful music with fast galloping rhythm percussion, countdown feeling, seamless loop" },
+    { "n": 10, "nom": "Pas pressés", "duree": 3, "prompt": "Hurried footsteps of a woman in boots approaching on gravel" },
+    { "n": 11, "nom": "Musique d'échec", "duree": 5, "prompt": "Short sad descending piano melody, failure ending" },
+    { "n": 12, "nom": "Jingle du monde", "duree": 4, "prompt": "Short elegant hunting horn call followed by a horse whinny, countryside estate intro" },
+    { "n": 13, "nom": "Vent dans la pinède", "duree": 15, "prompt": "Wind blowing through pine trees, creaking branches, damp forest after rain, seamless loop" },
+    { "n": 14, "nom": "Ambiance bureau", "duree": 15, "prompt": "Quiet old office ambience, ticking wall clock, faint electrical hum, seamless loop" }
+  ]
+}

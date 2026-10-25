@@ -1,0 +1,24 @@
+{
+  "monde": "Le Pupitre (commun)",
+  "dossier": 91,
+  "sortie_par_defaut": "haut-parleur",
+  "lignes": [
+    { "n": 1, "voix": "pupitre", "usage": "Démarrage", "texte": "Le Pupitre des Énigmes." },
+    { "n": 2, "voix": "pupitre", "usage": "Choix du monde", "texte": "Posez une carte Monde sur l'un des trois lecteurs." },
+    { "n": 3, "voix": "pupitre", "usage": "Reprise après coupure", "texte": "Une partie était en cours. Bouton vert pour la reprendre, bouton rouge pour en commencer une nouvelle." },
+    { "n": 4, "voix": "pupitre", "usage": "Carte d'un autre monde", "texte": "Cette carte n'appartient pas à ce monde." },
+    { "n": 5, "voix": "pupitre", "usage": "Appel au casque", "texte": "Casque ! Un seul joueur le met, puis appuie sur la molette." },
+    { "n": 6, "voix": "pupitre", "usage": "Fin du message au casque", "texte": "Message terminé. Vous pouvez retirer le casque." },
+    { "n": 7, "voix": "pupitre", "usage": "Mauvaise zone", "texte": "Cette carte se pose sur la zone QUI." },
+    { "n": 8, "voix": "pupitre", "usage": "Mauvaise zone", "texte": "Cette carte se pose sur la zone OÙ." },
+    { "n": 9, "voix": "pupitre", "usage": "Mauvaise zone", "texte": "Cette carte se pose sur la zone QUOI." },
+    { "n": 10, "voix": "pupitre", "usage": "Carte inconnue", "texte": "Je ne reconnais pas cette carte." },
+    { "n": 11, "voix": "pupitre", "usage": "Pause", "texte": "Partie en pause." },
+    { "n": 12, "voix": "pupitre", "usage": "Reprise", "texte": "Reprise de la partie." },
+    { "n": 13, "voix": "pupitre", "usage": "Message unique", "texte": "Attention : ce message ne passera qu'une fois." },
+    { "n": 14, "voix": "pupitre", "usage": "Aide molette", "texte": "Tournez la molette pour choisir, appuyez pour valider." },
+    { "n": 15, "voix": "pupitre", "usage": "Record", "texte": "Nouveau record pour ce monde !" },
+    { "n": 16, "voix": "pupitre", "usage": "Nom d'équipe", "texte": "Entrez le nom de votre équipe avec la molette." },
+    { "n": 17, "voix": "pupitre", "usage": "Au revoir", "texte": "Merci d'avoir joué. À bientôt, dans un autre monde." }
+  ]
+}

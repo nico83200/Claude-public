@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""Génère les voix et les bruitages du jeu avec l'API ElevenLabs.
+"""Génère les voix et les bruitages du Pupitre des Énigmes avec l'API ElevenLabs.
 
-Les fichiers sont rangés comme le DFPlayer Mini les attend :
-    sd/01/001.mp3, sd/01/002.mp3, ...   (voix de la mission 1)
-    sd/99/001.mp3, ...                  (bruitages communs)
+Chaque fichier JSON passé en argument est soit une liste de répliques (clé
+"lignes", avec un voix.json dans le même dossier), soit une liste de bruitages
+(clé "sons"). Les MP3 sont rangés comme le DFPlayer Mini les attend :
+    sd/10/001.mp3   (réplique 1 du monde Haras)
+    sd/90/002.mp3   (bruitage 2 du pupitre)
 
 Utilisation :
     export ELEVENLABS_API_KEY=sk_...
-    python3 generer_audio.py mission-1.json          # toutes les répliques
-    python3 generer_audio.py mission-1.json --seulement 120-129
-    python3 generer_audio.py --sfx                   # les bruitages
-    python3 generer_audio.py mission-1.json --essai  # liste sans rien générer
+    python3 generer_audio.py ../console/audio/*.json ../mondes/haras/audio/*.json
+    python3 generer_audio.py ../mondes/haras/audio/mission-1.json --seulement 120-129
+    python3 generer_audio.py ../mondes/haras/audio/mission-1.json --essai
 
 Un fichier déjà présent n'est pas régénéré (sauf avec --forcer).
+Le même dossier sd/ se copie sur les deux cartes micro-SD (haut-parleur et casque).
 """
 import argparse
 import json
@@ -25,7 +27,7 @@ from pathlib import Path
 
 API = "https://api.elevenlabs.io/v1"
 FORMAT = "mp3_44100_128"
-ICI = Path(__file__).resolve().parent
+RACINE = Path(__file__).resolve().parent.parent
 
 
 def charger(chemin):
@@ -62,56 +64,53 @@ def appeler(url, corps, cle):
     sys.exit("Échec après 4 essais.")
 
 
-def taches_voix(fichier, numeros):
-    mission = charger(fichier)
-    casting = charger(ICI / "voix.json")
+def taches_voix(fichier, contenu, numeros):
+    casting = charger(Path(fichier).parent / "voix.json")
     modele = casting["modele_par_defaut"]
     manquantes = set()
-    for ligne in mission["lignes"]:
+    for ligne in contenu["lignes"]:
         if numeros and ligne["n"] not in numeros:
             continue
         voix = casting["voix"][ligne["voix"]]
         if not voix["voice_id"]:
             manquantes.add(ligne["voix"])
             continue
-        corps = {
-            "text": ligne["texte"],
-            "model_id": voix.get("modele", modele),
-            "voice_settings": voix["reglages"],
-        }
-        url = f"{API}/text-to-speech/{voix['voice_id']}"
-        yield mission["dossier"], ligne["n"], f"{ligne['voix']} : {ligne['texte'][:60]}", url, corps
+        corps = {"text": ligne["texte"], "model_id": voix.get("modele", modele), "voice_settings": voix["reglages"]}
+        casque = " 🎧" if ligne.get("sortie") == "casque" else ""
+        yield contenu["dossier"], ligne["n"], f"{ligne['voix']}{casque} : {ligne['texte'][:60]}", \
+            f"{API}/text-to-speech/{voix['voice_id']}", corps
     if manquantes:
-        print(f"⚠️  voice_id manquant dans voix.json pour : {', '.join(sorted(manquantes))}")
+        print(f"⚠️  {fichier} : voice_id manquant pour {', '.join(sorted(manquantes))}")
 
 
-def taches_sfx(numeros):
-    sfx = charger(ICI / "sfx.json")
-    for son in sfx["sons"]:
+def taches_sons(contenu, numeros):
+    for son in contenu["sons"]:
         if numeros and son["n"] not in numeros:
             continue
         corps = {"text": son["prompt"], "duration_seconds": max(son["duree"], 0.5), "prompt_influence": 0.5}
-        yield sfx["dossier"], son["n"], f"bruitage : {son['nom']}", f"{API}/sound-generation", corps
+        yield contenu["dossier"], son["n"], f"bruitage : {son['nom']}", f"{API}/sound-generation", corps
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("mission", nargs="?", help="fichier de répliques, ex. mission-1.json")
-    parser.add_argument("--sfx", action="store_true", help="générer les bruitages de sfx.json")
+    parser.add_argument("fichiers", nargs="+", help="fichiers de répliques ou de bruitages (.json)")
     parser.add_argument("--seulement", type=plage, default=set(), help="numéros à générer, ex. 120-129,135")
-    parser.add_argument("--sortie", type=Path, default=ICI.parent / "sd", help="dossier de sortie (défaut : ../sd)")
+    parser.add_argument("--sortie", type=Path, default=RACINE / "sd", help="dossier de sortie (défaut : sd/ à la racine)")
     parser.add_argument("--forcer", action="store_true", help="régénérer les fichiers existants")
     parser.add_argument("--essai", action="store_true", help="afficher sans appeler l'API")
     args = parser.parse_args()
 
-    if not args.mission and not args.sfx:
-        parser.error("indiquez un fichier de mission et/ou --sfx")
-
     taches = []
-    if args.mission:
-        taches += taches_voix(args.mission, args.seulement)
-    if args.sfx:
-        taches += taches_sfx(args.seulement)
+    for fichier in args.fichiers:
+        if Path(fichier).name == "voix.json":
+            continue
+        contenu = charger(fichier)
+        if "lignes" in contenu:
+            taches += taches_voix(fichier, contenu, args.seulement)
+        elif "sons" in contenu:
+            taches += taches_sons(contenu, args.seulement)
+        else:
+            sys.exit(f"{fichier} : ni répliques ni bruitages.")
 
     cle = os.environ.get("ELEVENLABS_API_KEY")
     if not cle and not args.essai:
@@ -122,7 +121,7 @@ def main():
         cible = args.sortie / f"{dossier:02d}" / f"{numero:03d}.mp3"
         if cible.exists() and not args.forcer:
             continue
-        print(f"{cible.relative_to(args.sortie)}  {libelle}")
+        print(f"{dossier:02d}/{numero:03d}.mp3  {libelle}")
         if args.essai:
             continue
         cible.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,12 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "pupitre": {
+      "nom": "La voix du Pupitre (commune à tous les mondes)",
+      "voice_id": "",
+      "description": "Femme, la trentaine, voix claire, calme et légèrement mystérieuse, comme un maître de cérémonie.",
+      "prompt_voice_design": "A clear, calm French female voice in her thirties, native speaker from France, elegant and slightly mysterious, like the host of a game show of riddles, neutral and timeless.",
+      "reglages": { "stability": 0.6, "similarity_boost": 0.75, "style": 0.2 }
+    }
+  }
+}

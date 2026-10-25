@@ -1,0 +1,15 @@
+{
+  "dossier": 90,
+  "description": "Bruitages du pupitre, communs à tous les mondes (dossier /90/ des cartes SD).",
+  "sons": [
+    { "n": 1, "nom": "Jingle du Pupitre", "duree": 4, "prompt": "Short mysterious music box melody with a soft magical shimmer, intro of a riddle game" },
+    { "n": 2, "nom": "Carte reconnue", "duree": 0.5, "prompt": "Short pleasant electronic confirmation beep" },
+    { "n": 3, "nom": "Carte refusée", "duree": 1, "prompt": "Short low game show wrong answer buzzer" },
+    { "n": 4, "nom": "Bonne réponse", "duree": 1.5, "prompt": "Short bright positive chime, correct answer" },
+    { "n": 5, "nom": "Alarme d'imprévu", "duree": 2, "prompt": "Short urgent alert alarm, two rising tones, game event" },
+    { "n": 6, "nom": "Carillon casque", "duree": 1.5, "prompt": "Soft two-note chime announcing a private message, discreet and mysterious" },
+    { "n": 7, "nom": "Roulement de tambour", "duree": 4, "prompt": "Snare drum roll building suspense, ending with a single cymbal hit" },
+    { "n": 8, "nom": "Bip compte à rebours", "duree": 0.5, "prompt": "Single short countdown beep, clock timer" },
+    { "n": 9, "nom": "Enveloppe", "duree": 1.5, "prompt": "Paper envelope being torn open" }
+  ]
+}
