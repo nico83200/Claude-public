@@ -64,6 +64,47 @@ final class ShopController
         ]);
     }
 
+    /**
+     * Assistant cadeau : pour qui, quel budget, personnalisé ou non → une sélection.
+     * Si rien ne correspond, les critères sont élargis un à un (personnalisation, puis budget).
+     */
+    public function giftFinder(): void
+    {
+        $who = in_array(input('pour'), ['elle', 'lui'], true) ? (string) input('pour') : '';
+        $budget = in_array((int) input('budget'), [20, 30, 50, 80], true) ? (int) input('budget') : 0;
+        $perso = in_array(input('perso'), ['oui', 'non'], true) ? (string) input('perso') : '';
+        $done = input('pour') !== null || input('budget') !== null || input('perso') !== null;
+        $results = [];
+        $relaxed = null;
+        if ($done) {
+            $filters = ['sort' => 'bestsellers', 'audience' => $who ?: null, 'max_price' => $budget ? $budget * 100 : null];
+            $filters += $perso === 'oui' ? ['personalizable' => true] : ($perso === 'non' ? ['not_personalizable' => true] : []);
+            $results = Catalog::products($filters, 12);
+            if (!$results && $perso !== '') {
+                unset($filters['personalizable'], $filters['not_personalizable']);
+                $results = Catalog::products($filters, 12);
+                $relaxed = 'personnalisés ou non';
+            }
+            if (!$results && $budget) {
+                $filters['max_price'] = null;
+                $results = Catalog::products($filters, 12);
+                $relaxed = 'tous budgets confondus';
+            }
+        }
+        view('shop/gift-finder', [
+            'pageTitle'       => 'Idées cadeaux pour cavalière (et pour son conjoint !)',
+            'metaDescription' => 'Trouve le cadeau idéal pour une cavalière ou pour l\'homme d\'une cavalière en 3 questions : vêtements, accessoires et cadeaux personnalisés avec le nom ou le portrait de son cheval.',
+            'canonical'       => url('idees-cadeaux'),
+            'who'             => $who,
+            'budget'          => $budget,
+            'perso'           => $perso,
+            'done'            => $done,
+            'results'         => $results,
+            'relaxed'         => $relaxed,
+            'deadline'        => self::christmasDeadline(),
+        ]);
+    }
+
     /** Recherche instantanée (JSON) : suggestions au fil de la frappe. */
     public function suggest(): void
     {

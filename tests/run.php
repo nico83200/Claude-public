@@ -464,6 +464,27 @@ check('couleurs Printful en français', color_label('Washed Lavender') === 'Lava
 $cartLine = ['x' => ['variant_id' => (int) $poster['id'], 'qty' => 2, 'text' => '', 'photo' => null, 'year' => '', 'portrait' => null]];
 check('achat express : article seul, hors panier', count(Cart::itemsFor($cartLine)) === 1 && Cart::itemsFor($cartLine)[0]['qty'] === 2);
 
+echo "Assistant cadeau et avis avec photo\n";
+$_SERVER['REQUEST_URI'] = '/idees-cadeaux';
+$_GET = ['pour' => 'elle', 'budget' => '30', 'perso' => 'oui'];
+ob_start();
+(new App\Controllers\ShopController())->giftFinder();
+$finder = (string) ob_get_clean();
+check('assistant cadeau : sélection affichée', str_contains($finder, 'pour faire plaisir') && substr_count($finder, 'class="product-card"') >= 1);
+$_GET = ['pour' => 'lui', 'budget' => '20', 'perso' => 'oui'];
+ob_start();
+(new App\Controllers\ShopController())->giftFinder();
+check('assistant cadeau : critères élargis si rien ne correspond', str_contains((string) ob_get_clean(), 'class="product-card"'));
+$_GET = [];
+$photoFile = $makeJpeg(2400, 1800);
+$reviewPhoto = App\Services\HomeImages::store(['error' => UPLOAD_ERR_OK, 'size' => filesize($photoFile), 'tmp_name' => $photoFile, 'name' => 'avis.jpg'], 'uploads/reviews', 1600);
+$reviewOrder = Database::one("SELECT * FROM orders WHERE paid_at IS NOT NULL ORDER BY id LIMIT 1");
+$reviewItem = Database::one('SELECT product_id FROM order_items WHERE order_id = ? AND product_id NOT IN (SELECT product_id FROM reviews WHERE order_id = ?) LIMIT 1', [$reviewOrder['id'], $reviewOrder['id']]);
+$okPhoto = $reviewItem && App\Services\Reviews::submit($reviewOrder, (int) $reviewItem['product_id'], 5, 'Léa M.', 'Superbe', 'Parfait !', $reviewPhoto);
+Database::query("UPDATE reviews SET status = 'approved' WHERE photo = ?", [$reviewPhoto]);
+check('avis avec photo réduite et publiée', $okPhoto && getimagesize(PUBLIC_PATH . '/' . $reviewPhoto)[0] === 1600 && count(App\Services\Reviews::photos((int) $reviewItem['product_id'])) === 1);
+App\Services\HomeImages::discard($reviewPhoto);
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -653,7 +674,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('quinze migrations connues', count(App\Core\Migrator::files()) === 15);
+check('seize migrations connues', count(App\Core\Migrator::files()) === 16);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

@@ -22,6 +22,7 @@ $r = new Router();
 $r->get('/', [HomeController::class, 'index']);
 $r->get('/boutique', [ShopController::class, 'catalog']);
 $r->get('/recherche/suggestions', [ShopController::class, 'suggest']);
+$r->get('/idees-cadeaux', [ShopController::class, 'giftFinder']);
 $r->get('/categorie/{slug}', [ShopController::class, 'category']);
 $r->get('/produit/{slug}', [ShopController::class, 'product']);
 $r->get('/portrait-aquarelle', [ShopController::class, 'portraitLanding']);

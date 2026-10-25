@@ -24,3 +24,5 @@
 /storage/updates/*
 !/storage/updates/.gitkeep
 /storage/backups/*
+/public/uploads/reviews/*
+!/public/uploads/reviews/.gitkeep

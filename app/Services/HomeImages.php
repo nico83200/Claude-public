@@ -57,7 +57,7 @@ final class HomeImages
      * Enregistre une image envoyée : vérifiée, redressée, réduite à 2000 px maximum et réenregistrée
      * (JPEG, ou PNG si elle a de la transparence) pour garder une page d'accueil rapide.
      */
-    public static function store(array $file): string
+    public static function store(array $file, string $folder = self::DIR, int $max = 2000): string
     {
         if ($file['error'] !== UPLOAD_ERR_OK) {
             throw new \RuntimeException('Échec de l\'envoi de l\'image (code ' . $file['error'] . ').');
@@ -82,12 +82,11 @@ final class HomeImages
             };
             $img = $rotated ?: $img;
         }
-        $max = 2000;
         if (max(imagesx($img), imagesy($img)) > $max) {
             $ratio = $max / max(imagesx($img), imagesy($img));
             $img = gd_resize($img, (int) round(imagesx($img) * $ratio), (int) round(imagesy($img) * $ratio));
         }
-        $dir = PUBLIC_PATH . '/' . self::DIR;
+        $dir = PUBLIC_PATH . '/' . $folder;
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
@@ -95,19 +94,19 @@ final class HomeImages
         if ($mime === 'image/png') {
             imagesavealpha($img, true);
             imagepng($img, "$dir/$base.png", 7);
-            return self::DIR . "/$base.png";
+            return $folder . "/$base.png";
         }
         $flat = imagecreatetruecolor(imagesx($img), imagesy($img));
         imagefill($flat, 0, 0, imagecolorallocate($flat, 255, 255, 255));
         imagecopy($flat, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
         imagejpeg($flat, "$dir/$base.jpg", 86);
-        return self::DIR . "/$base.jpg";
+        return $folder . "/$base.jpg";
     }
 
     /** Supprime une image précédemment envoyée ici (jamais les images d'origine du thème). */
     public static function discard(?string $path): void
     {
-        if ($path && preg_match('#^' . preg_quote(self::DIR, '#') . '/[0-9]{6}-[a-f0-9]{16}\.(jpg|png)$#', $path)) {
+        if ($path && preg_match('#^uploads/(site|reviews)/[0-9]{6}-[a-f0-9]{16}\.(jpg|png)$#', $path)) {
             @unlink(PUBLIC_PATH . '/' . $path);
         }
     }

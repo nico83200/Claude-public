@@ -28,7 +28,10 @@ final class ReviewsController extends BaseController
         match ($action) {
             'publier' => Database::update('reviews', ['status' => 'approved'], 'id = :id', ['id' => (int) $id]),
             'refuser' => Database::update('reviews', ['status' => 'rejected'], 'id = :id', ['id' => (int) $id]),
-            'supprimer' => Database::query('DELETE FROM reviews WHERE id = ?', [(int) $id]),
+            'supprimer' => (static function () use ($id): void {
+                \App\Services\HomeImages::discard(Database::value('SELECT photo FROM reviews WHERE id = ?', [(int) $id]) ?: null);
+                Database::query('DELETE FROM reviews WHERE id = ?', [(int) $id]);
+            })(),
             default => abort(404),
         };
         flash('success', 'Avis mis à jour.');

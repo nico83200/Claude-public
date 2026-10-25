@@ -1141,3 +1141,28 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 }
 .gallery-main [data-main-image] { view-transition-name: product-photo; }
 ::view-transition-group(product-photo) { animation-duration: .35s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+
+/* Avis avec photos */
+.review-photo { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; font-size: .85rem; color: var(--muted); margin-top: .6rem; cursor: pointer; }
+.review-photo .icon { color: var(--rose); }
+.review-photo input { flex-basis: 100%; font-size: .85rem; }
+.review-photo-thumb img { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; margin-top: .6rem; }
+.customer-photos { display: flex; gap: .7rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1.6rem; scrollbar-width: thin; }
+.customer-photos img { width: 160px; height: 160px; object-fit: cover; border-radius: var(--r); flex-shrink: 0; transition: transform .25s; }
+.customer-photos a:hover img { transform: scale(1.03); }
+
+/* Assistant cadeau */
+.gift-finder { display: grid; gap: 1.4rem; max-width: 860px; margin: 0 auto 2.5rem; }
+.gift-step { border: 0; padding: 1.3rem 1.4rem; margin: 0; background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
+.gift-step legend { float: left; width: 100%; font-family: var(--serif); font-size: 1.35rem; margin-bottom: .9rem; display: flex; align-items: center; gap: .6rem; }
+.gift-step-num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--rose); color: #fff; font-family: var(--sans); font-size: .85rem; font-weight: 700; }
+.gf-options { clear: both; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .6rem; }
+.gf-option input { position: absolute; opacity: 0; pointer-events: none; }
+.gf-option span { display: flex; align-items: center; gap: .55rem; padding: .85rem 1rem; border: 1.5px solid var(--line); border-radius: 14px; cursor: pointer; font-weight: 600; font-size: .92rem; transition: border-color .2s, background .2s; height: 100%; }
+.gf-option span .icon { color: var(--rose); flex-shrink: 0; }
+.gf-option input:checked + span { border-color: var(--rose); background: var(--blush-50); }
+.gf-option input:focus-visible + span { outline: 2px solid var(--rose); outline-offset: 2px; }
+.gift-finder > .btn { justify-self: center; }
+.gift-results { scroll-margin-top: 90px; }
+.gift-tip { display: flex; gap: .6rem; align-items: center; justify-content: center; background: var(--blush-50); border-radius: var(--r); padding: 1rem 1.2rem; margin-top: 2rem; font-size: .92rem; }
+.gift-tip .icon { color: var(--rose); flex-shrink: 0; }

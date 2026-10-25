@@ -86,7 +86,7 @@ final class Reviews
         );
     }
 
-    public static function submit(array $order, int $productId, int $rating, string $author, string $title, string $body): bool
+    public static function submit(array $order, int $productId, int $rating, string $author, string $title, string $body, ?string $photo = null): bool
     {
         if ($rating < 1 || $rating > 5) {
             return false;
@@ -94,6 +94,7 @@ final class Reviews
         $bought = Database::value('SELECT COUNT(*) FROM order_items WHERE order_id = ? AND product_id = ?', [$order['id'], $productId]);
         $already = Database::value('SELECT COUNT(*) FROM reviews WHERE order_id = ? AND product_id = ?', [$order['id'], $productId]);
         if (!$bought || $already) {
+            HomeImages::discard($photo);
             return false;
         }
         Database::insert('reviews', [
@@ -104,10 +105,21 @@ final class Reviews
             'title'       => mb_substr(trim($title), 0, 120) ?: null,
             'body'        => mb_substr(trim($body), 0, 2000) ?: null,
             'verified'    => 1,
+            'photo'       => $photo,
             'status'      => setting('reviews_auto_publish', '0') === '1' ? 'approved' : 'pending',
             'created_at'  => now(),
         ]);
         return true;
+    }
+
+    /** Photos des clientes pour un produit (avis publiés). */
+    public static function photos(int $productId, int $limit = 8): array
+    {
+        try {
+            return Database::all("SELECT id, photo, author_name, rating FROM reviews WHERE product_id = ? AND status = 'approved' AND photo IS NOT NULL ORDER BY created_at DESC LIMIT " . (int) $limit, [$productId]);
+        } catch (\PDOException) {
+            return [];
+        }
     }
 
     /** Prénom + initiale : « Marie D. » */

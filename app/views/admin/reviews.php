@@ -17,6 +17,7 @@
         <?= $r['order_number'] ? '· commande ' . e($r['order_number']) : '' ?> · <?= e(date_fr($r['created_at'])) ?></span>
       </header>
       <?php if ($r['body']): ?><p><?= nl2br(e($r['body'])) ?></p><?php endif; ?>
+      <?php if (!empty($r['photo'])): ?><p><a href="<?= e(image_url($r['photo'])) ?>" target="_blank"><img src="<?= e(thumb($r['photo'], 400)) ?>" alt="Photo jointe à l'avis" style="max-width:220px;border-radius:10px"></a></p><?php endif; ?>
       <div class="actions">
         <?php foreach (['publier' => 'Publier', 'refuser' => 'Refuser', 'supprimer' => 'Supprimer'] as $action => $label): ?>
           <?php if (($action === 'publier' && $r['status'] === 'approved') || ($action === 'refuser' && $r['status'] === 'rejected')) continue; ?>

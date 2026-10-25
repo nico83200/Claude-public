@@ -37,13 +37,26 @@ final class ReviewController
             if (!is_array($data) || empty($data['rating'])) {
                 continue;
             }
+            // Photo facultative (l'article porté, ou avec son cheval) : réduite et sans métadonnées
+            $photo = null;
+            $f = $_FILES['review_photo'] ?? null;
+            if ($f && isset($f['error'][$productId]) && $f['error'][$productId] !== UPLOAD_ERR_NO_FILE) {
+                try {
+                    $photo = \App\Services\HomeImages::store([
+                        'error' => $f['error'][$productId], 'size' => $f['size'][$productId], 'tmp_name' => $f['tmp_name'][$productId], 'name' => $f['name'][$productId],
+                    ], 'uploads/reviews', 1600);
+                } catch (\RuntimeException $e) {
+                    flash('error', 'Ta photo n\'a pas pu être ajoutée : ' . $e->getMessage());
+                }
+            }
             $saved += Reviews::submit(
                 $order,
                 (int) $productId,
                 (int) $data['rating'],
                 (string) input('author_name', Reviews::displayName($order['customer_name'])),
                 (string) ($data['title'] ?? ''),
-                (string) ($data['body'] ?? '')
+                (string) ($data['body'] ?? ''),
+                $photo
             ) ? 1 : 0;
         }
         if ($saved) {

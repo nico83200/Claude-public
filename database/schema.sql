@@ -259,6 +259,7 @@ CREATE TABLE reviews (
     title VARCHAR(120) NULL,
     body TEXT NULL,
     verified TINYINT(1) NOT NULL DEFAULT 1,
+    photo VARCHAR(190) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE

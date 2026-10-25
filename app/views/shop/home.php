@@ -134,7 +134,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
         <p class="eyebrow"><?= icon('gift', 14) ?> Les petites attentions</p>
         <h2>Le cadeau parfait <em>pour une cavalière</em></h2>
         <p>Anniversaire, Noël, Galop réussi, fin de stage… Des idées qui font mouche, à moins de <?= e(money($giftMax)) ?>.</p>
-        <a class="btn btn-primary" href="<?= e(url('boutique', ['prix_max' => $giftMax / 100])) ?>">Voir les idées cadeaux</a>
+        <a class="btn btn-primary" href="<?= e(url('idees-cadeaux')) ?>">Trouver le cadeau idéal</a>
       </div>
       <div class="gift-tags">
         <?php foreach (['Pour son anniversaire', 'Pour Noël', 'Pour un Galop réussi', 'Pour sa monitrice', 'Pour la propriétaire'] as $tag): ?>

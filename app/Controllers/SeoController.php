@@ -11,7 +11,7 @@ final class SeoController
     public function sitemap(): void
     {
         header('Content-Type: application/xml; charset=utf-8');
-        $urls = [['loc' => url('/'), 'priority' => '1.0'], ['loc' => url('boutique'), 'priority' => '0.9'], ['loc' => url('contact'), 'priority' => '0.3']];
+        $urls = [['loc' => url('/'), 'priority' => '1.0'], ['loc' => url('boutique'), 'priority' => '0.9'], ['loc' => url('contact'), 'priority' => '0.3'], ['loc' => url('idees-cadeaux'), 'priority' => '0.8']];
         if (\App\Services\AiPortrait::landingAvailable()) {
             $urls[] = ['loc' => url('portrait-aquarelle'), 'priority' => '0.9'];
         }

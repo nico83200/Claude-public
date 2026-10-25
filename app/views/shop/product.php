@@ -21,6 +21,14 @@
 <section class="section section-blush" id="avis">
   <div class="container">
     <div class="section-head"><div><p class="script-accent">avis vérifiés</p><h2>Elles l'ont <em>adopté</em></h2></div></div>
+    <?php $customerPhotos = App\Services\Reviews::photos((int) $product['id']); ?>
+    <?php if ($customerPhotos): ?>
+      <div class="customer-photos" aria-label="Photos de clientes">
+        <?php foreach ($customerPhotos as $cp): ?>
+          <a href="<?= e(image_url($cp['photo'])) ?>" target="_blank"><img src="<?= e(thumb($cp['photo'], 400)) ?>" alt="Photo de <?= e($cp['author_name']) ?>" loading="lazy" width="160" height="160"></a>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
     <?php if ($reviewSummary['count'] > 0): ?>
       <div class="reviews-layout">
         <aside class="reviews-summary">
@@ -39,6 +47,7 @@
               <?= stars((float) $r['rating']) ?>
               <?php if ($r['title']): ?><h3><?= e($r['title']) ?></h3><?php endif; ?>
               <?php if ($r['body']): ?><p><?= nl2br(e($r['body'])) ?></p><?php endif; ?>
+              <?php if (!empty($r['photo'])): ?><a class="review-photo-thumb" href="<?= e(image_url($r['photo'])) ?>" target="_blank"><img src="<?= e(thumb($r['photo'], 400)) ?>" alt="Photo de <?= e($r['author_name']) ?>" loading="lazy" width="120" height="120"></a><?php endif; ?>
               <div class="review-meta"><strong><?= e($r['author_name']) ?></strong><span><?= e(date_fr($r['created_at'], false)) ?></span><?php if ($r['verified']): ?><span class="verified"><?= icon('check', 12) ?> Achat vérifié</span><?php endif; ?></div>
             </article>
           <?php endforeach; ?>

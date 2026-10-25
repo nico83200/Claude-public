@@ -402,6 +402,19 @@
     });
   }
 
+  // Assistant cadeau : passe à la question suivante après chaque réponse
+  var finder = $('[data-gift-finder]');
+  if (finder) {
+    $$('input[type="radio"]', finder).forEach(function (r) {
+      r.addEventListener('change', function () {
+        var step = r.closest('.gift-step'), next = step.nextElementSibling;
+        if (next && next.classList.contains('gift-step')) next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        else $('button[type="submit"]', finder).focus();
+      });
+    });
+    if (location.search && $('#resultats')) $('#resultats').scrollIntoView();
+  }
+
   // Mini-panier ------------------------------------------------------------
   var drawer = $('[data-drawer]');
   var backdrop = $('[data-drawer-backdrop]');

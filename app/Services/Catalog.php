@@ -125,6 +125,9 @@ final class Catalog
         if (!empty($filters['personalizable'])) {
             $where[] = 'p.personalizable = 1';
         }
+        if (!empty($filters['not_personalizable'])) {
+            $where[] = 'p.personalizable = 0';
+        }
         if (!empty($filters['audience']) && isset(self::AUDIENCES[$filters['audience']])) {
             // « Pour elle » : articles pour elle + articles pour tous
             $where[] = "(p.audience = ? OR p.audience = 'tous' OR p.audience IS NULL)";

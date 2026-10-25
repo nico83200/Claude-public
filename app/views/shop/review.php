@@ -7,7 +7,7 @@
 </section>
 <section class="section section-tight">
   <div class="container narrow">
-    <form method="post" action="<?= e(url('avis/' . rawurlencode($order['number']))) ?>" class="review-form">
+    <form method="post" action="<?= e(url('avis/' . rawurlencode($order['number']))) ?>" class="review-form" enctype="multipart/form-data">
       <?= csrf_field() ?>
       <input type="hidden" name="t" value="<?= e($order['access_token']) ?>">
       <?php foreach ($products as $p): ?>
@@ -27,6 +27,8 @@
               </fieldset>
               <input type="text" name="reviews[<?= (int) $p['product_id'] ?>][title]" maxlength="120" placeholder="Un titre (ex. : « Coup de cœur ! »)">
               <textarea name="reviews[<?= (int) $p['product_id'] ?>][body]" rows="3" maxlength="2000" placeholder="Qualité, taille, rendu de la personnalisation…"></textarea>
+              <label class="review-photo"><?= icon('heart', 16) ?> <span>Ajoute une photo (facultatif) : ton article porté, ou avec ton cheval</span>
+                <input type="file" name="review_photo[<?= (int) $p['product_id'] ?>]" accept="image/jpeg,image/png,image/webp"></label>
             <?php endif; ?>
           </div>
         </div>

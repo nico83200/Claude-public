@@ -74,7 +74,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
           <a href="<?= e(url('boutique', ['pour' => 'elle'])) ?>">Pour elle</a>
           <a href="<?= e(url('boutique', ['pour' => 'lui'])) ?>">Pour lui</a>
           <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a>
-          <a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a>
+          <a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a>
         </div>
       </div>
       <?php if (App\Services\AiPortrait::landingAvailable()): ?>
@@ -110,7 +110,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <p class="search-popular" data-search-popular>Populaire :
         <?php if (App\Services\AiPortrait::landingAvailable()): ?><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle</a><?php endif; ?>
         <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">À personnaliser</a>
-        <a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a>
+        <a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a>
         <a href="<?= e(url('boutique', ['q' => 'sweat'])) ?>">Sweats</a>
       </p>
     </div>
@@ -175,7 +175,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <?php foreach ($navCategories as $c): ?><li><a href="<?= e(url('categorie/' . $c['slug'])) ?>"><?= e($c['name']) ?></a></li><?php endforeach; ?>
         <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de votre cheval</a></li><?php endif; ?>
         <li><a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a></li>
-        <li><a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a></li>
+        <li><a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a></li>
         <?php if (App\Services\Journal::available()): ?><li><a href="<?= e(url('journal')) ?>">Le journal : conseils &amp; idées cadeaux</a></li><?php endif; ?>
         <li><a href="<?= e(url('suivi')) ?>">Suivre ma commande</a></li>
       </ul>
