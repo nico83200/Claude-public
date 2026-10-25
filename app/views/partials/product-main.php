@@ -65,7 +65,7 @@ if ($cfg) {
             <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null, 'visible' => $previewFirst]); ?>
           <?php endif; ?>
           </div>
-          <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> Survolez pour zoomer</span>
+          <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> <span class="hint-mouse">Survolez pour zoomer</span><span class="hint-touch"><?= $cfg ? 'Glissez pour voir les photos' : 'Touchez pour agrandir' ?></span></span>
         </div>
         <?php if (count($images) > 1 || $isAi): ?>
           <div class="gallery-thumbs">
@@ -80,6 +80,18 @@ if ($cfg) {
           </div>
         <?php endif; ?>
       </div>
+
+      <?php if (!$cfg): ?>
+      <dialog class="lightbox" data-lightbox aria-label="Photo agrandie">
+        <div class="lightbox-scroll" data-lightbox-scroll><img src="" alt="<?= e($product['name']) ?>" data-lightbox-img></div>
+        <button type="button" class="lightbox-btn lightbox-close" data-lightbox-close aria-label="Fermer"><?= icon('close', 22) ?></button>
+        <button type="button" class="lightbox-btn lightbox-zoom" data-lightbox-zoom aria-label="Zoomer"><?= icon('search', 20) ?></button>
+        <?php if (count($images) > 1): ?>
+          <button type="button" class="lightbox-btn lightbox-prev" data-lightbox-step="-1" aria-label="Photo précédente">‹</button>
+          <button type="button" class="lightbox-btn lightbox-next" data-lightbox-step="1" aria-label="Photo suivante">›</button>
+        <?php endif; ?>
+      </dialog>
+      <?php endif; ?>
 
       <div class="product-info">
         <?php if ($product['category_name']): ?><p class="eyebrow"><?= e($product['category_name']) ?></p><?php endif; ?>

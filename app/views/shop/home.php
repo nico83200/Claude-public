@@ -59,11 +59,12 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
         </a>
       <?php endforeach; ?>
     </div>
+    <div class="scroll-hint" data-scroll-dots aria-hidden="true"><?php foreach ($categories as $i => $c): ?><span class="<?= $i === 0 ? 'active' : '' ?>"></span><?php endforeach; ?></div>
   </div>
 </section>
 <?php endif; ?>
 
-<section class="section section-blush">
+<section class="section section-blush home-bestsellers">
   <div class="container">
     <div class="section-head">
       <div><p class="script-accent">les chouchous</p><h2>Les préférées <em>du club</em></h2></div>

@@ -13,7 +13,11 @@
   </div>
 </section>
 
-<?php if (App\Services\Reviews::enabled()): ?>
+<?php if (App\Services\Reviews::enabled() && $reviewSummary['count'] === 0): ?>
+<section class="reviews-empty-band" id="avis">
+  <div class="container"><p><?= icon('star', 16) ?> <strong>Pas encore d'avis sur cet article.</strong> <span class="muted">Après votre commande, vous serez invitée à partager le vôtre.</span></p></div>
+</section>
+<?php elseif (App\Services\Reviews::enabled()): ?>
 <section class="section section-blush" id="avis">
   <div class="container">
     <div class="section-head"><div><p class="script-accent">avis vérifiés</p><h2>Elles l'ont <em>adopté</em></h2></div></div>

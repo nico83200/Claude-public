@@ -118,6 +118,60 @@
     });
   });
 
+  // Galerie : glisser au doigt pour changer de photo ; photo plein écran au toucher / clic
+  var galleryStage = mainImage && mainImage.closest('.gallery-main');
+  var galleryThumbs = $$('[data-thumb]');
+  var currentThumb = function () { return Math.max(0, galleryThumbs.findIndex(function (t) { return t.classList.contains('active'); })); };
+  var showThumb = function (i) { var t = galleryThumbs[(i + galleryThumbs.length) % galleryThumbs.length]; if (t) t.click(); return t; };
+  if (galleryStage && galleryThumbs.length > 1) {
+    var sx = 0, sy = 0, swiping = false;
+    galleryStage.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; swiping = true; }, { passive: true });
+    galleryStage.addEventListener('touchend', function (e) {
+      if (!swiping) return;
+      swiping = false;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        galleryStage.dataset.swiped = '1';
+        showThumb(currentThumb() + (dx < 0 ? 1 : -1));
+        setTimeout(function () { delete galleryStage.dataset.swiped; }, 350);
+      }
+    }, { passive: true });
+  }
+  var lightbox = $('[data-lightbox]');
+  if (galleryStage && lightbox && typeof lightbox.showModal === 'function') {
+    var lbImg = $('[data-lightbox-img]', lightbox);
+    var lbOpen = function () {
+      lbImg.src = mainImage.dataset.full || mainImage.currentSrc || mainImage.src;
+      lightbox.classList.remove('is-zoomed');
+      lightbox.showModal();
+      document.documentElement.style.overflow = 'hidden';
+    };
+    galleryStage.classList.add('has-lightbox');
+    galleryStage.addEventListener('click', function (e) {
+      if (galleryStage.dataset.swiped || e.target.closest('button, a, input')) return;
+      lbOpen();
+    });
+    lightbox.addEventListener('close', function () { document.documentElement.style.overflow = ''; });
+    $('[data-lightbox-close]', lightbox).addEventListener('click', function () { lightbox.close(); });
+    $('[data-lightbox-zoom]', lightbox).addEventListener('click', function () { lightbox.classList.toggle('is-zoomed'); });
+    lbImg.addEventListener('dblclick', function () { lightbox.classList.toggle('is-zoomed'); });
+    $$('[data-lightbox-step]', lightbox).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = showThumb(currentThumb() + parseInt(b.dataset.lightboxStep, 10));
+        if (t) { lbImg.src = t.dataset.full || t.dataset.thumb; lightbox.classList.remove('is-zoomed'); }
+      });
+    });
+    var lx = 0;
+    lbImg.addEventListener('touchstart', function (e) { lx = e.touches[0].clientX; }, { passive: true });
+    lbImg.addEventListener('touchend', function (e) {
+      var dx = e.changedTouches[0].clientX - lx;
+      if (!lightbox.classList.contains('is-zoomed') && galleryThumbs.length > 1 && Math.abs(dx) > 50) {
+        var t = showThumb(currentThumb() + (dx < 0 ? 1 : -1));
+        if (t) lbImg.src = t.dataset.full || t.dataset.thumb;
+      }
+    }, { passive: true });
+  }
+
   // Zoom au survol de la photo produit (souris uniquement) -------------------
   var zoomStage = mainImage && mainImage.closest('.gallery-main');
   var zoomLayer = zoomStage && $('[data-zoom-layer]', zoomStage);
@@ -172,6 +226,21 @@
     var syncGift = function () { giftFields.hidden = !giftToggle.checked; if (giftToggle.checked) giftMsg.focus(); };
     giftToggle.addEventListener('change', syncGift);
     giftMsg.addEventListener('input', function () { giftCount.textContent = giftMsg.value.length + ' / 200'; });
+  }
+
+  // Pied de page : colonnes repliées sur téléphone
+  if (window.matchMedia('(max-width: 760px)').matches) {
+    $$('[data-footer-col]').forEach(function (d) { d.open = false; });
+  }
+  // Carrousel des collections : points de position
+  var dots = $('[data-scroll-dots]');
+  var track = dots && dots.parentNode.querySelector('.collections');
+  if (track) {
+    track.addEventListener('scroll', function () {
+      var cards = track.children, best = 0, mid = track.scrollLeft + track.clientWidth / 2;
+      for (var i = 0; i < cards.length; i++) if (Math.abs(cards[i].offsetLeft + cards[i].offsetWidth / 2 - mid) < Math.abs(cards[best].offsetLeft + cards[best].offsetWidth / 2 - mid)) best = i;
+      $$('span', dots).forEach(function (s, i) { s.classList.toggle('active', i === best); });
+    }, { passive: true });
   }
 
   // Mini-panier ------------------------------------------------------------

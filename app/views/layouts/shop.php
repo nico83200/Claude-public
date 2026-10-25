@@ -146,8 +146,8 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <p class="socials"><?php foreach ($socials as $label => $href): ?><a href="<?= e($href) ?>" rel="noopener" target="_blank"><?= e($label) ?></a><?php endforeach; ?></p>
       <?php endif; ?>
     </div>
-    <div>
-      <h3>Boutique</h3>
+    <details class="footer-col" data-footer-col open>
+      <summary><h3>Boutique</h3></summary>
       <ul>
         <?php foreach ($navCategories as $c): ?><li><a href="<?= e(url('categorie/' . $c['slug'])) ?>"><?= e($c['name']) ?></a></li><?php endforeach; ?>
         <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de votre cheval</a></li><?php endif; ?>
@@ -155,15 +155,16 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <li><a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a></li>
         <li><a href="<?= e(url('suivi')) ?>">Suivre ma commande</a></li>
       </ul>
-    </div>
-    <div>
-      <h3>Aide</h3>
+    </details>
+    <details class="footer-col" data-footer-col open>
+      <summary><h3>Aide</h3></summary>
       <ul>
         <?php foreach ($footerPages as $p): ?><li><a href="<?= e(url('page/' . $p['slug'])) ?>"><?= e($p['title']) ?></a></li><?php endforeach; ?>
         <li><a href="<?= e(url('contact')) ?>">Contact</a></li>
         <li><button type="button" class="link-button" data-cookie-settings>Gérer les cookies</button></li>
       </ul>
-    </div>
+    </details>
+    <?php if (request_path() !== '/'): /* l'accueil a déjà son bloc « Rejoignez le club » */ ?>
     <div>
       <h3>Rejoindre le club</h3>
       <p><?= $welcomeOffer !== '' ? e($welcomeOffer) . ' sur votre première commande, puis nos nouveautés en avant-première.' : 'Nouveautés en avant-première, éditions limitées et petites surprises.' ?></p>
@@ -180,6 +181,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
         <p class="small" data-newsletter-message role="status"></p>
       </form>
     </div>
+    <?php endif; ?>
   </div>
   <div class="container footer-bottom">
     <span>© <?= date('Y') ?> <?= e($shopName) ?> — Tous droits réservés</span>

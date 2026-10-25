@@ -8,6 +8,8 @@ $query = array_filter([
 ]);
 $base = $category ? 'categorie/' . $category['slug'] : 'boutique';
 $toggle = static fn (string $key, $value) => isset($query[$key]) ? array_diff_key($query, [$key => 1]) : $query + [$key => $value];
+$sorts = ['featured' => 'Nos coups de cœur', 'bestsellers' => 'Meilleures ventes', 'new' => 'Nouveautés', 'rating' => 'Mieux notés', 'price_asc' => 'Prix croissant', 'price_desc' => 'Prix décroissant'];
+$activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_price'] + (int) ($filters['sort'] !== 'featured');
 ?>
 <section class="page-hero">
   <div class="container">
@@ -33,14 +35,56 @@ $toggle = static fn (string $key, $value) => isset($query[$key]) ? array_diff_ke
         <?php foreach (array_diff_key($query, ['tri' => 1]) as $k => $v): ?><input type="hidden" name="<?= e($k) ?>" value="<?= e($v) ?>"><?php endforeach; ?>
         <label for="tri">Trier par</label>
         <select id="tri" name="tri" data-autosubmit>
-          <?php foreach (['featured' => 'Nos coups de cœur', 'bestsellers' => 'Meilleures ventes', 'new' => 'Nouveautés', 'rating' => 'Mieux notés', 'price_asc' => 'Prix croissant', 'price_desc' => 'Prix décroissant'] as $k => $label): ?>
+          <?php foreach ($sorts as $k => $label): ?>
             <option value="<?= $k ?>" <?= $filters['sort'] === $k ? 'selected' : '' ?>><?= $label ?></option>
           <?php endforeach; ?>
         </select>
       </form>
     </div>
 
-    <p class="result-count"><?= $total ?> article<?= $total > 1 ? 's' : '' ?></p>
+    <div class="result-row">
+      <p class="result-count"><?= $total ?> article<?= $total > 1 ? 's' : '' ?></p>
+      <button type="button" class="btn btn-ghost btn-sm filter-btn" data-open-dialog="filters-sheet"><?= icon('menu', 16) ?> Filtrer &amp; trier<?= $activeFilters ? ' <span class="pill pill-rose">' . $activeFilters . '</span>' : '' ?></button>
+    </div>
+
+    <dialog class="modal filters-sheet" id="filters-sheet" aria-labelledby="filters-title">
+      <button class="icon-btn modal-close" type="button" data-modal-close aria-label="Fermer"><?= icon('close', 20) ?></button>
+      <form method="get" action="<?= e(url($base)) ?>" class="modal-body">
+        <h2 id="filters-title">Filtrer &amp; trier</h2>
+        <?php if ($filters['q']): ?><input type="hidden" name="q" value="<?= e($filters['q']) ?>"><?php endif; ?>
+        <fieldset>
+          <legend>Collection</legend>
+          <div class="chips">
+            <a class="chip <?= !$category ? 'active' : '' ?>" href="<?= e(url('boutique', array_diff_key($query, ['q' => 1]))) ?>">Tout</a>
+            <?php foreach ($categories as $c): ?><a class="chip <?= $category && $category['id'] == $c['id'] ? 'active' : '' ?>" href="<?= e(url('categorie/' . $c['slug'], array_diff_key($query, ['q' => 1]))) ?>"><?= e($c['name']) ?></a><?php endforeach; ?>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Budget</legend>
+          <div class="chips">
+            <?php foreach ([0 => 'Tous les prix', 20 => 'Moins de 20 €', 30 => 'Moins de 30 €', 50 => 'Moins de 50 €', 80 => 'Moins de 80 €'] as $v => $label): ?>
+              <label class="chip chip-radio"><input type="radio" name="prix_max" value="<?= $v ?: '' ?>" <?= (int) ($filters['max_price'] / 100) === $v ? 'checked' : '' ?>><span><?= e($label) ?></span></label>
+            <?php endforeach; ?>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Type d'article</legend>
+          <label class="checkbox"><input type="checkbox" name="personnalisable" value="1" <?= $filters['personalizable'] ? 'checked' : '' ?>> <span>Uniquement les articles à personnaliser (nom, photo, portrait)</span></label>
+        </fieldset>
+        <fieldset>
+          <legend>Trier par</legend>
+          <div class="chips">
+            <?php foreach ($sorts as $k => $label): ?>
+              <label class="chip chip-radio"><input type="radio" name="tri" value="<?= $k === 'featured' ? '' : $k ?>" <?= $filters['sort'] === $k ? 'checked' : '' ?>><span><?= e($label) ?></span></label>
+            <?php endforeach; ?>
+          </div>
+        </fieldset>
+        <div class="filters-actions">
+          <a class="btn btn-ghost" href="<?= e(url($base)) ?>">Tout effacer</a>
+          <button class="btn btn-primary" type="submit">Voir les articles</button>
+        </div>
+      </form>
+    </dialog>
 
     <?php if ($products): ?>
       <div class="product-grid">
