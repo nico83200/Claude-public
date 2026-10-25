@@ -54,6 +54,7 @@ final class Settings
         'popup_enabled'    => '1',
         'popup_delay'      => '15',
         'ai_prompt'        => '',      // vide = prompt d'origine du style « Encre & Poudre »
+        'cart_recovery_enabled' => '1', // e-mail « votre panier vous attend » (avec consentement)
         'welcome_amount'   => '500',   // cadeau de bienvenue en centimes : code personnel à usage unique créé dans Stripe
         'welcome_code'     => '',
         'welcome_discount' => '5 € offerts',

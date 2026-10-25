@@ -163,6 +163,17 @@
     });
   }
 
+  // Option cadeau : affiche le message, compteur de caractères
+  var giftToggle = $('[data-gift-toggle]');
+  if (giftToggle) {
+    var giftFields = $('[data-gift-fields]');
+    var giftMsg = $('#gift-message');
+    var giftCount = $('[data-gift-count]');
+    var syncGift = function () { giftFields.hidden = !giftToggle.checked; if (giftToggle.checked) giftMsg.focus(); };
+    giftToggle.addEventListener('change', syncGift);
+    giftMsg.addEventListener('input', function () { giftCount.textContent = giftMsg.value.length + ' / 200'; });
+  }
+
   // Mini-panier ------------------------------------------------------------
   var drawer = $('[data-drawer]');
   var backdrop = $('[data-drawer-backdrop]');

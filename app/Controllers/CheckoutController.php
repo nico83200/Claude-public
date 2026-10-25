@@ -29,8 +29,22 @@ final class CheckoutController
 
         $order = OrderService::createFromCart($items, input('newsletter') === '1');
         $customer = Account::current();
+        $extra = [];
         if ($customer) {
-            Database::update('orders', ['customer_id' => $customer['id']], 'id = :id', ['id' => $order['id']]);
+            // E-mail connu dès maintenant : commande rattachée, et relance possible si le paiement n'aboutit pas
+            $extra += ['customer_id' => $customer['id'], 'email' => $customer['email']];
+        }
+        $giftMessage = trim(str_replace(["\r\n", "\r"], "\n", (string) input('gift_message', '')));
+        if (input('gift') === '1') {
+            $extra += [
+                'is_gift'      => 1,
+                'gift_to'      => mb_substr(trim((string) input('gift_to', '')), 0, 60) ?: null,
+                'gift_message' => $giftMessage !== '' ? mb_substr($giftMessage, 0, 200) : null,
+            ];
+        }
+        if ($extra) {
+            Database::update('orders', $extra, 'id = :id', ['id' => $order['id']]);
+            $order = OrderService::find((int) $order['id']);
         }
         $_SESSION['want_account'] = !$customer && input('create_account') === '1';
         $subtotal = Cart::subtotal($items);
@@ -81,7 +95,7 @@ final class CheckoutController
             'phone_number_collection' => ['enabled' => 'true'],
             'billing_address_collection' => 'auto',
             'allow_promotion_codes' => 'true',
-            'metadata'             => ['order_id' => (string) $order['id'], 'order_number' => $order['number']],
+            'metadata'             => ['order_id' => (string) $order['id'], 'order_number' => $order['number']] + ($order['is_gift'] ? ['cadeau' => 'oui'] : []),
             'payment_intent_data'  => [
                 'metadata'    => ['order_id' => (string) $order['id'], 'order_number' => $order['number']],
                 'description' => 'Commande ' . $order['number'],

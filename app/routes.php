@@ -35,6 +35,7 @@ $r->get('/portrait-ia/{token}', [AiPortraitController::class, 'status']);
 $r->get('/portrait-ia/{token}/apercu', [AiPortraitController::class, 'preview']);
 $r->post('/panier/modifier', [CartController::class, 'update']);
 $r->post('/panier/supprimer', [CartController::class, 'remove']);
+$r->get('/panier/reprendre/{number}', [CartController::class, 'restore']);
 $r->post('/commande', [CheckoutController::class, 'start']);
 $r->get('/commande/merci', [CheckoutController::class, 'success']);
 

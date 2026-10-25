@@ -146,4 +146,35 @@ final class CartController
         flash('success', 'Article retiré du panier.');
         redirect('panier');
     }
+
+    /** Lien de la relance « votre panier vous attend » : remet les articles dans le panier. */
+    public function restore(string $number): void
+    {
+        $order = \App\Services\OrderService::findByNumber($number);
+        if (!$order || !\App\Services\OrderService::checkRecoveryToken($order, (string) input('t', ''))) {
+            flash('error', 'Ce lien n\'est plus valable : retrouvez nos articles dans la boutique.');
+            redirect('boutique');
+        }
+        if ($order['paid_at']) {
+            redirect(\App\Services\OrderService::trackingUrl($order));
+        }
+        $restored = 0;
+        foreach (\App\Services\OrderService::items((int) $order['id']) as $item) {
+            $variant = $item['variant_id'] ? \App\Core\Database::one('SELECT v.id FROM product_variants v JOIN products p ON p.id = v.product_id WHERE v.id = ? AND v.active = 1 AND p.active = 1', [$item['variant_id']]) : null;
+            if (!$variant) {
+                continue;
+            }
+            $portrait = $item['ai_portrait'] && \App\Services\AiPortrait::find((string) $item['ai_portrait']) ? (string) $item['ai_portrait'] : null;
+            if ($item['ai_portrait'] && !$portrait) {
+                continue; // portrait IA effacé entre-temps
+            }
+            Cart::add((int) $item['variant_id'], (int) $item['quantity'], (string) $item['personalization_text'],
+                $portrait ? null : (\App\Services\Upload::customerPhotoPath($item['photo_file']) ? $item['photo_file'] : null),
+                array_filter(['year' => (string) $item['personalization_year'], 'portrait' => $portrait]));
+            $restored++;
+        }
+        \App\Services\OrderService::event((int) $order['id'], 'recovery', $restored . ' article(s) remis dans le panier depuis le lien de relance.');
+        flash($restored ? 'success' : 'error', $restored ? 'Votre panier est de retour ♡ Il ne reste plus qu\'à finaliser.' : 'Ces articles ne sont plus disponibles : découvrez nos nouveautés.');
+        redirect($restored ? 'panier' : 'boutique');
+    }
 }

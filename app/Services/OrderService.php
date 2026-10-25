@@ -383,7 +383,10 @@ final class OrderService
                 'total'    => number_format($order['total'] / 100, 2, '.', ''),
             ],
             'packing_slip' => $packingSlip,
-        ];
+        ] + (!empty($order['is_gift']) ? ['gift' => array_filter([
+            'subject' => mb_substr($order['gift_to'] ? 'Pour ' . $order['gift_to'] : 'Un cadeau pour vous', 0, 200),
+            'message' => mb_substr((string) ($order['gift_message'] ?: 'Avec toute notre affection ♡'), 0, 200),
+        ])] : []);
     }
 
     /** Événements Printful (webhook) */
@@ -573,9 +576,68 @@ final class OrderService
     {
         $order = self::orderForSession($session);
         if ($order && $order['status'] === 'pending') {
-            Database::update('orders', ['status' => 'canceled', 'updated_at' => now()], "id = :id AND status = 'pending'", ['id' => $order['id']]);
+            $email = mb_strtolower(trim((string) ($session['customer_details']['email'] ?? $session['customer_email'] ?? '')));
+            Database::update('orders', array_filter([
+                'status'     => 'canceled',
+                'updated_at' => now(),
+                'email'      => !$order['email'] && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null,
+            ]), "id = :id AND status = 'pending'", ['id' => $order['id']]);
             self::event((int) $order['id'], 'canceled', 'Session de paiement expirée sans règlement (panier abandonné).');
+            self::sendRecovery((int) $order['id']);
         }
+    }
+
+    /** Lien personnel qui remet les articles d'une commande non payée dans le panier. */
+    public static function recoveryUrl(array $order): string
+    {
+        return url('panier/reprendre/' . $order['number'], ['t' => substr(hash_hmac('sha256', 'reprise:' . $order['number'], (string) $order['access_token']), 0, 32)]);
+    }
+
+    public static function checkRecoveryToken(array $order, string $token): bool
+    {
+        return hash_equals(substr(hash_hmac('sha256', 'reprise:' . $order['number'], (string) $order['access_token']), 0, 32), $token);
+    }
+
+    /**
+     * Relance d'un panier abandonné : un seul e-mail, seulement si la cliente a accepté de recevoir
+     * nos e-mails (case « club » cochée ou déjà inscrite) et n'a pas commandé depuis.
+     */
+    public static function sendRecovery(int $orderId): bool
+    {
+        $order = self::find($orderId);
+        if (!$order || $order['paid_at'] || $order['recovery_sent_at'] || !$order['email'] || setting('cart_recovery_enabled', '1') !== '1'
+            || strtotime((string) $order['created_at']) < time() - 7 * 86400) {
+            return false;
+        }
+        $consent = (int) $order['newsletter_optin'] === 1 || Newsletter::exists((string) $order['email']);
+        $orderedSince = (bool) Database::value('SELECT id FROM orders WHERE email = ? AND paid_at IS NOT NULL AND created_at >= ?', [$order['email'], $order['created_at']]);
+        if (!$consent || $orderedSince) {
+            return false;
+        }
+        $items = self::items($orderId);
+        if (!$items) {
+            return false;
+        }
+        Database::update('orders', ['recovery_sent_at' => now()], 'id = :id', ['id' => $orderId]);
+        Mailer::sendTemplate((string) $order['email'], 'Votre panier vous attend ♡', 'cart_recovery', [
+            'order' => $order,
+            'items' => $items,
+            'link'  => self::recoveryUrl($order),
+        ]);
+        self::event($orderId, 'email', 'Relance de panier abandonné envoyée.');
+        return true;
+    }
+
+    /** Tâche planifiée : relance les paniers abandonnés dont l'e-mail est connu (ex. cliente connectée). */
+    public static function sendRecoveries(): int
+    {
+        $rows = Database::all("SELECT id FROM orders WHERE paid_at IS NULL AND status IN ('pending', 'canceled') AND email IS NOT NULL
+            AND recovery_sent_at IS NULL AND created_at BETWEEN ? AND ?", [date('Y-m-d H:i:s', time() - 7 * 86400), date('Y-m-d H:i:s', time() - 3 * 3600)]);
+        $sent = 0;
+        foreach ($rows as $row) {
+            $sent += self::sendRecovery((int) $row['id']) ? 1 : 0;
+        }
+        return $sent;
     }
 
     public static function handleRefund(array $charge): void

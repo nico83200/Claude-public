@@ -94,6 +94,14 @@
   </div>
 
   <div>
+    <?php if (!empty($order['is_gift'])): ?>
+    <section class="card">
+      <h2>🎁 Commande cadeau</h2>
+      <p><?= $order['gift_to'] ? 'Pour <strong>' . e($order['gift_to']) . '</strong>' : 'Destinataire non précisé' ?></p>
+      <?php if ($order['gift_message']): ?><blockquote class="gift-quote"><?= nl2br(e($order['gift_message'])) ?></blockquote><?php endif; ?>
+      <p class="muted small">Transmis à Printful : imprimé sur le bon de livraison.</p>
+    </section>
+    <?php endif; ?>
     <section class="card">
       <h2>Client</h2>
       <p><strong><?= e($order['customer_name'] ?: '—') ?></strong><br>

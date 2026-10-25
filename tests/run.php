@@ -407,6 +407,29 @@ check('SVG laissé tel quel', thumb('assets/img/brand/logo.svg', 400) === image_
 check('srcset pour le navigateur', str_contains(img_attrs('assets/img/products/club-hoodie.jpg', [400, 800], '50vw'), 'srcset="') && str_contains(img_attrs('assets/img/products/club-hoodie.jpg', [400, 800], '50vw'), ' 800w'));
 @unlink($thumbPath);
 
+echo "Commande cadeau et relance de panier\n";
+$_SESSION = [];
+Cart::add((int) $hoodie['id'], 1, 'Pépite');
+$giftOrder = OrderService::createFromCart(Cart::items(), true);
+Database::update('orders', ['is_gift' => 1, 'gift_to' => 'Léa', 'gift_message' => 'Joyeux anniversaire !', 'shipping_address' => json_encode(['name' => 'Léa', 'line1' => '1 rue des Écuries', 'city' => 'Lyon', 'postal_code' => '69001', 'country' => 'FR'])], 'id = :id', ['id' => $giftOrder['id']]);
+$giftPayload = OrderService::buildPrintfulPayload(OrderService::find((int) $giftOrder['id']));
+check('message cadeau transmis à Printful', ($giftPayload['gift']['subject'] ?? '') === 'Pour Léa' && ($giftPayload['gift']['message'] ?? '') === 'Joyeux anniversaire !');
+check('pas de bloc cadeau sinon', !isset(OrderService::buildPrintfulPayload(OrderService::find((int) $order['id']))['gift']));
+OrderService::handleSessionExpired(['id' => 'cs_relance', 'metadata' => ['order_id' => (string) $giftOrder['id']], 'customer_details' => ['email' => 'Relance@Example.com']]);
+$relance = OrderService::find((int) $giftOrder['id']);
+check('panier expiré : e-mail récupéré et relance envoyée', $relance['status'] === 'canceled' && $relance['email'] === 'relance@example.com' && $relance['recovery_sent_at'] !== null
+    && str_contains((string) file_get_contents(STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log'), 'Votre panier vous attend'));
+check('une seule relance', OrderService::sendRecovery((int) $giftOrder['id']) === false);
+$recoveryUrl = OrderService::recoveryUrl($relance);
+parse_str((string) parse_url($recoveryUrl, PHP_URL_QUERY), $rq);
+check('lien de reprise signé', OrderService::checkRecoveryToken($relance, $rq['t']) && !OrderService::checkRecoveryToken($relance, str_repeat('0', 32)));
+$_SESSION = [];
+Cart::add((int) $hoodie['id'], 1, 'Sans consentement');
+$noConsent = OrderService::createFromCart(Cart::items(), false);
+Database::update('orders', ['email' => 'jamais-inscrite@example.com', 'status' => 'canceled'], 'id = :id', ['id' => $noConsent['id']]);
+check('pas de relance sans consentement', OrderService::sendRecovery((int) $noConsent['id']) === false);
+$_SESSION = [];
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -596,7 +619,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('onze migrations connues', count(App\Core\Migrator::files()) === 11);
+check('douze migrations connues', count(App\Core\Migrator::files()) === 12);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

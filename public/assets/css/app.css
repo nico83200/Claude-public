@@ -890,3 +890,11 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 
 .checkbox.pulse { animation: pulse-bg 1.4s ease 2; border-radius: 10px; }
 @keyframes pulse-bg { 0%, 100% { background: transparent; } 50% { background: var(--blush-50); } }
+
+/* Option cadeau (panier) */
+.gift-option { background: var(--blush-50); border-radius: var(--r-sm); padding: .75rem .9rem .2rem; margin: 0 0 1rem; }
+.gift-option .checkbox .icon { color: var(--rose); vertical-align: -3px; }
+.gift-fields { padding: .2rem 0 .6rem; }
+.gift-fields .field { margin-bottom: .7rem; }
+.gift-fields label small { font-weight: 400; float: right; }
+.gift-fields textarea, .gift-fields input { width: 100%; }

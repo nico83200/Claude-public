@@ -52,6 +52,7 @@ final class Cron
 
         $step('Demandes d\'avis envoyées', static fn (): string => (string) Reviews::sendRequests());
         $step('Paniers abandonnés annulés', static fn (): string => (string) OrderService::cancelAbandoned());
+        $step('Relances de paniers envoyées', static fn (): string => (string) OrderService::sendRecoveries());
         $step('Newsletter synchronisée vers Brevo', static fn (): string => (string) Newsletter::syncPending());
 
         $step('Portraits IA', static function (): string {

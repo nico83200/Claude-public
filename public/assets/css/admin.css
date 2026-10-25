@@ -172,3 +172,4 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 .card-danger .checkbox input { width: auto; margin-top: .2rem; }
 form.inline.right { float: right; }
 .center { text-align: center; }
+.gift-quote { margin: .5rem 0; padding: .7rem 1rem; background: #f8f1ee; border-left: 3px solid #5a2a3a; border-radius: 6px; font-style: italic; }
