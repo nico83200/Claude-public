@@ -111,12 +111,22 @@ CREATE TABLE product_variants (
     price INT NULL,
     printful_variant_id BIGINT NULL,
     printful_sync_variant_id BIGINT NULL,
+    cost INT NULL,
     image VARCHAR(500) NULL,
     position INT NOT NULL DEFAULT 0,
     active TINYINT(1) NOT NULL DEFAULT 1,
     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_variants_product ON product_variants (product_id, active);
+
+CREATE TABLE product_categories (
+    product_id INT UNSIGNED NOT NULL,
+    category_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (product_id, category_id),
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_product_categories_category ON product_categories (category_id);
 
 CREATE TABLE orders (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

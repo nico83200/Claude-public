@@ -56,6 +56,7 @@ final class ProductsController extends BaseController
             'product'    => $product,
             'variants'   => $variants,
             'categories' => Catalog::categories(false),
+            'productCategories' => $product['id'] ? Catalog::productCategoryIds((int) $product['id']) : [],
             'perso'      => Personalizer::config($product['personalization']),
             'library'    => DesignLibrary::all(),
         ]);
@@ -72,7 +73,9 @@ final class ProductsController extends BaseController
     {
         Database::one('SELECT id FROM products WHERE id = ?', [(int) $id]) ?? abort(404);
         $this->save((int) $id);
-        flash('success', 'Produit enregistré.');
+        if (!isset($_SESSION['_flash']['success'])) { // le message du recalcul des prix prime
+            flash('success', 'Produit enregistré.');
+        }
         redirect('admin/produits/' . $id);
     }
 
@@ -182,6 +185,12 @@ final class ProductsController extends BaseController
             $id = Database::insert('products', $data + ['created_at' => now()]);
         }
         $this->saveVariants($id, (array) ($_POST['variants'] ?? []));
+        Catalog::setCategories($id, (int) input('category_id') ?: null, (array) ($_POST['extra_categories'] ?? []));
+        // Prix calculés depuis le coût Printful : TVA 20 % puis marge 50 %, arrondi aux 10 centimes inférieurs
+        if (input('apply_pricing') === '1') {
+            $base = \App\Services\Pricing::applyToProduct($id);
+            flash('success', $base !== null ? 'Prix recalculés (TVA 20 % + marge 50 %) : à partir de ' . money($base) . '.' : 'Aucune variante n\'a de coût Printful : renseignez la colonne « Coût € ».');
+        }
         return $id;
     }
 
@@ -214,6 +223,7 @@ final class ProductsController extends BaseController
                 'size'       => $size ?: null,
                 'sku'        => mb_substr(trim((string) ($row['sku'] ?? '')), 0, 100) ?: null,
                 'price'      => trim((string) ($row['price'] ?? '')) !== '' ? to_cents($row['price']) : null,
+                'cost'       => trim((string) ($row['cost'] ?? '')) !== '' ? to_cents($row['cost']) : null,
                 'printful_variant_id'      => (int) ($row['printful_variant_id'] ?? 0) ?: null,
                 'printful_sync_variant_id' => (int) ($row['printful_sync_variant_id'] ?? 0) ?: null,
                 'image'      => trim((string) ($row['image'] ?? '')) ?: null,
@@ -417,6 +427,7 @@ final class ProductsController extends BaseController
                     'description' => '',
                     'created_at'  => now(),
                 ]);
+                Catalog::setCategories($productId, (int) input('category_id') ?: null, []);
             }
 
             $position = 0;

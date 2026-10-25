@@ -1,0 +1,1275 @@
+[
+ {
+  "slug": "plaid-sherpa-son-portrait",
+  "name": "Plaid sherpa « Son portrait au coin du feu »",
+  "category": "mon-cheval-ma-fierte",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "tous",
+  "short_description": "Son portrait sur un plaid tout doux : les soirées d'hiver ont enfin quelqu'un à qui penser.",
+  "description": "<p>Une face imprimée avec le portrait de ton cheval redessiné par notre IA, une face sherpa moelleuse comme une couverture d'écurie… en beaucoup plus propre.</p><ul><li>Portrait créé d'après ta photo, dans le style de ton choix (aquarelle, fusain, pop art…)</li><li>Son nom en écriture manuscrite sous le portrait</li><li>Doublure sherpa ultra-douce, 2 tailles</li></ul>",
+  "price": 4800,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/e2/e289ece99c6c7971336034b3597d6509_l"
+  ],
+  "printful_product_id": 711,
+  "print_placement": "default",
+  "personalization": {
+   "mode": "ai_portrait",
+   "label": "Nom de ton cheval",
+   "max_length": 16,
+   "required": false,
+   "print_w": 3000,
+   "print_h": 4620,
+   "year_enabled": true
+  },
+  "variants": [
+   {
+    "printful_variant_id": 17483,
+    "color": "",
+    "color_hex": null,
+    "size": "94 × 145 cm",
+    "cost": 2668,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/711/17483_1691154680.jpg"
+   },
+   {
+    "printful_variant_id": 17482,
+    "color": "",
+    "color_hex": null,
+    "size": "127 × 152 cm",
+    "cost": 3193,
+    "price": 5740,
+    "image": "https://files.cdn.printful.com/products/711/17482_1691154685.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "bandana-mascotte-ecurie",
+  "name": "Bandana « Mascotte de l'écurie »",
+  "category": "petites-attentions",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "tous",
+  "short_description": "Le chien de l'écurie mérite lui aussi sa tenue de concours (et toi, ton bandana assorti).",
+  "description": "<p>Il accueille les cavaliers, surveille les boxes et vole les carottes : offre-lui le bandana qui officialise son grade. Il se noue aussi bien sur son collier que dans tes cheveux.</p><ul><li>Imprimé fers à cheval et rosettes, coloris poudrés du club</li><li>Son prénom imprimé façon écusson : « Jack · Mascotte officielle »</li><li>3 tailles, du jack russell au berger</li></ul>",
+  "price": 1660,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/3d/3d2c903719c4ade552b062343c7f902e_l"
+  ],
+  "printful_product_id": 630,
+  "print_placement": "front",
+  "personalization": {
+   "mode": "text",
+   "label": "Prénom du chien",
+   "max_length": 14,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 16033,
+    "color": "",
+    "color_hex": null,
+    "size": "L",
+    "cost": 924,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/630/16033_1660914152.jpg"
+   },
+   {
+    "printful_variant_id": 16032,
+    "color": "",
+    "color_hex": null,
+    "size": "M",
+    "cost": 924,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/630/16032_1660914152.jpg"
+   },
+   {
+    "printful_variant_id": 16031,
+    "color": "",
+    "color_hex": null,
+    "size": "S",
+    "cost": 924,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/630/16031_1660914153.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "gamelle-chat-ecurie",
+  "name": "Gamelle « Le chat de l'écurie »",
+  "category": "petites-attentions",
+  "extra_categories": [],
+  "audience": "tous",
+  "short_description": "Il chasse les souris du sellier depuis des années : il mérite une gamelle à son nom.",
+  "description": "<p>Une gamelle en inox imprimée pour le chat (ou le chien) qui fait partie de la famille de l'écurie.</p><ul><li>Son prénom en grand, entouré d'une couronne de foin et de fers à cheval</li><li>Inox, base antidérapante</li><li>2 contenances : 0,5 L et 0,9 L</li></ul>",
+  "price": 3520,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/30/30a71e7f6bccb49404e35c23140c4720_l"
+  ],
+  "printful_product_id": 678,
+  "print_placement": "default",
+  "personalization": {
+   "mode": "text",
+   "label": "Prénom de l'animal",
+   "max_length": 14,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 16785,
+    "color": "",
+    "color_hex": null,
+    "size": "0,5 L",
+    "cost": 1957,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/678/16785_1680768114.jpg"
+   },
+   {
+    "printful_variant_id": 16786,
+    "color": "",
+    "color_hex": null,
+    "size": "0,9 L",
+    "cost": 2230,
+    "price": 4010,
+    "image": "https://files.cdn.printful.com/products/678/16786_1680768114.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "affiche-calendrier-2027",
+  "name": "Affiche-calendrier 2027 « Une année au club »",
+  "category": "petites-attentions",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "elle",
+  "short_description": "Toute l'année 2027 sur une seule affiche, et toutes les dates qui comptent pour une cavalière.",
+  "description": "<p>Un calendrier annuel illustré dans le style Crinière Club, à accrocher dans la sellerie ou la chambre.</p><ul><li>12 mois illustrés : poulain de printemps, concours de juin, balade d'automne, Noël à l'écurie…</li><li>Pastilles à colorier pour les leçons, concours, maréchal et vermifuges</li><li>Papier mat épais, 3 formats</li></ul>",
+  "price": 1830,
+  "images": [
+   "https://files.cdn.printful.com/o/products/268/product_1613463288.jpg"
+  ],
+  "printful_product_id": 268,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 19516,
+    "color": "",
+    "color_hex": null,
+    "size": "42 × 59,4 cm (A2)",
+    "cost": 1151,
+    "price": 2070,
+    "image": "https://files.cdn.printful.com/products/268/19516_1714721610.jpg"
+   },
+   {
+    "printful_variant_id": 8948,
+    "color": "",
+    "color_hex": null,
+    "size": "30 × 40 cm",
+    "cost": 1021,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/268/8948_1527679245.jpg"
+   },
+   {
+    "printful_variant_id": 8952,
+    "color": "",
+    "color_hex": null,
+    "size": "50 × 70 cm",
+    "cost": 1301,
+    "price": 2340,
+    "image": "https://files.cdn.printful.com/products/268/8952_1527679268.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "carte-de-la-part-de-ton-cheval",
+  "name": "Carte « De la part de ton cheval »",
+  "category": "noel",
+  "extra_categories": [
+   "petites-attentions"
+  ],
+  "audience": "tous",
+  "short_description": "Pour Noël ou son anniversaire, la carte que ton cheval aurait écrite s'il savait tenir un stylo.",
+  "description": "<p>Une carte de vœux illustrée, signée du nom de ton cheval, avec son enveloppe : le petit plus à glisser dans un cadeau.</p><ul><li>Illustration poudrée : un cheval tenant une rosette entre ses dents</li><li>Signature imprimée : « Bisous, Tornado » (son nom)</li><li>Format A5 plié, enveloppe incluse</li></ul>",
+  "price": 600,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/0d/0dad96768105cdc5580e5c7961908fe4_l"
+  ],
+  "printful_product_id": 568,
+  "print_placement": "front",
+  "personalization": {
+   "mode": "text",
+   "label": "Nom de ton cheval (signature)",
+   "max_length": 16,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 14460,
+    "color": "",
+    "color_hex": null,
+    "size": "A5",
+    "cost": 335,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/568/14460_1645785150.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "legging-robe-pommelee",
+  "name": "Legging « Robe pommelée »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Le legging qui a la même robe que ton cheval gris.",
+  "description": "<p>Un legging tout doux imprimé d'un motif pommelé gris et blanc, pour l'après-concours, le yoga ou le canapé.</p><ul><li>Motif « robe pommelée » exclusif, discret de loin, irrésistible de près</li><li>Taille haute, tissu stretch et opaque</li><li>Du XS au XL — ce n'est pas un pantalon d'équitation (pas de fond de culotte)</li></ul>",
+  "price": 3830,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/82/82587e7c0ac9d8b21d50a8602aad1ad1_l"
+  ],
+  "printful_product_id": 189,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 7679,
+    "color": "",
+    "color_hex": null,
+    "size": "L",
+    "cost": 2132,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/189/7676_1788437055.jpg"
+   },
+   {
+    "printful_variant_id": 7678,
+    "color": "",
+    "color_hex": null,
+    "size": "M",
+    "cost": 2132,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/189/7676_1788437055.jpg"
+   },
+   {
+    "printful_variant_id": 7677,
+    "color": "",
+    "color_hex": null,
+    "size": "S",
+    "cost": 2132,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/189/7676_1788437055.jpg"
+   },
+   {
+    "printful_variant_id": 7680,
+    "color": "",
+    "color_hex": null,
+    "size": "XL",
+    "cost": 2132,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/189/7676_1788437055.jpg"
+   },
+   {
+    "printful_variant_id": 7676,
+    "color": "",
+    "color_hex": null,
+    "size": "XS",
+    "cost": 2132,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/189/7676_1788437055.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "banane-poche-a-friandises",
+  "name": "Banane « Poche à friandises »",
+  "category": "petites-attentions",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Carottes, morceaux de sucre, cure-pied et téléphone : tout tient dans la banane.",
+  "description": "<p>La banane que ton cheval va adorer (et renifler) : imprimée de carottes et de fers à cheval, elle se porte en bandoulière ou à la taille.</p><ul><li>Motif « carottes & fers » dans les tons du club</li><li>Poche zippée + compartiment intérieur</li><li>Sangle réglable, 2 tailles</li></ul>",
+  "price": 3870,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/a5/a5b065fbef259cc4554b04bcad64f006_l"
+  ],
+  "printful_product_id": 350,
+  "print_placement": "front",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 9987,
+    "color": "",
+    "color_hex": null,
+    "size": "M/L",
+    "cost": 2153,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/350/9987_1550755443.jpg"
+   },
+   {
+    "printful_variant_id": 9986,
+    "color": "",
+    "color_hex": null,
+    "size": "S/M",
+    "cost": 2153,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/350/9986_1550755447.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "plaid-leger-robe-pommelee",
+  "name": "Plaid léger « Robe pommelée »",
+  "category": "petites-attentions",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "tous",
+  "short_description": "Un plaid doux comme le nez de ton cheval, pour les soirées canapé après l'écurie.",
+  "description": "<p>Un plaid léger en polaire imprimé du motif pommelé du club et d'un petit cheval brodé-imprimé dans un coin.</p><ul><li>Motif pommelé gris perle sur fond crème</li><li>Polaire douce et légère, facile à laver</li><li>2 tailles</li></ul>",
+  "price": 3950,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/7a/7a7486c4b4144d3f02d9484a231242e1_l"
+  ],
+  "printful_product_id": 395,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 22609,
+    "color": "",
+    "color_hex": null,
+    "size": "76 × 102 cm",
+    "cost": 2198,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/395/22609_1742286060.jpg"
+   },
+   {
+    "printful_variant_id": 10986,
+    "color": "",
+    "color_hex": null,
+    "size": "127 × 152 cm",
+    "cost": 2621,
+    "price": 4710,
+    "image": "https://files.cdn.printful.com/products/395/10986_1652098428.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "mug-manga-toi-et-ton-cheval",
+  "name": "Mug manga « Toi et ton cheval »",
+  "category": "mon-cheval-ma-fierte",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "elle",
+  "short_description": "Votre duo en illustration manga, pour le café du matin avant l'écurie.",
+  "description": "<p>La même illustration que notre t-shirt manga, sur un mug : toi menant ton cheval en longe, dans un décor champêtre baigné de lumière dorée.</p><ul><li>Illustration créée d'après deux photos (toi et ton cheval), de face ou de dos</li><li>Céramique brillante, lave-vaisselle et micro-ondes</li><li>3 contenances</li></ul>",
+  "price": 970,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/8c/8c4ac4a450b8485bc8a6e041a5a23666_l"
+  ],
+  "printful_product_id": 19,
+  "print_placement": "default",
+  "personalization": {
+   "mode": "ai_manga",
+   "label": "Sous l'illustration",
+   "max_length": 16,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 1320,
+    "color": "",
+    "color_hex": null,
+    "size": "33 cl",
+    "cost": 542,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/19/1320_1663762583.jpg"
+   },
+   {
+    "printful_variant_id": 4830,
+    "color": "",
+    "color_hex": null,
+    "size": "44 cl",
+    "cost": 724,
+    "price": 1300,
+    "image": "https://files.cdn.printful.com/products/19/4830_1519394046.jpg"
+   },
+   {
+    "printful_variant_id": 16586,
+    "color": "",
+    "color_hex": null,
+    "size": "59 cl",
+    "cost": 865,
+    "price": 1550,
+    "image": "https://files.cdn.printful.com/products/19/16586_1680616351.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "tapis-de-souris-ma-carriere",
+  "name": "Tapis de souris « Ma carrière »",
+  "category": "petites-attentions",
+  "extra_categories": [],
+  "audience": "tous",
+  "short_description": "Ton bureau devient une carrière de dressage : A, K, E, H, C, M, B, F.",
+  "description": "<p>Le tapis de souris qui dessine une carrière de dressage vue du ciel, avec ses lettres… et ta souris au trot de travail.</p><ul><li>Plan d'une carrière 20 × 40 avec les lettres officielles</li><li>Message caché : « Bureau, trot de travail, 10 minutes »</li><li>Base antidérapante</li></ul>",
+  "price": 1490,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/83/83dfc4934273f68021ef5d0324168e39_l"
+  ],
+  "printful_product_id": 518,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 13097,
+    "color": "",
+    "color_hex": null,
+    "size": "22 × 18 cm",
+    "cost": 831,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/518/13097_1629286642.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "drap-de-plage-douche-du-cheval",
+  "name": "Drap de plage « Après la douche »",
+  "category": "petites-attentions",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Après la douche du cheval, c'est toi qui es trempée : voici ta serviette.",
+  "description": "<p>Un grand drap de bain illustré d'un cheval sous le jet de la douche d'écurie, pour la plage, la piscine… ou l'écurie en plein été.</p><ul><li>Illustration humoristique dans les tons du club</li><li>Face éponge douce et absorbante</li><li>76 × 152 cm</li></ul>",
+  "price": 4720,
+  "images": [
+   "https://files.cdn.printful.com/o/products/259/product_1606198364.jpg"
+  ],
+  "printful_product_id": 259,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 8874,
+    "color": "",
+    "color_hex": null,
+    "size": "76 × 152 cm",
+    "cost": 2625,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/259/8874_1530796574.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "chaussettes-balzanes",
+  "name": "Chaussettes « Balzanes »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "tous",
+  "short_description": "Des balzanes blanches et des sabots noirs : tes pieds ont enfin une robe.",
+  "description": "<p>Des chaussettes alezanes avec de vraies balzanes blanches au-dessus d'un pied noir façon sabot : le clin d'œil que seules les cavalières comprendront.</p><ul><li>Motif « jambe d'alezan à balzane », pied noir comme un sabot</li><li>Douces et confortables, 3 tailles</li><li>Le petit cadeau à glisser dans une chaussette de Noël</li></ul>",
+  "price": 1700,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/e9/e9b0b0861f8a72c69d450ecfe8c98635_l"
+  ],
+  "printful_product_id": 186,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 7291,
+    "color": "",
+    "color_hex": null,
+    "size": "L",
+    "cost": 946,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/186/7291_1549982695.jpg"
+   },
+   {
+    "printful_variant_id": 7290,
+    "color": "",
+    "color_hex": null,
+    "size": "M",
+    "cost": 946,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/186/7290_1549982703.jpg"
+   },
+   {
+    "printful_variant_id": 7292,
+    "color": "",
+    "color_hex": null,
+    "size": "XL",
+    "cost": 946,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/186/7292_1549982709.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "bob-club-des-balades",
+  "name": "Bob « Club des balades »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [],
+  "audience": "tous",
+  "short_description": "Pour les balades d'été et les journées de concours en plein soleil.",
+  "description": "<p>Un bob en coton bio imprimé du fer à cheval Crinière Club et d'une petite inscription « Club des balades ».</p><ul><li>Impression discrète ton sur ton</li><li>Coton bio, 3 coloris, 2 tailles</li><li>Se plie dans le sac de pansage</li></ul>",
+  "price": 2280,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/cf/cf21452a9b5c746801912007d8fd7f87_l"
+  ],
+  "printful_product_id": 1688,
+  "print_placement": "front_dtf_hat",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 53207,
+    "color": "Black",
+    "color_hex": "#171717",
+    "size": "M/L",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53204_1790244920.jpg"
+   },
+   {
+    "printful_variant_id": 53204,
+    "color": "Black",
+    "color_hex": "#171717",
+    "size": "S/M",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53204_1790244920.jpg"
+   },
+   {
+    "printful_variant_id": 53208,
+    "color": "Heather Grey",
+    "color_hex": "#c4c4c4",
+    "size": "M/L",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53205_1790244921.jpg"
+   },
+   {
+    "printful_variant_id": 53205,
+    "color": "Heather Grey",
+    "color_hex": "#c4c4c4",
+    "size": "S/M",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53205_1790244921.jpg"
+   },
+   {
+    "printful_variant_id": 53209,
+    "color": "Natural",
+    "color_hex": "#fcf0dc",
+    "size": "M/L",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53206_1790244922.jpg"
+   },
+   {
+    "printful_variant_id": 53206,
+    "color": "Natural",
+    "color_hex": "#fcf0dc",
+    "size": "S/M",
+    "cost": 1272,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1688/53206_1790244922.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "stickers-kit-de-survie-cavaliere",
+  "name": "Planche de stickers « Kit de survie de la cavalière »",
+  "category": "petites-attentions",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "elle",
+  "short_description": "Tout ce qu'il faut pour survivre à une journée d'écurie, en autocollants.",
+  "description": "<p>Une planche de stickers illustrés pour décorer la malle, la gourde, l'agenda ou la vitre du van.</p><ul><li>Carotte, cure-pied, rosette, botte, « J'ai écurie », « Encore 5 minutes », fer porte-bonheur…</li><li>Vinyle résistant, prédécoupé à la forme</li><li>Le petit plus parfait à ajouter au panier</li></ul>",
+  "price": 820,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/76/7658fa12bc07c99e823fbc140595bc24_l"
+  ],
+  "printful_product_id": 505,
+  "print_placement": "default",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 12917,
+    "color": "",
+    "color_hex": null,
+    "size": "A5",
+    "cost": 460,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/505/12917_1629116996.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "carnet-de-suivi-tout-sur-lui",
+  "name": "Carnet de suivi « Tout sur lui »",
+  "category": "mon-cheval-ma-fierte",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Vaccins, vermifuges, maréchal, dentiste, séances : son carnet de suivi, enfin joli.",
+  "description": "<p>Un carnet à spirale avec son nom sur la couverture, pour noter tout ce qui concerne ton cheval.</p><ul><li>Couverture illustrée à son nom</li><li>Pages pointillées, idéales pour les tableaux et les notes de séance</li><li>Format 14 × 22 cm, se glisse dans le casier</li></ul>",
+  "price": 1990,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/95/959982bbc26d6ac2c831edbe3207cc6c_l"
+  ],
+  "printful_product_id": 474,
+  "print_placement": "front",
+  "personalization": {
+   "mode": "text",
+   "label": "Nom de ton cheval",
+   "max_length": 16,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 12141,
+    "color": "",
+    "color_hex": null,
+    "size": "14 × 22 cm",
+    "cost": 1110,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/474/12141_1766061840.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "decoration-sapin-son-noel",
+  "name": "Décoration de sapin « Son Noël au club »",
+  "category": "noel",
+  "extra_categories": [
+   "mon-cheval-ma-fierte"
+  ],
+  "audience": "tous",
+  "short_description": "Une décoration de sapin en bois à son effigie, à ressortir chaque année.",
+  "description": "<p>Une décoration en bois imprimée de son portrait, avec son nom et l'année : la tradition de Noël des cavalières.</p><ul><li>Portrait IA (aquarelle conseillée), son nom et l'année</li><li>Bois naturel, ruban inclus</li><li>6 formes : sapin, étoile, cœur, cloche, chaussette, ovale</li></ul>",
+  "price": 1340,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/ef/ef50d0c418f9f4879bc3e81edc092891_l"
+  ],
+  "printful_product_id": 634,
+  "print_placement": "front",
+  "personalization": {
+   "mode": "ai_portrait",
+   "label": "Nom de ton cheval",
+   "max_length": 16,
+   "required": false,
+   "print_w": 1800,
+   "print_h": 2400,
+   "year_enabled": true,
+   "year_label": "Année (ex. 2026)"
+  },
+  "variants": [
+   {
+    "printful_variant_id": 16092,
+    "color": "",
+    "color_hex": null,
+    "size": "Cloche",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16092_1661492431.jpg"
+   },
+   {
+    "printful_variant_id": 16088,
+    "color": "",
+    "color_hex": null,
+    "size": "Cœur",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16088_1661492441.jpg"
+   },
+   {
+    "printful_variant_id": 16091,
+    "color": "",
+    "color_hex": null,
+    "size": "Ovale",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16091_1661492451.jpg"
+   },
+   {
+    "printful_variant_id": 16089,
+    "color": "",
+    "color_hex": null,
+    "size": "Étoile",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16089_1661492451.jpg"
+   },
+   {
+    "printful_variant_id": 16093,
+    "color": "",
+    "color_hex": null,
+    "size": "Chaussette",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16093_1661492461.jpg"
+   },
+   {
+    "printful_variant_id": 16090,
+    "color": "",
+    "color_hex": null,
+    "size": "Sapin",
+    "cost": 747,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/634/16090_1661492461.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "sweat-a-capuche-cavalieres-du-dimanche",
+  "name": "Sweat à capuche « Cavalières du dimanche »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Pour celles qui montent quand elles peuvent… et en parlent tout le temps.",
+  "description": "<p>Un sweat à capuche coupe femme, épais et doux, brodé sur le cœur et imprimé dans le dos.</p><ul><li>Broderie poitrine : petit fer + « Crinière Club »</li><li>Dos : « Club des cavalières du dimanche » en grande écriture manuscrite</li><li>Coupe femme décontractée, 4 coloris</li></ul>",
+  "price": 5650,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/d1/d111bef5c7d555110c06dfb03908832f_l"
+  ],
+  "printful_product_id": 1412,
+  "print_placement": "embroidery_chest_left",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 32057,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "2XL",
+    "cost": 3321,
+    "price": 5970,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32037,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "L",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32027,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "M",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32017,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "S",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32047,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "XL",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32007,
+    "color": "Athletic Heather",
+    "color_hex": "#c0c0c0",
+    "size": "XS",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32027_1761046041.jpg"
+   },
+   {
+    "printful_variant_id": 32058,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "2XL",
+    "cost": 3321,
+    "price": 5970,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32038,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "L",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32028,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "M",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32018,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "S",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32048,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "XL",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32008,
+    "color": "Black",
+    "color_hex": "#060606",
+    "size": "XS",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32008_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32040,
+    "color": "Charity Pink",
+    "color_hex": "#fa6f9d",
+    "size": "L",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32050_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32030,
+    "color": "Charity Pink",
+    "color_hex": "#fa6f9d",
+    "size": "M",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32050_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32020,
+    "color": "Charity Pink",
+    "color_hex": "#fa6f9d",
+    "size": "S",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32050_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32050,
+    "color": "Charity Pink",
+    "color_hex": "#fa6f9d",
+    "size": "XL",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32050_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32010,
+    "color": "Charity Pink",
+    "color_hex": "#fa6f9d",
+    "size": "XS",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32050_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32062,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "2XL",
+    "cost": 3321,
+    "price": 5970,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32042,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "L",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32032,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "M",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32022,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "S",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32052,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "XL",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   },
+   {
+    "printful_variant_id": 32012,
+    "color": "Hazy Pink",
+    "color_hex": "#bd968a",
+    "size": "XS",
+    "cost": 3142,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1412/32032_1761046040.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "sac-bandouliere-jour-de-concours",
+  "name": "Sac bandoulière « Jour de concours »",
+  "category": "petites-attentions",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Licence, téléphone, clés du van et barre de céréales : le sac des jours de concours.",
+  "description": "<p>Un petit sac bandoulière déperlant, brodé, qui reste sur toi pendant la reconnaissance du parcours.</p><ul><li>Broderie « Jour de concours » + rosette</li><li>Poche avant zippée, sangle réglable</li><li>2 coloris, mains libres</li></ul>",
+  "price": 4410,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/0a/0aa27ca88f30c042a4d6788e02bf8918_l"
+  ],
+  "printful_product_id": 1562,
+  "print_placement": "embroidery_apparel_front",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 49344,
+    "color": "Black",
+    "color_hex": "#171717",
+    "size": "Taille unique",
+    "cost": 2454,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1562/49344_1777374634.jpg"
+   },
+   {
+    "printful_variant_id": 49345,
+    "color": "Natural Stone",
+    "color_hex": "#d6d1c6",
+    "size": "Taille unique",
+    "cost": 2454,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/1562/49345_1777374645.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "sweat-enfant-future-cavaliere",
+  "name": "Sweat enfant « Future cavalière »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [
+   "noel"
+  ],
+  "audience": "tous",
+  "short_description": "Elle n'a que 6 ans, mais elle sait déjà ce qu'elle veut faire plus tard.",
+  "description": "<p>Un sweat à capuche enfant tout doux avec son prénom et un petit poney dessiné.</p><ul><li>Illustration : poney au trot + « Future cavalière » (ou « Futur cavalier »)</li><li>Son prénom imprimé sous l'illustration</li><li>Molleton épais, du XS au XL enfant</li></ul>",
+  "price": 3160,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/b1/b19dca03fa80394558d20d1adaf20169_l"
+  ],
+  "printful_product_id": 689,
+  "print_placement": "front",
+  "personalization": {
+   "mode": "text",
+   "label": "Prénom de l'enfant",
+   "max_length": 14,
+   "required": false
+  },
+  "variants": [
+   {
+    "printful_variant_id": 17263,
+    "color": "Black",
+    "color_hex": "#0b0b0b",
+    "size": "L",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17263_1686917293.jpg"
+   },
+   {
+    "printful_variant_id": 17262,
+    "color": "Black",
+    "color_hex": "#0b0b0b",
+    "size": "M",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17262_1686917303.jpg"
+   },
+   {
+    "printful_variant_id": 17260,
+    "color": "Black",
+    "color_hex": "#0b0b0b",
+    "size": "S",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17260_1686917303.jpg"
+   },
+   {
+    "printful_variant_id": 17264,
+    "color": "Black",
+    "color_hex": "#0b0b0b",
+    "size": "XL",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17264_1686917305.jpg"
+   },
+   {
+    "printful_variant_id": 17261,
+    "color": "Black",
+    "color_hex": "#0b0b0b",
+    "size": "XS",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17261_1686917313.jpg"
+   },
+   {
+    "printful_variant_id": 17268,
+    "color": "Navy",
+    "color_hex": "#050c1d",
+    "size": "L",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17268_1686917324.jpg"
+   },
+   {
+    "printful_variant_id": 17267,
+    "color": "Navy",
+    "color_hex": "#050c1d",
+    "size": "M",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17267_1686917324.jpg"
+   },
+   {
+    "printful_variant_id": 17265,
+    "color": "Navy",
+    "color_hex": "#050c1d",
+    "size": "S",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17265_1686917327.jpg"
+   },
+   {
+    "printful_variant_id": 17269,
+    "color": "Navy",
+    "color_hex": "#050c1d",
+    "size": "XL",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17269_1686917334.jpg"
+   },
+   {
+    "printful_variant_id": 17266,
+    "color": "Navy",
+    "color_hex": "#050c1d",
+    "size": "XS",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17266_1686917334.jpg"
+   },
+   {
+    "printful_variant_id": 17273,
+    "color": "Royal",
+    "color_hex": "#1d50a4",
+    "size": "L",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17273_1686917367.jpg"
+   },
+   {
+    "printful_variant_id": 17272,
+    "color": "Royal",
+    "color_hex": "#1d50a4",
+    "size": "M",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17272_1686917368.jpg"
+   },
+   {
+    "printful_variant_id": 17270,
+    "color": "Royal",
+    "color_hex": "#1d50a4",
+    "size": "S",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17270_1686917375.jpg"
+   },
+   {
+    "printful_variant_id": 17274,
+    "color": "Royal",
+    "color_hex": "#1d50a4",
+    "size": "XL",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17274_1686917375.jpg"
+   },
+   {
+    "printful_variant_id": 17271,
+    "color": "Royal",
+    "color_hex": "#1d50a4",
+    "size": "XS",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17271_1686917378.jpg"
+   },
+   {
+    "printful_variant_id": 17288,
+    "color": "White",
+    "color_hex": "#ffffff",
+    "size": "L",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17288_1686917396.jpg"
+   },
+   {
+    "printful_variant_id": 17287,
+    "color": "White",
+    "color_hex": "#ffffff",
+    "size": "M",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17287_1686917396.jpg"
+   },
+   {
+    "printful_variant_id": 17285,
+    "color": "White",
+    "color_hex": "#ffffff",
+    "size": "S",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17285_1686917399.jpg"
+   },
+   {
+    "printful_variant_id": 17289,
+    "color": "White",
+    "color_hex": "#ffffff",
+    "size": "XL",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17289_1686917406.jpg"
+   },
+   {
+    "printful_variant_id": 17286,
+    "color": "White",
+    "color_hex": "#ffffff",
+    "size": "XS",
+    "cost": 1761,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/689/17286_1686917406.jpg"
+   }
+  ]
+ },
+ {
+  "slug": "jogging-mode-repos-active",
+  "name": "Jogging « Mode repos activé »",
+  "category": "tenues-de-cavaliere",
+  "extra_categories": [],
+  "audience": "elle",
+  "short_description": "Le pantalon officiel de l'après-concours.",
+  "description": "<p>Un jogging en tissu recyclé, imprimé « Mode repos activé » le long de la jambe, pour retirer les bottes et ne plus rien faire du tout.</p><ul><li>Impression le long de la jambe + petits fers à cheval</li><li>Tissu recyclé doux, poches et cordon de serrage</li><li>Du XS au 3XL</li></ul>",
+  "price": 6340,
+  "images": [
+   "https://files.cdn.printful.com/o/upload/product-catalog-img/a1/a11a437a42cbcd4806d4a5bfa9b6c88d_l"
+  ],
+  "printful_product_id": 401,
+  "print_placement": "leg_left",
+  "personalization": null,
+  "variants": [
+   {
+    "printful_variant_id": 11045,
+    "color": "",
+    "color_hex": null,
+    "size": "2XL",
+    "cost": 3704,
+    "price": 6660,
+    "image": "https://files.cdn.printful.com/products/401/11045_1571223855.jpg"
+   },
+   {
+    "printful_variant_id": 11046,
+    "color": "",
+    "color_hex": null,
+    "size": "3XL",
+    "cost": 3882,
+    "price": 6980,
+    "image": "https://files.cdn.printful.com/products/401/11046_1571223856.jpg"
+   },
+   {
+    "printful_variant_id": 11043,
+    "color": "",
+    "color_hex": null,
+    "size": "L",
+    "cost": 3525,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/401/11043_1571223859.jpg"
+   },
+   {
+    "printful_variant_id": 11042,
+    "color": "",
+    "color_hex": null,
+    "size": "M",
+    "cost": 3525,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/401/11042_1571223861.jpg"
+   },
+   {
+    "printful_variant_id": 11041,
+    "color": "",
+    "color_hex": null,
+    "size": "S",
+    "cost": 3525,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/401/11041_1571223862.jpg"
+   },
+   {
+    "printful_variant_id": 11044,
+    "color": "",
+    "color_hex": null,
+    "size": "XL",
+    "cost": 3525,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/401/11044_1571223868.jpg"
+   },
+   {
+    "printful_variant_id": 11040,
+    "color": "",
+    "color_hex": null,
+    "size": "XS",
+    "cost": 3525,
+    "price": null,
+    "image": "https://files.cdn.printful.com/products/401/11040_1571223869.jpg"
+   }
+  ]
+ }
+]

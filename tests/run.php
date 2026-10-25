@@ -818,7 +818,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('vingt-deux migrations connues', count(App\Core\Migrator::files()) === 22);
+check('vingt-trois migrations connues', count(App\Core\Migrator::files()) === 23);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');
@@ -885,6 +885,34 @@ App\Services\Catalog::rememberSlug('petites-attentions', 'cadeaux');
 Database::query("UPDATE categories SET slug = 'cadeaux' WHERE slug = 'petites-attentions'");
 App\Core\Settings::flush();
 check('renommage admin : chaîne de redirections suivie', App\Services\Catalog::categoryRedirect('accessoires') === 'cadeaux');
+
+echo "Catégories multiples, Noël et nouveaux articles\n";
+use App\Services\Pricing;
+check('prix : coût + TVA 20 % + marge 50 %, arrondi aux 10 centimes inférieurs', Pricing::retail(1000) === 1800 && Pricing::retail(542) === 970 && Pricing::retail(1234) === 2220 && Pricing::retail(5) === 0);
+(require BASE_PATH . '/database/migrations/023_categories_multiples_noel.php')(Database::pdo(), Database::driver());
+$noel = Database::one("SELECT * FROM categories WHERE slug = 'noel'");
+$pack = json_decode((string) file_get_contents(BASE_PATH . '/database/catalogue-noel-2026.json'), true);
+$created = Database::all('SELECT * FROM products WHERE slug IN (' . implode(',', array_fill(0, count($pack), '?')) . ')', array_column($pack, 'slug'));
+check('catégorie Noël créée', $noel && $noel['active'] == 1);
+check('20 articles créés hors ligne', count($pack) === 20 && count($created) === 20 && !array_filter($created, static fn ($p) => $p['active']));
+$sapin = Database::one("SELECT * FROM products WHERE slug = 'decoration-sapin-son-noel'");
+$socks = Database::one("SELECT * FROM products WHERE slug = 'chaussettes-balzanes'");
+check('catégorie principale + secondaires', (int) $sapin['category_id'] === (int) $noel['id'] && in_array((int) $noel['id'], App\Services\Catalog::productCategoryIds((int) $socks['id']), true)
+    && (int) $socks['category_id'] !== (int) $noel['id']);
+Database::update('products', ['active' => 1], 'id = :id', ['id' => $socks['id']]);
+$inNoel = array_column(App\Services\Catalog::products(['category_id' => (int) $noel['id']], 50), 'slug');
+check('un article secondaire apparaît dans la catégorie', in_array('chaussettes-balzanes', $inNoel, true));
+$counts = array_column(App\Services\Catalog::categories(false), 'product_count', 'slug');
+check('compteur de la catégorie avec les articles secondaires', (int) ($counts['noel'] ?? 0) >= 1);
+$mug = Database::one("SELECT * FROM products WHERE slug = 'mug-manga-toi-et-ton-cheval'");
+$mugVariants = Database::all('SELECT * FROM product_variants WHERE product_id = ? ORDER BY cost', [$mug['id']]);
+check('prix du mug calculés depuis le coût Printful', count($mugVariants) === 3 && (int) $mug['price'] === Pricing::retail((int) $mugVariants[0]['cost']) && $mugVariants[0]['price'] === null
+    && (int) $mugVariants[2]['price'] === Pricing::retail((int) $mugVariants[2]['cost']) && (int) $mugVariants[0]['printful_variant_id'] > 0);
+Database::update('product_variants', ['cost' => 2000], 'product_id = :id', ['id' => $mug['id']]);
+check('recalcul des prix depuis l\'administration', Pricing::applyToProduct((int) $mug['id']) === 3600 && (int) Database::value('SELECT COUNT(*) FROM product_variants WHERE product_id = ? AND price IS NOT NULL', [$mug['id']]) === 0);
+check('installation rejouable sans doublon', App\Services\CatalogPack::install(BASE_PATH . '/database/catalogue-noel-2026.json') === 0);
+App\Services\Catalog::setCategories((int) $socks['id'], (int) $noel['id'], []);
+check('changer la catégorie principale', (int) Database::value('SELECT category_id FROM products WHERE id = ?', [$socks['id']]) === (int) $noel['id'] && App\Services\Catalog::productCategoryIds((int) $socks['id']) === [(int) $noel['id']]);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

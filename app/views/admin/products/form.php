@@ -29,7 +29,7 @@ $blankRows = $variants ? 2 : 4;
         <p class="muted small">Chaque variante doit être reliée à Printful : <strong>ID variante synchronisée</strong> (produit créé dans Printful avec son visuel) ou <strong>ID variante catalogue</strong> + visuel d'impression ci-contre (obligatoire pour la personnalisation). Prix vide = prix de base. <a href="<?= e(url('admin/produits/catalogue-printful')) ?>" target="_blank">Trouver un ID variante catalogue ↗</a></p>
         <div class="table-scroll">
         <table class="table variants">
-          <thead><tr><th>Couleur</th><th>Hex</th><th>Taille</th><th>Prix €</th><th>SKU</th><th>ID catalogue</th><th>ID synchro</th><th>Image</th><th>Actif</th><th>Suppr.</th></tr></thead>
+          <thead><tr><th>Couleur</th><th>Hex</th><th>Taille</th><th>Prix €</th><th title="Coût Printful hors taxes, pour le calcul automatique du prix">Coût €</th><th>SKU</th><th>ID catalogue</th><th>ID synchro</th><th>Image</th><th>Actif</th><th>Suppr.</th></tr></thead>
           <tbody>
           <?php $i = 0; foreach (array_merge($variants, array_fill(0, $blankRows, null)) as $v): $n = "variants[$i]"; $i++; ?>
             <tr>
@@ -37,6 +37,7 @@ $blankRows = $variants ? 2 : 4;
               <td><input name="<?= $n ?>[color_hex]" value="<?= e($v['color_hex'] ?? '') ?>" size="7" placeholder="#1f2a44"></td>
               <td><input name="<?= $n ?>[size]" value="<?= e($v['size'] ?? '') ?>" size="6"></td>
               <td><input name="<?= $n ?>[price]" value="<?= isset($v['price']) ? e(number_format($v['price'] / 100, 2, ',', '')) : '' ?>" size="6"></td>
+              <td><input name="<?= $n ?>[cost]" value="<?= isset($v['cost']) ? e(number_format($v['cost'] / 100, 2, ',', '')) : '' ?>" size="5"></td>
               <td><input name="<?= $n ?>[sku]" value="<?= e($v['sku'] ?? '') ?>" size="10"></td>
               <td><input name="<?= $n ?>[printful_variant_id]" value="<?= e($v['printful_variant_id'] ?? '') ?>" size="7"></td>
               <td><input name="<?= $n ?>[printful_sync_variant_id]" value="<?= e($v['printful_sync_variant_id'] ?? '') ?>" size="10"></td>
@@ -49,6 +50,7 @@ $blankRows = $variants ? 2 : 4;
         </table>
         </div>
         <p class="muted small">Pour ajouter plus de variantes, enregistrez : de nouvelles lignes vides apparaîtront.</p>
+        <label class="checkbox"><input type="checkbox" name="apply_pricing" value="1"> À l'enregistrement, calculer les prix depuis la colonne « Coût € » : coût + TVA 20 %, puis + 50 % de marge, arrondi aux 10 centimes inférieurs (la variante la moins chère devient le prix de base).</label>
       </section>
 
       <section class="card">
@@ -123,10 +125,16 @@ $blankRows = $variants ? 2 : 4;
             <option value="elle" <?= $aud === 'elle' ? 'selected' : '' ?>>Pour elle</option>
             <option value="lui" <?= $aud === 'lui' ? 'selected' : '' ?>>Pour lui</option>
           </select></label>
-        <label>Catégorie
+        <label>Catégorie principale <small class="muted">(fil d'Ariane, articles similaires)</small>
           <select name="category_id"><option value="">—</option>
             <?php foreach ($categories as $c): ?><option value="<?= (int) $c['id'] ?>" <?= (int) $product['category_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option><?php endforeach; ?>
           </select></label>
+        <fieldset class="extra-cats">
+          <legend>Aussi dans</legend>
+          <?php foreach ($categories as $c): if ((int) $c['id'] === (int) $product['category_id']) continue; ?>
+            <label class="checkbox"><input type="checkbox" name="extra_categories[]" value="<?= (int) $c['id'] ?>" <?= in_array((int) $c['id'], $productCategories ?? [], true) ? 'checked' : '' ?> style="width:auto"> <?= e($c['name']) ?><?= $c['active'] ? '' : ' <small class="muted">(masquée)</small>' ?></label>
+          <?php endforeach; ?>
+        </fieldset>
         <label>Prix de base TTC (€) <input name="price" required value="<?= e(number_format($product['price'] / 100, 2, ',', '')) ?>"></label>
         <label>Prix barré (€) <input name="compare_at_price" value="<?= $product['compare_at_price'] ? e(number_format($product['compare_at_price'] / 100, 2, ',', '')) : '' ?>"></label>
         <button class="btn btn-primary btn-block" type="submit">Enregistrer</button>

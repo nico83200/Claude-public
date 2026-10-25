@@ -216,3 +216,6 @@ img, video, iframe, svg { max-width: 100%; }
   .grid-main, .grid-2 { grid-template-columns: minmax(0, 1fr); }
   .grid-main > *, .grid-2 > * { min-width: 0; }
 }
+.extra-cats { border: 1px solid var(--line); border-radius: 8px; padding: .4rem .8rem .2rem; margin: 0 0 .9rem; }
+.extra-cats legend { font-size: .88rem; font-weight: 600; padding: 0 .3rem; }
+.extra-cats .checkbox { margin-bottom: .4rem; font-weight: 400; }

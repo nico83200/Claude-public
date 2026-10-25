@@ -45,6 +45,7 @@ final class CategoriesController extends BaseController
     public function destroy(string $id): void
     {
         Database::query('UPDATE products SET category_id = NULL WHERE category_id = ?', [(int) $id]);
+        Database::query('DELETE FROM product_categories WHERE category_id = ?', [(int) $id]);
         Database::query('DELETE FROM categories WHERE id = ?', [(int) $id]);
         flash('success', 'Catégorie supprimée (ses produits sont conservés, sans catégorie).');
         redirect('admin/categories');

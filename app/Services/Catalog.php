@@ -23,12 +23,37 @@ final class Catalog
     private static ?bool $hasReviews = null;
     private static ?array $bestSellerIds = null;
 
+    /** Produit rangé dans la catégorie c (principale ou secondaire). */
+    private const IN_CATEGORY = '(p.category_id = c.id OR p.id IN (SELECT pc.product_id FROM product_categories pc WHERE pc.category_id = c.id))';
+
+    /** Catégories d'un produit : la principale d'abord, puis les secondaires. */
+    public static function productCategoryIds(int $productId): array
+    {
+        $principal = (int) Database::value('SELECT category_id FROM products WHERE id = ?', [$productId]);
+        $extra = array_map('intval', array_column(Database::all('SELECT category_id FROM product_categories WHERE product_id = ?', [$productId]), 'category_id'));
+        return array_values(array_unique(array_filter([$principal, ...$extra])));
+    }
+
+    /** Enregistre la catégorie principale et les secondaires (la principale fait aussi partie de la liste). */
+    public static function setCategories(int $productId, ?int $principal, array $extra): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', [$principal, ...$extra]))));
+        Database::query('DELETE FROM product_categories WHERE product_id = ?', [$productId]);
+        foreach ($ids as $id) {
+            Database::insert('product_categories', ['product_id' => $productId, 'category_id' => $id]);
+        }
+        Database::update('products', ['category_id' => $principal ?: ($ids[0] ?? null)], 'id = :id', ['id' => $productId]);
+    }
+
     public static function categories(bool $activeOnly = true): array
     {
         return Database::all(
             'SELECT c.*,
-                (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id AND p.active = 1) AS product_count,
-                (SELECT p.images FROM products p WHERE p.category_id = c.id AND p.active = 1 ORDER BY p.featured DESC, p.id LIMIT 1) AS cover_images
+                (SELECT COUNT(*) FROM products p WHERE p.active = 1 AND ' . self::IN_CATEGORY . ') AS product_count,
+                COALESCE(
+                    (SELECT p.images FROM products p WHERE p.active = 1 AND p.category_id = c.id ORDER BY p.featured DESC, p.id LIMIT 1),
+                    (SELECT p.images FROM products p WHERE p.active = 1 AND ' . self::IN_CATEGORY . ' ORDER BY p.featured DESC, p.id LIMIT 1)
+                ) AS cover_images
              FROM categories c' . ($activeOnly ? ' WHERE c.active = 1' : '') . ' ORDER BY c.position, c.name'
         );
     }
@@ -136,7 +161,9 @@ final class Catalog
         $where = ['p.active = 1'];
         $params = [];
         if (!empty($filters['category_id'])) {
-            $where[] = 'p.category_id = ?';
+            // Catégorie principale ou secondaire
+            $where[] = '(p.category_id = ? OR p.id IN (SELECT product_id FROM product_categories WHERE category_id = ?))';
+            $params[] = (int) $filters['category_id'];
             $params[] = (int) $filters['category_id'];
         }
         if (!empty($filters['q'])) {
