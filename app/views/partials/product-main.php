@@ -33,7 +33,8 @@ $cfg = $personalization;
 $mode = $cfg['mode'] ?? null;
 $needsPhoto = $cfg && in_array($mode, ['photo', 'portrait'], true);
 $isAi = $cfg && $mode === 'ai_portrait' && App\Services\AiPortrait::enabled();
-if ($cfg && $mode === 'ai_portrait' && !$isAi) {
+$isManga = $cfg && $mode === 'ai_manga' && App\Services\AiPortrait::enabled();
+if ($cfg && in_array($mode, ['ai_portrait', 'ai_manga'], true) && !$isAi && !$isManga) {
     $variants = []; // migration 006 en attente : article indisponible
 }
 // Portrait IA : les exemples générés (un par style) ouvrent la galerie, chacun avec le nom de son style
@@ -45,9 +46,15 @@ if ($isAi) {
             $styleThumbs[strtok($example, '?')] = [$key, $style['name']];
         }
     }
-    if ($styleThumbs) {
-        $images = array_values(array_unique(array_merge(array_keys($styleThumbs), array_filter($images))));
+}
+// Illustration manga : les exemples (de face, de dos) ouvrent la galerie
+if ($isManga) {
+    foreach (App\Services\MangaIllustration::examples() as $view => $example) {
+        $styleThumbs[strtok($example, '?')] = [$view, App\Services\MangaIllustration::VIEWS[$view] ?? $view];
     }
+}
+if ($styleThumbs) {
+    $images = array_values(array_unique(array_merge(array_keys($styleThumbs), array_filter($images))));
 }
 $price = (int) ($first['price'] ?? $product['price']);
 $saving = $product['discount'] ? (int) $product['compare_at_price'] - (int) $product['price'] : 0;
@@ -68,10 +75,10 @@ if ($cfg) {
           <?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?>
           <div class="gallery-zoom" data-zoom-layer>
           <img <?= img_attrs($images[0] ?? null, [600, 800, 1200], '(max-width: 960px) 100vw, 640px') ?> alt="<?= e(isset($styleThumbs[$images[0] ?? '']) ? $product['name'] . ' — style ' . $styleThumbs[$images[0]][1] : $product['name']) ?>" data-main-image data-full="<?= e(image_url($images[0] ?? null)) ?>" width="800" height="800" fetchpriority="high">
-          <?php if ($cfg && $mode === 'photo'): ?>
-            <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
+          <?php if ($cfg && ($mode === 'photo' || $isManga)): ?>
+            <span class="preview-photo shape-<?= e($isManga ? 'rect' : $cfg['photo_shape']) ?>" data-preview-photo hidden></span>
           <?php endif; ?>
-          <?php if ($cfg && !$isAi): ?>
+          <?php if ($cfg && !$isAi && !$isManga): ?>
             <span class="preview-text font-<?= e($cfg['font']) ?> <?= $cfg['uppercase'] && $cfg['font'] !== 'script' ? 'is-upper' : '' ?>" data-preview-text aria-hidden="true"></span>
           <?php endif; ?>
           <?php if ($isAi): ?>
@@ -173,6 +180,9 @@ if ($cfg) {
 
           <?php if ($isAi): ?>
             <?php partial('ai-portrait-box', ['cfg' => $cfg, 'product' => $product, 'aiStyle' => $aiStyle ?? null]); ?>
+          <?php elseif ($isManga): ?>
+            <?php $mockups = array_values(array_diff(array_filter($product['images_list'] ?? []), array_keys($styleThumbs), [App\Services\MangaIllustration::BUNDLED_EXAMPLE]));
+            partial('ai-manga-box', ['cfg' => $cfg, 'product' => $product, 'baseImage' => $cfg['preview_image'] || $mockups ? image_url($cfg['preview_image'] ?: $mockups[0]) : '']); ?>
           <?php elseif ($cfg): ?>
           <div class="perso-box">
             <p class="perso-title"><?= icon('sparkle', 16) ?> Ta personnalisation <span class="pill pill-blush">Offerte</span></p>
@@ -252,8 +262,11 @@ if ($cfg) {
           <summary>Comment se passe la personnalisation ?</summary>
           <div class="rich">
             <?php if ($isAi): ?>
-              <p>Ajoute une photo nette de ton cheval puis clique sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans le style « Encre & Poudre », un trait fin bordeaux rehaussé d'aquarelle aux tons poudrés. Saisis son nom et, si tu le souhaites, son année de naissance : ils s'inscrivent sous le portrait, comme sur l'aperçu.</p>
+              <p>Ajoute une photo nette de ton cheval, choisis un style puis clique sur « Créer mon portrait » : notre IA le redessine en quelques secondes en gardant sa robe, ses marques et son regard. Saisis son nom et, si tu le souhaites, son année de naissance : ils s'inscrivent sous le portrait, comme sur l'aperçu.</p>
               <p>Tu peux créer plusieurs versions et garder ta préférée. L'aperçu est volontairement réduit et filigrané : ton portrait est imprimé en haute définition, sans filigrane, sur papier d'art mat, puis encadré.</p>
+            <?php elseif ($isManga): ?>
+              <p>Ajoute une photo de toi (en pied de préférence) et une photo de ton cheval, choisis la vue de face ou de dos, puis clique sur « Créer notre illustration » : notre IA vous dessine tous les deux en style manga, dans un décor champêtre, toi menant ton cheval en longe.</p>
+              <p>Tu peux essayer les deux vues avec les mêmes photos et garder ta préférée. L'aperçu est réduit et filigrané : l'illustration est imprimée en haute définition, sans filigrane, sur le devant du t-shirt.</p>
             <?php elseif ($mode === 'portrait'): ?>
               <p>Ajoute une photo nette de ton cheval : notre illustratrice réalise son portrait au trait fin, dans le style Crinière Club, puis il part à l'impression. Compte <?= (int) $cfg['extra_days'] ?> jours ouvrés de création.</p>
             <?php elseif ($mode === 'photo'): ?>

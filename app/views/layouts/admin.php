@@ -15,6 +15,7 @@ $nav = [
     'admin/messages'     => ['Messages' . ($unread ? " <span class=\"pill\">$unread</span>" : ''), '/admin/messages', false],
     'admin/accueil'      => ['Page d\'accueil', '/admin/accueil', false],
     'admin/portrait-styles' => ['Styles du portrait', '/admin/portrait-styles', false],
+    'admin/illustration-manga' => ['Illustration manga', '/admin/illustration-manga', false],
     'admin/journal'      => ['Journal', '/admin/journal', false],
     'admin/pages'        => ['Pages', '/admin/pages', false],
     'admin/reglages'     => ['Réglages', '/admin/reglages', false],
@@ -22,7 +23,7 @@ $nav = [
     'admin/mise-a-jour'  => ['Mise à jour', '/admin/mise-a-jour', false],
 ];
 if (!App\Services\AiPortrait::enabled()) {
-    unset($nav['admin/portrait-styles']);
+    unset($nav['admin/portrait-styles'], $nav['admin/illustration-manga']);
 }
 ?>
 <!doctype html>

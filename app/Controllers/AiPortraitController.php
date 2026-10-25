@@ -66,6 +66,61 @@ final class AiPortraitController
         json_response(['ok' => true, 'remaining' => $remaining] + AiPortrait::publicState($row));
     }
 
+    /** Illustration manga (t-shirt) : photo de la cavalière + photo du cheval, de face ou de dos. */
+    public function createManga(): void
+    {
+        if (!AiPortrait::enabled()) {
+            json_response(['ok' => false, 'message' => 'L\'illustration n\'est pas encore disponible.'], 503);
+        }
+        $product = Database::one('SELECT personalizable, personalization FROM products WHERE id = ? AND active = 1', [(int) input('product_id')]);
+        if (!$product || !$product['personalizable'] || Personalizer::config($product['personalization'])['mode'] !== 'ai_manga') {
+            json_response(['ok' => false, 'message' => 'Cet article ne propose pas d\'illustration.'], 422);
+        }
+        if (input('consent') !== '1') {
+            json_response(['ok' => false, 'message' => 'Merci d\'accepter l\'envoi de tes photos au service de dessin.'], 422);
+        }
+        // Autre angle de vue avec les mêmes photos : pas besoin de les renvoyer
+        $from = AiPortrait::owns((string) input('from')) ? AiPortrait::find((string) input('from')) : null;
+        try {
+            AiPortrait::guard();
+            if ($from && $from['photo2_file']) {
+                [$rider, $horse] = [$from['photo2_file'], $from['photo_file']];
+            } else {
+                $riderFile = Upload::files('rider_photo')[0] ?? null;
+                $horseFile = Upload::files('horse_photo')[0] ?? null;
+                if (!$riderFile || !$horseFile) {
+                    json_response(['ok' => false, 'message' => 'Ajoute ta photo et celle de ton cheval.'], 422);
+                }
+                [$rider, $horse] = [Upload::customerPhoto($riderFile), Upload::customerPhoto($horseFile)];
+            }
+            $row = AiPortrait::createManga($rider, $horse, (string) input('view'));
+        } catch (\RuntimeException $e) {
+            json_response(['ok' => false, 'message' => $e->getMessage()], 422);
+        }
+        $this->launch($row);
+    }
+
+    /** Répond tout de suite quand le serveur le permet, puis dessine en arrière-plan. */
+    private function launch(array $row): never
+    {
+        $remaining = AiPortrait::remaining();
+        session_write_close();
+        ignore_user_abort(true);
+        @set_time_limit(300);
+        if (function_exists('litespeed_finish_request') || function_exists('fastcgi_finish_request')) {
+            $body = json_encode(['ok' => true, 'remaining' => $remaining] + AiPortrait::publicState($row), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Length: ' . strlen($body));
+            header('Cache-Control: no-store');
+            echo $body;
+            function_exists('litespeed_finish_request') ? litespeed_finish_request() : fastcgi_finish_request();
+            AiPortrait::run($row);
+            exit;
+        }
+        $row = AiPortrait::run($row);
+        json_response(['ok' => true, 'remaining' => $remaining] + AiPortrait::publicState($row));
+    }
+
     public function status(string $token): void
     {
         $row = $this->owned($token);

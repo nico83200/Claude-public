@@ -24,7 +24,8 @@ final class Personalizer
         'text'     => 'Nom (texte)',
         'photo'    => 'Photo du cheval (+ nom facultatif)',
         'portrait' => 'Portrait illustré d\'après photo (création manuelle)',
-        'ai_portrait' => 'Portrait IA « Encre & Poudre » d\'après photo (affiche encadrée)',
+        'ai_portrait' => 'Portrait IA du cheval d\'après photo (affiche encadrée, 5 styles)',
+        'ai_manga'    => 'Illustration manga IA : cavalière + cheval, de face ou de dos (t-shirt)',
     ];
 
     public const SHAPES = ['rect' => 'Rectangle', 'circle' => 'Cercle', 'arch' => 'Arche'];

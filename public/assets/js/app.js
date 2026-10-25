@@ -8,6 +8,26 @@
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
+// Photo réduite à 2400 px dans le navigateur : envoi rapide en 4G, sans buter sur les limites du serveur
+  var shrinkPhoto = function (file) {
+    return new Promise(function (resolve) {
+      if (!window.createImageBitmap || !/^image\/(jpeg|png|webp)$/.test(file.type)) { resolve(file); return; }
+      createImageBitmap(file).then(function (bmp) {
+        var scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+        if (scale === 1 && file.size < 1.5 * 1024 * 1024) { resolve(file); return; }
+        var c = document.createElement('canvas');
+        c.width = Math.round(bmp.width * scale);
+        c.height = Math.round(bmp.height * scale);
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(bmp, 0, 0, c.width, c.height);
+        c.toBlob(function (blob) { resolve(blob ? new File([blob], 'cheval.jpg', { type: 'image/jpeg' }) : file); }, 'image/jpeg', 0.9);
+      }).catch(function () { resolve(file); });
+    });
+  };
+
+
   var track = function (event, data) {
     if (window.gtag) window.gtag('event', event, data || {});
     if (window.fbq && event === 'add_to_cart') window.fbq('track', 'AddToCart');
@@ -115,6 +135,8 @@
       var idx = $$('[data-thumb]').indexOf(thumb);
       $$('.gallery-dots span').forEach(function (d, i) { d.classList.toggle('active', i === idx); });
       if (aiStage) aiStage.hidden = true;
+      var mangaOverlay = $('[data-manga-box]') && $('[data-preview-photo]');
+      if (mangaOverlay) mangaOverlay.hidden = true; // l'illustration n'est posée que sur le t-shirt vierge
       $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
       thumb.classList.add('active');
     });
@@ -470,7 +492,7 @@
     var unavailable = $('[data-unavailable]', form);
     var errorBox = $('[data-form-error]', form);
     var stage = $('[data-preview-stage]');
-    var aiLocked = !!$('[data-ai-box]', form);
+    var aiLocked = !!$('[data-ai-box], [data-manga-box]', form);
     var baseSwapped = false;
     var useBaseImage = function () {
       if (!baseSwapped && stage && stage.dataset.previewBase && mainImage) {
@@ -819,24 +841,7 @@
         else poll(state.token, started);
       };
 
-      // Photo réduite à 2400 px dans le navigateur : envoi rapide en 4G, sans buter sur les limites du serveur
-      var shrink = function (file) {
-        return new Promise(function (resolve) {
-          if (!window.createImageBitmap || !/^image\/(jpeg|png|webp)$/.test(file.type)) { resolve(file); return; }
-          createImageBitmap(file).then(function (bmp) {
-            var scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
-            if (scale === 1 && file.size < 1.5 * 1024 * 1024) { resolve(file); return; }
-            var c = document.createElement('canvas');
-            c.width = Math.round(bmp.width * scale);
-            c.height = Math.round(bmp.height * scale);
-            var ctx = c.getContext('2d');
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, 0, c.width, c.height);
-            ctx.drawImage(bmp, 0, 0, c.width, c.height);
-            c.toBlob(function (blob) { resolve(blob ? new File([blob], 'cheval.jpg', { type: 'image/jpeg' }) : file); }, 'image/jpeg', 0.9);
-          }).catch(function () { resolve(file); });
-        });
-      };
+      var shrink = shrinkPhoto;
 
       genBtn.addEventListener('click', function () {
         var file = aiPhoto.files && aiPhoto.files[0];
@@ -877,6 +882,178 @@
       });
     }
 
+    // Illustration manga (t-shirt) : photo de la cavalière + photo du cheval → illustration posée sur le t-shirt
+    var mangaBox = $('[data-manga-box]', form);
+    if (mangaBox) {
+      var mPhotos = { rider: $('[data-manga-photo="rider"]', mangaBox), horse: $('[data-manga-photo="horse"]', mangaBox) };
+      var mConsent = $('[data-manga-consent]', mangaBox);
+      var mGen = $('[data-manga-generate]', mangaBox);
+      var mGenLabel = $('[data-manga-generate-label]', mangaBox);
+      var mStart = $('[data-manga-start]', mangaBox);
+      var mProgress = $('[data-manga-progress]', mangaBox);
+      var mBar = $('[data-manga-bar]', mangaBox);
+      var mText = $('[data-manga-progress-text]', mangaBox);
+      var mResult = $('[data-manga-result]', mangaBox);
+      var mError = $('[data-manga-error]', mangaBox);
+      var mToken = $('[data-manga-token]', mangaBox);
+      var mVersionsBox = $('[data-manga-versions]', mangaBox);
+      var mVersionsList = $('[data-manga-versions-list]', mangaBox);
+      var mOverlay = $('[data-preview-photo]');
+      var mVersions = [];
+      var mFrom = null; // création déjà faite avec ces photos : l'autre vue les réutilise
+      var mTimer = null;
+      var addLabelM = addBtn.textContent;
+      var mView = function () { return ($('[data-manga-view]:checked', mangaBox) || {}).value || 'dos'; };
+      var mHasPhotos = function () { return mPhotos.rider.files.length && mPhotos.horse.files.length; };
+      var mUpdate = function () {
+        mGen.disabled = !((mFrom || mHasPhotos()) && mConsent.checked);
+        mGenLabel.textContent = mVersions.length ? 'Créer la vue « ' + ($('[data-manga-view]:checked + span', mangaBox) || {}).textContent + ' »' : 'Créer notre illustration';
+      };
+      var mLock = function (locked) {
+        aiLocked = locked;
+        addBtn.disabled = locked;
+        addBtn.textContent = locked ? 'Crée votre illustration ↑' : addLabelM;
+      };
+      mLock(true);
+      Object.keys(mPhotos).forEach(function (k) {
+        var input = mPhotos[k];
+        input.addEventListener('change', function () {
+          var file = input.files && input.files[0];
+          mError.hidden = true;
+          if (file && file.size > 20 * 1024 * 1024) { input.value = ''; mError.textContent = 'Ta photo est trop lourde (20 Mo maximum).'; mError.hidden = false; return; }
+          if (file) {
+            var drop = input.closest('[data-manga-drop]');
+            var th = $('.photo-thumb', drop);
+            th.style.backgroundImage = 'url("' + URL.createObjectURL(file) + '")';
+            th.hidden = false;
+            drop.classList.add('has-photo');
+            mFrom = null; // nouvelles photos : elles seront envoyées
+          }
+          mUpdate();
+        });
+      });
+      mConsent.addEventListener('change', mUpdate);
+      $$('[data-manga-view]', mangaBox).forEach(function (r) {
+        r.addEventListener('change', function () {
+          var mine = mVersions.filter(function (v) { return v.view === r.value; }).pop();
+          if (mine) mSelect(mine);
+          mUpdate();
+        });
+      });
+      // Aperçu posé sur la photo du t-shirt vierge ; sans photo de t-shirt, l'illustration s'affiche en grand
+      var mShow = function (preview) {
+        $$('[data-thumb]').forEach(function (t) { t.classList.remove('active'); });
+        if (mangaBox.dataset.baseImage && mOverlay) {
+          setMain(mangaBox.dataset.baseImage);
+          mOverlay.style.backgroundImage = 'url("' + preview + '")';
+          mOverlay.hidden = false;
+        } else {
+          setMain(preview);
+        }
+      };
+      var mSelect = function (v) {
+        mToken.value = v.token;
+        $('[data-manga-thumb]', mangaBox).src = v.preview;
+        $('[data-manga-result-view]', mangaBox).textContent = 'Vue ' + v.name.toLowerCase() + ' · aperçu sur le t-shirt';
+        $$('button', mVersionsList).forEach(function (b) { b.classList.toggle('active', b.dataset.token === v.token); });
+        mShow(v.preview);
+      };
+      var mRender = function () {
+        mVersionsList.innerHTML = '';
+        mVersions.forEach(function (v) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ai-version';
+          b.dataset.token = v.token;
+          b.innerHTML = '<img alt="" width="54" height="72"><span></span>';
+          b.querySelector('img').src = v.preview;
+          b.querySelector('span').textContent = v.name;
+          b.addEventListener('click', function () { mSelect(v); });
+          mVersionsList.appendChild(b);
+        });
+        mVersionsBox.hidden = mVersions.length < 2;
+      };
+      var mFail = function (message) {
+        clearInterval(mTimer);
+        mError.textContent = message || 'Une erreur est survenue, merci de réessayer.';
+        mError.hidden = false;
+        mProgress.hidden = true;
+        mStart.hidden = false;
+        if (mVersions.length) mResult.hidden = false;
+        mUpdate();
+      };
+      var mReady = function (state) {
+        clearInterval(mTimer);
+        mBar.style.transition = 'width .3s';
+        mBar.style.width = '100%';
+        mFrom = state.token;
+        var v = { token: state.token, preview: state.preview, view: state.view, name: state.style_name };
+        mVersions.push(v);
+        mRender();
+        mSelect(v);
+        setTimeout(function () { mProgress.hidden = true; mResult.hidden = false; }, 400);
+        mLock(false);
+        mUpdate();
+        track('ai_manga_ready', { view: state.view });
+      };
+      var mHandle = function (state, started) {
+        if (state.status === 'ready') mReady(state);
+        else if (state.status === 'failed') mFail(state.message + (state.admin ? '\n\n🔧 Diagnostic (visible car tu es connectée à l’administration) :\n' + state.admin : ''));
+        else if (Date.now() - started > 4 * 60 * 1000) mFail('Le dessin prend plus de temps que prévu. Réessaie dans un instant.');
+        else setTimeout(function () {
+          fetch(mangaBox.dataset.statusUrl + '/' + state.token, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (next) { mHandle(next, started); })
+            .catch(function () { mHandle(state, started); });
+        }, 3000);
+      };
+      mGen.addEventListener('click', function () {
+        if (mGen.disabled) return;
+        mGen.disabled = true;
+        mStart.hidden = true;
+        mResult.hidden = true;
+        mError.hidden = true;
+        mProgress.hidden = false;
+        var steps = ['Analyse des photos…', 'Mise en place de la scène champêtre…', 'Dessin de ton cheval…', 'Dessin de ta silhouette…', 'Encrage manga et couleurs…', 'Lumière dorée de fin d’après-midi…', 'Encore quelques secondes, on peaufine…'];
+        var i = 0;
+        mText.textContent = steps[0];
+        mBar.style.transition = 'none';
+        mBar.style.width = '3%';
+        void mBar.offsetWidth;
+        mBar.style.transition = 'width 50s cubic-bezier(.2,.6,.3,1)';
+        mBar.style.width = '92%';
+        mTimer = setInterval(function () { i = Math.min(steps.length - 1, i + 1); mText.textContent = steps[i]; }, 7000);
+        track('ai_manga_start', { view: mView() });
+        var send = mFrom ? Promise.resolve([null, null]) : Promise.all([shrinkPhoto(mPhotos.rider.files[0]), shrinkPhoto(mPhotos.horse.files[0])]);
+        send.then(function (photos) {
+          var data = new FormData();
+          data.append('_token', $('input[name="_token"]', form).value);
+          data.append('product_id', mangaBox.dataset.productId);
+          data.append('consent', '1');
+          data.append('view', mView());
+          if (photos[0]) { data.append('rider_photo', photos[0]); data.append('horse_photo', photos[1]); }
+          else data.append('from', mFrom);
+          return fetch(mangaBox.dataset.url, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+        })
+          .then(function (r) { return r.json().catch(function () { throw new Error('L’envoi des photos a échoué, merci de réessayer.'); }); })
+          .then(function (state) {
+            if (!state.ok) throw new Error(state.message);
+            var rem = $('[data-manga-remaining]', mangaBox);
+            if (typeof state.remaining === 'number' && rem) rem.textContent = state.remaining > 0 ? 'Environ 30 secondes · ' + state.remaining + ' création' + (state.remaining > 1 ? 's' : '') + ' offerte' + (state.remaining > 1 ? 's' : '') + ' aujourd’hui' : 'C’était ta dernière création offerte du jour ♡';
+            mHandle(state, Date.now());
+          })
+          .catch(function (err) { mFail(err.message); });
+      });
+      $('[data-manga-retry]', mangaBox).addEventListener('click', function () {
+        var other = $$('[data-manga-view]', mangaBox).filter(function (r) { return !r.checked; })[0];
+        if (other) other.checked = true;
+        mResult.hidden = true;
+        mStart.hidden = false;
+        mUpdate();
+        mStart.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
     // Ajout au panier sans quitter la page
     form.addEventListener('submit', function (e) {
       if (e.submitter && e.submitter.hasAttribute('data-express')) return; // achat express : envoi classique vers le paiement
@@ -913,8 +1090,8 @@
         sticky.setAttribute('aria-hidden', visible ? 'true' : 'false');
       }).observe(addBtn);
       $('[data-sticky-add]', sticky).addEventListener('click', function () {
-        if (persoInput || photoInput) {
-          var target = (aiLocked && $('[data-ai-photo]', form)) || photoInput || persoInput;
+        if (persoInput || photoInput || aiLocked) {
+          var target = (aiLocked && $('[data-ai-photo], [data-manga-photo]', form)) || photoInput || persoInput;
           form.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(function () { target.focus(); }, 500);
         } else if (form.requestSubmit) {

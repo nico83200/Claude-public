@@ -78,7 +78,14 @@ final class CartController
             if ($text === '' && !empty($cfg['required'])) {
                 $fail('Merci de renseigner : ' . $cfg['label'] . '.', '/produit/' . $row['slug']);
             }
-            if ($cfg['mode'] === 'ai_portrait') {
+            if ($cfg['mode'] === 'ai_manga') {
+                $token = (string) input('ai_portrait');
+                $portrait = AiPortrait::owns($token) ? AiPortrait::find($token) : null;
+                if (!$portrait || $portrait['status'] !== 'ready' || ($portrait['style'] ?? '') !== \App\Services\MangaIllustration::STYLE) {
+                    $fail('Crée d\'abord votre illustration à partir de vos deux photos.', '/produit/' . $row['slug']);
+                }
+                $extra = ['portrait' => $token];
+            } elseif ($cfg['mode'] === 'ai_portrait') {
                 $token = (string) input('ai_portrait');
                 $portrait = AiPortrait::owns($token) ? AiPortrait::find($token) : null;
                 if (!$portrait || $portrait['status'] !== 'ready') {

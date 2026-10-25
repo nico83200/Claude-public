@@ -16,7 +16,7 @@
               <?php if ($item['personalization_text']): ?><br><span class="perso">✦ « <?= e($item['personalization_text']) ?> »</span><?php endif; ?>
               <?php if (!empty($item['personalization_year'])): ?><br><span class="perso">✦ Année : <?= e($item['personalization_year']) ?></span><?php endif; ?>
               <?php if (!empty($item['ai_portrait'])): ?>
-                <br><span class="perso">✦ Style : <?= e(App\Services\PortraitStyles::name(App\Services\AiPortrait::find($item['ai_portrait'])['style'] ?? null)) ?></span>
+                <br><span class="perso">✦ <?= e(App\Services\AiPortrait::label(App\Services\AiPortrait::find($item['ai_portrait']))) ?></span>
                 <div class="photo-row">
                   <img src="<?= e(url('admin/portrait-ia/' . $item['ai_portrait'], ['vignette' => 1])) ?>" alt="Portrait IA" width="72" height="96">
                   <a class="small" href="<?= e(url('admin/portrait-ia/' . $item['ai_portrait'])) ?>">Télécharger le dessin IA (sans nom)</a>

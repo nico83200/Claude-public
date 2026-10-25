@@ -195,6 +195,8 @@ CREATE TABLE ai_portraits (
     style VARCHAR(20) NULL,
     marks VARCHAR(200) NULL,
     step VARCHAR(10) NULL,
+    photo2_file VARCHAR(190) NULL,
+    view VARCHAR(10) NULL,
     error VARCHAR(500) NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL

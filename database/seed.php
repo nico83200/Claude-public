@@ -19,6 +19,9 @@ function seed_database(string $shopName, string $contactEmail, bool $demo = true
     if ($demo) {
         seed_demo_catalog();
     }
+    if ($demo) {
+        App\Services\MangaIllustration::createProduct(true);
+    }
     App\Services\Journal::installStarter();
     foreach (Database::all('SELECT p.id, p.name, c.name AS category FROM products p LEFT JOIN categories c ON c.id = p.category_id') as $p) {
         Database::update('products', ['audience' => App\Services\Catalog::guessAudience($p['name'], (string) $p['category'])], 'id = :id', ['id' => $p['id']]);

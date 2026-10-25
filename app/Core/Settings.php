@@ -59,6 +59,11 @@ final class Settings
         'ai_prompt_fusain' => '',
         'ai_prompt_gravure' => '',
         'ai_isolate'       => '1',     // détourage tête + encolure avant le dessin (2 passes Replicate)
+        'ai_manga_prompt'  => '',      // illustration manga : vide = consignes d'origine (Illustration manga)
+        'ai_manga_face'    => '',
+        'ai_manga_dos'     => '',
+        'ai_manga_model'   => '',      // vide = google/nano-banana
+        'ai_manga_examples' => '',
         'ai_styles'        => 'aquarelle,trait,popart,fusain,gravure', // styles proposés, dans l'ordre
         'ai_style_examples' => '',     // images d'exemple générées (JSON style => chemin)
         'christmas_banner' => '1',      // compte à rebours de Noël dans le bandeau (novembre-décembre)

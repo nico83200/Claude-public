@@ -203,6 +203,40 @@ final class AiPortrait
         return self::find($token);
     }
 
+    /** Illustration manga (t-shirt) : photo de la cavalière, photo du cheval, angle de vue. */
+    public static function createManga(string $riderPhoto, string $horsePhoto, string $view): array
+    {
+        $row = self::createFromPhoto($horsePhoto, PortraitStyles::DEFAULT);
+        Database::update('ai_portraits', ['style' => MangaIllustration::STYLE, 'photo2_file' => $riderPhoto, 'view' => MangaIllustration::view($view)], 'id = :id', ['id' => $row['id']]);
+        return self::find($row['token']);
+    }
+
+    /** Dessin de l'illustration manga : un seul appel, avec les deux photos (et l'illustration de référence). */
+    private static function runManga(array $row): array
+    {
+        $horse = self::aiInput((string) Upload::customerPhotoPath($row['photo_file']));
+        $rider = self::aiInput((string) Upload::customerPhotoPath((string) $row['photo2_file']));
+        $reference = MangaIllustration::referencePath();
+        $prompt = MangaIllustration::prompt((string) $row['view'], $reference !== null);
+        switch ($row['provider']) {
+            case 'replicate':
+                $images = array_map(static fn ($jpeg) => 'data:image/jpeg;base64,' . base64_encode($jpeg), array_filter([$rider, $horse, $reference ? self::aiInput($reference) : null]));
+                $prediction = AiImage::replicateCreate(MangaIllustration::model(), [
+                    'prompt'        => $prompt,
+                    'image_input'   => array_values($images),
+                    'output_format' => 'png',
+                ], 50);
+                Database::update('ai_portraits', ['prediction_id' => $prediction['id'], 'step' => 'style', 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
+                $row['prediction_id'] = $prediction['id'];
+                $row['step'] = 'style';
+                return self::applyPrediction($row, $prediction);
+            case 'openai':
+                throw new \RuntimeException('L\'illustration manga utilise plusieurs photos : choisissez Replicate dans Intégrations › Portrait IA.');
+            default:
+                return self::storeResult($row, AiImage::demoSketch($horse));
+        }
+    }
+
     /** Lance le dessin (appel au service d'IA) ; peut durer jusqu'à une minute avec OpenAI. */
     public static function run(array $row): array
     {
@@ -215,6 +249,9 @@ final class AiPortrait
         }
         $row['status'] = 'processing';
         try {
+            if (($row['style'] ?? null) === MangaIllustration::STYLE) {
+                return self::runManga($row);
+            }
             $jpeg = self::aiInput((string) Upload::customerPhotoPath($row['photo_file']));
             $prompt = self::stylePrompt($row);
             switch ($row['provider']) {
@@ -596,6 +633,15 @@ final class AiPortrait
         return (float) abs($box[2] - $box[0]);
     }
 
+    /** Description de la création pour le panier et les commandes (« Portrait · Pop art », « Illustration manga · de dos »). */
+    public static function label(?array $row): string
+    {
+        if (($row['style'] ?? null) === MangaIllustration::STYLE) {
+            return 'Illustration manga · ' . mb_strtolower(MangaIllustration::VIEWS[MangaIllustration::view($row['view'] ?? null)]);
+        }
+        return 'Portrait · ' . PortraitStyles::name($row['style'] ?? null);
+    }
+
     /** État renvoyé au navigateur (JSON). */
     public static function publicState(array $row): array
     {
@@ -603,7 +649,10 @@ final class AiPortrait
             'token'   => $row['token'],
             'status'  => $row['status'],
             'style'   => $row['style'] ?? PortraitStyles::DEFAULT,
-            'style_name' => PortraitStyles::STYLES[$row['style'] ?? '']['name'] ?? PortraitStyles::STYLES[PortraitStyles::DEFAULT]['name'],
+            'style_name' => ($row['style'] ?? null) === MangaIllustration::STYLE
+                ? MangaIllustration::VIEWS[MangaIllustration::view($row['view'] ?? null)]
+                : (PortraitStyles::STYLES[$row['style'] ?? '']['name'] ?? PortraitStyles::STYLES[PortraitStyles::DEFAULT]['name']),
+            'view'    => $row['view'] ?? null,
             'preview' => $row['status'] === 'ready' ? url('portrait-ia/' . $row['token'] . '/apercu', ['v' => strtotime($row['updated_at'])]) : null,
             'message' => $row['status'] === 'failed' ? self::customerError($row) : null,
             // Visible uniquement par une administratrice connectée : cause technique et piste de solution

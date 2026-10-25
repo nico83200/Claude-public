@@ -130,7 +130,7 @@ final class Cart
                 'photo'        => $line['photo'] ?? null,
                 'year'         => (string) ($line['year'] ?? ''),
                 'portrait'     => $line['portrait'] ?? null,
-                'portrait_style' => $portraitRow ? PortraitStyles::name($portraitRow['style'] ?? null) : null,
+                'portrait_style' => $portraitRow ? AiPortrait::label($portraitRow) : null,
                 'mode'         => $cfg['mode'] ?? null,
                 'personalization_label' => $cfg['label'] ?? null,
             ];

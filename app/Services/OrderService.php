@@ -312,6 +312,18 @@ final class OrderService
                 Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);
                 $line['variant_id'] = (int) $row['printful_variant_id'];
                 $line['files'] = [['type' => $placement, 'url' => $fileUrl]];
+            } elseif ($mode === 'ai_manga') {
+                $portrait = AiPortrait::find((string) $row['ai_portrait']);
+                if (!$portrait || $portrait['status'] !== 'ready' || !$row['printful_variant_id']) {
+                    throw new \RuntimeException("Illustration manga de « {$row['product_name']} » : illustration introuvable ou ID variante Printful catalogue manquant.");
+                }
+                if ($portrait['master_prediction_id'] && !$portrait['master_file']) {
+                    $portrait = AiPortrait::refresh($portrait); // agrandissement terminé entre-temps ?
+                }
+                $fileUrl = url(MangaIllustration::printFile($portrait, $row['design_file'] ?: null, $text, Personalizer::config($row['personalization'])));
+                Database::update('order_items', ['print_file_url' => $fileUrl], 'id = :id', ['id' => $row['id']]);
+                $line['variant_id'] = (int) $row['printful_variant_id'];
+                $line['files'] = [['type' => $placement, 'url' => $fileUrl]];
             } elseif ($mode === 'portrait') {
                 if (!$row['print_file_url'] || !$row['printful_variant_id']) {
                     throw new \RuntimeException("Portrait de « {$row['product_name']} » : fichier final ou ID variante Printful catalogue manquant.");

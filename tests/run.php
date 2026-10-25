@@ -347,6 +347,35 @@ Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id 
 unset($_SESSION['admin_id']);
 check('demande de recadrage dans chaque style', str_contains(PortraitStyles::IDENTITY, 'the body, chest, back and legs must not appear'));
 
+echo "Illustration manga (t-shirt)\n";
+use App\Services\MangaIllustration;
+$_SESSION['admin_id'] = 1;
+$rider = App\Services\Upload::customerPhoto($aiFile());
+$horse = App\Services\Upload::customerPhoto($aiFile());
+$manga = AiPortrait::run(AiPortrait::createManga($rider, $horse, 'dos'));
+$calls = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create' && isset($c['input']['image_input'])));
+$call = end($calls);
+$expectedPrompt = MangaIllustration::prompt('dos', true);
+check('modèle multi-images avec les deux photos et la référence de style', ($call['model'] ?? '') === 'google/nano-banana' && count($call['input']['image_input'] ?? []) === 3
+    && str_starts_with((string) $call['input']['image_input'][0], 'data:image/jpeg;base64,'));
+check('consigne : base + vue de dos + référence', str_ends_with((string) $call['input']['prompt'], '(' . strlen($expectedPrompt) . ')')
+    && str_contains($expectedPrompt, "ANGLE DE VUE : DE DOS") && str_ends_with($expectedPrompt, MangaIllustration::REFERENCE_NOTE) && !str_contains(MangaIllustration::prompt('face', false), 'Image 3'));
+check('photos et vue enregistrées', $manga['photo2_file'] === $rider && $manga['photo_file'] === $horse && $manga['view'] === 'dos' && $manga['step'] === 'style');
+$manga = AiPortrait::refresh(AiPortrait::refresh($manga));
+check('illustration prête', $manga['status'] === 'ready' && AiPortrait::label($manga) === 'Illustration manga · de dos' && AiPortrait::publicState($manga)['style_name'] === 'De dos');
+$print = MangaIllustration::printFile($manga, null, '', Personalizer::config(json_encode(['mode' => 'ai_manga'])));
+check('fichier d\'impression : l\'illustration seule, publiée pour Printful', str_starts_with($print, 'uploads/print/manga-') && is_file(PUBLIC_PATH . '/' . $print));
+@unlink(PUBLIC_PATH . '/' . $print);
+App\Core\Settings::set('ai_manga_face', 'VUE DE FACE, cadrage serré');
+check('partie variable personnalisable', str_ends_with(MangaIllustration::prompt('face', false), "\n\nVUE DE FACE, cadrage serré") && MangaIllustration::view('xyz') === 'face');
+App\Core\Settings::set('ai_manga_face', '');
+check('exemple fourni avec le site par défaut', MangaIllustration::examples() === ['dos' => MangaIllustration::BUNDLED_EXAMPLE] && is_file(PUBLIC_PATH . '/' . MangaIllustration::BUNDLED_EXAMPLE));
+$tee = Database::one('SELECT * FROM products WHERE slug = ?', [MangaIllustration::PRODUCT_SLUG]);
+check('t-shirt manga créé d\'après un t-shirt existant', $tee && Personalizer::config($tee['personalization'])['mode'] === 'ai_manga' && (int) Database::value('SELECT COUNT(*) FROM product_variants WHERE product_id = ?', [$tee['id']]) > 0
+    && MangaIllustration::createProduct() === null);
+Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $manga['id']]);
+unset($_SESSION['admin_id']);
+
 echo "Comptes clientes\n";
 $mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
 $lastLink = static function (string $path) use ($mailLog): ?string {
@@ -728,7 +757,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('vingt migrations connues', count(App\Core\Migrator::files()) === 20);
+check('vingt et une migrations connues', count(App\Core\Migrator::files()) === 21);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');

@@ -34,6 +34,7 @@ $r->get('/panier/apercu', [CartController::class, 'drawer']);
 $r->get('/panier/photo/{name}', [CartController::class, 'photo']);
 $r->post('/panier/ajouter', [CartController::class, 'add']);
 $r->post('/portrait-ia', [AiPortraitController::class, 'create']);
+$r->post('/illustration-ia', [AiPortraitController::class, 'createManga']);
 $r->get('/portrait-ia/{token}', [AiPortraitController::class, 'status']);
 $r->get('/portrait-ia/{token}/apercu', [AiPortraitController::class, 'preview']);
 $r->post('/panier/modifier', [CartController::class, 'update']);
@@ -137,6 +138,11 @@ $r->get('/admin/produits/{id}/fichier-impression', [Admin\ProductsController::cl
 $r->get('/admin/avis', [Admin\ReviewsController::class, 'index']);
 $r->post('/admin/avis/{id}/{action}', [Admin\ReviewsController::class, 'action']);
 
+$r->get('/admin/illustration-manga', [Admin\MangaController::class, 'index']);
+$r->post('/admin/illustration-manga', [Admin\MangaController::class, 'save']);
+$r->post('/admin/illustration-manga/photos', [Admin\MangaController::class, 'photos']);
+$r->post('/admin/illustration-manga/generer', [Admin\MangaController::class, 'generate']);
+$r->get('/admin/illustration-manga/etat/{token}', [Admin\MangaController::class, 'status']);
 $r->get('/admin/portrait-styles', [Admin\PortraitStylesController::class, 'index']);
 $r->post('/admin/portrait-styles', [Admin\PortraitStylesController::class, 'save']);
 $r->post('/admin/portrait-styles/photo', [Admin\PortraitStylesController::class, 'photo']);
