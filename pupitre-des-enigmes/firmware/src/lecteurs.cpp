@@ -27,7 +27,11 @@ void Lecteurs::demarrer() {
 
 std::string Lecteurs::lire(MFRC522& l) {
   l.PCD_AntennaOn();
-  delay(3);  // le temps que la puce de la carte s'alimente
+  delay(5);  // le temps que la puce de la carte s'alimente
+  // Réglages radio remis à zéro, comme le fait PICC_IsNewCardPresent().
+  l.PCD_WriteRegister(MFRC522::TxModeReg, 0x00);
+  l.PCD_WriteRegister(MFRC522::RxModeReg, 0x00);
+  l.PCD_WriteRegister(MFRC522::ModWidthReg, 0x26);
   byte atqa[2];
   byte taille = sizeof(atqa);
   std::string uid;
