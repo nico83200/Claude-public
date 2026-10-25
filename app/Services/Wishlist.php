@@ -16,7 +16,11 @@ final class Wishlist
     /** @return list<int> */
     public static function ids(int $customerId): array
     {
-        return array_map('intval', array_column(Database::all('SELECT product_id FROM wishlist_items WHERE customer_id = ? ORDER BY id DESC', [$customerId]), 'product_id'));
+        try {
+            return array_map('intval', array_column(Database::all('SELECT product_id FROM wishlist_items WHERE customer_id = ? ORDER BY id DESC', [$customerId]), 'product_id'));
+        } catch (\PDOException) {
+            return []; // table pas encore créée : mise à jour en cours (migrations à appliquer)
+        }
     }
 
     /** Ajoute les produits (existants et en ligne) à la liste du compte ; renvoie la liste complète. */
