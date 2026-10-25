@@ -1,0 +1,119 @@
+# Mission 1 · La Disparition d'Éclipse — partie gagnante complète
+# Lancer : sim <SD de test> mission-1-solution.txt [--bavard]
+
+# --- Accueil : carte Monde, puis la mission 1 dans le menu
+pose QUI M1
+retire QUI
+verifie phase menu
+appui
+verifie phase roles
+
+# --- Les six rôles
+pose QUI R1
+retire QUI
+pose QUI R2
+retire QUI
+pose QUI R3
+retire QUI
+pose QUI R4
+retire QUI
+pose QUI R5
+retire QUI
+pose QUI R6
+retire QUI
+calme
+verifie phase jeu
+
+# --- L'écurie (J1), puis la tournée des lieux
+pose OU L1
+verifie drapeau J1
+pose OU L2
+pose OU L4
+pose OU L5
+pose OU L6
+pose OU L7
+
+# --- Un faux code au bureau, puis le bon
+pose OU L3
+verifie epreuve code
+code 1,2,3,4
+verifie compteur codes_faux 1
+pose OU L3
+code 3,7,1,5
+verifie drapeau J3
+
+# --- Rafale s'échappe (minute 8)
+avance 10
+verifie epreuve ensemble
+ensemble 3500
+verifie phase jeu
+
+# --- Le carnet de santé déchiffré (J2)
+pose QUOI O1
+verifie epreuve choix
+bouton BLEU
+verifie drapeau J2
+retire QUOI
+
+# --- Interrogatoires
+pose QUI P1
+pose QUOI O3
+pose QUOI O2
+pose QUI P5
+pose QUOI O8
+retire QUOI
+pose QUI P2
+retire QUI
+
+# --- Le Journaliste fait parler Hélène (au casque)
+pose QUI P1
+pose OU R3
+verifie compteur pouvoir_R3 1
+retire QUI
+
+# --- L'aide de Papy Marcel
+pose QUOI A1
+retire QUOI
+verifie compteur indices 1
+
+# --- Comète panique (minute 16)
+avance 10
+verifie epreuve rythme
+rythme 0,220,440 4
+verifie phase jeu
+
+# --- Le sentier : jaune, bleue, verte (J4)
+pose OU L8
+verifie epreuve choix
+bouton ROUGE
+verifie epreuve choix
+bouton JAUNE
+bouton BLEU
+bouton VERT
+verifie drapeau J4
+
+# --- La Vieille Grange (J5)
+pose OU L9
+verifie drapeau J5
+
+# --- Le Parieur tente le coup de poker
+pose OU R5
+verifie drapeau poker
+
+# --- Témoignage (24), appel (30) puis le gendarme (40)
+restant 17
+verifie epreuve code
+code 0,3,1,2
+
+# --- Accusation : une fausse (le poker la couvre), puis la bonne
+pose QUI P5
+pose OU L9
+pose QUOI O3
+bouton GROS
+bouton VERT
+verifie sans poker
+pose QUI P1
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire

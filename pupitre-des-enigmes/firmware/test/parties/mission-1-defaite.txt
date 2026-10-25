@@ -1,0 +1,38 @@
+# Mission 1 · trois accusations fausses : la partie est perdue
+pose QUI M1
+retire QUI
+appui
+pose QUI R1
+retire QUI
+bouton VERT
+calme
+verifie phase jeu
+verifie compteur pouvoir_R6 0
+
+# Une accusation incomplète est refusée
+pose QUI P2
+bouton GROS
+verifie phase jeu
+
+# Le carnet posé seul en accusation ne coûte rien (cas spécial)
+pose OU L1
+pose QUOI O1
+retire QUOI
+pose QUOI O1
+bouton GROS
+bouton VERT
+verifie compteur erreurs 0
+
+pose QUOI O2
+bouton GROS
+bouton VERT
+verifie compteur erreurs 1
+pose QUI P6
+bouton GROS
+bouton VERT
+verifie compteur erreurs 2
+pose QUI P4
+bouton GROS
+bouton VERT
+calme
+verifie phase defaite

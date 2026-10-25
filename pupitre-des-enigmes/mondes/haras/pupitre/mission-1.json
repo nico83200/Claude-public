@@ -1,0 +1,2038 @@
+{
+  "titre": "La Disparition d'Éclipse",
+  "dossier_voix": 10,
+  "dossier_sons": 11,
+  "chrono": {
+    "mode": "horloge",
+    "depart": "8:00",
+    "duree": 60
+  },
+  "jauge": "chrono",
+  "voix": {
+    "narrateur": "",
+    "helene": "Hélène Vasseur",
+    "lucas": "Lucas Bernier",
+    "camille": "Camille Roussel",
+    "victoire": "Victoire de Lancey",
+    "antoine": "Antoine Vasseur",
+    "delorme": "Marc Delorme",
+    "papy_marcel": "Papy Marcel",
+    "gendarme": "Le gendarme",
+    "commentateur": "Le commentateur",
+    "porteur": "Le témoin"
+  },
+  "cartes": {
+    "L1": {
+      "type": "lieu",
+      "nom": "L'Écurie"
+    },
+    "L2": {
+      "type": "lieu",
+      "nom": "La Sellerie"
+    },
+    "L3": {
+      "type": "lieu",
+      "nom": "Le Bureau"
+    },
+    "L4": {
+      "type": "lieu",
+      "nom": "Le Manège"
+    },
+    "L5": {
+      "type": "lieu",
+      "nom": "La Carrière"
+    },
+    "L6": {
+      "type": "lieu",
+      "nom": "Le Pré du Bas"
+    },
+    "L7": {
+      "type": "lieu",
+      "nom": "La Forge"
+    },
+    "L8": {
+      "type": "lieu",
+      "nom": "Le Sentier des bois"
+    },
+    "L9": {
+      "type": "lieu",
+      "nom": "La Vieille Grange"
+    },
+    "P1": {
+      "type": "perso",
+      "nom": "Hélène Vasseur"
+    },
+    "P2": {
+      "type": "perso",
+      "nom": "Lucas Bernier"
+    },
+    "P3": {
+      "type": "perso",
+      "nom": "Camille Roussel"
+    },
+    "P4": {
+      "type": "perso",
+      "nom": "Victoire de Lancey"
+    },
+    "P5": {
+      "type": "perso",
+      "nom": "Antoine Vasseur"
+    },
+    "P6": {
+      "type": "perso",
+      "nom": "Marc Delorme"
+    },
+    "O1": {
+      "type": "objet",
+      "nom": "Carnet de santé"
+    },
+    "O2": {
+      "type": "objet",
+      "nom": "Bottes boueuses"
+    },
+    "O3": {
+      "type": "objet",
+      "nom": "Contrat d'assurance"
+    },
+    "O4": {
+      "type": "objet",
+      "nom": "Clé du box 7"
+    },
+    "O5": {
+      "type": "objet",
+      "nom": "Couverture"
+    },
+    "O6": {
+      "type": "objet",
+      "nom": "Seau de granulés"
+    },
+    "O7": {
+      "type": "objet",
+      "nom": "Lampe torche"
+    },
+    "O8": {
+      "type": "objet",
+      "nom": "Reconnaissance de dette"
+    },
+    "O9": {
+      "type": "objet",
+      "nom": "Flot bleu"
+    },
+    "O10": {
+      "type": "objet",
+      "nom": "Bon de livraison"
+    },
+    "R1": {
+      "type": "role",
+      "nom": "Maréchal-ferrant"
+    },
+    "R2": {
+      "type": "role",
+      "nom": "Vétérinaire"
+    },
+    "R3": {
+      "type": "role",
+      "nom": "Journaliste"
+    },
+    "R4": {
+      "type": "role",
+      "nom": "Expert-comptable"
+    },
+    "R5": {
+      "type": "role",
+      "nom": "Parieur"
+    },
+    "R6": {
+      "type": "role",
+      "nom": "Ancien gendarme"
+    }
+  },
+  "roles": {
+    "R1": {
+      "dire": 3,
+      "pouvoir": 1
+    },
+    "R2": {
+      "dire": 4,
+      "pouvoir": 0
+    },
+    "R3": {
+      "dire": 5,
+      "pouvoir": 2
+    },
+    "R4": {
+      "dire": 6,
+      "pouvoir": 2
+    },
+    "R5": {
+      "dire": 7,
+      "pouvoir": 1
+    },
+    "R6": {
+      "dire": 8,
+      "pouvoir": 3
+    }
+  },
+  "pouvoirs": {
+    "R6_annulation": 1
+  },
+  "pouvoir_epuise": 106,
+  "roles_demande": 2,
+  "intro": [
+    {
+      "dire": 9
+    }
+  ],
+  "debut": [
+    {
+      "dire": 10
+    },
+    {
+      "ambiance": 5
+    }
+  ],
+  "reprise": [
+    {
+      "ambiance": 5
+    }
+  ],
+  "progression": [
+    {
+      "nom": "Écurie",
+      "si": "J1"
+    },
+    {
+      "nom": "Carnet",
+      "si": "J2"
+    },
+    {
+      "nom": "Bureau",
+      "si": "J3"
+    },
+    {
+      "nom": "Sentier",
+      "si": "J4"
+    },
+    {
+      "nom": "Grange",
+      "si": "J5"
+    }
+  ],
+  "regles": [
+    {
+      "note": "La scène du crime (J1)",
+      "quand": {
+        "lieu": "L1"
+      },
+      "si": "!J1",
+      "alors": [
+        {
+          "dire": 20
+        },
+        {
+          "enveloppe": "E1"
+        },
+        {
+          "drapeau": "J1"
+        },
+        {
+          "ambiance": 5
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L1"
+      },
+      "alors": [
+        {
+          "dire": 21
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!vu_L2",
+      "alors": [
+        {
+          "dire": 22
+        },
+        {
+          "enveloppe": "E2"
+        },
+        {
+          "drapeau": "vu_L2"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "alors": [
+        {
+          "dire": 23
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "si": "J3",
+      "alors": [
+        {
+          "dire": 28
+        }
+      ]
+    },
+    {
+      "note": "Le code du bureau (J3) : 3715",
+      "quand": {
+        "lieu": "L3"
+      },
+      "alors": [
+        {
+          "dire": 24
+        },
+        {
+          "ambiance": 14
+        },
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "PORTE DU BUREAU",
+            "texte": "Code à 4 chiffres",
+            "solution": "3715",
+            "reussite": [
+              {
+                "son": 3
+              },
+              {
+                "dire": 27
+              },
+              {
+                "enveloppe": "E3"
+              },
+              {
+                "drapeau": "J3"
+              }
+            ],
+            "echec": [
+              {
+                "ajouter": {
+                  "codes_faux": 1
+                }
+              },
+              {
+                "si": "codes_faux>=3",
+                "alors": [
+                  {
+                    "dire": 26
+                  }
+                ],
+                "sinon": [
+                  {
+                    "dire": 25
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "!vu_L4",
+      "alors": [
+        {
+          "dire": 29
+        },
+        {
+          "enveloppe": "E5"
+        },
+        {
+          "drapeau": "vu_L4"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "alors": [
+        {
+          "dire": 30
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!vu_L5",
+      "alors": [
+        {
+          "dire": 31
+        },
+        {
+          "enveloppe": "E6"
+        },
+        {
+          "drapeau": "vu_L5"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "alors": [
+        {
+          "dire": 32
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "si": "!vu_L6",
+      "alors": [
+        {
+          "dire": 33
+        },
+        {
+          "enveloppe": "E7"
+        },
+        {
+          "drapeau": "vu_L6"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "alors": [
+        {
+          "dire": 34
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "alors": [
+        {
+          "dire": 35
+        }
+      ]
+    },
+    {
+      "note": "Le sentier n'est accessible qu'après l'écurie",
+      "quand": {
+        "lieu": "L8"
+      },
+      "si": "!J1",
+      "alors": [
+        {
+          "dire": 17
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "si": "J4",
+      "alors": [
+        {
+          "dire": 47
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "si": "!vu_L8",
+      "alors": [
+        {
+          "dire": 36
+        },
+        {
+          "enveloppe": "E8"
+        },
+        {
+          "drapeau": "vu_L8"
+        },
+        {
+          "ambiance": 13
+        },
+        {
+          "evenement": "croisement1"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "alors": [
+        {
+          "ambiance": 13
+        },
+        {
+          "evenement": "croisement1"
+        }
+      ]
+    },
+    {
+      "note": "Sentier : jaune, bleue, verte",
+      "quand": {
+        "evenement": "croisement1"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "SENTIER DES BOIS · CROISEMENT 1 / 3",
+            "texte": "Carnet du sentier : page 1. Quelle piste suivez-vous ?",
+            "options": [
+              "Balise rouge",
+              "Balise bleue",
+              "Balise jaune",
+              "Balise verte"
+            ],
+            "bonne": 2,
+            "aides": {
+              "R1": {
+                "type": "barrer",
+                "dire": 48
+              }
+            },
+            "intro": {
+              "dire": 37
+            },
+            "reussite": [
+              {
+                "dire": 41
+              },
+              {
+                "evenement": "croisement2"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 40
+              },
+              {
+                "temps": -2
+              },
+              {
+                "evenement": "croisement1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "croisement2"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "SENTIER DES BOIS · CROISEMENT 2 / 3",
+            "texte": "Carnet du sentier : page 2. Quelle piste suivez-vous ?",
+            "options": [
+              "Balise rouge",
+              "Balise bleue",
+              "Balise jaune",
+              "Balise verte"
+            ],
+            "bonne": 1,
+            "aides": {
+              "R1": {
+                "type": "barrer",
+                "dire": 48
+              }
+            },
+            "intro": {
+              "dire": 38
+            },
+            "reussite": [
+              {
+                "dire": 41
+              },
+              {
+                "evenement": "croisement3"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 40
+              },
+              {
+                "temps": -2
+              },
+              {
+                "evenement": "croisement2"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "croisement3"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "SENTIER DES BOIS · CROISEMENT 3 / 3",
+            "texte": "Carnet du sentier : page 3. Quelle piste suivez-vous ?",
+            "options": [
+              "Balise rouge",
+              "Balise bleue",
+              "Balise jaune",
+              "Balise verte"
+            ],
+            "bonne": 3,
+            "aides": {
+              "R1": {
+                "type": "barrer",
+                "dire": 48
+              }
+            },
+            "intro": {
+              "dire": 39
+            },
+            "reussite": [
+              {
+                "dire": 42
+              },
+              {
+                "son": 2
+              },
+              {
+                "dire": 43
+              },
+              {
+                "drapeau": "J4"
+              },
+              {
+                "ambiance": 5
+              }
+            ],
+            "echec": [
+              {
+                "dire": 40
+              },
+              {
+                "temps": -2
+              },
+              {
+                "evenement": "croisement3"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "!J4",
+      "alors": [
+        {
+          "dire": 44
+        }
+      ]
+    },
+    {
+      "note": "La Vieille Grange (J5)",
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "!J5",
+      "alors": [
+        {
+          "dire": 45
+        },
+        {
+          "son": 1
+        },
+        {
+          "enveloppe": "E4"
+        },
+        {
+          "drapeau": "J5"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "alors": [
+        {
+          "dire": 46
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1"
+      },
+      "alors": [
+        {
+          "dire": 120
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2"
+      },
+      "alors": [
+        {
+          "dire": [
+            135,
+            136
+          ]
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3"
+      },
+      "alors": [
+        {
+          "dire": 150
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4"
+      },
+      "alors": [
+        {
+          "dire": 165
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5"
+      },
+      "alors": [
+        {
+          "dire": 180
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6"
+      },
+      "alors": [
+        {
+          "dire": 195
+        }
+      ]
+    },
+    {
+      "note": "Le carnet n'a pas encore été déchiffré",
+      "quand": {
+        "qui": "*",
+        "quoi": "O1"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "dire": 119
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 122
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 123
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 124
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 125
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 126
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": [
+          "O5",
+          "O6"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 127
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 128
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 138
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": [
+          "O5",
+          "O6"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 139
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 140
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 141
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 142
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3",
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 152
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 153
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 154
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 155
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 167
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4",
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 168
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 169
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 182
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 183
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 184
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6",
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "dire": 197
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6",
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 198
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 199
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 200
+        }
+      ]
+    },
+    {
+      "note": "La question du carnet (J2)",
+      "quand": {
+        "quoi": "O1"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "CARNET DE SANTÉ",
+            "texte": "Vous avez déchiffré le carnet ? Que dit-il ?",
+            "options": [
+              "Une simple fatigue",
+              "Une tendinite, 6 mois d'arrêt",
+              "Un vaccin à faire",
+              "Pas encore"
+            ],
+            "bonne": 1,
+            "neutre": 3,
+            "intro": {
+              "dire": 112
+            },
+            "reussite": [
+              {
+                "dire": 113
+              },
+              {
+                "drapeau": "J2"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 114
+              }
+            ],
+            "si_neutre": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 210
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 211
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 212
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 213
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 214
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O6"
+      },
+      "alors": [
+        {
+          "dire": 215
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 216
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 217
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 218
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "dire": 219
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P1"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 121
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P2"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 137
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P3"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 151
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P4"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 166
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P5"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 181
+        }
+      ]
+    },
+    {
+      "note": "Journaliste : confidence au casque",
+      "quand": {
+        "role": "R3",
+        "qui": "P6"
+      },
+      "si": "pouvoir_R3>0",
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 118
+        },
+        {
+          "dire": 196
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P1"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 100
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P2"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 101
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P3"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 102
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P4"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 103
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P5"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "note": "Gendarme : alibi au casque",
+      "quand": {
+        "role": "R6",
+        "qui": "P6"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 105
+        }
+      ]
+    },
+    {
+      "note": "Expert-comptable",
+      "quand": {
+        "role": "R4",
+        "quoi": "O3"
+      },
+      "si": "pouvoir_R4>0",
+      "alors": [
+        {
+          "pouvoir": "R4"
+        },
+        {
+          "dire": 108
+        }
+      ]
+    },
+    {
+      "note": "Expert-comptable",
+      "quand": {
+        "role": "R4",
+        "quoi": "O8"
+      },
+      "si": "pouvoir_R4>0",
+      "alors": [
+        {
+          "pouvoir": "R4"
+        },
+        {
+          "dire": 109
+        }
+      ]
+    },
+    {
+      "note": "Expert-comptable",
+      "quand": {
+        "role": "R4",
+        "quoi": "O10"
+      },
+      "si": "pouvoir_R4>0",
+      "alors": [
+        {
+          "pouvoir": "R4"
+        },
+        {
+          "dire": 110
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R4",
+        "quoi": "*"
+      },
+      "si": "pouvoir_R4>0",
+      "alors": [
+        {
+          "pouvoir": "R4"
+        },
+        {
+          "dire": 111
+        }
+      ]
+    },
+    {
+      "note": "Parieur : coup de poker",
+      "quand": {
+        "role": "R5"
+      },
+      "si": "pouvoir_R5>0",
+      "alors": [
+        {
+          "pouvoir": "R5"
+        },
+        {
+          "drapeau": "poker"
+        },
+        {
+          "dire": 115
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": [
+          "R3",
+          "R6"
+        ],
+        "qui": "-"
+      },
+      "alors": [
+        {
+          "dire": 116
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R4",
+        "quoi": "-"
+      },
+      "alors": [
+        {
+          "dire": 116
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": [
+          "R3",
+          "R4",
+          "R5",
+          "R6"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 106
+        }
+      ]
+    }
+  ],
+  "defaut": {
+    "lieu": [
+      {
+        "dire": 11
+      }
+    ],
+    "qui": [
+      {
+        "dire": 11
+      }
+    ],
+    "quoi": [
+      {
+        "dire": 11
+      }
+    ],
+    "paire": [
+      {
+        "dire": 11
+      }
+    ],
+    "role": [
+      {
+        "dire": 117
+      }
+    ]
+  },
+  "imprevus": [
+    {
+      "minute": 8,
+      "actions": [
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 80
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "IMPRÉVU",
+            "texte": "RAFALE S'EST ÉCHAPPÉ !\nLes 4 boutons en même temps, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "dire": 81
+              }
+            ],
+            "echec": [
+              {
+                "dire": 82
+              },
+              {
+                "temps": -2
+              },
+              {
+                "annulable": {
+                  "role": "R6",
+                  "pouvoir": "R6_annulation",
+                  "secondes": 10,
+                  "alors": [
+                    {
+                      "temps": 2
+                    },
+                    {
+                      "dire": 107
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 16,
+      "actions": [
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 83
+        },
+        {
+          "epreuve": {
+            "type": "rythme",
+            "titre": "IMPRÉVU",
+            "texte": "Comète panique ! Reproduisez le galop.",
+            "motif": [
+              0,
+              220,
+              440
+            ],
+            "repetitions": 4,
+            "son": 6,
+            "tolerance": 180,
+            "reussite": [
+              {
+                "dire": 84
+              }
+            ],
+            "echec": [
+              {
+                "dire": 85
+              },
+              {
+                "temps": -2
+              },
+              {
+                "annulable": {
+                  "role": "R6",
+                  "pouvoir": "R6_annulation",
+                  "secondes": 10,
+                  "alors": [
+                    {
+                      "temps": 2
+                    },
+                    {
+                      "dire": 107
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 24,
+      "actions": [
+        {
+          "son": 7
+        },
+        {
+          "dire": 74
+        },
+        {
+          "dire": 75,
+          "unique": true,
+          "delai": 20,
+          "rate": [
+            {
+              "dire": 76
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "minute": 30,
+      "actions": [
+        {
+          "son": 10
+        },
+        {
+          "dire": 86
+        },
+        {
+          "attendre": 10000
+        },
+        {
+          "hasard": [
+            [
+              {
+                "dire": 87
+              }
+            ],
+            [
+              {
+                "dire": 88
+              }
+            ],
+            [
+              {
+                "dire": 89
+              }
+            ],
+            [
+              {
+                "dire": 90
+              }
+            ],
+            [
+              {
+                "dire": 91
+              }
+            ],
+            [
+              {
+                "dire": 92
+              }
+            ]
+          ]
+        },
+        {
+          "dire": 93
+        }
+      ]
+    },
+    {
+      "minute": 40,
+      "actions": [
+        {
+          "son": 7
+        },
+        {
+          "dire": 94
+        },
+        {
+          "si": "J3",
+          "alors": [
+            {
+              "epreuve": {
+                "type": "code",
+                "titre": "GENDARMERIE",
+                "texte": "Répondez avec la molette (30 s)",
+                "solution": "0312",
+                "secondes": 30,
+                "intro": {
+                  "dire": 95
+                },
+                "reussite": [
+                  {
+                    "dire": 98
+                  },
+                  {
+                    "temps": 2
+                  }
+                ],
+                "echec": [
+                  {
+                    "dire": 99
+                  }
+                ]
+              }
+            }
+          ],
+          "sinon": [
+            {
+              "si": "J2",
+              "alors": [
+                {
+                  "epreuve": {
+                    "type": "code",
+                    "titre": "GENDARMERIE",
+                    "texte": "Répondez avec la molette (30 s)",
+                    "solution": "6",
+                    "secondes": 30,
+                    "intro": {
+                      "dire": 97
+                    },
+                    "reussite": [
+                      {
+                        "dire": 98
+                      },
+                      {
+                        "temps": 2
+                      }
+                    ],
+                    "echec": [
+                      {
+                        "dire": 99
+                      }
+                    ]
+                  }
+                }
+              ],
+              "sinon": [
+                {
+                  "epreuve": {
+                    "type": "code",
+                    "titre": "GENDARMERIE",
+                    "texte": "Répondez avec la molette (30 s)",
+                    "solution": "7",
+                    "secondes": 30,
+                    "intro": {
+                      "dire": 77
+                    },
+                    "reussite": [
+                      {
+                        "dire": 98
+                      },
+                      {
+                        "temps": 2
+                      }
+                    ],
+                    "echec": [
+                      {
+                        "dire": 99
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "minute": 52,
+      "si": "erreurs==0",
+      "actions": [
+        {
+          "dire": 18
+        }
+      ]
+    },
+    {
+      "minute": 55,
+      "actions": [
+        {
+          "effet": "alerte",
+          "duree": 5000
+        },
+        {
+          "dire": 78
+        },
+        {
+          "ambiance": 9
+        }
+      ]
+    },
+    {
+      "minute": 59,
+      "actions": [
+        {
+          "dire": 79
+        }
+      ]
+    }
+  ],
+  "relances": [
+    {
+      "minute": 6,
+      "si": "!J1"
+    },
+    {
+      "minute": 25,
+      "si": "!J3"
+    },
+    {
+      "minute": 30,
+      "si": "!J2"
+    },
+    {
+      "minute": 45,
+      "si": "!J4"
+    }
+  ],
+  "aide": {
+    "carte": "A1",
+    "gratuits": 3,
+    "cout": [
+      {
+        "temps": -2
+      }
+    ],
+    "appel": 220,
+    "gratuit": 221,
+    "payant": 222,
+    "fin": 238,
+    "blocages": [
+      {
+        "si": "!J1",
+        "niveaux": [
+          223,
+          224,
+          225
+        ]
+      },
+      {
+        "si": "!J3",
+        "niveaux": [
+          226,
+          227,
+          228
+        ]
+      },
+      {
+        "si": "!J2",
+        "niveaux": [
+          229,
+          230,
+          231
+        ]
+      },
+      {
+        "si": "!J4",
+        "niveaux": [
+          232,
+          233,
+          234
+        ]
+      },
+      {
+        "si": "1",
+        "niveaux": [
+          235,
+          236,
+          237
+        ]
+      }
+    ]
+  },
+  "accusation": {
+    "titre": "ACCUSATION",
+    "qui": "P1",
+    "ou": "L9",
+    "quoi": "O3",
+    "erreurs_max": 3,
+    "poker": "poker",
+    "penalite": [
+      {
+        "dire": 58
+      },
+      {
+        "temps": -5
+      }
+    ],
+    "speciaux": [
+      {
+        "quoi": "O1",
+        "dire": 62,
+        "gratuit": true
+      }
+    ],
+    "voix": {
+      "demande": 50,
+      "manque": 51,
+      "suspense": 54,
+      "resultats": [
+        55,
+        56,
+        57
+      ],
+      "poker": 59,
+      "juste": 63,
+      "troisieme": 69
+    }
+  },
+  "fins": {
+    "victoire": [
+      {
+        "son": 8
+      },
+      {
+        "dire": 64
+      },
+      {
+        "dire": 129
+      },
+      {
+        "dire": 65
+      }
+    ],
+    "rangs": [
+      {
+        "si": "restant>=15 && erreurs==0",
+        "dire": 66,
+        "titre": "Flot bleu"
+      },
+      {
+        "si": "restant>=5",
+        "dire": 67,
+        "titre": "Flot rouge"
+      },
+      {
+        "si": "1",
+        "dire": 68,
+        "titre": "Flot jaune"
+      }
+    ],
+    "temps": [
+      {
+        "dire": 72
+      },
+      {
+        "son": 11
+      },
+      {
+        "dire": 70
+      }
+    ],
+    "erreurs": [
+      {
+        "son": 11
+      },
+      {
+        "dire": 70
+      }
+    ],
+    "solution": [
+      {
+        "dire": 71
+      }
+    ]
+  }
+}
