@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 1 · Fiche d'enquête</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase; color: var(--cuir);
+             border-bottom: 1px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  td { height: 11mm; }
+  .heures td { height: 8.5mm; }
+  .cases { display: flex; gap: 3mm; }
+  .cases span { width: 11mm; height: 13mm; border: 1.5px solid var(--vert); border-radius: 3px; display: inline-block; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .zone { border: 1px solid var(--filet); border-radius: 6px; padding: 3mm 4mm; min-height: 30mm; }
+  .zone h4 { margin: 0 0 2mm; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Haras des Trois Fers</span><span>Fiche d'enquête · mission 1</span></div>
+<h1 style="font-size:22pt">Fiche d'enquête</h1>
+<p class="petit">Une feuille pour l'équipe, à remplir au crayon. Celle-ci, vous pouvez la montrer !</p>
+
+<h3>Les suspects</h3>
+<table>
+  <thead><tr><th style="width:20%">Personne</th><th>Alibi pour la nuit</th><th style="width:13%">Accès au bureau ?</th><th>Mobile possible</th><th style="width:9%">Suspect ?</th></tr></thead>
+  <tbody>
+    <tr><td>Hélène Vasseur</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Lucas Bernier</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Camille Roussel</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Victoire de Lancey</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Antoine Vasseur</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Marc Delorme</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="deux">
+  <div>
+    <h3>La nuit, heure par heure</h3>
+    <table class="heures">
+      <thead><tr><th style="width:18%">Heure</th><th>Ce qui s'est passé</th></tr></thead>
+      <tbody>
+        <tr><td>22 h</td><td></td></tr><tr><td>23 h</td><td></td></tr><tr><td>0 h</td><td></td></tr>
+        <tr><td>1 h</td><td></td></tr><tr><td>2 h</td><td></td></tr><tr><td>3 h</td><td></td></tr>
+        <tr><td>4 h</td><td></td></tr><tr><td>5 h</td><td></td></tr><tr><td>6 h</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Le code du bureau</h3>
+    <div class="cases"><span></span><span></span><span></span><span></span></div>
+    <p class="petit">Boxes : 1 2 3 4 au nord · 5 6 7 8 au sud</p>
+    <h3>Le carnet de santé</h3>
+    <div class="zone" style="min-height:22mm"></div>
+    <h3>Le sentier</h3>
+    <p>Croisement 1 : ________ · 2 : ________ · 3 : ________</p>
+  </div>
+</div>
+
+<h3>L'accusation</h3>
+<div class="deux" style="grid-template-columns:repeat(3,1fr)">
+  <div class="zone"><h4>👤 QUI ?</h4></div>
+  <div class="zone"><h4>📍 OÙ ?</h4></div>
+  <div class="zone"><h4>🔍 POURQUOI ?</h4></div>
+</div>
+</body>
+</html>

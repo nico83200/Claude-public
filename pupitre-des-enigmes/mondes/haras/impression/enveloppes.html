@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 1 · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .main { font-family: "Caveat", cursive; color: #24324a; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 6mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+
+  /* Photos façon polaroïd */
+  .photos { display: flex; flex-wrap: wrap; gap: 7mm; justify-content: center; }
+  .polaroid { background: #fff; padding: 4mm 4mm 2mm; box-shadow: 0 1px 4px rgba(0,0,0,.25); border: 1px solid #e3ddd2; width: 84mm; break-inside: avoid; }
+  .polaroid svg { width: 76mm; height: 62mm; display: block; }
+  .polaroid .legende { font-family: "Caveat", cursive; font-size: 15pt; color: #24324a; text-align: center; margin-top: 1mm; line-height: 1.1; }
+  .polaroid.grand { width: 120mm; }
+  .polaroid.grand svg { width: 112mm; height: 84mm; }
+
+  /* Carnet de santé */
+  .carnet { background: repeating-linear-gradient(#fffdf6 0 9.5mm, #c9d6e8 9.5mm 9.8mm); border: 1px solid var(--filet); padding: 6mm 10mm 8mm 22mm;
+            position: relative; }
+  .carnet::before { content: ""; position: absolute; left: 15mm; top: 0; bottom: 0; border-left: 1.5px solid #e3a3a3; }
+  .carnet .entete { font-family: "Source Sans"; font-size: 9pt; text-transform: uppercase; letter-spacing: .12em; color: var(--gris); height: 9.8mm; }
+  .carnet .code { font-family: "Caveat"; font-size: 22pt; line-height: 9.8mm; letter-spacing: .09em; color: #1b2c55; }
+
+  /* Tickets */
+  .ticket { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; background: #fbfbf8; width: 78mm; padding: 5mm 6mm; border: 1px solid #ddd;
+            box-shadow: 0 1px 3px rgba(0,0,0,.15); line-height: 1.45; white-space: pre; }
+  .officiel { background: #fff; border: 1px solid #c9c2b4; padding: 9mm 11mm; font-size: 10pt; }
+  .officiel .logo { font-family: "Playfair"; font-weight: 900; font-size: 15pt; color: #1d3a6b; }
+  .signature { font-family: "Caveat"; font-size: 20pt; color: #1b2c55; }
+
+  /* Carnet du sentier */
+  .balises { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .balise { border: 1px solid #b9b2a6; border-radius: 6px; overflow: hidden; break-inside: avoid; }
+  .balise .nom { color: #fff; font-weight: 700; padding: 2mm 4mm; letter-spacing: .1em; text-transform: uppercase; font-size: 10pt; }
+  .balise .sol { height: 92mm; background: radial-gradient(circle at 40% 40%, #d8c7a2, #b9a47b); display: flex; align-items: center; justify-content: center; gap: 6mm; }
+  .balise .sol svg { width: 36mm; height: 42mm; }
+  .balise .sol svg.semelle { width: 22mm; height: 42mm; }
+
+  /* Étiquettes */
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 64mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 6mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Playfair"; font-weight: 900; font-size: 34pt; color: var(--vert); line-height: 1; }
+  .etiquette .lieu { font-family: "Playfair"; font-size: 15pt; color: var(--cuir); margin: 1mm 0 3mm; }
+  .etiquette .avis { font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; }
+  .etiquette.dos h4 { margin: 0 0 1mm; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+<script src="symboles.js"></script>
+
+<!-- ================= NOTICE ================= -->
+<div class="page">
+  <h1>Les enveloppes de la mission 1</h1>
+  <p>Ce document contient <strong>tout ce qui se glisse dans les 8 enveloppes</strong>, ainsi que leurs étiquettes. Les joueurs ne doivent pas le voir avant la partie.</p>
+  <ol>
+    <li>Imprimez en couleur sur papier ordinaire (120 g, c'est mieux). Les étiquettes peuvent aller sur papier adhésif.</li>
+    <li>Découpez les éléments en suivant les pointillés ✂, et les photos au bord du cadre blanc.</li>
+    <li>Collez l'étiquette « recto » sur le devant de chaque enveloppe kraft, et l'étiquette « contenu » au dos.</li>
+    <li>Glissez dans chaque enveloppe ses documents <strong>et ses cartes Objet</strong> (imprimées avec les cartes).</li>
+  </ol>
+  <table>
+    <thead><tr><th>Enveloppe</th><th>Lieu</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
+    <tbody>
+      <tr><td><strong>E1</strong></td><td>Écurie</td><td>Page du carnet de santé chiffrée · 2 photos (box 7, empreinte)</td><td>O1 Carnet de santé</td></tr>
+      <tr><td><strong>E2</strong></td><td>Sellerie</td><td>3 photos (bottes, semelle, râtelier)</td><td>O2 Bottes boueuses</td></tr>
+      <tr><td><strong>E3</strong></td><td>Bureau</td><td>Photo du tableau des clés · ticket de l'enregistreur · avenant d'assurance</td><td>O3 Contrat · O4 Clé du box 7</td></tr>
+      <tr><td><strong>E4</strong></td><td>Vieille Grange</td><td>Photo d'Éclipse</td><td>O5 Couverture · O6 Seau · O7 Lampe</td></tr>
+      <tr><td><strong>E5</strong></td><td>Manège</td><td>Reconnaissance de dette · ticket du casino</td><td>O8 Reconnaissance de dette</td></tr>
+      <tr><td><strong>E6</strong></td><td>Carrière</td><td>Le mot de Victoire</td><td>O9 Flot bleu</td></tr>
+      <tr><td><strong>E7</strong></td><td>Pré du Bas</td><td>Bon de livraison · photo des traces de pneus</td><td>O10 Bon de livraison</td></tr>
+      <tr><td><strong>E8</strong></td><td>Sentier des bois</td><td>Le carnet du sentier (3 pages)</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ================= ÉTIQUETTES ================= -->
+<div class="page">
+  <div class="tag">Étiquettes · recto des enveloppes</div>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">L'Écurie</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">La Sellerie</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Le Bureau</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">La Vieille Grange</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Le Manège</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E6</div><div class="lieu">La Carrière</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E7</div><div class="lieu">Le Pré du Bas</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E8</div><div class="lieu">Le Sentier des bois</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · dos des enveloppes (contenu, pour le rangement)</div>
+  <div class="etiquettes">
+    <div class="etiquette dos"><h4>E1 · Écurie</h4><ul><li>Carte O1 · Carnet de santé</li><li>Page du carnet chiffrée</li><li>Photo : le box 7</li><li>Photo : l'empreinte dans l'allée</li></ul></div>
+    <div class="etiquette dos"><h4>E2 · Sellerie</h4><ul><li>Carte O2 · Bottes boueuses</li><li>Photo : les bottes sur le crochet H.V.</li><li>Photo : la semelle</li><li>Photo : le râtelier</li></ul></div>
+    <div class="etiquette dos"><h4>E3 · Bureau</h4><ul><li>Carte O3 · Contrat d'assurance</li><li>Carte O4 · Clé du box 7</li><li>Photo : le tableau des clés</li><li>Ticket de l'enregistreur</li><li>Avenant d'assurance</li></ul></div>
+    <div class="etiquette dos"><h4>E4 · Vieille Grange</h4><ul><li>Carte O5 · Couverture</li><li>Carte O6 · Seau de granulés</li><li>Carte O7 · Lampe torche</li><li>Photo : Éclipse</li></ul></div>
+    <div class="etiquette dos"><h4>E5 · Manège</h4><ul><li>Carte O8 · Reconnaissance de dette</li><li>Reconnaissance de dette (papier)</li><li>Ticket du casino</li></ul></div>
+    <div class="etiquette dos"><h4>E6 · Carrière</h4><ul><li>Carte O9 · Flot bleu</li><li>Le mot de Victoire</li></ul></div>
+    <div class="etiquette dos"><h4>E7 · Pré du Bas</h4><ul><li>Carte O10 · Bon de livraison</li><li>Bon de livraison (papier)</li><li>Photo : les traces de pneus</li></ul></div>
+    <div class="etiquette dos"><h4>E8 · Sentier des bois</h4><ul><li>Le carnet du sentier (3 pages)</li></ul></div>
+  </div>
+</div>
+
+<!-- ================= E1 ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · Écurie</div>
+  <div class="carnet">
+    <div class="entete">Carnet de santé · ÉCLIPSE · jument grise, 9 ans · Dr C. Morel</div>
+    <div class="code">JOGMTUYZOI JA NAOZ UIZUHXK</div>
+    <div class="code">ZKTJOTOZK GTZKXOKAX MGAINK</div>
+    <div class="code">GXXKZ JK ZUAZK IUSVKZOZOUT</div>
+    <div class="code">YOD SUOY SOTOSAS</div>
+    <div class="code">SSK B KDOMK WAK VKXYUTTK</div>
+    <div class="code">TK YUOZ VXKBKTA VGY SKSK</div>
+    <div class="code">R GYYAXGTIK</div>
+    <div class="code" style="text-align:right;letter-spacing:0">Dr C. M.</div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="photos">
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#c9b28a"/>
+        <rect x="0" y="0" width="200" height="118" fill="#8a6440"/>
+        <g stroke="#6e4e30" stroke-width="2"><line x1="0" y1="20" x2="200" y2="20"/><line x1="0" y1="45" x2="200" y2="45"/><line x1="0" y1="70" x2="200" y2="70"/><line x1="0" y1="95" x2="200" y2="95"/></g>
+        <rect x="60" y="22" width="80" height="96" fill="#2b2018"/>
+        <path d="M140 22L182 34V128L140 118Z" fill="#a47b52" stroke="#5b4026" stroke-width="2"/>
+        <path d="M146 40L176 46M146 70L176 76M146 100L176 106" stroke="#5b4026" stroke-width="1.5"/>
+        <rect x="132" y="66" width="10" height="16" rx="2" fill="#b8b8b8" stroke="#777"/>
+        <rect x="80" y="6" width="40" height="13" rx="2" fill="#e7d6a9" stroke="#8a6d33"/>
+        <text x="100" y="15.5" font-size="8" text-anchor="middle" font-family="Source Sans" font-weight="700" fill="#3a2a14">7 · ÉCLIPSE</text>
+        <g fill="#d9c27a" opacity=".8"><path d="M64 118L70 108L76 118Z"/><path d="M110 118L118 110L124 118Z"/></g>
+      </svg>
+      <div class="legende">Box 7 : la porte est ouverte… mais la serrure est intacte.</div>
+    </div>
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#c9b28a"/>
+        <g fill="#b39b70" opacity=".6"><circle cx="30" cy="30" r="2"/><circle cx="160" cy="40" r="2.5"/><circle cx="60" cy="130" r="2"/><circle cx="170" cy="130" r="1.6"/></g>
+        <use href="#fer-oeuf" x="40" y="30" width="80" height="90" transform="rotate(90 80 75)"/>
+        <path d="M128 80H182M172 70L184 80L172 90" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <text x="150" y="108" font-size="10" fill="#fff" font-family="Source Sans" font-weight="700" text-anchor="middle">porte arrière</text>
+      </svg>
+      <div class="legende">Dans l'allée, une empreinte bizarre file vers la porte arrière.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= E2 ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · Sellerie</div>
+  <div class="photos">
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#b88a5b"/>
+        <rect x="0" y="0" width="200" height="40" fill="#9c7046"/>
+        <rect x="80" y="10" width="40" height="18" rx="3" fill="#d8b75a" stroke="#8a6d33"/>
+        <text x="100" y="23" font-size="11" text-anchor="middle" font-family="Playfair" font-weight="700" fill="#3a2a14">H.V.</text>
+        <path d="M100 30V40Q100 46 94 46" stroke="#555" stroke-width="3" fill="none"/>
+        <g>
+          <path d="M66 48H96V120Q96 132 108 134V146H52V128Q66 126 66 112Z" fill="#1f2a22"/>
+          <path d="M104 48H134V120Q134 132 146 134V146H90V128Q104 126 104 112Z" fill="#26332a"/>
+          <g fill="#6b4a2b"><ellipse cx="72" cy="138" rx="18" ry="7"/><ellipse cx="114" cy="140" rx="20" ry="6"/><ellipse cx="80" cy="110" rx="9" ry="5"/><ellipse cx="124" cy="100" rx="7" ry="4"/></g>
+          <g stroke="#3e6b38" stroke-width="1.6"><line x1="60" y1="136" x2="72" y2="130"/><line x1="78" y1="140" x2="86" y2="134"/><line x1="110" y1="142" x2="122" y2="137"/><line x1="122" y1="102" x2="130" y2="96"/><line x1="96" y1="140" x2="104" y2="144"/></g>
+        </g>
+      </svg>
+      <div class="legende">Des bottes pleines de boue fraîche… et d'aiguilles de pin.</div>
+    </div>
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#efe6d4"/>
+        <use href="#semelle-chevrons" x="70" y="12" width="60" height="136"/>
+        <text x="150" y="40" font-size="10" fill="#6d665d" font-family="Source Sans">pointure 38</text>
+      </svg>
+      <div class="legende">La semelle de la botte droite.</div>
+    </div>
+    <div class="polaroid grand">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#a77d52"/>
+        <rect x="10" y="60" width="280" height="10" fill="#6b4a2b"/>
+        <rect x="10" y="150" width="280" height="10" fill="#6b4a2b"/>
+        <g font-family="Source Sans" font-size="9" font-weight="700" text-anchor="middle" fill="#3a2a14">
+          <rect x="22" y="40" width="58" height="14" fill="#efe1bd"/><text x="51" y="50">Couv. Sultan</text>
+          <rect x="90" y="40" width="58" height="14" fill="#efe1bd"/><text x="119" y="50">Couv. Rafale</text>
+          <rect x="158" y="40" width="58" height="14" fill="#efe1bd"/><text x="187" y="50">Couv. Éclipse</text>
+          <rect x="226" y="40" width="58" height="14" fill="#efe1bd"/><text x="255" y="50">Couv. Comète</text>
+          <rect x="22" y="130" width="58" height="14" fill="#efe1bd"/><text x="51" y="140">Seau Sultan</text>
+          <rect x="90" y="130" width="58" height="14" fill="#efe1bd"/><text x="119" y="140">Seau Rafale</text>
+          <rect x="158" y="130" width="58" height="14" fill="#efe1bd"/><text x="187" y="140">Seau Éclipse</text>
+          <rect x="226" y="130" width="58" height="14" fill="#efe1bd"/><text x="255" y="140">Seau Comète</text>
+        </g>
+        <g><rect x="28" y="70" width="46" height="50" fill="#2f5a7a"/><rect x="96" y="70" width="46" height="50" fill="#8a2f2f"/><rect x="232" y="70" width="46" height="50" fill="#3f6b3a"/></g>
+        <g fill="#5d6b78"><path d="M34 160H68L64 192H38Z"/><path d="M102 160H136L132 192H106Z"/><path d="M238 160H272L268 192H242Z"/></g>
+        <g stroke="#3a2a14" stroke-width="1" stroke-dasharray="3 3" fill="none"><rect x="164" y="72" width="46" height="46"/><rect x="170" y="162" width="34" height="30"/></g>
+      </svg>
+      <div class="legende">Au râtelier, deux places sont vides : la couverture et le seau d'Éclipse.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= E3 ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · Bureau</div>
+  <div class="photos" style="align-items:flex-start">
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#e9e3d6"/>
+        <rect x="20" y="14" width="160" height="132" rx="4" fill="#7a5532" stroke="#4e321a" stroke-width="3"/>
+        <text x="100" y="32" font-size="10" fill="#f2d9a6" text-anchor="middle" font-family="Source Sans" font-weight="700" letter-spacing="2">ÉCURIE · BOXES</text>
+        <g font-family="Source Sans" font-size="9" font-weight="700" fill="#f2d9a6" text-anchor="middle">
+          <text x="45" y="50">1</text><text x="80" y="50">2</text><text x="120" y="50">3</text><text x="155" y="50">4</text>
+          <text x="45" y="100">5</text><text x="80" y="100">6</text><text x="120" y="100">7</text><text x="155" y="100">8</text>
+        </g>
+        <g fill="#c9a43a" stroke="#6b5520" stroke-width="1">
+          <g id="cle"><circle cx="45" cy="64" r="6"/><rect x="43" y="69" width="4" height="18"/><rect x="47" y="80" width="5" height="3"/></g>
+          <use href="#cle" x="35"/><use href="#cle" x="75"/><use href="#cle" x="110"/>
+          <use href="#cle" y="50"/><use href="#cle" x="35" y="50"/><use href="#cle" x="75" y="50"/><use href="#cle" x="110" y="50"/>
+        </g>
+      </svg>
+      <div class="legende">Le tableau des clés : toutes sont à leur place… même la n° 7.</div>
+    </div>
+    <div class="ticket">VIDEO-SURVEILLANCE
+HARAS DES TROIS FERS
+CAM 1 - ECURIE (ENTREE PRINC.)
+-----------------------------
+JOURNAL DES EVENEMENTS
+-----------------------------
+22:04  MOUVEMENT
+02:31  MOUVEMENT
+02:48  MOUVEMENT
+03:12  COUPURE ALIMENTATION
+04:05  REPRISE ALIMENTATION
+06:02  MOUVEMENT
+-----------------------------
+COUPURE 03:12 -> 04:05
+DUREE : 53 MIN
+-----------------------------
+  ** FIN DU JOURNAL **</div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="officiel">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div class="logo">Mutuelle Équine de Normandie</div><div class="petit">Assurance des chevaux de sport et d'élevage · Deauville</div></div>
+      <div class="petit" style="text-align:right">Contrat n° 48-221-EQ<br>Avenant n° 3</div>
+    </div>
+    <h3 style="color:#1d3a6b">Avenant au contrat d'assurance</h3>
+    <p><strong>Assurée :</strong> Mme Hélène Vasseur, Haras des Trois Fers<br>
+       <strong>Cheval :</strong> ÉCLIPSE, jument grise, 9 ans, n° SIRE 250001-47XK</p>
+    <p>À la demande de l'assurée, la <strong>valeur assurée</strong> du cheval désigné ci-dessus est portée de <strong>300 000 €</strong> à <strong>450 000 €</strong>, à compter de la signature du présent avenant.</p>
+    <p><strong>Garanties :</strong> mortalité, <strong>vol</strong>, frais vétérinaires (plafond 8 000 €).<br>
+       <strong>Nouvelle prime annuelle :</strong> 9 600 € (+ 3 200 €).</p>
+    <p class="petit">L'assurée déclare que le cheval est en parfaite santé et qu'aucun examen vétérinaire en cours ne laisse présager de diminution de sa valeur.</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:4mm">
+      <span>Fait à Deauville, le <strong>11 octobre</strong></span>
+      <span style="text-align:center"><span class="petit">Signature de l'assurée</span><br><span class="signature">H. Vasseur</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= E4 ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E4 · Vieille Grange</div>
+  <div class="photos" style="margin-top:20mm">
+    <div class="polaroid grand">
+      <svg viewBox="0 0 300 220">
+        <rect width="300" height="220" fill="#3a2c20"/>
+        <path d="M0 0H300V40L150 0Z" fill="#2a2018"/>
+        <g fill="#f7e6a6" opacity=".35"><path d="M210 0L250 0L180 220L120 220Z"/></g>
+        <rect y="168" width="300" height="52" fill="#c9a956"/>
+        <g stroke="#e3c674" stroke-width="2"><line x1="20" y1="180" x2="44" y2="172"/><line x1="70" y1="190" x2="96" y2="182"/><line x1="200" y1="186" x2="228" y2="178"/><line x1="250" y1="200" x2="276" y2="192"/></g>
+        <!-- Éclipse -->
+        <g fill="#cfcac0">
+          <ellipse cx="140" cy="118" rx="62" ry="30"/>
+          <path d="M184 104L214 54L232 60L206 124Z"/>
+          <ellipse cx="228" cy="58" rx="20" ry="11" transform="rotate(28 228 58)"/>
+          <path d="M214 44L220 32L224 46Z"/>
+          <rect x="94" y="132" width="11" height="44" rx="3"/><rect x="112" y="134" width="11" height="42" rx="3"/>
+          <rect x="160" y="134" width="11" height="42" rx="3"/><rect x="178" y="132" width="11" height="44" rx="3"/>
+          <path d="M80 110Q60 130 70 160Q78 140 84 120Z" fill="#b5afa4"/>
+        </g>
+        <g fill="#9a9488" opacity=".5"><circle cx="120" cy="110" r="4"/><circle cx="150" cy="122" r="5"/><circle cx="170" cy="104" r="3.5"/></g>
+        <path d="M100 96Q140 84 182 98V138Q140 148 100 138Z" fill="#2f5a3d" stroke="#f2d9a6" stroke-width="2"/>
+        <text x="141" y="122" font-size="13" text-anchor="middle" font-family="Playfair" font-weight="700" fill="#f2d9a6">É</text>
+        <path d="M232 70L250 110" stroke="#8a2f2f" stroke-width="2"/>
+        <path d="M30 168L46 140H62L70 168Z" fill="#9aa0a6"/>
+      </svg>
+      <div class="legende">Éclipse est là, saine et sauve, sur de la paille fraîche !</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= E5 ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E5 · Manège</div>
+  <div class="officiel main" style="font-size:20pt;line-height:1.35;background:#fffdf5">
+    Reconnaissance de dette<br><br>
+    Je soussigné Antoine Vasseur reconnais devoir à M. Z. la somme de vingt mille euros (20 000 €), que je m'engage à rembourser avant la fin de l'année.<br><br>
+    Fait à Deauville, le 3 septembre.<br>
+    <span style="float:right">A. Vasseur</span><br>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="ticket" style="margin:0 auto">GRAND CASINO
+DE LA COTE FLEURIE
+-----------------------------
+CAISSE 4
+DATE : SAMEDI
+HEURE : 01:12
+-----------------------------
+CHANGE JETONS -> ESPECES
+MONTANT :          35,00 EUR
+-----------------------------
+MERCI DE VOTRE VISITE
+JOUER COMPORTE DES RISQUES</div>
+</div>
+
+<!-- ================= E6 et E7 ================= -->
+<div class="page">
+  <div class="tag">Enveloppes E6 · Carrière et E7 · Pré du Bas</div>
+  <h3 style="margin-top:0">E6 · Carrière</h3>
+  <div class="officiel main" style="width:110mm;margin:0 auto;font-size:24pt;text-align:center;background:#fff">
+    L'an prochain,<br>il sera bleu pour moi.<br><span style="font-size:30pt">V.</span>
+  </div>
+  <div class="ciseaux"></div>
+  <h3>E7 · Pré du Bas</h3>
+  <div class="officiel">
+    <div style="display:flex;justify-content:space-between">
+      <div><div class="logo" style="color:#7d3b30">Transports Équins Delorme</div><div class="petit">Achat · vente · transport de chevaux · Lisieux</div></div>
+      <div class="petit" style="text-align:right">Bon de livraison<br>n° 2210</div>
+    </div>
+    <table style="margin-top:4mm">
+      <tbody>
+        <tr><td style="width:35%"><strong>Destinataire</strong></td><td>Haras des Ormes, route départementale</td></tr>
+        <tr><td><strong>Cheval livré</strong></td><td>Hongre bai, 6 ans, « Galopin »</td></tr>
+        <tr><td><strong>Heure de livraison</strong></td><td>4 h 45</td></tr>
+        <tr><td><strong>Itinéraire</strong></td><td>Lisieux → route départementale → Les Ormes</td></tr>
+        <tr><td><strong>Réception</strong></td><td><span class="signature">P. Auger</span> · tampon du Haras des Ormes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="photos" style="margin-top:6mm">
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#5d5f63"/>
+        <rect y="0" width="200" height="22" fill="#7d9b5a"/>
+        <g fill="#45474b">
+          <g id="pneu"><rect x="40" y="22" width="24" height="138"/></g><use href="#pneu" x="80"/>
+        </g>
+        <g stroke="#6f7176" stroke-width="3">
+          <path d="M40 30H64M40 42H64M40 54H64M40 66H64M40 78H64M40 90H64M40 102H64M40 114H64M40 126H64M40 138H64M40 150H64"/>
+          <path d="M120 30H144M120 42H144M120 54H144M120 66H144M120 78H144M120 90H144M120 102H144M120 114H144M120 126H144M120 138H144M120 150H144"/>
+        </g>
+        <path d="M0 150H200" stroke="#e8e8e8" stroke-width="3" stroke-dasharray="20 14"/>
+      </svg>
+      <div class="legende">Des traces de camion… qui restent bien sur le goudron.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= E8 · CARNET DU SENTIER ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E8 · Sentier des bois · page 1/3</div>
+  <h1>Carnet du sentier · Croisement 1</h1>
+  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
+  <div class="balises">
+    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#chevreuil"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg><use href="#fer-oeuf"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#rien"/></svg></div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Enveloppe E8 · Sentier des bois · page 2/3</div>
+  <h1>Carnet du sentier · Croisement 2</h1>
+  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
+  <div class="balises">
+    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#fer-crampons"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Enveloppe E8 · Sentier des bois · page 3/3</div>
+  <h1>Carnet du sentier · Croisement 3</h1>
+  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
+  <div class="balises">
+    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#branches"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#sabot-nu"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg><use href="#fer-standard"/></svg><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
+    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fabrique les PDF imprimables du Pupitre des Énigmes dans pdf/ (à la racine).
 
-    pip install markdown
+    pip install markdown pypdf
     python3 construire.py
 
 Le rendu utilise Chromium via Playwright (node rendre.js).
@@ -13,6 +13,7 @@ from html import escape
 from pathlib import Path
 
 import markdown
+from pypdf import PdfWriter
 
 ICI = Path(__file__).resolve().parent
 JEU = ICI.parent.parent
@@ -224,6 +225,24 @@ def main():
         temporaire.unlink()
     rendre(HARAS / "impression" / "fiche-mission-1.html", SORTIE / "mission-1-fiche-joueurs.pdf",
            pied="Le Haras des Trois Fers · Mission 1 · Fiche de mission")
+
+    # Le matériel de jeu à imprimer, puis un kit qui rassemble tout dans l'ordre de fabrication.
+    materiel = [
+        ("cartes", "mission-1-cartes.pdf", ""),
+        ("documents-secrets", "mission-1-documents-secrets.pdf", "Le Haras des Trois Fers · Mission 1 · Documents secrets des rôles"),
+        ("enveloppes", "mission-1-enveloppes.pdf", "Le Haras des Trois Fers · Mission 1 · Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "mission-1-fiche-enquete.pdf", ""),
+    ]
+    for source, pdf, pied in materiel:
+        rendre(HARAS / "impression" / f"{source}.html", SORTIE / pdf, pied=pied)
+    kit = PdfWriter()
+    for pdf in ["mission-1-fiche-joueurs.pdf"] + [pdf for _, pdf, _ in materiel]:
+        kit.append(str(SORTIE / pdf))
+        # Chaque document commence sur une page impaire, pour l'impression recto verso.
+        if len(kit.pages) % 2:
+            kit.add_blank_page()
+    kit.write(str(SORTIE / "mission-1-kit-impression.pdf"))
+    print("✓ pdf/mission-1-kit-impression.pdf")
     rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf",
            pied="Le Pupitre des Énigmes · Mode d'emploi")
 

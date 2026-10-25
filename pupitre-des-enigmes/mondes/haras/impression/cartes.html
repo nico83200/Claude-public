@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 1 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 0; }
+  body { background: #fff; }
+  .planche { width: 210mm; height: 297mm; position: relative; break-after: page; }
+  .grille { position: absolute; left: 10.5mm; top: 12mm; display: grid; grid-template-columns: repeat(3, 63mm); grid-auto-rows: 88mm; }
+  .legende { position: absolute; left: 10.5mm; right: 10.5mm; bottom: 5mm; font-size: 7.5pt; color: #8a8076; display: flex; justify-content: space-between; }
+
+  .carte { width: 63mm; height: 88mm; outline: .2mm dashed #b9b2a6; outline-offset: -.1mm; padding: 3mm; position: relative; overflow: hidden; }
+  .cadre { height: 100%; border-radius: 3mm; border: .5mm solid var(--c); background: #fffdf8; display: flex; flex-direction: column; overflow: hidden; }
+  .type { background: var(--c); color: #fff; font-size: 6.8pt; letter-spacing: .14em; text-transform: uppercase; padding: 1.4mm 2.5mm;
+          display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .type .zone { background: rgba(255,255,255,.22); border-radius: 2mm; padding: .2mm 1.6mm; letter-spacing: .05em; }
+  .visuel { height: 30mm; display: flex; align-items: center; justify-content: center; font-size: 40pt; line-height: 1;
+            background: radial-gradient(circle at 50% 45%, #fff, var(--fond)); border-bottom: .3mm solid var(--c); }
+  .medaillon { width: 22mm; height: 22mm; border-radius: 50%; background: var(--c); color: #fff; font-family: "Playfair"; font-weight: 700;
+               font-size: 19pt; display: flex; align-items: center; justify-content: center; border: .8mm solid #f2d9a6; }
+  .nom { font-family: "Playfair"; font-weight: 900; font-size: 12.5pt; color: var(--c); text-align: center; line-height: 1.05; margin: 2.2mm 2mm .6mm; }
+  .sous { text-align: center; font-size: 6.8pt; text-transform: uppercase; letter-spacing: .08em; color: var(--cuir); margin: 0 2mm 1.4mm; }
+  .texte { font-size: 7.4pt; line-height: 1.3; padding: 0 3mm; text-align: center; flex: 1; }
+  .texte em { font-family: "Playfair"; color: var(--gris); }
+  .pied { display: flex; justify-content: space-between; font-size: 6pt; color: var(--gris); padding: 1mm 2.5mm 1.4mm; border-top: .2mm solid var(--filet); }
+
+  /* Dos */
+  .dos .cadre { background: var(--c); border-color: var(--c); color: #f2d9a6; align-items: center; justify-content: center; text-align: center; position: relative; }
+  .dos .motif { position: absolute; inset: 2.5mm; border: .4mm solid rgba(242, 217, 166, .55); border-radius: 2mm; }
+  .dos .fers { font-size: 15pt; letter-spacing: .3em; margin-bottom: 2mm; }
+  .dos .titre { font-family: "Playfair"; font-weight: 700; font-size: 10pt; color: #fff; }
+  .dos .categorie { font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; margin-top: 1mm; }
+  .dos .nfc { width: 18mm; height: 18mm; border-radius: 50%; border: .4mm dashed rgba(242, 217, 166, .8); margin: 5mm auto 2mm;
+              display: flex; align-items: center; justify-content: center; font-size: 6pt; letter-spacing: .1em; }
+  .dos .pupitre { font-size: 6pt; letter-spacing: .12em; text-transform: uppercase; margin-top: 3mm; opacity: .8; }
+
+  .notice { padding: 16mm 18mm; }
+  .notice h1 { font-size: 22pt; }
+</style>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+const TYPES = {
+  monde:  { c: "#9a7420", fond: "#f6e7c2", libelle: "Carte Monde", zone: "Tout lecteur" },
+  lieu:   { c: "#2f5a3d", fond: "#dbe8d6", libelle: "Lieu", zone: "📍 OÙ" },
+  perso:  { c: "#7a3b4e", fond: "#efdbe0", libelle: "Personnage", zone: "👤 QUI" },
+  objet:  { c: "#8a5a2b", fond: "#f1e2cd", libelle: "Objet", zone: "🔍 QUOI" },
+  role:   { c: "#2c3e63", fond: "#dbe2ef", libelle: "Rôle", zone: "Lecteur libre" },
+  aide:   { c: "#5d6b2f", fond: "#e6ebcf", libelle: "Aide", zone: "Tout lecteur" },
+};
+
+const CARTES = [
+  { id: "M1", t: "monde", nom: "Le Haras des Trois Fers", sous: "Mission 1", vis: "🐴", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>La Disparition d'Éclipse</em>" },
+
+  { id: "L1", t: "lieu", nom: "L'Écurie", sous: "Huit boxes", vis: "🐎", txt: "Le cœur du haras. Une longue allée, huit boxes… et le n° 7, vide." },
+  { id: "L2", t: "lieu", nom: "La Sellerie", sous: "Cuir et harnais", vis: "🪝", txt: "Selles, filets, couvertures et seaux, chacun à son crochet." },
+  { id: "L3", t: "lieu", nom: "Le Bureau", sous: "Fermé par un code", vis: "🗄️", txt: "Le domaine d'Hélène : papiers, tableau des clés, enregistreur de la caméra." },
+  { id: "L4", t: "lieu", nom: "Le Manège", sous: "Et son club-house", vis: "🎠", txt: "La piste couverte, et le petit club-house où l'on boit le café." },
+  { id: "L5", t: "lieu", nom: "La Carrière", sous: "Piste d'obstacles", vis: "🚧", txt: "La piste de sable, où sont montés les obstacles du concours." },
+  { id: "L6", t: "lieu", nom: "Le Pré du Bas", sous: "Le long de la route", vis: "🌾", txt: "Une grande prairie bordée par la route départementale." },
+  { id: "L7", t: "lieu", nom: "La Forge", sous: "Chez le maréchal", vis: "⚒️", txt: "L'enclume, les fers, les gabarits… tout ce qu'il faut pour ferrer." },
+  { id: "L8", t: "lieu", nom: "Le Sentier des bois", sous: "Dans la pinède", vis: "🌲", txt: "Un chemin boueux qui part derrière l'écurie et s'enfonce sous les pins." },
+  { id: "L9", t: "lieu", nom: "La Vieille Grange", sous: "Lieu caché", vis: "🏚️", txt: "Une grange en ruine, quelque part au fond des bois. <em>Il faut d'abord en trouver le chemin.</em>" },
+
+  { id: "P1", t: "perso", nom: "Hélène Vasseur", sous: "Propriétaire · 58 ans", ini: "HV", coul: "#7a4e6e", txt: "<em>« Ce haras, c'est toute ma vie. »</em>" },
+  { id: "P2", t: "perso", nom: "Lucas Bernier", sous: "Palefrenier · 24 ans", ini: "LB", coul: "#4f6d3a", txt: "<em>« Je connais chaque cheval par son prénom. »</em>" },
+  { id: "P3", t: "perso", nom: "Camille Roussel", sous: "Cavalière · 31 ans", ini: "CR", coul: "#2f6680", txt: "<em>« Elle et moi, on se comprend sans un mot. »</em>" },
+  { id: "P4", t: "perso", nom: "Victoire de Lancey", sous: "Rivale · 27 ans", ini: "VL", coul: "#9b6b2f", txt: "<em>« Je n'aime pas perdre. Jamais. »</em>" },
+  { id: "P5", t: "perso", nom: "Antoine Vasseur", sous: "Fils d'Hélène · 33 ans", ini: "AV", coul: "#5c5c6e", txt: "<em>« Les chevaux, c'est le truc de ma mère. »</em>" },
+  { id: "P6", t: "perso", nom: "Marc Delorme", sous: "Marchand · 52 ans", ini: "MD", coul: "#7d3b30", txt: "<em>« Tout s'achète, il suffit d'y mettre le prix. »</em>" },
+
+  { id: "O1", t: "objet", nom: "Carnet de santé", sous: "Enveloppe E1", vis: "📓", txt: "Le carnet d'Éclipse, couvert de l'écriture codée du Dr Morel." },
+  { id: "O2", t: "objet", nom: "Bottes boueuses", sous: "Enveloppe E2", vis: "🥾", txt: "Pointure 38, boue encore humide, aiguilles de pin." },
+  { id: "O3", t: "objet", nom: "Contrat d'assurance", sous: "Enveloppe E3", vis: "📜", txt: "Un avenant signé le 11 octobre par Hélène Vasseur." },
+  { id: "O4", t: "objet", nom: "Clé du box 7", sous: "Enveloppe E3", vis: "🔑", txt: "Retrouvée à sa place, sur le tableau du bureau." },
+  { id: "O5", t: "objet", nom: "Couverture", sous: "Enveloppe E4", vis: "🧣", txt: "La couverture d'Éclipse, brodée à son nom." },
+  { id: "O6", t: "objet", nom: "Seau de granulés", sous: "Enveloppe E4", vis: "🪣", txt: "Le seau d'Éclipse. Elle ne suit personne sans lui." },
+  { id: "O7", t: "objet", nom: "Lampe torche", sous: "Enveloppe E4", vis: "🔦", txt: "Marquée « BUREAU ». Batterie presque vide." },
+  { id: "O8", t: "objet", nom: "Reconnaissance de dette", sous: "Enveloppe E5", vis: "🧾", txt: "20 000 €, signée Antoine Vasseur." },
+  { id: "O9", t: "objet", nom: "Flot bleu", sous: "Enveloppe E6", vis: "🏵️", txt: "Une rosette de premier prix, avec un petit mot signé V." },
+  { id: "O10", t: "objet", nom: "Bon de livraison", sous: "Enveloppe E7", vis: "📋", txt: "Un hongre livré aux Ormes à 4 h 45." },
+
+  { id: "R1", t: "role", nom: "Maréchal-ferrant", sous: "Lire une piste · 1 fois", vis: "🔨", txt: "Pendant un choix de chemin, posez cette carte : une mauvaise option est éliminée." },
+  { id: "R2", t: "role", nom: "Vétérinaire", sous: "Atout permanent", vis: "🩺", txt: "Vous seul·e savez déchiffrer les carnets de santé du Dr Morel." },
+  { id: "R3", t: "role", nom: "Journaliste", sous: "Insister · 2 fois", vis: "📰", txt: "Personnage sur QUI, cette carte sur QUOI : il vous fait une confidence 🎧 au casque." },
+  { id: "R4", t: "role", nom: "Expert-comptable", sous: "Expertiser · 2 fois", vis: "💼", txt: "Cette carte sur QUI, un objet sur QUOI : son analyse financière." },
+  { id: "R5", t: "role", nom: "Parieur", sous: "Coup de poker · 1 fois", vis: "🎲", txt: "Posée seule avant une accusation : si elle est fausse, pas de pénalité, et la zone fausse s'allume en rouge." },
+  { id: "R6", t: "role", nom: "Ancien gendarme", sous: "Alibis · 3 fois", vis: "👮", txt: "Personnage sur QUI, cette carte sur QUOI : vérification 🎧 au casque. Annule aussi une pénalité d'imprévu (1 fois)." },
+
+  { id: "A1", t: "aide", nom: "Papy Marcel", sous: "Ancien palefrenier", vis: "👴", txt: "Posez sa carte quand vous séchez. Les 3 premiers coups de main sont gratuits, ensuite 2 minutes chacun." },
+];
+
+function recto(c) {
+  const T = TYPES[c.t];
+  const visuel = c.ini
+    ? `<div class="medaillon" style="background:${c.coul}">${c.ini}</div>`
+    : c.vis;
+  return `<div class="carte" style="--c:${T.c};--fond:${T.fond}"><div class="cadre">
+    <div class="type"><span>${T.libelle}</span><span class="zone">${T.zone}</span></div>
+    <div class="visuel">${visuel}</div>
+    <div class="nom">${c.nom}</div><div class="sous">${c.sous}</div>
+    <div class="texte">${c.txt}</div>
+    <div class="pied"><span>Haras des Trois Fers</span><span>${c.id}</span></div>
+  </div></div>`;
+}
+
+function verso(c) {
+  const T = TYPES[c.t];
+  return `<div class="carte dos" style="--c:${T.c}"><div class="cadre"><div class="motif"></div>
+    <div class="fers">∩ ∩ ∩</div><div class="titre">Le Haras<br>des Trois Fers</div>
+    <div class="categorie">${T.libelle}</div>
+    <div class="nfc">PUCE NFC</div>
+    <div class="pupitre">Le Pupitre des Énigmes</div>
+  </div></div>`;
+}
+
+// Le verso d'une planche est en miroir horizontal : la carte de gauche au recto
+// se retrouve à droite au verso, pour une impression recto verso « bord long ».
+function miroir(lot) {
+  const lignes = [];
+  for (let i = 0; i < 9; i += 3) lignes.push(lot.slice(i, i + 3));
+  return lignes.flatMap(ligne => [ligne[2], ligne[1], ligne[0]]);
+}
+
+const vide = '<div class="carte" style="outline:none"></div>';
+// La notice va à la fin, pour que chaque recto reste sur une page impaire.
+const notice = `<div class="planche notice">
+  <h1>Les cartes de la mission 1</h1>
+  <p>33 cartes au format 63 × 88 mm (taille d'une carte à jouer), 9 par page.</p>
+  <h3>Impression</h3>
+  <ul>
+    <li>Papier cartonné de <strong>300 à 350 g</strong>, à <strong>100 %</strong> (« taille réelle », sans ajustement à la page).</li>
+    <li><strong>Recto verso, retournement bord long</strong> : chaque page de rectos est suivie de sa page de versos, déjà inversée en miroir.</li>
+    <li>Sans imprimante recto verso : imprimez les pages impaires, remettez les feuilles dans le bac, puis imprimez les pages paires. Faites d'abord un essai sur papier ordinaire, par transparence.</li>
+  </ul>
+  <h3>Fabrication</h3>
+  <ul>
+    <li>Découpez le long des pointillés, au cutter et à la règle, ou au massicot.</li>
+    <li>Collez un <strong>autocollant NFC NTAG213</strong> au dos de chaque carte, sur le cercle « PUCE NFC ».</li>
+    <li>Option : plastifiez les cartes, ou glissez-les dans des protège-cartes (la puce se lit à travers).</li>
+    <li>Le code en bas à droite (L1, P3, O7…) sert à enregistrer chaque puce dans le pupitre.</li>
+  </ul>
+  <h3>Rangement</h3>
+  <p>Les <strong>cartes Objet</strong> (O1 à O10) ne sont pas distribuées : elles vont dans leur enveloppe, indiquée sur la carte.</p>
+  <table><thead><tr><th>Type</th><th>Cartes</th><th>Zone</th></tr></thead><tbody>
+    <tr><td>Monde</td><td>M1</td><td>Tout lecteur</td></tr>
+    <tr><td>Lieux</td><td>L1 à L9</td><td>📍 OÙ</td></tr>
+    <tr><td>Personnages</td><td>P1 à P6</td><td>👤 QUI</td></tr>
+    <tr><td>Objets</td><td>O1 à O10 (dans les enveloppes)</td><td>🔍 QUOI</td></tr>
+    <tr><td>Rôles</td><td>R1 à R6</td><td>Lecteur libre</td></tr>
+    <tr><td>Aide</td><td>A1 · Papy Marcel</td><td>Tout lecteur</td></tr>
+  </tbody></table>
+</div>`;
+
+let html = "";
+for (let p = 0; p < CARTES.length; p += 9) {
+  const lot = CARTES.slice(p, p + 9);
+  const rectos = lot.map(recto);
+  const versos = lot.map(verso);
+  while (rectos.length < 9) { rectos.push(vide); versos.push(vide); }
+  const n = p / 9 + 1;
+  html += `<div class="planche"><div class="grille">${rectos.join("")}</div>
+    <div class="legende"><span>Mission 1 · Cartes · planche ${n} · RECTO</span><span>Imprimer à 100 %</span></div></div>`;
+  html += `<div class="planche"><div class="grille">${miroir(versos).join("")}</div>
+    <div class="legende"><span>Mission 1 · Cartes · planche ${n} · VERSO (miroir)</span><span>Recto verso, bord long</span></div></div>`;
+}
+document.getElementById("contenu").innerHTML = html + notice;
+</script>
+</body>
+</html>

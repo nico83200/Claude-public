@@ -31,6 +31,11 @@ Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
 |---|---|
 | [Liste d'achat](pdf/liste-achats.pdf) | Le constructeur (source : `console/achats.json`) |
 | [Mode d'emploi du pupitre](pdf/mode-emploi.pdf) | Tout le monde, valable pour tous les mondes |
+| [Mission 1 · **kit d'impression complet**](pdf/mission-1-kit-impression.pdf) | Tout le matériel de jeu en un seul fichier (les 5 PDF ci-dessous) |
 | [Mission 1 · fiche de mission](pdf/mission-1-fiche-joueurs.pdf) | Les joueurs |
+| [Mission 1 · cartes](pdf/mission-1-cartes.pdf) | 33 cartes recto verso, à coller sur les puces NFC |
+| [Mission 1 · documents secrets](pdf/mission-1-documents-secrets.pdf) | Un par rôle, avec la roue de chiffrement à découper |
+| [Mission 1 · enveloppes](pdf/mission-1-enveloppes.pdf) | Étiquettes et contenu des enveloppes E1 à E8 |
+| [Mission 1 · fiche d'enquête](pdf/mission-1-fiche-enquete.pdf) | La feuille de notes de l'équipe |
 | [Mission 1 · déroulé](pdf/mission-1-deroule-maitre-du-jeu.pdf) | Le maître du jeu (contient les solutions) |
 | [Mission 1 · script de doublage](pdf/mission-1-script-doublage.pdf) | Celui qui enregistre les voix avec ElevenLabs |
