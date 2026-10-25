@@ -380,6 +380,21 @@ $dirty = rich_text('<p style="color:red" class="MsoNormal" onclick="x()">Texte <
 check('HTML nettoyé (styles, scripts, liens dangereux)', $dirty === '<p>Texte <b>gras</b> <a>lien</a></p><p>bloc</p><p class="lead">Intro</p>');
 check('pages d\'origine intactes', str_contains(rich_text('<table><tr><td colspan="2">A</td></tr></table>'), '<td colspan="2">A</td>'));
 
+echo "Mot de passe administrateur oublié\n";
+$adminRow = Database::one('SELECT * FROM admins ORDER BY id LIMIT 1');
+App\Core\Auth::sendReset('inconnue@example.com', '10.7.7.7');
+App\Core\Auth::sendReset(strtoupper($adminRow['email']), '10.7.7.7');
+$adminToken = $lastLink('admin/nouveau-mot-de-passe');
+check('lien de réinitialisation admin envoyé', $adminToken !== null && App\Core\Auth::resetAdmin($adminToken) !== null);
+$tooShort = false;
+try { App\Core\Auth::resetPassword((string) $adminToken, 'court'); } catch (RuntimeException) { $tooShort = true; }
+check('mot de passe admin trop court refusé', $tooShort);
+App\Core\Auth::resetPassword((string) $adminToken, 'nouveau-mdp-admin');
+check('nouveau mot de passe admin actif', App\Core\Auth::attempt($adminRow['email'], 'nouveau-mdp-admin', '10.7.7.8'));
+check('lien admin à usage unique', App\Core\Auth::resetAdmin((string) $adminToken) === null);
+Database::update('admins', ['password_hash' => $adminRow['password_hash']], 'id = :id', ['id' => $adminRow['id']]);
+unset($_SESSION['admin_id']);
+
 echo "Code de bienvenue\n";
 Config::set('stripe.api_base', "http://127.0.0.1:$port/stripe");
 $oldKey = config('stripe.secret_key');
@@ -569,7 +584,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('dix migrations connues', count(App\Core\Migrator::files()) === 10);
+check('onze migrations connues', count(App\Core\Migrator::files()) === 11);
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

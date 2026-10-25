@@ -171,3 +171,4 @@ pre.code { background: #1f2a44; color: #f5efe3; padding: .8rem 1rem; border-radi
 .card-danger .checkbox { display: flex; gap: .5rem; align-items: flex-start; font-weight: 400; }
 .card-danger .checkbox input { width: auto; margin-top: .2rem; }
 form.inline.right { float: right; }
+.center { text-align: center; }

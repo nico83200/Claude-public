@@ -106,5 +106,6 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
   b.addEventListener('click', function () { navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copié ✓'; });
 });
 </script>
+<script src="<?= e(asset('assets/js/password-toggle.js')) ?>" defer></script>
 </body>
 </html>

@@ -236,5 +236,6 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
 </div>
 
 <script src="<?= e(asset('assets/js/app.js')) ?>" defer></script>
+<script src="<?= e(asset('assets/js/password-toggle.js')) ?>" defer></script>
 </body>
 </html>

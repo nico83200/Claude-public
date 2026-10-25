@@ -31,6 +31,49 @@ final class AuthController
         redirect('admin');
     }
 
+    public function forgotForm(): void
+    {
+        header('X-Robots-Tag: noindex, nofollow');
+        view('admin/login', ['mode' => 'forgot'], null);
+    }
+
+    public function forgot(): void
+    {
+        $ip = client_ip();
+        $email = (string) input('email');
+        if (!Auth::isLocked($ip) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Auth::sendReset($email, $ip);
+        }
+        flash('success', 'Si cette adresse correspond à un compte administrateur, un lien de réinitialisation vient d\'être envoyé (valable 1 heure). Pensez à vérifier les indésirables.');
+        redirect('admin/mot-de-passe-oublie');
+    }
+
+    public function resetForm(string $token): void
+    {
+        header('X-Robots-Tag: noindex, nofollow');
+        if (!Auth::resetAdmin($token)) {
+            flash('error', 'Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.');
+            redirect('admin/mot-de-passe-oublie');
+        }
+        view('admin/login', ['mode' => 'reset', 'token' => $token], null);
+    }
+
+    public function reset(string $token): void
+    {
+        if (input('password') !== input('password_confirm')) {
+            flash('error', 'Les deux mots de passe ne correspondent pas.');
+            redirect('admin/nouveau-mot-de-passe/' . $token);
+        }
+        try {
+            Auth::resetPassword($token, (string) input('password'));
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+            redirect(str_contains($e->getMessage(), 'expiré') ? 'admin/mot-de-passe-oublie' : 'admin/nouveau-mot-de-passe/' . $token);
+        }
+        flash('success', 'Mot de passe modifié : vous êtes connectée.');
+        redirect('admin');
+    }
+
     public function logout(): void
     {
         Auth::logout();

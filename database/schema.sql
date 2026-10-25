@@ -6,6 +6,8 @@ CREATE TABLE admins (
     email VARCHAR(190) NOT NULL UNIQUE,
     name VARCHAR(120) NOT NULL DEFAULT '',
     password_hash VARCHAR(255) NOT NULL,
+    reset_token_hash VARCHAR(64) NULL,
+    reset_expires_at DATETIME NULL,
     created_at DATETIME NOT NULL,
     last_login_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

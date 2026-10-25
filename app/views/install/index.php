@@ -83,5 +83,6 @@
     <button class="btn btn-primary btn-lg" type="submit">Installer</button>
   </form>
 </main>
+<script src="<?= e(asset('assets/js/password-toggle.js')) ?>" defer></script>
 </body>
 </html>

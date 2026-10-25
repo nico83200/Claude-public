@@ -84,6 +84,10 @@ $r->get('/tache-planifiee/{token}', [CronController::class, 'run']);
 $r->get('/admin/connexion', [Admin\AuthController::class, 'loginForm']);
 $r->post('/admin/connexion', [Admin\AuthController::class, 'login']);
 $r->post('/admin/deconnexion', [Admin\AuthController::class, 'logout']);
+$r->get('/admin/mot-de-passe-oublie', [Admin\AuthController::class, 'forgotForm']);
+$r->post('/admin/mot-de-passe-oublie', [Admin\AuthController::class, 'forgot']);
+$r->get('/admin/nouveau-mot-de-passe/{token}', [Admin\AuthController::class, 'resetForm']);
+$r->post('/admin/nouveau-mot-de-passe/{token}', [Admin\AuthController::class, 'reset']);
 $r->get('/admin', [Admin\DashboardController::class, 'index']);
 
 $r->get('/admin/commandes', [Admin\OrdersController::class, 'index']);
