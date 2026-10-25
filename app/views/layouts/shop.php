@@ -130,7 +130,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
 
 <section class="reassurance" aria-label="Nos engagements">
   <div class="container reassurance-grid">
-    <div><span class="ic"><?= icon('sparkle', 22) ?></span><span><strong>Imprimé pour vous</strong>Fabriqué à la commande, zéro gaspillage</span></div>
+    <div><span class="ic"><?= icon('sparkle', 22) ?></span><span><strong>Imprimé pour toi</strong>Fabriqué à la commande, zéro gaspillage</span></div>
     <div><span class="ic"><?= icon('heart', 22) ?></span><span><strong>Personnalisation offerte</strong>Son nom, sa photo, son portrait</span></div>
     <div><span class="ic"><?= icon('truck', 22) ?></span><span><strong>Livraison offerte</strong>dès <?= e(money(setting('shipping_free_threshold'))) ?> d'achat</span></div>
     <div><span class="ic"><?= icon('refresh', 22) ?></span><span><strong>Satisfaite ou réimprimé</strong>Un défaut ? On s'en occupe</span></div>
@@ -173,7 +173,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <summary><h3>Boutique</h3></summary>
       <ul>
         <?php foreach ($navCategories as $c): ?><li><a href="<?= e(url('categorie/' . $c['slug'])) ?>"><?= e($c['name']) ?></a></li><?php endforeach; ?>
-        <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de votre cheval</a></li><?php endif; ?>
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?><li><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle de ton cheval</a></li><?php endif; ?>
         <li><a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">Articles personnalisables</a></li>
         <li><a href="<?= e(url('idees-cadeaux')) ?>"><?= icon('gift', 14) ?> Assistant idées cadeaux</a></li>
         <?php if (App\Services\Journal::available()): ?><li><a href="<?= e(url('journal')) ?>">Le journal : conseils &amp; idées cadeaux</a></li><?php endif; ?>
@@ -191,14 +191,14 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
     <?php if (request_path() !== '/'): /* l'accueil a déjà son bloc « Rejoignez le club » */ ?>
     <div>
       <h3>Rejoindre le club</h3>
-      <p><?= $welcomeOffer !== '' ? e($welcomeOffer) . ' sur votre première commande, puis nos nouveautés en avant-première.' : 'Nouveautés en avant-première, éditions limitées et petites surprises.' ?></p>
+      <p><?= $welcomeOffer !== '' ? e($welcomeOffer) . ' sur ta première commande, puis nos nouveautés en avant-première.' : 'Nouveautés en avant-première, éditions limitées et petites surprises.' ?></p>
       <form class="newsletter" action="<?= e(url('newsletter')) ?>" method="post" data-newsletter>
         <?= csrf_field() ?>
         <input type="hidden" name="source" value="footer">
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label class="sr-only" for="nl-email">Adresse e-mail</label>
         <div class="input-group">
-          <input id="nl-email" type="email" name="email" required placeholder="votre@email.fr" autocomplete="email">
+          <input id="nl-email" type="email" name="email" required placeholder="ton@email.fr" autocomplete="email">
           <button class="btn btn-primary" type="submit">Je m'inscris</button>
         </div>
         <label class="checkbox small"><input type="checkbox" name="consent" value="1" required> <span>J'accepte de recevoir la newsletter (désinscription en un clic).</span></label>
@@ -244,15 +244,15 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <h2 id="welcome-title"><?= e(setting('popup_title')) ?></h2>
       <?php if ($welcomeOffer !== ''): ?>
         <p class="welcome-offer"><?= e($welcomeOffer) ?></p>
-        <p>sur votre première commande en rejoignant notre newsletter, + les nouveautés en avant-première.</p>
+        <p>sur ta première commande en rejoignant notre newsletter, + les nouveautés en avant-première.</p>
       <?php else: ?>
-        <p>Recevez nos nouveautés en avant-première, les éditions limitées et nos idées cadeaux.</p>
+        <p>Reçois nos nouveautés en avant-première, les éditions limitées et nos idées cadeaux.</p>
       <?php endif; ?>
       <form action="<?= e(url('newsletter')) ?>" method="post" data-newsletter>
         <?= csrf_field() ?>
         <input type="hidden" name="source" value="popup">
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-        <div class="field"><label class="sr-only" for="welcome-email">Adresse e-mail</label><input id="welcome-email" type="email" name="email" required placeholder="votre@email.fr" autocomplete="email" autofocus></div>
+        <div class="field"><label class="sr-only" for="welcome-email">Adresse e-mail</label><input id="welcome-email" type="email" name="email" required placeholder="ton@email.fr" autocomplete="email" autofocus></div>
         <label class="checkbox small"><input type="checkbox" name="consent" value="1" required> <span>J'accepte de recevoir la newsletter. Désinscription en un clic, <a href="<?= e(url('page/confidentialite')) ?>">données protégées</a>.</span></label>
         <button class="btn btn-primary btn-block" type="submit"><?= $welcomeOffer !== '' ? 'Je reçois mon code' : 'Je m\'inscris' ?></button>
         <p class="small" data-newsletter-message role="status"></p>
@@ -265,7 +265,7 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
 
 <div class="cookie-banner" data-cookie-banner hidden role="dialog" aria-live="polite" aria-label="Gestion des cookies">
   <div class="cookie-inner">
-    <p>Nous utilisons des cookies pour mesurer l'audience et améliorer votre expérience. Le cookie du panier est indispensable ; les autres ne sont déposés qu'avec votre accord. <a href="<?= e(url('page/confidentialite')) ?>">En savoir plus</a></p>
+    <p>Nous utilisons des cookies pour mesurer l'audience et améliorer ton expérience. Le cookie du panier est indispensable ; les autres ne sont déposés qu'avec ton accord. <a href="<?= e(url('page/confidentialite')) ?>">En savoir plus</a></p>
     <div class="cookie-actions">
       <button class="btn btn-ghost btn-sm" type="button" data-cookie-choice="refuse">Refuser</button>
       <button class="btn btn-primary btn-sm" type="button" data-cookie-choice="accept">Accepter</button>

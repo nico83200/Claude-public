@@ -22,7 +22,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
     <div class="lp-hero-text">
       <p class="eyebrow"><?= icon('sparkle', 14) ?> Nouveau au club</p>
       <h1>Son portrait aquarelle, <em>en quelques secondes</em></h1>
-      <p class="lead">Envoyez sa plus belle photo : notre IA la redessine au trait fin bordeaux et à l'aquarelle poudrée. Son nom, son année de naissance, un joli cadre… et toute votre complicité s'affiche au mur.</p>
+      <p class="lead">Envoie sa plus belle photo : notre IA la redessine au trait fin bordeaux et à l'aquarelle poudrée. Son nom, son année de naissance, un joli cadre… et toute votre complicité s'affiche au mur.</p>
       <ul class="lp-checks">
         <li><?= icon('check', 16) ?> Aperçu offert avant de commander</li>
         <li><?= icon('check', 16) ?> Fidèle à sa robe et à ses marques</li>
@@ -39,7 +39,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
         <span><?= icon('lock', 15) ?> Paiement sécurisé</span>
         <span><?= icon('leaf', 15) ?> Imprimé en Europe</span>
       </div>
-      <?php if ($christmas): ?><p class="lp-season">🎄 Pour Noël, commandez avant le <strong><?= e($christmas) ?></strong></p><?php endif; ?>
+      <?php if ($christmas): ?><p class="lp-season">🎄 Pour Noël, commande avant le <strong><?= e($christmas) ?></strong></p><?php endif; ?>
     </div>
     <div class="lp-hero-visual" aria-hidden="true">
       <div class="lp-frame lp-frame-back lp-frame-1" style="--frame: <?= $frameColors['blanc'] ?>"><img src="<?= e($img('exemple-gris')) ?>" alt="" width="600" height="800"></div>
@@ -87,7 +87,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
     <div class="section-head section-head-center">
       <p class="script-accent">chaque robe a sa palette</p>
       <h2>Ils ont déjà <em>leur aquarelle</em></h2>
-      <p>Alezan, bai, gris, palomino, noir… le style s'adapte à chaque cheval, et le cadre à votre intérieur.</p>
+      <p>Alezan, bai, gris, palomino, noir… le style s'adapte à chaque cheval, et le cadre à ton intérieur.</p>
     </div>
     <div class="lp-gallery">
       <?php foreach ($examples as [$file, $name, $year, $robe, $frame]): ?>
@@ -97,8 +97,8 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
         </figure>
       <?php endforeach; ?>
     </div>
-    <p class="lp-note">Exemples présentant le style. Votre portrait est créé d'après la photo de votre cheval.</p>
-    <p class="lp-center"><a class="btn btn-primary btn-lg" href="#creer" data-lp-cta><?= icon('sparkle', 16) ?> À votre tour</a></p>
+    <p class="lp-note">Exemples présentant le style. Ton portrait est créé d'après la photo de ton cheval.</p>
+    <p class="lp-center"><a class="btn btn-primary btn-lg" href="#creer" data-lp-cta><?= icon('sparkle', 16) ?> À ton tour</a></p>
   </div>
 </section>
 
@@ -111,18 +111,18 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
     <ol class="lp-steps">
       <li>
         <span class="lp-step-icon"><?= $cameraIcon ?></span>
-        <h3>Envoyez sa photo</h3>
+        <h3>Envoie sa photo</h3>
         <p>Une photo de téléphone suffit : nette, bien éclairée, avec sa tête bien visible.</p>
       </li>
       <li>
         <span class="lp-step-icon"><?= icon('sparkle', 26) ?></span>
         <h3>L'IA la redessine</h3>
-        <p>En quelques secondes, son portrait apparaît dans le cadre. Pas convaincue ? Créez une autre version.</p>
+        <p>En quelques secondes, son portrait apparaît dans le cadre. Pas convaincue ? Crée une autre version.</p>
       </li>
       <li>
         <span class="lp-step-icon"><?= $frameIcon ?></span>
-        <h3>Personnalisez et commandez</h3>
-        <p>Son nom, son année de naissance, la couleur du cadre et le format : vous voyez le résultat en direct.</p>
+        <h3>Personnalise et commande</h3>
+        <p>Son nom, son année de naissance, la couleur du cadre et le format : tu vois le résultat en direct.</p>
       </li>
     </ol>
   </div>
@@ -131,8 +131,8 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 <section class="section section-blush lp-creator" id="creer">
   <div class="container">
     <div class="section-head section-head-center">
-      <p class="script-accent">à vous de jouer</p>
-      <h2>Créez son portrait <em>maintenant</em></h2>
+      <p class="script-accent">à toi de jouer</p>
+      <h2>Crée son portrait <em>maintenant</em></h2>
       <p>Aperçu offert et sans engagement · <?= (int) $perDay ?> créations par jour · environ 30 secondes</p>
     </div>
     <?php partial('product-main', compact('product', 'variants', 'personalization', 'reviewSummary', 'sizeGuide', 'delivery') + ['titleTag' => 'h2', 'previewFirst' => true, 'detailsOpen' => false]); ?>
@@ -143,10 +143,10 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
   <div class="container">
     <div class="section-head section-head-center">
       <p class="script-accent">le cadeau qui touche en plein cœur</p>
-      <h2>Pour vous, pour elle, <em>pour lui</em></h2>
+      <h2>Pour toi, pour elle, <em>pour lui</em></h2>
     </div>
     <div class="lp-occasions">
-      <article><span><?= icon('heart', 22) ?></span><h3>Pour vous</h3><p>Parce qu'il mérite sa place au salon : votre fierté, chaque jour sous les yeux.</p></article>
+      <article><span><?= icon('heart', 22) ?></span><h3>Pour toi</h3><p>Parce qu'il mérite sa place au salon : ta fierté, chaque jour sous les yeux.</p></article>
       <article><span><?= icon('gift', 22) ?></span><h3>Pour une cavalière</h3><p>Anniversaire, Noël, Galop réussi : le cadeau dont elle parlera longtemps.</p></article>
       <article><span><?= icon('sparkle', 22) ?></span><h3>Pour dire merci</h3><p>À sa propriétaire, sa monitrice ou sa groom : un merci élégant pour celles qui prennent soin de lui.</p></article>
       <article><span><?= icon('leaf', 22) ?></span><h3>En souvenir</h3><p>Un hommage tout en douceur pour garder près de soi un compagnon parti trop tôt.</p></article>
@@ -180,7 +180,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
       <ul class="lp-quality">
         <li><?= icon('check', 15) ?> Papier d'art mat épais</li>
         <li><?= icon('check', 15) ?> Impression haute définition, sans filigrane</li>
-        <li><?= icon('check', 15) ?> Fabriqué à la commande, rien que pour vous</li>
+        <li><?= icon('check', 15) ?> Fabriqué à la commande, rien que pour toi</li>
       </ul>
       <p class="muted small"><?= icon('calendar', 14) ?> Commandé aujourd'hui, reçu entre le <strong><?= e($delivery['from']) ?></strong> et le <strong><?= e($delivery['to']) ?></strong></p>
     </div>
@@ -190,7 +190,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 
 <section class="lp-guarantees">
   <div class="container">
-    <div><?= icon('sparkle', 22) ?><strong>Aperçu offert</strong><span>Vous ne commandez que s'il vous plaît</span></div>
+    <div><?= icon('sparkle', 22) ?><strong>Aperçu offert</strong><span>Tu ne commandes que s'il te plaît</span></div>
     <div><?= icon('lock', 22) ?><strong>Paiement sécurisé</strong><span>CB, Apple Pay, Google Pay</span></div>
     <div><?= icon('truck', 22) ?><strong>Livraison suivie</strong><span><?= $freeShipping ? 'Offerte pour ce tableau' : 'Numéro de suivi par e-mail' ?></span></div>
     <div><?= icon('refresh', 22) ?><strong>Un défaut ? On réimprime</strong><span>Casse ou défaut d'impression : c'est pour nous</span></div>
@@ -222,7 +222,7 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
 <section class="section" id="faq">
   <div class="container lp-faq">
     <div class="section-head section-head-center">
-      <p class="script-accent">vos questions</p>
+      <p class="script-accent">tes questions</p>
       <h2>Questions <em>fréquentes</em></h2>
     </div>
     <?php foreach ($faq as $i => [$question, $answer]): ?>
@@ -231,18 +231,18 @@ $frameIcon = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke
         <div class="rich"><p><?= e($answer) ?></p></div>
       </details>
     <?php endforeach; ?>
-    <p class="lp-center muted small">Une autre question ? <a href="<?= e(url('contact')) ?>">Écrivez-nous</a>, on vous répond avec plaisir.</p>
+    <p class="lp-center muted small">Une autre question ? <a href="<?= e(url('contact')) ?>">Écris-nous</a>, on te répond avec plaisir.</p>
   </div>
 </section>
 
 <section class="lp-final">
   <div class="container">
-    <p class="script-accent">il n'attend plus que vous</p>
+    <p class="script-accent">il n'attend plus que toi</p>
     <h2>Son portrait, <em>en quelques secondes</em></h2>
     <p>Aperçu offert, sans engagement · encadré dès <?= e(money($minPrice)) ?></p>
     <a class="btn btn-primary btn-lg" href="#creer" data-lp-cta><?= icon('sparkle', 16) ?> Créer son portrait</a>
     <?php if ($handDrawn): ?>
-      <p class="lp-alt">Vous rêvez d'un portrait dessiné à la main ? <a href="<?= e(url('produit/' . $handDrawn['slug'])) ?>">Découvrez notre portrait illustré par une artiste</a></p>
+      <p class="lp-alt">Tu rêves d'un portrait dessiné à la main ? <a href="<?= e(url('produit/' . $handDrawn['slug'])) ?>">Découvre notre portrait illustré par une artiste</a></p>
     <?php endif; ?>
   </div>
 </section>

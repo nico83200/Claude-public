@@ -15,7 +15,7 @@ final class CheckoutController
     {
         $items = Cart::items();
         if (!$items) {
-            flash('error', 'Votre panier est vide.');
+            flash('error', 'Ton panier est vide.');
             redirect('panier');
         }
         if (input('cgv') !== '1') {
@@ -142,7 +142,7 @@ final class CheckoutController
         } catch (\Throwable $e) {
             OrderService::event((int) $order['id'], 'error', 'Création de la session Stripe impossible : ' . $e->getMessage());
             Database::update('orders', ['status' => 'canceled', 'updated_at' => now()], 'id = :id', ['id' => $order['id']]);
-            flash('error', 'Le paiement est momentanément indisponible. Merci de réessayer dans quelques instants.');
+            flash('error', 'Le paiement est momentanément indisponible. Réessaie dans quelques instants.');
             redirect('panier');
         }
 
@@ -176,7 +176,7 @@ final class CheckoutController
         }
 
         view('shop/success', [
-            'pageTitle' => 'Merci pour votre commande',
+            'pageTitle' => 'Merci pour ta commande',
             'noindex'   => true,
             'order'     => $order,
             'items'     => OrderService::items((int) $order['id']),

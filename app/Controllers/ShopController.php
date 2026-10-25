@@ -192,8 +192,8 @@ final class ShopController
         ];
 
         view('shop/portrait-aquarelle', [
-            'pageTitle'       => 'Portrait aquarelle de votre cheval, créé en quelques secondes',
-            'metaDescription' => 'Envoyez la photo de votre cheval : notre IA la redessine au trait fin et à l\'aquarelle, avec son nom et son année de naissance. Aperçu offert, affiche encadrée prête à accrocher.',
+            'pageTitle'       => 'Portrait aquarelle de ton cheval, créé en quelques secondes',
+            'metaDescription' => 'Envoie la photo de ton cheval : notre IA la redessine au trait fin et à l\'aquarelle, avec son nom et son année de naissance. Aperçu offert, affiche encadrée prête à accrocher.',
             'ogImage'         => image_url($product['main_image']),
             'canonical'       => url('portrait-aquarelle'),
             'jsonLd'          => $jsonLd,
@@ -292,14 +292,14 @@ final class ShopController
         $formatList = implode(', ', array_map(static fn ($size, $price) => $size . ' (' . money($price) . ')', array_keys($formats), $formats));
         $frameList = mb_strtolower(implode(', ', array_keys($frames)));
         return [
-            ['Quelle photo choisir ?', 'Une photo nette et bien éclairée, où la tête de votre cheval est bien visible, de profil ou de trois quarts. Une photo de téléphone suffit. Évitez le contre-jour et les photos où il est très loin. Pour un résultat parfait, choisissez une photo où il est seul.'],
-            ['Combien de temps faut-il pour créer le portrait ?', 'En général moins d\'une minute : vous suivez l\'avancement en direct, puis l\'aperçu apparaît dans son cadre.'],
-            ['Puis-je essayer avant de commander ?', 'Oui, l\'aperçu est offert et sans engagement. Vous pouvez créer jusqu\'à ' . $perDay . ' versions par jour et ne commander que celle qui vous fait craquer.'],
-            ['Le nom et l\'année sont-ils obligatoires ?', (!empty($cfg['required']) ? 'Le nom de votre cheval est inscrit sous le portrait, en écriture manuscrite.' : 'Le nom est facultatif.') . (!empty($cfg['year_enabled']) ? ' L\'année de naissance est facultative : sans elle, le nom est simplement centré un peu plus bas.' : '')],
+            ['Quelle photo choisir ?', 'Une photo nette et bien éclairée, où la tête de ton cheval est bien visible, de profil ou de trois quarts. Une photo de téléphone suffit. Évite le contre-jour et les photos où il est très loin. Pour un résultat parfait, choisis une photo où il est seul.'],
+            ['Combien de temps faut-il pour créer le portrait ?', 'En général moins d\'une minute : tu suis l\'avancement en direct, puis l\'aperçu apparaît dans son cadre.'],
+            ['Puis-je essayer avant de commander ?', 'Oui, l\'aperçu est offert et sans engagement. Tu peux créer jusqu\'à ' . $perDay . ' versions par jour et ne commander que celle qui te fait craquer.'],
+            ['Le nom et l\'année sont-ils obligatoires ?', (!empty($cfg['required']) ? 'Le nom de ton cheval est inscrit sous le portrait, en écriture manuscrite.' : 'Le nom est facultatif.') . (!empty($cfg['year_enabled']) ? ' L\'année de naissance est facultative : sans elle, le nom est simplement centré un peu plus bas.' : '')],
             ['Quels formats et quels cadres ?', 'Formats : ' . $formatList . '. Cadres : ' . $frameList . '. Le portrait est imprimé en haute définition sur papier d\'art mat, sans filigrane, et livré encadré, prêt à accrocher.'],
-            ['Quand vais-je le recevoir ?', 'Commandé aujourd\'hui, il arrive en général entre le ' . $delivery['from'] . ' et le ' . $delivery['to'] . ' : fabrication à la commande puis livraison suivie. Vous recevez le numéro de suivi par e-mail.'],
-            ['Que devient la photo de mon cheval ?', 'Elle sert uniquement à créer le dessin et à fabriquer votre article. Si vous ne commandez pas, la photo et le portrait sont supprimés automatiquement après 30 jours.'],
-            ['Et si mon tableau arrive abîmé ?', 'Chaque portrait étant créé spécialement pour vous, il n\'est pas soumis au droit de rétractation. En revanche, en cas de défaut ou de casse pendant le transport, nous le réimprimons gratuitement : envoyez-nous simplement une photo.'],
+            ['Quand vais-je le recevoir ?', 'Commandé aujourd\'hui, il arrive en général entre le ' . $delivery['from'] . ' et le ' . $delivery['to'] . ' : fabrication à la commande puis livraison suivie. Tu reçois le numéro de suivi par e-mail.'],
+            ['Que devient la photo de mon cheval ?', 'Elle sert uniquement à créer le dessin et à fabriquer ton article. Si tu ne commandes pas, la photo et le portrait sont supprimés automatiquement après 30 jours.'],
+            ['Et si mon tableau arrive abîmé ?', 'Chaque portrait étant créé spécialement pour toi, il n\'est pas soumis au droit de rétractation. En revanche, en cas de défaut ou de casse pendant le transport, nous le réimprimons gratuitement : envoie-nous simplement une photo.'],
         ];
     }
 

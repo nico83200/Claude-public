@@ -65,12 +65,12 @@ if ($cfg) {
             <?php partial('ai-portrait-stage', ['firstColor' => $first['color_hex'] ?? null, 'visible' => $previewFirst]); ?>
           <?php endif; ?>
           </div>
-          <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> <span class="hint-mouse">Survolez pour zoomer</span><span class="hint-touch"><?= $cfg ? 'Glissez pour voir les photos' : 'Touchez pour agrandir' ?></span></span>
+          <span class="zoom-hint" aria-hidden="true"><?= icon('search', 15) ?> <span class="hint-mouse">Survole pour zoomer</span><span class="hint-touch"><?= $cfg ? 'Glisse pour voir les photos' : 'Touche pour agrandir' ?></span></span>
         </div>
         <?php if (count($images) > 1 || $isAi): ?>
           <div class="gallery-thumbs">
             <?php if ($isAi): ?>
-              <button type="button" class="thumb thumb-preview <?= $previewFirst ? 'active' : '' ?>" data-ai-show aria-label="Voir l'aperçu de votre portrait"><?= icon('sparkle', 20) ?><span>Aperçu</span></button>
+              <button type="button" class="thumb thumb-preview <?= $previewFirst ? 'active' : '' ?>" data-ai-show aria-label="Voir l'aperçu de ton portrait"><?= icon('sparkle', 20) ?><span>Aperçu</span></button>
             <?php endif; ?>
             <?php foreach ($images as $i => $img): ?>
               <button type="button" class="thumb <?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?>" data-thumb="<?= e(thumb($img, 800)) ?>" data-thumb-set="<?= e(thumb($img, 600) . ' 600w, ' . thumb($img, 800) . ' 800w, ' . thumb($img, 1200) . ' 1200w') ?>" data-full="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
@@ -107,7 +107,7 @@ if ($cfg) {
         <?php endif; ?>
         <div class="product-price">
           <span class="now <?= $saving ? 'is-sale' : '' ?>" data-price><?= e(money($price)) ?></span>
-          <?php if ($saving): ?><s><?= e(money($product['compare_at_price'])) ?></s><span class="pill pill-blush">Vous économisez <?= e(money($saving)) ?></span><?php endif; ?>
+          <?php if ($saving): ?><s><?= e(money($product['compare_at_price'])) ?></s><span class="pill pill-blush">Tu économises <?= e(money($saving)) ?></span><?php endif; ?>
           <small>TTC</small>
         </div>
         <?php if (setting('show_installments') === '1' && $price >= 3500): ?>
@@ -161,25 +161,25 @@ if ($cfg) {
             <?php partial('ai-portrait-box', ['cfg' => $cfg, 'product' => $product]); ?>
           <?php elseif ($cfg): ?>
           <div class="perso-box">
-            <p class="perso-title"><?= icon('sparkle', 16) ?> Votre personnalisation <span class="pill pill-blush">Offerte</span></p>
+            <p class="perso-title"><?= icon('sparkle', 16) ?> Ta personnalisation <span class="pill pill-blush">Offerte</span></p>
             <?php if ($needsPhoto): ?>
               <label class="photo-drop" data-photo-drop>
                 <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required data-photo-input>
                 <span class="photo-thumb" data-photo-thumb hidden></span>
                 <span class="photo-text">
-                  <strong data-photo-label><?= $mode === 'portrait' ? 'Ajoutez la photo de votre cheval' : 'Ajoutez sa plus belle photo' ?></strong>
+                  <strong data-photo-label><?= $mode === 'portrait' ? 'Ajoute la photo de ton cheval' : 'Ajoute sa plus belle photo' ?></strong>
                   <small>JPG ou PNG · tête bien visible · 20 Mo max.</small>
                 </span>
               </label>
               <?php if ($mode === 'portrait'): ?>
-                <p class="perso-note"><?= icon('brush', 15) ?> Notre illustratrice dessine le portrait à la main d'après votre photo (<?= (int) $cfg['extra_days'] ?> jours ouvrés de création).</p>
+                <p class="perso-note"><?= icon('brush', 15) ?> Notre illustratrice dessine le portrait à la main d'après ta photo (<?= (int) $cfg['extra_days'] ?> jours ouvrés de création).</p>
               <?php endif; ?>
             <?php endif; ?>
             <div class="field">
               <label for="personalization"><?= e($cfg['label']) ?><?= empty($cfg['required']) ? ' <span class="muted">(facultatif)</span>' : '' ?></label>
               <input id="personalization" name="personalization" type="text" maxlength="<?= (int) $cfg['max_length'] ?>"
                 <?= !empty($cfg['required']) ? 'required' : '' ?> placeholder="Ex. : Tornado" autocomplete="off" data-personalization>
-              <small><span data-char-count>0</span>/<?= (int) $cfg['max_length'] ?> caractères · imprimé exactement comme saisi, vérifiez l'orthographe ♡</small>
+              <small><span data-char-count>0</span>/<?= (int) $cfg['max_length'] ?> caractères · imprimé exactement comme saisi, vérifie l'orthographe ♡</small>
             </div>
           </div>
           <?php endif; ?>
@@ -218,12 +218,12 @@ if ($cfg) {
 
         <div class="delivery-box">
           <?= icon('calendar', 20) ?>
-          <span>Commandez aujourd'hui, recevez-le entre le <strong><?= e($delivery['from']) ?></strong> et le <strong><?= e($delivery['to']) ?></strong><br>
+          <span>Commande aujourd'hui, reçois-le entre le <strong><?= e($delivery['from']) ?></strong> et le <strong><?= e($delivery['to']) ?></strong><br>
           <span class="muted">Livraison offerte dès <?= e(money(setting('shipping_free_threshold'))) ?> · suivi par e-mail</span></span>
         </div>
 
         <div class="trust-row">
-          <div><?= icon('leaf', 20) ?>Imprimé pour vous en Europe</div>
+          <div><?= icon('leaf', 20) ?>Imprimé pour toi en Europe</div>
           <div><?= icon('lock', 20) ?>Paiement 100 % sécurisé</div>
           <div><?= icon('refresh', 20) ?>Un défaut ? On réimprime</div>
         </div>
@@ -238,16 +238,16 @@ if ($cfg) {
           <summary>Comment se passe la personnalisation ?</summary>
           <div class="rich">
             <?php if ($isAi): ?>
-              <p>Ajoutez une photo nette de votre cheval puis cliquez sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans le style « Encre & Poudre », un trait fin bordeaux rehaussé d'aquarelle aux tons poudrés. Saisissez son nom et, si vous le souhaitez, son année de naissance : ils s'inscrivent sous le portrait, comme sur l'aperçu.</p>
-              <p>Vous pouvez créer plusieurs versions et garder votre préférée. L'aperçu est volontairement réduit et filigrané : votre portrait est imprimé en haute définition, sans filigrane, sur papier d'art mat, puis encadré.</p>
+              <p>Ajoute une photo nette de ton cheval puis clique sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans le style « Encre & Poudre », un trait fin bordeaux rehaussé d'aquarelle aux tons poudrés. Saisis son nom et, si tu le souhaites, son année de naissance : ils s'inscrivent sous le portrait, comme sur l'aperçu.</p>
+              <p>Tu peux créer plusieurs versions et garder ta préférée. L'aperçu est volontairement réduit et filigrané : ton portrait est imprimé en haute définition, sans filigrane, sur papier d'art mat, puis encadré.</p>
             <?php elseif ($mode === 'portrait'): ?>
-              <p>Ajoutez une photo nette de votre cheval : notre illustratrice réalise son portrait au trait fin, dans le style Crinière Club, puis il part à l'impression. Comptez <?= (int) $cfg['extra_days'] ?> jours ouvrés de création.</p>
+              <p>Ajoute une photo nette de ton cheval : notre illustratrice réalise son portrait au trait fin, dans le style Crinière Club, puis il part à l'impression. Compte <?= (int) $cfg['extra_days'] ?> jours ouvrés de création.</p>
             <?php elseif ($mode === 'photo'): ?>
-              <p>Votre photo est cadrée automatiquement dans notre arche signature, avec le nom de votre cheval si vous le souhaitez. Choisissez une photo nette où sa tête est bien visible.</p>
+              <p>Ta photo est cadrée automatiquement dans notre arche signature, avec le nom de ton cheval si tu le souhaites. Choisis une photo nette où sa tête est bien visible.</p>
             <?php else: ?>
               <p>Le nom saisi est imprimé tel quel, dans la police présentée dans l'aperçu. Lettres, chiffres, espaces, apostrophes et tirets sont acceptés.</p>
             <?php endif; ?>
-            <p>Les articles personnalisés sont fabriqués selon vos indications : ils ne sont pas soumis au droit de rétractation (art. L221-28 du Code de la consommation). En cas de défaut, nous les réimprimons gratuitement.</p>
+            <p>Les articles personnalisés sont fabriqués selon tes indications : ils ne sont pas soumis au droit de rétractation (art. L221-28 du Code de la consommation). En cas de défaut, nous les réimprimons gratuitement.</p>
           </div>
         </details>
         <?php endif; ?>

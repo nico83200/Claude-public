@@ -21,7 +21,7 @@ final class ReviewController
     {
         $order = $this->order($number);
         view('shop/review', [
-            'pageTitle' => 'Donnez votre avis',
+            'pageTitle' => 'Donne ton avis',
             'noindex'   => true,
             'order'     => $order,
             'products'  => Reviews::orderProducts($order),
@@ -61,9 +61,9 @@ final class ReviewController
         }
         if ($saved) {
             OrderService::event((int) $order['id'], 'review', $saved . ' avis reçu(s).');
-            flash('success', 'Merci infiniment pour votre avis ! Il sera publié après une rapide vérification.');
+            flash('success', 'Merci infiniment pour ton avis ! Il sera publié après une rapide vérification.');
         } else {
-            flash('error', 'Choisissez au moins une note (de 1 à 5 étoiles).');
+            flash('error', 'Choisis au moins une note (de 1 à 5 étoiles).');
         }
         redirect(Reviews::reviewUrl($order));
     }

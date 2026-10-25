@@ -24,11 +24,11 @@ final class AiPortraitController
             json_response(['ok' => false, 'message' => 'Cet article ne propose pas de portrait IA.'], 422);
         }
         if (input('consent') !== '1') {
-            json_response(['ok' => false, 'message' => 'Merci d\'accepter l\'envoi de votre photo au service de dessin.'], 422);
+            json_response(['ok' => false, 'message' => 'Merci d\'accepter l\'envoi de ta photo au service de dessin.'], 422);
         }
         $file = Upload::files('photo')[0] ?? null;
         if (!$file) {
-            json_response(['ok' => false, 'message' => 'Ajoutez la photo de votre cheval.'], 422);
+            json_response(['ok' => false, 'message' => 'Ajoute la photo de ton cheval.'], 422);
         }
         try {
             $row = AiPortrait::create($file);

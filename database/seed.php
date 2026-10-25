@@ -29,7 +29,7 @@ function seed_demo_catalog(): void
 {
     $collections = [
         ['Le Club', 'le-club', 'Vêtements et accessoires à l\'effigie de Crinière Club, le club des passionnées. À adopter tout de suite, pour l\'écurie comme pour la ville.', 'assets/img/products/club-hoodie.jpg'],
-        ['Mon cheval, ma fierté', 'mon-cheval-ma-fierte', 'Son nom, sa photo ou son portrait illustré : des créations uniques, imprimées rien que pour vous et votre cheval.', 'assets/img/products/cheval-mug-photo.jpg'],
+        ['Mon cheval, ma fierté', 'mon-cheval-ma-fierte', 'Son nom, sa photo ou son portrait illustré : des créations uniques, imprimées rien que pour toi et ton cheval.', 'assets/img/products/cheval-mug-photo.jpg'],
         ['Les petites attentions', 'les-petites-attentions', 'Mugs, affiches, carnets et petites douceurs : les cadeaux qui font plaisir aux cavalières.', 'assets/img/products/attentions-mug.jpg'],
     ];
     $catIds = [];
@@ -42,9 +42,9 @@ function seed_demo_catalog(): void
     $designs = seed_demo_designs();
     $sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL'];
     $img = static fn (string ...$names) => array_map(static fn ($n) => 'assets/img/products/' . $n . '.jpg', $names);
-    $nameCfg = static fn (array $extra) => $extra + ['mode' => 'text', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => true, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a'];
+    $nameCfg = static fn (array $extra) => $extra + ['mode' => 'text', 'label' => 'Nom de ton cheval', 'max_length' => 16, 'required' => true, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a'];
     $photoCfg = static fn (array $extra) => $extra + [
-        'mode' => 'photo', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => false, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a',
+        'mode' => 'photo', 'label' => 'Nom de ton cheval', 'max_length' => 16, 'required' => false, 'font' => 'script', 'uppercase' => false, 'color' => '#5a2a3a',
         'photo_x' => 0.2, 'photo_y' => 0.08, 'photo_w' => 0.6, 'photo_h' => 0.62, 'photo_shape' => 'arch', 'x' => 0.5, 'y' => 0.84, 'size' => 0.1, 'max_width' => 0.7,
     ];
 
@@ -79,28 +79,28 @@ function seed_demo_catalog(): void
         ['mon-cheval-ma-fierte', 'Sweat brodé au nom de votre cheval', 5990, null, $img('cheval-sweat-nom', 'cheval-sweat-nom-vierge'), 1, 'front', $designs['cheval'],
             $nameCfg(['preview_image' => 'assets/img/products/cheval-sweat-nom-vierge.jpg', 'x' => 0.5, 'y' => 0.6, 'size' => 0.11, 'max_width' => 0.8, 'preview_x' => 0.5, 'preview_y' => 0.535, 'preview_size' => 0.083]),
             'Son prénom en écriture manuscrite, sous le cheval du club.',
-            '<p>Le sweat qui raconte votre histoire : le cheval Crinière Club et <strong>le nom de votre cheval</strong> en écriture manuscrite. Un cadeau qui fait toujours son effet.</p><ul><li>Molleton épais, coupe unisexe</li><li>Aperçu en direct avant de commander</li></ul>',
+            '<p>Le sweat qui raconte ton histoire : le cheval Crinière Club et <strong>le nom de ton cheval</strong> en écriture manuscrite. Un cadeau qui fait toujours son effet.</p><ul><li>Molleton épais, coupe unisexe</li><li>Aperçu en direct avant de commander</li></ul>',
             [['Crème', '#F3EEE6'], ['Bordeaux', '#5A2A3A'], ['Beige', '#E8DCCB']], $sizes],
         ['mon-cheval-ma-fierte', 'Mug photo de votre cheval', 2490, null, $img('cheval-mug-photo', 'cheval-mug-photo-vierge'), 1, 'default', $designs['cadre'],
             $photoCfg(['preview_image' => 'assets/img/products/cheval-mug-photo-vierge.jpg', 'preview_photo_x' => 0.393, 'preview_photo_y' => 0.38, 'preview_photo_w' => 0.213, 'preview_photo_h' => 0.25, 'preview_x' => 0.5, 'preview_y' => 0.703, 'preview_size' => 0.057]),
             'Sa plus belle photo, dans une arche élégante, avec son nom.',
-            '<p>Envoyez votre plus belle photo : nous la cadrons dans notre arche signature, avec le nom de votre cheval en écriture manuscrite.</p><ul><li>Céramique 33 cl, lave-vaisselle et micro-ondes</li><li>Conseil : une photo nette, prise de face ou de profil</li></ul>',
+            '<p>Envoie ta plus belle photo : nous la cadrons dans notre arche signature, avec le nom de ton cheval en écriture manuscrite.</p><ul><li>Céramique 33 cl, lave-vaisselle et micro-ondes</li><li>Conseil : une photo nette, prise de face ou de profil</li></ul>',
             [], ['33 cl']],
         ['mon-cheval-ma-fierte', 'Portrait illustré de votre cheval', 5990, null, $img('cheval-portrait', 'cheval-portrait-vierge'), 1, 'default', null,
             ['mode' => 'portrait', 'label' => 'Nom à inscrire sous le portrait', 'max_length' => 18, 'required' => false, 'font' => 'script', 'uppercase' => false, 'extra_days' => 5,
              'preview_image' => 'assets/img/products/cheval-portrait-vierge.jpg', 'preview_x' => 0.5, 'preview_y' => 0.668, 'preview_size' => 0.073],
-            'Un portrait au trait fin, dessiné à la main d\'après votre photo.',
-            '<p>Notre illustratrice dessine <strong>le portrait de votre cheval</strong> au trait fin, dans le style du club, à partir de votre photo. Imprimé sur papier d\'art mat, c\'est le cadeau le plus personnel qui soit.</p><ul><li>Création à la main sous 5 jours ouvrés</li><li>Papier mat premium 200 g/m², cadre non inclus</li></ul>',
+            'Un portrait au trait fin, dessiné à la main d\'après ta photo.',
+            '<p>Notre illustratrice dessine <strong>le portrait de ton cheval</strong> au trait fin, dans le style du club, à partir de ta photo. Imprimé sur papier d\'art mat, c\'est le cadeau le plus personnel qui soit.</p><ul><li>Création à la main sous 5 jours ouvrés</li><li>Papier mat premium 200 g/m², cadre non inclus</li></ul>',
             [], ['30 × 40 cm', '50 × 70 cm'], [5990, 7990]],
         ['mon-cheval-ma-fierte', 'Coussin photo de votre cheval', 4490, null, $img('cheval-coussin-photo', 'cheval-coussin-photo-vierge'), 0, 'front', $designs['cadre'],
             $photoCfg(['preview_image' => 'assets/img/products/cheval-coussin-photo-vierge.jpg', 'preview_photo_x' => 0.37, 'preview_photo_y' => 0.327, 'preview_photo_w' => 0.26, 'preview_photo_h' => 0.327, 'preview_x' => 0.5, 'preview_y' => 0.718, 'preview_size' => 0.063]),
             'Sa photo et son nom sur un coussin tout doux.',
-            '<p>Un coussin effet daim avec la photo de votre cheval dans notre arche signature. Garnissage inclus.</p>',
+            '<p>Un coussin effet daim avec la photo de ton cheval dans notre arche signature. Garnissage inclus.</p>',
             [], ['45 × 45 cm']],
         ['mon-cheval-ma-fierte', 'Casquette au nom de votre cheval', 3490, null, $img('cheval-casquette-nom', 'cheval-casquette-nom-vierge'), 0, 'embroidery_front', $designs['texte'],
             $nameCfg(['preview_image' => 'assets/img/products/cheval-casquette-nom-vierge.jpg', 'max_length' => 12, 'x' => 0.5, 'y' => 0.62, 'size' => 0.32, 'max_width' => 0.9, 'preview_x' => 0.5, 'preview_y' => 0.43, 'preview_size' => 0.077]),
             'Son nom brodé en écriture manuscrite.',
-            '<p>Casquette en coton, avec le nom de votre cheval brodé en écriture manuscrite. Taille réglable.</p>',
+            '<p>Casquette en coton, avec le nom de ton cheval brodé en écriture manuscrite. Taille réglable.</p>',
             [['Crème', '#F1EADF']], ['Taille unique']],
 
         // --------------------------------------------------- Les petites attentions
@@ -177,7 +177,7 @@ function seed_ai_portrait_product(int $categoryId): int
         'name'              => 'Portrait aquarelle de votre cheval, encadré',
         'slug'              => 'portrait-aquarelle-de-votre-cheval-encadre',
         'short_description' => 'Sa photo redessinée au trait fin et à l\'aquarelle, avec son nom et son année de naissance.',
-        'description'       => '<p>Envoyez sa plus belle photo : en quelques secondes, notre IA la redessine dans notre style signature <strong>« Encre &amp; Poudre »</strong>, un trait fin bordeaux rehaussé d\'aquarelle aux tons poudrés. Son nom s\'inscrit dessous en écriture manuscrite, avec son année de naissance si vous le souhaitez.</p><ul><li>Aperçu immédiat et gratuit, avant de commander</li><li>Papier d\'art mat épais, impression haute définition sans filigrane</li><li>Cadre noir, blanc ou chêne, prêt à accrocher</li></ul>',
+        'description'       => '<p>Envoie sa plus belle photo : en quelques secondes, notre IA la redessine dans notre style signature <strong>« Encre &amp; Poudre »</strong>, un trait fin bordeaux rehaussé d\'aquarelle aux tons poudrés. Son nom s\'inscrit dessous en écriture manuscrite, avec son année de naissance si tu le souhaites.</p><ul><li>Aperçu immédiat et gratuit, avant de commander</li><li>Papier d\'art mat épais, impression haute définition sans filigrane</li><li>Cadre noir, blanc ou chêne, prêt à accrocher</li></ul>',
         'price'             => 7900,
         'compare_at_price'  => null,
         'images'            => json_encode(['assets/img/products/portrait-ia.jpg', 'assets/img/products/portrait-ia-avant-apres.jpg', 'assets/img/products/portrait-ia-detail.jpg']),
@@ -185,7 +185,7 @@ function seed_ai_portrait_product(int $categoryId): int
         'active'            => 1,
         'personalizable'    => 1,
         'personalization'   => json_encode([
-            'mode' => 'ai_portrait', 'label' => 'Nom de votre cheval', 'max_length' => 16, 'required' => true, 'font' => 'script',
+            'mode' => 'ai_portrait', 'label' => 'Nom de ton cheval', 'max_length' => 16, 'required' => true, 'font' => 'script',
             'uppercase' => false, 'color' => '#5a2a3a', 'year_enabled' => true, 'year_label' => 'Année de naissance',
             'print_w' => 3600, 'print_h' => 4800, 'extra_days' => 0,
         ], JSON_UNESCAPED_UNICODE),
@@ -244,9 +244,9 @@ function seed_size_guide(): array
 {
     return [
         'slug' => 'guide-des-tailles', 'title' => 'Guide des tailles', 'in_footer' => 1,
-        'meta_description' => 'Trouvez la taille idéale pour nos sweats et t-shirts d\'équitation.',
+        'meta_description' => 'Trouve la taille idéale pour nos sweats et t-shirts d\'équitation.',
         'content' => <<<'HTML'
-<p>Nos coupes sont <strong>unisexes</strong>. Pour un tombé ajusté, prenez votre taille habituelle ; pour un style <em>oversize</em> (très tendance avec un legging d'équitation), prenez une taille au-dessus.</p>
+<p>Nos coupes sont <strong>unisexes</strong>. Pour un tombé ajusté, prends ta taille habituelle ; pour un style <em>oversize</em> (très tendance avec un legging d'équitation), prends une taille au-dessus.</p>
 <h2>Sweats & t-shirts — mesures indicatives</h2>
 <table>
 <thead><tr><th>Taille</th><th>Demi-tour de poitrine (à plat)</th><th>Longueur</th><th>Équivalence femme</th></tr></thead>
@@ -259,7 +259,7 @@ function seed_size_guide(): array
 <tr><td>2XL</td><td>68 cm</td><td>79 cm</td><td>48</td></tr>
 </tbody>
 </table>
-<p>Astuce : mesurez à plat un sweat que vous aimez porter et comparez. Une hésitation ? <a href="/contact">Écrivez-nous</a>, on vous conseille avec plaisir.</p>
+<p>Astuce : mesure à plat un sweat que tu aimes porter et compare. Une hésitation ? <a href="/contact">Écris-nous</a>, on te conseille avec plaisir.</p>
 HTML,
     ];
 }
@@ -281,9 +281,9 @@ function seed_pages(): array
 <li><strong>Mon cheval, ma fierté</strong> : son nom, sa photo ou son portrait illustré sur des pièces uniques.</li>
 <li><strong>Les petites attentions</strong> : mugs, affiches et cadeaux pour faire plaisir aux cavalières.</li>
 </ul>
-<h2>Imprimé pour vous, pas pour un entrepôt</h2>
-<p>Chaque article est fabriqué <strong>uniquement après votre commande</strong>, dans les ateliers européens de notre partenaire d'impression. Pas de stock dormant, pas d'invendus détruits.</p>
-<p>Une question, une idée de création ? <a href="/contact">Écrivez-nous</a>, on répond toujours.</p>
+<h2>Imprimé pour toi, pas pour un entrepôt</h2>
+<p>Chaque article est fabriqué <strong>uniquement après ta commande</strong>, dans les ateliers européens de notre partenaire d'impression. Pas de stock dormant, pas d'invendus détruits.</p>
+<p>Une question, une idée de création ? <a href="/contact">Écris-nous</a>, on répond toujours.</p>
 HTML,
         ],
         [
@@ -297,36 +297,36 @@ HTML,
 <li><strong>Standard suivie</strong> : 4 à 8 jours ouvrés après expédition — offerte dès le seuil indiqué dans le panier.</li>
 <li><strong>Express</strong> : 2 à 4 jours ouvrés après expédition.</li>
 </ul>
-<p>Nous livrons en France métropolitaine, en Belgique, en Suisse, au Luxembourg, à Monaco et dans plusieurs pays de l'Union européenne. Un e-mail avec le lien de suivi vous est envoyé dès l'expédition. Une commande contenant plusieurs articles peut être expédiée en plusieurs colis.</p>
+<p>Nous livrons en France métropolitaine, en Belgique, en Suisse, au Luxembourg, à Monaco et dans plusieurs pays de l'Union européenne. Un e-mail avec le lien de suivi t'est envoyé dès l'expédition. Une commande contenant plusieurs articles peut être expédiée en plusieurs colis.</p>
 <h2>Article défectueux ou erreur</h2>
-<p>Un défaut d'impression, une erreur de taille de notre part, un colis abîmé ? Contactez-nous dans les <strong>30 jours</strong> suivant la réception avec une photo : nous réimprimons ou remboursons l'article, sans frais.</p>
+<p>Un défaut d'impression, une erreur de taille de notre part, un colis abîmé ? Contacte-nous dans les <strong>30 jours</strong> suivant la réception avec une photo : nous réimprimons ou remboursons l'article, sans frais.</p>
 <h2>Droit de rétractation</h2>
-<p>Pour les articles <strong>non personnalisés</strong>, vous disposez de 14 jours à compter de la réception pour exercer votre droit de rétractation (frais de retour à votre charge). Contactez-nous avant tout renvoi pour obtenir l'adresse de retour.</p>
-<p>Conformément à l'article L221-28 3° du Code de la consommation, le droit de rétractation <strong>ne s'applique pas aux articles personnalisés</strong> (nom de cheval, texte…), confectionnés selon vos spécifications.</p>
+<p>Pour les articles <strong>non personnalisés</strong>, tu disposes de 14 jours à compter de la réception pour exercer ton droit de rétractation (frais de retour à ta charge). Contacte-nous avant tout renvoi pour obtenir l'adresse de retour.</p>
+<p>Conformément à l'article L221-28 3° du Code de la consommation, le droit de rétractation <strong>ne s'applique pas aux articles personnalisés</strong> (nom de cheval, texte…), confectionnés selon tes indications.</p>
 HTML,
         ],
         [
             'slug' => 'faq', 'title' => 'Questions fréquentes', 'in_footer' => 1,
-            'meta_description' => 'Tailles, personnalisation, délais, entretien : toutes les réponses à vos questions.',
+            'meta_description' => 'Tailles, personnalisation, délais, entretien : toutes les réponses à tes questions.',
             'content' => <<<'HTML'
 <h2>Comment fonctionne la personnalisation ?</h2>
-<p>Dans la collection « Mon cheval, ma fierté », saisissez le nom de votre cheval et/ou ajoutez sa photo : un aperçu s'affiche instantanément sur l'article. Le texte est imprimé exactement comme saisi (pensez à vérifier l'orthographe !).</p>
+<p>Dans la collection « Mon cheval, ma fierté », saisis le nom de ton cheval et/ou ajoute sa photo : un aperçu s'affiche instantanément sur l'article. Le texte est imprimé exactement comme saisi (pense à vérifier l'orthographe !).</p>
 <h2>Quelle photo choisir ?</h2>
-<p>Une photo nette et bien éclairée, prise de face ou de trois quarts, où la tête de votre cheval est bien visible. Les photos de téléphone conviennent parfaitement (format JPG ou PNG, 20 Mo maximum).</p>
+<p>Une photo nette et bien éclairée, prise de face ou de trois quarts, où la tête de ton cheval est bien visible. Les photos de téléphone conviennent parfaitement (format JPG ou PNG, 20 Mo maximum).</p>
 <h2>Comment fonctionne le portrait aquarelle par IA ?</h2>
-<p>Sur la fiche du portrait encadré, ajoutez une photo de votre cheval et cliquez sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans notre style « Encre &amp; Poudre » (trait fin bordeaux et aquarelle poudrée). Vous voyez l'aperçu dans son cadre, avec son nom et son année de naissance, avant de commander. Vous pouvez créer plusieurs versions et garder votre préférée.</p>
+<p>Sur la fiche du portrait encadré, ajoute une photo de ton cheval et clique sur « Créer mon portrait » : notre IA le redessine en quelques secondes dans notre style « Encre &amp; Poudre » (trait fin bordeaux et aquarelle poudrée). Tu vois l'aperçu dans son cadre, avec son nom et son année de naissance, avant de commander. Tu peux créer plusieurs versions et garder ta préférée.</p>
 <h2>Comment se passe un portrait illustré ?</h2>
-<p>Notre illustratrice dessine le portrait de votre cheval à la main, au trait fin, d'après votre photo. Comptez 5 jours ouvrés de création en plus de la fabrication et de la livraison.</p>
+<p>Notre illustratrice dessine le portrait de ton cheval à la main, au trait fin, d'après ta photo. Comptez 5 jours ouvrés de création en plus de la fabrication et de la livraison.</p>
 <h2>Comment choisir ma taille ?</h2>
-<p>Nos coupes sont unisexes et plutôt standard. En cas de doute entre deux tailles, prenez la plus grande pour un style confortable.</p>
+<p>Nos coupes sont unisexes et plutôt standard. En cas de doute entre deux tailles, prends la plus grande pour un style confortable.</p>
 <h2>Quand vais-je recevoir ma commande ?</h2>
-<p>Comptez 2 à 5 jours de fabrication puis le délai de livraison choisi. Vous pouvez suivre votre commande à tout moment depuis la page <a href="/suivi">Suivi de commande</a>.</p>
+<p>Comptez 2 à 5 jours de fabrication puis le délai de livraison choisi. Tu peux suivre ta commande à tout moment depuis la page <a href="/suivi">Suivi de commande</a>.</p>
 <h2>Quels moyens de paiement acceptez-vous ?</h2>
-<p>Carte bancaire (CB, Visa, Mastercard, American Express), Apple Pay, Google Pay et d'autres moyens selon votre pays. Le paiement est entièrement sécurisé par Stripe : nous n'avons jamais accès à vos données bancaires.</p>
+<p>Carte bancaire (CB, Visa, Mastercard, American Express), Apple Pay, Google Pay et d'autres moyens selon ton pays. Le paiement est entièrement sécurisé par Stripe : nous n'avons jamais accès à tes données bancaires.</p>
 <h2>Comment entretenir mes vêtements ?</h2>
-<p>Lavage à 30 °C sur l'envers, pas de sèche-linge, repassage sur l'envers. Votre impression restera éclatante longtemps.</p>
+<p>Lavage à 30 °C sur l'envers, pas de sèche-linge, repassage sur l'envers. Ton impression restera éclatante longtemps.</p>
 <h2>Proposez-vous des tarifs pour les clubs et écuries ?</h2>
-<p>Oui ! Pour équiper votre club, votre équipe de concours ou vos cavaliers, <a href="/contact">contactez-nous</a> pour un devis.</p>
+<p>Oui ! Pour équiper ton club, ton équipe de concours ou tes cavaliers, <a href="/contact">contacte-nous</a> pour un devis.</p>
 HTML,
         ],
         [

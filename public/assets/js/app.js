@@ -263,7 +263,7 @@
       if (!data.items.length) {
         var none = document.createElement('p');
         none.className = 'search-empty';
-        none.textContent = 'Aucun article pour « ' + data.q + ' ». Essayez « sweat », « mug » ou « portrait ».';
+        none.textContent = 'Aucun article pour « ' + data.q + ' ». Essaie « sweat », « mug » ou « portrait ».';
         sBox.appendChild(none);
       }
       data.items.forEach(function (it) {
@@ -369,7 +369,7 @@
       if (navigator.share) {
         navigator.share({ title: 'Ma liste d\'envies', text: 'Des idées cadeaux qui me feraient plaisir ♡', url: link }).catch(function () {});
       } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(link).then(function () { done('Lien copié ! Collez-le dans un message ou un e-mail.'); }, function () { done(link); });
+        navigator.clipboard.writeText(link).then(function () { done('Lien copié ! Colle-le dans un message ou un e-mail.'); }, function () { done(link); });
       } else {
         done(link);
       }
@@ -542,7 +542,7 @@
         if (!file) return;
         if (file.size > 20 * 1024 * 1024) {
           photoInput.value = '';
-          errorBox.textContent = 'Votre photo est trop lourde (20 Mo maximum).';
+          errorBox.textContent = 'Ta photo est trop lourde (20 Mo maximum).';
           errorBox.hidden = false;
           return;
         }
@@ -551,7 +551,7 @@
         thumb.style.backgroundImage = 'url("' + urlObj + '")';
         thumb.hidden = false;
         drop.classList.add('has-photo');
-        label.textContent = 'Photo ajoutée ✓ (cliquez pour changer)';
+        label.textContent = 'Photo ajoutée ✓ (clique pour changer)';
         if (previewPhoto) {
           useBaseImage();
           previewPhoto.style.backgroundImage = 'url("' + urlObj + '")';
@@ -598,7 +598,7 @@
       var setLocked = function (locked) {
         aiLocked = locked;
         addBtn.disabled = locked;
-        addBtn.textContent = locked ? 'Créez son portrait \u2191' : addLabel;
+        addBtn.textContent = locked ? 'Crée son portrait \u2191' : addLabel;
       };
       setLocked(true);
 
@@ -672,7 +672,7 @@
         if (typeof n !== 'number' || !remainingEl) return;
         remainingEl.textContent = n > 0
           ? 'Environ 30 secondes · ' + n + ' création' + (n > 1 ? 's' : '') + ' offerte' + (n > 1 ? 's' : '') + ' aujourd’hui'
-          : 'C’était votre dernière création offerte du jour ♡';
+          : 'C’était ta dernière création offerte du jour ♡';
       };
 
       aiPhoto.addEventListener('change', function () {
@@ -680,7 +680,7 @@
         aiError.hidden = true;
         if (file && file.size > 20 * 1024 * 1024) {
           aiPhoto.value = '';
-          fail('Votre photo est trop lourde (20 Mo maximum).');
+          fail('Ta photo est trop lourde (20 Mo maximum).');
           return;
         }
         if (file) {
@@ -688,7 +688,7 @@
           thumbEl.style.backgroundImage = 'url("' + URL.createObjectURL(file) + '")';
           thumbEl.hidden = false;
           $('[data-photo-drop]', aiBox).classList.add('has-photo');
-          $('[data-photo-label]', aiBox).textContent = 'Photo ajoutée ✓ (cliquez pour changer)';
+          $('[data-photo-label]', aiBox).textContent = 'Photo ajoutée ✓ (clique pour changer)';
         }
         updateGenerate();
       });
@@ -735,7 +735,7 @@
         track('ai_portrait_ready');
       };
       var poll = function (token, started) {
-        if (Date.now() - started > 4 * 60 * 1000) { clearInterval(stepTimer); fail('Le dessin prend plus de temps que prévu. Réessayez dans un instant.'); return; }
+        if (Date.now() - started > 4 * 60 * 1000) { clearInterval(stepTimer); fail('Le dessin prend plus de temps que prévu. Réessaie dans un instant.'); return; }
         setTimeout(function () {
           fetch(aiBox.dataset.aiUrl + '/' + token, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
             .then(function (r) { return r.json(); })
@@ -755,7 +755,7 @@
       };
       var handle = function (state, started) {
         if (state.status === 'ready') { ready(state); if (state.upscaling) followUpscale(state.token, 15); }
-        else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message + (state.admin ? '\n\n🔧 Diagnostic (visible car vous êtes connectée à l\u2019administration) :\n' + state.admin : '')); }
+        else if (state.status === 'failed') { clearInterval(stepTimer); fail(state.message + (state.admin ? '\n\n🔧 Diagnostic (visible car tu es connectée à l\u2019administration) :\n' + state.admin : '')); }
         else poll(state.token, started);
       };
 
@@ -889,7 +889,7 @@
           if (!j.ok) throw new Error(j.message);
           store.set('cc_popup', 'subscribed');
           if (j.code) {
-            nl.innerHTML = '<p>Bienvenue au club ! Voici votre code :</p><div class="welcome-code"><span></span><button type="button" class="btn btn-soft btn-sm">Copier</button></div><p class="small muted">Envoyé aussi par e-mail. À saisir au moment du paiement.</p>';
+            nl.innerHTML = '<p>Bienvenue au club ! Voici ton code :</p><div class="welcome-code"><span></span><button type="button" class="btn btn-soft btn-sm">Copier</button></div><p class="small muted">Envoyé aussi par e-mail. À saisir au moment du paiement.</p>';
             $('.welcome-code span', nl).textContent = j.code;
             $('.welcome-code button', nl).addEventListener('click', function (ev) {
               if (navigator.clipboard) navigator.clipboard.writeText(j.code);

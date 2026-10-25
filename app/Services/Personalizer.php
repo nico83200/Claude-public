@@ -31,7 +31,7 @@ final class Personalizer
 
     public const DEFAULTS = [
         'mode'         => 'text',
-        'label'        => 'Nom de votre cheval',
+        'label'        => 'Nom de ton cheval',
         'max_length'   => 18,
         'required'     => false, // texte obligatoire ?
         'font'         => 'serif',

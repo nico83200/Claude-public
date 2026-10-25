@@ -15,7 +15,7 @@
 
 <?php if (App\Services\Reviews::enabled() && $reviewSummary['count'] === 0): ?>
 <section class="reviews-empty-band" id="avis">
-  <div class="container"><p><?= icon('star', 16) ?> <strong>Pas encore d'avis sur cet article.</strong> <span class="muted">Après votre commande, vous serez invitée à partager le vôtre.</span></p></div>
+  <div class="container"><p><?= icon('star', 16) ?> <strong>Pas encore d'avis sur cet article.</strong> <span class="muted">Après ta commande, tu seras invitée à partager le tien.</span></p></div>
 </section>
 <?php elseif (App\Services\Reviews::enabled()): ?>
 <section class="section section-blush" id="avis">
@@ -56,8 +56,8 @@
       </div>
     <?php else: ?>
       <div class="empty">
-        <p class="script-accent">bientôt vos avis</p>
-        <p>Cet article n'a pas encore d'avis. Après votre commande, vous recevrez une invitation pour partager le vôtre.</p>
+        <p class="script-accent">bientôt tes avis</p>
+        <p>Cet article n'a pas encore d'avis. Après ta commande, tu recevras une invitation pour partager le tien.</p>
       </div>
     <?php endif; ?>
   </div>
@@ -67,7 +67,7 @@
 <?php if ($related): ?>
 <section class="section">
   <div class="container">
-    <div class="section-head"><div><p class="script-accent">à associer</p><h2>Vous allez <em>adorer aussi</em></h2></div></div>
+    <div class="section-head"><div><p class="script-accent">à associer</p><h2>Tu vas <em>adorer aussi</em></h2></div></div>
     <div class="product-grid">
       <?php foreach ($related as $item) { partial('product-card', ['product' => $item]); } ?>
     </div>

@@ -82,7 +82,7 @@ final class CartController
                 $token = (string) input('ai_portrait');
                 $portrait = AiPortrait::owns($token) ? AiPortrait::find($token) : null;
                 if (!$portrait || $portrait['status'] !== 'ready') {
-                    $fail('Créez d\'abord le portrait de votre cheval à partir de sa photo.', '/produit/' . $row['slug']);
+                    $fail('Crée d\'abord le portrait de ton cheval à partir de sa photo.', '/produit/' . $row['slug']);
                 }
                 try {
                     $year = !empty($cfg['year_enabled']) ? AiPortrait::sanitizeYear(input('year', '')) : '';
@@ -93,7 +93,7 @@ final class CartController
             } elseif (Personalizer::needsPhoto($cfg)) {
                 $file = Upload::files('photo')[0] ?? null;
                 if (!$file) {
-                    $fail('Ajoutez la photo de votre cheval pour personnaliser cet article.', '/produit/' . $row['slug']);
+                    $fail('Ajoute la photo de ton cheval pour personnaliser cet article.', '/produit/' . $row['slug']);
                 }
                 try {
                     $photo = Upload::customerPhoto($file);
@@ -152,7 +152,7 @@ final class CartController
     {
         $order = \App\Services\OrderService::findByNumber($number);
         if (!$order || !\App\Services\OrderService::checkRecoveryToken($order, (string) input('t', ''))) {
-            flash('error', 'Ce lien n\'est plus valable : retrouvez nos articles dans la boutique.');
+            flash('error', 'Ce lien n\'est plus valable : retrouve nos articles dans la boutique.');
             redirect('boutique');
         }
         if ($order['paid_at']) {
@@ -174,7 +174,7 @@ final class CartController
             $restored++;
         }
         \App\Services\OrderService::event((int) $order['id'], 'recovery', $restored . ' article(s) remis dans le panier depuis le lien de relance.');
-        flash($restored ? 'success' : 'error', $restored ? 'Votre panier est de retour ♡ Il ne reste plus qu\'à finaliser.' : 'Ces articles ne sont plus disponibles : découvrez nos nouveautés.');
+        flash($restored ? 'success' : 'error', $restored ? 'Ton panier est de retour ♡ Il ne reste plus qu\'à finaliser.' : 'Ces articles ne sont plus disponibles : découvre nos nouveautés.');
         redirect($restored ? 'panier' : 'boutique');
     }
 }

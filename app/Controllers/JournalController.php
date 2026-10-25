@@ -13,7 +13,7 @@ final class JournalController
         $tag = in_array($tag, Journal::TAGS, true) ? $tag : '';
         view('shop/journal/index', [
             'pageTitle'       => $tag !== '' ? $tag . ' — Le journal' : 'Le journal du club : conseils et idées cadeaux',
-            'metaDescription' => 'Conseils de cavalières, idées cadeaux, entretien de vos vêtements et coulisses du club : le journal de ' . setting('shop_name') . '.',
+            'metaDescription' => 'Conseils de cavalières, idées cadeaux, entretien de tes vêtements et coulisses du club : le journal de ' . setting('shop_name') . '.',
             'canonical'       => url('journal', array_filter(['theme' => $tag])),
             'posts'           => Journal::published($tag ?: null),
             'tag'             => $tag,

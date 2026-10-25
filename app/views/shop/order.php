@@ -39,6 +39,6 @@ $reached = ['paid' => 1, 'in_production' => 2, 'shipped' => 3][$order['status']]
       <h2>Adresse de livraison</h2>
       <p><?= e($address['name']) ?><br><?= e($address['line1']) ?><?= $address['line2'] ? '<br>' . e($address['line2']) : '' ?><br><?= e($address['postal_code'] . ' ' . $address['city']) ?><br><?= e($address['country']) ?></p>
     <?php endif; ?>
-    <p>Une question ? <a href="<?= e(url('contact')) ?>">Contactez-nous</a> en précisant le numéro <?= e($order['number']) ?>.</p>
+    <p>Une question ? <a href="<?= e(url('contact')) ?>">Contacte-nous</a> en précisant le numéro <?= e($order['number']) ?>.</p>
   </div>
 </section>

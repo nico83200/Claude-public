@@ -40,7 +40,7 @@ final class AccountController
         $email = Account::normalize((string) input('email'));
         $back = $this->loginUrl();
         if (Account::isLocked($ip)) {
-            flash('error', 'Trop de tentatives. Réessayez dans 15 minutes, ou utilisez « Mot de passe oublié ».');
+            flash('error', 'Trop de tentatives. Réessaie dans 15 minutes, ou utilise « Mot de passe oublié ».');
             redirect($back);
         }
         $customer = Account::attempt($email, (string) input('password'), $ip);
@@ -51,7 +51,7 @@ final class AccountController
             redirect($back);
         }
         Account::login($customer);
-        flash('success', 'Ravie de vous revoir, ' . Account::firstName($customer) . ' ♡');
+        flash('success', 'Ravie de te revoir, ' . Account::firstName($customer) . ' ♡');
         redirect($this->returnPath());
     }
 
@@ -72,7 +72,7 @@ final class AccountController
             redirect($this->loginUrl(true));
         }
         Account::login($customer);
-        flash('success', 'Bienvenue au club, ' . Account::firstName($customer) . ' ! Un e-mail de confirmation vient de vous être envoyé.');
+        flash('success', 'Bienvenue au club, ' . Account::firstName($customer) . ' ! Un e-mail de confirmation vient de t\'être envoyé.');
         redirect($this->returnPath());
     }
 
@@ -81,7 +81,7 @@ final class AccountController
     {
         $order = OrderService::find((int) input('order_id'));
         if (!$order || (int) ($_SESSION['last_order_id'] ?? 0) !== (int) $order['id'] || $order['status'] === 'pending' || !$order['email']) {
-            flash('error', 'Cette commande ne permet pas de créer un compte. Inscrivez-vous depuis « Mon compte ».');
+            flash('error', 'Cette commande ne permet pas de créer un compte. Inscris-toi depuis « Mon compte ».');
             redirect('compte/connexion?inscription=1');
         }
         if (input('password') !== input('password_confirm')) {
@@ -96,14 +96,14 @@ final class AccountController
         }
         Account::login($customer);
         unset($_SESSION['want_account']);
-        flash('success', 'Votre compte est créé : retrouvez ici le suivi de votre commande ♡');
+        flash('success', 'Ton compte est créé : retrouve ici le suivi de ta commande ♡');
         redirect('compte');
     }
 
     public function logout(): void
     {
         Account::logout();
-        flash('success', 'Vous êtes déconnectée. À très vite !');
+        flash('success', 'Tu es déconnectée. À très vite !');
         redirect('/');
     }
 
@@ -111,11 +111,11 @@ final class AccountController
     {
         $customer = Account::verify($token);
         if (!$customer) {
-            flash('error', 'Ce lien de confirmation a expiré. Connectez-vous pour en recevoir un nouveau.');
+            flash('error', 'Ce lien de confirmation a expiré. Connecte-toi pour en recevoir un nouveau.');
             redirect('compte/connexion');
         }
         Account::login($customer);
-        flash('success', 'Adresse confirmée : vos commandes passées avec cette adresse sont maintenant dans votre compte.');
+        flash('success', 'Adresse confirmée : tes commandes passées avec cette adresse sont maintenant dans ton compte.');
         redirect('compte');
     }
 
@@ -142,14 +142,14 @@ final class AccountController
             Database::insert('login_attempts', ['ip' => 'c:' . client_ip(), 'created_at' => now()]);
             Account::sendReset($email);
         }
-        flash('success', 'Si un compte existe pour cette adresse, vous allez recevoir un lien pour choisir un nouveau mot de passe (valable 1 heure).');
+        flash('success', 'Si un compte existe pour cette adresse, tu vas recevoir un lien pour choisir un nouveau mot de passe (valable 1 heure).');
         redirect('compte/mot-de-passe-oublie');
     }
 
     public function resetForm(string $token): void
     {
         if (!Account::resetCustomer($token)) {
-            flash('error', 'Ce lien a expiré. Demandez-en un nouveau.');
+            flash('error', 'Ce lien a expiré. Demandes-en un nouveau.');
             redirect('compte/mot-de-passe-oublie');
         }
         view('shop/account/reset', ['pageTitle' => 'Nouveau mot de passe', 'noindex' => true, 'token' => $token]);
@@ -168,7 +168,7 @@ final class AccountController
             redirect(str_contains($e->getMessage(), 'expiré') ? 'compte/mot-de-passe-oublie' : 'compte/nouveau-mot-de-passe/' . $token);
         }
         Account::login($customer);
-        flash('success', 'Mot de passe modifié. Vous êtes connectée.');
+        flash('success', 'Mot de passe modifié. Tu es connectée.');
         redirect('compte');
     }
 
@@ -211,7 +211,7 @@ final class AccountController
         }
         Account::delete($customer);
         Account::logout();
-        flash('success', 'Votre compte a été supprimé. Vos commandes restent consultables avec le lien reçu par e-mail.');
+        flash('success', 'Ton compte a été supprimé. Tes commandes restent consultables avec le lien reçu par e-mail.');
         redirect('/');
     }
 

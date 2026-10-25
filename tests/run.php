@@ -674,7 +674,33 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('seize migrations connues', count(App\Core\Migrator::files()) === 16);
+check('dix-sept migrations connues', count(App\Core\Migrator::files()) === 17);
+
+echo "Tutoiement (migration 017)\n";
+App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');
+App\Core\Settings::set('hero_subtitle', 'Mon sous-titre à moi');
+$oldPages = (function () {
+    $f = sys_get_temp_dir() . '/seed-old-' . getmypid() . '.php';
+    $src = shell_exec('git -C ' . escapeshellarg(BASE_PATH) . ' show 4885b66:database/seed.php');
+    file_put_contents($f, str_replace(' seed_size_guide(),', ' old_seed_size_guide(),', preg_replace('/^function (\w+)/m', 'function old_$1', $src)));
+    require $f;
+    unlink($f);
+    return array_column(old_seed_pages(), 'content', 'slug');
+})();
+Database::update('pages', ['content' => $oldPages['faq']], "slug = 'faq'");
+Database::update('pages', ['content' => $oldPages['a-propos'] . '<p>Ajout perso</p>'], "slug = 'a-propos'");
+$post = Database::one('SELECT id, created_at FROM journal_posts ORDER BY id LIMIT 1');
+Database::update('journal_posts', ['content' => '<p>Écrivez-nous</p>', 'updated_at' => $post['created_at']], 'id = :id', ['id' => $post['id']]);
+$edited = Database::one('SELECT id FROM journal_posts ORDER BY id DESC LIMIT 1');
+Database::update('journal_posts', ['content' => '<p>Mon texte</p>', 'updated_at' => '2030-01-01 00:00:00'], 'id = :id', ['id' => $edited['id']]);
+(require BASE_PATH . '/database/migrations/017_tutoiement.php')(Database::pdo(), Database::driver());
+App\Core\Settings::flush();
+check('réglage par défaut passé au tutoiement', setting('popup_title') === 'Rejoins le club ♡');
+check('réglage personnalisé conservé', setting('hero_subtitle') === 'Mon sous-titre à moi');
+check('FAQ d\'origine passée au tutoiement', str_contains((string) Database::value("SELECT content FROM pages WHERE slug = 'faq'"), 'Tu peux suivre ta commande'));
+check('page modifiée conservée', str_contains((string) Database::value("SELECT content FROM pages WHERE slug = 'a-propos'"), 'Ajout perso'));
+check('article de départ passé au tutoiement', !str_contains((string) Database::value('SELECT content FROM journal_posts WHERE id = ?', [$post['id']]), 'Écrivez-nous'));
+check('article modifié conservé', Database::value('SELECT content FROM journal_posts WHERE id = ?', [$edited['id']]) === '<p>Mon texte</p>');
 
 echo $failures ? "\n$failures échec(s)\n" : "\nTous les tests passent.\n";
 exit($failures ? 1 : 0);

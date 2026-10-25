@@ -31,7 +31,7 @@
         <?php endforeach; ?>
       </div>
     <?php else: ?>
-      <div class="empty"><p class="script-accent">bientôt de nouveaux articles</p><p>Revenez vite, ou rejoignez le club pour être prévenue.</p></div>
+      <div class="empty"><p class="script-accent">bientôt de nouveaux articles</p><p>Reviens vite, ou rejoins le club pour être prévenue.</p></div>
     <?php endif; ?>
   </div>
 </section>

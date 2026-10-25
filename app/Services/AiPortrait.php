@@ -144,14 +144,14 @@ final class AiPortrait
     public static function create(array $file): array
     {
         if (self::remaining() <= 0) {
-            throw new \RuntimeException('Vous avez atteint le nombre de créations offertes pour aujourd\'hui. Revenez demain, ou commandez l\'un de vos portraits déjà créés ♡');
+            throw new \RuntimeException('Tu as atteint le nombre de créations offertes pour aujourd\'hui. Reviens demain, ou commande l\'un de tes portraits déjà créés ♡');
         }
         $busy = Database::value(
             "SELECT COUNT(*) FROM ai_portraits WHERE session_hash = ? AND status IN ('queued','processing') AND created_at >= ?",
             [self::sessionHash(), date('Y-m-d H:i:s', time() - self::STALE_SECONDS)]
         );
         if ($busy) {
-            throw new \RuntimeException('Un portrait est déjà en cours de création, patientez quelques secondes.');
+            throw new \RuntimeException('Un portrait est déjà en cours de création, patiente quelques secondes.');
         }
         $photo = Upload::customerPhoto($file);
         $token = bin2hex(random_bytes(16));
@@ -293,9 +293,9 @@ final class AiPortrait
     {
         $error = mb_strtolower((string) $row['error']);
         if (preg_match('/safety|moderation|nsfw|content_policy|flagged/', $error)) {
-            return 'Cette photo n\'a pas pu être dessinée. Essayez une autre photo, avec votre cheval seul et bien visible.';
+            return 'Cette photo n\'a pas pu être dessinée. Essaie une autre photo, avec ton cheval seul et bien visible.';
         }
-        return 'Le dessin n\'a pas pu être réalisé cette fois-ci. Réessayez dans un instant : cette tentative ne compte pas dans vos créations.';
+        return 'Le dessin n\'a pas pu être réalisé cette fois-ci. Réessaie dans un instant : cette tentative ne compte pas dans tes créations.';
     }
 
     /** Explication de l'échec pour l'administratrice (jamais montrée aux clientes). */
@@ -413,7 +413,7 @@ final class AiPortrait
             return '';
         }
         if (strlen($year) !== 4 || (int) $year < 1950 || (int) $year > (int) date('Y')) {
-            throw new \InvalidArgumentException('Année de naissance invalide : saisissez 4 chiffres, par exemple 2014.');
+            throw new \InvalidArgumentException('Année de naissance invalide : saisis 4 chiffres, par exemple 2014.');
         }
         return $year;
     }

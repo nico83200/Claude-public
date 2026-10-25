@@ -66,15 +66,15 @@ final class Upload
     {
         if ($file['error'] !== UPLOAD_ERR_OK) {
             throw new \RuntimeException($file['error'] === UPLOAD_ERR_INI_SIZE || $file['error'] === UPLOAD_ERR_FORM_SIZE
-                ? 'Votre photo est trop lourde (20 Mo maximum).'
+                ? 'Ta photo est trop lourde (20 Mo maximum).'
                 : 'L\'envoi de la photo a échoué, merci de réessayer.');
         }
         if ($file['size'] > 20 * 1024 * 1024) {
-            throw new \RuntimeException('Votre photo est trop lourde (20 Mo maximum).');
+            throw new \RuntimeException('Ta photo est trop lourde (20 Mo maximum).');
         }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-            throw new \RuntimeException('Format non pris en charge : envoyez une photo JPG, PNG ou WebP.');
+            throw new \RuntimeException('Format non pris en charge : envoie une photo JPG, PNG ou WebP.');
         }
         $img = @imagecreatefromstring((string) file_get_contents($file['tmp_name']));
         if (!$img) {

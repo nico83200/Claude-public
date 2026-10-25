@@ -45,7 +45,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
     <div class="section-head section-head-center">
       <p class="script-accent">nos collections</p>
       <?php $nbCollections = count($categories); ?>
-      <h2><?= $nbCollections > 1 ? e(number_words($nbCollections, true)) . ' façons' : 'Une façon' ?> de <em>vivre votre passion</em></h2>
+      <h2><?= $nbCollections > 1 ? e(number_words($nbCollections, true)) . ' façons' : 'Une façon' ?> de <em>vivre ta passion</em></h2>
     </div>
     <div class="collections">
       <?php
@@ -90,7 +90,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
     <div>
       <p class="script-accent">nouveau au club</p>
       <h2>Son portrait aquarelle, <em>en quelques secondes</em></h2>
-      <p class="lead">Envoyez sa photo : notre IA la redessine dans notre style « Encre &amp; Poudre », un trait fin bordeaux rehaussé d'aquarelle poudrée. Ajoutez son nom et son année de naissance, choisissez son cadre, et découvrez l'aperçu avant de commander.</p>
+      <p class="lead">Envoie sa photo : notre IA la redessine dans notre style « Encre &amp; Poudre », un trait fin bordeaux rehaussé d'aquarelle poudrée. Ajoute son nom et son année de naissance, choisis son cadre, et découvre l'aperçu avant de commander.</p>
       <ul class="feature-checks">
         <li><?= icon('check', 16) ?> Aperçu offert, sans engagement</li>
         <li><?= icon('check', 16) ?> Imprimé en haute définition sur papier d'art</li>
@@ -112,7 +112,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
       <h2>Une pièce unique, <em>à son image</em></h2>
       <p class="lead">Parce qu'il n'y a qu'un seul cheval comme le vôtre, chaque création se personnalise en quelques secondes, avec un aperçu en direct.</p>
       <div class="perso-ways">
-        <?php foreach (['ai_portrait' => ['Son portrait aquarelle', 'sparkle', 'Redessiné par IA en quelques secondes, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après votre photo']] as $mode => [$title, $ic, $desc]): ?>
+        <?php foreach (['ai_portrait' => ['Son portrait aquarelle', 'sparkle', 'Redessiné par IA en quelques secondes, encadré'], 'text' => ['Son nom', 'brush', 'En écriture manuscrite, sur sweat, casquette…'], 'photo' => ['Sa photo', 'heart', 'Cadrée dans notre arche signature'], 'portrait' => ['Son portrait illustré', 'sparkle', 'Dessiné à la main d\'après ta photo']] as $mode => [$title, $ic, $desc]): ?>
           <?php if (isset($modes[$mode])): ?>
             <a class="perso-way" href="<?= e($mode === 'ai_portrait' ? url('portrait-aquarelle') : url('produit/' . $modes[$mode]['slug'])) ?>">
               <span class="ic"><?= icon($ic, 22) ?></span>
@@ -176,9 +176,9 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
         <img class="club-logo" src="<?= e(url('assets/img/brand/logo-signature.svg')) ?>" alt="Crinière Club — le club des passionnées" width="320" height="128">
       </div>
       <div>
-        <h2>Rejoignez <em>le club</em></h2>
+        <h2>Rejoins <em>le club</em></h2>
         <?php if (App\Services\WelcomeOffer::active()): ?>
-          <p class="club-offer"><?= e(App\Services\WelcomeOffer::label()) ?> sur votre première commande</p>
+          <p class="club-offer"><?= e(App\Services\WelcomeOffer::label()) ?> sur ta première commande</p>
         <?php endif; ?>
         <p>Nouveautés en avant-première, éditions limitées, idées cadeaux et petites surprises réservées aux membres. Pas plus d'un ou deux e-mails par mois.</p>
         <form action="<?= e(url('newsletter')) ?>" method="post" data-newsletter>
@@ -186,7 +186,7 @@ $usp = array_filter(array_map('trim', explode('|', (string) setting('usp_marquee
           <input type="hidden" name="source" value="footer">
           <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
           <label class="sr-only" for="club-email">Adresse e-mail</label>
-          <div class="input-group"><input id="club-email" type="email" name="email" required placeholder="votre@email.fr" autocomplete="email"><button class="btn btn-primary" type="submit">Je rejoins le club</button></div>
+          <div class="input-group"><input id="club-email" type="email" name="email" required placeholder="ton@email.fr" autocomplete="email"><button class="btn btn-primary" type="submit">Je rejoins le club</button></div>
           <label class="checkbox small"><input type="checkbox" name="consent" value="1" required> <span>J'accepte de recevoir la newsletter (désinscription en un clic).</span></label>
           <p class="small" data-newsletter-message role="status"></p>
         </form>

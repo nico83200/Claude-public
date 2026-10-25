@@ -18,7 +18,7 @@ $geo = [
 ?>
 <div class="ai-stage" data-ai-stage data-geo="<?= e(json_encode($geo)) ?>" style="--frame: <?= e($firstColor ?: '#231f20') ?>" <?= empty($visible) ? 'hidden' : '' ?>>
   <div class="ai-frame" data-ai-frame>
-    <svg viewBox="0 0 <?= $W ?> <?= $H ?>" role="img" aria-label="Aperçu de votre portrait encadré" data-ai-svg>
+    <svg viewBox="0 0 <?= $W ?> <?= $H ?>" role="img" aria-label="Aperçu de ton portrait encadré" data-ai-svg>
       <defs>
         <filter id="ai-soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="55"/></filter>
         <mask id="ai-feather" maskUnits="userSpaceOnUse" x="0" y="0" width="<?= $W ?>" height="<?= $H ?>">
@@ -33,5 +33,5 @@ $geo = [
       <rect data-ai-rule="1" y="0" width="<?= $geo['ruleLen'] ?>" height="<?= $geo['ruleThick'] ?>" fill="<?= AiPortrait::TAUPE ?>"/>
     </svg>
   </div>
-  <p class="ai-stage-note" data-ai-stage-note><?= icon('sparkle', 13) ?> Exemple de style · votre portrait apparaîtra ici</p>
+  <p class="ai-stage-note" data-ai-stage-note><?= icon('sparkle', 13) ?> Exemple de style · ton portrait apparaîtra ici</p>
 </div>

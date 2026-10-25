@@ -210,7 +210,7 @@ function verify_csrf(): void
 {
     $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!is_string($token) || !hash_equals(csrf_token(), $token)) {
-        abort(419, 'Votre session a expiré. Merci de recharger la page et de réessayer.');
+        abort(419, 'Ta session a expiré. Recharge la page et réessaie.');
     }
 }
 

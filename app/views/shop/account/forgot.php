@@ -1,7 +1,7 @@
 <section class="section">
   <div class="container narrow">
     <h1>Mot de passe <em>oublié</em></h1>
-    <p class="lead">Indiquez l'adresse e-mail de votre compte : nous vous envoyons un lien pour en choisir un nouveau.</p>
+    <p class="lead">Indique l'adresse e-mail de ton compte : on t'envoie un lien pour en choisir un nouveau.</p>
     <form action="<?= e(url('compte/mot-de-passe-oublie')) ?>" method="post" class="form-card">
       <?= csrf_field() ?>
       <div class="field"><label for="email">Adresse e-mail</label><input id="email" type="email" name="email" required autocomplete="email" autofocus></div>

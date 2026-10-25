@@ -1,10 +1,10 @@
 <?php /** Contenu du mini-panier (chargé en AJAX) */ ?>
 <div class="drawer-body">
-  <?php if (!empty($justAdded)): ?><p class="drawer-added"><?= icon('check', 18) ?> Ajouté à votre panier</p><?php endif; ?>
+  <?php if (!empty($justAdded)): ?><p class="drawer-added"><?= icon('check', 18) ?> Ajouté à ton panier</p><?php endif; ?>
   <?php if (!$items): ?>
     <div class="drawer-empty">
-      <p class="script-accent">Votre panier est vide</p>
-      <p class="muted">Et si vous commenciez par nos pièces du Club ?</p>
+      <p class="script-accent">Ton panier est vide</p>
+      <p class="muted">Et si tu commençais par nos pièces du Club ?</p>
       <a class="btn btn-primary" href="<?= e(url('boutique')) ?>">Découvrir la boutique</a>
     </div>
   <?php else: ?>

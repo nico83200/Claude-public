@@ -6,7 +6,7 @@ $remaining = AiPortrait::remaining();
 $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
 ?>
 <div class="perso-box ai-box" data-ai-box data-ai-url="<?= e(url('portrait-ia')) ?>" data-product-id="<?= (int) $product['id'] ?>">
-  <p class="perso-title"><?= icon('sparkle', 16) ?> Votre portrait « Encre &amp; Poudre » <span class="pill pill-blush">Aperçu offert</span></p>
+  <p class="perso-title"><?= icon('sparkle', 16) ?> Ton portrait « Encre &amp; Poudre » <span class="pill pill-blush">Aperçu offert</span></p>
 
   <div class="ai-step" data-ai-start>
     <p class="ai-step-title"><span class="ai-num">1</span> Sa plus belle photo</p>
@@ -14,7 +14,7 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
       <input type="file" accept="image/jpeg,image/png,image/webp" data-ai-photo>
       <span class="photo-thumb" data-photo-thumb hidden></span>
       <span class="photo-text">
-        <strong data-photo-label>Ajoutez la photo de votre cheval</strong>
+        <strong data-photo-label>Ajoute la photo de ton cheval</strong>
         <small>Tête bien visible, cheval seul de préférence · JPG ou PNG, 20 Mo max.</small>
       </span>
     </label>
@@ -24,7 +24,7 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
     <p class="ai-hint" data-ai-remaining data-per-day="<?= $perDay ?>">
       <?= $remaining > 0
         ? 'Environ 30 secondes · ' . $remaining . ' création' . ($remaining > 1 ? 's' : '') . ' offerte' . ($remaining > 1 ? 's' : '') . ' aujourd\'hui'
-        : 'Vous avez utilisé vos créations offertes du jour : revenez demain ♡' ?></p>
+        : 'Tu as utilisé tes créations offertes du jour : reviens demain ♡' ?></p>
   </div>
 
   <div class="ai-progress" data-ai-progress role="status" aria-live="polite" hidden>
@@ -33,10 +33,10 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
   </div>
 
   <div class="ai-result" data-ai-result hidden>
-    <img data-ai-thumb alt="Votre portrait" width="64" height="85">
+    <img data-ai-thumb alt="Ton portrait" width="64" height="85">
     <div>
       <strong>Son portrait est prêt ♡</strong>
-      <span class="small muted">Il vous plaît ? Ajoutez son nom ci-dessous.</span>
+      <span class="small muted">Il te plaît ? Ajoute son nom ci-dessous.</span>
       <button type="button" class="link-button small" data-ai-retry>Créer une autre version</button>
     </div>
   </div>
@@ -58,7 +58,7 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
       </div>
       <?php endif; ?>
     </div>
-    <small><span data-char-count>0</span>/<?= (int) $cfg['max_length'] ?> caractères · imprimé exactement comme saisi, vérifiez l'orthographe ♡</small>
+    <small><span data-char-count>0</span>/<?= (int) $cfg['max_length'] ?> caractères · imprimé exactement comme saisi, vérifie l'orthographe ♡</small>
   </div>
 </div>
-<noscript><p class="flash flash-error">Activez JavaScript pour créer le portrait de votre cheval.</p></noscript>
+<noscript><p class="flash flash-error">Active JavaScript pour créer le portrait de ton cheval.</p></noscript>

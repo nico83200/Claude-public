@@ -150,7 +150,7 @@ final class Reviews
         );
         foreach ($orders as $order) {
             Database::update('orders', ['review_requested_at' => now()], 'id = :id', ['id' => $order['id']]);
-            Mailer::sendTemplate($order['email'], 'Votre avis compte pour nous 💕', 'review_request', [
+            Mailer::sendTemplate($order['email'], 'Ton avis compte pour nous 💕', 'review_request', [
                 'order' => $order,
                 'items' => self::orderProducts($order),
                 'link'  => self::reviewUrl($order),

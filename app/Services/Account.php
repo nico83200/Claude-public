@@ -49,7 +49,7 @@ final class Account
     public static function validatePassword(string $password): ?string
     {
         if (mb_strlen($password) < self::MIN_PASSWORD) {
-            return 'Votre mot de passe doit contenir au moins ' . self::MIN_PASSWORD . ' caractères.';
+            return 'Ton mot de passe doit contenir au moins ' . self::MIN_PASSWORD . ' caractères.';
         }
         if (mb_strlen($password) > 200) {
             return 'Ce mot de passe est trop long.';
@@ -68,7 +68,7 @@ final class Account
             throw new \RuntimeException($error);
         }
         if (self::findByEmail($email)) {
-            throw new \RuntimeException('Un compte existe déjà avec cette adresse. Connectez-vous, ou utilisez « Mot de passe oublié ».');
+            throw new \RuntimeException('Un compte existe déjà avec cette adresse. Connecte-toi, ou utilise « Mot de passe oublié ».');
         }
         $id = Database::insert('customers', [
             'email'             => $email,
@@ -170,7 +170,7 @@ final class Account
     public static function sendVerification(array $customer): bool
     {
         $token = self::issueToken($customer, 'verify', 7 * 86400);
-        return Mailer::sendTemplate($customer['email'], 'Confirmez votre adresse e-mail', 'account_verify', [
+        return Mailer::sendTemplate($customer['email'], 'Confirme ton adresse e-mail', 'account_verify', [
             'name' => self::firstName($customer),
             'link' => url('compte/confirmer/' . $token),
         ]);
@@ -197,7 +197,7 @@ final class Account
             return;
         }
         $token = self::issueToken($customer, 'reset', 3600);
-        Mailer::sendTemplate($customer['email'], 'Réinitialiser votre mot de passe', 'account_reset', [
+        Mailer::sendTemplate($customer['email'], 'Réinitialise ton mot de passe', 'account_reset', [
             'name' => self::firstName($customer),
             'link' => url('compte/nouveau-mot-de-passe/' . $token),
         ]);
@@ -212,7 +212,7 @@ final class Account
     {
         $customer = self::consumeToken($token, 'reset');
         if (!$customer) {
-            throw new \RuntimeException('Ce lien a expiré. Demandez-en un nouveau.');
+            throw new \RuntimeException('Ce lien a expiré. Demandes-en un nouveau.');
         }
         if ($error = self::validatePassword($password)) {
             throw new \RuntimeException($error);

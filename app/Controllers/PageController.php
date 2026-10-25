@@ -35,7 +35,7 @@ final class PageController
 
     public function contact(): void
     {
-        view('shop/contact', ['pageTitle' => 'Contact', 'metaDescription' => 'Une question sur un article ou une commande ? Écrivez-nous.', 'canonical' => url('contact')]);
+        view('shop/contact', ['pageTitle' => 'Contact', 'metaDescription' => 'Une question sur un article ou une commande ? Écris-nous.', 'canonical' => url('contact')]);
     }
 
     public function sendContact(): void
@@ -51,15 +51,15 @@ final class PageController
 
         // Anti-spam : champ piège + délai minimum + limite par session.
         if ((string) input('website') !== '' || (time() - (int) ($_SESSION['contact_last'] ?? 0)) < 60) {
-            flash('error', 'Merci de patienter avant d\'envoyer un nouveau message.');
+            flash('error', 'Patiente un peu avant d\'envoyer un nouveau message.');
             redirect('contact');
         }
         if ($data['name'] === '' || !filter_var($data['email'], FILTER_VALIDATE_EMAIL) || mb_strlen($data['message']) < 10) {
-            flash('error', 'Merci de renseigner votre nom, un e-mail valide et un message (10 caractères minimum).');
+            flash('error', 'Indique ton nom, un e-mail valide et un message (10 caractères minimum).');
             redirect('contact');
         }
         if (input('consent') !== '1') {
-            flash('error', 'Merci d\'accepter le traitement de vos données pour que nous puissions vous répondre.');
+            flash('error', 'Accepte le traitement de tes données pour que nous puissions te répondre.');
             redirect('contact');
         }
 
@@ -67,7 +67,7 @@ final class PageController
         Mailer::notifyAdmin('Nouveau message : ' . ($data['subject'] ?: 'contact'), 'admin_contact', ['data' => $data]);
         $_SESSION['contact_last'] = time();
         remember_input([]);
-        flash('success', 'Merci ! Votre message a bien été envoyé, nous vous répondons sous 48 h ouvrées.');
+        flash('success', 'Merci ! Ton message a bien été envoyé, on te répond sous 48 h ouvrées.');
         redirect('contact');
     }
 
@@ -89,11 +89,11 @@ final class PageController
         $code = \App\Services\WelcomeOffer::active() ? \App\Services\WelcomeOffer::codeFor($email) : null;
         $label = \App\Services\WelcomeOffer::label();
         if ($isNew && $code) {
-            Mailer::sendTemplate($email, 'Votre cadeau de bienvenue 🎁', 'welcome', ['code' => $code, 'discount' => $label]);
+            Mailer::sendTemplate($email, 'Ton cadeau de bienvenue 🎁', 'welcome', ['code' => $code, 'discount' => $label]);
         }
         $message = $code
-            ? 'Bienvenue au club ! Votre code ' . $label . ' : ' . $code . ' (envoyé aussi par e-mail, valable une fois).'
-            : 'Bienvenue au club ! Vous recevrez bientôt nos nouveautés.';
+            ? 'Bienvenue au club ! Ton code ' . $label . ' : ' . $code . ' (envoyé aussi par e-mail, valable une fois).'
+            : 'Bienvenue au club ! Tu recevras bientôt nos nouveautés.';
         if ($ajax) {
             json_response(['ok' => true, 'message' => $message, 'code' => $code]);
         }

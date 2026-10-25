@@ -154,7 +154,7 @@ final class OrderService
 
         $items = self::items((int) $order['id']);
         $mailData = ['order' => $order, 'items' => $items, 'address' => json_field($order['shipping_address'])];
-        Mailer::sendTemplate($order['email'], 'Confirmation de votre commande ' . $order['number'], 'order_confirmation', $mailData);
+        Mailer::sendTemplate($order['email'], 'Confirmation de ta commande ' . $order['number'], 'order_confirmation', $mailData);
         Mailer::notifyAdmin('Nouvelle commande ' . $order['number'] . ' — ' . money($order['total']), 'admin_new_order', $mailData);
 
         if ($order['newsletter_optin'] && $order['email']) {
@@ -384,7 +384,7 @@ final class OrderService
             ],
             'packing_slip' => $packingSlip,
         ] + (!empty($order['is_gift']) ? ['gift' => array_filter([
-            'subject' => mb_substr($order['gift_to'] ? 'Pour ' . $order['gift_to'] : 'Un cadeau pour vous', 0, 200),
+            'subject' => mb_substr($order['gift_to'] ? 'Pour ' . $order['gift_to'] : 'Un cadeau pour toi', 0, 200),
             'message' => mb_substr((string) ($order['gift_message'] ?: 'Avec toute notre affection ♡'), 0, 200),
         ])] : []);
     }
@@ -456,7 +456,7 @@ final class OrderService
         $order = self::find((int) $order['id']);
         self::event((int) $order['id'], 'shipped', 'Colis expédié' . ($order['tracking_number'] ? ' — suivi ' . $order['tracking_number'] : '') . '.');
         if ($order['email']) {
-            Mailer::sendTemplate($order['email'], 'Votre commande ' . $order['number'] . ' est en route 🐎', 'order_shipped', ['order' => $order, 'items' => self::items((int) $order['id'])]);
+            Mailer::sendTemplate($order['email'], 'Ta commande ' . $order['number'] . ' est en route 🐎', 'order_shipped', ['order' => $order, 'items' => self::items((int) $order['id'])]);
         }
     }
 
@@ -536,7 +536,7 @@ final class OrderService
 
         $order = self::find($orderId);
         if ($notify && $order['email'] && $order['paid_at']) {
-            Mailer::sendTemplate($order['email'], 'Annulation de votre commande ' . $order['number'], 'order_canceled', [
+            Mailer::sendTemplate($order['email'], 'Annulation de ta commande ' . $order['number'], 'order_canceled', [
                 'order'    => $order,
                 'items'    => self::items($orderId),
                 'refunded' => $refunded || $order['status'] === 'refunded',
@@ -619,7 +619,7 @@ final class OrderService
             return false;
         }
         Database::update('orders', ['recovery_sent_at' => now()], 'id = :id', ['id' => $orderId]);
-        Mailer::sendTemplate((string) $order['email'], 'Votre panier vous attend ♡', 'cart_recovery', [
+        Mailer::sendTemplate((string) $order['email'], 'Ton panier t\'attend ♡', 'cart_recovery', [
             'order' => $order,
             'items' => $items,
             'link'  => self::recoveryUrl($order),

@@ -1,8 +1,8 @@
 <section class="page-hero page-hero-sm">
   <div class="container narrow center">
     <p class="eyebrow">Commande <?= e($order['number']) ?></p>
-    <h1>Votre avis <em>compte</em></h1>
-    <p class="lead">Notez vos articles en quelques secondes. Merci de partager votre expérience avec la communauté !</p>
+    <h1>Ton avis <em>compte</em></h1>
+    <p class="lead">Note tes articles en quelques secondes. Merci de partager ton expérience avec la communauté !</p>
   </div>
 </section>
 <section class="section section-tight">
@@ -16,7 +16,7 @@
           <div class="review-item-body">
             <h2 class="h4"><?= e($p['product_name']) ?></h2>
             <?php if ($p['review_id']): ?>
-              <p class="muted">✓ Merci, votre avis a bien été reçu.</p>
+              <p class="muted">✓ Merci, ton avis a bien été reçu.</p>
             <?php else: ?>
               <fieldset class="star-input">
                 <legend class="sr-only">Note pour <?= e($p['product_name']) ?></legend>
@@ -38,7 +38,7 @@
         <input id="author_name" name="author_name" value="<?= e($author) ?>" maxlength="80">
       </div>
       <button class="btn btn-primary btn-lg" type="submit">Envoyer mon avis</button>
-      <p class="muted small mt">Les avis sont publiés avec votre prénom et l'initiale de votre nom, accompagnés de la mention « Achat vérifié ». Ils sont modérés uniquement pour écarter les contenus illicites ou hors sujet ; les avis négatifs sont publiés au même titre que les autres.</p>
+      <p class="muted small mt">Les avis sont publiés avec ton prénom et l'initiale de ton nom, accompagnés de la mention « Achat vérifié ». Ils sont modérés uniquement pour écarter les contenus illicites ou hors sujet ; les avis négatifs sont publiés au même titre que les autres.</p>
     </form>
   </div>
 </section>

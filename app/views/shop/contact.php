@@ -1,7 +1,7 @@
 <section class="page-hero page-hero-sm">
   <div class="container narrow">
     <h1>Contact</h1>
-    <p class="lead">Une question sur une taille, une personnalisation, une commande pour votre club ? Nous répondons sous 48 h ouvrées.</p>
+    <p class="lead">Une question sur une taille, une personnalisation, une commande pour ton club ? On te répond sous 48 h ouvrées.</p>
   </div>
 </section>
 <section class="section section-tight">

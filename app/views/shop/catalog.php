@@ -105,7 +105,7 @@ $activeFilters = (int) $filters['personalizable'] + (int) (bool) $filters['max_p
     <?php else: ?>
       <div class="empty">
         <p class="script-accent">Oups…</p>
-        <p>Aucun article ne correspond à votre recherche.</p>
+        <p>Aucun article ne correspond à ta recherche.</p>
         <a class="btn btn-primary" href="<?= e(url('boutique')) ?>">Voir toute la boutique</a>
       </div>
     <?php endif; ?>

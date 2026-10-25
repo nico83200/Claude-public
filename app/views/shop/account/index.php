@@ -16,7 +16,7 @@ $first = Account::firstName($customer);
 
     <?php if (!$customer['email_verified_at']): ?>
       <div class="account-notice">
-        <span>✉️ Confirmez votre adresse <strong><?= e($customer['email']) ?></strong> (lien envoyé par e-mail) pour retrouver ici vos commandes passées avant la création du compte.</span>
+        <span>✉️ Confirme ton adresse <strong><?= e($customer['email']) ?></strong> (lien envoyé par e-mail) pour retrouver ici tes commandes passées avant la création du compte.</span>
         <form action="<?= e(url('compte/confirmation')) ?>" method="post"><?= csrf_field() ?><button class="btn btn-ghost btn-sm" type="submit">Renvoyer le lien</button></form>
       </div>
     <?php endif; ?>
@@ -37,7 +37,7 @@ $first = Account::firstName($customer);
           </div>
         <?php else: ?>
           <div class="account-empty">
-            <p>Pas encore de commande… votre cheval mérite bien un petit cadeau !</p>
+            <p>Pas encore de commande… ton cheval mérite bien un petit cadeau !</p>
             <a class="btn btn-primary" href="<?= e(url('boutique')) ?>">Découvrir la boutique</a>
           </div>
         <?php endif; ?>
@@ -56,14 +56,14 @@ $first = Account::firstName($customer);
           <h2>Mot de passe</h2>
           <div class="field"><label for="acc-current">Mot de passe actuel</label><input id="acc-current" type="password" name="current_password" required autocomplete="current-password"></div>
           <div class="field"><label for="acc-new">Nouveau mot de passe</label><input id="acc-new" type="password" name="password" required minlength="<?= Account::MIN_PASSWORD ?>" autocomplete="new-password"></div>
-          <div class="field"><label for="acc-new2">Confirmez</label><input id="acc-new2" type="password" name="password_confirm" required minlength="<?= Account::MIN_PASSWORD ?>" autocomplete="new-password"></div>
+          <div class="field"><label for="acc-new2">Confirme</label><input id="acc-new2" type="password" name="password_confirm" required minlength="<?= Account::MIN_PASSWORD ?>" autocomplete="new-password"></div>
           <button class="btn btn-ghost btn-sm" type="submit">Changer mon mot de passe</button>
         </form>
         <details class="account-danger">
           <summary>Supprimer mon compte</summary>
           <form action="<?= e(url('compte/supprimer')) ?>" method="post" class="form-card" style="margin-top:.8rem">
             <?= csrf_field() ?>
-            <p class="small">Votre compte sera définitivement supprimé. Vos commandes restent accessibles avec le lien reçu par e-mail.</p>
+            <p class="small">Ton compte sera définitivement supprimé. Tes commandes restent accessibles avec le lien reçu par e-mail.</p>
             <div class="field"><label for="acc-del">Mot de passe</label><input id="acc-del" type="password" name="current_password" required autocomplete="current-password"></div>
             <button class="btn btn-ghost btn-sm" type="submit">Supprimer définitivement</button>
           </form>

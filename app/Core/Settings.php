@@ -13,12 +13,12 @@ final class Settings
         // Boutique
         'shop_name'        => 'Crinière Club',
         'shop_tagline'     => 'Le club des passionnées',
-        'announcement'     => 'Nouveau : son portrait aquarelle en quelques secondes ✦|Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour vous',
+        'announcement'     => 'Nouveau : son portrait aquarelle en quelques secondes ✦|Livraison offerte dès 69 € d\'achat ♡|Personnalisation offerte : son nom, sa photo, son portrait|Chaque pièce est imprimée rien que pour toi',
         'hero_eyebrow'     => 'Bienvenue au club',
         'hero_title'       => 'Pour celles qui vivent *au rythme du galop*',
-        'hero_subtitle'    => 'Vêtements, accessoires et cadeaux pour cavalières, à porter fièrement ou à personnaliser avec le nom, la photo ou le portrait de votre cheval.',
+        'hero_subtitle'    => 'Vêtements, accessoires et cadeaux pour cavalières, à porter fièrement ou à personnaliser avec le nom, la photo ou le portrait de ton cheval.',
         'usp_marquee'      => 'Le club des passionnées|Son nom, sa photo, son portrait|Imprimé à la demande en Europe|Livraison offerte dès 69 €|Paiement 100 % sécurisé',
-        'home_meta_description' => 'Crinière Club, le club des passionnées : vêtements et accessoires d\'équitation pour cavalières, cadeaux personnalisés avec le nom, la photo ou le portrait de votre cheval.',
+        'home_meta_description' => 'Crinière Club, le club des passionnées : vêtements et accessoires d\'équitation pour cavalières, cadeaux personnalisés avec le nom, la photo ou le portrait de ton cheval.',
         'gift_max_price'   => '3000',
         'contact_email'    => '',
         'contact_phone'    => '',
@@ -55,11 +55,11 @@ final class Settings
         'popup_delay'      => '15',
         'ai_prompt'        => '',      // vide = prompt d'origine du style « Encre & Poudre »
         'christmas_banner' => '1',      // compte à rebours de Noël dans le bandeau (novembre-décembre)
-        'cart_recovery_enabled' => '1', // e-mail « votre panier vous attend » (avec consentement)
+        'cart_recovery_enabled' => '1', // e-mail « ton panier t'attend » (avec consentement)
         'welcome_amount'   => '500',   // cadeau de bienvenue en centimes : code personnel à usage unique créé dans Stripe
         'welcome_code'     => '',
         'welcome_discount' => '5 € offerts',
-        'popup_title'      => 'Rejoignez le club ♡',
+        'popup_title'      => 'Rejoins le club ♡',
 
         // Avis clients
         'reviews_enabled'      => '1',
@@ -72,7 +72,7 @@ final class Settings
         // Commandes
         'order_prefix'          => 'CC',
         'pending_order_ttl_hours' => '48',
-        'packing_slip_message'  => 'Merci d\'avoir rejoint le club ! Votre article a été imprimé rien que pour vous. À très vite aux écuries ♡ Crinière Club',
+        'packing_slip_message'  => 'Merci d\'avoir rejoint le club ! Ton article a été imprimé rien que pour toi. À très vite aux écuries ♡ Crinière Club',
     ];
 
     private static ?array $cache = null;

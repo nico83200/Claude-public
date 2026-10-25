@@ -7,10 +7,10 @@
     <?php if ($item['text'] !== ''): ?><span class="personalized-tag"><?= icon('sparkle', 13) ?> <?= e($item['personalization_label']) ?> : <strong><?= e($item['text']) ?></strong></span><?php endif; ?>
     <?php if (!empty($item['year'])): ?><span class="personalized-tag">Année : <strong><?= e($item['year']) ?></strong></span><?php endif; ?>
     <?php if (!empty($item['portrait'])): ?>
-      <span class="personalized-tag"><?= icon('brush', 13) ?> Votre portrait « Encre &amp; Poudre »</span>
+      <span class="personalized-tag"><?= icon('brush', 13) ?> Ton portrait « Encre &amp; Poudre »</span>
     <?php endif; ?>
     <?php if (!empty($item['photo'])): ?>
-      <span class="personalized-tag photo-tag"><img src="<?= e(url('panier/photo/' . $item['photo'])) ?>" alt="Votre photo" width="28" height="28"> <?= $item['mode'] === 'portrait' ? 'Photo pour le portrait' : 'Votre photo' ?></span>
+      <span class="personalized-tag photo-tag"><img src="<?= e(url('panier/photo/' . $item['photo'])) ?>" alt="Ta photo" width="28" height="28"> <?= $item['mode'] === 'portrait' ? 'Photo pour le portrait' : 'Ta photo' ?></span>
     <?php endif; ?>
     <?php if (!$compact): ?><span class="muted small"><?= e(money($item['unit_price'])) ?> l'unité</span><?php endif; ?>
   </div>
