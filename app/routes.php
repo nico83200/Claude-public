@@ -143,6 +143,8 @@ $r->get('/admin/mise-a-jour', [Admin\UpdateController::class, 'index']);
 $r->post('/admin/mise-a-jour', [Admin\UpdateController::class, 'upload']);
 $r->get('/admin/mise-a-jour/finaliser', [Admin\UpdateController::class, 'finalize']);
 $r->post('/admin/mise-a-jour/migrations', [Admin\UpdateController::class, 'migrate']);
+$r->post('/admin/mise-a-jour/sauvegarde-base', [Admin\UpdateController::class, 'backupDatabase']);
+$r->get('/admin/mise-a-jour/sauvegarde-base/{name}', [Admin\UpdateController::class, 'downloadDatabase']);
 $r->post('/admin/mise-a-jour/restaurer/{name}', [Admin\UpdateController::class, 'restore']);
 $r->get('/admin/integrations', [Admin\SettingsController::class, 'integrations']);
 $r->post('/admin/integrations/{action}', [Admin\SettingsController::class, 'integrationAction']);

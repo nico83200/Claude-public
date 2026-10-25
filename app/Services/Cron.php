@@ -68,6 +68,8 @@ final class Cron
                 . Upload::cleanupCustomerPhotos() . ' photo(s) cliente(s) expirée(s) supprimée(s)';
         });
 
+        $step('Sauvegarde de la base', static fn (): string => DbBackup::weekly());
+
         $step('Nettoyage', static function (): string {
             $limit = date('Y-m-d H:i:s', time() - 30 * 86400);
             Database::query('DELETE FROM webhook_events WHERE created_at < ?', [$limit]);
@@ -78,6 +80,43 @@ final class Cron
         flock($lock, LOCK_UN);
         fclose($lock);
         @file_put_contents(STORAGE_PATH . '/cache/cron-last-run', date('c'));
+        @unlink(STORAGE_PATH . '/cache/cron-alert-sent');
         return $report;
+    }
+
+    public const ALERT_AFTER = 3 * 3600;
+
+    /** Date de la dernière exécution (null si jamais). */
+    public static function lastRun(): ?int
+    {
+        $last = @file_get_contents(STORAGE_PATH . '/cache/cron-last-run');
+        return $last ? (strtotime($last) ?: null) : null;
+    }
+
+    /**
+     * Surveillance : si la tâche planifiée ne tourne plus depuis 3 h (ou n'a jamais tourné un jour
+     * après l'installation), l'administratrice est prévenue par e-mail, au plus une fois par jour.
+     * Appelée à la fin de chaque requête : quelques lectures de fichiers seulement.
+     */
+    public static function watchdog(): void
+    {
+        $last = self::lastRun();
+        $reference = $last ?? (int) @filemtime(BASE_PATH . '/config/config.php');
+        if (!$reference || $reference > time() - ($last ? self::ALERT_AFTER : 86400)) {
+            return;
+        }
+        $flag = STORAGE_PATH . '/cache/cron-alert-sent';
+        if (is_file($flag) && filemtime($flag) > time() - 86400) {
+            return;
+        }
+        @touch($flag);
+        Mailer::notifyAdmin('⚠️ La tâche planifiée ne tourne plus', 'admin_alert', [
+            'title'   => 'La tâche planifiée (cron) ne s\'exécute plus',
+            'message' => ($last ? 'Dernière exécution le ' . date('d/m/Y à H:i', $last) . '.' : 'Elle n\'a encore jamais été exécutée.')
+                . ' Sans elle, les commandes en échec ne sont pas renvoyées à Printful, les demandes d\'avis et relances de paniers ne partent pas, et la sauvegarde hebdomadaire n\'est pas faite.'
+                . ' Vérifiez la tâche dans hPanel › Avancé › Tâches Cron, ou lancez-la depuis Admin › Intégrations.',
+            'order'   => null,
+        ]);
+        log_message('cron', 'Alerte envoyée : tâche planifiée inactive');
     }
 }

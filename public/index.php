@@ -50,6 +50,13 @@ try {
         exit;
     }
 
+    // Surveillance de la tâche planifiée, une fois la réponse envoyée
+    register_shutdown_function(static function (): void {
+        try {
+            App\Services\Cron::watchdog();
+        } catch (\Throwable) {
+        }
+    });
     $router = require APP_PATH . '/routes.php';
     $router->dispatch($method, $path);
 } catch (\Throwable $e) {

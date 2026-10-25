@@ -35,8 +35,27 @@
 </section>
 <?php endif; ?>
 
+<section class="card" id="base">
+  <div class="card-head">
+    <h2>Sauvegardes de la base de données</h2>
+    <form method="post" action="<?= e(url('admin/mise-a-jour/sauvegarde-base')) ?>"><?= csrf_field() ?><button class="btn">Sauvegarder maintenant</button></form>
+  </div>
+  <p class="muted small">Commandes, clientes, produits, réglages… Une copie est faite automatiquement avant chaque mise à jour et chaque semaine ; les 8 dernières sont conservées. Fichier .sql.gz à importer dans phpMyAdmin (Hostinger) en cas de besoin. Il contient vos clés d'intégration : gardez-le en lieu sûr.</p>
+  <?php if (!$dbBackups): ?><p class="muted">Aucune sauvegarde pour l'instant.</p><?php endif; ?>
+  <table class="table">
+    <?php foreach ($dbBackups as $b): ?>
+      <tr>
+        <td><code><?= e($b['name']) ?></code></td>
+        <td><?= e(date('d/m/Y à H:i', $b['date'])) ?></td>
+        <td><?= e(number_format($b['size'] / 1024, 0, ',', ' ')) ?> Ko</td>
+        <td class="right"><a class="btn" href="<?= e(url('admin/mise-a-jour/sauvegarde-base/' . rawurlencode($b['name']))) ?>">Télécharger</a></td>
+      </tr>
+    <?php endforeach; ?>
+  </table>
+</section>
+
 <section class="card">
-  <h2>Sauvegardes</h2>
+  <h2>Sauvegardes des fichiers</h2>
   <?php if (!$backups): ?><p class="muted">Aucune sauvegarde : elles sont créées automatiquement à chaque mise à jour.</p><?php endif; ?>
   <table class="table">
     <?php foreach ($backups as $b): ?>

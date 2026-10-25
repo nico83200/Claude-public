@@ -133,6 +133,22 @@
     zoomStage.addEventListener('pointerleave', function () { zoomStage.classList.remove('is-zooming'); });
   }
 
+  // Panier : barre « Commander » fixée en bas sur mobile, masquée quand le récapitulatif est visible
+  var paybar = $('[data-cart-paybar]');
+  var summary = $('#paiement');
+  if (paybar && summary && 'IntersectionObserver' in window) {
+    paybar.hidden = false;
+    new IntersectionObserver(function (entries) {
+      paybar.classList.toggle('is-hidden', entries[0].isIntersecting);
+    }, { threshold: 0.15 }).observe(summary);
+    $('[data-paybar-go]', paybar).addEventListener('click', function (e) {
+      e.preventDefault();
+      summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      var cgv = $('[data-cgv]');
+      if (cgv && !cgv.checked) setTimeout(function () { cgv.focus({ preventScroll: true }); cgv.closest('.checkbox').classList.add('pulse'); }, 450);
+    });
+  }
+
   // Mini-panier ------------------------------------------------------------
   var drawer = $('[data-drawer]');
   var backdrop = $('[data-drawer-backdrop]');
@@ -664,8 +680,12 @@
       store.set('cc_popup_seen', String(Date.now()));
       openDialog(welcome);
     };
+    // Pages vues pendant la visite : pas de popup dès la première page (on laisse découvrir)
+    var views = 1;
+    try { views = parseInt(sessionStorage.getItem('cc_pv') || '0', 10) + 1; sessionStorage.setItem('cc_pv', String(views)); } catch (e) {}
     if (eligible) {
-      setTimeout(show, (parseInt(welcome.dataset.delay, 10) || 15) * 1000);
+      if (views >= 2) setTimeout(show, (parseInt(welcome.dataset.delay, 10) || 15) * 1000);
+      // Intention de sortie (souris vers le haut de la fenêtre, ordinateur uniquement)
       document.addEventListener('mouseout', function (e) { if (!e.relatedTarget && e.clientY < 10) show(); });
     }
   }

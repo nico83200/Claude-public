@@ -17,7 +17,26 @@ function setting(string $key, mixed $default = null): mixed
 
 function e(mixed $value): string
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    return htmlspecialchars(typo((string) $value), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+/**
+ * Typographie française sur la boutique : espaces insécables à l'intérieur des guillemets « » et
+ * avant : ; ! ? — un titre ne se coupe plus en laissant « » » seul en début de ligne.
+ * Pas dans l'administration (les champs de formulaire gardent le texte tel que saisi).
+ */
+function typo(string $text): string
+{
+    static $enabled = null;
+    $enabled ??= !str_starts_with(request_path(), '/admin');
+    if (!$enabled || $text === '' || !preg_match('/[«»:;!?]/u', $text)) {
+        return $text;
+    }
+    return (string) preg_replace(
+        ['/«[ \x{00A0}]*/u', '/[ \x{00A0}]*»/u', '/ ([:;!?])(?=\s|$|<)/u'],
+        ["«\u{00A0}", "\u{00A0}»", "\u{202F}$1"],
+        $text
+    );
 }
 
 /** URL publique du site ; avant l'installation, déduite de la requête (le domaine n'est pas encore configuré). */

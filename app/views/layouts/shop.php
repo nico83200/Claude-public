@@ -15,7 +15,9 @@ $socials = array_filter(['Instagram' => setting('social_instagram'), 'Facebook' 
 $announcements = array_values(array_filter(array_map('trim', explode('|', (string) setting('announcement')))));
 $welcomeOffer = App\Services\WelcomeOffer::active() ? App\Services\WelcomeOffer::label() : '';
 $customer = App\Services\Account::current();
-$showPopup = setting('popup_enabled', '1') === '1' && empty($noindex);
+// Popup newsletter : jamais pendant l'achat ni dans l'espace cliente
+$showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
+    && !preg_match('#^/(panier|commande|compte|suivi)#', request_path());
 ?>
 <!doctype html>
 <html lang="fr">
