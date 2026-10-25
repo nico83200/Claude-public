@@ -61,6 +61,19 @@ final class ShopController
         ]);
     }
 
+    /** Recherche instantanée (JSON) : suggestions au fil de la frappe. */
+    public function suggest(): void
+    {
+        $q = mb_substr(trim((string) input('q', '')), 0, 80);
+        header('Cache-Control: public, max-age=300');
+        json_response([
+            'q'       => $q,
+            'items'   => mb_strlen($q) >= 2 ? Catalog::suggest($q) : [],
+            'total'   => mb_strlen($q) >= 2 ? Catalog::count(['q' => $q]) : 0,
+            'all_url' => url('boutique', ['q' => $q]),
+        ]);
+    }
+
     public function product(string $slug): void
     {
         $product = Catalog::product($slug) ?? abort(404);

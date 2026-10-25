@@ -88,7 +88,7 @@ final class Account
 
     public static function isLocked(string $ip): bool
     {
-        $since = date('Y-m-d H:i:s', time() - self::LOCK_MINUTES * 60);
+        $since = ago(self::LOCK_MINUTES * 60);
         return (int) Database::value('SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND created_at > ?', ['c:' . $ip, $since]) >= self::MAX_ATTEMPTS;
     }
 

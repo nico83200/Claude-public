@@ -34,13 +34,14 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
 <meta property="og:type" content="<?= isset($product) ? 'product' : 'website' ?>">
 <?php if (!empty($ogImage)): ?><meta property="og:image" content="<?= e($ogImage) ?>"><?php endif; ?>
 <meta name="theme-color" content="#f9f7f3">
+<meta name="csrf-token" content="<?= e(csrf_token()) ?>">
 <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="preload" href="<?= e(url('assets/fonts/playfair-display-latin-wght-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= e(url('assets/fonts/montserrat-latin-wght-normal.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
 <?php if (!empty($jsonLd)): ?><script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script><?php endif; ?>
 </head>
-<body data-ga4="<?= e(config('analytics.ga4_id')) ?>" data-pixel="<?= e(config('analytics.meta_pixel_id')) ?>" data-cart-url="<?= e(url('panier/apercu')) ?>">
+<body data-wishlist-url="<?= e(url('favoris')) ?>" data-wishlist-sync="<?= e(url('favoris/synchroniser')) ?>"<?= $customer ? ' data-wishlist-server="' . e(json_encode(App\Services\Wishlist::ids((int) $customer['id']))) . '"' : '' ?> data-ga4="<?= e(config('analytics.ga4_id')) ?>" data-pixel="<?= e(config('analytics.meta_pixel_id')) ?>" data-cart-url="<?= e(url('panier/apercu')) ?>">
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 
 <?php if ($announcements): ?>
@@ -73,10 +74,12 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
       <?php endif; ?>
       <a href="<?= e(url('page/a-propos')) ?>" class="<?= is_active('/page/a-propos') ? 'active' : '' ?>">Notre histoire</a>
       <a href="<?= e(url('contact')) ?>" class="<?= is_active('/contact') ? 'active' : '' ?>">Contact</a>
+      <a href="<?= e(url('favoris')) ?>" class="nav-account nav-wish" data-wish-link><?= icon('heart', 17) ?>Mes favoris</a>
       <a href="<?= e(url('compte')) ?>" class="nav-account <?= is_active('/compte') ? 'active' : '' ?>"><?= icon('user', 17) ?><?= $customer ? 'Mon compte · ' . e(App\Services\Account::firstName($customer)) : 'Mon compte / Connexion' ?></a>
     </nav>
     <div class="header-actions">
       <button class="icon-btn" type="button" data-search-toggle aria-expanded="false" aria-controls="search-bar" aria-label="Rechercher"><?= icon('search', 21) ?></button>
+      <a class="icon-btn wish-link" href="<?= e(url('favoris')) ?>" data-wish-link aria-label="Mes favoris"><?= icon('heart', 21) ?><span class="cart-count" data-wish-count hidden>0</span></a>
       <a class="account-btn <?= $customer ? 'is-logged' : '' ?> <?= is_active('/compte') ? 'active' : '' ?>" href="<?= e(url('compte')) ?>" aria-label="<?= $customer ? 'Mon compte (connectée en tant que ' . e(App\Services\Account::firstName($customer)) . ')' : 'Mon compte — se connecter ou créer un compte' ?>">
         <span class="account-avatar" aria-hidden="true"><?= $customer ? e(mb_strtoupper(mb_substr(App\Services\Account::firstName($customer), 0, 1))) : icon('user', 21) ?></span>
         <span class="account-label"><small><?= $customer ? 'Bonjour ' . e(App\Services\Account::firstName($customer)) : 'Bonjour !' ?></small>Mon compte</span>
@@ -89,11 +92,18 @@ $showPopup = setting('popup_enabled', '1') === '1' && empty($noindex)
   </div>
   <div class="search-bar" id="search-bar" hidden>
     <div class="container">
-      <form action="<?= e(url('boutique')) ?>" method="get" role="search">
+      <form action="<?= e(url('boutique')) ?>" method="get" role="search" class="search-form" data-search-form data-suggest-url="<?= e(url('recherche/suggestions')) ?>">
         <label class="sr-only" for="q">Rechercher un article</label>
-        <input id="q" type="search" name="q" placeholder="Sweat, mug, casquette…" value="<?= e($_GET['q'] ?? '') ?>">
+        <input id="q" type="search" name="q" placeholder="Sweat, mug, portrait, cadeau…" value="<?= e($_GET['q'] ?? '') ?>" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list">
         <button class="btn btn-primary" type="submit">Rechercher</button>
+        <div class="search-results" id="search-results" role="listbox" hidden></div>
       </form>
+      <p class="search-popular" data-search-popular>Populaire :
+        <?php if (App\Services\AiPortrait::landingAvailable()): ?><a href="<?= e(url('portrait-aquarelle')) ?>">Portrait aquarelle</a><?php endif; ?>
+        <a href="<?= e(url('boutique', ['personnalisable' => 1])) ?>">À personnaliser</a>
+        <a href="<?= e(url('boutique', ['prix_max' => (int) setting('gift_max_price', 3000) / 100])) ?>">Idées cadeaux</a>
+        <a href="<?= e(url('boutique', ['q' => 'sweat'])) ?>">Sweats</a>
+      </p>
     </div>
   </div>
 </header>

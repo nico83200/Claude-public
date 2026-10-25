@@ -32,6 +32,14 @@ CREATE TABLE customers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_customers_token ON customers (token_hash);
 
+CREATE TABLE wishlist_items (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT UNSIGNED NOT NULL,
+    product_id INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    UNIQUE (customer_id, product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE settings (
     name VARCHAR(100) NOT NULL PRIMARY KEY,
     value TEXT NULL

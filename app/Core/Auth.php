@@ -29,7 +29,7 @@ final class Auth
 
     public static function isLocked(string $ip): bool
     {
-        $since = date('Y-m-d H:i:s', time() - self::LOCK_MINUTES * 60);
+        $since = ago(self::LOCK_MINUTES * 60);
         $count = (int) Database::value('SELECT COUNT(*) FROM login_attempts WHERE ip = ? AND created_at > ?', [$ip, $since]);
         return $count >= self::MAX_ATTEMPTS;
     }

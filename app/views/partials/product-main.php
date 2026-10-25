@@ -95,7 +95,10 @@ if ($cfg) {
 
       <div class="product-info">
         <?php if ($product['category_name']): ?><p class="eyebrow"><?= e($product['category_name']) ?></p><?php endif; ?>
-        <<?= $titleTag ?> class="product-title"><?= e($product['name']) ?></<?= $titleTag ?>>
+        <div class="product-title-row">
+          <<?= $titleTag ?> class="product-title"><?= e($product['name']) ?></<?= $titleTag ?>>
+          <button type="button" class="wish-btn wish-btn-lg" data-wish="<?= (int) $product['id'] ?>" aria-pressed="false" aria-label="Ajouter à mes favoris"><?= icon('heart', 22) ?></button>
+        </div>
         <?php if ($reviewSummary['count'] > 0): ?>
           <a class="product-rating" href="#avis"><?= stars($reviewSummary['avg']) ?> <span><?= e(number_format($reviewSummary['avg'], 1, ',', '')) ?>/5 · <?= (int) $reviewSummary['count'] ?> avis vérifiés</span></a>
         <?php endif; ?>

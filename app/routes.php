@@ -21,6 +21,7 @@ $r = new Router();
 // Boutique
 $r->get('/', [HomeController::class, 'index']);
 $r->get('/boutique', [ShopController::class, 'catalog']);
+$r->get('/recherche/suggestions', [ShopController::class, 'suggest']);
 $r->get('/categorie/{slug}', [ShopController::class, 'category']);
 $r->get('/produit/{slug}', [ShopController::class, 'product']);
 $r->get('/portrait-aquarelle', [ShopController::class, 'portraitLanding']);
@@ -55,6 +56,10 @@ $r->post('/compte/informations', [AccountController::class, 'updateProfile']);
 $r->post('/compte/mot-de-passe', [AccountController::class, 'changePassword']);
 $r->post('/compte/supprimer', [AccountController::class, 'destroy']);
 $r->post('/commande/merci/compte', [AccountController::class, 'fromOrder']);
+
+// Liste d'envies
+$r->get('/favoris', [App\Controllers\WishlistController::class, 'show']);
+$r->post('/favoris/synchroniser', [App\Controllers\WishlistController::class, 'sync']);
 
 // Suivi de commande
 $r->get('/suivi', [OrderController::class, 'trackForm']);

@@ -90,6 +90,17 @@ function to_cents(mixed $value): int
     return (int) round(((float) $value) * 100);
 }
 
+/**
+ * Date « il y a N secondes » au format des dates enregistrées (heure locale).
+ * Calculée sur l'heure affichée : reste juste pendant l'heure répétée du passage à l'heure d'hiver.
+ */
+function ago(int $seconds): string
+{
+    // Arithmétique sur l'heure « murale » (sans fuseau) : insensible aux changements d'heure
+    $utc = new DateTimeZone('UTC');
+    return (new DateTimeImmutable(now(), $utc))->modify('-' . $seconds . ' seconds')->format('Y-m-d H:i:s');
+}
+
 function now(): string
 {
     return date('Y-m-d H:i:s');

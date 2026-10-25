@@ -21,4 +21,5 @@
       </div>
     </div>
   </a>
+  <button type="button" class="wish-btn" data-wish="<?= (int) $product['id'] ?>" aria-pressed="false" aria-label="Ajouter « <?= e($product['name']) ?> » à mes favoris"><?= icon('heart', 18) ?></button>
 </article>

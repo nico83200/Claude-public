@@ -115,9 +115,12 @@ final class Catalog
             $params[] = (int) $filters['category_id'];
         }
         if (!empty($filters['q'])) {
-            $where[] = '(p.name LIKE ? OR p.short_description LIKE ?)';
-            $like = '%' . str_replace(['%', '_'], ['\%', '\_'], (string) $filters['q']) . '%';
-            array_push($params, $like, $like);
+            // Chaque mot doit apparaître quelque part : nom, accroche, description ou collection
+            foreach (self::searchTerms((string) $filters['q']) as $term) {
+                $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $term) . '%';
+                $where[] = '(p.name LIKE ? OR p.short_description LIKE ? OR p.description LIKE ? OR p.category_id IN (SELECT id FROM categories WHERE name LIKE ?))';
+                array_push($params, $like, $like, $like, $like);
+            }
         }
         if (!empty($filters['personalizable'])) {
             $where[] = 'p.personalizable = 1';
@@ -133,11 +136,63 @@ final class Catalog
             $where[] = 'p.price >= ?';
             $params[] = (int) $filters['min_price'];
         }
+        if (!empty($filters['ids'])) {
+            $where[] = 'p.id IN (' . implode(',', array_map('intval', (array) $filters['ids'])) . ')';
+        }
         if (!empty($filters['exclude'])) {
             $ids = array_map('intval', (array) $filters['exclude']);
             $where[] = 'p.id NOT IN (' . implode(',', $ids) . ')';
         }
         return [implode(' AND ', $where), $params];
+    }
+
+    /** Synonymes courants (« tee-shirt » trouve les t-shirts, « tasse » les mugs…). */
+    private const SYNONYMS = [
+        'tshirt' => 't-shirt', 'tee-shirt' => 't-shirt', 'teeshirt' => 't-shirt', 'tee' => 't-shirt',
+        'hoodie' => 'capuche', 'sweatshirt' => 'sweat', 'sweat-shirt' => 'sweat', 'pull' => 'sweat',
+        'tasse' => 'mug', 'poster' => 'affiche', 'tableau' => 'affiche', 'cadre' => 'encadr', 'sac' => 'tote',
+        'bouteille' => 'gourde', 'gobelet' => 'gourde', 'carnet' => 'carnet', 'agenda' => 'carnet',
+        'aquarelle' => 'aquarelle', 'dessin' => 'portrait', 'illustration' => 'portrait', 'nom' => 'nom',
+        'cheval' => 'cheval', 'chevaux' => 'cheval', 'jument' => 'cheval', 'poney' => 'cheval',
+    ];
+    private const STOP_WORDS = ['de', 'du', 'des', 'la', 'le', 'les', 'un', 'une', 'pour', 'mon', 'ma', 'mes', 'son', 'sa', 'ses', 'avec', 'en', 'et', 'au', 'aux', 'à'];
+
+    /** Mots utiles d'une recherche : minuscules, sans mots vides, pluriels simples, synonymes. */
+    public static function searchTerms(string $q): array
+    {
+        $words = preg_split('/[\s,;\/]+/u', mb_strtolower(trim($q)), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $terms = [];
+        foreach ($words as $w) {
+            $w = trim($w, ".!?'\"«»()");
+            if ($w === '' || in_array($w, self::STOP_WORDS, true)) {
+                continue;
+            }
+            $w = self::SYNONYMS[$w] ?? $w;
+            if (mb_strlen($w) > 4 && preg_match('/[^s]s$/u', $w)) {
+                $w = mb_substr($w, 0, -1); // sweats → sweat, affiches → affiche
+            }
+            if (mb_strlen($w) >= 2) {
+                $terms[$w] = $w;
+            }
+        }
+        return array_slice(array_values($terms), 0, 6) ?: [mb_strtolower(trim($q))];
+    }
+
+    /** Suggestions de la recherche instantanée. */
+    public static function suggest(string $q, int $limit = 6): array
+    {
+        $out = [];
+        foreach (self::products(['q' => $q, 'sort' => 'bestsellers'], $limit) as $p) {
+            $out[] = [
+                'name'     => typo($p['name']),
+                'url'      => url('produit/' . $p['slug']),
+                'price'    => money($p['price']),
+                'image'    => thumb($p['main_image'], 160),
+                'category' => (string) ($p['category_name'] ?? ''),
+                'custom'   => (bool) $p['personalizable'],
+            ];
+        }
+        return $out;
     }
 
     public static function product(string $slug): ?array
