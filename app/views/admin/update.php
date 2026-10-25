@@ -21,7 +21,29 @@
     </details>
     <button class="btn btn-primary" <?= $zipAvailable ? '' : 'disabled' ?>>Installer la mise à jour</button>
   </form>
-  <p class="muted small mt">Conseil : avant une mise à jour importante, faites aussi une sauvegarde de la base dans hPanel › Bases de données › phpMyAdmin › Exporter (ou utilisez les sauvegardes automatiques Hostinger).</p>
+  <?php if ($serverPackages): ?>
+    <div class="server-packages mt">
+      <h3>ZIP déposés sur le serveur</h3>
+      <?php foreach ($serverPackages as $pkg): ?>
+        <form method="post" action="<?= e(url('admin/mise-a-jour/serveur/' . rawurlencode($pkg))) ?>" class="inline" data-confirm="Installer <?= e($pkg) ?> ? Le site sera indisponible quelques secondes.">
+          <?= csrf_field() ?><code><?= e($pkg) ?></code> <button class="btn btn-primary" <?= $zipAvailable ? '' : 'disabled' ?>>Installer ce fichier</button>
+        </form>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+  <details class="mt">
+    <summary class="small muted">L'envoi échoue ? Autre méthode et état du serveur</summary>
+    <p class="small">Avec le <strong>gestionnaire de fichiers Hostinger</strong>, déposez le ZIP dans <code>public_html/storage/updates/</code> (créez le dossier s'il n'existe pas) ou directement dans <code>public_html/</code>, puis rechargez cette page : un bouton « Installer ce fichier » apparaît. Le fichier est supprimé après l'installation.</p>
+    <?php $d = $diagnostics; ?>
+    <table class="table small">
+      <tr><td>Dossier de travail <code>storage/cache</code></td><td><?= $d['cache_exists'] ? ($d['cache_writable'] ? '✔ accessible en écriture' : '✘ non accessible en écriture (droits 755)') : '✘ absent' ?></td></tr>
+      <tr><td>Dossier <code>storage</code></td><td><?= $d['storage_writable'] ? '✔ accessible en écriture' : '✘ non accessible en écriture' ?></td></tr>
+      <tr><td>Dossier temporaire PHP</td><td><?= $d['tmp_writable'] ? '✔' : '✘' ?> <code><?= e($d['tmp_dir']) ?></code></td></tr>
+      <tr><td>Espace disque libre</td><td><?= $d['free_mb'] === null ? 'inconnu' : e(number_format($d['free_mb'], 0, ',', ' ')) . ' Mo' ?></td></tr>
+      <tr><td>Taille maximale d'envoi</td><td><?= e($d['upload_max']) ?> (formulaire : <?= e($d['post_max']) ?>)</td></tr>
+      <tr><td>Extension zip</td><td><?= $d['zip'] ? '✔' : '✘ à activer dans hPanel' ?></td></tr>
+    </table>
+  </details>
 </section>
 
 <?php if ($pending || $migrationError): ?>
