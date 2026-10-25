@@ -25,7 +25,7 @@
 
 | Composant | Modèle | Qté | Prix approx. |
 |---|---|---|---|
-| Microcontrôleur | ESP32 WROOM DevKit | 1 | (déjà là) |
+| Microcontrôleur | ESP-32S (module ESP32-WROOM-32), USB-C, puce USB CH340 | 1 | (déjà là) |
 | Écran | TFT SPI 3,5" ILI9488 480×320, avec lecteur SD | 1 | 12-15 € |
 | Lecteurs RFID | RC522 13,56 MHz | 3 | 9 € |
 | Cartes | Autocollants NTAG213 (lot de 100) | 1 | 15 € |
@@ -41,7 +41,7 @@
 | Divers | Résistances 1 kΩ, 330 Ω, 10 kΩ, condensateur 1000 µF, fils, plaque à souder | — | 6 € |
 | **Total** | | | **≈ 95 €** |
 
-## 3. Câblage (ESP32 WROOM DevKit)
+## 3. Câblage (ESP-32S, USB-C, CH340)
 
 | Fonction | Broche du composant | GPIO |
 |---|---|---|
@@ -65,6 +65,19 @@
 **Alimentation 5 V** : l'ESP32 (VIN), les deux DFPlayer et les LED, avec le
 condensateur de 1000 µF près des LED. **3,3 V** (fourni par l'ESP32) : l'écran,
 les 3 lecteurs RFID et la molette.
+
+**La carte ESP-32S** : c'est un module ESP32-WROOM-32 (4 Mo de flash) sur une
+carte de développement. Toutes les GPIO du tableau existent sur les versions
+**30 broches** comme **38 broches** : on suit les numéros GPIO imprimés à côté des
+broches (« D25 », « P25 » ou « 25 » selon la sérigraphie), pas leur position.
+- Broche **VIN** (parfois « 5V ») : l'entrée 5 V. Broche **3V3** : la sortie 3,3 V.
+- **VP** = GPIO 36 (RX du DFPlayer casque) et **VN** = GPIO 39 (gros bouton).
+- La LED bleue de la carte est sur la GPIO 2 : elle clignote quand le pupitre
+  parle au DFPlayer casque. C'est normal.
+- Le régulateur 3,3 V de la carte (AMS1117) alimente l'ESP32, les 3 lecteurs RFID
+  et la molette. Si le module écran accepte le 5 V sur VCC (la plupart des
+  modules ILI9488 3,5" ont leur propre régulateur : vérifier sa fiche), le
+  brancher sur le 5 V soulage ce régulateur. Ses signaux restent en 3,3 V.
 
 **Pièges à éviter :**
 - GPIO 0 et 12 restent libres, pour ne pas gêner le démarrage.

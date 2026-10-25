@@ -6,8 +6,8 @@
       "nom": "Électronique de la console",
       "articles": [
         {
-          "article": "ESP32 WROOM DevKit",
-          "detail": "Déjà en votre possession",
+          "article": "ESP-32S (ESP32-WROOM-32), USB-C, CH340",
+          "detail": "Déjà en votre possession. Carte de développement 30 ou 38 broches",
           "qte": 1,
           "prix": 0
         },

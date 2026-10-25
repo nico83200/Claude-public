@@ -54,13 +54,25 @@ pio run                  # compile (télécharge la première fois l'ESP32 et le
 Bibliothèques utilisées (installées automatiquement) : LovyanGFX (écran),
 MFRC522 (RFID), DFRobotDFPlayerMini (audio), FastLED (LED) et ArduinoJson.
 
-## 2. Téléverser dans l'ESP32
+## 2. Téléverser dans l'ESP-32S
 
-1. Brancher l'ESP32 en USB.
-2. `pio run -t upload` (ou la flèche → de PlatformIO).
-3. Si le téléversement échoue (*« Failed to connect »*) : **débrancher le fil de
-   la GPIO 2** (TX vers le DFPlayer casque) le temps de flasher, ou maintenir le
-   bouton BOOT de l'ESP32 au début du téléversement.
+La carte ESP-32S (USB-C) passe par une puce USB **CH340**.
+
+1. **Pilote CH340** : rien à installer sous Linux, ni en général sous Windows 10 et 11
+   (Windows Update le trouve). Sinon, ou sous macOS, installer le pilote
+   « CH34x » du fabricant WCH (wch-ic.com). Le port apparaît comme `COM3`…
+   (Windows), `/dev/cu.wchusbserial…` (macOS) ou `/dev/ttyUSB0` (Linux).
+2. Brancher la carte avec un câble **USB-A vers USB-C** qui transporte les données
+   (certains câbles ne font que charger). Avec un câble USB-C vers USB-C, certaines
+   de ces cartes ne sont pas reconnues du tout.
+3. `pio run -t upload` (ou la flèche → de PlatformIO). PlatformIO trouve le port
+   tout seul ; sinon, ajouter `upload_port = COM3` dans `platformio.ini`.
+4. Si le téléversement échoue (*« Failed to connect »* ou *« Timed out waiting for
+   packet header »*) :
+   - maintenir le bouton **BOOT** (ou « IO0 ») de la carte enfoncé dès que
+     *« Connecting… »* s'affiche, puis le relâcher ;
+   - ou **débrancher le fil de la GPIO 2** (TX vers le DFPlayer casque) le temps
+     de flasher : la GPIO 2 doit être libre au démarrage de la carte.
 4. `pio device monitor` affiche le journal : lecteurs RFID détectés, cartes
    posées (avec leur UID), erreurs de script.
 
