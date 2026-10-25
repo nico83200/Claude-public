@@ -600,7 +600,7 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 .collections { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
 .collection-card { display: flex; flex-direction: column; text-decoration: none; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: transform .25s, box-shadow .25s; }
 .collection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); color: var(--ink); }
-.collection-media { aspect-ratio: 1; overflow: hidden; background: var(--blush-50); border-radius: 999px 999px 0 0; margin: 1rem 1rem 0; }
+.collection-media { aspect-ratio: 1; overflow: hidden; background: var(--blush-50); border-radius: var(--r-sm); margin: 1rem 1rem 0; }
 .collection-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
 .collection-card:hover .collection-media img { transform: scale(1.04); }
 .collection-body { padding: 1.4rem 1.6rem 1.8rem; display: flex; flex-direction: column; gap: .4rem; flex: 1; }
