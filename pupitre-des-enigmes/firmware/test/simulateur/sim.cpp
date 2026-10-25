@@ -3,7 +3,7 @@
 // Il fait tourner le vrai moteur de jeu avec une horloge virtuelle, un faux lecteur
 // audio et des cartes « UID-<id> », et joue une partie écrite dans un fichier texte :
 //
-//   ./sim <dossier SD> <partie.txt> [--bavard]
+//   ./sim <dossier SD> <partie.txt> [--bavard] [--captures <dossier>]
 //
 // Commandes d'une partie (une par ligne, # pour les commentaires) :
 //   pose QUI|OU|QUOI <id>     retire QUI|OU|QUOI      bouton ROUGE|BLEU|JAUNE|VERT|GROS
@@ -13,6 +13,7 @@
 //   ensemble <ms>             rythme <ms,ms,...> <n>  sequence      rondes      molette_zero
 //   commande <texte>          avance <minutes>        (fait passer le temps de jeu ;
 //                                                      s'arrête si une épreuve commence)
+//   capture <nom>             (image de l'écran, avec test/ecrans.sh)
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type>
@@ -27,13 +28,43 @@
 
 #include "moteur.h"
 
+#ifdef AVEC_ECRAN  // compilé par test/ecrans.sh : l'écran est dessiné comme sur le pupitre
+#include "dessin.h"
+#endif
+
 using namespace pupitre;
 
 namespace {
 
 class PlateformeSimulee : public Plateforme {
  public:
-  explicit PlateformeSimulee(std::string racine, bool bavard) : racine_(std::move(racine)), bavard_(bavard) {}
+  explicit PlateformeSimulee(std::string racine, bool bavard) : racine_(std::move(racine)), bavard_(bavard) {
+#ifdef AVEC_ECRAN
+    image_.setColorDepth(24);
+    image_.createSprite(480, 320);
+#endif
+  }
+
+  // Enregistre l'écran tel qu'il apparaît sur le pupitre (image PPM).
+  bool capturer(const std::string& chemin) {
+#ifdef AVEC_ECRAN
+    FILE* f = fopen(chemin.c_str(), "wb");
+    if (!f) return false;
+    fprintf(f, "P6 480 320 255\n");
+    for (int y = 0; y < 320; y++)
+      for (int x = 0; x < 480; x++) {
+        auto c = image_.readPixelRGB(x, y);
+        fputc(c.R8(), f);
+        fputc(c.G8(), f);
+        fputc(c.B8(), f);
+      }
+    fclose(f);
+    return true;
+#else
+    (void)chemin;
+    return false;
+#endif
+  }
 
   uint32_t horloge = 0;
   int repliques = 0;
@@ -71,6 +102,9 @@ class PlateformeSimulee : public Plateforme {
   bool audioPresent() override { return true; }
 
   void afficher(const Vue& v) override {
+#ifdef AVEC_ECRAN
+    dessin_.afficher(v, horloge);
+#endif
     if (v.version == version_) return;
     version_ = v.version;
     std::string resume = v.titre;
@@ -95,6 +129,10 @@ class PlateformeSimulee : public Plateforme {
   }
   std::string racine_;
   bool bavard_;
+#ifdef AVEC_ECRAN
+  lgfx::LGFX_Sprite image_;
+  Dessin dessin_{image_};
+#endif
   std::map<std::string, std::string> ecrits_;
   uint32_t finAudio_[2] = {0, 0};
   uint32_t version_ = 0;
@@ -186,7 +224,13 @@ int main(int argc, char** argv) {
     return 2;
   }
   srand(7);
-  bool bavard = argc > 3 && std::string(argv[3]) == "--bavard";
+  bool bavard = false;
+  std::string captures;  // --captures <dossier> : où ranger les images de l'écran
+  for (int i = 3; i < argc; i++) {
+    std::string opt = argv[i];
+    if (opt == "--bavard") bavard = true;
+    if (opt == "--captures" && i + 1 < argc) captures = argv[++i];
+  }
   PlateformeSimulee p(argv[1], bavard);
   auto instance = std::make_unique<Moteur>(p);
   plateforme = &p;
@@ -242,6 +286,9 @@ int main(int argc, char** argv) {
       moteur = instance.get();
       moteur->demarrer();
       calme();
+    } else if (cmd == "capture") {
+      // Sans écran compilé, la commande ne fait rien.
+      if (!captures.empty() && p.capturer(captures + "/" + a + ".ppm")) printf("  📷 %s\n", a.c_str());
     } else if (cmd == "calme") {
       calme();
     } else if (cmd == "code") {

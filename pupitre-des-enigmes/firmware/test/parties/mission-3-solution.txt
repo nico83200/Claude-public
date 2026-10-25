@@ -18,8 +18,10 @@ calme
 
 # --- La variante : 4 joueurs passent le casque
 verifie epreuve choix
+capture m3-01-variante
 bouton VERT
 verifie epreuve traitre
+capture m3-02-traitre
 appui
 appui
 attendre 3
@@ -46,6 +48,7 @@ retire QUI
 # --- J2 : l'énergie (une surcharge, le diagnostic, puis la bonne répartition)
 pose OU L2
 verifie epreuve energie
+capture m3-03-energie
 energie 3,3,2,2,1,0
 verifie epreuve energie
 pose QUI R2
@@ -78,10 +81,12 @@ pose OU L9
 verifie sans J5
 pose OU L8
 verifie epreuve lettres
+capture m3-04-noyau
 lettres SILENCE
 verifie drapeau J3
 pose OU L9
 verifie drapeau J5
+capture m3-05-serre
 
 # --- J4 : la transmission décodée
 pose QUOI O3
@@ -127,3 +132,4 @@ bouton GROS
 bouton VERT
 calme
 verifie phase victoire
+capture m3-06-victoire

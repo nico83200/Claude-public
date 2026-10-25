@@ -21,6 +21,7 @@ verifie phase jeu
 # --- J1 : le bluff du sergent (un faux numéro, puis 428)
 pose OU L1
 verifie epreuve code
+capture m2-01-bluff-mattei
 code 1,2,3
 verifie compteur soupcon 2
 # Le Cerveau annule aussitôt la hausse (Plan B)
@@ -36,6 +37,7 @@ verifie drapeau J1
 pose OU L6
 pose QUI P3
 verifie epreuve choix
+capture m2-02-bluff-pujol
 bouton BLEU
 verifie drapeau J2
 pose OU L6
@@ -52,6 +54,7 @@ pose QUI P1
 pose QUOI R5
 verifie compteur pouvoir_R5 0
 verifie compteur soupcon 3
+capture m2-03-soupcon
 retire QUOI
 
 # --- Le garde passe (minute 8) : on ne touche à rien
@@ -64,6 +67,7 @@ verifie phase jeu
 # --- J4 : le couloir (les rondes)
 pose OU L7
 verifie epreuve rondes
+capture m2-04-rondes
 rondes
 verifie drapeau J4
 
@@ -76,6 +80,7 @@ ensemble 1500
 pose OU L9
 verifie epreuve code
 pose QUI R2
+capture m2-05-coffre
 code 17,34,22
 verifie drapeau J5
 retire QUI
@@ -122,3 +127,4 @@ bouton GROS
 bouton VERT
 calme
 verifie phase victoire
+capture m2-06-victoire

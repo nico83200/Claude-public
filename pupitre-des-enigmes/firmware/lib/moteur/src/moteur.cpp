@@ -20,7 +20,7 @@ std::string texte(JsonVariantConst v, const char* defaut = "") {
 }
 
 std::string deuxChiffres(int n) {
-  char b[8];
+  char b[12];
   snprintf(b, sizeof b, "%02d", n);
   return b;
 }
@@ -205,7 +205,7 @@ void Moteur::allerMenu() {
   choixMenu_ = 0;
   vue_.ecran = Vue::MENU;
   vue_.titre = vue_.monde;
-  vue_.info = "Installez la façade du monde · Molette : choisir · Appui : valider";
+  vue_.info = "Molette : choisir · Appui : valider";
   vue_.texte.clear();
   for (size_t i = 0; i < optionsMenu_.size(); i++)
     vue_.texte += std::string(static_cast<int>(i) == choixMenu_ ? "▶ " : "   ") + optionsMenu_[i] + "\n";
@@ -256,7 +256,7 @@ void Moteur::lancerMission(bool reprise) {
   phase_ = Phase::ROLES;
   vue_.ecran = Vue::ROLES;
   vue_.titre = "POSEZ VOS CARTES RÔLE";
-  vue_.info = "Bouton vert : commencer sans attendre tous les rôles";
+  vue_.info = "Rôles arrivés : 0 / " + std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert : commencer";
   rafraichir();
   JsonVariantConst demande = script_["roles_demande"];
   if (!demande.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, demande.as<int>()));
@@ -270,6 +270,7 @@ void Moteur::commencerJeu() {
   cumulPause_ = 0;
   derniereSauvegarde_ = maintenant();
   vue_.ecran = Vue::PRINCIPAL;
+  vue_.info.clear();
   rafraichir();
   empiler(script_["debut"]);
 }
@@ -370,6 +371,8 @@ void Moteur::carte(Zone zone, const std::string& uid) {
 void Moteur::carteHorsJeu(Zone zone, const std::string& id) {
   if (phase_ != Phase::ROLES || typeCarte(id) != "role") return;
   if (rolesPresents_.insert(id).second) {
+    vue_.info = "Rôles arrivés : " + std::to_string(rolesPresents_.size()) + " / " +
+                std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert : commencer";
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0x00ff00;
     p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
@@ -742,6 +745,12 @@ void Moteur::declencher(const Evenement& ev) {
     else if (ev.type == "quoi") vue_.titre = nomCarte(ev.quoi);
     else vue_.titre = nomCarte(ev.qui) + "  ·  " + nomCarte(ev.quoi);
     rafraichir();
+  } else if (ev.type == "role") {
+    std::string cible = !ev.qui.empty() ? ev.qui : !ev.quoi.empty() ? ev.quoi : ev.lieu;
+    vue_.bandeau.clear();
+    vue_.ecran = Vue::PRINCIPAL;
+    vue_.titre = nomCarte(ev.role) + (cible.empty() ? "" : "  →  " + nomCarte(cible));
+    rafraichir();
   }
   for (JsonVariantConst r : script_["regles"].as<JsonArrayConst>()) {
     if (!correspond(r["quand"], ev)) continue;
@@ -828,6 +837,8 @@ void Moteur::traiterFile() {
 }
 
 void Moteur::afficherTexte(const std::string& titre, const std::string& t, const std::string& auteur) {
+  // Dans les menus, l'écran garde sa liste : la voix suffit.
+  if (phase_ == Phase::MENU || phase_ == Phase::CHOIX_MONDE || phase_ == Phase::ENROLEMENT) return;
   if (phase_ == Phase::JEU && vue_.ecran != Vue::PRINCIPAL) vue_.ecran = Vue::PRINCIPAL;
   if (!titre.empty()) vue_.titre = titre;
   vue_.texte = t;
@@ -1157,6 +1168,8 @@ void Moteur::lancerEpreuve(JsonVariantConst def) {
   ep_.active = true;
   ep_.debut = maintenant();
   debutEnsemble_ = 0;
+  vue_.bandeau.clear();
+  vue_.info.clear();
   if (ep_.type == "code" || ep_.type == "lettres") {
     std::string sol = texte(def["solution"]);
     if (def["champs"].is<JsonArrayConst>()) {
@@ -1259,6 +1272,7 @@ void Moteur::majEpreuve() {
     if (t >= ep_.prochain) {
       ep_.vert = !ep_.vert;
       ep_.prochain = t + (ep_.vert ? 1200 + p_.aleatoire(1500) : 900 + p_.aleatoire(1600));
+      vueEpreuve();
     }
   } else if (ep_.type == "sequence") {
     if (ep_.etape == 0 && t >= ep_.prochain) {
@@ -1582,7 +1596,8 @@ void Moteur::vueEpreuve() {
     } else if (ep_.type == "rondes") {
       std::string p;
       for (int i = 0; i < d["pas"].as<int>(); i++) p += i < ep_.pas ? "● " : "○ ";
-      vue_.texte = (vue_.texte.empty() ? "" : vue_.texte + "\n") + "Progression : " + p;
+      vue_.texte = (vue_.texte.empty() ? "" : vue_.texte + "\n") + (ep_.vert ? "● LUMIÈRE VERTE ●" : "■ LUMIÈRE ROUGE ■") +
+                   "\n" + p;
     } else if (ep_.type == "molette_zero") {
       vue_.texte = "Pression : " + std::to_string(ep_.valeurs[0]);
     } else if (ep_.type == "traitre") {
@@ -1713,7 +1728,9 @@ void Moteur::enregistrerScore() {
   char ligne[160];
   snprintf(ligne, sizeof ligne, "Temps restant : %d min %02d s\nIndices payants : %d\nErreurs : %d", restant / 60, restant % 60,
            indicesPayants_, erreurs_);
-  vue_.texte = ligne;
+  std::string rang = vue_.info;
+  vue_.info.clear();
+  vue_.texte = (victoire_ && !rang.empty() ? rang + "\n" : "") + ligne;
   if (!script_["soupcon"].isNull()) vue_.texte += "\nSoupçon : " + std::to_string(compteur("soupcon"));
   vue_.bandeau = "Vert : retour à l'accueil";
   rafraichir();
@@ -1727,7 +1744,7 @@ void Moteur::enregistrerScore() {
   s["restant"] = restant;
   s["erreurs"] = erreurs_;
   s["indices"] = indicesPayants_;
-  s["rang"] = vue_.info;
+  s["rang"] = rang;
   std::string json;
   serializeJson(scores, json);
   p_.ecrireFichier(chemin, json);
@@ -1783,10 +1800,11 @@ void Moteur::majEntete() {
   JsonVariantConst c = script_["chrono"];
   std::string e;
   if (texte(c["mode"]) == "horloge") {
-    int m = minutesDe(texte(c["depart"])) + (chronoActif_ ? secondesEcoulees() / 60 : 0);
+    bool compte = chronoActif_ || phase_ == Phase::FIN;
+    int m = minutesDe(texte(c["depart"])) + (compte ? secondesEcoulees() / 60 : 0);
     e = std::to_string((m / 60) % 24) + ":" + deuxChiffres(m % 60);
   } else {
-    int r = std::max(0, chronoActif_ ? secondesRestantes() : c["duree"].as<int>() * 60);
+    int r = std::max(0, chronoActif_ || phase_ == Phase::FIN ? secondesRestantes() : c["duree"].as<int>() * 60);
     e = texte(c["prefixe"]) + deuxChiffres(r / 60) + ":" + deuxChiffres(r % 60);
   }
   if (pause_) e += "  ⏸";

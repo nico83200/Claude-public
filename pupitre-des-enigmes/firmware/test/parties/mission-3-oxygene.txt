@@ -24,3 +24,4 @@ restant 0
 attendre 35
 calme
 verifie phase defaite
+capture m3-07-oxygene
