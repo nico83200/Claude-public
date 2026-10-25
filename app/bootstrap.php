@@ -26,6 +26,15 @@ mb_internal_encoding('UTF-8');
 error_reporting(E_ALL);
 ini_set('display_errors', config('app.debug') ? '1' : '0');
 ini_set('log_errors', '1');
+// Dossiers de travail : recréés s'ils manquent (une extraction de ZIP ou un déploiement peut omettre
+// les dossiers vides ; sans storage/cache, la tâche planifiée et les mises à jour échouent).
+if (!is_dir(STORAGE_PATH . '/cache') || !is_dir(STORAGE_PATH . '/logs')) {
+    foreach (['cache', 'logs', 'backups', 'updates', 'ai-portraits', 'customer-photos', 'designs'] as $dir) {
+        if (!is_dir(STORAGE_PATH . '/' . $dir)) {
+            @mkdir(STORAGE_PATH . '/' . $dir, 0755, true);
+        }
+    }
+}
 ini_set('error_log', STORAGE_PATH . '/logs/php-error.log');
 
 // Clés et jetons des intégrations : la base de données fait référence (voir App\Core\Secrets).
