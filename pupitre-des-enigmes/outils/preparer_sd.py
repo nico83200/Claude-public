@@ -13,12 +13,15 @@ Contenu produit :
     /mondes/<monde>/repliques-N.json   les sous-titres (copie de audio/mission-N.json)
     /mondes/<monde>/cartes.json        puce NFC de chaque carte (rempli par l'enrôlement)
 
-Les cartes déjà enrôlées sur la carte SD de destination sont conservées.
+Les scripts sont d'abord vérifiés (outils/verifier_scripts.py). Les cartes déjà
+enregistrées sur la carte SD de destination sont conservées.
 Les fichiers audio (MP3) vont sur les cartes des DFPlayer : voir generer_audio.py.
 """
 import argparse
 import json
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
@@ -39,6 +42,11 @@ def main():
     parser.add_argument("--test", action="store_true", help="associer chaque carte à une puce fictive « UID-<id> »")
     args = parser.parse_args()
     sortie = args.sortie
+
+    # Un script avec une réplique ou une carte inconnue ne part pas sur la carte SD.
+    verification = subprocess.run([sys.executable, str(RACINE / "outils" / "verifier_scripts.py")])
+    if verification.returncode:
+        sys.exit("Scripts invalides : corrigez-les avant de préparer la carte SD.")
 
     (sortie / "pupitre").mkdir(parents=True, exist_ok=True)
     shutil.copy(RACINE / "console" / "audio" / "repliques.json", sortie / "pupitre" / "repliques.json")

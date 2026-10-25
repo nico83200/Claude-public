@@ -3,6 +3,7 @@
   "nom": "Le Haras des Trois Fers",
   "carte": "M1",
   "aide": "A1",
+  "aide_nom": "Papy Marcel",
   "theme": {
     "fond": "#1f3b2d",
     "texte": "#f3ead8",

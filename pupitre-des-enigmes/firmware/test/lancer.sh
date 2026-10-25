@@ -8,6 +8,7 @@ TMP=${TMPDIR:-/tmp}/pupitre-sim
 mkdir -p "$TMP"
 g++ -std=c++17 -O1 -Wall -Wextra -I"$ICI/simulateur" -I"$ICI/../lib/moteur/src" \
     "$ICI"/../lib/moteur/src/*.cpp "$ICI/simulateur/sim.cpp" -o "$TMP/sim"
+python3 "$ICI/../../outils/verifier_scripts.py"
 python3 "$ICI/../../outils/preparer_sd.py" --test --sortie "$TMP/sd" > /dev/null
 echecs=0
 for partie in "$ICI"/parties/*.txt; do

@@ -17,7 +17,24 @@ Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
 | 🚀 [Station Kepler-9](mondes/kepler/) | 3 · [Signal Perdu](mondes/kepler/mission-3-signal-perdu.md) · [déroulé](mondes/kepler/mission-3-deroule.md) | 🔴 Difficile | 75 min |
 
 Les trois missions sont complètes : scénario, déroulé, répliques, script de
-doublage et matériel à imprimer.
+doublage, matériel à imprimer et **script du pupitre**.
+
+## Le programme
+
+Le [programme de l'ESP32](firmware/) exécute les missions sous forme de scripts
+JSON rangés sur la carte SD de l'écran : on ajoute un monde sans reflasher la
+console. Un simulateur rejoue des parties complètes sur ordinateur pour vérifier
+chaque mission.
+
+```
+cd firmware && pio run -t upload                  # téléverser dans l'ESP32
+python3 outils/preparer_sd.py --sortie /media/SD  # préparer la carte SD de l'écran
+sh firmware/test/lancer.sh                        # rejouer les parties de test
+```
+
+Voir [firmware/README.md](firmware/README.md) (installation, enregistrement des
+cartes, réglages) et [firmware/SCRIPTS.md](firmware/SCRIPTS.md) (écrire une
+mission).
 
 ## Le dépôt
 
@@ -25,7 +42,8 @@ doublage et matériel à imprimer.
 |---|---|
 | [`console/`](console/) | Le matériel, le câblage, l'organisation des cartes SD, les sons et la voix du pupitre |
 | [`mondes/`](mondes/) | Un dossier par monde : scénarios, déroulés, répliques, documents à imprimer |
-| [`outils/`](outils/) | Génération des voix (ElevenLabs) et fabrication des PDF |
+| [`firmware/`](firmware/) | Le programme de l'ESP32, le simulateur PC et le langage des scripts |
+| [`outils/`](outils/) | Génération des voix (ElevenLabs), fabrication des PDF, préparation et vérification de la carte SD |
 | [`pdf/`](pdf/) | Les documents prêts à imprimer |
 
 ## Les documents à imprimer

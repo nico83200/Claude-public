@@ -3,6 +3,7 @@
   "nom": "Monte-Carlo 1928",
   "carte": "M2",
   "aide": "A2",
+  "aide_nom": "Fernand",
   "theme": {
     "fond": "#141019",
     "texte": "#f2e6c9",

@@ -1,0 +1,23 @@
+# Enregistrement des cartes : on associe une nouvelle puce à la carte Monde de Monte-Carlo
+verifie phase accueil
+appui
+verifie phase choix_monde
+# Les mondes sont classés : casse (Monte-Carlo), haras, kepler
+appui
+verifie phase enrolement
+capture enrolement
+# Première carte demandée : M2 (la carte Monde)
+pose QUI NOUVELLE
+retire QUI
+# Une puce déjà utilisée par une autre carte est refusée
+pose QUI NOUVELLE
+retire QUI
+verifie phase enrolement
+# Vert : terminer et enregistrer
+bouton VERT
+verifie phase accueil
+# La nouvelle puce charge maintenant le monde
+pose QUI NOUVELLE
+retire QUI
+verifie phase menu
+verifie ecran Monte-Carlo

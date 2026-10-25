@@ -105,14 +105,18 @@ réplique.
 | `30/` · `31/` | Station Kepler-9 : voix · bruitages |
 
 La SD de l'écran contient les **mondes** : un dossier par monde, avec la table
-des cartes, les scénarios en JSON, les images et le thème.
+des cartes, le thème et les scripts des missions. Elle se prépare avec
+`python3 outils/preparer_sd.py` (voir [`firmware/`](../firmware/)).
 
 ```
-/mondes/haras/monde.json        nom, couleurs, polices, dossiers audio
-/mondes/haras/cartes.json       UID → carte
-/mondes/haras/mission-1.json    lieux, personnages, réactions, énigmes, imprévus
-/mondes/haras/images/...        illustrations 16 bits
-/sauvegarde.json                partie en cours (reprise après coupure)
+/pupitre/repliques.json          sous-titres de la voix du pupitre
+/mondes/index.json               la liste des mondes
+/mondes/haras/monde.json         nom, couleurs, carte Monde, carte Aide, missions
+/mondes/haras/cartes.json        UID de la puce → carte (rempli par l'enregistrement)
+/mondes/haras/mission-1.json     le script : lieux, personnages, épreuves, imprévus…
+/mondes/haras/repliques-1.json   les sous-titres des répliques
+/mondes/haras/scores.json        les parties gagnées
+/sauvegarde.json                 partie en cours (reprise après coupure)
 ```
 
 ## 6. Le casque
@@ -127,6 +131,8 @@ des cartes, les scénarios en JSON, les images et le thème.
 
 ## 7. Le panneau du maître du jeu (Wi-Fi)
 
-La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »**. Depuis un téléphone,
-on y suit la partie et on peut envoyer un indice, mettre en pause ou ajouter du
-temps.
+La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »** (mot de passe
+`enigmes123`, modifiable dans `firmware/src/broches.h`). Depuis un téléphone
+connecté à ce réseau, la page **http://192.168.4.1** montre le chrono, les cartes
+posées et les étapes franchies, et permet de mettre en pause, d'ajouter ou de
+retirer du temps, de donner un indice ou d'abandonner.

@@ -3,6 +3,7 @@
   "nom": "Station Kepler-9",
   "carte": "M3",
   "aide": "A3",
+  "aide_nom": "Contrôle Mission",
   "theme": {
     "fond": "#0b1622",
     "texte": "#d8ecf7",

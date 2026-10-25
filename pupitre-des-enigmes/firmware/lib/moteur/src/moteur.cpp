@@ -153,6 +153,7 @@ std::string Moteur::typeCarte(const std::string& id) const {
 std::string Moteur::nomCarte(const std::string& id) const {
   if (id.empty()) return "";
   if (id == texte(monde_["carte"])) return vue_.monde;
+  if (id == texte(monde_["aide"])) return texte(monde_["aide_nom"], "Carte Aide");
   std::string nom = texte(script_["cartes"][id]["nom"]);
   return nom.empty() ? id : nom;
 }
