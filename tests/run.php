@@ -389,6 +389,14 @@ $tee = Database::one('SELECT * FROM products WHERE slug = ?', [MangaIllustration
 check('t-shirt manga créé d\'après un t-shirt existant', $tee && Personalizer::config($tee['personalization'])['mode'] === 'ai_manga' && (int) Database::value('SELECT COUNT(*) FROM product_variants WHERE product_id = ?', [$tee['id']]) > 0
     && MangaIllustration::createProduct() === null);
 Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $manga['id']]);
+Config::set('ai.provider', 'openai');
+$viaOpenai = AiPortrait::run(AiPortrait::createManga($rider, $horse, 'face'));
+Config::set('ai.provider', 'replicate');
+$edits = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'openai.edit'));
+$edit = end($edits);
+check('OpenAI : les trois images envoyées (image[]) avec la consigne manga', $viaOpenai['status'] === 'ready' && count($edit['files'] ?? []) === 3
+    && ($edit['files'][0] ?? '') === 'image/jpeg' && ($edit['fields']['prompt'] ?? '') === MangaIllustration::prompt('face', true) && ($edit['fields']['size'] ?? '') === '1024x1536');
+Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $viaOpenai['id']]);
 unset($_SESSION['admin_id']);
 
 echo "Comptes clientes\n";

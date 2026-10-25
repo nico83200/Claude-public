@@ -10,7 +10,14 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
   <p class="perso-title"><?= icon('sparkle', 16) ?> Ton illustration manga, toi et ton cheval <span class="pill pill-blush">Aperçu offert</span></p>
 
   <div class="ai-step" data-manga-start>
-    <p class="ai-step-title"><span class="ai-num">1</span> Vos deux photos</p>
+    <p class="ai-step-title"><span class="ai-num">1</span> La vue</p>
+    <div class="manga-views" role="radiogroup" aria-label="Vue de l'illustration">
+      <?php foreach (MangaIllustration::VIEWS as $key => $label): ?>
+        <label class="chip-check"><input type="radio" name="manga_view_choice" value="<?= e($key) ?>" <?= $key === 'dos' ? 'checked' : '' ?> data-manga-view> <span><?= e($label) ?></span></label>
+      <?php endforeach; ?>
+    </div>
+
+    <p class="ai-step-title"><span class="ai-num">2</span> Vos deux photos</p>
     <div class="manga-photos">
       <label class="photo-drop" data-manga-drop>
         <input type="file" accept="image/jpeg,image/png,image/webp" data-manga-photo="rider">
@@ -22,13 +29,6 @@ $perDay = max(1, (int) config('ai.daily_per_visitor', 3));
         <span class="photo-thumb" hidden></span>
         <span class="photo-text"><strong>Ton cheval</strong><small>En entier, bien visible</small></span>
       </label>
-    </div>
-
-    <p class="ai-step-title"><span class="ai-num">2</span> La vue</p>
-    <div class="manga-views" role="radiogroup" aria-label="Vue de l'illustration">
-      <?php foreach (MangaIllustration::VIEWS as $key => $label): ?>
-        <label class="chip-check"><input type="radio" name="manga_view_choice" value="<?= e($key) ?>" <?= $key === 'dos' ? 'checked' : '' ?> data-manga-view> <span><?= e($label) ?></span></label>
-      <?php endforeach; ?>
     </div>
 
     <label class="ai-consent"><input type="checkbox" data-manga-consent>

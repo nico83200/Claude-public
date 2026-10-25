@@ -9,12 +9,16 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
 // Photo réduite à 2400 px dans le navigateur : envoi rapide en 4G, sans buter sur les limites du serveur
-  var shrinkPhoto = function (file) {
+  // « Failed to fetch » / « Load failed » : la connexion a été coupée pendant l'envoi
+  var netMessage = function (err) {
+    return err instanceof TypeError ? 'La connexion a été interrompue pendant l\u2019envoi des photos. Vérifie ta connexion (le Wi-Fi aide) puis réessaie.' : err.message;
+  };
+  var shrinkPhoto = function (file, maxSide) {
     return new Promise(function (resolve) {
       if (!window.createImageBitmap || !/^image\/(jpeg|png|webp)$/.test(file.type)) { resolve(file); return; }
       createImageBitmap(file).then(function (bmp) {
-        var scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
-        if (scale === 1 && file.size < 1.5 * 1024 * 1024) { resolve(file); return; }
+        var scale = Math.min(1, (maxSide || 2400) / Math.max(bmp.width, bmp.height));
+        if (scale === 1 && file.size < (maxSide ? 0.6 : 1.5) * 1024 * 1024) { resolve(file); return; }
         var c = document.createElement('canvas');
         c.width = Math.round(bmp.width * scale);
         c.height = Math.round(bmp.height * scale);
@@ -867,7 +871,7 @@
             updateRemaining(state.remaining);
             handle(state, Date.now());
           })
-          .catch(function (err) { clearInterval(stepTimer); fail(err.message); });
+          .catch(function (err) { clearInterval(stepTimer); fail(netMessage(err)); });
       });
       $('[data-ai-retry]', aiBox).addEventListener('click', function () {
         resultBox.hidden = true;
@@ -1039,7 +1043,7 @@
         mBar.style.width = '92%';
         mTimer = setInterval(function () { i = Math.min(steps.length - 1, i + 1); mText.textContent = steps[i]; }, 7000);
         track('ai_manga_start', { view: mView() });
-        var send = mFrom ? Promise.resolve([null, null]) : Promise.all([shrinkPhoto(mPhotos.rider.files[0]), shrinkPhoto(mPhotos.horse.files[0])]);
+        var send = mFrom ? Promise.resolve([null, null]) : Promise.all([shrinkPhoto(mPhotos.rider.files[0], 1600), shrinkPhoto(mPhotos.horse.files[0], 1600)]); // l'IA n'utilise que 1024 px : envoi léger en 4G
         send.then(function (photos) {
           var data = new FormData();
           data.append('_token', $('input[name="_token"]', form).value);
@@ -1057,7 +1061,7 @@
             if (typeof state.remaining === 'number' && rem) rem.textContent = state.remaining > 0 ? 'Environ 30 secondes · ' + state.remaining + ' création' + (state.remaining > 1 ? 's' : '') + ' offerte' + (state.remaining > 1 ? 's' : '') + ' aujourd’hui' : 'C’était ta dernière création offerte du jour ♡';
             mHandle(state, Date.now());
           })
-          .catch(function (err) { mFail(err.message); });
+          .catch(function (err) { mFail(netMessage(err)); });
       });
       $('[data-manga-retry]', mangaBox).addEventListener('click', function () {
         var other = $$('[data-manga-view]', mangaBox).filter(function (r) { return !r.checked; })[0];

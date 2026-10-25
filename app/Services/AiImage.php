@@ -77,6 +77,56 @@ final class AiImage
         return $png;
     }
 
+    /**
+     * Dessin d'après plusieurs images de référence (illustration manga : cavalière, cheval, style).
+     * Le formulaire est écrit à la main : le champ « image[] » doit être répété, ce que cURL ne fait pas d'un tableau.
+     * @param list<string> $jpegs
+     */
+    public static function openaiEditMulti(array $jpegs, string $prompt, string $size = '1024x1536'): string
+    {
+        $model = (string) config('ai.openai_model') ?: 'gpt-image-1.5';
+        $fields = [
+            'model'         => $model,
+            'prompt'        => $prompt,
+            'size'          => $size,
+            'quality'       => in_array(config('ai.openai_quality'), ['low', 'medium', 'high'], true) ? config('ai.openai_quality') : 'medium',
+            'output_format' => 'png',
+            'n'             => '1',
+        ];
+        if (!str_contains($model, 'mini')) {
+            $fields['input_fidelity'] = 'high';
+        }
+        $send = static function (array $fields) use ($jpegs): array {
+            $boundary = '----criniere' . bin2hex(random_bytes(12));
+            $body = '';
+            foreach ($fields as $name => $value) {
+                $body .= "--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n";
+            }
+            foreach (array_values($jpegs) as $i => $jpeg) {
+                $body .= "--$boundary\r\nContent-Disposition: form-data; name=\"image[]\"; filename=\"reference-" . ($i + 1) . ".jpg\"\r\nContent-Type: image/jpeg\r\n\r\n" . $jpeg . "\r\n";
+            }
+            $body .= "--$boundary--\r\n";
+            return Http::request('POST', self::base('openai') . 'images/edits', [
+                'Authorization: Bearer ' . config('ai.openai_key'),
+                'Content-Type: multipart/form-data; boundary=' . $boundary,
+            ], $body, 240);
+        };
+        $res = $send($fields);
+        if ($res['status'] === 400 && str_contains($res['body'], 'input_fidelity')) {
+            unset($fields['input_fidelity']);
+            $res = $send($fields);
+        }
+        if ($res['status'] >= 300) {
+            throw new \RuntimeException('OpenAI : ' . self::errorMessage($res));
+        }
+        $b64 = (string) ($res['json']['data'][0]['b64_json'] ?? '');
+        $png = $b64 !== '' ? base64_decode($b64, true) : false;
+        if (!$png) {
+            throw new \RuntimeException('OpenAI : réponse sans image.');
+        }
+        return $png;
+    }
+
     private static function openai(array $fields): array
     {
         return Http::request('POST', self::base('openai') . 'images/edits', [

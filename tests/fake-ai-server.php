@@ -33,7 +33,8 @@ $png = static function (int $w, int $h): string {
 $state = sys_get_temp_dir() . '/fake-ai-polls';
 
 if ($method === 'POST' && $path === '/openai/images/edits') {
-    $record(['route' => 'openai.edit', 'auth' => $auth, 'fields' => $_POST, 'file' => isset($_FILES['image']) ? ['size' => $_FILES['image']['size'], 'type' => mime_content_type($_FILES['image']['tmp_name'])] : null]);
+    $record(['route' => 'openai.edit', 'auth' => $auth, 'fields' => $_POST, 'file' => isset($_FILES['image']) && !is_array($_FILES['image']['tmp_name']) ? ['size' => $_FILES['image']['size'], 'type' => mime_content_type($_FILES['image']['tmp_name'])] : null,
+        'files' => isset($_FILES['image']) && is_array($_FILES['image']['tmp_name']) ? array_map('mime_content_type', $_FILES['image']['tmp_name']) : []]);
     if (!str_starts_with($auth, 'Bearer sk-') || empty($_FILES['image']) || ($_POST['prompt'] ?? '') === '') {
         $json(['error' => ['message' => 'invalid request']], 400);
     }

@@ -231,7 +231,7 @@ final class AiPortrait
                 $row['step'] = 'style';
                 return self::applyPrediction($row, $prediction);
             case 'openai':
-                throw new \RuntimeException('L\'illustration manga utilise plusieurs photos : choisissez Replicate dans Intégrations › Portrait IA.');
+                return self::storeResult($row, AiImage::openaiEditMulti(array_values(array_filter([$rider, $horse, $reference ? self::aiInput($reference) : null])), $prompt));
             default:
                 return self::storeResult($row, AiImage::demoSketch($horse));
         }

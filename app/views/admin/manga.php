@@ -8,7 +8,7 @@ $custom = static fn (string $key) => trim((string) setting($key, '')) !== '';
 <section class="card">
   <div class="card-head"><h2>Exemples et illustration de référence</h2></div>
   <p class="muted small">Les exemples (de face, de dos) ouvrent la galerie du t-shirt sur la fiche produit. L'illustration de référence est envoyée à l'IA avec les deux photos de la cliente, uniquement pour fixer le style de la collection.
-    <?php if ($provider !== 'replicate'): ?><br><strong>L'illustration manga nécessite Replicate (Intégrations › Portrait IA). Sans jeton, le site fonctionne en mode démonstration.</strong><?php endif; ?></p>
+    <?php if ($provider === 'demo'): ?><br><strong>Aucun service d'IA configuré (mode démonstration) : renseignez la clé OpenAI ou le jeton Replicate dans Intégrations › Portrait IA.</strong><?php else: ?><br>Service utilisé : <strong><?= $provider === 'openai' ? 'OpenAI (' . e((string) config('ai.openai_model') ?: 'gpt-image-1.5') . ', plusieurs images de référence)' : 'Replicate (modèle ci-dessous)' ?></strong>.<?php endif; ?></p>
 
   <form method="post" action="<?= e(url('admin/illustration-manga/photos')) ?>" enctype="multipart/form-data" class="mg-photos">
     <?= csrf_field() ?>
@@ -62,7 +62,7 @@ $custom = static fn (string $key) => trim((string) setting($key, '')) !== '';
     </div>
     <label>Modèle Replicate (plusieurs images de référence)
       <input name="ai_manga_model" value="<?= e(MangaIllustration::model()) ?>" placeholder="<?= e(MangaIllustration::DEFAULT_MODEL) ?>"></label>
-    <p class="muted small">Par défaut <code><?= e(MangaIllustration::DEFAULT_MODEL) ?></code> (Gemini) : il reçoit la photo de la cavalière, celle du cheval et l'illustration de référence en une seule fois.</p>
+    <p class="muted small">Utilisé seulement si le service est Replicate. Par défaut <code><?= e(MangaIllustration::DEFAULT_MODEL) ?></code> (Gemini) : il reçoit la photo de la cavalière, celle du cheval et l'illustration de référence en une seule fois. Avec OpenAI, le modèle choisi dans Intégrations reçoit les trois images de la même façon.</p>
   </section>
   <button class="btn btn-primary btn-lg">Enregistrer</button>
 </form>
