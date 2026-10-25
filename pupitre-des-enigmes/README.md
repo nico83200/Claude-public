@@ -32,3 +32,4 @@ Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
 | [Mode d'emploi du pupitre](pdf/mode-emploi.pdf) | Tout le monde, valable pour tous les mondes |
 | [Mission 1 · fiche de mission](pdf/mission-1-fiche-joueurs.pdf) | Les joueurs |
 | [Mission 1 · déroulé](pdf/mission-1-deroule-maitre-du-jeu.pdf) | Le maître du jeu (contient les solutions) |
+| [Mission 1 · script de doublage](pdf/mission-1-script-doublage.pdf) | Celui qui enregistre les voix avec ElevenLabs |

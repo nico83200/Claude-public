@@ -5,8 +5,13 @@
       "nom": "La voix du Pupitre (commune à tous les mondes)",
       "voice_id": "",
       "description": "Femme, la trentaine, voix claire, calme et légèrement mystérieuse, comme un maître de cérémonie.",
+      "portrait": "La voix de la machine, commune à tous les mondes. Claire, calme, élégante et légèrement mystérieuse, comme une maîtresse de cérémonie. Ni humaine ni robotique : intemporelle.",
       "prompt_voice_design": "A clear, calm French female voice in her thirties, native speaker from France, elegant and slightly mysterious, like the host of a game show of riddles, neutral and timeless.",
-      "reglages": { "stability": 0.6, "similarity_boost": 0.75, "style": 0.2 }
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.2
+      }
     }
   }
 }
