@@ -58,6 +58,7 @@ final class Settings
         'ai_prompt_popart' => '',
         'ai_prompt_fusain' => '',
         'ai_prompt_gravure' => '',
+        'ai_isolate'       => '1',     // détourage tête + encolure avant le dessin (2 passes Replicate)
         'ai_styles'        => 'aquarelle,trait,popart,fusain,gravure', // styles proposés, dans l'ordre
         'ai_style_examples' => '',     // images d'exemple générées (JSON style => chemin)
         'christmas_banner' => '1',      // compte à rebours de Noël dans le bandeau (novembre-décembre)

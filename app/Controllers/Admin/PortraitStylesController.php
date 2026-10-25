@@ -34,6 +34,7 @@ final class PortraitStylesController extends BaseController
             redirect('admin/portrait-styles');
         }
         Settings::set('ai_styles', implode(',', $enabled));
+        Settings::set('ai_isolate', !empty($_POST['ai_isolate']) ? '1' : '0');
         foreach (array_keys(PortraitStyles::STYLES) as $key) {
             $value = trim((string) ($_POST['prompt'][$key] ?? ''));
             $same = preg_replace('/\s+/', ' ', $value) === preg_replace('/\s+/', ' ', PortraitStyles::defaultPrompt($key));

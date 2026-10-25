@@ -265,6 +265,7 @@ try {
 }
 
 Config::set('ai.daily_per_visitor', 6);
+App\Core\Settings::set('ai_isolate', '0'); // une seule passe pour les tests du suivi Replicate
 Config::set('ai.provider', 'replicate');
 Config::set('ai.replicate_token', 'r8_test');
 Config::set('ai.replicate_model', 'pas un modèle');
@@ -327,6 +328,25 @@ check('exemple généré publié pour le style', str_starts_with($example, 'uplo
 @unlink(PUBLIC_PATH . '/' . strtok($example, '?'));
 App\Core\Settings::set('ai_style_examples', '');
 check('exemple aquarelle par défaut', PortraitStyles::example('aquarelle') === 'assets/img/portrait-ia/exemple-bai.jpg' && PortraitStyles::example('popart') === null);
+echo "Portrait : détourage avant le dessin\n";
+App\Core\Settings::set('ai_isolate', '1');
+$_SESSION['admin_id'] = 1;
+$iso = AiPortrait::run(AiPortrait::create($aiFile(), 'trait'));
+check('passe 1 : détourage lancé', $iso['status'] === 'processing' && $iso['step'] === 'isolate');
+$iso = AiPortrait::refresh(AiPortrait::refresh($iso));
+check('passe 2 : dessin lancé sur la tête détourée', $iso['status'] === 'processing' && $iso['step'] === 'style');
+$kontext = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create' && isset($c['input']['prompt'])));
+[$pass1, $pass2] = array_slice($kontext, -2);
+check('détourage : tête et encolure sur fond blanc, d\'après la photo', str_starts_with((string) $pass1['input']['prompt'], substr(AiPortrait::ISOLATE_PROMPT, 0, 40))
+    && str_starts_with((string) $pass1['input']['input_image'], 'data:image/jpeg;base64,'));
+check('dessin : style choisi appliqué à l\'image détourée', str_ends_with((string) $pass2['input']['input_image'], '/replicate/files/pred1.png')
+    && str_starts_with((string) $pass2['input']['prompt'], substr(PortraitStyles::prompt('trait'), 0, 40)) && ($pass2['prefer'] ?? null) === null);
+$iso = AiPortrait::refresh(AiPortrait::refresh($iso));
+check('portrait prêt après les deux passes', $iso['status'] === 'ready' && is_file(AiPortrait::DIR . '/' . $iso['result_file']));
+Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $iso['id']]);
+unset($_SESSION['admin_id']);
+check('demande de recadrage dans chaque style', str_contains(PortraitStyles::IDENTITY, 'the body, chest, back and legs must not appear'));
+
 echo "Comptes clientes\n";
 $mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
 $lastLink = static function (string $path) use ($mailLog): ?string {
@@ -708,7 +728,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('dix-neuf migrations connues', count(App\Core\Migrator::files()) === 19);
+check('vingt migrations connues', count(App\Core\Migrator::files()) === 20);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');

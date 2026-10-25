@@ -33,6 +33,11 @@ use App\Services\PortraitStyles;
 
 <form method="post" action="<?= e(url('admin/portrait-styles')) ?>">
   <?= csrf_field() ?>
+  <section class="card">
+    <h2>Détourage avant le dessin</h2>
+    <label class="checkbox"><input type="checkbox" name="ai_isolate" value="1" <?= App\Services\AiPortrait::isolates() ? 'checked' : '' ?>> Supprimer le fond et ne garder que la tête et l'encolure avant de dessiner</label>
+    <p class="muted small">L'IA fait d'abord une première passe qui recadre la photo sur la tête et l'encolure, sur fond blanc (décor, personnes, corps et jambes retirés), puis redessine ce portrait dans le style choisi. Résultat plus propre, surtout avec une photo du cheval en entier, mais deux appels Replicate par création (environ le double du coût et quelques secondes de plus).</p>
+  </section>
   <?php foreach (PortraitStyles::STYLES as $key => $style):
       $custom = trim((string) setting(PortraitStyles::settingKey($key), '')) !== ''; ?>
     <section class="card">

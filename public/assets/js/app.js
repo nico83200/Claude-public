@@ -706,6 +706,13 @@
         });
         versionsBox.hidden = versions.length < 2;
       };
+      // Les images d'exemple de la galerie présélectionnent leur style
+      $$('[data-style-key]').forEach(function (t) {
+        t.addEventListener('click', function () {
+          var input = styleInputs.filter(function (i) { return i.value === t.dataset.styleKey; })[0];
+          if (input) { input.checked = true; updateGenerate(); }
+        });
+      });
       styleInputs.forEach(function (input) {
         input.addEventListener('change', function () {
           var mine = versions.filter(function (v) { return v.style === input.value; }).pop();
@@ -750,7 +757,7 @@
         var i = 0;
         var styleSteps = [];
         try { styleSteps = JSON.parse(currentStyle().dataset.steps || '[]'); } catch (e) {}
-        var steps = ['Analyse de la photo…', 'Esquisse de la tête et des oreilles…'].concat(styleSteps, ['Derniers détails dans le regard…', 'Encore quelques secondes, on peaufine…']);
+        var steps = ['Analyse de la photo…', 'Détourage de la tête et de l’encolure…', 'Esquisse de la tête et des oreilles…'].concat(styleSteps, ['Derniers détails dans le regard…', 'Encore quelques secondes, on peaufine…']);
         startBox.hidden = true;
         resultBox.hidden = true;
         aiError.hidden = true;
@@ -759,7 +766,7 @@
         bar.style.transition = 'none';
         bar.style.width = '3%';
         void bar.offsetWidth;
-        bar.style.transition = 'width 45s cubic-bezier(.2,.6,.3,1)';
+        bar.style.transition = 'width 60s cubic-bezier(.2,.6,.3,1)';
         bar.style.width = '92%';
         clearInterval(stepTimer);
         stepTimer = setInterval(function () { i = Math.min(steps.length - 1, i + 1); progressText.textContent = steps[i]; }, 7000);

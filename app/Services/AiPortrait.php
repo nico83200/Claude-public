@@ -30,6 +30,28 @@ final class AiPortrait
         . 'Mood: modern, minimalist, feminine, luminous, gallery quality, with lively detailed eyes and a soft highlight. '
         . 'Strictly no text, letters, numbers, signature, logo, frame or border.';
 
+    /**
+     * Première passe (Replicate) : le cheval est détouré et recadré sur la tête et l'encolure, sur fond blanc,
+     * avant d'être redessiné. Le style travaille ainsi sur un portrait propre, sans décor ni corps.
+     */
+    public const ISOLATE_PROMPT = 'Isolate this horse for a portrait: zoom in to a close-up of its head and the upper part of its neck only, centered, '
+        . 'facing the same way as in the photo. Remove everything else: background, sky, ground, buildings, fences, people, lead ropes and any object; '
+        . 'the body, chest, back and legs must not appear. Place the head and neck on a plain pure white background. '
+        . 'Keep the horse exactly identical: same head shape and proportions, ears, eyes, nostrils, face markings, coat color, mane and forelock. '
+        . 'Photographic, realistic and sharp, no stylization, no text.';
+
+    /** Vrai si le détourage préalable est activé (Admin › Styles du portrait). */
+    public static function isolates(): bool
+    {
+        return (string) setting('ai_isolate', '1') === '1';
+    }
+
+    /** Consigne de dessin d'un portrait (style et signes particuliers choisis). */
+    private static function stylePrompt(array $row): string
+    {
+        return PortraitStyles::prompt($row['style'] ?? null, array_filter(explode(',', (string) ($row['marks'] ?? ''))));
+    }
+
     /** Prompt du style aquarelle : celui des Réglages s'il a été personnalisé, sinon le style d'origine. */
     public static function prompt(): string
     {
@@ -194,21 +216,18 @@ final class AiPortrait
         $row['status'] = 'processing';
         try {
             $jpeg = self::aiInput((string) Upload::customerPhotoPath($row['photo_file']));
-            $prompt = PortraitStyles::prompt($row['style'] ?? null, array_filter(explode(',', (string) ($row['marks'] ?? ''))));
+            $prompt = self::stylePrompt($row);
             switch ($row['provider']) {
                 case 'openai':
                     return self::storeResult($row, AiImage::openaiEdit($jpeg, $prompt));
                 case 'replicate':
-                    $prediction = AiImage::replicateCreate((string) config('ai.replicate_model') ?: 'black-forest-labs/flux-kontext-pro', [
-                        'prompt'           => $prompt,
-                        'input_image'      => 'data:image/jpeg;base64,' . base64_encode($jpeg),
-                        'aspect_ratio'     => '3:4',
-                        'output_format'    => 'png',
-                        'safety_tolerance' => 2,
-                    ], 50);
-                    Database::update('ai_portraits', ['prediction_id' => $prediction['id'], 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
+                    // Détourage d'abord (si activé), puis dessin dans le style choisi
+                    $step = self::isolates() ? 'isolate' : 'style';
+                    $prediction = self::replicateKontext($step === 'isolate' ? self::ISOLATE_PROMPT : $prompt, 'data:image/jpeg;base64,' . base64_encode($jpeg), 50);
+                    Database::update('ai_portraits', ['prediction_id' => $prediction['id'], 'step' => $step, 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
                     $row['prediction_id'] = $prediction['id'];
-                    return self::applyPrediction($row, $prediction);
+                    $row['step'] = $step;
+                    return self::applyPrediction($row, $prediction, 50);
                 default:
                     return self::storeResult($row, AiImage::demoSketch($jpeg));
             }
@@ -254,12 +273,31 @@ final class AiPortrait
         return $row;
     }
 
-    private static function applyPrediction(array $row, array $prediction): array
+    private static function replicateKontext(string $prompt, string $image, int $wait): array
+    {
+        return AiImage::replicateCreate((string) config('ai.replicate_model') ?: 'black-forest-labs/flux-kontext-pro', [
+            'prompt'           => $prompt,
+            'input_image'      => $image,
+            'aspect_ratio'     => '3:4',
+            'output_format'    => 'png',
+            'safety_tolerance' => 2,
+        ], $wait);
+    }
+
+    /** @param int $wait attente synchrone de la passe suivante (0 pendant le suivi par le navigateur) */
+    private static function applyPrediction(array $row, array $prediction, int $wait = 0): array
     {
         if ($prediction['status'] === 'succeeded') {
             $url = AiImage::outputUrl($prediction['output']);
             if (!$url) {
                 return self::fail($row, 'Réponse Replicate sans image.');
+            }
+            if (($row['step'] ?? null) === 'isolate') {
+                // Tête et encolure détourées : on les redessine dans le style choisi
+                $next = self::replicateKontext(self::stylePrompt($row), $url, $wait);
+                Database::update('ai_portraits', ['prediction_id' => $next['id'], 'step' => 'style', 'updated_at' => now()], 'id = :id', ['id' => $row['id']]);
+                $row = ['prediction_id' => $next['id'], 'step' => 'style'] + $row;
+                return self::applyPrediction($row, $next);
             }
             return self::storeResult($row, AiImage::download($url), $url);
         }

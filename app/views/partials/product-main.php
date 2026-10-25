@@ -36,6 +36,19 @@ $isAi = $cfg && $mode === 'ai_portrait' && App\Services\AiPortrait::enabled();
 if ($cfg && $mode === 'ai_portrait' && !$isAi) {
     $variants = []; // migration 006 en attente : article indisponible
 }
+// Portrait IA : les exemples générés (un par style) ouvrent la galerie, chacun avec le nom de son style
+$styleThumbs = [];
+if ($isAi) {
+    foreach (App\Services\PortraitStyles::enabled() as $key => $style) {
+        $example = App\Services\PortraitStyles::example($key);
+        if ($example && str_starts_with($example, 'uploads/')) {
+            $styleThumbs[strtok($example, '?')] = [$key, $style['name']];
+        }
+    }
+    if ($styleThumbs) {
+        $images = array_values(array_unique(array_merge(array_keys($styleThumbs), array_filter($images))));
+    }
+}
 $price = (int) ($first['price'] ?? $product['price']);
 $saving = $product['discount'] ? (int) $product['compare_at_price'] - (int) $product['price'] : 0;
 $stageStyle = '';
@@ -54,7 +67,7 @@ if ($cfg) {
              <?= $cfg && $cfg['preview_image'] ? 'data-preview-base="' . e(image_url($cfg['preview_image'])) . '"' : '' ?>>
           <?php if ($product['badge']): ?><span class="pill <?= $product['badge'] === 'Best-seller' ? 'pill-rose' : '' ?>"><?= e($product['badge']) ?></span><?php endif; ?>
           <div class="gallery-zoom" data-zoom-layer>
-          <img <?= img_attrs($images[0] ?? null, [600, 800, 1200], '(max-width: 960px) 100vw, 640px') ?> alt="<?= e($product['name']) ?>" data-main-image data-full="<?= e(image_url($images[0] ?? null)) ?>" width="800" height="800" fetchpriority="high">
+          <img <?= img_attrs($images[0] ?? null, [600, 800, 1200], '(max-width: 960px) 100vw, 640px') ?> alt="<?= e(isset($styleThumbs[$images[0] ?? '']) ? $product['name'] . ' — style ' . $styleThumbs[$images[0]][1] : $product['name']) ?>" data-main-image data-full="<?= e(image_url($images[0] ?? null)) ?>" width="800" height="800" fetchpriority="high">
           <?php if ($cfg && $mode === 'photo'): ?>
             <span class="preview-photo shape-<?= e($cfg['photo_shape']) ?>" data-preview-photo hidden></span>
           <?php endif; ?>
@@ -73,8 +86,9 @@ if ($cfg) {
               <button type="button" class="thumb thumb-preview <?= $previewFirst ? 'active' : '' ?>" data-ai-show aria-label="Voir l'aperçu de ton portrait"><?= icon('sparkle', 20) ?><span>Aperçu</span></button>
             <?php endif; ?>
             <?php foreach ($images as $i => $img): ?>
-              <button type="button" class="thumb <?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?>" data-thumb="<?= e(thumb($img, 800)) ?>" data-thumb-set="<?= e(thumb($img, 600) . ' 600w, ' . thumb($img, 800) . ' 800w, ' . thumb($img, 1200) . ' 1200w') ?>" data-full="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
+              <button type="button" class="thumb <?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?><?= isset($styleThumbs[$img]) ? ' thumb-style' : '' ?>" <?= isset($styleThumbs[$img]) ? 'data-style-key="' . e($styleThumbs[$img][0]) . '"' : '' ?> data-thumb="<?= e(thumb($img, 800)) ?>" data-thumb-set="<?= e(thumb($img, 600) . ' 600w, ' . thumb($img, 800) . ' 800w, ' . thumb($img, 1200) . ' 1200w') ?>" data-full="<?= e(image_url($img)) ?>" aria-label="Voir l'image <?= $i + 1 ?>">
                 <img src="<?= e(thumb($img, 160)) ?>" alt="" loading="lazy" width="120" height="120">
+                <?php if (isset($styleThumbs[$img])): ?><span class="thumb-label"><?= e($styleThumbs[$img][1]) ?></span><?php endif; ?>
               </button>
             <?php endforeach; ?>
           </div>

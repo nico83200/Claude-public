@@ -15,7 +15,8 @@ final class PortraitStyles
     public const IDENTITY = 'Redraw this photo as a work of art showing this exact horse. Keep the horse perfectly recognizable: '
         . 'same head shape and proportions, ears, eyes, nostrils and muzzle, face markings (blaze, star, snip) with their exact shape and position, '
         . 'coat color and pattern, mane and forelock. Remove the halter, bridle, lead rope and any rider, person, fence or background object. '
-        . 'Composition: head and upper neck only, centered, facing the same way as in the photo, with generous empty space around. ';
+        . 'Composition: a close-up bust of the head and the upper part of the neck only (the body, chest, back and legs must not appear), '
+        . 'centered, facing the same way as in the photo, with generous empty space around. ';
 
     public const ENDING = ' Strictly no text, letters, numbers, signature, logo, frame or border.';
 
