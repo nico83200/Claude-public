@@ -112,6 +112,8 @@
   $$('[data-thumb]').forEach(function (thumb) {
     thumb.addEventListener('click', function () {
       setMain(thumb.dataset.thumb, thumb.dataset.thumbSet, thumb.dataset.full);
+      var idx = $$('[data-thumb]').indexOf(thumb);
+      $$('.gallery-dots span').forEach(function (d, i) { d.classList.toggle('active', i === idx); });
       if (aiStage) aiStage.hidden = true;
       $$('[data-thumb], [data-ai-show]').forEach(function (t) { t.classList.remove('active'); });
       thumb.classList.add('active');
@@ -469,7 +471,8 @@
       $$('input[data-option="size"]', form).forEach(function (input) {
         input.disabled = color !== null && !variants.some(function (v) { return v.color === color && v.size === input.value; });
       });
-      var c = $('[data-selected-color]'); if (c) c.textContent = color || '';
+      var cIn = $('input[data-option="color"]:checked', form);
+      var c = $('[data-selected-color]'); if (c) c.textContent = (cIn && cIn.dataset.label) || color || '';
       var s = $('[data-selected-size]'); if (s) s.textContent = size || '';
       if (match) {
         variantInput.value = match.id;
@@ -786,6 +789,7 @@
 
     // Ajout au panier sans quitter la page
     form.addEventListener('submit', function (e) {
+      if (e.submitter && e.submitter.hasAttribute('data-express')) return; // achat express : envoi classique vers le paiement
       if (!window.fetch || !window.FormData || !drawer) return;
       e.preventDefault();
       var data = new FormData(form);
@@ -831,6 +835,21 @@
       });
     }
   }
+
+  // « Complète le look » : ajout en un clic, mini-panier ouvert
+  $$('[data-quick-add]').forEach(function (qf) {
+    qf.addEventListener('submit', function (e) {
+      if (!window.fetch || !drawer) return;
+      e.preventDefault();
+      var btn = $('button', qf), data = new FormData(qf);
+      data.append('ajax', '1');
+      btn.disabled = true;
+      fetch(qf.action, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j.ok) { setCount(j.count); openDrawer(j.html); btn.textContent = '✓ Ajouté'; track('add_to_cart'); } else { btn.disabled = false; } })
+        .catch(function () { qf.submit(); });
+    });
+  });
 
   // Newsletter (pied de page, bloc club, popup) ------------------------------
   $$('[data-newsletter]').forEach(function (nl) {

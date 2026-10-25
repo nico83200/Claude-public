@@ -80,6 +80,12 @@ final class Cart
     public static function items(): array
     {
         $cart = &self::store();
+        return self::itemsFor($cart);
+    }
+
+    /** Lignes enrichies pour un panier donné (achat express : un seul article, hors panier). */
+    public static function itemsFor(array &$cart): array
+    {
         if (!$cart) {
             return [];
         }

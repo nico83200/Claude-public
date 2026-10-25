@@ -93,6 +93,7 @@ final class ShopController
             'ogImage'         => image_url($product['main_image']),
             'canonical'       => url('produit/' . $product['slug']),
             'related'         => $related,
+            'complete'        => Catalog::completeTheLook($product, 3),
             'landingUrl'      => $isAi ? url('portrait-aquarelle') : null,
         ]);
     }

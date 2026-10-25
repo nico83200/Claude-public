@@ -38,6 +38,7 @@ $r->post('/panier/modifier', [CartController::class, 'update']);
 $r->post('/panier/supprimer', [CartController::class, 'remove']);
 $r->get('/panier/reprendre/{number}', [CartController::class, 'restore']);
 $r->post('/commande', [CheckoutController::class, 'start']);
+$r->post('/commande/express', [CheckoutController::class, 'express']);
 $r->get('/commande/merci', [CheckoutController::class, 'success']);
 
 // Compte cliente

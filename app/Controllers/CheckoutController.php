@@ -26,8 +26,39 @@ final class CheckoutController
             flash('error', 'Le paiement en ligne n\'est pas encore activé sur cette boutique.');
             redirect('panier');
         }
+        $this->checkout($items, input('newsletter') === '1', url('panier') . '?annule=1');
+    }
 
-        $order = OrderService::createFromCart($items, input('newsletter') === '1');
+    /**
+     * Achat express depuis la fiche produit (articles sans personnalisation) : paiement Stripe direct
+     * (Apple Pay, Google Pay, carte) pour cet article seul ; le panier n'est pas modifié.
+     */
+    public function express(): void
+    {
+        $variantId = (int) input('variant_id');
+        $row = Database::one('SELECT v.id, p.slug, p.personalizable FROM product_variants v JOIN products p ON p.id = v.product_id
+            WHERE v.id = ? AND v.active = 1 AND p.active = 1', [$variantId]);
+        if (!$row || $row['personalizable']) {
+            flash('error', 'Cet article ne peut pas être acheté en express.');
+            redirect($row ? 'produit/' . $row['slug'] : 'boutique');
+        }
+        if ((string) config('stripe.secret_key') === '') {
+            flash('error', 'Le paiement en ligne n\'est pas encore activé sur cette boutique.');
+            redirect('produit/' . $row['slug']);
+        }
+        $lines = ['express' => ['variant_id' => $variantId, 'qty' => max(1, min(20, (int) input('qty', 1))), 'text' => '', 'photo' => null, 'year' => '', 'portrait' => null]];
+        $items = Cart::itemsFor($lines);
+        if (!$items) {
+            flash('error', 'Cet article n\'est plus disponible.');
+            redirect('produit/' . $row['slug']);
+        }
+        $_SESSION['express_checkout'] = true;
+        $this->checkout($items, false, url('produit/' . $row['slug']), true);
+    }
+
+    private function checkout(array $items, bool $newsletter, string $cancelUrl, bool $express = false): never
+    {
+        $order = OrderService::createFromCart($items, $newsletter);
         $customer = Account::current();
         $extra = [];
         if ($customer) {
@@ -88,7 +119,7 @@ final class CheckoutController
             'locale'               => 'fr',
             'client_reference_id'  => $order['number'],
             'success_url'          => url('commande/merci') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url'           => url('panier') . '?annule=1',
+            'cancel_url'           => $cancelUrl,
             'line_items'           => $lineItems,
             'shipping_address_collection' => ['allowed_countries' => array_values((array) config('stripe.allowed_countries'))],
             'shipping_options'     => $shippingOptions,
@@ -117,6 +148,7 @@ final class CheckoutController
 
         Database::update('orders', ['stripe_session_id' => $session['id'], 'updated_at' => now()], 'id = :id', ['id' => $order['id']]);
         $_SESSION['last_order_id'] = (int) $order['id'];
+        $_SESSION['express_order'] = $express ? (int) $order['id'] : null;
         redirect($session['url'], 303);
     }
 
@@ -138,7 +170,8 @@ final class CheckoutController
             }
         }
 
-        if ($order['status'] !== 'pending') {
+        // Achat express : le panier (autres articles) est conservé
+        if ($order['status'] !== 'pending' && (int) ($_SESSION['express_order'] ?? 0) !== (int) $order['id']) {
             Cart::clear();
         }
 

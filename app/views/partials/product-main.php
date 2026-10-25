@@ -78,6 +78,9 @@ if ($cfg) {
               </button>
             <?php endforeach; ?>
           </div>
+          <?php if (count($images) > 1): ?>
+            <div class="gallery-dots" aria-hidden="true"><?php foreach ($images as $i => $img): ?><span class="<?= $i === 0 && !($isAi && $previewFirst) ? 'active' : '' ?>"></span><?php endforeach; ?></div>
+          <?php endif; ?>
         <?php endif; ?>
       </div>
 
@@ -122,13 +125,13 @@ if ($cfg) {
 
           <?php if ($colors): ?>
           <fieldset class="option-group">
-            <legend class="option-head"><span>Couleur : <strong data-selected-color><?= e($first['color']) ?></strong></span></legend>
+            <legend class="option-head"><span>Couleur : <strong data-selected-color><?= e(color_label($first['color'])) ?></strong></span></legend>
             <div class="swatches">
               <?php foreach ($colors as $color => $hex): ?>
-                <label class="swatch" title="<?= e($color) ?>">
-                  <input type="radio" name="_color" value="<?= e($color) ?>" <?= $color === $first['color'] ? 'checked' : '' ?> data-option="color">
+                <label class="swatch" title="<?= e(color_label($color)) ?>">
+                  <input type="radio" name="_color" value="<?= e($color) ?>" data-label="<?= e(color_label($color)) ?>" <?= $color === $first['color'] ? 'checked' : '' ?> data-option="color">
                   <span style="background: <?= e($hex ?: '#ccc') ?>"></span>
-                  <span class="sr-only"><?= e($color) ?></span>
+                  <span class="sr-only"><?= e(color_label($color)) ?></span>
                 </label>
               <?php endforeach; ?>
             </div>
@@ -190,9 +193,27 @@ if ($cfg) {
             </div>
             <button class="btn btn-primary btn-lg" type="submit" data-add-button>Ajouter au panier</button>
           </div>
+          <?php if (!$cfg && (string) config('stripe.secret_key') !== ''): ?>
+            <button class="btn btn-ghost btn-block express-btn" type="submit" formaction="<?= e(url('commande/express')) ?>" data-express><?= icon('lock', 16) ?> Acheter maintenant</button>
+            <p class="express-note">Paiement express : Apple Pay, Google Pay ou carte, sans passer par le panier. En continuant, tu acceptes nos <a href="<?= e(url('page/cgv')) ?>" target="_blank">CGV</a>.</p>
+          <?php endif; ?>
           <p class="variant-unavailable" data-unavailable hidden>Cette combinaison n'est pas disponible.</p>
           <p class="form-error" data-form-error role="alert" hidden></p>
         </form>
+        <?php endif; ?>
+
+        <?php if (!empty($complete)): ?>
+        <div class="complete-look">
+          <p class="complete-title"><?= icon('sparkle', 15) ?> Complète le look</p>
+          <?php foreach ($complete as $c): ?>
+            <form class="complete-item" action="<?= e(url('panier/ajouter')) ?>" method="post" data-quick-add>
+              <?= csrf_field() ?><input type="hidden" name="variant_id" value="<?= (int) $c['variant_id'] ?>"><input type="hidden" name="qty" value="1">
+              <a href="<?= e(url('produit/' . $c['slug'])) ?>"><img src="<?= e(thumb($c['main_image'], 160)) ?>" alt="" width="56" height="56" loading="lazy"></a>
+              <a class="complete-name" href="<?= e(url('produit/' . $c['slug'])) ?>"><?= e($c['name']) ?><span><?= e(money($c['price'])) ?></span></a>
+              <button class="btn btn-ghost btn-sm" type="submit" aria-label="Ajouter <?= e($c['name']) ?> au panier">+ Ajouter</button>
+            </form>
+          <?php endforeach; ?>
+        </div>
         <?php endif; ?>
 
         <div class="delivery-box">

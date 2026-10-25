@@ -1,4 +1,4 @@
-<section class="section section-tight">
+<section class="section section-tight product-page">
   <div class="container">
     <nav class="breadcrumb" aria-label="Fil d'Ariane">
       <a href="<?= e(url('/')) ?>">Accueil</a> /
@@ -9,7 +9,7 @@
       <p class="landing-link"><a href="<?= e($landingUrl) ?>"><?= icon('sparkle', 14) ?> Découvrir des exemples et comment ça marche</a></p>
     <?php endif; ?>
 
-    <?php partial('product-main', compact('product', 'variants', 'personalization', 'reviewSummary', 'sizeGuide', 'delivery')); ?>
+    <?php partial('product-main', compact('product', 'variants', 'personalization', 'reviewSummary', 'sizeGuide', 'delivery', 'complete')); ?>
   </div>
 </section>
 

@@ -25,7 +25,7 @@ $reached = ['paid' => 1, 'in_production' => 2, 'shipped' => 3][$order['status']]
     <div class="order-recap">
       <?php foreach ($items as $item): ?>
         <div class="recap-line">
-          <span><?= (int) $item['quantity'] ?> × <?= e($item['product_name']) ?> <span class="muted">(<?= e($item['variant_name']) ?>)</span>
+          <span><?= (int) $item['quantity'] ?> × <?= e($item['product_name']) ?> <span class="muted">(<?= e(variant_label($item['variant_name'])) ?>)</span>
           <?php if ($item['personalization_text']): ?><br><small>✦ <?= e($item['personalization_text']) ?><?= !empty($item['personalization_year']) ? ' · ' . e($item['personalization_year']) : '' ?></small><?php endif; ?></span>
           <span><?= e(money($item['unit_price'] * $item['quantity'])) ?></span>
         </div>

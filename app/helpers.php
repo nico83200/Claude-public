@@ -406,3 +406,50 @@ function number_words(int $n, bool $capital = false): string
     $word = $words[$n] ?? (string) $n;
     return $capital ? mb_strtoupper(mb_substr($word, 0, 1)) . mb_substr($word, 1) : $word;
 }
+
+/** Noms de couleurs Printful (anglais) affichés en français : « Washed Lavender » → « Lavande délavée ». */
+function color_label(?string $color): string
+{
+    $color = trim((string) $color);
+    if ($color === '') {
+        return '';
+    }
+    static $exact = [
+        'white' => 'Blanc', 'black' => 'Noir', 'navy' => 'Bleu marine', 'french navy' => 'Bleu marine', 'anthracite' => 'Anthracite',
+        'desert dust' => 'Sable du désert', 'heather grey' => 'Gris chiné', 'sport grey' => 'Gris chiné', 'rs sport grey' => 'Gris chiné',
+        'athletic heather' => 'Gris chiné', 'dark grey heather' => 'Gris chiné foncé', 'azalea' => 'Rose azalée', 'red' => 'Rouge',
+        'royal' => 'Bleu roi', 'carolina blue' => 'Bleu Caroline', 'light blue' => 'Bleu ciel', 'sand' => 'Sable', 'light pink' => 'Rose pâle',
+        'pink' => 'Rose', 'wood' => 'Bois', 'misty grey' => 'Gris brume', 'pebble blue' => 'Bleu galet', 'blossom' => 'Rose poudré',
+        'chambray' => 'Bleu chambray', 'butter' => 'Jaune beurre', 'oak' => 'Chêne', 'washed lavender' => 'Lavande délavée',
+        'lavender' => 'Lavande', 'natural' => 'Naturel', 'cream' => 'Crème', 'bone' => 'Écru', 'ivory' => 'Ivoire', 'khaki' => 'Kaki',
+        'olive' => 'Olive', 'military green' => 'Vert militaire', 'forest green' => 'Vert forêt', 'bottle green' => 'Vert bouteille',
+        'maroon' => 'Bordeaux', 'burgundy' => 'Bordeaux', 'wine' => 'Lie-de-vin', 'brown' => 'Marron', 'chocolate' => 'Chocolat',
+        'charcoal' => 'Anthracite', 'grey' => 'Gris', 'gray' => 'Gris', 'silver' => 'Argent', 'gold' => 'Or', 'beige' => 'Beige',
+        'stone' => 'Pierre', 'mauve' => 'Mauve', 'dusty rose' => 'Vieux rose', 'peach' => 'Pêche', 'coral' => 'Corail',
+        'mint' => 'Menthe', 'sage' => 'Sauge', 'sky blue' => 'Bleu ciel', 'baby blue' => 'Bleu layette', 'denim' => 'Denim',
+        'orange' => 'Orange', 'yellow' => 'Jaune', 'purple' => 'Violet', 'heather dust' => 'Sable chiné', 'vintage white' => 'Blanc vintage',
+        'off white' => 'Blanc cassé', 'transparent' => 'Transparent', 'glossy' => 'Brillant', 'matte' => 'Mat',
+    ];
+    $key = mb_strtolower(preg_replace('/\s+/', ' ', $color));
+    if (isset($exact[$key])) {
+        return $exact[$key];
+    }
+    // Composés : « Heather Navy » → « Bleu marine chiné », « Light Pink » déjà traité…
+    $words = ['heather' => 'chiné', 'light' => 'clair', 'dark' => 'foncé', 'pastel' => 'pastel', 'washed' => 'délavé', 'vintage' => 'vintage'];
+    $parts = explode(' ', $key);
+    $mods = [];
+    while (count($parts) > 1 && isset($words[$parts[0]])) {
+        $mods[] = $words[array_shift($parts)];
+    }
+    $base = implode(' ', $parts);
+    if ($mods && isset($exact[$base])) {
+        return $exact[$base] . ' ' . implode(' ', $mods);
+    }
+    return $color;
+}
+
+/** Nom de variante Printful (« Washed Lavender / XS ») avec les couleurs en français. */
+function variant_label(?string $name): string
+{
+    return implode(' / ', array_map(static fn ($p) => color_label($p) ?: $p, array_map('trim', explode('/', (string) $name))));
+}

@@ -146,6 +146,30 @@ final class Catalog
         return [implode(' AND ', $where), $params];
     }
 
+    /**
+     * « Complète le look » : accessoires d'autres collections, sans taille à choisir (une seule variante
+     * ou une seule taille), ajoutables en un clic. Chaque produit reçoit la variante proposée.
+     */
+    public static function completeTheLook(array $product, int $limit = 3): array
+    {
+        $out = [];
+        foreach (self::products(['exclude' => [(int) $product['id']], 'sort' => 'bestsellers'], 40) as $p) {
+            if ($p['personalizable'] || ((int) $p['category_id'] === (int) $product['category_id'] && $product['category_id'])) {
+                continue;
+            }
+            $variants = self::variants((int) $p['id']);
+            $sizes = array_unique(array_filter(array_column($variants, 'size'), static fn ($s) => $s !== null && $s !== ''));
+            if (!$variants || count($sizes) > 1) {
+                continue;
+            }
+            $out[] = $p + ['variant_id' => (int) $variants[0]['id']];
+            if (count($out) >= $limit) {
+                break;
+            }
+        }
+        return $out;
+    }
+
     /** Synonymes courants (« tee-shirt » trouve les t-shirts, « tasse » les mugs…). */
     private const SYNONYMS = [
         'tshirt' => 't-shirt', 'tee-shirt' => 't-shirt', 'teeshirt' => 't-shirt', 'tee' => 't-shirt',

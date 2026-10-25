@@ -3,7 +3,7 @@
   <tr>
     <td style="padding:10px 0;border-bottom:1px solid #eee;">
       <strong><?= e($item['product_name']) ?></strong><br>
-      <span style="color:#777;font-size:13px;"><?= e($item['variant_name']) ?> · Qté <?= (int) $item['quantity'] ?></span>
+      <span style="color:#777;font-size:13px;"><?= e(variant_label($item['variant_name'])) ?> · Qté <?= (int) $item['quantity'] ?></span>
       <?php if ($item['personalization_text']): ?><br><span style="color:#5a2a3a;font-size:13px;">✦ Personnalisation : <?= e($item['personalization_text']) ?></span><?php endif; ?>
       <?php if (!empty($item['personalization_year'])): ?><br><span style="color:#5a2a3a;font-size:13px;">✦ Année : <?= e($item['personalization_year']) ?></span><?php endif; ?>
     </td>
