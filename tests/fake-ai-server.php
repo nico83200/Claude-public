@@ -63,6 +63,18 @@ if ($method === 'GET' && preg_match('#^/replicate/files/(\w+)\.png$#', $path, $m
     echo $m[1] === 'up1' ? $png(3520, 4704) : $png(880, 1184);
     exit;
 }
+if ($method === 'POST' && $path === '/google/token') {
+    $record(['route' => 'google.token', 'fields' => $_POST]);
+    if (($_POST['code'] ?? '') !== 'bon-code' || ($_POST['client_secret'] ?? '') !== 'secret-test') {
+        $json(['error' => 'invalid_grant'], 400);
+    }
+    $json(['access_token' => 'ya29.test', 'token_type' => 'Bearer', 'expires_in' => 3600]);
+}
+if ($method === 'GET' && $path === '/google/userinfo') {
+    $json($auth === 'Bearer ya29.test'
+        ? ['sub' => '1098765', 'email' => 'Lea.Google@Example.com', 'email_verified' => true, 'given_name' => 'Léa', 'name' => 'Léa Martin']
+        : ['error' => 'invalid_token']);
+}
 if ($method === 'POST' && $path === '/stripe/coupons') {
     $record(['route' => 'stripe.coupon', 'fields' => $_POST]);
     $json(['id' => 'coupon_bienvenue', 'amount_off' => (int) ($_POST['amount_off'] ?? 0)]);

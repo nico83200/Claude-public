@@ -224,6 +224,35 @@ final class AccountController
         return $customer;
     }
 
+    /** Connexion ou création de compte avec Google : départ vers la page Google. */
+    public function google(): void
+    {
+        if (!\App\Services\GoogleAuth::enabled()) {
+            redirect('compte/connexion');
+        }
+        if (Account::current()) {
+            redirect($this->returnPath());
+        }
+        redirect(\App\Services\GoogleAuth::authorizationUrl($this->returnPath('')));
+    }
+
+    /** Retour de Google : compte retrouvé, relié ou créé, puis connexion. */
+    public function googleCallback(): void
+    {
+        try {
+            $profile = \App\Services\GoogleAuth::handleCallback((string) ($_GET['code'] ?? ''), (string) ($_GET['state'] ?? ''));
+            $isNew = !Database::value('SELECT id FROM customers WHERE google_sub = ? OR email = ?', [$profile['sub'], $profile['email']]);
+            $customer = \App\Services\GoogleAuth::customerFor($profile);
+        } catch (\RuntimeException $e) {
+            flash('error', isset($_GET['error']) ? 'Connexion avec Google annulée.' : $e->getMessage());
+            redirect('compte/connexion');
+        }
+        Account::login($customer);
+        flash('success', $isNew ? 'Bienvenue au club, ' . Account::firstName($customer) . ' ! Ton compte est créé ♡' : 'Ravie de te revoir, ' . Account::firstName($customer) . ' !');
+        $return = $profile['return'];
+        redirect(preg_match('#^[a-z0-9][a-z0-9/_-]{0,80}$#', $return) ? $return : 'compte');
+    }
+
     /** Page où revenir après connexion : chemin interne uniquement. */
     private function returnPath(string $default = 'compte'): string
     {

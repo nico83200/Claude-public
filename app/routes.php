@@ -48,6 +48,8 @@ $r->get('/commande/merci', [CheckoutController::class, 'success']);
 $r->get('/compte', [AccountController::class, 'index']);
 $r->get('/compte/connexion', [AccountController::class, 'loginForm']);
 $r->post('/compte/connexion', [AccountController::class, 'login']);
+$r->get('/compte/google', [AccountController::class, 'google']);
+$r->get('/compte/google/retour', [AccountController::class, 'googleCallback']);
 $r->post('/compte/inscription', [AccountController::class, 'register']);
 $r->post('/compte/deconnexion', [AccountController::class, 'logout']);
 $r->get('/compte/confirmer/{token}', [AccountController::class, 'verify']);

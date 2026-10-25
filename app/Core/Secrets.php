@@ -37,6 +37,8 @@ final class Secrets
         'mail.admin_email'        => ['Adresse qui reçoit les alertes', 'E-mails', 'text'],
         'brevo.api_key'           => ['Clé API Brevo', 'Newsletter (Brevo)', 'secret'],
         'brevo.list_id'           => ['N° de liste Brevo', 'Newsletter (Brevo)', 'int'],
+        'google.client_id'        => ['ID client OAuth (….apps.googleusercontent.com)', 'Connexion Google', 'text'],
+        'google.client_secret'    => ['Code secret du client OAuth', 'Connexion Google', 'secret'],
         'analytics.ga4_id'        => ['Google Analytics 4 (G-XXXXXXX)', 'Mesure d\'audience', 'text'],
         'analytics.meta_pixel_id' => ['Meta Pixel (ID)', 'Mesure d\'audience', 'text'],
         'cron.token'              => ['Jeton de la tâche planifiée (URL)', 'Tâche planifiée', 'secret'],

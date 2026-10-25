@@ -1227,3 +1227,11 @@ h1 em, h2 em, h3 em { color: var(--rose); }
 .manga-print-names { position: absolute; left: 0; right: 0; top: var(--art-h); bottom: 5%; display: flex; align-items: center; justify-content: center; font-family: var(--script); font-size: 8cqh; line-height: 1; color: var(--pc, #5a2a3a); white-space: nowrap; }
 .manga-only [data-main-image] { visibility: hidden; }
 .manga-only .manga-print { left: 17%; top: 3%; width: 66%; height: 94%; }
+
+/* Connexion avec Google */
+.google-auth { max-width: 420px; margin: 0 auto 1.6rem; text-align: center; }
+.btn-google { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; width: 100%; padding: .85rem 1.2rem; border-radius: 999px; background: #fff; color: #1f1f1f; border: 1px solid #dadce0; font-weight: 600; text-decoration: none; box-shadow: var(--shadow-sm); transition: box-shadow .2s, border-color .2s; }
+.btn-google:hover { border-color: #c4c7c5; box-shadow: var(--shadow); }
+.google-auth .small { margin: .5rem 0 0; }
+.google-or { display: flex; align-items: center; gap: .8rem; margin: 1.2rem 0 0; color: var(--muted); font-size: .85rem; }
+.google-or::before, .google-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }

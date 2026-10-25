@@ -17,6 +17,7 @@ final class HomePageController extends BaseController
             'pageTitle'  => 'Page d\'accueil',
             'categories' => Catalog::categories(false),
             'portraitDefault' => $this->portraitProductImage(),
+            'library'    => HomeImages::library(),
         ]);
     }
 
@@ -25,38 +26,40 @@ final class HomePageController extends BaseController
         $errors = [];
         foreach (array_keys(HomeImages::SLOTS) as $slot) {
             Settings::set('home_alt_' . $slot, mb_substr(trim((string) input('alt_' . $slot)), 0, 200));
-            $current = (string) setting('home_img_' . $slot, '');
+            // Les images remplacées restent dans la médiathèque pour pouvoir être reprises plus tard
             if (input('reset_' . $slot) === '1') {
-                HomeImages::discard($current);
                 Settings::set('home_img_' . $slot, '');
                 continue;
             }
             $file = Upload::files('image_' . $slot)[0] ?? null;
+            $picked = (string) input('pick_' . $slot, '');
             if ($file) {
                 try {
                     Settings::set('home_img_' . $slot, HomeImages::store($file));
-                    HomeImages::discard($current);
                 } catch (\RuntimeException $e) {
                     $errors[] = HomeImages::SLOTS[$slot]['label'] . ' : ' . $e->getMessage();
                 }
+            } elseif ($picked !== '' && HomeImages::inLibrary($picked)) {
+                Settings::set('home_img_' . $slot, $picked);
             }
         }
         // Visuels des collections (image de la catégorie)
         foreach (Catalog::categories(false) as $c) {
             $key = 'category_' . $c['id'];
             if (input('reset_' . $key) === '1') {
-                HomeImages::discard($c['image']);
                 Database::update('categories', ['image' => null], 'id = :id', ['id' => $c['id']]);
                 continue;
             }
             $file = Upload::files('image_' . $key)[0] ?? null;
+            $picked = (string) input('pick_' . $key, '');
             if ($file) {
                 try {
                     Database::update('categories', ['image' => HomeImages::store($file)], 'id = :id', ['id' => $c['id']]);
-                    HomeImages::discard($c['image']);
                 } catch (\RuntimeException $e) {
                     $errors[] = 'Collection « ' . $c['name'] . ' » : ' . $e->getMessage();
                 }
+            } elseif ($picked !== '' && HomeImages::inLibrary($picked)) {
+                Database::update('categories', ['image' => $picked], 'id = :id', ['id' => $c['id']]);
             }
         }
         $errors ? flash('error', implode(' · ', $errors)) : flash('success', 'Page d\'accueil mise à jour.');

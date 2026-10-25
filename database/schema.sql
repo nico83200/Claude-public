@@ -28,9 +28,11 @@ CREATE TABLE customers (
     token_hash VARCHAR(64) NULL,
     token_expires_at DATETIME NULL,
     created_at DATETIME NOT NULL,
-    last_login_at DATETIME NULL
+    last_login_at DATETIME NULL,
+    google_sub VARCHAR(64) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_customers_token ON customers (token_hash);
+CREATE INDEX idx_customers_google ON customers (google_sub);
 
 CREATE TABLE wishlist_items (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

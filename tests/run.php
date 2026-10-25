@@ -399,6 +399,44 @@ check('OpenAI : les trois images envoyées (image[]) avec la consigne manga', $v
 Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $viaOpenai['id']]);
 unset($_SESSION['admin_id']);
 
+echo "Médiathèque de la page d'accueil\n";
+$library = App\Services\HomeImages::library();
+$productImage = $library['products'][0]['path'] ?? '';
+check('photos des articles proposées', $productImage !== '' && App\Services\HomeImages::inLibrary($productImage));
+check('chemin hors médiathèque refusé', !App\Services\HomeImages::inLibrary('../config/config.php') && !App\Services\HomeImages::inLibrary('uploads/site/inconnue.jpg'));
+App\Core\Settings::set('home_img_perso', $productImage);
+check('photo d\'article utilisée sur l\'accueil', App\Services\HomeImages::src('perso') === $productImage);
+App\Core\Settings::set('home_img_perso', '');
+
+echo "Connexion avec Google\n";
+use App\Services\GoogleAuth;
+Config::set('google.client_id', '');
+check('bouton masqué sans identifiants', !GoogleAuth::enabled());
+Config::set('google.client_id', 'id-test.apps.googleusercontent.com');
+Config::set('google.client_secret', 'secret-test');
+Config::set('google.api_base', "http://127.0.0.1:$port/google");
+$authUrl = GoogleAuth::authorizationUrl('panier');
+parse_str((string) parse_url($authUrl, PHP_URL_QUERY), $authQuery);
+check('redirection vers Google avec état anti-falsification', GoogleAuth::enabled() && str_starts_with($authUrl, 'https://accounts.google.com/') && $authQuery['client_id'] === 'id-test.apps.googleusercontent.com'
+    && $authQuery['redirect_uri'] === url('compte/google/retour') && $authQuery['scope'] === 'openid email profile' && $authQuery['state'] === $_SESSION['google_oauth']['state']);
+$googleFails = static function (string $code, string $state): bool {
+    try { GoogleAuth::handleCallback($code, $state); return false; } catch (RuntimeException) { return true; }
+};
+check('état falsifié refusé', $googleFails('bon-code', 'faux-etat'));
+GoogleAuth::authorizationUrl('');
+check('code refusé par Google', $googleFails('mauvais-code', $_SESSION['google_oauth']['state']));
+GoogleAuth::authorizationUrl('panier');
+$profile = GoogleAuth::handleCallback('bon-code', $_SESSION['google_oauth']['state']);
+check('profil Google vérifié', $profile === ['sub' => '1098765', 'email' => 'lea.google@example.com', 'name' => 'Léa', 'return' => 'panier'] && !isset($_SESSION['google_oauth']));
+$gCustomer = GoogleAuth::customerFor($profile);
+check('compte créé, adresse vérifiée, relié à Google', $gCustomer['email'] === 'lea.google@example.com' && $gCustomer['email_verified_at'] !== null && $gCustomer['google_sub'] === '1098765' && $gCustomer['name'] === 'Léa');
+check('reconnexion : même compte', (int) GoogleAuth::customerFor($profile)['id'] === (int) $gCustomer['id']);
+$existing = App\Services\Account::register('deja.cliente@example.com', 'motdepasse123', '', false);
+$linked = GoogleAuth::customerFor(['sub' => '555', 'email' => 'deja.cliente@example.com', 'name' => 'Inès', 'return' => '']);
+check('compte existant relié par son adresse', (int) $linked['id'] === (int) $existing['id'] && $linked['google_sub'] === '555' && $linked['email_verified_at'] !== null && $linked['name'] === 'Inès'
+    && App\Services\Account::attempt('deja.cliente@example.com', 'motdepasse123', '127.0.0.9') !== null);
+Config::set('google.client_id', '');
+
 echo "Comptes clientes\n";
 $mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
 $lastLink = static function (string $path) use ($mailLog): ?string {
@@ -780,7 +818,7 @@ exec('rm -rf ' . escapeshellarg($root) . ' ' . escapeshellarg(dirname($root)) . 
 echo "Migrations\n";
 App\Core\Migrator::ensureTable();
 check('aucune migration en attente après installation', App\Core\Migrator::pending() === []);
-check('vingt et une migrations connues', count(App\Core\Migrator::files()) === 21);
+check('vingt-deux migrations connues', count(App\Core\Migrator::files()) === 22);
 
 echo "Tutoiement (migration 017)\n";
 App\Core\Settings::set('popup_title', 'Rejoignez le club ♡');

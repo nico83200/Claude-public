@@ -36,7 +36,7 @@ final class HomeImages
     public static function src(string $slot, ?string $fallback = null): ?string
     {
         $custom = (string) setting('home_img_' . $slot, '');
-        if ($custom !== '' && is_file(PUBLIC_PATH . '/' . $custom)) {
+        if ($custom !== '' && (preg_match('#^https://#', $custom) || is_file(PUBLIC_PATH . '/' . $custom))) {
             return $custom;
         }
         return self::SLOTS[$slot]['default'] ?? $fallback;
@@ -104,6 +104,39 @@ final class HomeImages
     }
 
     /** Supprime une image précédemment envoyée ici (jamais les images d'origine du thème). */
+    /**
+     * Médiathèque : images déjà présentes sur le site, pour les réutiliser sans les renvoyer.
+     * @return array{uploads: list<string>, products: list<array{path:string, name:string}>}
+     */
+    public static function library(): array
+    {
+        $uploads = [];
+        foreach (glob(PUBLIC_PATH . '/' . self::DIR . '/*') ?: [] as $file) {
+            if (is_file($file) && preg_match('/\.(jpe?g|png|webp)$/i', $file)) {
+                $uploads[self::DIR . '/' . basename($file)] = filemtime($file);
+            }
+        }
+        arsort($uploads);
+        $products = [];
+        $seen = [];
+        foreach (\App\Core\Database::all('SELECT name, images FROM products ORDER BY active DESC, featured DESC, id DESC') as $p) {
+            foreach (json_field($p['images']) as $img) {
+                if (is_string($img) && $img !== '' && !isset($seen[$img]) && (preg_match('#^https://#', $img) || is_file(PUBLIC_PATH . '/' . $img))) {
+                    $seen[$img] = true;
+                    $products[] = ['path' => $img, 'name' => $p['name']];
+                }
+            }
+        }
+        return ['uploads' => array_keys($uploads), 'products' => $products];
+    }
+
+    /** Vrai si l'image fait partie de la médiathèque (contrôle d'une image choisie dans l'administration). */
+    public static function inLibrary(string $path): bool
+    {
+        $library = self::library();
+        return in_array($path, $library['uploads'], true) || in_array($path, array_column($library['products'], 'path'), true);
+    }
+
     public static function discard(?string $path): void
     {
         if ($path && preg_match('#^uploads/(site|reviews)/[0-9]{6}-[a-f0-9]{16}\.(jpg|png)$#', $path)) {

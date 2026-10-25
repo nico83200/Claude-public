@@ -60,6 +60,16 @@ $aiFailures = App\Services\AiPortrait::enabled()
 </section>
 
 <section class="card">
+  <h2>Connexion avec Google</h2>
+  <p class="small"><?= App\Services\GoogleAuth::enabled() ? '<strong>Activée</strong> : le bouton « Continuer avec Google » est proposé sur la page Mon compte.' : 'Désactivée : renseignez l\'ID client et le code secret dans <a href="#cles">Clés et jetons</a>.' ?></p>
+  <ol class="small">
+    <li>Sur <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud › API et services › Identifiants</a>, configurez l'écran de consentement (type « Externe », nom de la boutique, logo, adresse de contact) puis « Créer des identifiants › ID client OAuth » de type « Application Web ».</li>
+    <li>Dans « URI de redirection autorisés », ajoutez exactement : <code><?= e(App\Services\GoogleAuth::redirectUri()) ?></code> <button type="button" class="btn btn-sm" data-copy="<?= e(App\Services\GoogleAuth::redirectUri()) ?>">Copier</button></li>
+    <li>Copiez l'ID client et le code secret dans <a href="#cles">Clés et jetons › Connexion Google</a>, puis publiez l'application dans l'écran de consentement.</li>
+  </ol>
+</section>
+
+<section class="card">
   <h2>Tâche planifiée (Cron)</h2>
   <p>Dernière exécution : <strong><?= $cronLast ? e(date_fr(date('Y-m-d H:i:s', strtotime($cronLast)))) : 'jamais' ?></strong></p>
   <p class="small">hPanel › Avancé › Tâches Cron › type « PHP » , toutes les 15 minutes :</p>
