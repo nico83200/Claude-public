@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 3 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Station Kepler-9",
+  mission: "Mission 3",
+  police: '"Orbitron", sans-serif',
+  accent: "#9fe3f5",
+  motif: "◉ ─ ◉",
+  types: {
+    monde: { c: "#0f2236", fond: "#d6e4ef", libelle: "Carte Monde", zone: "Tout lecteur" },
+    lieu:  { c: "#1a6f94", fond: "#d8eef6", libelle: "Module", zone: "📍 OÙ" },
+    perso: { c: "#4a2f7a", fond: "#e6dcf2", libelle: "Équipage", zone: "👤 QUI" },
+    objet: { c: "#8a5a10", fond: "#f2e6cf", libelle: "Objet", zone: "🔍 QUOI" },
+    role:  { c: "#1d3a2f", fond: "#d9ece3", libelle: "Rôle", zone: "Lecteur libre" },
+    aide:  { c: "#a8321f", fond: "#f5ddd8", libelle: "Aide", zone: "Tout lecteur" },
+  },
+  cartes: [
+    { id: "M3", t: "monde", nom: "Station Kepler-9", sous: "Mission 3", vis: "🛰️", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>Signal Perdu</em>" },
+
+    { id: "L1", t: "lieu", nom: "Sas d'amarrage", sous: "Accès depuis l'Albatros", vis: "🚪", txt: "Le seul accès. Son code a été changé." },
+    { id: "L2", t: "lieu", nom: "Pont de commandement", sous: "Le centre de la station", vis: "🖥️", txt: "Écrans, boîte noire, répartition de l'énergie." },
+    { id: "L3", t: "lieu", nom: "Laboratoire", sous: "Module à réalimenter", vis: "🔬", txt: "Là où le cristal est étudié." },
+    { id: "L4", t: "lieu", nom: "Cryogénie", sous: "Six caissons", vis: "🧊", txt: "Les caissons de sommeil prolongé." },
+    { id: "L5", t: "lieu", nom: "Quartiers", sous: "Cabines de l'équipage", vis: "🛏️", txt: "La vie privée de six personnes." },
+    { id: "L6", t: "lieu", nom: "Antenne", sous: "Module à réalimenter", vis: "📡", txt: "Elle capte tout, même ce qu'on ne devrait pas entendre." },
+    { id: "L7", t: "lieu", nom: "Hangar", sous: "Module à réalimenter", vis: "🚀", txt: "La navette de secours de la station y est amarrée." },
+    { id: "L8", t: "lieu", nom: "Noyau d'HÉLIOS", sous: "Accès protégé", vis: "🧠", txt: "La mémoire de l'IA. Mot de passe exigé." },
+    { id: "L9", t: "lieu", nom: "Serre", sous: "Circuit autonome", vis: "🌿", txt: "Le potager de la station, avec son propre air." },
+
+    { id: "P1", t: "perso", nom: "Cmdt Okafor", sous: "Commandante · 52 ans", ini: "NO", coul: "#2b4a7a", txt: "Son dernier journal personnel." },
+    { id: "P2", t: "perso", nom: "Dr Sorokin", sous: "Chef scientifique · 47 ans", ini: "YS", coul: "#6b3fa0", txt: "Son dernier journal personnel." },
+    { id: "P3", t: "perso", nom: "Léa Marchetti", sous: "Ingénieure · 34 ans", ini: "LM", coul: "#1a7fa8", txt: "Son dernier journal personnel." },
+    { id: "P4", t: "perso", nom: "Tomás Reyes", sous: "Pilote de forage · 29 ans", ini: "TR", coul: "#b5651d", txt: "Son dernier journal personnel." },
+    { id: "P5", t: "perso", nom: "Ingrid Voss", sous: "Agente Arkan · 41 ans", ini: "IV", coul: "#4a4a4a", txt: "Son dernier journal personnel." },
+    { id: "P6", t: "perso", nom: "Dr Mori", sous: "Médecin · 38 ans", ini: "KM", coul: "#2f7a5a", txt: "Son dernier journal personnel." },
+    { id: "P7", t: "perso", nom: "HÉLIOS", sous: "IA de la station", ini: "◉", coul: "#0f2236", txt: "Elle vous répond. Faut-il la croire ?" },
+
+    { id: "O1", t: "objet", nom: "Boîte noire", sous: "Enveloppe E2", vis: "⬛", txt: "Sept fragments de mémoire, parfois corrompus." },
+    { id: "O2", t: "objet", nom: "Échantillon cristallin", sous: "Enveloppe E3", vis: "💠", txt: "Un cristal violet qui vibre légèrement." },
+    { id: "O3", t: "objet", nom: "Transmission interceptée", sous: "Enveloppe E6", vis: "📶", txt: "Canal crypté du Consortium Arkan." },
+    { id: "O4", t: "objet", nom: "Carte d'accès de Voss", sous: "Enveloppe E7", vis: "💳", txt: "Niveau de sécurité maximal." },
+    { id: "O5", t: "objet", nom: "Tablette de Sorokin", sous: "Enveloppe E5", vis: "📱", txt: "Des calculs sur le cristal." },
+    { id: "O6", t: "objet", nom: "Journal médical", sous: "Enveloppe E5", vis: "🩺", txt: "Le journal du Dr Mori. Une ligne soulignée." },
+    { id: "O7", t: "objet", nom: "Rapport de contamination", sous: "Enveloppe E3", vis: "☣️", txt: "Contamination de niveau 4 au laboratoire." },
+    { id: "O8", t: "objet", nom: "Registre de cryogénie", sous: "Enveloppe E4", vis: "📋", txt: "Le registre des six caissons." },
+    { id: "O9", t: "objet", nom: "Relais sectionné", sous: "Enveloppe E7", vis: "🔌", txt: "Un relais du recycleur d'oxygène, coupé net." },
+    { id: "O10", t: "objet", nom: "Photo d'équipage", sous: "Enveloppe E5", vis: "📸", txt: "Six sourires à l'arrivée sur la station." },
+
+    { id: "R1", t: "role", nom: "Commandante", sous: "Réserve d'O₂ · 1 fois", vis: "👩‍✈️", txt: "Posez cette carte : +5 minutes d'oxygène." },
+    { id: "R2", t: "role", nom: "Ingénieur", sous: "Diagnostic · 1 fois", vis: "🔧", txt: "Sur l'écran d'énergie : indique la règle non respectée." },
+    { id: "R3", t: "role", nom: "Biologiste", sous: "Analyse · 2 fois", vis: "🧬", txt: "Cette carte sur QUI, un objet sur QUOI : analyse." },
+    { id: "R4", t: "role", nom: "Officier radio", sous: "Écoute · illimité", vis: "📻", txt: "Posez cette carte et mettez le 🎧 casque pour capter une balise." },
+    { id: "R5", t: "role", nom: "Médecin", sous: "Scanner · 3 fois", vis: "💉", txt: "Personnage sur QUI, cette carte sur QUOI : signes vitaux." },
+    { id: "R6", t: "role", nom: "Hackeuse", sous: "Intrusion · 2 fois", vis: "💻", txt: "Au Pont : restaure des données effacées." },
+
+    { id: "A3", t: "aide", nom: "Contrôle Mission", sous: "Depuis l'Albatros", vis: "🎧", txt: "Posez sa carte quand vous bloquez. 2 indices gratuits, puis 3 minutes d'O₂ chacun." },
+  ],
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "narrateur": {
+      "nom": "Le Narrateur (Kepler-9)",
+      "voice_id": "",
+      "description": "Homme, la cinquantaine, voix grave et posée, ton de documentaire spatial.",
+      "portrait": "La voix du récit, sobre et tendue, façon film de science-fiction. Il installe le silence et l'angoisse, sans jamais en faire trop. Phrases courtes, respirations audibles avant les révélations.",
+      "prompt_voice_design": "A deep, calm French male narrator in his fifties, native speaker from France, cinematic science-fiction documentary tone, tense and restrained, slow and clear.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    },
+    "helios": {
+      "nom": "HÉLIOS, intelligence artificielle",
+      "voice_id": "",
+      "description": "Voix féminine synthétique, calme, douce, parfaitement posée, légèrement métallique.",
+      "portrait": "L'IA de la station, que tout désigne mais qui protège l'équipage. Toujours calme, polie, un peu trop lisse : inquiétante au début, bouleversante à la fin. Jamais d'émotion appuyée, mais une infinie douceur.",
+      "prompt_voice_design": "A calm, soft, perfectly even French female AI voice, slightly synthetic and clean, polite and serene, unsettlingly gentle, like a spaceship computer.",
+      "reglages": {
+        "stability": 0.75,
+        "similarity_boost": 0.75,
+        "style": 0.15
+      }
+    },
+    "capcom": {
+      "nom": "Contrôle Mission (les indices)",
+      "voice_id": "",
+      "description": "Femme, la quarantaine, voix radio professionnelle et rassurante.",
+      "portrait": "La voix de l'Albatros, qui guide l'équipe de secours. Professionnelle, chaleureuse, efficace : elle parle comme dans un casque radio, sans perdre de temps.",
+      "prompt_voice_design": "A professional, warm French female mission control operator in her forties, native speaker from France, clear radio voice, reassuring and efficient.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.2
+      }
+    },
+    "okafor": {
+      "nom": "Commandante Nadia Okafor",
+      "voice_id": "",
+      "description": "Femme de 52 ans, autoritaire et fatiguée, voix grave.",
+      "portrait": "La commandante de la station. Ferme, lucide, mais épuisée et inquiète : elle ne sait plus à qui faire confiance.",
+      "prompt_voice_design": "A French female station commander in her fifties, native speaker, deep authoritative voice, tired and worried, recording a personal log.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    },
+    "sorokin": {
+      "nom": "Dr Yuri Sorokin",
+      "voice_id": "",
+      "description": "Homme de 47 ans, scientifique passionné, léger accent russe.",
+      "portrait": "Le chef scientifique, fasciné par sa découverte jusqu'à l'obsession. Parle vite, avec exaltation, et méfiance envers le Consortium.",
+      "prompt_voice_design": "A French-speaking male scientist in his late forties with a light Russian accent, passionate and excited, slightly paranoid, recording a log.",
+      "reglages": {
+        "stability": 0.45,
+        "similarity_boost": 0.75,
+        "style": 0.4
+      }
+    },
+    "marchetti": {
+      "nom": "Léa Marchetti, ingénieure",
+      "voice_id": "",
+      "description": "Femme de 34 ans, vive, pragmatique, en colère.",
+      "portrait": "L'ingénieure qui a découvert le sabotage. Débrouillarde, nerveuse, en colère : elle parle vite et précis.",
+      "prompt_voice_design": "A French female engineer in her thirties, native speaker, quick and practical, angry and alarmed, recording a log.",
+      "reglages": {
+        "stability": 0.45,
+        "similarity_boost": 0.75,
+        "style": 0.4
+      }
+    },
+    "reyes": {
+      "nom": "Tomás Reyes, pilote de forage",
+      "voice_id": "",
+      "description": "Homme de 29 ans, sanguin, léger accent espagnol.",
+      "portrait": "Le pilote de forage, sanguin et sincère. Il s'emporte vite, regrette aussitôt, mais il sait ce qu'il a vu.",
+      "prompt_voice_design": "A young French-speaking male drill pilot in his late twenties with a light Spanish accent, hot-tempered, frustrated and sincere.",
+      "reglages": {
+        "stability": 0.4,
+        "similarity_boost": 0.75,
+        "style": 0.45
+      }
+    },
+    "voss": {
+      "nom": "Ingrid Voss, agente du Consortium",
+      "voice_id": "",
+      "description": "Femme de 41 ans, voix froide, neutre, contrôlée, léger accent allemand.",
+      "portrait": "La coupable. Glaciale, précise, chaque mot pesé. Dans son journal, elle ment d'une voix plate ; au casque, on l'entend enfin pressée et menaçante.",
+      "prompt_voice_design": "A cold, controlled French-speaking woman in her early forties with a light German accent, flat and precise corporate voice, secretive.",
+      "reglages": {
+        "stability": 0.7,
+        "similarity_boost": 0.75,
+        "style": 0.2
+      }
+    },
+    "mori": {
+      "nom": "Dr Kenji Mori, médecin",
+      "voice_id": "",
+      "description": "Homme de 38 ans, doux, posé, inquiet.",
+      "portrait": "Le médecin, doux et attentif. Son dernier journal est murmuré, juste avant de s'endormir : peur et confiance mêlées.",
+      "prompt_voice_design": "A gentle French-speaking male doctor in his late thirties, soft and calm voice, quietly worried, whispering a final log before sleep.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    },
+    "agent": {
+      "nom": "Voix de l'agent dormant (variante traître, au casque)",
+      "voice_id": "",
+      "description": "Voix chuchotée, froide, anonyme.",
+      "portrait": "Le message secret de la variante traître. Chuchoté, glacial, sans visage.",
+      "prompt_voice_design": "A cold anonymous whispering voice in French, gender-neutral, secretive and menacing, very close to the microphone.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+/* Thème science-fiction du monde Station Kepler-9, par-dessus commun.css */
+:root {
+  --vert: #0f2236;      /* encre principale (bleu nuit) */
+  --vert-clair: #e2edf5;
+  --cuir: #1a7fa8;      /* cyan foncé */
+  --or: #2bb3d9;        /* cyan */
+  --rouge: #c0392b;
+  --filet: #c5d6e2;
+}
+h1, h2, h3, h4 { font-family: "Orbitron", sans-serif; font-weight: 700; letter-spacing: .03em; }
+h1 { font-weight: 900; }
+h2 { border-bottom: 2px solid var(--or); }
+th { background: #0f2236; color: #9fe3f5; font-family: "Share Tech Mono", monospace; letter-spacing: .04em; }
+code, .mono { font-family: "Share Tech Mono", monospace; }
+.bandeau { display: flex; justify-content: space-between; align-items: baseline; font-family: "Share Tech Mono", monospace;
+           font-size: 9pt; letter-spacing: .18em; text-transform: uppercase; color: var(--cuir);
+           border-bottom: 1px solid var(--or); padding-bottom: 4px; margin-bottom: 12px; }
+.terminal { background: #0b1a2a; color: #9fe3f5; font-family: "Share Tech Mono", monospace; border: 1px solid #1a7fa8;
+            border-radius: 4px; padding: 6mm 8mm; line-height: 1.5; }
+.terminal .alerte { color: #ff8a7a; }
+.main { font-family: "Caveat", cursive; color: #1b2c55; }

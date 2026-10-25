@@ -1,0 +1,125 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "narrateur": {
+      "nom": "Le Narrateur (Monte-Carlo 1928)",
+      "voice_id": "",
+      "description": "Homme, la quarantaine, gouailleur et élégant, voix de film noir des années 20.",
+      "portrait": "Le complice invisible des joueurs : amusé, un brin canaille, il raconte le casse comme un film de gangsters élégant. Rythme enlevé, clins d'œil dans la voix, tension feutrée dans les moments de danger.",
+      "prompt_voice_design": "A charming French male narrator in his forties, native speaker from France, playful and roguish, smooth voice like a 1920s gangster film narrator, elegant and slightly ironic.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.4
+      }
+    },
+    "baron": {
+      "nom": "Baron Edmond de Valcourt",
+      "voice_id": "",
+      "description": "Homme de 62 ans, aristocrate vaniteux, voix ronde et pompeuse.",
+      "portrait": "Le propriétaire du diamant. Vaniteux, pompeux, ravi de s'écouter parler. Il s'étrangle d'indignation dès qu'on touche à ses affaires.",
+      "prompt_voice_design": "A pompous French aristocrat in his sixties, native speaker from France, round and self-satisfied voice, theatrical upper-class diction, easily outraged.",
+      "reglages": {
+        "stability": 0.45,
+        "similarity_boost": 0.75,
+        "style": 0.5
+      }
+    },
+    "josephine": {
+      "nom": "Joséphine Lamour, chanteuse (La Pie)",
+      "voice_id": "",
+      "description": "Femme de 29 ans, chanteuse de music-hall, voix grave, sensuelle et moqueuse.",
+      "portrait": "La coupable, « La Pie ». Charmeuse, gouailleuse, elle appelle tout le monde « mon chou ». Toujours amusée, jamais prise au dépourvu ; un éclair d'agacement seulement quand on touche à son poudrier.",
+      "prompt_voice_design": "A seductive French music-hall singer in her late twenties, native speaker from Paris, low husky playful voice, teasing and confident, 1920s cabaret star.",
+      "reglages": {
+        "stability": 0.4,
+        "similarity_boost": 0.75,
+        "style": 0.55
+      }
+    },
+    "pujol": {
+      "nom": "Ernest Pujol, directeur du casino",
+      "voice_id": "",
+      "description": "Homme de 55 ans, vaniteux et nerveux, voix aiguë et précieuse.",
+      "portrait": "Le directeur. Obséquieux avec les nobles, vaniteux de son coffre « imprenable », vite paniqué quand quelque chose cloche. Il parle un peu trop.",
+      "prompt_voice_design": "A fussy French casino director in his fifties, native speaker from the south of France, slightly high-pitched, obsequious and nervous, proud and talkative.",
+      "reglages": {
+        "stability": 0.45,
+        "similarity_boost": 0.75,
+        "style": 0.45
+      }
+    },
+    "albert": {
+      "nom": "Albert Rinaldi, chef de partie",
+      "voice_id": "",
+      "description": "Homme de 40 ans, croupier, accent niçois, voix posée et complice.",
+      "portrait": "Le croupier de la table 7. Observateur, discret mais bavard une fois en confiance ; il sait tout sur tout le monde et le chuchote avec un sourire.",
+      "prompt_voice_design": "A French croupier in his forties with a light Nice accent, calm, knowing and confidential voice, smooth and friendly.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    },
+    "mattei": {
+      "nom": "Sergent Dominique Mattei, sécurité",
+      "voice_id": "",
+      "description": "Homme de 45 ans, accent corse, voix sèche et autoritaire.",
+      "portrait": "Le chef de la sécurité. Sec, méfiant, phrases courtes. Honnête et pas bête : il a vu la bousculade sans en mesurer l'importance.",
+      "prompt_voice_design": "A stern French security sergeant in his forties with a light Corsican accent, gruff, short sentences, authoritative and suspicious.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.25
+      }
+    },
+    "lady": {
+      "nom": "Lady Agatha Pembroke, collectionneuse",
+      "voice_id": "",
+      "description": "Femme de 68 ans, Anglaise parlant français avec un accent britannique, ironique.",
+      "portrait": "La collectionneuse anglaise. Pince-sans-rire, flegmatique, accent britannique délicieux. Elle a l'œil pour les pierres et méprise le baron.",
+      "prompt_voice_design": "An elderly British aristocrat lady in her late sixties speaking French with a noticeable English accent, dry wit, posh and amused.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.45
+      }
+    },
+    "fernand": {
+      "nom": "Fernand, vieux monte-en-l'air (les indices)",
+      "voice_id": "",
+      "description": "Homme de 75 ans, ancien cambrioleur, voix rocailleuse et tendre, accent marseillais léger.",
+      "portrait": "Le vieux maître des joueurs, retraité du cambriolage. Bourru et affectueux, il appelle les joueurs « les enfants » et distille ses conseils comme des secrets de métier.",
+      "prompt_voice_design": "An old French retired cat burglar in his seventies with a light Marseille accent, gravelly, warm and mischievous mentor voice.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.4
+      }
+    },
+    "madame_rose": {
+      "nom": "Madame Rose, la commanditaire (au casque)",
+      "voice_id": "",
+      "description": "Femme de 50 ans, voix grave, pressée, mystérieuse, au téléphone.",
+      "portrait": "La commanditaire mystérieuse, entendue une seule fois au casque. Voix basse, pressée, autoritaire ; elle n'a pas le temps de répéter.",
+      "prompt_voice_design": "A mysterious French woman in her fifties, native speaker from France, low and hurried voice on an old telephone line, commanding and secretive.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "speaker": {
+      "nom": "Le speaker de l'orchestre",
+      "voice_id": "",
+      "description": "Homme, voix de bonimenteur de music-hall, très enthousiaste.",
+      "portrait": "Le présentateur de la revue : grandiloquent, enthousiaste, il annonce les numéros comme des événements mondiaux.",
+      "prompt_voice_design": "An enthusiastic French 1920s music-hall announcer, grandiose and theatrical, booming showman voice.",
+      "reglages": {
+        "stability": 0.35,
+        "similarity_boost": 0.75,
+        "style": 0.6
+      }
+    }
+  }
+}

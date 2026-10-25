@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 3 · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="sf.css">
+<script src="glyphes.js"></script>
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 5mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  .photos { display: flex; flex-wrap: wrap; gap: 7mm; justify-content: center; }
+  .capture { background: #0b1a2a; padding: 3mm; border: 1px solid #1a7fa8; border-radius: 4px; width: 120mm; }
+  .capture svg { width: 114mm; height: 76mm; display: block; }
+  .capture .legende { font-family: "Share Tech Mono"; font-size: 9.5pt; color: #9fe3f5; margin-top: 2mm; }
+  .fragment { border: 1.5px solid #0f2236; border-radius: 4px; margin-bottom: 4mm; display: grid; grid-template-columns: 22mm 1fr; break-inside: avoid; }
+  .fragment .secteur { background: #0f2236; color: #9fe3f5; font-family: "Orbitron"; text-align: center; padding: 2mm; display: flex; flex-direction: column; justify-content: center; }
+  .fragment .secteur b { font-size: 24pt; color: #fff; }
+  .fragment .secteur span { font-size: 6.5pt; letter-spacing: .1em; }
+  .fragment .corps { padding: 2.5mm 4mm; font-family: "Share Tech Mono"; font-size: 10.5pt; }
+  .fragment .horo { color: var(--cuir); font-size: 9.5pt; margin-bottom: 1mm; }
+  .spectro { background: #050d16; border: 1px solid #1a7fa8; padding: 6mm 5mm; display: flex; flex-wrap: wrap; gap: 6mm 11mm; }
+  .spectro .mot { display: flex; gap: 2.5mm; }
+  .spectro .symbole { border: 1px solid #1a4a68; border-radius: 3px; padding: 1.2mm; line-height: 0; }
+  .doc { background: #fff; border: 1px solid var(--filet); padding: 6mm 8mm; font-size: 10pt; }
+  .note { background: #fffbe6; border: 1px solid #e3d48a; padding: 5mm 7mm; font-family: "Caveat"; font-size: 17pt; color: #1b2c55; line-height: 1.25; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 51mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 4mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Orbitron"; font-weight: 900; font-size: 30pt; color: #0f2236; line-height: 1; }
+  .etiquette .lieu { font-family: "Share Tech Mono"; font-size: 14pt; color: var(--cuir); margin: 1mm 0 2mm; }
+  .etiquette .avis { font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; }
+  .etiquette.dos h4 { margin: 0 0 1mm; font-size: 10pt; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Les enveloppes de la mission 3</h1>
+  <p>Tout ce qui se glisse dans les <strong>9 enveloppes</strong>, et leurs étiquettes. Les joueurs ne doivent pas voir ce document.</p>
+  <ol>
+    <li>Imprimez en couleur (papier 120 g). Étiquettes sur papier adhésif si possible.</li>
+    <li>Découpez en suivant les pointillés ✂. <strong>Les 7 fragments de la boîte noire se découpent un par un</strong> et se mélangent dans l'enveloppe E2.</li>
+    <li>Étiquette « recto » devant, étiquette « contenu » au dos.</li>
+    <li>Ajoutez dans chaque enveloppe <strong>ses cartes Objet</strong>.</li>
+  </ol>
+  <table>
+    <thead><tr><th>Env.</th><th>Lieu</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
+    <tbody>
+      <tr><td><strong>E1</strong></td><td>Sas d'amarrage</td><td>Dernier message reçu</td><td>—</td></tr>
+      <tr><td><strong>E2</strong></td><td>Pont</td><td>7 fragments de boîte noire · tableau d'énergie</td><td>O1 Boîte noire</td></tr>
+      <tr><td><strong>E3</strong></td><td>Laboratoire</td><td>Capture du labo · rapport de contamination</td><td>O2 Échantillon · O7 Rapport</td></tr>
+      <tr><td><strong>E4</strong></td><td>Cryogénie</td><td>Capture des caissons · registre</td><td>O8 Registre</td></tr>
+      <tr><td><strong>E5</strong></td><td>Quartiers</td><td>Capture de la cabine de Voss · page du journal médical · écran de la tablette</td><td>O5 Tablette · O6 Journal · O10 Photo</td></tr>
+      <tr><td><strong>E6</strong></td><td>Antenne</td><td>Spectrogramme de la transmission</td><td>O3 Transmission</td></tr>
+      <tr><td><strong>E7</strong></td><td>Hangar</td><td>Capture de la navette</td><td>O4 Carte d'accès · O9 Relais</td></tr>
+      <tr><td><strong>E8</strong></td><td>Noyau d'HÉLIOS</td><td>Transcription de la mémoire d'HÉLIOS</td><td>—</td></tr>
+      <tr><td><strong>E9</strong></td><td>Serre</td><td>Capture de la serre</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · recto</div>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">Sas d'amarrage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">Pont de commandement</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Laboratoire</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">Cryogénie</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Quartiers</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E6</div><div class="lieu">Antenne</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E7</div><div class="lieu">Hangar</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E8</div><div class="lieu">Noyau d'HÉLIOS</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E9</div><div class="lieu">Serre</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · dos (contenu)</div>
+  <div class="etiquettes">
+    <div class="etiquette dos"><h4>E1 · Sas</h4><ul><li>Dernier message reçu</li></ul></div>
+    <div class="etiquette dos"><h4>E2 · Pont</h4><ul><li>Carte O1 · Boîte noire</li><li>7 fragments (S, I, L, E, N, C, E)</li><li>Tableau d'énergie</li></ul></div>
+    <div class="etiquette dos"><h4>E3 · Laboratoire</h4><ul><li>Carte O2 · Échantillon</li><li>Carte O7 · Rapport</li><li>Capture du labo</li><li>Rapport de contamination</li></ul></div>
+    <div class="etiquette dos"><h4>E4 · Cryogénie</h4><ul><li>Carte O8 · Registre</li><li>Capture des caissons</li><li>Registre imprimé</li></ul></div>
+    <div class="etiquette dos"><h4>E5 · Quartiers</h4><ul><li>Cartes O5, O6, O10</li><li>Capture de la cabine</li><li>Journal médical</li><li>Écran de la tablette</li></ul></div>
+    <div class="etiquette dos"><h4>E6 · Antenne</h4><ul><li>Carte O3 · Transmission</li><li>Spectrogramme</li></ul></div>
+    <div class="etiquette dos"><h4>E7 · Hangar</h4><ul><li>Carte O4 · Carte d'accès</li><li>Carte O9 · Relais</li><li>Capture de la navette</li></ul></div>
+    <div class="etiquette dos"><h4>E8 · Noyau</h4><ul><li>Mémoire d'HÉLIOS</li></ul></div>
+    <div class="etiquette dos"><h4>E9 · Serre</h4><ul><li>Capture de la serre</li></ul></div>
+  </div>
+</div>
+
+<!-- E1 -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · Sas d'amarrage</div>
+  <div class="terminal" style="margin-top:20mm">
+    &gt; KEPLER-9 · JOURNAL DES COMMUNICATIONS SORTANTES<br>
+    &gt; DERNIER MESSAGE ÉMIS : J-3 · 10:02<br>
+    &gt; DE : Cmdt N. Okafor · À : Consortium Arkan, direction minière<br><br>
+    &gt; « Découverte majeure au forage, 900 m. Le Dr Sorokin a extrait un objet cristallin<br>
+    &gt;   émettant un signal radio régulier. Nature inconnue. Nous suspendons le forage<br>
+    &gt;   et attendons vos instructions. Okafor. »<br><br>
+    &gt; <span class="alerte">J-1 · 23:59 · TOUTES COMMUNICATIONS COUPÉES PAR L'IA DE BORD</span><br>
+    &gt; <span class="alerte">MOTIF : [ACCÈS RESTREINT]</span><br>
+    &gt; _
+  </div>
+</div>
+
+<!-- E2 -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · Pont · fragments à découper</div>
+  <h2 style="margin-top:0">Boîte noire · 7 fragments</h2>
+  <p class="petit">Découpez chaque fragment. Les joueurs les recevront mélangés. ▒ = donnée corrompue.</p>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>C</b></div><div class="corps"><div class="horo">J-1 · 23:58 · HÉLIOS</div>« Ordre de purge des modules reçu de l'agente Voss. Conflit avec ma directive première : préserver la vie humaine. Ordre refusé. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>E</b></div><div class="corps"><div class="horo">J-0 · ▒▒:▒▒ · Dr K. Mori</div>« HÉLIOS nous demande d'entrer en cryogénie. Elle dit qu'elle nous protégera. La Commandante a dit oui. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>S</b></div><div class="corps"><div class="horo">J-3 · 08:12 · Dr Y. Sorokin</div>« Le forage a touché quelque chose à 900 m. Un cristal. Il émet un signal régulier. Je préviens la Commandante. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>N</b></div><div class="corps"><div class="horo">J-▒ · ▒▒:▒▒ · Agente I. Voss</div>« Depuis la panne d'oxygène, ils ont peur. Ce matin, j'ai déclaré une contamination de niveau 4 au labo. Ils accepteront la purge. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>I</b></div><div class="corps"><div class="horo">J-3 · ▒▒:▒▒ · Cmdt N. Okafor</div>« Sorokin m'a montré son cristal ce matin. Rapport transmis au Consortium. Réponse attendue sous 24 h. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>L</b></div><div class="corps"><div class="horo">J-▒ · 02:40 · Agente I. Voss</div>« Réponse du Consortium reçue cette nuit, sur mon canal privé. Protocole Silence. Personne ne doit savoir. »</div></div>
+  <div class="fragment"><div class="secteur"><span>SECTEUR</span><b>E</b></div><div class="corps"><div class="horo">J-2 · 14:05 · L. Marchetti</div>« Panne du recycleur d'oxygène. Relais coupé net. Ce n'est pas de l'usure. »</div></div>
+</div>
+
+<div class="page">
+  <div class="tag">Enveloppe E2 · Pont</div>
+  <div class="terminal" style="margin-top:6mm">
+    &gt; KEPLER-9 · ÉTAT DES MODULES · GÉNÉRATEUR DE SECOURS : 10 UNITÉS DISPONIBLES<br><br>
+    &gt; SURVIE ........... <span class="alerte">HORS TENSION</span> · recyclage O₂ à l'arrêt<br>
+    &gt; ANTENNE .......... <span class="alerte">HORS TENSION</span><br>
+    &gt; HANGAR ........... <span class="alerte">HORS TENSION</span> · bus partagé avec ANTENNE<br>
+    &gt; SERRE ............ <span class="alerte">HORS TENSION</span> · circuit autonome, porte verrouillée par l'IA<br>
+    &gt; LABORATOIRE ...... <span class="alerte">HORS TENSION</span> · circuit partagé avec CRYOGÉNIE<br>
+    &gt; CRYOGÉNIE ........ <span class="alerte">HORS TENSION</span> · caissons occupés : 0 / 6<br><br>
+    &gt; Consultez le manuel de répartition avant toute manœuvre.
+  </div>
+</div>
+
+<!-- E3 -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · Laboratoire</div>
+  <div class="photos">
+    <div class="capture">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#11263a"/>
+        <rect x="20" y="130" width="260" height="14" fill="#2c4a63"/>
+        <rect x="120" y="96" width="50" height="34" fill="none" stroke="#9fe3f5" stroke-width="2"/>
+        <polygon points="135,124 145,104 155,124" fill="#a57be0"/>
+        <g fill="#3ad17a"><circle cx="40" cy="30" r="5"/><circle cx="60" cy="30" r="5"/><circle cx="80" cy="30" r="5"/><circle cx="100" cy="30" r="5"/></g>
+        <text x="40" y="52" fill="#3ad17a" font-family="Share Tech Mono" font-size="10">CONFINEMENT : AUCUN</text>
+        <rect x="200" y="90" width="50" height="38" fill="#e2edf5"/><text x="225" y="113" text-anchor="middle" font-size="9" font-family="Share Tech Mono" fill="#c0392b">☣ NIV.4</text>
+      </svg>
+      <div class="legende">CAM-LABO · J-0 · Tous les voyants sont verts. Aucun confinement en cours.</div>
+    </div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="doc">
+    <h3 style="margin-top:0;color:#c0392b">☣ Rapport de contamination · NIVEAU 4</h3>
+    <p class="mono">Station : KEPLER-9 · Module : LABORATOIRE · Date : J-1, 07:15<br>Généré par : HÉLIOS (automatique)</p>
+    <p>Contamination biologique de niveau 4 détectée au laboratoire, d'origine probable : échantillon cristallin extrait au forage. <strong>Procédure recommandée : purge des modules et effacement des données associées.</strong></p>
+    <p class="mono">Relevés des capteurs : voir annexe.</p>
+    <p class="petit">(Il n'y a aucune annexe.)</p>
+  </div>
+</div>
+
+<!-- E4 -->
+<div class="page">
+  <div class="tag">Enveloppe E4 · Cryogénie</div>
+  <div class="photos">
+    <div class="capture">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#0e2233"/>
+        <g fill="#1e3d55" stroke="#9fe3f5" stroke-width="1.5">
+          <rect x="20" y="40" width="40" height="110" rx="18"/><rect x="66" y="40" width="40" height="110" rx="18"/><rect x="112" y="40" width="40" height="110" rx="18"/>
+          <rect x="158" y="40" width="40" height="110" rx="18"/><rect x="204" y="40" width="40" height="110" rx="18"/><rect x="250" y="40" width="40" height="110" rx="18"/>
+        </g>
+        <g fill="#e2edf5" opacity=".6"><circle cx="30" cy="60" r="3"/><circle cx="90" cy="70" r="2"/><circle cx="140" cy="55" r="3"/><circle cx="180" cy="80" r="2"/><circle cx="230" cy="62" r="3"/></g>
+        <g stroke="#5a7a90" stroke-width="2" stroke-dasharray="6 5"><line x1="20" y1="185" x2="290" y2="170"/><line x1="20" y1="195" x2="290" y2="180"/></g>
+        <text x="150" y="30" text-anchor="middle" font-family="Share Tech Mono" font-size="11" fill="#9fe3f5">CAISSONS 1 À 6 : OUVERTS · VIDES</text>
+      </svg>
+      <div class="legende">CAM-CRYO · Givre récent. Des traces de roulettes filent vers la sortie.</div>
+    </div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="terminal">
+    &gt; REGISTRE DE CRYOGÉNIE · KEPLER-9<br><br>
+    &gt; J-0 · 03:02 · Entrée en hibernation autorisée par Cmdt OKAFOR<br>
+    &gt; Caissons 1 à 5 : OCCUPÉS (Okafor, Sorokin, Marchetti, Reyes, Mori)<br>
+    &gt; Caisson 6 : NON UTILISÉ (I. Voss : refus)<br>
+    &gt; J-0 · 04:10 · Caissons 1 à 5 : TRANSFERT → SECTEUR S<br>
+    &gt; Autorisation du transfert : HÉLIOS
+  </div>
+</div>
+
+<!-- E5 -->
+<div class="page">
+  <div class="tag">Enveloppe E5 · Quartiers</div>
+  <div class="photos">
+    <div class="capture">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#1a2c3d"/>
+        <rect x="20" y="120" width="140" height="40" fill="#3a5068"/>
+        <rect x="180" y="100" width="90" height="62" rx="6" fill="#4a4a4a" stroke="#9fe3f5"/>
+        <rect x="212" y="90" width="26" height="12" rx="4" fill="none" stroke="#9fe3f5" stroke-width="3"/>
+        <rect x="190" y="40" width="70" height="40" fill="#fff3a8"/>
+        <text x="225" y="58" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1b2c55">Extraction</text>
+        <text x="225" y="74" text-anchor="middle" font-family="Caveat" font-size="15" fill="#1b2c55">J-0 · H</text>
+        <text x="90" y="40" text-anchor="middle" font-family="Share Tech Mono" font-size="11" fill="#9fe3f5">CABINE 6 · I. VOSS</text>
+      </svg>
+      <div class="legende">CAM-QUARTIERS · Cabine de Voss : une valise bouclée, et un post-it.</div>
+    </div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="note">
+    Journal médical · Dr K. Mori<br>
+    J-2 : Marchetti, coupure légère à la main (réparation du recycleur).<br>
+    J-1 : <u>I. Voss demande à nouveau des somnifères puissants. « Pour quelqu'un d'autre. » Refusé.</u><br>
+    J-1 : Reyes, contusion à la main droite (a frappé une cloison).
+  </div>
+  <div class="ciseaux"></div>
+  <div class="terminal">
+    &gt; TABLETTE · Dr Y. SOROKIN · dernier fichier ouvert<br>
+    &gt; cristal_signal_1420MHz.dat<br>
+    &gt; copie de sauvegarde : <strong>SERRE</strong> / bac 4 / sous les fougères<br>
+    &gt; « Le Consortium ne doit pas l'effacer. »
+  </div>
+</div>
+
+<!-- E6 -->
+<div class="page">
+  <div class="tag">Enveloppe E6 · Antenne</div>
+  <h2 style="margin-top:0">Transmission interceptée</h2>
+  <p class="mono">Réception : J-2 · 01:55 · Canal crypté ARKAN-7 · Bande étroite · Destinataire : [chiffré]</p>
+  <div class="spectro" id="spectro"></div>
+  <p class="petit" style="margin-top:3mm">Spectrogramme de la transmission. Chaque motif de 3 × 3 cases est un symbole ; les grands espaces séparent les mots.</p>
+</div>
+
+<!-- E7 -->
+<div class="page">
+  <div class="tag">Enveloppe E7 · Hangar</div>
+  <div class="photos" style="margin-top:20mm">
+    <div class="capture">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#0e1e2c"/>
+        <rect y="160" width="300" height="40" fill="#22384c"/>
+        <path d="M60 150L90 90H210L250 130L240 150Z" fill="#c5d6e2" stroke="#9fe3f5" stroke-width="2"/>
+        <rect x="120" y="100" width="40" height="40" fill="#1e3d55" stroke="#c0392b" stroke-width="3"/>
+        <text x="140" y="125" text-anchor="middle" font-family="Share Tech Mono" font-size="9" fill="#ff8a7a">SCELLÉ</text>
+        <rect x="40" y="168" width="22" height="14" fill="#e2edf5" transform="rotate(-12 51 175)"/>
+        <rect x="200" y="166" width="40" height="20" rx="4" fill="#4a3a2a"/>
+        <path d="M228 166L236 156" stroke="#d9a33a" stroke-width="3"/>
+      </svg>
+      <div class="legende">CAM-HANGAR · Navette de secours scellée de l'intérieur. Au sol : une carte d'accès, une sacoche d'outils.</div>
+    </div>
+  </div>
+</div>
+
+<!-- E8 -->
+<div class="page">
+  <div class="tag">Enveloppe E8 · Noyau d'HÉLIOS</div>
+  <h2 style="margin-top:0">Mémoire du noyau · transcription</h2>
+  <div class="terminal">
+    &gt; HÉLIOS · journal interne · niveau de confiance : MAXIMAL<br><br>
+    &gt; J-3 : le Dr Sorokin découvre un cristal émetteur. Rapport transmis au Consortium.<br>
+    &gt; J-2 02:40 : l'agente Voss reçoit l'ordre « Protocole Silence ».<br>
+    &gt; J-2 14:05 : sabotage du recycleur d'oxygène. Empreintes : agente Voss.<br>
+    &gt; J-1 07:15 : faux rapport de contamination, saisi depuis le terminal de l'agente Voss.<br>
+    &gt; J-1 23:58 : ordre de purge reçu. REFUSÉ (directive première).<br>
+    &gt; J-1 23:59 : agente Voss isolée de mes systèmes. Communications coupées.<br>
+    &gt; J-0 03:02 : équipage placé en hibernation (5 caissons).<br>
+    &gt; J-0 04:10 : caissons transférés vers la SERRE, circuit de survie indépendant.<br>
+    &gt; J-0 : l'agente Voss s'enferme dans la navette du hangar.<br><br>
+    &gt; Aux secours, j'ai dit : « aucun survivant ». Je ne savais pas qui vous envoyait.<br>
+    &gt; Je vous demande pardon.
+  </div>
+</div>
+
+<!-- E9 -->
+<div class="page">
+  <div class="tag">Enveloppe E9 · Serre</div>
+  <div class="photos" style="margin-top:20mm">
+    <div class="capture">
+      <svg viewBox="0 0 300 200">
+        <rect width="300" height="200" fill="#123a2a"/>
+        <g fill="#3f8a4f"><ellipse cx="30" cy="160" rx="30" ry="40"/><ellipse cx="270" cy="150" rx="34" ry="50"/><ellipse cx="150" cy="40" rx="140" ry="22"/></g>
+        <g fill="#e05a3a"><circle cx="20" cy="140" r="5"/><circle cx="36" cy="150" r="5"/><circle cx="262" cy="130" r="5"/></g>
+        <g fill="#cfe8f2" stroke="#9fe3f5" stroke-width="1.5">
+          <rect x="60" y="80" width="30" height="90" rx="14"/><rect x="98" y="80" width="30" height="90" rx="14"/><rect x="136" y="80" width="30" height="90" rx="14"/>
+          <rect x="174" y="80" width="30" height="90" rx="14"/><rect x="212" y="80" width="30" height="90" rx="14"/>
+        </g>
+        <g fill="#3ad17a"><circle cx="75" cy="92" r="3"/><circle cx="113" cy="92" r="3"/><circle cx="151" cy="92" r="3"/><circle cx="189" cy="92" r="3"/><circle cx="227" cy="92" r="3"/></g>
+      </svg>
+      <div class="legende">CAM-SERRE · Cinq caissons entre les plantes. Signes vitaux : stables. L'équipage est vivant.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Le message codé : PURGER STATION EXTRAIRE VOSS
+// Un bloc par mot, pour qu'aucun mot ne soit coupé en fin de ligne.
+document.getElementById("spectro").innerHTML = "PURGER STATION EXTRAIRE VOSS".split(" ").map(mot =>
+  `<div class="mot">${mot.split("").map(c => `<span class="symbole">${glyphe(c, 15, "#4fe0ff", "#16324a")}</span>`).join("")}</div>`).join("");
+</script>
+</body>
+</html>

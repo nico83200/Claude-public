@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 2 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Monte-Carlo 1928",
+  mission: "Mission 2",
+  police: '"Limelight", serif',
+  accent: "#e9cf8f",
+  motif: "◆ ◇ ◆",
+  types: {
+    monde: { c: "#9c7a2b", fond: "#f4e6c0", libelle: "Carte Monde", zone: "Tout lecteur" },
+    lieu:  { c: "#1d3b4a", fond: "#d8e3e8", libelle: "Lieu", zone: "📍 OÙ" },
+    perso: { c: "#8e1f2f", fond: "#f1d9dd", libelle: "Personnage", zone: "👤 QUI" },
+    objet: { c: "#6b5320", fond: "#efe5cc", libelle: "Objet", zone: "🔍 QUOI" },
+    role:  { c: "#15161c", fond: "#e3e1dc", libelle: "Rôle", zone: "Lecteur libre" },
+    aide:  { c: "#4a3a6b", fond: "#e3dcef", libelle: "Aide", zone: "Tout lecteur" },
+  },
+  cartes: [
+    { id: "M2", t: "monde", nom: "Monte-Carlo 1928", sous: "Mission 2", vis: "🎰", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>Le Casse du Siècle</em>" },
+
+    { id: "L1", t: "lieu", nom: "Le Salon d'Or", sous: "Gardé par Mattei", vis: "💎", txt: "Lustres, champagne et une vitrine… vide depuis 22 h 45." },
+    { id: "L2", t: "lieu", nom: "La Salle de jeu", sous: "Roulette et baccara", vis: "🎲", txt: "Le cliquetis des jetons. Au fond, la porte du personnel." },
+    { id: "L3", t: "lieu", nom: "Le Bar américain", sous: "Cocktails et ragots", vis: "🍸", txt: "Le barman en sait plus long qu'il n'en a l'air." },
+    { id: "L4", t: "lieu", nom: "La Scène", sous: "Le music-hall", vis: "🎷", txt: "L'orchestre joue, la vedette se prépare." },
+    { id: "L5", t: "lieu", nom: "Les Cuisines", sous: "Vapeur et vaisselle", vis: "🍳", txt: "Un monte-plats grince dans un coin." },
+    { id: "L6", t: "lieu", nom: "Le Bureau du directeur", sous: "Sur invitation", vis: "🥃", txt: "Pujol n'y reçoit que les gens de qualité." },
+    { id: "L7", t: "lieu", nom: "Le Couloir du personnel", sous: "Jeton de service exigé", vis: "🔦", txt: "Des gardes y font des rondes. Discrétion !" },
+    { id: "L8", t: "lieu", nom: "La Loge des artistes", sous: "Au bout du couloir", vis: "🪞", txt: "Plumes, paillettes et parfum. <em>Accessible par le couloir.</em>" },
+    { id: "L9", t: "lieu", nom: "La Salle des coffres", sous: "Au bout du couloir", vis: "🔐", txt: "Le coffre Fichet : trois disques, de 00 à 99." },
+
+    { id: "P1", t: "perso", nom: "Baron de Valcourt", sous: "Propriétaire · 62 ans", ini: "BV", coul: "#5a3a1a", txt: "<em>« Il a orné le turban d'un pharaon. »</em>" },
+    { id: "P2", t: "perso", nom: "Joséphine Lamour", sous: "Chanteuse · 29 ans", ini: "JL", coul: "#8e1f2f", txt: "<em>« Pour vous servir, mon chou. »</em>" },
+    { id: "P3", t: "perso", nom: "Ernest Pujol", sous: "Directeur · 55 ans", ini: "EP", coul: "#2b3a5a", txt: "<em>« Mon coffre est imprenable ! »</em>" },
+    { id: "P4", t: "perso", nom: "Albert Rinaldi", sous: "Chef de partie · 40 ans", ini: "AR", coul: "#2f5a3d", txt: "<em>« Faites vos jeux. »</em>" },
+    { id: "P5", t: "perso", nom: "Sergent Mattei", sous: "Sécurité · 45 ans", ini: "DM", coul: "#3a3a3a", txt: "<em>« Circulez. »</em>" },
+    { id: "P6", t: "perso", nom: "Lady Pembroke", sous: "Collectionneuse · 68 ans", ini: "AP", coul: "#6b4a7a", txt: "<em>« J'ai l'œil, ma chère. »</em>" },
+
+    { id: "O1", t: "objet", nom: "Jeton de service", sous: "Enveloppe E5", vis: "🪙", txt: "Laiton gravé « Service ». Ouvre le couloir du personnel." },
+    { id: "O2", t: "objet", nom: "Carnet du directeur", sous: "Enveloppe E6", vis: "📒", txt: "Le petit carnet de cuir de Pujol." },
+    { id: "O3", t: "objet", nom: "Lettre de Lady Pembroke", sous: "Enveloppe E7", vis: "💌", txt: "Une lettre parfumée adressée au baron." },
+    { id: "O4", t: "objet", nom: "Photo de Marie", sous: "Enveloppe E2", vis: "🖼️", txt: "La fille du directeur, photo dédicacée." },
+    { id: "O5", t: "objet", nom: "Programme du gala", sous: "Enveloppe E1", vis: "📜", txt: "Les horaires de la soirée." },
+    { id: "O6", t: "objet", nom: "L'Œil du Nil ?", sous: "Enveloppe E3", vis: "💎", txt: "Une pierre rose grosse comme une noisette. Elle brille… presque trop." },
+    { id: "O7", t: "objet", nom: "Écrin au fermoir argenté", sous: "Enveloppe E3", vis: "🎁", txt: "Trouvé dans le coffre. Velours rouge." },
+    { id: "O8", t: "objet", nom: "Écrin aux armes du baron", sous: "Enveloppe E4", vis: "👑", txt: "Velours rouge, fermoir doré. Vide." },
+    { id: "O9", t: "objet", nom: "Poudrier", sous: "Enveloppe E4", vis: "🪷", txt: "Argent ciselé. Étrangement lourd." },
+    { id: "O10", t: "objet", nom: "Plume de pie", sous: "Enveloppe E4", vis: "🪶", txt: "Noire et blanche." },
+
+    { id: "R1", t: "role", nom: "Le Cerveau", sous: "Plan B · 1 fois", vis: "🧠", txt: "Juste après une hausse du Soupçon, posez cette carte : elle est annulée." },
+    { id: "R2", t: "role", nom: "La Perceuse", sous: "Stéthoscope · illimité", vis: "🔩", txt: "Au coffre, mettez le 🎧 casque et écoutez les disques tourner." },
+    { id: "R3", t: "role", nom: "Le Faussaire", sous: "Expertiser · 3 fois", vis: "✒️", txt: "Cette carte sur QUI, un objet sur QUOI : vrai ou faux ? <em>Faux papiers : 1 fois.</em>" },
+    { id: "R4", t: "role", nom: "L'Acrobate", sous: "Monte-plats · 1 fois", vis: "🤸", txt: "Posez cette carte pour éviter une épreuve de discrétion." },
+    { id: "R5", t: "role", nom: "Le Pickpocket", sous: "Faire les poches · 3 fois", vis: "🃏", txt: "Personnage sur QUI, cette carte sur QUOI. Le Soupçon monte à chaque fois." },
+    { id: "R6", t: "role", nom: "Le Beau Parleur", sous: "Belle parole · 1 fois", vis: "💋", txt: "Posez cette carte : le Soupçon baisse de 3." },
+
+    { id: "A2", t: "aide", nom: "Fernand", sous: "Vieux monte-en-l'air", vis: "🎩", txt: "Posez sa carte quand vous coincez. 3 conseils gratuits, puis 2 minutes chacun." },
+  ],
+});
+</script>
+</body>
+</html>

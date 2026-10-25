@@ -5,81 +5,296 @@
     {
       "nom": "Électronique de la console",
       "articles": [
-        { "article": "ESP32 WROOM DevKit", "detail": "Déjà en votre possession", "qte": 1, "prix": 0 },
-        { "article": "Écran TFT 3,5\" SPI ILI9488", "detail": "480×320, avec lecteur micro-SD intégré. Recherche : « 3.5 inch SPI TFT ILI9488 »", "qte": 1, "prix": 14 },
-        { "article": "Module RFID RC522", "detail": "13,56 MHz, souvent vendu avec une carte et un badge. 3 pour le pupitre et 1 de secours", "qte": 4, "prix": 3 },
-        { "article": "Lecteur MP3 DFPlayer Mini", "detail": "Un pour le haut-parleur, un pour le casque, un de secours. Préférez la puce YX5200 ou MH2024K", "qte": 3, "prix": 2.5 },
-        { "article": "Encodeur rotatif KY-040", "detail": "La molette, avec bouton poussoir intégré. 1 de secours", "qte": 2, "prix": 1.5 },
-        { "article": "Anneau WS2812B 12 LED", "detail": "Le chrono lumineux. Recherche : « WS2812B ring 12 bits »", "qte": 1, "prix": 3 },
-        { "article": "LED WS2812B sur mini-circuit", "detail": "Lot de 10, pour les 3 LED de zone", "qte": 1, "prix": 3 },
-        { "article": "Boutons d'arcade 30 mm", "detail": "Rouge, bleu, jaune, vert (lot de couleurs assorties)", "qte": 1, "prix": 6 },
-        { "article": "Gros bouton champignon 60 mm", "detail": "Rouge, type bouton d'arcade géant ou « buzzer » de quiz", "qte": 1, "prix": 5 }
+        {
+          "article": "ESP32 WROOM DevKit",
+          "detail": "Déjà en votre possession",
+          "qte": 1,
+          "prix": 0
+        },
+        {
+          "article": "Écran TFT 3,5\" SPI ILI9488",
+          "detail": "480×320, avec lecteur micro-SD intégré. Recherche : « 3.5 inch SPI TFT ILI9488 »",
+          "qte": 1,
+          "prix": 14
+        },
+        {
+          "article": "Module RFID RC522",
+          "detail": "13,56 MHz, souvent vendu avec une carte et un badge. 3 pour le pupitre et 1 de secours",
+          "qte": 4,
+          "prix": 3
+        },
+        {
+          "article": "Lecteur MP3 DFPlayer Mini",
+          "detail": "Un pour le haut-parleur, un pour le casque, un de secours. Préférez la puce YX5200 ou MH2024K",
+          "qte": 3,
+          "prix": 2.5
+        },
+        {
+          "article": "Encodeur rotatif KY-040",
+          "detail": "La molette, avec bouton poussoir intégré. 1 de secours",
+          "qte": 2,
+          "prix": 1.5
+        },
+        {
+          "article": "Anneau WS2812B 12 LED",
+          "detail": "Le chrono lumineux. Recherche : « WS2812B ring 12 bits »",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "LED WS2812B sur mini-circuit",
+          "detail": "Lot de 10, pour les 3 LED de zone",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "Boutons d'arcade 30 mm",
+          "detail": "Rouge, bleu, jaune, vert (lot de couleurs assorties)",
+          "qte": 1,
+          "prix": 6
+        },
+        {
+          "article": "Gros bouton champignon 60 mm",
+          "detail": "Rouge, type bouton d'arcade géant ou « buzzer » de quiz",
+          "qte": 1,
+          "prix": 5
+        }
       ]
     },
     {
       "nom": "Son et casque",
       "articles": [
-        { "article": "Haut-parleur 3 W 4 Ω", "detail": "Diamètre 40 à 50 mm", "qte": 1, "prix": 3 },
-        { "article": "Embase jack 3,5 mm stéréo femelle", "detail": "À visser sur panneau (type PJ-392). 1 de secours", "qte": 2, "prix": 1 },
-        { "article": "Casque filaire jack 3,5 mm", "detail": "De préférence fermé, pour bien isoler du bruit de la table. Attention aux casques uniquement USB-C", "qte": 1, "prix": 15 },
-        { "article": "Cartes micro-SD 8 ou 16 Go", "detail": "Une pour l'écran, une pour chaque DFPlayer (32 Go maximum, formatées en FAT32)", "qte": 3, "prix": 4 }
+        {
+          "article": "Haut-parleur 3 W 4 Ω",
+          "detail": "Diamètre 40 à 50 mm",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "Embase jack 3,5 mm stéréo femelle",
+          "detail": "À visser sur panneau (type PJ-392). 1 de secours",
+          "qte": 2,
+          "prix": 1
+        },
+        {
+          "article": "Casque filaire jack 3,5 mm",
+          "detail": "De préférence fermé, pour bien isoler du bruit de la table. Attention aux casques uniquement USB-C",
+          "qte": 1,
+          "prix": 15
+        },
+        {
+          "article": "Cartes micro-SD 8 ou 16 Go",
+          "detail": "Une pour l'écran, une pour chaque DFPlayer (32 Go maximum, formatées en FAT32)",
+          "qte": 3,
+          "prix": 4
+        }
       ]
     },
     {
       "nom": "Alimentation et connectique",
       "articles": [
-        { "article": "Alimentation 5 V 3 A", "detail": "Bloc secteur avec fiche jack DC 5,5 × 2,1 mm", "qte": 1, "prix": 9 },
-        { "article": "Embase DC 5,5 × 2,1 mm", "detail": "À visser sur le boîtier", "qte": 1, "prix": 1 },
-        { "article": "Interrupteur à bascule", "detail": "Marche / arrêt, à encastrer", "qte": 1, "prix": 1 },
-        { "article": "Assortiment de résistances", "detail": "Contient 330 Ω, 1 kΩ et 10 kΩ", "qte": 1, "prix": 4 },
-        { "article": "Condensateur 1000 µF 10 V", "detail": "Protection des LED. 1 de secours", "qte": 2, "prix": 0.5 },
-        { "article": "Plaque à souder à pastilles 7 × 9 cm", "detail": "Pour le montage définitif", "qte": 2, "prix": 1.5 },
-        { "article": "Barrettes femelles 2,54 mm", "detail": "Pour enficher l'ESP32 et les modules sans les souder directement", "qte": 1, "prix": 3 },
-        { "article": "Fils Dupont (lot de 120)", "detail": "Mâle-femelle, femelle-femelle, mâle-mâle", "qte": 1, "prix": 4 },
-        { "article": "Fil souple 24 AWG", "detail": "Plusieurs couleurs, pour le câblage dans le boîtier", "qte": 1, "prix": 6 },
-        { "article": "Breadboard 830 points", "detail": "Pour tester le montage avant de souder", "qte": 1, "prix": 4 },
-        { "article": "Gaine thermorétractable", "detail": "Assortiment", "qte": 1, "prix": 3 }
+        {
+          "article": "Alimentation 5 V 3 A",
+          "detail": "Bloc secteur avec fiche jack DC 5,5 × 2,1 mm",
+          "qte": 1,
+          "prix": 9
+        },
+        {
+          "article": "Embase DC 5,5 × 2,1 mm",
+          "detail": "À visser sur le boîtier",
+          "qte": 1,
+          "prix": 1
+        },
+        {
+          "article": "Interrupteur à bascule",
+          "detail": "Marche / arrêt, à encastrer",
+          "qte": 1,
+          "prix": 1
+        },
+        {
+          "article": "Assortiment de résistances",
+          "detail": "Contient 330 Ω, 1 kΩ et 10 kΩ",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Condensateur 1000 µF 10 V",
+          "detail": "Protection des LED. 1 de secours",
+          "qte": 2,
+          "prix": 0.5
+        },
+        {
+          "article": "Plaque à souder à pastilles 7 × 9 cm",
+          "detail": "Pour le montage définitif",
+          "qte": 2,
+          "prix": 1.5
+        },
+        {
+          "article": "Barrettes femelles 2,54 mm",
+          "detail": "Pour enficher l'ESP32 et les modules sans les souder directement",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "Fils Dupont (lot de 120)",
+          "detail": "Mâle-femelle, femelle-femelle, mâle-mâle",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Fil souple 24 AWG",
+          "detail": "Plusieurs couleurs, pour le câblage dans le boîtier",
+          "qte": 1,
+          "prix": 6
+        },
+        {
+          "article": "Breadboard 830 points",
+          "detail": "Pour tester le montage avant de souder",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Gaine thermorétractable",
+          "detail": "Assortiment",
+          "qte": 1,
+          "prix": 3
+        }
       ]
     },
     {
       "nom": "Boîtier et façade",
       "articles": [
-        { "article": "Contreplaqué 5 mm", "detail": "Pour le boîtier d'environ 38 × 26 × 8 cm. Plaque d'environ 60 × 60 cm, ou découpe laser au fablab", "qte": 1, "prix": 10 },
-        { "article": "Contreplaqué bouleau 3 mm", "detail": "Façade gravée du monde Haras (gravure laser en fablab)", "qte": 1, "prix": 5 },
-        { "article": "Aimants néodyme 10 × 3 mm (lot de 20)", "detail": "4 dans le boîtier et 4 par façade", "qte": 1, "prix": 5 },
-        { "article": "Kit d'entretoises nylon M3", "detail": "Avec vis et écrous, pour fixer l'écran et les circuits", "qte": 1, "prix": 6 },
-        { "article": "Pieds caoutchouc adhésifs", "detail": "Pour ne pas rayer la table", "qte": 1, "prix": 2 },
-        { "article": "Colle à bois, papier de verre, teinte ou vernis", "detail": "Finitions", "qte": 1, "prix": 10 }
+        {
+          "article": "Contreplaqué 5 mm",
+          "detail": "Pour le boîtier d'environ 38 × 26 × 8 cm. Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
+          "qte": 1,
+          "prix": 10
+        },
+        {
+          "article": "Contreplaqué bouleau 3 mm",
+          "detail": "Les 3 façades gravées (Haras, Monte-Carlo, Kepler-9), en fablab",
+          "qte": 3,
+          "prix": 5
+        },
+        {
+          "article": "Aimants néodyme 10 × 3 mm (lot de 20)",
+          "detail": "4 dans le boîtier et 4 par façade (3 façades) : 16 en tout",
+          "qte": 1,
+          "prix": 5
+        },
+        {
+          "article": "Kit d'entretoises nylon M3",
+          "detail": "Avec vis et écrous, pour fixer l'écran et les circuits",
+          "qte": 1,
+          "prix": 6
+        },
+        {
+          "article": "Pieds caoutchouc adhésifs",
+          "detail": "Pour ne pas rayer la table",
+          "qte": 1,
+          "prix": 2
+        },
+        {
+          "article": "Colle à bois, papier de verre, teinte ou vernis",
+          "detail": "Finitions",
+          "qte": 1,
+          "prix": 10
+        }
       ]
     },
     {
-      "nom": "Matériel de jeu : mission 1 (Haras)",
+      "nom": "Matériel de jeu : les 3 missions",
       "articles": [
-        { "article": "Autocollants NFC NTAG213 (lot de 100)", "detail": "Ronds, 25 mm. 33 pour le Haras, le reste pour les autres mondes", "qte": 1, "prix": 12 },
-        { "article": "Papier cartonné 300 à 350 g, A4", "detail": "Pour imprimer les 33 cartes (ramette de 50)", "qte": 1, "prix": 8 },
-        { "article": "Pochettes de plastification", "detail": "Optionnel : pour protéger les cartes", "qte": 1, "prix": 6 },
-        { "article": "Enveloppes kraft C5 (lot de 25)", "detail": "8 pour le Haras", "qte": 1, "prix": 5 },
-        { "article": "Papier A4 120 g", "detail": "Fiche de mission, documents secrets, preuves", "qte": 1, "prix": 5 },
-        { "article": "Attaches parisiennes", "detail": "Pour la roue de chiffrement de la Vétérinaire", "qte": 1, "prix": 2 }
+        {
+          "article": "Autocollants NFC NTAG213 (lot de 100)",
+          "detail": "Ronds, 25 mm. Il faut 100 cartes pour les 3 missions (33 + 33 + 34) : prenez 2 lots pour avoir de la marge",
+          "qte": 2,
+          "prix": 12
+        },
+        {
+          "article": "Papier cartonné 300 à 350 g, A4",
+          "detail": "Pour imprimer les 100 cartes des 3 missions (12 feuilles recto verso ; ramette de 50)",
+          "qte": 1,
+          "prix": 8
+        },
+        {
+          "article": "Pochettes de plastification",
+          "detail": "Optionnel : pour protéger les cartes",
+          "qte": 1,
+          "prix": 6
+        },
+        {
+          "article": "Enveloppes kraft C5 (lot de 25)",
+          "detail": "24 pour les 3 missions (8 + 7 + 9)",
+          "qte": 1,
+          "prix": 5
+        },
+        {
+          "article": "Papier A4 120 g",
+          "detail": "Fiches de mission, documents secrets, contenu des enveloppes des 3 missions",
+          "qte": 1,
+          "prix": 5
+        },
+        {
+          "article": "Attaches parisiennes",
+          "detail": "Pour la roue de chiffrement de la Vétérinaire",
+          "qte": 1,
+          "prix": 2
+        }
       ]
     },
     {
       "nom": "Outillage (seulement si vous n'en avez pas)",
       "optionnel": true,
       "articles": [
-        { "article": "Fer à souder réglable 60 W et étain", "detail": "Avec support et éponge", "qte": 1, "prix": 25 },
-        { "article": "Pince coupante et pince à dénuder", "detail": "", "qte": 1, "prix": 10 },
-        { "article": "Multimètre", "detail": "Pour vérifier les tensions 3,3 V et 5 V", "qte": 1, "prix": 12 },
-        { "article": "Scies cloches", "detail": "Pour percer les trous des boutons (vérifiez le diamètre indiqué par le vendeur des boutons)", "qte": 1, "prix": 10 },
-        { "article": "Pistolet à colle chaude", "detail": "Pour fixer les lecteurs RFID sous la façade", "qte": 1, "prix": 10 }
+        {
+          "article": "Fer à souder réglable 60 W et étain",
+          "detail": "Avec support et éponge",
+          "qte": 1,
+          "prix": 25
+        },
+        {
+          "article": "Pince coupante et pince à dénuder",
+          "detail": "",
+          "qte": 1,
+          "prix": 10
+        },
+        {
+          "article": "Multimètre",
+          "detail": "Pour vérifier les tensions 3,3 V et 5 V",
+          "qte": 1,
+          "prix": 12
+        },
+        {
+          "article": "Scies cloches",
+          "detail": "Pour percer les trous des boutons (vérifiez le diamètre indiqué par le vendeur des boutons)",
+          "qte": 1,
+          "prix": 10
+        },
+        {
+          "article": "Pistolet à colle chaude",
+          "detail": "Pour fixer les lecteurs RFID sous la façade",
+          "qte": 1,
+          "prix": 10
+        }
       ]
     },
     {
       "nom": "Services",
       "optionnel": true,
       "articles": [
-        { "article": "Abonnement ElevenLabs Starter", "detail": "1 mois suffit pour enregistrer toutes les voix et bruitages de la mission 1 (résiliable)", "qte": 1, "prix": 6 },
-        { "article": "Découpe et gravure laser en fablab", "detail": "Boîtier et façade, selon le tarif du fablab local", "qte": 1, "prix": 15 }
+        {
+          "article": "Abonnement ElevenLabs Starter",
+          "detail": "1 mois suffit pour enregistrer toutes les voix et bruitages de la mission 1 (résiliable)",
+          "qte": 1,
+          "prix": 6
+        },
+        {
+          "article": "Découpe et gravure laser en fablab",
+          "detail": "Boîtier et façade, selon le tarif du fablab local",
+          "qte": 1,
+          "prix": 15
+        }
       ]
     }
   ],

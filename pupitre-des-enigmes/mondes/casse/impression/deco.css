@@ -1,0 +1,17 @@
+/* Thème Art déco du monde Monte-Carlo 1928, par-dessus commun.css */
+:root {
+  --vert: #15161c;      /* encre principale (noir laqué) */
+  --vert-clair: #f1ead9;
+  --cuir: #9c7a2b;      /* or vieilli */
+  --or: #c9a54a;
+  --rouge: #8e1f2f;
+  --filet: #d9cba6;
+}
+h1, h2, h3, h4 { font-family: "Limelight", "Playfair", serif; font-weight: 400; letter-spacing: .02em; }
+h2 { border-bottom: 2px solid var(--or); }
+th { background: #15161c; color: #e9cf8f; }
+.bandeau { display: flex; justify-content: space-between; align-items: baseline; font-family: "Poiret One", sans-serif; font-weight: 700;
+           font-size: 9pt; letter-spacing: .2em; text-transform: uppercase; color: var(--cuir);
+           border-bottom: 1px solid var(--or); padding-bottom: 4px; margin-bottom: 12px; }
+.deco { text-align: center; color: var(--or); letter-spacing: .5em; font-size: 14pt; }
+.main { font-family: "Caveat", cursive; color: #2a1d3a; }

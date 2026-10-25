@@ -1,0 +1,23 @@
+{
+  "dossier": 31,
+  "description": "Bruitages et musiques du monde Station Kepler-9 (dossier /31/ des cartes SD). Le n° 20 (balise morse) est fabriqué par outils/morse.py.",
+  "sons": [
+    { "n": 1, "nom": "Jingle du monde", "duree": 5, "prompt": "Short cinematic sci-fi intro, deep synth swell and a distant radio beep, space station" },
+    { "n": 2, "nom": "Ambiance station", "duree": 20, "prompt": "Quiet abandoned space station interior ambience, low ventilation hum, distant metallic creaks, faint beeps, seamless loop" },
+    { "n": 3, "nom": "Alarme", "duree": 3, "prompt": "Sci-fi space station emergency alarm, pulsing klaxon" },
+    { "n": 4, "nom": "Sas qui s'ouvre", "duree": 4, "prompt": "Spaceship airlock decompressing with a hiss and a heavy door sliding open" },
+    { "n": 5, "nom": "Bip d'interface", "duree": 0.5, "prompt": "Short clean futuristic interface confirmation beep" },
+    { "n": 6, "nom": "Surcharge électrique", "duree": 3, "prompt": "Electrical overload, sparks crackling and breakers tripping with a power-down whine" },
+    { "n": 7, "nom": "Remise sous tension", "duree": 4, "prompt": "Space station systems powering up one after another, rising electrical hum and relays clicking" },
+    { "n": 8, "nom": "Voix d'HÉLIOS (jingle)", "duree": 1.5, "prompt": "Soft gentle synth chime announcing an AI speaking, warm and calm" },
+    { "n": 9, "nom": "Impact de météorite", "duree": 3, "prompt": "Small metallic impact on a spaceship hull followed by a hissing air leak" },
+    { "n": 10, "nom": "Statique radio", "duree": 3, "prompt": "Radio static and interference crackling, hidden channel" },
+    { "n": 11, "nom": "Musique de tension", "duree": 20, "prompt": "Dark tense ambient sci-fi music with a slow heartbeat pulse and low drones, seamless loop" },
+    { "n": 12, "nom": "Victoire", "duree": 8, "prompt": "Emotional uplifting sci-fi orchestral swell, hopeful resolution" },
+    { "n": 13, "nom": "Échec", "duree": 6, "prompt": "Breathing in a space suit slowing down, oxygen alarm fading, dark low drone" },
+    { "n": 14, "nom": "Cryogénie", "duree": 4, "prompt": "Cryogenic pod hissing open with cold vapor, then a soft beep" },
+    { "n": 15, "nom": "Respiration dans le casque", "duree": 10, "prompt": "Steady calm breathing inside a space suit helmet, seamless loop" },
+    { "n": 16, "nom": "Signal du cristal", "duree": 6, "prompt": "Strange regular pulsing radio signal, alien and hypnotic, 1420 megahertz hydrogen line" },
+    { "n": 17, "nom": "Ambiance serre", "duree": 15, "prompt": "Hydroponic greenhouse in a space station, gentle water drips, misting sprinklers, soft fans, seamless loop" }
+  ]
+}

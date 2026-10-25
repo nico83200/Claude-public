@@ -5,6 +5,10 @@
 @font-face { font-family: "Source Sans"; src: url(polices/sourcesans.woff2) format("woff2"); font-weight: 200 900; }
 @font-face { font-family: "Source Sans"; src: url(polices/sourcesans-italique.woff2) format("woff2"); font-weight: 200 900; font-style: italic; }
 @font-face { font-family: "Caveat"; src: url(polices/caveat.woff2) format("woff2"); font-weight: 400 700; }
+@font-face { font-family: "Poiret One"; src: url(polices/poiretone.woff2) format("woff2"); }
+@font-face { font-family: "Limelight"; src: url(polices/limelight.woff2) format("woff2"); }
+@font-face { font-family: "Orbitron"; src: url(polices/orbitron.woff2) format("woff2"); font-weight: 400 900; }
+@font-face { font-family: "Share Tech Mono"; src: url(polices/sharetechmono.woff2) format("woff2"); }
 
 :root {
   --vert: #1f3b2d;

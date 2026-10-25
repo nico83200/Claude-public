@@ -1,0 +1,23 @@
+{
+  "dossier": 21,
+  "description": "Bruitages et musiques du monde Monte-Carlo 1928 (dossier /21/ des cartes SD).",
+  "sons": [
+    { "n": 1, "nom": "Jingle du monde", "duree": 5, "prompt": "Short 1920s charleston brass jingle with a glamorous flourish, casino intro" },
+    { "n": 2, "nom": "Ambiance casino", "duree": 20, "prompt": "1920s grand casino ambience, murmuring elegant crowd, clinking champagne glasses, distant jazz band, roulette, seamless loop" },
+    { "n": 3, "nom": "Roulette", "duree": 5, "prompt": "Roulette wheel spinning and ball clattering into a pocket, croupier atmosphere" },
+    { "n": 4, "nom": "Champagne qui explose", "duree": 3, "prompt": "Champagne cork popping loudly followed by glasses clinking and a surprised crowd" },
+    { "n": 5, "nom": "Tic du disque", "duree": 0.5, "prompt": "Single tiny mechanical click of a safe combination dial, very close" },
+    { "n": 6, "nom": "CLAC du disque", "duree": 1, "prompt": "Heavy satisfying mechanical clunk of a safe tumbler falling into place, close up" },
+    { "n": 7, "nom": "Porte du coffre", "duree": 3, "prompt": "Heavy steel vault door handle turning and the massive door swinging open with a creak" },
+    { "n": 8, "nom": "Ronde du garde", "duree": 5, "prompt": "Slow footsteps of a guard on a marble corridor with jingling keys, approaching then pausing" },
+    { "n": 9, "nom": "Téléphone 1928", "duree": 3, "prompt": "Old 1920s candlestick telephone bell ringing twice" },
+    { "n": 10, "nom": "Applaudissements", "duree": 4, "prompt": "Elegant crowd applauding in a 1920s cabaret" },
+    { "n": 11, "nom": "Musique de tension", "duree": 20, "prompt": "Tense 1920s jazz music with walking double bass and nervous muted trumpet, heist suspense, seamless loop" },
+    { "n": 12, "nom": "Victoire", "duree": 6, "prompt": "Triumphant upbeat 1920s jazz band finale, swing brass celebration" },
+    { "n": 13, "nom": "Échec", "duree": 5, "prompt": "Police whistles blowing and hurried footsteps, 1920s, followed by a sad trombone" },
+    { "n": 14, "nom": "Orchestre de la scène", "duree": 20, "prompt": "Lively 1920s charleston big band playing on stage, seamless loop" },
+    { "n": 15, "nom": "Frôlement", "duree": 1, "prompt": "Quick soft swish of fabric, a hand slipping into a pocket, discreet" },
+    { "n": 16, "nom": "Coupure de courant", "duree": 3, "prompt": "Electrical spark crackle and a big room power going down with a falling hum, crowd gasps" },
+    { "n": 17, "nom": "Ambiance cuisines", "duree": 15, "prompt": "Busy restaurant kitchen, pans clattering, chefs shouting in French, seamless loop" }
+  ]
+}

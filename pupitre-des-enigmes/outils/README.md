@@ -15,6 +15,8 @@ deux DFPlayer du pupitre : celui du haut-parleur et celui du casque.
 | `mondes/haras/audio/voix.json` | Le casting du Haras (11 voix) | — |
 | `mondes/haras/audio/mission-1.json` | Les 178 répliques de la mission 1, dont 13 au casque | `10/` |
 | `mondes/haras/audio/sons.json` | Les 14 bruitages du Haras | `11/` |
+| `mondes/casse/audio/…` | Monte-Carlo : 10 voix, 172 répliques, 17 bruitages | `20/` · `21/` |
+| `mondes/kepler/audio/…` | Kepler-9 : 10 voix, 153 répliques, 17 bruitages | `30/` · `31/` |
 
 Le numéro de chaque réplique est le **nom du fichier** : la réplique 120 du Haras
 devient `sd/10/120.mp3`. Une réplique marquée `"sortie": "casque"` est jouée par
@@ -34,12 +36,13 @@ le DFPlayer du casque, et toutes les autres par le haut-parleur.
    ```
 4. **Tout générer :**
    ```bash
-   python3 generer_audio.py ../console/audio/*.json ../mondes/haras/audio/*.json
+   python3 generer_audio.py ../console/audio/*.json ../mondes/*/audio/*.json
+   python3 morse.py    # la balise morse de la mission 3 (sd/31/020.wav)
    ```
 5. **Copier le dossier `sd/` sur les deux cartes micro-SD**, formatées en FAT32.
 
-Pour la console et le monde Haras, il y a environ **17 700 caractères** de voix.
-L'offre *Starter* suffit, avec de la marge pour refaire des prises.
+Au total (pupitre et trois mondes), il y a environ **45 000 caractères** de voix :
+comptez l'offre *Creator* d'ElevenLabs pour un mois, ou *Starter* sur deux mois.
 
 **Conseils :**
 - Les heures et les montants sont écrits en toutes lettres pour une bonne

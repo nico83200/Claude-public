@@ -2,13 +2,15 @@
 """Fabrique les PDF imprimables du Pupitre des Énigmes dans pdf/ (à la racine).
 
     pip install markdown pypdf
-    python3 construire.py
+    python3 construire.py        (tout)
+    python3 construire.py 2      (seulement la mission 2)
 
 Le rendu utilise Chromium via Playwright (node rendre.js).
 """
 import json
 import re
 import subprocess
+import sys
 from html import escape
 from pathlib import Path
 
@@ -18,7 +20,6 @@ from pypdf import PdfWriter
 ICI = Path(__file__).resolve().parent
 JEU = ICI.parent.parent
 SORTIE = JEU / "pdf"
-HARAS = JEU / "mondes" / "haras"
 
 GABARIT_DEROULE = """<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><title>{titre}</title>
@@ -78,10 +79,7 @@ GABARIT_DOUBLAGE = """<!doctype html>
 <body>{corps}</body></html>
 """
 
-# Les personnages d'abord, puis les voix de service.
 CASQUE = '<span class="casque">🎧 casque</span>'
-ORDRE_VOIX = ["helene", "lucas", "camille", "victoire", "antoine", "delorme", "porteur",
-              "papy_marcel", "gendarme", "commentateur", "narrateur", "pupitre"]
 
 
 def nombre(n):
@@ -97,7 +95,9 @@ def doublage(sources, cible, titre):
         voix.update(json.loads((source.parent / "voix.json").read_text(encoding="utf-8"))["voix"])
         for ligne in contenu["lignes"]:
             repliques.setdefault(ligne["voix"], []).append((contenu["dossier"], ligne))
-    cles = [c for c in ORDRE_VOIX if c in repliques] + sorted(set(repliques) - set(ORDRE_VOIX))
+    # Les personnages dans l'ordre du casting, puis les voix de service.
+    service = ["narrateur", "pupitre"]
+    cles = [c for c in voix if c in repliques and c not in service] + [c for c in service if c in repliques]
 
     def nb_car(cle):
         return sum(len(l["texte"]) for _, l in repliques[cle])
@@ -214,53 +214,68 @@ def rendre(html, pdf, paysage=False, pied=""):
     print(f"✓ {pdf.relative_to(JEU)}")
 
 
-def main():
-    SORTIE.mkdir(exist_ok=True)
-    temporaire = ICI / "_deroule-mission-1.html"
-    deroule(HARAS / "mission-1-deroule.md", temporaire, "Le Haras des Trois Fers")
-    try:
-        rendre(temporaire, SORTIE / "mission-1-deroule-maitre-du-jeu.pdf", paysage=True,
-               pied="Le Haras des Trois Fers · Mission 1 · Déroulé du maître du jeu")
-    finally:
-        temporaire.unlink()
-    rendre(HARAS / "impression" / "fiche-mission-1.html", SORTIE / "mission-1-fiche-joueurs.pdf",
-           pied="Le Haras des Trois Fers · Mission 1 · Fiche de mission")
+MISSIONS = [
+    {"num": 1, "monde": "haras", "nom": "Le Haras des Trois Fers"},
+    {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928"},
+    {"num": 3, "monde": "kepler", "nom": "Station Kepler-9"},
+]
 
-    # Le matériel de jeu à imprimer, puis un kit qui rassemble tout dans l'ordre de fabrication.
+
+def temporaire(nom, fabriquer, pdf, **options):
+    """Fabrique une page HTML intermédiaire, la rend en PDF, puis l'efface."""
+    html = ICI / f"_{nom}.html"
+    fabriquer(html)
+    try:
+        rendre(html, pdf, **options)
+    finally:
+        html.unlink()
+
+
+def mission(m):
+    n, nom = m["num"], m["nom"]
+    dossier = JEU / "mondes" / m["monde"]
+
+    def fichier(suffixe):
+        return SORTIE / f"mission-{n}-{suffixe}.pdf"
+
+    temporaire(f"deroule-{n}", lambda h: deroule(dossier / f"mission-{n}-deroule.md", h, nom),
+               fichier("deroule-maitre-du-jeu"), paysage=True, pied=f"{nom} · Mission {n} · Déroulé du maître du jeu")
+    temporaire(f"doublage-{n}",
+               lambda h: doublage([JEU / "console" / "audio" / "repliques.json", dossier / "audio" / f"mission-{n}.json"],
+                                  h, f"{nom} · Mission {n}, et la voix du Pupitre"),
+               fichier("script-doublage"), pied=f"{nom} · Mission {n} · Script de doublage")
+
+    # Le matériel de jeu, puis un kit qui rassemble tout dans l'ordre de fabrication.
     materiel = [
-        ("cartes", "mission-1-cartes.pdf", ""),
-        ("documents-secrets", "mission-1-documents-secrets.pdf", "Le Haras des Trois Fers · Mission 1 · Documents secrets des rôles"),
-        ("enveloppes", "mission-1-enveloppes.pdf", "Le Haras des Trois Fers · Mission 1 · Contenu des enveloppes (ne pas montrer aux joueurs)"),
-        ("fiche-enquete", "mission-1-fiche-enquete.pdf", ""),
+        (f"fiche-mission-{n}", "fiche-joueurs", "Fiche de mission"),
+        ("cartes", "cartes", ""),
+        ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "fiche-enquete", ""),
     ]
-    for source, pdf, pied in materiel:
-        rendre(HARAS / "impression" / f"{source}.html", SORTIE / pdf, pied=pied)
     kit = PdfWriter()
-    for pdf in ["mission-1-fiche-joueurs.pdf"] + [pdf for _, pdf, _ in materiel]:
-        kit.append(str(SORTIE / pdf))
+    for source, suffixe, pied in materiel:
+        rendre(dossier / "impression" / f"{source}.html", fichier(suffixe),
+               pied=f"{nom} · Mission {n} · {pied}" if pied else "")
+        kit.append(str(fichier(suffixe)))
         # Chaque document commence sur une page impaire, pour l'impression recto verso.
         if len(kit.pages) % 2:
             kit.add_blank_page()
-    kit.write(str(SORTIE / "mission-1-kit-impression.pdf"))
-    print("✓ pdf/mission-1-kit-impression.pdf")
-    rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf",
-           pied="Le Pupitre des Énigmes · Mode d'emploi")
+    kit.write(str(fichier("kit-impression")))
+    print(f"✓ pdf/mission-{n}-kit-impression.pdf")
 
-    temporaire = ICI / "_liste-achats.html"
-    achats(JEU / "console" / "achats.json", temporaire)
-    try:
-        rendre(temporaire, SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
-    finally:
-        temporaire.unlink()
 
-    temporaire = ICI / "_doublage-mission-1.html"
-    doublage([JEU / "console" / "audio" / "repliques.json", HARAS / "audio" / "mission-1.json"], temporaire,
-             "Le Haras des Trois Fers · Mission 1, et la voix du Pupitre")
-    try:
-        rendre(temporaire, SORTIE / "mission-1-script-doublage.pdf",
-               pied="Le Haras des Trois Fers · Mission 1 · Script de doublage")
-    finally:
-        temporaire.unlink()
+def main():
+    """python3 construire.py [numéros de mission]   (sans argument : tout)"""
+    SORTIE.mkdir(exist_ok=True)
+    choix = {int(a) for a in sys.argv[1:]}
+    for m in MISSIONS:
+        if not choix or m["num"] in choix:
+            mission(m)
+    if not choix:
+        rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf", pied="Le Pupitre des Énigmes · Mode d'emploi")
+        temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
+                   SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
 
 
 if __name__ == "__main__":

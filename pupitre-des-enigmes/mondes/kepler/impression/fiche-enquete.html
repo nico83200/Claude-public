@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 3 · Rapport d'enquête</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="sf.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  td { height: 10mm; }
+  .cases { display: flex; gap: 2.5mm; }
+  .cases span { width: 11mm; height: 12mm; border: 1.5px solid #0f2236; border-radius: 3px; display: inline-block; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .zone { border: 1px solid var(--filet); border-radius: 6px; padding: 3mm 4mm; min-height: 26mm; }
+  .zone h4 { margin: 0 0 2mm; }
+  .energie td { height: 8mm; }
+  .ligne { border-bottom: 1px solid var(--filet); height: 9mm; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Le Pupitre des Énigmes · Station Kepler-9</span><span>Rapport d'enquête · mission 3</span></div>
+<h1 style="font-size:22pt">Rapport d'enquête</h1>
+<p class="petit">Une feuille pour toute l'équipe, à remplir au crayon. Celle-ci se partage.</p>
+
+<h3>L'équipage</h3>
+<table>
+  <thead><tr><th style="width:20%">Membre</th><th>Ce que dit son journal</th><th style="width:16%">État (scanner)</th><th style="width:9%">Suspect ?</th></tr></thead>
+  <tbody>
+    <tr><td>Okafor</td><td></td><td></td><td></td></tr><tr><td>Sorokin</td><td></td><td></td><td></td></tr>
+    <tr><td>Marchetti</td><td></td><td></td><td></td></tr><tr><td>Reyes</td><td></td><td></td><td></td></tr>
+    <tr><td>Voss</td><td></td><td></td><td></td></tr><tr><td>Mori</td><td></td><td></td><td></td></tr>
+    <tr><td>HÉLIOS</td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="deux">
+  <div>
+    <h3>Code du sas</h3>
+    <div class="cases"><span></span><span></span><span></span><span></span></div>
+    <h3>Énergie (10 unités)</h3>
+    <table class="energie">
+      <tbody>
+        <tr><td>Survie</td><td style="width:22%"></td></tr><tr><td>Antenne</td><td></td></tr><tr><td>Hangar</td><td></td></tr>
+        <tr><td>Serre</td><td></td></tr><tr><td>Laboratoire</td><td></td></tr><tr><td>Cryogénie</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Mot de passe du noyau</h3>
+    <div class="cases"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <h3>La chronologie</h3>
+    <table class="energie">
+      <tbody><tr><td style="width:18%">J-3</td><td></td></tr><tr><td>J-2</td><td></td></tr><tr><td>J-1</td><td></td></tr><tr><td>J-0</td><td></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<h3>La transmission décodée</h3>
+<div class="ligne"></div><div class="ligne"></div>
+
+<h3>Rapport final</h3>
+<div class="deux" style="grid-template-columns:repeat(3,1fr)">
+  <div class="zone"><h4>👤 QUI ?</h4></div>
+  <div class="zone"><h4>📍 OÙ ?</h4></div>
+  <div class="zone"><h4>🔍 QUOI ?</h4></div>
+</div>
+</body>
+</html>

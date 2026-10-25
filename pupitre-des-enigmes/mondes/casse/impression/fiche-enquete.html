@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 2 · Fiche de la bande</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="deco.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  td { height: 11mm; }
+  .heures td { height: 8.5mm; }
+  .cases { display: flex; gap: 4mm; align-items: center; font-family: "Limelight"; font-size: 18pt; }
+  .cases span { width: 18mm; height: 14mm; border: 2px solid #15161c; display: inline-block; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .zone { border: 1px solid var(--filet); padding: 3mm 4mm; min-height: 30mm; }
+  .zone h4 { margin: 0 0 2mm; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Le Pupitre des Énigmes · Monte-Carlo 1928</span><span>Fiche de la bande · mission 2</span></div>
+<h1 style="font-size:24pt">Carnet de la bande</h1>
+<p class="petit">Une feuille pour toute l'équipe, à remplir au crayon. Celle-ci se partage !</p>
+
+<h3>Le beau monde</h3>
+<table>
+  <thead><tr><th style="width:22%">Personne</th><th>Ce qu'on a appris</th><th style="width:20%">Où était-elle à 22 h 45 ?</th><th style="width:9%">Louche ?</th></tr></thead>
+  <tbody>
+    <tr><td>Baron de Valcourt</td><td></td><td></td><td></td></tr>
+    <tr><td>Joséphine Lamour</td><td></td><td></td><td></td></tr>
+    <tr><td>Ernest Pujol</td><td></td><td></td><td></td></tr>
+    <tr><td>Albert Rinaldi</td><td></td><td></td><td></td></tr>
+    <tr><td>Sergent Mattei</td><td></td><td></td><td></td></tr>
+    <tr><td>Lady Pembroke</td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="deux">
+  <div>
+    <h3>La soirée, heure par heure</h3>
+    <table class="heures">
+      <thead><tr><th style="width:22%">Heure</th><th>Ce qui s'est passé</th></tr></thead>
+      <tbody>
+        <tr><td>21 h 30</td><td></td></tr><tr><td>22 h 30</td><td></td></tr><tr><td>22 h 45</td><td></td></tr>
+        <tr><td>23 h 00</td><td></td></tr><tr><td>0 h 00</td><td></td></tr>
+      </tbody>
+    </table>
+    <h3>Le poids du diamant</h3>
+    <p>42 carats × ______ g = ______ g</p>
+  </div>
+  <div>
+    <h3>La combinaison du coffre</h3>
+    <div class="cases"><span></span>–<span></span>–<span></span></div>
+    <p class="petit">Disques 1 et 2 : à l'oreille · disque 3 : à calculer</p>
+    <h3>Notes</h3>
+    <div class="zone" style="min-height:48mm"></div>
+  </div>
+</div>
+
+<h3>Le coup final</h3>
+<div class="deux" style="grid-template-columns:repeat(3,1fr)">
+  <div class="zone"><h4>👤 QUI ?</h4></div>
+  <div class="zone"><h4>📍 OÙ ?</h4></div>
+  <div class="zone"><h4>🔍 DANS QUOI ?</h4></div>
+</div>
+</body>
+</html>

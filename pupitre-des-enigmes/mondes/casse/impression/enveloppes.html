@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 2 · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="deco.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 6mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  .photos { display: flex; flex-wrap: wrap; gap: 7mm; justify-content: center; }
+  .polaroid { background: #fbf6ea; padding: 4mm 4mm 2mm; box-shadow: 0 1px 4px rgba(0,0,0,.25); border: 1px solid #e3ddd2; width: 90mm; }
+  .polaroid svg { width: 82mm; height: 64mm; display: block; filter: sepia(.55); }
+  .polaroid .legende { font-family: "Caveat"; font-size: 15pt; color: #3a2a1a; text-align: center; margin-top: 1mm; line-height: 1.1; }
+  .programme { width: 120mm; margin: 0 auto; background: #15161c; color: #e9cf8f; border: 3px double #c9a54a; padding: 8mm 10mm; text-align: center; }
+  .programme h2 { color: #fff; border: 0; font-size: 22pt; margin: 2mm 0 4mm; }
+  .programme table { color: #fff; font-size: 11pt; }
+  .programme td { border-bottom: 1px solid #3a3a46; background: transparent !important; text-align: left; }
+  .programme td:first-child { font-family: "Limelight"; color: #e9cf8f; white-space: nowrap; }
+  .lettre { background: #fdf3f5; border: 1px solid #e8c9d0; padding: 9mm 11mm; font-family: "Caveat"; font-size: 19pt; color: #4a1830; line-height: 1.3; }
+  .carnet { background: #f6efdc; border: 1px solid #c9b88f; padding: 9mm 11mm; font-family: "Caveat"; font-size: 20pt; color: #1b2c55; line-height: 1.35; }
+  .presse { background: #f3efe6; border: 1px solid #c9c2b4; padding: 7mm 9mm; font-family: "Playfair"; columns: 2; column-gap: 7mm; font-size: 10.5pt; text-align: justify; }
+  .presse h2 { column-span: all; font-size: 20pt; border-bottom: 3px double #15161c; color: #15161c; }
+  .brochure { border: 2px solid #15161c; padding: 7mm 9mm; background: #fff; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 64mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 6mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Limelight"; font-size: 34pt; color: #15161c; line-height: 1; }
+  .etiquette .lieu { font-family: "Poiret One"; font-weight: 700; font-size: 15pt; color: var(--cuir); margin: 1mm 0 3mm; }
+  .etiquette .avis { font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; }
+  .etiquette.dos h4 { margin: 0 0 1mm; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Les enveloppes de la mission 2</h1>
+  <p>Tout ce qui se glisse dans les <strong>7 enveloppes</strong>, et leurs étiquettes. Les joueurs ne doivent pas voir ce document.</p>
+  <ol>
+    <li>Imprimez en couleur (papier 120 g). Étiquettes sur papier adhésif si possible.</li>
+    <li>Découpez en suivant les pointillés ✂.</li>
+    <li>Étiquette « recto » devant, étiquette « contenu » au dos de chaque enveloppe.</li>
+    <li>Ajoutez dans chaque enveloppe <strong>ses cartes Objet</strong>.</li>
+  </ol>
+  <table>
+    <thead><tr><th>Env.</th><th>Lieu</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
+    <tbody>
+      <tr><td><strong>E1</strong></td><td>Salon d'Or</td><td>Programme du gala · photo de la vitrine</td><td>O5 Programme</td></tr>
+      <tr><td><strong>E2</strong></td><td>Bureau du directeur</td><td>Photo de Marie · brochure du coffre</td><td>O4 Photo de Marie</td></tr>
+      <tr><td><strong>E3</strong></td><td>Salle des coffres</td><td>Photo du coffre ouvert</td><td>O6 Pierre · O7 Écrin argenté</td></tr>
+      <tr><td><strong>E4</strong></td><td>Loge des artistes</td><td>Coupure de presse sur La Pie</td><td>O8 Écrin aux armes · O9 Poudrier · O10 Plume</td></tr>
+      <tr><td><strong>E5</strong></td><td>Poches d'Albert</td><td>—</td><td>O1 Jeton de service</td></tr>
+      <tr><td><strong>E6</strong></td><td>Poches de Pujol</td><td>Page du carnet</td><td>O2 Carnet</td></tr>
+      <tr><td><strong>E7</strong></td><td>Poches du baron</td><td>Lettre de Lady Pembroke</td><td>O3 Lettre</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · recto</div>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">Le Salon d'Or</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">Le Bureau du directeur</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">La Salle des coffres</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">La Loge des artistes</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Les poches d'Albert</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E6</div><div class="lieu">Les poches du directeur</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E7</div><div class="lieu">Les poches du baron</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · dos (contenu)</div>
+  <div class="etiquettes">
+    <div class="etiquette dos"><h4>E1 · Salon d'Or</h4><ul><li>Carte O5 · Programme</li><li>Programme du gala</li><li>Photo de la vitrine</li></ul></div>
+    <div class="etiquette dos"><h4>E2 · Bureau</h4><ul><li>Carte O4 · Photo de Marie</li><li>Photo de Marie</li><li>Brochure du coffre</li></ul></div>
+    <div class="etiquette dos"><h4>E3 · Salle des coffres</h4><ul><li>Carte O6 · Pierre</li><li>Carte O7 · Écrin argenté</li><li>Photo du coffre ouvert</li></ul></div>
+    <div class="etiquette dos"><h4>E4 · Loge</h4><ul><li>Carte O8 · Écrin aux armes</li><li>Carte O9 · Poudrier</li><li>Carte O10 · Plume de pie</li><li>Coupure de presse</li></ul></div>
+    <div class="etiquette dos"><h4>E5 · Poches d'Albert</h4><ul><li>Carte O1 · Jeton de service</li></ul></div>
+    <div class="etiquette dos"><h4>E6 · Poches du directeur</h4><ul><li>Carte O2 · Carnet</li><li>Page du carnet</li></ul></div>
+    <div class="etiquette dos"><h4>E7 · Poches du baron</h4><ul><li>Carte O3 · Lettre</li><li>Lettre de Lady Pembroke</li></ul></div>
+  </div>
+</div>
+
+<!-- E1 -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · Salon d'Or</div>
+  <div class="programme">
+    <div style="letter-spacing:.3em;font-size:9pt">◆ CASINO DE LA RIVIERA ◆</div>
+    <h2>Programme du gala</h2>
+    <div style="margin-bottom:4mm">Samedi 18 août 1928, en présence du baron de Valcourt</div>
+    <table>
+      <tr><td>21 h 00</td><td>Ouverture des salons · champagne</td></tr>
+      <tr><td>21 h 30</td><td>Présentation de <strong>l'Œil du Nil</strong> au Salon d'Or</td></tr>
+      <tr><td>22 h 30</td><td>Mlle Joséphine Lamour · « La Panthère »</td></tr>
+      <tr><td>22 h 45</td><td>Transfert du diamant au coffre</td></tr>
+      <tr><td>23 h 00</td><td>Tables de jeu · orchestre</td></tr>
+      <tr><td>0 h 00</td><td>Mlle Joséphine Lamour · numéro de minuit</td></tr>
+    </table>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="photos">
+    <div class="polaroid" style="width:120mm">
+      <svg viewBox="0 0 300 200" style="width:112mm;height:76mm">
+        <rect width="300" height="200" fill="#d8c6a2"/>
+        <rect x="70" y="40" width="160" height="130" fill="#efe6d0" stroke="#7a6a4a" stroke-width="3"/>
+        <rect x="95" y="90" width="110" height="60" fill="#8e1f2f"/>
+        <path d="M95 90L110 52H190L205 90Z" fill="#a8323f"/>
+        <rect x="140" y="86" width="20" height="10" fill="#e3b93a" stroke="#8a6a1a"/>
+        <polygon points="135,112 143,104 157,104 165,112 150,132" fill="#f3b6c8" stroke="#8e1f2f"/>
+        <text x="150" y="190" text-anchor="middle" font-family="Caveat" font-size="14" fill="#3a2a1a">Salon d'Or, 21 h 30</text>
+      </svg>
+      <div class="legende">L'Œil du Nil dans son écrin, avant le transfert. Remarquez le joli fermoir doré.</div>
+    </div>
+  </div>
+</div>
+
+<!-- E2 -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · Bureau du directeur</div>
+  <div class="photos">
+    <div class="polaroid">
+      <svg viewBox="0 0 200 160">
+        <rect width="200" height="160" fill="#cdbb98"/>
+        <circle cx="100" cy="62" r="26" fill="#e9d8bd"/>
+        <path d="M70 52Q100 18 130 52Q128 34 100 30Q72 34 70 52Z" fill="#5a3a1a"/>
+        <path d="M60 160Q62 100 100 96Q138 100 140 160Z" fill="#f3efe6"/>
+        <path d="M84 96L100 112L116 96" fill="none" stroke="#8e1f2f" stroke-width="4"/>
+      </svg>
+      <div class="legende">« Pour mon papa chéri. Marie, pour ses 12 ans, le 3 mars 1925 »</div>
+    </div>
+  </div>
+  <div class="ciseaux"></div>
+  <div class="brochure">
+    <h2 style="margin-top:0">Coffres FICHET · Paris</h2>
+    <p><strong>Modèle 1925 « Casino »</strong> : trois disques de combinaison, gradués de 00 à 99, et un troisième disque <strong>insonorisé</strong> breveté, à l'épreuve des perceurs les plus habiles.</p>
+    <p><em>« Avec un Fichet, dormez sur vos deux oreilles. »</em></p>
+  </div>
+</div>
+
+<!-- E3 -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · Salle des coffres</div>
+  <div class="photos" style="margin-top:15mm">
+    <div class="polaroid" style="width:120mm">
+      <svg viewBox="0 0 300 200" style="width:112mm;height:76mm">
+        <rect width="300" height="200" fill="#5a5a5e"/>
+        <rect x="60" y="30" width="180" height="150" fill="#2a2a2e" stroke="#9a9aa0" stroke-width="4"/>
+        <rect x="60" y="30" width="40" height="150" fill="#7a7a80" transform="skewY(-8) translate(-24 20)"/>
+        <rect x="110" y="110" width="100" height="40" fill="#8e1f2f"/>
+        <rect x="150" y="104" width="20" height="10" fill="#d9d9e0" stroke="#666"/>
+        <polygon points="148,124 154,118 166,118 172,124 160,140" fill="#f3b6c8"/>
+      </svg>
+      <div class="legende">Le coffre est ouvert ! L'écrin… et son fermoir argenté.</div>
+    </div>
+  </div>
+</div>
+
+<!-- E4 -->
+<div class="page">
+  <div class="tag">Enveloppe E4 · Loge des artistes</div>
+  <div class="presse">
+    <h2>La Pie frappe encore à Nice !</h2>
+    <p><strong>Nice, 11 août.</strong> La parure de saphirs de la comtesse Bellini s'est volatilisée pendant la soirée de gala de l'hôtel Ruhl. Aucune trace d'effraction, aucun témoin… sinon, sur l'oreiller de la comtesse, une <strong>plume de pie</strong>, noire et blanche.</p>
+    <p>C'est la sixième fois en deux ans que la mystérieuse voleuse signe ainsi ses forfaits sur la Côte. Selon la police, il s'agirait d'une femme, élégante et insaisissable, qui <strong>travaillerait dans le monde du spectacle</strong> et suivrait les galas de ville en ville.</p>
+    <p>« Elle remplace les bijoux par des copies parfaites, si bien qu'on ne s'aperçoit du vol que des jours plus tard », confie un inspecteur. Les joailliers de Monte-Carlo sont priés de redoubler de vigilance.</p>
+  </div>
+</div>
+
+<!-- E5, E6 et E7 -->
+<div class="page">
+  <div class="tag">Enveloppes E5 · E6 · E7 · Les poches</div>
+  <h3 style="margin-top:0">E5 · Poches d'Albert</h3>
+  <p class="petit">Seulement la carte O1 (jeton de service). Ce petit mot peut l'accompagner :</p>
+  <div class="carnet" style="font-size:17pt;width:110mm">Le jeton d'Albert est à vous. Le couloir du personnel vous attend.</div>
+  <div class="ciseaux"></div>
+  <h3>E6 · Poches du directeur</h3>
+  <div class="carnet">
+    Coffre — pour ma mémoire défaillante.<br>
+    Les deux premiers disques, je les connais par cœur.<br>
+    Le troisième, je l'oublie toujours : <u>l'âge de Marie le soir du gala, plus le numéro de la table d'Albert</u>.<br>
+    <span style="float:right">E. P.</span><br>
+  </div>
+  <div class="ciseaux"></div>
+  <h3>E7 · Poches du baron</h3>
+  <div class="lettre">
+    Cher baron,<br>
+    Mon offre de <u>deux millions de francs</u> tient toujours. Votre caillou mérite mieux qu'un coffre de casino. Réfléchissez avant minuit : après, je repars pour Londres.<br>
+    <span style="float:right">A. Pembroke</span><br>
+  </div>
+</div>
+</body>
+</html>
