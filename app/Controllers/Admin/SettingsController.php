@@ -31,6 +31,12 @@ final class SettingsController extends BaseController
             if (in_array($key, self::MONEY_KEYS, true)) {
                 $value = (string) to_cents($value);
             }
+            if ($key === 'ai_prompt') {
+                // Identique à l'origine (ou vidé) : on garde le prompt d'origine, mis à jour avec le site
+                $value = input('ai_prompt_reset') === '1' || preg_replace('/\s+/', ' ', $value) === preg_replace('/\s+/', ' ', \App\Services\AiPortrait::STYLE_PROMPT) ? '' : $value;
+                Settings::set($key, mb_substr($value, 0, 6000));
+                continue;
+            }
             Settings::set($key, mb_substr($value, 0, 2000));
         }
         flash('success', 'Réglages enregistrés.');

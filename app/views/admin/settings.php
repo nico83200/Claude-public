@@ -31,6 +31,21 @@ $groups = [
       </div>
     </section>
   <?php endforeach; ?>
+  <section class="card" id="portrait-ia">
+    <h2>Portrait IA : prompt envoyé pour la photo personnalisée</h2>
+    <?php $aiCustom = trim((string) ($settings['ai_prompt'] ?? '')) !== ''; ?>
+    <p class="muted small">C'est la consigne envoyée à l'IA avec la photo du cheval. Écrivez-la de préférence en anglais (les modèles la comprennent mieux). Le nom et l'année sont ajoutés ensuite sous le dessin : inutile de les demander, et gardez « no text, no letters » pour éviter les fautes.
+      <?= $aiCustom ? '<strong>Prompt personnalisé.</strong>' : 'Prompt d\'origine du style « Encre &amp; Poudre ».' ?></p>
+    <label class="full">Prompt
+      <textarea name="ai_prompt" rows="14" class="mono" maxlength="6000"><?= e(App\Services\AiPortrait::prompt()) ?></textarea>
+    </label>
+    <?php if ($aiCustom): ?>
+      <label class="checkbox"><input type="checkbox" name="ai_prompt_reset" value="1" style="width:auto"> Revenir au prompt d'origine</label>
+      <details class="mt"><summary class="small">Voir le prompt d'origine</summary><pre class="mono small" style="white-space:pre-wrap"><?= e(App\Services\AiPortrait::STYLE_PROMPT) ?></pre></details>
+    <?php endif; ?>
+    <p class="muted small">Pour tester : enregistrez, puis créez un portrait depuis <a href="<?= e(url('portrait-aquarelle')) ?>#creer" target="_blank">la page Portrait aquarelle ↗</a>. Connectée en administratrice, vos essais ne sont pas limités à 3 par jour (seul le budget quotidien du site s'applique).</p>
+  </section>
+
   <p class="muted small">Les codes promo se créent directement dans Stripe (Produits › Coupons › Codes promo) : le champ « code promo » est automatiquement proposé au paiement.</p>
   <button class="btn btn-primary btn-lg">Enregistrer les réglages</button>
 </form>

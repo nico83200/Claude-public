@@ -282,6 +282,17 @@ check('version agrandie retenue pour l\'impression', (string) $rep['master_file'
 $creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create'));
 check('Replicate : modèle, format 3:4, photo et attente synchrone', ($creates[0]['model'] ?? '') === 'black-forest-labs/flux-kontext-pro' && ($creates[0]['input']['aspect_ratio'] ?? '') === '3:4'
     && str_starts_with((string) ($creates[0]['input']['input_image'] ?? ''), 'data:image/jpeg;base64,') && ($creates[0]['prefer'] ?? '') === 'wait=50' && ($creates[0]['auth'] ?? '') === 'Bearer r8_test');
+App\Core\Settings::set('ai_prompt', 'Turn this horse into a charcoal sketch. No text.');
+$_SESSION['admin_id'] = 1;
+$adminRemaining = AiPortrait::remaining();
+$custom = AiPortrait::run(AiPortrait::create($aiFile()));
+Database::update('ai_portraits', ['status' => 'failed', 'error' => 'test'], 'id = :id', ['id' => $custom['id']]);
+unset($_SESSION['admin_id']);
+$creates = array_values(array_filter(json_decode((string) file_get_contents($aiLog), true), static fn ($c) => $c['route'] === 'replicate.create'));
+check('prompt personnalisé des Réglages envoyé à l\'IA', (end($creates)['input']['prompt'] ?? '') === 'Turn this horse into a charcoal sketch. No text.');
+check('administratrice : essais non limités à 3 par jour', $adminRemaining > 3);
+App\Core\Settings::set('ai_prompt', '');
+check('prompt d\'origine si le réglage est vide', AiPortrait::prompt() === AiPortrait::STYLE_PROMPT);
 echo "Comptes clientes\n";
 $mailLog = STORAGE_PATH . '/logs/mail-' . date('Y-m') . '.log';
 $lastLink = static function (string $path) use ($mailLog): ?string {
@@ -422,7 +433,7 @@ check('cause visible pour l\'administratrice', str_contains((string) AiPortrait:
 unset($_SESSION['admin_id']);
 check('cause masquée aux clientes', AiPortrait::publicState($failed)['admin'] === null);
 $stale = AiPortrait::create($aiFile());
-Database::update('ai_portraits', ['status' => 'processing', 'updated_at' => date('Y-m-d H:i:s', time() - 900)], 'id = :id', ['id' => $stale['id']]);
+Database::update('ai_portraits', ['status' => 'processing', 'updated_at' => date('Y-m-d H:i:s', time() - 7200)], 'id = :id', ['id' => $stale['id']]);
 check('création bloquée trop longtemps passée en échec', AiPortrait::refresh(AiPortrait::find($stale['token']))['status'] === 'failed');
 
 $refusedYear = static function (string $year): bool {

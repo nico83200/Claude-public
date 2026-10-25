@@ -30,6 +30,13 @@ final class AiPortrait
         . 'Mood: modern, minimalist, feminine, luminous, gallery quality, with lively detailed eyes and a soft highlight. '
         . 'Strictly no text, letters, numbers, signature, logo, frame or border.';
 
+    /** Prompt envoyé à l'IA : celui des Réglages s'il a été personnalisé, sinon le style d'origine. */
+    public static function prompt(): string
+    {
+        $custom = trim((string) setting('ai_prompt', ''));
+        return $custom !== '' ? $custom : self::STYLE_PROMPT;
+    }
+
     /**
      * Mise en page de l'affiche (proportions de la feuille, de 0 à 1), partagée par le fichier
      * d'impression et l'aperçu en direct de la fiche produit.
@@ -117,6 +124,10 @@ final class AiPortrait
         );
         $limit = max(1, (int) config('ai.daily_per_visitor', 3));
         $budget = max(1, (int) config('ai.daily_budget', 60));
+        if (!empty($_SESSION['admin_id'])) {
+            // Administratrice : essais illimités (pour régler le prompt), dans la limite du budget du jour
+            return max(0, $budget - $count('1 = 1', []));
+        }
         return max(0, min(
             $limit - $count('session_hash = ?', [self::sessionHash()]),
             $limit * 3 - $count('ip_hash = ?', [self::ipHash()]),   // réseau partagé (box, 4G) : marge
@@ -173,10 +184,10 @@ final class AiPortrait
             $jpeg = self::aiInput((string) Upload::customerPhotoPath($row['photo_file']));
             switch ($row['provider']) {
                 case 'openai':
-                    return self::storeResult($row, AiImage::openaiEdit($jpeg, self::STYLE_PROMPT));
+                    return self::storeResult($row, AiImage::openaiEdit($jpeg, self::prompt()));
                 case 'replicate':
                     $prediction = AiImage::replicateCreate((string) config('ai.replicate_model') ?: 'black-forest-labs/flux-kontext-pro', [
-                        'prompt'           => self::STYLE_PROMPT,
+                        'prompt'           => self::prompt(),
                         'input_image'      => 'data:image/jpeg;base64,' . base64_encode($jpeg),
                         'aspect_ratio'     => '3:4',
                         'output_format'    => 'png',
