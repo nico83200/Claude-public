@@ -1,0 +1,21 @@
+{
+  "dossier": 99,
+  "description": "Bruitages communs aux 3 missions (dossier /99/ de la carte SD du DFPlayer).",
+  "sons": [
+    { "n": 1, "nom": "Hennissement proche", "duree": 3, "prompt": "A single loud horse neigh, close up, clear, outdoors in a barn" },
+    { "n": 2, "nom": "Hennissement lointain", "duree": 4, "prompt": "A distant horse neigh echoing in a pine forest, muffled, mysterious" },
+    { "n": 3, "nom": "Serrure qui s'ouvre", "duree": 2, "prompt": "An old metal door lock unlocking with a heavy click, then a wooden door creaking open" },
+    { "n": 4, "nom": "Buzzer d'erreur", "duree": 1, "prompt": "Short low game show wrong answer buzzer" },
+    { "n": 5, "nom": "Chants d'oiseaux en forêt", "duree": 5, "prompt": "Birds chirping in a quiet pine forest, light breeze, morning" },
+    { "n": 6, "nom": "Ambiance écurie", "duree": 20, "prompt": "Calm horse stable ambience, horses snorting and shuffling hay, distant hooves on concrete, birds outside, seamless loop" },
+    { "n": 7, "nom": "Un coup de sabot", "duree": 0.5, "prompt": "A single horse hoof hitting hard ground, one short sharp impact" },
+    { "n": 8, "nom": "Alarme d'imprévu", "duree": 2, "prompt": "Short urgent alert alarm, two rising tones, game event" },
+    { "n": 9, "nom": "Sonnerie de téléphone", "duree": 3, "prompt": "Old landline telephone ringing twice" },
+    { "n": 10, "nom": "Fanfare de victoire", "duree": 6, "prompt": "Short triumphant brass fanfare, equestrian competition victory, celebratory" },
+    { "n": 11, "nom": "Musique de tension", "duree": 20, "prompt": "Tense suspenseful music with fast galloping rhythm percussion, countdown feeling, seamless loop" },
+    { "n": 12, "nom": "Bip de scan", "duree": 0.5, "prompt": "Short pleasant electronic confirmation beep" },
+    { "n": 13, "nom": "Pas pressés", "duree": 3, "prompt": "Hurried footsteps of a woman in boots approaching on gravel" },
+    { "n": 14, "nom": "Bonne réponse", "duree": 1.5, "prompt": "Short bright positive chime, correct answer" },
+    { "n": 15, "nom": "Musique d'échec", "duree": 5, "prompt": "Short sad descending piano melody, failure ending" }
+  ]
+}

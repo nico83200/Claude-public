@@ -9,7 +9,7 @@ est dans le jeu.
 
 | # | Mission | Difficulté | Durée | Statut |
 |---|---|---|---|---|
-| 1 | [La Disparition d'Éclipse](mission-1-disparition-eclipse.md) | 🟢 Accessible | 60 min | Scénario écrit |
+| 1 | [La Disparition d'Éclipse](mission-1-disparition-eclipse.md) | 🟢 Accessible | 60 min | Scénario et voix écrits |
 | 2 | Course Truquée à Longchamp | 🟠 Intermédiaire | 60 min | À écrire |
 | 3 | Le Testament du Fondateur | 🔴 Difficile | 75 min | À écrire |
 
@@ -35,3 +35,7 @@ est dans le jeu.
 | Encodeur KY-040 | CLK 34, DT 35, SW 32 |
 | Boutons rouge / bleu / jaune / vert | 33 / 26 / 27 / 14 (vers GND) |
 | Gros bouton « Accusation » | 39 (vers GND, 10 kΩ vers 3,3 V) |
+
+## Voix
+
+Toutes les répliques sont pré-enregistrées avec ElevenLabs : voir [audio/](audio/README.md).

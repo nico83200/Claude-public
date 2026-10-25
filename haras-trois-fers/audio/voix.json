@@ -1,0 +1,75 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "narrateur": {
+      "nom": "Le Narrateur (voix de la console)",
+      "voice_id": "",
+      "description": "Homme, la cinquantaine, voix grave et chaleureuse, ton de conteur, légèrement mystérieux.",
+      "prompt_voice_design": "A warm, deep French male voice in his fifties, native French speaker from France, calm storyteller tone with a hint of mystery, clear diction, like the narrator of a detective audio drama.",
+      "reglages": { "stability": 0.55, "similarity_boost": 0.75, "style": 0.25 }
+    },
+    "helene": {
+      "nom": "Hélène Vasseur, propriétaire",
+      "voice_id": "",
+      "description": "Femme de 58 ans, bourgeoise, voix posée mais fragile, au bord des larmes.",
+      "prompt_voice_design": "A refined French woman in her late fifties, native speaker from France, elegant upper-class accent, soft and composed voice that trembles slightly with emotion, as if hiding something.",
+      "reglages": { "stability": 0.4, "similarity_boost": 0.75, "style": 0.45 }
+    },
+    "lucas": {
+      "nom": "Lucas Bernier, palefrenier",
+      "voice_id": "",
+      "description": "Jeune homme de 24 ans, simple et sincère, un peu nerveux.",
+      "prompt_voice_design": "A young French man in his mid twenties, native speaker from rural Normandy, friendly and simple, a bit nervous and fast-talking, honest and slightly shy.",
+      "reglages": { "stability": 0.45, "similarity_boost": 0.75, "style": 0.35 }
+    },
+    "camille": {
+      "nom": "Camille Roussel, cavalière d'Éclipse",
+      "voice_id": "",
+      "description": "Femme de 31 ans, énergique, inquiète, très attachée à sa jument.",
+      "prompt_voice_design": "A French woman in her early thirties, native speaker from France, energetic and sincere, worried and emotional, warm voice, sporty and determined.",
+      "reglages": { "stability": 0.45, "similarity_boost": 0.75, "style": 0.4 }
+    },
+    "victoire": {
+      "nom": "Victoire de Lancey, cavalière rivale",
+      "voice_id": "",
+      "description": "Femme de 27 ans, aristocrate, hautaine et ironique.",
+      "prompt_voice_design": "A young aristocratic French woman in her late twenties, native speaker from Paris, haughty, ironic and condescending, crisp posh diction, slightly bored tone.",
+      "reglages": { "stability": 0.5, "similarity_boost": 0.75, "style": 0.5 }
+    },
+    "antoine": {
+      "nom": "Antoine Vasseur, fils d'Hélène",
+      "voice_id": "",
+      "description": "Homme de 33 ans, nonchalant et sarcastique, voix un peu rauque de lendemain de fête.",
+      "prompt_voice_design": "A French man in his early thirties, native speaker from France, nonchalant and sarcastic, slightly hoarse voice as if he partied all night, lazy and defensive tone.",
+      "reglages": { "stability": 0.45, "similarity_boost": 0.75, "style": 0.45 }
+    },
+    "delorme": {
+      "nom": "Marc Delorme, marchand de chevaux",
+      "voice_id": "",
+      "description": "Homme de 52 ans, voix rocailleuse, bonhomme mais roublard.",
+      "prompt_voice_design": "A French man in his early fifties, native speaker from France, gravelly voice, jovial horse trader, a bit sly and smooth-talking, confident.",
+      "reglages": { "stability": 0.5, "similarity_boost": 0.75, "style": 0.35 }
+    },
+    "papy_marcel": {
+      "nom": "Papy Marcel, ancien palefrenier (les indices)",
+      "voice_id": "",
+      "description": "Vieil homme de 80 ans, accent normand, malicieux et bienveillant.",
+      "prompt_voice_design": "An old French man around eighty, native speaker with a light rural Normandy accent, mischievous and kind grandfather, slow, amused and warm, slightly raspy.",
+      "reglages": { "stability": 0.5, "similarity_boost": 0.75, "style": 0.4 }
+    },
+    "gendarme": {
+      "nom": "Le gendarme (téléphone et vérifications)",
+      "voice_id": "",
+      "description": "Homme de 45 ans, voix neutre et professionnelle, comme au téléphone.",
+      "prompt_voice_design": "A French police officer in his mid forties, native speaker from France, neutral, efficient and professional tone, speaking clearly as if on the phone.",
+      "reglages": { "stability": 0.65, "similarity_boost": 0.75, "style": 0.1 }
+    },
+    "commentateur": {
+      "nom": "Le commentateur hippique",
+      "voice_id": "",
+      "description": "Homme de 40 ans, commentateur de course enthousiaste et un peu cabotin.",
+      "prompt_voice_design": "An enthusiastic French horse racing commentator in his forties, native speaker from France, fast, excited and theatrical, like a live sports broadcast.",
+      "reglages": { "stability": 0.35, "similarity_boost": 0.75, "style": 0.6 }
+    }
+  }
+}
