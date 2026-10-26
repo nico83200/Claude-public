@@ -22,11 +22,13 @@ constexpr int CASQUE_RX = 36, CASQUE_TX = 2;
 
 // LED WS2812B, toutes sur le même fil, dans cet ordre : l'anneau de 12, une LED par lecteur,
 // le panneau de 10 voyants, puis le ruban sous la boîte (NB_LED_SOCLE LED, tournées vers la
-// table : l'ambiance, que les missions peuvent aussi piloter).
+// table : l'ambiance, que les missions peuvent aussi piloter), et la LED cachée au-dessus du
+// tiroir secret, qui l'éclaire quand il sort (0 sans tiroir).
 constexpr int LED = 25;
 constexpr int NB_VOYANTS = 10;
 constexpr int NB_LED_SOCLE = 8;
-constexpr int NB_LED = 12 + NB_LECTEURS + NB_VOYANTS + NB_LED_SOCLE;
+constexpr int NB_LED_TIROIR = 1;
+constexpr int NB_LED = 12 + NB_LECTEURS + NB_VOYANTS + NB_LED_SOCLE + NB_LED_TIROIR;
 
 // Molette KY-040 et gros bouton (la dynamo de la mission 4), actifs à l'état bas.
 constexpr int MOLETTE_CLK = 34, MOLETTE_DT = 35, MOLETTE_SW = 32;

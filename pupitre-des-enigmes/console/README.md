@@ -105,7 +105,7 @@ dans `firmware/src/broches.h`.
 | Enclume | QMC5883L (module « GY-271 ») | 1 | 3 € |
 | Horloge | Afficheur 4 chiffres 7 segments 0,56" avec HT16K33 (câblage Adafruit) | 1 | 10 € |
 | Tiroir secret | Module servomoteurs PCA9685 (I2C), micro-servomoteur MG90S (pignons métal) ou SG90, ressort de compression, microrupteur de fin de course, condensateur 470 µF | 1 de chaque | 12 € |
-| LED | Anneau WS2812B de 12 LED, 2 LED WS2812B individuelles (fente, plateau) | 1 + 2 | 6 € |
+| LED | Anneau WS2812B de 12 LED, 3 LED WS2812B individuelles (fente, plateau, tiroir secret) | 1 + 3 | 6 € |
 | Voyants | Ruban WS2812B 60 LED/m : 2 morceaux de 5 LED | 10 LED | 3 € |
 | Ruban sous la boîte | Ruban WS2812B : 6 à 10 LED | 8 LED | (même ruban) |
 | Alimentation | Chargeur USB-C 5 V / 3 A et embase USB-C à visser (alimentation seule) | 1 + 1 | 12 € |
@@ -132,7 +132,7 @@ dans `firmware/src/broches.h`.
 | **DFPlayer haut-parleur** (UART2) | RX ← / TX → | TX 17 (via 1 kΩ) / RX 16 |
 | **DFPlayer casque** (UART1) | RX ← / TX → | TX 2 (via 1 kΩ) / RX 36 |
 | DFPlayer casque | DAC_L / DAC_R / GND | embase jack (pointe / anneau / manchon) |
-| **LED** (une seule chaîne) | DIN | 25 (via 330 Ω) : anneau (12), LED de la fente, LED du plateau, voyants (10), ruban sous la boîte (8) |
+| **LED** (une seule chaîne) | DIN | 25 (via 330 Ω) : anneau (12), LED de la fente, LED du plateau, voyants (10), ruban sous la boîte (8), LED du tiroir (1) |
 | Molette KY-040 | CLK / DT / SW | 34 / 35 / 32 |
 | Gros bouton | → GND (10 kΩ vers 3,3 V) | 39 |
 | **Interrupteur à clé** | → GND quand la clé est tournée (tirage interne) | 33 |
@@ -151,9 +151,10 @@ dans `firmware/src/broches.h`.
 
 **L'ordre de la chaîne de LED compte** : le fil de données part de la GPIO 25, entre
 dans l'anneau, sort vers la LED de la fente, puis celle du plateau, puis les 10
-voyants (la rangée 1-5, puis la rangée 6-10), et finit dans le ruban sous la boîte.
-Le nombre de LED de ce ruban se règle dans `NB_LED_SOCLE` (`firmware/src/broches.h`,
-8 par défaut). Comptez 60 mA par LED au maximum ; la luminosité des LED est limitée
+voyants (la rangée 1-5, puis la rangée 6-10), passe dans le ruban sous la boîte et
+finit dans la LED du tiroir secret. Le nombre de LED de ce ruban se règle dans
+`NB_LED_SOCLE` (`firmware/src/broches.h`, 8 par défaut), celui du tiroir dans
+`NB_LED_TIROIR` (1, ou 0 sans tiroir). Comptez 60 mA par LED au maximum ; la luminosité des LED est limitée
 par le menu des réglages, et le bloc de 3 A suffit largement.
 
 **Pourquoi les boutons de couleur sont passés sur l'I2C :** l'ESP-32S n'avait plus
@@ -381,6 +382,12 @@ dehors, assez pour le saisir.
   et le **microrupteur**, que le tiroir enfonce quand il est au fond.
 - **Butée avant** : un petit taquet sous le tiroir et un autre sur le fond, pour qu'il
   ne sorte pas en entier (course d'environ 70 mm, de quoi prendre la carte).
+
+**La lumière.** Une LED WS2812B (sur mini-circuit) est collée **au plafond du logement,
+juste derrière la paroi**, tournée vers le bas : quand le tiroir sort, elle s'allume
+doucement en blanc chaud et éclaire son contenu ; repoussé au fond, il s'éteint. Elle
+est la dernière de la chaîne de LED (§ 3) : un fil de données part du dernier ruban,
+avec le 5 V et la masse. Une mission peut choisir sa couleur (`"tiroir_lumiere"`).
 
 **Le verrou.** Le servomoteur est posé **au-dessus du tiroir, son axe parallèle au
 mouvement du tiroir**. Un taquet de 6 × 6 mm est collé sur le dessus du tiroir, près de

@@ -8,13 +8,16 @@ verifie tiroir verrouille
 touches 3
 verifie phase rangement
 verifie tiroir ouvert
-# Le ressort pousse le tiroir dehors : impossible de verrouiller
+# Le ressort pousse le tiroir dehors : il s'éclaire ; impossible de le verrouiller
+verifie lumiere_tiroir eteinte
 tiroir sorti
+verifie lumiere_tiroir allumee
 bouton VERT
 capture tiroir-sorti
 verifie phase rangement
 verifie tiroir ouvert
 tiroir fond
+verifie lumiere_tiroir eteinte
 bouton VERT
 verifie tiroir verrouille
 verifie phase menu

@@ -241,6 +241,7 @@ class Moteur {
   // Le tiroir secret : libéré par le servomoteur (action « tiroir », ou le menu du monde),
   // reverrouillé seulement une fois poussé au fond et la fermeture validée à l'écran.
   bool tiroirAuFond_ = true, tiroirOuvert_ = false, rangementApresPartie_ = false;
+  uint32_t tiroirSorti_ = 0;  // l'instant où il est sorti : sa lumière monte doucement
   void ouvrirTiroir();
   void afficherRangement(bool apresPartie);
   void validerRangement(bool fermer);

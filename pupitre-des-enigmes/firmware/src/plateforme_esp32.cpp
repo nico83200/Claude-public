@@ -43,10 +43,11 @@ void PlateformeESP32::eclairer(const pupitre::Lumieres& l) {
   uint32_t t = millis();
   if (t - dernierAffichage_ < 20) return;  // 50 images par seconde suffisent
   dernierAffichage_ = t;
-  int n = 0;  // dans l'ordre de la chaîne : anneau, lecteurs, voyants, ruban sous la boîte
+  int n = 0;  // dans l'ordre de la chaîne : anneau, lecteurs, voyants, ruban sous la boîte, tiroir
   for (uint32_t c : l.anneau) leds_[n++] = CRGB(c);
   for (int i = 0; i < broches::NB_LECTEURS; i++) leds_[n++] = CRGB(l.lecteurs[i]);
   for (uint32_t c : l.voyants) leds_[n++] = CRGB(c);
   for (int i = 0; i < broches::NB_LED_SOCLE; i++) leds_[n++] = CRGB(l.socle);
+  for (int i = 0; i < broches::NB_LED_TIROIR; i++) leds_[n++] = CRGB(l.tiroir);
   FastLED.show();
 }

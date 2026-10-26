@@ -65,13 +65,14 @@ struct Reglages {
 
 // Les LED. Sur le pupitre, elles sont chaînées dans cet ordre : l'anneau, une LED par lecteur,
 // le panneau de 10 voyants (visible ou caché derrière la façade, selon la mission), puis le
-// ruban sous la boîte (toutes ses LED de la même couleur).
+// ruban sous la boîte (toutes ses LED de la même couleur), et enfin la LED du tiroir secret.
 constexpr int NB_VOYANTS = 10;
 struct Lumieres {
   uint32_t anneau[12] = {0};
   uint32_t lecteurs[3] = {0};  // QUI, OÙ, QUOI ; sur le pupitre à deux lecteurs : la fente, le plateau
   uint32_t voyants[NB_VOYANTS] = {0};
   uint32_t socle = 0;          // le ruban sous la boîte
+  uint32_t tiroir = 0;         // la LED cachée au-dessus du tiroir secret (allumée quand il sort)
 };
 
 class Plateforme {

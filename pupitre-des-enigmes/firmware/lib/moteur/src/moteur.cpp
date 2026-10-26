@@ -527,7 +527,10 @@ void Moteur::capteur(const std::string& nom, bool actif) {
 void Moteur::tiroirAuFond(bool auFond) {
   if (auFond == tiroirAuFond_) return;
   tiroirAuFond_ = auFond;
-  if (!auFond) tiroirOuvert_ = true;  // un tiroir sorti n'est jamais verrouillé (au démarrage, par exemple)
+  if (!auFond) {
+    tiroirOuvert_ = true;  // un tiroir sorti n'est jamais verrouillé (au démarrage, par exemple)
+    tiroirSorti_ = maintenant();
+  }
   if (phase_ == Phase::RANGEMENT) {
     vue_.info = auFond ? "Le tiroir est au fond : Vert ou # pour le verrouiller" : "Poussez le tiroir jusqu'au fond";
     rafraichir();
@@ -2735,6 +2738,12 @@ void Moteur::majLumieres() {
   else
     socleAmbiance_ = attenuer(0xffffff, 0.08f + 0.12f * pulse);
   majVoyants(t, l, pulse);
+  // Le tiroir secret s'éclaire de l'intérieur quand il sort (blanc chaud, ou « tiroir_lumiere »).
+  if (!tiroirAuFond_) {
+    JsonVariantConst c = script_["tiroir_lumiere"];
+    uint32_t couleur = c.isNull() ? 0xffd9a0 : couleurNommee(texte(c));
+    l.tiroir = attenuer(couleur, std::min(1.0f, (t - tiroirSorti_) / 600.0f));
+  }
   lumieres_ = l;
   p_.eclairer(l);
 }
