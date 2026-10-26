@@ -108,7 +108,7 @@ La façade de la mission renomme les commandes : la fente reçoit le **COMPARTIM
 (ou un objet, **MAIN GAUCHE**), le lecteur à plat est la **MAIN DROITE**, le gros
 bouton la **DYNAMO**, l'interrupteur à clé la **CLÉ DE COMMANDEMENT**, et les dix
 voyants forment le **TABLEAU DE BORD**. Le capteur de couleur ne sert pas : la
-façade le cache. Le plateau est dans le kit d'impression (à coller sur la façade).
+façade le cache. Le plateau est dans le fichier à imprimer en recto seul (à coller sur la façade).
 
 ### Les cartes (24)
 

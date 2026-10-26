@@ -63,7 +63,8 @@ mission).
 
 | Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 | Mission 4 · Narval |
 |---|---|---|---|---|
-| **Kit d'impression complet** (tout le matériel de jeu) | [PDF](pdf/mission-1-kit-impression.pdf) | [PDF](pdf/mission-2-kit-impression.pdf) | [PDF](pdf/mission-3-kit-impression.pdf) | [PDF](pdf/mission-4-kit-impression.pdf) |
+| **À imprimer en recto seul** (fiche, plateau, documents, enveloppes…) | [PDF](pdf/mission-1-a-imprimer-recto.pdf) | [PDF](pdf/mission-2-a-imprimer-recto.pdf) | [PDF](pdf/mission-3-a-imprimer-recto.pdf) | [PDF](pdf/mission-4-a-imprimer-recto.pdf) |
+| **À imprimer en recto verso** (les planches de cartes) | [PDF](pdf/mission-1-a-imprimer-recto-verso.pdf) | [PDF](pdf/mission-2-a-imprimer-recto-verso.pdf) | [PDF](pdf/mission-3-a-imprimer-recto-verso.pdf) | [PDF](pdf/mission-4-a-imprimer-recto-verso.pdf) |
 | Fiche de mission (joueurs) | [PDF](pdf/mission-1-fiche-joueurs.pdf) | [PDF](pdf/mission-2-fiche-joueurs.pdf) | [PDF](pdf/mission-3-fiche-joueurs.pdf) | [PDF](pdf/mission-4-fiche-joueurs.pdf) |
 | Plateau de la façade | [PDF](pdf/mission-1-plateau.pdf) | — | — | [PDF](pdf/mission-4-plateau.pdf) |
 | Cartes recto verso | [PDF](pdf/mission-1-cartes.pdf) | [PDF](pdf/mission-2-cartes.pdf) | [PDF](pdf/mission-3-cartes.pdf) | [PDF](pdf/mission-4-cartes.pdf) |

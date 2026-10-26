@@ -15,7 +15,7 @@ from html import escape
 from pathlib import Path
 
 import markdown
-from pypdf import PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 ICI = Path(__file__).resolve().parent
 JEU = ICI.parent.parent
@@ -261,7 +261,8 @@ def mission(m):
                                   h, f"{nom} · Mission {n}, et la voix du Pupitre"),
                fichier("script-doublage"), pied=f"{nom} · Mission {n} · Script de doublage")
 
-    # Le matériel de jeu, puis un kit qui rassemble tout dans l'ordre de fabrication.
+    # Le matériel de jeu, puis deux fichiers qui rassemblent tout pour l'imprimante : ce qui
+    # s'imprime en recto seul, et les planches de cartes, à imprimer en recto verso.
     materiel = m.get("materiel") or [
         (f"fiche-mission-{n}", "fiche-joueurs", "Fiche de mission"),
         ("cartes", "cartes", ""),
@@ -269,16 +270,23 @@ def mission(m):
         ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
         ("fiche-enquete", "fiche-enquete", ""),
     ]
-    kit = PdfWriter()
+    recto, recto_verso = PdfWriter(), PdfWriter()
     for source, suffixe, pied in materiel:
         rendre(dossier / "impression" / f"{source}.html", fichier(suffixe),
                pied=f"{nom} · Mission {n} · {pied}" if pied else "")
-        kit.append(str(fichier(suffixe)))
-        # Chaque document commence sur une page impaire, pour l'impression recto verso.
-        if len(kit.pages) % 2:
-            kit.add_blank_page()
-    kit.write(str(fichier("kit-impression")))
-    print(f"✓ pdf/mission-{n}-kit-impression.pdf")
+        pages = PdfReader(fichier(suffixe)).pages
+        if suffixe == "cartes":
+            # Les planches vont par paires (rectos, puis versos en miroir) ; la notice, à la fin, en recto seul.
+            for page in pages[:-1]:
+                recto_verso.add_page(page)
+            recto.add_page(pages[-1])
+        else:
+            for page in pages:
+                recto.add_page(page)
+    recto.write(str(fichier("a-imprimer-recto")))
+    recto_verso.write(str(fichier("a-imprimer-recto-verso")))
+    print(f"✓ pdf/mission-{n}-a-imprimer-recto.pdf ({len(recto.pages)} pages)")
+    print(f"✓ pdf/mission-{n}-a-imprimer-recto-verso.pdf ({len(recto_verso.pages)} pages)")
 
 
 def main():
