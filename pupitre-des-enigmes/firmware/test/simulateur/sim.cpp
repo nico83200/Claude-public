@@ -13,6 +13,7 @@
 //   ensemble <ms>             rythme <ms,ms,...> <n>  sequence      rondes      molette_zero
 //   commande <texte>          avance <minutes>        (fait passer le temps de jeu ;
 //                                                      s'arrête si une épreuve commence)
+//   logo                      (le logo du démarrage, avant une capture)
 //   capture <nom>             (image de l'écran, avec test/ecrans.sh)
 //   dynamo auto | manuel      (un joueur actionne la dynamo toutes les 6 s, ou plus personne)
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
@@ -45,6 +46,13 @@ class PlateformeSimulee : public Plateforme {
 #ifdef AVEC_ECRAN
     image_.setColorDepth(24);
     image_.createSprite(480, 320);
+#endif
+  }
+
+  // Le logo du démarrage (avec test/ecrans.sh).
+  void logo() {
+#ifdef AVEC_ECRAN
+    dessin_.logo();
 #endif
   }
 
@@ -308,6 +316,8 @@ int main(int argc, char** argv) {
       moteur = instance.get();
       moteur->demarrer();
       calme();
+    } else if (cmd == "logo") {
+      p.logo();
     } else if (cmd == "capture") {
       // Sans écran compilé, la commande ne fait rien.
       if (!captures.empty() && p.capturer(captures + "/" + a + ".ppm")) printf("  📷 %s\n", a.c_str());

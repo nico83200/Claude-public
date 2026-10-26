@@ -64,6 +64,7 @@ namespace reglages {
 
 constexpr int TRANSITIONS_PAR_CRAN = 4;  // KY-040 : 4 fronts par cran (mettre 2 si la molette saute un cran sur deux)
 constexpr uint32_t FREQ_ECRAN = 27000000;
+constexpr uint32_t DUREE_LOGO_MS = 2500;  // le logo au démarrage
 
 // Le panneau Wi-Fi du maître du jeu : se connecter au réseau, puis ouvrir http://192.168.4.1
 constexpr const char* WIFI_NOM = "Pupitre-des-Enigmes";

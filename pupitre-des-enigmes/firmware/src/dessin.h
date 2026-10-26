@@ -17,6 +17,7 @@ class Dessin {
   explicit Dessin(lgfx::LovyanGFX& g) : g_(g) {}
   void afficher(const pupitre::Vue& v, uint32_t maintenant);
   void message(const char* titre, const char* texte);
+  void logo();  // le logo du démarrage
 
  private:
   struct Palette {

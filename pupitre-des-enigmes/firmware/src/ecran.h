@@ -9,6 +9,7 @@ class Ecran {
   void demarrer();
   void afficher(const pupitre::Vue& v) { dessin_.afficher(v, millis()); }
   void message(const char* titre, const char* texte) { dessin_.message(titre, texte); }
+  void logo() { dessin_.logo(); }
   void luminosite(int pourcent) { lcd_.setBrightness(static_cast<uint8_t>(pourcent * 255 / 100)); }
 
  private:

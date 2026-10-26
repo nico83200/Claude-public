@@ -1,4 +1,7 @@
 # Réglages du pupitre : depuis l'accueil, enregistrés, puis rechargés après un redémarrage
+# Le logo du démarrage
+logo
+capture demarrage
 verifie reglage hp 24
 appui
 verifie phase choix_monde

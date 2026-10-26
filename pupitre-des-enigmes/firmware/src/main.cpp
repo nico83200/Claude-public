@@ -45,7 +45,8 @@ void setup() {
   }
   SPI.begin(broches::SCK, broches::MISO, broches::MOSI);
   ecran.demarrer();
-  ecran.message("LE PUPITRE DES ÉNIGMES", "Démarrage…");
+  ecran.logo();
+  const uint32_t debutLogo = millis();
 
   FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED);
   const pupitre::Reglages defaut;  // remplacés par /reglages.json au démarrage du moteur
@@ -76,6 +77,8 @@ void setup() {
     moteur.cle(tournee);
   };
 
+  // Le logo reste au moins 2,5 secondes, le temps que tout démarre.
+  while (millis() - debutLogo < reglages::DUREE_LOGO_MS) delay(10);
   moteur.demarrer();
   panneau::demarrer(moteur);
 }

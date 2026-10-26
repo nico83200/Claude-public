@@ -1,5 +1,7 @@
 #include "dessin.h"
 
+#include "logo.h"
+
 #include <algorithm>
 #include <cstring>
 
@@ -237,6 +239,12 @@ void Dessin::message(const char* titre, const char* texte) {
   g_.fillScreen(0x101418u);
   ecrire(titre, L / 2, 112, &polices::titre, 0xf0c060, 0x101418, 1);
   paragraphe(texte, 40, 156, L - 80, H - 20, &polices::compact, 0xd8dde3, 0x101418, true, 21);
+}
+
+void Dessin::logo() {
+  g_.fillScreen(logo::FOND);
+  g_.drawJpg(logo::JPEG, sizeof(logo::JPEG), (L - logo::COTE) / 2, (H - logo::COTE) / 2);
+  premiere_ = true;  // la vue suivante redessine tout l'écran
 }
 
 void Dessin::afficher(const Vue& v, uint32_t t) {
