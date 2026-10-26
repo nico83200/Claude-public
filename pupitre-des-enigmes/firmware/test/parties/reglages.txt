@@ -1,0 +1,41 @@
+# Réglages du pupitre : depuis l'accueil, enregistrés, puis rechargés après un redémarrage
+verifie reglage hp 24
+appui
+verifie phase choix_monde
+# La dernière ligne du choix des mondes : « Réglages du pupitre »
+molette -1
+appui
+verifie phase reglages
+capture reglages
+# Luminosité de l'écran : 100 % → 70 %
+molette -3
+verifie reglage ecran 70
+# Volume du haut-parleur : 24 → 20
+appui
+molette -4
+verifie reglage hp 20
+# Volume du casque : 18 → 30 (plafonné)
+appui
+molette 20
+verifie reglage casque 30
+bouton VERT
+verifie phase choix_monde
+
+# Les réglages survivent à un redémarrage
+redemarre
+verifie reglage ecran 70
+verifie reglage hp 20
+verifie reglage casque 30
+
+# Depuis le menu d'un monde : on change, puis Rouge annule
+pose QUI M1
+retire QUI
+molette -1
+appui
+verifie phase reglages
+molette -5
+verifie reglage ecran 20
+bouton ROUGE
+verifie reglage ecran 70
+verifie phase menu
+verifie ecran Haras

@@ -18,7 +18,7 @@ struct Theme {
 
 // Ce que l'écran doit montrer. Le moteur la remplit, le matériel la dessine.
 struct Vue {
-  enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT };
+  enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT, REGLAGES };
   Ecran ecran = ACCUEIL;
   uint32_t version = 0;          // change dès que le corps de l'écran change
   uint32_t versionEntete = 0;    // change quand seule la ligne du haut change (chrono)
@@ -32,11 +32,21 @@ struct Vue {
   int barre = -1;                // option éliminée (pouvoir)
   std::vector<std::string> champs;   // saisie de code
   int curseur = 0;
-  std::vector<std::string> modules;  // écran d'énergie
+  std::vector<std::string> modules;  // écrans d'énergie et de réglages
   std::vector<int> valeurs;
+  std::vector<int> maximums;               // réglages : valeur maximale de chaque ligne
+  std::vector<std::string> etiquettes;     // réglages : « 70 % », « 18 / 30 »
   std::string progression;       // « Écurie ✓  Bureau ·  … »
   bool aideClignote = false;
   int jauge = 0, jaugeMax = 12;  // anneau (pour l'affichage)
+};
+
+// Les réglages du pupitre, enregistrés sur la carte SD (/reglages.json).
+struct Reglages {
+  int ecran = 100;   // luminosité de l'écran, en %
+  int hp = 24;       // volume du haut-parleur, 0 à 30
+  int casque = 18;   // volume du casque, 0 à 30
+  int led = 30;      // luminosité des LED, en %
 };
 
 // Les 15 LED : 12 pour l'anneau, puis QUI, OÙ, QUOI.
@@ -58,6 +68,7 @@ class Plateforme {
   virtual void eclairer(const Lumieres& lumieres) = 0;
   virtual uint32_t aleatoire(uint32_t borne) = 0;                      // 0 … borne-1
   virtual void journal(const std::string& message) = 0;
+  virtual void appliquer(const Reglages& reglages) { (void)reglages; }    // volumes et luminosités
 };
 
 }  // namespace pupitre

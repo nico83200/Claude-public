@@ -21,7 +21,7 @@ firmware/
 │   ├── expression.h / .cpp les conditions des scripts (« J2 && !J4 », « restant>=15 »…)
 │   └── plateforme.h        ce que le moteur attend du matériel
 ├── src/                    le matériel
-│   ├── broches.h           le câblage et les réglages (volumes, Wi-Fi, luminosité)
+│   ├── broches.h           le câblage et les réglages matériels (Wi-Fi, molette, écran)
 │   ├── main.cpp            démarrage et boucle principale
 │   ├── dessin.cpp          les écrans (commun au pupitre et au simulateur)
 │   ├── ecran.cpp           l'ILI9488 sur le bus SPI
@@ -95,7 +95,7 @@ Le pupitre utilise **trois** cartes micro-SD.
 Chaque carte du jeu porte un autocollant NFC dont l'identifiant est unique. Il
 faut apprendre au pupitre quelle puce correspond à quelle carte.
 
-1. Sur l'écran d'accueil, **appuyer sur la molette** : *Préparer un monde*.
+1. Sur l'écran d'accueil, **appuyer sur la molette** : *Préparer le pupitre*.
 2. Choisir le monde à la molette, puis appuyer.
 3. Le pupitre demande les cartes une par une (*« Posez la carte M1 · Le Haras des
    Trois Fers »*, puis A1, L1, L2…). Poser chaque carte sur **n'importe quel
@@ -121,8 +121,32 @@ Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
 
 ## 6. Réglages
 
-Tout est dans [`src/broches.h`](src/broches.h) : volumes du haut-parleur et du
-casque, luminosité des LED, nom et mot de passe du Wi-Fi, fréquence de l'écran.
+### Sur le pupitre : luminosités et volumes
+
+À l'accueil, **appuyer sur la molette**, puis choisir la dernière ligne,
+**« Réglages du pupitre »**. On la trouve aussi au bas du menu de chaque monde.
+
+| Réglage | Valeurs | Par défaut |
+|---|---|---|
+| Luminosité de l'écran | 10 à 100 % | 100 % |
+| Volume du haut-parleur | 0 à 30 | 24 |
+| Volume du casque | 0 à 30 | 18 |
+| Luminosité des LED | 10 à 100 % | 30 % |
+
+- **Molette** : changer la valeur de la ligne choisie ; le changement s'applique
+  aussitôt (un bip dans le haut-parleur ou dans le casque, l'anneau allumé pour
+  les LED).
+- **Appui** : ligne suivante.
+- **Vert** : enregistrer (sur la carte SD de l'écran, dans `/reglages.json`).
+  **Rouge** : annuler et revenir aux valeurs d'avant.
+
+La luminosité de l'écran demande que la broche **LED** de l'écran soit reliée à la
+**GPIO 12** (voir le câblage dans [`console/`](../console/)).
+
+### Dans le programme
+
+[`src/broches.h`](src/broches.h) contient le câblage, le nom et le mot de passe du
+Wi-Fi, la fréquence de l'écran et le sens de la molette.
 
 | Symptôme | Réglage |
 |---|---|
@@ -132,6 +156,8 @@ casque, luminosité des LED, nom et mot de passe du Wi-Fi, fréquence de l'écra
 | Les LED ont les mauvaises couleurs | `GRB` → `RGB` dans `main.cpp` |
 | Un lecteur RFID est « absent » au démarrage | Vérifier son CS et son 3,3 V (journal série) |
 | Pas de son | Le journal dit *« DFPlayer absent »* : vérifier TX/RX (croisés) et la carte SD |
+| La carte ne démarre plus depuis que l'écran est branché | Broche LED de l'écran sur 3,3 V et `ECRAN_LED = -1` (voir `console/README.md`) |
+| La luminosité de l'écran ne change pas | La broche LED de l'écran est encore sur le 3,3 V : la relier à la GPIO 12 |
 
 ## 7. Le simulateur
 

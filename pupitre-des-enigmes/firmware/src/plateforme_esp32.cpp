@@ -32,6 +32,13 @@ bool PlateformeESP32::ecrireFichier(const std::string& chemin, const std::string
   return SD.rename(temporaire.c_str(), chemin.c_str());
 }
 
+void PlateformeESP32::appliquer(const pupitre::Reglages& r) {
+  ecran_.luminosite(r.ecran);
+  hp_.volume(r.hp);
+  casque_.volume(r.casque);
+  FastLED.setBrightness(static_cast<uint8_t>(r.led * 255 / 100));
+}
+
 void PlateformeESP32::eclairer(const pupitre::Lumieres& l) {
   uint32_t t = millis();
   if (t - dernierAffichage_ < 20) return;  // 50 images par seconde suffisent

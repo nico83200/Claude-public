@@ -23,6 +23,7 @@ class PlateformeESP32 : public pupitre::Plateforme {
   void eclairer(const pupitre::Lumieres& lumieres) override;
   uint32_t aleatoire(uint32_t borne) override { return borne ? esp_random() % borne : 0; }
   void journal(const std::string& message) override { Serial.println(message.c_str()); }
+  void appliquer(const pupitre::Reglages& r) override;
 
  private:
   Ecran& ecran_;

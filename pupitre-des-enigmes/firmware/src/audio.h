@@ -11,6 +11,7 @@ class LecteurAudio {
   bool demarrer(int rx, int tx, uint8_t volume);
   void jouer(int dossier, int numero);
   void arreter();
+  void volume(int v);  // 0 à 30
   void maj();  // à appeler souvent : lit les messages « piste terminée »
   bool joue() const { return enCours_; }
   bool present() const { return present_; }
@@ -20,4 +21,5 @@ class LecteurAudio {
   DFRobotDFPlayerMini df_;
   bool present_ = false, enCours_ = false;
   uint32_t debut_ = 0;
+  int volume_ = -1;
 };

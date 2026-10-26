@@ -48,6 +48,8 @@
 | **Bus SPI commun** | SCK / MOSI / MISO | **18 / 23 / 19** |
 | Écran ILI9488 | CS / DC / RST | 5 / 21 / EN |
 | | MISO de l'écran | ⚠️ non branché |
+| | LED (rétroéclairage) | 12 (luminosité réglable) |
+| | Broches du tactile (T_CLK, T_CS, T_DIN, T_DO, T_IRQ) | ⚠️ non branchées |
 | SD de l'écran | CS | 4 |
 | **RFID QUI** | SDA (CS) | 13 |
 | **RFID OÙ** | SDA (CS) | 22 |
@@ -80,7 +82,13 @@ broches (« D25 », « P25 » ou « 25 » selon la sérigraphie), pas leur posit
   brancher sur le 5 V soulage ce régulateur. Ses signaux restent en 3,3 V.
 
 **Pièges à éviter :**
-- GPIO 0 et 12 restent libres, pour ne pas gêner le démarrage.
+- La GPIO 0 reste libre, pour ne pas gêner le démarrage.
+- La GPIO 12 (rétroéclairage) doit être à l'état bas quand la carte démarre : c'est
+  le cas avec la broche LED d'un module ILI9488 ordinaire. Si la carte ne démarre
+  plus une fois l'écran branché (redémarrages en boucle, *« flash read err »* dans
+  le journal), rebrancher la broche LED de l'écran sur le 3,3 V et mettre
+  `ECRAN_LED = -1` dans `firmware/src/broches.h` : tout fonctionne, sauf le
+  réglage de la luminosité de l'écran.
 - La GPIO 2 sert de TX vers le DFPlayer casque. Si le téléversement du programme
   échoue, débranchez ce fil le temps de flasher.
 - Les GPIO 34, 35, 36 et 39 sont des entrées seules, sans résistance de tirage

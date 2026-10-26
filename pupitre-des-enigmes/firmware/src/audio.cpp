@@ -10,6 +10,7 @@ bool LecteurAudio::demarrer(int rx, int tx, uint8_t volume) {
   if (present_) {
     df_.setTimeOut(500);
     df_.volume(volume);
+    volume_ = volume;
   }
   return present_;
 }
@@ -19,6 +20,12 @@ void LecteurAudio::jouer(int dossier, int numero) {
   df_.playFolder(static_cast<uint8_t>(dossier), static_cast<uint8_t>(numero));
   enCours_ = true;
   debut_ = millis();
+}
+
+void LecteurAudio::volume(int v) {
+  if (!present_ || v == volume_) return;
+  volume_ = v;
+  df_.volume(static_cast<uint8_t>(v));
 }
 
 void LecteurAudio::arreter() {

@@ -16,7 +16,8 @@
 //   capture <nom>             (image de l'écran, avec test/ecrans.sh)
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
-//   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type>
+//   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type> | ecran <titre>
+//            reglage ecran|hp|casque|led <v>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -120,11 +121,14 @@ class PlateformeSimulee : public Plateforme {
   void eclairer(const Lumieres&) override {}
   uint32_t aleatoire(uint32_t borne) override { return borne ? static_cast<uint32_t>(rand()) % borne : 0; }
   void journal(const std::string& m) override { printf("  ⚠ %s\n", m.c_str()); }
+  void appliquer(const Reglages& r) override {
+    if (bavard_) printf("        ⚙ écran %d %% · haut-parleur %d · casque %d · LED %d %%\n", r.ecran, r.hp, r.casque, r.led);
+  }
 
  private:
   static const char* nomEcran(Vue::Ecran e) {
     static const char* noms[] = {"accueil", "menu", "rôles", "principal", "code", "choix", "énergie", "épreuve",
-                                 "casque", "accusation", "résultat", "enrôlement"};
+                                 "casque", "accusation", "résultat", "enrôlement", "réglages"};
     return noms[e];
   }
   std::string racine_;
@@ -356,7 +360,11 @@ int main(int argc, char** argv) {
       else if (a == "compteur") verifier(m.compteur(b) == atoi(c.c_str()), "compteur " + b + " = " + c + " (vaut " + std::to_string(m.compteur(b)) + ")", numero);
       else if (a == "phase") verifier(m.phaseTexte() == b, "phase " + b + " (est " + m.phaseTexte() + ")", numero);
       else if (a == "epreuve") verifier(m.epreuveType() == b, "épreuve " + b + " (est « " + m.epreuveType() + " »)", numero);
-      else if (a == "ecran") verifier(m.vue().titre.find(b) != std::string::npos, "écran « " + b + " »", numero);
+      else if (a == "reglage") {
+        const Reglages& r = m.reglages();
+        int v = b == "ecran" ? r.ecran : b == "hp" ? r.hp : b == "casque" ? r.casque : r.led;
+        verifier(v == atoi(c.c_str()), "réglage " + b + " = " + c + " (vaut " + std::to_string(v) + ")", numero);
+      } else if (a == "ecran") verifier(m.vue().titre.find(b) != std::string::npos, "écran « " + b + " »", numero);
     } else {
       printf("  ? commande inconnue ligne %d : %s\n", numero, ligne.c_str());
       echecs++;

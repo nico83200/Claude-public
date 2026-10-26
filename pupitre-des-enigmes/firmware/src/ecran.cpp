@@ -29,6 +29,17 @@ Ecran::Materiel::Materiel() {
   p.invert = false;
   p.rgb_order = false;
   panneau_.config(p);
+
+  // Rétroéclairage réglable en MLI (canal 7 du LEDC ; les LED, elles, utilisent le RMT).
+  if (broches::ECRAN_LED >= 0) {
+    auto l = retroeclairage_.config();
+    l.pin_bl = broches::ECRAN_LED;
+    l.invert = false;
+    l.freq = 12000;
+    l.pwm_channel = 7;
+    retroeclairage_.config(l);
+    panneau_.setLight(&retroeclairage_);
+  }
   setPanel(&panneau_);
 }
 

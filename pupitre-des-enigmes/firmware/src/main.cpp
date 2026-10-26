@@ -46,7 +46,8 @@ void setup() {
   ecran.message("LE PUPITRE DES ÉNIGMES", "Démarrage…");
 
   FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED);
-  FastLED.setBrightness(reglages::LUMINOSITE_LED);
+  const pupitre::Reglages defaut;  // remplacés par /reglages.json au démarrage du moteur
+  FastLED.setBrightness(static_cast<uint8_t>(defaut.led * 255 / 100));
   FastLED.clear(true);
 
   if (!SD.begin(broches::SD_CS, SPI, 20000000)) {
@@ -59,8 +60,8 @@ void setup() {
 
   lecteurs.demarrer();
   commandes.demarrer();
-  if (!hp.demarrer(broches::HP_RX, broches::HP_TX, reglages::VOLUME_HP)) Serial.println("DFPlayer haut-parleur absent.");
-  if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, reglages::VOLUME_CASQUE)) Serial.println("DFPlayer casque absent.");
+  if (!hp.demarrer(broches::HP_RX, broches::HP_TX, defaut.hp)) Serial.println("DFPlayer haut-parleur absent.");
+  if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, defaut.casque)) Serial.println("DFPlayer casque absent.");
 
   rappels.bouton = [](int b) { moteur.bouton(static_cast<pupitre::Bouton>(b)); };
   rappels.enfonces = [](uint8_t masque) { moteur.boutonsEnfonces(masque); };

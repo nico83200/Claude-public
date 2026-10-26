@@ -54,10 +54,11 @@ class Moteur {
   std::vector<int> epreuveSequence() const { return ep_.sequence; }
   std::vector<int> epreuveValeurs() const { return ep_.valeurs; }
   int epreuveCurseur() const { return ep_.curseur; }
+  const Reglages& reglages() const { return reglages_; }
 
  private:
   // ---------- Types internes ----------
-  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT };
+  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES };
   enum class Attente { RIEN, AUDIO, CASQUE, DELAI, MOLETTE, VERT_ROUGE };
 
   struct Replique {
@@ -120,13 +121,21 @@ class Moteur {
 
   // ---------- Phases ----------
   void allerAccueil();
-  void allerMenu();
+  void allerMenu(bool annoncer = true);
+  void afficherChoixMonde();
   void lancerMission(bool reprise);
   void commencerJeu();
   void terminer(bool victoire, const std::string& cause);
   void carteHorsJeu(Zone zone, const std::string& id);
   void carteEnJeu(Zone zone, const std::string& id);
   void enrolement(const std::string& uid);
+
+  // ---------- Réglages du pupitre ----------
+  void chargerReglages();
+  void ouvrirReglages();
+  void reglerValeur(int pas);
+  void fermerReglages(bool enregistrer);
+  void vueReglages();
 
   // ---------- Règles et actions ----------
   void declencher(const Evenement& ev);
@@ -226,6 +235,11 @@ class Moteur {
   std::vector<std::string> aEnroler_;
   size_t enroleIndex_ = 0;
   uint8_t masqueBoutons_ = 0;
+
+  // Réglages.
+  Reglages reglages_, reglagesAvant_;
+  int ligneReglage_ = 0;
+  Phase phaseAvantReglages_ = Phase::ACCUEIL;
   uint32_t debutEnsemble_ = 0;
 };
 

@@ -57,6 +57,7 @@ uint32_t melange(uint32_t a, uint32_t b, float t) {
 bool memeCorps(const Vue& a, const Vue& b) {
   if (a.ecran != b.ecran || a.titre != b.titre || a.texte != b.texte || a.auteur != b.auteur || a.bandeau != b.bandeau ||
       a.barre != b.barre || a.champs != b.champs || a.curseur != b.curseur || a.modules != b.modules || a.valeurs != b.valeurs ||
+      a.etiquettes != b.etiquettes ||
       a.theme.fond != b.theme.fond)
     return false;
   for (int i = 0; i < 4; i++)
@@ -170,6 +171,7 @@ void Dessin::corps(const Vue& v) {
     case Vue::CHOIX: corpsChoix(v); return;
     case Vue::ENERGIE: corpsEnergie(v); return;
     case Vue::ACCUSATION: corpsAccusation(v); return;
+    case Vue::REGLAGES: corpsReglages(v); return;
     default: break;
   }
   bool centre = v.ecran == Vue::ACCUEIL || v.ecran == Vue::RESULTAT || v.ecran == Vue::CASQUE || v.ecran == Vue::EPREUVE;
@@ -264,6 +266,28 @@ void Dessin::corpsEnergie(const Vue& v) {
   g_.setTextColor(c(v.theme.doux));
   std::string b = nettoyer(v.bandeau + "   ·   " + v.texte, false);
   g_.drawString(b.c_str(), 14, Y_INFO - 22);
+}
+
+void Dessin::corpsReglages(const Vue& v) {
+  police(true);
+  paragraphe(v.titre, 14, Y_CORPS + 8, L - 28, Y_CORPS + 40, c(v.theme.accent), true);
+  police(false);
+  int y = Y_CORPS + 46;
+  for (size_t i = 0; i < v.modules.size(); i++) {
+    bool actif = static_cast<int>(i) == v.curseur;
+    if (actif) g_.fillRoundRect(8, y - 4, L - 16, 44, 8, c(melange(v.theme.fond, v.theme.accent, 0.25f)));
+    g_.setTextColor(c(actif ? v.theme.accent : v.theme.texte));
+    g_.drawString(((actif ? "▶ " : "   ") + nettoyer(v.modules[i], false)).c_str(), 14, y);
+    std::string e = i < v.etiquettes.size() ? v.etiquettes[i] : "";
+    g_.drawString(e.c_str(), L - 20 - g_.textWidth(e.c_str()), y);
+    // La jauge, sous le nom.
+    int max = i < v.maximums.size() && v.maximums[i] > 0 ? v.maximums[i] : 1;
+    int valeur = i < v.valeurs.size() ? v.valeurs[i] : 0;
+    int largeur = L - 64;
+    g_.fillRoundRect(32, y + 24, largeur, 10, 5, c(melange(v.theme.fond, 0x000000, 0.4f)));
+    g_.fillRoundRect(32, y + 24, std::max(10, largeur * valeur / max), 10, 5, c(actif ? v.theme.accent : v.theme.doux));
+    y += 50;
+  }
 }
 
 void Dessin::corpsAccusation(const Vue& v) {

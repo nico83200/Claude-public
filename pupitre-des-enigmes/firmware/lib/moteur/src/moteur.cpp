@@ -13,6 +13,8 @@ namespace {
 const int DOSSIER_VOIX_PUPITRE = 91;
 const int DOSSIER_SONS_PUPITRE = 90;
 const char* const CHEMIN_SAUVEGARDE = "/sauvegarde.json";
+const char* const CHEMIN_REGLAGES = "/reglages.json";
+const char* const REGLAGES_PUPITRE = "Réglages du pupitre";
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
   const char* s = v.as<const char*>();
@@ -169,6 +171,7 @@ uint32_t Moteur::couleur(const char* t, uint32_t defaut) const {
 
 void Moteur::demarrer() {
   chargerRepliques("/pupitre/repliques.json", repliquesPupitre_);
+  chargerReglages();
   chargerIndex();
   allerAccueil();
 }
@@ -193,7 +196,7 @@ void Moteur::allerAccueil() {
   ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 2));
 }
 
-void Moteur::allerMenu() {
+void Moteur::allerMenu(bool annoncer) {
   phase_ = Phase::MENU;
   optionsMenu_.clear();
   for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>())
@@ -203,6 +206,7 @@ void Moteur::allerMenu() {
     optionsMenu_.insert(optionsMenu_.begin(), "Reprendre la partie en cours");
   }
   optionsMenu_.push_back("Enregistrer les cartes de ce monde");
+  optionsMenu_.push_back(REGLAGES_PUPITRE);
   choixMenu_ = 0;
   vue_.ecran = Vue::MENU;
   vue_.titre = vue_.monde;
@@ -213,7 +217,7 @@ void Moteur::allerMenu() {
   rafraichir();
   // Le monde se présente : jingle et réplique d'accueil de la première mission.
   JsonVariantConst accueil = monde_["accueil"];
-  if (!accueil.isNull()) {
+  if (!accueil.isNull() && annoncer) {
     std::string dossier = "/mondes/" + mondeId_ + "/";
     for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>()) {
       chargerRepliques(dossier + texte(m["repliques"]), repliques_);
@@ -322,6 +326,7 @@ void Moteur::terminer(bool victoire, const std::string& cause) {
 // ======================================================================
 
 void Moteur::carte(Zone zone, const std::string& uid) {
+  if (phase_ == Phase::REGLAGES) return;
   if (phase_ == Phase::ENROLEMENT) {
     if (!uid.empty()) enrolement(uid);
     return;
@@ -505,6 +510,10 @@ void Moteur::bouton(Bouton b) {
         ajouterInterne(Action::de(Action::EVENEMENT, 0, 0, "__debut_jeu"));
       }
       return;
+    case Phase::REGLAGES:
+      if (b == VERT) fermerReglages(true);
+      if (b == ROUGE) fermerReglages(false);
+      return;
     case Phase::ENROLEMENT:
       if (b == ROUGE) {  // passer cette carte
         enroleIndex_++;
@@ -535,13 +544,19 @@ void Moteur::bouton(Bouton b) {
 void Moteur::boutonsEnfonces(uint8_t masque) { masqueBoutons_ = masque; }
 
 void Moteur::molette(int pas) {
+  if (phase_ == Phase::REGLAGES) {
+    reglerValeur(pas);
+    return;
+  }
   if (phase_ == Phase::CHOIX_MONDE || phase_ == Phase::MENU) {
-    int n = static_cast<int>(phase_ == Phase::MENU ? optionsMenu_.size() : mondes_.size());
-    if (n == 0) return;
+    // Le choix du monde se termine par la ligne des réglages.
+    int n = static_cast<int>(phase_ == Phase::MENU ? optionsMenu_.size() : mondes_.size() + 1);
     choixMenu_ = ((choixMenu_ + pas) % n + n) % n;
     vue_.texte.clear();
     for (int i = 0; i < n; i++) {
-      std::string nom = phase_ == Phase::MENU ? optionsMenu_[i] : texte(index_["mondes"][i]["nom"], mondes_[i].c_str());
+      std::string nom = phase_ == Phase::MENU                       ? optionsMenu_[i]
+                        : i < static_cast<int>(mondes_.size()) ? texte(index_["mondes"][i]["nom"], mondes_[i].c_str())
+                                                               : std::string(REGLAGES_PUPITRE);
       vue_.texte += std::string(i == choixMenu_ ? "▶ " : "   ") + nom + "\n";
     }
     rafraichir();
@@ -555,17 +570,21 @@ void Moteur::appuiMolette() {
     attente_ = Attente::RIEN;
     return;
   }
+  if (phase_ == Phase::REGLAGES) {
+    ligneReglage_ = (ligneReglage_ + 1) % 4;
+    vueReglages();
+    return;
+  }
   switch (phase_) {
     case Phase::ACCUEIL:
-      if (mondes_.empty()) return;
-      phase_ = Phase::CHOIX_MONDE;
       choixMenu_ = 0;
-      vue_.ecran = Vue::MENU;
-      vue_.titre = "PRÉPARER UN MONDE";
-      vue_.info = "Molette : choisir · Appui : enregistrer ses cartes · Rouge : retour";
-      molette(0);
+      afficherChoixMonde();
       return;
     case Phase::CHOIX_MONDE: {
+      if (choixMenu_ >= static_cast<int>(mondes_.size())) {
+        ouvrirReglages();
+        return;
+      }
       std::string id = mondes_[choixMenu_];
       if (!chargerMonde(id)) return;
       aEnroler_.clear();
@@ -593,6 +612,8 @@ void Moteur::appuiMolette() {
       if (choix.rfind("Reprendre", 0) == 0) {
         JsonDocument sauv;
         if (chargerJson(CHEMIN_SAUVEGARDE, sauv) && chargerMission(sauv["mission"].as<int>())) lancerMission(true);
+      } else if (choix == REGLAGES_PUPITRE) {
+        ouvrirReglages();
       } else if (choix.rfind("Enregistrer", 0) == 0) {
         phase_ = Phase::CHOIX_MONDE;
         choixMenu_ = static_cast<int>(std::find(mondes_.begin(), mondes_.end(), mondeId_) - mondes_.begin());
@@ -667,6 +688,123 @@ void Moteur::enrolement(const std::string& uid) {
   vue_.bandeau = std::to_string(enroleIndex_ + 1) + " / " + std::to_string(aEnroler_.size());
   if (uid.empty()) vue_.info = "Rouge : passer cette carte · Vert : terminer et enregistrer";
   rafraichir();
+}
+
+// ======================================================================
+// Réglages du pupitre
+// ======================================================================
+
+namespace {
+
+struct LigneReglage {
+  const char* nom;
+  int Reglages::*valeur;
+  int min, max, pas;
+  bool pourcent;
+};
+
+const LigneReglage LIGNES_REGLAGES[4] = {
+    {"Luminosité de l'écran", &Reglages::ecran, 10, 100, 10, true},
+    {"Volume du haut-parleur", &Reglages::hp, 0, 30, 1, false},
+    {"Volume du casque", &Reglages::casque, 0, 30, 1, false},
+    {"Luminosité des LED", &Reglages::led, 10, 100, 10, true},
+};
+
+int borner(int v, const LigneReglage& l) { return std::max(l.min, std::min(l.max, v)); }
+
+}  // namespace
+
+void Moteur::chargerReglages() {
+  JsonDocument d;
+  std::string contenu;
+  if (p_.lireFichier(CHEMIN_REGLAGES, contenu) && !deserializeJson(d, contenu)) {
+    reglages_.ecran = d["ecran"] | reglages_.ecran;
+    reglages_.hp = d["hp"] | reglages_.hp;
+    reglages_.casque = d["casque"] | reglages_.casque;
+    reglages_.led = d["led"] | reglages_.led;
+    for (const auto& l : LIGNES_REGLAGES) reglages_.*l.valeur = borner(reglages_.*l.valeur, l);
+  }
+  p_.appliquer(reglages_);
+}
+
+void Moteur::afficherChoixMonde() {
+  phase_ = Phase::CHOIX_MONDE;
+  vue_.ecran = Vue::MENU;
+  vue_.titre = "PRÉPARER LE PUPITRE";
+  vue_.info = "Molette : choisir · Appui : valider · Rouge : retour";
+  molette(0);
+}
+
+void Moteur::ouvrirReglages() {
+  phaseAvantReglages_ = phase_;
+  phase_ = Phase::REGLAGES;
+  reglagesAvant_ = reglages_;
+  ligneReglage_ = 0;
+  vue_.ecran = Vue::REGLAGES;
+  vue_.titre = "RÉGLAGES DU PUPITRE";
+  vue_.texte.clear();
+  vue_.bandeau.clear();
+  vue_.info = "Molette : régler · Appui : ligne suivante";
+  vue_.compteurs = "Vert : enregistrer · Rouge : annuler";
+  vue_.versionEntete++;
+  vueReglages();
+}
+
+void Moteur::reglerValeur(int pas) {
+  const LigneReglage& l = LIGNES_REGLAGES[ligneReglage_];
+  int& v = reglages_.*l.valeur;
+  int nouvelle = borner(v + pas * l.pas, l);
+  if (nouvelle == v) return;
+  v = nouvelle;
+  p_.appliquer(reglages_);
+  // On entend le volume choisi : un bip dans le haut-parleur, ou dans le casque.
+  if (l.valeur == &Reglages::hp) p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+  if (l.valeur == &Reglages::casque) p_.jouer(DOSSIER_SONS_PUPITRE, 2, true);
+  vueReglages();
+}
+
+void Moteur::vueReglages() {
+  vue_.modules.clear();
+  vue_.valeurs.clear();
+  vue_.maximums.clear();
+  vue_.etiquettes.clear();
+  for (const auto& l : LIGNES_REGLAGES) {
+    int v = reglages_.*l.valeur;
+    vue_.modules.push_back(l.nom);
+    vue_.valeurs.push_back(v);
+    vue_.maximums.push_back(l.max);
+    vue_.etiquettes.push_back(l.pourcent ? std::to_string(v) + " %" : std::to_string(v) + " / " + std::to_string(l.max));
+  }
+  vue_.curseur = ligneReglage_;
+  rafraichir();
+}
+
+void Moteur::fermerReglages(bool enregistrer) {
+  if (enregistrer) {
+    JsonDocument d;
+    d["ecran"] = reglages_.ecran;
+    d["hp"] = reglages_.hp;
+    d["casque"] = reglages_.casque;
+    d["led"] = reglages_.led;
+    std::string json;
+    serializeJsonPretty(d, json);
+    p_.ecrireFichier(CHEMIN_REGLAGES, json);
+    p_.jouer(DOSSIER_SONS_PUPITRE, 4, false);
+  } else {
+    reglages_ = reglagesAvant_;
+    p_.appliquer(reglages_);
+  }
+  vue_.compteurs.clear();
+  vue_.versionEntete++;
+  // Retour là où on était, sans rejouer l'accueil du monde.
+  if (phaseAvantReglages_ == Phase::MENU) {
+    allerMenu(false);
+    choixMenu_ = static_cast<int>(optionsMenu_.size()) - 1;
+    molette(0);
+  } else {
+    choixMenu_ = static_cast<int>(mondes_.size());
+    afficherChoixMonde();
+  }
 }
 
 // ======================================================================
@@ -1859,6 +1997,8 @@ void Moteur::majLumieres() {
   for (int i = 0; i < 12; i++) l.couleurs[i] = i < allumees ? attenuer(c, 0.6f) : 0;
   if (phase_ == Phase::ACCUEIL || phase_ == Phase::MENU || phase_ == Phase::CHOIX_MONDE)
     for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0xffffff, 0.15f + 0.25f * pulse);
+  if (phase_ == Phase::REGLAGES)  // l'anneau allumé pour juger la luminosité des LED
+    for (int i = 0; i < 12; i++) l.couleurs[i] = ligneReglage_ == 3 ? 0xffffff : attenuer(0xffffff, 0.3f);
 
   // Épreuves visuelles.
   if (ep_.active && ep_.type == "rondes")
@@ -1997,6 +2137,7 @@ std::string Moteur::phaseTexte() const {
     case Phase::JEU: return chronoActif_ ? "jeu" : "introduction";
     case Phase::FIN: return victoire_ ? "victoire" : "defaite";
     case Phase::ENROLEMENT: return "enrolement";
+    case Phase::REGLAGES: return "reglages";
   }
   return "?";
 }

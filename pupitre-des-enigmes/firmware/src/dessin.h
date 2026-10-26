@@ -25,6 +25,7 @@ class Dessin {
   void corpsChoix(const pupitre::Vue& v);
   void corpsEnergie(const pupitre::Vue& v);
   void corpsAccusation(const pupitre::Vue& v);
+  void corpsReglages(const pupitre::Vue& v);
   int paragraphe(const std::string& texte, int x, int y, int largeur, int yMax, uint16_t couleur, bool centre = false);
   void police(bool grande);
   uint16_t c(uint32_t rgb) const;
