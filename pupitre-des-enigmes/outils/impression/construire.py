@@ -54,6 +54,64 @@ def deroule(source, cible, monde):
     cible.write_text(GABARIT_DEROULE.format(titre=titre, corps=corps, monde=monde), encoding="utf-8")
 
 
+GABARIT_NOTICE = """<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Notice de montage</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  @page {{ size: A4; margin: 13mm 14mm 15mm; }}
+  body {{ font-size: 9.8pt; }}
+  .couverture {{ background: var(--vert); color: #fff; border-radius: 10px; padding: 26px 28px; margin-bottom: 16px; }}
+  .couverture h1 {{ color: #fff; font-size: 30pt; margin: 0; }}
+  .couverture p {{ color: #f2d9a6; margin: 6px 0 0; font-size: 11pt; }}
+  .sommaire {{ columns: 2; font-size: 10pt; }}
+  .partie {{ break-before: page; background: var(--vert); color: #fff; border-radius: 8px; padding: 10px 16px; font-size: 20pt; }}
+  h2 {{ break-after: avoid; border-bottom: 2px solid var(--or); padding-bottom: 2px; margin-top: 16px; }}
+  h3 {{ break-after: avoid; }}
+  table {{ font-size: 8.5pt; }}
+  tr {{ break-inside: avoid; }}
+  td, th {{ padding: 3px 5px; vertical-align: top; }}
+  pre {{ font-size: 6.6pt; line-height: 1.15; break-inside: avoid; background: #fbf7ee; border: 1px solid var(--filet);
+         border-radius: 4px; padding: 6px; white-space: pre; overflow: hidden; }}
+  code {{ font-family: "DejaVu Sans Mono", monospace; font-size: 8.4pt; }}
+  li {{ margin-bottom: 2px; }}
+</style></head>
+<body>{corps}</body></html>
+"""
+
+
+def notice(cible):
+    """La notice de montage : la console (boîtier, électronique, câblage), puis l'installation
+    du programme et des cartes SD, d'après console/README.md, firmware/binaires/LISEZMOI.md
+    et les § 0 à 6 de firmware/README.md."""
+    def md(texte):
+        texte = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", texte)  # les liens n'ont pas de sens sur papier
+        return markdown.markdown(texte, extensions=["tables", "fenced_code"])
+
+    console = (JEU / "console" / "README.md").read_text(encoding="utf-8")
+    console = re.sub(r"^# .*\n", "", console, count=1)
+    binaires = (JEU / "firmware" / "binaires" / "LISEZMOI.md").read_text(encoding="utf-8")
+    binaires = re.sub(r"^# .*\n", "", binaires, count=1)
+    programme = (JEU / "firmware" / "README.md").read_text(encoding="utf-8")
+    debut, fin = programme.index("## 0. Sans rien installer"), programme.index("## 7. Le simulateur")
+    programme = programme[debut:fin]
+    sections = re.findall(r"^## (.+)$", console, re.M)
+    sommaire = "".join(f"<li>{escape(t)}</li>" for t in sections)
+    corps = f"""<div class="couverture"><h1>Le Pupitre des Énigmes</h1>
+<p>Notice de montage et d'installation électronique : le boîtier, les composants, le câblage,
+le programme de l'ESP32 et les cartes SD.</p></div>
+<h3>Partie 1 · La console</h3><ul class="sommaire">{sommaire}</ul>
+<h3>Partie 2 · Le programme et les cartes SD</h3>
+<ul class="sommaire"><li>Programmer l'ESP32 depuis un navigateur</li><li>Installer PlatformIO, téléverser, mettre à jour par le Wi-Fi</li>
+<li>Préparer les cartes micro-SD</li><li>Enregistrer les cartes, jouer, régler</li></ul>
+<div class="partie">Partie 1 · La console</div>
+{md(console)}
+<div class="partie">Partie 2 · Le programme et les cartes SD</div>
+<h2>Programmer l'ESP32 depuis un navigateur</h2>
+{md(binaires)}
+{md(programme)}"""
+    cible.write_text(GABARIT_NOTICE.format(corps=corps), encoding="utf-8")
+
+
 GABARIT_DOUBLAGE = """<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><title>Script de doublage</title>
 <link rel="stylesheet" href="commun.css">
@@ -299,6 +357,7 @@ def main():
     if not choix:
         rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf", pied="Le Pupitre des Énigmes · Mode d'emploi")
         rendre(ICI / "gabarit-facade.html", SORTIE / "gabarit-facade.pdf")
+        temporaire("notice-montage", notice, SORTIE / "notice-montage.pdf", pied="Le Pupitre des Énigmes · Notice de montage")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
                    SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
 
