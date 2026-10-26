@@ -1,0 +1,34 @@
+# Mission 4 sur le pupitre à deux lecteurs : la fente est la main gauche (et reçoit les
+# compartiments), le plateau la main droite. Le compartiment reste en mémoire.
+fente M4
+fente -
+touches 1
+calme
+dynamo auto
+fente L1
+fente -
+verifie zone OU L1
+# un objet dans la fente : la main gauche, utilisé dans le compartiment
+fente O1
+verifie zone QUI O1
+verifie epreuve code
+touches 379
+verifie drapeau casier
+fente -
+# la porte, puis deux objets : un dans la fente, un sur le plateau (combinaison)
+fente L2
+ensemble 3500
+verifie drapeau J_porte
+fente L8
+fente -
+fente O5
+plateau O6
+verifie zone QUI O5
+verifie zone QUOI O6
+verifie sans J_sec
+plateau -
+fente -
+# le capteur de couleur : sans règle dans cette mission, rien ne se passe
+couleur rouge
+couleur -
+verifie phase jeu

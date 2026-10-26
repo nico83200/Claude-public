@@ -1,0 +1,52 @@
+# Le pupitre à deux lecteurs : une fente à cartes et un lecteur à plat (objet posé).
+# La mission 1 se joue sans changer son script : chaque carte rejoint sa zone, le lieu reste en mémoire.
+fente M1
+fente -
+verifie phase menu
+touches 1
+verifie phase roles
+
+# --- Les rôles, un par un dans la fente
+fente R1
+fente -
+fente R2
+fente -
+fente R3
+fente -
+fente R4
+fente -
+fente R5
+fente -
+fente R6
+fente -
+calme
+verifie phase jeu
+
+# --- Un lieu glissé puis retiré : on y reste
+fente L1
+verifie drapeau J1
+fente -
+verifie zone OU L1
+
+# --- Un personnage dans la fente, un objet sur le plateau : la paire
+fente P2
+verifie zone QUI P2
+plateau O3
+verifie zone QUOI O3
+plateau -
+fente -
+verifie zone QUI -
+
+# --- Un autre lieu : il remplace le premier
+fente L9
+fente -
+verifie zone OU L9
+
+# --- L'accusation : le lieu en mémoire, le suspect dans la fente, l'objet sur le plateau
+fente P1
+plateau O3
+verifie zone OU L9
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire

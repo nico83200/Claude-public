@@ -27,6 +27,11 @@ class Moteur {
 
   // Entrées du matériel.
   void carte(Zone zone, const std::string& uid);  // uid vide : la carte a été retirée
+  // Le pupitre à deux lecteurs : 0, la fente à cartes ; 1, le lecteur à plat (un objet posé).
+  // La zone QUI, OÙ ou QUOI se déduit du type de la carte, et le lieu reste en mémoire.
+  void lecteur(int numero, const std::string& uid);
+  // Le capteur de couleur (TCS34725) : « rouge », « vert »… quand un objet s'y pose, "" quand il part.
+  void couleurPosee(const std::string& nom);
   void bouton(Bouton bouton);                     // appui
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
@@ -35,10 +40,14 @@ class Moteur {
   void commande(const std::string& commande);     // panneau Wi-Fi : pause, reprise, temps:+5…
 
   std::string etatJson();                         // pour le panneau Wi-Fi
+  static uint32_t couleurNommee(const std::string& nom);  // « vert », « ambre »… ou « #rrggbb »
+  uint32_t couleurVoyant(int i) const { return voyantsAffiches_[i]; }  // avant clignotement ; NB_VOYANTS : le socle
+  const Lumieres& lumieres() const { return lumieres_; }
   const Vue& vue() const { return vue_; }
 
   // Pour le simulateur et les tests.
   bool drapeau(const std::string& nom) const { return drapeaux_.count(nom) > 0; }
+  const std::string& zone(Zone z) const { return zones_[z]; }
   int compteur(const std::string& nom) const;
   std::string phaseTexte() const;
   int secondesRestantes() const;
@@ -69,7 +78,7 @@ class Moteur {
   };
 
   struct Evenement {
-    std::string type;  // lieu, qui, quoi, paire, role, evenement
+    std::string type;  // lieu, qui, quoi, paire, role, combinaison, couleur, evenement
     std::string lieu, qui, quoi, role, nom;
   };
 
@@ -171,6 +180,10 @@ class Moteur {
   void epreuveMolette(int pas);
   void epreuveAppui();
   void epreuveTouche(char touche);
+  void abandonnerEpreuve();
+  void basculerVoyant(int i);
+  void actionVoyant(JsonVariantConst v, bool socle = false);
+  void majVoyants(uint32_t t, Lumieres& l, float pulse);
   void epreuveCarte(const std::string& id);
   void vueEpreuve();
   bool energieValide(std::string* regleFausse);
@@ -207,6 +220,9 @@ class Moteur {
   int missionNumero_ = 0, dossierVoix_ = 0, dossierSons_ = 0;
 
   std::string zones_[3];
+  int lecteurZone_[2] = {-1, -1};  // pupitre à deux lecteurs : la zone tenue par chaque lecteur
+  bool deuxLecteurs_ = false;
+  std::string couleurPosee_;  // ce que voit le capteur de couleur
   std::set<std::string> drapeaux_, rolesPresents_, imprevusFaits_;
   std::map<std::string, int> compteurs_, pouvoirs_, niveauxAide_;
 
@@ -248,6 +264,19 @@ class Moteur {
 
   // Dynamo : la lumière baisse ; un bouton la recharge.
   float lumiere_ = 100.0f;
+
+  // Le panneau de voyants : l'état décrit par le script (réévalué toutes les 150 ms),
+  // et ce qu'imposent les actions « voyant ».
+  struct Voyant {
+    uint32_t couleur = 0, fin = 0;
+    std::string effet;
+    float intensite = 1.0f;
+    bool force = false;  // une consigne s'applique (état du script, ou action)
+  };
+  // Indices 0 à 9 : les voyants ; NB_VOYANTS : le ruban sous la boîte.
+  Voyant voyantsEtat_[NB_VOYANTS + 1], voyantsForces_[NB_VOYANTS + 1];
+  uint32_t voyantsAffiches_[NB_VOYANTS + 1] = {0};
+  uint32_t derniersVoyants_ = 0, socleAmbiance_ = 0;
   float dureeDynamo_ = 0.0f;  // secondes pour passer de 100 à 0 ; 0 : pas de dynamo
   uint32_t derniereDynamo_ = 0;
   int paliersLumiere_ = 10;

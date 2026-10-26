@@ -266,6 +266,15 @@ int main(int argc, char** argv) {
     } else if (cmd == "retire") {
       m.carte(zone(a), "");
       tourner(50);
+    } else if (cmd == "fente" || cmd == "plateau") {
+      // Le pupitre à deux lecteurs : « fente L1 », « plateau O2 », « fente - » pour retirer.
+      m.lecteur(cmd == "fente" ? 0 : 1, a == "-" ? "" : "UID-" + a);
+      if (a == "-") tourner(50);
+      else calme();
+    } else if (cmd == "couleur") {
+      // Le capteur de couleur : « couleur rouge », « couleur - » quand l'objet est retiré.
+      m.couleurPosee(a == "-" ? "" : a);
+      calme();
     } else if (cmd == "bouton") {
       m.bouton(bouton(a));
       calme();
@@ -402,6 +411,12 @@ int main(int argc, char** argv) {
         int l = m.lumiere();
         bool ok = b == "noir" ? l == 0 : b == "allumee" ? l > 0 : l >= atoi(b.c_str());
         verifier(ok, "lumière " + b + " (vaut " + std::to_string(l) + ")", numero);
+      } else if (a == "voyant") {
+        int n = b == "socle" ? NB_VOYANTS : atoi(b.c_str()) - 1;
+        uint32_t attendu = Moteur::couleurNommee(c);
+        verifier(m.couleurVoyant(n) == attendu, "voyant " + b + " " + c, numero);
+      } else if (a == "zone") {
+        verifier(m.zone(zone(b)) == (c == "-" ? "" : c), "zone " + b + " = " + c + " (porte « " + m.zone(zone(b)) + " »)", numero);
       } else if (a == "ecran") verifier(m.vue().titre.find(b) != std::string::npos, "écran « " + b + " »", numero);
     } else {
       printf("  ? commande inconnue ligne %d : %s\n", numero, ligne.c_str());

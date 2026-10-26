@@ -5,16 +5,16 @@
 #include "broches.h"
 
 namespace {
-constexpr uint32_t INTERVALLE = 35;  // ms entre deux lectures (chaque lecteur : ~1 fois sur 3)
+constexpr uint32_t INTERVALLE = 35;  // ms entre deux lectures (les lecteurs à tour de rôle)
 constexpr int ABSENCES_AVANT_RETRAIT = 3;
 }  // namespace
 
 void Lecteurs::demarrer() {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < broches::NB_LECTEURS; i++) {
     pinMode(broches::RFID_CS[i], OUTPUT);
     digitalWrite(broches::RFID_CS[i], HIGH);
   }
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < broches::NB_LECTEURS; i++) {
     MFRC522& l = lecteurs_[i];
     l.PCD_Init(broches::RFID_CS[i], MFRC522::UNUSED_PIN);  // RST sur 3,3 V : réinitialisation logicielle
     byte version = l.PCD_ReadRegister(MFRC522::VersionReg);
@@ -55,7 +55,7 @@ void Lecteurs::maj(const Rappel& rappel) {
   if (t < prochain_) return;
   prochain_ = t + INTERVALLE;
   int z = courant_;
-  courant_ = (courant_ + 1) % 3;
+  courant_ = (courant_ + 1) % broches::NB_LECTEURS;
   if (!ok_[z]) return;
 
   std::string uid = lire(lecteurs_[z]);

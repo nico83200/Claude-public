@@ -10,28 +10,32 @@ constexpr int SCK = 18, MOSI = 23, MISO = 19;
 constexpr int ECRAN_CS = 5, ECRAN_DC = 21;  // RST de l'écran sur EN
 constexpr int ECRAN_LED = 12;               // rétroéclairage (broche LED de l'écran) ; -1 s'il reste sur 3,3 V
 constexpr int SD_CS = 4;
-constexpr int RFID_CS[3] = {13, 22, 15};    // QUI, OÙ, QUOI (RST des lecteurs sur 3,3 V)
+// Les lecteurs RFID (RST sur 3,3 V) : la fente à cartes, puis le lecteur à plat sous le
+// contreplaqué (un objet posé). Avec trois lecteurs (QUI, OÙ, QUOI), mettre NB_LECTEURS = 3
+// et ajouter le troisième CS (15).
+constexpr int NB_LECTEURS = 2;
+constexpr int RFID_CS[3] = {13, 22, 15};
 
 // Lecteurs audio (DFPlayer Mini) : haut-parleur sur UART2, casque sur UART1.
 constexpr int HP_RX = 16, HP_TX = 17;
 constexpr int CASQUE_RX = 36, CASQUE_TX = 2;
 
-// LED WS2812B : l'anneau de 12, puis QUI, OÙ, QUOI.
+// LED WS2812B, toutes sur le même fil, dans cet ordre : l'anneau de 12, une LED par lecteur,
+// le panneau de 10 voyants, puis le ruban sous la boîte (NB_LED_SOCLE LED, tournées vers la
+// table : l'ambiance, que les missions peuvent aussi piloter).
 constexpr int LED = 25;
-constexpr int NB_LED = 15;
-// Le ruban sous la boîte, tourné vers la table (console/README.md, § 3) :
-// - branché en parallèle sur le fil de l'anneau : laisser 0, il répète les premières LED de l'anneau ;
-// - branché à la suite des LED des lecteurs : indiquer son nombre de LED, il prend la couleur
-//   moyenne de l'anneau (jauge, alertes, réussites…).
-constexpr int NB_LED_SOCLE = 0;
+constexpr int NB_VOYANTS = 10;
+constexpr int NB_LED_SOCLE = 8;
+constexpr int NB_LED = 12 + NB_LECTEURS + NB_VOYANTS + NB_LED_SOCLE;
 
 // Molette KY-040 et gros bouton (la dynamo de la mission 4), actifs à l'état bas.
 constexpr int MOLETTE_CLK = 34, MOLETTE_DT = 35, MOLETTE_SW = 32;
 constexpr int GROS_BOUTON = 39;  // tirage de 10 kΩ vers 3,3 V (GPIO 39 n'en a pas)
 
-// Bus I2C : le clavier 4×4 et les quatre boutons de couleur, chacun sur un module PCF8574.
-// (Il ne restait plus de GPIO libre : les boutons de couleur ont quitté les GPIO 33, 26, 27
-// et 14, ce qui libère 26 et 27 pour le bus, et laisse 14 et 33 en réserve.)
+// Bus I2C : le clavier 4×4 et les quatre boutons de couleur (chacun sur un module PCF8574),
+// et le capteur de couleur TCS34725 (0x29). Il ne restait plus de GPIO libre : les boutons de
+// couleur ont quitté les GPIO 33, 26, 27 et 14, ce qui libère 26 et 27 pour le bus, et laisse
+// 14, 33 (et 15 avec deux lecteurs) en réserve.
 constexpr int I2C_SDA = 26, I2C_SCL = 27;
 constexpr uint8_t ADRESSE_CLAVIER = 0x20;  // A0, A1, A2 à la masse (un PCF8574A répond en 0x38)
 constexpr uint8_t ADRESSE_BOUTONS = 0x21;  // A0 à 3,3 V (PCF8574A : 0x39)
@@ -39,6 +43,11 @@ constexpr int BOUTONS_PCF[4] = {0, 1, 2, 3};  // rouge, bleu, jaune, vert sur P0
 
 // Le clavier membrane : nappe de 8 fils, lignes sur P0 à P3, colonnes sur P4 à P7.
 // Si les touches lues ne correspondent pas aux touches appuyées (journal série), corrigez ici.
+// Le capteur de couleur : un objet est « posé » quand la lumière reçue s'écarte nettement de
+// celle mesurée à vide (le journal série affiche les mesures, pour régler ces valeurs).
+constexpr float CAPTEUR_PLUS_CLAIR = 1.8f, CAPTEUR_PLUS_SOMBRE = 0.5f;  // × la mesure à vide
+constexpr float CAPTEUR_BALANCE[3] = {1.0f, 0.82f, 1.25f};               // rouge, vert, bleu (blanc = égaux)
+
 constexpr char TOUCHES[4][4] = {
     {'1', '2', '3', 'A'},
     {'4', '5', '6', 'B'},

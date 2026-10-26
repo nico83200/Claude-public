@@ -1,4 +1,5 @@
-// Les trois lecteurs RFID (RC522) des zones QUI, OÙ et QUOI.
+// Les lecteurs RFID (RC522) : la fente à cartes et le lecteur à plat (ou les trois zones QUI,
+// OÙ et QUOI d'un pupitre à trois lecteurs).
 //
 // Ils sont interrogés l'un après l'autre, antenne coupée entre deux lectures pour
 // éviter qu'ils ne se brouillent. Une carte est déclarée retirée après plusieurs
@@ -12,7 +13,7 @@
 
 class Lecteurs {
  public:
-  using Rappel = std::function<void(int zone, const std::string& uid)>;  // uid vide : carte retirée
+  using Rappel = std::function<void(int lecteur, const std::string& uid)>;  // uid vide : carte retirée
 
   void demarrer();
   void maj(const Rappel& rappel);

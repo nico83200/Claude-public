@@ -10,6 +10,7 @@
 
 #include "audio.h"
 #include "broches.h"
+#include "capteur_couleur.h"
 #include "commandes.h"
 #include "ecran.h"
 #include "lecteurs.h"
@@ -22,9 +23,10 @@ namespace {
 Ecran ecran;
 LecteurAudio hp(Serial2);
 LecteurAudio casque(Serial1);
-CRGB leds[broches::NB_LED + broches::NB_LED_SOCLE];
+CRGB leds[broches::NB_LED];
 Lecteurs lecteurs;
 Commandes commandes;
+CapteurCouleur capteur;
 PlateformeESP32 plateforme(ecran, hp, casque, leds);
 pupitre::Moteur moteur(plateforme);
 
@@ -45,7 +47,7 @@ void setup() {
   ecran.demarrer();
   ecran.message("LE PUPITRE DES ÉNIGMES", "Démarrage…");
 
-  FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED + broches::NB_LED_SOCLE);
+  FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED);
   const pupitre::Reglages defaut;  // remplacés par /reglages.json au démarrage du moteur
   FastLED.setBrightness(static_cast<uint8_t>(defaut.led * 255 / 100));
   FastLED.clear(true);
@@ -59,7 +61,8 @@ void setup() {
   }
 
   lecteurs.demarrer();
-  commandes.demarrer();
+  commandes.demarrer();  // démarre aussi le bus I2C
+  capteur.demarrer();
   if (!hp.demarrer(broches::HP_RX, broches::HP_TX, defaut.hp)) Serial.println("DFPlayer haut-parleur absent.");
   if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, defaut.casque)) Serial.println("DFPlayer casque absent.");
 
@@ -77,9 +80,14 @@ void loop() {
   hp.maj();
   casque.maj();
   commandes.maj(rappels);
-  lecteurs.maj([](int zone, const std::string& uid) {
-    Serial.printf("Zone %d : %s\n", zone, uid.empty() ? "carte retirée" : uid.c_str());
-    moteur.carte(static_cast<pupitre::Zone>(zone), uid);
+  lecteurs.maj([](int n, const std::string& uid) {
+    Serial.printf("Lecteur %d : %s\n", n, uid.empty() ? "carte retirée" : uid.c_str());
+    if (broches::NB_LECTEURS == 2) moteur.lecteur(n, uid);
+    else moteur.carte(static_cast<pupitre::Zone>(n), uid);
+  });
+  capteur.maj([](const std::string& couleur) {
+    Serial.printf("Capteur de couleur : %s\n", couleur.empty() ? "objet retiré" : couleur.c_str());
+    moteur.couleurPosee(couleur);
   });
   moteur.miseAJour();
   panneau::maj();

@@ -179,6 +179,16 @@ uint32_t Moteur::couleur(const char* t, uint32_t defaut) const {
   return static_cast<uint32_t>(strtoul(t + 1, nullptr, 16));
 }
 
+uint32_t Moteur::couleurNommee(const std::string& nom) {
+  static const std::pair<const char*, uint32_t> NOMS[] = {
+      {"rouge", 0xff1a10}, {"vert", 0x18d040}, {"bleu", 0x2060ff}, {"jaune", 0xffc818}, {"orange", 0xff6a10},
+      {"ambre", 0xffa030}, {"blanc", 0xffffff}, {"violet", 0x9030e0}, {"cyan", 0x10c8e0}, {"rose", 0xff4090}};
+  if (!nom.empty() && nom[0] == '#') return static_cast<uint32_t>(strtoul(nom.c_str() + 1, nullptr, 16));
+  for (const auto& n : NOMS)
+    if (nom == n.first) return n.second;
+  return 0;  // « eteint », ou un nom inconnu
+}
+
 // ======================================================================
 // Démarrage et phases
 // ======================================================================
@@ -260,6 +270,7 @@ void Moteur::lancerMission(bool reprise) {
   victoire_ = false;
   fenetre_ = Fenetre();
   lumiere_ = 100.0f;
+  for (Voyant& v : voyantsForces_) v = Voyant();
   vue_.lumiere = 100;
   dureeDynamo_ = script_["dynamo"]["duree"].as<float>();
   derniereDynamo_ = 0;
@@ -366,16 +377,7 @@ void Moteur::carte(Zone zone, const std::string& uid) {
     zones_[zone].clear();
     majZones();
     // Retirer la carte Lieu abandonne une épreuve « quitter » (on pourra revenir).
-    if (ep_.active && zone == OU && ep_.def["quitter"].as<bool>()) {
-      ep_.active = false;
-      drapeaux_.erase("__ecoute");
-      drapeaux_.erase("__stethoscope");
-      p_.arreter(true);
-      vue_.ecran = Vue::PRINCIPAL;
-      vue_.info.clear();
-      vue_.bandeau.clear();
-      rafraichir();
-    }
+    if (ep_.active && zone == OU && ep_.def["quitter"].as<bool>()) abandonnerEpreuve();
     return;
   }
   if (phase_ == Phase::ACCUEIL || phase_ == Phase::CHOIX_MONDE) {
@@ -403,6 +405,68 @@ void Moteur::carte(Zone zone, const std::string& uid) {
     return;
   }
   carteEnJeu(zone, id);
+}
+
+void Moteur::abandonnerEpreuve() {
+  ep_.active = false;
+  drapeaux_.erase("__ecoute");
+  drapeaux_.erase("__stethoscope");
+  p_.arreter(true);
+  vue_.ecran = Vue::PRINCIPAL;
+  vue_.info.clear();
+  vue_.bandeau.clear();
+  rafraichir();
+}
+
+// Le pupitre à deux lecteurs. La fente reçoit toutes les cartes ; le lecteur à plat, un objet
+// posé (une carte couchée, ou un objet qui cache une puce). Chaque carte rejoint la zone de son
+// type : un lieu sur OÙ, un personnage sur QUI, un objet sur QUOI. Quand les objets se combinent
+// (mission 4), la fente est la main gauche (QUI) et le plateau la main droite (QUOI). Une carte
+// Rôle prend la zone que l'autre lecteur laisse libre, pour viser ce qu'il porte.
+// Retirer la carte d'un lieu ne fait pas quitter ce lieu : on y reste jusqu'au suivant.
+void Moteur::lecteur(int n, const std::string& uid) {
+  if (n < 0 || n > 1) return;
+  deuxLecteurs_ = true;
+  int autre = 1 - n;
+  if (uid.empty()) {
+    int z = lecteurZone_[n];
+    lecteurZone_[n] = -1;
+    if (z < 0 || lecteurZone_[autre] == z) return;
+    if (z == OU && phase_ == Phase::JEU) {
+      majZones();
+      if (ep_.active && ep_.def["quitter"].as<bool>()) abandonnerEpreuve();
+      return;
+    }
+    carte(static_cast<Zone>(z), "");
+    return;
+  }
+  std::string id = idCarte(uid);
+  std::string type = id.empty() ? "" : typeCarte(id);
+  int z = n == 0 ? QUI : QUOI;  // monde, aide, carte inconnue : la zone du lecteur
+  if (type == "lieu") {
+    z = OU;
+  } else if (type == "perso") {
+    z = QUI;
+  } else if (type == "objet") {
+    z = script_["objets_combinables"].as<bool>() && n == 0 ? QUI : QUOI;
+  } else if (type == "role") {
+    int za = lecteurZone_[autre];
+    z = za == QUI ? QUOI : za == QUOI ? QUI : (n == 0 ? QUI : QUOI);
+  }
+  lecteurZone_[n] = z;
+  carte(static_cast<Zone>(z), uid);
+}
+
+// Le capteur de couleur : un objet coloré posé dessus déclenche les règles {"couleur": "rouge"}
+// (et {"couleur": "-"} quand on le retire) ; la condition « couleur_rouge » dit ce qui est posé.
+void Moteur::couleurPosee(const std::string& nom) {
+  if (nom == couleurPosee_) return;
+  couleurPosee_ = nom;
+  if (phase_ != Phase::JEU || ep_.active) return;
+  Evenement ev;
+  ev.type = "couleur";
+  ev.nom = nom;
+  enAttente_.push_back(ev);
 }
 
 void Moteur::carteHorsJeu(Zone zone, const std::string& id) {
@@ -938,6 +1002,7 @@ bool Moteur::motif(JsonVariantConst attendu, const std::string& valeur) const {
 }
 
 bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
+  if (!q["couleur"].isNull()) return ev.type == "couleur" && motif(q["couleur"], ev.nom);
   if (!q["evenement"].isNull()) return ev.type == "evenement" && motif(q["evenement"], ev.nom);
   if (!q["role"].isNull()) {
     if (ev.type != "role" || !motif(q["role"], ev.role)) return false;
@@ -963,6 +1028,8 @@ bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
 
 int Moteur::valeur(const std::string& nom) {
   if (nom == "restant") return secondesRestantes() / 60;
+  if (nom == "lumiere") return static_cast<int>(lumiere_);
+  if (nom.rfind("couleur_", 0) == 0) return couleurPosee_ == nom.substr(8);
   if (nom == "ecoule") return secondesEcoulees() / 60;
   if (nom == "erreurs") return erreurs_;
   if (nom == "indices_payants") return indicesPayants_;
@@ -990,7 +1057,7 @@ int Moteur::compteur(const std::string& nom) const { return const_cast<Moteur*>(
 
 void Moteur::declencher(const Evenement& ev) {
   bool carte = ev.type == "lieu" || ev.type == "qui" || ev.type == "quoi" || ev.type == "paire" || ev.type == "combinaison" ||
-               ev.type == "role";
+               ev.type == "role" || ev.type == "couleur";
   if (carte && dureeDynamo_ > 0 && lumiere_ <= 0) {
     JsonVariantConst noir = script_["dynamo"]["noir"];
     if (!noir.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, noir.as<int>()));
@@ -1400,6 +1467,10 @@ void Moteur::executer(JsonVariantConst act) {
     majDynamo();
     return;
   }
+  if (!act["voyant"].isNull() || !act["socle"].isNull()) {
+    actionVoyant(act["voyant"].isNull() ? act["socle"] : act["voyant"], act["voyant"].isNull());
+    return;
+  }
   if (!act["vue"].isNull()) {
     vue_.ecran = Vue::PRINCIPAL;
     rafraichir();
@@ -1440,6 +1511,25 @@ void Moteur::executerSimple(JsonVariantConst act) {
   } else if (!act["dynamo"].isNull()) {
     if (!act["dynamo"]["charge"].isNull()) lumiere_ = act["dynamo"]["charge"].as<float>();
     majDynamo();
+  } else if (!act["voyant"].isNull() || !act["socle"].isNull()) {
+    actionVoyant(act["voyant"].isNull() ? act["socle"] : act["voyant"], act["voyant"].isNull());
+  }
+}
+
+// {"voyant": {"n": 3, "couleur": "orange", "effet": "clignote", "duree": 5000}} : impose un voyant
+// (« n »: "tous" pour les dix) ; sans « couleur », le voyant revient à ce que décrit le panneau.
+// {"socle": {"couleur": "rouge", "effet": "pulse", "duree": 8000}} : de même pour le ruban sous la boîte.
+void Moteur::actionVoyant(JsonVariantConst v, bool socle) {
+  int premier = 0, dernier = NB_VOYANTS - 1;
+  if (v["n"].is<int>()) premier = dernier = v["n"].as<int>() - 1;
+  if (socle) premier = dernier = NB_VOYANTS;
+  for (int i = std::max(0, premier); i <= std::min(socle ? NB_VOYANTS : NB_VOYANTS - 1, dernier); i++) {
+    Voyant& f = voyantsForces_[i];
+    f.force = !v["couleur"].isNull();
+    f.couleur = couleurNommee(texte(v["couleur"]));
+    f.effet = texte(v["effet"], "fixe");
+    f.intensite = v["intensite"].isNull() ? 1.0f : v["intensite"].as<int>() / 100.0f;
+    f.fin = v["duree"].isNull() ? 0 : maintenant() + v["duree"].as<int>();
   }
 }
 
@@ -1489,6 +1579,14 @@ void Moteur::lancerEpreuve(JsonVariantConst def) {
     ep_.etape = 0;
     ep_.pas = 0;
     ep_.prochain = maintenant() + 600;
+  } else if (ep_.type == "voyants") {  // des interrupteurs : basculer les voyants jusqu'au motif demandé
+    std::string depart = texte(def["depart"], "0000000000"), cible = texte(def["cible"], "1111111111");
+    int n = std::min<int>(NB_VOYANTS, static_cast<int>(std::max(depart.size(), cible.size())));
+    for (int i = 0; i < n; i++) {
+      ep_.valeurs.push_back(i < static_cast<int>(depart.size()) && depart[i] == '1');
+      ep_.solution.push_back(i < static_cast<int>(cible.size()) && cible[i] == '1');
+    }
+    ep_.etape = 0;  // 1 : la molette a servi, le curseur s'affiche
   } else if (ep_.type == "ordre") {  // des boutons de couleur dans un ordre précis (à déduire, pas à mémoriser)
     for (JsonVariantConst c : def["ordre"].as<JsonArrayConst>()) ep_.sequence.push_back(boutonNomme(texte(c)));
     ep_.pas = 0;
@@ -1561,7 +1659,8 @@ void Moteur::majEpreuve() {
       debutEnsemble_ = 0;
     }
     if (expire) finEpreuve(false);
-  } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui" || ep_.type == "ordre") {
+  } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui" || ep_.type == "ordre" ||
+             ep_.type == "voyants") {
     if (expire) finEpreuve(false);
   } else if (ep_.type == "rondes") {
     if (t >= ep_.prochain) {
@@ -1682,6 +1781,28 @@ void Moteur::touche(char k) {
   }
 }
 
+// Bascule l'interrupteur i (et ceux qui lui sont liés : « liens », ou « voisins »).
+void Moteur::basculerVoyant(int i) {
+  int n = static_cast<int>(ep_.valeurs.size());
+  JsonVariantConst liens = ep_.def["liens"];
+  std::vector<int> cibles;
+  if (liens.is<const char*>() && texte(liens) == "voisins") {
+    cibles = {i - 1, i, i + 1};
+  } else if (liens[std::to_string(i + 1)].is<JsonArrayConst>()) {
+    for (JsonVariantConst x : liens[std::to_string(i + 1)].as<JsonArrayConst>()) cibles.push_back(x.as<int>() - 1);
+  } else {
+    cibles = {i};
+  }
+  for (int c : cibles)
+    if (c >= 0 && c < n) ep_.valeurs[c] ^= 1;
+  p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+  if (texte(ep_.def["validation"], "auto") == "auto" && ep_.valeurs == ep_.solution) {
+    finEpreuve(true);
+    return;
+  }
+  vueEpreuve();
+}
+
 void Moteur::epreuveTouche(char k) {
   JsonVariantConst d = ep_.def;
   bool chiffre = k >= '0' && k <= '9';
@@ -1754,6 +1875,13 @@ void Moteur::epreuveTouche(char k) {
       ep_.curseur = (ep_.curseur + 1) % n;
       vueEpreuve();
     }
+  } else if (ep_.type == "voyants") {
+    if (k == '#') epreuveBouton(VERT);
+    if (k == '*') epreuveBouton(ROUGE);
+    if (chiffre) {
+      int i = k == '0' ? 9 : k - '1';  // 1 à 9, puis 0 pour le dixième
+      if (i < n) basculerVoyant(i);
+    }
   } else if (ep_.type == "traitre") {
     if (chiffre && ep_.etape == 0) {
       ep_.valeurs[0] = std::max(2, std::min(8, k - '0'));
@@ -1778,6 +1906,13 @@ void Moteur::epreuveBouton(Bouton b) {
       vueEpreuve();
     } else if (b == VERT) {
       epreuveAppui();
+    }
+  } else if (ep_.type == "voyants") {
+    if (b == VERT) finEpreuve(ep_.valeurs == ep_.solution);
+    if (b == ROUGE) {  // tout remettre comme au départ
+      std::string depart = texte(d["depart"], "0000000000");
+      for (size_t k = 0; k < ep_.valeurs.size(); k++) ep_.valeurs[k] = k < depart.size() && depart[k] == '1';
+      vueEpreuve();
     }
   } else if (ep_.type == "choix") {
     if (b > VERT || b == ep_.barre) return;
@@ -1893,6 +2028,11 @@ void Moteur::epreuveMolette(int pas) {
       p_.jouer(ecoute["dossier"].as<int>(), bon ? ecoute["clac"].as<int>() : ecoute["tic"].as<int>(), true);
     }
     vueEpreuve();
+  } else if (ep_.type == "voyants") {
+    int n = static_cast<int>(ep_.valeurs.size());
+    ep_.curseur = ep_.etape == 0 ? 0 : ((ep_.curseur + pas) % n + n) % n;
+    ep_.etape = 1;
+    vueEpreuve();
   } else if (ep_.type == "molette_zero") {
     ep_.valeurs[0] = std::max(0, ep_.valeurs[0] + pas);
     if (ep_.valeurs[0] == 0) finEpreuve(true);
@@ -1925,6 +2065,9 @@ void Moteur::epreuveAppui() {
   } else if (ep_.type == "energie") {
     ep_.curseur = (ep_.curseur + 1) % static_cast<int>(ep_.valeurs.size());
     vueEpreuve();
+  } else if (ep_.type == "voyants") {
+    ep_.etape = 1;
+    basculerVoyant(ep_.curseur);
   } else if (ep_.type == "traitre") {
     if (ep_.etape == 0) {
       ep_.nbJoueurs = ep_.valeurs[0];
@@ -2066,6 +2209,15 @@ void Moteur::vueEpreuve() {
                    "\n" + p;
     } else if (ep_.type == "molette_zero") {
       vue_.texte = "Pression : " + std::to_string(ep_.valeurs[0]);
+    } else if (ep_.type == "voyants") {  // le panneau recopié à l'écran (utile si la façade le cache)
+      std::string motif;
+      for (size_t i = 0; i < ep_.valeurs.size(); i++) {
+        bool curseur = ep_.etape == 1 && static_cast<int>(i) == ep_.curseur;
+        motif += std::string(i ? " " : "") + (curseur ? "[" : "") + (ep_.valeurs[i] ? "●" : "○") + (curseur ? "]" : "");
+      }
+      vue_.texte = (vue_.texte.empty() ? "" : vue_.texte + "\n") + motif;
+      vue_.info = texte(d["validation"], "auto") == "auto" ? "Clavier 1 à 0 : basculer · ou molette, puis appui"
+                                                         : "Clavier 1 à 0 : basculer · molette + appui · # : vérifier";
     } else if (ep_.type == "traitre") {
       if (ep_.etape == 0) vue_.texte = "Nombre de joueurs : " + std::to_string(ep_.valeurs[0]) + "\n(molette, puis appui)";
       else if (ep_.etape == 1) vue_.texte = "Joueur " + std::to_string(ep_.joueur + 1) + " : mettez le casque, puis appuyez sur la molette.";
@@ -2340,50 +2492,126 @@ void Moteur::majLumieres() {
     }
     vue_.jauge = allumees;
   }
-  for (int i = 0; i < 12; i++) l.couleurs[i] = i < allumees ? attenuer(c, 0.6f) : 0;
+  for (int i = 0; i < 12; i++) l.anneau[i] = i < allumees ? attenuer(c, 0.6f) : 0;
   if (phase_ == Phase::ACCUEIL || phase_ == Phase::MENU || phase_ == Phase::CHOIX_MONDE)
-    for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0xffffff, 0.15f + 0.25f * pulse);
+    for (int i = 0; i < 12; i++) l.anneau[i] = attenuer(0xffffff, 0.15f + 0.25f * pulse);
   if (phase_ == Phase::REGLAGES)  // l'anneau allumé pour juger la luminosité des LED
-    for (int i = 0; i < 12; i++) l.couleurs[i] = ligneReglage_ == 3 ? 0xffffff : attenuer(0xffffff, 0.3f);
+    for (int i = 0; i < 12; i++) l.anneau[i] = ligneReglage_ == 3 ? 0xffffff : attenuer(0xffffff, 0.3f);
 
   // Épreuves visuelles.
   if (ep_.active && ep_.type == "rondes")
-    for (int i = 0; i < 12; i++) l.couleurs[i] = ep_.vert ? 0x00c000 : 0xd00000;
+    for (int i = 0; i < 12; i++) l.anneau[i] = ep_.vert ? 0x00c000 : 0xd00000;
   if (ep_.active && ep_.type == "sequence" && ep_.etape == 0)
-    for (int i = 0; i < 12; i++) l.couleurs[i] = ep_.vert ? COULEURS_BOUTONS[ep_.sequence[ep_.pas]] : 0;
+    for (int i = 0; i < 12; i++) l.anneau[i] = ep_.vert ? COULEURS_BOUTONS[ep_.sequence[ep_.pas]] : 0;
   if (ep_.active && ep_.type == "appui")  // le gros bouton attend : l'anneau clignote
-    for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0xffffff, pulse);
+    for (int i = 0; i < 12; i++) l.anneau[i] = attenuer(0xffffff, pulse);
   if (vue_.ecran == Vue::CASQUE)
-    for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0x8020d0, pulse);
+    for (int i = 0; i < 12; i++) l.anneau[i] = attenuer(0x8020d0, pulse);
 
   // Effets temporaires.
   if (t < finEffet_) {
     if (effet_ == "succes" || effet_ == "echec") {
       uint32_t e = effet_ == "succes" ? 0x00d000 : 0xd00000;
-      for (int i = 0; i < 12; i++) l.couleurs[i] = e;
+      for (int i = 0; i < 12; i++) l.anneau[i] = e;
     } else if (effet_ == "alerte") {
       int tete = static_cast<int>((t / 80) % 12);
-      for (int i = 0; i < 12; i++) l.couleurs[i] = ((i - tete + 12) % 12) < 3 ? 0xff0000 : 0x200000;
+      for (int i = 0; i < 12; i++) l.anneau[i] = ((i - tete + 12) % 12) < 3 ? 0xff0000 : 0x200000;
     } else if (effet_ == "victoire") {
       for (int i = 0; i < 12; i++) {
         int h = static_cast<int>((t / 10 + i * 21) % 256);
-        l.couleurs[i] = h < 85 ? melange(0xff0000, 0x00ff00, h / 85.0f)
+        l.anneau[i] = h < 85 ? melange(0xff0000, 0x00ff00, h / 85.0f)
                       : h < 170 ? melange(0x00ff00, 0x0000ff, (h - 85) / 85.0f)
                                 : melange(0x0000ff, 0xff0000, (h - 170) / 85.0f);
       }
     } else if (effet_ == "defaite") {
-      for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0x600000, pulse * 0.5f);
+      for (int i = 0; i < 12; i++) l.anneau[i] = attenuer(0x600000, pulse * 0.5f);
     }
   }
 
-  // Les trois LED de zone.
+  // Une LED par lecteur : allumée quand il porte une carte, verte ou rouge un instant à la pose.
   for (int z = 0; z < 3; z++) {
     uint32_t zc = zones_[z].empty() ? 0 : 0x303030;
     if (accusationOuverte_) zc = attenuer(0xffffff, pulse);
     if (t < flashZone_[z]) zc = couleurZone_[z];
-    l.couleurs[12 + z] = zc;
+    l.lecteurs[z] = zc;
   }
+  if (deuxLecteurs_) {  // la fente et le plateau : la LED de la zone que chacun tient
+    uint32_t parZone[3] = {l.lecteurs[0], l.lecteurs[1], l.lecteurs[2]};
+    for (int n = 0; n < 3; n++) l.lecteurs[n] = n < 2 && lecteurZone_[n] >= 0 ? parZone[lecteurZone_[n]] : 0;
+  }
+  // Le ruban sous la boîte : l'ambiance (la couleur du monde, qui respire doucement) ; il suit
+  // l'anneau pendant les effets et les épreuves lumineuses. La mission peut le piloter (« socle »).
+  uint32_t r = 0, v = 0, b = 0;
+  for (uint32_t a : l.anneau) {
+    r += (a >> 16) & 0xff;
+    v += (a >> 8) & 0xff;
+    b += a & 0xff;
+  }
+  uint32_t moyenne = ((r / 12) << 16) | ((v / 12) << 8) | (b / 12);
+  bool special = t < finEffet_ || vue_.ecran == Vue::CASQUE ||
+                 (ep_.active && (ep_.type == "rondes" || ep_.type == "sequence" || ep_.type == "appui"));
+  if (phase_ == Phase::JEU || phase_ == Phase::FIN)
+    socleAmbiance_ = special ? moyenne : attenuer(vue_.theme.accent, 0.18f + 0.12f * pulse);
+  else if (phase_ == Phase::REGLAGES)
+    socleAmbiance_ = l.anneau[0];
+  else
+    socleAmbiance_ = attenuer(0xffffff, 0.08f + 0.12f * pulse);
+  majVoyants(t, l, pulse);
+  lumieres_ = l;
   p_.eclairer(l);
+}
+
+// Le panneau de 10 voyants et le ruban sous la boîte (le « socle », indice NB_VOYANTS) : ce que
+// décrit la mission (« panneau », « socle »), ce qu'impose une action (« voyant », « socle »), ou
+// les interrupteurs de l'épreuve « voyants ». Sans rien de tout cela : voyants éteints, socle
+// d'ambiance.
+void Moteur::majVoyants(uint32_t t, Lumieres& l, float pulse) {
+  bool enJeu = (phase_ == Phase::JEU && chronoActif_) || phase_ == Phase::FIN;
+  if (enJeu && t - derniersVoyants_ >= 150) {  // les conditions ne sont pas réévaluées à chaque image
+    derniersVoyants_ = t;
+    JsonArrayConst liste = script_["panneau"]["voyants"].as<JsonArrayConst>();
+    for (int i = 0; i <= NB_VOYANTS; i++) {
+      voyantsEtat_[i] = Voyant();
+      JsonArrayConst etats = i < NB_VOYANTS ? liste[i]["etats"].as<JsonArrayConst>() : script_["socle"]["etats"].as<JsonArrayConst>();
+      for (JsonVariantConst e : etats) {
+        if (!condition(e["si"])) continue;
+        Voyant& v = voyantsEtat_[i];
+        v.force = true;
+        v.couleur = couleurNommee(texte(e["couleur"]));
+        v.effet = texte(e["effet"], "fixe");
+        if (!e["intensite"].isNull())  // « intensite »: "lumiere" : une expression, de 0 à 100
+          v.intensite = std::max(0, std::min(100, evaluer(texte(e["intensite"]), [this](const std::string& n) { return valeur(n); }))) / 100.0f;
+        break;
+      }
+    }
+  }
+  for (int i = 0; i <= NB_VOYANTS; i++) {
+    Voyant v = enJeu ? voyantsEtat_[i] : Voyant();
+    const Voyant& f = voyantsForces_[i];
+    if (f.force && (f.fin == 0 || t < f.fin)) v = f;
+    float k = v.intensite * 0.7f;
+    if (i == NB_VOYANTS && !v.force) {  // le socle, sans consigne : l'ambiance (déjà dosée)
+      v.couleur = socleAmbiance_;
+      v.effet = "fixe";
+      k = 1.0f;
+    }
+    if (i < NB_VOYANTS && ep_.active && ep_.type == "voyants" && i < static_cast<int>(ep_.valeurs.size())) {
+      v.couleur = ep_.valeurs[i] ? couleurNommee(texte(ep_.def["couleur"], "ambre")) : 0;
+      v.effet = "fixe";
+      if (ep_.etape == 1 && i == ep_.curseur) {  // le curseur de la molette
+        if (!v.couleur) v.couleur = 0x606060;
+        k = 0.2f + 0.5f * pulse;
+      }
+    }
+    if (v.effet == "clignote") k *= (t / 500) % 2 ? 0.0f : 1.0f;
+    else if (v.effet == "rapide") k *= (t / 150) % 2 ? 0.0f : 1.0f;
+    else if (v.effet == "pulse") k *= 0.15f + 0.85f * pulse;
+    else if (v.effet == "faible") k *= 0.25f;
+    voyantsAffiches_[i] = v.couleur;
+    uint32_t c = attenuer(v.couleur, k);
+    if (i < NB_VOYANTS) l.voyants[i] = c;
+    else l.socle = c;
+  }
 }
 
 // ======================================================================
@@ -2502,6 +2730,13 @@ std::string Moteur::etatJson() {
   d["erreurs"] = erreurs_;
   d["indices"] = indicesDonnes_;
   if (dureeDynamo_ > 0) d["lumiere"] = static_cast<int>(lumiere_);
+  if (!script_["panneau"].isNull()) {
+    char hex[8];
+    for (int i = 0; i < NB_VOYANTS; i++) {
+      snprintf(hex, sizeof hex, "#%06x", static_cast<unsigned>(voyantsAffiches_[i] & 0xffffff));
+      d["voyants"].add(hex);
+    }
+  }
   d["texte"] = vue_.texte;
   for (int z = 0; z < 3; z++) d["zones"].add(vue_.zones[z]);
   for (const auto& f : drapeaux_)
