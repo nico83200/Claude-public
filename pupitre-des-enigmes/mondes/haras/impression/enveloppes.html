@@ -19,6 +19,10 @@
   .polaroid .legende { font-family: "Caveat", cursive; font-size: 15pt; color: #24324a; text-align: center; margin-top: 1mm; line-height: 1.1; }
   .polaroid.grand { width: 120mm; }
   .polaroid.grand svg { width: 112mm; height: 84mm; }
+  .polaroid img { width: 76mm; display: block; }
+  .polaroid.grand img { width: 112mm; }
+  .polaroid.portrait { width: 98mm; }
+  .polaroid.portrait img { width: 90mm; }
 
   /* Carnet de santé */
   .carnet { background: repeating-linear-gradient(#fffdf6 0 9.5mm, #c9d6e8 9.5mm 9.8mm); border: 1px solid var(--filet); padding: 6mm 10mm 8mm 22mm;
@@ -127,28 +131,11 @@
   <div class="ciseaux"></div>
   <div class="photos">
     <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#c9b28a"/>
-        <rect x="0" y="0" width="200" height="118" fill="#8a6440"/>
-        <g stroke="#6e4e30" stroke-width="2"><line x1="0" y1="20" x2="200" y2="20"/><line x1="0" y1="45" x2="200" y2="45"/><line x1="0" y1="70" x2="200" y2="70"/><line x1="0" y1="95" x2="200" y2="95"/></g>
-        <rect x="60" y="22" width="80" height="96" fill="#2b2018"/>
-        <path d="M140 22L182 34V128L140 118Z" fill="#a47b52" stroke="#5b4026" stroke-width="2"/>
-        <path d="M146 40L176 46M146 70L176 76M146 100L176 106" stroke="#5b4026" stroke-width="1.5"/>
-        <rect x="132" y="66" width="10" height="16" rx="2" fill="#b8b8b8" stroke="#777"/>
-        <rect x="80" y="6" width="40" height="13" rx="2" fill="#e7d6a9" stroke="#8a6d33"/>
-        <text x="100" y="15.5" font-size="8" text-anchor="middle" font-family="Source Sans" font-weight="700" fill="#3a2a14">7 · ÉCLIPSE</text>
-        <g fill="#d9c27a" opacity=".8"><path d="M64 118L70 108L76 118Z"/><path d="M110 118L118 110L124 118Z"/></g>
-      </svg>
+      <img src="images/photo-box7.jpg" alt="La porte du box 7">
       <div class="legende">Box 7 : la porte est ouverte… mais la serrure est intacte.</div>
     </div>
     <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#c9b28a"/>
-        <g fill="#b39b70" opacity=".6"><circle cx="30" cy="30" r="2"/><circle cx="160" cy="40" r="2.5"/><circle cx="60" cy="130" r="2"/><circle cx="170" cy="130" r="1.6"/></g>
-        <use href="#fer-oeuf" x="40" y="30" width="80" height="90" transform="rotate(90 80 75)"/>
-        <path d="M128 80H182M172 70L184 80L172 90" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <text x="150" y="108" font-size="10" fill="#fff" font-family="Source Sans" font-weight="700" text-anchor="middle">porte arrière</text>
-      </svg>
+      <img src="images/photo-empreinte.jpg" alt="L'empreinte dans l'allée">
       <div class="legende">Dans l'allée, une empreinte bizarre file vers la porte arrière.</div>
     </div>
   </div>
@@ -159,48 +146,15 @@
   <div class="tag">Enveloppe E2 · Sellerie</div>
   <div class="photos">
     <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#b88a5b"/>
-        <rect x="0" y="0" width="200" height="40" fill="#9c7046"/>
-        <rect x="80" y="10" width="40" height="18" rx="3" fill="#d8b75a" stroke="#8a6d33"/>
-        <text x="100" y="23" font-size="11" text-anchor="middle" font-family="Playfair" font-weight="700" fill="#3a2a14">H.V.</text>
-        <path d="M100 30V40Q100 46 94 46" stroke="#555" stroke-width="3" fill="none"/>
-        <g>
-          <path d="M66 48H96V120Q96 132 108 134V146H52V128Q66 126 66 112Z" fill="#1f2a22"/>
-          <path d="M104 48H134V120Q134 132 146 134V146H90V128Q104 126 104 112Z" fill="#26332a"/>
-          <g fill="#6b4a2b"><ellipse cx="72" cy="138" rx="18" ry="7"/><ellipse cx="114" cy="140" rx="20" ry="6"/><ellipse cx="80" cy="110" rx="9" ry="5"/><ellipse cx="124" cy="100" rx="7" ry="4"/></g>
-          <g stroke="#3e6b38" stroke-width="1.6"><line x1="60" y1="136" x2="72" y2="130"/><line x1="78" y1="140" x2="86" y2="134"/><line x1="110" y1="142" x2="122" y2="137"/><line x1="122" y1="102" x2="130" y2="96"/><line x1="96" y1="140" x2="104" y2="144"/></g>
-        </g>
-      </svg>
+      <img src="images/photo-bottes.jpg" alt="Les bottes">
       <div class="legende">Des bottes pleines de boue fraîche… et d'aiguilles de pin.</div>
     </div>
     <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#efe6d4"/>
-        <use href="#semelle-chevrons" x="70" y="12" width="60" height="136"/>
-        <text x="150" y="40" font-size="10" fill="#6d665d" font-family="Source Sans">pointure 38</text>
-      </svg>
+      <img src="images/photo-semelle.jpg" alt="La semelle">
       <div class="legende">La semelle de la botte droite.</div>
     </div>
     <div class="polaroid grand">
-      <svg viewBox="0 0 300 200">
-        <rect width="300" height="200" fill="#a77d52"/>
-        <rect x="10" y="60" width="280" height="10" fill="#6b4a2b"/>
-        <rect x="10" y="150" width="280" height="10" fill="#6b4a2b"/>
-        <g font-family="Source Sans" font-size="9" font-weight="700" text-anchor="middle" fill="#3a2a14">
-          <rect x="22" y="40" width="58" height="14" fill="#efe1bd"/><text x="51" y="50">Couv. Sultan</text>
-          <rect x="90" y="40" width="58" height="14" fill="#efe1bd"/><text x="119" y="50">Couv. Rafale</text>
-          <rect x="158" y="40" width="58" height="14" fill="#efe1bd"/><text x="187" y="50">Couv. Éclipse</text>
-          <rect x="226" y="40" width="58" height="14" fill="#efe1bd"/><text x="255" y="50">Couv. Comète</text>
-          <rect x="22" y="130" width="58" height="14" fill="#efe1bd"/><text x="51" y="140">Seau Sultan</text>
-          <rect x="90" y="130" width="58" height="14" fill="#efe1bd"/><text x="119" y="140">Seau Rafale</text>
-          <rect x="158" y="130" width="58" height="14" fill="#efe1bd"/><text x="187" y="140">Seau Éclipse</text>
-          <rect x="226" y="130" width="58" height="14" fill="#efe1bd"/><text x="255" y="140">Seau Comète</text>
-        </g>
-        <g><rect x="28" y="70" width="46" height="50" fill="#2f5a7a"/><rect x="96" y="70" width="46" height="50" fill="#8a2f2f"/><rect x="232" y="70" width="46" height="50" fill="#3f6b3a"/></g>
-        <g fill="#5d6b78"><path d="M34 160H68L64 192H38Z"/><path d="M102 160H136L132 192H106Z"/><path d="M238 160H272L268 192H242Z"/></g>
-        <g stroke="#3a2a14" stroke-width="1" stroke-dasharray="3 3" fill="none"><rect x="164" y="72" width="46" height="46"/><rect x="170" y="162" width="34" height="30"/></g>
-      </svg>
+      <img src="images/photo-ratelier.jpg" alt="Le râtelier">
       <div class="legende">Au râtelier, deux places sont vides : la couverture et le seau d'Éclipse.</div>
     </div>
   </div>
@@ -211,20 +165,7 @@
   <div class="tag">Enveloppe E3 · Bureau</div>
   <div class="photos" style="align-items:flex-start">
     <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#e9e3d6"/>
-        <rect x="20" y="14" width="160" height="132" rx="4" fill="#7a5532" stroke="#4e321a" stroke-width="3"/>
-        <text x="100" y="32" font-size="10" fill="#f2d9a6" text-anchor="middle" font-family="Source Sans" font-weight="700" letter-spacing="2">ÉCURIE · BOXES</text>
-        <g font-family="Source Sans" font-size="9" font-weight="700" fill="#f2d9a6" text-anchor="middle">
-          <text x="45" y="50">1</text><text x="80" y="50">2</text><text x="120" y="50">3</text><text x="155" y="50">4</text>
-          <text x="45" y="100">5</text><text x="80" y="100">6</text><text x="120" y="100">7</text><text x="155" y="100">8</text>
-        </g>
-        <g fill="#c9a43a" stroke="#6b5520" stroke-width="1">
-          <g id="cle"><circle cx="45" cy="64" r="6"/><rect x="43" y="69" width="4" height="18"/><rect x="47" y="80" width="5" height="3"/></g>
-          <use href="#cle" x="35"/><use href="#cle" x="75"/><use href="#cle" x="110"/>
-          <use href="#cle" y="50"/><use href="#cle" x="35" y="50"/><use href="#cle" x="75" y="50"/><use href="#cle" x="110" y="50"/>
-        </g>
-      </svg>
+      <img src="images/photo-cles.jpg" alt="Le tableau des clés">
       <div class="legende">Le tableau des clés : toutes sont à leur place… même la n° 7.</div>
     </div>
     <div class="ticket">VIDEO-SURVEILLANCE
@@ -269,29 +210,8 @@ DUREE : 53 MIN
 <div class="page">
   <div class="tag">Enveloppe E4 · Vieille Grange</div>
   <div class="photos" style="margin-top:20mm">
-    <div class="polaroid grand">
-      <svg viewBox="0 0 300 220">
-        <rect width="300" height="220" fill="#3a2c20"/>
-        <path d="M0 0H300V40L150 0Z" fill="#2a2018"/>
-        <g fill="#f7e6a6" opacity=".35"><path d="M210 0L250 0L180 220L120 220Z"/></g>
-        <rect y="168" width="300" height="52" fill="#c9a956"/>
-        <g stroke="#e3c674" stroke-width="2"><line x1="20" y1="180" x2="44" y2="172"/><line x1="70" y1="190" x2="96" y2="182"/><line x1="200" y1="186" x2="228" y2="178"/><line x1="250" y1="200" x2="276" y2="192"/></g>
-        <!-- Éclipse -->
-        <g fill="#cfcac0">
-          <ellipse cx="140" cy="118" rx="62" ry="30"/>
-          <path d="M184 104L214 54L232 60L206 124Z"/>
-          <ellipse cx="228" cy="58" rx="20" ry="11" transform="rotate(28 228 58)"/>
-          <path d="M214 44L220 32L224 46Z"/>
-          <rect x="94" y="132" width="11" height="44" rx="3"/><rect x="112" y="134" width="11" height="42" rx="3"/>
-          <rect x="160" y="134" width="11" height="42" rx="3"/><rect x="178" y="132" width="11" height="44" rx="3"/>
-          <path d="M80 110Q60 130 70 160Q78 140 84 120Z" fill="#b5afa4"/>
-        </g>
-        <g fill="#9a9488" opacity=".5"><circle cx="120" cy="110" r="4"/><circle cx="150" cy="122" r="5"/><circle cx="170" cy="104" r="3.5"/></g>
-        <path d="M100 96Q140 84 182 98V138Q140 148 100 138Z" fill="#2f5a3d" stroke="#f2d9a6" stroke-width="2"/>
-        <text x="141" y="122" font-size="13" text-anchor="middle" font-family="Playfair" font-weight="700" fill="#f2d9a6">É</text>
-        <path d="M232 70L250 110" stroke="#8a2f2f" stroke-width="2"/>
-        <path d="M30 168L46 140H62L70 168Z" fill="#9aa0a6"/>
-      </svg>
+    <div class="polaroid portrait">
+      <img src="images/photo-eclipse.jpg" alt="Éclipse dans la grange">
       <div class="legende">Éclipse est là, saine et sauve, sur de la paille fraîche !</div>
     </div>
   </div>
