@@ -41,6 +41,12 @@ firmware/
 └── SCRIPTS.md              la référence du langage des scripts
 ```
 
+## 0. Sans rien installer
+
+Le programme compilé est dans [`binaires/`](binaires/LISEZMOI.md) : un navigateur (Chrome
+ou Edge) suffit pour le mettre dans l'ESP32 la première fois, puis le Wi-Fi du pupitre
+pour les mises à jour. PlatformIO ne sert qu'à **modifier** le programme.
+
 ## 1. Installer PlatformIO
 
 Le plus simple : [Visual Studio Code](https://code.visualstudio.com/) avec
