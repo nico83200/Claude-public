@@ -264,6 +264,7 @@ avant gauche** (X vers la droite, Y vers l'arrière) :
 | Voyants 6 à 10 | mêmes X | 11,4 | Ø 6 mm |
 | Fente à cartes | 19,0 | 13,0 | 68 × 5 mm, dans le sens de la largeur |
 | Lecteur à plat | 29,5 | 12,5 | Rien à découper : une zone de 76 × 76 mm marquée sur la façade (le RC522 est dessous, à plat contre le couvercle) |
+| LED du lecteur à plat | 32,5 | 9,5 | Ø 4 mm, dans le coin avant droit de la zone ; la LED juste dessous, tournée vers le haut (§ 4.3) |
 | Capteur de couleur | 35,8 | 15,5 | Ø 12 mm (le module est dessous, capteur et LED tournés vers le haut). Façade qui le cache : pas de trou. |
 | Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase) |
 | Interrupteur à clé | 35,8 | 22,0 | Ø 12 mm |
@@ -297,6 +298,14 @@ le premier trou de 30 mm aurait touché la paroi.
 - Hauteur disponible au droit de la fente (Y = 13 cm) : environ 5 cm sous le
   couvercle, fond remonté compris. Le puits touche presque le fond : laissez-le
   ouvert en bas pour le câble du lecteur, ou faites sortir le câble par le côté.
+- **La LED de la fente** se colle dans le puits, **juste sous la fente**, sur la paroi
+  opposée au lecteur, tournée vers le haut : la fente s'éclaire de l'intérieur
+  (faiblement quand une carte est lue, vert ou rouge un instant à la pose, blanc
+  clignotant pendant l'accusation). Rien à percer ; laissez-lui 3 mm pour que la carte
+  passe.
+- **La LED du lecteur à plat** se colle sous le couvercle, sous le trou de Ø 4 mm du
+  coin avant droit de la zone, à côté du RC522 (pas dessus : elle gênerait l'antenne).
+  Une goutte de colle chaude transparente dans le trou diffuse la lumière.
 - **Le RC522 à plat** se colle sous le couvercle, centré sous la zone marquée,
   antenne vers le haut. Il lit à travers 8 mm de bois environ (couvercle et
   façade) : une carte couchée (puce en bas, à placer sur la cible marquée) ou un
@@ -333,6 +342,7 @@ ce qui ne dépasse pas, et ce dont la mission ne se sert pas reste sous la plaqu
 | Horloge (afficheur à fleur du couvercle) | Fenêtre 50 × 19 mm | Cachée |
 | Fente à cartes | Fente 68 × 5 mm | Plaque pleine : la fente est fermée |
 | Lecteur à plat | Zone marquée (rien à découper) | Rien de marqué : il ne gêne pas |
+| LED du lecteur à plat | Trou Ø 4 mm | Cachée |
 | Haut-parleur | Grille de trous | Toujours percé (le son passe mal à travers le bois) |
 | Prise jack | Trou Ø 6 mm | Caché si l'écrou dépasse de moins de 3 mm |
 | Interrupteur à clé (≈ 10 mm de relief) | Trou Ø 12 mm | Trou Ø 22 mm et un cache rond, ou un cache en relief sur la façade |
