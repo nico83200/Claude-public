@@ -16,9 +16,11 @@
 |---|---|
 | **Pas d'enquête** | Ni coupable ni accusation : le but est de **sortir**. |
 | **Pas de rôles** | Tous matelots. Après le choix de la mission, l'introduction démarre aussitôt. |
-| **Le plateau** | La façade de la mission renomme les lecteurs : **MAIN GAUCHE**, **COMPARTIMENT** (centre), **MAIN DROITE**. L'écran les affiche sous ces noms. |
-| **COMPARTIMENT** | Un lieu posé au centre y reste : c'est là où se trouve l'équipe. Un lieu posé sur une main : 🔊 15. |
-| **Les mains** | Elles reçoivent des **objets**. Un objet seul est **utilisé dans le compartiment** ; deux objets ensemble se **combinent** (les deux clés). Un objet posé au centre : 🔊 16. |
+| **Le plateau** | La façade de la mission renomme les commandes : fente = **COMPARTIMENT** ou **MAIN GAUCHE**, lecteur à plat = **MAIN DROITE**, gros bouton = **DYNAMO**, clé = **CLÉ DE COMMANDEMENT**, voyants = **TABLEAU DE BORD**. L'écran affiche MAIN GAUCHE · COMPARTIMENT · MAIN DROITE. |
+| **COMPARTIMENT** | Une carte de compartiment glissée dans la fente : l'équipe y est, et y reste après avoir repris la carte, jusqu'au compartiment suivant. |
+| **Les mains** | Un objet dans la fente (main gauche) ou sur le lecteur à plat (main droite). Un objet seul est **utilisé dans le compartiment** ; un dans chaque main, ils se **combinent** (les deux clés). |
+| **Le tableau de bord** | Les 10 voyants : 1 porte, 2 courant, 3 hydraulique, 4 sécurité, 5 radio, 6 verrous, 7 O₂, 8 lumière, 9 Orque, 10 commandante. Rouge : bloqué ; orange clignotant : en cours ; vert : réglé ; la radio clignote en bleu quand l'Orque frappe, l'Orque pulse en bleu à l'approche. |
+| **La lumière sous la boîte** | Ambre, à l'intensité de la lumière du bord ; rouge pulsé sous 15 %. |
 | **La dynamo** | Le **gros bouton**. La lumière baisse en continu (de 100 % à 0 en **80 s**, puis en **160 s** une fois le courant rétabli) ; chaque appui rend **15 %**. L'écran s'assombrit sous 40 % ; à 0, **noir complet** : l'écran affiche « Noir complet · Actionnez la dynamo ! » et toute carte posée ne donne que 🔊 17. |
 | **Chrono = oxygène** | « O₂ 60:00 » dans l'en-tête, avec une barre qui se vide. Trois bonus rendent de l'air (+6, +5, +4 min). |
 | **Les objectifs** | Un appui sur la molette (hors épreuve) ouvre le **tableau de bord** : objectifs découverts, temps, lumière. La ligne du bas de l'écran les montre aussi. |
@@ -40,7 +42,7 @@
 | `J_hyd` | Pompe : rythme long-court-court × 3 sur le **bouton jaune** | Le sas a sa pression |
 | `J_console` | Poste de commande (avec courant) : **ABYSSE** | Les deux clés |
 | `coffre` | Coffre (O7) : **2479** | E10 : clé de la commandante (O6) |
-| `J_sec` | Clés O5 + O6 en main, poste de commande au centre : **4 boutons, 2 s** | La sécurité du sas est levée |
+| `J_sec` | Clés O5 + O6 en main, au poste de commande : **tourner la clé du pupitre** (15 s) | La sécurité du sas est levée |
 | `J_contact` | Salle radio (avec courant), 🎧 : **736** | L'Orque viendra : « seize bars » |
 | `J_verrous` | Clé à cliquet (O11) au sas, `J_hyd` et `J_sec` : **bleu, rouge, vert, jaune** | L'Orque accoste (si `J_contact`) |
 | `egal` | Égalisation : **16** | L'écoutille : **4 boutons, 4 s** → victoire |
@@ -109,7 +111,7 @@ s'assombrit par paliers.
 ### Lancement
 | Action | Écran | Son |
 |---|---|---|
-| Carte Monde sur un lecteur | Menu du Narval | `41/001` jingle, 🔊 13 |
+| Carte Monde dans la fente | Menu du Narval | `41/001` jingle, 🔊 13 |
 | Appui sur la molette (mission 4) | Le titre | 🔊 9 (pitch), 🔊 14 (le plateau, la dynamo) |
 | | O₂ 60:00, la lumière commence à baisser | `41/004` alarme, 🔊 10 (système), ambiance `41/002` |
 
@@ -132,7 +134,7 @@ s'assombrit par paliers.
 | 47 | **Local des batteries** | 🔊 29, **E6** : manivelle (O4), tableau des bancs, manuel |
 | 46 | **Multimètre** en main | 🔊 75, le relevé à l'écran |
 | 45 | **Salle des machines** | 🔊 32, **E7** : câble (O3), chaux sodée (O10), pied-de-biche (O12), schéma hydraulique |
-| 46 (14ᵉ min) | ⚡ **Court-circuit** | `41/011`, 🔊 123 : 5 couleurs à rejouer. 🔊 124, ou 🔊 125 et **noir complet** |
+| 46 (14ᵉ min) | ⚡ **Court-circuit** | `41/011`, 🔊 123 : les voyants deviennent des disjoncteurs (seul le 7 est allumé ; chaque disjoncteur bascule ses voisins). Tout rallumer en 60 s : **2, 5, 9**. `41/010`, 🔊 124, ou 🔊 125 et **noir complet** |
 | 43 | **Câble** en main, au local | 🔊 77 : C, **E**, H, ne pas ponter. Erreur : `41/011`, 🔊 78, −1 min. Juste : 🔊 79 |
 | 42 | Raccordement | 🔊 80 : **ABF**. Erreur : 🔊 81, −1 min |
 | 41 | Répartition | 🔊 82 : **3-2-2-1-1**, bouton vert. Surcharge : `41/011`, 🔊 83, −2 min, **noir complet**. Juste : `41/010`, 🔊 84, ambiance `41/003` |
@@ -151,7 +153,7 @@ s'assombrit par paliers.
 | 31 | **Carré des officiers** | 🔊 51, **E9** : coffre (O7), carte marine, cahier du second |
 | 30 (30ᵉ min) | 🛢️ **Fuite d'huile** (si l'hydraulique est faite et les verrous pas encore) | `41/005`, 🔊 128 : molette à zéro, 15 s. 🔊 129, ou 🔊 130 : l'hydraulique retombe (on réamorce la pompe ; les vannes restent ouvertes) |
 | 28 | **Coffre** en main | 🔊 96, **2479** → `41/008`, 🔊 98, **E10** : clé de la commandante (O6), lettre |
-| 26 | **Les deux clés** en main, poste de commande au centre | 🔊 93 : 4 boutons, 2 s. Raté : 🔊 94. Réussi : 🔊 95. Ailleurs : 🔊 92 |
+| 26 | **Les deux clés** en main, au poste de commande | 🔊 93 : tourner la clé du pupitre (15 s). Raté : 🔊 94. Réussi : 🔊 95. Ailleurs : 🔊 92 |
 
 ### 25:00 – 10:00 : l'Orque, les verrous, la sortie
 | Minute | Action | Résultat |
@@ -182,6 +184,6 @@ s'assombrit par paliers.
 | Partie | **Blanc chaud** : la jauge de lumière, qui se vide quand la dynamo faiblit ; elle **vacille** sous 30 % | Blanc faible quand une carte est posée |
 | Noir complet | Éteint | — |
 | Imprévu | Tournoiement rouge (alerte) | — |
-| Court-circuit | Les couleurs des disjoncteurs, une à une | — |
+| Court-circuit | (tournoiement rouge) | Les voyants : les disjoncteurs, en ambre |
 | Réussite / échec d'une épreuve | Vert / rouge, un instant | — |
 | Victoire | Arc-en-ciel | — |

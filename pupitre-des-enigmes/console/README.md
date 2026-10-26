@@ -14,7 +14,7 @@ aussi aux missions.
  │ │ 1 2 3 A │    ∴∴∴∴         ╭──────╮              │                       │          │
  │ │ 4 5 6 B │   ∴∴∴∴∴∴        │ ○○○○ │              │      ÉCRAN 3,5"       │          │
  │ │ 7 8 9 C │    ∴∴∴∴         ╰──────╯              │                       │          │
- │ │ * 0 # D │ haut-parleur   anneau 12 LED          └───────────────────────┘          │
+ │ │ * 0 # D │ haut-parleur   anneau 12 LED          └───────────────────────┘  ⊘ clé    │
  │ └─────────┘                                                              ◉ couleur   │
  │  ● ● ● ● ●                                     ┌──────────────┐                     │
  │  voyants 1-5               ▭▭▭▭▭▭▭▭▭▭          │  lecteur à   │                     │
@@ -46,6 +46,12 @@ aussi aux missions.
   couleur d'un objet posé dessus (jeton, pierre, fiole…).
 - **Le ruban sous la boîte** : la lumière d'ambiance sur la table, aux couleurs du
   monde ; une mission peut aussi s'en servir (alerte, lumière qui baisse…).
+- **L'interrupteur à clé** (métal, Ø 12 mm) : une vraie clé à tourner (console de
+  commandement, coffre, mise à feu…).
+
+Chaque mission se sert de **tout ou partie** de ces éléments. Sa façade cache ceux
+dont elle n'a pas besoin (§ 4.5), et son script les déclare (`"materiel"`, voir
+`firmware/SCRIPTS.md`), pour que l'écran ne parle pas d'un élément caché.
 
 ### Comment les missions voient les deux lecteurs
 
@@ -88,9 +94,10 @@ dans `firmware/src/broches.h`.
 | Ruban sous la boîte | Ruban WS2812B : 6 à 10 LED | 8 LED | (même ruban) |
 | Alimentation | Chargeur USB-C 5 V / 3 A et embase USB-C à visser (alimentation seule) | 1 + 1 | 12 € |
 | Interrupteur | Interrupteur à bascule, à encastrer | 1 | 1 € |
+| Interrupteur à clé | Métal, perçage Ø 12 mm, 2 positions (repos, tourné), avec 2 clés | 1 | 4 € |
 | Façades | Aimants néodyme 10 × 3 mm | 8 par façade | 4 € |
 | Divers | Résistances 1 kΩ, 330 Ω, 10 kΩ, condensateur 1000 µF, fils, plaque à souder | — | 6 € |
-| **Total** | | | **≈ 115 €** |
+| **Total** | | | **≈ 120 €** |
 
 ## 3. Câblage (ESP-32S, USB-C, CH340)
 
@@ -112,12 +119,13 @@ dans `firmware/src/broches.h`.
 | **LED** (une seule chaîne) | DIN | 25 (via 330 Ω) : anneau (12), LED de la fente, LED du plateau, voyants (10), ruban sous la boîte (8) |
 | Molette KY-040 | CLK / DT / SW | 34 / 35 / 32 |
 | Gros bouton | → GND (10 kΩ vers 3,3 V) | 39 |
+| **Interrupteur à clé** | → GND quand la clé est tournée (tirage interne) | 33 |
 | **Bus I2C** | SDA / SCL | **26 / 27** |
 | PCF8574 n° 1 : **le clavier** (adresse 0x20 : A0, A1, A2 à la masse) | P0 à P7 ← nappe du clavier, fils 1 à 8 (lignes 1-4, puis colonnes 1-4) | I2C |
 | PCF8574 n° 2 : **les boutons** (adresse 0x21 : A0 sur VCC) | P0 / P1 / P2 / P3 ← boutons rouge / bleu / jaune / vert, l'autre patte à la masse | I2C |
 | **Capteur de couleur** TCS34725 (adresse 0x29) | SDA / SCL, VIN 3,3 V, LED : laisser en l'air (allumée) | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
-| (libres) | — | 14, 15 et 33 |
+| (libres) | — | 14 et 15 |
 
 **L'ordre de la chaîne de LED compte** : le fil de données part de la GPIO 25, entre
 dans l'anneau, sort vers la LED de la fente, puis celle du plateau, puis les 10
@@ -217,10 +225,11 @@ avant gauche** (X vers la droite, Y vers l'arrière) :
 | Lecteur à plat | 29,5 | 12,5 | Rien à découper : une zone de 76 × 76 mm marquée sur la façade (le RC522 est dessous, à plat contre le couvercle) |
 | Capteur de couleur | 35,8 | 15,5 | Ø 12 mm (le module est dessous, capteur et LED tournés vers le haut). Façade qui le cache : pas de trou. |
 | Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase) |
+| Interrupteur à clé | 35,8 | 22,0 | Ø 12 mm |
 | 4 boutons d'arcade | 3,5 · 7,5 · 11,5 · 15,5 | 4,0 | 4 × Ø 30 mm, à 40 mm d'axe en axe |
 | Encodeur rotatif (molette) | 19,0 | 4,0 | Ø 7 mm (axe du KY-040) |
 | Bouton champignon (dynamo) | 29,5 | 4,0 | Selon le bouton : Ø 22 mm pour un champignon à visser, Ø 45 à 60 mm pour un gros dôme d'arcade |
-| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | Ø 10 mm, 3 mm de profondeur, sous la façade et dans le couvercle (polarités opposées) |
+| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | Ø 10 mm : collés **en surface** du couvercle (ils servent de cales de 3 mm, § 4.5) ; sous la façade, un aimant encastré en face (polarités opposées) ou une rondelle d'acier |
 
 **Par rapport au premier plan (trois fentes) :** une seule fente, au centre ; le
 lecteur à plat prend la place de la fente de droite ; les deux rangées de voyants
@@ -259,6 +268,29 @@ le premier trou de 30 mm aurait touché la paroi.
 - **Ruban sous la boîte** : collé sous le fond, près du bord avant, tourné vers la
   table ; ses fils remontent par un trou de 6 mm dans le fond. Les patins laissent
   la lumière s'étaler sur la table.
+
+### 4.5 Une façade par mission : montrer ou cacher
+
+Chaque mission a sa façade : **2 mm de contreplaqué**, découpée et décorée pour
+elle. Elle repose sur les **aimants collés en surface du couvercle** (3 mm
+d'épaisseur) : elle flotte donc 3 mm au-dessus, ce qui laisse la place de cacher
+ce qui ne dépasse pas, et ce dont la mission ne se sert pas reste sous la plaque.
+
+| Élément | Si la mission s'en sert | Sinon |
+|---|---|---|
+| Écran | Fenêtre (toujours) | — |
+| Clavier (membrane, ≈ 1 mm) | Fenêtre 70 × 78 mm | Caché |
+| Voyants, anneau de LED | Trous Ø 6 mm, cercle Ø 38 mm | Cachés (la lumière ne traverse pas 2 mm de bois peint) |
+| Capteur de couleur | Trou Ø 12 mm | Caché |
+| Fente à cartes | Fente 68 × 5 mm | Plaque pleine : la fente est fermée |
+| Lecteur à plat | Zone marquée (rien à découper) | Rien de marqué : il ne gêne pas |
+| Haut-parleur | Grille de trous | Toujours percé (le son passe mal à travers le bois) |
+| Prise jack | Trou Ø 6 mm | Caché si l'écrou dépasse de moins de 3 mm |
+| Interrupteur à clé (≈ 10 mm de relief) | Trou Ø 12 mm | Trou Ø 22 mm et un cache rond, ou un cache en relief sur la façade |
+| Boutons d'arcade, molette, gros bouton | Trous | Toujours découpés : ils dépassent trop pour être cachés |
+
+Le gabarit (`pdf/gabarit-facade.pdf`) donne toutes les découpes ; chaque façade
+n'en reprend que ce qu'il lui faut.
 
 ## 5. Les cartes et les objets
 

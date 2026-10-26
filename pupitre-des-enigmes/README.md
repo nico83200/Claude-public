@@ -1,12 +1,15 @@
 # Le Pupitre des Énigmes
 
 Une console d'escape game de table pour adultes (2 à 6 joueurs), construite
-autour d'un ESP32. Elle a un écran, **3 lecteurs RFID (QUI · OÙ · QUOI)**, des
-boutons, une molette, des voix pré-enregistrées et un **casque pour les messages
-privés**.
+autour d'un ESP32. Elle a un écran, une **fente** où l'on glisse les cartes et un
+**lecteur à plat** où l'on pose des objets (puces NFC), un **clavier 4×4**, des
+boutons, une molette, un **interrupteur à clé**, un **tableau de 10 voyants**, un
+**capteur de couleur**, un ruban lumineux sous la boîte, des voix
+pré-enregistrées et un **casque pour les messages privés**. Chaque mission
+utilise tout ou partie de ces éléments ; sa façade cache les autres.
 
 Le pupitre est **multi-mondes** : chaque univers se charge en posant sa **carte
-Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
+Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 
 ## Les mondes
 

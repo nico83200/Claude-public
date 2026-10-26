@@ -2,7 +2,8 @@
 
 Une mission est un fichier JSON (`mondes/<monde>/pupitre/mission-N.json`) que le
 moteur du pupitre exécute. Ce document en décrit toutes les clés. Les quatre
-missions livrées servent d'exemples complets :
+missions livrées servent d'exemples complets (la mission 4 se sert du clavier, du
+panneau de voyants, de la lumière sous la boîte et de l'interrupteur à clé) :
 [Haras](../mondes/haras/pupitre/mission-1.json) ·
 [Monte-Carlo](../mondes/casse/pupitre/mission-2.json) ·
 [Kepler-9](../mondes/kepler/pupitre/mission-3.json) ·
@@ -37,8 +38,14 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `titre` | Nom de la mission | `"Signal Perdu"` |
 | `dossier_voix`, `dossier_sons` | Dossiers des DFPlayer | `30`, `31` |
 | `chrono` | `mode` `"horloge"` (heure qui avance depuis `depart`) ou `"compte"` (compte à rebours, avec un `prefixe`) ; `duree` en minutes | `{"mode": "compte", "prefixe": "O₂ ", "duree": 75}` |
-| `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit) ou `"soupcon"` | `"soupcon"` |
-| `objets_combinables` | `true` : les objets se posent aussi sur QUI ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
+| `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit), `"soupcon"` ou `"lumiere"` (la lumière de la dynamo) | `"soupcon"` |
+| `objets_combinables` | `true` : QUI et QUOI sont les deux mains des joueurs (pupitre à deux lecteurs : la fente et le plateau) ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
+| `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`. Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
+| `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques quand une carte arrive sur la mauvaise zone d'un pupitre à trois lecteurs (`dire_lieu`, `dire_objet`, `dire_perso`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
+| `dynamo` | La lumière à entretenir au gros bouton (`bouton`) : elle se vide en `duree` secondes, chaque appui rend `gain` %, à zéro c'est le noir complet et les cartes ne donnent que la réplique `noir` | `{"bouton": "GROS", "duree": 80, "gain": 15, "noir": 17}` |
+| `objectifs` | Le tableau de bord (appui sur la molette) et la ligne du bas : `nom`, `visible` et `fait` (conditions) | `[{"nom": "Rétablir le courant", "visible": "J_porte", "fait": "J_courant"}]` |
+| `panneau` | Le panneau de 10 voyants (§ 11) | |
+| `socle` | La lumière sous la boîte (§ 11) | |
 | `soupcon` | Jauge de soupçon : `max` (défaite), `annulation` (un rôle peut annuler une hausse), `alerte` (réplique à un seuil) | voir Monte-Carlo |
 | `cartes` | Toutes les cartes de la mission : `type` (`lieu`, `perso`, `objet`, `role`) et `nom` | `{"L1": {"type": "lieu", "nom": "L'Écurie"}}` |
 | `voix` | Nom affiché sous chaque sous-titre, par voix | `{"helene": "Hélène Vasseur"}` |
@@ -74,13 +81,15 @@ Les règles sont lues **dans l'ordre** : la première qui correspond gagne. On
 
 | Événement | Se produit quand… | `quand` |
 |---|---|---|
-| Lieu | une carte Lieu est posée sur OÙ | `{"lieu": "L1"}` |
+| Lieu | une carte Lieu arrive sur OÙ | `{"lieu": "L1"}` |
 | Personnage | une carte Personnage est posée sur QUI, QUOI vide | `{"qui": "P2"}` |
 | Objet | une carte Objet est posée sur QUOI, QUI vide | `{"quoi": "O1"}` |
 | Paire | un personnage et un objet sont posés ensemble | `{"qui": "P1", "quoi": "O3"}` |
 | Rôle | une carte Rôle est posée ; les autres zones donnent ses cibles | `{"role": "R5", "qui": "P4"}` |
 | Objet dans un lieu | un objet est posé alors qu'un lieu est sur OÙ | `{"lieu": "L2", "quoi": "O5"}` |
 | Combinaison | deux objets sur QUI et QUOI (avec `objets_combinables`), dans n'importe quel ordre | `{"combiner": ["O1", "O3"]}` |
+| Couleur | un objet est posé sur le capteur de couleur (`"-"` : il est retiré) | `{"couleur": "rouge"}` |
+| Clé | l'interrupteur à clé est tourné, ou revient au repos | `{"cle": "tournee"}` · `{"cle": "repos"}` |
 | Événement | une action `evenement` le déclenche | `{"evenement": "croisement2"}` |
 
 Une **combinaison** qu'aucune règle ne prévoit est traitée comme le dernier objet
@@ -92,6 +101,14 @@ l'événement « rôle ».
 
 Valeurs possibles : un identifiant (`"P1"`), une liste (`["L8", "L9"]`), `"*"`
 (n'importe quelle carte) ou `"-"` (zone vide).
+
+**Le pupitre à deux lecteurs** (une fente et un lecteur à plat) parle aux scripts
+avec les mêmes trois zones : chaque carte rejoint la zone de son type (lieu → OÙ,
+personnage → QUI, objet → QUOI ; avec `objets_combinables`, l'objet de la fente
+va sur QUI et celui du plateau sur QUOI), une carte Rôle prend la zone que l'autre
+lecteur laisse libre, et **le lieu reste sur OÙ** quand on reprend sa carte,
+jusqu'au lieu suivant. Les scripts écrits pour trois lecteurs marchent tels quels.
+Retirer la carte d'un lieu abandonne toujours une épreuve `quitter`.
 
 ## 4. Les conditions
 
@@ -109,7 +126,10 @@ parenthèses. Un nom vaut :
 | `erreurs`, `indices`, `indices_payants` | accusations fausses, indices donnés, indices payants |
 | `pouvoir_R3` | utilisations restantes du pouvoir |
 | `role_R3` | 1 si le rôle est dans la partie |
-| `qui_P1`, `ou_L2`, `quoi_O3` | 1 si cette carte est posée sur cette zone |
+| `qui_P1`, `ou_L2`, `quoi_O3` | 1 si cette carte est sur cette zone |
+| `lumiere` | la lumière de la dynamo, de 0 à 100 |
+| `couleur_rouge` | 1 si un objet rouge est sur le capteur de couleur |
+| `cle` | 1 si l'interrupteur à clé est tourné |
 
 Une condition vide est vraie. Le moteur écrit dans le journal série toute
 condition mal écrite.
@@ -138,6 +158,9 @@ condition mal écrite.
 | `{"attendre": 10000}` | Pause en millisecondes |
 | `{"annulable": {"role": "R6", "pouvoir": "R6_annulation", "secondes": 10, "alors": [ … ]}}` | Pendant 10 s, poser la carte R6 exécute `alors` (et consomme le pouvoir) |
 | `{"effet": "alerte", "duree": 5000}` | Animation de l'anneau : `alerte`, `succes`, `echec` |
+| `{"dynamo": {"duree": 160}}` · `{"dynamo": {"charge": 0}}` | La lumière se vide moins vite · noir complet |
+| `{"voyant": {"n": 3, "couleur": "orange", "effet": "clignote", "duree": 5000}}` | Imposer un voyant (§ 11) ; `"n": "tous"` ; sans `couleur`, il revient au `panneau` |
+| `{"socle": {"couleur": "rouge", "effet": "pulse", "duree": 8000}}` | Imposer la lumière sous la boîte (§ 11) |
 | `{"victoire": true}` · `{"defaite": "temps"}` | Terminer la partie (la défaite joue `fins.<cause>`) |
 
 ## 6. Les épreuves
@@ -150,17 +173,17 @@ Toutes les épreuves acceptent :
 | `titre`, `texte` | L'écran |
 | `intro` | Une action jouée au lancement (souvent `{"dire": n}`) |
 | `reussite`, `echec` | Les actions à la fin |
-| `secondes` | Limite de temps (codes, choix, `ensemble`, `molette_zero`…) |
+| `secondes` | Limite de temps (codes, choix, `ensemble`, `molette_zero`, `ordre`, `voyants`, `cle`…) |
 | `quitter` | `true` : retirer la carte Lieu abandonne l'épreuve, sans pénalité |
 | `aides` | Les rôles qui aident : `{"R1": {"type": "barrer", "dire": 48}}` |
 
 | Type | Les joueurs… | Clés propres |
 |---|---|---|
-| `code` | règlent des chiffres à la molette (appui : champ suivant, rouge : effacer) | `solution` ; `champs` (largeur de chaque champ, ex. `[2, 2, 2]` pour un coffre 17-34-22) ; `ecoute` (stéthoscope : `dossier`, `tic`, `clac`, `audibles`) ; `boucle_casque` (`dossier`, `n`) |
-| `lettres` | règlent des lettres A–Z | `solution` |
+| `code` | règlent des chiffres à la molette (appui : champ suivant, rouge : effacer) ou les tapent au clavier (le code est essayé au dernier chiffre) | `solution` ; `champs` (largeur de chaque champ, ex. `[2, 2, 2]` pour un coffre 17-34-22) ; `ecoute` (stéthoscope : `dossier`, `tic`, `clac`, `audibles`) ; `boucle_casque` (`dossier`, `n`) |
+| `lettres` | règlent des lettres A–Z (au clavier : 2 = ABC… comme sur un téléphone) | `solution` |
 | `choix` | appuient sur un bouton de couleur | `options` (4 textes), `bonne` (0 rouge … 3 vert), `neutre` + `si_neutre`, ou `actions` (une liste par bouton) |
 | `ensemble` | tiennent les 4 boutons enfoncés | `tenir` (secondes) |
-| `rythme` | reproduisent un rythme au gros bouton | `motif` (instants en ms), `repetitions`, `son`, `tolerance` (ms) |
+| `rythme` | reproduisent un rythme au gros bouton, ou sur un bouton de couleur | `motif` (instants en ms), `repetitions`, `son`, `tolerance` (ms), `bouton` (`"JAUNE"`…) |
 | `sequence` | rejouent une suite de couleurs (20 s) | `longueur` |
 | `immobile` | ne touchent à rien | `secondes` |
 | `molette_zero` | ramènent la molette à zéro | `depart` |
@@ -168,6 +191,9 @@ Toutes les épreuves acceptent :
 | `energie` | répartissent des unités entre des modules (vert : valider) | `modules`, `total`, `max`, `regles` (`expr` avec `m0`, `m1`… et `somme`, `texte`), `erreur` |
 | `traitre` | se passent le casque pour le tirage au sort du traître | `minimum`, `traitre`, `loyal`, `suivant` (répliques) |
 | `appui` | appuient sur le gros bouton (l'anneau clignote) | `secondes` |
+| `ordre` | appuient sur les boutons de couleur dans un ordre à déduire (une erreur : échec) | `ordre` (`["BLEU", "ROUGE", "VERT", "JAUNE"]`) |
+| `voyants` | basculent des interrupteurs (clavier 1 à 9 et 0, ou molette + appui) jusqu'au motif voulu, sur le panneau et à l'écran | `depart`, `cible` (`"1111111111"`), `liens` (`"voisins"`, ou `{"1": [1, 2]}`), `couleur`, `validation` (`"auto"`, ou `"#"` : vérifier au bouton vert) |
+| `cle` | tournent l'interrupteur à clé | `secondes` |
 
 Les aides des rôles pendant une épreuve :
 
@@ -234,7 +260,40 @@ Le gros bouton lance l'accusation avec les trois cartes posées.
 Après une défaite (`temps`, `erreurs` ou `soupcon`), `solution` est jouée. Les
 parties gagnées sont ajoutées à `/mondes/<monde>/scores.json`.
 
-## 11. Ce que le pupitre dit tout seul
+## 11. Le panneau de voyants et la lumière sous la boîte
+
+Le **panneau** a 10 voyants (2 rangées de 5), que la façade de la mission montre
+ou cache. Chaque voyant suit une liste d'états : le premier dont la condition est
+vraie s'affiche (réévalué plusieurs fois par seconde). Sans état vrai, il est éteint.
+
+```json
+"panneau": { "voyants": [
+  { "nom": "Courant", "etats": [ {"si": "J_courant", "couleur": "vert"},
+                                 {"si": "J_raccord", "couleur": "orange", "effet": "clignote"},
+                                 {"si": "1", "couleur": "rouge"} ] },
+  { "nom": "Lumière", "etats": [ {"si": "lumiere>=40", "couleur": "ambre", "intensite": "lumiere"} ] }
+] }
+```
+
+- `couleur` : `rouge`, `vert`, `bleu`, `jaune`, `orange`, `ambre`, `blanc`,
+  `violet`, `cyan`, `rose`, `eteint`, ou `"#rrggbb"`.
+- `effet` : `fixe`, `clignote`, `rapide`, `pulse` (respire), `faible`.
+- `intensite` : une expression de 0 à 100 (ex. `"lumiere"`).
+- `nom` : pour la façade et le panneau Wi-Fi.
+
+La **lumière sous la boîte** (`socle`) fait l'ambiance d'elle-même : la couleur
+d'accent du monde, qui respire doucement, et les effets de l'anneau. Une mission
+peut la piloter avec la même liste d'états :
+
+```json
+"socle": { "etats": [ {"si": "lumiere<15", "couleur": "rouge", "effet": "pulse"},
+                      {"si": "1", "couleur": "ambre", "intensite": "lumiere"} ] }
+```
+
+Les actions `voyant` et `socle` (§ 5) imposent une couleur un moment, par-dessus
+ces états ; l'épreuve `voyants` (§ 6) prend le panneau le temps de l'épreuve.
+
+## 12. Ce que le pupitre dit tout seul
 
 La voix du pupitre (dossier 91, `console/audio/repliques.json`) et ses bruitages
 (dossier 90) sont utilisés par le moteur sans que le script ait à les citer :
@@ -242,7 +301,7 @@ mauvaise zone (7 à 9), carte inconnue (10), carte d'un autre monde (4), casque
 (5 et 6), pause et reprise (11 et 12)… Les bruitages : bip (2), erreur (3),
 carillon du casque (6), roulement de l'accusation (7).
 
-## 12. Vérifier
+## 13. Vérifier
 
 ```
 python3 outils/verifier_scripts.py   # répliques, bruitages, cartes, types d'épreuves

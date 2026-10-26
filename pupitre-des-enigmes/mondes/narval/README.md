@@ -8,7 +8,7 @@ pour adultes, où tous les joueurs sont des matelots, à égalité.
 |---|---|
 | **Mission** | 4 · [Dernier souffle](mission-4-dernier-souffle.md) (🔴 difficile, 60 min, sans rôles) · [déroulé minute par minute](mission-4-deroule.md) |
 | **Carte Monde** | « Sous-marin Narval », silhouette de sous-marin et hublot |
-| **Plateau** | Façade propre à la mission, qui **renomme les lecteurs** : MAIN GAUCHE · COMPARTIMENT · MAIN DROITE, et le gros bouton **DYNAMO** |
+| **Plateau** | Façade propre à la mission : la fente est le **COMPARTIMENT** (ou la main gauche), le lecteur à plat la **MAIN DROITE**, le gros bouton la **DYNAMO**, l'interrupteur à clé la **CLÉ DE COMMANDEMENT**, les 10 voyants le **TABLEAU DE BORD** ; le capteur de couleur est caché |
 | **Thème écran** | Acier bleu nuit, titres ambre, alertes rouges |
 | **Lumières** | L'anneau est la **lumière du bord** : blanc chaud, il se vide quand la dynamo faiblit et vacille sous 30 % |
 | **La dynamo** | Le gros bouton, à actionner régulièrement : sans lui, l'écran s'assombrit puis s'éteint, et les cartes ne donnent plus rien |

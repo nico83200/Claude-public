@@ -11,14 +11,15 @@
   .page:last-child { break-after: auto; }
   .notice { padding: 6mm 9mm 0; }
   .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
-  .moitie { width: 195mm; height: 260mm; margin: 0 auto; position: relative; }
-  .moitie svg { width: 195mm; height: 260mm; display: block; }
-  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 3mm; letter-spacing: .05em; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
 </style>
 </head>
 <body>
 
-<!-- Le dessin du plateau (380 × 260 mm), copié dans chaque page par le script en bas. -->
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié
+     dans chaque page par le script en bas. -->
 <script type="text/plain" id="modele">
   <defs>
     <linearGradient id="acier" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34454f"/><stop offset=".55" stop-color="#25333c"/><stop offset="1" stop-color="#1a252c"/></linearGradient>
@@ -26,136 +27,140 @@
     <pattern id="danger" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#1a252c"/><rect width="4" height="8" fill="#f0c060"/></pattern>
     <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#0f171c"/></pattern>
     <g id="rivet"><circle r="2.2" fill="#56666f"/><circle r="2.2" fill="none" stroke="#0f171c" stroke-width=".4"/><circle cx="-.6" cy="-.6" r=".8" fill="#8b9aa2"/></g>
-    <g id="main-g"><path d="M-6 9C-9 4-12-1-11-3c1-1.5 3-1 4 .5l2 3V-12c0-1.5 2.5-1.5 2.5 0v7-9c0-1.6 2.6-1.6 2.6 0v9-7.5c0-1.6 2.6-1.6 2.6 0v8-5c0-1.5 2.5-1.5 2.5 0V6c0 4-3 7-7 7H-1C-3 13-4.5 11.5-6 9Z" fill="none" stroke="#f0c060" stroke-width="1.6" stroke-linejoin="round"/></g>
-    <g id="sas"><circle r="11" fill="none" stroke="#f0c060" stroke-width="1.6"/><circle r="4" fill="none" stroke="#f0c060" stroke-width="1.6"/><path d="M0-4V-11M0 4V11M-4 0H-11M4 0H11" stroke="#f0c060" stroke-width="1.6"/></g>
+    <g id="main"><path d="M-6 9C-9 4-12-1-11-3c1-1.5 3-1 4 .5l2 3V-12c0-1.5 2.5-1.5 2.5 0v7-9c0-1.6 2.6-1.6 2.6 0v9-7.5c0-1.6 2.6-1.6 2.6 0v8-5c0-1.5 2.5-1.5 2.5 0V6c0 4-3 7-7 7H-1C-3 13-4.5 11.5-6 9Z" fill="none" stroke="#f0c060" stroke-width="1.4" stroke-linejoin="round"/></g>
+    <g id="decoupe"><circle r="1" fill="none"/></g>
   </defs>
 
   <!-- la plaque -->
-  <rect x=".5" y=".5" width="379" height="259" rx="10" fill="url(#acier)" stroke="#0f171c" stroke-width="1"/>
-  <rect x=".5" y=".5" width="379" height="259" rx="10" fill="url(#brosse)"/>
-  <rect x="5" y="5" width="370" height="250" rx="7" fill="none" stroke="#5c6c75" stroke-width=".6" opacity=".7"/>
-  <g>
-    <use href="#rivet" x="12" y="12"/><use href="#rivet" x="368" y="12"/><use href="#rivet" x="12" y="248"/><use href="#rivet" x="368" y="248"/>
-    <use href="#rivet" x="100" y="12"/><use href="#rivet" x="280" y="12"/><use href="#rivet" x="100" y="248"/><use href="#rivet" x="280" y="248"/>
-    <use href="#rivet" x="12" y="130"/><use href="#rivet" x="368" y="130"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#acier)" stroke="#0f171c" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#brosse)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#5c6c75" stroke-width=".6" opacity=".7"/>
+  <g><use href="#rivet" x="100" y="9"/><use href="#rivet" x="280" y="9"/><use href="#rivet" x="100" y="253"/><use href="#rivet" x="280" y="253"/>
+     <use href="#rivet" x="9" y="131"/><use href="#rivet" x="371" y="131"/></g>
+  <!-- aimants (repères) -->
+  <g fill="none" stroke="#5c6c75" stroke-width=".5"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+
+  <!-- le clavier de la console -->
+  <rect x="19" y="19" width="78" height="86" rx="5" fill="#141d23" stroke="#5c6c75" stroke-width="1.2"/>
+  <g><use href="#rivet" x="23" y="23"/><use href="#rivet" x="93" y="23"/><use href="#rivet" x="23" y="101"/><use href="#rivet" x="93" y="101"/></g>
+  <rect x="23" y="23" width="70" height="78" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.5" fill="#5c6c75">✂ CLAVIER</text>
+
+  <!-- l'interphone (haut-parleur) -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="#5c6c75" stroke-width="1"/>
+  <text x="133" y="91" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#c9d4da" letter-spacing=".8">INTERPHONE</text>
+
+  <!-- la lumière du bord (anneau de LED) -->
+  <circle cx="190" cy="62" r="21.5" fill="none" stroke="#f0c060" stroke-width=".8" opacity=".6"/>
+  <circle cx="190" cy="62" r="19" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="91" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#c9d4da" letter-spacing=".8">LUMIÈRE DU BORD</text>
+
+  <!-- l'écran : un hublot boulonné -->
+  <rect x="236" y="30" width="98" height="64" rx="9" fill="#141d23" stroke="#5c6c75" stroke-width="1.4"/>
+  <g><use href="#rivet" x="242" y="36"/><use href="#rivet" x="328" y="36"/><use href="#rivet" x="242" y="88"/><use href="#rivet" x="328" y="88"/></g>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.5" fill="#5c6c75">✂ ÉCRAN 3,5"</text>
+
+  <!-- la clé de commandement -->
+  <circle cx="358" cy="40" r="10" fill="#1a252c" stroke="#f0c060" stroke-width="1.2"/>
+  <circle cx="358" cy="40" r="6" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="358" y="58" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.2" fill="#f0c060">CLÉ DE</text>
+  <text x="358" y="63" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.2" fill="#f0c060">COMMANDEMENT</text>
+
+  <!-- le tableau de bord : 10 voyants -->
+  <rect x="35" y="108" width="90" height="56" rx="4" fill="none" stroke="#5c6c75" stroke-width=".6"/>
+  <rect x="58" y="106" width="44" height="5" fill="#25333c"/>
+  <text x="80" y="110.3" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="4.4" fill="#f0c060" letter-spacing="1">TABLEAU DE BORD</text>
+  <g fill="#0a0f12" stroke="#ffffff" stroke-width=".45" stroke-dasharray="1 .8">
+    <circle cx="46.7" cy="116" r="3"/><circle cx="63.3" cy="116" r="3"/><circle cx="80" cy="116" r="3"/><circle cx="96.7" cy="116" r="3"/><circle cx="113.3" cy="116" r="3"/>
+    <circle cx="46.7" cy="148" r="3"/><circle cx="63.3" cy="148" r="3"/><circle cx="80" cy="148" r="3"/><circle cx="96.7" cy="148" r="3"/><circle cx="113.3" cy="148" r="3"/>
   </g>
+  <g font-family="Share Tech Mono, monospace" font-size="3.1" fill="#c9d4da" text-anchor="middle">
+    <text x="46.7" y="124">PORTE</text><text x="63.3" y="124">COURANT</text><text x="80" y="124">HYDRAU.</text><text x="96.7" y="124">SÉCURITÉ</text><text x="113.3" y="124">RADIO</text>
+    <text x="46.7" y="156">VERROUS</text><text x="63.3" y="156">O₂</text><text x="80" y="156">LUMIÈRE</text><text x="96.7" y="156">ORQUE</text><text x="113.3" y="156">CMDT</text>
+  </g>
+
+  <!-- la fente : compartiment, ou main gauche -->
+  <rect x="150" y="118" width="80" height="28" rx="5" fill="#1a252c" stroke="#f0c060" stroke-width="1.4"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="126" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="5.6" fill="#f0c060" letter-spacing=".8">COMPARTIMENT</text>
+  <text x="190" y="142" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.2" fill="#c9d4da">ou MAIN GAUCHE (un objet)</text>
+
+  <!-- le lecteur à plat : la main droite -->
+  <rect x="257" y="99" width="76" height="76" rx="6" fill="#1a252c" stroke="#f0c060" stroke-width="1.6"/>
+  <rect x="257" y="99" width="76" height="13" rx="6" fill="#f0c060"/><rect x="257" y="106" width="76" height="6" fill="#f0c060"/>
+  <text x="295" y="108.5" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="7" fill="#1a252c" letter-spacing="1">MAIN DROITE</text>
+  <circle cx="295" cy="139" r="11" fill="none" stroke="#f0c060" stroke-width=".8" stroke-dasharray="2 1.5"/>
+  <use href="#main" transform="translate(295 139) scale(1.5)"/>
+  <text x="295" y="168" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.2" fill="#c9d4da">POSEZ L'OBJET ICI</text>
+
+  <!-- le téléphone (casque) -->
+  <circle cx="358" cy="167" r="7" fill="none" stroke="#5c6c75" stroke-width="1"/>
+  <circle cx="358" cy="167" r="3" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="358" y="182" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.5" fill="#c9d4da">TÉLÉPHONE</text>
 
   <!-- cartouche -->
   <g font-family="Share Tech Mono, monospace" fill="#c9d4da">
-    <text x="22" y="30" font-family="Source Sans, sans-serif" font-weight="900" font-size="13" letter-spacing="1.5" fill="#f0c060">S-417 · NARVAL</text>
-    <text x="22" y="40" font-size="6" letter-spacing=".8">MARINE DE VALDARIE</text>
-    <text x="22" y="49" font-size="6" letter-spacing=".8">POSTE DE SURVIE</text>
+    <text x="22" y="182" font-family="Source Sans, sans-serif" font-weight="900" font-size="11" letter-spacing="1.2" fill="#f0c060">S-417 · NARVAL</text>
+    <text x="22" y="190" font-size="5" letter-spacing=".8">MARINE DE VALDARIE · POSTE DE SURVIE</text>
   </g>
-
-  <!-- l'écran : un hublot boulonné -->
-  <rect x="142" y="10" width="96" height="70" rx="9" fill="#141d23" stroke="#5c6c75" stroke-width="1.4"/>
-  <g><use href="#rivet" x="148" y="16"/><use href="#rivet" x="232" y="16"/><use href="#rivet" x="148" y="74"/><use href="#rivet" x="232" y="74"/></g>
-  <rect x="152" y="18" width="76" height="52" rx="2" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
-  <text x="190" y="47" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#5c6c75">✂ DÉCOUPE · ÉCRAN 3,5"</text>
-
-  <!-- la lumière du bord (anneau de LED) -->
-  <circle cx="268" cy="46" r="21" fill="none" stroke="#f0c060" stroke-width=".8" opacity=".6"/>
-  <circle cx="268" cy="46" r="18.5" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
-  <circle cx="268" cy="46" r="11.5" fill="url(#acier)" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
-  <text x="268" y="77" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5.5" fill="#c9d4da" letter-spacing=".8">LUMIÈRE DU BORD</text>
-
-  <!-- l'interphone (haut-parleur) -->
-  <circle cx="335" cy="46" r="19" fill="url(#grille-hp)" stroke="#5c6c75" stroke-width="1"/>
-  <text x="335" y="77" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5.5" fill="#c9d4da" letter-spacing=".8">INTERPHONE</text>
-
-  <!-- les trois lecteurs -->
-  <g font-family="Source Sans, sans-serif" font-weight="900" text-anchor="middle">
-    <g transform="translate(80 136)">
-      <rect x="-40" y="-42" width="80" height="84" rx="8" fill="#1a252c" stroke="#f0c060" stroke-width="1.4"/>
-      <rect x="-40" y="-42" width="80" height="15" rx="8" fill="#f0c060"/><rect x="-40" y="-33" width="80" height="6" fill="#f0c060"/>
-      <text y="-31" font-size="8.5" fill="#1a252c" letter-spacing="1">MAIN GAUCHE</text>
-      <use href="#main-g" transform="translate(0 4) scale(1.6) scale(-1 1)"/>
-      <text y="34" font-size="5" font-family="Share Tech Mono, monospace" font-weight="400" fill="#c9d4da" letter-spacing=".5">UN OBJET</text>
-    </g>
-    <g transform="translate(190 136)">
-      <rect x="-40" y="-42" width="80" height="84" rx="8" fill="#1a252c" stroke="#f0c060" stroke-width="2.2"/>
-      <rect x="-40" y="-42" width="80" height="15" rx="8" fill="#f0c060"/><rect x="-40" y="-33" width="80" height="6" fill="#f0c060"/>
-      <text y="-31" font-size="8.5" fill="#1a252c" letter-spacing="1">COMPARTIMENT</text>
-      <use href="#sas" transform="translate(0 4) scale(1.5)"/>
-      <text y="34" font-size="5" font-family="Share Tech Mono, monospace" font-weight="400" fill="#c9d4da" letter-spacing=".5">OÙ VOUS ÊTES</text>
-    </g>
-    <g transform="translate(300 136)">
-      <rect x="-40" y="-42" width="80" height="84" rx="8" fill="#1a252c" stroke="#f0c060" stroke-width="1.4"/>
-      <rect x="-40" y="-42" width="80" height="15" rx="8" fill="#f0c060"/><rect x="-40" y="-33" width="80" height="6" fill="#f0c060"/>
-      <text y="-31" font-size="8.5" fill="#1a252c" letter-spacing="1">MAIN DROITE</text>
-      <use href="#main-g" transform="translate(0 4) scale(1.6)"/>
-      <text y="34" font-size="5" font-family="Share Tech Mono, monospace" font-weight="400" fill="#c9d4da" letter-spacing=".5">UN OBJET</text>
-    </g>
-  </g>
-  <g fill="#0a0f12" stroke="#ffffff" stroke-width=".4" stroke-dasharray="1 .8"><circle cx="80" cy="186" r="2.6"/><circle cx="190" cy="186" r="2.6"/><circle cx="300" cy="186" r="2.6"/></g>
-  <text x="135" y="137" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="9" fill="#f0c060" opacity=".75">+</text>
-  <text x="245" y="137" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="9" fill="#f0c060" opacity=".75">+</text>
 
   <!-- les quatre boutons de couleur -->
-  <g>
-    <circle cx="30" cy="224" r="15" fill="none" stroke="#e5484d" stroke-width="2.4"/>
-    <circle cx="64" cy="224" r="15" fill="none" stroke="#3e7bfa" stroke-width="2.4"/>
-    <circle cx="98" cy="224" r="15" fill="none" stroke="#f5b83d" stroke-width="2.4"/>
-    <circle cx="132" cy="224" r="15" fill="none" stroke="#30a46c" stroke-width="2.4"/>
-    <g fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="30" cy="224" r="12"/><circle cx="64" cy="224" r="12"/><circle cx="98" cy="224" r="12"/><circle cx="132" cy="224" r="12"/></g>
-    <text x="81" y="203" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="6" fill="#c9d4da" letter-spacing="1.2">QUATRE MAINS · TOUS ENSEMBLE</text>
+  <text x="95" y="203" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#c9d4da" letter-spacing="1">QUATRE MAINS · TOUS ENSEMBLE</text>
+  <g fill="none" stroke-width="2.4">
+    <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
+    <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
   </g>
+  <g fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/></g>
 
-  <!-- la molette -->
-  <circle cx="190" cy="224" r="14" fill="none" stroke="#5c6c75" stroke-width="1.2"/>
-  <g stroke="#5c6c75" stroke-width=".8"><path d="M190 207v3M190 238v3M173 224h3M204 224h3M178 212l2 2M200 234l2 2M202 212l-2 2M180 234l-2 2"/></g>
-  <circle cx="190" cy="224" r="4" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
-  <text x="190" y="203" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="6" fill="#c9d4da" letter-spacing="1">TABLEAU DE BORD</text>
-  <text x="190" y="252" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#8b9aa2">tourner · appuyer</text>
+  <!-- la molette : le tableau de bord à l'écran -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="#5c6c75" stroke-width="1.2"/>
+  <g stroke="#5c6c75" stroke-width=".8"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <circle cx="190" cy="222" r="3.5" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="203" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#c9d4da">OBJECTIFS</text>
 
   <!-- la dynamo (gros bouton) -->
-  <circle cx="252" cy="226" r="29" fill="url(#danger)" stroke="#0f171c" stroke-width="1"/>
-  <circle cx="252" cy="226" r="23" fill="#1a252c" stroke="#f0c060" stroke-width="1"/>
-  <circle cx="252" cy="226" r="15" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
-  <text x="330" y="224" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="13" fill="#f0c060" letter-spacing="2">DYNAMO</text>
-  <text x="330" y="235" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5.5" fill="#f0c060">APPUYEZ</text>
-  <text x="330" y="242" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5.5" fill="#f0c060">RÉGULIÈREMENT !</text>
-  <path d="M291 226h10" stroke="#f0c060" stroke-width="1.2"/><path d="M299 222l4 4-4 4" fill="none" stroke="#f0c060" stroke-width="1.2" transform="rotate(180 297 226)"/>
-
-  <!-- le casque -->
-  <circle cx="358" cy="140" r="7" fill="none" stroke="#5c6c75" stroke-width="1"/>
-  <circle cx="358" cy="140" r="3.5" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
-  <text x="358" y="125" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="5" fill="#c9d4da">TÉLÉPHONE</text>
-  <path d="M352 159v-4a6 6 0 0 1 12 0v4" fill="none" stroke="#c9d4da" stroke-width="1"/><rect x="350.5" y="157" width="3" height="5" rx="1" fill="#c9d4da"/><rect x="362.5" y="157" width="3" height="5" rx="1" fill="#c9d4da"/>
+  <circle cx="295" cy="222" r="30" fill="url(#danger)" stroke="#0f171c" stroke-width="1"/>
+  <circle cx="295" cy="222" r="23" fill="#1a252c" stroke="#f0c060" stroke-width="1"/>
+  <circle cx="295" cy="222" r="11" fill="#0a0f12" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="222" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="900" font-size="9" fill="#f0c060" letter-spacing="1.2">DYNAMO</text>
+  <text x="351" y="231" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.5" fill="#f0c060">APPUYEZ</text>
+  <text x="351" y="237" text-anchor="middle" font-family="Share Tech Mono, monospace" font-size="4.5" fill="#f0c060">RÉGULIÈREMENT !</text>
 </script>
 
 <div class="page notice">
   <div class="bandeau"><span>Le Pupitre des Énigmes · Sous-marin Narval</span><span>Plateau de la mission 4</span></div>
   <h1 style="margin-bottom:2mm">Le plateau du Narval</h1>
-  <p>Pour « Dernier souffle », le pupitre s'habille d'un <strong>plateau</strong> qui renomme ses commandes : les lecteurs deviennent les
-     <strong>mains</strong> de l'équipage et le <strong>compartiment</strong> où il se trouve, le gros bouton devient la <strong>dynamo</strong>.
-     Le pupitre affiche les mêmes noms à l'écran.</p>
-  <div class="apercu"><svg viewBox="0 0 380 260" class="copie"></svg></div>
+  <p>Pour « Dernier souffle », le pupitre s'habille d'un <strong>plateau</strong> qui renomme ses commandes : la fente reçoit le
+     <strong>compartiment</strong> où se trouve l'équipe (ou un objet dans la <strong>main gauche</strong>), le lecteur à plat est la
+     <strong>main droite</strong>, le gros bouton la <strong>dynamo</strong>, l'interrupteur à clé la <strong>clé de commandement</strong>,
+     et les dix voyants forment le <strong>tableau de bord</strong> du sous-marin. Le capteur de couleur ne sert pas : le plateau le cache.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
   <h3>Fabrication</h3>
   <ol style="font-size:10pt">
     <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
     <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Faites coïncider les repères ▲.</li>
-    <li>Collez sur la façade aimantée (carton fort, contreplaqué fin ou PVC de 2 mm), plastifiez si possible.</li>
-    <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, anneau de LED, boutons, molette, prise casque, LED des lecteurs.
-        Les lecteurs ne se découpent pas : les cartes se lisent à travers le plateau.</li>
+    <li>Collez sur la façade de 2 mm (contreplaqué), plastifiez si possible.</li>
+    <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, anneau de LED, voyants, fente, clé, boutons, molette,
+        prise casque. Le lecteur à plat et le capteur de couleur ne se découpent pas.</li>
   </ol>
-  <p class="petit">Gabarit pour un pupitre de 38 × 26 cm, disposé comme dans console/README.md. Vérifiez les positions sur le vôtre avant de découper.</p>
+  <p class="petit">Cotes du gabarit commun (pdf/gabarit-facade.pdf). Vérifiez les positions sur votre pupitre avant de découper.</p>
 </div>
 
 <div class="page">
-  <div class="moitie"><svg viewBox="0 0 195 260" class="copie"></svg></div>
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
   <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, à partir du repère ▲) passe sous la moitié droite</div>
 </div>
 
 <div class="page">
-  <div class="moitie"><svg viewBox="185 0 195 260" class="copie"></svg></div>
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
   <div class="reperes">MOITIÉ DROITE · ▲ aligner le bord gauche sur le repère de la moitié gauche</div>
 </div>
 
 <script>
-  const modele = document.getElementById("modele").innerHTML;
-  const repere = '<path d="M185 0v260" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>' +
-                 '<path d="M182 257l3-5 3 5z" fill="#ffffff"/><path d="M182 3l3 5 3-5z" fill="#ffffff"/>';
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>' +
+                 '<path d="M182 259l3-5 3 5z" fill="#ffffff"/><path d="M182 3l3 5 3-5z" fill="#ffffff"/>';
   document.querySelectorAll("svg.copie").forEach((s, i) => {
     s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     // Les identifiants doivent rester uniques dans la page : chaque copie a les siens.

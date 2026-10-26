@@ -283,6 +283,7 @@ def main():
             mission(m)
     if not choix:
         rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf", pied="Le Pupitre des Énigmes · Mode d'emploi")
+        rendre(ICI / "gabarit-facade.html", SORTIE / "gabarit-facade.pdf")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
                    SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
 

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Gabarit de la façade et du couvercle</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .apercu svg { width: 100%; display: block; border: 1px solid var(--filet); }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; }
+  table td, table th { font-size: 8.6pt; padding: 2px 5px; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 9pt; color: #666; }
+</style>
+</head>
+<body>
+
+<!-- Le gabarit à l'échelle 1 (380 × 262 mm), copié dans chaque page par le script en bas.
+     Cotes en mm depuis le coin avant gauche : x = X, y = 262 − Y. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <g id="mire"><path d="M-4 0H4M0-4V4" stroke="#c0392b" stroke-width=".3"/></g>
+  </defs>
+  <rect x=".2" y=".2" width="379.6" height="261.6" fill="#fff" stroke="#000" stroke-width=".4"/>
+  <g fill="none" stroke="#000" stroke-width=".35" stroke-dasharray="1.6 1">
+    <rect x="23" y="23" width="70" height="78"/>
+    <circle cx="133" cy="62" r="20"/>
+    <circle cx="190" cy="62" r="19"/>
+    <rect x="248" y="37.5" width="74" height="49"/>
+    <circle cx="358" cy="40" r="6"/>
+    <circle cx="358" cy="107" r="6"/>
+    <rect x="156" y="129.5" width="68" height="5" rx="1"/>
+    <circle cx="358" cy="167" r="3"/>
+    <circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/>
+    <circle cx="190" cy="222" r="3.5"/>
+    <circle cx="295" cy="222" r="11"/>
+  </g>
+  <g fill="none" stroke="#000" stroke-width=".35" stroke-dasharray="1.6 1">
+    <circle cx="46.7" cy="116" r="3"/><circle cx="63.3" cy="116" r="3"/><circle cx="80" cy="116" r="3"/><circle cx="96.7" cy="116" r="3"/><circle cx="113.3" cy="116" r="3"/>
+    <circle cx="46.7" cy="148" r="3"/><circle cx="63.3" cy="148" r="3"/><circle cx="80" cy="148" r="3"/><circle cx="96.7" cy="148" r="3"/><circle cx="113.3" cy="148" r="3"/>
+  </g>
+  <!-- haut-parleur : la grille de trous -->
+  <g fill="none" stroke="#000" stroke-width=".25">
+    <circle cx="133" cy="62" r="1.5"/><circle cx="127" cy="62" r="1.5"/><circle cx="139" cy="62" r="1.5"/><circle cx="121" cy="62" r="1.5"/><circle cx="145" cy="62" r="1.5"/>
+    <circle cx="130" cy="56.8" r="1.5"/><circle cx="136" cy="56.8" r="1.5"/><circle cx="124" cy="56.8" r="1.5"/><circle cx="142" cy="56.8" r="1.5"/>
+    <circle cx="130" cy="67.2" r="1.5"/><circle cx="136" cy="67.2" r="1.5"/><circle cx="124" cy="67.2" r="1.5"/><circle cx="142" cy="67.2" r="1.5"/>
+    <circle cx="133" cy="51.6" r="1.5"/><circle cx="127" cy="51.6" r="1.5"/><circle cx="139" cy="51.6" r="1.5"/>
+    <circle cx="133" cy="72.4" r="1.5"/><circle cx="127" cy="72.4" r="1.5"/><circle cx="139" cy="72.4" r="1.5"/>
+    <circle cx="130" cy="46.4" r="1.5"/><circle cx="136" cy="46.4" r="1.5"/><circle cx="130" cy="77.6" r="1.5"/><circle cx="136" cy="77.6" r="1.5"/>
+  </g>
+  <!-- ce qui ne se découpe pas : contours à titre indicatif -->
+  <g fill="none" stroke="#888" stroke-width=".3" stroke-dasharray=".6 .8">
+    <rect x="236" y="34.5" width="98" height="55"/>
+    <rect x="257" y="99" width="76" height="76" rx="4"/>
+    <circle cx="295" cy="137" r="9"/>
+    <circle cx="358" cy="107" r="15"/>
+    <circle cx="295" cy="222" r="30"/>
+  </g>
+  <!-- aimants -->
+  <g fill="none" stroke="#2d7fa8" stroke-width=".35"><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/></g>
+  <!-- mires -->
+  <g>
+    <use href="#mire" x="58" y="62"/><use href="#mire" x="133" y="62"/><use href="#mire" x="190" y="62"/><use href="#mire" x="285" y="62"/>
+    <use href="#mire" x="358" y="40"/><use href="#mire" x="358" y="107"/><use href="#mire" x="190" y="132"/><use href="#mire" x="295" y="137"/>
+    <use href="#mire" x="358" y="167"/><use href="#mire" x="35" y="222"/><use href="#mire" x="75" y="222"/><use href="#mire" x="115" y="222"/>
+    <use href="#mire" x="155" y="222"/><use href="#mire" x="190" y="222"/><use href="#mire" x="295" y="222"/>
+    <use href="#mire" x="15" y="247"/><use href="#mire" x="365" y="247"/><use href="#mire" x="15" y="15"/><use href="#mire" x="365" y="15"/>
+  </g>
+  <!-- légendes -->
+  <g font-family="Source Sans, sans-serif" font-size="3.4" fill="#000" text-anchor="middle">
+    <text x="58" y="108">CLAVIER · fenêtre 70 × 78</text>
+    <text x="133" y="88">HAUT-PARLEUR · Ø 40, trous Ø 3</text>
+    <text x="190" y="88">ANNEAU · Ø 38</text>
+    <text x="285" y="96">ÉCRAN · fenêtre selon le module (≈ 74 × 49)</text>
+    <text x="358" y="52">CLÉ · Ø 12</text>
+    <text x="358" y="127">COULEUR · Ø 12</text>
+    <text x="80" y="163">VOYANTS 1 à 10 · Ø 6</text>
+    <text x="46.7" y="124">1</text><text x="63.3" y="124">2</text><text x="80" y="124">3</text><text x="96.7" y="124">4</text><text x="113.3" y="124">5</text><text x="46.7" y="156">6</text><text x="63.3" y="156">7</text><text x="80" y="156">8</text><text x="96.7" y="156">9</text><text x="113.3" y="156">10</text>
+    <text x="190" y="142">FENTE · 68 × 5</text>
+    <text x="295" y="182">LECTEUR À PLAT · zone 76 × 76 (rien à découper)</text>
+    <text x="358" y="177">JACK · Ø 6</text>
+    <text x="95" y="244">BOUTONS D'ARCADE · 4 × Ø 30</text>
+    <text x="190" y="234">MOLETTE · Ø 7</text>
+    <text x="295" y="258">GROS BOUTON · Ø 22 (champignon) ou selon le bouton</text>
+    <text x="15" y="238">aimant Ø 10</text>
+  </g>
+  <!-- règle de contrôle : 100 mm -->
+  <g transform="translate(200 250)" font-family="Source Sans, sans-serif" font-size="3" fill="#000">
+    <path d="M0 0H100M0-2V2M50-1.5V1.5M100-2V2" stroke="#000" stroke-width=".35"/>
+    <text x="50" y="5" text-anchor="middle">100 mm : vérifiez à la règle avant de découper</text>
+  </g>
+  <text x="190" y="8" font-family="Source Sans, sans-serif" font-size="4" text-anchor="middle" fill="#000">↑ ARRIÈRE DU PUPITRE · façade et couvercle 380 × 262 mm · vue de dessus</text>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes</span><span>Gabarit de la façade et du couvercle</span></div>
+  <h1 style="margin-bottom:2mm">Gabarit de perçage</h1>
+  <p>Toutes les découpes du couvercle fixe et des façades, à l'échelle 1 (deux pages A4 à assembler). Le couvercle
+     reçoit toutes les découpes ; chaque façade de mission ne reprend que celles des éléments dont elle se sert
+     (console/README.md, § 4.5).</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <table>
+    <thead><tr><th>Élément</th><th>X (cm)</th><th>Y (cm)</th><th>Découpe</th></tr></thead>
+    <tbody>
+      <tr><td>Clavier 4×4</td><td>5,8</td><td>20,0</td><td>Fenêtre 70 × 78 mm (façade) ; fente 25 × 3 mm pour la nappe (couvercle)</td></tr>
+      <tr><td>Haut-parleur</td><td>13,3</td><td>20,0</td><td>Trous Ø 3 mm dans un cercle Ø 40 mm</td></tr>
+      <tr><td>Anneau de 12 LED</td><td>19,0</td><td>20,0</td><td>Ø 38 mm</td></tr>
+      <tr><td>Écran</td><td>28,5</td><td>20,0</td><td>Fenêtre selon le module (≈ 74 × 49 mm)</td></tr>
+      <tr><td>Interrupteur à clé</td><td>35,8</td><td>22,0</td><td>Ø 12 mm</td></tr>
+      <tr><td>Voyants 1-5 · 6-10</td><td>4,67 à 11,33</td><td>14,6 · 11,4</td><td>Ø 6 mm, 16,7 mm d'axe en axe</td></tr>
+      <tr><td>Fente à cartes</td><td>19,0</td><td>13,0</td><td>68 × 5 mm</td></tr>
+      <tr><td>Lecteur à plat</td><td>29,5</td><td>12,5</td><td>Rien : zone de 76 × 76 mm à marquer</td></tr>
+      <tr><td>Capteur de couleur</td><td>35,8</td><td>15,5</td><td>Ø 12 mm</td></tr>
+      <tr><td>Prise jack</td><td>35,8</td><td>9,5</td><td>Ø 6 mm</td></tr>
+      <tr><td>Boutons d'arcade</td><td>3,5 · 7,5 · 11,5 · 15,5</td><td>4,0</td><td>Ø 30 mm</td></tr>
+      <tr><td>Molette</td><td>19,0</td><td>4,0</td><td>Ø 7 mm</td></tr>
+      <tr><td>Gros bouton</td><td>29,5</td><td>4,0</td><td>Ø 22 mm (champignon) ou selon le bouton</td></tr>
+      <tr><td>Aimants</td><td>1,5 · 36,5</td><td>1,5 · 24,7</td><td>Ø 10 mm</td></tr>
+    </tbody>
+  </table>
+  <p class="petit">Imprimez à 100 % (« taille réelle »). Pointillés noirs : à découper ; gris : contours indicatifs ;
+     croix rouges : centres de perçage. La bande de 10 mm à droite de la moitié gauche passe sous la moitié droite.</p>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, à partir du repère ▲) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · ▲ aligner le bord gauche sur le repère de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#2d7fa8" stroke-width=".3" stroke-dasharray="3 3"/>' +
+                 '<path d="M182 259l3-5 3 5z" fill="#2d7fa8"/><path d="M182 3l3 5 3-5z" fill="#2d7fa8"/>';
+  document.querySelectorAll("svg.copie").forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    s.innerHTML = modele.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`) + (i ? repere : "");
+  });
+</script>
+</body>
+</html>

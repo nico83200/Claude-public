@@ -67,10 +67,13 @@ l'écoutille** : victoire.
 |---|---|
 | **🫁 L'oxygène** | 60 minutes au chrono. L'en-tête de l'écran affiche le temps et une barre qui se vide. Les erreurs coûtent de l'air (on s'agite, on respire plus vite). Trois trouvailles en rendent. |
 | **💡 La dynamo** | Le **gros bouton**, c'est la dynamo de secours. La lumière baisse en continu : l'**anneau de LED** s'éteint peu à peu et l'**écran s'assombrit**. Chaque appui recharge. À zéro, **noir complet** : l'écran s'éteint et les cartes posées ne donnent plus rien. Il faut quelqu'un sur la dynamo **toute la partie**. Le courant rétabli soulage la dynamo (la lumière baisse deux fois moins vite). |
-| **📍 COMPARTIMENT** | Le lecteur du centre : là où vous êtes. On y pose une carte Lieu, qui y reste. |
-| **✋ MAIN GAUCHE / MAIN DROITE** | Les deux autres lecteurs : vos mains. Un objet seul s'**utilise dans le compartiment**. Deux objets ensemble se **combinent** (les deux clés). Si deux objets ne vont pas ensemble, le dernier posé est utilisé seul. |
-| **🤝 Gestes à plusieurs** | Porte étanche, clés de commandement, poste avant, écoutille : les **quatre boutons de couleur tenus ensemble**, pendant que quelqu'un tient la dynamo. |
-| **📋 Le tableau de bord** | Un appui sur la molette (hors épreuve) affiche les **objectifs** découverts, le temps et la lumière. |
+| **📍 COMPARTIMENT** | La carte d'un compartiment, glissée dans la **fente** : on s'y rend, et l'on y reste après avoir repris la carte, jusqu'au compartiment suivant. |
+| **✋ MAIN GAUCHE / MAIN DROITE** | Vos mains : un objet dans la **fente** (main gauche), un objet sur le **lecteur à plat** (main droite). Un objet seul s'**utilise dans le compartiment**. Deux objets ensemble se **combinent** (les deux clés). Si deux objets ne vont pas ensemble, le dernier posé est utilisé seul. |
+| **🤝 Gestes à plusieurs** | Porte étanche, poste avant, écoutille, coque : les **quatre boutons de couleur tenus ensemble**, pendant que quelqu'un tient la dynamo. |
+| **🔑 La clé de commandement** | L'**interrupteur à clé** du pupitre : la console du poste de commande s'arme en la tournant. |
+| **🚦 Le tableau de bord** | Les **10 voyants** du plateau : porte, courant, hydraulique, sécurité, radio, verrous, O₂, lumière, Orque, commandante. Rouge : bloqué ; orange qui clignote : en cours ; vert : réglé. Au court-circuit, ils deviennent les disjoncteurs. |
+| **🌫️ La lumière sous la boîte** | Elle éclaire la table de la lumière du bord : elle baisse avec la dynamo et vire au rouge dans le noir. |
+| **📋 Les objectifs** | Un appui sur la molette (hors épreuve) affiche les **objectifs** découverts, le temps et la lumière. |
 | **📞 L'interphone** | La carte Aide : la commandante, coincée à l'avant. 3 conseils gratuits, puis **2 minutes d'air** chacun. |
 | **🎧 Le casque** | Les coups frappés par l'Orque sur la coque, et un message privé de la commandante. |
 
@@ -101,9 +104,11 @@ Aucune n'est jouée par un joueur.
 ## 5. Le matériel
 
 ### Le plateau
-La façade de la mission renomme les lecteurs : **MAIN GAUCHE**, **COMPARTIMENT**,
-**MAIN DROITE**, et le gros bouton **DYNAMO**. Elle se trouve dans le kit
-d'impression (plateau à coller sur la façade).
+La façade de la mission renomme les commandes : la fente reçoit le **COMPARTIMENT**
+(ou un objet, **MAIN GAUCHE**), le lecteur à plat est la **MAIN DROITE**, le gros
+bouton la **DYNAMO**, l'interrupteur à clé la **CLÉ DE COMMANDEMENT**, et les dix
+voyants forment le **TABLEAU DE BORD**. Le capteur de couleur ne sert pas : la
+façade le cache. Le plateau est dans le kit d'impression (à coller sur la façade).
 
 ### Les cartes (24)
 
@@ -182,7 +187,7 @@ chiffres.
 Ouvert : **E2**, le multimètre et le carnet de l'électricien.
 
 ### 7.2 · La porte étanche
-**Coursive** (le lecteur du centre). La plaque (E1) : *« Manœuvre à quatre mains. »*
+**Coursive** (glissée dans la fente). La plaque (E1) : *« Manœuvre à quatre mains. »*
 **Quatre boutons tenus 3 secondes**, en 10 secondes, pendant que quelqu'un garde la
 dynamo. Avant, tous les autres compartiments répondent : *« La porte étanche du poste
 d'équipage est fermée. »* Ouverte : **E3**.
@@ -244,9 +249,9 @@ Réussite : **HYDRAULIQUE**, 180 bars. Bonus : les **cartouches de chaux sodée*
    dire. Le **cahier du second** (E9, carré) : *« Nuit du 11 au 12 : Tomas, fiévreux,
    échange son quart avec Søren. »* À 4 h, c'est donc **S**øren : **ABYSSE**.
 2. **Les deux clés** : *« Insérez les deux clés de commandement. »* Les clés du
-   **second** (O5, infirmerie) et de la **commandante** (O6, coffre) posées
-   **ensemble** sur les deux mains, le poste de commande au centre, puis **quatre
-   boutons, 2 secondes** (les tourner en même temps).
+   **second** (O5, infirmerie) et de la **commandante** (O6, coffre) **ensemble**,
+   une dans chaque main (la fente et le lecteur à plat), au poste de commande ;
+   puis on **tourne la clé du pupitre** (l'interrupteur à clé), en 15 secondes.
 3. **Le coffre de la commandante** (O7, carré) : 4 chiffres. Le **carnet** (E8) :
    *« Mon coffre s'ouvre sur les épaves que mon père a plongées, de la plus ancienne
    à la plus récente : un chiffre par épave, la profondeur en dizaines de mètres. »*
@@ -307,9 +312,7 @@ l'écoutille ! »* : **quatre boutons, 4 secondes**. **Victoire.**
 
 | Situation | Réponse |
 |---|---|
-| Lieu posé sur une main | *« Un compartiment se pose au centre. »* |
-| Objet posé au centre | *« Les objets se prennent en main : à gauche ou à droite. »* |
-| Carte posée dans le noir | *« Il fait noir comme dans un four. La dynamo, vite ! »* |
+| Carte glissée dans le noir | *« Il fait noir comme dans un four. Actionnez la dynamo, puis glissez de nouveau la carte. »* |
 | Deux objets qui ne vont pas ensemble | Le dernier posé est utilisé seul |
 | Un objet utilisé au mauvais endroit | *« Ça ne sert à rien ici. »* |
 | Les deux clés hors du poste de commande | *« Deux clés de commandement… elles se tournent dans la console du poste de commande. »* |
@@ -322,7 +325,7 @@ l'écoutille ! »* : **quatre boutons, 4 secondes**. **Victoire.**
 | Quand | Imprévu | Action | Échec |
 |---|---|---|---|
 | 7ᵉ min | ⛰️ **Réplique : le Narval glisse** | Ne plus toucher **à rien**, dynamo comprise, pendant 15 s | −3 min |
-| 14ᵉ min | ⚡ **Court-circuit** | Mémoriser puis rejouer 5 disjoncteurs (couleurs) | Noir complet |
+| 14ᵉ min | ⚡ **Court-circuit** | Les voyants deviennent des disjoncteurs : un seul allumé (le 7). Chaque disjoncteur bascule aussi ses deux voisins ; il faut tout rallumer en 60 s (solution : 2, 5, 9, au clavier ou à la molette) | Noir complet |
 | 22ᵉ min | 📞 **La commandante, au casque** | Un seul joueur écoute, une seule fois | — |
 | 30ᵉ min | 🛢️ **Fuite d'huile** (si l'hydraulique est rétablie) | Molette à zéro en 15 s | L'hydraulique retombe : il faut réamorcer la pompe |
 | 38ᵉ min | 😮‍💨 **Le CO₂ monte** | Respirer lentement : reproduire le rythme sur le bouton vert | Réussite +2 min, échec −1 min |
@@ -352,7 +355,7 @@ blocage encore présent, dans cet ordre :
 | Pompe | « La manivelle est au local des batteries. » | « Utilisez-la en salle des machines et suivez le rythme. » | « Long, court, court, trois fois, sur le bouton jaune. » |
 | Console | « Mon carnet est au poste de commande. » | « Le tableau des quarts… et les échanges, dans le cahier du second, au carré. » | « A, B, Y, S, S, E. Abysse. » |
 | Coffre | « Mon coffre est au carré. Mon père, ses épaves… » | « La carte marine : ses initiales, J.S. De la plus ancienne à la plus récente. » | « Deux, quatre, sept, neuf. » |
-| Clés | « Deux clés : la mienne et celle du second, à l'infirmerie. » | « Les deux en main, au poste de commande. » | « Puis tournez-les ensemble : les quatre boutons. » |
+| Clés | « Deux clés : la mienne et celle du second, à l'infirmerie. » | « Les deux en main, au poste de commande. » | « Puis tournez la clé du pupitre. » |
 | Contact | « L'Orque frappe sur la coque. La salle radio. » | « Ligne, puis colonne, sur la grille. Puis le carnet des signaux. » | « Brume. Répondez sept, trois, six. » |
 | Verrous | « La clé à cliquet, dans le sas. » | « Côté charnière d'abord, jamais deux opposés, le faussé en dernier. » | « Bleu, rouge, vert, jaune. » |
 | Sortie | « L'Orque vous a donné une pression. » | « Seize bars. Puis tous sur le volant. » | « Seize, puis les quatre boutons. » |
@@ -384,8 +387,9 @@ blocage encore présent, dans cet ordre :
 
 ## 12. Mise en place
 
-1. Poser la **carte Monde Narval** et installer la **façade** avec le **plateau de la
-   mission** (MAIN GAUCHE · COMPARTIMENT · MAIN DROITE · DYNAMO).
+1. Glisser la **carte Monde Narval** dans la fente et installer la **façade** avec le
+   **plateau de la mission** (compartiment, mains, dynamo, clé, tableau de bord). La
+   clé reste dans l'interrupteur, **au repos**.
 2. Ranger les **10 cartes Compartiment** face visible à côté du pupitre : c'est le
    plan du sous-marin. Les **cartes Objet** restent dans leurs enveloppes.
 3. Empiler les enveloppes **E1 à E13**, fermées, dans l'ordre.

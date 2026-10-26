@@ -25,10 +25,11 @@ firmware/
 │   ├── main.cpp            démarrage et boucle principale
 │   ├── dessin.cpp          les écrans (commun au pupitre et au simulateur)
 │   ├── ecran.cpp           l'ILI9488 sur le bus SPI
-│   ├── lecteurs.cpp        les 3 lecteurs RFID RC522
+│   ├── lecteurs.cpp        les 2 lecteurs RFID RC522 (fente, lecteur à plat)
 │   ├── audio.cpp           les 2 DFPlayer (haut-parleur, casque)
-│   ├── commandes.cpp       boutons et molette
-│   ├── plateforme_esp32.cpp carte SD et LED
+│   ├── commandes.cpp       boutons, molette, clavier 4×4 et clé (bus I2C, PCF8574)
+│   ├── capteur_couleur.cpp le capteur de couleur TCS34725 (I2C)
+│   ├── plateforme_esp32.cpp carte SD et chaîne de LED (anneau, lecteurs, voyants, socle)
 │   └── panneau_web.cpp     le panneau Wi-Fi du maître du jeu
 ├── test/
 │   ├── lancer.sh           compile le simulateur et rejoue toutes les parties
@@ -98,8 +99,8 @@ faut apprendre au pupitre quelle puce correspond à quelle carte.
 1. Sur l'écran d'accueil, **appuyer sur la molette** : *Préparer le pupitre*.
 2. Choisir le monde à la molette, puis appuyer.
 3. Le pupitre demande les cartes une par une (*« Posez la carte M1 · Le Haras des
-   Trois Fers »*, puis A1, L1, L2…). Poser chaque carte sur **n'importe quel
-   lecteur** : un bip confirme, la suivante s'affiche.
+   Trois Fers »*, puis A1, L1, L2…). Glisser chaque carte dans la **fente**
+   (ou la poser sur le lecteur à plat) : un bip confirme, la suivante s'affiche.
 4. **Rouge** : passer une carte. **Vert** : terminer et enregistrer.
 
 La table est écrite dans `/mondes/<monde>/cartes.json`. Une puce déjà attribuée
@@ -108,12 +109,12 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
 
 ## 5. Jouer
 
-1. Allumer le pupitre, poser la **carte Monde** sur un lecteur.
+1. Allumer le pupitre, glisser la **carte Monde** dans la fente.
 2. Installer la façade du monde, choisir la mission à la molette, appuyer.
-3. Chaque joueur pose sa **carte Rôle** puis la reprend. Le jeu démarre quand
+3. Chaque joueur glisse sa **carte Rôle** dans la fente puis la reprend. Le jeu démarre quand
    tous les rôles sont arrivés (ou au **bouton vert**).
 4. Pendant la partie, une sauvegarde est écrite toutes les 15 secondes. Après une
-   coupure de courant, reposer la carte Monde : le menu propose *« Reprendre la
+   coupure de courant, glisser de nouveau la carte Monde : le menu propose *« Reprendre la
    partie en cours »*.
 
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
@@ -175,14 +176,21 @@ sh test/ecrans.sh              # dessine les écrans dans docs/ecrans/ (après �
 Une partie est un fichier texte, une commande par ligne :
 
 ```
-pose QUI M1          # poser une carte (QUI, OU, QUOI)
+fente L1             # glisser une carte dans la fente ; « fente - » la retire
+plateau O3           # poser un objet sur le lecteur à plat ; « plateau - »
+pose QUI M1          # poser une carte sur une zone logique (QUI, OU, QUOI)
 retire QUI           # la retirer
+touches 3715#        # taper au clavier 4×4 ; « t9 SILENCE » pour des lettres
+couleur rouge        # poser une couleur devant le capteur ; « couleur - »
+cle tournee          # tourner la clé (ou « cle repos »)
 bouton VERT          # ROUGE, BLEU, JAUNE, VERT, GROS
 code 3,7,1,5         # saisir un code à la molette ; lettres SILENCE pour un mot
 avance 10            # faire passer 10 minutes (s'arrête si un imprévu commence)
 restant 17           # avancer jusqu'à ce qu'il reste 17 minutes au chrono
 redemarre            # coupure de courant (la carte SD et sa sauvegarde restent)
 verifie drapeau J3   # et : sans, compteur, phase, epreuve, ecran
+verifie voyant 3 vert # couleur d'un voyant (ou « verifie voyant socle ambre »)
+verifie zone OU L2   # carte vue par une zone logique (« - » si vide)
 capture m1-ecurie    # une image de l'écran (avec ecrans.sh)
 ```
 
