@@ -85,6 +85,7 @@ void CapteurCouleur::maj(const Rappel& rappel) {
   prochain_ = t + PERIODE;
   uint16_t c, r, v, b;
   if (!lire(c, r, v, b)) return;
+  clair_ = c;
   if (aVide_ <= 0) aVide_ = c;  // la première mesure : à vide, par hypothèse
   bool pose = c > aVide_ * broches::CAPTEUR_PLUS_CLAIR || c < aVide_ * broches::CAPTEUR_PLUS_SOMBRE;
   std::string nom = pose ? nommer(c, r, v, b) : "";

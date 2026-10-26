@@ -128,6 +128,7 @@ void Commandes::maj(const Rappels& r) {
       toucheStable_ = toucheLue_;
       if (toucheStable_) {
         Serial.printf("Clavier : %c\n", toucheStable_);
+        derniereTouche_ = toucheStable_;
         r.touche(toucheStable_);
       }
     }

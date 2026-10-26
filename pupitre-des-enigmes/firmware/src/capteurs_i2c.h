@@ -21,6 +21,11 @@ class Oeil {
   void demarrer();
   void maj(const RappelGeste& geste, const RappelCapteur& capteur);
   bool present() const { return present_; }
+  // Pour l'atelier du panneau Wi-Fi : la dernière lumière lue, celle de la pièce, le dernier geste.
+  float lumiere() const { return clair_; }
+  float piece() const { return ambiance_; }
+  bool eclaire() const { return eclaire_; }
+  const char* dernierGeste() const { return dernierGeste_; }
 
  private:
   bool decoder(const char*& sens);
@@ -28,8 +33,9 @@ class Oeil {
   // Le geste en cours : la première et la dernière mesure nettes (haut, bas, gauche, droite).
   int premier_[4] = {0}, dernier_[4] = {0};
   bool enCours_ = false;
-  float ambiance_ = 0;  // la lumière de la pièce (moyenne glissante)
+  float ambiance_ = 0, clair_ = 0;  // la lumière de la pièce (moyenne glissante), la dernière mesure
   bool eclaire_ = false;
+  const char* dernierGeste_ = "";
   uint32_t prochain_ = 0, prochaineLumiere_ = 0;
 };
 
@@ -38,9 +44,13 @@ class Enclume {
   void demarrer();
   void maj(const RappelCapteur& capteur);
   bool present() const { return present_; }
+  float champ() const { return champ_; }
+  float repos() const { return repos_; }
+  bool aimant() const { return aimant_; }
 
  private:
   bool lire(float& champ);
+  float champ_ = 0;
   bool present_ = false;
   float repos_ = 0;  // le champ magnétique sans aimant (moyenne glissante)
   bool aimant_ = false;
@@ -53,9 +63,14 @@ class Forge {
   void demarrer();
   void maj(const RappelCapteur& capteur);
   bool present() const { return present_; }
+  float mesure() const { return mesure_; }  // l'humidité (%), ou la température (°C) d'un BMP280
+  float repos() const { return repos_; }
+  bool humidite() const { return humidite_; }
+  bool souffle() const { return souffle_; }
 
  private:
   bool lire(float& temperature, float& humidite);
+  float mesure_ = 0;
   bool present_ = false, humidite_ = false;  // un BMP280 n'a pas d'humidité : on suit la température
   uint16_t t1_ = 0;
   int16_t t2_ = 0, t3_ = 0, h2_ = 0, h4_ = 0, h5_ = 0;

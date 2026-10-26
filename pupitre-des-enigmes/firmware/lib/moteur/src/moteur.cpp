@@ -17,6 +17,7 @@ const char* const CHEMIN_SAUVEGARDE = "/sauvegarde.json";
 const char* const CHEMIN_REGLAGES = "/reglages.json";
 const char* const REGLAGES_PUPITRE = "Réglages du pupitre";
 const char* const ETAT_PUPITRE = "État du pupitre";
+const char* const CHEMIN_CLASSEMENT = "/classement.json";
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
   const char* s = v.as<const char*>();
@@ -202,6 +203,10 @@ void Moteur::demarrer() {
 }
 
 void Moteur::allerAccueil() {
+  if (phase_ == Phase::FIN || phase_ == Phase::RANGEMENT) {  // la prochaine équipe se présentera
+    equipe_.clear();
+    joueurs_.clear();
+  }
   phase_ = Phase::ACCUEIL;
   file_.clear();
   enAttente_.clear();
@@ -258,6 +263,8 @@ void Moteur::allerMenu(bool annoncer) {
 }
 
 void Moteur::lancerMission(bool reprise) {
+  journalPartie_.clear();
+  points_ = 0;
   drapeaux_.clear();
   compteurs_.clear();
   pouvoirs_.clear();
@@ -394,6 +401,10 @@ void Moteur::carte(Zone zone, const std::string& uid) {
     return;
   }
   std::string id = idCarte(uid);
+  if (phase_ == Phase::JEU) {
+    static const char* const ZONES[3] = {"QUI", "OÙ", "QUOI"};
+    noter("Carte " + (id.empty() ? std::string("inconnue") : id + " · " + nomCarte(id)) + " (" + ZONES[zone] + ")");
+  }
   if (id.empty()) {
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0xff0000;
@@ -491,6 +502,7 @@ void Moteur::cle(bool tournee) {
 
 void Moteur::geste(const std::string& sens) {
   if (phase_ != Phase::JEU) return;
+  noter("Geste : " + sens);
   if (ep_.active) {
     if (ep_.type != "choix") return;
     JsonArrayConst gestes = ep_.def["gestes"].as<JsonArrayConst>();
@@ -508,6 +520,7 @@ void Moteur::capteur(const std::string& nom, bool actif) {
   bool& etat = capteurs_[nom];
   if (etat == actif) return;
   etat = actif;
+  if (actif) noter("Capteur : " + nom);
   if (phase_ != Phase::JEU) return;
   if (ep_.active) {
     if (ep_.type == "capteur" && texte(ep_.def["capteur"]) == nom) {
@@ -529,6 +542,7 @@ void Moteur::capteur(const std::string& nom, bool actif) {
 void Moteur::tiroirAuFond(bool auFond) {
   if (auFond == tiroirAuFond_) return;
   tiroirAuFond_ = auFond;
+  noter(auFond ? "Tiroir repoussé au fond" : "Tiroir sorti");
   if (!auFond) {
     tiroirOuvert_ = true;  // un tiroir sorti n'est jamais verrouillé (au démarrage, par exemple)
     tiroirSorti_ = maintenant();
@@ -952,8 +966,35 @@ void Moteur::commande(const std::string& c) {
     ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 12));
   } else if (c.rfind("temps:", 0) == 0) {
     bonusSecondes_ += atoi(c.c_str() + 6) * 60;
-  } else if (c == "indice" && phase_ == Phase::JEU && !ep_.active) {
-    demanderAide();
+  } else if ((c == "indice" || c == "aide") && phase_ == Phase::JEU) {
+    // Comme la carte d'aide glissée dans un lecteur (pas pendant une épreuve ni une accusation).
+    if (!ep_.active && !accusationOuverte_ && chronoActif_) demanderAide();
+    else noter("Maître du jeu : aide impossible pendant une épreuve ou une accusation");
+  } else if (c.rfind("message:", 0) == 0 && phase_ == Phase::JEU) {
+    // Le souffleur : un message du maître du jeu à l'écran (sur la ligne du bas pendant une épreuve).
+    std::string m = c.substr(8);
+    noter("Maître du jeu → écran : " + m);
+    p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+    if (ep_.active || accusationOuverte_) {
+      vue_.info = "✉ " + m;
+      rafraichir();
+    } else {
+      afficherTexte("UN MESSAGE", m);
+    }
+  } else if ((c.rfind("dire:", 0) == 0 || c.rfind("casque:", 0) == 0) && phase_ == Phase::JEU) {
+    // Une réplique de la mission, au haut-parleur ou au casque, choisie par le maître du jeu.
+    bool casque = c[0] == 'c';
+    int n = atoi(c.c_str() + (casque ? 7 : 5));
+    if (repliques_.count(n)) {
+      noter(std::string("Maître du jeu → ") + (casque ? "casque" : "haut-parleur") + " : réplique " + std::to_string(n));
+      if (casque) dire(dossierVoix_, n, true, false, true);
+      else ajouterInterne(Action::de(Action::DIRE, dossierVoix_, n));
+    }
+  } else if (c == "tiroir_fermer") {
+    if (tiroirAuFond_) {
+      tiroirOuvert_ = false;
+      p_.tiroir(false);
+    }
   } else if (c == "abandon" && phase_ == Phase::JEU) {
     terminer(false, "temps");
   } else if (c == "accueil") {
@@ -970,6 +1011,8 @@ void Moteur::commande(const std::string& c) {
   } else if (c == "tiroir") {
     ouvrirTiroir();
   }
+  if (c != "tiroir" && c.rfind("message:", 0) != 0 && c.rfind("dire:", 0) != 0 && c.rfind("casque:", 0) != 0)
+    noter("Maître du jeu : " + c);
 }
 
 // ======================================================================
@@ -1399,6 +1442,7 @@ void Moteur::dire(int dossier, int numero, bool casqueForce, bool sansTexte, boo
     empilerInterne(Action::de(Action::CASQUE_ANNONCE));
     return;
   }
+  if (dossier != DOSSIER_VOIX_PUPITRE && !r.texte.empty()) noter("🔊 " + std::to_string(numero) + " · " + r.texte);
   if (!sansTexte && !r.texte.empty()) {
     std::string auteur = texte(script_["voix"][r.voix]);
     if (dossier == DOSSIER_VOIX_PUPITRE) auteur.clear();
@@ -1456,6 +1500,8 @@ void Moteur::executerInterne(const Action& a) {
       }
       vue_.texte = "🎧 Écoute en cours…";
       rafraichir();
+      if (a.a != DOSSIER_VOIX_PUPITRE && repliques_.count(a.b))
+        noter("🎧 " + std::to_string(a.b) + " · " + repliques_[a.b].texte);
       p_.jouer(a.a, a.b, true);
       attente_ = Attente::CASQUE;
       debutAttente_ = maintenant();
@@ -1805,6 +1851,11 @@ void Moteur::lancerEpreuve(JsonVariantConst def) {
 
 void Moteur::finEpreuve(bool reussi) {
   if (!ep_.active) return;
+  std::string tape;
+  if (ep_.type == "code" && !reussi)
+    for (int v : ep_.valeurs) tape += v < 0 ? "_" : std::to_string(v);
+  noter(std::string(reussi ? "Épreuve réussie : " : "Épreuve ratée : ") + texte(ep_.def["titre"], ep_.type.c_str()) +
+        (tape.empty() ? "" : " (tapé " + tape + ")"));
   ep_.active = false;
   ep_.fini = true;
   ep_.reussi = reussi;
@@ -2468,6 +2519,7 @@ void Moteur::vueEpreuve() {
 // ======================================================================
 
 void Moteur::demanderAide() {
+  noter("Aide demandée");
   JsonVariantConst a = script_["aide"];
   if (a.isNull()) return;
   vue_.aideClignote = false;
@@ -2519,6 +2571,8 @@ void Moteur::accuser() {
 
 void Moteur::reponseAccusation(bool confirmer) {
   accusationOuverte_ = false;
+  if (confirmer)
+    noter("Accusation : " + nomCarte(zones_[QUI]) + " · " + nomCarte(zones_[OU]) + " · " + nomCarte(zones_[QUOI]));
   if (!confirmer) {
     vue_.ecran = Vue::PRINCIPAL;
     rafraichir();
@@ -2586,7 +2640,15 @@ void Moteur::enregistrerScore() {
   if (!script_["accusation"].isNull()) snprintf(ligne + strlen(ligne), sizeof ligne - strlen(ligne), "\nErreurs : %d", erreurs_);
   std::string rang = vue_.info;
   vue_.info.clear();
-  vue_.texte = (victoire_ && !rang.empty() ? rang + "\n" : "") + ligne;
+  points_ = calculerPoints();
+  int place = classer();
+  if (!victoire_) rang.clear();
+  if (!equipe_.empty()) rang = rang.empty() ? equipe_ : rang + " · " + equipe_;
+  std::string rangTexte = std::to_string(place) + (place == 1 ? "er" : "e");
+  snprintf(ligne + strlen(ligne), sizeof ligne - strlen(ligne), "\nPoints : %d (%s)", points_, rangTexte.c_str());
+  noter("Fin : " + std::string(victoire_ ? "victoire" : "défaite") + " · " + std::to_string(points_) + " points, " +
+        rangTexte + " au classement de la mission");
+  vue_.texte = (!rang.empty() ? rang + "\n" : "") + ligne;
   if (!script_["soupcon"].isNull()) vue_.texte += "\nSoupçon : " + std::to_string(compteur("soupcon"));
   vue_.bandeau = "Vert ou # : retour à l'accueil";
   rafraichir();
@@ -2986,6 +3048,8 @@ std::string Moteur::etatJson() {
     d["epreuve"]["type"] = ep_.type;
     d["epreuve"]["titre"] = texte(ep_.def["titre"]);
   }
+  if (!equipe_.empty()) d["equipe"] = equipe_;
+  for (const auto& j : joueurs_) d["joueurs"].add(j);
   if (p_.tiroirPresent()) d["tiroir"] = tiroirAuFond_ ? (tiroirOuvert_ ? "au fond, libre" : "verrouillé") : "sorti";
   for (const EtatElement& e : p_.etatMateriel()) {
     JsonObject o = d["materiel"].add<JsonObject>();
@@ -3000,6 +3064,96 @@ std::string Moteur::etatJson() {
   std::string json;
   serializeJson(d, json);
   return json;
+}
+
+// ======================================================================
+// Le panneau Wi-Fi : journal de partie, souffleur, équipe et classement
+// ======================================================================
+
+void Moteur::noter(const std::string& ligne) {
+  if (phase_ != Phase::JEU && phase_ != Phase::FIN) return;
+  int s = std::max(0, secondesEcoulees());
+  char horodatage[16];
+  snprintf(horodatage, sizeof horodatage, "%02d:%02d  ", s / 60, s % 60);
+  journalPartie_.emplace_back(++numeroJournal_, horodatage + ligne);
+  if (journalPartie_.size() > 80) journalPartie_.erase(journalPartie_.begin());
+}
+
+std::string Moteur::journalJson(int depuis) const {
+  JsonDocument d;
+  d["dernier"] = numeroJournal_;
+  for (const auto& l : journalPartie_) {
+    if (l.first <= depuis) continue;
+    JsonArray a = d["lignes"].add<JsonArray>();
+    a.add(l.first);
+    a.add(l.second);
+  }
+  std::string json;
+  serializeJson(d, json);
+  return json;
+}
+
+std::string Moteur::repliquesJson() const {
+  JsonDocument d;
+  for (const auto& kv : repliques_) {
+    JsonArray a = d.add<JsonArray>();
+    a.add(kv.first);
+    a.add(kv.second.texte);
+    a.add(texte(script_["voix"][kv.second.voix]));
+  }
+  std::string json;
+  serializeJson(d, json);
+  return json;
+}
+
+void Moteur::definirEquipe(const std::string& nom, const std::vector<std::string>& joueurs, const std::string& date) {
+  equipe_ = nom;
+  joueurs_ = joueurs;
+  if (!date.empty()) datePartie_ = date;
+  std::string liste;
+  for (const auto& j : joueurs_) liste += (liste.empty() ? "" : ", ") + j;
+  noter("Équipe : " + (nom.empty() ? std::string("(sans nom)") : nom) + (liste.empty() ? "" : " · " + liste));
+}
+
+// Les points : 500 pour une victoire, 50 par étape franchie (la « progression » du script),
+// 10 par minute restante en cas de victoire ; moins 50 par indice payant et 100 par erreur.
+int Moteur::calculerPoints() const {
+  int etapes = 0;
+  for (JsonVariantConst p : script_["progression"].as<JsonArrayConst>())
+    if (const_cast<Moteur*>(this)->condition(p["si"])) etapes++;
+  int pts = (victoire_ ? 500 + 10 * (std::max(0, secondesRestantes()) / 60) : 0) + 50 * etapes - 50 * indicesPayants_ -
+            100 * erreurs_;
+  return std::max(0, pts);
+}
+
+int Moteur::classer() {
+  JsonDocument d;
+  std::string contenu;
+  if (p_.lireFichier(CHEMIN_CLASSEMENT, contenu)) deserializeJson(d, contenu);
+  JsonObject p = d["parties"].add<JsonObject>();
+  p["monde"] = vue_.monde;
+  p["mission"] = missionNumero_;
+  p["titre"] = vue_.mission;
+  p["equipe"] = equipe_.empty() ? "Équipe sans nom" : equipe_;
+  for (const auto& j : joueurs_) p["joueurs"].add(j);
+  p["date"] = datePartie_;
+  p["victoire"] = victoire_;
+  p["points"] = points_;
+  p["restant"] = std::max(0, secondesRestantes());
+  p["erreurs"] = erreurs_;
+  p["indices"] = indicesPayants_;
+  int rang = 1;
+  for (JsonVariantConst q : d["parties"].as<JsonArrayConst>())
+    if (q["monde"] == vue_.monde && q["mission"].as<int>() == missionNumero_ && q["points"].as<int>() > points_) rang++;
+  std::string json;
+  serializeJson(d, json);
+  p_.ecrireFichier(CHEMIN_CLASSEMENT, json);
+  return rang;
+}
+
+std::string Moteur::classementJson() {
+  std::string contenu;
+  return p_.lireFichier(CHEMIN_CLASSEMENT, contenu) && !contenu.empty() ? contenu : "{\"parties\":[]}";
 }
 
 // L'afficheur à 4 chiffres : le code en cours de saisie si l'épreuve le demande (« afficheur » :

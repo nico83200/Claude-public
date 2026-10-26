@@ -113,6 +113,7 @@ void Oeil::maj(const RappelGeste& geste, const RappelCapteur& capteur) {
     const char* sens;
     if (decoder(sens)) {
       Serial.printf("Œil : geste %s\n", sens);
+      dernierGeste_ = sens;
       geste(sens);
     }
   }
@@ -123,6 +124,7 @@ void Oeil::maj(const RappelGeste& geste, const RappelCapteur& capteur) {
   uint8_t c[2];
   if (!lire(ADRESSE, CDATAL, c, 2)) return;
   float clair = c[0] | (c[1] << 8);
+  clair_ = clair;
   if (ambiance_ <= 0) ambiance_ = std::max(clair, 1.0f);
   float seuil = std::max(ambiance_ * broches::OEIL_LAMPE, ambiance_ + broches::OEIL_LAMPE_MIN);
   bool eclaire = eclaire_ ? clair > seuil * 0.6f : clair > seuil;
@@ -174,6 +176,7 @@ void Enclume::maj(const RappelCapteur& capteur) {
   prochain_ = t + 100;
   float champ;
   if (!lire(champ)) return;
+  champ_ = champ;
   if (repos_ <= 0) repos_ = champ;  // au démarrage, rien n'est posé
   bool aimant = std::fabs(champ - repos_) > broches::ENCLUME_SEUIL;
   if (!aimant) repos_ = repos_ * 0.98f + champ * 0.02f;
@@ -261,6 +264,7 @@ void Forge::maj(const RappelCapteur& capteur) {
   float temperature, humidite;
   if (!lire(temperature, humidite)) return;
   float mesure = humidite_ ? humidite : temperature;
+  mesure_ = mesure;
   float seuil = humidite_ ? broches::FORGE_HUMIDITE : broches::FORGE_TEMPERATURE;
   if (repos_ <= 0) repos_ = mesure;
   bool souffle = mesure - repos_ > (souffle_ ? seuil * 0.5f : seuil);

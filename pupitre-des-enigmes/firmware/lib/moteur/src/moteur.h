@@ -51,6 +51,12 @@ class Moteur {
   void commande(const std::string& commande);     // panneau Wi-Fi : pause, reprise, temps:+5…
 
   std::string etatJson();                         // pour le panneau Wi-Fi
+  std::string journalJson(int depuis) const;      // les lignes du journal de partie après « depuis »
+  std::string repliquesJson() const;              // les répliques de la mission (le souffleur)
+  std::string classementJson();                   // toutes les parties jouées (/classement.json)
+  // L'équipe de la partie (prénoms des joueurs), pour le classement ; « date » vient du téléphone.
+  void definirEquipe(const std::string& nom, const std::vector<std::string>& joueurs, const std::string& date);
+  int points() const { return points_; }
   static uint32_t couleurNommee(const std::string& nom);  // « vert », « ambre »… ou « #rrggbb »
   uint32_t couleurVoyant(int i) const { return voyantsAffiches_[i]; }  // avant clignotement ; NB_VOYANTS : le socle
   const Lumieres& lumieres() const { return lumieres_; }
@@ -238,6 +244,16 @@ class Moteur {
   std::string couleurPosee_;  // ce que voit le capteur de couleur
   bool cleTournee_ = false;
   std::map<std::string, bool> capteurs_;  // souffle, aimant, eclaire
+  // Le journal de la partie (panneau Wi-Fi) : les 80 dernières lignes, numérotées.
+  std::vector<std::pair<int, std::string>> journalPartie_;
+  int numeroJournal_ = 0;
+  void noter(const std::string& ligne);
+  // L'équipe et ses points.
+  std::string equipe_, datePartie_;
+  std::vector<std::string> joueurs_;
+  int points_ = 0;
+  int calculerPoints() const;
+  int classer();  // enregistre la partie dans /classement.json ; renvoie son rang dans la mission
   // Le tiroir secret : libéré par le servomoteur (action « tiroir », ou le menu du monde),
   // reverrouillé seulement une fois poussé au fond et la fermeture validée à l'écran.
   bool tiroirAuFond_ = true, tiroirOuvert_ = false, rangementApresPartie_ = false;

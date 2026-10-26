@@ -32,6 +32,7 @@ class PlateformeESP32 : public pupitre::Plateforme {
   std::vector<pupitre::EtatElement> etatMateriel() override { return etat ? etat() : std::vector<pupitre::EtatElement>{}; }
   std::function<std::vector<pupitre::EtatElement>()> etat;  // rempli par main.cpp, qui connaît tous les modules
   Tiroir& servomoteurTiroir() { return tiroir_; }
+  void essaiLed(uint32_t jusqua) { essaiLed_ = jusqua; }  // l'atelier : un arc-en-ciel sur toute la chaîne
 
  private:
   Ecran& ecran_;
@@ -39,5 +40,5 @@ class PlateformeESP32 : public pupitre::Plateforme {
   LecteurAudio& casque_;
   CRGB* leds_;
   Tiroir tiroir_;
-  uint32_t dernierAffichage_ = 0;
+  uint32_t dernierAffichage_ = 0, essaiLed_ = 0;
 };

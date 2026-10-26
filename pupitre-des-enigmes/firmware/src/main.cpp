@@ -36,6 +36,7 @@ PlateformeESP32 plateforme(ecran, hp, casque, leds);
 pupitre::Moteur moteur(plateforme);
 
 Commandes::Rappels rappels;
+uint32_t essaiAfficheur = 0;  // l'atelier du panneau : « 88:88 » sur l'horloge jusqu'à cet instant
 
 }  // namespace
 
@@ -118,7 +119,32 @@ void setup() {
     };
   };
   moteur.demarrer();
-  panneau::demarrer(moteur);
+  panneau::Atelier atelier;
+  atelier.mesures = [] {
+    char j[900];
+    snprintf(j, sizeof j,
+             "{\"Boutons enfoncés\":\"%s%s%s%s%s\",\"Dernière touche\":\"%c\",\"Molette\":\"%ld\",\"Clé\":\"%s\","
+             "\"Tiroir\":\"%s\",\"Couleur\":\"%s (clair %u)\",\"Œil : lumière\":\"%.0f (pièce %.0f)%s\","
+             "\"Œil : dernier geste\":\"%s\",\"Forge\":\"%.1f %s (repos %.1f)%s\",\"Enclume\":\"%.0f (repos %.0f)%s\"}",
+             commandes.boutonsEnfonces() & 1 ? "rouge " : "", commandes.boutonsEnfonces() & 2 ? "bleu " : "",
+             commandes.boutonsEnfonces() & 4 ? "jaune " : "", commandes.boutonsEnfonces() & 8 ? "vert " : "",
+             commandes.boutonsEnfonces() & 16 ? "gros" : "", commandes.derniereTouche(), static_cast<long>(commandes.molette()),
+             commandes.cleTournee() ? "tournée" : "repos", commandes.tiroirAuFond() ? "au fond" : "sorti",
+             capteur.present() ? (capteur.couleur().empty() ? "rien" : capteur.couleur().c_str()) : "absent", capteur.clair(),
+             oeil.lumiere(), oeil.piece(), oeil.eclaire() ? " · ÉCLAIRÉ" : "", oeil.present() ? oeil.dernierGeste() : "absent",
+             forge.mesure(), forge.humidite() ? "%" : "°C", forge.repos(), forge.souffle() ? " · SOUFFLE" : "",
+             enclume.champ(), enclume.repos(), enclume.aimant() ? " · AIMANT" : "");
+    return std::string(j);
+  };
+  atelier.essai = [](const std::string& a) {
+    if (a == "led") plateforme.essaiLed(millis() + 6000);
+    else if (a == "afficheur") essaiAfficheur = millis() + 5000;
+    else if (a == "son_hp") plateforme.jouer(90, 2, false);
+    else if (a == "son_casque") plateforme.jouer(90, 2, true);
+    else if (a == "tiroir_ouvrir") moteur.commande("tiroir");
+    else if (a == "tiroir_fermer") moteur.commande("tiroir_fermer");
+  };
+  panneau::demarrer(moteur, atelier);
 }
 
 void loop() {
@@ -138,7 +164,7 @@ void loop() {
   oeil.maj([](const char* sens) { moteur.geste(sens); }, capteurActif);
   enclume.maj(capteurActif);
   forge.maj(capteurActif);
-  afficheur.montrer(moteur.afficheur());
+  afficheur.montrer(millis() < essaiAfficheur ? "88:88" : moteur.afficheur());
   plateforme.servomoteurTiroir().maj();
   moteur.miseAJour();
   panneau::maj();

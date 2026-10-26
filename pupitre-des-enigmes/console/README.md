@@ -516,22 +516,28 @@ des cartes, le thème et les scripts des missions. Elle se prépare avec
 
 La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »** (mot de passe
 `enigmes123`, modifiable dans `firmware/src/broches.h`). Depuis un téléphone
-connecté à ce réseau, la page **http://192.168.4.1** montre le chrono, les cartes
-en place et les étapes franchies, et permet de mettre en pause, d'ajouter ou de
-retirer du temps, de donner un indice ou d'abandonner. Elle permet aussi :
+connecté à ce réseau, la page **http://192.168.4.1** a six onglets.
 
-- de **débloquer** une épreuve : quand les joueurs restent coincés (un capteur qui ne
-  répond pas, une lampe de téléphone trop faible…), le bouton « Débloquer » fait
-  réussir l'épreuve en cours, comme si les joueurs l'avaient faite. Il n'apparaît que
-  pendant une épreuve ;
-- d'**ouvrir le tiroir secret** à distance, et de voir s'il est sorti, libre ou
-  verrouillé ;
-- de voir l'**état du pupitre** : chaque module, présent (●), absent (✗) ou impossible à
-  vérifier (○).
+| Onglet | Ce qu'on y fait |
+|---|---|
+| **Partie** | Le chrono, le monde et la mission, les cartes en place, l'équipe, les étapes. Pause, reprise, ± minutes, abandon, retour à l'accueil. **Aide** : comme la carte d'aide glissée dans un lecteur (mêmes indices gratuits puis payants ; pas pendant une épreuve). **Débloquer** : fait réussir l'épreuve en cours quand les joueurs sont coincés (un capteur muet, une lampe trop faible…). Le tiroir secret (ouvrir à distance) et l'état des modules. |
+| **Équipe** | Le nom de l'équipe et les prénoms des joueurs, avant ou pendant la partie : ils entrent au classement à la fin. |
+| **Souffleur** | Un **message** à afficher à l'écran du pupitre (sur la ligne du bas pendant une épreuve). Toutes les **répliques** de la mission, à chercher par numéro ou par mot, à faire dire au haut-parleur 🔊 ou au casque 🎧. Le **journal de la partie** en direct : chaque carte glissée, chaque code tapé, chaque épreuve réussie ou ratée, chaque geste, et le texte de ce que le joueur entend au casque (🎧). |
+| **Classement** | Par mission, les meilleures équipes ; par joueur, le total des points de toutes ses parties. |
+| **Atelier** | Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
+| **Mise à jour** | Envoyer un nouveau programme (`firmware.bin`) sans ouvrir la boîte (§ 2 de `firmware/README.md`). |
+
+**Les points** (onglet Équipe) : 500 pour une victoire, 50 par étape franchie, 10 par
+minute restante en cas de victoire, moins 50 par indice payant et 100 par erreur
+d'accusation (jamais moins de 0). Chaque joueur de l'équipe reçoit les points de la
+partie. L'écran de fin les affiche, avec le rang de l'équipe dans la mission. Toutes les
+parties sont gardées dans `/classement.json`, sur la carte SD de l'écran (que
+`preparer_sd.py` n'efface pas). Une partie sans équipe compte sous « Équipe sans nom » ;
+l'équipe est oubliée au retour à l'accueil, pour la suivante.
 
 **Avant la partie**, le menu du monde a aussi une ligne **« État du pupitre »** : la
-même liste à l'écran, en deux colonnes, avec une pastille verte, rouge ou grise. Un
-module absent dont une mission du monde a besoin s'affiche en rouge, avec le numéro de
-la mission (*« Œil (gestes, lampe) · mission 1 »*). L'écran, les LED, la molette, la
+liste des modules à l'écran, en deux colonnes, avec une pastille verte, rouge ou grise.
+Un module absent dont une mission du monde a besoin s'affiche en rouge, avec le numéro
+de la mission (*« Œil (gestes, lampe) · mission 1 »*). L'écran, les LED, la molette, la
 clé et le gros bouton ne peuvent pas être vérifiés par le programme (pastille grise) :
-regardez-les.
+regardez-les, ou servez-vous de l'atelier.

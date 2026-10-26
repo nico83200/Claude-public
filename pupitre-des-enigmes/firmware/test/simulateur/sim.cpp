@@ -25,6 +25,8 @@
 //   aimant pose|-                  (le fer aimanté posé sur l'enclume, ou retiré)
 //   tiroir fond|sorti              (le contact de fin de course du tiroir secret)
 //   absent gestes                  (ce module n'a pas répondu au démarrage)
+//   equipe Les Fers | Léa, Tom     (l'équipe de la partie, depuis le panneau Wi-Fi)
+//   verifie points 820 | journal <texte> | classement <texte>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -452,8 +454,26 @@ int main(int argc, char** argv) {
       m.molette(-m.epreuveValeurs()[0]);
       calme();
     } else if (cmd == "commande") {
-      m.commande(a);
+      m.commande(ligne.substr(ligne.find(' ') + 1));  // le reste de la ligne : « commande message:Regardez la photo »
       calme();
+    } else if (cmd == "equipe") {
+      // « equipe Les Fers | Léa, Tom, Inès » : le nom, puis les prénoms.
+      std::string reste = ligne.substr(ligne.find(' ') + 1), nom = reste, liste;
+      size_t barre = reste.find('|');
+      if (barre != std::string::npos) {
+        nom = reste.substr(0, barre);
+        liste = reste.substr(barre + 1);
+      }
+      auto rogner = [](std::string s) {
+        s.erase(0, s.find_first_not_of(' '));
+        s.erase(s.find_last_not_of(' ') + 1);
+        return s;
+      };
+      std::vector<std::string> joueurs;
+      std::stringstream lj(liste);
+      for (std::string j; std::getline(lj, j, ',');)
+        if (!rogner(j).empty()) joueurs.push_back(rogner(j));
+      m.definirEquipe(rogner(nom), joueurs, "2026-10-26");
     } else if (cmd == "verifie") {
       if (a == "drapeau") verifier(m.drapeau(b), "drapeau " + b, numero);
       else if (a == "sans") verifier(!m.drapeau(b), "pas de drapeau " + b, numero);
@@ -477,6 +497,14 @@ int main(int argc, char** argv) {
         verifier(allumee == (b == "allumee"), "lumière du tiroir " + b, numero);
       } else if (a == "tiroir") {
         verifier(m.tiroirVerrouille() == (b == "verrouille"), "tiroir " + b, numero);
+      } else if (a == "points") {
+        verifier(m.points() == atoi(b.c_str()), "points " + b + " (vaut " + std::to_string(m.points()) + ")", numero);
+      } else if (a == "journal") {
+        std::string cherche = ligne.substr(ligne.find("journal") + 8);
+        verifier(m.journalJson(0).find(cherche) != std::string::npos, "journal « " + cherche + " »", numero);
+      } else if (a == "classement") {
+        std::string cherche = ligne.substr(ligne.find("classement") + 11);
+        verifier(m.classementJson().find(cherche) != std::string::npos, "classement « " + cherche + " »", numero);
       } else if (a == "afficheur") {
         verifier(m.afficheur() == b, "afficheur « " + b + " » (montre « " + m.afficheur() + " »)", numero);
       } else if (a == "zone") {

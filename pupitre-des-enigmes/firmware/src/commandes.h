@@ -20,6 +20,12 @@ class Commandes {
   void maj(const Rappels& r);
   bool boutonsPresents() const { return adresseBoutons_ != 0; }
   bool clavierPresent() const { return adresseClavier_ != 0; }
+  // Pour l'atelier du panneau Wi-Fi.
+  uint8_t boutonsEnfonces() const { return masque_ | (boutons_[4].stable ? 0x10 : 0); }
+  char derniereTouche() const { return derniereTouche_; }
+  bool cleTournee() const { return cle_.stable; }
+  bool tiroirAuFond() const { return tiroir_.stable; }
+  int32_t molette() const { return dernierePosition_ / 4; }
 
  private:
   struct Anti {  // anti-rebond
@@ -34,6 +40,6 @@ class Commandes {
   uint8_t masque_ = 0;
   int32_t dernierePosition_ = 0;
   uint8_t adresseClavier_ = 0, adresseBoutons_ = 0;  // 0 : module absent
-  char toucheLue_ = 0, toucheStable_ = 0;
+  char toucheLue_ = 0, toucheStable_ = 0, derniereTouche_ = ' ';
   uint32_t toucheDepuis_ = 0, dernierBalayage_ = 0;
 };

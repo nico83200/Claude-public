@@ -83,6 +83,21 @@ La carte ESP-32S (USB-C) passe par une puce USB **CH340**.
 remplacer l'image puis lancer `python3 outils/logo_ecran.py` et téléverser de nouveau.
 La durée se règle dans `src/broches.h` (`DUREE_LOGO_MS`).
 
+### Mettre à jour par le Wi-Fi (sans ouvrir la boîte)
+
+Le programme est réparti sur deux partitions de 1,9 Mo : la nouvelle version s'écrit
+dans l'une pendant que l'autre tourne. **La première fois**, téléversez par l'USB (la
+table des partitions change) ; ensuite, deux façons :
+- **Depuis PlatformIO** : connectez l'ordinateur au Wi-Fi « Pupitre-des-Enigmes », puis
+  `pio run -e pupitre-wifi -t upload` (ou choisissez l'environnement `pupitre-wifi` dans
+  la barre de PlatformIO, puis →).
+- **Depuis un navigateur** : compilez (✓), connectez l'ordinateur au Wi-Fi du pupitre,
+  ouvrez http://192.168.4.1, onglet **Mise à jour**, et envoyez le fichier
+  `firmware/.pio/build/pupitre/firmware.bin`.
+
+Le pupitre redémarre tout seul. Ne coupez pas le courant pendant l'envoi ; en cas
+d'échec, l'ancien programme reste en place.
+
 ## 3. Préparer les cartes micro-SD
 
 Le pupitre utilise **trois** cartes micro-SD.
@@ -125,9 +140,9 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
 
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
 `Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1.
-Il montre aussi l'état de chaque module, l'épreuve en cours avec un bouton
-**« Débloquer »** (elle réussit, si les joueurs sont coincés), et ouvre le tiroir
-secret à distance. Avant la partie, le menu du monde affiche le même état
+Six onglets : la partie (dont **« Aide »** et **« Débloquer »**), l'équipe, le souffleur
+(messages, répliques, journal de partie), le classement, l'atelier (essais et mesures
+des capteurs) et la mise à jour du programme (voir `console/README.md`, § 9). Avant la partie, le menu du monde affiche le même état
 (**« État du pupitre »**), en signalant ce qui manque à une mission.
 
 ## 6. Réglages
@@ -199,7 +214,10 @@ souffle 3            # souffler 3 s sur la forge ; « eclaire 3 » : une lampe s
 aimant pose          # un aimant sur l'enclume ; « aimant - » le retire
 tiroir sorti         # le microrupteur du tiroir secret ; « tiroir fond » : poussé au fond
 absent gestes        # ce module n'a pas répondu au démarrage (écran « État du pupitre »)
-commande debloquer   # le panneau Wi-Fi : « pause », « temps:5 », « debloquer », « tiroir »…
+commande debloquer   # le panneau Wi-Fi : « pause », « temps:5 », « debloquer », « aide »,
+                     # « message:Regardez la photo », « dire:46 », « casque:75 », « tiroir »…
+equipe Les Fers | Léa, Tom   # l'équipe et ses prénoms (onglet Équipe)
+verifie points 1190  # et : « verifie journal <texte> », « verifie classement <texte> »
 bouton VERT          # ROUGE, BLEU, JAUNE, VERT, GROS
 code 3,7,1,5         # saisir un code à la molette ; lettres SILENCE pour un mot
 avance 10            # faire passer 10 minutes (s'arrête si un imprévu commence)
