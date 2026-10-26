@@ -87,6 +87,9 @@ def taches_sons(contenu, numeros):
     for son in contenu["sons"]:
         if numeros and son["n"] not in numeros:
             continue
+        if "outil" in son:  # fabriqué par un script du dépôt (rythme exact), pas par l'API
+            print(f"ℹ️  {contenu['dossier']}/{son['n']:03d} ({son['nom']}) : lancez {son['outil']}")
+            continue
         corps = {"text": son["prompt"], "duration_seconds": max(son["duree"], 0.5), "prompt_influence": 0.5}
         yield contenu["dossier"], son["n"], f"bruitage : {son['nom']}", f"{API}/sound-generation", corps
 

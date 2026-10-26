@@ -332,7 +332,7 @@ int main(int argc, char** argv) {
         for (int t : motif) {
           tourner(static_cast<uint32_t>(t - precedent));
           precedent = t;
-          m.bouton(GROS);
+          m.bouton(c.empty() ? GROS : bouton(c));
         }
         tourner(700);
       }

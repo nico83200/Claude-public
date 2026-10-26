@@ -295,8 +295,8 @@ void Dessin::noir() {
   float f = facteur_;
   facteur_ = 1.0f;  // ces deux lignes, à peine visibles, ne s'assombrissent pas davantage
   g_.fillScreen(0x000000u);
-  ecrire("Noir complet", L / 2, 128, &polices::titre, 0x3a3a3a, 0x000000, 1);
-  ecrire("Actionnez la dynamo !", L / 2, 166, &polices::compact, 0x4a4a4a, 0x000000, 1);
+  ecrire("Noir complet", L / 2, 128, &polices::titre, 0x5a5f66, 0x000000, 1);
+  ecrire("Actionnez la dynamo !", L / 2, 166, &polices::compact, 0x9a7428, 0x000000, 1);
   facteur_ = f;
 }
 
@@ -338,6 +338,7 @@ void Dessin::entete(const Vue& v) {
 
   int place = droite - 14;
   std::string haut = v.mission.empty() ? v.monde : v.monde + "  ·  " + v.mission;
+  if (!v.mission.empty() && largeur(haut, &polices::petit) > place) haut = v.mission;  // trop long : la mission suffit
   ecrire(couper(haut, &polices::petit, place), 12, 6, &polices::petit, pal_.doux, pal_.fond);
   if (!v.compteurs.empty()) ecrire(couper(v.compteurs, &polices::compact, place), 12, 23, &polices::compact, pal_.texte, pal_.fond);
 

@@ -38,6 +38,7 @@ le DFPlayer du casque, et toutes les autres par le haut-parleur.
    ```bash
    python3 generer_audio.py ../console/audio/*.json ../mondes/*/audio/*.json
    python3 morse.py    # la balise morse de la mission 3 (sd/31/020.wav)
+   python3 frappe.py   # les coups de l'Orque, mission 4 (sd/41/020.wav)
    ```
 5. **Copier le dossier `sd/` sur les deux cartes micro-SD**, formatées en FAT32.
 

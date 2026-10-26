@@ -8,7 +8,9 @@ Pour chaque mission, contrôle que :
   répliques du pupitre avec « pupitre »: true) ;
 - chaque bruitage (« son », « ambiance ») existe dans audio/sons.json du monde ;
 - chaque carte citée dans les règles et l'accusation est déclarée dans « cartes » ;
-- les rôles ont une réplique d'arrivée, et les épreuves un type connu.
+- les rôles ont une réplique d'arrivée, et les épreuves un type connu ;
+- les boutons nommés (épreuves « ordre », « rythme », dynamo) existent ;
+- les répliques des lecteurs renommés (« zones ») et de la dynamo existent.
 Renvoie un code d'erreur s'il y a un problème (pratique avant de copier la carte SD).
 """
 import json
@@ -17,7 +19,8 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 TYPES_EPREUVES = {"code", "lettres", "choix", "ensemble", "rythme", "sequence", "immobile", "molette_zero", "rondes",
-                  "energie", "traitre", "appui"}
+                  "energie", "traitre", "appui", "ordre"}
+BOUTONS = {"ROUGE", "BLEU", "JAUNE", "VERT", "GROS"}
 CLES_CARTES = ("lieu", "qui", "quoi", "role", "combiner")
 
 
@@ -72,6 +75,12 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
         if "type" in x and "solution" in x or x.get("type") in TYPES_EPREUVES or "epreuve" in chemin.split(".")[-1:]:
             if x.get("type") not in TYPES_EPREUVES:
                 erreur(f"type d'épreuve inconnu « {x.get('type')} » ({chemin})")
+            for b in x.get("ordre", []) + ([x["bouton"]] if "bouton" in x else []):
+                if b not in BOUTONS:
+                    erreur(f"bouton inconnu « {b} » ({chemin})")
+            boucle = x.get("boucle_casque")
+            if boucle and boucle.get("dossier") == script.get("dossier_sons") and boucle.get("n") not in sons:
+                erreur(f"son {boucle.get('n')} introuvable (boucle_casque, {chemin})")
         for k, v in x.items():
             if k in ("voix",) and chemin == "":
                 continue
@@ -92,6 +101,15 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
             dire(n)
     for r in script.get("fins", {}).get("rangs", []):
         dire(r["dire"])
+    for k in ("dire_lieu", "dire_objet", "dire_perso"):
+        dire(script.get("zones", {}).get(k))
+    if len(script.get("zones", {}).get("noms", ["", "", ""])) != 3:
+        erreur("zones.noms : il faut trois noms (gauche, centre, droite)")
+    dynamo = script.get("dynamo")
+    if dynamo:
+        dire(dynamo.get("noir"))
+        if dynamo.get("bouton", "GROS") not in BOUTONS:
+            erreur(f"dynamo : bouton inconnu « {dynamo.get('bouton')} »")
     dire(script.get("pouvoir_epuise"))
     dire(script.get("roles_demande"))
     for rid, r in script.get("roles", {}).items():

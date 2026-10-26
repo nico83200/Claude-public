@@ -1,11 +1,12 @@
 # Mission 4 : le déroulé minute par minute
 
 > **Le Pupitre des Énigmes** · Monde : Sous-marin Narval · complément du
-> [scénario](mission-4-voie-d-eau.md). Une **partie type** de 60 minutes :
-> actions, cartes posées, écran, son, niveau de l'eau et étapes.
+> [scénario](mission-4-dernier-souffle.md). Une **partie type** de 60 minutes :
+> actions, cartes posées, écran, son, lumière et objectifs.
 >
 > **Repères sonores** : 🔊 20 désigne une réplique du dossier SD `40` (voix du
 > Narval) ; `41/…` les bruitages du Narval ; `90/…` et `91/…` ceux du pupitre.
+> Les captures de l'écran sont dans `firmware/docs/ecrans/` (fichiers `m4-…`).
 
 ---
 
@@ -13,96 +14,93 @@
 
 | Situation | Effet |
 |---|---|
-| **Pas d'enquête** | Ni coupable ni accusation : le but est de **sortir**. Le gros bouton ne sert qu'à la toute fin (l'écoutille). |
-| **Pas de rôles** | Tous matelots. Après le choix de la mission, l'introduction démarre aussitôt, sans cartes Rôle. |
-| **OÙ = où l'on est** | Un lieu posé sur OÙ y reste : c'est le compartiment où se trouve l'équipe. |
-| **QUI et QUOI = les mains** | Les deux reçoivent des **objets**. Deux objets ensemble se **combinent** (lampe + piles). Un objet seul est **utilisé dans le lieu** posé sur OÙ. Si deux objets ne se combinent pas, le dernier posé est utilisé seul. |
-| **Chrono = l'eau** | 60:00 → 0:00. L'anneau **se remplit de bleu** à mesure que l'eau monte, puis vire au **rouge** dans les 10 dernières minutes. Certaines réussites **rendent du temps**. |
-| **Gestes à plusieurs** | Porte, cloison, remplissage du sas : les **4 boutons tenus ensemble**. |
+| **Pas d'enquête** | Ni coupable ni accusation : le but est de **sortir**. |
+| **Pas de rôles** | Tous matelots. Après le choix de la mission, l'introduction démarre aussitôt. |
+| **Le plateau** | La façade de la mission renomme les lecteurs : **MAIN GAUCHE**, **COMPARTIMENT** (centre), **MAIN DROITE**. L'écran les affiche sous ces noms. |
+| **COMPARTIMENT** | Un lieu posé au centre y reste : c'est là où se trouve l'équipe. Un lieu posé sur une main : 🔊 15. |
+| **Les mains** | Elles reçoivent des **objets**. Un objet seul est **utilisé dans le compartiment** ; deux objets ensemble se **combinent** (les deux clés). Un objet posé au centre : 🔊 16. |
+| **La dynamo** | Le **gros bouton**. La lumière baisse en continu (de 100 % à 0 en **80 s**, puis en **160 s** une fois le courant rétabli) ; chaque appui rend **15 %**. L'écran s'assombrit sous 40 % ; à 0, **noir complet** : l'écran affiche « Noir complet · Actionnez la dynamo ! » et toute carte posée ne donne que 🔊 17. |
+| **Chrono = oxygène** | « O₂ 60:00 » dans l'en-tête, avec une barre qui se vide. Trois bonus rendent de l'air (+6, +5, +4 min). |
+| **Les objectifs** | Un appui sur la molette (hors épreuve) ouvre le **tableau de bord** : objectifs découverts, temps, lumière. La ligne du bas de l'écran les montre aussi. |
+| **Gestes à plusieurs** | Porte, clés, poste avant, écoutille, coque : les **4 boutons tenus ensemble**, et quelqu'un sur la dynamo. |
 
 ---
 
 ## 2. Les étapes
 
-| Jalon | Condition | Débloque |
+| Drapeau | Condition | Débloque |
 |---|---|---|
-| (casier) | Casier de Rasmus : **739** | E2 : piles, fusible |
-| **J1** Lumière | Lampe + piles, sur QUI et QUOI | E3 : plan, plaque de la porte |
-| **J2** Porte | Coursive : **4 boutons, 3 s** | Tous les lieux ; E4 |
-| **J3** Voie d'eau | Clé à molette dans la coursive : **molette à zéro** | **+5 min** (facultatif) |
-| **J4** Énergie | Fusible au local des batteries : **2-4-1-1-2** | **+4 min** ; console, radio |
-| **J5** Console | Poste de commande : **ABYSSE** | La chasse aux ballasts |
-| **J6** Remontée | Séquence de 5 vannes | Le sas s'ouvre à la manœuvre |
-| (radio) | Salle radio, après J4 | 🎧 Le code du sas : **417 · 60** |
-| **J7** Sas | Code **417 · 60** | E8 : combinaisons |
-| **J8** Sortie | Combinaisons dans le sas : **4 boutons, 4 s**, puis **gros bouton** | Victoire |
+| `casier` | Casier de Rasmus (O1) : **379** | E2 : multimètre, carnet de l'électricien |
+| `J_porte` | Coursive (L2) : **4 boutons, 3 s** | Tous les compartiments ; E3 |
+| `releve` | Multimètre (O2) au local des batteries | Les tensions à l'écran |
+| `pont` | Câble (O3) au local : **banc E** (bouton bleu) | Le raccordement |
+| `J_raccord` | Raccordement : **ABF** | La répartition |
+| `J_courant` | Répartition : **3-2-2-1-1** | Console, radio, épurateur ; la dynamo dure 2 fois plus |
+| `vannes` | Manivelle (O4) en salle des machines → vannes **2586** | La pompe |
+| `J_hyd` | Pompe : rythme long-court-court × 3 sur le **bouton jaune** | Le sas a sa pression |
+| `J_console` | Poste de commande (avec courant) : **ABYSSE** | Les deux clés |
+| `coffre` | Coffre (O7) : **2479** | E10 : clé de la commandante (O6) |
+| `J_sec` | Clés O5 + O6 en main, poste de commande au centre : **4 boutons, 2 s** | La sécurité du sas est levée |
+| `J_contact` | Salle radio (avec courant), 🎧 : **736** | L'Orque viendra : « seize bars » |
+| `J_verrous` | Clé à cliquet (O11) au sas, `J_hyd` et `J_sec` : **bleu, rouge, vert, jaune** | L'Orque accoste (si `J_contact`) |
+| `egal` | Égalisation : **16** | L'écoutille : **4 boutons, 4 s** → victoire |
 
-En parallèle : la cambuse (E5, tableau des quarts) et le poste de commande (E7,
-carnet) peuvent être visités dès J2, même sans courant.
+**Bonus** : `armoire` (O8, **9742**, E5) puis `chandelle` (O9, partout sauf au
+local des batteries, **+6 min**) · `chaux` (O10 en salle des machines avec le
+courant, **+5 min**) · `J_cmdt` (O12 au poste avant, 4 boutons 4 s, **+4 min**,
+E13).
 
-### Filets de sécurité (« AIDE ? » clignote à l'écran)
+L'ordre est libre une fois la porte ouverte : l'équipe peut, par exemple, ouvrir
+le coffre avant d'avoir le courant, ou lever la sécurité avant l'hydraulique.
 
-| Minute | Jalon manquant |
+### Les objectifs du tableau de bord
+
+| Objectif | Apparaît | Coché |
+|---|---|---|
+| Ouvrir la porte étanche | dès le départ | `J_porte` |
+| Rétablir le courant | porte ouverte | `J_courant` |
+| Pressuriser l'hydraulique | salle des machines ou sas visités | `J_hyd` (ou verrous libérés) |
+| Lever la sécurité du sas | poste de commande ou sas visités | `J_sec` |
+| Contacter l'Orque | porte ouverte | `J_contact` |
+| Libérer les verrous | sas visité | `J_verrous` |
+| Ouvrir l'écoutille | verrous libres et contact établi | — |
+| Bonus : la commandante | poste avant visité | `J_cmdt` |
+
+### Filets de sécurité (« AIDE ? » clignote)
+
+| Minute | Ce qui manque |
 |---|---|
-| 6 | J1 (la lumière) |
-| 15 | J2 (la porte) |
-| 28 | J4 (l'énergie) |
-| 38 | J5 (la console) |
-| 48 | J7 (le sas) |
+| 6 | le casier |
+| 12 | la porte |
+| 25 | le courant |
+| 32 | l'hydraulique |
+| 38 | la sécurité du sas |
+| 44 | le contact avec l'Orque |
+| 50 | les verrous |
 
 ---
 
-## 3. Les écrans propres à ce monde
+## 3. Les écrans propres à cette mission
 
 Thème : fond acier bleu nuit, titres ambre, alertes rouge vif.
 
-### Écran principal
-```
-┌────────────────────────────────────────────────┐
-│ Aide 3                                   52:14 │
-├────────────────────────────────────────────────┤
-│ Coursive                                       │
-│ La coursive. La conduite fuit toujours, et     │
-│ l'eau monte. D'ici, on rejoint la cambuse…     │
-│                                                │
-│ ┌────────────────────────────────────────────┐ │
-│ │       » OUVREZ L'ENVELOPPE E4              │ │
-│ └────────────────────────────────────────────┘ │
-│ Lumière √  Porte √  Énergie ·  Console ·  Sas · │
-├────────────────────────────────────────────────┤
-│ QUI Lampe torche │ OÙ Coursive │ QUOI          │
-└────────────────────────────────────────────────┘
-```
+| Écran | Capture | Ce qu'on y voit |
+|---|---|---|
+| Compartiment | `m4-01-poste` | Carte du récit, bandeau « Ouvrez l'enveloppe », objectifs en pastilles, la barre MAIN GAUCHE · COMPARTIMENT · MAIN DROITE |
+| Geste à plusieurs | `m4-02-porte` | La consigne en grand, le compte à rebours circulaire |
+| Relevé des bancs | `m4-03-releve` | Les huit tensions, en texte |
+| Le pontage | `m4-04-pontage` | Quatre tuiles de couleur : C, E, H, ne pas ponter |
+| Noir complet | `m4-05-noir`, `m4-12-noir` | Écran noir, « Actionnez la dynamo ! » |
+| Répartition | `m4-06-energie` | 5 circuits, 9 unités |
+| La pompe | `m4-07-pompe` | « Écoutez le rythme… », puis « À vous, sur le bouton jaune ! », le voyant jaune |
+| Téléphone sous-marin | `m4-08-radio` | 3 chiffres ; les coups passent en boucle au casque |
+| Les verrous | `m4-09-verrous` | Le rappel des positions, les étapes franchies (●●○○) |
+| L'écoutille | `m4-10-ecoutille` | 4 boutons, 4 secondes |
+| Fin | `m4-11-victoire`, `m4-13-asphyxie` | Rang, temps restant, conseils payants |
 
-### Combinaison d'objets
-```
-┌────────────────────────────────────────────────┐
-│ Lampe torche  +  Piles                         │
-│ Clic. Un faisceau blanc perce l'obscurité…     │
-└────────────────────────────────────────────────┘
-```
-
-### Répartition de l'énergie
-```
-┌────────────────────────────────────────────────┐
-│          RÉPARTITION DE L'ÉNERGIE              │
-│ ▶ Pompes de cale  ■■□□□  2                     │
-│   Compresseur     ■■■■□  4                     │
-│   Radio           ■□□□□  1                     │
-│   Éclairage       ■□□□□  1                     │
-│   Sas             ■■□□□  2                     │
-│ 10 / 10 unités · 10 unités · Vert : valider    │
-└────────────────────────────────────────────────┘
-```
-
-### L'écoutille
-```
-┌────────────────────────────────────────────────┐
-│                 L'ÉCOUTILLE                    │
-│              LE GROS BOUTON !                  │
-│                    ⏱ 12 s                      │
-└────────────────────────────────────────────────┘
-```
+L'en-tête porte à droite **O₂ 59:57** (ambre, rouge sous 20 %) et le **témoin de
+lumière** (ampoule et jauge, rouge sous 30 %). Sous 40 % de lumière, tout l'écran
+s'assombrit par paliers.
 
 ---
 
@@ -112,61 +110,68 @@ Thème : fond acier bleu nuit, titres ambre, alertes rouge vif.
 | Action | Écran | Son |
 |---|---|---|
 | Carte Monde sur un lecteur | Menu du Narval | `41/001` jingle, 🔊 13 |
-| Appui sur la molette (mission 4) | Le titre | 🔊 9 (pitch), 🔊 14 (comment jouer) |
-| | Chrono 60:00, anneau éteint | `41/004` alarme, 🔊 10 (système), ambiance `41/002` |
+| Appui sur la molette (mission 4) | Le titre | 🔊 9 (pitch), 🔊 14 (le plateau, la dynamo) |
+| | O₂ 60:00, la lumière commence à baisser | `41/004` alarme, 🔊 10 (système), ambiance `41/002` |
 
-### 60:00 – 52:00 : la lumière et la porte
+### 60:00 – 50:00 : le poste d'équipage et la porte
 | Minute | Action | Résultat |
 |---|---|---|
-| 59 | **Poste d'équipage** sur OÙ | 🔊 20, **E1** : lampe (O1), casier (O2), photo, mot de Rasmus |
-| 57 | **Casier** sur QUOI | 🔊 72, écran de code : **7-3-9** (âges 19, 24, 31 → maillots 7, 3, 9 ; l'entraîneur est un piège). `41/008`, 🔊 74, **E2** |
-| 55 | **Lampe** sur QUI + **piles** sur QUOI | `41/009`, 🔊 81, **E3** : plan d'évacuation, plaque de la porte. **J1** |
-| 54 | **Coursive** sur OÙ | 🔊 24 : écran « LA PORTE ÉTANCHE ». Les 4 boutons, 3 s |
-| 53 | Réussi | `41/007`, 🔊 25, **E4**. **J2** |
+| 59 | **Poste d'équipage** au centre | 🔊 20, **E1** : casier (O1), photo, mot de Rasmus, tableau des quarts, plaque de la dynamo |
+| 57 | **Casier** en main | 🔊 70, code : **3-7-9**. Erreur 🔊 71 (sans pénalité). Ouvert : `41/008`, 🔊 72, **E2** |
+| 55 | **Coursive** au centre | 🔊 22 : 4 boutons, 3 s. Raté : 🔊 23. Réussi : `41/007`, 🔊 24, **E3** (clé à cliquet, plan, rapport d'avarie) |
+| 53 (7ᵉ min) | ⛰️ **Le Narval glisse** | `41/006`, 🔊 120 : 15 s sans rien toucher, **dynamo comprise**. 🔊 121, ou 🔊 122 et −3 min |
 
-> Avant J1, la coursive répond 🔊 23 (trop noir). Avant J2, tous les autres lieux
-> répondent 🔊 29 (porte fermée).
+> Avant la porte, tout autre compartiment répond 🔊 25.
 
-### 52:00 – 40:00 : la cambuse, la fuite, le courant
+### 50:00 – 38:00 : le courant
 | Minute | Action | Résultat |
 |---|---|---|
-| 51 | **Cambuse** sur OÙ | 🔊 30, **E5** : clé à molette (O5), ruban (O6), **tableau des quarts** |
-| 50 | **Ruban** dans la coursive | 🔊 83 : ça ne tient pas |
-| 49 | **Clé à molette** dans la coursive | 🔊 84, molette à zéro en 20 s → 🔊 85, **+5 min**. **J3** |
-| 50 (10ᵉ min) | 💥 Imprévu : la coque craque | `41/005`, 🔊 90, 4 boutons 3 s → 🔊 91 (ou 🔊 92, −3 min) |
-| 47 | **Poste de commande** sur OÙ | 🔊 38 : console éteinte ; **E7** : carnet de la commandante |
-| 45 | **Local des batteries** sur OÙ | 🔊 32, **E6** : manuel (5 circuits, 6 règles) |
-| 44 | **Fusible** sur QUOI (local sur OÙ) | 🔊 35, écran d'énergie. Erreur : `41/011`, 🔊 36, −2 min |
-| 42 | **2-4-1-1-2**, bouton vert | `41/010`, 🔊 37, **+4 min**, ambiance `41/003`. **J4** |
-| 42 (18ᵉ min) | ⛰️ Imprévu : le Narval glisse | `41/022`, 🔊 93 : 15 s sans toucher → 🔊 94 (ou 🔊 95, −3 min) |
+| 50 | **Infirmerie** | 🔊 27, **E4** : clé du second (O5), armoire (O8), fiche de soins |
+| 49 | **Armoire** en main | 🔊 100, **9742** → `41/008`, 🔊 102, **E5** : la chandelle (O9) |
+| 48 | **Chandelle** en main (hors local des batteries) | `41/022`, 🔊 104, **+6 min**. Au local : `41/004`, 🔊 105, rien |
+| 47 | **Local des batteries** | 🔊 29, **E6** : manivelle (O4), tableau des bancs, manuel |
+| 46 | **Multimètre** en main | 🔊 75, le relevé à l'écran |
+| 45 | **Salle des machines** | 🔊 32, **E7** : câble (O3), chaux sodée (O10), pied-de-biche (O12), schéma hydraulique |
+| 46 (14ᵉ min) | ⚡ **Court-circuit** | `41/011`, 🔊 123 : 5 couleurs à rejouer. 🔊 124, ou 🔊 125 et **noir complet** |
+| 43 | **Câble** en main, au local | 🔊 77 : C, **E**, H, ne pas ponter. Erreur : `41/011`, 🔊 78, −1 min. Juste : 🔊 79 |
+| 42 | Raccordement | 🔊 80 : **ABF**. Erreur : 🔊 81, −1 min |
+| 41 | Répartition | 🔊 82 : **3-2-2-1-1**, bouton vert. Surcharge : `41/011`, 🔊 83, −2 min, **noir complet**. Juste : `41/010`, 🔊 84, ambiance `41/003` |
 
-### 40:00 – 28:00 : la console et la remontée
+> Abandonner (retirer le compartiment) ne coûte rien : reposer le local des
+> batteries reprend là où l'équipe s'était arrêtée.
+
+### 38:00 – 25:00 : l'hydraulique, la console, le coffre
 | Minute | Action | Résultat |
 |---|---|---|
-| 39 | **Salle radio** sur OÙ | `41/014`, 🔊 48, puis 🎧 **49** : le Pélican donne la règle du code du sas |
-| 37 | **Poste de commande** sur OÙ | 🔊 40, mot de passe : **ABYSSE** (quarts de nuit, tableau E5 + carnet E7) |
-| 35 | Accepté | 🔊 42, puis 🔊 43 : séquence de 5 vannes. Erreur : 🔊 44, −2 min, reposer le poste |
-| 34 | Réussie | `41/012`, 🔊 45 : 58 mètres. **J6** |
-| 34 (26ᵉ min) | 📞 L'interphone | `41/021`, 🔊 96, 🎧 **97** (une seule fois) : « cherchez-le dans la nuit » |
-| 30 (30 restantes) | 🌊 L'eau aux genoux | 🔊 104 (système) |
-| 26 (34ᵉ min) | 🔧 Pompe manuelle | 🔊 98, rythme au gros bouton → 🔊 99, +2 min (ou 🔊 100, −2 min) |
+| 38 (22ᵉ min) | 📞 **La commandante** | `41/021`, 🔊 126, 🎧 **127** (une seule fois) : les deux clés, le coffre, « il manque une information » |
+| 37 | **Manivelle** en main, salle des machines | 🔊 86 (la pompe tourne à vide), puis 🔊 33 : vannes **2586**. Erreur : 🔊 34, −1 min |
+| 35 | Vannes ouvertes | 🔊 35, puis 🔊 87 : rythme long-court-court × 3, **bouton jaune**. Raté : 🔊 88. Réussi : `41/013`, 🔊 89 |
+| 34 | **Chaux sodée** en main, salle des machines | 🔊 108, **+5 min** (sans courant : 🔊 107) |
+| 33 | **Poste de commande** | 🔊 37, **E8** (carnet de la commandante) ; avec le courant, 🔊 39 : **ABYSSE**. ABYSTE : 🔊 40, −1 min |
+| 31 | **Carré des officiers** | 🔊 51, **E9** : coffre (O7), carte marine, cahier du second |
+| 30 (30ᵉ min) | 🛢️ **Fuite d'huile** (si l'hydraulique est faite et les verrous pas encore) | `41/005`, 🔊 128 : molette à zéro, 15 s. 🔊 129, ou 🔊 130 : l'hydraulique retombe (on réamorce la pompe ; les vannes restent ouvertes) |
+| 28 | **Coffre** en main | 🔊 96, **2479** → `41/008`, 🔊 98, **E10** : clé de la commandante (O6), lettre |
+| 26 | **Les deux clés** en main, poste de commande au centre | 🔊 93 : 4 boutons, 2 s. Raté : 🔊 94. Réussi : 🔊 95. Ailleurs : 🔊 92 |
 
-### 28:00 – 15:00 : le sas et la sortie
+### 25:00 – 10:00 : l'Orque, les verrous, la sortie
 | Minute | Action | Résultat |
 |---|---|---|
-| 25 | **Sas** sur OÙ | 🔊 51, code en deux champs : **417** et **60** (plan E3). Erreur : 🔊 52, −1 min |
-| 23 | Ouvert | `41/007`, 🔊 53, **E8** : combinaisons (O7), procédure. **J7** |
-| 22 | **Combinaisons** sur QUOI (sas sur OÙ) | 🔊 55 : 4 boutons, 4 s. Raté : 🔊 56, −1 min |
-| 21 | Réussi | `41/019`, 🔊 57 : l'anneau clignote, **gros bouton** en 15 s |
-| 21 | Gros bouton | `41/020`, `41/017`, 🔊 110, 111, 112, rang (🔊 113 à 115). **Victoire** |
+| 24 | **Salle radio** | 🔊 44, **E11** (grille, carnet des signaux) ; avec le courant, 🔊 46 : 🎧 les coups en boucle (`41/020`), réponse **736**. Erreur : 🔊 47, −1 min. Juste : `41/014`, 🔊 48, 🔊 49 (« seize bars ») |
+| 22 (38ᵉ min) | 😮‍💨 **Le CO₂ monte** | `41/024`, 🔊 131 : rythme lent sur le **bouton vert**. 🔊 132 et +2 min, ou 🔊 133 et −1 min |
+| 20 | **Poste avant** | 🔊 67 |
+| 19 | **Pied-de-biche** en main | 🔊 68 : 4 boutons, 4 s. Raté : 🔊 69. Réussi : `41/007`, 🔊 115, **E13**, **+4 min** |
+| 17 | **Sas** | 🔊 53, **E12** (procédure), puis l'état : 🔊 54 à 57 |
+| 16 | **Clé à cliquet** en main, au sas | 🔊 58 : **bleu, rouge, vert, jaune**. Erreur : 🔊 59, −1 min. Réussi : `41/015`, 🔊 60 |
+| 15 | L'Orque accoste | `41/019`, 🔊 62 : égalisation **16**. Erreur : 🔊 63, −1 min. Juste : 🔊 64 |
+| 14 | L'écoutille | 🔊 65 : 4 boutons, 4 s. Raté : 🔊 66. Réussi : `41/026`, `41/017`, 🔊 150, 151 (ou 152), 153, puis le rang (🔊 154 à 156). **Victoire** |
 
-> Une équipe qui traîne rencontre encore la **nouvelle fuite** (44ᵉ minute :
-> molette à zéro en 15 s, −3 min si raté) et les alarmes du système à 10, 5 et
-> 1 minute (🔊 105 à 107, musique de tension `41/016`).
+> Une équipe plus lente rencontre encore **la coque qui craque** (46ᵉ minute :
+> 4 boutons 3 s, −3 min si raté) et le système qui annonce l'oxygène restant à
+> 15, 10, 5 et 1 minute (🔊 137 à 140).
 
-### Si l'eau gagne
-À 0:00 : `41/018`, 🔊 116, puis la solution 🔊 117. L'écran affiche « MISSION
-ÉCHOUÉE ».
+### Si l'oxygène s'épuise
+À 0:00 : `41/018`, 🔊 157, puis la solution 🔊 158. L'écran affiche « Mission
+échouée ».
 
 ---
 
@@ -174,9 +179,9 @@ Thème : fond acier bleu nuit, titres ambre, alertes rouge vif.
 
 | Moment | Anneau | LED des zones |
 |---|---|---|
-| Partie | **Bleu**, une LED de plus toutes les 5 minutes (l'eau monte) ; **rouge** dans les 10 dernières minutes | Blanc faible quand une carte est posée |
+| Partie | **Blanc chaud** : la jauge de lumière, qui se vide quand la dynamo faiblit ; elle **vacille** sous 30 % | Blanc faible quand une carte est posée |
+| Noir complet | Éteint | — |
 | Imprévu | Tournoiement rouge (alerte) | — |
-| Chasse aux ballasts | Les couleurs des vannes, une à une | — |
-| Écoutille | Blanc qui pulse : le gros bouton attend | — |
+| Court-circuit | Les couleurs des disjoncteurs, une à une | — |
 | Réussite / échec d'une épreuve | Vert / rouge, un instant | — |
 | Victoire | Arc-en-ciel | — |

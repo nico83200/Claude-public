@@ -1,0 +1,109 @@
+# Mission 4 · les imprévus, le noir, les conseils payants… et l'oxygène qui s'épuise
+pose QUI M4
+retire QUI
+appui
+calme
+
+# --- Personne ne tient la dynamo : la lumière s'éteint, les cartes ne donnent plus rien
+attendre 85
+verifie lumiere noir
+pose OU L1
+verifie sans vu_L1
+capture m4-12-noir
+bouton GROS
+bouton GROS
+verifie lumiere 25
+pose OU L1
+verifie drapeau vu_L1
+dynamo auto
+
+# --- On avance vite : casier, porte, courant, hydraulique
+pose QUOI O1
+code 3,7,9
+retire QUOI
+pose OU L2
+ensemble 3500
+verifie drapeau J_porte
+
+# --- La réplique (minute 7) ratée : la dynamo, c'est toucher
+avance 10
+verifie epreuve immobile
+bouton GROS
+calme
+
+pose OU L4
+pose QUOI O3
+bouton BLEU
+calme
+lettres ABF
+energie 3,2,2,1,1
+verifie drapeau J_courant
+retire QUOI
+pose OU L5
+pose QUI O4
+code 2,5,8,6
+rythme 0,900,1200 3 JAUNE
+verifie drapeau J_hyd
+retire QUI
+
+# --- La chaux sodée : une seule fois
+pose QUOI O10
+verifie drapeau chaux
+retire QUOI
+pose QUOI O10
+retire QUOI
+
+# --- Trois conseils gratuits sur la console, le mot de passe, puis un conseil payant (−2 minutes)
+pose QUOI A4
+retire QUOI
+pose QUOI A4
+retire QUOI
+pose QUOI A4
+retire QUOI
+pose OU L6
+verifie epreuve lettres
+lettres ABYSSE
+verifie drapeau J_console
+pose QUOI A4
+retire QUOI
+verifie compteur indices 4
+verifie compteur indices_payants 1
+
+# --- Le court-circuit (minute 14), raté : noir complet
+avance 10
+verifie epreuve sequence
+dynamo manuel
+attendre 32
+calme
+verifie lumiere noir
+dynamo auto
+attendre 7
+
+# --- La fuite d'huile (minute 30), ratée : l'hydraulique retombe
+avance 20
+verifie epreuve molette_zero
+attendre 16
+calme
+verifie sans J_hyd
+# on réamorce directement la pompe (les vannes restent ouvertes)
+pose OU L5
+pose QUI O4
+verifie epreuve rythme
+rythme 0,900,1200 3 JAUNE
+verifie drapeau J_hyd
+retire QUI
+
+# --- Le CO₂ (minute 38) : le rythme lent, sur le bouton vert
+avance 10
+verifie epreuve rythme
+rythme 0,1400,2800 2 VERT
+
+# --- La coque craque (minute 46), puis plus rien : l'oxygène s'épuise
+avance 10
+verifie epreuve ensemble
+ensemble 3500
+restant 0
+attendre 35
+calme
+verifie phase defaite
+capture m4-13-asphyxie

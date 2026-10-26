@@ -1919,7 +1919,11 @@ void Moteur::vueEpreuve() {
       vue_.texte = ep_.etape == 0 ? (ep_.vert ? std::string(NOMS_COULEURS[ep_.sequence[ep_.pas]]) : "…")
                                   : "À vous ! " + std::to_string(ep_.pas) + " / " + std::to_string(ep_.sequence.size());
     } else if (ep_.type == "rythme") {
-      vue_.texte = ep_.etape == 0 ? "Écoutez le rythme…" : "À vous, sur le gros bouton ! (" +
+      static const char* const SUR[5] = {"le bouton rouge", "le bouton bleu", "le bouton jaune", "le bouton vert", "le gros bouton"};
+      int bouton = d["bouton"].isNull() ? GROS : boutonNomme(texte(d["bouton"]));
+      if (bouton < 0 || bouton > GROS) bouton = GROS;
+      if (bouton < GROS) vue_.voyant = bouton;
+      vue_.texte = ep_.etape == 0 ? "Écoutez le rythme…" : "À vous, sur " + std::string(SUR[bouton]) + " ! (" +
                    std::to_string(ep_.appuis.size() / std::max<size_t>(1, d["motif"].as<JsonArrayConst>().size())) + " / " +
                    std::to_string(d["repetitions"].as<int>()) + ")";
     } else if (ep_.type == "rondes") {
