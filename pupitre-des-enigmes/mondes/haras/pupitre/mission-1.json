@@ -8,14 +8,102 @@
     "duree": 60
   },
   "jauge": "chrono",
-  "materiel": ["fente", "plateau", "clavier", "voyants", "boutons", "molette", "gros_bouton", "casque", "anneau"],
+  "materiel": [
+    "fente",
+    "plateau",
+    "clavier",
+    "voyants",
+    "boutons",
+    "molette",
+    "gros_bouton",
+    "casque",
+    "anneau",
+    "gestes",
+    "aimant",
+    "souffle",
+    "afficheur"
+  ],
   "panneau": {
     "voyants": [
-      {"nom": "Écurie", "etats": [{"si": "J1", "couleur": "vert"}, {"si": "1", "couleur": "orange", "effet": "clignote"}]},
-      {"nom": "Carnet", "etats": [{"si": "J2", "couleur": "vert"}, {"si": "J1", "couleur": "orange"}, {"si": "1", "couleur": "eteint"}]},
-      {"nom": "Bureau", "etats": [{"si": "J3", "couleur": "vert"}, {"si": "1", "couleur": "rouge"}]},
-      {"nom": "Sentier", "etats": [{"si": "J4", "couleur": "vert"}, {"si": "J1", "couleur": "orange"}, {"si": "1", "couleur": "eteint"}]},
-      {"nom": "Grange", "etats": [{"si": "J5", "couleur": "vert"}, {"si": "J4", "couleur": "orange", "effet": "clignote"}, {"si": "1", "couleur": "eteint"}]}
+      {
+        "nom": "Écurie",
+        "etats": [
+          {
+            "si": "J1",
+            "couleur": "vert"
+          },
+          {
+            "si": "1",
+            "couleur": "orange",
+            "effet": "clignote"
+          }
+        ]
+      },
+      {
+        "nom": "Carnet",
+        "etats": [
+          {
+            "si": "J2",
+            "couleur": "vert"
+          },
+          {
+            "si": "J1",
+            "couleur": "orange"
+          },
+          {
+            "si": "1",
+            "couleur": "eteint"
+          }
+        ]
+      },
+      {
+        "nom": "Bureau",
+        "etats": [
+          {
+            "si": "J3",
+            "couleur": "vert"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Sentier",
+        "etats": [
+          {
+            "si": "J4",
+            "couleur": "vert"
+          },
+          {
+            "si": "J1",
+            "couleur": "orange"
+          },
+          {
+            "si": "1",
+            "couleur": "eteint"
+          }
+        ]
+      },
+      {
+        "nom": "Grange",
+        "etats": [
+          {
+            "si": "J5",
+            "couleur": "vert"
+          },
+          {
+            "si": "J4",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "eteint"
+          }
+        ]
+      }
     ]
   },
   "voix": {
@@ -349,7 +437,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "afficheur": true
           }
         }
       ]
@@ -436,12 +525,90 @@
       ]
     },
     {
+      "note": "La forge : déjà ranimée",
+      "quand": {
+        "lieu": "L7"
+      },
+      "si": "forge",
+      "alors": [
+        {
+          "dire": 254
+        }
+      ]
+    },
+    {
+      "note": "La forge : souffler sur les braises (BME280), puis poser le fer sur l'enclume (aimant)",
       "quand": {
         "lieu": "L7"
       },
       "alors": [
         {
-          "dire": 35
+          "dire": 250
+        },
+        {
+          "epreuve": {
+            "type": "capteur",
+            "capteur": "souffle",
+            "titre": "LA FORGE",
+            "texte": "Les braises sont presque éteintes.\nSoufflez sur la grille FORGE du pupitre, bouche ouverte, comme pour faire de la buée sur une vitre.",
+            "consigne": "Grille FORGE, en bas à gauche · à 2 ou 3 cm",
+            "pendant": "Les braises rougissent… continuez !",
+            "tenir": 1,
+            "secondes": 45,
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 15
+              },
+              {
+                "dire": 252
+              },
+              {
+                "evenement": "forge_fer"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 251
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "forge_fer"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "capteur",
+            "capteur": "aimant",
+            "titre": "LA FORGE",
+            "texte": "Le feu a repris.\nPosez le fer à cheval à plat sur l'ENCLUME du pupitre, à droite de la grille.",
+            "consigne": "Le fer à plat sur l'enclume dessinée",
+            "pendant": "Le fer chauffe…",
+            "tenir": 1,
+            "secondes": 45,
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 16
+              },
+              {
+                "dire": 35
+              },
+              {
+                "drapeau": "forge"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 253
+              }
+            ]
+          }
         }
       ]
     },
@@ -505,7 +672,7 @@
       ]
     },
     {
-      "note": "Sentier : jaune, bleue, verte",
+      "note": "Sentier : jaune (gauche), bleue (haut), verte (droite)",
       "quand": {
         "evenement": "croisement1"
       },
@@ -514,7 +681,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "SENTIER DES BOIS · CROISEMENT 1 / 3",
-            "texte": "Carnet du sentier : page 1. Quelle piste suivez-vous ?",
+            "texte": "Carnet du sentier : page 1. Quelle piste prenez-vous ?",
             "options": [
               "Balise rouge",
               "Balise bleue",
@@ -549,6 +716,12 @@
               {
                 "evenement": "croisement1"
               }
+            ],
+            "gestes": [
+              "haut",
+              "droite",
+              "gauche",
+              "bas"
             ]
           }
         }
@@ -563,7 +736,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "SENTIER DES BOIS · CROISEMENT 2 / 3",
-            "texte": "Carnet du sentier : page 2. Quelle piste suivez-vous ?",
+            "texte": "Carnet du sentier : page 2. Quelle piste prenez-vous ?",
             "options": [
               "Balise rouge",
               "Balise bleue",
@@ -598,6 +771,12 @@
               {
                 "evenement": "croisement2"
               }
+            ],
+            "gestes": [
+              "bas",
+              "haut",
+              "gauche",
+              "droite"
             ]
           }
         }
@@ -612,7 +791,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "SENTIER DES BOIS · CROISEMENT 3 / 3",
-            "texte": "Carnet du sentier : page 3. Quelle piste suivez-vous ?",
+            "texte": "Carnet du sentier : page 3. Quelle piste prenez-vous ?",
             "options": [
               "Balise rouge",
               "Balise bleue",
@@ -656,6 +835,12 @@
               {
                 "evenement": "croisement3"
               }
+            ],
+            "gestes": [
+              "haut",
+              "gauche",
+              "bas",
+              "droite"
             ]
           }
         }
@@ -673,23 +858,40 @@
       ]
     },
     {
-      "note": "La Vieille Grange (J5)",
+      "note": "La Vieille Grange (J5) : il fait noir, une lampe de téléphone sur l'œil",
       "quand": {
         "lieu": "L9"
       },
       "si": "!J5",
       "alors": [
         {
-          "dire": 45
+          "dire": 255
         },
         {
-          "son": 1
-        },
-        {
-          "enveloppe": "E4"
-        },
-        {
-          "drapeau": "J5"
+          "epreuve": {
+            "type": "capteur",
+            "capteur": "eclaire",
+            "titre": "LA VIEILLE GRANGE",
+            "texte": "Il fait noir comme dans un four.\nAllumez la lampe d'un téléphone et éclairez l'ŒIL du pupitre.",
+            "consigne": "La lampe à 2 cm de l'ŒIL, à gauche du gros bouton",
+            "pendant": "Vous y voyez de mieux en mieux…",
+            "tenir": 2,
+            "quitter": true,
+            "reussite": [
+              {
+                "dire": 45
+              },
+              {
+                "son": 1
+              },
+              {
+                "enveloppe": "E4"
+              },
+              {
+                "drapeau": "J5"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1780,7 +1982,8 @@
                   {
                     "dire": 99
                   }
-                ]
+                ],
+                "afficheur": "heure"
               }
             }
           ],
@@ -1810,7 +2013,8 @@
                       {
                         "dire": 99
                       }
-                    ]
+                    ],
+                    "afficheur": true
                   }
                 }
               ],
@@ -1837,7 +2041,8 @@
                       {
                         "dire": 99
                       }
-                    ]
+                    ],
+                    "afficheur": true
                   }
                 }
               ]

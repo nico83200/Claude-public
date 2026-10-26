@@ -11,7 +11,7 @@
     "100-119": "Pouvoirs et mécaniques",
     "120-209": "Personnages (15 numéros chacun)",
     "210-219": "Objets posés seuls",
-    "220-249": "Papy Marcel"
+    "220-249": "Papy Marcel", "250-259": "Forge, grange et gestes"
   },
   "lignes": [
     { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Le Haras des Trois Fers. Mission un : la disparition d'Éclipse." },
@@ -44,11 +44,11 @@
     { "n": 32, "voix": "narrateur", "usage": "Carrière, visites suivantes", "texte": "Le flot bleu se balance toujours au vent, sur le grand obstacle." },
     { "n": 33, "voix": "narrateur", "usage": "Pré du Bas, 1re visite", "texte": "Le long du pré, sur la route goudronnée, des traces de pneus de camion encore fraîches. Dans l'herbe, un papier tombé d'une cabine. Ouvrez l'enveloppe numéro 7." },
     { "n": 34, "voix": "narrateur", "usage": "Pré du Bas, visites suivantes", "texte": "Les traces de camion restent sur la route. Aucune ne quitte le goudron." },
-    { "n": 35, "voix": "narrateur", "usage": "Forge", "texte": "La forge du maréchal est froide. Sur l'établi, un gabarit de fer ovale, fermé à l'arrière. Une étiquette dit : Éclipse, fer en œuf, six clous." },
-    { "n": 36, "voix": "narrateur", "usage": "Sentier, 1re visite", "texte": "Derrière l'écurie, le sentier s'enfonce dans la pinède. Le sol est encore détrempé par la pluie de la nuit. Ouvrez l'enveloppe numéro 8 : c'est le carnet du sentier. À chaque croisement, choisissez la bonne balise avec les boutons de couleur." },
-    { "n": 37, "voix": "narrateur", "usage": "Croisement 1", "texte": "Premier croisement. Quatre balises : rouge, bleue, jaune et verte. Regardez la page un du carnet. Quelle piste suivez-vous ?" },
-    { "n": 38, "voix": "narrateur", "usage": "Croisement 2", "texte": "Deuxième croisement. Regardez la page deux du carnet. Quelle piste suivez-vous ?" },
-    { "n": 39, "voix": "narrateur", "usage": "Croisement 3", "texte": "Troisième et dernier croisement. Regardez la page trois du carnet. Quelle piste suivez-vous ?" },
+    { "n": 35, "voix": "narrateur", "usage": "Forge", "texte": "Le fer rougit sur l'enclume. À la lueur du feu, sur l'établi, vous découvrez un gabarit de fer ovale, fermé à l'arrière. Une étiquette dit : Éclipse, fer en œuf, six clous." },
+    { "n": 36, "voix": "narrateur", "usage": "Sentier, 1re visite", "texte": "Derrière l'écurie, le sentier s'enfonce dans la pinède. Le sol est encore détrempé par la pluie de la nuit. Ouvrez l'enveloppe numéro 8 : c'est le carnet du sentier. À chaque croisement, le carnet montre la clairière vue du ciel, et ses quatre pistes. Pour en prendre une, passez la main à plat au-dessus de l'œil du pupitre, à cinq centimètres, dans la direction de la piste : vers le haut, c'est en éloignant la main de vous. Vous pouvez aussi appuyer sur le bouton de la couleur de sa balise." },
+    { "n": 37, "voix": "narrateur", "usage": "Croisement 1", "texte": "Premier croisement. Regardez la page un du carnet. Quelle piste prenez-vous ?" },
+    { "n": 38, "voix": "narrateur", "usage": "Croisement 2", "texte": "Deuxième croisement. Regardez la page deux du carnet. Quelle piste prenez-vous ?" },
+    { "n": 39, "voix": "narrateur", "usage": "Croisement 3", "texte": "Troisième et dernier croisement. Regardez la page trois du carnet. Quelle piste prenez-vous ?" },
     { "n": 40, "voix": "narrateur", "usage": "Mauvaise balise", "texte": "Fausse piste… Vous revenez sur vos pas. Vous perdez deux minutes." },
     { "n": 41, "voix": "narrateur", "usage": "Bonne balise", "texte": "Les traces continuent. Vous avancez." },
     { "n": 42, "voix": "narrateur", "usage": "Arrivée à la grange", "texte": "Entre les pins, une vieille grange en ruine apparaît. Et soudain…" },
@@ -98,7 +98,7 @@
     { "n": 92, "voix": "helene", "usage": "Question au Gendarme", "texte": "Un ancien gendarme… J'espère que vous n'allez pas soupçonner tout le monde !" },
     { "n": 93, "voix": "helene", "usage": "Départ d'Hélène", "texte": "Bon… Je vous laisse travailler. Ah, et ne perdez pas votre temps dans la pinède. Il n'y a rien, là-bas." },
     { "n": 94, "voix": "gendarme", "usage": "Appel gendarmerie", "texte": "Allô ? Ici la gendarmerie de Deauville. J'ai une question rapide pour votre enquête. Vous avez trente secondes." },
-    { "n": 95, "voix": "gendarme", "usage": "Question caméra", "texte": "À quelle heure la caméra de l'écurie a-t-elle été coupée ? Tapez l'heure au clavier." },
+    { "n": 95, "voix": "gendarme", "usage": "Question caméra", "texte": "À quelle heure la caméra de l'écurie a-t-elle été coupée ? Tapez l'heure au clavier : elle s'affiche sur l'horloge du pupitre." },
     { "n": 96, "voix": "gendarme", "usage": "Question code", "texte": "Quel est le code du bureau ? Tapez-le au clavier." },
     { "n": 97, "voix": "gendarme", "usage": "Question clous", "texte": "Combien de clous porte le fer d'Éclipse ? Tapez le nombre au clavier." },
     { "n": 98, "voix": "gendarme", "usage": "Bonne réponse", "texte": "Parfait, c'est noté. Je retarde l'expert de deux minutes." },
@@ -187,10 +187,16 @@
     { "n": 231, "voix": "papy_marcel", "usage": "Carnet, niveau 3", "texte": "Reculez chaque lettre de six dans l'alphabet. Le J devient un D." },
     { "n": 232, "voix": "papy_marcel", "usage": "Sentier, niveau 1", "texte": "Suivez toujours le même fer… et peut-être aussi quelqu'un qui marchait à côté." },
     { "n": 233, "voix": "papy_marcel", "usage": "Sentier, niveau 2", "texte": "Le fer d'Éclipse est fermé à l'arrière, et il n'a que six clous." },
-    { "n": 234, "voix": "papy_marcel", "usage": "Sentier, niveau 3", "texte": "Au premier croisement, c'est la balise jaune." },
+    { "n": 234, "voix": "papy_marcel", "usage": "Sentier, niveau 3", "texte": "Au premier croisement, c'est la balise jaune : la piste de gauche." },
     { "n": 235, "voix": "papy_marcel", "usage": "Accusation, niveau 1", "texte": "Posez-vous la question : qui pouvait entrer dans le bureau ?" },
     { "n": 236, "voix": "papy_marcel", "usage": "Accusation, niveau 2", "texte": "Lucas était au téléphone toute la nuit. Alors, qui n'a aucun alibi ?" },
     { "n": 237, "voix": "papy_marcel", "usage": "Accusation, niveau 3", "texte": "Combien elle vaut, Éclipse, blessée ? Et combien rapporterait son vol ? Faites le calcul." },
-    { "n": 238, "voix": "papy_marcel", "usage": "Plus d'indice", "texte": "Là, mes enfants, je vous ai tout dit. À vous de jouer !" }
+    { "n": 238, "voix": "papy_marcel", "usage": "Plus d'indice", "texte": "Là, mes enfants, je vous ai tout dit. À vous de jouer !" },
+    { "n": 250, "voix": "narrateur", "usage": "Forge, 1re visite", "texte": "La forge du maréchal est froide. Quelques braises rougeoient encore sous la cendre. Ranimez le feu : approchez-vous de la grille marquée FORGE, en bas à gauche du pupitre, et soufflez dessus bouche ouverte, comme pour faire de la buée sur une vitre, pendant trois secondes." },
+    { "n": 251, "voix": "narrateur", "usage": "Forge, souffle raté", "texte": "Les braises se sont éteintes. Glissez de nouveau la carte de la forge pour recommencer." },
+    { "n": 252, "voix": "narrateur", "usage": "Forge, feu ranimé", "texte": "Le feu reprend ! Prenez maintenant le fer à cheval posé près du pupitre, et posez-le à plat sur l'enclume dessinée, juste à droite de la grille." },
+    { "n": 253, "voix": "narrateur", "usage": "Forge, fer pas posé", "texte": "Le feu est retombé avant que le fer soit posé. Glissez de nouveau la carte de la forge pour recommencer." },
+    { "n": 254, "voix": "narrateur", "usage": "Forge, visites suivantes", "texte": "La forge est encore tiède. Sur l'établi, le gabarit d'Éclipse : un fer en œuf, fermé à l'arrière, six clous." },
+    { "n": 255, "voix": "narrateur", "usage": "Grange, dans le noir", "texte": "La porte de la vieille grange grince. À l'intérieur, il fait noir comme dans un four. Allumez la lampe d'un téléphone, et éclairez l'œil du pupitre, la petite fenêtre ronde à gauche du gros bouton, pendant deux secondes." }
   ]
 }

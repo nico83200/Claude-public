@@ -19,9 +19,12 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 TYPES_EPREUVES = {"code", "lettres", "choix", "ensemble", "rythme", "sequence", "immobile", "molette_zero", "rondes",
-                  "energie", "traitre", "appui", "ordre", "voyants", "cle"}
+                  "energie", "traitre", "appui", "ordre", "voyants", "cle", "capteur"}
 COULEURS = {"rouge", "vert", "bleu", "jaune", "orange", "ambre", "blanc", "violet", "cyan", "rose", "eteint"}
-MATERIEL = {"fente", "plateau", "clavier", "voyants", "couleur", "cle", "boutons", "molette", "gros_bouton", "casque", "anneau"}
+MATERIEL = {"fente", "plateau", "clavier", "voyants", "couleur", "cle", "boutons", "molette", "gros_bouton", "casque", "anneau",
+            "gestes", "aimant", "souffle", "afficheur"}
+GESTES = {"haut", "bas", "gauche", "droite"}
+CAPTEURS = {"souffle", "aimant", "eclaire"}
 BOUTONS = {"ROUGE", "BLEU", "JAUNE", "VERT", "GROS"}
 CLES_CARTES = ("lieu", "qui", "quoi", "role", "combiner")
 
@@ -83,6 +86,11 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
             for b in x.get("ordre", []) + ([x["bouton"]] if "bouton" in x else []):
                 if b not in BOUTONS:
                     erreur(f"bouton inconnu « {b} » ({chemin})")
+            for g in x.get("gestes", []):
+                if g not in GESTES:
+                    erreur(f"geste inconnu « {g} » ({chemin})")
+            if x.get("type") == "capteur" and x.get("capteur") not in CAPTEURS:
+                erreur(f"capteur inconnu « {x.get('capteur')} » ({chemin})")
             boucle = x.get("boucle_casque")
             if boucle and boucle.get("dossier") == script.get("dossier_sons") and boucle.get("n") not in sons:
                 erreur(f"son {boucle.get('n')} introuvable (boucle_casque, {chemin})")

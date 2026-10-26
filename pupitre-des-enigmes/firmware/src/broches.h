@@ -49,6 +49,17 @@ constexpr int BOUTONS_PCF[4] = {0, 1, 2, 3};  // rouge, bleu, jaune, vert sur P0
 constexpr float CAPTEUR_PLUS_CLAIR = 1.8f, CAPTEUR_PLUS_SOMBRE = 0.5f;  // × la mesure à vide
 constexpr float CAPTEUR_BALANCE[3] = {1.0f, 0.82f, 1.25f};               // rouge, vert, bleu (blanc = égaux)
 
+// Les autres modules I2C, facultatifs : l'œil (APDS-9960, 0x39), l'enclume (QMC5883L, 0x0D),
+// la forge (BME280, 0x76 ou 0x77) et l'afficheur (HT16K33, 0x70). Le journal série affiche leurs
+// mesures : il sert à régler ces valeurs.
+constexpr int OEIL_ROTATION = 0;            // 90, 180 ou 270 si les gestes sortent tournés (haut lu « droite »…)
+constexpr float OEIL_LAMPE = 3.0f;          // une lampe : 3 × la lumière de la pièce…
+constexpr float OEIL_LAMPE_MIN = 1500;      // … et au moins 1 500 de plus
+constexpr float ENCLUME_SEUIL = 1500;       // écart du champ magnétique (1 500 ≈ 0,5 gauss) : un aimant
+constexpr float FORGE_HUMIDITE = 6.0f;      // un souffle : + 6 points d'humidité…
+constexpr float FORGE_TEMPERATURE = 0.8f;   // … ou + 0,8 °C avec un BMP280 (sans humidité)
+constexpr uint8_t AFFICHEUR_LUMINOSITE = 8; // 0 à 15
+
 constexpr char TOUCHES[4][4] = {
     {'1', '2', '3', 'A'},
     {'4', '5', '6', 'B'},

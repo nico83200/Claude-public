@@ -12,6 +12,7 @@
 #include "broches.h"
 #include "capteur_couleur.h"
 #include "commandes.h"
+#include "capteurs_i2c.h"
 #include "ecran.h"
 #include "lecteurs.h"
 #include "moteur.h"
@@ -27,6 +28,10 @@ CRGB leds[broches::NB_LED];
 Lecteurs lecteurs;
 Commandes commandes;
 CapteurCouleur capteur;
+Oeil oeil;
+Enclume enclume;
+Forge forge;
+Afficheur afficheur;
 PlateformeESP32 plateforme(ecran, hp, casque, leds);
 pupitre::Moteur moteur(plateforme);
 
@@ -64,6 +69,10 @@ void setup() {
   lecteurs.demarrer();
   commandes.demarrer();  // démarre aussi le bus I2C
   capteur.demarrer();
+  oeil.demarrer();
+  enclume.demarrer();
+  forge.demarrer();
+  afficheur.demarrer();
   if (!hp.demarrer(broches::HP_RX, broches::HP_TX, defaut.hp)) Serial.println("DFPlayer haut-parleur absent.");
   if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, defaut.casque)) Serial.println("DFPlayer casque absent.");
 
@@ -96,6 +105,11 @@ void loop() {
     Serial.printf("Capteur de couleur : %s\n", couleur.empty() ? "objet retiré" : couleur.c_str());
     moteur.couleurPosee(couleur);
   });
+  auto capteurActif = [](const char* nom, bool actif) { moteur.capteur(nom, actif); };
+  oeil.maj([](const char* sens) { moteur.geste(sens); }, capteurActif);
+  enclume.maj(capteurActif);
+  forge.maj(capteurActif);
+  afficheur.montrer(moteur.afficheur());
   moteur.miseAJour();
   panneau::maj();
   delay(2);

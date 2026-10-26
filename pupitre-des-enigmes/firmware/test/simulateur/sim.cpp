@@ -19,7 +19,10 @@
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type> | ecran <titre>
-//            reglage ecran|hp|casque|led <v> | lumiere noir|allumee|<minimum>
+//            reglage ecran|hp|casque|led <v> | lumiere noir|allumee|<minimum> | afficheur <texte>
+//   geste haut|bas|gauche|droite   (la main au-dessus de l'œil du pupitre)
+//   souffle <s> · eclaire <s>      (souffler sur la grille, ou braquer une lampe, pendant <s> secondes)
+//   aimant pose|-                  (le fer aimanté posé sur l'enclume, ou retiré)
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -287,6 +290,19 @@ int main(int argc, char** argv) {
       // Le capteur de couleur : « couleur rouge », « couleur - » quand l'objet est retiré.
       m.couleurPosee(a == "-" ? "" : a);
       calme();
+    } else if (cmd == "geste") {
+      m.geste(a);
+      calme();
+    } else if (cmd == "souffle" || cmd == "eclaire") {
+      // Un capteur actif pendant quelques secondes, puis plus rien.
+      m.capteur(cmd, true);
+      tourner(static_cast<uint32_t>(atof(a.c_str()) * 1000));
+      m.capteur(cmd, false);
+      calme();
+    } else if (cmd == "aimant") {
+      m.capteur("aimant", a != "-");
+      tourner(1500);
+      calme();
     } else if (cmd == "bouton") {
       m.bouton(bouton(a));
       calme();
@@ -429,6 +445,8 @@ int main(int argc, char** argv) {
         int n = b == "socle" ? NB_VOYANTS : atoi(b.c_str()) - 1;
         uint32_t attendu = Moteur::couleurNommee(c);
         verifier(m.couleurVoyant(n) == attendu, "voyant " + b + " " + c, numero);
+      } else if (a == "afficheur") {
+        verifier(m.afficheur() == b, "afficheur « " + b + " » (montre « " + m.afficheur() + " »)", numero);
       } else if (a == "zone") {
         verifier(m.zone(zone(b)) == (c == "-" ? "" : c), "zone " + b + " = " + c + " (porte « " + m.zone(zone(b)) + " »)", numero);
       } else if (a == "ecran") verifier(m.vue().titre.find(b) != std::string::npos, "écran « " + b + " »", numero);

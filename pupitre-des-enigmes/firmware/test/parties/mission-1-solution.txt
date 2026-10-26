@@ -35,6 +35,15 @@ pose OU L4
 pose OU L5
 pose OU L6
 pose OU L7
+# --- La forge : souffler sur les braises, puis poser le fer sur l'enclume
+verifie epreuve capteur
+capture m1-12-forge
+souffle 3
+verifie epreuve capteur
+aimant pose
+verifie drapeau forge
+aimant -
+verifie afficheur 08:00
 
 # --- Un faux code au bureau, puis le bon
 pose OU L3
@@ -93,15 +102,19 @@ verifie phase jeu
 pose OU L8
 capture m1-08-sentier
 verifie epreuve choix
-bouton ROUGE
+# La main vers le haut : la balise rouge, une fausse piste ; puis gauche, haut, droite
+geste haut
 verifie epreuve choix
-bouton JAUNE
-bouton BLEU
-bouton VERT
+geste gauche
+geste haut
+geste droite
 verifie drapeau J4
 
 # --- La Vieille Grange (J5)
 pose OU L9
+verifie epreuve capteur
+capture m1-13-grange-noire
+eclaire 3
 verifie drapeau J5
 capture m1-09-grange
 

@@ -486,6 +486,40 @@ void Moteur::cle(bool tournee) {
   enAttente_.push_back(ev);
 }
 
+void Moteur::geste(const std::string& sens) {
+  if (phase_ != Phase::JEU) return;
+  if (ep_.active) {
+    if (ep_.type != "choix") return;
+    JsonArrayConst gestes = ep_.def["gestes"].as<JsonArrayConst>();
+    for (size_t i = 0; i < gestes.size() && i < 4; i++)
+      if (texte(gestes[i]) == sens) epreuveBouton(static_cast<Bouton>(i));
+    return;
+  }
+  Evenement ev;
+  ev.type = "geste";
+  ev.nom = sens;
+  enAttente_.push_back(ev);
+}
+
+void Moteur::capteur(const std::string& nom, bool actif) {
+  bool& etat = capteurs_[nom];
+  if (etat == actif) return;
+  etat = actif;
+  if (phase_ != Phase::JEU) return;
+  if (ep_.active) {
+    if (ep_.type == "capteur" && texte(ep_.def["capteur"]) == nom) {
+      debutEnsemble_ = 0;
+      vueEpreuve();
+    }
+    return;
+  }
+  if (!actif) return;
+  Evenement ev;
+  ev.type = "capteur";
+  ev.nom = nom;
+  enAttente_.push_back(ev);
+}
+
 // Les éléments du pupitre dont la mission se sert (« materiel »: ["clavier", "voyants"…]) : sa
 // façade cache les autres. Sans cette liste, tout est disponible.
 bool Moteur::materiel(const char* element) const {
@@ -1031,6 +1065,8 @@ bool Moteur::motif(JsonVariantConst attendu, const std::string& valeur) const {
 bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
   if (!q["couleur"].isNull()) return ev.type == "couleur" && motif(q["couleur"], ev.nom);
   if (!q["cle"].isNull()) return ev.type == "cle" && motif(q["cle"], ev.nom);
+  if (!q["geste"].isNull()) return ev.type == "geste" && motif(q["geste"], ev.nom);
+  if (!q["capteur"].isNull()) return ev.type == "capteur" && motif(q["capteur"], ev.nom);
   if (!q["evenement"].isNull()) return ev.type == "evenement" && motif(q["evenement"], ev.nom);
   if (!q["role"].isNull()) {
     if (ev.type != "role" || !motif(q["role"], ev.role)) return false;
@@ -1059,6 +1095,10 @@ int Moteur::valeur(const std::string& nom) {
   if (nom == "lumiere") return static_cast<int>(lumiere_);
   if (nom.rfind("couleur_", 0) == 0) return couleurPosee_ == nom.substr(8);
   if (nom == "cle") return cleTournee_ ? 1 : 0;
+  if (nom == "souffle" || nom == "aimant" || nom == "eclaire") {
+    auto c = capteurs_.find(nom);
+    return c != capteurs_.end() && c->second ? 1 : 0;
+  }
   if (nom == "ecoule") return secondesEcoulees() / 60;
   if (nom == "erreurs") return erreurs_;
   if (nom == "indices_payants") return indicesPayants_;
@@ -1691,6 +1731,19 @@ void Moteur::majEpreuve() {
   } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui" || ep_.type == "ordre" ||
              ep_.type == "voyants" || ep_.type == "cle") {
     if (expire) finEpreuve(false);
+  } else if (ep_.type == "capteur") {  // le capteur actif pendant « tenir » secondes
+    auto c = capteurs_.find(texte(d["capteur"]));
+    if (c != capteurs_.end() && c->second) {
+      if (!debutEnsemble_) debutEnsemble_ = t;
+      uint32_t tenir = d["tenir"].isNull() ? 1000 : static_cast<uint32_t>(d["tenir"].as<float>() * 1000);
+      if (t - debutEnsemble_ >= tenir) {
+        finEpreuve(true);
+        return;
+      }
+    } else {
+      debutEnsemble_ = 0;
+    }
+    if (expire) finEpreuve(false);
   } else if (ep_.type == "rondes") {
     if (t >= ep_.prochain) {
       ep_.vert = !ep_.vert;
@@ -2193,6 +2246,16 @@ void Moteur::vueEpreuve() {
     vue_.ecran = Vue::CHOIX;
     JsonArrayConst o = d["options"].as<JsonArrayConst>();
     for (int i = 0; i < 4; i++) vue_.options[i] = i < static_cast<int>(o.size()) ? texte(o[i]) : "";
+    JsonArrayConst gestes = d["gestes"].as<JsonArrayConst>();
+    if (!gestes.isNull() && materiel("gestes")) {  // chaque option montre sa direction
+      for (size_t i = 0; i < gestes.size() && i < 4; i++) {
+        std::string g = texte(gestes[i]);
+        const char* fleche = g == "haut" ? "↑ " : g == "bas" ? "↓ " : g == "gauche" ? "← " : g == "droite" ? "→ " : "";
+        if (!vue_.options[i].empty()) vue_.options[i] = fleche + vue_.options[i];
+      }
+      if (vue_.info.rfind("⏱", 0) != 0)  // pas pendant le compte à rebours
+        vue_.info = "La main au-dessus de l'ŒIL, dans le sens de la flèche";
+    }
   } else if (ep_.type == "energie") {
     vue_.ecran = Vue::ENERGIE;
     for (JsonVariantConst m : d["modules"].as<JsonArrayConst>()) vue_.modules.push_back(texte(m));
@@ -2240,6 +2303,11 @@ void Moteur::vueEpreuve() {
                    "\n" + p;
     } else if (ep_.type == "molette_zero") {
       vue_.texte = "Pression : " + std::to_string(ep_.valeurs[0]);
+    } else if (ep_.type == "capteur") {
+      auto c = capteurs_.find(texte(d["capteur"]));
+      bool actif = c != capteurs_.end() && c->second;
+      vue_.info = actif ? texte(d["pendant"], "Continuez…") : texte(d["consigne"]);
+      vue_.voyant = actif ? 4 : -1;
     } else if (ep_.type == "cle") {
       vue_.info = cleTournee_ ? "Ramenez d'abord la clé au repos, puis tournez-la" : "Tournez la clé du pupitre";
     } else if (ep_.type == "voyants") {  // le panneau recopié à l'écran (utile si la façade le cache)
@@ -2780,6 +2848,27 @@ std::string Moteur::etatJson() {
   std::string json;
   serializeJson(d, json);
   return json;
+}
+
+// L'afficheur à 4 chiffres : le code en cours de saisie si l'épreuve le demande (« afficheur » :
+// true, ou "heure" pour 03:12), sinon le chrono de l'en-tête (8:14 → « 08:14 »).
+std::string Moteur::afficheur() const {
+  if (!materiel("afficheur") || phase_ != Phase::JEU) return "";
+  if (ep_.active && ep_.type == "code" && !ep_.def["afficheur"].isNull()) {
+    std::string s;
+    for (const std::string& c : vue_.champs) s += c;
+    for (char& ch : s)
+      if (ch == '_') ch = '-';
+    if (texte(ep_.def["afficheur"]) == "heure" && s.size() == 4) s.insert(2, ":");
+    return s;
+  }
+  std::string s;
+  for (char ch : vue_.entete)
+    if ((ch >= '0' && ch <= '9') || ch == ':') s += ch;
+  if (s.empty()) return "";
+  size_t deuxPoints = s.find(':');
+  if (deuxPoints != std::string::npos && deuxPoints < 2) s.insert(0, 2 - deuxPoints, '0');
+  return s;
 }
 
 }  // namespace pupitre

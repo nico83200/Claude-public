@@ -15,6 +15,8 @@
     { "n": 11, "nom": "Musique d'échec", "duree": 5, "prompt": "Short sad descending piano melody, failure ending" },
     { "n": 12, "nom": "Jingle du monde", "duree": 4, "prompt": "Short elegant hunting horn call followed by a horse whinny, countryside estate intro" },
     { "n": 13, "nom": "Vent dans la pinède", "duree": 15, "prompt": "Wind blowing through pine trees, creaking branches, damp forest after rain, seamless loop" },
-    { "n": 14, "nom": "Ambiance bureau", "duree": 15, "prompt": "Quiet old office ambience, ticking wall clock, faint electrical hum, seamless loop" }
+    { "n": 14, "nom": "Ambiance bureau", "duree": 15, "prompt": "Quiet old office ambience, ticking wall clock, faint electrical hum, seamless loop" },
+    { "n": 15, "nom": "Braises qui reprennent", "duree": 3, "prompt": "Embers in a blacksmith forge flaring up after someone blows on them, soft whoosh and crackling fire" },
+    { "n": 16, "nom": "Fer sur l'enclume", "duree": 2, "prompt": "A horseshoe placed on a blacksmith anvil, then two ringing hammer strikes on hot metal, short" }
   ]
 }

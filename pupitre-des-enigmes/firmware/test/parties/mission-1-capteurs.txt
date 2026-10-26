@@ -1,0 +1,90 @@
+# Mission 1 · les capteurs : la forge (souffle, aimant), l'horloge, les gestes du sentier,
+# la grange dans le noir. Les ratés, les nouvelles tentatives et les abandons.
+pose QUI M1
+retire QUI
+appui
+pose QUI R1
+retire QUI
+pose QUI R2
+retire QUI
+pose QUI R3
+retire QUI
+pose QUI R4
+retire QUI
+pose QUI R5
+retire QUI
+pose QUI R6
+retire QUI
+calme
+verifie phase jeu
+verifie afficheur 08:00
+
+# --- La forge : personne ne souffle, le feu s'éteint ; on revient
+pose OU L1
+pose OU L7
+verifie epreuve capteur
+attendre 50
+verifie epreuve
+verifie sans forge
+retire OU
+pose OU L7
+# Un souffle trop court ne suffit pas ? Si : une seconde suffit. Puis le fer tarde trop.
+souffle 2
+verifie epreuve capteur
+attendre 50
+verifie sans forge
+retire OU
+pose OU L7
+souffle 2
+aimant pose
+verifie drapeau forge
+aimant -
+# La forge est déjà ranimée : plus d'épreuve
+retire OU
+pose OU L7
+verifie epreuve
+
+# --- Le code du bureau s'affiche pendant la saisie
+pose OU L3
+verifie epreuve code
+touches 37
+verifie afficheur 37--
+touches 15
+verifie drapeau J3
+verifie afficheur 08:02
+
+# --- Le sentier : la main vers le bas (balise verte), fausse piste ; puis les bonnes
+pose OU L8
+verifie epreuve choix
+geste bas
+verifie epreuve choix
+geste gauche
+geste haut
+geste droite
+verifie drapeau J4
+
+# --- La grange : on repart dans le noir (abandon), puis une lampe trop brève, puis la bonne
+pose OU L9
+verifie epreuve capteur
+retire OU
+verifie epreuve
+pose OU L9
+eclaire 1
+verifie epreuve capteur
+verifie sans J5
+eclaire 3
+verifie drapeau J5
+
+# --- La gendarmerie : l'heure tapée au clavier s'affiche sur l'horloge
+avance 10
+verifie epreuve ensemble
+ensemble 3500
+avance 10
+verifie epreuve rythme
+rythme 0,220,440 4
+restant 15
+verifie epreuve code
+touches 03
+verifie afficheur 03:--
+touches 12
+verifie compteur erreurs 0

@@ -34,6 +34,12 @@ class Moteur {
   void couleurPosee(const std::string& nom);
   // L'interrupteur à clé : tourné (vrai) ou revenu au repos (faux).
   void cle(bool tournee);
+  // Les gestes de la main au-dessus de l'œil du pupitre (APDS-9960) : « haut », « bas », « gauche »,
+  // « droite ». Pendant un choix qui les accepte (« gestes »), ils choisissent ; sinon : règles {"geste": …}.
+  void geste(const std::string& sens);
+  // Les capteurs tout-ou-rien : « souffle » (BME280), « aimant » (QMC5883L), « eclaire » (une lampe
+  // braquée sur l'œil). Épreuve « capteur », règles {"capteur": …} et conditions du même nom.
+  void capteur(const std::string& nom, bool actif);
   void bouton(Bouton bouton);                     // appui
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
@@ -45,6 +51,8 @@ class Moteur {
   static uint32_t couleurNommee(const std::string& nom);  // « vert », « ambre »… ou « #rrggbb »
   uint32_t couleurVoyant(int i) const { return voyantsAffiches_[i]; }  // avant clignotement ; NB_VOYANTS : le socle
   const Lumieres& lumieres() const { return lumieres_; }
+  // L'afficheur à 4 chiffres (HT16K33) : « 08:14 », « 37-- »… ; vide : éteint.
+  std::string afficheur() const;
   const Vue& vue() const { return vue_; }
 
   // Pour le simulateur et les tests.
@@ -80,7 +88,7 @@ class Moteur {
   };
 
   struct Evenement {
-    std::string type;  // lieu, qui, quoi, paire, role, combinaison, couleur, evenement
+    std::string type;  // lieu, qui, quoi, paire, role, combinaison, couleur, cle, geste, capteur, evenement
     std::string lieu, qui, quoi, role, nom;
   };
 
@@ -226,6 +234,7 @@ class Moteur {
   bool deuxLecteurs_ = false;
   std::string couleurPosee_;  // ce que voit le capteur de couleur
   bool cleTournee_ = false;
+  std::map<std::string, bool> capteurs_;  // souffle, aimant, eclaire
   bool materiel(const char* element) const;  // la mission s'en sert-elle ? (« materiel » du script)
   std::set<std::string> drapeaux_, rolesPresents_, imprevusFaits_;
   std::map<std::string, int> compteurs_, pouvoirs_, niveauxAide_;
