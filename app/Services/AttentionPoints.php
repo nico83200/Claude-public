@@ -38,6 +38,24 @@ class AttentionPoints
     /**
      * Prochaine relance : jamais la nuit (21 h – 8 h), reportée au matin à 8 h 30.
      */
+    /** Lignes du suivi du jour : ouverture, nouvelle, clôture (mêmes textes pour la saisie et la reprise). */
+    public static function openLine(HealthObservation $point): string
+    {
+        return ($point->title ? $point->title.' : ' : '').Str::limit($point->body, 300);
+    }
+
+    public static function updateLine(HealthObservation $point, ?string $trend, ?string $body): string
+    {
+        $news = collect([$trend ? mb_strtolower(HealthObservation::TRENDS[$trend]) : null, $body ? Str::limit($body, 300) : null])->filter()->implode(' – ');
+
+        return $point->label().($news ? ' : '.$news : ' : nouvelle photo');
+    }
+
+    public static function closeLine(HealthObservation $point, ?string $note): string
+    {
+        return $point->label().' : rentré dans l\'ordre'.($note ? ' – '.Str::limit($note, 300) : '');
+    }
+
     public static function nextFollowUp(string $severity, ?Carbon $from = null): Carbon
     {
         $hours = self::FOLLOW_UP_HOURS[$severity] ?? 24;
@@ -66,7 +84,7 @@ class AttentionPoints
                 'follow_up_at' => self::nextFollowUp($data['severity']),
             ]);
             $this->storePhotos($point, $author, $photos);
-            $this->noteInDailyLog($point, $author, 'anomalies', ($point->title ? $point->title.' : ' : '').Str::limit($point->body, 300), $point->severity === 'info' ? null : 'average');
+            $this->noteInDailyLog($point, $author, 'anomalies', self::openLine($point), $point->severity === 'info' ? null : 'average');
 
             return $point;
         });
@@ -84,8 +102,7 @@ class AttentionPoints
             $this->storePhotos($point, $author, $photos, $update);
             // Une nouvelle relance la conversation : prochaine question plus tard, compteur remis à zéro.
             $point->update(['follow_up_at' => self::nextFollowUp($trend === 'worse' ? 'alert' : $point->severity), 'follow_up_count' => 0]);
-            $news = collect([$trend ? mb_strtolower(HealthObservation::TRENDS[$trend]) : null, $body ? Str::limit($body, 300) : null])->filter()->implode(' – ');
-            $this->noteInDailyLog($point, $author, 'anomalies', $point->label().($news ? ' : '.$news : ' : nouvelle photo'), $trend === 'worse' ? 'average' : null);
+            $this->noteInDailyLog($point, $author, 'anomalies', self::updateLine($point, $trend, $body), $trend === 'worse' ? 'average' : null);
 
             return $update;
         });
@@ -99,7 +116,7 @@ class AttentionPoints
     public function close(HealthObservation $point, User $by, ?string $note = null): void
     {
         $point->update(['resolved_at' => now(), 'resolved_by' => $by->id, 'resolution_note' => $note ?: null, 'follow_up_at' => null]);
-        $this->noteInDailyLog($point, $by, 'observations', $point->label().' : rentré dans l\'ordre'.($note ? ' – '.Str::limit($note, 300) : ''));
+        $this->noteInDailyLog($point, $by, 'observations', self::closeLine($point, $note));
         ObservationController::notifyManagers($point->horse, $by, $this->access, $point->horse->shortName().' : point d\'attention clos',
             $point->label().' : rentré dans l\'ordre selon '.$by->name.'.', route('horses.observations.show', [$point->horse, $point]));
     }

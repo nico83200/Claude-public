@@ -80,10 +80,10 @@ Si le site restait bloqué en maintenance (« Service indisponible ») :
 - sans accès SSH : gestionnaire de fichiers → `storage/framework/down` → copier la valeur de `"secret"` → ouvrir `https://<domaine>/<secret>` (accès administrateur pendant la maintenance) → Administration › Mises à jour → la mise à jour → « Terminer l'installation » ;
 - en SSH : `php artisan app:finalize-update --now`, ou `php artisan up`.
 
-## Reprise des observations dans le suivi du jour (2.52.1)
+## Reprise des observations dans le suivi du jour (2.52.1, complétée en 2.52.2)
 
 La mise à jour 2.52.1 recopie une fois, automatiquement (migration `2026_01_01_006600`), chaque observation déjà signalée
-dans le suivi du jour où elle l'a été : suivi créé s'il manque, complété sinon, sans doublon. Pour la relancer à la main
+dans le suivi du jour où elle l'a été ; depuis la 2.52.2 (migration `2026_01_01_006700`), ses nouvelles et sa clôture aussi, chacune à son propre jour : suivi créé s'il manque, complété sinon, sans doublon. Pour la relancer à la main
 ou voir d'abord ce qu'elle ferait :
 
 ```bash
