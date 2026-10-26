@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 4 · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="naval.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 6mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  .photo { background: #fff; padding: 4mm 4mm 10mm; box-shadow: 0 1mm 3mm #0003; width: 150mm; margin: 0 auto; transform: rotate(-1.2deg); border: 1px solid #ddd; }
+  .photo svg { width: 142mm; display: block; }
+  .photo .legende { font-family: "Caveat"; font-size: 17pt; color: #1b2c55; text-align: center; margin-top: 2mm; line-height: 1.1; }
+  .note { background: #fffbe6; border: 1px solid #e3d48a; padding: 5mm 7mm; font-family: "Caveat"; font-size: 19pt; color: #1b2c55; line-height: 1.25;
+          width: 110mm; margin: 0 auto; transform: rotate(1deg); box-shadow: 0 1mm 2mm #0002; }
+  .badge { width: 86mm; height: 54mm; border-radius: 3mm; border: 1px solid #13293a; margin: 0 auto; overflow: hidden; font-size: 9pt; display: grid; grid-template-rows: 11mm 1fr; }
+  .badge .haut { background: #13293a; color: #f0d9a8; font-family: "Share Tech Mono"; letter-spacing: .12em; display: flex; align-items: center; justify-content: center; font-size: 8pt; }
+  .badge .corps { display: grid; grid-template-columns: 24mm 1fr; gap: 3mm; padding: 3mm; background: #f2f5f7; }
+  .badge .portrait { background: #c6d2d9; border-radius: 2mm; display: flex; align-items: center; justify-content: center; font-size: 26pt; }
+  .doc { background: #fff; border: 1px solid var(--filet); padding: 6mm 8mm; font-size: 10.5pt; }
+  .doc h3 { margin-top: 0; }
+  .quarts { width: 125mm; margin: 0 auto; font-family: "Share Tech Mono"; }
+  .quarts td, .quarts th { padding: 1.3mm 3mm; font-size: 10.5pt; }
+  .quarts .nuit { background: #e8edf5; }
+  .regles li { margin-bottom: 2mm; }
+  .circuits { display: flex; gap: 4mm; justify-content: center; margin: 4mm 0; }
+  .circuits div { border: 1.5px solid #13293a; border-radius: 2mm; padding: 2mm 3mm; text-align: center; font-family: "Share Tech Mono"; font-size: 9pt; width: 28mm; }
+  .circuits b { display: block; font-size: 16pt; }
+  .carnet { background: #fdfaf0; border: 1px solid #d9cfa8; padding: 8mm 10mm; font-family: "Caveat"; font-size: 18pt; color: #1b2c55; line-height: 1.3;
+            background-image: repeating-linear-gradient(#fdfaf0 0 9.6mm, #c9d6e8 9.6mm 9.9mm); }
+  .plan { border: 1px solid #13293a; border-radius: 4px; background: #eef3f6; padding: 3mm; }
+  .plan svg { width: 100%; display: block; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 51mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 4mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Source Sans"; font-weight: 900; font-size: 32pt; color: #13293a; line-height: 1; }
+  .etiquette .lieu { font-family: "Share Tech Mono"; font-size: 14pt; color: var(--cuir); margin: 1mm 0 2mm; }
+  .etiquette .avis { font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; }
+  .etiquette.dos h4 { margin: 0 0 1mm; font-size: 10pt; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <h1>Les enveloppes de la mission 4</h1>
+  <p>Tout ce qui se glisse dans les <strong>8 enveloppes</strong>, et leurs étiquettes. Les joueurs ne doivent pas voir ce document.</p>
+  <ol>
+    <li>Imprimez en couleur (papier 120 g ; la photo et la plaque sur papier photo ou cartonné si possible). Étiquettes sur papier adhésif.</li>
+    <li>Découpez en suivant les pointillés ✂.</li>
+    <li>Étiquette « recto » devant, étiquette « contenu » au dos.</li>
+    <li>Ajoutez dans chaque enveloppe <strong>ses cartes Objet</strong>.</li>
+  </ol>
+  <table>
+    <thead><tr><th>Env.</th><th>Quand l'ouvrir</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
+    <tbody>
+      <tr><td><strong>E1</strong></td><td>Poste d'équipage</td><td>Photo de l'équipe de water-polo · mot de Rasmus</td><td>O1 Lampe torche · O2 Casier</td></tr>
+      <tr><td><strong>E2</strong></td><td>Casier ouvert</td><td>Carte d'électricien de Rasmus</td><td>O3 Piles · O4 Fusible neuf</td></tr>
+      <tr><td><strong>E3</strong></td><td>La lumière</td><td>Plan d'évacuation du Narval · plaque de la porte étanche</td><td>—</td></tr>
+      <tr><td><strong>E4</strong></td><td>Porte étanche ouverte</td><td>Fiche de la coursive</td><td>—</td></tr>
+      <tr><td><strong>E5</strong></td><td>Cambuse</td><td>Tableau des quarts · mot du cuisinier</td><td>O5 Clé à molette · O6 Ruban adhésif</td></tr>
+      <tr><td><strong>E6</strong></td><td>Local des batteries</td><td>Manuel de répartition de l'énergie</td><td>—</td></tr>
+      <tr><td><strong>E7</strong></td><td>Poste de commande</td><td>Page du carnet de la commandante</td><td>—</td></tr>
+      <tr><td><strong>E8</strong></td><td>Sas ouvert</td><td>Procédure de sortie</td><td>O7 Combinaisons</td></tr>
+    </tbody>
+  </table>
+  <div class="encadre or" style="margin-top:6mm">
+    <h4>Les solutions, pour mémoire</h4>
+    Casier <strong>7-3-9</strong> · porte : 4 boutons 3 s · énergie <strong>2-4-1-1-2</strong> · console <strong>ABYSSE</strong> · sas <strong>417 · 60</strong>.
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · recto</div>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">Poste d'équipage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">Le casier de Rasmus</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Dans le faisceau de la lampe</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">Coursive</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Cambuse</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E6</div><div class="lieu">Local des batteries</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E7</div><div class="lieu">Poste de commande</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E8</div><div class="lieu">Sas de sauvetage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Étiquettes · contenu (au dos)</div>
+  <div class="etiquettes">
+    <div class="etiquette dos"><h4>E1 · Poste d'équipage</h4><ul><li>Carte O1 · Lampe torche</li><li>Carte O2 · Casier de Rasmus</li><li>Photo de l'équipe de water-polo</li><li>Mot de Rasmus</li></ul></div>
+    <div class="etiquette dos"><h4>E2 · Casier de Rasmus</h4><ul><li>Carte O3 · Piles</li><li>Carte O4 · Fusible neuf</li><li>Carte d'électricien</li></ul></div>
+    <div class="etiquette dos"><h4>E3 · La lumière</h4><ul><li>Plan d'évacuation du Narval</li><li>Plaque de la porte étanche</li></ul></div>
+    <div class="etiquette dos"><h4>E4 · Coursive</h4><ul><li>Fiche de la coursive</li></ul></div>
+    <div class="etiquette dos"><h4>E5 · Cambuse</h4><ul><li>Carte O5 · Clé à molette</li><li>Carte O6 · Ruban adhésif</li><li>Tableau des quarts</li><li>Mot du cuisinier</li></ul></div>
+    <div class="etiquette dos"><h4>E6 · Local des batteries</h4><ul><li>Manuel de répartition de l'énergie</li></ul></div>
+    <div class="etiquette dos"><h4>E7 · Poste de commande</h4><ul><li>Page du carnet de la commandante</li></ul></div>
+    <div class="etiquette dos"><h4>E8 · Sas de sauvetage</h4><ul><li>Carte O7 · Combinaisons</li><li>Procédure de sortie</li></ul></div>
+  </div>
+</div>
+
+<!-- E1 -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · Poste d'équipage</div>
+  <div class="photo">
+    <svg viewBox="0 0 400 230" font-family="Source Sans, sans-serif">
+      <defs><linearGradient id="eau" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc4e0"/><stop offset="1" stop-color="#2d7fa8"/></linearGradient></defs>
+      <rect width="400" height="230" fill="url(#eau)"/>
+      <g stroke="#ffffff" stroke-opacity=".35" stroke-width="2" fill="none"><path d="M0 60 Q50 50 100 60 T200 60 T300 60 T400 60"/><path d="M0 120 Q50 110 100 120 T200 120 T300 120 T400 120"/></g>
+      <rect x="0" y="0" width="400" height="34" fill="#e9eef1"/>
+      <text x="200" y="23" text-anchor="middle" font-size="15" font-weight="900" fill="#13293a" letter-spacing="2">COUPE DE LA FLOTTE · NARVAL</text>
+      <!-- Erik, 9 -->
+      <g transform="translate(70 95)"><circle r="26" fill="#f1c9a5"/><path d="M-27 -2 A27 27 0 0 1 27 -2 L27 -8 A27 27 0 0 0 -27 -8 Z" fill="#13293a"/><path d="M-27 -4 A27 27 0 0 1 27 -4 L24 -24 Q0 -38 -24 -24 Z" fill="#13293a"/>
+        <text y="-12" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">9</text><circle cx="-9" cy="4" r="2.5" fill="#333"/><circle cx="9" cy="4" r="2.5" fill="#333"/><path d="M-9 14 Q0 20 9 14" stroke="#333" stroke-width="2" fill="none"/>
+        <rect x="-38" y="28" width="76" height="80" rx="20" fill="#f1c9a5"/></g>
+      <!-- Tomas, 7 -->
+      <g transform="translate(160 100)"><circle r="24" fill="#e8b48c"/><path d="M-25 -4 A25 25 0 0 1 25 -4 L22 -22 Q0 -35 -22 -22 Z" fill="#13293a"/>
+        <text y="-11" text-anchor="middle" font-size="15" font-weight="900" fill="#fff">7</text><circle cx="-8" cy="3" r="2.5" fill="#333"/><circle cx="8" cy="3" r="2.5" fill="#333"/><path d="M-10 12 Q0 22 10 12" stroke="#333" stroke-width="2" fill="none"/>
+        <rect x="-35" y="26" width="70" height="80" rx="20" fill="#e8b48c"/></g>
+      <!-- Hallvard, l'entraîneur (casquette 5) -->
+      <g transform="translate(250 92)"><circle r="25" fill="#f0cfae"/><rect x="-26" y="-26" width="52" height="16" rx="6" fill="#b8322a"/><rect x="-6" y="-14" width="38" height="6" rx="3" fill="#b8322a"/>
+        <text y="-13" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">5</text><circle cx="-8" cy="3" r="2.5" fill="#333"/><circle cx="8" cy="3" r="2.5" fill="#333"/>
+        <path d="M-14 12 Q0 26 14 12 L14 18 Q0 34 -14 18 Z" fill="#cfcfcf"/><rect x="-36" y="28" width="72" height="80" rx="10" fill="#b8322a"/><text y="68" text-anchor="middle" font-size="9" fill="#fff" letter-spacing="1">COACH</text></g>
+      <!-- Rasmus, 3 -->
+      <g transform="translate(335 98)"><circle r="25" fill="#f3d2b5"/><path d="M-26 -4 A26 26 0 0 1 26 -4 L23 -23 Q0 -36 -23 -23 Z" fill="#13293a"/>
+        <text y="-12" text-anchor="middle" font-size="15" font-weight="900" fill="#fff">3</text><circle cx="-8" cy="3" r="2.5" fill="#333"/><circle cx="8" cy="3" r="2.5" fill="#333"/><path d="M-9 13 Q0 20 9 13" stroke="#333" stroke-width="2" fill="none"/>
+        <rect x="-36" y="27" width="72" height="80" rx="20" fill="#f3d2b5"/></g>
+    </svg>
+    <div class="legende">De gauche à droite : Erik (31 ans), Tomas (19 ans),<br>Hallvard notre coach (58 ans), et moi, Rasmus (24 ans) !</div>
+  </div>
+
+  <div class="ciseaux"></div>
+
+  <div class="note">
+    Note pour moi-même, parce que j'oublie <u>toujours</u> :<br>
+    le code de mon casier, c'est nos numéros de maillot,
+    du plus jeune au plus vieux.<br>
+    Pas le coach : il ne joue pas !<br>
+    <span style="float:right">— Rasmus</span><br>
+  </div>
+</div>
+
+<!-- E2 -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · Casier de Rasmus</div>
+  <div style="margin-top:20mm">
+    <div class="badge">
+      <div class="haut">MARINE DE LA RÉPUBLIQUE DE VALDARIE</div>
+      <div class="corps">
+        <div class="portrait">🧑‍🔧</div>
+        <div>
+          <div style="font-weight:900;font-size:12pt">Matelot Rasmus HOLM</div>
+          <div class="mono" style="color:var(--cuir);font-size:8.5pt">ÉLECTRICIEN DE BORD · S-417 NARVAL</div>
+          <div style="margin-top:2mm;font-size:8.5pt">Habilitation : basse et haute tension<br>Responsable : tableau général, batteries, fusibles de rechange</div>
+        </div>
+      </div>
+    </div>
+    <p class="main" style="text-align:center;font-size:17pt;margin-top:8mm">(Dans le casier : des piles neuves, un fusible de rechange… et une boîte de biscuits.)</p>
+  </div>
+</div>
+
+<!-- E3 -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · Dans le faisceau de la lampe</div>
+  <h2 style="margin-top:0">Plan d'évacuation · Sous-marin Narval</h2>
+  <div class="plan">
+    <svg viewBox="0 0 700 300" font-family="Share Tech Mono, monospace">
+      <rect width="700" height="300" fill="#eef3f6"/>
+      <!-- Coque -->
+      <path d="M40 170 Q40 110 120 105 L600 105 Q670 110 680 170 Q670 230 600 235 L120 235 Q40 230 40 170 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
+      <!-- Kiosque -->
+      <path d="M240 105 L255 45 L345 45 L355 105 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
+      <rect x="275" y="58" width="50" height="34" fill="#fff6dc" stroke="#b8322a" stroke-width="2"/>
+      <text x="300" y="72" text-anchor="middle" font-size="9" fill="#b8322a">SAS DE</text><text x="300" y="84" text-anchor="middle" font-size="9" fill="#b8322a">SAUVETAGE</text>
+      <text x="300" y="38" text-anchor="middle" font-size="16" font-weight="700" fill="#13293a">S-417</text>
+      <!-- Cloisons -->
+      <g stroke="#13293a" stroke-width="2"><line x1="160" y1="107" x2="160" y2="233"/><line x1="240" y1="107" x2="240" y2="233"/><line x1="360" y1="107" x2="360" y2="233"/>
+        <line x1="440" y1="107" x2="440" y2="233"/><line x1="520" y1="107" x2="520" y2="233"/><line x1="240" y1="185" x2="360" y2="185"/></g>
+      <!-- Coursive -->
+      <rect x="160" y="155" width="360" height="14" fill="#c9d8e2"/>
+      <g font-size="10" fill="#13293a" text-anchor="middle">
+        <text x="100" y="150">POSTE AVANT</text><text x="100" y="164">(torpilles)</text>
+        <text x="200" y="135">SALLE</text><text x="200" y="148">RADIO</text>
+        <text x="300" y="135">POSTE DE</text><text x="300" y="148">COMMANDE</text>
+        <text x="300" y="207">LOCAL DES</text><text x="300" y="220">BATTERIES</text>
+        <text x="400" y="135">CAMBUSE</text>
+        <text x="480" y="135">POSTE</text><text x="480" y="148">D'ÉQUIPAGE</text>
+        <text x="600" y="150">SALLE DES</text><text x="600" y="164">MACHINES</text>
+        <text x="340" y="166" font-size="8">COURSIVE</text>
+      </g>
+      <text x="600" y="190" text-anchor="middle" font-size="9" fill="#b8322a">PORTE ÉTANCHE N°5</text>
+      <rect x="436" y="150" width="8" height="24" fill="#b8322a"/>
+      <text x="440" y="250" text-anchor="middle" font-size="9" fill="#b8322a">PORTE ÉTANCHE N°3</text>
+      <line x1="440" y1="240" x2="440" y2="176" stroke="#b8322a" stroke-width="1"/>
+      <rect x="516" y="150" width="8" height="24" fill="#b8322a"/>
+      <!-- Itinéraire -->
+      <defs><marker id="fl" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12 Z" fill="#2e9e4f"/></marker></defs>
+      <path d="M480 185 L480 162 L300 162 L300 104" fill="none" stroke="#2e9e4f" stroke-width="3" stroke-dasharray="8 5" marker-end="url(#fl)"/>
+      <text x="420" y="290" font-size="11" fill="#2e9e4f">Itinéraire d'évacuation →  Sas de sauvetage</text>
+    </svg>
+  </div>
+  <div class="doc" style="margin-top:4mm">
+    <h3>Consignes d'évacuation</h3>
+    <ul style="margin:0">
+      <li>Numéro de coque : <strong>S-417</strong>.</li>
+      <li><strong>Profondeur maximale d'évacuation par le sas : 60 m.</strong> Au-delà, ne jamais ouvrir.</li>
+      <li>Combinaisons de sortie : rangées dans le sas.</li>
+      <li>Le poste avant dispose de sa propre sortie (tube lance-torpilles).</li>
+    </ul>
+  </div>
+
+  <div class="ciseaux"></div>
+
+  <div class="plaque" style="width:120mm;margin:0 auto">
+    <span class="rivet"></span><span class="rivet"></span>
+    <div style="font-size:16pt;font-weight:700;letter-spacing:.1em;margin:2mm 0">PORTE ÉTANCHE N° 3</div>
+    <div style="font-size:10.5pt">En cas de déformation de la coque :<br><strong>MANŒUVRE À QUATRE MAINS.</strong><br>Tous ensemble sur le volant,<br>maintenir l'effort trois secondes.</div>
+    <span class="rivet"></span><span class="rivet"></span>
+  </div>
+</div>
+
+<!-- E4 -->
+<div class="page">
+  <div class="tag">Enveloppe E4 · Coursive</div>
+  <div class="doc" style="margin-top:12mm">
+    <h3>Coursive · état après le choc</h3>
+    <table>
+      <thead><tr><th>Porte</th><th>Mène à</th><th>État</th></tr></thead>
+      <tbody>
+        <tr><td>Bâbord, 1</td><td>Cambuse</td><td>Ouverte</td></tr>
+        <tr><td>Échelle</td><td>Local des batteries (pont inférieur)</td><td>Ouverte · odeur de brûlé</td></tr>
+        <tr><td>Avant</td><td>Poste de commande</td><td>Ouverte</td></tr>
+        <tr><td>Tribord, 2</td><td>Salle radio</td><td>Ouverte</td></tr>
+        <tr><td>Kiosque</td><td>Sas de sauvetage</td><td>Verrouillé</td></tr>
+        <tr><td>Arrière, porte étanche n° 5</td><td>Salle des machines</td><td><strong style="color:var(--rouge)">INONDÉE · NE PAS OUVRIR</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-bottom:0"><strong>Avarie :</strong> conduite d'eau de mer percée au niveau de la vanne <span class="mono">V-12</span>. La vanne
+      se ferme à la main, à la clé. Le ruban adhésif ne tient pas sous cette pression.</p>
+  </div>
+</div>
+
+<!-- E5 -->
+<div class="page">
+  <div class="tag">Enveloppe E5 · Cambuse</div>
+  <h2 style="margin-top:0;text-align:center;border:0">Tableau des quarts · semaine 12</h2>
+  <table class="quarts">
+    <thead><tr><th>Matelot</th><th>Quart</th></tr></thead>
+    <tbody>
+      <tr class="nuit"><td>Arvid</td><td>00 h – 01 h · nuit</td></tr>
+      <tr class="nuit"><td>Bjørn</td><td>01 h – 02 h · nuit</td></tr>
+      <tr class="nuit"><td>Edvin</td><td>05 h – 06 h · nuit</td></tr>
+      <tr><td>Félix</td><td>22 h – 24 h</td></tr>
+      <tr><td>Ingvar</td><td>12 h – 14 h</td></tr>
+      <tr><td>Kasper</td><td>20 h – 22 h</td></tr>
+      <tr><td>Lukas</td><td>06 h – 08 h</td></tr>
+      <tr><td>Malo</td><td>08 h – 10 h</td></tr>
+      <tr><td>Noé</td><td>14 h – 16 h</td></tr>
+      <tr><td>Oskar</td><td>10 h – 12 h</td></tr>
+      <tr class="nuit"><td>Søren</td><td>04 h – 05 h · nuit</td></tr>
+      <tr class="nuit"><td>Sven</td><td>03 h – 04 h · nuit</td></tr>
+      <tr><td>Teodor</td><td>16 h – 18 h</td></tr>
+      <tr><td>Ulrik</td><td>18 h – 20 h</td></tr>
+      <tr class="nuit"><td>Yann</td><td>02 h – 03 h · nuit</td></tr>
+    </tbody>
+  </table>
+  <p class="petit" style="text-align:center">Les quarts de nuit sont d'une heure. Échanges de quart : voir le second maître.</p>
+
+  <div class="ciseaux"></div>
+
+  <div class="note">
+    Café chaud pour le quart de nuit à 23 h 45 !<br>
+    Et qui m'a encore piqué ma clé à molette ?<br>
+    Elle dort dans MON tiroir maintenant.<br>
+    <span style="float:right">— Gustav, cuisinier</span><br>
+  </div>
+</div>
+
+<!-- E6 -->
+<div class="page">
+  <div class="tag">Enveloppe E6 · Local des batteries</div>
+  <div class="doc" style="margin-top:6mm">
+    <div class="bandeau"><span>Narval · S-417</span><span>Manuel de répartition de l'énergie · secours</span></div>
+    <h3>Répartition d'urgence : 10 unités</h3>
+    <p>Après remplacement du fusible principal, le tableau de secours délivre <strong>10 unités</strong>, à répartir entre cinq circuits.</p>
+    <div class="circuits">
+      <div><b>⛲</b>Pompes de cale</div><div><b>💨</b>Compresseur</div><div><b>📻</b>Radio</div><div><b>💡</b>Éclairage</div><div><b>🛟</b>Sas</div>
+    </div>
+    <ol class="regles">
+      <li>Les <strong>10 unités</strong> doivent toutes être réparties.</li>
+      <li>Le <strong>compresseur</strong> a besoin d'<strong>exactement 4 unités</strong> pour chasser les ballasts.</li>
+      <li>Les <strong>pompes de cale</strong> demandent <strong>au moins 2 unités</strong>.</li>
+      <li><strong>Pompes et compresseur</strong> ensemble : <strong>6 unités au plus</strong>, sinon le disjoncteur saute.</li>
+      <li>La <strong>radio</strong> et l'<strong>éclairage</strong> partagent le même bus : <strong>même puissance</strong>.</li>
+      <li>Le <strong>sas</strong> a besoin d'<strong>exactement 2 unités</strong> pour sa pompe d'équilibrage.</li>
+    </ol>
+    <p class="petit" style="margin-bottom:0">Au tableau : tourner pour régler un circuit, appuyer pour passer au suivant, bouton vert pour valider. Une répartition fautive fait sauter le disjoncteur.</p>
+  </div>
+</div>
+
+<!-- E7 -->
+<div class="page">
+  <div class="tag">Enveloppe E7 · Poste de commande</div>
+  <div class="carnet" style="margin-top:8mm">
+    <b>Carnet de bord · Cdt M. Solvik</b><br>
+    Exercice « Brume d'acier », jour 3. Mer calme en surface.<br>
+    Immersion 140 m, cap au 210. Tout l'équipage en forme.<br>
+    Gustav a encore fait brûler le café.<br>
+    Rappel pour moi-même : je n'écris JAMAIS le mot de passe de la console.<br>
+    Je le prends dans le tableau des quarts : l'initiale de chaque homme
+    de quart de nuit, de minuit à six heures, dans l'ordre des heures.<br>
+    Évacuation par le sas : jamais sous 60 m.
+  </div>
+</div>
+
+<!-- E8 -->
+<div class="page">
+  <div class="tag">Enveloppe E8 · Sas de sauvetage</div>
+  <div class="doc" style="margin-top:6mm">
+    <div class="bandeau"><span>Narval · S-417</span><span>Procédure de sortie par le sas</span></div>
+    <ol style="font-size:12pt;line-height:1.6">
+      <li><strong>Profondeur</strong> : vérifier que le bâtiment est au-dessus de <strong>60 m</strong>.</li>
+      <li><strong>Combinaisons</strong> : fermer la combinaison, rabattre la cagoule, vérifier le gilet.</li>
+      <li><strong>Remplissage</strong> : <strong>tenir les quatre vannes ouvertes ensemble</strong> jusqu'au remplissage complet du sas. Si une vanne lâche, tout recommencer.</li>
+      <li><strong>Écoutille</strong> : quand la pression est égale, ouvrir l'écoutille (levier rouge).</li>
+      <li><strong>Remontée</strong> : le long du filin, sans retenir son souffle. Expirer pendant toute la remontée.</li>
+    </ol>
+    <p class="petit" style="margin-bottom:0">Au pupitre : posez les <strong>combinaisons</strong> sur un de vos lecteurs (QUI ou QUOI), le <strong>sas</strong> sur OÙ.</p>
+  </div>
+</div>
+
+</body>
+</html>

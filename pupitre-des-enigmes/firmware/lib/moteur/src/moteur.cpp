@@ -296,6 +296,7 @@ void Moteur::terminer(bool victoire, const std::string& cause) {
   phase_ = Phase::FIN;
   victoire_ = victoire;
   chronoActif_ = false;
+  vue_.aideClignote = false;
   finJeu_ = maintenant();
   if (ep_.active) {
     ep_.active = false;
@@ -1401,6 +1402,7 @@ void Moteur::finEpreuve(bool reussi) {
   finEffet_ = maintenant() + 700;
   vue_.ecran = Vue::PRINCIPAL;
   vue_.info.clear();
+  vue_.bandeau.clear();  // ex. : « 10 / 10 unités » de l'écran d'énergie
   rafraichir();
   empiler(ep_.def[reussi ? "reussite" : "echec"]);
 }

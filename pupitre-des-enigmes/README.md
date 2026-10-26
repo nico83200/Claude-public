@@ -15,8 +15,9 @@ Monde** sur un lecteur, et s'habille d'une **façade aimantée** à son image.
 | 🐴 [Le Haras des Trois Fers](mondes/haras/) | 1 · [La Disparition d'Éclipse](mondes/haras/mission-1-disparition-eclipse.md) · [déroulé](mondes/haras/mission-1-deroule.md) | 🟢 Accessible | 60 min |
 | 🎰 [Monte-Carlo 1928](mondes/casse/) | 2 · [Le Casse du Siècle](mondes/casse/mission-2-casse-du-siecle.md) · [déroulé](mondes/casse/mission-2-deroule.md) | 🟠 Intermédiaire | 60 min |
 | 🚀 [Station Kepler-9](mondes/kepler/) | 3 · [Signal Perdu](mondes/kepler/mission-3-signal-perdu.md) · [déroulé](mondes/kepler/mission-3-deroule.md) | 🔴 Difficile | 75 min |
+| ⚓ [Sous-marin Narval](mondes/narval/) | 4 · [Voie d'eau](mondes/narval/mission-4-voie-d-eau.md) · [déroulé](mondes/narval/mission-4-deroule.md) · *escape game, sans rôles* | 🟠 Intermédiaire | 60 min |
 
-Les trois missions sont complètes : scénario, déroulé, répliques, script de
+Les quatre missions sont complètes : scénario, déroulé, répliques, script de
 doublage, matériel à imprimer et **script du pupitre**.
 
 ## Le programme
@@ -57,13 +58,13 @@ mission).
 | [Mode d'emploi du pupitre](pdf/mode-emploi.pdf) | Tout le monde, valable pour tous les mondes |
 | [Liste d'achat](pdf/liste-achats.pdf) | Le constructeur (source : `console/achats.json`) |
 
-| Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 |
-|---|---|---|---|
-| **Kit d'impression complet** (tout le matériel de jeu) | [PDF](pdf/mission-1-kit-impression.pdf) | [PDF](pdf/mission-2-kit-impression.pdf) | [PDF](pdf/mission-3-kit-impression.pdf) |
-| Fiche de mission (joueurs) | [PDF](pdf/mission-1-fiche-joueurs.pdf) | [PDF](pdf/mission-2-fiche-joueurs.pdf) | [PDF](pdf/mission-3-fiche-joueurs.pdf) |
-| Cartes recto verso | [PDF](pdf/mission-1-cartes.pdf) | [PDF](pdf/mission-2-cartes.pdf) | [PDF](pdf/mission-3-cartes.pdf) |
-| Documents secrets des rôles | [PDF](pdf/mission-1-documents-secrets.pdf) | [PDF](pdf/mission-2-documents-secrets.pdf) | [PDF](pdf/mission-3-documents-secrets.pdf) |
-| Enveloppes (contenu et étiquettes) | [PDF](pdf/mission-1-enveloppes.pdf) | [PDF](pdf/mission-2-enveloppes.pdf) | [PDF](pdf/mission-3-enveloppes.pdf) |
-| Fiche d'enquête (notes de l'équipe) | [PDF](pdf/mission-1-fiche-enquete.pdf) | [PDF](pdf/mission-2-fiche-enquete.pdf) | [PDF](pdf/mission-3-fiche-enquete.pdf) |
-| Déroulé du maître du jeu (solutions) | [PDF](pdf/mission-1-deroule-maitre-du-jeu.pdf) | [PDF](pdf/mission-2-deroule-maitre-du-jeu.pdf) | [PDF](pdf/mission-3-deroule-maitre-du-jeu.pdf) |
-| Script de doublage (ElevenLabs) | [PDF](pdf/mission-1-script-doublage.pdf) | [PDF](pdf/mission-2-script-doublage.pdf) | [PDF](pdf/mission-3-script-doublage.pdf) |
+| Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 | Mission 4 · Narval |
+|---|---|---|---|---|
+| **Kit d'impression complet** (tout le matériel de jeu) | [PDF](pdf/mission-1-kit-impression.pdf) | [PDF](pdf/mission-2-kit-impression.pdf) | [PDF](pdf/mission-3-kit-impression.pdf) | [PDF](pdf/mission-4-kit-impression.pdf) |
+| Fiche de mission (joueurs) | [PDF](pdf/mission-1-fiche-joueurs.pdf) | [PDF](pdf/mission-2-fiche-joueurs.pdf) | [PDF](pdf/mission-3-fiche-joueurs.pdf) | [PDF](pdf/mission-4-fiche-joueurs.pdf) |
+| Cartes recto verso | [PDF](pdf/mission-1-cartes.pdf) | [PDF](pdf/mission-2-cartes.pdf) | [PDF](pdf/mission-3-cartes.pdf) | [PDF](pdf/mission-4-cartes.pdf) |
+| Documents secrets des rôles | [PDF](pdf/mission-1-documents-secrets.pdf) | [PDF](pdf/mission-2-documents-secrets.pdf) | [PDF](pdf/mission-3-documents-secrets.pdf) | — (pas de rôles) |
+| Enveloppes (contenu et étiquettes) | [PDF](pdf/mission-1-enveloppes.pdf) | [PDF](pdf/mission-2-enveloppes.pdf) | [PDF](pdf/mission-3-enveloppes.pdf) | [PDF](pdf/mission-4-enveloppes.pdf) |
+| Fiche d'enquête (notes de l'équipe) | [PDF](pdf/mission-1-fiche-enquete.pdf) | [PDF](pdf/mission-2-fiche-enquete.pdf) | [PDF](pdf/mission-3-fiche-enquete.pdf) | [Carnet de bord](pdf/mission-4-carnet-de-bord.pdf) |
+| Déroulé du maître du jeu (solutions) | [PDF](pdf/mission-1-deroule-maitre-du-jeu.pdf) | [PDF](pdf/mission-2-deroule-maitre-du-jeu.pdf) | [PDF](pdf/mission-3-deroule-maitre-du-jeu.pdf) | [PDF](pdf/mission-4-deroule-maitre-du-jeu.pdf) |
+| Script de doublage (ElevenLabs) | [PDF](pdf/mission-1-script-doublage.pdf) | [PDF](pdf/mission-2-script-doublage.pdf) | [PDF](pdf/mission-3-script-doublage.pdf) | [PDF](pdf/mission-4-script-doublage.pdf) |

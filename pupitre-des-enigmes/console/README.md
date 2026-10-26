@@ -124,6 +124,7 @@ réplique.
 | `10/` · `11/` | Haras : voix · bruitages |
 | `20/` · `21/` | Monte-Carlo 1928 : voix · bruitages |
 | `30/` · `31/` | Station Kepler-9 : voix · bruitages |
+| `40/` · `41/` | Sous-marin Narval : voix · bruitages |
 
 La SD de l'écran contient les **mondes** : un dossier par monde, avec la table
 des cartes, le thème et les scripts des missions. Elle se prépare avec

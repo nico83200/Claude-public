@@ -1,11 +1,12 @@
 # Le langage des scripts
 
 Une mission est un fichier JSON (`mondes/<monde>/pupitre/mission-N.json`) que le
-moteur du pupitre exécute. Ce document en décrit toutes les clés. Les trois
+moteur du pupitre exécute. Ce document en décrit toutes les clés. Les quatre
 missions livrées servent d'exemples complets :
 [Haras](../mondes/haras/pupitre/mission-1.json) ·
 [Monte-Carlo](../mondes/casse/pupitre/mission-2.json) ·
-[Kepler-9](../mondes/kepler/pupitre/mission-3.json).
+[Kepler-9](../mondes/kepler/pupitre/mission-3.json) ·
+[Narval](../mondes/narval/pupitre/mission-4.json) (un escape game sans rôles ni accusation).
 
 Le principe : **quand** une carte est posée, le moteur cherche la première
 **règle** qui correspond et dont la **condition** est vraie, puis exécute ses
@@ -36,11 +37,12 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `titre` | Nom de la mission | `"Signal Perdu"` |
 | `dossier_voix`, `dossier_sons` | Dossiers des DFPlayer | `30`, `31` |
 | `chrono` | `mode` `"horloge"` (heure qui avance depuis `depart`) ou `"compte"` (compte à rebours, avec un `prefixe`) ; `duree` en minutes | `{"mode": "compte", "prefixe": "O₂ ", "duree": 75}` |
-| `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` ou `"soupcon"` | `"soupcon"` |
+| `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit) ou `"soupcon"` | `"soupcon"` |
+| `objets_combinables` | `true` : les objets se posent aussi sur QUI ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
 | `soupcon` | Jauge de soupçon : `max` (défaite), `annulation` (un rôle peut annuler une hausse), `alerte` (réplique à un seuil) | voir Monte-Carlo |
 | `cartes` | Toutes les cartes de la mission : `type` (`lieu`, `perso`, `objet`, `role`) et `nom` | `{"L1": {"type": "lieu", "nom": "L'Écurie"}}` |
 | `voix` | Nom affiché sous chaque sous-titre, par voix | `{"helene": "Hélène Vasseur"}` |
-| `roles` | Réplique d'arrivée et nombre d'utilisations du pouvoir | `{"R3": {"dire": 5, "pouvoir": 2}}` |
+| `roles` | Réplique d'arrivée et nombre d'utilisations du pouvoir. Vide (`{}`) : pas de cartes Rôle, l'introduction démarre aussitôt | `{"R3": {"dire": 5, "pouvoir": 2}}` |
 | `pouvoirs` | Compteurs de pouvoir supplémentaires | `{"R3_papiers": 1}` |
 | `pouvoir_epuise` | Réplique quand un pouvoir n'a plus d'utilisation | `106` |
 | `roles_demande` | Réplique qui demande de poser les rôles | `2` |
@@ -53,7 +55,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `imprevus` | Événements minutés (§ 7) | |
 | `relances` | Quand faire clignoter « AIDE ? » à l'écran | `[{"minute": 25, "si": "!J3"}]` |
 | `aide` | La carte Aide et ses indices (§ 8) | |
-| `accusation` | L'accusation finale (§ 9) | |
+| `accusation` | L'accusation finale (§ 9). Absente : le gros bouton ne sert qu'aux épreuves `appui` | |
 | `fins` | Victoire, rangs et défaites (§ 10) | |
 
 ## 3. Les règles
@@ -77,7 +79,12 @@ Les règles sont lues **dans l'ordre** : la première qui correspond gagne. On
 | Objet | une carte Objet est posée sur QUOI, QUI vide | `{"quoi": "O1"}` |
 | Paire | un personnage et un objet sont posés ensemble | `{"qui": "P1", "quoi": "O3"}` |
 | Rôle | une carte Rôle est posée ; les autres zones donnent ses cibles | `{"role": "R5", "qui": "P4"}` |
+| Objet dans un lieu | un objet est posé alors qu'un lieu est sur OÙ | `{"lieu": "L2", "quoi": "O5"}` |
+| Combinaison | deux objets sur QUI et QUOI (avec `objets_combinables`), dans n'importe quel ordre | `{"combiner": ["O1", "O3"]}` |
 | Événement | une action `evenement` le déclenche | `{"evenement": "croisement2"}` |
+
+Une **combinaison** qu'aucune règle ne prévoit est traitée comme le dernier objet
+posé, seul, dans le lieu courant.
 
 Pour un **rôle**, la cible peut être posée avant ou après la carte Rôle : poser
 un objet sur QUOI alors qu'une carte Rôle attend sur QUI déclenche aussi
@@ -160,6 +167,7 @@ Toutes les épreuves acceptent :
 | `rondes` | appuient au gros bouton quand l'anneau est vert | `pas`, `pris` (actions si on appuie au rouge) |
 | `energie` | répartissent des unités entre des modules (vert : valider) | `modules`, `total`, `max`, `regles` (`expr` avec `m0`, `m1`… et `somme`, `texte`), `erreur` |
 | `traitre` | se passent le casque pour le tirage au sort du traître | `minimum`, `traitre`, `loyal`, `suivant` (répliques) |
+| `appui` | appuient sur le gros bouton (l'anneau clignote) | `secondes` |
 
 Les aides des rôles pendant une épreuve :
 

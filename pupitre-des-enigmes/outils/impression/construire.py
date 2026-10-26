@@ -218,6 +218,13 @@ MISSIONS = [
     {"num": 1, "monde": "haras", "nom": "Le Haras des Trois Fers"},
     {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928"},
     {"num": 3, "monde": "kepler", "nom": "Station Kepler-9"},
+    # Un escape game : pas de rôles (donc pas de documents secrets), un carnet de bord au lieu de la fiche d'enquête.
+    {"num": 4, "monde": "narval", "nom": "Sous-marin Narval", "materiel": [
+        ("fiche-mission-4", "fiche-joueurs", "Fiche de mission"),
+        ("cartes", "cartes", ""),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("carnet-de-bord", "carnet-de-bord", ""),
+    ]},
 ]
 
 
@@ -246,7 +253,7 @@ def mission(m):
                fichier("script-doublage"), pied=f"{nom} · Mission {n} · Script de doublage")
 
     # Le matériel de jeu, puis un kit qui rassemble tout dans l'ordre de fabrication.
-    materiel = [
+    materiel = m.get("materiel") or [
         (f"fiche-mission-{n}", "fiche-joueurs", "Fiche de mission"),
         ("cartes", "cartes", ""),
         ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
