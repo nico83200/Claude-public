@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 1 · Plateau du pupitre</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .bandeau { display: flex; justify-content: space-between; font-family: "Source Sans"; font-weight: 700;
+             font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase; color: var(--cuir);
+             border-bottom: 1px solid var(--or); padding-bottom: 4px; margin-bottom: 10px; }
+  h1 { font-family: "Playfair"; color: var(--vert); }
+  .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Source Sans"; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
+  .bas { display: grid; grid-template-columns: 1fr 34mm; gap: 6mm; align-items: start; }
+  .medaillon { text-align: center; font-size: 8pt; color: var(--gris); }
+  .medaillon svg { width: 30mm; height: 30mm; display: block; margin: 0 auto 1mm; }
+</style>
+</head>
+<body>
+
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié
+     dans chaque page par le script en bas. La mission 1 n'utilise ni la clé ni le capteur de
+     couleur, ni la rangée basse des voyants : le plateau les cache. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <linearGradient id="cuir" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a4a39"/><stop offset=".6" stop-color="#1f3b2d"/><stop offset="1" stop-color="#16291f"/></linearGradient>
+    <linearGradient id="laiton" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3c27a"/><stop offset=".5" stop-color="#b8893a"/><stop offset="1" stop-color="#8a6526"/></linearGradient>
+    <linearGradient id="bois" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2b"/><stop offset="1" stop-color="#6b4420"/></linearGradient>
+    <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".35" fill="#ffffff" opacity=".05"/><circle cx="4" cy="4" r=".3" fill="#000000" opacity=".08"/></pattern>
+    <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#10201a"/></pattern>
+    <g id="clou"><circle r="2" fill="url(#laiton)"/><circle cx="-.5" cy="-.5" r=".7" fill="#f6e2b0"/></g>
+    <g id="fer"><path d="M-7 8C-10 2-10-5-5-8.5c3-2 7-2 10 0C10-5 10 2 7 8" fill="none" stroke="url(#laiton)" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#1f3b2d"><circle cx="-7.6" cy="2" r=".7"/><circle cx="-7.4" cy="-3.5" r=".7"/><circle cx="-3.5" cy="-7.4" r=".7"/><circle cx="3.5" cy="-7.4" r=".7"/><circle cx="7.4" cy="-3.5" r=".7"/><circle cx="7.6" cy="2" r=".7"/></g></g>
+  </defs>
+
+  <!-- la plaque : cuir vert, filet doré, clous de sellier -->
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#cuir)" stroke="#0e1a14" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#grain)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#b8893a" stroke-width=".8"/>
+  <rect x="7.5" y="7.5" width="365" height="247" rx="5.5" fill="none" stroke="#b8893a" stroke-width=".3" opacity=".7"/>
+  <g><use href="#clou" x="100" y="5"/><use href="#clou" x="190" y="5"/><use href="#clou" x="280" y="5"/>
+     <use href="#clou" x="100" y="257"/><use href="#clou" x="190" y="257"/><use href="#clou" x="280" y="257"/></g>
+  <!-- aimants (repères) -->
+  <g fill="none" stroke="#b8893a" stroke-width=".4" opacity=".6"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+
+  <!-- le clavier : codes et réponses -->
+  <rect x="19" y="19" width="78" height="86" rx="4" fill="url(#bois)" stroke="#4a2e14" stroke-width="1"/>
+  <rect x="21" y="21" width="74" height="82" rx="3" fill="none" stroke="url(#laiton)" stroke-width=".8"/>
+  <rect x="23" y="23" width="70" height="78" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-family="Source Sans, sans-serif" font-size="4.5" fill="#6f8a7b">✂ CLAVIER</text>
+
+  <!-- la voix du haras (haut-parleur) -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="url(#laiton)" stroke-width="1.2"/>
+  <text x="133" y="91" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="5.5" fill="#e8d5a6">la voix du haras</text>
+
+  <!-- la lanterne (anneau de LED) -->
+  <circle cx="190" cy="62" r="22" fill="none" stroke="url(#laiton)" stroke-width="1.4"/>
+  <circle cx="190" cy="62" r="19" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="91" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="5.5" fill="#e8d5a6">la lanterne</text>
+
+  <!-- l'écran : un cadre de bois et de laiton -->
+  <rect x="236" y="30" width="98" height="64" rx="4" fill="url(#bois)" stroke="#4a2e14" stroke-width="1"/>
+  <rect x="240" y="33.5" width="90" height="57" rx="2.5" fill="none" stroke="url(#laiton)" stroke-width="1"/>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-family="Source Sans, sans-serif" font-size="4.5" fill="#6f8a7b">✂ ÉCRAN 3,5"</text>
+
+  <!-- la clé n'est pas utilisée : un trou de Ø 22 mm sous un médaillon en relief -->
+  <circle cx="358" cy="40" r="11" fill="none" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5" opacity=".7"/>
+  <circle cx="358" cy="40" r="15" fill="none" stroke="#b8893a" stroke-width=".4" opacity=".5"/>
+
+  <!-- les pistes : les 5 voyants du haut (la rangée du bas reste cachée) -->
+  <rect x="35" y="108" width="90" height="26" rx="4" fill="none" stroke="#b8893a" stroke-width=".6"/>
+  <rect x="62" y="106" width="36" height="5" fill="#1f3b2d"/>
+  <text x="80" y="110.3" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="4.6" fill="#e3c27a" letter-spacing=".8">LES PISTES</text>
+  <g fill="none" stroke="url(#laiton)" stroke-width="1">
+    <circle cx="46.7" cy="116" r="4.4"/><circle cx="63.3" cy="116" r="4.4"/><circle cx="80" cy="116" r="4.4"/><circle cx="96.7" cy="116" r="4.4"/><circle cx="113.3" cy="116" r="4.4"/>
+  </g>
+  <g fill="#10201a" stroke="#ffffff" stroke-width=".45" stroke-dasharray="1 .8">
+    <circle cx="46.7" cy="116" r="3"/><circle cx="63.3" cy="116" r="3"/><circle cx="80" cy="116" r="3"/><circle cx="96.7" cy="116" r="3"/><circle cx="113.3" cy="116" r="3"/>
+  </g>
+  <g font-family="Source Sans, sans-serif" font-weight="700" font-size="3.4" fill="#e8d5a6" text-anchor="middle" letter-spacing=".3">
+    <text x="46.7" y="126">ÉCURIE</text><text x="63.3" y="126">CARNET</text><text x="80" y="126">BUREAU</text><text x="96.7" y="126">SENTIER</text><text x="113.3" y="126">GRANGE</text>
+  </g>
+  <g font-family="Playfair, serif" font-style="italic" font-size="3.6" fill="#b8c9bd" text-anchor="middle">
+    <text x="80" y="143">orange : piste ouverte · vert : élucidée</text>
+  </g>
+
+  <!-- la fente : le lieu, le suspect, le rôle -->
+  <rect x="150" y="116" width="80" height="34" rx="4" fill="url(#bois)" stroke="#4a2e14" stroke-width="1"/>
+  <rect x="152" y="118" width="76" height="30" rx="3" fill="none" stroke="url(#laiton)" stroke-width=".8"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="126" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="6" fill="#f2d9a6" letter-spacing=".8">LA FENTE</text>
+  <text x="190" y="143" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="600" font-size="4.2" fill="#f2d9a6">le lieu · le suspect · votre rôle</text>
+
+  <!-- le lecteur à plat : le plateau, pour l'objet -->
+  <rect x="257" y="99" width="76" height="76" rx="6" fill="#16291f" stroke="url(#laiton)" stroke-width="1.6"/>
+  <rect x="257" y="99" width="76" height="13" rx="6" fill="url(#laiton)"/><rect x="257" y="106" width="76" height="6" fill="#b8893a"/>
+  <text x="295" y="108.5" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="6.6" fill="#1f3b2d" letter-spacing="1">LE PLATEAU</text>
+  <rect x="268" y="117" width="54" height="44" rx="3" fill="none" stroke="#b8893a" stroke-width=".6" stroke-dasharray="2 1.5"/>
+  <use href="#fer" transform="translate(295 139) scale(1.5)"/>
+  <text x="295" y="168" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="600" font-size="4.2" fill="#e8d5a6">POSEZ L'OBJET ICI</text>
+
+  <!-- le casque -->
+  <circle cx="358" cy="167" r="7" fill="none" stroke="url(#laiton)" stroke-width="1"/>
+  <circle cx="358" cy="167" r="3" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="358" y="182" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="700" font-size="4.4" fill="#e8d5a6">CASQUE</text>
+  <text x="358" y="187.5" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="3.8" fill="#b8c9bd">confidences</text>
+
+  <!-- cartouche -->
+  <use href="#fer" transform="translate(30 176) scale(.9)"/>
+  <text x="42" y="180" font-family="Playfair, serif" font-weight="900" font-size="10.5" letter-spacing=".8" fill="#e3c27a">Haras des Trois Fers</text>
+  <text x="42" y="188" font-family="Playfair, serif" font-style="italic" font-size="5" fill="#b8c9bd">Pays d'Auge · élevage de chevaux de course</text>
+
+  <!-- les quatre boutons de couleur -->
+  <text x="95" y="202" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="700" font-size="4.6" fill="#e8d5a6" letter-spacing="1">LES BALISES · TOUS ENSEMBLE</text>
+  <g fill="none" stroke-width="2.4">
+    <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
+    <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
+  </g>
+  <g fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/></g>
+
+  <!-- la molette -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="url(#laiton)" stroke-width="1.2"/>
+  <g stroke="#b8893a" stroke-width=".8"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <circle cx="190" cy="222" r="3.5" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="202" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="700" font-size="4.6" fill="#e8d5a6" letter-spacing="1">MOLETTE</text>
+
+  <!-- le gros bouton : l'accusation -->
+  <circle cx="295" cy="222" r="30" fill="url(#bois)" stroke="#4a2e14" stroke-width="1"/>
+  <circle cx="295" cy="222" r="27" fill="none" stroke="url(#laiton)" stroke-width="1.4"/>
+  <g><use href="#clou" x="295" y="197.5"/><use href="#clou" x="295" y="246.5"/><use href="#clou" x="270.5" y="222"/><use href="#clou" x="319.5" y="222"/></g>
+  <circle cx="295" cy="222" r="11" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="221" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="7.6" fill="#e3c27a" letter-spacing=".6">ACCUSER</text>
+  <text x="351" y="229" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="4.3" fill="#b8c9bd">lieu · suspect · objet</text>
+  <text x="351" y="234.5" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="4.3" fill="#b8c9bd">puis appuyez</text>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes · Le Haras des Trois Fers</span><span>Plateau de la mission 1</span></div>
+  <h1 style="margin:0 0 2mm">Le plateau du haras</h1>
+  <p>Pour « La Disparition d'Éclipse », le pupitre s'habille de cuir vert et de laiton. On glisse dans la <strong>fente</strong>
+     le lieu où l'on se rend, le suspect qu'on interroge ou sa carte Rôle ; on pose l'objet sur le <strong>plateau</strong> (le lecteur à plat).
+     Le <strong>clavier</strong> sert aux codes et aux questions de la gendarmerie, les cinq voyants du haut suivent <strong>les pistes</strong>
+     de l'enquête, et le <strong>gros bouton</strong> lance l'accusation. La clé, le capteur de couleur et la rangée basse des voyants
+     ne servent pas : le plateau les cache.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <h3>Fabrication</h3>
+  <div class="bas">
+    <ol style="font-size:10pt;margin:0">
+      <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
+      <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Faites coïncider les repères ▲.</li>
+      <li>Collez sur la façade de 2 mm (contreplaqué), plastifiez si possible.</li>
+      <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, lanterne, les 5 voyants du haut, fente, boutons, molette,
+          prise casque, et le trou de Ø 22 mm en haut à droite (la clé dépasse trop pour passer dessous).</li>
+      <li>Coiffez ce trou du <strong>médaillon</strong> ci-contre, collé sur un bouchon ou une capsule de bois de Ø 30 mm : il cache la clé.</li>
+    </ol>
+    <div class="medaillon">
+      <svg viewBox="-15 -15 30 30" class="copie-medaillon"></svg>
+      Médaillon (Ø 30 mm)
+    </div>
+  </div>
+  <p class="petit">Cotes du gabarit commun (pdf/gabarit-facade.pdf). Vérifiez les positions sur votre pupitre avant de découper.</p>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, à partir du repère ▲) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · ▲ aligner le bord gauche sur le repère de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>' +
+                 '<path d="M182 259l3-5 3 5z" fill="#ffffff"/><path d="M182 3l3 5 3-5z" fill="#ffffff"/>';
+  // Les identifiants doivent rester uniques dans la page : chaque copie a les siens.
+  const unique = (texte, i) => texte.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/#([\w-]+)\)/g, `#$1-${i})`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`);
+  const copies = document.querySelectorAll("svg.copie");
+  copies.forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    s.innerHTML = unique(modele, i) + (i ? repere : "");
+  });
+  // Le médaillon qui cache la clé : les définitions du plateau, un fond de cuir, un fer à cheval.
+  const defs = modele.match(/<defs>[\s\S]*<\/defs>/)[0];
+  const m = document.querySelector("svg.copie-medaillon");
+  m.innerHTML = unique(defs + '<circle r="14.5" fill="url(#cuir)" stroke="url(#laiton)" stroke-width="1"/>' +
+    '<circle r="12.5" fill="none" stroke="#b8893a" stroke-width=".3"/><use href="#fer" transform="scale(.85)"/>', "m");
+</script>
+</body>
+</html>

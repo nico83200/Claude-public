@@ -8,6 +8,16 @@
     "duree": 60
   },
   "jauge": "chrono",
+  "materiel": ["fente", "plateau", "clavier", "voyants", "boutons", "molette", "gros_bouton", "casque", "anneau"],
+  "panneau": {
+    "voyants": [
+      {"nom": "Écurie", "etats": [{"si": "J1", "couleur": "vert"}, {"si": "1", "couleur": "orange", "effet": "clignote"}]},
+      {"nom": "Carnet", "etats": [{"si": "J2", "couleur": "vert"}, {"si": "J1", "couleur": "orange"}, {"si": "1", "couleur": "eteint"}]},
+      {"nom": "Bureau", "etats": [{"si": "J3", "couleur": "vert"}, {"si": "1", "couleur": "rouge"}]},
+      {"nom": "Sentier", "etats": [{"si": "J4", "couleur": "vert"}, {"si": "J1", "couleur": "orange"}, {"si": "1", "couleur": "eteint"}]},
+      {"nom": "Grange", "etats": [{"si": "J5", "couleur": "vert"}, {"si": "J4", "couleur": "orange", "effet": "clignote"}, {"si": "1", "couleur": "eteint"}]}
+    ]
+  },
   "voix": {
     "narrateur": "",
     "helene": "Hélène Vasseur",
@@ -1752,7 +1762,7 @@
               "epreuve": {
                 "type": "code",
                 "titre": "GENDARMERIE",
-                "texte": "Répondez avec la molette (30 s)",
+                "texte": "Répondez au clavier (30 s)",
                 "solution": "0312",
                 "secondes": 30,
                 "intro": {
@@ -1782,7 +1792,7 @@
                   "epreuve": {
                     "type": "code",
                     "titre": "GENDARMERIE",
-                    "texte": "Répondez avec la molette (30 s)",
+                    "texte": "Répondez au clavier (30 s)",
                     "solution": "6",
                     "secondes": 30,
                     "intro": {
@@ -1809,7 +1819,7 @@
                   "epreuve": {
                     "type": "code",
                     "titre": "GENDARMERIE",
-                    "texte": "Répondez avec la molette (30 s)",
+                    "texte": "Répondez au clavier (30 s)",
                     "solution": "7",
                     "secondes": 30,
                     "intro": {

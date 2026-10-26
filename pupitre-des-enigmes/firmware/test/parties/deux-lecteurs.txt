@@ -22,11 +22,19 @@ fente -
 calme
 verifie phase jeu
 
+# --- Les voyants des pistes : l'écurie clignote, le bureau est fermé
+verifie voyant 1 orange
+verifie voyant 2 eteint
+verifie voyant 3 rouge
+
 # --- Un lieu glissé puis retiré : on y reste
 fente L1
 verifie drapeau J1
 fente -
 verifie zone OU L1
+verifie voyant 1 vert
+verifie voyant 2 orange
+verifie voyant 4 orange
 
 # --- Un personnage dans la fente, un objet sur le plateau : la paire
 fente P2
@@ -36,6 +44,14 @@ verifie zone QUOI O3
 plateau -
 fente -
 verifie zone QUI -
+
+# --- Le bureau : son code tapé au clavier
+fente L3
+touches 3715
+calme
+verifie drapeau J3
+verifie voyant 3 vert
+fente -
 
 # --- Un autre lieu : il remplace le premier
 fente L9

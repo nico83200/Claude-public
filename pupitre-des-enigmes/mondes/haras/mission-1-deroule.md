@@ -391,7 +391,7 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:40 | **IMPRÉVU Gendarmerie** : *« À quelle heure la caméra a-t-elle été coupée ? »* | | | | H (heure) | 11/007 · 🔊 094, 095 | |
-| 8:41 | **0312** à la molette | | | | D | 🔊 098 | **+2 min** |
+| 8:41 | **0312** au clavier | | | | D | 🔊 098 | **+2 min** |
 | 8:42 | Le Gendarme vérifie Lucas 🎧 | **Lucas** | — | **Rôle Gendarme** | L | 🎧 🔊 101 | Au téléphone : innocenté |
 | 8:43 | Le Gendarme vérifie Hélène 🎧 | **Hélène** | — | **Rôle Gendarme** | L | 🎧 🔊 100 | « Aucun justificatif » |
 | 8:44 | Montrent les bottes à Lucas | **Lucas** | — | **Bottes** | G | 🔊 138 | « Elle ne va jamais dans la pinède » |

@@ -215,7 +215,14 @@ def rendre(html, pdf, paysage=False, pied=""):
 
 
 MISSIONS = [
-    {"num": 1, "monde": "haras", "nom": "Le Haras des Trois Fers"},
+    {"num": 1, "monde": "haras", "nom": "Le Haras des Trois Fers", "materiel": [
+        ("fiche-mission-1", "fiche-joueurs", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "fiche-enquete", ""),
+    ]},
     {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928"},
     {"num": 3, "monde": "kepler", "nom": "Station Kepler-9"},
     # Un escape game : pas de rôles (donc pas de documents secrets), un carnet de bord au lieu de la fiche d'enquête.

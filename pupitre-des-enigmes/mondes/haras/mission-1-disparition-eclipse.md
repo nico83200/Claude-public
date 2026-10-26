@@ -267,7 +267,7 @@ Ce qu'on en déduit :
 - Le **Journaliste** peut faire **insister** un personnage, avec une confidence au casque.
 
 ### Étape 3 : Le code du bureau 🔒 (J3)
-**Bureau sur OÙ → saisie du code à la molette.**
+**Bureau sur OÙ → saisie du code au clavier.**
 
 La règle du code est donnée par Lucas : *« Ce sont les numéros de box des 4 chevaux
 engagés demain, dans l'ordre de passage. »*
@@ -505,7 +505,7 @@ accusation : il attend la fin de l'action en cours.
 | ~16 | 🐎 **Comète panique** | Reproduire 4 fois le rythme du galop sur le gros bouton | −2 min |
 | ~24 | 📞 **L'appel anonyme** 🎧 | Un seul joueur met le casque. Le porteur de journaux témoigne, **une seule fois**. L'auditeur doit raconter ce qu'il a entendu. | — |
 | ~30 | 🎭 **Hélène entre !** | 10 s pour retourner les documents. Hélène interroge un rôle tiré au sort, qui répond à voix haute. En partant : *« Ne perdez pas votre temps dans la pinède. »* | — |
-| ~40 | ☎️ **La gendarmerie** | Une question sur un indice **déjà découvert**, à la molette, en 30 s | Bonus de **+2 min** si la réponse est juste |
+| ~40 | ☎️ **La gendarmerie** | Une question sur un indice **déjà découvert**, au clavier, en 30 s | Bonus de **+2 min** si la réponse est juste |
 | 55 | 🏁 **Dernière ligne droite** | Le commentateur s'emballe, les LED clignotent en rouge | — |
 
 **Le témoignage anonyme 🎧 :**

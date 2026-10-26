@@ -28,8 +28,8 @@ aussi aux missions.
 
 - **Façade aimantée** : une plaque fine (2 ou 3 mm : contreplaqué, laiton, alu
   brossé, PVC…) découpée autour de l'écran, du clavier, de la fente et des boutons,
-  et tenue par 4 paires d'aimants néodyme. Il y en a une par monde ; la mission 4 a
-  la sienne (le plateau du Narval). La façade **montre ou cache** le panneau de
+  et tenue par 4 paires d'aimants néodyme. Il y en a une par monde : le plateau du
+  haras (mission 1), le plateau du Narval (mission 4). La façade **montre ou cache** le panneau de
   voyants et le capteur de couleur selon la mission, et marque l'emplacement du
   lecteur à plat.
 - **La fente** : la carte entre debout, par son bord inférieur, jusqu'à la butée au

@@ -68,4 +68,5 @@ utilise Chromium via Playwright (`rendre.js`).
 |---|---|
 | `outils/impression/mode-emploi.html` | `pdf/mode-emploi.pdf` |
 | `mondes/haras/impression/fiche-mission-1.html` | `pdf/mission-1-fiche-joueurs.pdf` |
+| `mondes/haras/impression/plateau.html` | `pdf/mission-1-plateau.pdf` |
 | `mondes/haras/mission-1-deroule.md` | `pdf/mission-1-deroule-maitre-du-jeu.pdf` |

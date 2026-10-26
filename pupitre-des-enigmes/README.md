@@ -65,6 +65,7 @@ mission).
 |---|---|---|---|---|
 | **Kit d'impression complet** (tout le matériel de jeu) | [PDF](pdf/mission-1-kit-impression.pdf) | [PDF](pdf/mission-2-kit-impression.pdf) | [PDF](pdf/mission-3-kit-impression.pdf) | [PDF](pdf/mission-4-kit-impression.pdf) |
 | Fiche de mission (joueurs) | [PDF](pdf/mission-1-fiche-joueurs.pdf) | [PDF](pdf/mission-2-fiche-joueurs.pdf) | [PDF](pdf/mission-3-fiche-joueurs.pdf) | [PDF](pdf/mission-4-fiche-joueurs.pdf) |
+| Plateau de la façade | [PDF](pdf/mission-1-plateau.pdf) | — | — | [PDF](pdf/mission-4-plateau.pdf) |
 | Cartes recto verso | [PDF](pdf/mission-1-cartes.pdf) | [PDF](pdf/mission-2-cartes.pdf) | [PDF](pdf/mission-3-cartes.pdf) | [PDF](pdf/mission-4-cartes.pdf) |
 | Documents secrets des rôles | [PDF](pdf/mission-1-documents-secrets.pdf) | [PDF](pdf/mission-2-documents-secrets.pdf) | [PDF](pdf/mission-3-documents-secrets.pdf) | — (pas de rôles) |
 | Enveloppes (contenu et étiquettes) | [PDF](pdf/mission-1-enveloppes.pdf) | [PDF](pdf/mission-2-enveloppes.pdf) | [PDF](pdf/mission-3-enveloppes.pdf) | [PDF](pdf/mission-4-enveloppes.pdf) |
