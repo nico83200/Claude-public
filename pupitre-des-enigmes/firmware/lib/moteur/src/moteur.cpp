@@ -302,7 +302,7 @@ void Moteur::lancerMission(bool reprise) {
   phase_ = Phase::ROLES;
   vue_.ecran = Vue::ROLES;
   vue_.titre = "GLISSEZ VOS CARTES RÔLE";
-  vue_.info = "Rôles arrivés : 0 / " + std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert : commencer";
+  vue_.info = "Rôles arrivés : 0 / " + std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert ou # : commencer";
   rafraichir();
   JsonVariantConst demande = script_["roles_demande"];
   if (!demande.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, demande.as<int>()));
@@ -500,7 +500,7 @@ void Moteur::carteHorsJeu(Zone zone, const std::string& id) {
   if (phase_ != Phase::ROLES || typeCarte(id) != "role") return;
   if (rolesPresents_.insert(id).second) {
     vue_.info = "Rôles arrivés : " + std::to_string(rolesPresents_.size()) + " / " +
-                std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert : commencer";
+                std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert ou # : commencer";
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0x00ff00;
     p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
@@ -846,7 +846,7 @@ void Moteur::enrolement(const std::string& uid) {
   vue_.titre = "ENREGISTRER LES CARTES · " + vue_.monde;
   vue_.texte = "Glissez la carte " + id + "\n" + nomCarte(id);
   vue_.bandeau = std::to_string(enroleIndex_ + 1) + " / " + std::to_string(aEnroler_.size());
-  if (uid.empty()) vue_.info = "Rouge : passer cette carte · Vert : terminer et enregistrer";
+  if (uid.empty()) vue_.info = "Rouge ou * : passer · Vert ou # : terminer et enregistrer";
   rafraichir();
 }
 
@@ -950,7 +950,7 @@ void Moteur::ouvrirReglages() {
   vue_.texte.clear();
   vue_.bandeau.clear();
   vue_.info = "Molette : régler · Appui : ligne suivante";
-  vue_.compteurs = "Vert : enregistrer · Rouge : annuler";
+  vue_.compteurs = "Vert ou # : enregistrer · Rouge ou * : annuler";
   vue_.versionEntete++;
   vueReglages();
 }
@@ -2310,7 +2310,7 @@ void Moteur::accuser() {
   accusationOuverte_ = true;
   vue_.ecran = Vue::ACCUSATION;
   vue_.titre = texte(a["titre"], "ACCUSATION");
-  vue_.texte = "Vert : confirmer · Rouge : annuler";
+  vue_.texte = materiel("clavier") ? "Vert ou # : confirmer · Rouge ou * : annuler" : "Vert : confirmer · Rouge : annuler";
   majZones();
   p_.jouer(dossierVoix_, voix["demande"].as<int>(), false);
 }
@@ -2386,7 +2386,7 @@ void Moteur::enregistrerScore() {
   vue_.info.clear();
   vue_.texte = (victoire_ && !rang.empty() ? rang + "\n" : "") + ligne;
   if (!script_["soupcon"].isNull()) vue_.texte += "\nSoupçon : " + std::to_string(compteur("soupcon"));
-  vue_.bandeau = "Vert : retour à l'accueil";
+  vue_.bandeau = "Vert ou # : retour à l'accueil";
   rafraichir();
   if (!victoire_) return;
   JsonDocument scores;
