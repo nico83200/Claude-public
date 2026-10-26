@@ -139,7 +139,7 @@
   <h3>Fabrication</h3>
   <ol style="font-size:10pt">
     <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
-    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Faites coïncider les repères ▲.</li>
+    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Le bord gauche de la moitié droite se pose sur la ligne de pointillés de la moitié gauche.</li>
     <li>Collez sur la façade de 2 mm (contreplaqué), plastifiez si possible.</li>
     <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, anneau de LED, voyants, fente, clé, boutons, molette,
         prise casque. Le lecteur à plat et le capteur de couleur ne se découpent pas.</li>
@@ -149,18 +149,17 @@
 
 <div class="page">
   <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
-  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, à partir du repère ▲) passe sous la moitié droite</div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, après les pointillés) passe sous la moitié droite</div>
 </div>
 
 <div class="page">
   <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
-  <div class="reperes">MOITIÉ DROITE · ▲ aligner le bord gauche sur le repère de la moitié gauche</div>
+  <div class="reperes">MOITIÉ DROITE · aligner le bord gauche sur les pointillés de la moitié gauche</div>
 </div>
 
 <script>
   const modele = document.getElementById("modele").textContent;
-  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>' +
-                 '<path d="M182 259l3-5 3 5z" fill="#ffffff"/><path d="M182 3l3 5 3-5z" fill="#ffffff"/>';
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>';
   document.querySelectorAll("svg.copie").forEach((s, i) => {
     s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     // Les identifiants doivent rester uniques dans la page : chaque copie a les siens.
