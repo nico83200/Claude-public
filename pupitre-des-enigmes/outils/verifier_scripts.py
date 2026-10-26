@@ -17,8 +17,8 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 TYPES_EPREUVES = {"code", "lettres", "choix", "ensemble", "rythme", "sequence", "immobile", "molette_zero", "rondes",
-                  "energie", "traitre"}
-CLES_CARTES = ("lieu", "qui", "quoi", "role")
+                  "energie", "traitre", "appui"}
+CLES_CARTES = ("lieu", "qui", "quoi", "role", "combiner")
 
 
 def numeros(fichier, cle):

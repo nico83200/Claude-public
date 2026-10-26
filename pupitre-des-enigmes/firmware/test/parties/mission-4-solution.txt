@@ -1,0 +1,123 @@
+# Mission 4 · Voie d'eau — partie gagnante complète (escape game, sans rôles)
+pose QUI M4
+retire QUI
+verifie phase menu
+appui
+calme
+verifie phase jeu
+
+# --- Le poste d'équipage : le casier de Rasmus (un faux code, puis 739)
+pose OU L1
+capture m4-01-poste
+pose QUOI O2
+verifie epreuve code
+code 5,3,9
+verifie sans casier
+pose QUOI O2
+code 7,3,9
+verifie drapeau casier
+retire QUOI
+
+# --- J1 : la lampe et les piles, sur les deux lecteurs
+pose QUI O1
+pose QUOI O3
+capture m4-02-lumiere
+verifie drapeau J1
+retire QUI
+retire QUOI
+
+# --- J2 : la porte étanche (raté, puis réussi)
+pose OU L3
+verifie sans vu_L3
+pose OU L2
+verifie epreuve ensemble
+capture m4-03-porte
+ensemble 1000
+verifie sans J2
+pose OU L2
+ensemble 3500
+verifie drapeau J2
+
+# --- La cambuse, puis la voie d'eau (le ruban ne tient pas, la clé oui)
+pose OU L3
+verifie drapeau vu_L3
+pose OU L2
+pose QUOI O6
+pose QUOI O5
+verifie epreuve molette_zero
+molette_zero
+verifie drapeau J3
+retire QUOI
+
+# --- La coque craque (minute 10)
+avance 10
+verifie epreuve ensemble
+ensemble 3500
+
+# --- La console est éteinte sans courant
+pose OU L5
+verifie drapeau vu_L5
+verifie sans J5
+
+# --- J4 : le fusible au local des batteries, une surcharge, puis 2-4-1-1-2
+pose OU L4
+pose QUOI O4
+verifie epreuve energie
+energie 2,4,2,1,1
+verifie epreuve energie
+energie 2,4,1,1,2
+verifie drapeau J4
+capture m4-04-energie
+retire QUOI
+
+# --- La salle radio : le message du Pélican au casque
+pose OU L6
+verifie drapeau radio
+
+# --- La lampe garde ses piles en main : la clé reste utilisable (pas de combinaison)
+pose QUI O1
+pose OU L8
+pose QUOI O5
+retire QUI
+retire QUOI
+
+# --- Le Narval glisse (minute 18) : on ne touche à rien
+avance 10
+verifie epreuve immobile
+attendre 16
+calme
+
+# --- J5 : la console (ABYSSE), puis J6 : la chasse aux ballasts
+pose OU L5
+verifie epreuve lettres
+lettres ABYSSE
+verifie drapeau J5
+verifie epreuve sequence
+capture m4-05-chasse
+sequence
+verifie drapeau J6
+
+# --- L'interphone
+pose QUOI A4
+retire QUOI
+verifie compteur indices 1
+
+# --- J7 : le sas (un faux code, puis 417 · 60)
+pose OU L7
+verifie epreuve code
+code 417,61
+verifie sans J7
+pose OU L7
+code 417,60
+verifie drapeau J7
+
+# --- J8 : la sortie
+pose QUOI O7
+verifie epreuve ensemble
+ensemble 4500
+verifie epreuve appui
+capture m4-06-ecoutille
+bouton GROS
+calme
+verifie phase victoire
+capture m4-07-victoire

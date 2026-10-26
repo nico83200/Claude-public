@@ -1,0 +1,1388 @@
+{
+  "titre": "Voie d'eau",
+  "dossier_voix": 40,
+  "dossier_sons": 41,
+  "chrono": {
+    "mode": "compte",
+    "prefixe": "",
+    "duree": 60
+  },
+  "jauge": "eau",
+  "objets_combinables": true,
+  "voix": {
+    "narrateur": "",
+    "commandante": "Cmdt Solvik (interphone)",
+    "systeme": "Système de bord",
+    "pelican": "Radio du Pélican"
+  },
+  "cartes": {
+    "L1": {
+      "type": "lieu",
+      "nom": "Poste d'équipage"
+    },
+    "L2": {
+      "type": "lieu",
+      "nom": "Coursive"
+    },
+    "L3": {
+      "type": "lieu",
+      "nom": "Cambuse"
+    },
+    "L4": {
+      "type": "lieu",
+      "nom": "Local des batteries"
+    },
+    "L5": {
+      "type": "lieu",
+      "nom": "Poste de commande"
+    },
+    "L6": {
+      "type": "lieu",
+      "nom": "Salle radio"
+    },
+    "L7": {
+      "type": "lieu",
+      "nom": "Sas de sauvetage"
+    },
+    "L8": {
+      "type": "lieu",
+      "nom": "Salle des machines"
+    },
+    "O1": {
+      "type": "objet",
+      "nom": "Lampe torche"
+    },
+    "O2": {
+      "type": "objet",
+      "nom": "Casier de Rasmus"
+    },
+    "O3": {
+      "type": "objet",
+      "nom": "Piles"
+    },
+    "O4": {
+      "type": "objet",
+      "nom": "Fusible neuf"
+    },
+    "O5": {
+      "type": "objet",
+      "nom": "Clé à molette"
+    },
+    "O6": {
+      "type": "objet",
+      "nom": "Ruban adhésif"
+    },
+    "O7": {
+      "type": "objet",
+      "nom": "Combinaisons de sortie"
+    }
+  },
+  "roles": {},
+  "intro": [
+    {
+      "dire": 9
+    },
+    {
+      "dire": 14
+    }
+  ],
+  "debut": [
+    {
+      "son": 4
+    },
+    {
+      "dire": 10
+    },
+    {
+      "ambiance": 2
+    }
+  ],
+  "reprise": [
+    {
+      "si": "J4",
+      "alors": [
+        {
+          "ambiance": 3
+        }
+      ],
+      "sinon": [
+        {
+          "ambiance": 2
+        }
+      ]
+    }
+  ],
+  "progression": [
+    {
+      "nom": "Lumière",
+      "si": "J1"
+    },
+    {
+      "nom": "Porte",
+      "si": "J2"
+    },
+    {
+      "nom": "Énergie",
+      "si": "J4"
+    },
+    {
+      "nom": "Console",
+      "si": "J5"
+    },
+    {
+      "nom": "Remontée",
+      "si": "J6"
+    },
+    {
+      "nom": "Sas",
+      "si": "J7"
+    }
+  ],
+  "regles": [
+    {
+      "note": "Départ : le poste d'équipage",
+      "quand": {
+        "lieu": "L1"
+      },
+      "si": "!vu_L1",
+      "alors": [
+        {
+          "dire": 20
+        },
+        {
+          "enveloppe": "E1"
+        },
+        {
+          "drapeau": "vu_L1"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L1"
+      },
+      "si": "J1",
+      "alors": [
+        {
+          "dire": 22
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L1"
+      },
+      "alors": [
+        {
+          "dire": 21
+        }
+      ]
+    },
+    {
+      "note": "Le casier : 7-3-9 (photo de water-polo)",
+      "quand": {
+        "quoi": "O2"
+      },
+      "si": "!casier",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "LE CASIER DE RASMUS",
+            "texte": "Cadenas à 3 chiffres",
+            "solution": "739",
+            "intro": {
+              "dire": 72
+            },
+            "reussite": [
+              {
+                "son": 8
+              },
+              {
+                "dire": 74
+              },
+              {
+                "enveloppe": "E2"
+              },
+              {
+                "drapeau": "casier"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 73
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 75
+        }
+      ]
+    },
+    {
+      "note": "J1 · Lampe + piles",
+      "quand": {
+        "combiner": [
+          "O1",
+          "O3"
+        ]
+      },
+      "si": "!J1",
+      "alors": [
+        {
+          "son": 9
+        },
+        {
+          "dire": 81
+        },
+        {
+          "enveloppe": "E3"
+        },
+        {
+          "drapeau": "J1"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O1",
+          "O3"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 71
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O1",
+          "O4"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 82
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O3",
+          "O4"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 82
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O5",
+          "O6"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 82
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!J1",
+      "alors": [
+        {
+          "dire": 23
+        }
+      ]
+    },
+    {
+      "note": "J2 · La porte étanche : 4 boutons tenus",
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "dire": 24
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "LA PORTE ÉTANCHE",
+            "texte": "Les 4 boutons ensemble, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 25
+              },
+              {
+                "enveloppe": "E4"
+              },
+              {
+                "drapeau": "J2"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 26
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "Tout le reste est derrière la porte étanche",
+      "quand": {
+        "lieu": "*"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "dire": 29
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "J3",
+      "alors": [
+        {
+          "dire": 28
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "alors": [
+        {
+          "son": 6
+        },
+        {
+          "dire": 27
+        }
+      ]
+    },
+    {
+      "note": "J3 · La voie d'eau (facultative) : +5 min",
+      "quand": {
+        "lieu": "L2",
+        "quoi": "O5"
+      },
+      "si": "!J3",
+      "alors": [
+        {
+          "dire": 84
+        },
+        {
+          "epreuve": {
+            "type": "molette_zero",
+            "titre": "LA VANNE",
+            "texte": "Molette à zéro, 20 secondes !",
+            "depart": 40,
+            "secondes": 20,
+            "reussite": [
+              {
+                "dire": 85
+              },
+              {
+                "temps": 5
+              },
+              {
+                "drapeau": "J3"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 86
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2",
+        "quoi": "O6"
+      },
+      "si": "!J3",
+      "alors": [
+        {
+          "dire": 83
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "si": "!vu_L3",
+      "alors": [
+        {
+          "dire": 30
+        },
+        {
+          "enveloppe": "E5"
+        },
+        {
+          "drapeau": "vu_L3"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "alors": [
+        {
+          "dire": 31
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "!vu_L4",
+      "alors": [
+        {
+          "dire": 32
+        },
+        {
+          "enveloppe": "E6"
+        },
+        {
+          "drapeau": "vu_L4"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "J4",
+      "alors": [
+        {
+          "dire": 34
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "alors": [
+        {
+          "dire": 33
+        }
+      ]
+    },
+    {
+      "note": "J4 · Le fusible, puis 2-4-1-1-2",
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O4"
+      },
+      "si": "!J4",
+      "alors": [
+        {
+          "dire": 35
+        },
+        {
+          "epreuve": {
+            "type": "energie",
+            "titre": "RÉPARTITION DE L'ÉNERGIE",
+            "texte": "10 unités · Vert : valider",
+            "quitter": true,
+            "modules": [
+              "Pompes de cale",
+              "Compresseur",
+              "Radio",
+              "Éclairage",
+              "Sas"
+            ],
+            "total": 10,
+            "max": 5,
+            "regles": [
+              {
+                "expr": "somme==10",
+                "texte": "Les 10 unités doivent toutes être réparties."
+              },
+              {
+                "expr": "m1==4",
+                "texte": "Compresseur : exactement 4 unités."
+              },
+              {
+                "expr": "m0>=2",
+                "texte": "Pompes de cale : au moins 2 unités."
+              },
+              {
+                "expr": "m0+m1<=6",
+                "texte": "Pompes + compresseur : 6 unités au plus."
+              },
+              {
+                "expr": "m2==m3",
+                "texte": "Radio et éclairage : même puissance."
+              },
+              {
+                "expr": "m4==2",
+                "texte": "Sas : exactement 2 unités."
+              }
+            ],
+            "erreur": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 36
+              },
+              {
+                "temps": -2
+              }
+            ],
+            "reussite": [
+              {
+                "son": 10
+              },
+              {
+                "dire": 37
+              },
+              {
+                "temps": 4
+              },
+              {
+                "drapeau": "J4"
+              },
+              {
+                "ambiance": 3
+              }
+            ],
+            "echec": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "J6",
+      "alors": [
+        {
+          "dire": 46
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!vu_L5 && J4",
+      "alors": [
+        {
+          "dire": 61
+        },
+        {
+          "enveloppe": "E7"
+        },
+        {
+          "drapeau": "vu_L5"
+        },
+        {
+          "evenement": "console"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!vu_L5",
+      "alors": [
+        {
+          "dire": 38
+        },
+        {
+          "enveloppe": "E7"
+        },
+        {
+          "drapeau": "vu_L5"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!J4",
+      "alors": [
+        {
+          "dire": 39
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "J5",
+      "alors": [
+        {
+          "evenement": "chasse"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "alors": [
+        {
+          "evenement": "console"
+        }
+      ]
+    },
+    {
+      "note": "J5 · Le mot de passe : ABYSSE",
+      "quand": {
+        "evenement": "console"
+      },
+      "alors": [
+        {
+          "dire": 40
+        },
+        {
+          "epreuve": {
+            "type": "lettres",
+            "titre": "CONSOLE DE COMMANDEMENT",
+            "texte": "Mot de passe (6 lettres)",
+            "solution": "ABYSSE",
+            "quitter": true,
+            "reussite": [
+              {
+                "dire": 42
+              },
+              {
+                "drapeau": "J5"
+              },
+              {
+                "evenement": "chasse"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 41
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "J6 · La chasse aux ballasts",
+      "quand": {
+        "evenement": "chasse"
+      },
+      "alors": [
+        {
+          "dire": 43
+        },
+        {
+          "epreuve": {
+            "type": "sequence",
+            "titre": "CHASSE AUX BALLASTS",
+            "texte": "Retenez l'ordre des vannes…",
+            "longueur": 5,
+            "reussite": [
+              {
+                "son": 12
+              },
+              {
+                "dire": 45
+              },
+              {
+                "drapeau": "J6"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 44
+              },
+              {
+                "temps": -2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "si": "!J4",
+      "alors": [
+        {
+          "dire": 47
+        }
+      ]
+    },
+    {
+      "note": "Le Pélican : le code du sas (417 · 60)",
+      "quand": {
+        "lieu": "L6"
+      },
+      "alors": [
+        {
+          "son": 14
+        },
+        {
+          "dire": 48
+        },
+        {
+          "dire": 49
+        },
+        {
+          "drapeau": "radio"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "si": "!J6",
+      "alors": [
+        {
+          "dire": 50
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "si": "J7",
+      "alors": [
+        {
+          "dire": 54
+        }
+      ]
+    },
+    {
+      "note": "J7 · Le sas : 417 · 60",
+      "quand": {
+        "lieu": "L7"
+      },
+      "alors": [
+        {
+          "dire": 51
+        },
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "SAS DE SAUVETAGE",
+            "texte": "Code de secours : numéro de coque · profondeur",
+            "champs": [
+              3,
+              2
+            ],
+            "solution": "41760",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 53
+              },
+              {
+                "enveloppe": "E8"
+              },
+              {
+                "drapeau": "J7"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 52
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "J8 · La sortie",
+      "quand": {
+        "lieu": "L7",
+        "quoi": "O7"
+      },
+      "si": "J7",
+      "alors": [
+        {
+          "dire": 55
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "REMPLISSAGE DU SAS",
+            "texte": "Tenez les 4 vannes ensemble !",
+            "secondes": 15,
+            "tenir": 4,
+            "reussite": [
+              {
+                "son": 19
+              },
+              {
+                "evenement": "ecoutille"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 56
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "ecoutille"
+      },
+      "alors": [
+        {
+          "dire": 57
+        },
+        {
+          "epreuve": {
+            "type": "appui",
+            "titre": "L'ÉCOUTILLE",
+            "texte": "LE GROS BOUTON !",
+            "secondes": 15,
+            "reussite": [
+              {
+                "son": 20
+              },
+              {
+                "victoire": true
+              }
+            ],
+            "echec": [
+              {
+                "dire": 58
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8",
+        "quoi": "O1"
+      },
+      "si": "J1",
+      "alors": [
+        {
+          "dire": 60
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "alors": [
+        {
+          "son": 5
+        },
+        {
+          "dire": 59
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 87
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2",
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 87
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O1"
+      },
+      "si": "J1",
+      "alors": [
+        {
+          "dire": 71
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 70
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 76
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 77
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 78
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O6"
+      },
+      "alors": [
+        {
+          "dire": 79
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 80
+        }
+      ]
+    }
+  ],
+  "defaut": {
+    "lieu": [
+      {
+        "dire": 11
+      }
+    ],
+    "quoi": [
+      {
+        "dire": 87
+      }
+    ]
+  },
+  "imprevus": [
+    {
+      "minute": 10,
+      "actions": [
+        {
+          "son": 5
+        },
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 90
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "LA COQUE CRAQUE",
+            "texte": "Étayez la cloison : 4 boutons, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "dire": 91
+              }
+            ],
+            "echec": [
+              {
+                "dire": 92
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 18,
+      "actions": [
+        {
+          "son": 22
+        },
+        {
+          "dire": 93
+        },
+        {
+          "epreuve": {
+            "type": "immobile",
+            "titre": "LE NARVAL GLISSE",
+            "texte": "Ne touchez plus à rien… 15 secondes",
+            "secondes": 15,
+            "reussite": [
+              {
+                "dire": 94
+              }
+            ],
+            "echec": [
+              {
+                "dire": 95
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 26,
+      "actions": [
+        {
+          "son": 21
+        },
+        {
+          "dire": 96
+        },
+        {
+          "dire": 97,
+          "unique": true,
+          "delai": 20
+        }
+      ]
+    },
+    {
+      "minute": 34,
+      "actions": [
+        {
+          "dire": 98
+        },
+        {
+          "epreuve": {
+            "type": "rythme",
+            "titre": "LA POMPE MANUELLE",
+            "texte": "Reproduisez le rythme de la pompe",
+            "motif": [
+              0,
+              450
+            ],
+            "repetitions": 4,
+            "son": 15,
+            "tolerance": 200,
+            "reussite": [
+              {
+                "dire": 99
+              },
+              {
+                "temps": 2
+              }
+            ],
+            "echec": [
+              {
+                "dire": 100
+              },
+              {
+                "temps": -2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 44,
+      "actions": [
+        {
+          "son": 6
+        },
+        {
+          "dire": 101
+        },
+        {
+          "epreuve": {
+            "type": "molette_zero",
+            "titre": "NOUVELLE FUITE",
+            "texte": "Molette à zéro, 15 secondes !",
+            "depart": 30,
+            "secondes": 15,
+            "reussite": [
+              {
+                "dire": 102
+              }
+            ],
+            "echec": [
+              {
+                "dire": 103
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "restant": 30,
+      "actions": [
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "restant": 10,
+      "actions": [
+        {
+          "son": 4
+        },
+        {
+          "effet": "alerte",
+          "duree": 5000
+        },
+        {
+          "dire": 105
+        },
+        {
+          "ambiance": 16
+        }
+      ]
+    },
+    {
+      "restant": 5,
+      "actions": [
+        {
+          "son": 4
+        },
+        {
+          "dire": 106
+        }
+      ]
+    },
+    {
+      "restant": 1,
+      "actions": [
+        {
+          "dire": 107
+        }
+      ]
+    }
+  ],
+  "relances": [
+    {
+      "minute": 6,
+      "si": "!J1"
+    },
+    {
+      "minute": 15,
+      "si": "!J2"
+    },
+    {
+      "minute": 28,
+      "si": "!J4"
+    },
+    {
+      "minute": 38,
+      "si": "!J5"
+    },
+    {
+      "minute": 48,
+      "si": "!J7"
+    }
+  ],
+  "aide": {
+    "carte": "A4",
+    "titre": "L'INTERPHONE",
+    "gratuits": 3,
+    "cout": [
+      {
+        "temps": -2
+      }
+    ],
+    "appel": 120,
+    "gratuit": 121,
+    "payant": 122,
+    "fin": 144,
+    "blocages": [
+      {
+        "si": "!J1",
+        "niveaux": [
+          123,
+          124,
+          125
+        ]
+      },
+      {
+        "si": "!J2",
+        "niveaux": [
+          126,
+          127,
+          128
+        ]
+      },
+      {
+        "si": "!J4",
+        "niveaux": [
+          129,
+          130,
+          131
+        ]
+      },
+      {
+        "si": "!J5",
+        "niveaux": [
+          132,
+          133,
+          134
+        ]
+      },
+      {
+        "si": "!J6",
+        "niveaux": [
+          135,
+          136,
+          137
+        ]
+      },
+      {
+        "si": "!J7",
+        "niveaux": [
+          138,
+          139,
+          140
+        ]
+      },
+      {
+        "si": "1",
+        "niveaux": [
+          141,
+          142,
+          143
+        ]
+      }
+    ]
+  },
+  "fins": {
+    "victoire": [
+      {
+        "son": 17
+      },
+      {
+        "dire": 110
+      },
+      {
+        "dire": 111
+      },
+      {
+        "dire": 112
+      }
+    ],
+    "rangs": [
+      {
+        "si": "restant>=15 && indices_payants==0",
+        "dire": 113,
+        "titre": "Médaille de la mer"
+      },
+      {
+        "si": "restant>=5",
+        "dire": 114,
+        "titre": "Insigne des profondeurs"
+      },
+      {
+        "si": "1",
+        "dire": 115,
+        "titre": "Rescapés du Narval"
+      }
+    ],
+    "temps": [
+      {
+        "son": 18
+      },
+      {
+        "dire": 116
+      }
+    ],
+    "solution": [
+      {
+        "dire": 117
+      }
+    ]
+  }
+}

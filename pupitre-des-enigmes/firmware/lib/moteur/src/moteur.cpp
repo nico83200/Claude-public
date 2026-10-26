@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include "expression.h"
 
@@ -258,6 +259,16 @@ void Moteur::lancerMission(bool reprise) {
     return;
   }
 
+  if (script_["roles"].as<JsonObjectConst>().size() == 0) {  // ex. : un escape game sans rôles
+    phase_ = Phase::JEU;
+    vue_.ecran = Vue::PRINCIPAL;
+    vue_.titre = texte(script_["titre"]);
+    vue_.info.clear();
+    rafraichir();
+    ajouterInterne(Action::de(Action::EVENEMENT, 0, 0, "__intro"));
+    ajouterInterne(Action::de(Action::EVENEMENT, 0, 0, "__debut_jeu"));
+    return;
+  }
   phase_ = Phase::ROLES;
   vue_.ecran = Vue::ROLES;
   vue_.titre = "POSEZ VOS CARTES RÔLE";
@@ -402,6 +413,9 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
 
   // Une carte posée sur la mauvaise zone est refusée (elle reste affichée, sans effet).
   int zoneAttendue = type == "lieu" ? OU : type == "perso" ? QUI : type == "objet" ? QUOI : -1;
+  // « objets_combinables » : QUI et QUOI sont les deux mains des joueurs.
+  bool combinables = script_["objets_combinables"].as<bool>();
+  if (type == "objet" && combinables && zone == QUI) zoneAttendue = QUI;
   if (zoneAttendue >= 0 && zoneAttendue != zone) {
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0xff0000;
@@ -441,6 +455,15 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
   }
 
   Evenement ev;
+  if (type == "objet" && combinables) {
+    std::string autre = zones_[zone == QUI ? QUOI : QUI];
+    ev.type = typeCarte(autre) == "objet" ? "combinaison" : "quoi";
+    ev.quoi = id;
+    if (ev.type == "combinaison") ev.qui = autre;  // le second objet
+    ev.lieu = zones_[OU];
+    enAttente_.push_back(ev);
+    return;
+  }
   if (type == "role") {
     ev.type = "role";
     ev.role = id;
@@ -832,6 +855,13 @@ bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
     if (!q["quoi"].isNull() && !motif(q["quoi"], ev.quoi)) return false;
     return true;
   }
+  if (!q["combiner"].isNull()) {  // deux objets, dans n'importe quel ordre
+    if (ev.type != "combinaison") return false;
+    JsonVariantConst a = q["combiner"][0], b = q["combiner"][1];
+    return (motif(a, ev.quoi) && motif(b, ev.qui)) || (motif(a, ev.qui) && motif(b, ev.quoi));
+  }
+  if (!q["lieu"].isNull() && !q["quoi"].isNull())  // un objet utilisé dans un lieu
+    return ev.type == "quoi" && motif(q["lieu"], ev.lieu) && motif(q["quoi"], ev.quoi);
   if (!q["lieu"].isNull()) return ev.type == "lieu" && motif(q["lieu"], ev.lieu);
   bool aQui = !q["qui"].isNull(), aQuoi = !q["quoi"].isNull();
   if (aQui && aQuoi) return ev.type == "paire" && motif(q["qui"], ev.qui) && motif(q["quoi"], ev.quoi);
@@ -876,12 +906,13 @@ void Moteur::declencher(const Evenement& ev) {
     empiler(script_["intro"]);
     return;
   }
-  if (ev.type == "lieu" || ev.type == "qui" || ev.type == "quoi" || ev.type == "paire") {
+  if (ev.type == "lieu" || ev.type == "qui" || ev.type == "quoi" || ev.type == "paire" || ev.type == "combinaison") {
     vue_.bandeau.clear();
     vue_.ecran = Vue::PRINCIPAL;
     if (ev.type == "lieu") vue_.titre = nomCarte(ev.lieu);
     else if (ev.type == "qui") vue_.titre = nomCarte(ev.qui);
     else if (ev.type == "quoi") vue_.titre = nomCarte(ev.quoi);
+    else if (ev.type == "combinaison") vue_.titre = nomCarte(ev.qui) + "  +  " + nomCarte(ev.quoi);
     else vue_.titre = nomCarte(ev.qui) + "  ·  " + nomCarte(ev.quoi);
     rafraichir();
   } else if (ev.type == "role") {
@@ -895,6 +926,14 @@ void Moteur::declencher(const Evenement& ev) {
     if (!correspond(r["quand"], ev)) continue;
     if (!condition(r["si"])) continue;
     empiler(r["alors"]);
+    return;
+  }
+  // Deux objets qui ne se combinent pas : le dernier posé s'utilise seul, là où l'on est.
+  if (ev.type == "combinaison") {
+    Evenement seul = ev;
+    seul.type = "quoi";
+    seul.qui.clear();
+    declencher(seul);
     return;
   }
   JsonVariantConst defaut = script_["defaut"][ev.type];
@@ -1405,7 +1444,7 @@ void Moteur::majEpreuve() {
       debutEnsemble_ = 0;
     }
     if (expire) finEpreuve(false);
-  } else if (ep_.type == "molette_zero" || ep_.type == "choix") {
+  } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui") {
     if (expire) finEpreuve(false);
   } else if (ep_.type == "rondes") {
     if (t >= ep_.prochain) {
@@ -1488,6 +1527,8 @@ void Moteur::epreuveBouton(Bouton b) {
   JsonVariantConst d = ep_.def;
   if (ep_.type == "immobile") {
     finEpreuve(false);
+  } else if (ep_.type == "appui") {
+    if (b == GROS) finEpreuve(true);
   } else if (ep_.type == "code" || ep_.type == "lettres") {
     if (b == ROUGE) {
       if (ep_.valeurs[ep_.curseur] < 0 && ep_.curseur > 0) ep_.curseur--;
@@ -1787,6 +1828,7 @@ void Moteur::demanderAide() {
 
 void Moteur::accuser() {
   JsonVariantConst a = script_["accusation"];
+  if (a.isNull()) return;  // une mission sans accusation (escape game)
   JsonVariantConst voix = a["voix"];
   bool complet = typeCarte(zones_[QUI]) == "perso" && typeCarte(zones_[OU]) == "lieu" && typeCarte(zones_[QUOI]) == "objet";
   if (!complet) {
@@ -1865,8 +1907,9 @@ void Moteur::enregistrerScore() {
   vue_.ecran = Vue::RESULTAT;
   vue_.titre = victoire_ ? "★ MISSION RÉUSSIE ★" : "MISSION ÉCHOUÉE";
   char ligne[160];
-  snprintf(ligne, sizeof ligne, "Temps restant : %d min %02d s\nIndices payants : %d\nErreurs : %d", restant / 60, restant % 60,
-           indicesPayants_, erreurs_);
+  snprintf(ligne, sizeof ligne, "Temps restant : %d min %02d s\nIndices payants : %d", restant / 60, restant % 60,
+           indicesPayants_);
+  if (!script_["accusation"].isNull()) snprintf(ligne + strlen(ligne), sizeof ligne - strlen(ligne), "\nErreurs : %d", erreurs_);
   std::string rang = vue_.info;
   vue_.info.clear();
   vue_.texte = (victoire_ && !rang.empty() ? rang + "\n" : "") + ligne;
@@ -1950,9 +1993,10 @@ void Moteur::majEntete() {
   std::string compteurs;
   if (!script_["soupcon"].isNull())
     compteurs += "Soupçon " + std::to_string(compteur("soupcon")) + "/" + std::to_string(script_["soupcon"]["max"].as<int>()) + " · ";
-  compteurs += "✗ " + std::to_string(erreurs_) + "/" + std::to_string(script_["accusation"]["erreurs_max"].as<int>());
+  if (!script_["accusation"].isNull())
+    compteurs += "✗ " + std::to_string(erreurs_) + "/" + std::to_string(script_["accusation"]["erreurs_max"].as<int>()) + " · ";
   int gratuits = std::max(0, script_["aide"]["gratuits"].as<int>() - indicesDonnes_);
-  compteurs += " · Aide " + std::to_string(gratuits);
+  compteurs += "Aide " + std::to_string(gratuits);
   std::string progression;
   for (JsonVariantConst p : script_["progression"].as<JsonArrayConst>())
     progression += texte(p["nom"]) + (condition(p["si"]) ? " ✓   " : " ·   ");
@@ -1984,7 +2028,10 @@ void Moteur::majLumieres() {
   if (phase_ == Phase::JEU && chronoActif_) {
     int total = script_["chrono"]["duree"].as<int>() * 60;
     int reste = std::max(0, secondesRestantes());
-    if (jauge == "soupcon") {
+    if (jauge == "eau") {
+      allumees = std::min(12, ((total - reste) * 12 + total - 1) / std::max(1, total));
+      c = reste < 10 * 60 ? 0xd02010 : 0x1060ff;
+    } else if (jauge == "soupcon") {
       allumees = std::min(12, compteur("soupcon"));
       c = allumees >= 8 ? 0xd02010 : 0xd0a020;
     } else {
@@ -2005,6 +2052,8 @@ void Moteur::majLumieres() {
     for (int i = 0; i < 12; i++) l.couleurs[i] = ep_.vert ? 0x00c000 : 0xd00000;
   if (ep_.active && ep_.type == "sequence" && ep_.etape == 0)
     for (int i = 0; i < 12; i++) l.couleurs[i] = ep_.vert ? COULEURS_BOUTONS[ep_.sequence[ep_.pas]] : 0;
+  if (ep_.active && ep_.type == "appui")  // le gros bouton attend : l'anneau clignote
+    for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0xffffff, pulse);
   if (vue_.ecran == Vue::CASQUE)
     for (int i = 0; i < 12; i++) l.couleurs[i] = attenuer(0x8020d0, pulse);
 

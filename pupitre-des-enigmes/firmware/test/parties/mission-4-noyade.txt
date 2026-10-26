@@ -1,0 +1,23 @@
+# Mission 4 · on ne trouve rien : l'eau gagne (tous les imprévus échouent)
+pose QUI M4
+retire QUI
+appui
+calme
+pose OU L1
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+restant 0
+attendre 35
+calme
+verifie phase defaite
+capture m4-08-noyade

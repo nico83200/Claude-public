@@ -1,0 +1,28 @@
+{
+  "dossier": 41,
+  "description": "Bruitages et musiques du monde Sous-marin Narval (dossier /41/ des cartes SD).",
+  "sons": [
+    { "n": 1, "nom": "Jingle du monde", "duree": 5, "prompt": "Deep submarine sonar ping echoing, followed by a low brass swell, underwater cinematic intro" },
+    { "n": 2, "nom": "Ambiance sous-marin dans le noir", "duree": 20, "prompt": "Dark damaged submarine interior, metal hull creaking under pressure, water dripping, distant groans, seamless loop" },
+    { "n": 3, "nom": "Ambiance sous-marin sous tension", "duree": 20, "prompt": "Submarine interior with power restored, electrical hum, bilge pumps working, soft ventilation, distant creaks, seamless loop" },
+    { "n": 4, "nom": "Alarme de bord", "duree": 3, "prompt": "Submarine emergency klaxon alarm, two-tone, echoing in metal corridors" },
+    { "n": 5, "nom": "Craquement de coque", "duree": 3, "prompt": "Loud deep groan and crack of a steel submarine hull under water pressure" },
+    { "n": 6, "nom": "Fuite d'eau", "duree": 4, "prompt": "High pressure seawater jet spraying from a broken pipe inside a submarine" },
+    { "n": 7, "nom": "Porte étanche", "duree": 5, "prompt": "Heavy watertight door wheel turning with a screech, then the steel door swinging open with a thud" },
+    { "n": 8, "nom": "Cadenas qui s'ouvre", "duree": 1.5, "prompt": "Small metal padlock clicking open, locker door opening" },
+    { "n": 9, "nom": "Lampe torche", "duree": 1, "prompt": "Flashlight click switching on" },
+    { "n": 10, "nom": "Remise sous tension", "duree": 4, "prompt": "Submarine power coming back, breakers clicking, lights buzzing on, pumps spinning up" },
+    { "n": 11, "nom": "Surcharge électrique", "duree": 3, "prompt": "Electrical overload, sparks crackling and breaker tripping with a power-down whine" },
+    { "n": 12, "nom": "Chasse aux ballasts", "duree": 6, "prompt": "Submarine emergency ballast blow, roaring compressed air, hull groaning as the submarine starts rising" },
+    { "n": 13, "nom": "Ping sonar", "duree": 2, "prompt": "Single sonar ping underwater with long echo" },
+    { "n": 14, "nom": "Statique radio", "duree": 3, "prompt": "Radio static and interference, naval radio" },
+    { "n": 15, "nom": "Coup de pompe manuelle", "duree": 0.6, "prompt": "Single stroke of an old manual bilge pump, metallic clunk and splash" },
+    { "n": 16, "nom": "Musique de tension", "duree": 20, "prompt": "Dark tense underwater ambient music, slow heartbeat pulse, deep drones, seamless loop" },
+    { "n": 17, "nom": "Victoire", "duree": 8, "prompt": "Emotional uplifting orchestral swell, rising from the deep, hopeful sunrise" },
+    { "n": 18, "nom": "Échec", "duree": 6, "prompt": "Water rushing in and filling a metal room, muffled underwater, dark low drone" },
+    { "n": 19, "nom": "Remplissage du sas", "duree": 5, "prompt": "Escape trunk flooding with seawater, rising water sound in a small metal chamber" },
+    { "n": 20, "nom": "Écoutille", "duree": 3, "prompt": "Heavy submarine hatch unlocking and swinging open underwater, muffled" },
+    { "n": 21, "nom": "Interphone", "duree": 1.5, "prompt": "Ship intercom click and short crackle before someone speaks" },
+    { "n": 22, "nom": "Glissement de coque", "duree": 5, "prompt": "Submarine hull scraping and sliding on rocks, deep metallic grinding" }
+  ]
+}

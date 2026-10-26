@@ -1,0 +1,28 @@
+{
+  "id": "narval",
+  "nom": "Sous-marin Narval",
+  "carte": "M4",
+  "aide": "A4",
+  "aide_nom": "L'interphone",
+  "theme": {
+    "fond": "#0f1d24",
+    "texte": "#dfe8ea",
+    "accent": "#e0a030",
+    "alerte": "#d0342c",
+    "doux": "#7f97a0"
+  },
+  "accueil": {
+    "dossier": 40,
+    "dire": 13,
+    "jingle_dossier": 41,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 4,
+      "titre": "Voie d'eau",
+      "script": "mission-4.json",
+      "repliques": "repliques-4.json"
+    }
+  ]
+}
