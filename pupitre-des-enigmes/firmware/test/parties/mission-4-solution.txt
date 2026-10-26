@@ -1,8 +1,9 @@
-# Mission 4 · Dernier souffle — partie gagnante complète (escape game, lecteurs renommés, dynamo)
+# Mission 4 · Dernier souffle — partie gagnante complète (escape game, lecteurs renommés, dynamo),
+# les codes saisis au clavier 4×4
 pose QUI M4
 retire QUI
 verifie phase menu
-appui
+touches 1
 calme
 verifie phase jeu
 dynamo auto
@@ -13,10 +14,10 @@ verifie drapeau vu_L1
 capture m4-01-poste
 pose QUOI O1
 verifie epreuve code
-code 7,3,9
+touches 739
 verifie sans casier
 pose QUOI O1
-code 3,7,9
+touches 37_9
 verifie drapeau casier
 retire QUOI
 
@@ -73,22 +74,23 @@ verifie sans pont
 pose QUOI O3
 verifie epreuve choix
 capture m4-04-pontage
-bouton BLEU
-calme
+touches 2
 verifie drapeau pont
 verifie epreuve lettres
-lettres ABF
+t9 ABF
 verifie drapeau J_raccord
 verifie epreuve energie
 
 # --- Le court-circuit (minute 14) attendra la fin de la répartition
+dynamo manuel
 energie 3,3,2,0,1
 verifie epreuve energie
 verifie lumiere noir
 capture m4-05-noir
+dynamo auto
 attendre 8
 verifie lumiere allumee
-energie 3,2,2,1,1
+touches 32211#
 verifie drapeau J_courant
 capture m4-06-energie
 retire QUOI
@@ -103,7 +105,7 @@ pose OU L5
 verifie drapeau vu_L5
 pose QUI O4
 verifie epreuve code
-code 2,5,8,6
+touches 2586
 verifie drapeau vannes
 verifie epreuve rythme
 capture m4-07-pompe
@@ -119,10 +121,10 @@ retire QUOI
 pose OU L6
 verifie drapeau vu_L6
 verifie epreuve lettres
-lettres ABYSTE
+t9 ABYSTE
 verifie sans J_console
 pose OU L6
-lettres ABYSSE
+t9 ABYSSE
 verifie drapeau J_console
 
 # --- La commandante, au casque (minute 22)
@@ -133,7 +135,7 @@ calme
 pose OU L8
 verifie drapeau vu_L8
 pose QUI O7
-code 2,4,7,9
+touches 2479
 verifie drapeau coffre
 retire QUI
 
@@ -157,7 +159,7 @@ pose OU L7
 verifie drapeau vu_L7
 verifie epreuve code
 capture m4-08-radio
-code 7,3,6
+touches 736
 verifie drapeau J_contact
 
 # --- L'interphone (un conseil)
@@ -195,7 +197,7 @@ verifie drapeau J_verrous
 
 # --- L'Orque accoste : la pression (16 bars), puis l'écoutille
 verifie epreuve code
-code 16
+touches 16
 verifie drapeau egal
 verifie epreuve ensemble
 capture m4-10-ecoutille

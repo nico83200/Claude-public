@@ -31,6 +31,7 @@ class Moteur {
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
   void appuiMolette();
+  void touche(char touche);                       // clavier 4×4 : '0'–'9', 'A'–'D', '*', '#'
   void commande(const std::string& commande);     // panneau Wi-Fi : pause, reprise, temps:+5…
 
   std::string etatJson();                         // pour le panneau Wi-Fi
@@ -95,6 +96,9 @@ class Moteur {
     JsonVariantConst def;
     uint32_t debut = 0, prochain = 0;
     int etape = 0, curseur = 0, pas = 0, barre = -1, joueur = 0, nbJoueurs = 0, traitre = -1;
+    int frappes = 0;                    // chiffres tapés au clavier dans le champ courant
+    char multi = 0;                     // lettres : dernière touche (saisie comme sur un téléphone)
+    uint32_t instantMulti = 0;
     std::vector<int> valeurs, solution, largeurs, sequence;
     std::vector<uint32_t> appuis;
     bool vert = false, fini = false, reussi = false, active = false;
@@ -166,6 +170,7 @@ class Moteur {
   void epreuveBouton(Bouton b);
   void epreuveMolette(int pas);
   void epreuveAppui();
+  void epreuveTouche(char touche);
   void epreuveCarte(const std::string& id);
   void vueEpreuve();
   bool energieValide(std::string* regleFausse);

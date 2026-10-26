@@ -22,7 +22,7 @@ namespace {
 Ecran ecran;
 LecteurAudio hp(Serial2);
 LecteurAudio casque(Serial1);
-CRGB leds[broches::NB_LED];
+CRGB leds[broches::NB_LED + broches::NB_LED_SOCLE];
 Lecteurs lecteurs;
 Commandes commandes;
 PlateformeESP32 plateforme(ecran, hp, casque, leds);
@@ -45,7 +45,7 @@ void setup() {
   ecran.demarrer();
   ecran.message("LE PUPITRE DES ÉNIGMES", "Démarrage…");
 
-  FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED);
+  FastLED.addLeds<WS2812B, broches::LED, GRB>(leds, broches::NB_LED + broches::NB_LED_SOCLE);
   const pupitre::Reglages defaut;  // remplacés par /reglages.json au démarrage du moteur
   FastLED.setBrightness(static_cast<uint8_t>(defaut.led * 255 / 100));
   FastLED.clear(true);
@@ -67,6 +67,7 @@ void setup() {
   rappels.enfonces = [](uint8_t masque) { moteur.boutonsEnfonces(masque); };
   rappels.molette = [](int pas) { moteur.molette(pas); };
   rappels.appui = [] { moteur.appuiMolette(); };
+  rappels.touche = [](char k) { moteur.touche(k); };
 
   moteur.demarrer();
   panneau::demarrer(moteur);

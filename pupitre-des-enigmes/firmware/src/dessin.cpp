@@ -415,7 +415,7 @@ void Dessin::corpsTexte(const Vue& v) {
     bandeau(v.bandeau, gauche, y + h - 42, x + w - 16 - gauche, commencePar(v.bandeau, "✉"));
 }
 
-// L'enregistrement des cartes : « Posez la carte » + identifiant en très grand + nom.
+// L'enregistrement des cartes : « Glissez la carte » + identifiant en très grand + nom.
 void Dessin::corpsEnrolement(const Vue& v) {
   const int x = 10, y = Y_CORPS + 2, w = L - 20, h = HAUT_CORPS - 4;
   g_.fillRoundRect(x, y, w, h, 14, c(pal_.surface));
@@ -427,7 +427,7 @@ void Dessin::corpsEnrolement(const Vue& v) {
     nom = t.substr(f + 1);
   }
   std::string id = ligne1.substr(ligne1.rfind(' ') + 1);
-  ecrire("Posez la carte", L / 2, y + 36, &polices::texte, pal_.texte, pal_.surface, 1);
+  ecrire("Glissez la carte", L / 2, y + 36, &polices::texte, pal_.texte, pal_.surface, 1);
   ecrire(id, L / 2, y + 62, &polices::chiffres, pal_.accent, pal_.surface, 1);
   ecrire(couper(nom, &polices::titre, w - 40), L / 2, y + 128, &polices::titre, pal_.texte, pal_.surface, 1);
   if (!v.bandeau.empty()) {
@@ -462,7 +462,13 @@ void Dessin::corpsMenu(const Vue& v) {
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
     g_.fillRoundRect(10, y, L - 20, hauteur, 10, c(fond));
     if (actif) g_.fillRoundRect(10, y + 6, 5, hauteur - 12, 2, c(pal_.accent));
-    ecrire(couper(lignes[i], &polices::texteGras, L - 80), 30, y + 9, actif ? &polices::texteGras : &polices::texte,
+    // Le numéro de la ligne : la touche du clavier qui la choisit.
+    if (i < 9) {
+      uint32_t pastilleFond = actif ? pal_.accent : pal_.surface2;
+      g_.fillCircle(36, y + hauteur / 2, 11, c(pastilleFond));
+      ecrire(std::to_string(i + 1), 36, y + 11, &polices::petit, actif ? pal_.fond : pal_.doux, pastilleFond, 1);
+    }
+    ecrire(couper(lignes[i], &polices::texteGras, L - 100), 56, y + 9, actif ? &polices::texteGras : &polices::texte,
            actif ? pal_.texte : pal_.doux, fond);
     if (actif) ecrire("›", L - 34, y + 7, &polices::titre, pal_.accent, fond);
   }

@@ -21,6 +21,7 @@
 //            reglage ecran|hp|casque|led <v> | lumiere noir|allumee|<minimum>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -308,6 +309,33 @@ int main(int argc, char** argv) {
       std::vector<int> v;
       for (char ch : a) v.push_back(ch - 'A');
       saisir(v);
+      calme();
+    } else if (cmd == "touches") {
+      // Le clavier 4×4 : « touches 379# », « _ » = une pause de 1,5 s.
+      for (char k : a) {
+        if (k == '_') tourner(1500);
+        else m.touche(k);
+        tourner(80);
+      }
+      calme();
+    } else if (cmd == "t9") {
+      // Un mot tapé au clavier comme sur un téléphone, puis # : « t9 ABYSSE ».
+      static const char* const T9[10] = {"", "", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"};
+      char precedente = 0;
+      for (char lettre : a) {
+        for (int k = 2; k <= 9; k++) {
+          const char* p = strchr(T9[k], lettre);
+          if (!p) continue;
+          char touche = static_cast<char>('0' + k);
+          if (touche == precedente) tourner(1500);  // même touche : attendre la lettre suivante
+          for (long n = 0; n <= p - T9[k]; n++) {
+            m.touche(touche);
+            tourner(120);
+          }
+          precedente = touche;
+        }
+      }
+      m.touche('#');
       calme();
     } else if (cmd == "energie") {
       std::vector<int> v = liste(a);

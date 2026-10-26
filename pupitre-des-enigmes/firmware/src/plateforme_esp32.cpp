@@ -44,5 +44,14 @@ void PlateformeESP32::eclairer(const pupitre::Lumieres& l) {
   if (t - dernierAffichage_ < 20) return;  // 50 images par seconde suffisent
   dernierAffichage_ = t;
   for (int i = 0; i < broches::NB_LED; i++) leds_[i] = CRGB(l.couleurs[i]);
+  if (broches::NB_LED_SOCLE > 0) {  // le ruban sous la boîte : la couleur moyenne de l'anneau
+    uint32_t r = 0, v = 0, b = 0;
+    for (int i = 0; i < 12; i++) {
+      r += leds_[i].r;
+      v += leds_[i].g;
+      b += leds_[i].b;
+    }
+    for (int i = 0; i < broches::NB_LED_SOCLE; i++) leds_[broches::NB_LED + i] = CRGB(r / 12, v / 12, b / 12);
+  }
   FastLED.show();
 }

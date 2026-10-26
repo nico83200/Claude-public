@@ -202,7 +202,7 @@ void Moteur::allerAccueil() {
   vue_ = Vue();
   vue_.ecran = Vue::ACCUEIL;
   vue_.titre = "LE PUPITRE DES ÉNIGMES";
-  vue_.texte = "Posez une carte Monde sur l'un des trois lecteurs.";
+  vue_.texte = "Glissez une carte Monde dans l'une des trois fentes.";
   vue_.info = "Molette : préparer les cartes d'un monde";
   rafraichir();
   ajouterInterne(Action::de(Action::SON, DOSSIER_SONS_PUPITRE, 1));
@@ -224,7 +224,7 @@ void Moteur::allerMenu(bool annoncer) {
   choixMenu_ = 0;
   vue_.ecran = Vue::MENU;
   vue_.titre = vue_.monde;
-  vue_.info = "Molette : choisir · Appui : valider";
+  vue_.info = "Molette ou touche 1, 2… · Appui ou # : valider";
   vue_.texte.clear();
   for (size_t i = 0; i < optionsMenu_.size(); i++)
     vue_.texte += std::string(static_cast<int>(i) == choixMenu_ ? "▶ " : "   ") + optionsMenu_[i] + "\n";
@@ -290,7 +290,7 @@ void Moteur::lancerMission(bool reprise) {
   }
   phase_ = Phase::ROLES;
   vue_.ecran = Vue::ROLES;
-  vue_.titre = "POSEZ VOS CARTES RÔLE";
+  vue_.titre = "GLISSEZ VOS CARTES RÔLE";
   vue_.info = "Rôles arrivés : 0 / " + std::to_string(script_["roles"].as<JsonObjectConst>().size()) + " · Vert : commencer";
   rafraichir();
   JsonVariantConst demande = script_["roles_demande"];
@@ -753,7 +753,7 @@ void Moteur::enrolement(const std::string& uid) {
   const std::string& id = aEnroler_[enroleIndex_];
   vue_.ecran = Vue::ENROLEMENT;
   vue_.titre = "ENREGISTRER LES CARTES · " + vue_.monde;
-  vue_.texte = "Posez la carte " + id + "\n" + nomCarte(id);
+  vue_.texte = "Glissez la carte " + id + "\n" + nomCarte(id);
   vue_.bandeau = std::to_string(enroleIndex_ + 1) + " / " + std::to_string(aEnroler_.size());
   if (uid.empty()) vue_.info = "Rouge : passer cette carte · Vert : terminer et enregistrer";
   rafraichir();
@@ -845,7 +845,7 @@ void Moteur::afficherChoixMonde() {
   phase_ = Phase::CHOIX_MONDE;
   vue_.ecran = Vue::MENU;
   vue_.titre = "PRÉPARER LE PUPITRE";
-  vue_.info = "Molette : choisir · Appui : valider · Rouge : retour";
+  vue_.info = "Molette ou 1, 2… · Appui ou # : valider · * : retour";
   molette(0);
 }
 
@@ -1642,6 +1642,127 @@ void Moteur::majEpreuve() {
   }
 }
 
+// Le clavier 4×4 : les chiffres pour les codes et les menus, # pour valider, * pour
+// effacer ou revenir. La molette et les boutons font toujours la même chose.
+void Moteur::touche(char k) {
+  bool chiffre = k >= '0' && k <= '9';
+  if (attente_ == Attente::MOLETTE) {  // « appuyez sur la molette » : # aussi
+    if (k == '#') appuiMolette();
+    return;
+  }
+  switch (phase_) {
+    case Phase::ACCUEIL:
+      if (k == '#') appuiMolette();
+      return;
+    case Phase::CHOIX_MONDE:
+    case Phase::MENU: {
+      if (k == '*') bouton(ROUGE);
+      if (k == '#') appuiMolette();
+      int n = static_cast<int>(phase_ == Phase::MENU ? optionsMenu_.size() : mondes_.size() + 1);
+      if (chiffre && k != '0' && k - '1' < n) {  // 1 : la première ligne, et ainsi de suite
+        molette(k - '1' - choixMenu_);
+        appuiMolette();
+      }
+      return;
+    }
+    case Phase::JEU:
+      if (accusationOuverte_) {
+        if (k == '#') bouton(VERT);
+        if (k == '*') bouton(ROUGE);
+      } else if (ep_.active) {
+        epreuveTouche(k);
+      } else if (k == '#') {
+        appuiMolette();  // le tableau de bord
+      }
+      return;
+    default:  // réglages, enregistrement des cartes, rôles, fin de partie
+      if (k == '#') bouton(VERT);
+      if (k == '*') bouton(ROUGE);
+      return;
+  }
+}
+
+void Moteur::epreuveTouche(char k) {
+  JsonVariantConst d = ep_.def;
+  bool chiffre = k >= '0' && k <= '9';
+  int n = static_cast<int>(ep_.valeurs.size());
+  if (ep_.type == "immobile") {
+    finEpreuve(false);
+  } else if (ep_.type == "code") {
+    if (k == '*' || k == '#') {
+      ep_.frappes = 0;
+      if (k == '*') epreuveBouton(ROUGE);
+      else epreuveAppui();
+      return;
+    }
+    if (!chiffre) return;
+    int i = ep_.curseur, w = ep_.largeurs[i];
+    if (ep_.frappes == 0 || ep_.valeurs[i] < 0) {
+      ep_.valeurs[i] = k - '0';
+      ep_.frappes = 1;
+    } else {
+      ep_.valeurs[i] = ep_.valeurs[i] * 10 + (k - '0');
+      ep_.frappes++;
+    }
+    if (ep_.frappes < w) {
+      vueEpreuve();
+      return;
+    }
+    ep_.frappes = 0;  // champ complet : on passe au suivant, ou on essaie le code
+    if (i + 1 < n) {
+      ep_.curseur++;
+      vueEpreuve();
+    } else {
+      finEpreuve(ep_.valeurs == ep_.solution);
+    }
+  } else if (ep_.type == "lettres") {
+    if (k == '*' || k == '#') {
+      ep_.multi = 0;
+      if (k == '*') epreuveBouton(ROUGE);
+      else epreuveAppui();
+      return;
+    }
+    // Comme sur un téléphone : 2 = A, 22 = B, 222 = C… Une autre touche, ou une pause,
+    // passe à la lettre suivante. A à D s'écrivent aussi directement.
+    static const char* const T9[10] = {"", "", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"};
+    std::string lettres = chiffre ? T9[k - '0'] : (k >= 'A' && k <= 'D') ? std::string(1, k) : "";
+    if (lettres.empty()) return;
+    uint32_t t = maintenant();
+    int& v = ep_.valeurs[ep_.curseur];
+    if (k == ep_.multi && t - ep_.instantMulti < 1200 && v >= 0) {
+      size_t pos = lettres.find(static_cast<char>('A' + v));
+      v = lettres[(pos == std::string::npos ? 0 : pos + 1) % lettres.size()] - 'A';
+    } else {
+      if (v >= 0 && ep_.curseur + 1 < n) ep_.curseur++;
+      ep_.valeurs[ep_.curseur] = lettres[0] - 'A';
+    }
+    ep_.multi = k;
+    ep_.instantMulti = t;
+    vueEpreuve();
+  } else if (ep_.type == "choix") {
+    int b = (k >= '1' && k <= '4') ? k - '1' : (k >= 'A' && k <= 'D') ? k - 'A' : -1;  // 1 = rouge … 4 = vert
+    if (b >= 0) epreuveBouton(static_cast<Bouton>(b));
+  } else if (ep_.type == "energie") {
+    if (k == '#') {
+      epreuveBouton(VERT);
+    } else if (k == '*') {
+      ep_.valeurs[ep_.curseur] = 0;
+      vueEpreuve();
+    } else if (chiffre) {  // la valeur du module courant, puis le module suivant
+      int max = d["max"].isNull() ? 4 : d["max"].as<int>();
+      ep_.valeurs[ep_.curseur] = std::min(max, k - '0');
+      ep_.curseur = (ep_.curseur + 1) % n;
+      vueEpreuve();
+    }
+  } else if (ep_.type == "traitre") {
+    if (chiffre && ep_.etape == 0) {
+      ep_.valeurs[0] = std::max(2, std::min(8, k - '0'));
+      vueEpreuve();
+    }
+    if (k == '#') epreuveAppui();
+  }
+}
+
 void Moteur::epreuveBouton(Bouton b) {
   JsonVariantConst d = ep_.def;
   if (ep_.type == "immobile") {
@@ -1650,6 +1771,8 @@ void Moteur::epreuveBouton(Bouton b) {
     if (b == GROS) finEpreuve(true);
   } else if (ep_.type == "code" || ep_.type == "lettres") {
     if (b == ROUGE) {
+      ep_.frappes = 0;
+      ep_.multi = 0;
       if (ep_.valeurs[ep_.curseur] < 0 && ep_.curseur > 0) ep_.curseur--;
       ep_.valeurs[ep_.curseur] = -1;
       vueEpreuve();
@@ -1754,6 +1877,8 @@ void Moteur::epreuveMolette(int pas) {
     finEpreuve(false);
   } else if (ep_.type == "code" || ep_.type == "lettres") {
     int i = ep_.curseur;
+    ep_.frappes = 0;
+    ep_.multi = 0;
     int modulo = ep_.type == "lettres" ? 26 : 1;
     if (ep_.type == "code")
       for (int k = 0; k < ep_.largeurs[i]; k++) modulo *= 10;
@@ -1788,6 +1913,8 @@ void Moteur::epreuveAppui() {
   if (ep_.type == "immobile") {
     finEpreuve(false);
   } else if (ep_.type == "code" || ep_.type == "lettres") {
+    ep_.frappes = 0;
+    ep_.multi = 0;
     if (ep_.valeurs[ep_.curseur] < 0) return;
     if (ep_.curseur + 1 < static_cast<int>(ep_.valeurs.size())) {
       ep_.curseur++;
@@ -1877,11 +2004,17 @@ void Moteur::vueEpreuve() {
     for (size_t i = 0; i < ep_.valeurs.size(); i++) {
       int v = ep_.valeurs[i], w = ep_.largeurs[i];
       if (v < 0) vue_.champs.push_back(std::string(w, '_'));
-      else if (ep_.type == "lettres") vue_.champs.push_back(std::string(1, static_cast<char>('A' + v)));
+      else if (static_cast<int>(i) == ep_.curseur && ep_.frappes > 0 && ep_.frappes < w) {  // en cours de frappe : « 4__ »
+        std::string tape = std::to_string(v);
+        vue_.champs.push_back(std::string(ep_.frappes - std::min<int>(ep_.frappes, tape.size()), '0') + tape +
+                              std::string(w - ep_.frappes, '_'));
+      } else if (ep_.type == "lettres") vue_.champs.push_back(std::string(1, static_cast<char>('A' + v)));
       else vue_.champs.push_back(w == 2 ? deuxChiffres(v) : std::to_string(v));
     }
     vue_.curseur = ep_.curseur;
-    if (vue_.info.empty() || vue_.info[0] != 'D') vue_.info = "Tourner : changer · Appuyer : valider · Rouge : effacer";
+    if (vue_.info.empty() || vue_.info[0] != 'D')
+      vue_.info = ep_.type == "code" ? "Clavier ou molette · * ou rouge : effacer · # : valider"
+                                     : "Clavier (2 = ABC…) ou molette · * : effacer · # : valider";
   } else if (ep_.type == "choix") {
     vue_.ecran = Vue::CHOIX;
     JsonArrayConst o = d["options"].as<JsonArrayConst>();
