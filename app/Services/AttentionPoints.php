@@ -109,12 +109,14 @@ class AttentionPoints
      * sinon la ligne est ajoutée (sans doublon) et l'état général « bon » passe à « moyen » si besoin
      * (jamais remonté, jamais « mauvais » d'office : c'est à la personne d'en juger).
      */
-    public function noteInDailyLog(HealthObservation $point, User $by, string $field, string $line, ?string $state = null): DailyLog
+    public function noteInDailyLog(HealthObservation $point, ?User $by, string $field, string $line, ?string $state = null, ?Carbon $at = null): DailyLog
     {
-        $log = DailyLog::where('horse_id', $point->horse_id)->whereBetween('logged_at', [today(), today()->endOfDay()])
+        // $at : jour et heure du suivi (par défaut maintenant ; une date passée pour reprendre les anciennes observations).
+        $at ??= now();
+        $log = DailyLog::where('horse_id', $point->horse_id)->whereBetween('logged_at', [$at->copy()->startOfDay(), $at->copy()->endOfDay()])
             ->orderByRaw('health_observation_id = ? desc', [$point->id])->latest('logged_at')->first();
         if (! $log) {
-            return DailyLog::create(['horse_id' => $point->horse_id, 'author_id' => $by->id, 'logged_at' => now(),
+            return DailyLog::create(['horse_id' => $point->horse_id, 'author_id' => $by?->id ?? $point->author_id, 'logged_at' => $at,
                 'general_state' => $state, $field => $line, 'health_observation_id' => $point->id]);
         }
         $current = (string) $log->{$field};
