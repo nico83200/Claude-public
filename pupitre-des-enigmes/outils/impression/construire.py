@@ -219,8 +219,10 @@ MISSIONS = [
     {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928"},
     {"num": 3, "monde": "kepler", "nom": "Station Kepler-9"},
     # Un escape game : pas de rôles (donc pas de documents secrets), un carnet de bord au lieu de la fiche d'enquête.
+    # Le plateau renomme les lecteurs du pupitre (MAIN GAUCHE · COMPARTIMENT · MAIN DROITE · DYNAMO).
     {"num": 4, "monde": "narval", "nom": "Sous-marin Narval", "materiel": [
         ("fiche-mission-4", "fiche-joueurs", "Fiche de mission"),
+        ("plateau", "plateau", ""),
         ("cartes", "cartes", ""),
         ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
         ("carnet-de-bord", "carnet-de-bord", ""),

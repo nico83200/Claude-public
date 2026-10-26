@@ -6,70 +6,109 @@
 <link rel="stylesheet" href="../../../outils/impression/commun.css">
 <link rel="stylesheet" href="naval.css">
 <style>
-  @page { size: A4; margin: 13mm 14mm 14mm; }
-  h1 { font-size: 24pt; margin: 0 0 2mm; }
-  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
-  .cadre { border: 1.5px solid #13293a; border-radius: 6px; padding: 4mm 5mm; background: #fff; }
-  .cadre h3 { margin: 0 0 3mm; font-size: 11pt; }
-  .case { display: inline-block; width: 10mm; height: 12mm; border: 1.5px solid #13293a; border-radius: 2px; margin-right: 1.5mm; background: #f6f8fa; }
-  .ligne { border-bottom: 1px solid #9fb0bc; height: 9mm; }
-  .comp { display: grid; grid-template-columns: 6mm 1fr; gap: 2mm; align-items: center; font-size: 10.5pt; margin-bottom: 2mm; }
-  .comp span { width: 5mm; height: 5mm; border: 1.5px solid #13293a; border-radius: 1mm; display: inline-block; }
-  .sep { display: inline-block; font-size: 16pt; margin: 0 2mm; vertical-align: middle; }
+  @page { size: A4; margin: 12mm 13mm 12mm; }
+  h1 { font-size: 22pt; margin: 0 0 1mm; }
+  .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cadre { border: 1.5px solid #13293a; border-radius: 6px; padding: 3mm 4mm; background: #fff; break-inside: avoid; }
+  .cadre h3 { margin: 0 0 2mm; font-size: 10.5pt; }
+  .case { display: inline-block; width: 9mm; height: 11mm; border: 1.5px solid #13293a; border-radius: 2px; margin-right: 1.3mm; background: #f6f8fa; vertical-align: middle; }
+  .ligne { border-bottom: 1px solid #9fb0bc; height: 8mm; }
+  .comp { display: grid; grid-template-columns: 6mm 1fr; gap: 1mm; align-items: center; font-size: 9.5pt; margin-bottom: 1mm; }
+  .comp span { width: 4.5mm; height: 4.5mm; border: 1.5px solid #13293a; border-radius: 1mm; display: inline-block; }
+  .comps { columns: 2; column-gap: 4mm; }
+  .bancs-mesure { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1.5mm; text-align: center; font-family: "Share Tech Mono"; font-size: 10pt; }
+  .bancs-mesure div { border: 1.5px solid #13293a; border-radius: 2px; }
+  .bancs-mesure b { display: block; background: #13293a; color: #f0d9a8; }
+  .bancs-mesure i { display: block; height: 9mm; }
+  table.repart { margin: 0; }
+  table.repart td { padding: 1.4mm 2mm; font-size: 9.5pt; }
+  .frappe-notes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; text-align: center; font-family: "Share Tech Mono"; font-size: 8.5pt; color: var(--gris); }
+  .frappe-notes div { border: 1.5px solid #13293a; border-radius: 2px; height: 16mm; position: relative; }
+  .frappe-notes div::after { content: "ligne · col."; position: absolute; top: 1mm; left: 0; right: 0; }
+  .verrous { display: flex; gap: 3mm; align-items: center; }
+  .verrous span { width: 11mm; height: 11mm; border-radius: 50%; border: 1.5px solid #13293a; display: inline-block; background: #f6f8fa; }
+  .verrous i { font-style: normal; font-size: 12pt; color: var(--gris); }
 </style>
 </head>
 <body>
 <div class="bandeau"><span>Le Pupitre des Énigmes · Sous-marin Narval</span><span>Mission 4 · à remplir pendant la partie</span></div>
 <h1>Carnet de bord de l'équipage</h1>
-<p class="petit">Notez ici ce que vous trouvez. Un crayon suffit : le carnet se réimprime pour chaque partie.</p>
+<p class="petit" style="margin-bottom:3mm">Notez ici ce que vous trouvez. Un crayon suffit : le carnet se réimprime pour chaque partie.</p>
 
 <div class="grille">
   <div class="cadre">
     <h3>🔒 Le casier de Rasmus</h3>
     <span class="case"></span><span class="case"></span><span class="case"></span>
+    <h3 style="margin-top:3mm">🗄️ L'armoire de survie</h3>
+    <span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span>
   </div>
   <div class="cadre">
-    <h3>🧭 La console du poste de commande</h3>
-    <span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span>
+    <h3>📍 Compartiments visités</h3>
+    <div class="comps">
+      <div class="comp"><span></span>Poste d'équipage</div>
+      <div class="comp"><span></span>Coursive</div>
+      <div class="comp"><span></span>Infirmerie</div>
+      <div class="comp"><span></span>Local des batteries</div>
+      <div class="comp"><span></span>Salle des machines</div>
+      <div class="comp"><span></span>Poste de commande</div>
+      <div class="comp"><span></span>Salle radio</div>
+      <div class="comp"><span></span>Carré des officiers</div>
+      <div class="comp"><span></span>Sas de sauvetage</div>
+      <div class="comp"><span></span>Poste avant</div>
+    </div>
   </div>
+</div>
+
+<div class="cadre" style="margin-top:4mm">
+  <h3>🔋 Les bancs de batteries (volts)</h3>
+  <div class="bancs-mesure">
+    <div><b>A</b><i></i></div><div><b>B</b><i></i></div><div><b>C</b><i></i></div><div><b>D</b><i></i></div>
+    <div><b>E</b><i></i></div><div><b>F</b><i></i></div><div><b>G</b><i></i></div><div><b>H</b><i></i></div>
+  </div>
+  <p style="margin:2mm 0 0;font-size:9.5pt">Banc ponté : <span class="case" style="width:8mm;height:9mm"></span>
+     &nbsp; Bancs raccordés : <span class="case" style="width:8mm;height:9mm"></span><span class="case" style="width:8mm;height:9mm"></span><span class="case" style="width:8mm;height:9mm"></span></p>
+</div>
+
+<div class="grille" style="margin-top:4mm">
   <div class="cadre">
-    <h3>⚡ L'énergie (10 unités)</h3>
-    <table style="margin:0">
+    <h3>⚡ La répartition (… unités)</h3>
+    <table class="repart">
       <tbody>
-        <tr><td>Pompes de cale</td><td style="width:16mm"></td></tr>
-        <tr><td>Compresseur</td><td></td></tr>
-        <tr><td>Radio</td><td></td></tr>
-        <tr><td>Éclairage</td><td></td></tr>
-        <tr><td>Sas</td><td></td></tr>
+        <tr><td>📻 Radio</td><td style="width:16mm"></td></tr>
+        <tr><td>🧭 Console</td><td></td></tr>
+        <tr><td>🛟 Sas</td><td></td></tr>
+        <tr><td>💧 Pompe de cale</td><td></td></tr>
+        <tr><td>💡 Éclairage</td><td></td></tr>
       </tbody>
     </table>
   </div>
   <div class="cadre">
-    <h3>🛟 Le code du sas</h3>
-    <span class="case"></span><span class="case"></span><span class="case"></span><span class="sep">·</span><span class="case"></span><span class="case"></span>
-    <h3 style="margin-top:5mm">📻 Ce qu'a dit le Pélican</h3>
-    <div class="ligne"></div><div class="ligne"></div>
-  </div>
-  <div class="cadre">
-    <h3>📍 Compartiments visités</h3>
-    <div class="comp"><span></span>Poste d'équipage</div>
-    <div class="comp"><span></span>Coursive</div>
-    <div class="comp"><span></span>Cambuse</div>
-    <div class="comp"><span></span>Local des batteries</div>
-    <div class="comp"><span></span>Poste de commande</div>
-    <div class="comp"><span></span>Salle radio</div>
-    <div class="comp"><span></span>Sas de sauvetage</div>
-    <div class="comp"><span></span>Salle des machines</div>
-  </div>
-  <div class="cadre">
-    <h3>✋ Objets trouvés</h3>
-    <div class="ligne"></div><div class="ligne"></div><div class="ligne"></div><div class="ligne"></div><div class="ligne"></div><div class="ligne"></div>
+    <h3>⚙️ Les vannes (dans le sens du fluide)</h3>
+    <span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span>
+    <h3 style="margin-top:3mm">🧭 La console de commandement</h3>
+    <span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span>
+    <h3 style="margin-top:3mm">🧰 Le coffre de la commandante</h3>
+    <span class="case"></span><span class="case"></span><span class="case"></span><span class="case"></span>
   </div>
 </div>
 
-<div class="cadre" style="margin-top:6mm">
-  <h3>📝 Notes</h3>
-  <div class="ligne"></div><div class="ligne"></div><div class="ligne"></div><div class="ligne"></div>
+<div class="cadre" style="margin-top:4mm">
+  <h3>📡 Les coups sur la coque</h3>
+  <div class="frappe-notes"><div></div><div></div><div></div><div></div><div></div></div>
+  <p style="margin:2mm 0 0;font-size:9.5pt">Mot frappé : <span style="display:inline-block;width:45mm;border-bottom:1px solid #9fb0bc"></span>
+     &nbsp; Réponse : <span class="case" style="width:8mm;height:9mm"></span><span class="case" style="width:8mm;height:9mm"></span><span class="case" style="width:8mm;height:9mm"></span>
+     &nbsp; Pression : <span class="case" style="width:8mm;height:9mm"></span><span class="case" style="width:8mm;height:9mm"></span> bars</p>
+</div>
+
+<div class="grille" style="margin-top:4mm">
+  <div class="cadre">
+    <h3>🛟 L'ordre des verrous</h3>
+    <div class="verrous"><span></span><i>→</i><span></span><i>→</i><span></span><i>→</i><span></span></div>
+  </div>
+  <div class="cadre">
+    <h3>📝 Notes</h3>
+    <div class="ligne"></div><div class="ligne"></div>
+  </div>
 </div>
 </body>
 </html>

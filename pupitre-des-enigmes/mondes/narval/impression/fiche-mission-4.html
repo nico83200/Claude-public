@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Fiche de mission 4 · Voie d'eau</title>
+<title>Fiche de mission 4 · Dernier souffle</title>
 <link rel="stylesheet" href="../../../outils/impression/commun.css">
 <link rel="stylesheet" href="naval.css">
 <style>
@@ -11,22 +11,25 @@
   .titre .sur { font-family: "Share Tech Mono"; color: var(--cuir); font-size: 11pt; letter-spacing: .15em; }
   .titre h1 { font-size: 40pt; margin: 2px 0; color: #13293a; }
   .titre .sous { font-family: "Share Tech Mono"; font-size: 10pt; color: var(--gris); letter-spacing: .1em; }
-  .eau { display: flex; align-items: center; gap: 14px; border: 1.5px solid #2d7fa8; border-radius: 6px; padding: 8px 14px; background: #eaf4f9; margin: 10px 0; }
-  .eau .grand { font-family: "Share Tech Mono"; font-weight: 700; font-size: 26pt; color: #1a5f85; white-space: nowrap; }
+  .jauges { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .jauge { display: flex; align-items: center; gap: 12px; border: 1.5px solid; border-radius: 6px; padding: 8px 12px; }
+  .jauge .grand { font-family: "Share Tech Mono"; font-weight: 700; font-size: 24pt; white-space: nowrap; }
+  .jauge p { margin: 0; font-size: 9.6pt; }
+  .o2 { border-color: #2d7fa8; background: #eaf4f9; } .o2 .grand { color: #1a5f85; }
+  .dyn { border-color: var(--or); background: #fbf3e2; } .dyn .grand { color: #8a5a12; }
   .objectifs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 6px 0 10px; }
   .objectifs div { background: #13293a; color: #fff; border: 1px solid var(--or); border-radius: 6px; padding: 10px; text-align: center; }
   .objectifs .ico { font-size: 20pt; }
-  .objectifs .mot { font-family: "Source Sans"; font-weight: 900; font-size: 15pt; color: #f0c060; margin: 3px 0; text-transform: uppercase; letter-spacing: .05em; }
-  .objectifs .detail { font-size: 9.5pt; }
-  .regle { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: start; margin-bottom: 7px; }
-  .regle .ico { font-size: 18pt; text-align: center; }
+  .objectifs .mot { font-family: "Source Sans"; font-weight: 900; font-size: 14pt; color: #f0c060; margin: 3px 0; text-transform: uppercase; letter-spacing: .05em; }
+  .objectifs .detail { font-size: 9.3pt; }
+  .regle { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: start; margin-bottom: 6px; }
+  .regle .ico { font-size: 17pt; text-align: center; }
   .regle p { margin: 0; }
-  .lecteurs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
-  .lecteurs div { border: 2px solid #13293a; border-radius: 8px; padding: 8px; text-align: center; background: #fff; }
-  .lecteurs b { font-family: "Share Tech Mono"; font-size: 14pt; color: #13293a; display: block; }
+  .plateau { background: linear-gradient(135deg, #34454f, #1a252c); border-radius: 8px; padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr) 0.9fr; gap: 8px; margin: 8px 0 10px; }
+  .plateau div { border: 2px solid #f0c060; border-radius: 8px; color: #dfe8ea; text-align: center; padding: 0 0 8px; font-size: 9.3pt; background: #1a252c; }
+  .plateau b { display: block; background: #f0c060; color: #1a252c; font-family: "Source Sans"; font-weight: 900; letter-spacing: .06em; padding: 3px 0; margin-bottom: 6px; border-radius: 5px 5px 0 0; }
+  .plateau .dynamo { border-style: dashed; }
   .saut { break-before: page; }
-  .plan { border: 1px solid #13293a; border-radius: 4px; background: #eef3f6; padding: 3mm; }
-  .plan svg { width: 100%; display: block; }
 </style>
 </head>
 <body>
@@ -35,73 +38,66 @@
 <div class="bandeau"><span>Le Pupitre des Énigmes · Sous-marin Narval</span><span>Fiche de mission n° 4</span></div>
 <div class="titre">
   <div class="sur">// LE PUPITRE DES ÉNIGMES PRÉSENTE //</div>
-  <h1>Voie d'eau</h1>
-  <div class="sous">ESCAPE GAME · 2 À 6 MATELOTS · 60 MINUTES</div>
+  <h1>Dernier souffle</h1>
+  <div class="sous">ESCAPE GAME · 2 À 6 MATELOTS ADULTES · 60 MINUTES · DIFFICILE</div>
 </div>
 
 <div class="telex">
   MARINE DE LA RÉPUBLIQUE DE VALDARIE · MESSAGE DE BORD<br>
   BÂTIMENT : sous-marin NARVAL · coque S-417 · exercice « BRUME D'ACIER »<br>
-  POSITION : mer de Brennor · 04 h 12<br>
-  <span class="alerte">ÉTAT : collision avec un haut-fond · immobilisé par 142 m · voie d'eau à l'arrière</span><br>
+  POSITION : mer de Brennor · fond à 142 m · 04 h 12<br>
+  <span class="alerte">ÉTAT : collision à 04 h 07 · épurateurs détruits · air non recyclé · batteries à genoux</span><br>
   <br>
-  Le choc vous a jetés hors de vos couchettes. Les lumières sont mortes. La porte
-  étanche du poste d'équipage est fermée. Quelque part à l'arrière, l'eau entre.<br>
-  La commandante est coincée au poste avant. Elle vous parle par l'interphone.<br>
-  Le navire de secours Pélican attend en surface. FIN DE MESSAGE.
+  Vous vous réveillez dans le noir, au poste d'équipage. Il vous reste une heure
+  d'oxygène. Seule la dynamo de secours, actionnée à la main, garde un peu de lumière.<br>
+  L'ORQUE, sous-marin de sauvetage de la marine alliée de Norrvik, fait route vers vous.
+  Il s'accrochera sur votre sas de sauvetage… que le choc a bloqué.<br>
+  La commandante est coincée au poste avant. Elle vous parle par l'interphone. FIN DE MESSAGE.
 </div>
 
-<div class="eau">
-  <div class="grand">60:00</div>
-  <div>Vous avez <strong>une heure</strong> avant que l'eau n'atteigne le poste central. L'<strong>anneau lumineux</strong> se remplit de bleu à mesure que l'eau monte, puis vire au rouge. Certaines réparations vous font <strong>gagner du temps</strong>.</div>
+<div class="jauges">
+  <div class="jauge o2"><div class="grand">O₂ 60:00</div><p>L'air de bord. Le chrono de l'écran est votre <strong>oxygène</strong>. Les erreurs vous essoufflent : elles en coûtent. Certaines trouvailles en rendent.</p></div>
+  <div class="jauge dyn"><div class="grand">💡</div><p>La <strong>dynamo</strong>, c'est le <strong>gros bouton</strong>. Sans elle, la lumière baisse, l'écran s'éteint, et plus rien ne se voit à bord. <strong>Quelqu'un doit toujours la tenir.</strong></p></div>
 </div>
 
-<h3 style="margin-top:4px">Votre mission : sortir vivants</h3>
+<h3 style="margin-top:4px">Votre mission : débloquer la sortie</h3>
 <div class="objectifs">
-  <div><div class="ico">⚡</div><div class="mot">Le courant</div><div class="detail">Rallumez le sous-marin</div></div>
-  <div><div class="ico">⬆️</div><div class="mot">Remonter</div><div class="detail">Le sas ne s'ouvre pas sous 60 m</div></div>
-  <div><div class="ico">🛟</div><div class="mot">Sortir</div><div class="detail">Par le sas de sauvetage</div></div>
+  <div><div class="ico">⚡</div><div class="mot">Le courant</div><div class="detail">Rallumez ce qui peut l'être : sans lui, ni console ni radio</div></div>
+  <div><div class="ico">🛟</div><div class="mot">Le sas</div><div class="detail">Levez ses blocages, libérez ses verrous</div></div>
+  <div><div class="ico">📡</div><div class="mot">L'Orque</div><div class="detail">Faites-vous reconnaître : il ne s'accroche qu'à un bâtiment qui répond</div></div>
 </div>
 
 <p>Ce soir, <strong>pas d'enquête</strong> : pas de coupable, pas d'accusation. Vous êtes <strong>tous matelots</strong>, à égalité :
-pas de rôle, pas de pouvoir, pas de document secret. Ce qui vous sauvera : fouiller, observer, vous parler… et agir ensemble.</p>
+pas de rôle, pas de pouvoir, pas de document secret. Ce qui vous sauvera : fouiller, recouper les documents, vous parler… et agir ensemble.</p>
 
 <!-- PAGE 2 -->
 <div class="saut"></div>
 <div class="bandeau"><span>Le Pupitre des Énigmes · Sous-marin Narval</span><span>Fiche de mission n° 4</span></div>
 <h2 style="margin-top:0">Comment jouer à bord</h2>
-
-<div class="lecteurs">
-  <div><b>📍 OÙ</b>Le compartiment où vous êtes. Posez-y un lieu pour vous y rendre, et laissez-le.</div>
-  <div><b>✋ QUI</b>Votre main gauche : un objet.</div>
-  <div><b>✋ QUOI</b>Votre main droite : un objet.</div>
+<p>Pour cette mission, le pupitre porte le <strong>plateau du Narval</strong>, qui renomme ses lecteurs :</p>
+<div class="plateau">
+  <div><b>✋ MAIN GAUCHE</b>Un objet</div>
+  <div><b>📍 COMPARTIMENT</b>Le lieu où vous êtes : posez-le, et laissez-le</div>
+  <div><b>✋ MAIN DROITE</b>Un objet</div>
+  <div class="dynamo"><b>💡 DYNAMO</b>Le gros bouton : appuyez souvent !</div>
 </div>
 
-<div class="regle"><div class="ico">🔧</div><p><strong>Un objet seul</strong> s'utilise <strong>là où vous êtes</strong> (le lieu posé sur OÙ). Une clé dans la cuisine, ce n'est pas une clé dans la salle des machines.</p></div>
-<div class="regle"><div class="ico">🔗</div><p><strong>Deux objets posés ensemble</strong>, un sur QUI et un sur QUOI, <strong>se combinent</strong>, si c'est possible.</p></div>
+<div class="regle"><div class="ico">🔧</div><p><strong>Un objet seul</strong>, dans une main, s'utilise <strong>dans le compartiment</strong> posé au centre. Une clé à cliquet dans la salle radio, ce n'est pas une clé à cliquet dans le sas.</p></div>
+<div class="regle"><div class="ico">🔗</div><p><strong>Deux objets</strong>, un dans chaque main, <strong>se combinent</strong>, si c'est possible. Sinon, le dernier posé s'utilise seul.</p></div>
+<div class="regle"><div class="ico">🔄</div><p>Pour réessayer, ou pour utiliser un objet après avoir changé de compartiment, <strong>retirez la carte et reposez-la</strong>.</p></div>
+<div class="regle"><div class="ico">💡</div><p><strong>La dynamo</strong> : sous 40 % de lumière, l'écran s'assombrit ; à zéro, c'est le <strong>noir complet</strong>, et une carte posée dans le noir ne donne rien. Actionnez la dynamo, puis reposez la carte.</p></div>
 <div class="regle"><div class="ico">✉️</div><p>Les <strong>enveloppes</strong> ne s'ouvrent que quand le pupitre l'annonce. Les cartes Objet sont dedans.</p></div>
-<div class="regle"><div class="ico">🔢</div><p><strong>Codes et mots de passe</strong> : tournez la molette pour choisir, appuyez pour passer au suivant, bouton rouge pour effacer.</p></div>
-<div class="regle"><div class="ico">🤝</div><p>Certains gestes demandent <strong>quatre mains</strong> : enfoncer les <strong>quatre boutons de couleur en même temps</strong> et tenir. Répartissez-vous autour du pupitre.</p></div>
-<div class="regle"><div class="ico">🔴</div><p>Le <strong>gros bouton</strong> ne sert qu'<strong>une fois</strong>, tout à la fin. Vous saurez quand.</p></div>
-<div class="regle"><div class="ico">🎧</div><p>Quand le pupitre le demande, <strong>un seul</strong> d'entre vous met le casque. Ce qu'il entend, il doit le raconter aux autres.</p></div>
-<div class="regle"><div class="ico">📞</div><p>Bloqués ? Posez la carte <strong>Interphone</strong> : la commandante vous conseille. Les 3 premiers conseils sont gratuits, les suivants coûtent <strong>2 minutes</strong>.</p></div>
-<div class="regle"><div class="ico">⚠️</div><p>Le sous-marin vit : craquements, fuites, glissades… Les <strong>imprévus</strong> arrivent sans prévenir. Écoutez bien les consignes.</p></div>
+<div class="regle"><div class="ico">🔢</div><p><strong>Codes, lettres, choix</strong> : tournez la molette pour choisir, appuyez pour passer au suivant, bouton rouge pour effacer. Retirer le compartiment abandonne sans pénalité.</p></div>
+<div class="regle"><div class="ico">🤝</div><p>Certains gestes demandent <strong>quatre mains</strong> : enfoncer les <strong>quatre boutons de couleur en même temps</strong> et tenir… pendant qu'un cinquième bras tient la dynamo.</p></div>
+<div class="regle"><div class="ico">📋</div><p>Un appui sur la molette affiche le <strong>tableau de bord</strong> : vos objectifs, le temps, la lumière.</p></div>
+<div class="regle"><div class="ico">🎧</div><p>Quand le pupitre le demande, <strong>un seul</strong> d'entre vous met le casque. Ce qu'il entend, il le raconte aux autres.</p></div>
+<div class="regle"><div class="ico">📞</div><p>Bloqués ? Posez la carte <strong>Interphone</strong> : la commandante vous conseille. Les 3 premiers conseils sont gratuits, les suivants coûtent <strong>2 minutes d'air</strong>.</p></div>
+<div class="regle"><div class="ico">⚠️</div><p>Le sous-marin vit : il glisse, il craque, il fuit… Les <strong>imprévus</strong> arrivent sans prévenir. Écoutez bien les consignes.</p></div>
 
-<h2>Le Narval</h2>
-<div class="plan">
-  <svg viewBox="0 0 700 200" font-family="Share Tech Mono, monospace">
-    <rect width="700" height="200" fill="#eef3f6"/>
-    <path d="M40 120 Q40 70 120 66 L600 66 Q670 70 680 120 Q670 170 600 174 L120 174 Q40 170 40 120 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
-    <path d="M240 66 L255 20 L345 20 L355 66 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
-    <text x="300" y="50" text-anchor="middle" font-size="10" fill="#13293a">KIOSQUE</text>
-    <g stroke="#13293a" stroke-width="2"><line x1="160" y1="68" x2="160" y2="172"/><line x1="440" y1="68" x2="440" y2="172"/><line x1="520" y1="68" x2="520" y2="172"/></g>
-    <g font-size="11" fill="#13293a" text-anchor="middle"><text x="100" y="124">AVANT</text><text x="300" y="124">? ? ?</text><text x="480" y="124">VOUS</text><text x="600" y="124">MACHINES</text></g>
-    <text x="480" y="145" text-anchor="middle" font-size="9" fill="#b8322a">porte étanche fermée</text>
-    <text x="600" y="145" text-anchor="middle" font-size="9" fill="#2d7fa8">≋ inondée ≋</text>
-    <text x="100" y="145" text-anchor="middle" font-size="9" fill="#13293a">la commandante</text>
-  </svg>
+<div class="encadre or" style="margin-top:8px">
+  <strong>Les cartes Compartiment</strong> se posent face visible à côté du pupitre : c'est le plan du Narval. Vous êtes au <strong>poste d'équipage</strong>.
+  Le carnet de bord de l'équipage est là pour noter ce que vous trouvez.
 </div>
-<p class="petit">Les cartes Lieu, posées à côté du pupitre, sont les compartiments du Narval. Le plan complet est quelque part à bord… mais il fait trop noir pour le lire.</p>
 
 </body>
 </html>

@@ -15,61 +15,89 @@
   .photo svg { width: 142mm; display: block; }
   .photo .legende { font-family: "Caveat"; font-size: 17pt; color: #1b2c55; text-align: center; margin-top: 2mm; line-height: 1.1; }
   .note { background: #fffbe6; border: 1px solid #e3d48a; padding: 5mm 7mm; font-family: "Caveat"; font-size: 19pt; color: #1b2c55; line-height: 1.25;
-          width: 110mm; margin: 0 auto; transform: rotate(1deg); box-shadow: 0 1mm 2mm #0002; }
-  .badge { width: 86mm; height: 54mm; border-radius: 3mm; border: 1px solid #13293a; margin: 0 auto; overflow: hidden; font-size: 9pt; display: grid; grid-template-rows: 11mm 1fr; }
-  .badge .haut { background: #13293a; color: #f0d9a8; font-family: "Share Tech Mono"; letter-spacing: .12em; display: flex; align-items: center; justify-content: center; font-size: 8pt; }
-  .badge .corps { display: grid; grid-template-columns: 24mm 1fr; gap: 3mm; padding: 3mm; background: #f2f5f7; }
-  .badge .portrait { background: #c6d2d9; border-radius: 2mm; display: flex; align-items: center; justify-content: center; font-size: 26pt; }
+          width: 125mm; margin: 0 auto; transform: rotate(1deg); box-shadow: 0 1mm 2mm #0002; }
+  .postit { background: #fff27a; padding: 4mm 5mm; font-family: "Caveat"; font-size: 17pt; color: #1b2c55; line-height: 1.15; width: 62mm;
+            transform: rotate(-3deg); box-shadow: 0 1mm 2mm #0003; }
   .doc { background: #fff; border: 1px solid var(--filet); padding: 6mm 8mm; font-size: 10.5pt; }
   .doc h3 { margin-top: 0; }
-  .quarts { width: 125mm; margin: 0 auto; font-family: "Share Tech Mono"; }
-  .quarts td, .quarts th { padding: 1.3mm 3mm; font-size: 10.5pt; }
-  .quarts .nuit { background: #e8edf5; }
-  .regles li { margin-bottom: 2mm; }
-  .circuits { display: flex; gap: 4mm; justify-content: center; margin: 4mm 0; }
-  .circuits div { border: 1.5px solid #13293a; border-radius: 2mm; padding: 2mm 3mm; text-align: center; font-family: "Share Tech Mono"; font-size: 9pt; width: 28mm; }
-  .circuits b { display: block; font-size: 16pt; }
-  .carnet { background: #fdfaf0; border: 1px solid #d9cfa8; padding: 8mm 10mm; font-family: "Caveat"; font-size: 18pt; color: #1b2c55; line-height: 1.3;
+  .imprime { background: #f7f5ee; border: 1px solid #cfc8b4; padding: 5mm 7mm; font-family: "Share Tech Mono", monospace; font-size: 10pt; line-height: 1.5; color: #23221f; }
+  .imprime .alerte { color: var(--rouge); }
+  .quarts { width: 135mm; margin: 0 auto; font-family: "Share Tech Mono"; }
+  .quarts td, .quarts th { padding: 1.2mm 3mm; font-size: 10.5pt; }
+  .quarts .nuit td { background: #e8edf5; }
+  .carnet { background: #fdfaf0; border: 1px solid #d9cfa8; padding: 8mm 10mm; font-family: "Caveat"; font-size: 18.5pt; color: #1b2c55; line-height: 9.9mm;
             background-image: repeating-linear-gradient(#fdfaf0 0 9.6mm, #c9d6e8 9.6mm 9.9mm); }
+  .carnet p { margin: 0; }
+  .carnet .date { color: #8a5a12; }
+  .lettre { background: #fbf6ea; border: 1px solid #e0d3b0; padding: 8mm 11mm; font-family: "Caveat"; font-size: 18pt; color: #2a2a4a; line-height: 1.3;
+            box-shadow: 0 1mm 3mm #0002; transform: rotate(-.6deg); }
   .plan { border: 1px solid #13293a; border-radius: 4px; background: #eef3f6; padding: 3mm; }
   .plan svg { width: 100%; display: block; }
-  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 51mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
-  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 4mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
-  .etiquette .num { font-family: "Source Sans"; font-weight: 900; font-size: 32pt; color: #13293a; line-height: 1; }
-  .etiquette .lieu { font-family: "Share Tech Mono"; font-size: 14pt; color: var(--cuir); margin: 1mm 0 2mm; }
-  .etiquette .avis { font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 2mm; }
-  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 37mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 3mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Source Sans"; font-weight: 900; font-size: 28pt; color: #13293a; line-height: 1; }
+  .etiquette .lieu { font-family: "Share Tech Mono"; font-size: 13pt; color: var(--cuir); margin: 1mm 0 1.5mm; }
+  .etiquette .avis { font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 1.5mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; line-height: 1.3; }
   .etiquette.dos h4 { margin: 0 0 1mm; font-size: 10pt; }
   .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+  .etiquette.dos li { margin: 0; }
+  .bancs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5mm; margin: 4mm 0; }
+  .paire { border: 1.5px dashed #13293a; border-radius: 3mm; padding: 2.5mm; display: flex; gap: 2.5mm; justify-content: center; position: relative; }
+  .paire::after { content: "paire"; position: absolute; bottom: -4.2mm; left: 0; right: 0; text-align: center; font-family: "Share Tech Mono"; font-size: 7.5pt; color: var(--gris); }
+  .banc { width: 15mm; height: 22mm; border: 2px solid #13293a; border-radius: 1.5mm; background: linear-gradient(#dfe7ec, #b9c7d0);
+          display: flex; align-items: center; justify-content: center; font-family: "Source Sans"; font-weight: 900; font-size: 18pt; color: #13293a; position: relative; }
+  .banc::before { content: ""; position: absolute; top: -2.2mm; left: 3mm; width: 3mm; height: 2mm; background: #b8322a; }
+  .banc::after { content: ""; position: absolute; top: -2.2mm; right: 3mm; width: 3mm; height: 2mm; background: #13293a; }
+  .regles li { margin-bottom: 2mm; }
+  .circuits { display: flex; gap: 3mm; justify-content: center; margin: 4mm 0; }
+  .circuits div { border: 1.5px solid #13293a; border-radius: 2mm; padding: 2mm 2mm; text-align: center; font-family: "Share Tech Mono"; font-size: 9pt; width: 30mm; background: #fff; }
+  .circuits b { display: block; font-size: 15pt; }
+  .frappe { border-collapse: collapse; margin: 0 auto; width: auto; }
+  .frappe td, .frappe th { width: 15mm; height: 13mm; text-align: center; font-family: "Source Sans"; font-weight: 900; font-size: 18pt; border: 1.5px solid #13293a; padding: 0; }
+  .frappe th { background: #13293a; color: #f0d9a8; font-family: "Share Tech Mono"; font-size: 13pt; }
+  .frappe tbody tr:nth-child(even) td { background: none; }
+  .signaux td, .signaux th { font-family: "Share Tech Mono"; font-size: 11pt; padding: 1.5mm 4mm; }
+  .signaux td:last-child { font-size: 13pt; letter-spacing: .2em; }
+  .cadre-carte { border: 6mm solid #3b2a1a; border-image: linear-gradient(135deg, #6b4a2a, #3b2a1a 40%, #7a5532 60%, #2e2014) 1; box-shadow: 0 1.5mm 4mm #0005; padding: 0; }
+  .cadre-carte svg { display: block; width: 100%; }
 </style>
 </head>
 <body>
 
 <div class="page">
   <h1>Les enveloppes de la mission 4</h1>
-  <p>Tout ce qui se glisse dans les <strong>8 enveloppes</strong>, et leurs étiquettes. Les joueurs ne doivent pas voir ce document.</p>
+  <p>Tout ce qui se glisse dans les <strong>13 enveloppes</strong> de « Dernier souffle », et leurs étiquettes. Les joueurs ne doivent pas voir ce document.</p>
   <ol>
-    <li>Imprimez en couleur (papier 120 g ; la photo et la plaque sur papier photo ou cartonné si possible). Étiquettes sur papier adhésif.</li>
+    <li>Imprimez en couleur (papier 120 g ; la photo, la carte marine et les plaques sur papier photo ou cartonné si possible). Étiquettes sur papier adhésif.</li>
     <li>Découpez en suivant les pointillés ✂.</li>
     <li>Étiquette « recto » devant, étiquette « contenu » au dos.</li>
-    <li>Ajoutez dans chaque enveloppe <strong>ses cartes Objet</strong>.</li>
+    <li>Ajoutez dans chaque enveloppe <strong>ses cartes Objet</strong> (planche des cartes).</li>
   </ol>
   <table>
     <thead><tr><th>Env.</th><th>Quand l'ouvrir</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
     <tbody>
-      <tr><td><strong>E1</strong></td><td>Poste d'équipage</td><td>Photo de l'équipe de water-polo · mot de Rasmus</td><td>O1 Lampe torche · O2 Casier</td></tr>
-      <tr><td><strong>E2</strong></td><td>Casier ouvert</td><td>Carte d'électricien de Rasmus</td><td>O3 Piles · O4 Fusible neuf</td></tr>
-      <tr><td><strong>E3</strong></td><td>La lumière</td><td>Plan d'évacuation du Narval · plaque de la porte étanche</td><td>—</td></tr>
-      <tr><td><strong>E4</strong></td><td>Porte étanche ouverte</td><td>Fiche de la coursive</td><td>—</td></tr>
-      <tr><td><strong>E5</strong></td><td>Cambuse</td><td>Tableau des quarts · mot du cuisinier</td><td>O5 Clé à molette · O6 Ruban adhésif</td></tr>
-      <tr><td><strong>E6</strong></td><td>Local des batteries</td><td>Manuel de répartition de l'énergie</td><td>—</td></tr>
-      <tr><td><strong>E7</strong></td><td>Poste de commande</td><td>Page du carnet de la commandante</td><td>—</td></tr>
-      <tr><td><strong>E8</strong></td><td>Sas ouvert</td><td>Procédure de sortie</td><td>O7 Combinaisons</td></tr>
+      <tr><td><strong>E1</strong></td><td>Poste d'équipage</td><td>Photo de water-polo · mot de Rasmus · tableau des quarts · plaques de la dynamo et de la porte</td><td>O1 Casier de Rasmus</td></tr>
+      <tr><td><strong>E2</strong></td><td>Casier ouvert</td><td>Carnet de l'électricien</td><td>O2 Multimètre</td></tr>
+      <tr><td><strong>E3</strong></td><td>Porte étanche ouverte</td><td>Plan du Narval · rapport d'avarie</td><td>O11 Clé à cliquet</td></tr>
+      <tr><td><strong>E4</strong></td><td>Infirmerie</td><td>Fiche de soins · étiquette de l'armoire</td><td>O5 Clé du second · O8 Armoire</td></tr>
+      <tr><td><strong>E5</strong></td><td>Armoire ouverte</td><td>Consigne de la chandelle</td><td>O9 Chandelle à oxygène</td></tr>
+      <tr><td><strong>E6</strong></td><td>Local des batteries</td><td>Tableau des bancs · manuel de répartition</td><td>O4 Manivelle de pompe</td></tr>
+      <tr><td><strong>E7</strong></td><td>Salle des machines</td><td>Schéma hydraulique du sas</td><td>O3 Câble · O10 Chaux sodée · O12 Pied-de-biche</td></tr>
+      <tr><td><strong>E8</strong></td><td>Poste de commande</td><td>Carnet de la commandante</td><td>—</td></tr>
+      <tr><td><strong>E9</strong></td><td>Carré des officiers</td><td>Carte marine encadrée · cahier du second</td><td>O7 Coffre de la commandante</td></tr>
+      <tr><td><strong>E10</strong></td><td>Coffre ouvert</td><td>Lettre du père</td><td>O6 Clé de la commandante</td></tr>
+      <tr><td><strong>E11</strong></td><td>Salle radio</td><td>Grille du code de frappe · carnet des signaux</td><td>—</td></tr>
+      <tr><td><strong>E12</strong></td><td>Sas de sauvetage</td><td>Procédure de déverrouillage manuel</td><td>—</td></tr>
+      <tr><td><strong>E13</strong></td><td>Poste avant ouvert</td><td>Le mot des officiers</td><td>—</td></tr>
     </tbody>
   </table>
-  <div class="encadre or" style="margin-top:6mm">
+  <div class="encadre or" style="margin-top:4mm">
     <h4>Les solutions, pour mémoire</h4>
-    Casier <strong>7-3-9</strong> · porte : 4 boutons 3 s · énergie <strong>2-4-1-1-2</strong> · console <strong>ABYSSE</strong> · sas <strong>417 · 60</strong>.
+    Casier <strong>379</strong> · porte : 4 boutons 3 s · pontage <strong>banc E</strong> · raccordement <strong>ABF</strong> · énergie <strong>3-2-2-1-1</strong> ·
+    vannes <strong>2586</strong> puis pompe (bouton jaune) · console <strong>ABYSSE</strong> · coffre <strong>2479</strong> · clés : 4 boutons 2 s ·
+    signal <strong>BRUME → 736</strong> · verrous <strong>bleu, rouge, vert, jaune</strong> · égalisation <strong>16</strong> · écoutille : 4 boutons 4 s.<br>
+    Bonus : armoire <strong>9742</strong> (chandelle, pas au local des batteries) · chaux sodée en salle des machines, avec le courant · pied-de-biche au poste avant.
   </div>
 </div>
 
@@ -78,26 +106,36 @@
   <div class="etiquettes">
     <div class="etiquette"><div class="num">E1</div><div class="lieu">Poste d'équipage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
     <div class="etiquette"><div class="num">E2</div><div class="lieu">Le casier de Rasmus</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
-    <div class="etiquette"><div class="num">E3</div><div class="lieu">Dans le faisceau de la lampe</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
-    <div class="etiquette"><div class="num">E4</div><div class="lieu">Coursive</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
-    <div class="etiquette"><div class="num">E5</div><div class="lieu">Cambuse</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Coursive</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">Infirmerie</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">L'armoire de survie</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
     <div class="etiquette"><div class="num">E6</div><div class="lieu">Local des batteries</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
-    <div class="etiquette"><div class="num">E7</div><div class="lieu">Poste de commande</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
-    <div class="etiquette"><div class="num">E8</div><div class="lieu">Sas de sauvetage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E7</div><div class="lieu">Salle des machines</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E8</div><div class="lieu">Poste de commande</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E9</div><div class="lieu">Carré des officiers</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E10</div><div class="lieu">Le coffre de la commandante</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E11</div><div class="lieu">Salle radio</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E12</div><div class="lieu">Sas de sauvetage</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
+    <div class="etiquette"><div class="num">E13</div><div class="lieu">Poste avant</div><div class="avis">Ne pas ouvrir avant que le pupitre le demande</div></div>
   </div>
 </div>
 
 <div class="page">
   <div class="tag">Étiquettes · contenu (au dos)</div>
   <div class="etiquettes">
-    <div class="etiquette dos"><h4>E1 · Poste d'équipage</h4><ul><li>Carte O1 · Lampe torche</li><li>Carte O2 · Casier de Rasmus</li><li>Photo de l'équipe de water-polo</li><li>Mot de Rasmus</li></ul></div>
-    <div class="etiquette dos"><h4>E2 · Casier de Rasmus</h4><ul><li>Carte O3 · Piles</li><li>Carte O4 · Fusible neuf</li><li>Carte d'électricien</li></ul></div>
-    <div class="etiquette dos"><h4>E3 · La lumière</h4><ul><li>Plan d'évacuation du Narval</li><li>Plaque de la porte étanche</li></ul></div>
-    <div class="etiquette dos"><h4>E4 · Coursive</h4><ul><li>Fiche de la coursive</li></ul></div>
-    <div class="etiquette dos"><h4>E5 · Cambuse</h4><ul><li>Carte O5 · Clé à molette</li><li>Carte O6 · Ruban adhésif</li><li>Tableau des quarts</li><li>Mot du cuisinier</li></ul></div>
-    <div class="etiquette dos"><h4>E6 · Local des batteries</h4><ul><li>Manuel de répartition de l'énergie</li></ul></div>
-    <div class="etiquette dos"><h4>E7 · Poste de commande</h4><ul><li>Page du carnet de la commandante</li></ul></div>
-    <div class="etiquette dos"><h4>E8 · Sas de sauvetage</h4><ul><li>Carte O7 · Combinaisons</li><li>Procédure de sortie</li></ul></div>
+    <div class="etiquette dos"><h4>E1 · Poste d'équipage</h4><ul><li>Carte O1 · Casier de Rasmus</li><li>Photo de water-polo · mot de Rasmus</li><li>Tableau des quarts</li><li>Plaques : dynamo, porte n° 3</li></ul></div>
+    <div class="etiquette dos"><h4>E2 · Casier de Rasmus</h4><ul><li>Carte O2 · Multimètre</li><li>Carnet de l'électricien</li></ul></div>
+    <div class="etiquette dos"><h4>E3 · Coursive</h4><ul><li>Carte O11 · Clé à cliquet</li><li>Plan du Narval</li><li>Rapport d'avarie</li></ul></div>
+    <div class="etiquette dos"><h4>E4 · Infirmerie</h4><ul><li>Carte O5 · Clé du second</li><li>Carte O8 · Armoire de survie</li><li>Fiche de soins · étiquette de l'armoire</li></ul></div>
+    <div class="etiquette dos"><h4>E5 · Armoire de survie</h4><ul><li>Carte O9 · Chandelle à oxygène</li><li>Consigne de la chandelle</li></ul></div>
+    <div class="etiquette dos"><h4>E6 · Local des batteries</h4><ul><li>Carte O4 · Manivelle de pompe</li><li>Tableau des bancs</li><li>Manuel de répartition</li></ul></div>
+    <div class="etiquette dos"><h4>E7 · Salle des machines</h4><ul><li>Cartes O3 · Câble, O10 · Chaux sodée, O12 · Pied-de-biche</li><li>Schéma hydraulique du sas</li></ul></div>
+    <div class="etiquette dos"><h4>E8 · Poste de commande</h4><ul><li>Carnet de la commandante</li></ul></div>
+    <div class="etiquette dos"><h4>E9 · Carré des officiers</h4><ul><li>Carte O7 · Coffre de la commandante</li><li>Carte marine encadrée</li><li>Cahier du second</li></ul></div>
+    <div class="etiquette dos"><h4>E10 · Coffre de la commandante</h4><ul><li>Carte O6 · Clé de la commandante</li><li>Lettre du père</li></ul></div>
+    <div class="etiquette dos"><h4>E11 · Salle radio</h4><ul><li>Grille du code de frappe</li><li>Carnet des signaux de reconnaissance</li></ul></div>
+    <div class="etiquette dos"><h4>E12 · Sas de sauvetage</h4><ul><li>Procédure de déverrouillage manuel</li></ul></div>
+    <div class="etiquette dos"><h4>E13 · Poste avant</h4><ul><li>Le mot des officiers</li></ul></div>
   </div>
 </div>
 
@@ -139,195 +177,424 @@
     du plus jeune au plus vieux.<br>
     Pas le coach : il ne joue pas !<br>
     <span style="float:right">— Rasmus</span><br>
+    <span style="font-size:16pt">PS : depuis la photo, Tomas et moi avons échangé nos maillots. Superstition…</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Enveloppe E1 · Poste d'équipage</div>
+  <div class="doc" style="width:150mm;margin:0 auto">
+    <h3 style="text-align:center">Tableau des quarts · poste d'équipage</h3>
+    <p class="mono" style="text-align:center;margin:0 0 3mm">S-417 NARVAL · EXERCICE « BRUME D'ACIER » · NUIT DU 11 AU 12</p>
+    <table class="quarts">
+      <thead><tr><th>Quart</th><th>Homme de quart</th><th>Poste</th></tr></thead>
+      <tbody>
+        <tr><td>20 h – 22 h</td><td>Rasmus</td><td>Tableau électrique</td></tr>
+        <tr><td>22 h – 23 h</td><td>Søren</td><td>Barre</td></tr>
+        <tr><td>23 h – 00 h</td><td>Halvor</td><td>Sonar</td></tr>
+        <tr class="nuit"><td>00 h – 01 h</td><td>Arvid</td><td>Barre</td></tr>
+        <tr class="nuit"><td>01 h – 02 h</td><td>Bjørn</td><td>Sonar</td></tr>
+        <tr class="nuit"><td>02 h – 03 h</td><td>Yann</td><td>Barre</td></tr>
+        <tr class="nuit"><td>03 h – 04 h</td><td>Sven</td><td>Sonar</td></tr>
+        <tr class="nuit"><td>04 h – 05 h</td><td>Tomas</td><td>Barre</td></tr>
+        <tr class="nuit"><td>05 h – 06 h</td><td>Edvin</td><td>Sonar</td></tr>
+        <tr><td>06 h – 08 h</td><td>Erik</td><td>Barre</td></tr>
+      </tbody>
+    </table>
+    <p class="petit" style="text-align:center;margin:0">Toute modification du tableau doit être portée au cahier du second.</p>
+  </div>
+
+  <div class="ciseaux"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8mm">
+    <div class="plaque">
+      <span class="rivet"></span><span class="rivet"></span>
+      <div style="font-size:14pt;font-weight:700;letter-spacing:.1em;margin:2mm 0">DYNAMO DE SECOURS</div>
+      <div style="font-size:9.5pt">Type DS-2 · éclairage de secours<br><strong>ACTIONNER RÉGULIÈREMENT.</strong><br>Chaque coup de manivelle : 15 % de charge.<br>Sans courant de bord, la charge tient<br>moins d'une minute et demie.</div>
+      <span class="rivet"></span><span class="rivet"></span>
+    </div>
+    <div class="plaque">
+      <span class="rivet"></span><span class="rivet"></span>
+      <div style="font-size:14pt;font-weight:700;letter-spacing:.1em;margin:2mm 0">PORTE ÉTANCHE N° 3</div>
+      <div style="font-size:9.5pt">En cas de déformation de la coque :<br><strong>MANŒUVRE À QUATRE MAINS.</strong><br>Tous ensemble sur le volant,<br>maintenir l'effort trois secondes.</div>
+      <span class="rivet"></span><span class="rivet"></span>
+    </div>
   </div>
 </div>
 
 <!-- E2 -->
 <div class="page">
   <div class="tag">Enveloppe E2 · Casier de Rasmus</div>
-  <div style="margin-top:20mm">
-    <div class="badge">
-      <div class="haut">MARINE DE LA RÉPUBLIQUE DE VALDARIE</div>
-      <div class="corps">
-        <div class="portrait">🧑‍🔧</div>
-        <div>
-          <div style="font-weight:900;font-size:12pt">Matelot Rasmus HOLM</div>
-          <div class="mono" style="color:var(--cuir);font-size:8.5pt">ÉLECTRICIEN DE BORD · S-417 NARVAL</div>
-          <div style="margin-top:2mm;font-size:8.5pt">Habilitation : basse et haute tension<br>Responsable : tableau général, batteries, fusibles de rechange</div>
-        </div>
-      </div>
-    </div>
-    <p class="main" style="text-align:center;font-size:17pt;margin-top:8mm">(Dans le casier : des piles neuves, un fusible de rechange… et une boîte de biscuits.)</p>
+  <div class="carnet">
+    <p class="date">Carnet de Rasmus · électricien · S-417</p>
+    <p><strong>Bancs de batteries : à savoir par cœur</strong></p>
+    <p>• Un banc est <u>sain</u> entre 115 et 125 volts. En dessous, il est faible. À 0, il est mort.</p>
+    <p>• Les bancs travaillent par paires : A-B, C-D, E-F, G-H.</p>
+    <p>• Un banc faible ou mort <u>ruine son voisin</u> : on ne raccorde jamais un banc sain dont le voisin est malade… sauf si on <u>ponte</u> le malade.</p>
+    <p>• On n'a qu'<u>un seul</u> câble de pontage à bord (il traîne en salle des machines). S'il faut choisir : on sauve le banc sain <u>le plus chargé</u>.</p>
+    <p>• Au tableau, on entre les lettres des bancs raccordés, dans l'ordre de l'alphabet.</p>
+    <p>• Un banc raccordé = 3 unités de puissance.</p>
+    <p>• Mesurer avant de toucher. Toujours. (Le multimètre est dans mon casier, rendez-le-moi !)</p>
   </div>
 </div>
 
 <!-- E3 -->
 <div class="page">
-  <div class="tag">Enveloppe E3 · Dans le faisceau de la lampe</div>
-  <h2 style="margin-top:0">Plan d'évacuation · Sous-marin Narval</h2>
+  <div class="tag">Enveloppe E3 · Coursive</div>
+  <h2 style="margin-top:0">Plan du sous-marin Narval · coque S-417</h2>
   <div class="plan">
-    <svg viewBox="0 0 700 300" font-family="Share Tech Mono, monospace">
-      <rect width="700" height="300" fill="#eef3f6"/>
-      <!-- Coque -->
-      <path d="M40 170 Q40 110 120 105 L600 105 Q670 110 680 170 Q670 230 600 235 L120 235 Q40 230 40 170 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
-      <!-- Kiosque -->
-      <path d="M240 105 L255 45 L345 45 L355 105 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
-      <rect x="275" y="58" width="50" height="34" fill="#fff6dc" stroke="#b8322a" stroke-width="2"/>
-      <text x="300" y="72" text-anchor="middle" font-size="9" fill="#b8322a">SAS DE</text><text x="300" y="84" text-anchor="middle" font-size="9" fill="#b8322a">SAUVETAGE</text>
-      <text x="300" y="38" text-anchor="middle" font-size="16" font-weight="700" fill="#13293a">S-417</text>
-      <!-- Cloisons -->
-      <g stroke="#13293a" stroke-width="2"><line x1="160" y1="107" x2="160" y2="233"/><line x1="240" y1="107" x2="240" y2="233"/><line x1="360" y1="107" x2="360" y2="233"/>
-        <line x1="440" y1="107" x2="440" y2="233"/><line x1="520" y1="107" x2="520" y2="233"/><line x1="240" y1="185" x2="360" y2="185"/></g>
-      <!-- Coursive -->
-      <rect x="160" y="155" width="360" height="14" fill="#c9d8e2"/>
-      <g font-size="10" fill="#13293a" text-anchor="middle">
-        <text x="100" y="150">POSTE AVANT</text><text x="100" y="164">(torpilles)</text>
-        <text x="200" y="135">SALLE</text><text x="200" y="148">RADIO</text>
-        <text x="300" y="135">POSTE DE</text><text x="300" y="148">COMMANDE</text>
-        <text x="300" y="207">LOCAL DES</text><text x="300" y="220">BATTERIES</text>
-        <text x="400" y="135">CAMBUSE</text>
-        <text x="480" y="135">POSTE</text><text x="480" y="148">D'ÉQUIPAGE</text>
-        <text x="600" y="150">SALLE DES</text><text x="600" y="164">MACHINES</text>
-        <text x="340" y="166" font-size="8">COURSIVE</text>
+    <svg viewBox="0 0 720 300" font-family="Share Tech Mono, monospace">
+      <rect width="720" height="300" fill="#eef3f6"/>
+      <path d="M30 175 Q30 112 120 106 L620 106 Q700 112 708 175 Q700 238 620 244 L120 244 Q30 238 30 175 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
+      <path d="M232 106 L248 40 L340 40 L352 106 Z" fill="#dbe5ec" stroke="#13293a" stroke-width="3"/>
+      <rect x="266" y="52" width="58" height="40" fill="#fff6dc" stroke="#b8322a" stroke-width="2"/>
+      <text x="295" y="69" text-anchor="middle" font-size="9" fill="#b8322a">SAS DE</text><text x="295" y="81" text-anchor="middle" font-size="9" fill="#b8322a">SAUVETAGE</text>
+      <text x="295" y="33" text-anchor="middle" font-size="15" font-weight="700" fill="#13293a">S-417</text>
+      <g stroke="#13293a" stroke-width="2">
+        <line x1="140" y1="108" x2="140" y2="242"/><line x1="232" y1="108" x2="232" y2="242"/><line x1="352" y1="108" x2="352" y2="242"/>
+        <line x1="430" y1="108" x2="430" y2="160"/><line x1="500" y1="108" x2="500" y2="242"/><line x1="590" y1="108" x2="590" y2="242"/>
+        <line x1="232" y1="186" x2="500" y2="186"/><line x1="292" y1="108" x2="292" y2="160"/>
       </g>
-      <text x="600" y="190" text-anchor="middle" font-size="9" fill="#b8322a">PORTE ÉTANCHE N°5</text>
-      <rect x="436" y="150" width="8" height="24" fill="#b8322a"/>
-      <text x="440" y="250" text-anchor="middle" font-size="9" fill="#b8322a">PORTE ÉTANCHE N°3</text>
-      <line x1="440" y1="240" x2="440" y2="176" stroke="#b8322a" stroke-width="1"/>
-      <rect x="516" y="150" width="8" height="24" fill="#b8322a"/>
-      <!-- Itinéraire -->
-      <defs><marker id="fl" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto"><path d="M0 0 L12 6 L0 12 Z" fill="#2e9e4f"/></marker></defs>
-      <path d="M480 185 L480 162 L300 162 L300 104" fill="none" stroke="#2e9e4f" stroke-width="3" stroke-dasharray="8 5" marker-end="url(#fl)"/>
-      <text x="420" y="290" font-size="11" fill="#2e9e4f">Itinéraire d'évacuation →  Sas de sauvetage</text>
+      <rect x="140" y="160" width="450" height="22" fill="#c9d8e2"/>
+      <g font-size="9.5" fill="#13293a" text-anchor="middle">
+        <text x="86" y="170">POSTE AVANT</text><text x="86" y="183">(torpilles)</text>
+        <text x="186" y="128">SALLE</text><text x="186" y="140">RADIO</text>
+        <text x="262" y="128">POSTE DE</text><text x="262" y="140">COMMANDE</text>
+        <text x="322" y="128">SAS</text><text x="322" y="140">(kiosque)</text>
+        <text x="391" y="128">CARRÉ DES</text><text x="391" y="140">OFFICIERS</text>
+        <text x="465" y="128">INFIRMERIE</text>
+        <text x="545" y="128">POSTE</text><text x="545" y="140">D'ÉQUIPAGE</text>
+        <text x="366" y="210">LOCAL DES BATTERIES</text><text x="366" y="222" font-size="8">(pont inférieur)</text>
+        <text x="650" y="170">SALLE DES</text><text x="650" y="183">MACHINES</text>
+        <text x="365" y="175" font-size="8.5">COURSIVE</text>
+      </g>
+      <g fill="#b8322a"><rect x="136" y="160" width="8" height="22"/><rect x="586" y="160" width="8" height="22"/></g>
+      <text x="586" y="262" text-anchor="middle" font-size="9" fill="#b8322a">PORTE ÉTANCHE N° 3</text>
+      <line x1="590" y1="252" x2="590" y2="184" stroke="#b8322a" stroke-width="1"/>
+      <text x="140" y="262" text-anchor="middle" font-size="9" fill="#b8322a">PORTE DU POSTE AVANT</text>
+      <line x1="140" y1="252" x2="140" y2="184" stroke="#b8322a" stroke-width="1"/>
+      <text x="300" y="290" font-size="10" fill="#13293a">← AVANT</text><text x="420" y="290" font-size="10" fill="#13293a">ARRIÈRE →</text>
     </svg>
   </div>
-  <div class="doc" style="margin-top:4mm">
-    <h3>Consignes d'évacuation</h3>
-    <ul style="margin:0">
-      <li>Numéro de coque : <strong>S-417</strong>.</li>
-      <li><strong>Profondeur maximale d'évacuation par le sas : 60 m.</strong> Au-delà, ne jamais ouvrir.</li>
-      <li>Combinaisons de sortie : rangées dans le sas.</li>
-      <li>Le poste avant dispose de sa propre sortie (tube lance-torpilles).</li>
-    </ul>
-  </div>
 
   <div class="ciseaux"></div>
 
-  <div class="plaque" style="width:120mm;margin:0 auto">
-    <span class="rivet"></span><span class="rivet"></span>
-    <div style="font-size:16pt;font-weight:700;letter-spacing:.1em;margin:2mm 0">PORTE ÉTANCHE N° 3</div>
-    <div style="font-size:10.5pt">En cas de déformation de la coque :<br><strong>MANŒUVRE À QUATRE MAINS.</strong><br>Tous ensemble sur le volant,<br>maintenir l'effort trois secondes.</div>
-    <span class="rivet"></span><span class="rivet"></span>
+  <div class="imprime" style="width:155mm;margin:0 auto">
+    S-417 NARVAL · RAPPORT D'AVARIE AUTOMATIQUE · 12/10 · 04:09:12<br>
+    IMPRIMANTE DE LA COURSIVE · COPIE 1/1<br>
+    ────────────────────────────────────────────<br>
+    COLLISION ............. 04:07:31 · ARRÊT PAR 142 M<br>
+    COQUE AVANT ........... ENFONCEMENT · PORTE DU POSTE AVANT DÉFORMÉE<br>
+    <span class="alerte">ÉPURATEURS CO₂ ........ DÉTRUITS</span><br>
+    <span class="alerte">GÉNÉRATEUR O₂ ......... DÉTRUIT · RÉSERVE : 60 MIN</span><br>
+    BATTERIES ............. BANCS ENDOMMAGÉS · TABLEAU GÉNÉRAL DISJONCTÉ<br>
+    ÉCLAIRAGE ............. DYNAMO DE SECOURS SEULE<br>
+    HYDRAULIQUE DU SAS .... DÉSAMORCÉE<br>
+    <span class="alerte">CONDUITE HYDRAULIQUE .. RUPTURE ENTRE V4 ET V7</span><br>
+    SAS DE SAUVETAGE ...... SÉCURITÉ DE COMMANDEMENT ENCLENCHÉE<br>
+    <span class="alerte">VERROUS DU SAS ........ VERROU JAUNE FAUSSÉ</span><br>
+    PERSONNEL ............. 3 BLOQUÉS AU POSTE AVANT · 1 BLESSÉ (INFIRMERIE)<br>
+    BALISE DE DÉTRESSE .... ÉMISE
   </div>
 </div>
 
-<!-- E4 -->
+<!-- E4 + E5 -->
 <div class="page">
-  <div class="tag">Enveloppe E4 · Coursive</div>
-  <div class="doc" style="margin-top:12mm">
-    <h3>Coursive · état après le choc</h3>
-    <table>
-      <thead><tr><th>Porte</th><th>Mène à</th><th>État</th></tr></thead>
+  <div class="tag">Enveloppe E4 · Infirmerie</div>
+  <div class="doc" style="width:150mm;margin:0 auto">
+    <h3>Infirmerie · fiche de soins</h3>
+    <table style="margin:0">
       <tbody>
-        <tr><td>Bâbord, 1</td><td>Cambuse</td><td>Ouverte</td></tr>
-        <tr><td>Échelle</td><td>Local des batteries (pont inférieur)</td><td>Ouverte · odeur de brûlé</td></tr>
-        <tr><td>Avant</td><td>Poste de commande</td><td>Ouverte</td></tr>
-        <tr><td>Tribord, 2</td><td>Salle radio</td><td>Ouverte</td></tr>
-        <tr><td>Kiosque</td><td>Sas de sauvetage</td><td>Verrouillé</td></tr>
-        <tr><td>Arrière, porte étanche n° 5</td><td>Salle des machines</td><td><strong style="color:var(--rouge)">INONDÉE · NE PAS OUVRIR</strong></td></tr>
+        <tr><td style="width:40mm"><strong>Blessé</strong></td><td>LUND Henrik, second maître, second du bâtiment, 46 ans</td></tr>
+        <tr><td><strong>04 h 10</strong></td><td>Trouvé inconscient dans la coursive. Traumatisme crânien. Respiration régulière.</td></tr>
+        <tr><td><strong>Consigne</strong></td><td><strong>Ne pas déplacer.</strong> Surveiller la respiration.</td></tr>
+        <tr><td><strong>Effets personnels</strong></td><td>Montre, alliance, <span class="main" style="font-size:14pt">clé de commandement (laissée à sa ceinture : à remettre au commandement !)</span></td></tr>
       </tbody>
     </table>
-    <p style="margin-bottom:0"><strong>Avarie :</strong> conduite d'eau de mer percée au niveau de la vanne <span class="mono">V-12</span>. La vanne
-      se ferme à la main, à la clé. Le ruban adhésif ne tient pas sous cette pression.</p>
   </div>
-</div>
-
-<!-- E5 -->
-<div class="page">
-  <div class="tag">Enveloppe E5 · Cambuse</div>
-  <h2 style="margin-top:0;text-align:center;border:0">Tableau des quarts · semaine 12</h2>
-  <table class="quarts">
-    <thead><tr><th>Matelot</th><th>Quart</th></tr></thead>
-    <tbody>
-      <tr class="nuit"><td>Arvid</td><td>00 h – 01 h · nuit</td></tr>
-      <tr class="nuit"><td>Bjørn</td><td>01 h – 02 h · nuit</td></tr>
-      <tr class="nuit"><td>Edvin</td><td>05 h – 06 h · nuit</td></tr>
-      <tr><td>Félix</td><td>22 h – 24 h</td></tr>
-      <tr><td>Ingvar</td><td>12 h – 14 h</td></tr>
-      <tr><td>Kasper</td><td>20 h – 22 h</td></tr>
-      <tr><td>Lukas</td><td>06 h – 08 h</td></tr>
-      <tr><td>Malo</td><td>08 h – 10 h</td></tr>
-      <tr><td>Noé</td><td>14 h – 16 h</td></tr>
-      <tr><td>Oskar</td><td>10 h – 12 h</td></tr>
-      <tr class="nuit"><td>Søren</td><td>04 h – 05 h · nuit</td></tr>
-      <tr class="nuit"><td>Sven</td><td>03 h – 04 h · nuit</td></tr>
-      <tr><td>Teodor</td><td>16 h – 18 h</td></tr>
-      <tr><td>Ulrik</td><td>18 h – 20 h</td></tr>
-      <tr class="nuit"><td>Yann</td><td>02 h – 03 h · nuit</td></tr>
-    </tbody>
-  </table>
-  <p class="petit" style="text-align:center">Les quarts de nuit sont d'une heure. Échanges de quart : voir le second maître.</p>
 
   <div class="ciseaux"></div>
 
-  <div class="note">
-    Café chaud pour le quart de nuit à 23 h 45 !<br>
-    Et qui m'a encore piqué ma clé à molette ?<br>
-    Elle dort dans MON tiroir maintenant.<br>
-    <span style="float:right">— Gustav, cuisinier</span><br>
+  <div style="position:relative;height:72mm">
+    <div class="plaque" style="width:120mm;margin:0 auto;text-align:left;padding:5mm 8mm">
+      <div style="text-align:center;font-size:13pt;font-weight:700;letter-spacing:.1em;margin-bottom:2mm">ARMOIRE DE SURVIE · INVENTAIRE</div>
+      <div style="font-size:10.5pt;line-height:1.6">
+        ▪ 2 chandelles à oxygène<br>
+        ▪ 9 masques<br>
+        ▪ 4 couvertures de survie<br>
+        ▪ 7 trousses de secours
+      </div>
+    </div>
+    <div class="postit" style="position:absolute;right:6mm;top:30mm">
+      Le code de l'armoire ? L'inventaire, du plus nombreux au moins nombreux. Simple !
+    </div>
+  </div>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;text-align:right">Enveloppe E5 · Armoire de survie</div>
+  <div class="doc" style="width:150mm;margin:0 auto;border:2px solid var(--rouge)">
+    <h3 style="color:var(--rouge)">Chandelle à oxygène · mode d'emploi</h3>
+    <ol style="margin:0">
+      <li>Retirer l'opercule, percuter le déclencheur d'un coup sec.</li>
+      <li>La chandelle libère de l'oxygène pur pendant environ six minutes pour tout l'équipage.</li>
+      <li>⚠ Elle chauffe fortement : <strong>JAMAIS à proximité des batteries</strong> (hydrogène, risque d'explosion).</li>
+    </ol>
+    <p class="petit" style="margin:2mm 0 0">Armoire : 1 chandelle restante, la seconde a servi pendant l'exercice.</p>
   </div>
 </div>
 
 <!-- E6 -->
 <div class="page">
   <div class="tag">Enveloppe E6 · Local des batteries</div>
+  <h2 style="margin-top:0">Tableau des bancs de batteries</h2>
+  <div class="doc">
+    <div class="bancs">
+      <div class="paire"><div class="banc">A</div><div class="banc">B</div></div>
+      <div class="paire"><div class="banc">C</div><div class="banc">D</div></div>
+      <div class="paire"><div class="banc">E</div><div class="banc">F</div></div>
+      <div class="paire"><div class="banc">G</div><div class="banc">H</div></div>
+    </div>
+    <p class="petit" style="margin-top:7mm;text-align:center">Huit bancs de 120 V nominal, montés par paires. Chaque banc raccordé au tableau fournit 3 unités de puissance.</p>
+  </div>
+
   <div class="doc" style="margin-top:6mm">
-    <div class="bandeau"><span>Narval · S-417</span><span>Manuel de répartition de l'énergie · secours</span></div>
-    <h3>Répartition d'urgence : 10 unités</h3>
-    <p>Après remplacement du fusible principal, le tableau de secours délivre <strong>10 unités</strong>, à répartir entre cinq circuits.</p>
+    <h3>Manuel de répartition de secours</h3>
+    <p>Les unités disponibles se répartissent entre <strong>cinq circuits</strong> :</p>
     <div class="circuits">
-      <div><b>⛲</b>Pompes de cale</div><div><b>💨</b>Compresseur</div><div><b>📻</b>Radio</div><div><b>💡</b>Éclairage</div><div><b>🛟</b>Sas</div>
+      <div><b>📻</b>Radio</div><div><b>🧭</b>Console</div><div><b>🛟</b>Sas</div><div><b>💧</b>Pompe de cale</div><div><b>💡</b>Éclairage</div>
     </div>
     <ol class="regles">
-      <li>Les <strong>10 unités</strong> doivent toutes être réparties.</li>
-      <li>Le <strong>compresseur</strong> a besoin d'<strong>exactement 4 unités</strong> pour chasser les ballasts.</li>
-      <li>Les <strong>pompes de cale</strong> demandent <strong>au moins 2 unités</strong>.</li>
-      <li><strong>Pompes et compresseur</strong> ensemble : <strong>6 unités au plus</strong>, sinon le disjoncteur saute.</li>
-      <li>La <strong>radio</strong> et l'<strong>éclairage</strong> partagent le même bus : <strong>même puissance</strong>.</li>
-      <li>Le <strong>sas</strong> a besoin d'<strong>exactement 2 unités</strong> pour sa pompe d'équilibrage.</li>
+      <li>Toutes les unités doivent être réparties : un banc à vide se décharge dans les autres.</li>
+      <li>La <strong>radio</strong> (téléphone sous-marin) exige <strong>exactement 3 unités</strong>.</li>
+      <li>La <strong>console</strong> de commandement et le <strong>sas</strong> sont couplés : <strong>même puissance</strong>, et <strong>au moins 2 unités</strong> chacun.</li>
+      <li>La <strong>pompe de cale</strong> : <strong>1 ou 2 unités</strong>.</li>
+      <li>L'<strong>éclairage</strong> : <strong>exactement 1 unité</strong>, la dynamo fournit le reste.</li>
     </ol>
-    <p class="petit" style="margin-bottom:0">Au tableau : tourner pour régler un circuit, appuyer pour passer au suivant, bouton vert pour valider. Une répartition fautive fait sauter le disjoncteur.</p>
+    <p class="encadre" style="border-color:var(--rouge);margin:0">⚠ Toute répartition non conforme provoque une <strong>surcharge</strong> : le tableau disjoncte et tout s'éteint.</p>
   </div>
 </div>
 
 <!-- E7 -->
 <div class="page">
-  <div class="tag">Enveloppe E7 · Poste de commande</div>
-  <div class="carnet" style="margin-top:8mm">
-    <b>Carnet de bord · Cdt M. Solvik</b><br>
-    Exercice « Brume d'acier », jour 3. Mer calme en surface.<br>
-    Immersion 140 m, cap au 210. Tout l'équipage en forme.<br>
-    Gustav a encore fait brûler le café.<br>
-    Rappel pour moi-même : je n'écris JAMAIS le mot de passe de la console.<br>
-    Je le prends dans le tableau des quarts : l'initiale de chaque homme
-    de quart de nuit, de minuit à six heures, dans l'ordre des heures.<br>
-    Évacuation par le sas : jamais sous 60 m.
+  <div class="tag">Enveloppe E7 · Salle des machines</div>
+  <h2 style="margin-top:0">Circuit hydraulique du sas de sauvetage</h2>
+  <div class="plan" style="background:#f5f7f2">
+    <svg viewBox="0 0 720 470" font-family="Share Tech Mono, monospace">
+      <defs>
+        <pattern id="quadrillage" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#2d7fa8" stroke-width=".4" opacity=".25"/></pattern>
+        <marker id="sens" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#13293a"/></marker>
+        <g id="vanne"><circle r="17" fill="#fff" stroke="#13293a" stroke-width="2.5"/><path d="M-11-8L11 8M-11 8L11-8" stroke="#13293a" stroke-width="2"/></g>
+      </defs>
+      <rect width="720" height="470" fill="url(#quadrillage)"/>
+      <!-- conduites -->
+      <g stroke="#13293a" stroke-width="5" fill="none" stroke-linecap="round">
+        <path d="M95 235H130V110H190"/><path d="M130 235V360H190"/>
+        <path d="M190 110H330"/><path d="M330 110H420"/><path d="M470 110H560"/>
+        <path d="M190 110V190H560"/><path d="M560 190H610"/>
+        <path d="M190 360H330"/><path d="M330 360H400"/><path d="M450 360H560"/>
+        <path d="M560 360V190"/><path d="M560 360V430H620"/>
+        <path d="M560 110H650V170"/>
+      </g>
+      <g stroke="#13293a" stroke-width="1.5">
+        <path d="M120 235H128" marker-end="url(#sens)"/><path d="M250 110H262" marker-end="url(#sens)"/><path d="M250 360H262" marker-end="url(#sens)"/>
+        <path d="M596 110H608" marker-end="url(#sens)"/><path d="M588 190H600" marker-end="url(#sens)"/>
+      </g>
+      <!-- réservoir -->
+      <rect x="30" y="190" width="65" height="90" rx="8" fill="#d6e8f1" stroke="#13293a" stroke-width="2.5"/>
+      <text x="62" y="232" text-anchor="middle" font-size="11" font-weight="700" fill="#13293a">RÉSER-</text><text x="62" y="246" text-anchor="middle" font-size="11" font-weight="700" fill="#13293a">VOIR</text>
+      <!-- filtres -->
+      <g fill="#fff6dc" stroke="#8a5a12" stroke-width="2.5"><rect x="420" y="92" width="50" height="36" rx="4"/><rect x="400" y="342" width="50" height="36" rx="4"/></g>
+      <g stroke="#8a5a12" stroke-width="1.2"><path d="M430 96V124M440 96V124M450 96V124M460 96V124"/><path d="M410 346V374M420 346V374M430 346V374M440 346V374"/></g>
+      <text x="445" y="84" text-anchor="middle" font-size="10" fill="#8a5a12">FILTRE A</text><text x="425" y="396" text-anchor="middle" font-size="10" fill="#8a5a12">FILTRE B</text>
+      <!-- vérins -->
+      <rect x="610" y="170" width="80" height="60" rx="6" fill="#f3e6cb" stroke="#13293a" stroke-width="2.5"/>
+      <text x="650" y="196" text-anchor="middle" font-size="10.5" font-weight="700" fill="#13293a">VÉRINS</text><text x="650" y="210" text-anchor="middle" font-size="10.5" font-weight="700" fill="#13293a">DU SAS</text>
+      <!-- purge -->
+      <path d="M620 430H690" stroke="#2d7fa8" stroke-width="5" stroke-dasharray="10 6"/>
+      <text x="655" y="455" text-anchor="middle" font-size="10" fill="#2d7fa8">≋ MER ≋</text>
+      <!-- vannes -->
+      <use href="#vanne" x="190" y="110"/><use href="#vanne" x="190" y="360"/><use href="#vanne" x="190" y="190"/>
+      <use href="#vanne" x="330" y="110"/><use href="#vanne" x="330" y="360"/><use href="#vanne" x="560" y="190"/>
+      <use href="#vanne" x="560" y="110"/><use href="#vanne" x="560" y="360"/><use href="#vanne" x="600" y="430"/>
+      <g font-size="13" font-weight="700" fill="#b8322a" text-anchor="middle">
+        <text x="190" y="85">V1</text><text x="190" y="398">V2</text><text x="163" y="218">V3</text>
+        <text x="330" y="85">V4</text><text x="330" y="398">V5</text><text x="533" y="218">V6</text>
+        <text x="560" y="85">V7</text><text x="536" y="394">V8</text><text x="600" y="462">V9</text>
+      </g>
+    </svg>
+  </div>
+  <div class="doc" style="margin-top:5mm">
+    <h3>Légende et consignes</h3>
+    <ul style="margin:0">
+      <li>Le fluide va du <strong>réservoir</strong> aux <strong>vérins du sas</strong>. Ouvrir les vannes <strong>dans le sens du fluide</strong>, une à une.</li>
+      <li>Le fluide doit <strong>toujours traverser un filtre</strong> avant d'atteindre les vérins.</li>
+      <li><strong>V9 : purge à la mer.</strong> Ne jamais l'ouvrir en manœuvre : tout le circuit se viderait.</li>
+      <li>Une fois le circuit ouvert, amorcer la pompe à main (manivelle) jusqu'à 180 bars.</li>
+    </ul>
   </div>
 </div>
 
-<!-- E8 -->
+<!-- E8 + E10 -->
 <div class="page">
-  <div class="tag">Enveloppe E8 · Sas de sauvetage</div>
+  <div class="tag">Enveloppe E8 · Poste de commande</div>
+  <div class="carnet">
+    <p class="date">Carnet personnel · M. Solvik · ne pas laisser traîner</p>
+    <p>— Le mot de passe de la console change <u>chaque nuit</u>. Je ne l'écris jamais : je prends l'initiale de chaque homme <u>réellement</u> de quart cette nuit-là, de minuit à six heures, dans l'ordre.</p>
+    <p>— Mon coffre, au carré : les épaves que mon père a plongées, de la plus ancienne à la plus récente. Un chiffre par épave : sa profondeur, en dizaines de mètres.</p>
+    <p>— Sécurité du sas : deux clés de commandement. La mienne dort dans le coffre ; Lund garde l'autre à sa ceinture.</p>
+  </div>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;text-align:right">Enveloppe E10 · Coffre de la commandante</div>
+  <div class="lettre">
+    Ma Mira,<br>
+    Te voilà commandante. J'ai fait encadrer pour toi ma vieille carte de la mer de Brennor : tu y trouveras, de ma main, toutes les épaves que j'ai plongées. La Morgane, j'ai dû renoncer : un courant de fond m'a repoussé trois fois. Le Cormoran, lui, a coulé quand j'avais raccroché mes palmes.<br>
+    Garde-les près de toi. Et reviens toujours à la surface.<br>
+    <span style="float:right">Ton père, Johan</span><br>
+  </div>
+</div>
+
+<!-- E9 -->
+<div class="page">
+  <div class="tag">Enveloppe E9 · Carré des officiers</div>
+  <h2 style="margin-top:0">La carte marine du carré</h2>
+  <div class="cadre-carte">
+    <svg viewBox="0 0 700 520" font-family="Source Sans, sans-serif">
+      <defs>
+        <pattern id="papier" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#f2ead2"/><circle cx="2" cy="3" r=".5" fill="#e3d6b0"/></pattern>
+        <g id="epave"><path d="M-12 0H12L8 6H-8Z" fill="#13293a"/><path d="M-3 0V-12M-3-12L5-6" stroke="#13293a" stroke-width="1.6" fill="none"/><path d="M-16 9Q-8 5 0 9T16 9" stroke="#2d7fa8" stroke-width="1.2" fill="none"/></g>
+      </defs>
+      <rect width="700" height="520" fill="url(#papier)"/>
+      <!-- côtes et isobathes -->
+      <path d="M0 0H700V70Q600 95 520 70Q450 45 380 80Q300 120 220 85Q140 50 70 95Q30 120 0 110Z" fill="#d9c79a" stroke="#8a6a3a" stroke-width="1.5"/>
+      <g fill="none" stroke="#2d7fa8" stroke-width="1" opacity=".55">
+        <path d="M0 150Q120 120 230 145Q340 175 450 130Q560 95 700 125"/>
+        <path d="M0 240Q150 210 260 250Q380 290 500 230Q600 185 700 215"/>
+        <path d="M0 340Q160 310 290 350Q420 390 540 330Q620 295 700 320"/>
+        <path d="M0 440Q170 405 310 450Q450 490 580 430Q650 400 700 420"/>
+      </g>
+      <g font-size="10" fill="#2d7fa8" font-style="italic"><text x="20" y="145">20 m</text><text x="20" y="235">40 m</text><text x="20" y="335">60 m</text><text x="20" y="433">90 m</text></g>
+      <text x="350" y="40" text-anchor="middle" font-family="Playfair, serif" font-size="22" font-weight="700" fill="#5a3a1a" letter-spacing="2">MER DE BRENNOR</text>
+      <text x="350" y="58" text-anchor="middle" font-size="11" fill="#5a3a1a" letter-spacing="3">ÉPAVES CONNUES · RELEVÉ DE 1990</text>
+      <!-- épaves (sans ordre chronologique) -->
+      <g font-size="12" fill="#13293a">
+        <use href="#epave" x="520" y="470"/><text x="540" y="468" font-weight="700">VALKYRIE</text><text x="540" y="483">1977 · 90 m</text>
+        <use href="#epave" x="120" y="190"/><text x="140" y="188" font-weight="700">BRISANT</text><text x="140" y="203">1931 · 40 m</text>
+        <use href="#epave" x="560" y="250"/><text x="580" y="248" font-weight="700">CORMORAN</text><text x="580" y="263">1988 · 30 m</text>
+        <use href="#epave" x="330" y="390"/><text x="350" y="388" font-weight="700">HIRONDELLE</text><text x="350" y="403">1954 · 70 m</text>
+        <use href="#epave" x="430" y="140"/><text x="450" y="138" font-weight="700">SAINT-ERWAN</text><text x="450" y="153">1903 · 20 m</text>
+        <use href="#epave" x="160" y="330"/><text x="180" y="328" font-weight="700">MORGANE</text><text x="180" y="343">1940 · 60 m</text>
+      </g>
+      <!-- annotations à la main -->
+      <g font-family="Caveat, cursive" font-size="20" fill="#1b2c55">
+        <text x="620" y="490" transform="rotate(-8 620 490)">✓ J.S.</text>
+        <text x="225" y="200" transform="rotate(-6 225 200)">✓ J.S.</text>
+        <text x="460" y="408" transform="rotate(5 460 408)">✓ J.S.</text>
+        <text x="560" y="160" transform="rotate(-4 560 160)">✓ J.S.</text>
+      </g>
+      <g font-family="Caveat, cursive" font-size="17" fill="#1b2c55">
+        <text x="30" y="500" transform="rotate(-2 30 500)">Pour Mira, pour son premier commandement. — J.S.</text>
+      </g>
+      <!-- rose des vents -->
+      <g transform="translate(640 380)"><circle r="26" fill="none" stroke="#5a3a1a" stroke-width="1"/><path d="M0-24L5 0L0 24L-5 0Z" fill="#5a3a1a"/><path d="M-24 0L0 5L24 0L0-5Z" fill="#5a3a1a" opacity=".5"/><text y="-30" text-anchor="middle" font-size="11" font-weight="700" fill="#5a3a1a">N</text></g>
+    </svg>
+  </div>
+</div>
+
+<div class="page">
+  <div class="tag">Enveloppe E9 · Carré des officiers</div>
+  <div class="carnet">
+    <p class="date">Cahier du second · H. Lund · exercice « Brume d'acier »</p>
+    <p><span class="date">10/10</span> — Plongée à 120 m, essais du sonar. RAS.</p>
+    <p><span class="date">11/10</span> — Exercice de sauvetage avec l'Orque (marine de Norrvik) reporté à demain. Signaux du jour remis à la radio.</p>
+    <p><span class="date">Nuit du 11 au 12</span> — Tomas, fiévreux, reste couché. Søren prend son quart de 4 h. (Corriger le tableau des quarts… demain.)</p>
+    <p><span class="date">12/10, 03 h 50</span> — Sondeur capricieux. Prévenu la commandante.</p>
+  </div>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;text-align:right">Enveloppe E13 · Poste avant</div>
+  <div class="note" style="width:140mm">
+    Matelots,<br>
+    merci. Prenez nos bouteilles de secours, elles vous serviront plus qu'à nous : l'Orque nous sortira par le tube lance-torpilles s'il le faut.<br>
+    La commandante dit : « le sas, et vite ».<br>
+    <span style="float:right">— Lt Aasen et enseigne Vik</span><br>
+  </div>
+</div>
+
+<!-- E11 -->
+<div class="page">
+  <div class="tag">Enveloppe E11 · Salle radio</div>
+  <h2 style="margin-top:0">Le code de frappe des sous-mariniers</h2>
+  <div class="doc">
+    <p>Quand la radio est muette, on se parle en <strong>frappant sur la coque</strong>. L'alphabet est rangé dans une grille de 5 × 5 (le K se frappe comme le C).
+       Chaque lettre se frappe en <strong>deux séries de coups</strong> : d'abord le numéro de la <strong>ligne</strong>, une courte pause, puis celui de la <strong>colonne</strong>.
+       Une longue pause sépare les lettres.</p>
+    <table class="frappe">
+      <thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+      <tbody>
+        <tr><th>1</th><td>A</td><td>B</td><td>C/K</td><td>D</td><td>E</td></tr>
+        <tr><th>2</th><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td></tr>
+        <tr><th>3</th><td>L</td><td>M</td><td>N</td><td>O</td><td>P</td></tr>
+        <tr><th>4</th><td>Q</td><td>R</td><td>S</td><td>T</td><td>U</td></tr>
+        <tr><th>5</th><td>V</td><td>W</td><td>X</td><td>Y</td><td>Z</td></tr>
+      </tbody>
+    </table>
+    <p style="text-align:center;margin:4mm 0 0" class="mono">Exemple : « H » = ligne 2, colonne 3 = toc toc · toc toc toc</p>
+  </div>
+
+  <div class="ciseaux"></div>
+
+  <div class="doc" style="width:150mm;margin:0 auto">
+    <h3>Signaux de reconnaissance · exercice « Brume d'acier » · 12/10</h3>
+    <p class="petit" style="margin:0 0 2mm">Le bâtiment de sauvetage frappe un mot sur la coque. Le bâtiment secouru répond par le code correspondant, au téléphone sous-marin. Sans la bonne réponse, aucun accostage.</p>
+    <table class="signaux">
+      <thead><tr><th>Signal frappé</th><th>Réponse</th></tr></thead>
+      <tbody>
+        <tr><td>ANCRE</td><td>418</td></tr><tr><td>BRUME</td><td>736</td></tr><tr><td>CORAIL</td><td>152</td></tr><tr><td>ÉCUME</td><td>309</td></tr>
+        <tr><td>HOULE</td><td>871</td></tr><tr><td>MARÉE</td><td>264</td></tr><tr><td>RÉCIF</td><td>590</td></tr><tr><td>SILLAGE</td><td>943</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- E12 -->
+<div class="page">
+  <div class="tag">Enveloppe E12 · Sas de sauvetage</div>
+  <h2 style="margin-top:0">Sas de sauvetage · déverrouillage manuel</h2>
+  <div style="display:grid;grid-template-columns:78mm 1fr;gap:7mm;align-items:center">
+    <svg viewBox="0 0 300 300" font-family="Share Tech Mono, monospace">
+      <circle cx="150" cy="150" r="118" fill="#c6d2d9" stroke="#13293a" stroke-width="5"/>
+      <circle cx="150" cy="150" r="88" fill="#dfe7ec" stroke="#13293a" stroke-width="2"/>
+      <circle cx="150" cy="150" r="34" fill="none" stroke="#13293a" stroke-width="6"/>
+      <g stroke="#13293a" stroke-width="5"><path d="M150 116V184M116 150H184"/></g>
+      <g stroke="#13293a" stroke-width="2.5">
+        <rect x="132" y="22" width="36" height="34" rx="5" fill="#e5484d"/>
+        <rect x="244" y="132" width="34" height="36" rx="5" fill="#3e7bfa"/>
+        <rect x="132" y="244" width="36" height="34" rx="5" fill="#f5b83d"/>
+        <rect x="22" y="132" width="34" height="36" rx="5" fill="#30a46c"/>
+      </g>
+      <g fill="#13293a"><rect x="270" y="80" width="18" height="34" rx="3"/><rect x="270" y="186" width="18" height="34" rx="3"/></g>
+      <text x="292" y="150" font-size="11" fill="#13293a" transform="rotate(90 292 150)" text-anchor="middle">CHARNIÈRE</text>
+      <text x="150" y="14" text-anchor="middle" font-size="11" fill="#13293a">HAUT</text>
+      <text x="150" y="296" text-anchor="middle" font-size="11" fill="#13293a">BAS</text>
+    </svg>
+    <div class="doc">
+      <h3>Les quatre verrous</h3>
+      <p style="margin:0">Vus de l'intérieur du sas : <strong style="color:#c0392b">rouge</strong> en haut, <strong style="color:#2a62d4">bleu</strong> à droite, côté charnière,
+         <strong style="color:#b07a10">jaune</strong> en bas, <strong style="color:#21794f">vert</strong> à gauche.</p>
+    </div>
+  </div>
   <div class="doc" style="margin-top:6mm">
-    <div class="bandeau"><span>Narval · S-417</span><span>Procédure de sortie par le sas</span></div>
-    <ol style="font-size:12pt;line-height:1.6">
-      <li><strong>Profondeur</strong> : vérifier que le bâtiment est au-dessus de <strong>60 m</strong>.</li>
-      <li><strong>Combinaisons</strong> : fermer la combinaison, rabattre la cagoule, vérifier le gilet.</li>
-      <li><strong>Remplissage</strong> : <strong>tenir les quatre vannes ouvertes ensemble</strong> jusqu'au remplissage complet du sas. Si une vanne lâche, tout recommencer.</li>
-      <li><strong>Écoutille</strong> : quand la pression est égale, ouvrir l'écoutille (levier rouge).</li>
-      <li><strong>Remontée</strong> : le long du filin, sans retenir son souffle. Expirer pendant toute la remontée.</li>
+    <h3>Procédure</h3>
+    <ol class="regles" style="margin:0">
+      <li>Conditions préalables : <strong>sécurité de commandement levée</strong> (console du poste de commande) et <strong>pression hydraulique</strong> d'au moins 150 bars.</li>
+      <li>Engager la <strong>clé à cliquet</strong> sur la tête de chaque verrou.</li>
+      <li>Toujours <strong>commencer par le verrou côté charnière</strong>.</li>
+      <li><strong>Ne jamais libérer deux verrous opposés l'un après l'autre</strong> : l'écoutille se mettrait en biais.</li>
+      <li>Un verrou <strong>faussé</strong> se libère <strong>toujours en dernier</strong>.</li>
+      <li>En cas d'erreur, les verrous se rebloquent : tout recommencer.</li>
+      <li>Après l'accostage du bâtiment de sauvetage : <strong>égaliser la pression</strong> à la valeur qu'il indique, puis ouvrir l'écoutille (volant, effort collectif).</li>
     </ol>
-    <p class="petit" style="margin-bottom:0">Au pupitre : posez les <strong>combinaisons</strong> sur un de vos lecteurs (QUI ou QUOI), le <strong>sas</strong> sur OÙ.</p>
   </div>
 </div>
 
