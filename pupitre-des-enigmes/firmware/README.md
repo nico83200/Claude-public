@@ -169,6 +169,7 @@ mission avant de la jouer pour de vrai (il faut `g++` et Python 3).
 ```
 cd firmware
 sh test/lancer.sh              # vérifie les scripts et rejoue toutes les parties
+                               # (deux fois : trois zones, puis fente et lecteur à plat)
 sh test/lancer.sh --bavard     # en montrant l'écran et les répliques
 sh test/ecrans.sh              # dessine les écrans dans docs/ecrans/ (après « pio pkg install »)
 ```

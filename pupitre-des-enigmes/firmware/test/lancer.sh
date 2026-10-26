@@ -20,4 +20,15 @@ for partie in "$ICI"/parties/*.txt; do
     echecs=$((echecs + 1))
   fi
 done
+# Les mêmes parties, jouées sur le pupitre à deux lecteurs (la fente et le lecteur à plat).
+for partie in "$ICI"/parties/*.txt; do
+  grep -q '^pose ' "$partie" || continue
+  printf '%-32s ' "$(basename "$partie" .txt) · 2 lecteurs"
+  if python3 "$ICI/deux_lecteurs.py" "$partie" > "$TMP/deux.txt" && "$TMP/sim" "$TMP/sd" "$TMP/deux.txt" > "$TMP/sortie.txt"; then
+    tail -1 "$TMP/sortie.txt"
+  else
+    echo "ÉCHEC"; grep -E "ÉCHEC|⚠" "$TMP/sortie.txt" || true
+    echecs=$((echecs + 1))
+  fi
+done
 [ "$echecs" -eq 0 ] && echo "Toutes les parties sont passées." || { echo "$echecs partie(s) en échec."; exit 1; }
