@@ -25,7 +25,7 @@ if [ ! -f "$TMP/lgfx/liblgfx.a" ]; then
 fi
 
 g++ -std=c++17 -O1 -DAVEC_ECRAN -I"$ICI/simulateur" -I"$RACINE/lib/moteur/src" -I"$RACINE/src" -I"$LG" \
-    "$RACINE"/lib/moteur/src/*.cpp "$RACINE/src/dessin.cpp" "$ICI/simulateur/sim.cpp" \
+    "$RACINE"/lib/moteur/src/*.cpp "$RACINE/src/dessin.cpp" "$RACINE/src/polices.cpp" "$ICI/simulateur/sim.cpp" \
     "$TMP/lgfx/liblgfx.a" -Wl,--gc-sections -lpthread -o "$TMP/sim-ecran"
 python3 "$RACINE/../outils/preparer_sd.py" --test --sortie "$TMP/sd" > /dev/null
 for partie in "$ICI"/parties/*.txt; do

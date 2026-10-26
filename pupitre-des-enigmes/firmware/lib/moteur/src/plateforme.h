@@ -18,16 +18,20 @@ struct Theme {
 
 // Ce que l'écran doit montrer. Le moteur la remplit, le matériel la dessine.
 struct Vue {
-  enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT, REGLAGES };
+  enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT, REGLAGES,
+               TABLEAU };
   Ecran ecran = ACCUEIL;
   uint32_t version = 0;          // change dès que le corps de l'écran change
   uint32_t versionEntete = 0;    // change quand seule la ligne du haut change (chrono)
   Theme theme;
   std::string monde;             // nom du monde chargé
+  std::string mission;           // titre de la mission en cours
   std::string entete;            // « 8:14 », « O₂ 61:20 »…
   std::string compteurs;         // « Soupçon 3/12 · ✗ 0/3 · indices 2 »
   std::string titre, texte, auteur, bandeau, info;
   std::string zones[3];          // noms des cartes posées sur QUI, OÙ, QUOI
+  std::string nomsZones[3] = {"QUI", "OÙ", "QUOI"};  // le nom des lecteurs (la mission peut les renommer)
+  std::vector<std::string> menu; // les lignes d'un menu (la ligne choisie : curseur)
   std::string options[4];        // choix rouge, bleu, jaune, vert
   int barre = -1;                // option éliminée (pouvoir)
   std::vector<std::string> champs;   // saisie de code
@@ -39,6 +43,16 @@ struct Vue {
   std::string progression;       // « Écurie ✓  Bureau ·  … »
   bool aideClignote = false;
   int jauge = 0, jaugeMax = 12;  // anneau (pour l'affichage)
+  int restantPourMille = -1;     // part du temps restant (barre de l'en-tête) ; -1 : pas de chrono
+  bool dynamo = false;           // la lumière dépend d'une dynamo à actionner
+  int lumiere = 100;             // 0 (noir complet) … 100
+  int secondes = -1, secondesTotal = 0;  // épreuve minutée : secondes restantes
+  int pasFaits = 0, pasTotal = 0;        // avancée d'une épreuve en plusieurs pas
+  int voyant = -1;                       // grand voyant : 0-3 couleur d'un bouton, 4 feu vert, 5 feu rouge
+  std::string image;                     // illustration (chemin sur la carte SD) ; vide : pas d'image
+  std::string imageDonnees;              // son contenu (JPEG ou PNG), lu par le moteur
+  std::vector<std::string> objectifs;    // tableau de bord
+  std::vector<int> etatsObjectifs;       // 1 : en cours, 2 : fait
 };
 
 // Les réglages du pupitre, enregistrés sur la carte SD (/reglages.json).

@@ -14,10 +14,11 @@
 //   commande <texte>          avance <minutes>        (fait passer le temps de jeu ;
 //                                                      s'arrête si une épreuve commence)
 //   capture <nom>             (image de l'écran, avec test/ecrans.sh)
+//   dynamo auto | manuel      (un joueur actionne la dynamo toutes les 6 s, ou plus personne)
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type> | ecran <titre>
-//            reglage ecran|hp|casque|led <v>
+//            reglage ecran|hp|casque|led <v> | lumiere noir|allumee|<minimum>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -128,7 +129,7 @@ class PlateformeSimulee : public Plateforme {
  private:
   static const char* nomEcran(Vue::Ecran e) {
     static const char* noms[] = {"accueil", "menu", "rôles", "principal", "code", "choix", "énergie", "épreuve",
-                                 "casque", "accusation", "résultat", "enrôlement", "réglages"};
+                                 "casque", "accusation", "résultat", "enrôlement", "réglages", "tableau"};
     return noms[e];
   }
   std::string racine_;
@@ -146,10 +147,13 @@ class PlateformeSimulee : public Plateforme {
 PlateformeSimulee* plateforme = nullptr;
 Moteur* moteur = nullptr;
 int echecs = 0;
+bool dynamoAuto = false;  // « dynamo auto » : un joueur actionne la dynamo toutes les 6 secondes
 
 void tourner(uint32_t ms) {
   for (uint32_t t = 0; t < ms; t += 10) {
     plateforme->horloge += 10;
+    if (dynamoAuto && plateforme->horloge % 6000 == 0 && moteur->phaseTexte() == "jeu" && moteur->epreuveType() != "immobile")
+      moteur->bouton(GROS);
     moteur->miseAJour();
   }
 }
@@ -293,6 +297,8 @@ int main(int argc, char** argv) {
     } else if (cmd == "capture") {
       // Sans écran compilé, la commande ne fait rien.
       if (!captures.empty() && p.capturer(captures + "/" + a + ".ppm")) printf("  📷 %s\n", a.c_str());
+    } else if (cmd == "dynamo") {
+      dynamoAuto = a == "auto";
     } else if (cmd == "calme") {
       calme();
     } else if (cmd == "code") {
@@ -364,6 +370,10 @@ int main(int argc, char** argv) {
         const Reglages& r = m.reglages();
         int v = b == "ecran" ? r.ecran : b == "hp" ? r.hp : b == "casque" ? r.casque : r.led;
         verifier(v == atoi(c.c_str()), "réglage " + b + " = " + c + " (vaut " + std::to_string(v) + ")", numero);
+      } else if (a == "lumiere") {
+        int l = m.lumiere();
+        bool ok = b == "noir" ? l == 0 : b == "allumee" ? l > 0 : l >= atoi(b.c_str());
+        verifier(ok, "lumière " + b + " (vaut " + std::to_string(l) + ")", numero);
       } else if (a == "ecran") verifier(m.vue().titre.find(b) != std::string::npos, "écran « " + b + " »", numero);
     } else {
       printf("  ? commande inconnue ligne %d : %s\n", numero, ligne.c_str());

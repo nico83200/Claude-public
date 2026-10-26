@@ -28,6 +28,14 @@ std::string deuxChiffres(int n) {
   return b;
 }
 
+// « ROUGE » -> ROUGE ; -1 si le nom est inconnu.
+int boutonNomme(const std::string& nom) {
+  static const char* const noms[5] = {"ROUGE", "BLEU", "JAUNE", "VERT", "GROS"};
+  for (int i = 0; i < 5; i++)
+    if (nom == noms[i]) return i;
+  return -1;
+}
+
 // « 8:00 » -> 480 minutes.
 int minutesDe(const std::string& horaire) {
   int h = 0, m = 0;
@@ -136,6 +144,11 @@ bool Moteur::chargerMission(int numero) {
     missionNumero_ = numero;
     dossierVoix_ = script_["dossier_voix"].as<int>();
     dossierSons_ = script_["dossier_sons"].as<int>();
+    vue_.mission = texte(script_["titre"]);
+    // Le plateau de la mission peut renommer les trois lecteurs.
+    static const char* const parDefaut[3] = {"QUI", "OÙ", "QUOI"};
+    for (int z = 0; z < 3; z++) vue_.nomsZones[z] = texte(script_["zones"]["noms"][z], parDefaut[z]);
+    vue_.dynamo = !script_["dynamo"].isNull();
     return true;
   }
   return false;
@@ -215,6 +228,8 @@ void Moteur::allerMenu(bool annoncer) {
   vue_.texte.clear();
   for (size_t i = 0; i < optionsMenu_.size(); i++)
     vue_.texte += std::string(static_cast<int>(i) == choixMenu_ ? "▶ " : "   ") + optionsMenu_[i] + "\n";
+  vue_.menu = optionsMenu_;
+  vue_.curseur = choixMenu_;
   rafraichir();
   // Le monde se présente : jingle et réplique d'accueil de la première mission.
   JsonVariantConst accueil = monde_["accueil"];
@@ -244,6 +259,10 @@ void Moteur::lancerMission(bool reprise) {
   pause_ = false;
   victoire_ = false;
   fenetre_ = Fenetre();
+  lumiere_ = 100.0f;
+  vue_.lumiere = 100;
+  dureeDynamo_ = script_["dynamo"]["duree"].as<float>();
+  derniereDynamo_ = 0;
   for (int z = 0; z < 3; z++) zones_[z].clear();
   for (JsonPairConst kv : script_["roles"].as<JsonObjectConst>())
     pouvoirs_[kv.key().c_str()] = kv.value()["pouvoir"].as<int>();
@@ -421,7 +440,10 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0xff0000;
     p_.jouer(DOSSIER_SONS_PUPITRE, 3, false);
-    ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 7 + zoneAttendue));
+    // Avec des lecteurs renommés, « mettez-la sur QUI » n'a plus de sens : la mission a sa réplique.
+    JsonVariantConst propre = script_["zones"][type == "lieu" ? "dire_lieu" : type == "objet" ? "dire_objet" : "dire_perso"];
+    if (!propre.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, propre.as<int>()));
+    else ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 7 + zoneAttendue));
     majZones();
     return;
   }
@@ -553,6 +575,13 @@ void Moteur::bouton(Bouton b) {
     case Phase::JEU:
       break;
   }
+  JsonVariantConst dyn = script_["dynamo"];
+  if (!dyn.isNull() && chronoActif_ && static_cast<int>(b) == boutonNomme(texte(dyn["bouton"], "GROS"))) {
+    if (ep_.active && ep_.type == "immobile") finEpreuve(false);  // « ne touchez à rien » : même pas la dynamo
+    lumiere_ = std::min(100.0f, lumiere_ + (dyn["gain"].isNull() ? 15.0f : dyn["gain"].as<float>()));
+    majDynamo();
+    return;
+  }
   if (accusationOuverte_) {
     if (b == VERT) reponseAccusation(true);
     if (b == ROUGE) reponseAccusation(false);
@@ -577,11 +606,14 @@ void Moteur::molette(int pas) {
     int n = static_cast<int>(phase_ == Phase::MENU ? optionsMenu_.size() : mondes_.size() + 1);
     choixMenu_ = ((choixMenu_ + pas) % n + n) % n;
     vue_.texte.clear();
+    vue_.menu.clear();
+    vue_.curseur = choixMenu_;
     for (int i = 0; i < n; i++) {
       std::string nom = phase_ == Phase::MENU                       ? optionsMenu_[i]
                         : i < static_cast<int>(mondes_.size()) ? texte(index_["mondes"][i]["nom"], mondes_[i].c_str())
                                                                : std::string(REGLAGES_PUPITRE);
       vue_.texte += std::string(i == choixMenu_ ? "▶ " : "   ") + nom + "\n";
+      vue_.menu.push_back(nom);
     }
     rafraichir();
     return;
@@ -654,7 +686,20 @@ void Moteur::appuiMolette() {
     default:
       break;
   }
-  if (ep_.active) epreuveAppui();
+  if (ep_.active) {
+    epreuveAppui();
+    return;
+  }
+  // Hors épreuve, la molette ouvre (ou referme) le tableau de bord : objectifs, temps, aide.
+  if (phase_ == Phase::JEU && chronoActif_ && !accusationOuverte_) {
+    if (vue_.ecran == Vue::TABLEAU) {
+      vue_.ecran = ecranAvantTableau_;
+    } else {
+      ecranAvantTableau_ = vue_.ecran;
+      vue_.ecran = Vue::TABLEAU;
+    }
+    rafraichir();
+  }
 }
 
 void Moteur::commande(const std::string& c) {
@@ -712,6 +757,51 @@ void Moteur::enrolement(const std::string& uid) {
   vue_.bandeau = std::to_string(enroleIndex_ + 1) + " / " + std::to_string(aEnroler_.size());
   if (uid.empty()) vue_.info = "Rouge : passer cette carte · Vert : terminer et enregistrer";
   rafraichir();
+}
+
+// ======================================================================
+// Dynamo et objectifs
+// ======================================================================
+
+// La lumière baisse avec le temps ; sous 40 %, l'écran s'assombrit par paliers.
+void Moteur::majDynamo() {
+  uint32_t t = maintenant();
+  if (dureeDynamo_ > 0) {
+    float dt = derniereDynamo_ ? (t - derniereDynamo_) / 1000.0f : 0.0f;
+    if (chronoActif_ && phase_ == Phase::JEU && !pause_) lumiere_ = std::max(0.0f, lumiere_ - dt * 100.0f / dureeDynamo_);
+  }
+  derniereDynamo_ = t;
+  int l = lumiere_ > 0 ? std::max(1, static_cast<int>(lumiere_ + 0.5f)) : 0;
+  if (l == vue_.lumiere) return;
+  auto palier = [](int v) { return v >= 40 ? 100 : v == 0 ? -1 : v / 5; };
+  bool redessiner = palier(l) != palier(vue_.lumiere);
+  vue_.lumiere = l;
+  if (redessiner) rafraichir();
+  else vue_.versionEntete++;
+}
+
+// Le tableau de bord : les objectifs visibles, faits ou en cours (à défaut, la progression).
+void Moteur::majObjectifs() {
+  std::vector<std::string> noms;
+  std::vector<int> etats;
+  JsonArrayConst liste = script_["objectifs"].as<JsonArrayConst>();
+  if (liste.size()) {
+    for (JsonVariantConst o : liste) {
+      if (!condition(o["visible"])) continue;
+      noms.push_back(texte(o["nom"]));
+      etats.push_back(condition(o["fait"]) ? 2 : 1);
+    }
+  } else {
+    for (JsonVariantConst o : script_["progression"].as<JsonArrayConst>()) {
+      noms.push_back(texte(o["nom"]));
+      etats.push_back(condition(o["si"]) ? 2 : 1);
+    }
+  }
+  if (noms != vue_.objectifs || etats != vue_.etatsObjectifs) {
+    vue_.objectifs = noms;
+    vue_.etatsObjectifs = etats;
+    rafraichir();
+  }
 }
 
 // ======================================================================
@@ -899,6 +989,13 @@ bool Moteur::condition(const char* expression) {
 int Moteur::compteur(const std::string& nom) const { return const_cast<Moteur*>(this)->valeur(nom); }
 
 void Moteur::declencher(const Evenement& ev) {
+  bool carte = ev.type == "lieu" || ev.type == "qui" || ev.type == "quoi" || ev.type == "paire" || ev.type == "combinaison" ||
+               ev.type == "role";
+  if (carte && dureeDynamo_ > 0 && lumiere_ <= 0) {
+    JsonVariantConst noir = script_["dynamo"]["noir"];
+    if (!noir.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, noir.as<int>()));
+    return;
+  }
   if (ev.type == "evenement" && ev.nom == "__debut_jeu") {
     commencerJeu();
     return;
@@ -1296,6 +1393,13 @@ void Moteur::executer(JsonVariantConst act) {
     finEffet_ = maintenant() + (act["duree"].isNull() ? 2000 : act["duree"].as<int>());
     return;
   }
+  if (!act["dynamo"].isNull()) {  // {"dynamo": {"duree": 160}} ou {"dynamo": {"charge": 0}}
+    JsonVariantConst d = act["dynamo"];
+    if (!d["duree"].isNull()) dureeDynamo_ = d["duree"].as<float>();
+    if (!d["charge"].isNull()) lumiere_ = d["charge"].as<float>();
+    majDynamo();
+    return;
+  }
   if (!act["vue"].isNull()) {
     vue_.ecran = Vue::PRINCIPAL;
     rafraichir();
@@ -1333,6 +1437,9 @@ void Moteur::executerSimple(JsonVariantConst act) {
   } else if (!act["effet"].isNull()) {
     effet_ = texte(act["effet"]);
     finEffet_ = maintenant() + 800;
+  } else if (!act["dynamo"].isNull()) {
+    if (!act["dynamo"]["charge"].isNull()) lumiere_ = act["dynamo"]["charge"].as<float>();
+    majDynamo();
   }
 }
 
@@ -1347,6 +1454,8 @@ void Moteur::lancerEpreuve(JsonVariantConst def) {
   ep_.active = true;
   ep_.debut = maintenant();
   debutEnsemble_ = 0;
+  vue_.secondes = def["secondes"].as<int>() > 0 ? def["secondes"].as<int>() : -1;
+  vue_.secondesTotal = def["secondes"].as<int>();
   vue_.bandeau.clear();
   vue_.info.clear();
   if (ep_.type == "code" || ep_.type == "lettres") {
@@ -1380,6 +1489,9 @@ void Moteur::lancerEpreuve(JsonVariantConst def) {
     ep_.etape = 0;
     ep_.pas = 0;
     ep_.prochain = maintenant() + 600;
+  } else if (ep_.type == "ordre") {  // des boutons de couleur dans un ordre précis (à déduire, pas à mémoriser)
+    for (JsonVariantConst c : def["ordre"].as<JsonArrayConst>()) ep_.sequence.push_back(boutonNomme(texte(c)));
+    ep_.pas = 0;
   } else if (ep_.type == "traitre") {
     ep_.valeurs = {4};
     ep_.etape = 0;
@@ -1395,6 +1507,9 @@ void Moteur::finEpreuve(bool reussi) {
   ep_.active = false;
   ep_.fini = true;
   ep_.reussi = reussi;
+  vue_.secondes = -1;
+  vue_.pasFaits = vue_.pasTotal = 0;
+  vue_.voyant = -1;
   if (!ep_.def["boucle_casque"].isNull() || drapeaux_.count("__ecoute")) p_.arreter(true);
   drapeaux_.erase("__ecoute");
   drapeaux_.erase("__stethoscope");
@@ -1446,7 +1561,7 @@ void Moteur::majEpreuve() {
       debutEnsemble_ = 0;
     }
     if (expire) finEpreuve(false);
-  } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui") {
+  } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui" || ep_.type == "ordre") {
     if (expire) finEpreuve(false);
   } else if (ep_.type == "rondes") {
     if (t >= ep_.prochain) {
@@ -1516,9 +1631,11 @@ void Moteur::majEpreuve() {
     }
   }
   if (ep_.active && secondes > 0) {
-    int reste = secondes - static_cast<int>((t - ep_.debut) / 1000);
-    std::string info = "⏱ " + std::to_string(std::max(0, reste)) + " s";
-    if (info != vue_.info && ep_.type != "energie") {
+    int reste = std::max(0, secondes - static_cast<int>((t - ep_.debut) / 1000));
+    std::string info = "⏱ " + std::to_string(reste) + " s";
+    if (reste != vue_.secondes && ep_.type != "energie") {
+      vue_.secondes = reste;
+      vue_.secondesTotal = secondes;
       vue_.info = info;
       rafraichir();
     }
@@ -1566,8 +1683,19 @@ void Moteur::epreuveBouton(Bouton b) {
     ep_.pas++;
     if (ep_.pas >= static_cast<int>(ep_.sequence.size())) finEpreuve(true);
     else vueEpreuve();
+  } else if (ep_.type == "ordre") {
+    if (b > VERT) return;
+    if (ep_.sequence[ep_.pas] != b) {
+      finEpreuve(false);
+      return;
+    }
+    ep_.pas++;
+    p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+    if (ep_.pas >= static_cast<int>(ep_.sequence.size())) finEpreuve(true);
+    else vueEpreuve();
   } else if (ep_.type == "rythme") {
-    if (ep_.etape != 1 || b != GROS) return;
+    int attendu = d["bouton"].isNull() ? GROS : boutonNomme(texte(d["bouton"]));
+    if (ep_.etape != 1 || static_cast<int>(b) != attendu) return;
     uint32_t t = maintenant();
     JsonArrayConst motif = d["motif"].as<JsonArrayConst>();
     size_t n = motif.size();
@@ -1768,7 +1896,26 @@ void Moteur::vueEpreuve() {
     vue_.bandeau = std::to_string(somme) + " / " + std::to_string(d["total"].as<int>()) + " unités";
   } else {
     vue_.ecran = Vue::EPREUVE;
-    if (ep_.type == "sequence") {
+    vue_.pasFaits = vue_.pasTotal = 0;
+    vue_.voyant = -1;
+    if (ep_.type == "sequence" && ep_.etape == 0 && ep_.vert && ep_.pas >= 0) vue_.voyant = ep_.sequence[ep_.pas];
+    if (ep_.type == "rondes") vue_.voyant = ep_.vert ? 4 : 5;
+    if (ep_.type == "sequence" && ep_.etape == 1) {
+      vue_.pasFaits = ep_.pas;
+      vue_.pasTotal = static_cast<int>(ep_.sequence.size());
+    } else if (ep_.type == "ordre") {
+      vue_.pasFaits = ep_.pas;
+      vue_.pasTotal = static_cast<int>(ep_.sequence.size());
+    } else if (ep_.type == "rondes") {
+      vue_.pasFaits = ep_.pas;
+      vue_.pasTotal = d["pas"].as<int>();
+    } else if (ep_.type == "rythme" && ep_.etape == 1) {
+      vue_.pasFaits = static_cast<int>(ep_.appuis.size() / std::max<size_t>(1, d["motif"].as<JsonArrayConst>().size()));
+      vue_.pasTotal = d["repetitions"].as<int>();
+    }
+    if (ep_.type == "ordre") {
+      vue_.texte = texte(d["texte"]);
+    } else if (ep_.type == "sequence") {
       vue_.texte = ep_.etape == 0 ? (ep_.vert ? std::string(NOMS_COULEURS[ep_.sequence[ep_.pas]]) : "…")
                                   : "À vous ! " + std::to_string(ep_.pas) + " / " + std::to_string(ep_.sequence.size());
     } else if (ep_.type == "rythme") {
@@ -1991,6 +2138,15 @@ void Moteur::majEntete() {
     int r = std::max(0, chronoActif_ || phase_ == Phase::FIN ? secondesRestantes() : c["duree"].as<int>() * 60);
     e = texte(c["prefixe"]) + deuxChiffres(r / 60) + ":" + deuxChiffres(r % 60);
   }
+  // La barre de temps de l'en-tête : part restante de la durée prévue (bonus compris).
+  int total = std::max(1, c["duree"].as<int>() * 60 + std::max(0, bonusSecondes_));
+  int reste = std::max(0, chronoActif_ || phase_ == Phase::FIN ? secondesRestantes() : total);
+  int pourMille = std::min(1000, reste * 1000 / total);
+  if (pourMille != vue_.restantPourMille) {
+    vue_.restantPourMille = pourMille;
+    vue_.versionEntete++;
+  }
+  majObjectifs();
   if (pause_) e += "  ⏸";
   std::string compteurs;
   if (!script_["soupcon"].isNull())
@@ -2030,7 +2186,11 @@ void Moteur::majLumieres() {
   if (phase_ == Phase::JEU && chronoActif_) {
     int total = script_["chrono"]["duree"].as<int>() * 60;
     int reste = std::max(0, secondesRestantes());
-    if (jauge == "eau") {
+    if (jauge == "lumiere") {  // l'anneau, ce sont les lumières du sous-marin
+      allumees = std::min(12, static_cast<int>((lumiere_ * 12 + 99) / 100));
+      c = attenuer(0xffd9a0, 0.25f + 0.75f * lumiere_ / 100.0f);
+      if (lumiere_ < 30 && (t / 90) % 7 == 0) c = attenuer(c, 0.2f);  // ça vacille
+    } else if (jauge == "eau") {
       allumees = std::min(12, ((total - reste) * 12 + total - 1) / std::max(1, total));
       c = reste < 10 * 60 ? 0xd02010 : 0x1060ff;
     } else if (jauge == "soupcon") {
@@ -2165,6 +2325,7 @@ void Moteur::miseAJour() {
 
   majChrono();
   majImprevus();
+  majDynamo();
   if (fenetre_.active && t > fenetre_.fin) fenetre_.active = false;
 
   if (t - derniereSeconde_ >= 250) {
@@ -2203,6 +2364,7 @@ std::string Moteur::etatJson() {
   d["pause"] = pause_;
   d["erreurs"] = erreurs_;
   d["indices"] = indicesDonnes_;
+  if (dureeDynamo_ > 0) d["lumiere"] = static_cast<int>(lumiere_);
   d["texte"] = vue_.texte;
   for (int z = 0; z < 3; z++) d["zones"].add(vue_.zones[z]);
   for (const auto& f : drapeaux_)

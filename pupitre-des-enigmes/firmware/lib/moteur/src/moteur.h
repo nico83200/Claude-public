@@ -55,6 +55,7 @@ class Moteur {
   std::vector<int> epreuveValeurs() const { return ep_.valeurs; }
   int epreuveCurseur() const { return ep_.curseur; }
   const Reglages& reglages() const { return reglages_; }
+  int lumiere() const { return static_cast<int>(lumiere_); }
 
  private:
   // ---------- Types internes ----------
@@ -129,6 +130,10 @@ class Moteur {
   void carteHorsJeu(Zone zone, const std::string& id);
   void carteEnJeu(Zone zone, const std::string& id);
   void enrolement(const std::string& uid);
+
+  // ---------- Dynamo, objectifs ----------
+  void majDynamo();
+  void majObjectifs();
 
   // ---------- Réglages du pupitre ----------
   void chargerReglages();
@@ -235,6 +240,13 @@ class Moteur {
   std::vector<std::string> aEnroler_;
   size_t enroleIndex_ = 0;
   uint8_t masqueBoutons_ = 0;
+
+  // Dynamo : la lumière baisse ; un bouton la recharge.
+  float lumiere_ = 100.0f;
+  float dureeDynamo_ = 0.0f;  // secondes pour passer de 100 à 0 ; 0 : pas de dynamo
+  uint32_t derniereDynamo_ = 0;
+  int paliersLumiere_ = 10;
+  Vue::Ecran ecranAvantTableau_ = Vue::PRINCIPAL;
 
   // Réglages.
   Reglages reglages_, reglagesAvant_;
