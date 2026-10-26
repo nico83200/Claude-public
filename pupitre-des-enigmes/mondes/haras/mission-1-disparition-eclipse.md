@@ -78,6 +78,7 @@ toucher l'assurance.**
 | **Clavier et horloge** | Le code du bureau et les questions de la gendarmerie se tapent au clavier ; l'horloge à 4 chiffres donne l'heure du haras et montre le code tapé |
 | **Les voyants des pistes** | Cinq voyants suivent l'enquête : Écurie, Carnet, Bureau, Sentier, Grange |
 | **La forge et l'enclume** | Souffler sur la grille pour ranimer les braises (capteur d'humidité), poser le fer à cheval aimanté sur l'enclume (magnétomètre) |
+| **Le tiroir secret** | Le code du bureau ouvre aussi le tiroir caché dans le flanc gauche du pupitre : la carte du contrat d'assurance y attend. À la fin, le pupitre demande de l'y remettre et de refermer le tiroir |
 | **L'œil** | Au sentier, la main au-dessus de l'œil indique la piste choisie (capteur de gestes) ; dans la grange, une lampe de téléphone éclaire l'œil |
 | **🎧 Casque** | Trois usages : les **confidences** obtenues par le Journaliste, les **vérifications d'alibi** de l'Ancien gendarme, et **l'appel anonyme** (diffusé une seule fois) |
 | **LED de zone** | Elles confirment chaque carte posée, puis s'allument une à une lors de l'accusation |
@@ -207,7 +208,7 @@ sur un lecteur libre**.
 |---|---|---|
 | O1 Carnet de santé d'Éclipse | E1 Écurie | Révèle la blessure (texte chiffré) |
 | O2 Bottes boueuses | E2 Sellerie | Hélène est allée dans la pinède |
-| O3 Contrat d'assurance (avenant) | E3 Bureau | **Le mobile** |
+| O3 Contrat d'assurance (avenant) | Le **tiroir secret** du pupitre (sinon E3) | **Le mobile** |
 | O4 Clé du box 7 | E3 Bureau | Le coupable a accès au bureau |
 | O5 Couverture d'Éclipse | E4 Grange | Quelqu'un prend soin d'elle |
 | O6 Seau de granulés | E4 Grange | Le moyen de la faire suivre |
@@ -224,7 +225,7 @@ est écrite au dos, pour le rangement.
 |---|---|---|
 | **E1** | Écurie | Carte O1, page du carnet chiffrée, photo du box 7 (porte ouverte, **serrure intacte**, une empreinte de fer ovale dans l'allée qui mène à la **porte arrière**) |
 | **E2** | Sellerie | Carte O2, photo des bottes (pointure 38, **boue encore humide**, **aiguilles de pin**, semelle à chevrons), photo du crochet « **H.V.** » où elles étaient rangées, photo du râtelier avec deux emplacements vides : « Couverture Éclipse » et « Seau Éclipse » |
-| **E3** | Bureau | Cartes O3 et O4, photo du tableau des clés (**clé n° 7 à sa place**), ticket de l'enregistreur : **« COUPURE 03:12 → 04:05 »**, avenant d'assurance : *« Valeur assurée portée à 450 000 €, signé le 11/10, H. Vasseur »* |
+| **E3** | Bureau | Carte O4 (et O3 si le pupitre n'a pas de tiroir secret), photo du tableau des clés (**clé n° 7 à sa place**), ticket de l'enregistreur : **« COUPURE 03:12 → 04:05 »**, avenant d'assurance : *« Valeur assurée portée à 450 000 €, signé le 11/10, H. Vasseur »* |
 | **E4** | Vieille Grange | Cartes O5, O6, O7, et une photo d'Éclipse saine et sauve, debout sur de la paille fraîche |
 | **E5** | Manège | Carte O8 (*« Je dois 20 000 € à M. Z., A. Vasseur »*), ticket du casino de Deauville horodaté 1 h 12 |
 | **E6** | Carrière | Carte O9, avec un mot accroché au flot : *« L'an prochain, il sera bleu pour moi. V. »* |
@@ -291,7 +292,8 @@ engagés demain, dans l'ordre de passage. »*
 - Comète fait face à Sultan : **box 1**.
 - **Code = `3715`**
 
-Quand le code est bon : bruit de serrure, puis **enveloppe E3**. On y apprend que
+Quand le code est bon : bruit de serrure, puis **enveloppe E3**, et le **tiroir
+secret** jaillit du flanc gauche du pupitre avec la carte du contrat d'assurance. On y apprend que
 la clé est revenue au tableau, que la caméra a été coupée de 03:12 à 04:05, qu'il
 y a un avenant d'assurance et que la lampe torche du bureau a disparu. Le coupable
 **connaît le code du bureau** : c'est **Hélène ou Lucas**.
@@ -593,6 +595,9 @@ Le pupitre révèle ensuite la solution complète.
 3. Disposer au centre la fiche de mission, les cartes Lieu et Personnage, et la
    carte Papy Marcel.
 4. Empiler les enveloppes **E1 à E8**, fermées, avec les cartes Objet à l'intérieur.
+   Glisser la carte **O3 Contrat d'assurance** dans le **tiroir secret** (menu du
+   monde : *« Tiroir secret : l'ouvrir »*, puis le repousser au fond et valider).
+   Sans tiroir, elle va dans l'enveloppe E3.
    Poser près du pupitre le **fer à cheval aimanté** (un petit fer décoratif avec un
    aimant collé dessous), et vérifier qu'au moins un joueur a un **téléphone avec une lampe**.
 5. Distribuer les **6 rôles** et leurs documents secrets.

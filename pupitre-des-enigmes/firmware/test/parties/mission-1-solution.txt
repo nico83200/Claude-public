@@ -53,6 +53,9 @@ code 1,2,3,4
 verifie compteur codes_faux 1
 pose OU L3
 code 3,7,1,5
+# Le tiroir secret du bureau s'ouvre : le contrat d'assurance (O3) y était caché
+verifie tiroir ouvert
+tiroir sorti
 verifie drapeau J3
 
 # --- Rafale s'échappe (minute 8)
@@ -141,3 +144,13 @@ bouton VERT
 calme
 verifie phase victoire
 capture m1-11-victoire
+
+# --- La partie finie, le pupitre demande de ranger le contrat et de refermer le tiroir
+bouton VERT
+verifie phase rangement
+bouton VERT
+verifie phase rangement
+tiroir fond
+bouton VERT
+verifie tiroir verrouille
+verifie phase accueil

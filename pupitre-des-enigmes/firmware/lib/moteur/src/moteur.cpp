@@ -1164,6 +1164,7 @@ int Moteur::valeur(const std::string& nom) {
   if (nom.rfind("couleur_", 0) == 0) return couleurPosee_ == nom.substr(8);
   if (nom == "cle") return cleTournee_ ? 1 : 0;
   if (nom == "tiroir_ouvert") return tiroirAuFond_ ? 0 : 1;
+  if (nom == "tiroir_present") return p_.tiroirPresent() ? 1 : 0;
   if (nom == "souffle" || nom == "aimant" || nom == "eclaire") {
     auto c = capteurs_.find(nom);
     return c != capteurs_.end() && c->second ? 1 : 0;

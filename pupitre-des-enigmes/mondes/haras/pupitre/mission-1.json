@@ -21,7 +21,8 @@
     "gestes",
     "aimant",
     "souffle",
-    "afficheur"
+    "afficheur",
+    "tiroir"
   ],
   "panneau": {
     "voyants": [
@@ -387,7 +388,7 @@
       ]
     },
     {
-      "note": "Le code du bureau (J3) : 3715",
+      "note": "Le code du bureau (J3) : 3715 ; le tiroir secret cache le contrat d'assurance (O3)",
       "quand": {
         "lieu": "L3"
       },
@@ -409,7 +410,26 @@
                 "son": 3
               },
               {
-                "dire": 27
+                "si": "tiroir_present",
+                "alors": [
+                  {
+                    "dire": 256
+                  },
+                  {
+                    "son": 3
+                  },
+                  {
+                    "tiroir": "ouvrir"
+                  },
+                  {
+                    "dire": 257
+                  }
+                ],
+                "sinon": [
+                  {
+                    "dire": 27
+                  }
+                ]
               },
               {
                 "enveloppe": "E3"

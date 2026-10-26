@@ -373,10 +373,11 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | 8:14 | Grille sur le plan : Rafale au 3, Sultan au 5, Comète au 1 | | | | | | |
 | 8:15 | Essai `3751` | — | Bureau | — | H : incorrect | 🔊 025 · 90/003 | |
 | 8:16 | *L'imprévu Comète devrait tomber, mais il attend la fin de la saisie* | | | | H | — | |
-| 8:17 | **`3715`** | — | Bureau | — | E Bureau + « E3 » | 11/003 · 🔊 027 | ✅ **J3** |
+| 8:17 | **`3715`** | — | Bureau | — | E Bureau + « E3 » | 11/003 · 🔊 256 | ✅ **J3** |
+| 8:17 | Clic : le **tiroir secret** jaillit du flanc gauche du pupitre. Dedans : la carte du contrat | | | | | 11/003 · 🔊 257 | |
 | 8:17 | **IMPRÉVU Comète** : rythme du galop, 4 fois au gros bouton | | | | K | 🔊 083 · 11/006 ×3 au tempo | |
 | 8:18 | Réussi | | | | D | 🔊 084 | |
-| 8:19 | Ouvrent E3 : contrat, clé n° 7, ticket « COUPURE 03:12 → 04:05 ». Le Gendarme : *« Seuls Hélène et Lucas ont le code. »* | | | | | | |
+| 8:19 | Ouvrent E3 : avenant, clé n° 7, ticket « COUPURE 03:12 → 04:05 ». Le Gendarme : *« Seuls Hélène et Lucas ont le code. »* | | | | | | |
 
 ### 8:20 – 8:30 : le carnet, l'appel anonyme, les confidences (J2)
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |

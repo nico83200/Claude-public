@@ -134,6 +134,7 @@ parenthèses. Un nom vaut :
 | `couleur_rouge` | 1 si un objet rouge est sur le capteur de couleur |
 | `cle` | 1 si l'interrupteur à clé est tourné |
 | `tiroir_ouvert` | 1 tant que le tiroir secret n'est pas poussé au fond |
+| `tiroir_present` | 1 si le pupitre a un tiroir secret (pour prévoir une autre cachette sinon) |
 | `souffle`, `aimant`, `eclaire` | 1 tant qu'on souffle sur la forge, qu'un aimant est sur l'enclume, qu'une lampe éclaire l'œil |
 
 Une condition vide est vraie. Le moteur écrit dans le journal série toute
