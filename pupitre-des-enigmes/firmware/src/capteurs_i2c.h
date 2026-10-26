@@ -4,7 +4,8 @@
 //     (haut, bas, gauche, droite) et une lampe braquée dessus (« eclaire ») ;
 //   - l'enclume (QMC5883L, 0x0D), sous le contreplaqué : un aimant posé dessus (« aimant ») ;
 //   - la forge (BME280, 0x76), sous une grille de trous : un souffle (« souffle ») ;
-//   - l'afficheur à 4 chiffres (HT16K33, 0x70), derrière une fenêtre : l'horloge, un code.
+//   - l'afficheur à 4 chiffres (HT16K33, 0x70), derrière une fenêtre : l'horloge, un code ;
+//   - le tiroir secret : un servomoteur sur un module PCA9685 (0x40) tient le verrou.
 #pragma once
 
 #include <cstdint>
@@ -70,4 +71,20 @@ class Afficheur {
  private:
   bool present_ = false;
   std::string affiche_ = "?";
+};
+
+// Le tiroir secret : le servomoteur tourne vers « ouvert » (le ressort pousse le tiroir dehors)
+// ou vers « fermé » (son bras entre dans l'encoche du tiroir), puis se met au repos : le verrou
+// tient tout seul, sans consommer ni grésiller.
+class Tiroir {
+ public:
+  void demarrer();
+  bool present() const { return present_; }
+  void commander(bool ouvrir);
+  void maj();
+
+ private:
+  void impulsion(int microsecondes);  // 0 : plus d'impulsion (servomoteur au repos)
+  bool present_ = false;
+  uint32_t repos_ = 0;
 };

@@ -22,7 +22,7 @@ TYPES_EPREUVES = {"code", "lettres", "choix", "ensemble", "rythme", "sequence", 
                   "energie", "traitre", "appui", "ordre", "voyants", "cle", "capteur"}
 COULEURS = {"rouge", "vert", "bleu", "jaune", "orange", "ambre", "blanc", "violet", "cyan", "rose", "eteint"}
 MATERIEL = {"fente", "plateau", "clavier", "voyants", "couleur", "cle", "boutons", "molette", "gros_bouton", "casque", "anneau",
-            "gestes", "aimant", "souffle", "afficheur"}
+            "gestes", "aimant", "souffle", "afficheur", "tiroir"}
 GESTES = {"haut", "bas", "gauche", "droite"}
 CAPTEURS = {"souffle", "aimant", "eclaire"}
 BOUTONS = {"ROUGE", "BLEU", "JAUNE", "VERT", "GROS"}

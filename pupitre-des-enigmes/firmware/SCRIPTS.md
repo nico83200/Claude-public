@@ -40,7 +40,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `chrono` | `mode` `"horloge"` (heure qui avance depuis `depart`) ou `"compte"` (compte à rebours, avec un `prefixe`) ; `duree` en minutes | `{"mode": "compte", "prefixe": "O₂ ", "duree": 75}` |
 | `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit), `"soupcon"` ou `"lumiere"` (la lumière de la dynamo) | `"soupcon"` |
 | `objets_combinables` | `true` : QUI et QUOI sont les deux mains des joueurs (pupitre à deux lecteurs : la fente et le plateau) ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
-| `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`, `gestes` (l'œil : gestes et lampe), `souffle` (la forge), `aimant` (l'enclume), `afficheur` (l'horloge à 4 chiffres). Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
+| `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`, `gestes` (l'œil : gestes et lampe), `souffle` (la forge), `aimant` (l'enclume), `afficheur` (l'horloge à 4 chiffres), `tiroir` (le tiroir secret). Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
 | `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques quand une carte arrive sur la mauvaise zone d'un pupitre à trois lecteurs (`dire_lieu`, `dire_objet`, `dire_perso`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
 | `dynamo` | La lumière à entretenir au gros bouton (`bouton`) : elle se vide en `duree` secondes, chaque appui rend `gain` %, à zéro c'est le noir complet et les cartes ne donnent que la réplique `noir` | `{"bouton": "GROS", "duree": 80, "gain": 15, "noir": 17}` |
 | `objectifs` | Le tableau de bord (appui sur la molette) et la ligne du bas : `nom`, `visible` et `fait` (conditions) | `[{"nom": "Rétablir le courant", "visible": "J_porte", "fait": "J_courant"}]` |
@@ -92,6 +92,7 @@ Les règles sont lues **dans l'ordre** : la première qui correspond gagne. On
 | Clé | l'interrupteur à clé est tourné, ou revient au repos | `{"cle": "tournee"}` · `{"cle": "repos"}` |
 | Geste | la main passe au-dessus de l'œil (hors épreuve) : `haut`, `bas`, `gauche`, `droite` | `{"geste": "gauche"}` |
 | Capteur | un capteur tout-ou-rien s'active (hors épreuve) : `souffle`, `aimant`, `eclaire` | `{"capteur": "aimant"}` |
+| Tiroir | le tiroir secret sort de son logement (`ouvert`) ou y est repoussé jusqu'au fond (`ferme`) | `{"tiroir": "ouvert"}` |
 | Événement | une action `evenement` le déclenche | `{"evenement": "croisement2"}` |
 
 Une **combinaison** qu'aucune règle ne prévoit est traitée comme le dernier objet
@@ -132,6 +133,7 @@ parenthèses. Un nom vaut :
 | `lumiere` | la lumière de la dynamo, de 0 à 100 |
 | `couleur_rouge` | 1 si un objet rouge est sur le capteur de couleur |
 | `cle` | 1 si l'interrupteur à clé est tourné |
+| `tiroir_ouvert` | 1 tant que le tiroir secret n'est pas poussé au fond |
 | `souffle`, `aimant`, `eclaire` | 1 tant qu'on souffle sur la forge, qu'un aimant est sur l'enclume, qu'une lampe éclaire l'œil |
 
 Une condition vide est vraie. Le moteur écrit dans le journal série toute
@@ -163,6 +165,7 @@ condition mal écrite.
 | `{"effet": "alerte", "duree": 5000}` | Animation de l'anneau : `alerte`, `succes`, `echec` |
 | `{"dynamo": {"duree": 160}}` · `{"dynamo": {"charge": 0}}` | La lumière se vide moins vite · noir complet |
 | `{"voyant": {"n": 3, "couleur": "orange", "effet": "clignote", "duree": 5000}}` | Imposer un voyant (§ 11) ; `"n": "tous"` ; sans `couleur`, il revient au `panneau` |
+| `{"tiroir": "ouvrir"}` | Libérer le tiroir secret : le ressort le pousse dehors. Il ne se reverrouille qu'à la main : à la fin de la partie, l'écran demande de le pousser au fond puis de valider |
 | `{"socle": {"couleur": "rouge", "effet": "pulse", "duree": 8000}}` | Imposer la lumière sous la boîte (§ 11) |
 | `{"victoire": true}` · `{"defaite": "temps"}` | Terminer la partie (la défaite joue `fins.<cause>`) |
 

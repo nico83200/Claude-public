@@ -40,6 +40,9 @@ class Moteur {
   // Les capteurs tout-ou-rien : « souffle » (BME280), « aimant » (QMC5883L), « eclaire » (une lampe
   // braquée sur l'œil). Épreuve « capteur », règles {"capteur": …} et conditions du même nom.
   void capteur(const std::string& nom, bool actif);
+  // Le contact de fin de course du tiroir secret : vrai quand le tiroir est poussé au fond.
+  void tiroirAuFond(bool auFond);
+  bool tiroirVerrouille() const { return !tiroirOuvert_; }
   void bouton(Bouton bouton);                     // appui
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
@@ -79,7 +82,7 @@ class Moteur {
 
  private:
   // ---------- Types internes ----------
-  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES };
+  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT };
   enum class Attente { RIEN, AUDIO, CASQUE, DELAI, MOLETTE, VERT_ROUGE };
 
   struct Replique {
@@ -235,6 +238,12 @@ class Moteur {
   std::string couleurPosee_;  // ce que voit le capteur de couleur
   bool cleTournee_ = false;
   std::map<std::string, bool> capteurs_;  // souffle, aimant, eclaire
+  // Le tiroir secret : libéré par le servomoteur (action « tiroir », ou le menu du monde),
+  // reverrouillé seulement une fois poussé au fond et la fermeture validée à l'écran.
+  bool tiroirAuFond_ = true, tiroirOuvert_ = false, rangementApresPartie_ = false;
+  void ouvrirTiroir();
+  void afficherRangement(bool apresPartie);
+  void validerRangement(bool fermer);
   bool materiel(const char* element) const;  // la mission s'en sert-elle ? (« materiel » du script)
   std::set<std::string> drapeaux_, rolesPresents_, imprevusFaits_;
   std::map<std::string, int> compteurs_, pouvoirs_, niveauxAide_;

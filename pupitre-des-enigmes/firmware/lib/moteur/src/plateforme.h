@@ -89,6 +89,9 @@ class Plateforme {
   virtual uint32_t aleatoire(uint32_t borne) = 0;                      // 0 … borne-1
   virtual void journal(const std::string& message) = 0;
   virtual void appliquer(const Reglages& reglages) { (void)reglages; }    // volumes et luminosités
+  // Le tiroir secret : son servomoteur libère le tiroir (vrai) ou le verrouille (faux).
+  virtual void tiroir(bool ouvrir) { (void)ouvrir; }
+  virtual bool tiroirPresent() { return false; }
 };
 
 }  // namespace pupitre

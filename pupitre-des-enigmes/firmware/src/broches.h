@@ -60,6 +60,12 @@ constexpr float FORGE_HUMIDITE = 6.0f;      // un souffle : + 6 points d'humidit
 constexpr float FORGE_TEMPERATURE = 0.8f;   // … ou + 0,8 °C avec un BMP280 (sans humidité)
 constexpr uint8_t AFFICHEUR_LUMINOSITE = 8; // 0 à 15
 
+// Le tiroir secret : le servomoteur sur la voie 0 du PCA9685 (0x40), et son contact de fin de
+// course (fermé quand le tiroir est au fond) sur la broche P4 du PCF8574 des boutons.
+constexpr int TIROIR_VOIE = 0;
+constexpr int TIROIR_FERME = 90, TIROIR_OUVERT = 0;  // angles du servomoteur, à régler au montage
+constexpr int TIROIR_PCF = 4;
+
 constexpr char TOUCHES[4][4] = {
     {'1', '2', '3', 'A'},
     {'4', '5', '6', 'B'},

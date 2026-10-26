@@ -108,6 +108,30 @@
           "prix": 10
         },
         {
+          "article": "Module servomoteurs PCA9685 (le tiroir secret)",
+          "detail": "16 voies, I2C (adresse 0x40) : il pilote le servomoteur du verrou. Recherche : « PCA9685 16 channel servo driver I2C »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Micro-servomoteur MG90S",
+          "detail": "Pignons métal (plus robuste qu'un SG90 pour un verrou), avec ses bras. Recherche : « MG90S micro servo »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Ressorts de compression (assortiment)",
+          "detail": "Ø 8 à 10 mm, 25 à 30 mm de long, fil de 0,6 à 0,8 mm : il pousse le tiroir dehors. Recherche : « assortiment ressorts compression »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Microrupteur de fin de course",
+          "detail": "Petit microrupteur à levier (type KW11) : il sent le tiroir poussé au fond. Recherche : « micro switch KW11 »",
+          "qte": 1,
+          "prix": 1
+        },
+        {
           "article": "Ruban LED WS2812B 5 V",
           "detail": "60 LED/m, à couper : les 10 voyants (2 morceaux de 5) et 8 LED sous la boîte, tournées vers la table",
           "qte": 1,

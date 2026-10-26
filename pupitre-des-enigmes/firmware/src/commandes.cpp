@@ -99,6 +99,16 @@ void Commandes::maj(const Rappels& r) {
     masque_ = masque;
     r.enfonces(masque);
   }
+  if (pcf >= 0) {  // le tiroir : le contact est à la masse quand il est au fond
+    filtrer(tiroir_, !(pcf & (1 << broches::TIROIR_PCF)), t);
+    if (!tiroirLu_ || tiroir_.stable != tiroirAnnonce_) {
+      if (tiroirLu_ || t > 200) {  // au démarrage, le temps que l'anti-rebond s'établisse
+        tiroirLu_ = true;
+        tiroirAnnonce_ = tiroir_.stable;
+        r.tiroir(tiroirAnnonce_);
+      }
+    }
+  }
   if (filtrer(sw_, digitalRead(broches::MOLETTE_SW) == LOW, t)) r.appui();
   filtrer(cle_, digitalRead(broches::CLE) == LOW, t);
   if (!cleLue_ || cle_.stable != cleAnnoncee_) {  // la position de la clé, et chacun de ses changements

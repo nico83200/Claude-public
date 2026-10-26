@@ -13,6 +13,7 @@ class Commandes {
     std::function<void()> appui;
     std::function<void(char touche)> touche;  // clavier : '0'–'9', 'A'–'D', '*', '#'
     std::function<void(bool tournee)> cle;    // l'interrupteur à clé
+    std::function<void(bool auFond)> tiroir;  // le contact de fin de course du tiroir secret
   };
 
   void demarrer();
@@ -26,8 +27,8 @@ class Commandes {
   bool filtrer(Anti& a, bool brut, uint32_t t);
   char lireClavier();
 
-  Anti boutons_[5], sw_, cle_;
-  bool cleAnnoncee_ = false, cleLue_ = false;
+  Anti boutons_[5], sw_, cle_, tiroir_;
+  bool cleAnnoncee_ = false, cleLue_ = false, tiroirAnnonce_ = false, tiroirLu_ = false;
   uint8_t masque_ = 0;
   int32_t dernierePosition_ = 0;
   uint8_t adresseClavier_ = 0, adresseBoutons_ = 0;  // 0 : module absent

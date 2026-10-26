@@ -72,6 +72,8 @@ void setup() {
   oeil.demarrer();
   enclume.demarrer();
   forge.demarrer();
+  // Le PCA9685 répond aussi à 0x70 tant qu'on ne le lui a pas interdit : avant l'horloge.
+  plateforme.servomoteurTiroir().demarrer();
   afficheur.demarrer();
   if (!hp.demarrer(broches::HP_RX, broches::HP_TX, defaut.hp)) Serial.println("DFPlayer haut-parleur absent.");
   if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, defaut.casque)) Serial.println("DFPlayer casque absent.");
@@ -81,6 +83,10 @@ void setup() {
   rappels.molette = [](int pas) { moteur.molette(pas); };
   rappels.appui = [] { moteur.appuiMolette(); };
   rappels.touche = [](char k) { moteur.touche(k); };
+  rappels.tiroir = [](bool auFond) {
+    Serial.printf("Tiroir : %s\n", auFond ? "au fond" : "sorti");
+    moteur.tiroirAuFond(auFond);
+  };
   rappels.cle = [](bool tournee) {
     Serial.printf("Interrupteur à clé : %s\n", tournee ? "tourné" : "au repos");
     moteur.cle(tournee);
@@ -110,6 +116,7 @@ void loop() {
   enclume.maj(capteurActif);
   forge.maj(capteurActif);
   afficheur.montrer(moteur.afficheur());
+  plateforme.servomoteurTiroir().maj();
   moteur.miseAJour();
   panneau::maj();
   delay(2);

@@ -325,3 +325,54 @@ void Afficheur::montrer(const std::string& texte) {
   Wire.write(ram, sizeof(ram));
   Wire.endTransmission();
 }
+
+// ======================================================================
+// Le tiroir secret : servomoteur sur un PCA9685
+// ======================================================================
+
+namespace pca {
+constexpr uint8_t ADRESSE = 0x40;
+constexpr uint8_t MODE1 = 0x00, MODE2 = 0x01, LED0 = 0x06, PRESCALE = 0xfe;
+}  // namespace pca
+
+void Tiroir::demarrer() {
+  present_ = lireOctet(pca::ADRESSE, pca::MODE1) >= 0;
+  if (!present_) {
+    Serial.println("Tiroir (PCA9685) : absent");
+    return;
+  }
+  ecrire(pca::ADRESSE, pca::MODE1, 0x10);      // en sommeil, le temps de régler la fréquence
+  ecrire(pca::ADRESSE, pca::PRESCALE, 121);    // 25 MHz / (4096 × 122) ≈ 50 Hz
+  ecrire(pca::ADRESSE, pca::MODE1, 0x20);      // réveil, auto-incrément ; l'adresse commune 0x70
+                                               // (celle de l'horloge HT16K33) désactivée
+  delay(1);
+  ecrire(pca::ADRESSE, pca::MODE2, 0x04);
+  impulsion(0);  // le servomoteur garde sa position : le tiroir reste comme on l'a laissé
+  Serial.println("Tiroir (PCA9685) : présent");
+}
+
+void Tiroir::impulsion(int microsecondes) {
+  int fin = microsecondes * 4096 / 20000;
+  Wire.beginTransmission(pca::ADRESSE);
+  Wire.write(pca::LED0 + 4 * broches::TIROIR_VOIE);
+  Wire.write(0);
+  Wire.write(0);
+  Wire.write(microsecondes ? fin & 0xff : 0);
+  Wire.write(microsecondes ? (fin >> 8) & 0x0f : 0x10);  // 0x10 : sortie éteinte
+  Wire.endTransmission();
+}
+
+void Tiroir::commander(bool ouvrir) {
+  if (!present_) return;
+  int angle = ouvrir ? broches::TIROIR_OUVERT : broches::TIROIR_FERME;
+  impulsion(500 + angle * 2000 / 180);  // 0,5 ms (0°) à 2,5 ms (180°)
+  repos_ = millis() + 800;
+  Serial.printf("Tiroir : %s (servomoteur à %d°)\n", ouvrir ? "libéré" : "verrouillé", angle);
+}
+
+void Tiroir::maj() {
+  if (repos_ && millis() > repos_) {
+    repos_ = 0;
+    impulsion(0);
+  }
+}

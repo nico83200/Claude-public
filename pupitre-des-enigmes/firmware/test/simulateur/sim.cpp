@@ -23,6 +23,7 @@
 //   geste haut|bas|gauche|droite   (la main au-dessus de l'œil du pupitre)
 //   souffle <s> · eclaire <s>      (souffler sur la grille, ou braquer une lampe, pendant <s> secondes)
 //   aimant pose|-                  (le fer aimanté posé sur l'enclume, ou retiré)
+//   tiroir fond|sorti              (le contact de fin de course du tiroir secret)
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -134,6 +135,10 @@ class PlateformeSimulee : public Plateforme {
   void eclairer(const Lumieres&) override {}
   uint32_t aleatoire(uint32_t borne) override { return borne ? static_cast<uint32_t>(rand()) % borne : 0; }
   void journal(const std::string& m) override { printf("  ⚠ %s\n", m.c_str()); }
+  void tiroir(bool ouvrir) override {
+    if (bavard_) printf("        🗄 tiroir %s\n", ouvrir ? "libéré" : "verrouillé");
+  }
+  bool tiroirPresent() override { return true; }
   void appliquer(const Reglages& r) override {
     if (bavard_) printf("        ⚙ écran %d %% · haut-parleur %d · casque %d · LED %d %%\n", r.ecran, r.hp, r.casque, r.led);
   }
@@ -303,6 +308,10 @@ int main(int argc, char** argv) {
       m.capteur("aimant", a != "-");
       tourner(1500);
       calme();
+    } else if (cmd == "tiroir") {
+      // Le contact de fin de course : « tiroir fond » (poussé au fond), « tiroir sorti ».
+      m.tiroirAuFond(a == "fond");
+      calme();
     } else if (cmd == "bouton") {
       m.bouton(bouton(a));
       calme();
@@ -445,6 +454,8 @@ int main(int argc, char** argv) {
         int n = b == "socle" ? NB_VOYANTS : atoi(b.c_str()) - 1;
         uint32_t attendu = Moteur::couleurNommee(c);
         verifier(m.couleurVoyant(n) == attendu, "voyant " + b + " " + c, numero);
+      } else if (a == "tiroir") {
+        verifier(m.tiroirVerrouille() == (b == "verrouille"), "tiroir " + b, numero);
       } else if (a == "afficheur") {
         verifier(m.afficheur() == b, "afficheur « " + b + " » (montre « " + m.afficheur() + " »)", numero);
       } else if (a == "zone") {

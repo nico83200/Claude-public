@@ -4,6 +4,7 @@
 #include <FastLED.h>
 
 #include "audio.h"
+#include "capteurs_i2c.h"
 #include "ecran.h"
 #include "plateforme.h"
 
@@ -24,11 +25,15 @@ class PlateformeESP32 : public pupitre::Plateforme {
   uint32_t aleatoire(uint32_t borne) override { return borne ? esp_random() % borne : 0; }
   void journal(const std::string& message) override { Serial.println(message.c_str()); }
   void appliquer(const pupitre::Reglages& r) override;
+  void tiroir(bool ouvrir) override { tiroir_.commander(ouvrir); }
+  bool tiroirPresent() override { return tiroir_.present(); }
+  Tiroir& servomoteurTiroir() { return tiroir_; }
 
  private:
   Ecran& ecran_;
   LecteurAudio& hp_;
   LecteurAudio& casque_;
   CRGB* leds_;
+  Tiroir tiroir_;
   uint32_t dernierAffichage_ = 0;
 };

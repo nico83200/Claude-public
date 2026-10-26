@@ -1,0 +1,100 @@
+# Le tiroir secret : ouvert depuis le menu du monde pour y glisser une carte, verrouillé
+# seulement une fois poussé au fond ; laissé ouvert, il se range à la fin de la partie.
+fente M1
+fente -
+verifie phase menu
+verifie tiroir verrouille
+# Le menu du Haras : 1 Jouer, 2 Enregistrer les cartes, 3 Tiroir secret, 4 Réglages
+touches 3
+verifie phase rangement
+verifie tiroir ouvert
+# Le ressort pousse le tiroir dehors : impossible de verrouiller
+tiroir sorti
+bouton VERT
+capture tiroir-sorti
+verifie phase rangement
+verifie tiroir ouvert
+tiroir fond
+bouton VERT
+verifie tiroir verrouille
+verifie phase menu
+
+# On le rouvre, et on le laisse ouvert (rouge) : il faudra le ranger après la partie
+touches 3
+tiroir sorti
+bouton ROUGE
+verifie phase menu
+verifie tiroir ouvert
+
+touches 1
+verifie phase roles
+
+# --- Les rôles, un par un dans la fente
+fente R1
+fente -
+fente R2
+fente -
+fente R3
+fente -
+fente R4
+fente -
+fente R5
+fente -
+fente R6
+fente -
+calme
+verifie phase jeu
+
+# --- Les voyants des pistes : l'écurie clignote, le bureau est fermé
+verifie voyant 1 orange
+verifie voyant 2 eteint
+verifie voyant 3 rouge
+
+# --- Un lieu glissé puis retiré : on y reste
+fente L1
+verifie drapeau J1
+fente -
+verifie zone OU L1
+verifie voyant 1 vert
+verifie voyant 2 orange
+verifie voyant 4 orange
+
+# --- Un personnage dans la fente, un objet sur le plateau : la paire
+fente P2
+verifie zone QUI P2
+plateau O3
+verifie zone QUOI O3
+plateau -
+fente -
+verifie zone QUI -
+
+# --- Le bureau : son code tapé au clavier
+fente L3
+touches 3715
+calme
+verifie drapeau J3
+verifie voyant 3 vert
+fente -
+
+# --- Un autre lieu : il remplace le premier
+fente L9
+fente -
+verifie zone OU L9
+
+# --- L'accusation : le lieu en mémoire, le suspect dans la fente, l'objet sur le plateau
+fente P1
+plateau O3
+verifie zone OU L9
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire
+
+# --- Fin de partie : le tiroir est encore ouvert, le pupitre demande de le ranger
+bouton VERT
+verifie phase rangement
+tiroir fond
+capture tiroir-rangement
+bouton VERT
+verifie tiroir verrouille
+verifie phase accueil

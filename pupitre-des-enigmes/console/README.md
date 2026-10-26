@@ -56,6 +56,9 @@ des cartes : clavier, voyants, capteur de couleur, œil (gestes et lumière), fo
   un aimant posé dessus, à travers le bois (un fer à cheval, une figurine aimantée…).
 - **L'horloge** (afficheur 4 chiffres à HT16K33) : derrière une fenêtre, l'heure du jeu,
   ou les chiffres d'un code pendant qu'on le tape.
+- **Le tiroir secret** : invisible dans le côté gauche, sous le clavier, assez grand
+  pour une carte. Un servomoteur le verrouille ; libéré, un ressort le pousse dehors
+  (§ 4.6).
 
 Chaque mission se sert de **tout ou partie** de ces éléments. Sa façade cache ceux
 dont elle n'a pas besoin (§ 4.5), et son script les déclare (`"materiel"`, voir
@@ -101,6 +104,7 @@ dans `firmware/src/broches.h`.
 | Forge | BME280 (humidité, température) : **pas un BMP280**, qui n'a pas d'humidité | 1 | 5 € |
 | Enclume | QMC5883L (module « GY-271 ») | 1 | 3 € |
 | Horloge | Afficheur 4 chiffres 7 segments 0,56" avec HT16K33 (câblage Adafruit) | 1 | 10 € |
+| Tiroir secret | Module servomoteurs PCA9685 (I2C), micro-servomoteur MG90S (pignons métal) ou SG90, ressort de compression, microrupteur de fin de course, condensateur 470 µF | 1 de chaque | 12 € |
 | LED | Anneau WS2812B de 12 LED, 2 LED WS2812B individuelles (fente, plateau) | 1 + 2 | 6 € |
 | Voyants | Ruban WS2812B 60 LED/m : 2 morceaux de 5 LED | 10 LED | 3 € |
 | Ruban sous la boîte | Ruban WS2812B : 6 à 10 LED | 8 LED | (même ruban) |
@@ -139,6 +143,8 @@ dans `firmware/src/broches.h`.
 | **Œil** APDS-9960 (0x39) | SDA / SCL, VCC 3,3 V (INT : en l'air) | I2C |
 | **Forge** BME280 (0x76, ou 0x77 selon la soudure SDO) | SDA / SCL, VIN 3,3 V | I2C |
 | **Enclume** QMC5883L (0x0D) | SDA / SCL, VCC 3,3 V (DRDY : en l'air) | I2C |
+| **Tiroir** : module PCA9685 (0x40) | SDA / SCL, VCC 3,3 V ; **V+ 5 V** (bornier, avec le 470 µF) ; le servomoteur sur la voie **0** (marron GND, rouge V+, orange PWM) | I2C |
+| **Tiroir** : microrupteur de fin de course | P4 du PCF8574 des boutons ↔ GND (fermé quand le tiroir est au fond) | I2C |
 | **Horloge** HT16K33 (0x70) | SDA / SCL, VCC 3,3 V ; l'afficheur lui-même en 5 V si le module a une broche V+ séparée | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
 | (libres) | — | 14 et 15 |
@@ -333,6 +339,72 @@ ce qui ne dépasse pas, et ce dont la mission ne se sert pas reste sous la plaqu
 
 Le gabarit (`pdf/gabarit-facade.pdf`) donne toutes les découpes ; chaque façade
 n'en reprend que ce qu'il lui faut.
+
+### 4.6 Le tiroir secret
+
+Un tiroir **sans poignée**, dans la paroi gauche, sous le clavier : sa façade est la
+pièce même découpée dans le côté du pupitre, le fil du bois continue, on ne le voit
+pas. Le pupitre le libère (une action du script) : un ressort le pousse de 15 mm
+dehors, assez pour le saisir.
+
+```
+   vue de dessus : le coin arrière gauche, sous le clavier
+   paroi
+   gauche
+     ┃
+     ┃◀ façade (la pièce découpée dans la paroi)
+     ┃┌──────────────────────────────────┐ ┌──┐
+     ┃│  tiroir 100 × 76 × 20 mm         │ │∿∿│ ressort ┐ butée
+     ┃│  (cartes de 63 × 88 mm)      ▪ ◀─┼─┤  │         │ arrière
+     ┃│                           taquet │ │▣ │ microrupteur
+     ┃└──────────────────────────────────┘ └──┘
+     ┃   ◀── le tiroir sort vers la gauche
+         le servomoteur est au-dessus du taquet, son bras baissé devant lui (verrou)
+```
+
+**Les cotes**
+- **Ouverture dans la paroi gauche** : 82 × 26 mm, centrée sur Y = 20 cm (sous le
+  clavier), bord inférieur à 12 mm du dessous du pupitre (au-dessus du fond). La paroi
+  fait 68 à 78 mm de haut à cet endroit : il reste de la place au-dessus pour le clavier
+  et sa nappe.
+- **Tiroir** (contreplaqué 3 mm) : 100 × 76 mm hors tout, 20 mm de haut ; dedans,
+  94 × 70 mm, de quoi coucher quelques cartes de 63 × 88 mm.
+- **Façade** : la pièce de 82 × 26 mm sortie de la paroi, collée au bout du tiroir.
+  Découpez-la à la scie fine (scie à chantourner, trait de 0,5 mm) en commençant par un
+  petit trou de départ à l'intérieur d'un angle, et poncez à peine les chants : le jeu
+  doit rester un trait.
+- **Coulisses** : deux baguettes de 5 × 5 mm collées sur le fond, de chaque côté, et une
+  troisième au-dessus du tiroir pour qu'il ne bascule pas. Un peu de cire (bougie) sur
+  les frottements.
+- **Butée arrière** : un tasseau à 102 mm de la paroi, qui porte le **ressort** (Ø 8 à
+  10 mm, 25 à 30 mm de long, fil de 0,6 à 0,8 mm, dans un trou de 10 mm de profondeur)
+  et le **microrupteur**, que le tiroir enfonce quand il est au fond.
+- **Butée avant** : un petit taquet sous le tiroir et un autre sur le fond, pour qu'il
+  ne sorte pas en entier (course d'environ 70 mm, de quoi prendre la carte).
+
+**Le verrou.** Le servomoteur est posé **au-dessus du tiroir, son axe parallèle au
+mouvement du tiroir**. Un taquet de 6 × 6 mm est collé sur le dessus du tiroir, près de
+l'arrière. Verrouillé (90°), le bras du servomoteur descend juste devant ce taquet,
+côté paroi : le ressort plaque le taquet contre le bras. Libéré (0°), le bras se relève
+et le tiroir sort. Comme la poussée du ressort suit l'axe du servomoteur, elle ne le
+fait pas tourner : le verrou tient même hors tension, et le pupitre coupe le
+servomoteur après chaque mouvement (pas de grésillement).
+
+Réglez la course au montage : le tiroir poussé au fond (microrupteur enfoncé), le
+taquet doit avoir **2 mm de marge** derrière le bras baissé. Les angles se règlent dans
+`firmware/src/broches.h` (`TIROIR_FERME`, `TIROIR_OUVERT`) ; le journal série écrit
+chaque mouvement et chaque passage du microrupteur.
+
+**Le refermer.** Le tiroir ne se verrouille jamais tout seul :
+- **à la fin d'une partie** où il a été ouvert, avant de revenir à l'accueil, l'écran
+  demande de remettre la carte, de pousser le tiroir jusqu'au fond, puis de valider
+  (vert ou #). Si le microrupteur n'est pas enfoncé, le pupitre refuse et le redit ;
+- **pour préparer une partie** (y glisser la carte), le menu du monde propose
+  *« Tiroir secret : l'ouvrir »* : le tiroir sort, on y met la carte, on le pousse au
+  fond, on valide.
+
+Rouge (ou *) laisse le tiroir ouvert pour plus tard : le menu propose alors
+*« Tiroir secret : le refermer »*. Sans module PCA9685, le menu ne parle pas du tiroir.
 
 ## 5. Les cartes et les objets
 

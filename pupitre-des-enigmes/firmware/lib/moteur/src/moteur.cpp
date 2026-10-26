@@ -212,7 +212,7 @@ void Moteur::allerAccueil() {
   vue_ = Vue();
   vue_.ecran = Vue::ACCUEIL;
   vue_.titre = "LE PUPITRE DES ÉNIGMES";
-  vue_.texte = "Glissez une carte Monde dans l'une des trois fentes.";
+  vue_.texte = "Glissez une carte Monde dans la fente.";
   vue_.info = "Molette : préparer les cartes d'un monde";
   rafraichir();
   ajouterInterne(Action::de(Action::SON, DOSSIER_SONS_PUPITRE, 1));
@@ -230,6 +230,7 @@ void Moteur::allerMenu(bool annoncer) {
     optionsMenu_.insert(optionsMenu_.begin(), "Reprendre la partie en cours");
   }
   optionsMenu_.push_back("Enregistrer les cartes de ce monde");
+  if (p_.tiroirPresent()) optionsMenu_.push_back(tiroirOuvert_ ? "Tiroir secret : le refermer" : "Tiroir secret : l'ouvrir");
   optionsMenu_.push_back(REGLAGES_PUPITRE);
   choixMenu_ = 0;
   vue_.ecran = Vue::MENU;
@@ -520,6 +521,62 @@ void Moteur::capteur(const std::string& nom, bool actif) {
   enAttente_.push_back(ev);
 }
 
+// Le tiroir secret. Le servomoteur le libère et le ressort le pousse dehors ; on le referme à
+// la main, jusqu'au fond (le contact de fin de course), puis on valide à l'écran : alors
+// seulement le servomoteur le verrouille.
+void Moteur::tiroirAuFond(bool auFond) {
+  if (auFond == tiroirAuFond_) return;
+  tiroirAuFond_ = auFond;
+  if (!auFond) tiroirOuvert_ = true;  // un tiroir sorti n'est jamais verrouillé (au démarrage, par exemple)
+  if (phase_ == Phase::RANGEMENT) {
+    vue_.info = auFond ? "Le tiroir est au fond : Vert ou # pour le verrouiller" : "Poussez le tiroir jusqu'au fond";
+    rafraichir();
+  }
+  if (phase_ != Phase::JEU) return;
+  Evenement ev;  // règles {"tiroir": "ouvert"} (les joueurs l'ont trouvé) et {"tiroir": "ferme"}
+  ev.type = "tiroir";
+  ev.nom = auFond ? "ferme" : "ouvert";
+  enAttente_.push_back(ev);
+}
+
+void Moteur::ouvrirTiroir() {
+  tiroirOuvert_ = true;
+  p_.tiroir(true);
+}
+
+void Moteur::afficherRangement(bool apresPartie) {
+  phase_ = Phase::RANGEMENT;
+  rangementApresPartie_ = apresPartie;
+  vue_.ecran = Vue::PRINCIPAL;
+  vue_.titre = "LE TIROIR SECRET";
+  vue_.texte = apresPartie ? "Remettez la carte dans le tiroir, sur le côté gauche du pupitre, puis poussez-le jusqu'au fond, "
+                             "contre le ressort. Validez : le pupitre le verrouille."
+                           : "Le tiroir est sorti, sur le côté gauche du pupitre. Glissez-y la carte de la mission, poussez-le "
+                             "jusqu'au fond, contre le ressort, puis validez : le pupitre le verrouille.";
+  vue_.bandeau.clear();
+  vue_.info = tiroirAuFond_ ? "Le tiroir est au fond : Vert ou # pour le verrouiller" : "Poussez le tiroir jusqu'au fond";
+  vue_.compteurs = "Vert ou # : verrouiller · Rouge ou * : plus tard";
+  vue_.versionEntete++;
+  rafraichir();
+}
+
+void Moteur::validerRangement(bool fermer) {
+  if (fermer && !tiroirAuFond_) {  // le servomoteur ne peut pas verrouiller un tiroir sorti
+    p_.jouer(DOSSIER_SONS_PUPITRE, 3, false);
+    vue_.info = "Le tiroir n'est pas au fond : poussez-le jusqu'à la butée";
+    rafraichir();
+    return;
+  }
+  if (fermer) {
+    tiroirOuvert_ = false;
+    p_.tiroir(false);
+    p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+  }
+  vue_.compteurs.clear();
+  if (rangementApresPartie_ || mondeId_.empty()) allerAccueil();
+  else allerMenu(false);
+}
+
 // Les éléments du pupitre dont la mission se sert (« materiel »: ["clavier", "voyants"…]) : sa
 // façade cache les autres. Sans cette liste, tout est disponible.
 bool Moteur::materiel(const char* element) const {
@@ -695,7 +752,14 @@ void Moteur::bouton(Bouton b) {
       }
       return;
     case Phase::FIN:
-      if ((b == VERT || b == GROS) && file_.empty() && attente_ == Attente::RIEN) allerAccueil();
+      if ((b == VERT || b == GROS) && file_.empty() && attente_ == Attente::RIEN) {
+        if (tiroirOuvert_ && p_.tiroirPresent()) afficherRangement(true);
+        else allerAccueil();
+      }
+      return;
+    case Phase::RANGEMENT:
+      if (b == VERT || b == GROS) validerRangement(true);
+      if (b == ROUGE) validerRangement(false);
       return;
     case Phase::JEU:
       break;
@@ -795,6 +859,9 @@ void Moteur::appuiMolette() {
         if (chargerJson(CHEMIN_SAUVEGARDE, sauv) && chargerMission(sauv["mission"].as<int>())) lancerMission(true);
       } else if (choix == REGLAGES_PUPITRE) {
         ouvrirReglages();
+      } else if (choix.rfind("Tiroir", 0) == 0) {  // préparer la partie : y glisser une carte, puis refermer
+        if (!tiroirOuvert_) ouvrirTiroir();
+        afficherRangement(false);
       } else if (choix.rfind("Enregistrer", 0) == 0) {
         phase_ = Phase::CHOIX_MONDE;
         choixMenu_ = static_cast<int>(std::find(mondes_.begin(), mondes_.end(), mondeId_) - mondes_.begin());
@@ -1067,6 +1134,7 @@ bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
   if (!q["cle"].isNull()) return ev.type == "cle" && motif(q["cle"], ev.nom);
   if (!q["geste"].isNull()) return ev.type == "geste" && motif(q["geste"], ev.nom);
   if (!q["capteur"].isNull()) return ev.type == "capteur" && motif(q["capteur"], ev.nom);
+  if (!q["tiroir"].isNull()) return ev.type == "tiroir" && motif(q["tiroir"], ev.nom);
   if (!q["evenement"].isNull()) return ev.type == "evenement" && motif(q["evenement"], ev.nom);
   if (!q["role"].isNull()) {
     if (ev.type != "role" || !motif(q["role"], ev.role)) return false;
@@ -1095,6 +1163,7 @@ int Moteur::valeur(const std::string& nom) {
   if (nom == "lumiere") return static_cast<int>(lumiere_);
   if (nom.rfind("couleur_", 0) == 0) return couleurPosee_ == nom.substr(8);
   if (nom == "cle") return cleTournee_ ? 1 : 0;
+  if (nom == "tiroir_ouvert") return tiroirAuFond_ ? 0 : 1;
   if (nom == "souffle" || nom == "aimant" || nom == "eclaire") {
     auto c = capteurs_.find(nom);
     return c != capteurs_.end() && c->second ? 1 : 0;
@@ -1540,6 +1609,10 @@ void Moteur::executer(JsonVariantConst act) {
     actionVoyant(act["voyant"].isNull() ? act["socle"] : act["voyant"], act["voyant"].isNull());
     return;
   }
+  if (!act["tiroir"].isNull()) {  // {"tiroir": "ouvrir"} : le ressort pousse le tiroir dehors
+    if (texte(act["tiroir"]) == "ouvrir") ouvrirTiroir();
+    return;
+  }
   if (!act["vue"].isNull()) {
     vue_.ecran = Vue::PRINCIPAL;
     rafraichir();
@@ -1582,6 +1655,8 @@ void Moteur::executerSimple(JsonVariantConst act) {
     majDynamo();
   } else if (!act["voyant"].isNull() || !act["socle"].isNull()) {
     actionVoyant(act["voyant"].isNull() ? act["socle"] : act["voyant"], act["voyant"].isNull());
+  } else if (!act["tiroir"].isNull()) {
+    if (texte(act["tiroir"]) == "ouvrir") ouvrirTiroir();
   }
 }
 
@@ -2817,6 +2892,7 @@ std::string Moteur::phaseTexte() const {
     case Phase::FIN: return victoire_ ? "victoire" : "defaite";
     case Phase::ENROLEMENT: return "enrolement";
     case Phase::REGLAGES: return "reglages";
+    case Phase::RANGEMENT: return "rangement";
   }
   return "?";
 }
