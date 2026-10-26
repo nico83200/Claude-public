@@ -19,7 +19,9 @@ from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
 TYPES_EPREUVES = {"code", "lettres", "choix", "ensemble", "rythme", "sequence", "immobile", "molette_zero", "rondes",
-                  "energie", "traitre", "appui", "ordre"}
+                  "energie", "traitre", "appui", "ordre", "voyants", "cle"}
+COULEURS = {"rouge", "vert", "bleu", "jaune", "orange", "ambre", "blanc", "violet", "cyan", "rose", "eteint"}
+MATERIEL = {"fente", "plateau", "clavier", "voyants", "couleur", "cle", "boutons", "molette", "gros_bouton", "casque", "anneau"}
 BOUTONS = {"ROUGE", "BLEU", "JAUNE", "VERT", "GROS"}
 CLES_CARTES = ("lieu", "qui", "quoi", "role", "combiner")
 
@@ -68,6 +70,9 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
                 erreur(f"son {x['son']} introuvable ({chemin})")
         if isinstance(x.get("ambiance"), int) and x["ambiance"] and x["ambiance"] not in sons:
             erreur(f"ambiance {x['ambiance']} introuvable")
+        if isinstance(x.get("couleur"), str) and not x["couleur"].startswith("#") and x["couleur"] not in COULEURS \
+                and "quand" not in chemin.split(".")[-1:]:
+            erreur(f"couleur inconnue « {x['couleur']} » ({chemin})")
         if "quand" in x:
             for k in CLES_CARTES:
                 if k in x["quand"]:
@@ -101,6 +106,11 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
             dire(n)
     for r in script.get("fins", {}).get("rangs", []):
         dire(r["dire"])
+    for m in script.get("materiel", []):
+        if m not in MATERIEL:
+            erreur(f"élément de « materiel » inconnu : « {m} »")
+    if len(script.get("panneau", {}).get("voyants", [])) > 10:
+        erreur("panneau : 10 voyants au plus")
     for k in ("dire_lieu", "dire_objet", "dire_perso"):
         dire(script.get("zones", {}).get(k))
     if len(script.get("zones", {}).get("noms", ["", "", ""])) != 3:

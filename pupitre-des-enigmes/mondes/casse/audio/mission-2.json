@@ -15,7 +15,7 @@
   },
   "lignes": [
     { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Monte-Carlo, mille neuf cent vingt-huit. Mission deux : le casse du siècle." },
-    { "n": 2, "voix": "narrateur", "usage": "Demande des rôles", "texte": "Messieurs-dames, glissez chacun votre carte Rôle dans une fente, puis reprenez-la." },
+    { "n": 2, "voix": "narrateur", "usage": "Demande des rôles", "texte": "Messieurs-dames, glissez chacun votre carte Rôle dans la fente, puis reprenez-la." },
     { "n": 3, "voix": "narrateur", "usage": "Rôle posé", "texte": "Le Cerveau est dans la place." },
     { "n": 4, "voix": "narrateur", "usage": "Rôle posé", "texte": "La Perceuse de coffres est dans la place." },
     { "n": 5, "voix": "narrateur", "usage": "Rôle posé", "texte": "Le Faussaire est dans la place." },
@@ -175,7 +175,7 @@
     { "n": 228, "voix": "fernand", "usage": "Directeur, niveau 3", "texte": "Odessa. Le bouton bleu." },
     { "n": 229, "voix": "fernand", "usage": "Couloir, niveau 1", "texte": "Pour le couloir, il faut un jeton de service. Qui en porte un ?" },
     { "n": 230, "voix": "fernand", "usage": "Couloir, niveau 2", "texte": "Les croupiers en ont. Albert, par exemple. Et le Pickpocket a des doigts de fée." },
-    { "n": 231, "voix": "fernand", "usage": "Couloir, niveau 3", "texte": "Glissez Albert dans la fente QUI, et la carte du Pickpocket dans la fente QUOI." },
+    { "n": 231, "voix": "fernand", "usage": "Couloir, niveau 3", "texte": "Glissez Albert dans la fente, et posez la carte du Pickpocket sur le plateau." },
     { "n": 232, "voix": "fernand", "usage": "Coffre, niveau 1", "texte": "Deux disques s'écoutent. Le troisième, il faut le calculer." },
     { "n": 233, "voix": "fernand", "usage": "Coffre, niveau 2", "texte": "Le carnet de Pujol, la photo de sa fille, et le croupier. Tout est là." },
     { "n": 234, "voix": "fernand", "usage": "Coffre, niveau 3", "texte": "Marie a quinze ans, Albert tient la table sept. Quinze plus sept : vingt-deux." },

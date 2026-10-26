@@ -71,6 +71,10 @@ void setup() {
   rappels.molette = [](int pas) { moteur.molette(pas); };
   rappels.appui = [] { moteur.appuiMolette(); };
   rappels.touche = [](char k) { moteur.touche(k); };
+  rappels.cle = [](bool tournee) {
+    Serial.printf("Interrupteur à clé : %s\n", tournee ? "tourné" : "au repos");
+    moteur.cle(tournee);
+  };
 
   moteur.demarrer();
   panneau::demarrer(moteur);

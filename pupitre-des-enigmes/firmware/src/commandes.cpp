@@ -44,6 +44,7 @@ uint8_t trouver(uint8_t adresse) {
 
 void Commandes::demarrer() {
   pinMode(broches::GROS_BOUTON, INPUT);  // GPIO 39 : tirage externe
+  pinMode(broches::CLE, INPUT_PULLUP);
   Wire.begin(broches::I2C_SDA, broches::I2C_SCL, 400000);
   adresseBoutons_ = trouver(broches::ADRESSE_BOUTONS);
   adresseClavier_ = trouver(broches::ADRESSE_CLAVIER);
@@ -99,6 +100,12 @@ void Commandes::maj(const Rappels& r) {
     r.enfonces(masque);
   }
   if (filtrer(sw_, digitalRead(broches::MOLETTE_SW) == LOW, t)) r.appui();
+  filtrer(cle_, digitalRead(broches::CLE) == LOW, t);
+  if (!cleLue_ || cle_.stable != cleAnnoncee_) {  // la position de la clé, et chacun de ses changements
+    cleLue_ = true;
+    cleAnnoncee_ = cle_.stable;
+    r.cle(cleAnnoncee_);
+  }
 
   if (adresseClavier_ && t - dernierBalayage_ >= BALAYAGE_CLAVIER) {
     dernierBalayage_ = t;

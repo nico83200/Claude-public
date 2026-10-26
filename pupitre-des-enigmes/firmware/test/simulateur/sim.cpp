@@ -271,6 +271,10 @@ int main(int argc, char** argv) {
       m.lecteur(cmd == "fente" ? 0 : 1, a == "-" ? "" : "UID-" + a);
       if (a == "-") tourner(50);
       else calme();
+    } else if (cmd == "cle") {
+      // L'interrupteur à clé : « cle tournee », « cle repos ».
+      m.cle(a == "tournee");
+      calme();
     } else if (cmd == "couleur") {
       // Le capteur de couleur : « couleur rouge », « couleur - » quand l'objet est retiré.
       m.couleurPosee(a == "-" ? "" : a);

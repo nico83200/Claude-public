@@ -71,9 +71,9 @@ verifie compteur indices_payants 1
 
 # --- Le court-circuit (minute 14), raté : noir complet
 avance 10
-verifie epreuve sequence
+verifie epreuve voyants
 dynamo manuel
-attendre 32
+attendre 62
 calme
 verifie lumiere noir
 dynamo auto

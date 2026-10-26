@@ -16,15 +16,15 @@ planches({
   accent: "#e9cf8f",
   motif: "◆ ◇ ◆",
   types: {
-    monde: { c: "#9c7a2b", fond: "#f4e6c0", libelle: "Carte Monde", zone: "Tout lecteur" },
-    lieu:  { c: "#1d3b4a", fond: "#d8e3e8", libelle: "Lieu", zone: "📍 OÙ" },
-    perso: { c: "#8e1f2f", fond: "#f1d9dd", libelle: "Personnage", zone: "👤 QUI" },
-    objet: { c: "#6b5320", fond: "#efe5cc", libelle: "Objet", zone: "🔍 QUOI" },
-    role:  { c: "#15161c", fond: "#e3e1dc", libelle: "Rôle", zone: "Lecteur libre" },
-    aide:  { c: "#4a3a6b", fond: "#e3dcef", libelle: "Aide", zone: "Tout lecteur" },
+    monde: { c: "#9c7a2b", fond: "#f4e6c0", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#1d3b4a", fond: "#d8e3e8", libelle: "Lieu", zone: "📍 Fente" },
+    perso: { c: "#8e1f2f", fond: "#f1d9dd", libelle: "Personnage", zone: "👤 Fente" },
+    objet: { c: "#6b5320", fond: "#efe5cc", libelle: "Objet", zone: "🔍 Plateau" },
+    role:  { c: "#15161c", fond: "#e3e1dc", libelle: "Rôle", zone: "Fente ou plateau" },
+    aide:  { c: "#4a3a6b", fond: "#e3dcef", libelle: "Aide", zone: "Fente" },
   },
   cartes: [
-    { id: "M2", t: "monde", nom: "Monte-Carlo 1928", sous: "Mission 2", vis: "🎰", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>Le Casse du Siècle</em>" },
+    { id: "M2", t: "monde", nom: "Monte-Carlo 1928", sous: "Mission 2", vis: "🎰", txt: "Glissez cette carte dans la fente pour charger le monde. <em>Le Casse du Siècle</em>" },
 
     { id: "L1", t: "lieu", nom: "Le Salon d'Or", sous: "Gardé par Mattei", vis: "💎", txt: "Lustres, champagne et une vitrine… vide depuis 22 h 45." },
     { id: "L2", t: "lieu", nom: "La Salle de jeu", sous: "Roulette et baccara", vis: "🎲", txt: "Le cliquetis des jetons. Au fond, la porte du personnel." },
@@ -54,14 +54,14 @@ planches({
     { id: "O9", t: "objet", nom: "Poudrier", sous: "Enveloppe E4", vis: "🪷", txt: "Argent ciselé. Étrangement lourd." },
     { id: "O10", t: "objet", nom: "Plume de pie", sous: "Enveloppe E4", vis: "🪶", txt: "Noire et blanche." },
 
-    { id: "R1", t: "role", nom: "Le Cerveau", sous: "Plan B · 1 fois", vis: "🧠", txt: "Juste après une hausse du Soupçon, posez cette carte : elle est annulée." },
+    { id: "R1", t: "role", nom: "Le Cerveau", sous: "Plan B · 1 fois", vis: "🧠", txt: "Juste après une hausse du Soupçon, glissez cette carte : elle est annulée." },
     { id: "R2", t: "role", nom: "La Perceuse", sous: "Stéthoscope · illimité", vis: "🔩", txt: "Au coffre, mettez le 🎧 casque et écoutez les disques tourner." },
     { id: "R3", t: "role", nom: "Le Faussaire", sous: "Expertiser · 3 fois", vis: "✒️", txt: "Cette carte sur QUI, un objet sur QUOI : vrai ou faux ? <em>Faux papiers : 1 fois.</em>" },
-    { id: "R4", t: "role", nom: "L'Acrobate", sous: "Monte-plats · 1 fois", vis: "🤸", txt: "Posez cette carte pour éviter une épreuve de discrétion." },
+    { id: "R4", t: "role", nom: "L'Acrobate", sous: "Monte-plats · 1 fois", vis: "🤸", txt: "Glissez cette carte pour éviter une épreuve de discrétion." },
     { id: "R5", t: "role", nom: "Le Pickpocket", sous: "Faire les poches · 3 fois", vis: "🃏", txt: "Personnage sur QUI, cette carte sur QUOI. Le Soupçon monte à chaque fois." },
-    { id: "R6", t: "role", nom: "Le Beau Parleur", sous: "Belle parole · 1 fois", vis: "💋", txt: "Posez cette carte : le Soupçon baisse de 3." },
+    { id: "R6", t: "role", nom: "Le Beau Parleur", sous: "Belle parole · 1 fois", vis: "💋", txt: "Glissez cette carte : le Soupçon baisse de 3." },
 
-    { id: "A2", t: "aide", nom: "Fernand", sous: "Vieux monte-en-l'air", vis: "🎩", txt: "Posez sa carte quand vous coincez. 3 conseils gratuits, puis 2 minutes chacun." },
+    { id: "A2", t: "aide", nom: "Fernand", sous: "Vieux monte-en-l'air", vis: "🎩", txt: "Glissez sa carte quand vous coincez. 3 conseils gratuits, puis 2 minutes chacun." },
   ],
 });
 </script>

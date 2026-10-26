@@ -18,6 +18,17 @@
     "dire_lieu": 15,
     "dire_objet": 16
   },
+  "materiel": [
+    "fente",
+    "plateau",
+    "clavier",
+    "voyants",
+    "cle",
+    "boutons",
+    "molette",
+    "gros_bouton",
+    "casque"
+  ],
   "dynamo": {
     "bouton": "GROS",
     "duree": 80,
@@ -197,6 +208,202 @@
       "fait": "J_cmdt"
     }
   ],
+  "panneau": {
+    "voyants": [
+      {
+        "nom": "Porte",
+        "etats": [
+          {
+            "si": "J_porte",
+            "couleur": "vert"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Courant",
+        "etats": [
+          {
+            "si": "J_courant",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_raccord",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Hydraulique",
+        "etats": [
+          {
+            "si": "J_hyd || J_verrous",
+            "couleur": "vert"
+          },
+          {
+            "si": "vannes",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Sécurité",
+        "etats": [
+          {
+            "si": "J_sec",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_console",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Radio",
+        "etats": [
+          {
+            "si": "J_contact",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_courant",
+            "couleur": "bleu",
+            "effet": "clignote"
+          }
+        ]
+      },
+      {
+        "nom": "Verrous",
+        "etats": [
+          {
+            "si": "J_verrous",
+            "couleur": "vert"
+          },
+          {
+            "si": "(J_hyd || J_verrous) && J_sec",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "O₂",
+        "etats": [
+          {
+            "si": "restant>=30",
+            "couleur": "vert"
+          },
+          {
+            "si": "restant>=15",
+            "couleur": "orange"
+          },
+          {
+            "si": "restant>=5",
+            "couleur": "rouge",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "rapide"
+          }
+        ]
+      },
+      {
+        "nom": "Lumière",
+        "etats": [
+          {
+            "si": "lumiere>=40",
+            "couleur": "ambre",
+            "intensite": "lumiere"
+          },
+          {
+            "si": "lumiere>=15",
+            "couleur": "orange"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "rapide"
+          }
+        ]
+      },
+      {
+        "nom": "Orque",
+        "etats": [
+          {
+            "si": "egal",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_contact && J_verrous",
+            "couleur": "bleu"
+          },
+          {
+            "si": "J_contact",
+            "couleur": "bleu",
+            "effet": "pulse"
+          }
+        ]
+      },
+      {
+        "nom": "Commandante",
+        "etats": [
+          {
+            "si": "J_cmdt",
+            "couleur": "vert"
+          },
+          {
+            "si": "vu_L10",
+            "couleur": "rouge",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "faible"
+          }
+        ]
+      }
+    ]
+  },
+  "socle": {
+    "etats": [
+      {
+        "si": "lumiere<15",
+        "couleur": "rouge",
+        "effet": "pulse"
+      },
+      {
+        "si": "1",
+        "couleur": "ambre",
+        "intensite": "lumiere"
+      }
+    ]
+  },
   "regles": [
     {
       "note": "Départ : le poste d'équipage",
@@ -1694,11 +1901,10 @@
         },
         {
           "epreuve": {
-            "type": "ensemble",
+            "type": "cle",
             "titre": "LES CLÉS DE COMMANDEMENT",
-            "texte": "Tournez ensemble : 4 boutons, 2 secondes !",
-            "secondes": 10,
-            "tenir": 2,
+            "texte": "Tournez la clé du pupitre !",
+            "secondes": 15,
             "reussite": [
               {
                 "son": 25
@@ -2171,15 +2377,25 @@
           "son": 11
         },
         {
+          "effet": "alerte"
+        },
+        {
           "dire": 123
         },
         {
           "epreuve": {
-            "type": "sequence",
+            "type": "voyants",
             "titre": "COURT-CIRCUIT",
-            "texte": "Retenez les disjoncteurs…",
-            "longueur": 5,
+            "texte": "Chaque disjoncteur réarme aussi ses voisins : rallumez les dix voyants",
+            "depart": "0000001000",
+            "cible": "1111111111",
+            "liens": "voisins",
+            "couleur": "ambre",
+            "secondes": 60,
             "reussite": [
+              {
+                "son": 10
+              },
               {
                 "dire": 124
               }

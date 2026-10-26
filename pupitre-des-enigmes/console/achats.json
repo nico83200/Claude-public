@@ -19,8 +19,8 @@
         },
         {
           "article": "Module RFID RC522",
-          "detail": "13,56 MHz, souvent vendu avec une carte et un badge. 3 pour le pupitre et 1 de secours",
-          "qte": 4,
+          "detail": "13,56 MHz. Un pour la fente, un à plat sous le couvercle, un de secours",
+          "qte": 3,
           "prix": 3
         },
         {
@@ -43,7 +43,7 @@
         },
         {
           "article": "LED WS2812B sur mini-circuit",
-          "detail": "Lot de 10, pour les 3 LED de zone",
+          "detail": "Lot de 10 : une LED pour la fente, une pour le lecteur à plat",
           "qte": 1,
           "prix": 3
         },
@@ -58,6 +58,30 @@
           "detail": "Rouge, type bouton d'arcade géant ou « buzzer » de quiz",
           "qte": 1,
           "prix": 5
+        },
+        {
+          "article": "Clavier membrane 4×4",
+          "detail": "Clavier souple adhésif, nappe de 8 fils (touches 0-9, A-D, * et #). Recherche : « 4x4 matrix membrane keypad »",
+          "qte": 1,
+          "prix": 2
+        },
+        {
+          "article": "Module d'extension I2C PCF8574",
+          "detail": "Un pour le clavier, un pour les 4 boutons de couleur, un de secours. Recherche : « PCF8574 IO expansion board »",
+          "qte": 3,
+          "prix": 1.5
+        },
+        {
+          "article": "Capteur de couleur TCS34725",
+          "detail": "Module I2C avec LED blanche intégrée, pour reconnaître la couleur d'un objet posé. Recherche : « TCS34725 color sensor »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Ruban LED WS2812B 5 V",
+          "detail": "60 LED/m, à couper : les 10 voyants (2 morceaux de 5) et 8 LED sous la boîte, tournées vers la table",
+          "qte": 1,
+          "prix": 4
         }
       ]
     },
@@ -94,14 +118,14 @@
       "nom": "Alimentation et connectique",
       "articles": [
         {
-          "article": "Alimentation 5 V 3 A",
-          "detail": "Bloc secteur avec fiche jack DC 5,5 × 2,1 mm",
+          "article": "Chargeur USB-C 5 V 3 A",
+          "detail": "Avec son câble USB-C. Un chargeur de téléphone de 15 W convient",
           "qte": 1,
           "prix": 9
         },
         {
-          "article": "Embase DC 5,5 × 2,1 mm",
-          "detail": "À visser sur le boîtier",
+          "article": "Embase USB-C femelle à visser",
+          "detail": "Alimentation seule (2 fils, 5 V et masse), pour la face arrière",
           "qte": 1,
           "prix": 1
         },
@@ -166,21 +190,27 @@
       "articles": [
         {
           "article": "Contreplaqué 5 mm",
-          "detail": "Pour le boîtier d'environ 38 × 26 × 8 cm. Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
+          "detail": "Boîtier de 38 × 26 cm, 5 cm de haut à l'avant et 8 cm à l'arrière (liste de débit : console/README.md, § 4). Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
           "qte": 1,
           "prix": 10
         },
         {
+          "article": "Tasseaux 15 × 15 mm",
+          "detail": "4 morceaux de 4 cm, pour poser le fond amovible",
+          "qte": 1,
+          "prix": 2
+        },
+        {
           "article": "Contreplaqué bouleau 3 mm",
-          "detail": "Les 3 façades gravées (Haras, Monte-Carlo, Kepler-9), en fablab",
-          "qte": 3,
+          "detail": "Les 4 façades (Haras, Monte-Carlo, Kepler-9, Narval) et les 3 puits des fentes, en fablab",
+          "qte": 4,
           "prix": 5
         },
         {
-          "article": "Aimants néodyme 10 × 3 mm (lot de 20)",
-          "detail": "4 dans le boîtier et 4 par façade (3 façades) : 16 en tout",
+          "article": "Aimants néodyme 10 × 3 mm (lot de 30)",
+          "detail": "4 dans le boîtier et 4 par façade (4 façades) : 20 en tout",
           "qte": 1,
-          "prix": 5
+          "prix": 7
         },
         {
           "article": "Kit d'entretoises nylon M3",
@@ -207,7 +237,7 @@
       "articles": [
         {
           "article": "Autocollants NFC NTAG213 (lot de 100)",
-          "detail": "Ronds, 25 mm. Il faut 100 cartes pour les 3 missions (33 + 33 + 34) : prenez 2 lots pour avoir de la marge",
+          "detail": "Ronds, 25 mm. Il faut 100 cartes pour les 3 missions (33 + 33 + 34) : prenez 2 lots pour avoir de la marge · aussi pour cacher une puce sous des objets",
           "qte": 2,
           "prix": 12
         },

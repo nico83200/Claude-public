@@ -81,7 +81,7 @@
     <div class="carte monde" style="border-top-color:#d08a2a"><h4>🎰 Monte-Carlo 1928</h4><p><strong>Mission 2 · Le Casse du Siècle.</strong> 🟠 Intermédiaire, 60 min. Cette fois, c'est vous les voleurs. Bluff, jazz et coffre-fort.</p></div>
     <div class="carte monde" style="border-top-color:#2f7fb8"><h4>🚀 Station Kepler-9</h4><p><strong>Mission 3 · Signal Perdu.</strong> 🔴 Difficile, 75 min. Une station spatiale muette, une IA trop calme, et peut-être un traître parmi vous.</p></div>
   </div>
-  <div class="carte monde" style="border-top-color:#245b78;margin-top:3mm"><h4>⚓ Sous-marin Narval</h4><p><strong>Mission 4 · Voie d'eau.</strong> 🟠 Intermédiaire, 60 min. <strong>Un vrai escape game</strong> : pas d'enquête ni de rôles, tous matelots, et un sous-marin qui prend l'eau. Ici, <strong>OÙ</strong> est le compartiment où vous êtes, et <strong>QUI</strong> et <strong>QUOI</strong> deviennent vos deux mains : deux objets posés ensemble se combinent. Sa fiche de mission explique tout.</p></div>
+  <div class="carte monde" style="border-top-color:#245b78;margin-top:3mm"><h4>⚓ Sous-marin Narval</h4><p><strong>Mission 4 · Dernier souffle.</strong> 🔴 Difficile, 60 min. <strong>Un vrai escape game</strong> pour adultes : pas d'enquête ni de rôles, tous matelots, une heure d'oxygène, une dynamo à actionner sans relâche et un sas bloqué. La fente et le plateau deviennent vos deux mains : deux objets ensemble se combinent. Sa fiche de mission explique tout.</p></div>
   <p class="petit">Commencez de préférence par le Haras : il présente toutes les mécaniques du pupitre en douceur.</p>
 </section>
 
@@ -107,73 +107,97 @@
       </ul>
     </div>
   </div>
-  <p class="petit">Toutes les cartes contiennent une puce : le pupitre les reconnaît quand on les pose. Une carte d'un autre monde est refusée.</p>
+  <p class="petit">Toutes les cartes contiennent une puce, en bas du dos : le pupitre les reconnaît dans la fente ou sur le plateau. Certains objets du jeu en cachent une aussi. Une carte d'un autre monde est refusée.</p>
 </section>
 
 <!-- ============ 3. LE PUPITRE ============ -->
 <section class="saut">
   <div class="chapitre"><span class="num">3</span><h2>Le pupitre</h2></div>
   <div class="console carte">
-  <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans, sans-serif">
-    <rect x="20" y="20" width="660" height="340" rx="22" fill="#2a2d44"/>
-    <rect x="32" y="32" width="636" height="316" rx="16" fill="#c9b48a"/>
-    <text x="350" y="340" font-size="10" fill="#5d4c2f" text-anchor="middle" font-style="italic">façade aimantée du monde (ici : le Haras)</text>
-    <rect x="235" y="45" width="230" height="140" rx="8" fill="#1d1d1d"/>
-    <rect x="245" y="55" width="210" height="120" rx="3" fill="#2f4c3c"/>
-    <text x="350" y="112" font-size="14" fill="#f2d9a6" text-anchor="middle" font-family="Playfair, serif">8:14</text>
-    <text x="350" y="130" font-size="9" fill="#e3ebe2" text-anchor="middle">QUI : —   OÙ : Écurie   QUOI : —</text>
-    <g transform="translate(120 110)">
-      <circle r="44" fill="#4e3a22"/>
-      <g fill="#7fd36b">
-        <circle cx="0" cy="-34" r="5"/><circle cx="17" cy="-29.4" r="5"/><circle cx="29.4" cy="-17" r="5"/><circle cx="34" cy="0" r="5"/>
-        <circle cx="29.4" cy="17" r="5"/><circle cx="17" cy="29.4" r="5"/><circle cx="0" cy="34" r="5"/><circle cx="-17" cy="29.4" r="5"/>
-        <circle cx="-29.4" cy="17" r="5" fill="#3d3d3d"/><circle cx="-34" cy="0" r="5" fill="#3d3d3d"/><circle cx="-29.4" cy="-17" r="5" fill="#3d3d3d"/><circle cx="-17" cy="-29.4" r="5" fill="#3d3d3d"/>
-      </g>
+  <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans, sans-serif">
+    <rect x="34" y="18" width="632" height="443" rx="22" fill="#2a2d44"/>
+    <rect x="46" y="30" width="608" height="419" rx="14" fill="#c9b48a"/>
+    <text x="350" y="441" font-size="10" fill="#5d4c2f" text-anchor="middle" font-style="italic">façade aimantée du monde (ici : le Haras)</text>
+    <!-- clavier -->
+    <rect x="83" y="67" width="112" height="125" rx="6" fill="#e8e2d2" stroke="#3a2412" stroke-width="2"/>
+    <g font-size="15" font-weight="700" fill="#23263a" text-anchor="middle">
+      <text x="104" y="96">1</text><text x="128" y="96">2</text><text x="152" y="96">3</text><text x="176" y="96">A</text>
+      <text x="104" y="124">4</text><text x="128" y="124">5</text><text x="152" y="124">6</text><text x="176" y="124">B</text>
+      <text x="104" y="152">7</text><text x="128" y="152">8</text><text x="152" y="152">9</text><text x="176" y="152">C</text>
+      <text x="104" y="180">*</text><text x="128" y="180">0</text><text x="152" y="180">#</text><text x="176" y="180">D</text>
     </g>
-    <g transform="translate(580 110)" fill="#4e3a22">
-      <circle r="44"/>
-      <g fill="#2e1e10"><circle r="3" cx="-16" cy="-16"/><circle r="3" cx="0" cy="-20"/><circle r="3" cx="16" cy="-16"/><circle r="3" cx="-20" cy="0"/><circle r="3"/><circle r="3" cx="20" cy="0"/><circle r="3" cx="-16" cy="16"/><circle r="3" cx="0" cy="20"/><circle r="3" cx="16" cy="16"/></g>
+    <!-- haut-parleur -->
+    <circle cx="259" cy="129" r="32" fill="#4e3a22"/>
+    <g fill="#2e1e10"><circle r="3" cx="247" cy="117"/><circle r="3" cx="259" cy="113"/><circle r="3" cx="271" cy="117"/><circle r="3" cx="243" cy="129"/><circle r="3" cx="259" cy="129"/><circle r="3" cx="275" cy="129"/><circle r="3" cx="247" cy="141"/><circle r="3" cx="259" cy="145"/><circle r="3" cx="271" cy="141"/></g>
+    <!-- anneau -->
+    <circle cx="350" cy="129" r="31" fill="#4e3a22"/>
+    <g fill="#7fd36b">
+      <circle cx="350" cy="105" r="4.5"/><circle cx="362" cy="108" r="4.5"/><circle cx="371" cy="117" r="4.5"/><circle cx="374" cy="129" r="4.5"/>
+      <circle cx="371" cy="141" r="4.5"/><circle cx="362" cy="150" r="4.5"/><circle cx="350" cy="153" r="4.5"/><circle cx="338" cy="150" r="4.5"/>
+      <circle cx="329" cy="141" r="4.5" fill="#3d3d3d"/><circle cx="326" cy="129" r="4.5" fill="#3d3d3d"/><circle cx="329" cy="117" r="4.5" fill="#3d3d3d"/><circle cx="338" cy="108" r="4.5" fill="#3d3d3d"/>
     </g>
-    <g font-weight="700" font-size="15" text-anchor="middle">
-      <rect x="95" y="200" width="140" height="78" rx="10" fill="#f6efe0" stroke="#8a5a2b" stroke-width="3"/>
-      <text x="165" y="245" fill="#23263a">👤 QUI</text>
-      <rect x="280" y="200" width="140" height="78" rx="10" fill="#f6efe0" stroke="#8a5a2b" stroke-width="3"/>
-      <text x="350" y="245" fill="#23263a">📍 OÙ</text>
-      <rect x="465" y="200" width="140" height="78" rx="10" fill="#f6efe0" stroke="#8a5a2b" stroke-width="3"/>
-      <text x="535" y="245" fill="#23263a">🔍 QUOI</text>
+    <!-- écran -->
+    <rect x="424" y="85" width="157" height="88" rx="8" fill="#1d1d1d"/>
+    <rect x="434" y="92" width="137" height="74" rx="3" fill="#2f4c3c"/>
+    <text x="502" y="126" font-size="16" fill="#f2d9a6" text-anchor="middle" font-family="Playfair, serif">8:14</text>
+    <text x="502" y="146" font-size="8.5" fill="#e3ebe2" text-anchor="middle">QUI : —  OÙ : Écurie  QUOI : —</text>
+    <!-- voyants -->
+    <g fill="#f0b040" stroke="#3a2412" stroke-width="1.5">
+      <circle cx="121" cy="216" r="6"/><circle cx="147" cy="216" r="6" fill="#4e3a22"/><circle cx="174" cy="216" r="6" fill="#3ec060"/><circle cx="201" cy="216" r="6" fill="#4e3a22"/><circle cx="227" cy="216" r="6" fill="#e04030"/>
+      <circle cx="121" cy="267" r="6" fill="#4e3a22"/><circle cx="147" cy="267" r="6" fill="#3ec060"/><circle cx="174" cy="267" r="6" fill="#4e3a22"/><circle cx="201" cy="267" r="6"/><circle cx="227" cy="267" r="6" fill="#4e3a22"/>
     </g>
-    <g fill="#fff" stroke="#8a5a2b"><circle cx="165" cy="268" r="4"/><circle cx="350" cy="268" r="4"/><circle cx="535" cy="268" r="4"/></g>
-    <circle cx="95" cy="310" r="15" fill="#c8372d" stroke="#3a2412" stroke-width="3"/>
-    <circle cx="140" cy="310" r="15" fill="#2a63b8" stroke="#3a2412" stroke-width="3"/>
-    <circle cx="185" cy="310" r="15" fill="#e3b92a" stroke="#3a2412" stroke-width="3"/>
-    <circle cx="230" cy="310" r="15" fill="#3e9a48" stroke="#3a2412" stroke-width="3"/>
-    <circle cx="350" cy="306" r="17" fill="#3a3a3a" stroke="#1d1d1d" stroke-width="3"/><circle cx="350" cy="306" r="8" fill="#5a5a5a"/>
-    <circle cx="560" cy="306" r="24" fill="#c8372d" stroke="#3a2412" stroke-width="4"/>
-    <!-- prise casque sur le côté -->
-    <rect x="672" y="250" width="16" height="22" rx="3" fill="#1d1d1d"/><circle cx="680" cy="261" r="4" fill="#888"/>
-    <g font-size="12" fill="#3a2a14" font-weight="700">
-      <text x="120" y="172" text-anchor="middle">chrono</text>
-      <text x="580" y="172" text-anchor="middle">haut-parleur</text>
-      <text x="162" y="338" text-anchor="middle">4 boutons de couleur</text>
-      <text x="350" y="332" text-anchor="middle">molette</text>
-      <text x="597" y="338" text-anchor="middle">gros bouton</text>
+    <!-- fente et carte -->
+    <rect x="296" y="237" width="109" height="9" rx="4" fill="#1d1d1d"/>
+    <rect x="320" y="200" width="60" height="34" rx="4" fill="#f6efe0" stroke="#8a5a2b" stroke-width="2"/>
+    <text x="350" y="222" font-size="11" fill="#23263a" text-anchor="middle" font-weight="700">L'Écurie</text>
+    <path d="M350 250v14" stroke="#3a2412" stroke-width="2"/><path d="M344 258l6 7 6-7" fill="none" stroke="#3a2412" stroke-width="2"/>
+    <!-- lecteur à plat -->
+    <rect x="457" y="189" width="122" height="122" rx="10" fill="#e6d6b0" stroke="#8a5a2b" stroke-width="3" stroke-dasharray="7 5"/>
+    <circle cx="518" cy="250" r="20" fill="none" stroke="#8a5a2b" stroke-width="2"/><circle cx="518" cy="250" r="4" fill="#8a5a2b"/>
+    <path d="M505 262c0-14 6-24 13-24s13 10 13 24z" fill="#6b5a7a" opacity=".85"/><circle cx="518" cy="232" r="7" fill="#6b5a7a" opacity=".85"/>
+    <!-- capteur de couleur, casque -->
+    <circle cx="619" cy="201" r="22" fill="none" stroke="#3a2412" stroke-width="2"/><circle cx="619" cy="201" r="9" fill="#fff8d0" stroke="#3a2412" stroke-width="2"/>
+    <circle cx="619" cy="297" r="9" fill="#1d1d1d"/><circle cx="619" cy="297" r="4" fill="#888"/>
+    <!-- boutons, molette, gros bouton -->
+    <circle cx="102" cy="385" r="22" fill="#c8372d" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="166" cy="385" r="22" fill="#2a63b8" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="230" cy="385" r="22" fill="#e3b92a" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="294" cy="385" r="22" fill="#3e9a48" stroke="#3a2412" stroke-width="3"/>
+    <circle cx="350" cy="385" r="17" fill="#3a3a3a" stroke="#1d1d1d" stroke-width="3"/><circle cx="350" cy="385" r="8" fill="#5a5a5a"/>
+    <circle cx="518" cy="385" r="36" fill="#c8372d" stroke="#3a2412" stroke-width="4"/>
+    <g font-size="12" fill="#3a2a14" font-weight="700" text-anchor="middle">
+      <text x="139" y="58">clavier</text>
+      <text x="259" y="180">haut-parleur</text>
+      <text x="350" y="180">chrono</text>
+      <text x="174" y="300">voyants</text>
+      <text x="350" y="285">fente</text>
+      <text x="518" y="328">plateau (objets)</text>
+      <text x="619" y="238">couleur</text>
+      <text x="619" y="325">🎧 casque</text>
+      <text x="198" y="425">4 boutons de couleur</text>
+      <text x="350" y="420">molette</text>
+      <text x="600" y="390" text-anchor="start">gros</text><text x="600" y="404" text-anchor="start">bouton</text>
     </g>
-    <text x="664" y="240" font-size="12" fill="#fff" text-anchor="end" font-weight="700">🎧 casque</text>
+    <text x="350" y="484" font-size="11" fill="#5d4c2f" text-anchor="middle" font-style="italic">et, sous la boîte, un ruban de lumière qui éclaire la table</text>
   </svg>
   </div>
 
   <table>
     <thead><tr><th style="width:26%">Élément</th><th>À quoi il sert</th></tr></thead>
     <tbody>
-      <tr><td><strong>Écran</strong></td><td>Il affiche l'histoire, les dialogues en sous-titres, les énigmes et le chrono. En bas, il rappelle les cartes posées sur chaque zone.</td></tr>
-      <tr><td><strong>Zones QUI · OÙ · QUOI</strong></td><td>On y <strong>pose</strong> les cartes. La petite lumière de chaque zone confirme que la carte est reconnue.</td></tr>
+      <tr><td><strong>Écran</strong></td><td>Il affiche l'histoire, les dialogues en sous-titres, les énigmes et le chrono. En bas, il rappelle où vous êtes (OÙ), qui vous interrogez (QUI) et l'objet en jeu (QUOI).</td></tr>
+      <tr><td><strong>Fente</strong></td><td>On y <strong>glisse</strong> les cartes, debout, jusqu'en butée. Sa petite lumière confirme que la carte est reconnue.</td></tr>
+      <tr><td><strong>Plateau</strong></td><td>On y <strong>pose</strong> les objets : une carte Objet couchée, ou un vrai objet du jeu (une puce est cachée dessous).</td></tr>
+      <tr><td><strong>Clavier</strong></td><td>Pour taper les codes et les mots de passe, ou choisir une ligne d'un menu. <strong>#</strong> valide, <strong>*</strong> efface.</td></tr>
+      <tr><td><strong>Voyants</strong> et <strong>capteur de couleur</strong></td><td>Selon la mission : des voyants à surveiller ou à allumer, un objet coloré à présenter. Quand la mission ne s'en sert pas, la façade les cache.</td></tr>
       <tr><td><strong>Haut-parleur</strong></td><td>Chaque personnage a <strong>sa propre voix</strong>. Écoutez bien : les détails comptent.</td></tr>
       <tr><td><strong>🎧 Prise casque</strong></td><td>Elle sert aux <strong>messages privés</strong> : un seul joueur écoute (voir chapitre 6).</td></tr>
       <tr><td><strong>4 boutons de couleur</strong></td><td>Ils servent à répondre aux choix de l'écran, à suivre une piste ou à réagir aux imprévus.</td></tr>
-      <tr><td><strong>Molette</strong></td><td>On la tourne pour choisir, et on appuie pour valider : codes, heures, nombres, menus. Elle lance aussi les messages au casque.</td></tr>
+      <tr><td><strong>Molette</strong></td><td>On la tourne pour choisir, et on appuie pour valider : codes, heures, nombres, menus. Elle lance aussi les messages au casque. Hors énigme, un appui affiche le tableau de bord.</td></tr>
       <tr><td><strong>Gros bouton</strong></td><td>Il sert à la <strong>réponse finale</strong>, et parfois aux imprévus.</td></tr>
       <tr><td><strong>Anneau lumineux</strong></td><td>C'est le chrono : <strong>une lumière s'éteint toutes les 5 minutes</strong>. Selon le monde, il peut aussi mesurer autre chose (soupçon, oxygène…).</td></tr>
       <tr><td><strong>Façade</strong></td><td>Une plaque aimantée qui habille le pupitre aux couleurs du monde. Elle se change en quelques secondes.</td></tr>
+      <tr><td><strong>Lumière sous la boîte</strong></td><td>Elle baigne la table aux couleurs du monde, et réagit parfois à la mission (alerte, lumière qui baisse…).</td></tr>
     </tbody>
   </table>
 </section>
@@ -183,12 +207,12 @@
   <div class="chapitre"><span class="num">4</span><h2>Mise en place</h2></div>
   <p class="petit">Comptez 5 minutes. Idéalement, une personne qui ne joue pas prépare la table, mais un joueur peut aussi le faire, à condition de ne pas ouvrir les enveloppes.</p>
   <ol class="etapes">
-    <li>Placez le pupitre au centre de la table, branchez-le, <strong>branchez le casque</strong> et allumez. L'écran affiche <em>« Posez une carte Monde »</em>.</li>
-    <li>Posez la <strong>carte Monde</strong> sur n'importe quel lecteur. Le pupitre change de couleurs, de musique et de voix.</li>
+    <li>Placez le pupitre au centre de la table, branchez-le, <strong>branchez le casque</strong> et allumez. L'écran affiche <em>« Glissez une carte Monde dans la fente »</em>.</li>
+    <li>Glissez la <strong>carte Monde</strong> dans la fente. Le pupitre change de couleurs, de musique et de voix.</li>
     <li>Installez la <strong>façade</strong> du monde : elle se fixe toute seule grâce aux aimants. Appuyez ensuite sur la molette.</li>
     <li>Ouvrez la <strong>boîte du monde</strong>. Posez au centre la <strong>fiche de mission</strong>, les cartes <strong>Lieu</strong> et <strong>Personnage</strong>, et la carte <strong>Aide</strong>. Empilez les <strong>enveloppes</strong> fermées sur le côté.</li>
     <li>Distribuez les <strong>6 rôles</strong> (tableau ci-dessous). Chacun prend sa carte Rôle et son <strong>document secret</strong>, sans le montrer.</li>
-    <li>Choisissez la mission avec la molette. Chacun pose sa carte Rôle sur un lecteur, puis la reprend.</li>
+    <li>Choisissez la mission avec la molette (ou son numéro au clavier). Chacun glisse sa carte Rôle dans la fente, puis la reprend.</li>
     <li>Un joueur lit la <strong>fiche de mission</strong> à voix haute, puis le pupitre lance le chrono.</li>
   </ol>
 
@@ -211,25 +235,25 @@
 
   <!-- ============ 5. JOUER ============ -->
   <div class="chapitre"><span class="num">5</span><h2>Comment jouer</h2></div>
-  <h3>Poser les cartes</h3>
-  <p>Pas de tour de jeu : tout le monde peut poser une carte à tout moment. Posez-la <strong>bien à plat, au centre de la zone</strong>, et laissez-la tant que vous en avez besoin.</p>
+  <h3>Glisser les cartes</h3>
+  <p>Pas de tour de jeu : tout le monde peut jouer une carte à tout moment. Glissez-la <strong>debout dans la fente, jusqu'en butée</strong> (la puce en bas), ou posez-la <strong>à plat sur le plateau</strong>, la puce sur la cible ; les <strong>objets</strong> du jeu se posent sur le plateau. Une carte de <strong>lieu</strong> vous y emmène : vous y restez après l'avoir reprise, jusqu'au lieu suivant.</p>
   <table>
-    <thead><tr><th style="width:38%">Je pose…</th><th>Ce qui se passe</th></tr></thead>
+    <thead><tr><th style="width:38%">Je glisse ou je pose…</th><th>Ce qui se passe</th></tr></thead>
     <tbody>
-      <tr><td>un <strong>Lieu</strong> sur 📍 OÙ</td><td>Vous vous y rendez. Le pupitre décrit ce que vous voyez et demande parfois d'ouvrir une enveloppe. Certains lieux sont <strong>fermés</strong> ou <strong>introuvables</strong> au début.</td></tr>
-      <tr><td>un <strong>Personnage</strong> sur 👤 QUI</td><td>Vous l'interrogez : il vous raconte sa version.</td></tr>
-      <tr><td>un <strong>Personnage</strong> sur QUI et un <strong>Objet</strong> sur 🔍 QUOI</td><td>Vous lui <strong>montrez l'objet</strong>. Observez sa réaction : c'est souvent là qu'un menteur se trahit.</td></tr>
-      <tr><td>un <strong>Objet</strong> seul sur QUOI</td><td>Le pupitre vous le décrit.</td></tr>
-      <tr><td>une carte <strong>Rôle</strong> sur une zone libre</td><td>Vous utilisez votre <strong>pouvoir</strong> sur les cartes posées à côté.</td></tr>
-      <tr><td>la carte <strong>Aide</strong> sur n'importe quelle zone</td><td>Vous demandez un <strong>indice</strong> (voir chapitre 7).</td></tr>
+      <tr><td>un <strong>Lieu</strong> dans la fente</td><td>Vous vous y rendez, et vous y restez quand vous reprenez la carte. Le pupitre décrit ce que vous voyez et demande parfois d'ouvrir une enveloppe. Certains lieux sont <strong>fermés</strong> ou <strong>introuvables</strong> au début.</td></tr>
+      <tr><td>un <strong>Personnage</strong> dans la fente</td><td>Vous l'interrogez : il vous raconte sa version.</td></tr>
+      <tr><td>un <strong>Personnage</strong> dans la fente et un <strong>Objet</strong> sur le plateau</td><td>Vous lui <strong>montrez l'objet</strong>. Observez sa réaction : c'est souvent là qu'un menteur se trahit.</td></tr>
+      <tr><td>un <strong>Objet</strong> seul sur le plateau</td><td>Le pupitre vous le décrit.</td></tr>
+      <tr><td>une carte <strong>Rôle</strong> sur le plateau</td><td>Vous utilisez votre <strong>pouvoir</strong> sur la carte de la fente (ou, dans la fente, sur l'objet du plateau).</td></tr>
+      <tr><td>la carte <strong>Aide</strong> dans la fente</td><td>Vous demandez un <strong>indice</strong> (voir chapitre 7).</td></tr>
     </tbody>
   </table>
-  <p class="petit">Reposer une carte donne un <strong>résumé</strong> de ce qui a déjà été dit. Une carte posée sur la mauvaise zone est refusée, et le pupitre vous dit où la mettre.</p>
+  <p class="petit">Glisser de nouveau une carte donne un <strong>résumé</strong> de ce qui a déjà été dit. Pour interroger un personnage sur un objet : le personnage dans la fente, l'objet sur le plateau.</p>
 </section>
 
 <section class="saut">
   <h3 style="margin-top:0">Les enveloppes</h3>
-  <p>Quand le pupitre annonce <em>« Ouvrez l'enveloppe E3 »</em>, ouvrez <strong>uniquement</strong> celle-ci. Elle contient des preuves, des photos et souvent des <strong>cartes Objet</strong>, à poser sur la zone QUOI.</p>
+  <p>Quand le pupitre annonce <em>« Ouvrez l'enveloppe E3 »</em>, ouvrez <strong>uniquement</strong> celle-ci. Elle contient des preuves, des photos et souvent des <strong>cartes Objet</strong>, à poser sur le plateau.</p>
 
   <h3>Les documents secrets</h3>
   <p class="regle-or">« On ne montre pas : on raconte. »</p>
@@ -267,11 +291,11 @@
   <div class="deux">
     <div>
       <h3 style="margin-top:0">💡 La carte Aide</h3>
-      <p>Chaque monde a son personnage d'aide : <strong>Papy Marcel</strong> au haras, <strong>Fernand</strong> à Monte-Carlo, le <strong>Contrôle Mission</strong> sur la station. Posez sa carte : il vous aide sur le point où vous êtes bloqués.</p>
+      <p>Chaque monde a son personnage d'aide : <strong>Papy Marcel</strong> au haras, <strong>Fernand</strong> à Monte-Carlo, le <strong>Contrôle Mission</strong> sur la station. Glissez sa carte dans la fente : il vous aide sur le point où vous êtes bloqués.</p>
       <ul>
         <li>Les <strong>premiers indices sont gratuits</strong> (le nombre dépend de la mission).</li>
         <li>Les suivants coûtent du temps : <strong>2 minutes</strong>, ou <strong>3 minutes d'oxygène</strong> sur la station.</li>
-        <li>Reposer la carte donne un indice <strong>plus précis</strong>.</li>
+        <li>Glisser de nouveau la carte donne un indice <strong>plus précis</strong>.</li>
         <li>Si vous tardez trop, son portrait <strong>clignote</strong> à l'écran.</li>
       </ul>
     </div>
@@ -291,9 +315,9 @@
 <!-- ============ 8. RÉPONSE FINALE ============ -->
 <section class="saut">
   <div class="chapitre"><span class="num">8</span><h2>La réponse finale</h2></div>
-  <p>Chaque mission se termine par trois cartes à poser, une par zone. Dans une enquête, ce sont le <strong>coupable</strong>, le <strong>lieu</strong> et l'<strong>objet</strong> qui prouve le mobile. La fiche de mission précise ce qu'on attend.</p>
+  <p>Chaque mission se termine par trois cartes : le lieu, le suspect et l'objet. Dans une enquête, ce sont le <strong>coupable</strong>, le <strong>lieu</strong> et l'<strong>objet</strong> qui prouve le mobile. La fiche de mission précise ce qu'on attend.</p>
   <ol class="etapes">
-    <li>Posez vos trois cartes. Débattez : tant que vous n'avez pas appuyé, vous pouvez changer d'avis.</li>
+    <li>Rendez-vous sur le lieu (glissez sa carte), glissez le suspect, posez l'objet sur le plateau. Débattez : tant que vous n'avez pas appuyé, vous pouvez changer d'avis.</li>
     <li>Appuyez sur le <strong>gros bouton</strong>. L'écran récapitule votre réponse.</li>
     <li>Confirmez avec le bouton <strong>vert</strong>, ou annulez avec le rouge.</li>
     <li>Roulement de tambour… Les trois zones s'allument <strong>en vert</strong> une par une si vous avez vu juste.</li>
@@ -330,12 +354,12 @@
   <table>
     <thead><tr><th style="width:36%">Problème</th><th>Solution</th></tr></thead>
     <tbody>
-      <tr><td>Une carte n'est pas reconnue</td><td>Posez-la bien à plat, au centre de la zone, et attendez une seconde. Une seule carte par zone.</td></tr>
+      <tr><td>Une carte n'est pas reconnue</td><td>Enfoncez-la jusqu'en butée, puce en bas (ou posez-la à plat, la puce sur la cible du plateau), et attendez une seconde. Vérifiez que la puce est bien collée en bas du dos.</td></tr>
       <tr><td>« Cette carte n'appartient pas à ce monde »</td><td>Une carte d'une autre boîte s'est glissée dans le jeu : retirez-la.</td></tr>
       <tr><td>Rien dans le casque</td><td>Vérifiez que la fiche jack est bien enfoncée et le volume du casque dans les réglages.</td></tr>
       <tr><td>Plus de son</td><td>Vérifiez le volume dans les réglages. Si le problème persiste, éteignez et rallumez le pupitre.</td></tr>
       <tr><td>Régler le son ou la lumière</td><td>À l'accueil, appuyez sur la molette et choisissez <strong>« Réglages du pupitre »</strong> : luminosité de l'écran et des LED, volume du haut-parleur et du casque. La molette règle, l'appui passe à la ligne suivante, le bouton vert enregistre.</td></tr>
-      <tr><td>Le pupitre redémarre en cours de partie</td><td>Reposez la carte Monde et choisissez <strong>« Reprendre la partie »</strong> : le chrono et l'avancée sont conservés.</td></tr>
+      <tr><td>Le pupitre redémarre en cours de partie</td><td>Glissez de nouveau la carte Monde et choisissez <strong>« Reprendre la partie »</strong> : le chrono et l'avancée sont conservés.</td></tr>
       <tr><td>Une enveloppe a été ouverte trop tôt</td><td>Refermez-la et continuez : c'est l'honneur des enquêteurs qui est en jeu !</td></tr>
       <tr><td>Panneau du maître du jeu</td><td>Le pupitre crée un réseau Wi-Fi « Pupitre-des-Enigmes ». Depuis un téléphone, on peut suivre la partie, envoyer un indice, mettre en pause ou ajouter du temps.</td></tr>
     </tbody>

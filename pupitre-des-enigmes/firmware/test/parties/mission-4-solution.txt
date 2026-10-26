@@ -11,6 +11,8 @@ dynamo auto
 # --- Le poste d'équipage : le casier de Rasmus (le piège 739, puis 379)
 pose OU L1
 verifie drapeau vu_L1
+verifie voyant 1 rouge
+verifie voyant socle ambre
 capture m4-01-poste
 pose QUOI O1
 verifie epreuve code
@@ -36,6 +38,7 @@ verifie sans J_porte
 pose OU L2
 ensemble 3500
 verifie drapeau J_porte
+verifie voyant 1 vert
 
 # --- Le Narval glisse (minute 7) : on ne touche à rien, même pas la dynamo
 avance 10
@@ -96,8 +99,10 @@ capture m4-06-energie
 retire QUOI
 
 avance 10
-verifie epreuve sequence
-sequence
+verifie epreuve voyants
+capture m4-06b-disjoncteurs
+touches 259
+verifie voyant 2 vert
 calme
 
 # --- La salle des machines : la manivelle → vannes 2586 → la pompe au rythme (bouton jaune)
@@ -148,9 +153,10 @@ retire QUOI
 pose OU L6
 pose QUI O5
 pose QUOI O6
-verifie epreuve ensemble
-ensemble 2500
+verifie epreuve cle
+cle tournee
 verifie drapeau J_sec
+cle repos
 retire QUI
 retire QUOI
 

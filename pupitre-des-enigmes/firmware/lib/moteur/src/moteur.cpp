@@ -469,6 +469,33 @@ void Moteur::couleurPosee(const std::string& nom) {
   enAttente_.push_back(ev);
 }
 
+// L'interrupteur à clé : règles {"cle": "tournee"} et {"cle": "repos"}, condition « cle » ;
+// pendant une épreuve « cle », il suffit de la tourner.
+void Moteur::cle(bool tournee) {
+  if (tournee == cleTournee_) return;
+  cleTournee_ = tournee;
+  if (phase_ != Phase::JEU) return;
+  if (ep_.active) {
+    if (ep_.type == "cle" && tournee) finEpreuve(true);
+    else if (ep_.type == "cle") vueEpreuve();
+    return;
+  }
+  Evenement ev;
+  ev.type = "cle";
+  ev.nom = tournee ? "tournee" : "repos";
+  enAttente_.push_back(ev);
+}
+
+// Les éléments du pupitre dont la mission se sert (« materiel »: ["clavier", "voyants"…]) : sa
+// façade cache les autres. Sans cette liste, tout est disponible.
+bool Moteur::materiel(const char* element) const {
+  JsonArrayConst liste = script_["materiel"].as<JsonArrayConst>();
+  if (liste.isNull()) return true;
+  for (JsonVariantConst e : liste)
+    if (texte(e) == element) return true;
+  return false;
+}
+
 void Moteur::carteHorsJeu(Zone zone, const std::string& id) {
   if (phase_ != Phase::ROLES || typeCarte(id) != "role") return;
   if (rolesPresents_.insert(id).second) {
@@ -1003,6 +1030,7 @@ bool Moteur::motif(JsonVariantConst attendu, const std::string& valeur) const {
 
 bool Moteur::correspond(JsonVariantConst q, const Evenement& ev) const {
   if (!q["couleur"].isNull()) return ev.type == "couleur" && motif(q["couleur"], ev.nom);
+  if (!q["cle"].isNull()) return ev.type == "cle" && motif(q["cle"], ev.nom);
   if (!q["evenement"].isNull()) return ev.type == "evenement" && motif(q["evenement"], ev.nom);
   if (!q["role"].isNull()) {
     if (ev.type != "role" || !motif(q["role"], ev.role)) return false;
@@ -1030,6 +1058,7 @@ int Moteur::valeur(const std::string& nom) {
   if (nom == "restant") return secondesRestantes() / 60;
   if (nom == "lumiere") return static_cast<int>(lumiere_);
   if (nom.rfind("couleur_", 0) == 0) return couleurPosee_ == nom.substr(8);
+  if (nom == "cle") return cleTournee_ ? 1 : 0;
   if (nom == "ecoule") return secondesEcoulees() / 60;
   if (nom == "erreurs") return erreurs_;
   if (nom == "indices_payants") return indicesPayants_;
@@ -1660,7 +1689,7 @@ void Moteur::majEpreuve() {
     }
     if (expire) finEpreuve(false);
   } else if (ep_.type == "molette_zero" || ep_.type == "choix" || ep_.type == "appui" || ep_.type == "ordre" ||
-             ep_.type == "voyants") {
+             ep_.type == "voyants" || ep_.type == "cle") {
     if (expire) finEpreuve(false);
   } else if (ep_.type == "rondes") {
     if (t >= ep_.prochain) {
@@ -2155,9 +2184,11 @@ void Moteur::vueEpreuve() {
       else vue_.champs.push_back(w == 2 ? deuxChiffres(v) : std::to_string(v));
     }
     vue_.curseur = ep_.curseur;
-    if (vue_.info.empty() || vue_.info[0] != 'D')
-      vue_.info = ep_.type == "code" ? "Clavier ou molette · * ou rouge : effacer · # : valider"
-                                     : "Clavier (2 = ABC…) ou molette · * : effacer · # : valider";
+    if (vue_.info.empty() || vue_.info[0] != 'D') {
+      if (!materiel("clavier")) vue_.info = "Tourner : changer · Appuyer : valider · Rouge : effacer";
+      else vue_.info = ep_.type == "code" ? "Clavier ou molette · * ou rouge : effacer · # : valider"
+                                          : "Clavier (2 = ABC…) ou molette · * : effacer · # : valider";
+    }
   } else if (ep_.type == "choix") {
     vue_.ecran = Vue::CHOIX;
     JsonArrayConst o = d["options"].as<JsonArrayConst>();
@@ -2209,6 +2240,8 @@ void Moteur::vueEpreuve() {
                    "\n" + p;
     } else if (ep_.type == "molette_zero") {
       vue_.texte = "Pression : " + std::to_string(ep_.valeurs[0]);
+    } else if (ep_.type == "cle") {
+      vue_.info = cleTournee_ ? "Ramenez d'abord la clé au repos, puis tournez-la" : "Tournez la clé du pupitre";
     } else if (ep_.type == "voyants") {  // le panneau recopié à l'écran (utile si la façade le cache)
       std::string motif;
       for (size_t i = 0; i < ep_.valeurs.size(); i++) {
@@ -2216,8 +2249,9 @@ void Moteur::vueEpreuve() {
         motif += std::string(i ? " " : "") + (curseur ? "[" : "") + (ep_.valeurs[i] ? "●" : "○") + (curseur ? "]" : "");
       }
       vue_.texte = (vue_.texte.empty() ? "" : vue_.texte + "\n") + motif;
-      vue_.info = texte(d["validation"], "auto") == "auto" ? "Clavier 1 à 0 : basculer · ou molette, puis appui"
-                                                         : "Clavier 1 à 0 : basculer · molette + appui · # : vérifier";
+      bool auto_ = texte(d["validation"], "auto") == "auto";
+      if (!materiel("clavier")) vue_.info = auto_ ? "Molette : choisir · Appui : basculer" : "Molette, appui : basculer · Vert : vérifier";
+      else vue_.info = auto_ ? "Clavier 1 à 0 : basculer · ou molette, puis appui" : "Clavier 1 à 0 : basculer · molette + appui · # : vérifier";
     } else if (ep_.type == "traitre") {
       if (ep_.etape == 0) vue_.texte = "Nombre de joueurs : " + std::to_string(ep_.valeurs[0]) + "\n(molette, puis appui)";
       else if (ep_.etape == 1) vue_.texte = "Joueur " + std::to_string(ep_.joueur + 1) + " : mettez le casque, puis appuyez sur la molette.";

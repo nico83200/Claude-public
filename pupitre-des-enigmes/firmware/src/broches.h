@@ -31,11 +31,12 @@ constexpr int NB_LED = 12 + NB_LECTEURS + NB_VOYANTS + NB_LED_SOCLE;
 // Molette KY-040 et gros bouton (la dynamo de la mission 4), actifs à l'état bas.
 constexpr int MOLETTE_CLK = 34, MOLETTE_DT = 35, MOLETTE_SW = 32;
 constexpr int GROS_BOUTON = 39;  // tirage de 10 kΩ vers 3,3 V (GPIO 39 n'en a pas)
+constexpr int CLE = 33;           // l'interrupteur à clé : à la masse quand la clé est tournée
 
 // Bus I2C : le clavier 4×4 et les quatre boutons de couleur (chacun sur un module PCF8574),
 // et le capteur de couleur TCS34725 (0x29). Il ne restait plus de GPIO libre : les boutons de
 // couleur ont quitté les GPIO 33, 26, 27 et 14, ce qui libère 26 et 27 pour le bus, et laisse
-// 14, 33 (et 15 avec deux lecteurs) en réserve.
+// 14 et 15 en réserve (33 sert à l'interrupteur à clé).
 constexpr int I2C_SDA = 26, I2C_SCL = 27;
 constexpr uint8_t ADRESSE_CLAVIER = 0x20;  // A0, A1, A2 à la masse (un PCF8574A répond en 0x38)
 constexpr uint8_t ADRESSE_BOUTONS = 0x21;  // A0 à 3,3 V (PCF8574A : 0x39)

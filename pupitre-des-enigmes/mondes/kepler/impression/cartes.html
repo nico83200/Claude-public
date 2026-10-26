@@ -16,15 +16,15 @@ planches({
   accent: "#9fe3f5",
   motif: "◉ ─ ◉",
   types: {
-    monde: { c: "#0f2236", fond: "#d6e4ef", libelle: "Carte Monde", zone: "Tout lecteur" },
-    lieu:  { c: "#1a6f94", fond: "#d8eef6", libelle: "Module", zone: "📍 OÙ" },
-    perso: { c: "#4a2f7a", fond: "#e6dcf2", libelle: "Équipage", zone: "👤 QUI" },
-    objet: { c: "#8a5a10", fond: "#f2e6cf", libelle: "Objet", zone: "🔍 QUOI" },
-    role:  { c: "#1d3a2f", fond: "#d9ece3", libelle: "Rôle", zone: "Lecteur libre" },
-    aide:  { c: "#a8321f", fond: "#f5ddd8", libelle: "Aide", zone: "Tout lecteur" },
+    monde: { c: "#0f2236", fond: "#d6e4ef", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#1a6f94", fond: "#d8eef6", libelle: "Module", zone: "📍 Fente" },
+    perso: { c: "#4a2f7a", fond: "#e6dcf2", libelle: "Équipage", zone: "👤 Fente" },
+    objet: { c: "#8a5a10", fond: "#f2e6cf", libelle: "Objet", zone: "🔍 Plateau" },
+    role:  { c: "#1d3a2f", fond: "#d9ece3", libelle: "Rôle", zone: "Fente ou plateau" },
+    aide:  { c: "#a8321f", fond: "#f5ddd8", libelle: "Aide", zone: "Fente" },
   },
   cartes: [
-    { id: "M3", t: "monde", nom: "Station Kepler-9", sous: "Mission 3", vis: "🛰️", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>Signal Perdu</em>" },
+    { id: "M3", t: "monde", nom: "Station Kepler-9", sous: "Mission 3", vis: "🛰️", txt: "Glissez cette carte dans la fente pour charger le monde. <em>Signal Perdu</em>" },
 
     { id: "L1", t: "lieu", nom: "Sas d'amarrage", sous: "Accès depuis l'Albatros", vis: "🚪", txt: "Le seul accès. Son code a été changé." },
     { id: "L2", t: "lieu", nom: "Pont de commandement", sous: "Le centre de la station", vis: "🖥️", txt: "Écrans, boîte noire, répartition de l'énergie." },
@@ -55,14 +55,14 @@ planches({
     { id: "O9", t: "objet", nom: "Relais sectionné", sous: "Enveloppe E7", vis: "🔌", txt: "Un relais du recycleur d'oxygène, coupé net." },
     { id: "O10", t: "objet", nom: "Photo d'équipage", sous: "Enveloppe E5", vis: "📸", txt: "Six sourires à l'arrivée sur la station." },
 
-    { id: "R1", t: "role", nom: "Commandante", sous: "Réserve d'O₂ · 1 fois", vis: "👩‍✈️", txt: "Posez cette carte : +5 minutes d'oxygène." },
+    { id: "R1", t: "role", nom: "Commandante", sous: "Réserve d'O₂ · 1 fois", vis: "👩‍✈️", txt: "Glissez cette carte : +5 minutes d'oxygène." },
     { id: "R2", t: "role", nom: "Ingénieur", sous: "Diagnostic · 1 fois", vis: "🔧", txt: "Sur l'écran d'énergie : indique la règle non respectée." },
     { id: "R3", t: "role", nom: "Biologiste", sous: "Analyse · 2 fois", vis: "🧬", txt: "Cette carte sur QUI, un objet sur QUOI : analyse." },
-    { id: "R4", t: "role", nom: "Officier radio", sous: "Écoute · illimité", vis: "📻", txt: "Posez cette carte et mettez le 🎧 casque pour capter une balise." },
+    { id: "R4", t: "role", nom: "Officier radio", sous: "Écoute · illimité", vis: "📻", txt: "Glissez cette carte et mettez le 🎧 casque pour capter une balise." },
     { id: "R5", t: "role", nom: "Médecin", sous: "Scanner · 3 fois", vis: "💉", txt: "Personnage sur QUI, cette carte sur QUOI : signes vitaux." },
     { id: "R6", t: "role", nom: "Hackeuse", sous: "Intrusion · 2 fois", vis: "💻", txt: "Au Pont : restaure des données effacées." },
 
-    { id: "A3", t: "aide", nom: "Contrôle Mission", sous: "Depuis l'Albatros", vis: "🎧", txt: "Posez sa carte quand vous bloquez. 2 indices gratuits, puis 3 minutes d'O₂ chacun." },
+    { id: "A3", t: "aide", nom: "Contrôle Mission", sous: "Depuis l'Albatros", vis: "🎧", txt: "Glissez sa carte quand vous bloquez. 2 indices gratuits, puis 3 minutes d'O₂ chacun." },
   ],
 });
 </script>

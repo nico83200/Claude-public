@@ -32,6 +32,8 @@ class Moteur {
   void lecteur(int numero, const std::string& uid);
   // Le capteur de couleur (TCS34725) : « rouge », « vert »… quand un objet s'y pose, "" quand il part.
   void couleurPosee(const std::string& nom);
+  // L'interrupteur à clé : tourné (vrai) ou revenu au repos (faux).
+  void cle(bool tournee);
   void bouton(Bouton bouton);                     // appui
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
@@ -223,6 +225,8 @@ class Moteur {
   int lecteurZone_[2] = {-1, -1};  // pupitre à deux lecteurs : la zone tenue par chaque lecteur
   bool deuxLecteurs_ = false;
   std::string couleurPosee_;  // ce que voit le capteur de couleur
+  bool cleTournee_ = false;
+  bool materiel(const char* element) const;  // la mission s'en sert-elle ? (« materiel » du script)
   std::set<std::string> drapeaux_, rolesPresents_, imprevusFaits_;
   std::map<std::string, int> compteurs_, pouvoirs_, niveauxAide_;
 

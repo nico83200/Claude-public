@@ -16,15 +16,15 @@ planches({
   accent: "#f2d9a6",
   motif: "∩ ∩ ∩",
   types: {
-  monde:  { c: "#9a7420", fond: "#f6e7c2", libelle: "Carte Monde", zone: "Tout lecteur" },
-  lieu:   { c: "#2f5a3d", fond: "#dbe8d6", libelle: "Lieu", zone: "📍 OÙ" },
-  perso:  { c: "#7a3b4e", fond: "#efdbe0", libelle: "Personnage", zone: "👤 QUI" },
-  objet:  { c: "#8a5a2b", fond: "#f1e2cd", libelle: "Objet", zone: "🔍 QUOI" },
-  role:   { c: "#2c3e63", fond: "#dbe2ef", libelle: "Rôle", zone: "Lecteur libre" },
-  aide:   { c: "#5d6b2f", fond: "#e6ebcf", libelle: "Aide", zone: "Tout lecteur" },
+  monde:  { c: "#9a7420", fond: "#f6e7c2", libelle: "Carte Monde", zone: "Fente" },
+  lieu:   { c: "#2f5a3d", fond: "#dbe8d6", libelle: "Lieu", zone: "📍 Fente" },
+  perso:  { c: "#7a3b4e", fond: "#efdbe0", libelle: "Personnage", zone: "👤 Fente" },
+  objet:  { c: "#8a5a2b", fond: "#f1e2cd", libelle: "Objet", zone: "🔍 Plateau" },
+  role:   { c: "#2c3e63", fond: "#dbe2ef", libelle: "Rôle", zone: "Fente ou plateau" },
+  aide:   { c: "#5d6b2f", fond: "#e6ebcf", libelle: "Aide", zone: "Fente" },
 },
   cartes: [
-  { id: "M1", t: "monde", nom: "Le Haras des Trois Fers", sous: "Mission 1", vis: "🐴", txt: "Posez cette carte sur un lecteur pour charger le monde. <em>La Disparition d'Éclipse</em>" },
+  { id: "M1", t: "monde", nom: "Le Haras des Trois Fers", sous: "Mission 1", vis: "🐴", txt: "Glissez cette carte dans la fente pour charger le monde. <em>La Disparition d'Éclipse</em>" },
 
   { id: "L1", t: "lieu", nom: "L'Écurie", sous: "Huit boxes", vis: "🐎", txt: "Le cœur du haras. Une longue allée, huit boxes… et le n° 7, vide." },
   { id: "L2", t: "lieu", nom: "La Sellerie", sous: "Cuir et harnais", vis: "🪝", txt: "Selles, filets, couvertures et seaux, chacun à son crochet." },
@@ -54,14 +54,14 @@ planches({
   { id: "O9", t: "objet", nom: "Flot bleu", sous: "Enveloppe E6", vis: "🏵️", txt: "Une rosette de premier prix, avec un petit mot signé V." },
   { id: "O10", t: "objet", nom: "Bon de livraison", sous: "Enveloppe E7", vis: "📋", txt: "Un hongre livré aux Ormes à 4 h 45." },
 
-  { id: "R1", t: "role", nom: "Maréchal-ferrant", sous: "Lire une piste · 1 fois", vis: "🔨", txt: "Pendant un choix de chemin, posez cette carte : une mauvaise option est éliminée." },
+  { id: "R1", t: "role", nom: "Maréchal-ferrant", sous: "Lire une piste · 1 fois", vis: "🔨", txt: "Pendant un choix de chemin, glissez cette carte : une mauvaise option est éliminée." },
   { id: "R2", t: "role", nom: "Vétérinaire", sous: "Atout permanent", vis: "🩺", txt: "Vous seul·e savez déchiffrer les carnets de santé du Dr Morel." },
   { id: "R3", t: "role", nom: "Journaliste", sous: "Insister · 2 fois", vis: "📰", txt: "Personnage sur QUI, cette carte sur QUOI : il vous fait une confidence 🎧 au casque." },
   { id: "R4", t: "role", nom: "Expert-comptable", sous: "Expertiser · 2 fois", vis: "💼", txt: "Cette carte sur QUI, un objet sur QUOI : son analyse financière." },
   { id: "R5", t: "role", nom: "Parieur", sous: "Coup de poker · 1 fois", vis: "🎲", txt: "Posée seule avant une accusation : si elle est fausse, pas de pénalité, et la zone fausse s'allume en rouge." },
   { id: "R6", t: "role", nom: "Ancien gendarme", sous: "Alibis · 3 fois", vis: "👮", txt: "Personnage sur QUI, cette carte sur QUOI : vérification 🎧 au casque. Annule aussi une pénalité d'imprévu (1 fois)." },
 
-  { id: "A1", t: "aide", nom: "Papy Marcel", sous: "Ancien palefrenier", vis: "👴", txt: "Posez sa carte quand vous séchez. Les 3 premiers coups de main sont gratuits, ensuite 2 minutes chacun." },
+  { id: "A1", t: "aide", nom: "Papy Marcel", sous: "Ancien palefrenier", vis: "👴", txt: "Glissez sa carte quand vous séchez. Les 3 premiers coups de main sont gratuits, ensuite 2 minutes chacun." },
 ],
 });
 </script>
