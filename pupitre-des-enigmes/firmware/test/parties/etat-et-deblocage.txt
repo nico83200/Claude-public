@@ -1,0 +1,42 @@
+# L'état du pupitre avant la mission, et le maître du jeu qui débloque une épreuve par le Wi-Fi.
+# Ici, l'œil (APDS-9960) n'a pas répondu : la grange, qu'il faut éclairer, resterait fermée.
+absent gestes
+fente M1
+fente -
+verifie phase menu
+# Le menu du Haras : 1 Jouer, 2 Enregistrer, 3 Tiroir, 4 État du pupitre, 5 Réglages
+touches 4
+verifie phase etat
+capture etat-pupitre
+bouton ROUGE
+verifie phase menu
+
+touches 1
+fente R1
+fente -
+fente R2
+fente -
+fente R3
+fente -
+fente R4
+fente -
+fente R5
+fente -
+fente R6
+fente -
+calme
+verifie phase jeu
+fente L1
+fente -
+fente L8
+geste gauche
+geste haut
+geste droite
+verifie drapeau J4
+fente L9
+verifie epreuve capteur
+# Personne ne peut éclairer un œil qui ne répond pas : le maître du jeu débloque
+commande debloquer
+calme
+verifie drapeau J5
+verifie epreuve

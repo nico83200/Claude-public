@@ -375,6 +375,7 @@ void Dessin::corps(const Vue& v) {
     case Vue::ACCUSATION: corpsAccusation(v); return;
     case Vue::TABLEAU: corpsTableau(v); return;
     case Vue::REGLAGES: corpsReglages(v); return;
+    case Vue::ETAT: corpsEtat(v); return;
     default: corpsTexte(v); return;
   }
 }
@@ -710,6 +711,24 @@ void Dessin::corpsTableau(const Vue& v) {
   }
   if (!v.compteurs.empty())
     paragraphe(v.compteurs, xd + 4, y2 + 4, wd - 8, Y_INFO - 4, &polices::petit, pal_.doux, pal_.fond, false, 17);
+}
+
+// « État du pupitre » : deux colonnes ; une pastille verte (présent), rouge (absent) ou grise
+// (impossible à vérifier) ; un élément absent dont une mission a besoin le dit en rouge.
+void Dessin::corpsEtat(const Vue& v) {
+  ecrire(v.titre, 20, Y_CORPS + 4, &polices::titre, pal_.texte, pal_.fond);
+  const int n = static_cast<int>(v.modules.size()), parColonne = (n + 1) / 2, y0 = Y_CORPS + 42;
+  const int pas = parColonne > 0 ? std::min(20, (Y_INFO - 6 - y0) / parColonne) : 20;
+  for (int i = 0; i < n; i++) {
+    int x = i < parColonne ? 16 : L / 2 + 6, y = y0 + (i % parColonne) * pas;
+    int etat = i < static_cast<int>(v.valeurs.size()) ? v.valeurs[i] : -1;
+    bool manque = i < static_cast<int>(v.etiquettes.size()) && !v.etiquettes[i].empty();
+    uint32_t pastille = etat == 1 ? FEU_VERT : etat == 0 ? FEU_ROUGE : pal_.trait;
+    g_.fillCircle(x + 5, y + 8, 5, c(pastille));
+    std::string t = v.modules[i] + (manque ? " · " + v.etiquettes[i] : "");
+    ecrire(couper(t, &polices::petit, L / 2 - 36), x + 16, y, &polices::petit,
+           manque ? pal_.alerte : etat == 0 ? pal_.doux : pal_.texte, pal_.fond);
+  }
 }
 
 void Dessin::corpsReglages(const Vue& v) {

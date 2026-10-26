@@ -45,6 +45,7 @@ class Dessin {
   void corpsAccusation(const pupitre::Vue& v);
   void corpsTableau(const pupitre::Vue& v);
   void corpsReglages(const pupitre::Vue& v);
+  void corpsEtat(const pupitre::Vue& v);
   void corpsEnrolement(const pupitre::Vue& v);
 
   // Texte.

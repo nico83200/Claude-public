@@ -24,12 +24,14 @@
 //   souffle <s> · eclaire <s>      (souffler sur la grille, ou braquer une lampe, pendant <s> secondes)
 //   aimant pose|-                  (le fer aimanté posé sur l'enclume, ou retiré)
 //   tiroir fond|sorti              (le contact de fin de course du tiroir secret)
+//   absent gestes                  (ce module n'a pas répondu au démarrage)
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -139,6 +141,20 @@ class PlateformeSimulee : public Plateforme {
     if (bavard_) printf("        🗄 tiroir %s\n", ouvrir ? "libéré" : "verrouillé");
   }
   bool tiroirPresent() override { return true; }
+  // Tout répond, sauf ce qu'une partie déclare absent (« absent gestes »).
+  std::vector<EtatElement> etatMateriel() override {
+    std::vector<EtatElement> v = {{"", "Carte SD", 1}, {"", "Écran", -1}, {"fente", "Lecteur de la fente", 1},
+                                  {"plateau", "Lecteur à plat", 1}, {"", "Haut-parleur", 1}, {"casque", "Casque", 1},
+                                  {"boutons", "Boutons de couleur", 1}, {"clavier", "Clavier 4×4", 1},
+                                  {"molette", "Molette", -1}, {"gros_bouton", "Gros bouton", -1}, {"cle", "Clé", -1},
+                                  {"anneau", "LED", -1}, {"couleur", "Capteur de couleur", 1},
+                                  {"gestes", "Œil (gestes, lampe)", 1}, {"souffle", "Forge (souffle)", 1},
+                                  {"aimant", "Enclume (aimant)", 1}, {"afficheur", "Horloge", 1}, {"tiroir", "Tiroir secret", 1}};
+    for (auto& e : v)
+      if (absents.count(e.cle)) e.etat = 0;
+    return v;
+  }
+  std::set<std::string> absents;
   void appliquer(const Reglages& r) override {
     if (bavard_) printf("        ⚙ écran %d %% · haut-parleur %d · casque %d · LED %d %%\n", r.ecran, r.hp, r.casque, r.led);
   }
@@ -146,7 +162,7 @@ class PlateformeSimulee : public Plateforme {
  private:
   static const char* nomEcran(Vue::Ecran e) {
     static const char* noms[] = {"accueil", "menu", "rôles", "principal", "code", "choix", "énergie", "épreuve",
-                                 "casque", "accusation", "résultat", "enrôlement", "réglages", "tableau"};
+                                 "casque", "accusation", "résultat", "enrôlement", "réglages", "tableau", "état"};
     return noms[e];
   }
   std::string racine_;
@@ -308,6 +324,8 @@ int main(int argc, char** argv) {
       m.capteur("aimant", a != "-");
       tourner(1500);
       calme();
+    } else if (cmd == "absent") {
+      p.absents.insert(a);  // un module qui n'a pas répondu au démarrage (pour l'écran « État du pupitre »)
     } else if (cmd == "tiroir") {
       // Le contact de fin de course : « tiroir fond » (poussé au fond), « tiroir sorti ».
       m.tiroirAuFond(a == "fond");

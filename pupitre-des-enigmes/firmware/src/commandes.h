@@ -18,6 +18,8 @@ class Commandes {
 
   void demarrer();
   void maj(const Rappels& r);
+  bool boutonsPresents() const { return adresseBoutons_ != 0; }
+  bool clavierPresent() const { return adresseClavier_ != 0; }
 
  private:
   struct Anti {  // anti-rebond

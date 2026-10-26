@@ -19,7 +19,7 @@ struct Theme {
 // Ce que l'écran doit montrer. Le moteur la remplit, le matériel la dessine.
 struct Vue {
   enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT, REGLAGES,
-               TABLEAU };
+               TABLEAU, ETAT };
   Ecran ecran = ACCUEIL;
   uint32_t version = 0;          // change dès que le corps de l'écran change
   uint32_t versionEntete = 0;    // change quand seule la ligne du haut change (chrono)
@@ -75,6 +75,13 @@ struct Lumieres {
   uint32_t tiroir = 0;         // la LED cachée au-dessus du tiroir secret (allumée quand il sort)
 };
 
+// Un élément du pupitre, tel qu'il a répondu au démarrage (écran « État du pupitre »).
+struct EtatElement {
+  std::string cle;  // le nom de « materiel » dans les scripts (« gestes », « clavier »…), ou "" : indispensable
+  std::string nom;
+  int etat;         // 1 : présent ; 0 : absent ; -1 : impossible à vérifier (écran, LED, boutons directs)
+};
+
 class Plateforme {
  public:
   virtual ~Plateforme() = default;
@@ -93,6 +100,7 @@ class Plateforme {
   // Le tiroir secret : son servomoteur libère le tiroir (vrai) ou le verrouille (faux).
   virtual void tiroir(bool ouvrir) { (void)ouvrir; }
   virtual bool tiroirPresent() { return false; }
+  virtual std::vector<EtatElement> etatMateriel() { return {}; }
 };
 
 }  // namespace pupitre

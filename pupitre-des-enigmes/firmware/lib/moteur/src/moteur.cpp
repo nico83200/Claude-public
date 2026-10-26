@@ -16,6 +16,7 @@ const int DOSSIER_SONS_PUPITRE = 90;
 const char* const CHEMIN_SAUVEGARDE = "/sauvegarde.json";
 const char* const CHEMIN_REGLAGES = "/reglages.json";
 const char* const REGLAGES_PUPITRE = "Réglages du pupitre";
+const char* const ETAT_PUPITRE = "État du pupitre";
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
   const char* s = v.as<const char*>();
@@ -231,6 +232,7 @@ void Moteur::allerMenu(bool annoncer) {
   }
   optionsMenu_.push_back("Enregistrer les cartes de ce monde");
   if (p_.tiroirPresent()) optionsMenu_.push_back(tiroirOuvert_ ? "Tiroir secret : le refermer" : "Tiroir secret : l'ouvrir");
+  optionsMenu_.push_back(ETAT_PUPITRE);
   optionsMenu_.push_back(REGLAGES_PUPITRE);
   choixMenu_ = 0;
   vue_.ecran = Vue::MENU;
@@ -542,6 +544,40 @@ void Moteur::tiroirAuFond(bool auFond) {
   enAttente_.push_back(ev);
 }
 
+// « État du pupitre » : ce qui a répondu au démarrage. Un élément absent dont une mission de ce
+// monde a besoin (son « materiel ») est signalé : « mission 1 ».
+void Moteur::afficherEtat() {
+  phase_ = Phase::ETAT;
+  std::map<std::string, std::string> besoins;  // élément → missions qui s'en servent
+  for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>()) {
+    JsonDocument s;
+    if (!chargerJson("/mondes/" + mondeId_ + "/" + texte(m["script"]), s)) continue;
+    std::string n = std::to_string(m["numero"].as<int>());
+    JsonArrayConst liste = s["materiel"].as<JsonArrayConst>();
+    for (const EtatElement& e : p_.etatMateriel()) {
+      bool sert = e.cle.empty() || liste.isNull();
+      for (JsonVariantConst x : liste) sert |= texte(x) == e.cle;
+      if (sert) besoins[e.cle] += (besoins[e.cle].empty() ? "mission " : ", ") + n;
+    }
+  }
+  vue_.ecran = Vue::ETAT;
+  vue_.titre = ETAT_PUPITRE;
+  vue_.modules.clear();
+  vue_.valeurs.clear();
+  vue_.etiquettes.clear();
+  int manquants = 0;
+  for (const EtatElement& e : p_.etatMateriel()) {
+    vue_.modules.push_back(e.nom);
+    vue_.valeurs.push_back(e.etat);
+    bool requis = e.etat == 0 && besoins.count(e.cle);
+    vue_.etiquettes.push_back(requis ? (e.cle.empty() ? "indispensable" : besoins[e.cle]) : "");
+    if (requis) manquants++;
+  }
+  vue_.info = manquants ? std::to_string(manquants) + " élément(s) manquant(s) · une touche : retour"
+                        : "Tout ce dont les missions ont besoin répond · une touche : retour";
+  rafraichir();
+}
+
 void Moteur::ouvrirTiroir() {
   tiroirOuvert_ = true;
   p_.tiroir(true);
@@ -764,6 +800,9 @@ void Moteur::bouton(Bouton b) {
       if (b == VERT || b == GROS) validerRangement(true);
       if (b == ROUGE) validerRangement(false);
       return;
+    case Phase::ETAT:
+      allerMenu(false);
+      return;
     case Phase::JEU:
       break;
   }
@@ -862,6 +901,8 @@ void Moteur::appuiMolette() {
         if (chargerJson(CHEMIN_SAUVEGARDE, sauv) && chargerMission(sauv["mission"].as<int>())) lancerMission(true);
       } else if (choix == REGLAGES_PUPITRE) {
         ouvrirReglages();
+      } else if (choix == ETAT_PUPITRE) {
+        afficherEtat();
       } else if (choix.rfind("Tiroir", 0) == 0) {  // préparer la partie : y glisser une carte, puis refermer
         if (!tiroirOuvert_) ouvrirTiroir();
         afficherRangement(false);
@@ -877,6 +918,9 @@ void Moteur::appuiMolette() {
     }
     case Phase::FIN:
       bouton(VERT);
+      return;
+    case Phase::ETAT:
+      allerMenu(false);
       return;
     default:
       break;
@@ -914,6 +958,17 @@ void Moteur::commande(const std::string& c) {
     terminer(false, "temps");
   } else if (c == "accueil") {
     allerAccueil();
+  } else if (c == "debloquer" && phase_ == Phase::JEU) {
+    // Le maître du jeu tire les joueurs d'un mauvais pas (un capteur muet, par exemple) :
+    // l'épreuve en cours réussit, ou l'attente « appuyez sur la molette » se termine.
+    if (ep_.active) {
+      p_.journal("Panneau : épreuve « " + ep_.type + " » débloquée");
+      finEpreuve(true);
+    } else if (attente_ == Attente::MOLETTE) {
+      appuiMolette();
+    }
+  } else if (c == "tiroir") {
+    ouvrirTiroir();
   }
 }
 
@@ -2903,6 +2958,7 @@ std::string Moteur::phaseTexte() const {
     case Phase::ENROLEMENT: return "enrolement";
     case Phase::REGLAGES: return "reglages";
     case Phase::RANGEMENT: return "rangement";
+    case Phase::ETAT: return "etat";
   }
   return "?";
 }
@@ -2926,6 +2982,16 @@ std::string Moteur::etatJson() {
     }
   }
   d["texte"] = vue_.texte;
+  if (ep_.active) {
+    d["epreuve"]["type"] = ep_.type;
+    d["epreuve"]["titre"] = texte(ep_.def["titre"]);
+  }
+  if (p_.tiroirPresent()) d["tiroir"] = tiroirAuFond_ ? (tiroirOuvert_ ? "au fond, libre" : "verrouillé") : "sorti";
+  for (const EtatElement& e : p_.etatMateriel()) {
+    JsonObject o = d["materiel"].add<JsonObject>();
+    o["nom"] = e.nom;
+    o["etat"] = e.etat;
+  }
   for (int z = 0; z < 3; z++) d["zones"].add(vue_.zones[z]);
   for (const auto& f : drapeaux_)
     if (f.rfind("__", 0) != 0) d["etapes"].add(f);

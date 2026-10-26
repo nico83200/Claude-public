@@ -20,6 +20,7 @@ class Oeil {
   using RappelGeste = std::function<void(const char* sens)>;
   void demarrer();
   void maj(const RappelGeste& geste, const RappelCapteur& capteur);
+  bool present() const { return present_; }
 
  private:
   bool decoder(const char*& sens);
@@ -36,6 +37,7 @@ class Enclume {
  public:
   void demarrer();
   void maj(const RappelCapteur& capteur);
+  bool present() const { return present_; }
 
  private:
   bool lire(float& champ);
@@ -50,6 +52,7 @@ class Forge {
  public:
   void demarrer();
   void maj(const RappelCapteur& capteur);
+  bool present() const { return present_; }
 
  private:
   bool lire(float& temperature, float& humidite);
@@ -67,6 +70,7 @@ class Afficheur {
  public:
   void demarrer();
   void montrer(const std::string& texte);  // « 08:14 », « 37-- », "" pour éteindre
+  bool present() const { return present_; }
 
  private:
   bool present_ = false;

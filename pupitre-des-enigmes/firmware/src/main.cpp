@@ -94,6 +94,29 @@ void setup() {
 
   // Le logo reste au moins 2,5 secondes, le temps que tout démarre.
   while (millis() - debutLogo < reglages::DUREE_LOGO_MS) delay(10);
+  plateforme.etat = [] {
+    auto t = [](bool present) { return present ? 1 : 0; };
+    return std::vector<pupitre::EtatElement>{
+        {"", "Carte SD", 1},
+        {"", "Écran", -1},
+        {"fente", "Lecteur de la fente", t(lecteurs.present(0))},
+        {"plateau", "Lecteur à plat", t(broches::NB_LECTEURS > 1 && lecteurs.present(1))},
+        {"", "Haut-parleur", t(hp.present())},
+        {"casque", "Casque", t(casque.present())},
+        {"boutons", "Boutons de couleur", t(commandes.boutonsPresents())},
+        {"clavier", "Clavier 4×4", t(commandes.clavierPresent())},
+        {"molette", "Molette", -1},
+        {"gros_bouton", "Gros bouton", -1},
+        {"cle", "Clé", -1},
+        {"anneau", "LED", -1},
+        {"couleur", "Capteur de couleur", t(capteur.present())},
+        {"gestes", "Œil (gestes, lampe)", t(oeil.present())},
+        {"souffle", "Forge (souffle)", t(forge.present())},
+        {"aimant", "Enclume (aimant)", t(enclume.present())},
+        {"afficheur", "Horloge", t(afficheur.present())},
+        {"tiroir", "Tiroir secret", t(plateforme.servomoteurTiroir().present())},
+    };
+  };
   moteur.demarrer();
   panneau::demarrer(moteur);
 }

@@ -82,7 +82,7 @@ class Moteur {
 
  private:
   // ---------- Types internes ----------
-  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT };
+  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT, ETAT };
   enum class Attente { RIEN, AUDIO, CASQUE, DELAI, MOLETTE, VERT_ROUGE };
 
   struct Replique {
@@ -243,6 +243,7 @@ class Moteur {
   bool tiroirAuFond_ = true, tiroirOuvert_ = false, rangementApresPartie_ = false;
   uint32_t tiroirSorti_ = 0;  // l'instant où il est sorti : sa lumière monte doucement
   void ouvrirTiroir();
+  void afficherEtat();
   void afficherRangement(bool apresPartie);
   void validerRangement(bool fermer);
   bool materiel(const char* element) const;  // la mission s'en sert-elle ? (« materiel » du script)

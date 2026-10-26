@@ -518,4 +518,20 @@ La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »** (mot de passe
 `enigmes123`, modifiable dans `firmware/src/broches.h`). Depuis un téléphone
 connecté à ce réseau, la page **http://192.168.4.1** montre le chrono, les cartes
 en place et les étapes franchies, et permet de mettre en pause, d'ajouter ou de
-retirer du temps, de donner un indice ou d'abandonner.
+retirer du temps, de donner un indice ou d'abandonner. Elle permet aussi :
+
+- de **débloquer** une épreuve : quand les joueurs restent coincés (un capteur qui ne
+  répond pas, une lampe de téléphone trop faible…), le bouton « Débloquer » fait
+  réussir l'épreuve en cours, comme si les joueurs l'avaient faite. Il n'apparaît que
+  pendant une épreuve ;
+- d'**ouvrir le tiroir secret** à distance, et de voir s'il est sorti, libre ou
+  verrouillé ;
+- de voir l'**état du pupitre** : chaque module, présent (●), absent (✗) ou impossible à
+  vérifier (○).
+
+**Avant la partie**, le menu du monde a aussi une ligne **« État du pupitre »** : la
+même liste à l'écran, en deux colonnes, avec une pastille verte, rouge ou grise. Un
+module absent dont une mission du monde a besoin s'affiche en rouge, avec le numéro de
+la mission (*« Œil (gestes, lampe) · mission 1 »*). L'écran, les LED, la molette, la
+clé et le gros bouton ne peuvent pas être vérifiés par le programme (pastille grise) :
+regardez-les.

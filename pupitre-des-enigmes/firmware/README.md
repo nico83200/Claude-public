@@ -125,6 +125,10 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
 
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
 `Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1.
+Il montre aussi l'état de chaque module, l'épreuve en cours avec un bouton
+**« Débloquer »** (elle réussit, si les joueurs sont coincés), et ouvre le tiroir
+secret à distance. Avant la partie, le menu du monde affiche le même état
+(**« État du pupitre »**), en signalant ce qui manque à une mission.
 
 ## 6. Réglages
 
@@ -194,6 +198,8 @@ geste gauche         # la main au-dessus de l'œil (haut, bas, gauche, droite)
 souffle 3            # souffler 3 s sur la forge ; « eclaire 3 » : une lampe sur l'œil
 aimant pose          # un aimant sur l'enclume ; « aimant - » le retire
 tiroir sorti         # le microrupteur du tiroir secret ; « tiroir fond » : poussé au fond
+absent gestes        # ce module n'a pas répondu au démarrage (écran « État du pupitre »)
+commande debloquer   # le panneau Wi-Fi : « pause », « temps:5 », « debloquer », « tiroir »…
 bouton VERT          # ROUGE, BLEU, JAUNE, VERT, GROS
 code 3,7,1,5         # saisir un code à la molette ; lettres SILENCE pour un mot
 avance 10            # faire passer 10 minutes (s'arrête si un imprévu commence)
