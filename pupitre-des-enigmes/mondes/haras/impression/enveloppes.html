@@ -39,7 +39,15 @@
   .signature { font-family: "Caveat"; font-size: 20pt; color: #1b2c55; }
 
   /* Carnet du sentier */
-  .balises { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .carrefour { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-areas: ". n ." "o c e" ". s ."; gap: 4mm; margin-top: 4mm; }
+  .carrefour .balise .sol { height: 52mm; }
+  .carrefour .balise .sol svg { width: 24mm; height: 30mm; }
+  .carrefour .balise .sol svg.semelle { width: 15mm; height: 30mm; }
+  .clairiere { grid-area: c; border-radius: 50%; background: radial-gradient(circle, #c9d9a6 0 55%, #9fb87a 75%, transparent 76%);
+               display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6mm; }
+  .clairiere .ici { font-family: "Caveat", cursive; font-size: 16pt; color: #24324a; }
+  .clairiere .main { font-size: 22pt; line-height: 1; }
+  .clairiere p { font-size: 8.5pt; margin: 1mm 0 0; line-height: 1.25; }
   .balise { border: 1px solid #b9b2a6; border-radius: 6px; overflow: hidden; break-inside: avoid; }
   .balise .nom { color: #fff; font-weight: 700; padding: 2mm 4mm; letter-spacing: .1em; text-transform: uppercase; font-size: 10pt; }
   .balise .sol { height: 92mm; background: radial-gradient(circle at 40% 40%, #d8c7a2, #b9a47b); display: flex; align-items: center; justify-content: center; gap: 6mm; }
@@ -69,6 +77,8 @@
     <li>Découpez les éléments en suivant les pointillés ✂, et les photos au bord du cadre blanc.</li>
     <li>Collez l'étiquette « recto » sur le devant de chaque enveloppe kraft, et l'étiquette « contenu » au dos.</li>
     <li>Glissez dans chaque enveloppe ses documents <strong>et ses cartes Objet</strong> (imprimées avec les cartes).</li>
+    <li><strong>Le fer à cheval de la forge</strong> : un petit fer décoratif (6 à 8 cm), avec un aimant néodyme (Ø 10 × 3 mm) collé
+        dessous. Posez-le près du pupitre avant la partie, sans rien dire : le pupitre dira quand s'en servir.</li>
   </ol>
   <table>
     <thead><tr><th>Enveloppe</th><th>Lieu</th><th>Documents de ce PDF</th><th>Cartes Objet</th></tr></thead>
@@ -288,36 +298,39 @@ JOUER COMPORTE DES RISQUES</div>
 <div class="page">
   <div class="tag">Enveloppe E8 · Sentier des bois · page 1/3</div>
   <h1>Carnet du sentier · Croisement 1</h1>
-  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
-  <div class="balises">
-    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#chevreuil"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg><use href="#fer-oeuf"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#rien"/></svg></div></div>
+  <p>La clairière vue du ciel, et ses quatre pistes. Traces relevées au pied de chaque balise ; la pince (l'avant) des empreintes pointe vers le haut de la page.</p>
+  <div class="carrefour">
+    <div class="balise" style="grid-area:n"><div class="nom" style="background:#c8372d">↑ Balise rouge</div><div class="sol"><svg><use href="#chevreuil"/></svg></div></div>
+    <div class="balise" style="grid-area:o"><div class="nom" style="background:#d4a514">← Balise jaune</div><div class="sol"><svg><use href="#fer-oeuf"/></svg></div></div>
+    <div class="balise" style="grid-area:e"><div class="nom" style="background:#2a63b8">→ Balise bleue</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
+    <div class="balise" style="grid-area:s"><div class="nom" style="background:#3e9a48">↓ Balise verte</div><div class="sol"><svg><use href="#rien"/></svg></div></div>
+    <div class="clairiere"><div class="ici">Vous êtes ici</div><div class="main">✋</div><p>Pour prendre une piste, passez la main au-dessus de l'<strong>œil</strong> du pupitre, dans sa direction.<br>Ou appuyez sur le bouton de sa couleur.</p></div>
   </div>
 </div>
 
 <div class="page">
   <div class="tag">Enveloppe E8 · Sentier des bois · page 2/3</div>
   <h1>Carnet du sentier · Croisement 2</h1>
-  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
-  <div class="balises">
-    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#fer-crampons"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
+  <p>La clairière vue du ciel, et ses quatre pistes. Traces relevées au pied de chaque balise ; la pince (l'avant) des empreintes pointe vers le haut de la page.</p>
+  <div class="carrefour">
+    <div class="balise" style="grid-area:n"><div class="nom" style="background:#2a63b8">↑ Balise bleue</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
+    <div class="balise" style="grid-area:o"><div class="nom" style="background:#d4a514">← Balise jaune</div><div class="sol"><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
+    <div class="balise" style="grid-area:e"><div class="nom" style="background:#3e9a48">→ Balise verte</div><div class="sol"><svg><use href="#fer-standard"/></svg></div></div>
+    <div class="balise" style="grid-area:s"><div class="nom" style="background:#c8372d">↓ Balise rouge</div><div class="sol"><svg><use href="#fer-crampons"/></svg></div></div>
+    <div class="clairiere"><div class="ici">Vous êtes ici</div><div class="main">✋</div><p>Pour prendre une piste, passez la main au-dessus de l'<strong>œil</strong> du pupitre, dans sa direction.<br>Ou appuyez sur le bouton de sa couleur.</p></div>
   </div>
 </div>
 
 <div class="page">
   <div class="tag">Enveloppe E8 · Sentier des bois · page 3/3</div>
   <h1>Carnet du sentier · Croisement 3</h1>
-  <p>Traces relevées au pied de chaque balise. La pince (l'avant) des empreintes pointe vers le haut.</p>
-  <div class="balises">
-    <div class="balise"><div class="nom" style="background:#c8372d">Balise rouge</div><div class="sol"><svg><use href="#branches"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#2a63b8">Balise bleue</div><div class="sol"><svg><use href="#sabot-nu"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#d4a514">Balise jaune</div><div class="sol"><svg><use href="#fer-standard"/></svg><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
-    <div class="balise"><div class="nom" style="background:#3e9a48">Balise verte</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
+  <p>La clairière vue du ciel, et ses quatre pistes. Traces relevées au pied de chaque balise ; la pince (l'avant) des empreintes pointe vers le haut de la page.</p>
+  <div class="carrefour">
+    <div class="balise" style="grid-area:n"><div class="nom" style="background:#c8372d">↑ Balise rouge</div><div class="sol"><svg><use href="#branches"/></svg></div></div>
+    <div class="balise" style="grid-area:o"><div class="nom" style="background:#2a63b8">← Balise bleue</div><div class="sol"><svg><use href="#sabot-nu"/></svg></div></div>
+    <div class="balise" style="grid-area:e"><div class="nom" style="background:#3e9a48">→ Balise verte</div><div class="sol"><svg><use href="#fer-oeuf"/></svg><svg class="semelle"><use href="#semelle-chevrons"/></svg></div></div>
+    <div class="balise" style="grid-area:s"><div class="nom" style="background:#d4a514">↓ Balise jaune</div><div class="sol"><svg><use href="#fer-standard"/></svg><svg class="semelle"><use href="#semelle-lisse"/></svg></div></div>
+    <div class="clairiere"><div class="ici">Vous êtes ici</div><div class="main">✋</div><p>Pour prendre une piste, passez la main au-dessus de l'<strong>œil</strong> du pupitre, dans sa direction.<br>Ou appuyez sur le bouton de sa couleur.</p></div>
   </div>
 </div>
 

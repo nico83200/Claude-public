@@ -74,7 +74,11 @@ toucher l'assurance.**
 | Nouveauté | Utilisation dans la mission 1 |
 |---|---|
 | **Carte Monde** | On pose « Le Haras des Trois Fers » pour lancer le monde, et on installe la façade en bois |
-| **3 lecteurs QUI · OÙ · QUOI** | Les cartes restent posées : un lieu sur OÙ pour y être, un personnage sur QUI pour l'interroger, un objet sur QUOI pour le lui montrer |
+| **La fente et le plateau** | On glisse dans la fente le lieu où l'on va (il reste en mémoire), un personnage pour l'interroger ; on pose sur le plateau l'objet à lui montrer |
+| **Clavier et horloge** | Le code du bureau et les questions de la gendarmerie se tapent au clavier ; l'horloge à 4 chiffres donne l'heure du haras et montre le code tapé |
+| **Les voyants des pistes** | Cinq voyants suivent l'enquête : Écurie, Carnet, Bureau, Sentier, Grange |
+| **La forge et l'enclume** | Souffler sur la grille pour ranimer les braises (capteur d'humidité), poser le fer à cheval aimanté sur l'enclume (magnétomètre) |
+| **L'œil** | Au sentier, la main au-dessus de l'œil indique la piste choisie (capteur de gestes) ; dans la grange, une lampe de téléphone éclaire l'œil |
 | **🎧 Casque** | Trois usages : les **confidences** obtenues par le Journaliste, les **vérifications d'alibi** de l'Ancien gendarme, et **l'appel anonyme** (diffusé une seule fois) |
 | **LED de zone** | Elles confirment chaque carte posée, puis s'allument une à une lors de l'accusation |
 
@@ -314,22 +318,34 @@ tous les personnages.
 
 ### Étape 5 : Le sentier des bois 🐾 (J4)
 **Sentier sur OÙ** (possible seulement après J1) **→ enveloppe E8**, le carnet du
-sentier. Il y a 3 croisements, et à chacun 4 balises de couleur, une par bouton.
+sentier. Il y a 3 croisements. Le carnet montre chacun vue du ciel : 4 pistes, une dans
+chaque direction, chacune marquée d'une balise de couleur. Pour en prendre une, on passe la
+main au-dessus de l'**œil** du pupitre dans sa direction, ou on appuie sur le bouton de sa
+couleur.
 
 | Croisement | 🔴 Rouge | 🔵 Bleue | 🟡 Jaune | 🟢 Verte |
 |---|---|---|---|---|
-| **1** | Sabots de chevreuil | Fer standard, 8 clous | **Fer ovale fermé, 6 clous** ✅ | Pas de trace |
-| **2** | Fer à crampons, 8 clous | **Fer ovale, 6 clous + semelle à chevrons** ✅ | Semelle de botte seule, sans motif | Fer standard, 8 clous |
-| **3** | Branches cassées, pas de trace | Sabot nu | Fer standard + semelle lisse | **Fer ovale, 6 clous + semelle à chevrons** ✅ |
+| **1** | ↑ Sabots de chevreuil | → Fer standard, 8 clous | ← **Fer ovale fermé, 6 clous** ✅ | ↓ Pas de trace |
+| **2** | ↓ Fer à crampons, 8 clous | ↑ **Fer ovale, 6 clous + semelle à chevrons** ✅ | ← Semelle de botte seule, sans motif | → Fer standard, 8 clous |
+| **3** | ↑ Branches cassées, pas de trace | ← Sabot nu | ↓ Fer standard + semelle lisse | → **Fer ovale, 6 clous + semelle à chevrons** ✅ |
 
-**Réponses : Jaune → Bleue → Verte.**
+**Réponses : Jaune (la main vers la gauche) → Bleue (vers le haut) → Verte (vers la droite).**
 - **Mauvaise balise** : l'équipe perd 2 minutes et recommence au même croisement.
 - **Pouvoir du Maréchal** : une balise barrée.
 - **À l'arrivée** : un hennissement retentit, et la Vieille Grange est découverte.
 
 ### Étape 6 : La Vieille Grange 🐴 (J5)
-**Vieille Grange sur OÙ → enveloppe E4.** On y trouve Éclipse saine et sauve, sa
-couverture, son seau et la lampe « BUREAU ».
+**Vieille Grange dans la fente → il fait noir.** Les joueurs allument la lampe d'un
+téléphone et éclairent l'**œil** du pupitre pendant 2 secondes **→ enveloppe E4.** On y
+trouve Éclipse saine et sauve, sa couverture, son seau et la lampe « BUREAU » : celle qui
+manquait cette nuit, d'où le noir.
+
+### La forge 🔥 (facultatif)
+**Forge dans la fente → les braises sont presque éteintes.** Un joueur souffle sur la
+grille FORGE du pupitre (bouche ouverte, comme pour faire de la buée) ; le feu reprend.
+Un autre pose le **fer à cheval aimanté** à plat sur l'**enclume** dessinée. Le fer rougit,
+et la forge révèle le gabarit du fer d'Éclipse : **fer en œuf, fermé à l'arrière, six
+clous**. Un raté ne coûte rien : on glisse de nouveau la carte de la forge.
 
 ### Étape 7 : L'accusation ⚖️ (J6)
 1. *(Facultatif)* Le **Parieur** pose sa carte seule pour armer le Coup de poker,
@@ -535,7 +551,7 @@ reste faisable.
 | Départ | « Une enquête commence sur la scène du crime. » | « Allez voir l'écurie. » | « Posez la carte Écurie sur OÙ. » |
 | Code du bureau | « Lucas vous a donné la règle. Qui a l'ordre de passage ? » | « Les boxes se font face : 1↔5, 2↔6, 3↔7, 4↔8. Commencez par Rafale. » | « Rafale est au 3. Sultan ne peut être qu'au 5. » |
 | Carnet | « Le Dr Morel parle de clous… qui s'y connaît en fers ? » | « La clé est le nombre de clous du fer d'Éclipse. » | « Reculez chaque lettre de 6 : J devient D. » |
-| Sentier | « Suivez toujours le même fer… et quelqu'un qui marchait à côté. » | « Le fer d'Éclipse est fermé à l'arrière, avec 6 clous. » | « Au premier croisement, c'est la balise jaune. » |
+| Sentier | « Suivez toujours le même fer… et quelqu'un qui marchait à côté. » | « Le fer d'Éclipse est fermé à l'arrière, avec 6 clous. » | « Au premier croisement, c'est la balise jaune : la piste de gauche. » |
 | Accusation | « Qui pouvait entrer dans le bureau ? » | « Lucas était au téléphone. Qui n'a aucun alibi ? » | « Combien vaut Éclipse blessée, et combien rapporte son vol ? » |
 
 ---
@@ -577,6 +593,8 @@ Le pupitre révèle ensuite la solution complète.
 3. Disposer au centre la fiche de mission, les cartes Lieu et Personnage, et la
    carte Papy Marcel.
 4. Empiler les enveloppes **E1 à E8**, fermées, avec les cartes Objet à l'intérieur.
+   Poser près du pupitre le **fer à cheval aimanté** (un petit fer décoratif avec un
+   aimant collé dessous), et vérifier qu'au moins un joueur a un **téléphone avec une lampe**.
 5. Distribuer les **6 rôles** et leurs documents secrets.
 6. Lire la règle d'or : **« On ne montre pas, on raconte. Même ce qu'on entend au
    casque. »**

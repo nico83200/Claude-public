@@ -31,6 +31,7 @@
   <defs>
     <linearGradient id="cuir" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a4a39"/><stop offset=".6" stop-color="#1f3b2d"/><stop offset="1" stop-color="#16291f"/></linearGradient>
     <linearGradient id="laiton" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3c27a"/><stop offset=".5" stop-color="#b8893a"/><stop offset="1" stop-color="#8a6526"/></linearGradient>
+    <radialGradient id="braise"><stop offset="0" stop-color="#ffb347"/><stop offset=".55" stop-color="#d9531e"/><stop offset="1" stop-color="#5a2a16"/></radialGradient>
     <linearGradient id="bois" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2b"/><stop offset="1" stop-color="#6b4420"/></linearGradient>
     <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".35" fill="#ffffff" opacity=".05"/><circle cx="4" cy="4" r=".3" fill="#000000" opacity=".08"/></pattern>
     <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#10201a"/></pattern>
@@ -113,12 +114,38 @@
   <text x="358" y="187.5" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="3.8" fill="#b8c9bd">confidences</text>
 
   <!-- cartouche -->
-  <use href="#fer" transform="translate(30 176) scale(.9)"/>
-  <text x="42" y="180" font-family="Playfair, serif" font-weight="900" font-size="10.5" letter-spacing=".8" fill="#e3c27a">Haras des Trois Fers</text>
-  <text x="42" y="188" font-family="Playfair, serif" font-style="italic" font-size="5" fill="#b8c9bd">Pays d'Auge · élevage de chevaux de course</text>
+  <text x="190" y="158" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="5.6" letter-spacing=".5" fill="#b8c9bd">Haras des Trois Fers</text>
+
+  <!-- la forge (BME280) : un foyer de briques, la grille où souffler -->
+  <text x="60" y="167" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="4.8" fill="#e3c27a" letter-spacing=".6">LA FORGE</text>
+  <rect x="45" y="170" width="30" height="26" rx="3" fill="#5a2a16" stroke="#2e140a" stroke-width=".8"/>
+  <g stroke="#2e140a" stroke-width=".4"><path d="M45 176.5h30M45 183h30M45 189.5h30M52 170v6.5M68 170v6.5M60 176.5v6.5M52 183v6.5M68 183v6.5M60 189.5v6.5"/></g>
+  <circle cx="60" cy="183" r="9" fill="url(#braise)"/>
+  <g fill="#10201a" stroke="#ffffff" stroke-width=".35" stroke-dasharray=".8 .6"><circle cx="60" cy="183" r="1"/><circle cx="56.5" cy="183" r="1"/><circle cx="63.5" cy="183" r="1"/><circle cx="60" cy="179.5" r="1"/><circle cx="60" cy="186.5" r="1"/><circle cx="57.5" cy="180.5" r="1"/><circle cx="62.5" cy="180.5" r="1"/><circle cx="57.5" cy="185.5" r="1"/><circle cx="62.5" cy="185.5" r="1"/></g>
+  <text x="60" y="201" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="3.8" fill="#b8c9bd">soufflez ici</text>
+
+  <!-- l'enclume (QMC5883L, sous le contreplaqué) : rien à découper -->
+  <text x="105" y="167" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="4.8" fill="#e3c27a" letter-spacing=".6">L'ENCLUME</text>
+  <circle cx="105" cy="183" r="12" fill="none" stroke="#b8893a" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <path d="M91 178h22q-1 4-6 5v3h4v3h-18v-3h4v-3q-4-1-6-5z" fill="url(#laiton)" stroke="#5c4413" stroke-width=".5"/>
+  <text x="105" y="201" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="3.8" fill="#b8c9bd">posez le fer ici</text>
+
+  <!-- l'horloge du haras (afficheur HT16K33) -->
+  <text x="175" y="167" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="4.8" fill="#e3c27a" letter-spacing=".6">L'HORLOGE</text>
+  <rect x="146" y="168.5" width="58" height="23" rx="3" fill="url(#bois)" stroke="#4a2e14" stroke-width=".8"/>
+  <rect x="148" y="169.5" width="54" height="21" rx="2" fill="none" stroke="url(#laiton)" stroke-width=".7"/>
+  <rect x="150" y="170.5" width="50" height="19" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="175" y="182" text-anchor="middle" font-family="Source Sans, sans-serif" font-size="4" fill="#6f8a7b">✂ HORLOGE</text>
+
+  <!-- l'œil (APDS-9960) : la main au-dessus, ou une lampe -->
+  <circle cx="235" cy="180" r="8" fill="none" stroke="url(#laiton)" stroke-width="1.2"/>
+  <circle cx="235" cy="180" r="5" fill="#10201a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <g fill="#e3c27a"><path d="M235 162l-3 4h6z"/><path d="M235 198l-3-4h6z"/><path d="M217 180l4-3v6z"/><path d="M253 180l-4-3v6z"/></g>
+  <text x="235" y="206" text-anchor="middle" font-family="Playfair, serif" font-weight="900" font-size="4.6" fill="#e3c27a" letter-spacing=".6">L'ŒIL</text>
+  <text x="235" y="211" text-anchor="middle" font-family="Playfair, serif" font-style="italic" font-size="3.6" fill="#b8c9bd">la main, ou une lampe</text>
 
   <!-- les quatre boutons de couleur -->
-  <text x="95" y="202" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="700" font-size="4.6" fill="#e8d5a6" letter-spacing="1">LES BALISES · TOUS ENSEMBLE</text>
+  <text x="95" y="249" text-anchor="middle" font-family="Source Sans, sans-serif" font-weight="700" font-size="4.6" fill="#e8d5a6" letter-spacing="1">LES BALISES · TOUS ENSEMBLE</text>
   <g fill="none" stroke-width="2.4">
     <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
     <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
@@ -147,7 +174,9 @@
   <p>Pour « La Disparition d'Éclipse », le pupitre s'habille de cuir vert et de laiton. On glisse dans la <strong>fente</strong>
      le lieu où l'on se rend, le suspect qu'on interroge ou sa carte Rôle ; on pose l'objet sur le <strong>plateau</strong> (le lecteur à plat).
      Le <strong>clavier</strong> sert aux codes et aux questions de la gendarmerie, les cinq voyants du haut suivent <strong>les pistes</strong>
-     de l'enquête, et le <strong>gros bouton</strong> lance l'accusation. La clé, le capteur de couleur et la rangée basse des voyants
+     de l'enquête, et le <strong>gros bouton</strong> lance l'accusation. En bas, la <strong>forge</strong> (on souffle sur sa grille),
+     l'<strong>enclume</strong> (on y pose le fer à cheval aimanté), l'<strong>horloge</strong> du haras et l'<strong>œil</strong>
+     (la main qui indique une piste, ou une lampe dans la grange). La clé, le capteur de couleur et la rangée basse des voyants
      ne servent pas : le plateau les cache.</p>
   <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
   <h3>Fabrication</h3>
@@ -156,8 +185,8 @@
       <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
       <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Faites coïncider les repères ▲.</li>
       <li>Collez sur la façade de 2 mm (contreplaqué), plastifiez si possible.</li>
-      <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, lanterne, les 5 voyants du haut, fente, boutons, molette,
-          prise casque, et le trou de Ø 22 mm en haut à droite (la clé dépasse trop pour passer dessous).</li>
+      <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, lanterne, les 5 voyants du haut, fente, horloge, œil,
+          les 9 petits trous de la forge, boutons, molette, prise casque (l'enclume ne se découpe pas), et le trou de Ø 22 mm en haut à droite (la clé dépasse trop pour passer dessous).</li>
       <li>Coiffez ce trou du <strong>médaillon</strong> ci-contre, collé sur un bouchon ou une capsule de bois de Ø 30 mm : il cache la clé.</li>
     </ol>
     <div class="medaillon">

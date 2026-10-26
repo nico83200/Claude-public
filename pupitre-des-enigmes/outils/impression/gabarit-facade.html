@@ -13,7 +13,7 @@
   .moitie { width: 195mm; height: 262mm; margin: 0 auto; }
   .moitie svg { width: 195mm; height: 262mm; display: block; }
   .reperes { font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; }
-  table td, table th { font-size: 8.6pt; padding: 2px 5px; }
+  table td, table th { font-size: 7.8pt; padding: 1px 5px; line-height: 1.2; }
   .bandeau { display: flex; justify-content: space-between; font-size: 9pt; color: #666; }
 </style>
 </head>
@@ -38,7 +38,11 @@
     <circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/>
     <circle cx="190" cy="222" r="3.5"/>
     <circle cx="295" cy="222" r="11"/>
+    <rect x="150" y="170.5" width="50" height="19"/>
+    <circle cx="235" cy="180" r="5"/>
   </g>
+  <!-- la forge (BME280) : une grille de trous -->
+  <g fill="none" stroke="#000" stroke-width=".25"><circle cx="60" cy="183" r="1"/><circle cx="56.5" cy="183" r="1"/><circle cx="63.5" cy="183" r="1"/><circle cx="60" cy="179.5" r="1"/><circle cx="60" cy="186.5" r="1"/><circle cx="57.5" cy="180.5" r="1"/><circle cx="62.5" cy="180.5" r="1"/><circle cx="57.5" cy="185.5" r="1"/><circle cx="62.5" cy="185.5" r="1"/><circle cx="60" cy="183" r="7" stroke-dasharray="1 1"/></g>
   <g fill="none" stroke="#000" stroke-width=".35" stroke-dasharray="1.6 1">
     <circle cx="46.7" cy="116" r="3"/><circle cx="63.3" cy="116" r="3"/><circle cx="80" cy="116" r="3"/><circle cx="96.7" cy="116" r="3"/><circle cx="113.3" cy="116" r="3"/>
     <circle cx="46.7" cy="148" r="3"/><circle cx="63.3" cy="148" r="3"/><circle cx="80" cy="148" r="3"/><circle cx="96.7" cy="148" r="3"/><circle cx="113.3" cy="148" r="3"/>
@@ -59,6 +63,7 @@
     <circle cx="295" cy="137" r="9"/>
     <circle cx="358" cy="107" r="15"/>
     <circle cx="295" cy="222" r="30"/>
+    <circle cx="105" cy="183" r="12"/>
   </g>
   <!-- aimants -->
   <g fill="none" stroke="#2d7fa8" stroke-width=".35"><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/></g>
@@ -68,6 +73,7 @@
     <use href="#mire" x="358" y="40"/><use href="#mire" x="358" y="107"/><use href="#mire" x="190" y="132"/><use href="#mire" x="295" y="137"/>
     <use href="#mire" x="358" y="167"/><use href="#mire" x="35" y="222"/><use href="#mire" x="75" y="222"/><use href="#mire" x="115" y="222"/>
     <use href="#mire" x="155" y="222"/><use href="#mire" x="190" y="222"/><use href="#mire" x="295" y="222"/>
+    <use href="#mire" x="60" y="183"/><use href="#mire" x="105" y="183"/><use href="#mire" x="175" y="180"/><use href="#mire" x="235" y="180"/>
     <use href="#mire" x="15" y="247"/><use href="#mire" x="365" y="247"/><use href="#mire" x="15" y="15"/><use href="#mire" x="365" y="15"/>
   </g>
   <!-- légendes -->
@@ -83,6 +89,10 @@
     <text x="190" y="142">FENTE · 68 × 5</text>
     <text x="295" y="182">LECTEUR À PLAT · zone 76 × 76 (rien à découper)</text>
     <text x="358" y="177">JACK · Ø 6</text>
+    <text x="60" y="196">FORGE · trous Ø 2</text>
+    <text x="105" y="200">ENCLUME · rien à découper</text>
+    <text x="175" y="195">AFFICHEUR · fenêtre 50 × 19</text>
+    <text x="235" y="191">ŒIL · Ø 10</text>
     <text x="95" y="244">BOUTONS D'ARCADE · 4 × Ø 30</text>
     <text x="190" y="234">MOLETTE · Ø 7</text>
     <text x="295" y="258">GROS BOUTON · Ø 22 (champignon) ou selon le bouton</text>
@@ -116,6 +126,10 @@
       <tr><td>Lecteur à plat</td><td>29,5</td><td>12,5</td><td>Rien : zone de 76 × 76 mm à marquer</td></tr>
       <tr><td>Capteur de couleur</td><td>35,8</td><td>15,5</td><td>Ø 12 mm</td></tr>
       <tr><td>Prise jack</td><td>35,8</td><td>9,5</td><td>Ø 6 mm</td></tr>
+      <tr><td>Forge (BME280)</td><td>6,0</td><td>7,9</td><td>9 trous Ø 2 mm dans un cercle Ø 14 mm</td></tr>
+      <tr><td>Enclume (QMC5883L)</td><td>10,5</td><td>7,9</td><td>Rien : le capteur est collé sous le couvercle (zone Ø 24 à marquer), à 8 cm au moins de tout aimant</td></tr>
+      <tr><td>Afficheur 4 chiffres</td><td>17,5</td><td>8,2</td><td>Fenêtre 50 × 19 mm</td></tr>
+      <tr><td>Œil (APDS-9960)</td><td>23,5</td><td>8,2</td><td>Ø 10 mm</td></tr>
       <tr><td>Boutons d'arcade</td><td>3,5 · 7,5 · 11,5 · 15,5</td><td>4,0</td><td>Ø 30 mm</td></tr>
       <tr><td>Molette</td><td>19,0</td><td>4,0</td><td>Ø 7 mm</td></tr>
       <tr><td>Gros bouton</td><td>29,5</td><td>4,0</td><td>Ø 22 mm (champignon) ou selon le bouton</td></tr>

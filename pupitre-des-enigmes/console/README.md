@@ -5,8 +5,8 @@
 Vue de dessus, l'arrière en haut. Les cartes se **glissent debout dans une fente** ;
 un **lecteur à plat**, caché sous le contreplaqué, lit ce qu'on **pose** dessus : une
 carte couchée, ou un objet qui cache une puce NFC. Le jeu ne tourne pas qu'autour
-des cartes : clavier, voyants, capteur de couleur et lumière sous la boîte servent
-aussi aux missions.
+des cartes : clavier, voyants, capteur de couleur, œil (gestes et lumière), forge
+(souffle), enclume (aimant), horloge et lumière sous la boîte servent aussi aux missions.
 
 ```
  ┌──────────────────────────── façade aimantée 38 × 26,2 cm ────────────────────────────┐
@@ -20,7 +20,7 @@ aussi aux missions.
  │  voyants 1-5               ▭▭▭▭▭▭▭▭▭▭          │  lecteur à   │                     │
  │  ● ● ● ● ●               fente à cartes        │  plat (objet │          ◎ casque   │
  │  voyants 6-10                                  │    posé)     │                     │
- │                                                └──────────────┘                     │
+ │   ⁘ forge  ⌂ enclume    [88:88] horloge   ◌ œil └──────────────┘                     │
  │   🔴   🔵   🟡   🟢              ( molette )             ⭕ gros bouton               │
  └──────────────────────────────────────────────────────────────────────────────────────┘
                           sous la boîte : un ruban de LED tourné vers la table
@@ -48,6 +48,14 @@ aussi aux missions.
   monde ; une mission peut aussi s'en servir (alerte, lumière qui baisse…).
 - **L'interrupteur à clé** (métal, Ø 12 mm) : une vraie clé à tourner (console de
   commandement, coffre, mise à feu…).
+- **L'œil** (APDS-9960) : sous une fenêtre de Ø 10 mm, il reconnaît la main qui passe
+  au-dessus (vers le haut, le bas, la gauche ou la droite) et une lampe braquée sur lui.
+- **La forge** (BME280) : sous une grille de petits trous, il sent un souffle (l'humidité
+  de l'haleine qui monte).
+- **L'enclume** (magnétomètre QMC5883L) : collée sous le couvercle, sans trou, elle sent
+  un aimant posé dessus, à travers le bois (un fer à cheval, une figurine aimantée…).
+- **L'horloge** (afficheur 4 chiffres à HT16K33) : derrière une fenêtre, l'heure du jeu,
+  ou les chiffres d'un code pendant qu'on le tape.
 
 Chaque mission se sert de **tout ou partie** de ces éléments. Sa façade cache ceux
 dont elle n'a pas besoin (§ 4.5), et son script les déclare (`"materiel"`, voir
@@ -89,6 +97,10 @@ dans `firmware/src/broches.h`.
 | Clavier | Clavier membrane 4×4 (nappe de 8 fils, adhésif au dos) | 1 | 2 € |
 | Modules I2C | PCF8574 (carte « IO expansion », adresse réglable) : le clavier, les 4 boutons de couleur | 2 | 4 € |
 | Capteur de couleur | TCS34725 (module avec LED blanche) | 1 | 4 € |
+| Œil | APDS-9960 (gestes, proximité, lumière) | 1 | 4 € |
+| Forge | BME280 (humidité, température) : **pas un BMP280**, qui n'a pas d'humidité | 1 | 5 € |
+| Enclume | QMC5883L (module « GY-271 ») | 1 | 3 € |
+| Horloge | Afficheur 4 chiffres 7 segments 0,56" avec HT16K33 (câblage Adafruit) | 1 | 10 € |
 | LED | Anneau WS2812B de 12 LED, 2 LED WS2812B individuelles (fente, plateau) | 1 + 2 | 6 € |
 | Voyants | Ruban WS2812B 60 LED/m : 2 morceaux de 5 LED | 10 LED | 3 € |
 | Ruban sous la boîte | Ruban WS2812B : 6 à 10 LED | 8 LED | (même ruban) |
@@ -124,6 +136,10 @@ dans `firmware/src/broches.h`.
 | PCF8574 n° 1 : **le clavier** (adresse 0x20 : A0, A1, A2 à la masse) | P0 à P7 ← nappe du clavier, fils 1 à 8 (lignes 1-4, puis colonnes 1-4) | I2C |
 | PCF8574 n° 2 : **les boutons** (adresse 0x21 : A0 sur VCC) | P0 / P1 / P2 / P3 ← boutons rouge / bleu / jaune / vert, l'autre patte à la masse | I2C |
 | **Capteur de couleur** TCS34725 (adresse 0x29) | SDA / SCL, VIN 3,3 V, LED : laisser en l'air (allumée) | I2C |
+| **Œil** APDS-9960 (0x39) | SDA / SCL, VCC 3,3 V (INT : en l'air) | I2C |
+| **Forge** BME280 (0x76, ou 0x77 selon la soudure SDO) | SDA / SCL, VIN 3,3 V | I2C |
+| **Enclume** QMC5883L (0x0D) | SDA / SCL, VCC 3,3 V (DRDY : en l'air) | I2C |
+| **Horloge** HT16K33 (0x70) | SDA / SCL, VCC 3,3 V ; l'afficheur lui-même en 5 V si le module a une broche V+ séparée | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
 | (libres) | — | 14 et 15 |
 
@@ -154,10 +170,28 @@ cyan, bleu, violet, rose, blanc ou noir. Le journal série affiche chaque mesure
 si une couleur est mal reconnue, ajustez `CAPTEUR_BALANCE` et les seuils dans
 `firmware/src/broches.h`. Sans capteur branché, rien ne change.
 
+**L'œil, la forge, l'enclume et l'horloge** sont facultatifs : au démarrage, le journal
+série dit lesquels répondent, et chacun écrit ses mesures quand il change d'état
+(*« Œil : geste gauche »*, *« Forge : souffle (71.2, repos 48.5 % d'humidité) »*). Les
+réglages sont dans `firmware/src/broches.h` :
+- **`OEIL_ROTATION`** : si l'œil est monté tourné, les gestes sortent décalés (la main vers
+  le haut lue « droite ») ; mettez 90, 180 ou 270 jusqu'à ce qu'ils tombent juste.
+- **`OEIL_LAMPE`** : une lampe compte quand la lumière dépasse 3 fois celle de la pièce.
+- **`FORGE_HUMIDITE`** : un souffle, c'est l'humidité qui monte de 6 points. Un module
+  **BMP280** vendu pour un BME280 (même allure, puce 0x58) n'a pas d'humidité : le pupitre
+  suit alors la température (+ 0,8 °C), moins sûr. Vérifiez le journal.
+- **`ENCLUME_SEUIL`** : l'écart du champ magnétique qui signale un aimant. L'enclume doit
+  rester **à 8 cm au moins** du haut-parleur, des aimants de la façade et de tout fil
+  d'alimentation épais. Certains modules « GY-271 » portent un HMC5883L (adresse 0x1E) au
+  lieu du QMC5883L : ils ne sont pas reconnus.
+- **L'horloge** suit le câblage des afficheurs Adafruit (chiffres aux adresses 0, 2, 6, 8,
+  deux-points à l'adresse 4). Si votre module affiche des chiffres décalés, dites-le : la
+  table `POSITIONS` de `firmware/src/capteurs_i2c.cpp` s'adapte.
+
 **Alimentation 5 V** (par l'embase USB-C de la face arrière) : l'ESP32 (VIN), les
 deux DFPlayer et toutes les LED, avec le condensateur de 1000 µF près de l'anneau.
 **3,3 V** (fourni par l'ESP32) : l'écran, les 2 lecteurs RFID, la molette, les deux
-PCF8574 et le capteur de couleur.
+PCF8574, le capteur de couleur, l'œil, la forge, l'enclume et l'horloge.
 
 **La carte ESP-32S** : c'est un module ESP32-WROOM-32 (4 Mo de flash) sur une
 carte de développement. Toutes les GPIO du tableau existent sur les versions
@@ -226,6 +260,10 @@ avant gauche** (X vers la droite, Y vers l'arrière) :
 | Capteur de couleur | 35,8 | 15,5 | Ø 12 mm (le module est dessous, capteur et LED tournés vers le haut). Façade qui le cache : pas de trou. |
 | Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase) |
 | Interrupteur à clé | 35,8 | 22,0 | Ø 12 mm |
+| Forge (BME280) | 6,0 | 7,9 | 9 trous Ø 2 mm dans un cercle Ø 14 mm, dans la façade et le couvercle ; le module juste dessous |
+| Enclume (QMC5883L) | 10,5 | 7,9 | Rien : le module est collé sous le couvercle, à plat ; une zone Ø 24 mm marquée sur la façade |
+| Horloge (HT16K33) | 17,5 | 8,2 | Fenêtre 50 × 19 mm (selon l'afficheur), l'afficheur affleurant sous le couvercle |
+| Œil (APDS-9960) | 23,5 | 8,2 | Ø 10 mm ; le module juste dessous, capteur tourné vers le haut, son côté « haut » vers l'arrière du pupitre |
 | 4 boutons d'arcade | 3,5 · 7,5 · 11,5 · 15,5 | 4,0 | 4 × Ø 30 mm, à 40 mm d'axe en axe |
 | Encodeur rotatif (molette) | 19,0 | 4,0 | Ø 7 mm (axe du KY-040) |
 | Bouton champignon (dynamo) | 29,5 | 4,0 | Selon le bouton : Ø 22 mm pour un champignon à visser, Ø 45 à 60 mm pour un gros dôme d'arcade |
@@ -282,6 +320,10 @@ ce qui ne dépasse pas, et ce dont la mission ne se sert pas reste sous la plaqu
 | Clavier (membrane, ≈ 1 mm) | Fenêtre 70 × 78 mm | Caché |
 | Voyants, anneau de LED | Trous Ø 6 mm, cercle Ø 38 mm | Cachés (la lumière ne traverse pas 2 mm de bois peint) |
 | Capteur de couleur | Trou Ø 12 mm | Caché |
+| Œil | Trou Ø 10 mm | Caché |
+| Forge | 9 trous Ø 2 mm | Cachée (le souffle ne passe plus) |
+| Enclume | Zone marquée (rien à découper) | Rien de marqué : elle ne gêne pas |
+| Horloge (afficheur à fleur du couvercle) | Fenêtre 50 × 19 mm | Cachée |
 | Fente à cartes | Fente 68 × 5 mm | Plaque pleine : la fente est fermée |
 | Lecteur à plat | Zone marquée (rien à découper) | Rien de marqué : il ne gêne pas |
 | Haut-parleur | Grille de trous | Toujours percé (le son passe mal à travers le bois) |

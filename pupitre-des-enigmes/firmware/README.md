@@ -29,6 +29,7 @@ firmware/
 │   ├── audio.cpp           les 2 DFPlayer (haut-parleur, casque)
 │   ├── commandes.cpp       boutons, molette, clavier 4×4 et clé (bus I2C, PCF8574)
 │   ├── capteur_couleur.cpp le capteur de couleur TCS34725 (I2C)
+│   ├── capteurs_i2c.cpp    l'œil (APDS-9960), l'enclume (QMC5883L), la forge (BME280), l'horloge (HT16K33)
 │   ├── plateforme_esp32.cpp carte SD et chaîne de LED (anneau, lecteurs, voyants, socle)
 │   └── panneau_web.cpp     le panneau Wi-Fi du maître du jeu
 ├── test/
@@ -189,6 +190,9 @@ retire QUI           # la retirer
 touches 3715#        # taper au clavier 4×4 ; « t9 SILENCE » pour des lettres
 couleur rouge        # poser une couleur devant le capteur ; « couleur - »
 cle tournee          # tourner la clé (ou « cle repos »)
+geste gauche         # la main au-dessus de l'œil (haut, bas, gauche, droite)
+souffle 3            # souffler 3 s sur la forge ; « eclaire 3 » : une lampe sur l'œil
+aimant pose          # un aimant sur l'enclume ; « aimant - » le retire
 bouton VERT          # ROUGE, BLEU, JAUNE, VERT, GROS
 code 3,7,1,5         # saisir un code à la molette ; lettres SILENCE pour un mot
 avance 10            # faire passer 10 minutes (s'arrête si un imprévu commence)
@@ -197,6 +201,7 @@ redemarre            # coupure de courant (la carte SD et sa sauvegarde restent)
 verifie drapeau J3   # et : sans, compteur, phase, epreuve, ecran
 verifie voyant 3 vert # couleur d'un voyant (ou « verifie voyant socle ambre »)
 verifie zone OU L2   # carte vue par une zone logique (« - » si vide)
+verifie afficheur 08:14  # ce que montre l'horloge à 4 chiffres
 capture m1-ecurie    # une image de l'écran (avec ecrans.sh)
 ```
 

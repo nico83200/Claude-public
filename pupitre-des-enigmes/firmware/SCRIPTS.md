@@ -40,7 +40,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `chrono` | `mode` `"horloge"` (heure qui avance depuis `depart`) ou `"compte"` (compte à rebours, avec un `prefixe`) ; `duree` en minutes | `{"mode": "compte", "prefixe": "O₂ ", "duree": 75}` |
 | `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit), `"soupcon"` ou `"lumiere"` (la lumière de la dynamo) | `"soupcon"` |
 | `objets_combinables` | `true` : QUI et QUOI sont les deux mains des joueurs (pupitre à deux lecteurs : la fente et le plateau) ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
-| `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`. Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
+| `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`, `gestes` (l'œil : gestes et lampe), `souffle` (la forge), `aimant` (l'enclume), `afficheur` (l'horloge à 4 chiffres). Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
 | `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques quand une carte arrive sur la mauvaise zone d'un pupitre à trois lecteurs (`dire_lieu`, `dire_objet`, `dire_perso`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
 | `dynamo` | La lumière à entretenir au gros bouton (`bouton`) : elle se vide en `duree` secondes, chaque appui rend `gain` %, à zéro c'est le noir complet et les cartes ne donnent que la réplique `noir` | `{"bouton": "GROS", "duree": 80, "gain": 15, "noir": 17}` |
 | `objectifs` | Le tableau de bord (appui sur la molette) et la ligne du bas : `nom`, `visible` et `fait` (conditions) | `[{"nom": "Rétablir le courant", "visible": "J_porte", "fait": "J_courant"}]` |
@@ -90,6 +90,8 @@ Les règles sont lues **dans l'ordre** : la première qui correspond gagne. On
 | Combinaison | deux objets sur QUI et QUOI (avec `objets_combinables`), dans n'importe quel ordre | `{"combiner": ["O1", "O3"]}` |
 | Couleur | un objet est posé sur le capteur de couleur (`"-"` : il est retiré) | `{"couleur": "rouge"}` |
 | Clé | l'interrupteur à clé est tourné, ou revient au repos | `{"cle": "tournee"}` · `{"cle": "repos"}` |
+| Geste | la main passe au-dessus de l'œil (hors épreuve) : `haut`, `bas`, `gauche`, `droite` | `{"geste": "gauche"}` |
+| Capteur | un capteur tout-ou-rien s'active (hors épreuve) : `souffle`, `aimant`, `eclaire` | `{"capteur": "aimant"}` |
 | Événement | une action `evenement` le déclenche | `{"evenement": "croisement2"}` |
 
 Une **combinaison** qu'aucune règle ne prévoit est traitée comme le dernier objet
@@ -130,6 +132,7 @@ parenthèses. Un nom vaut :
 | `lumiere` | la lumière de la dynamo, de 0 à 100 |
 | `couleur_rouge` | 1 si un objet rouge est sur le capteur de couleur |
 | `cle` | 1 si l'interrupteur à clé est tourné |
+| `souffle`, `aimant`, `eclaire` | 1 tant qu'on souffle sur la forge, qu'un aimant est sur l'enclume, qu'une lampe éclaire l'œil |
 
 Une condition vide est vraie. Le moteur écrit dans le journal série toute
 condition mal écrite.
@@ -181,7 +184,7 @@ Toutes les épreuves acceptent :
 |---|---|---|
 | `code` | règlent des chiffres à la molette (appui : champ suivant, rouge : effacer) ou les tapent au clavier (le code est essayé au dernier chiffre) | `solution` ; `champs` (largeur de chaque champ, ex. `[2, 2, 2]` pour un coffre 17-34-22) ; `ecoute` (stéthoscope : `dossier`, `tic`, `clac`, `audibles`) ; `boucle_casque` (`dossier`, `n`) |
 | `lettres` | règlent des lettres A–Z (au clavier : 2 = ABC… comme sur un téléphone) | `solution` |
-| `choix` | appuient sur un bouton de couleur | `options` (4 textes), `bonne` (0 rouge … 3 vert), `neutre` + `si_neutre`, ou `actions` (une liste par bouton) |
+| `choix` | appuient sur un bouton de couleur, ou passent la main au-dessus de l'œil | `options` (4 textes), `bonne` (0 rouge … 3 vert), `neutre` + `si_neutre`, ou `actions` (une liste par bouton) ; `gestes` : le geste qui choisit chaque option (`["haut", "droite", "gauche", "bas"]`), avec sa flèche à l'écran |
 | `ensemble` | tiennent les 4 boutons enfoncés | `tenir` (secondes) |
 | `rythme` | reproduisent un rythme au gros bouton, ou sur un bouton de couleur | `motif` (instants en ms), `repetitions`, `son`, `tolerance` (ms), `bouton` (`"JAUNE"`…) |
 | `sequence` | rejouent une suite de couleurs (20 s) | `longueur` |
@@ -194,6 +197,17 @@ Toutes les épreuves acceptent :
 | `ordre` | appuient sur les boutons de couleur dans un ordre à déduire (une erreur : échec) | `ordre` (`["BLEU", "ROUGE", "VERT", "JAUNE"]`) |
 | `voyants` | basculent des interrupteurs (clavier 1 à 9 et 0, ou molette + appui) jusqu'au motif voulu, sur le panneau et à l'écran | `depart`, `cible` (`"1111111111"`), `liens` (`"voisins"`, ou `{"1": [1, 2]}`), `couleur`, `validation` (`"auto"`, ou `"#"` : vérifier au bouton vert) |
 | `cle` | tournent l'interrupteur à clé | `secondes` |
+| `capteur` | soufflent sur la forge, posent un aimant sur l'enclume ou éclairent l'œil, pendant `tenir` secondes | `capteur` (`"souffle"`, `"aimant"`, `"eclaire"`), `tenir` (1 par défaut), `consigne` (la ligne du bas : où et comment), `pendant` (la ligne du bas pendant le geste) |
+
+Une épreuve `code` peut s'afficher sur l'horloge pendant la saisie : `"afficheur": true`
+(« 37-- »), ou `"afficheur": "heure"` pour un code de 4 chiffres lu comme une heure
+(« 03:12 »). Le reste du temps, l'horloge montre le chrono de l'en-tête (« 08:14 »,
+« 59:57 »).
+
+**Un geste doit être expliqué** : où (l'élément de la façade, nommé et situé), comment
+(« la main à plat, à 5 cm au-dessus, d'un bord à l'autre », « bouche ouverte, comme
+pour faire de la buée ») et combien de temps. La réplique d'introduction le dit, la
+`consigne` le rappelle à l'écran, et un raté ne coûte rien de plus que de recommencer.
 
 Les aides des rôles pendant une épreuve :
 

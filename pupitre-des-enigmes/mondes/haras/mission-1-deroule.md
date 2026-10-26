@@ -36,6 +36,19 @@
   91/007, 008 ou 009 : *« Cette carte se pose sur la zone… »*
 - **Retirer puis reposer** la même carte donne un rappel court.
 
+**Les autres gestes du haras.** Le pupitre dit toujours quand et comment s'en servir :
+
+| Élément de la façade | Geste | Où |
+|---|---|---|
+| **La forge** (grille de trous, en bas à gauche) | Souffler dessus bouche ouverte, comme pour faire de la buée, environ 3 s | La Forge |
+| **L'enclume** (dessinée à droite de la forge) | Poser à plat le fer à cheval aimanté, posé près du pupitre avant la partie | La Forge |
+| **L'œil** (fenêtre ronde, à gauche du gros bouton) | Passer la main à plat, à 5 cm au-dessus, d'un bord à l'autre, dans la direction de la piste ; ou appuyer sur le bouton de sa couleur | Le Sentier |
+| **L'œil** | Éclairer la fenêtre avec la lampe d'un téléphone, 2 s | La Vieille Grange |
+| **L'horloge** (afficheur à 4 chiffres) | Rien : elle donne l'heure du haras, et les chiffres d'un code pendant qu'on le tape | Partout |
+
+Un geste raté ne coûte rien : il suffit de glisser de nouveau la carte du lieu. Retirer la carte du lieu
+pendant le geste l'abandonne.
+
 **🎧 Le casque.** Quand une réplique est destinée au casque :
 
 1. Un carillon retentit (90/006), et la voix du pupitre annonce : *« Casque ! Un
@@ -75,12 +88,12 @@
 | **J1** Écurie | Carte Écurie posée sur OÙ | Le Sentier (avant J1 : 🔊 017) |
 | **J2** Carnet | Carnet sur QUOI, puis bouton **bleu** | Les réactions « carnet décodé » |
 | **J3** Bureau | Code `3715` | L'enveloppe E3, la question « caméra » de la gendarmerie |
-| **J4** Sentier | 3 bonnes balises | La Vieille Grange |
-| **J5** Grange | Carte Vieille Grange sur OÙ | L'enveloppe E4 |
+| **J4** Sentier | 3 bonnes pistes (la main au-dessus de l'œil, ou le bouton de couleur) | La Vieille Grange |
+| **J5** Grange | Carte Vieille Grange, puis une lampe de téléphone sur l'œil | L'enveloppe E4 |
 | **J6** Accusation | Hélène + Vieille Grange + Contrat d'assurance | La victoire |
 
 **Optionnels** : Sellerie (E2), Manège (E5), Carrière (E6), Pré du Bas (E7),
-Forge, l'appel anonyme 🎧, les confidences 🎧, les alibis 🎧 et les expertises.
+Forge (souffle et fer : le gabarit du fer d'Éclipse), l'appel anonyme 🎧, les confidences 🎧, les alibis 🎧 et les expertises.
 
 ### Filets de sécurité
 Si un jalon n'est pas franchi à temps, le portrait de Papy Marcel **clignote** à
@@ -231,12 +244,17 @@ crème, titres en Playfair Display.
 ┌────────────────────────────────────────────────┐
 │ 8:32     SENTIER DES BOIS · CROISEMENT 1 / 3   │
 ├────────────────────────────────────────────────┤
-│        [illustration : chemin qui se divise]   │
-│   ( ROUGE )   ( BLEUE )   ( JAUNE )   ( VERTE )│
-│      Carnet du sentier : PAGE 1                │
-│      Quelle piste suivez-vous ?                │
+│      Carnet du sentier : page 1.               │
+│      Quelle piste prenez-vous ?                │
+│   ( ↑ ROUGE )  ( → BLEUE )                     │
+│   ( ← JAUNE )  ( ↓ VERTE )                     │
+│ La main au-dessus de l'ŒIL, dans le sens de la │
+│ flèche                                         │
 └────────────────────────────────────────────────┘
 ```
+Le carnet montre la clairière vue du ciel : chaque balise part dans une direction, et
+la direction change d'un croisement à l'autre. Un geste de la main ou le bouton de la
+couleur choisissent la piste.
 Le pouvoir du Maréchal barre une balise : `( BLEUE )` devient `(  ╳  )`.
 
 ### Écran K : Imprévu
@@ -337,6 +355,8 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | 8:02 | Posent l'Écurie | — | **Écurie** | — | **E** + « E1 » | 🔊 020 | ✅ **J1** |
 | 8:03 | Ouvrent E1 : carnet chiffré, photo du box, carte O1 | — | Écurie | — | E | 90/009 | |
 | 8:04 | Le Maréchal reconnaît le fer ovale d'Éclipse | | | | | | |
+| 8:05 | Vont à la Forge : un joueur souffle sur la grille | — | **Forge** | — | « LA FORGE » | 🔊 250 · 11/015 · 🔊 252 | |
+| 8:05 | Un autre pose le fer à cheval sur l'enclume | | Forge | | « LA FORGE » | 11/016 · 🔊 035 | Le gabarit : fer en œuf, 6 clous |
 | 8:05 | La Vétérinaire lit sa note et demande au Maréchal : **6 clous** | | | | | | |
 | 8:06 | Interrogent Camille | **Camille** | Écurie | — | **F** | 🔊 150 | Indice « Sultan côté sud » |
 | 8:08 | **IMPRÉVU Rafale** : les 4 boutons en même temps | | | | **K** | 90/005 · 🔊 080 | LED rouges tournantes |
@@ -379,19 +399,20 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:31 | *« La pinède… elle veut nous en éloigner ! »* | — | **Sentier** | — | E + « E8 » | 🔊 036 · 11/013 | |
-| 8:32 | Croisement 1 : **jaune** | | | | **J** 1/3 | 🔊 037, 041 | LED vert sapin |
-| 8:33 | Croisement 2 : hésitent et choisissent **jaune** : raté | | | | D | 🔊 040 · 90/003 | −2 min |
+| 8:32 | Croisement 1 : la balise **jaune**, la main vers la **gauche** | | | | **J** 1/3 | 🔊 037, 041 | LED vert sapin |
+| 8:33 | Croisement 2 : hésitent, la main vers la gauche (**jaune**) : raté | | | | D | 🔊 040 · 90/003 | −2 min |
 | 8:35 | Le Maréchal utilise son pouvoir | **Rôle Maréchal** | Sentier | — | J avec ╳ | 🔊 048 | |
-| 8:36 | **Bleue** : fer ovale **et** semelle à chevrons | | | | J 3/3 | 🔊 041, 039 | |
-| 8:37 | *« Ce sont les semelles des bottes ! »* **Verte** | | | | Grange au loin | 🔊 042 · 11/002 | LED blanches pulsées |
+| 8:36 | **Bleue** (la main vers le haut) : fer ovale **et** semelle à chevrons | | | | J 3/3 | 🔊 041, 039 | |
+| 8:37 | *« Ce sont les semelles des bottes ! »* **Verte**, la main vers la droite | | | | Grange au loin | 🔊 042 · 11/002 | LED blanches pulsées |
 | 8:38 | | | | | « Lieu découvert » | 🔊 043 | ✅ **J4** |
-| 8:39 | Posent la Vieille Grange | — | **Grange** | — | E + « E4 » | 🔊 045 · 11/001 | ✅ **J5** |
+| 8:39 | Glissent la Vieille Grange : il fait noir | — | **Grange** | — | « LA VIEILLE GRANGE » | 🔊 255 | |
+| 8:39 | Allument la lampe d'un téléphone et éclairent l'œil | | Grange | | E + « E4 » | 🔊 045 · 11/001 | ✅ **J5** |
 
 ### 8:40 – 8:50 : recouper les preuves
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:40 | **IMPRÉVU Gendarmerie** : *« À quelle heure la caméra a-t-elle été coupée ? »* | | | | H (heure) | 11/007 · 🔊 094, 095 | |
-| 8:41 | **0312** au clavier | | | | D | 🔊 098 | **+2 min** |
+| 8:41 | **0312** au clavier : **03:12** s'affiche sur l'horloge | | | | D | 🔊 098 | **+2 min** |
 | 8:42 | Le Gendarme vérifie Lucas 🎧 | **Lucas** | — | **Rôle Gendarme** | L | 🎧 🔊 101 | Au téléphone : innocenté |
 | 8:43 | Le Gendarme vérifie Hélène 🎧 | **Hélène** | — | **Rôle Gendarme** | L | 🎧 🔊 100 | « Aucun justificatif » |
 | 8:44 | Montrent les bottes à Lucas | **Lucas** | — | **Bottes** | G | 🔊 138 | « Elle ne va jamais dans la pinède » |
