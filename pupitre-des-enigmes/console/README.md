@@ -323,6 +323,20 @@ le premier trou de 30 mm aurait touché la paroi.
   table ; ses fils remontent par un trou de 6 mm dans le fond. Les patins laissent
   la lumière s'étaler sur la table.
 
+- **La carte électronique** (la plaque à pastilles 7 × 9 cm qui porte l'ESP32 et les
+  deux DFPlayer) se fixe **sur le fond amovible, dans le coin arrière droit** : près de
+  la prise USB-C, loin de l'enclume (le magnétomètre, à l'avant gauche) et du tiroir
+  secret (à l'arrière gauche). Quatre **entretoises nylon M3 de 10 mm**, chacune tenue
+  par une **vis M3 × 12 à tête fraisée passée par-dessous** le fond (trou de 3,2 mm,
+  fraisé pour que la tête affleure et que le pupitre reste à plat). Pas de vis à bois
+  ni de colle chaude : 5 mm de contreplaqué tiennent mal une vis, et il faut pouvoir
+  démonter la carte. Les entretoises gardent les soudures à distance du bois.
+- **Les fils** qui montent vers le couvercle (écran, lecteurs, modules I2C, LED…)
+  arrivent à la carte par des **connecteurs** (JST-XH ou barrettes Dupont), avec une
+  boucle de 25 cm de mou, tenue par des colliers sur des embases adhésives : on sort le
+  fond, on débranche, et la carte est libre. Orientez la **prise USB de l'ESP32** vers
+  l'intérieur de la boîte, accessible fond retiré, pour téléverser le programme.
+
 ### 4.5 Une façade par mission : montrer ou cacher
 
 Chaque mission a sa façade : **2 mm de contreplaqué**, découpée et décorée pour
