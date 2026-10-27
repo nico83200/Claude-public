@@ -104,12 +104,12 @@ matériel de jeu des 4 missions et l'outillage, est dans [`achats.json`](achats.
 | Modules I2C | PCF8574 : le clavier ; les 4 boutons et le fin de course du tiroir ; un de secours | 3 | 5 € |
 | Capteurs I2C | TCS34725 (couleur), APDS-9960 (œil), BME280 (forge, **pas un BMP280**), QMC5883L « GY-271 » (enclume) | 1 de chaque | 16 € |
 | Horloge | Afficheur 4 chiffres 0,56" à HT16K33 | 1 | (déjà là) |
-| Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11, baguettes 5 × 5 mm | 1 de chaque | 14 € |
+| Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11, baguettes 5 × 5 mm | 1 de chaque | 15 € |
 | LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser, interrupteur à bascule | — | 11 € |
-| Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG | — | 45 € |
-| Boîtier et façades | Contreplaqué 5 mm et 3 mm (4 façades, tiroir), tasseaux, 21 aimants néodyme 10 × 3 mm, entretoises M3 | — | 50 € |
-| Matériel de jeu | Papier cartonné, 37 enveloppes kraft, fer à cheval, attaches parisiennes | — | 30 € |
+| Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
+| Boîtier et façades | Contreplaqué 5 mm et 3 mm (4 façades, tiroir), tasseaux, 21 aimants néodyme 10 × 3 mm, entretoises M3, papier des plateaux, finitions | — | 64 € |
+| Matériel de jeu | Papier cartonné, plastification, 37 enveloppes kraft, fer à cheval, attaches parisiennes (hors puces) | — | 34 € |
 | **Total** | hors outillage et services | | **≈ 315 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
