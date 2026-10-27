@@ -11,6 +11,8 @@
   .photos { display: flex; flex-wrap: wrap; gap: 7mm; justify-content: center; }
   .photo { background: #f4ecdc; padding: 4mm 4mm 2mm; box-shadow: 0 1px 4px rgba(0,0,0,.3); border: 1px solid #d8ccb4; width: 84mm; break-inside: avoid; }
   .photo svg { width: 76mm; height: 62mm; display: block; filter: sepia(.35); }
+  .photo img { width: 76mm; display: block; }
+  .photo.grand img { width: 112mm; }
   .photo .legende { font-family: "Caveat", cursive; font-size: 14pt; color: #3a2a1a; text-align: center; margin-top: 1mm; line-height: 1.1; }
   .photo.grand { width: 120mm; } .photo.grand svg { width: 112mm; height: 80mm; }
   .doc { background: #fffdf6; border: 1px solid #c9c2b4; padding: 7mm 9mm; font-size: 10pt; break-inside: avoid; }
@@ -54,20 +56,12 @@
   <div class="tag">Enveloppe E1 · La bibliothèque</div>
   <div class="photos">
     <div class="photo grand">
-      <svg viewBox="0 0 300 210">
-        <rect width="300" height="210" fill="#4a3a2c"/>
-        <rect x="0" y="0" width="300" height="60" fill="#3a2c20"/>
-        <g fill="#6b4a2a"><rect x="10" y="8" width="14" height="44"/><rect x="26" y="12" width="10" height="40"/><rect x="38" y="6" width="12" height="46"/><rect x="250" y="8" width="14" height="44"/><rect x="266" y="12" width="12" height="40"/></g>
-        <path d="M90 200V95q0-30 60-30t60 30V200z" fill="#5a1d1d" stroke="#2a0e0e" stroke-width="3"/>
-        <circle cx="150" cy="105" r="22" fill="#d9c3a5"/>
-        <path d="M128 98q22-22 44 0" fill="#bbb" />
-        <circle cx="141" cy="106" r="5" fill="#fff"/><circle cx="159" cy="106" r="5" fill="#fff"/>
-        <circle cx="141" cy="106" r=".9" fill="#000"/><circle cx="159" cy="106" r=".9" fill="#000"/>
-        <path d="M142 118q8 4 16 0" stroke="#5a6aa8" stroke-width="3" fill="none"/>
-        <path d="M118 135q32 14 64 0V200H118z" fill="#1d1d24"/>
-        <g transform="translate(205 185) rotate(70)"><path d="M-8-12h16l-3 22h-10z" fill="#d8e0e8" opacity=".8" stroke="#888"/><path d="M-3-4l3 4 3-4" stroke="#7a5a22" fill="none"/></g>
-      </svg>
+      <img src="images/photo-edgar.jpg" alt="">
       <div class="legende">Lord Edgar, 22 h 45. Pupilles minuscules, lèvres bleues. Le verre a roulé sous le fauteuil.</div>
+    </div>
+    <div class="photo">
+      <img src="images/photo-bibliotheque.jpg" alt="">
+      <div class="legende">La bibliothèque, une fois le corps allongé sur le sofa : le fauteuil vide, le verre au pied.</div>
     </div>
   </div>
   <div class="ciseaux"></div>
@@ -87,18 +81,7 @@
   <div class="tag">Enveloppe E2 · Le fumoir</div>
   <div class="photos">
     <div class="photo grand">
-      <svg viewBox="0 0 300 210">
-        <rect width="300" height="210" fill="#3d3128"/>
-        <ellipse cx="150" cy="130" rx="130" ry="55" fill="#b9b9c0" stroke="#7a7a84" stroke-width="3"/>
-        <ellipse cx="150" cy="128" rx="118" ry="47" fill="#d6d6dc"/>
-        <path d="M140 60h20v18q14 6 14 30v32h-48v-32q0-24 14-30z" fill="#e8d7b0" opacity=".9" stroke="#8a6a2a" stroke-width="2"/>
-        <rect x="132" y="102" width="36" height="38" fill="#a8641e" opacity=".75"/>
-        <g fill="#eef2f6" stroke="#8b96a8" stroke-width="1.5">
-          <path d="M60 110h20l-3 28h-14z"/><path d="M88 140h20l-3 28h-14z"/><path d="M196 140h20l-3 28h-14z"/><path d="M224 110h20l-3 28h-14z"/><path d="M206 92h20l-3 26h-14z"/>
-        </g>
-        <g stroke="#7a5a22" fill="none" stroke-width="1"><path d="M65 122l5 5 5-5M93 152l5 5 5-5M201 152l5 5 5-5M229 122l5 5 5-5M211 103l5 5 5-5"/></g>
-        <ellipse cx="96" cy="100" rx="11" ry="4" fill="none" stroke="#7a5a22" stroke-width="1.5" stroke-dasharray="3 2"/>
-      </svg>
+      <img src="images/photo-plateau.jpg" alt="">
       <div class="legende">Le plateau du fumoir : cinq verres au cerf… et la place d'un sixième, vide.</div>
     </div>
   </div>
@@ -108,30 +91,9 @@
 <div class="page">
   <div class="tag">Enveloppe E3 · La galerie des portraits</div>
   <div class="photos">
-    <div class="photo">
-      <svg viewBox="0 0 200 165">
-        <rect width="200" height="165" fill="#2a2018"/>
-        <rect x="40" y="8" width="120" height="150" fill="#c9a24e" stroke="#7a5a22" stroke-width="4"/>
-        <rect x="50" y="18" width="100" height="130" fill="#3a2a22"/>
-        <circle cx="100" cy="62" r="20" fill="#d9b48f"/>
-        <path d="M80 56q20-26 40 0" fill="#e8e0d0"/>
-        <path d="M66 148q4-50 34-58q30 8 34 58z" fill="#1d1d2a"/>
-        <path d="M94 90l6 10 6-10" fill="#fff"/>
-        <text x="58" y="142" font-family="Caveat" font-size="9" fill="#000">T. Lawrence</text>
-      </svg>
-      <div class="legende">Sir Ambrose. Signature noire, vernis brillant comme un miroir. Au revers : une toile toute claire.</div>
-    </div>
-    <div class="photo">
-      <svg viewBox="0 0 200 165">
-        <rect width="200" height="165" fill="#2a2018"/>
-        <rect x="30" y="12" width="140" height="140" fill="#c9a24e" stroke="#7a5a22" stroke-width="4"/>
-        <rect x="40" y="22" width="120" height="120" fill="#556a52"/>
-        <ellipse cx="100" cy="52" rx="30" ry="9" fill="#e6d29a"/>
-        <circle cx="100" cy="62" r="13" fill="#e8c9a8"/>
-        <path d="M70 142q6-50 30-60q24 10 30 60z" fill="#d7dbe6"/>
-        <path d="M44 26l40 10" stroke="#fff" stroke-width="2" opacity=".6"/>
-      </svg>
-      <div class="legende">« Lady Blackwood au chapeau de paille ». Pas une craquelure. Le vernis brille.</div>
+    <div class="photo grand">
+      <img src="images/photo-tableaux.jpg" alt="">
+      <div class="legende">Sir Ambrose, et « Lady Blackwood au chapeau de paille ». Vernis brillants comme des miroirs, pas une craquelure. La signature de Sir Ambrose est noire.</div>
     </div>
   </div>
 </div>
@@ -171,14 +133,8 @@ Merci de votre visite</div>
   <div class="tag">Enveloppe E5 · La chambre de Lady Margaret</div>
   <div class="photos">
     <div class="photo">
-      <svg viewBox="0 0 200 165">
-        <rect width="200" height="165" fill="#4a3046"/>
-        <rect x="45" y="70" width="110" height="60" rx="6" fill="#5a1d2d" stroke="#2a0e14" stroke-width="3"/>
-        <path d="M45 70l10-36h90l10 36z" fill="#7a2d3d"/>
-        <rect x="58" y="82" width="84" height="38" fill="#e8d4d8"/>
-        <ellipse cx="100" cy="100" rx="14" ry="9" fill="none" stroke="#c9a24e" stroke-width="2" stroke-dasharray="3 2"/>
-      </svg>
-      <div class="legende">L'écrin de Madame. La broche d'émeraude a disparu.</div>
+      <img src="images/photo-ecrin.jpg" alt="">
+      <div class="legende">L'écrin de velours de Madame. La broche d'émeraude a disparu : sa forme est restée dans la soie.</div>
     </div>
   </div>
 </div>
@@ -204,17 +160,7 @@ Merci de votre visite</div>
   <div class="tag">Enveloppe E7 · Le bureau de Lord Edgar</div>
   <div class="photos">
     <div class="photo grand">
-      <svg viewBox="0 0 300 210">
-        <rect width="300" height="210" fill="#3d2e22"/>
-        <rect x="70" y="60" width="160" height="110" fill="#5a3a22" stroke="#2a1a0e" stroke-width="3"/>
-        <rect x="80" y="70" width="140" height="40" fill="#6b4a2a"/>
-        <rect x="140" y="112" width="20" height="16" fill="#c9a24e" stroke="#6b4a1a"/>
-        <g fill="#efe6d2" stroke="#b9a77f">
-          <rect x="30" y="170" width="40" height="28" transform="rotate(-12 50 184)"/><rect x="90" y="180" width="44" height="26" transform="rotate(8 112 193)"/>
-          <rect x="170" y="176" width="40" height="28" transform="rotate(-5 190 190)"/><rect x="230" y="168" width="42" height="28" transform="rotate(14 251 182)"/>
-          <rect x="120" y="40" width="36" height="24" transform="rotate(-20 138 52)"/>
-        </g>
-      </svg>
+      <img src="images/photo-bureau.jpg" alt="">
       <div class="legende">Le bureau, 23 h. Quelqu'un a tout retourné. Le secrétaire, lui, a tenu bon.</div>
     </div>
   </div>
@@ -225,6 +171,8 @@ Merci de votre visite</div>
 <!-- E8 -->
 <div class="page">
   <div class="tag">Enveloppe E8 · Le salon de la séance</div>
+  <div class="photos" style="margin-bottom:6mm"><div class="photo grand"><img src="images/photo-seance.jpg" alt="">
+    <div class="legende">Le guéridon du salon, 23 h. La main au-dessus du pentacle…</div></div></div>
   <div class="doc" style="width:150mm;margin:0 auto;text-align:center;background:#1c1411;color:#e7d3a5">
     <div class="en-tete" style="color:#e7d3a5">Feuille de la planchette · séance du 31 octobre</div>
     <p style="font-family:'Playfair';font-size:30pt;letter-spacing:.25em;margin:8mm 0">VERRE · CERF · FUMÉE</p>
