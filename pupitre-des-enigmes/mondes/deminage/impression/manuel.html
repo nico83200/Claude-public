@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 6 · Manuel de désamorçage</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  /* Produit par mondes/deminage/generer.py : modifier les règles là-bas, pas ici. */
+  :root { --vert: #2b2f36; --or: #f2b134; }
+  @page { size: A4; margin: 13mm 14mm 15mm; }
+  body { font-size: 10pt; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #7a5a12; border-bottom: 2px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .couverture { border: 3px solid #2b2f36; padding: 10mm; text-align: center; margin-bottom: 6mm;
+                background: repeating-linear-gradient(135deg, #f2b134 0 9mm, #2b2f36 9mm 18mm); }
+  .couverture div { background: #fff; padding: 8mm 6mm; }
+  .couverture h1 { font-size: 32pt; margin: 0; color: #2b2f36; }
+  .couverture p { margin: 2mm 0 0; letter-spacing: .2em; text-transform: uppercase; font-size: 9pt; color: #7a5a12; }
+  .module { border: 1.5px solid #2b2f36; border-radius: 5px; padding: 0 0 5px; margin: 0 0 4.5mm; break-inside: avoid; }
+  .module td, .module th { padding: 2.5px 6px; }
+  .module h2 { margin: 0 0 6px; padding: 5px 10px; background: #2b2f36; color: #f2b134; border: 0; border-radius: 3px 3px 0 0;
+               font-size: 14pt; display: flex; justify-content: space-between; }
+  .module h2 small { color: #fff; font-family: "Source Sans"; font-size: 9pt; letter-spacing: .1em; font-weight: 400; }
+  .module > p, .module > ol, .module > table, .module > div { margin-left: 10px; margin-right: 10px; }
+  .module table { width: calc(100% - 20px); font-size: 9.6pt; }
+  .module th { background: #4a505a; }
+  td.c { text-align: center; font-weight: 700; }
+  ol li { margin-bottom: 3px; }
+  .pastille { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; border: 1px solid #0003; }
+  .attention { background: #fff4d6; border-left: 4px solid #f2b134; padding: 5px 9px; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .saut { break-before: page; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Mission 6 · Désamorçage</span></div>
+<div class="couverture"><div><h1>Manuel de désamorçage</h1><p>Modèle de bombe « Pupitre » · édition des experts</p></div></div>
+
+<div class="attention"><strong>Experts : ne regardez jamais l'écran du pupitre.</strong> Le démineur vous décrit ce qu'il voit ;
+vous trouvez la règle dans ce manuel, et vous lui dites quoi faire. Le démineur, lui, ne lit pas ce manuel.</div>
+
+<h2>Avant tout : le numéro de série</h2>
+<p>Il s'affiche quand la bombe s'arme, et à tout moment par un appui du démineur sur la molette. Exemple : <b>KZ-4815</b>.
+Notez tout de suite ces deux informations, presque toutes les règles en dépendent :</p>
+<table style="width:auto">
+  <tr><th>Information</th><th>Comment la lire</th><th>Exemple KZ-4815</th></tr>
+  <tr><td><b>Dernier chiffre impair</b></td><td>le tout dernier chiffre est 1, 3, 5, 7 ou 9</td><td>5 : <b>oui</b></td></tr>
+  <tr><td><b>Voyelle</b></td><td>une des deux lettres est A, E, I, O, U ou Y</td><td>K, Z : <b>non</b></td></tr>
+</table>
+<p>La bombe compte <b>5 modules</b>, sur les 8 de ce manuel. Le démineur ouvre un module en glissant sa carte dans la fente.
+Chaque <b>erreur</b> retire une minute ; à la <b>troisième</b>, la bombe explose. Un module raté se réessaie en glissant de nouveau sa carte.
+Quand les 5 modules sont désamorcés, il reste la <b>sécurité finale</b> : tourner la clé dans les 15 secondes.</p>
+
+<div class="module"><h2>Fils <small>CARTE « MODULE FILS »</small></h2>
+<p>Cinq fils, numérotés de 1 à 5, s'allument sur les voyants du haut (et s'écrivent à l'écran). Le démineur tape au clavier le numéro du fil à couper.
+Lisez les règles <b>dans l'ordre</b> : la première qui s'applique est la bonne.</p>
+<ol><li>S'il n'y a <b>aucun fil rouge</b> : coupez le <b>2<sup>e</sup></b> fil.</li><li>Sinon, si le <b>dernier fil est blanc</b> et que le <b>dernier chiffre</b> du numéro de série est <b>impair</b> : coupez le <b>4<sup>e</sup></b> fil.</li><li>Sinon, s'il y a <b>exactement un fil rouge</b> et <b>plus d'un fil jaune</b> : coupez le <b>1<sup>er</sup></b> fil.</li><li>Sinon, s'il n'y a <b>aucun fil bleu</b> : coupez le <b>dernier</b> fil (le 5<sup>e</sup>).</li><li>Sinon : coupez le <b>dernier fil bleu</b>.</li></ol></div>
+
+<div class="module"><h2>Détonateur <small>CARTE « MODULE DÉTONATEUR »</small></h2>
+<p>Le démineur lit l'étiquette du détonateur, puis appuie sur <b>un seul</b> bouton de couleur.</p>
+<table><tr><th>Étiquette</th><th>Le n° de série contient une voyelle</th><th>Pas de voyelle</th></tr><tr><td>« ANNULER »</td><td>BLEU</td><td>JAUNE</td></tr><tr><td>« EXPLOSER »</td><td>VERT</td><td>ROUGE</td></tr><tr><td>« MAINTENIR »</td><td>ROUGE</td><td>BLEU</td></tr><tr><td>« ARMER »</td><td>JAUNE</td><td>VERT</td></tr></table></div>
+
+<div class="module"><h2>Clavier <small>CARTE « MODULE CLAVIER »</small></h2>
+<p>Quatre mots s'affichent. Chaque mot vaut un chiffre : le code s'écrit dans l'ordre des mots à l'écran,
+<b>à l'envers si le numéro de série contient une voyelle</b>. Le démineur le tape au clavier (l'horloge l'affiche).</p>
+<table><tr><th>Mot</th><th>Chiffre</th><th>Mot</th><th>Chiffre</th></tr><tr><td>ANCRE</td><td class='c'>7</td><td>BALLON</td><td class='c'>3</td></tr><tr><td>CACTUS</td><td class='c'>9</td><td>DRAGON</td><td class='c'>1</td></tr><tr><td>ÉCLAIR</td><td class='c'>4</td><td>FUSÉE</td><td class='c'>8</td></tr><tr><td>GUITARE</td><td class='c'>2</td><td>HIBOU</td><td class='c'>6</td></tr><tr><td>IGLOO</td><td class='c'>0</td><td>JOKER</td><td class='c'>5</td></tr><tr><td>KAYAK</td><td class='c'>3</td><td>LAMPE</td><td class='c'>8</td></tr><tr><td>MOULIN</td><td class='c'>1</td><td>NUAGE</td><td class='c'>6</td></tr><tr><td>OURS</td><td class='c'>4</td><td>PIRATE</td><td class='c'>2</td></tr></table></div>
+
+<div class="module"><h2>Surchauffe <small>CARTE « MODULE SURCHAUFFE »</small></h2>
+<p>Le démineur lit la température du noyau. Le <b>seuil</b> est de <b>60 °C</b> si le dernier chiffre du numéro de série est impair,
+de <b>80 °C</b> sinon.</p>
+<ol><li>Température <b>au-dessus du seuil</b> : bouton <b>VERT</b> (refroidir), puis le démineur <b>souffle</b> sur la grille FORGE,
+bouche grande ouverte, pendant 2 secondes.</li>
+<li>Sinon : bouton <b>ROUGE</b> (laisser chauffer). Surtout ne pas souffler.</li></ol></div>
+
+<div class="saut"></div>
+<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Mission 6 · Désamorçage</span></div>
+<div class="module"><h2>Viseur <small>CARTE « MODULE VISEUR »</small></h2>
+<p>Une cible s'affiche. Le démineur passe la main à plat, à 5 cm au-dessus de l'<b>ŒIL</b>, d'un bord à l'autre, deux fois.
+Si le dernier chiffre du numéro de série est <b>impair</b>, faites les deux gestes <b>dans l'ordre inverse</b>.</p>
+<table><tr><th>Cible</th><th>1<sup>er</sup> geste</th><th>2<sup>e</sup> geste</th></tr><tr><td>ALPHA</td><td class='c'>↑ vers le haut</td><td class='c'>→ vers la droite</td></tr><tr><td>BRAVO</td><td class='c'>↓ vers le bas</td><td class='c'>← vers la gauche</td></tr><tr><td>CHARLIE</td><td class='c'>← vers la gauche</td><td class='c'>↑ vers le haut</td></tr><tr><td>DELTA</td><td class='c'>→ vers la droite</td><td class='c'>↓ vers le bas</td></tr><tr><td>ÉCHO</td><td class='c'>↑ vers le haut</td><td class='c'>↓ vers le bas</td></tr><tr><td>FOXTROT</td><td class='c'>← vers la gauche</td><td class='c'>→ vers la droite</td></tr><tr><td>GOLF</td><td class='c'>↓ vers le bas</td><td class='c'>↑ vers le haut</td></tr><tr><td>HOTEL</td><td class='c'>→ vers la droite</td><td class='c'>← vers la gauche</td></tr></table></div>
+
+<div class="deux">
+<div class="module"><h2>Nuancier <small>« NUANCIER »</small></h2>
+<p>Le démineur lit le niveau de contamination, pose la bonne <b>pastille</b> à plat sur le capteur NUANCIER, puis appuie sur le <b>gros bouton</b>.</p>
+<table><tr><th>Niveau</th><th>Voyelle</th><th>Pas de voyelle</th></tr><tr><td class='c'>1</td><td><span class='pastille' style='background:#d62020'></span> rouge</td><td><span class='pastille' style='background:#1f4fd8'></span> bleu</td></tr><tr><td class='c'>2</td><td><span class='pastille' style='background:#1f9a3a'></span> vert</td><td><span class='pastille' style='background:#f2c400'></span> jaune</td></tr><tr><td class='c'>3</td><td><span class='pastille' style='background:#1f4fd8'></span> bleu</td><td><span class='pastille' style='background:#1f9a3a'></span> vert</td></tr><tr><td class='c'>4</td><td><span class='pastille' style='background:#f2c400'></span> jaune</td><td><span class='pastille' style='background:#d62020'></span> rouge</td></tr></table></div>
+
+<div class="module"><h2>Radio <small>« RADIO »</small></h2>
+<p>Le démineur met le casque et entend un mot de code. Donnez-lui la fréquence à taper. Si le dernier chiffre du numéro de série
+est <b>impair</b>, ajoutez 1 au <b>dernier</b> chiffre de la fréquence (9 devient 0).</p>
+<table><tr><th>Mot de code</th><th>Fréquence</th></tr><tr><td>OPALE</td><td class='c'>315</td></tr><tr><td>SAPHIR</td><td class='c'>472</td></tr><tr><td>RUBIS</td><td class='c'>208</td></tr><tr><td>ÉMERAUDE</td><td class='c'>561</td></tr><tr><td>TOPAZE</td><td class='c'>639</td></tr><tr><td>AMBRE</td><td class='c'>184</td></tr><tr><td>JADE</td><td class='c'>720</td></tr><tr><td>ONYX</td><td class='c'>947</td></tr></table></div>
+</div>
+
+<div class="module"><h2>Stabilisateur <small>CARTE « MODULE STABILISATEUR »</small></h2>
+<p>Pas de règle ici : de l'adresse. Le pupitre fait entendre un rythme ; le démineur le reproduit <b>deux fois</b> sur le gros bouton.
+Conseil : comptez à voix haute pendant l'écoute.</p></div>
+
+<div class="deux">
+<div class="module"><h2>Sécurité finale <small>LA CLÉ</small></h2>
+<p>Quand les 5 modules sont désamorcés, le démineur a <b>15 secondes</b> pour tourner la clé. Si elle est déjà tournée, il la ramène d'abord au repos.</p></div>
+
+<div class="module"><h2>Imprévu : le capteur de vibrations</h2>
+<p>Si la bombe l'annonce, <b>plus personne ne touche le pupitre</b> pendant 8 secondes. Une pression, un appui, une carte : c'est une erreur.</p></div>
+</div>
+</body>
+</html>

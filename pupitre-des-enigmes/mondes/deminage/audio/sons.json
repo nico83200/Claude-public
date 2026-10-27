@@ -1,0 +1,54 @@
+{
+  "dossier": 61,
+  "description": "Bruitages du monde Brigade de déminage (dossier /61/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 4,
+      "prompt": "Tense military briefing sting, low brass hit and a ticking clock, bomb squad intro"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : la bombe",
+      "duree": 20,
+      "prompt": "Tense bomb defusal ambience, loud steady mechanical clock ticking, low electronic hum, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Module désamorcé",
+      "duree": 1.5,
+      "prompt": "Electronic disarm sound, relay click followed by a descending double beep"
+    },
+    {
+      "n": 4,
+      "nom": "Erreur",
+      "duree": 1.5,
+      "prompt": "Harsh electronic error buzzer with a short electrical crackle"
+    },
+    {
+      "n": 5,
+      "nom": "Tic du stabilisateur",
+      "duree": 0.5,
+      "prompt": "Single short sharp electronic beep, metronome"
+    },
+    {
+      "n": 6,
+      "nom": "Explosion",
+      "duree": 4,
+      "prompt": "Big cinematic explosion, deep boom and debris, then ringing silence"
+    },
+    {
+      "n": 7,
+      "nom": "Bombe désamorcée",
+      "duree": 4,
+      "prompt": "Bomb timer powering down with a falling tone, then a relieved soft orchestral chord"
+    },
+    {
+      "n": 8,
+      "nom": "Alarme",
+      "duree": 2,
+      "prompt": "Urgent electronic alarm, fast rising beeps, bomb warning"
+    }
+  ]
+}

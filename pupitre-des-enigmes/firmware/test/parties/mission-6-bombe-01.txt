@@ -1,0 +1,43 @@
+# Mission 6 · Désamorçage — bombe 1 (EF-5541), produite par mondes/deminage/generer.py
+fente M6
+fente -
+verifie phase menu
+hasard 0
+touches 1
+calme
+verifie phase jeu
+verifie drapeau b1
+# --- Un module absent de cette bombe
+fente L1
+verifie epreuve
+fente -
+# --- detonateur
+fente L2
+bouton VERT
+verifie drapeau d_detonateur
+fente -
+# --- clavier
+fente L3
+touches 3720
+verifie drapeau d_clavier
+fente -
+# --- surchauffe
+fente L4
+bouton VERT
+souffle 3
+verifie drapeau d_surchauffe
+fente -
+# --- radio
+fente L7
+touches 185
+verifie drapeau d_radio
+fente -
+# --- stabilisateur
+fente L8
+rythme 0,300,600 2
+verifie drapeau d_stabilisateur
+fente -
+# --- La sécurité finale
+verifie epreuve cle
+cle tournee
+verifie phase victoire

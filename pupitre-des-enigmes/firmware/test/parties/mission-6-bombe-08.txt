@@ -1,0 +1,44 @@
+# Mission 6 · Désamorçage — bombe 8 (FT-8718), produite par mondes/deminage/generer.py
+fente M6
+fente -
+verifie phase menu
+hasard 7
+touches 1
+calme
+verifie phase jeu
+verifie drapeau b8
+# --- Un module absent de cette bombe
+fente L2
+verifie epreuve
+fente -
+# --- fils
+fente L1
+touches 5
+verifie drapeau d_fils
+fente -
+# --- clavier
+fente L3
+touches 4612
+verifie drapeau d_clavier
+fente -
+# --- nuancier
+fente L6
+couleur bleu
+bouton GROS
+couleur -
+verifie drapeau d_nuancier
+fente -
+# --- radio
+fente L7
+touches 208
+verifie drapeau d_radio
+fente -
+# --- stabilisateur
+fente L8
+rythme 0,250,750 2
+verifie drapeau d_stabilisateur
+fente -
+# --- La sécurité finale
+verifie epreuve cle
+cle tournee
+verifie phase victoire

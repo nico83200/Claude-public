@@ -1,0 +1,323 @@
+{
+  "monde": "Brigade de déminage",
+  "mission": "Désamorçage",
+  "dossier": 60,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction",
+    "020-039": "La bombe et ses modules",
+    "040-048": "La radio (casque)",
+    "060-067": "Fins",
+    "070-079": "Le QG (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "qg",
+      "usage": "Écran titre",
+      "texte": "Brigade de déminage. Mission six : désamorçage."
+    },
+    {
+      "n": 9,
+      "voix": "qg",
+      "usage": "Pitch",
+      "texte": "Ici le QG de la brigade de déminage. Une bombe vient d'être découverte, et vous êtes les seuls sur place. Le démineur reste au pupitre : il voit la bombe, mais n'a pas le droit de lire le manuel. Les experts ont le manuel, mais ne regardent pas l'écran. Le démineur décrit, les experts trouvent la règle, le démineur agit. Chaque erreur coûte une minute. À la troisième, tout saute. Bonne chance."
+    },
+    {
+      "n": 10,
+      "voix": "bombe",
+      "usage": "Départ du chrono",
+      "texte": "Bombe armée. Compte à rebours : douze minutes."
+    },
+    {
+      "n": 11,
+      "voix": "qg",
+      "usage": "Carte sans effet",
+      "texte": "Ce n'est pas un module, ça."
+    },
+    {
+      "n": 12,
+      "voix": "bombe",
+      "usage": "Module déjà désamorcé",
+      "texte": "Module déjà désamorcé."
+    },
+    {
+      "n": 13,
+      "voix": "qg",
+      "usage": "Monde chargé",
+      "texte": "Brigade de déminage. Installez la façade si vous en avez une, puis appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "qg",
+      "usage": "Comment jouer",
+      "texte": "Démineur : le numéro de série et les modules de cette bombe sont à l'écran ; un appui sur la molette les réaffiche. Glissez la carte d'un module dans la fente pour l'ouvrir, et laissez-la en place."
+    },
+    {
+      "n": 15,
+      "voix": "bombe",
+      "usage": "Module absent",
+      "texte": "Ce module n'est pas sur cette bombe."
+    },
+    {
+      "n": 20,
+      "voix": "bombe",
+      "usage": "Fils",
+      "texte": "Module fils. Cinq fils, un seul à couper. Tapez son numéro au clavier."
+    },
+    {
+      "n": 21,
+      "voix": "bombe",
+      "usage": "Détonateur",
+      "texte": "Module détonateur. Lisez l'étiquette, puis appuyez sur un seul bouton de couleur."
+    },
+    {
+      "n": 22,
+      "voix": "bombe",
+      "usage": "Clavier",
+      "texte": "Module clavier. Quatre mots, un code à quatre chiffres."
+    },
+    {
+      "n": 23,
+      "voix": "bombe",
+      "usage": "Surchauffe",
+      "texte": "Module surchauffe. Bouton vert pour refroidir, bouton rouge pour laisser chauffer."
+    },
+    {
+      "n": 24,
+      "voix": "bombe",
+      "usage": "Surchauffe : refroidir",
+      "texte": "Refroidissement. Soufflez sur la grille FORGE, bouche grande ouverte, pendant deux secondes."
+    },
+    {
+      "n": 25,
+      "voix": "bombe",
+      "usage": "Viseur",
+      "texte": "Module viseur. Deux gestes de la main au-dessus de l'œil, dans le bon ordre."
+    },
+    {
+      "n": 26,
+      "voix": "bombe",
+      "usage": "Nuancier",
+      "texte": "Module nuancier. Posez la bonne pastille sur le capteur, puis appuyez sur le gros bouton."
+    },
+    {
+      "n": 27,
+      "voix": "bombe",
+      "usage": "Radio",
+      "texte": "Module radio. Le démineur met le casque, et écoute le mot de code."
+    },
+    {
+      "n": 28,
+      "voix": "bombe",
+      "usage": "Stabilisateur",
+      "texte": "Module stabilisateur. Écoutez le rythme, puis reproduisez-le deux fois sur le gros bouton."
+    },
+    {
+      "n": 30,
+      "voix": "bombe",
+      "usage": "Module désamorcé (1)",
+      "texte": "Module désamorcé."
+    },
+    {
+      "n": 31,
+      "voix": "bombe",
+      "usage": "Module désamorcé (2)",
+      "texte": "Module neutralisé."
+    },
+    {
+      "n": 32,
+      "voix": "bombe",
+      "usage": "Module désamorcé (3)",
+      "texte": "Module hors service."
+    },
+    {
+      "n": 33,
+      "voix": "bombe",
+      "usage": "Première erreur",
+      "texte": "Erreur. Compte à rebours accéléré : une minute de moins."
+    },
+    {
+      "n": 34,
+      "voix": "bombe",
+      "usage": "Deuxième erreur",
+      "texte": "Deuxième erreur. Une de plus, et c'est fini."
+    },
+    {
+      "n": 35,
+      "voix": "bombe",
+      "usage": "Sécurité finale",
+      "texte": "Tous les modules sont désamorcés. Sécurité finale : tournez la clé. Maintenant !"
+    },
+    {
+      "n": 37,
+      "voix": "bombe",
+      "usage": "Capteur de vibrations",
+      "texte": "Capteur de vibrations activé. Ne touchez plus à rien pendant huit secondes."
+    },
+    {
+      "n": 38,
+      "voix": "bombe",
+      "usage": "Vibrations : tenu",
+      "texte": "Capteur de vibrations désactivé."
+    },
+    {
+      "n": 39,
+      "voix": "bombe",
+      "usage": "Deux minutes",
+      "texte": "Plus que deux minutes."
+    },
+    {
+      "n": 40,
+      "voix": "qg",
+      "usage": "Radio : OPALE",
+      "texte": "Ici le QG. Mot de code : Opale. Je répète : Opale.",
+      "sortie": "casque"
+    },
+    {
+      "n": 41,
+      "voix": "qg",
+      "usage": "Radio : SAPHIR",
+      "texte": "Ici le QG. Mot de code : Saphir. Je répète : Saphir.",
+      "sortie": "casque"
+    },
+    {
+      "n": 42,
+      "voix": "qg",
+      "usage": "Radio : RUBIS",
+      "texte": "Ici le QG. Mot de code : Rubis. Je répète : Rubis.",
+      "sortie": "casque"
+    },
+    {
+      "n": 43,
+      "voix": "qg",
+      "usage": "Radio : ÉMERAUDE",
+      "texte": "Ici le QG. Mot de code : Émeraude. Je répète : Émeraude.",
+      "sortie": "casque"
+    },
+    {
+      "n": 44,
+      "voix": "qg",
+      "usage": "Radio : TOPAZE",
+      "texte": "Ici le QG. Mot de code : Topaze. Je répète : Topaze.",
+      "sortie": "casque"
+    },
+    {
+      "n": 45,
+      "voix": "qg",
+      "usage": "Radio : AMBRE",
+      "texte": "Ici le QG. Mot de code : Ambre. Je répète : Ambre.",
+      "sortie": "casque"
+    },
+    {
+      "n": 46,
+      "voix": "qg",
+      "usage": "Radio : JADE",
+      "texte": "Ici le QG. Mot de code : Jade. Je répète : Jade.",
+      "sortie": "casque"
+    },
+    {
+      "n": 47,
+      "voix": "qg",
+      "usage": "Radio : ONYX",
+      "texte": "Ici le QG. Mot de code : Onyx. Je répète : Onyx.",
+      "sortie": "casque"
+    },
+    {
+      "n": 48,
+      "voix": "qg",
+      "usage": "Radio : personne au casque",
+      "texte": "Personne au casque ? Glissez de nouveau la carte de la radio pour réécouter."
+    },
+    {
+      "n": 60,
+      "voix": "qg",
+      "usage": "Victoire",
+      "texte": "Bombe désamorcée ! Ici le QG. Beau travail : la brigade est fière de vous."
+    },
+    {
+      "n": 61,
+      "voix": "qg",
+      "usage": "Rang : démineurs d'élite",
+      "texte": "Démineurs d'élite. Plus de six minutes d'avance, et pas une seule erreur."
+    },
+    {
+      "n": 62,
+      "voix": "qg",
+      "usage": "Rang : démineurs confirmés",
+      "texte": "Démineurs confirmés. La bombe est neutralisée, avec un peu d'avance."
+    },
+    {
+      "n": 63,
+      "voix": "qg",
+      "usage": "Rang : démineurs chanceux",
+      "texte": "Démineurs chanceux. C'était juste. Très juste."
+    },
+    {
+      "n": 64,
+      "voix": "bombe",
+      "usage": "Temps écoulé",
+      "texte": "Zéro."
+    },
+    {
+      "n": 65,
+      "voix": "qg",
+      "usage": "Explosion",
+      "texte": "Ici le QG… Nous avons perdu le contact. Recommencez l'entraînement : une autre bombe vous attend."
+    },
+    {
+      "n": 67,
+      "voix": "qg",
+      "usage": "La solution",
+      "texte": "Pour comprendre, relisez dans le manuel les modules ratés, avec le numéro de série de cette bombe."
+    },
+    {
+      "n": 70,
+      "voix": "qg",
+      "usage": "QG : appel",
+      "texte": "QG, j'écoute."
+    },
+    {
+      "n": 71,
+      "voix": "qg",
+      "usage": "Conseil gratuit",
+      "texte": "Un conseil."
+    },
+    {
+      "n": 72,
+      "voix": "qg",
+      "usage": "Conseil payant",
+      "texte": "Un conseil, qui vous coûte une minute."
+    },
+    {
+      "n": 73,
+      "voix": "qg",
+      "usage": "Conseil 1",
+      "texte": "Démineur, décrivez exactement ce que vous voyez, mot pour mot. Experts, commencez par le numéro de série."
+    },
+    {
+      "n": 74,
+      "voix": "qg",
+      "usage": "Conseil 2",
+      "texte": "Le dernier chiffre du numéro de série, et la présence d'une voyelle, décident de beaucoup de règles. Notez-les tout de suite."
+    },
+    {
+      "n": 75,
+      "voix": "qg",
+      "usage": "Conseil 3",
+      "texte": "Les règles des fils se lisent dans l'ordre : la première qui s'applique est la bonne."
+    },
+    {
+      "n": 76,
+      "voix": "qg",
+      "usage": "Conseil 4",
+      "texte": "Un module vous bloque ? Passez au suivant, vous y reviendrez."
+    },
+    {
+      "n": 79,
+      "voix": "qg",
+      "usage": "Plus de conseil",
+      "texte": "Le QG n'a plus rien à vous apprendre. À vous."
+    }
+  ]
+}

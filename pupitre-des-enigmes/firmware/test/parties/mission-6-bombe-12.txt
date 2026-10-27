@@ -1,0 +1,43 @@
+# Mission 6 · Désamorçage — bombe 12 (LH-9910), produite par mondes/deminage/generer.py
+fente M6
+fente -
+verifie phase menu
+hasard 11
+touches 1
+calme
+verifie phase jeu
+verifie drapeau b12
+# --- Un module absent de cette bombe
+fente L3
+verifie epreuve
+fente -
+# --- fils
+fente L1
+touches 5
+verifie drapeau d_fils
+fente -
+# --- detonateur
+fente L2
+bouton ROUGE
+verifie drapeau d_detonateur
+fente -
+# --- viseur
+fente L5
+geste gauche
+geste haut
+verifie drapeau d_viseur
+fente -
+# --- radio
+fente L7
+touches 472
+verifie drapeau d_radio
+fente -
+# --- stabilisateur
+fente L8
+rythme 0,500,750,1000 2
+verifie drapeau d_stabilisateur
+fente -
+# --- La sécurité finale
+verifie epreuve cle
+cle tournee
+verifie phase victoire

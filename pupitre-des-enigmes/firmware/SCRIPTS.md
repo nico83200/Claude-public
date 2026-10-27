@@ -8,6 +8,8 @@ panneau de voyants, de la lumière sous la boîte et de l'interrupteur à clé) 
 [Monte-Carlo](../mondes/casse/pupitre/mission-2.json) ·
 [Kepler-9](../mondes/kepler/pupitre/mission-3.json) ·
 [Narval](../mondes/narval/pupitre/mission-4.json) (un escape game sans rôles ni accusation).
+La mission 6, [Désamorçage](../mondes/deminage/pupitre/mission-6.json), est produite par un
+[générateur](../mondes/deminage/generer.py) : elle tire une bombe au sort avec l'action `hasard`.
 
 Le principe : **quand** une carte est posée, le moteur cherche la première
 **règle** qui correspond et dont la **condition** est vraie, puis exécute ses

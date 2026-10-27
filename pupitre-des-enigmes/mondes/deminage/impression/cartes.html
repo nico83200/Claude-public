@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 6 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Brigade de déminage",
+  mission: "Mission 6",
+  police: '"Source Sans", sans-serif',
+  accent: "#f2b134",
+  motif: "⚠ ✦ ⚠",
+  types: {
+    monde: { c: "#2b2f36", fond: "#e4e5e8", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#a8321f", fond: "#f6dfd8", libelle: "Module", zone: "📍 Fente" },
+    aide:  { c: "#1f5d8a", fond: "#d9e8f3", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M6", t: "monde", nom: "Brigade de déminage", sous: "Mission 6 · Désamorçage", vis: "💣", txt: "Glissez cette carte dans la fente pour charger le monde. <em>12 minutes par bombe, 12 bombes différentes.</em>" },
+
+    { id: "L1", t: "lieu", nom: "Module Fils", sous: "Les 5 voyants du haut", vis: "🧵", txt: "Cinq fils, un seul à couper : tapez son numéro au clavier." },
+    { id: "L2", t: "lieu", nom: "Module Détonateur", sous: "Les boutons de couleur", vis: "🧨", txt: "Une étiquette, un seul bouton de couleur à presser." },
+    { id: "L3", t: "lieu", nom: "Module Clavier", sous: "Le clavier et l'horloge", vis: "🔢", txt: "Quatre mots, un code à quatre chiffres." },
+    { id: "L4", t: "lieu", nom: "Module Surchauffe", sous: "La grille FORGE", vis: "🌡️", txt: "Vert : refroidir en soufflant. Rouge : laisser chauffer." },
+    { id: "L5", t: "lieu", nom: "Module Viseur", sous: "L'ŒIL", vis: "🎯", txt: "Deux gestes de la main au-dessus de l'œil, dans le bon ordre." },
+    { id: "L6", t: "lieu", nom: "Module Nuancier", sous: "Le capteur de couleur", vis: "🎨", txt: "La bonne pastille sur le capteur, puis le gros bouton." },
+    { id: "L7", t: "lieu", nom: "Module Radio", sous: "Le casque", vis: "📻", txt: "Un mot de code au casque, une fréquence au clavier." },
+    { id: "L8", t: "lieu", nom: "Module Stabilisateur", sous: "Le gros bouton", vis: "〰️", txt: "Écoutez le rythme, reproduisez-le deux fois." },
+
+    { id: "A6", t: "aide", nom: "Le QG", sous: "La radio de la brigade", vis: "📡", txt: "Glissez cette carte quand vous bloquez. 2 conseils gratuits, puis 1 minute chacun." },
+  ],
+});
+</script>
+</body>
+</html>

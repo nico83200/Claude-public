@@ -1,0 +1,29 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "qg": {
+      "nom": "Le QG de la brigade (radio)",
+      "voice_id": "",
+      "description": "Homme, la quarantaine, voix calme et ferme, ton militaire, légèrement grésillante comme à la radio.",
+      "portrait": "Le chef de la brigade de déminage, qui guide à distance. Calme, précis, il ne s'énerve jamais : il sait que la panique tue. Phrases courtes, ton d'instructeur bienveillant.",
+      "prompt_voice_design": "A calm, firm French male bomb squad commander in his forties, native speaker from France, military instructor tone, slightly crackly radio quality.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.2
+      }
+    },
+    "bombe": {
+      "nom": "Le système de la bombe",
+      "voice_id": "",
+      "description": "Voix synthétique féminine, froide, détachée, légèrement métallique.",
+      "portrait": "La voix de la bombe elle-même : un automate sans émotion qui annonce les modules, les erreurs et le compte à rebours. Sa politesse glaciale fait monter la tension.",
+      "prompt_voice_design": "A cold, detached synthetic French female voice, automated device announcement, slightly metallic, perfectly even.",
+      "reglages": {
+        "stability": 0.85,
+        "similarity_boost": 0.75,
+        "style": 0.0
+      }
+    }
+  }
+}

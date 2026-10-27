@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche de mission 6 · Désamorçage</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #2b2f36; --or: #f2b134; }
+  @page { size: A4; margin: 13mm 14mm 16mm; }
+  body { font-size: 9.2pt; }
+  h2 { margin-top: .5em; font-size: 13pt; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #7a5a12; border-bottom: 2px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .titre { text-align: center; margin: 0 0 6px; padding: 4mm; background: repeating-linear-gradient(135deg, #f2b134 0 8mm, #2b2f36 8mm 16mm); }
+  .titre div { background: #fff; padding: 3mm; }
+  .titre h1 { font-size: 28pt; margin: 0; color: #2b2f36; }
+  .titre .sous { font-size: 9.5pt; color: #7a5a12; letter-spacing: .14em; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+  .roles div { border: 2px solid #2b2f36; border-radius: 6px; padding: 8px 12px; }
+  .roles h3 { margin: 0 0 4px; color: #a8321f; }
+  .regle { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: start; margin-bottom: 4px; }
+  .regle .ico { font-size: 13pt; text-align: center; }
+  .regle p { margin: 0; }
+  table { font-size: 8.4pt; width: 100%; }
+  td, th { padding: 2.5px 5px; }
+  td:first-child { white-space: nowrap; font-weight: 700; }
+  .pastilles { display: flex; justify-content: space-around; margin: 6px 0; }
+  .pastille { width: 20mm; height: 20mm; border-radius: 50%; outline: .3mm dashed #999; outline-offset: 1.5mm; display: flex;
+              align-items: flex-end; justify-content: center; }
+  .pastille span { font-size: 7pt; color: #fff; letter-spacing: .1em; margin-bottom: 3mm; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Le Pupitre des Énigmes · Brigade de déminage</span><span>Fiche de mission n° 6</span></div>
+<div class="titre"><div><h1>Désamorçage</h1>
+  <div class="sous">JEU COOPÉRATIF · 2 À 8 JOUEURS · 12 MINUTES PAR BOMBE · 12 BOMBES DIFFÉRENTES</div></div></div>
+
+<p>Une bombe vient d'être découverte. Un seul d'entre vous la voit ; les autres savent comment la désamorcer.
+Aucun ne peut y arriver seul : il va falloir <strong>parler</strong>, vite et bien.</p>
+
+<div class="roles">
+  <div><h3>💣 Le démineur (1 joueur)</h3>Assis face au pupitre. Il voit l'écran, les voyants, il manipule tout.
+  <strong>Il n'a pas le droit de lire le manuel.</strong> Il décrit ce qu'il voit, mot pour mot, et fait ce qu'on lui dit.</div>
+  <div><h3>📕 Les experts (1 à 7 joueurs)</h3>Assis de l'autre côté, ou dos au pupitre, avec le <strong>Manuel de désamorçage</strong>.
+  <strong>Ils ne regardent jamais l'écran.</strong> Ils trouvent la règle et disent au démineur quoi faire.</div>
+</div>
+
+<h2>Comment jouer</h2>
+<div class="regle"><div class="ico">🎬</div><p>Le démineur glisse la carte <strong>Brigade de déminage</strong> dans la fente, puis <strong>1 · Jouer</strong>. La bombe s'arme : 12 minutes au compte à rebours (l'horloge à 4 chiffres et l'anneau).</p></div>
+<div class="regle"><div class="ico">🔢</div><p>L'écran donne le <strong>numéro de série</strong> et les <strong>5 modules</strong> de cette bombe. Un appui sur la molette les réaffiche à tout moment. Le démineur les lit tout de suite aux experts.</p></div>
+<div class="regle"><div class="ico">📍</div><p>Pour ouvrir un module, le démineur glisse sa carte dans la <strong>fente</strong> et la laisse en place. Les modules se font dans l'ordre qu'on veut.</p></div>
+<div class="regle"><div class="ico">❌</div><p>Une <strong>erreur</strong> coûte <strong>une minute</strong>, et la lumière sous la boîte change de couleur. À la <strong>troisième erreur</strong>, la bombe explose. Un module raté se réessaie en glissant de nouveau sa carte.</p></div>
+<div class="regle"><div class="ico">🟢</div><p>Les voyants du bas comptent les modules désamorcés. Quand les 5 sont verts, il reste la <strong>sécurité finale</strong> : tourner la clé dans les 15 secondes.</p></div>
+<div class="regle"><div class="ico">📡</div><p>Bloqués ? Glissez la carte <strong>Le QG</strong> : 2 conseils gratuits, puis 1 minute chacun.</p></div>
+<div class="regle"><div class="ico">🔁</div><p>Bombe désamorcée ou explosée : <strong>changez de démineur</strong> et relancez. Le pupitre tire une nouvelle bombe parmi 12.</p></div>
+
+<h2>Les gestes du démineur</h2>
+<table>
+  <tr><th>Module</th><th>Ce que le démineur manipule</th></tr>
+  <tr><td>Fils</td><td>Lit les couleurs des 5 voyants du haut (aussi écrites à l'écran), tape au clavier le numéro du fil à couper.</td></tr>
+  <tr><td>Détonateur</td><td>Lit l'étiquette, appuie sur un bouton de couleur.</td></tr>
+  <tr><td>Clavier</td><td>Lit les quatre mots, tape le code (l'horloge l'affiche).</td></tr>
+  <tr><td>Surchauffe</td><td>Lit la température ; bouton vert puis souffle sur la grille FORGE, ou bouton rouge.</td></tr>
+  <tr><td>Viseur</td><td>Lit la cible ; passe deux fois la main à plat, à 5 cm au-dessus de l'ŒIL, d'un bord à l'autre.</td></tr>
+  <tr><td>Nuancier</td><td>Lit le niveau ; pose une pastille à plat sur le capteur NUANCIER, puis appuie sur le gros bouton.</td></tr>
+  <tr><td>Radio</td><td>Met le casque, répète le mot de code, tape la fréquence.</td></tr>
+  <tr><td>Stabilisateur</td><td>Écoute le rythme, le reproduit deux fois sur le gros bouton.</td></tr>
+</table>
+
+<h2>Les pastilles du nuancier</h2>
+<p class="petit" style="margin:0">À imprimer en couleur et découper. Elles restent à portée du démineur.</p>
+<div class="pastilles">
+  <div class="pastille" style="background:#d62020"><span>rouge</span></div>
+  <div class="pastille" style="background:#1f4fd8"><span>bleu</span></div>
+  <div class="pastille" style="background:#1f9a3a"><span>vert</span></div>
+  <div class="pastille" style="background:#f2c400"><span style="color:#5a4600">jaune</span></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Mission 6 · Désamorçage — bombe 4 (GG-7260), produite par mondes/deminage/generer.py
+fente M6
+fente -
+verifie phase menu
+hasard 3
+touches 1
+calme
+verifie phase jeu
+verifie drapeau b4
+# --- Trois erreurs sur le module fils
+fente L1
+touches 1
+fente -
+fente L1
+touches 1
+fente -
+fente L1
+touches 1
+fente -
+fente L1
+verifie phase defaite

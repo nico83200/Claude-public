@@ -26,6 +26,7 @@
 //   tiroir fond|sorti              (le contact de fin de course du tiroir secret)
 //   absent gestes                  (ce module n'a pas répondu au démarrage)
 //   equipe Les Fers | Léa, Tom     (l'équipe de la partie, depuis le panneau Wi-Fi)
+//   hasard <n>                     (le prochain tirage au sort donnera n, à partir de 0)
 //   verifie points 820 | journal <texte> | classement <texte>
 #include <cstdio>
 #include <cstdlib>
@@ -137,7 +138,15 @@ class PlateformeSimulee : public Plateforme {
     }
   }
   void eclairer(const Lumieres&) override {}
-  uint32_t aleatoire(uint32_t borne) override { return borne ? static_cast<uint32_t>(rand()) % borne : 0; }
+  uint32_t aleatoire(uint32_t borne) override {
+    if (force >= 0) {  // « hasard <n> » : le prochain tirage est imposé
+      uint32_t n = borne ? static_cast<uint32_t>(force) % borne : 0;
+      force = -1;
+      return n;
+    }
+    return borne ? static_cast<uint32_t>(rand()) % borne : 0;
+  }
+  int force = -1;
   void journal(const std::string& m) override { printf("  ⚠ %s\n", m.c_str()); }
   void tiroir(bool ouvrir) override {
     if (bavard_) printf("        🗄 tiroir %s\n", ouvrir ? "libéré" : "verrouillé");
@@ -326,6 +335,8 @@ int main(int argc, char** argv) {
       m.capteur("aimant", a != "-");
       tourner(1500);
       calme();
+    } else if (cmd == "hasard") {
+      p.force = atoi(a.c_str());  // le prochain tirage au sort donnera ce numéro (à partir de 0)
     } else if (cmd == "absent") {
       p.absents.insert(a);  // un module qui n'a pas répondu au démarrage (pour l'écran « État du pupitre »)
     } else if (cmd == "tiroir") {

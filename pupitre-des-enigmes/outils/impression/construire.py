@@ -302,6 +302,13 @@ MISSIONS = [
         ("plateau", "plateau", ""),
         ("cartes", "cartes", ""),
     ]},
+    # Un jeu de communication : la fiche (démineur), le manuel des experts (produit par
+    # mondes/deminage/generer.py) et les cartes.
+    {"num": 6, "monde": "deminage", "nom": "Brigade de déminage", "materiel": [
+        ("fiche-mission-6", "fiche-mission", "Fiche de mission"),
+        ("manuel", "manuel", "Manuel de désamorçage · experts"),
+        ("cartes", "cartes", ""),
+    ]},
 ]
 
 

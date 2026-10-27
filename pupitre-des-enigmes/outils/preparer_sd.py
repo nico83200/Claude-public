@@ -62,7 +62,8 @@ def main():
         identifiants = [monde["carte"]] + ([monde["aide"]] if monde.get("aide") else [])
         for m in monde["missions"]:
             script = lire(dossier / "pupitre" / m["script"])
-            ecrire(cible / m["script"], script)
+            # Compacté : l'ESP32 lit tout le fichier en mémoire avant de le décoder.
+            (cible / m["script"]).write_text(json.dumps(script, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
             repliques = dossier / "audio" / f"mission-{m['numero']}.json"
             shutil.copy(repliques, cible / m["repliques"])
             identifiants += [i for i in script["cartes"] if i not in identifiants]

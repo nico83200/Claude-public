@@ -22,8 +22,9 @@ Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 | 🚀 [Station Kepler-9](mondes/kepler/) | 3 · [Signal Perdu](mondes/kepler/mission-3-signal-perdu.md) · [déroulé](mondes/kepler/mission-3-deroule.md) | 🔴 Difficile | 75 min |
 | ⚓ [Sous-marin Narval](mondes/narval/) | 4 · [Dernier souffle](mondes/narval/mission-4-dernier-souffle.md) · [déroulé](mondes/narval/mission-4-deroule.md) · *escape game pour adultes, sans rôles* | 🔴 Difficile | 60 min |
 | ⚙️ [L'Atelier du professeur Lumen](mondes/atelier/) | 5 · Banc d'essai · [déroulé](mondes/atelier/mission-5-deroule.md) · *la mission de test du pupitre, pour 2 joueurs : chaque organe essayé une fois* | 🟢 Facile | 20 à 30 min |
+| 💣 [Brigade de déminage](mondes/deminage/) | 6 · Désamorçage · [déroulé](mondes/deminage/mission-6-deroule.md) · *jeu de communication : un démineur au pupitre, des experts avec le manuel ; 12 bombes tirées au sort* | 🟠 Tendu | 12 min par bombe |
 
-Les cinq missions sont complètes : scénario, déroulé, répliques, script de
+Les six missions sont complètes : scénario, déroulé, répliques, script de
 doublage, matériel à imprimer et **script du pupitre**.
 
 ## Le programme
@@ -80,3 +81,5 @@ mission).
 | Script de doublage (ElevenLabs) | [PDF](pdf/mission-1-script-doublage.pdf) | [PDF](pdf/mission-2-script-doublage.pdf) | [PDF](pdf/mission-3-script-doublage.pdf) | [PDF](pdf/mission-4-script-doublage.pdf) |
 
 **Mission 5 · Banc d'essai** (test du pupitre) : [à imprimer en recto seul](pdf/mission-5-a-imprimer-recto.pdf) (fiche des joueurs, page du maître du jeu avec les pastilles du nuancier et la fiche de recette, [plan du banc d'essai](pdf/mission-5-plateau.pdf) pour la façade) · [cartes en recto verso](pdf/mission-5-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-5-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-5-script-doublage.pdf)
+
+**Mission 6 · Désamorçage** (2 à 8 joueurs) : [à imprimer en recto seul](pdf/mission-6-a-imprimer-recto.pdf) (fiche du démineur avec les pastilles, [manuel de désamorçage](pdf/mission-6-manuel.pdf) des experts) · [cartes en recto verso](pdf/mission-6-a-imprimer-recto-verso.pdf) · [déroulé et solutions des 12 bombes](pdf/mission-6-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-6-script-doublage.pdf)

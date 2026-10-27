@@ -1,0 +1,28 @@
+{
+  "id": "deminage",
+  "nom": "Brigade de déminage",
+  "carte": "M6",
+  "aide": "A6",
+  "aide_nom": "Le QG",
+  "theme": {
+    "fond": "#16181c",
+    "texte": "#ece9e2",
+    "accent": "#f2b134",
+    "alerte": "#e0402a",
+    "doux": "#8b8f96"
+  },
+  "accueil": {
+    "dossier": 60,
+    "dire": 13,
+    "jingle_dossier": 61,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 6,
+      "titre": "Désamorçage",
+      "script": "mission-6.json",
+      "repliques": "repliques-6.json"
+    }
+  ]
+}
