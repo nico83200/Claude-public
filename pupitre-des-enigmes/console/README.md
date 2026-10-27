@@ -85,8 +85,8 @@ dans `firmware/src/broches.h`.
 
 ## 2. Liste des composants
 
-La liste d'achat complète, avec les quantités, les pièces de secours, le câblage, le bois, le
-matériel de jeu des 4 missions et l'outillage, est dans [`achats.json`](achats.json) et en PDF :
+La liste d'achat complète de l'électronique, avec les quantités, les pièces de secours et le
+câblage, est dans [`achats.json`](achats.json) et en PDF :
 `pdf/liste-achats.pdf`. En résumé :
 
 | Composant | Modèle | Qté | Prix approx. |
@@ -94,7 +94,6 @@ matériel de jeu des 4 missions et l'outillage, est dans [`achats.json`](achats.
 | Microcontrôleur | ESP32 DevKit 30 broches (ESP32-WROOM-32), USB-C, puce USB CP2102 ou CH340 (**pas un ESP8266**) | 1 | (déjà là) |
 | Écran | TFT SPI 3,5" ILI9488 480×320, avec lecteur SD | 1 | 14 € |
 | Lecteurs RFID | RC522 13,56 MHz : la fente, le lecteur à plat, un de secours | 3 | 9 € |
-| Puces | Autocollants NTAG213 ronds de 25 mm : 124 cartes et les objets (2 lots de 100) | 2 | 24 € |
 | Audio | DFPlayer Mini (haut-parleur, casque, secours), HP 3 W / 4 Ω, embase jack 3,5 mm stéréo, 3 micro-SD | — | 25 € |
 | Casque | Casque filaire jack, de préférence fermé (pour l'immersion) | 1 | 15 € |
 | Boutons | Arcade 30 mm (rouge, bleu, jaune, vert) et champignon 60 mm | 4 + 1 | 11 € |
@@ -104,13 +103,12 @@ matériel de jeu des 4 missions et l'outillage, est dans [`achats.json`](achats.
 | Modules I2C | PCF8574 : le clavier ; les 4 boutons et le fin de course du tiroir ; un de secours | 3 | 5 € |
 | Capteurs I2C | TCS34725 (couleur), APDS-9960 (œil), BME280 (forge, **pas un BMP280**), QMC5883L « GY-271 » (enclume) | 1 de chaque | 16 € |
 | Horloge | Afficheur 4 chiffres 0,56" à HT16K33 | 1 | (déjà là) |
-| Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11, baguettes 5 × 5 mm | 1 de chaque | 15 € |
+| Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11 | 1 de chaque | 13 € |
 | LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser, interrupteur à bascule | — | 11 € |
 | Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
-| Boîtier et façades | Contreplaqué 5 mm et 3 mm (4 façades, tiroir), tasseaux, 21 aimants néodyme 10 × 3 mm, entretoises M3, papier des plateaux, finitions | — | 64 € |
-| Matériel de jeu | Papier cartonné, plastification, 37 enveloppes kraft, fer à cheval, attaches parisiennes (hors puces) | — | 34 € |
-| **Total** | hors outillage et services | | **≈ 315 €** |
+| Fixations | 21 aimants néodyme 10 × 3 mm, entretoises et vis M3, patins | — | 16 € |
+| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 205 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 

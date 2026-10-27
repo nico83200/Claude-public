@@ -196,12 +196,6 @@
           "detail": "Petit microrupteur à levier (type KW11) : il sent le tiroir poussé au fond. Recherche : « micro switch KW11 »",
           "qte": 2,
           "prix": 0.5
-        },
-        {
-          "article": "Baguettes de bois 5 × 5 mm",
-          "detail": "Les coulisses et le taquet du tiroir (1 m suffit)",
-          "qte": 1,
-          "prix": 2
         }
       ]
     },
@@ -295,26 +289,8 @@
       ]
     },
     {
-      "nom": "Boîtier et façades",
+      "nom": "Fixations",
       "articles": [
-        {
-          "article": "Contreplaqué 5 mm",
-          "detail": "Boîtier de 38 × 26 cm, 5 cm de haut à l'avant et 8 cm à l'arrière (liste de débit : notice de montage, § 4). Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
-          "qte": 1,
-          "prix": 10
-        },
-        {
-          "article": "Tasseaux 15 × 15 mm",
-          "detail": "4 morceaux de 4 cm, pour poser le fond amovible, et la butée arrière du tiroir",
-          "qte": 1,
-          "prix": 2
-        },
-        {
-          "article": "Contreplaqué bouleau 3 mm",
-          "detail": "Les 4 façades (Haras, Monte-Carlo, Kepler-9, Narval), le puits de la fente et la caisse du tiroir",
-          "qte": 4,
-          "prix": 5
-        },
         {
           "article": "Aimants néodyme 10 × 3 mm (lot de 30)",
           "detail": "4 dans le boîtier, 4 par façade (4 façades) et 1 sous le fer à cheval : 21 en tout",
@@ -328,135 +304,10 @@
           "prix": 7
         },
         {
-          "article": "Papier adhésif ou papier épais A4, couleur",
-          "detail": "Les plateaux imprimés des façades (2 feuilles par façade)",
-          "qte": 1,
-          "prix": 6
-        },
-        {
           "article": "Patins caoutchouc adhésifs 5 à 8 mm",
           "detail": "Sous le fond : ils laissent passer la lumière du ruban sous la boîte",
           "qte": 1,
           "prix": 2
-        },
-        {
-          "article": "Colle à bois, papier de verre, teinte ou vernis",
-          "detail": "Finitions",
-          "qte": 1,
-          "prix": 10
-        }
-      ]
-    },
-    {
-      "nom": "Matériel de jeu : les 4 missions",
-      "articles": [
-        {
-          "article": "Autocollants NFC NTAG213 (lot de 100)",
-          "detail": "Ronds, 25 mm. 124 cartes pour les 4 missions (33 + 33 + 34 + 24), plus les objets à puce : 2 lots",
-          "qte": 2,
-          "prix": 12
-        },
-        {
-          "article": "Papier cartonné 300 à 350 g, A4",
-          "detail": "Les 124 cartes : 15 feuilles en recto verso (ramette de 50)",
-          "qte": 1,
-          "prix": 8
-        },
-        {
-          "article": "Pochettes de plastification",
-          "detail": "Optionnel : pour protéger les cartes et les plateaux",
-          "qte": 1,
-          "prix": 6
-        },
-        {
-          "article": "Enveloppes kraft C5 (lot de 25)",
-          "detail": "37 pour les 4 missions (8 + 7 + 9 + 13) : 2 lots",
-          "qte": 2,
-          "prix": 5
-        },
-        {
-          "article": "Papier A4 120 g",
-          "detail": "Fiches de mission, documents secrets, contenu des enveloppes",
-          "qte": 1,
-          "prix": 5
-        },
-        {
-          "article": "Petit fer à cheval décoratif (mission 1)",
-          "detail": "6 à 8 cm, en métal ou en résine, avec un aimant collé dessous : le fer de la forge. Recherche : « mini fer à cheval décoratif »",
-          "qte": 1,
-          "prix": 3
-        },
-        {
-          "article": "Attaches parisiennes",
-          "detail": "Pour la roue de chiffrement de la Vétérinaire (mission 1)",
-          "qte": 1,
-          "prix": 2
-        }
-      ]
-    },
-    {
-      "nom": "Outillage (seulement si vous n'en avez pas)",
-      "optionnel": true,
-      "articles": [
-        {
-          "article": "Fer à souder réglable 60 W et étain",
-          "detail": "Avec support et éponge",
-          "qte": 1,
-          "prix": 25
-        },
-        {
-          "article": "Pince coupante et pince à dénuder",
-          "detail": "",
-          "qte": 1,
-          "prix": 10
-        },
-        {
-          "article": "Multimètre",
-          "detail": "Pour vérifier les tensions 3,3 V et 5 V, et l'absence de court-circuit avant la mise sous tension",
-          "qte": 1,
-          "prix": 12
-        },
-        {
-          "article": "Scies cloches",
-          "detail": "Pour les trous des boutons (vérifiez le diamètre indiqué par le vendeur des boutons)",
-          "qte": 1,
-          "prix": 10
-        },
-        {
-          "article": "Scie à chantourner",
-          "detail": "Pour découper la façade du tiroir dans la paroi, d'un trait fin",
-          "qte": 1,
-          "prix": 15
-        },
-        {
-          "article": "Pince à sertir pour JST-XH",
-          "detail": "Seulement si vous sertissez vos câbles vous-même (sinon, coffret de câbles déjà sertis)",
-          "qte": 1,
-          "prix": 15
-        },
-        {
-          "article": "Pistolet à colle chaude",
-          "detail": "Pour fixer les lecteurs RFID, les LED et les capteurs sous le couvercle",
-          "qte": 1,
-          "prix": 10
-        }
-      ]
-    },
-    {
-      "nom": "Services",
-      "optionnel": true,
-      "articles": [
-        {
-          "article": "Abonnement ElevenLabs Starter",
-          "detail": "Pour générer les voix et les bruitages : 1 mois par mission environ (résiliable). Sans voix, le jeu marche avec les sous-titres",
-          "qte": 1,
-          "prix": 6
-        },
-        {
-          "article": "Découpe et gravure laser en fablab",
-          "detail": "Boîtier et façades, selon le tarif du fablab local",
-          "qte": 1,
-          "prix": 15
         }
       ]
     }
@@ -466,7 +317,6 @@
     "Vérifiez les puces à réception : ESP32 (et non ESP8266), BME280 (et non BMP280), QMC5883L (et non HMC5883L).",
     "Les modules RC522 et DFPlayer sont fragiles et de qualité variable : les exemplaires de secours évitent d'attendre une nouvelle livraison.",
     "Le RC522 et tous les modules I2C s'alimentent en 3,3 V : branchés sur 5 V, certains sont détruits.",
-    "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier ; l'onglet « Atelier » du panneau Wi-Fi montre chaque capteur en direct.",
-    "Les autocollants NTAG213 se collent au dos des cartes, en bas (le cercle « PUCE NFC » des planches) : c'est le bord qui entre dans la fente."
+    "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier ; l'onglet « Atelier » du panneau Wi-Fi montre chaque capteur en direct."
   ]
 }
