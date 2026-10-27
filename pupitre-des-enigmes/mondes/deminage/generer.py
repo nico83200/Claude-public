@@ -8,11 +8,11 @@ Le pupitre tire au sort une bombe parmi BOMBES (numéro de série, 5 modules sur
 Les règles du manuel sont écrites ici UNE fois, en Python : ce script en déduit les solutions
 de chaque bombe, et produit d'un même jet, toujours d'accord entre eux :
 
-    pupitre/mission-6.json        le script du pupitre (les 16 bombes)
+    pupitre/mission-6.json        le script du pupitre (les bombes)
     pupitre/monde.json            le monde
     audio/mission-6.json          les répliques ; audio/sons.json, audio/voix.json
     impression/manuel.html        le manuel de désamorçage des experts
-    mission-6-deroule.md          le déroulé du maître du jeu (les solutions des 16 bombes)
+    mission-6-deroule.md          le déroulé du maître du jeu (les solutions des bombes)
     firmware/test/parties/mission-6-*.txt   des parties de test pour le simulateur
 
 On change une règle ? On modifie la fonction et son texte ci-dessous, puis on relance.
@@ -24,7 +24,7 @@ from pathlib import Path
 ICI = Path(__file__).resolve().parent
 JEU = ICI.parents[1]
 NB_BOMBES = 12
-GRAINE = 1962  # le tirage des 16 bombes est figé : le déroulé imprimé reste juste
+GRAINE = 1962  # le tirage des bombes est figé : le déroulé imprimé reste juste
 
 # ----------------------------------------------------------------------------------------
 # Les modules : carte, nom, et la règle du manuel (texte + calcul)
@@ -138,7 +138,7 @@ MOTIFS = [[0, 300, 600], [0, 250, 750], [0, 500, 750, 1000], [0, 400, 600, 1000]
 
 
 # ----------------------------------------------------------------------------------------
-# Les 16 bombes
+# Les bombes
 # ----------------------------------------------------------------------------------------
 def tirer_bombes():
     r = random.Random(GRAINE)
@@ -547,12 +547,12 @@ def deroule(bombes):
     noms = dict((m, n) for m, _, n in MODULES)
     t = ["# Mission 6 : Désamorçage, le déroulé", "",
          "> **Le Pupitre des Énigmes** · Monde : Brigade de déminage. Un jeu coopératif de 2 à 8 joueurs, 12 minutes par bombe,",
-         "> rejouable : le pupitre tire au sort une bombe parmi 16. Document produit par `mondes/deminage/generer.py`.",
+         f"> rejouable : le pupitre tire au sort une bombe parmi {NB_BOMBES}. Document produit par `mondes/deminage/generer.py`.",
          ">", "> **Repères sonores** : 🔊 20 désigne une réplique du dossier SD `60` ; `61/…` les bruitages.", "", "---", "",
          "## 1. Le principe", "",
          "| Situation | Effet |", "|---|---|",
          "| **Les rôles** | Un **démineur** au pupitre : il voit la bombe, ne lit pas le manuel. Les **experts** (1 à 7) ont le manuel et ne regardent pas l'écran. On change de démineur à chaque bombe. |",
-         "| **La bombe** | Tirée au sort parmi 16 : un numéro de série, **5 modules** sur 8, des réglages. Le numéro et les modules s'affichent à l'armement, et dans le tableau de bord (appui sur la molette). |",
+         f"| **La bombe** | Tirée au sort parmi {NB_BOMBES} : un numéro de série, **5 modules** sur 8, des réglages. Le numéro et les modules s'affichent à l'armement, et dans le tableau de bord (appui sur la molette). |",
          "| **Un module** | Le démineur glisse sa carte dans la fente. Module absent : 🔊 15 ; déjà désamorcé : 🔊 12. |",
          "| **Une erreur** | `61/4`, une minute de moins (🔊 33, 🔊 34) ; la lumière sous la boîte passe à l'orange, puis au rouge rapide. **À la 3ᵉ, la bombe explose.** |",
          "| **Les voyants** | 1 à 5 : les fils du module Fils ; 6 à 10 : les modules désamorcés (vert). |",
@@ -560,7 +560,7 @@ def deroule(bombes):
          "| **La fin** | Les 5 modules désamorcés : 🔊 35, la clé en 15 s. Victoire : `61/7`, 🔊 60 et le rang. Temps écoulé ou 3 erreurs : `61/6`, 🔊 65. |",
          "| **L'imprévu** | Minute 5 : capteur de vibrations, 8 s sans toucher (🔊 37). À 2 minutes de la fin : 🔊 39. |",
          "| **Le QG** (carte A6) | 4 conseils généraux ; 2 gratuits, puis 1 minute chacun. |",
-         "", "## 2. Les 16 bombes et leurs solutions", "",
+         "", f"## 2. Les {NB_BOMBES} bombes et leurs solutions", "",
          "| Bombe | N° de série | Impair | Voyelle | Modules et solutions |", "|---|---|---|---|---|"]
     for b in bombes:
         s, sol = b["serie"], solutions(b)

@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Désamorçage · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs de la brigade : anthracite, jaune de signalisation, rouge d'alerte */
+  :root { --fond: #1b1d22; --fond-transparent: rgba(27, 29, 34, .82); --accent: #e0a019; --accent-clair: #f6d58a;
+          --papier: #f4f3ef; --encre: #1f2126; --doux: #62666e; --filet: #d9d6cc; --rouge: #d0402a; }
+  .couverture .image svg { width: 100%; height: 100%; display: block; }
+  .couverture .image { top: 30mm; }
+  .horloge .heures { font-family: "Share Tech Mono", monospace; font-size: 22pt; }
+
+  /* Le message du QG : une main courante radio */
+  .lettre { background: #fdfcf6; color: #1f2126; font-family: "Share Tech Mono", monospace; font-size: 9.3pt; line-height: 5.6mm;
+            transform: none; border-left: 3mm solid transparent; padding: 6mm 7mm 6mm 8mm; background-image: none;
+            border-image: repeating-linear-gradient(45deg, #e0a019 0 3mm, #1b1d22 3mm 6mm) 0 0 0 1; }
+  .lettre::before { display: none; }
+  .lettre p { margin: 0 0 2.2mm; }
+  .lettre .date { text-align: left; color: var(--doux); }
+  .lettre .signature { text-align: left; font-size: 9.3pt; letter-spacing: .15em; }
+  .bandes { height: 3mm; background: repeating-linear-gradient(45deg, var(--accent) 0 3mm, var(--fond) 3mm 6mm); border-radius: .6mm; margin: 4mm 0; }
+
+  /* Les modules */
+  .role .icone svg { color: var(--accent-clair); }
+  .module p.geste { color: var(--doux); font-size: 8.4pt; margin-top: .8mm; }
+
+  /* L'écran de la bombe */
+  .ecran { background: #0c0d10; border: 1.2mm solid #2b2d33; border-radius: 2mm; padding: 2.6mm 3.6mm; color: #e9e6dd;
+           font-family: "Share Tech Mono", monospace; font-size: 8pt; box-shadow: 0 .5mm 1.2mm rgba(0,0,0,.3); }
+  .ecran .haut { display: flex; justify-content: space-between; color: var(--accent); letter-spacing: .14em; border-bottom: .2mm solid #3a3a3a;
+                 padding-bottom: 1mm; margin-bottom: 1.6mm; }
+  .ecran .serie { font-size: 15pt; letter-spacing: .2em; color: #fff; text-align: center; margin: 1mm 0 2mm; }
+  .ecran .mods { display: flex; justify-content: center; gap: 2mm; flex-wrap: wrap; }
+  .ecran .mods span { border: .25mm solid #555; border-radius: .8mm; padding: .4mm 1.6mm; }
+  .ecran .chrono { color: #ff5a3c; }
+  .voyants { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1mm; text-align: center; margin: 3mm 0 1mm; }
+  .voyants i { display: block; width: 5.4mm; height: 5.4mm; border-radius: 50%; margin: 0 auto .8mm; border: .3mm solid #fff; box-shadow: 0 0 0 .3mm #999; }
+  .voyants span { font-size: 6.6pt; color: var(--doux); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="danger" viewBox="0 0 24 24"><path d="M12 2.5 22 20.5H2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="m-fils" viewBox="0 0 24 24"><g fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M3 6c6 0 6 4 18 4" stroke="#e05a4a"/><path d="M3 12c6 0 8-2 18 0" stroke="#5aa0e0"/><path d="M3 18c8 0 6-4 18-4" stroke="#f6d58a"/></g></symbol>
+    <symbol id="m-detonateur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9V4M8 4h8"/></g><circle cx="12" cy="14.5" r="2.4" fill="#e05a4a"/></symbol>
+    <symbol id="m-clavier" viewBox="0 0 24 24"><g fill="currentColor"><rect x="4" y="4" width="4" height="4" rx=".8"/><rect x="10" y="4" width="4" height="4" rx=".8"/><rect x="16" y="4" width="4" height="4" rx=".8"/><rect x="4" y="10" width="4" height="4" rx=".8"/><rect x="10" y="10" width="4" height="4" rx=".8"/><rect x="16" y="10" width="4" height="4" rx=".8"/><rect x="10" y="16" width="4" height="4" rx=".8"/></g></symbol>
+    <symbol id="m-surchauffe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 14.5V4a2 2 0 0 1 4 0v10.5a4 4 0 1 1-4 0z"/></g><circle cx="12" cy="17.5" r="2" fill="#e05a4a"/></symbol>
+    <symbol id="m-viseur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></g></symbol>
+    <symbol id="m-nuancier" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4" fill="#e05a4a"/><circle cx="16" cy="8" r="4" fill="#5aa0e0"/><circle cx="8" cy="16" r="4" fill="#4fbf6a"/><circle cx="16" cy="16" r="4" fill="#f6d58a"/></symbol>
+    <symbol id="m-radio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1"/><rect x="17" y="14" width="4" height="6" rx="1"/></g></symbol>
+    <symbol id="m-stabilisateur" viewBox="0 0 24 24"><path d="M2 12h4l2-6 3 12 3-9 2 3h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-demineur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0v1H5z"/><path d="M3 13h18M8 17h8v3H8z"/></g></symbol>
+    <symbol id="i-experts" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M4 17a3 3 0 0 1 3-3h12M9 8h6"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image">
+    <svg viewBox="0 0 148 150" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="halo" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#3a3326"/><stop offset="1" stop-color="#121317"/></radialGradient>
+        <linearGradient id="boite" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d4048"/><stop offset="1" stop-color="#1c1e23"/></linearGradient>
+        <pattern id="hachures" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="#e0a019"/><rect x="4" width="4" height="8" fill="#1b1d22"/></pattern>
+        <filter id="lueur"><feGaussianBlur stdDeviation="1.4"/></filter>
+      </defs>
+      <rect width="148" height="150" fill="url(#halo)"/>
+      <!-- la caisse -->
+      <rect x="22" y="44" width="104" height="74" rx="4" fill="url(#boite)" stroke="#555a63" stroke-width=".6"/>
+      <rect x="22" y="112" width="104" height="6" fill="url(#hachures)" opacity=".9"/>
+      <rect x="22" y="44" width="104" height="5" fill="url(#hachures)" opacity=".9"/>
+      <!-- le compte à rebours -->
+      <rect x="44" y="56" width="60" height="24" rx="2" fill="#0a0a0c" stroke="#2b2d33" stroke-width="1"/>
+      <text x="74" y="74.5" text-anchor="middle" font-family="Share Tech Mono" font-size="17" fill="#ff5a3c" filter="url(#lueur)" opacity=".8">12:00</text>
+      <text x="74" y="74.5" text-anchor="middle" font-family="Share Tech Mono" font-size="17" fill="#ff7b5c">12:00</text>
+      <!-- les fils -->
+      <g fill="none" stroke-width="2.4" stroke-linecap="round">
+        <path d="M34 88 C40 104 56 84 64 100" stroke="#d0402a"/><path d="M48 88 C52 102 70 90 78 102" stroke="#3f7fd0"/>
+        <path d="M62 88 C66 98 84 92 92 104" stroke="#e6c229"/><path d="M76 88 C84 100 96 86 104 100" stroke="#e8e6df"/>
+        <path d="M90 88 C96 98 106 92 114 104" stroke="#3a9a52"/>
+      </g>
+      <g fill="#9aa0a8"><rect x="31" y="85" width="86" height="4" rx="1"/></g>
+      <!-- les voyants -->
+      <g><circle cx="33" cy="60" r="2.4" fill="#d0402a"/><circle cx="33" cy="68" r="2.4" fill="#e0a019"/><circle cx="33" cy="76" r="2.4" fill="#3a9a52" opacity=".4"/>
+         <circle cx="115" cy="60" r="2.4" fill="#3a9a52" opacity=".4"/><circle cx="115" cy="68" r="2.4" fill="#3a9a52" opacity=".4"/><circle cx="115" cy="76" r="2.4" fill="#3a9a52" opacity=".4"/></g>
+      <text x="74" y="53.5" text-anchor="middle" font-family="Share Tech Mono" font-size="3.4" fill="#1b1d22" letter-spacing=".8"> </text>
+      <text x="74" y="128" text-anchor="middle" font-family="Share Tech Mono" font-size="3.6" fill="#8b8f96" letter-spacing="1">N° DE SÉRIE · ??-????</text>
+    </svg>
+  </div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Brigade de déminage</div>
+    <h1>Désamorçage</h1>
+    <p class="accroche">Un seul d'entre vous voit la bombe.<br>Les autres savent comment la désamorcer.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 8</b><span>joueurs</span></div>
+      <div class="badge"><b>12 min</b><span>par bombe</span></div>
+      <div class="badge"><b class="etoiles">★★<i>★</i></b><span>intermédiaire</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant d'intervenir</div><h2>Bienvenue à la brigade</h2>
+    <p class="chapeau">Un jeu de communication coopératif, court et tendu. Douze bombes différentes : jamais deux fois la même partie.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · L'alerte</td><td style="text-align:left">L'appel du QG, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · L'équipe</td><td style="text-align:left">Le démineur et les experts</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Les modules</td><td style="text-align:left">Huit pièges, cinq par bombe</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · La bombe</td><td style="text-align:left">L'écran, les voyants, le manuel</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le registre</td><td style="text-align:left">Vos interventions, au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez la façade si vous en avez une.</li>
+    <li>Imprimez le <b>manuel de désamorçage</b> (à part) : il est pour les experts seulement.</li>
+    <li>Découpez les <b>quatre pastilles</b> du nuancier, imprimées en couleur, et posez-les près du démineur.</li>
+    <li>Étalez les <b>huit cartes Module</b> et la carte <b>Le QG</b> à portée du démineur.</li>
+    <li>Choisissez le premier <b>démineur</b>. Les experts s'installent de l'autre côté, sans vue sur l'écran.</li>
+    <li>Le démineur glisse la carte <b>Brigade de déminage</b> dans la fente, et choisit <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>Le démineur ne lit pas le manuel, les experts ne regardent pas l'écran.</strong> Tout passe par la parole.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · L'ALERTE ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>I · L'alerte</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>L'alerte</h2>
+    <p class="chapeau">La radio grésille. Le QG vous appelle.</p></div>
+  <div class="lettre">
+    <p class="date">QG BRIGADE DE DÉMINAGE · CANAL 2 · PRIORITÉ ROUGE</p>
+    <p>Ici le QG de la brigade de déminage.</p>
+    <p>Une bombe vient d'être découverte, et vous êtes les seuls sur place.</p>
+    <p>Le démineur reste au pupitre : il voit la bombe, mais n'a pas le droit de lire le manuel. Les experts ont le manuel, mais ne regardent pas l'écran.</p>
+    <p>Le démineur décrit, les experts trouvent la règle, le démineur agit.</p>
+    <p>Chaque erreur coûte une minute. À la troisième, tout saute.</p>
+    <p class="signature">BONNE CHANCE. TERMINÉ.</p>
+  </div>
+  <div class="bandes"></div>
+  <div class="trio" style="margin-top:5mm">
+    <div><b>5</b><span>modules par bombe, sur 8 possibles</span></div>
+    <div><b>3</b><span>erreurs, et tout saute</span></div>
+    <div><b>1</b><span>clé à tourner pour finir</span></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>I · L'alerte</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Désamorcer la bombe avant zéro.</p></div>
+  <div class="horloge"><div class="heures">12:00</div>
+    <div>Le compte à rebours s'affiche sur l'<b>horloge</b> à quatre chiffres, et l'<b>anneau</b> lumineux se vide. Chaque erreur retire une minute.</div></div>
+  <h3>Une intervention</h3>
+  <ol class="etapes">
+    <li>La bombe s'arme : le démineur lit tout de suite aux experts le <b>numéro de série</b> et les <b>cinq modules</b>.</li>
+    <li>Pour ouvrir un module, il glisse sa <b>carte</b> dans la fente et la laisse en place. Les modules se font dans l'ordre qu'on veut.</li>
+    <li>Il <b>décrit</b> ce qu'il voit, mot pour mot. Les experts trouvent la règle et lui disent <b>quoi faire</b>.</li>
+    <li>Les cinq modules désamorcés, il reste la <b>sécurité finale</b> : tourner la clé dans les <b>15 secondes</b>.</li>
+  </ol>
+  <h3>Les rangs</h3>
+  <div class="trio">
+    <div><b style="font-size:10.5pt">Élite</b><span>plus de 6 minutes d'avance, aucune erreur</span></div>
+    <div><b style="font-size:10.5pt">Confirmés</b><span>au moins 2 minutes d'avance</span></div>
+    <div><b style="font-size:10.5pt">Chanceux</b><span>c'était juste. Très juste.</span></div>
+  </div>
+  <div class="encart"><div class="titre">Chacun son tour</div>
+    <p>Bombe désamorcée ou explosée, <b>changez de démineur</b> et relancez : le pupitre tire une nouvelle bombe parmi douze.</p></div>
+  <div class="ornement" style="margin-top:4mm"><svg viewBox="0 0 90 24"><use href="#danger" x="0" width="24" height="24"/><use href="#danger" x="33" width="24" height="24"/><use href="#danger" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · L'ÉQUIPE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>II · L'équipe</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>L'équipe</h2>
+    <p class="chapeau">Deux camps, une seule bombe. Aucun ne peut y arriver seul.</p></div>
+  <div class="role"><div class="icone"><svg><use href="#i-demineur"/></svg></div><div>
+    <h4>Le démineur <span class="fois">1 joueur</span></h4>
+    <p class="atout">Assis face au pupitre.</p>
+    <p>Il voit l'écran et les voyants, il manipule tout. Il <b>n'a pas le droit de lire le manuel</b>. Il décrit ce qu'il voit, mot pour mot, et fait ce qu'on lui dit.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-experts"/></svg></div><div>
+    <h4>Les experts <span class="fois">1 à 7 joueurs</span></h4>
+    <p class="atout">De l'autre côté, ou dos au pupitre, avec le manuel.</p>
+    <p>Ils <b>ne regardent jamais l'écran</b>. Ils écoutent, trouvent la bonne règle dans le manuel, et disent au démineur quoi faire.</p></div></div>
+  <table class="repartition" style="margin-top:4mm">
+    <tr><th>Joueurs</th><th>2</th><th>3</th><th>4</th><th>5 à 8</th></tr>
+    <tr><td>Démineur</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+    <tr><td>Experts</td><td>1</td><td>2</td><td>3</td><td>4 à 7</td></tr>
+  </table>
+  <div class="encart"><div class="titre">Le QG</div>
+    <p>Bloqués ? Le démineur glisse la carte <b>Le QG</b> : deux conseils gratuits, puis <b>1 minute</b> chacun.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · L'ÉQUIPE (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>II · L'équipe</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Parler, vite et bien</h3>
+  <p>À la brigade, une bonne liaison radio sauve des vies. Quelques habitudes de pro :</p>
+  <div class="element"><b>Lire tout</b><span>Le démineur lit le numéro de série <b>lettre par lettre</b>, chiffre par chiffre, dès l'armement.</span></div>
+  <div class="element"><b>Dans l'ordre</b><span>Les couleurs, les mots, les chiffres : de gauche à droite, de haut en bas. Toujours.</span></div>
+  <div class="element"><b>Confirmer</b><span>Avant d'agir, le démineur répète l'ordre reçu. Les experts disent « confirmé ».</span></div>
+  <div class="element"><b>Une seule voix</b><span>Les experts cherchent ensemble, mais un seul parle au démineur.</span></div>
+  <div class="element"><b>Épeler</b><span>En cas de doute : Alpha, Bravo, Charlie… Le manuel en a besoin.</span></div>
+  <div class="element"><b>Le calme</b><span>À deux minutes de la fin, le QG vous prévient. Ne courez pas : une erreur coûte plus cher qu'une seconde.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le capteur de vibrations</div>
+    <p>Certaines bombes s'en méfient. Quand il s'active, <strong>ne touchez plus à rien</strong> jusqu'à ce qu'il se taise.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · LES MODULES (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>III · Les modules</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Les modules</h2>
+    <p class="chapeau">Huit modules existent ; chaque bombe en porte cinq. Voici ce que le démineur lit, et ce qu'il manipule.</p></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-fils"/></svg></div><div>
+    <h4>Fils <span class="fois">voyants · clavier</span></h4>
+    <p>Cinq fils de couleur, un seul à couper.</p>
+    <p class="geste">Le démineur lit les couleurs des 5 voyants du haut (aussi écrites à l'écran), puis tape le numéro du fil.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-detonateur"/></svg></div><div>
+    <h4>Détonateur <span class="fois">boutons</span></h4>
+    <p>Une étiquette, quatre boutons de couleur.</p>
+    <p class="geste">Il lit l'étiquette, puis appuie sur un seul bouton.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-clavier"/></svg></div><div>
+    <h4>Clavier <span class="fois">clavier · horloge</span></h4>
+    <p>Quatre mots, un code à quatre chiffres.</p>
+    <p class="geste">Il lit les quatre mots, puis tape le code ; l'horloge l'affiche.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · LES MODULES (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>III · Les modules</span></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-surchauffe"/></svg></div><div>
+    <h4>Surchauffe <span class="fois">boutons · forge</span></h4>
+    <p class="geste">Il lit la température ; bouton vert puis souffle sur la grille FORGE, ou bouton rouge.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-viseur"/></svg></div><div>
+    <h4>Viseur <span class="fois">œil</span></h4>
+    <p class="geste">Il lit la cible ; passe deux fois la main à plat, à 5 cm au-dessus de l'ŒIL, d'un bord à l'autre.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-nuancier"/></svg></div><div>
+    <h4>Nuancier <span class="fois">capteur · gros bouton</span></h4>
+    <p class="geste">Il lit le niveau ; pose une pastille à plat sur le NUANCIER, puis appuie sur le gros bouton.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-radio"/></svg></div><div>
+    <h4>Radio <span class="fois">casque · clavier</span></h4>
+    <p class="geste">Il met le casque, répète le mot de code entendu, puis tape la fréquence.</p></div></div>
+  <div class="role module"><div class="icone"><svg><use href="#m-stabilisateur"/></svg></div><div>
+    <h4>Stabilisateur <span class="fois">gros bouton</span></h4>
+    <p class="geste">Il écoute le rythme, puis le reproduit deux fois sur le gros bouton.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LA BOMBE ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>IV · La bombe</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Anatomie d'une bombe</h2>
+    <p class="chapeau">À l'armement, l'écran donne tout ce que les experts doivent savoir. Un appui sur la molette le réaffiche.</p></div>
+  <div class="ecran">
+    <div class="haut"><span>BOMBE ARMÉE</span><span class="chrono">11:58</span></div>
+    <div style="font-size:6.6pt;letter-spacing:.2em;color:#8b8f96;text-align:center">N° DE SÉRIE</div>
+    <div class="serie">XY-1234</div>
+    <div class="mods"><span>FILS</span><span>CLAVIER</span><span>VISEUR</span><span>RADIO</span><span>STABILISATEUR</span></div>
+  </div>
+  <p class="legende">Un exemple. Chaque bombe a son numéro et ses cinq modules.</p>
+  <h3>Les dix voyants</h3>
+  <div class="voyants">
+    <div><i style="background:#d0402a"></i><span>fil 1</span></div><div><i style="background:#3f7fd0"></i><span>fil 2</span></div>
+    <div><i style="background:#e6c229"></i><span>fil 3</span></div><div><i style="background:#f4f3ef"></i><span>fil 4</span></div>
+    <div><i style="background:#3a9a52"></i><span>fil 5</span></div>
+  </div>
+  <div class="voyants">
+    <div><i style="background:#3a9a52"></i><span>module</span></div><div><i style="background:#3a9a52"></i><span>module</span></div>
+    <div><i style="background:#444"></i><span>module</span></div><div><i style="background:#444"></i><span>module</span></div>
+    <div><i style="background:#444"></i><span>module</span></div>
+  </div>
+  <p style="margin-top:2mm">En haut, les <b>fils</b> du module Fils. En bas, les <b>modules désamorcés</b> passent au vert un à un.</p>
+  <div class="encart"><div class="titre">Les autres lumières</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>L'<b>anneau</b> se vide avec le compte à rebours.</li>
+      <li>La <b>lumière sous la boîte</b> compte les erreurs : calme, puis orange, puis rouge rapide.</li>
+    </ul></div>
+  <div class="ornement" style="margin-top:4mm"><svg viewBox="0 0 90 24"><use href="#danger" x="0" width="24" height="24"/><use href="#danger" x="33" width="24" height="24"/><use href="#danger" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LE MANUEL ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>IV · La bombe</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Le manuel de désamorçage</h3>
+  <p>Trois pages de règles, imprimées à part, <b>réservées aux experts</b>. Chaque module y a sa règle ; beaucoup dépendent du <b>numéro de série</b>.</p>
+  <div class="encart"><div class="titre">Ce que les experts demanderont</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Le numéro de série, en entier.</li>
+      <li>Les couleurs des fils, dans l'ordre.</li>
+      <li>Le texte exact d'une étiquette, les mots d'un clavier.</li>
+      <li>Une température, une cible, un niveau, un mot de code.</li>
+    </ul></div>
+  <h3>Quand ça tourne mal</h3>
+  <div class="element"><b>Une erreur</b><span>Une minute de moins, et la lumière sous la boîte change de couleur : orange, puis rouge rapide.</span></div>
+  <div class="element"><b>Réessayer</b><span>Un module raté se réessaie en glissant de nouveau sa carte.</span></div>
+  <div class="element"><b>L'explosion</b><span>À la troisième erreur, ou à zéro. On change de démineur, et on recommence.</span></div>
+  <div class="bandes"></div>
+  <div class="encart sombre"><div class="titre">Douze bombes</div>
+    <p>Le pupitre tire au sort une bombe parmi <strong>douze</strong> : un numéro de série, cinq modules sur huit, des réglages. Vous pouvez enchaîner les interventions toute la soirée.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>V · Le pupitre</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre</h2>
+    <p class="chapeau">Tout ce que le démineur aura sous la main.</p></div>
+  <div class="element"><b>La fente</b><span>La carte d'un <b>module</b> pour l'ouvrir ; elle reste en place pendant l'essai.</span></div>
+  <div class="element"><b>L'écran</b><span>Le numéro de série, les modules, et les consignes de chaque module.</span></div>
+  <div class="element"><b>L'horloge</b><span>Le compte à rebours, et les codes pendant leur saisie.</span></div>
+  <div class="element"><b>Le clavier</b><span>Le numéro d'un fil, un code, une fréquence.</span></div>
+  <div class="element"><b>Les boutons</b><span>Les quatre couleurs du détonateur et de la surchauffe.</span></div>
+  <div class="element"><b>Le gros bouton</b><span>Le stabilisateur, et la validation du nuancier.</span></div>
+  <div class="element"><b>La forge</b><span>Souffler sur la grille, bouche grande ouverte.</span></div>
+  <div class="element"><b>L'œil</b><span>La main à plat, à 5 cm au-dessus, d'un bord à l'autre.</span></div>
+  <div class="element"><b>Le nuancier</b><span>La pastille posée bien à plat sur le capteur.</span></div>
+  <div class="element"><b>Le casque</b><span>Le mot de code de la radio.</span></div>
+  <div class="element"><b>La clé</b><span>La sécurité finale, en 15 secondes.</span></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT L'INTERVENTION ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>V · Le pupitre</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant l'intervention</h3>
+  <div class="element"><b>La molette</b><span>Un appui réaffiche le numéro de série, les modules restants et le temps.</span></div>
+  <div class="element"><b>Un module absent</b><span>Le pupitre le dit : cette carte n'est pas sur cette bombe.</span></div>
+  <div class="element"><b>Déjà fait</b><span>Un module désamorcé le reste. Passez au suivant.</span></div>
+  <div class="element"><b>La radio</b><span>Personne au casque ? Glissez de nouveau la carte pour réécouter.</span></div>
+  <div class="element"><b>Le QG</b><span>Deux conseils gratuits, puis une minute chacun.</span></div>
+  <div class="element"><b>La fin</b><span>Les cinq modules au vert, la clé tournée à temps : le QG vous décerne votre rang.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Les experts : <strong>lisez le manuel avant la première bombe</strong>, cinq minutes suffisent. Repérez où se trouve chaque module : c'est autant de secondes gagnées.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#danger" x="0" width="24" height="24"/><use href="#danger" x="33" width="24" height="24"/><use href="#danger" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · LE REGISTRE (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Brigade de déminage</span><span>VI · Le registre</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le registre de la brigade</h2>
+    <p class="chapeau">Une ligne par intervention. Qui sera le meilleur démineur de la soirée ?</p></div>
+  <table>
+    <tr><th style="width:8mm">#</th><th>Démineur</th><th style="width:22mm">N° de série</th><th style="width:14mm">Reste</th><th style="width:16mm">Rang</th></tr>
+    <tr><td>1</td><td></td><td></td><td></td><td></td></tr><tr><td>2</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>3</td><td></td><td></td><td></td><td></td></tr><tr><td>4</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>5</td><td></td><td></td><td></td><td></td></tr><tr><td>6</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>7</td><td></td><td></td><td></td><td></td></tr><tr><td>8</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>9</td><td></td><td></td><td></td><td></td></tr><tr><td>10</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>11</td><td></td><td></td><td></td><td></td></tr><tr><td>12</td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · LE REGISTRE (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Brigade de déminage</span><span>VI · Le registre</span></div>
+  <h3 style="margin-top:0">La bombe en cours</h3>
+  <p style="font-size:7.8pt;margin-bottom:1mm">Le numéro de série :</p>
+  <div class="cases"><span></span><span></span><span style="border:0;width:3mm;background:none;text-align:center;font-size:14pt;line-height:11mm">-</span><span></span><span></span><span></span><span></span></div>
+  <h3>Les modules</h3>
+  <table>
+    <tr><th>Module</th><th>Ce que dit le démineur</th><th style="width:9mm">✓</th></tr>
+    <tr><td>Fils</td><td></td><td></td></tr><tr><td>Détonateur</td><td></td><td></td></tr>
+    <tr><td>Clavier</td><td></td><td></td></tr><tr><td>Surchauffe</td><td></td><td></td></tr>
+    <tr><td>Viseur</td><td></td><td></td></tr><tr><td>Nuancier</td><td></td><td></td></tr>
+    <tr><td>Radio</td><td></td><td></td></tr><tr><td>Stabilisateur</td><td></td><td></td></tr>
+  </table>
+  <h3>Notes de liaison</h3>
+  <div class="zone lignes" style="min-height:30mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Brigade de déminage</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Une bombe vient d'être découverte. Un seul d'entre vous la voit ; les autres ont le manuel. Douze minutes, cinq modules,
+    trois erreurs permises : il va falloir parler, vite et bien.</p>
+  <table>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr class="ici"><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">2 à 8 joueurs · 12 minutes par bombe · pour tous · jeu de communication coopératif</div>
+</section>
+
+</body>
+</html>

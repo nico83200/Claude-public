@@ -1,7 +1,7 @@
 # Mission 6 : Désamorçage, le déroulé
 
 > **Le Pupitre des Énigmes** · Monde : Brigade de déminage. Un jeu coopératif de 2 à 8 joueurs, 12 minutes par bombe,
-> rejouable : le pupitre tire au sort une bombe parmi 16. Document produit par `mondes/deminage/generer.py`.
+> rejouable : le pupitre tire au sort une bombe parmi 12. Document produit par `mondes/deminage/generer.py`.
 >
 > **Repères sonores** : 🔊 20 désigne une réplique du dossier SD `60` ; `61/…` les bruitages.
 
@@ -12,7 +12,7 @@
 | Situation | Effet |
 |---|---|
 | **Les rôles** | Un **démineur** au pupitre : il voit la bombe, ne lit pas le manuel. Les **experts** (1 à 7) ont le manuel et ne regardent pas l'écran. On change de démineur à chaque bombe. |
-| **La bombe** | Tirée au sort parmi 16 : un numéro de série, **5 modules** sur 8, des réglages. Le numéro et les modules s'affichent à l'armement, et dans le tableau de bord (appui sur la molette). |
+| **La bombe** | Tirée au sort parmi 12 : un numéro de série, **5 modules** sur 8, des réglages. Le numéro et les modules s'affichent à l'armement, et dans le tableau de bord (appui sur la molette). |
 | **Un module** | Le démineur glisse sa carte dans la fente. Module absent : 🔊 15 ; déjà désamorcé : 🔊 12. |
 | **Une erreur** | `61/4`, une minute de moins (🔊 33, 🔊 34) ; la lumière sous la boîte passe à l'orange, puis au rouge rapide. **À la 3ᵉ, la bombe explose.** |
 | **Les voyants** | 1 à 5 : les fils du module Fils ; 6 à 10 : les modules désamorcés (vert). |
@@ -21,7 +21,7 @@
 | **L'imprévu** | Minute 5 : capteur de vibrations, 8 s sans toucher (🔊 37). À 2 minutes de la fin : 🔊 39. |
 | **Le QG** (carte A6) | 4 conseils généraux ; 2 gratuits, puis 1 minute chacun. |
 
-## 2. Les 16 bombes et leurs solutions
+## 2. Les 12 bombes et leurs solutions
 
 | Bombe | N° de série | Impair | Voyelle | Modules et solutions |
 |---|---|---|---|---|
