@@ -11,6 +11,7 @@
   .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
   .ciseaux { border-top: 1px dashed #b9b2a6; margin: 6mm 0; position: relative; }
   .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  .photo-imprimee { display: block; height: auto; box-shadow: 2px 3px 6px rgba(0,0,0,.18); }
   .photos { display: flex; flex-wrap: wrap; gap: 7mm; justify-content: center; }
   .polaroid { background: #fbf6ea; padding: 4mm 4mm 2mm; box-shadow: 0 1px 4px rgba(0,0,0,.25); border: 1px solid #e3ddd2; width: 90mm; }
   .polaroid svg { width: 82mm; height: 64mm; display: block; filter: sepia(.55); }
@@ -104,17 +105,7 @@
   </div>
   <div class="ciseaux"></div>
   <div class="photos">
-    <div class="polaroid" style="width:120mm">
-      <svg viewBox="0 0 300 200" style="width:112mm;height:76mm">
-        <rect width="300" height="200" fill="#d8c6a2"/>
-        <rect x="70" y="40" width="160" height="130" fill="#efe6d0" stroke="#7a6a4a" stroke-width="3"/>
-        <rect x="95" y="90" width="110" height="60" fill="#8e1f2f"/>
-        <path d="M95 90L110 52H190L205 90Z" fill="#a8323f"/>
-        <rect x="140" y="86" width="20" height="10" fill="#e3b93a" stroke="#8a6a1a"/>
-        <polygon points="135,112 143,104 157,104 165,112 150,132" fill="#f3b6c8" stroke="#8e1f2f"/>
-        <text x="150" y="190" text-anchor="middle" font-family="Caveat" font-size="14" fill="#3a2a1a">Salon d'Or, 21 h 30</text>
-      </svg>
-      <div class="legende">L'Œil du Nil dans son écrin, avant le transfert. Remarquez le joli fermoir doré.</div>
+    <img class="photo-imprimee" style="width:125mm" src="images/photo-ecrin-dore.jpg" alt="L'Œil du Nil dans son écrin">
     </div>
   </div>
 </div>
@@ -123,15 +114,7 @@
 <div class="page">
   <div class="tag">Enveloppe E2 · Bureau du directeur</div>
   <div class="photos">
-    <div class="polaroid">
-      <svg viewBox="0 0 200 160">
-        <rect width="200" height="160" fill="#cdbb98"/>
-        <circle cx="100" cy="62" r="26" fill="#e9d8bd"/>
-        <path d="M70 52Q100 18 130 52Q128 34 100 30Q72 34 70 52Z" fill="#5a3a1a"/>
-        <path d="M60 160Q62 100 100 96Q138 100 140 160Z" fill="#f3efe6"/>
-        <path d="M84 96L100 112L116 96" fill="none" stroke="#8e1f2f" stroke-width="4"/>
-      </svg>
-      <div class="legende">« Pour mon papa chéri. Marie, pour ses 12 ans, le 3 mars 1925 »</div>
+    <img class="photo-imprimee" style="width:95mm" src="images/photo-marie.jpg" alt="Marie, 12 ans">
     </div>
   </div>
   <div class="ciseaux"></div>
@@ -146,16 +129,7 @@
 <div class="page">
   <div class="tag">Enveloppe E3 · Salle des coffres</div>
   <div class="photos" style="margin-top:15mm">
-    <div class="polaroid" style="width:120mm">
-      <svg viewBox="0 0 300 200" style="width:112mm;height:76mm">
-        <rect width="300" height="200" fill="#5a5a5e"/>
-        <rect x="60" y="30" width="180" height="150" fill="#2a2a2e" stroke="#9a9aa0" stroke-width="4"/>
-        <rect x="60" y="30" width="40" height="150" fill="#7a7a80" transform="skewY(-8) translate(-24 20)"/>
-        <rect x="110" y="110" width="100" height="40" fill="#8e1f2f"/>
-        <rect x="150" y="104" width="20" height="10" fill="#d9d9e0" stroke="#666"/>
-        <polygon points="148,124 154,118 166,118 172,124 160,140" fill="#f3b6c8"/>
-      </svg>
-      <div class="legende">Le coffre est ouvert ! L'écrin… et son fermoir argenté.</div>
+    <img class="photo-imprimee" style="width:125mm" src="images/photo-coffre-ouvert.jpg" alt="Le coffre ouvert">
     </div>
   </div>
 </div>
