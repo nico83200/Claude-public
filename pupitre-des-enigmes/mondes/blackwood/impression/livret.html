@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>La dernière nuit de Lord Edgar · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs du Manoir Blackwood : noir de deuil, vieil or, rouge sang */
+  :root { --fond: #1c1513; --fond-transparent: rgba(28, 21, 19, .82); --accent: #b8893f; --accent-clair: #e6cf9c;
+          --papier: #f5efe3; --encre: #2a211d; --doux: #6e6258; --filet: #ddd0b8; --rouge: #8b1a22; }
+  .couverture .image svg { width: 100%; height: 100%; display: block; }
+  .couverture .image { top: 30mm; }
+  .couverture h1 { font-size: 26pt; }
+
+  /* Le carton d'invitation, bordé de deuil */
+  .lettre { background: #fffdf8; color: #2a211d; font-family: "Playfair"; font-style: italic; font-size: 10.6pt; line-height: 1.5;
+            text-align: center; transform: none; padding: 9mm 9mm 8mm; margin: 4mm 4mm 0; background-image: none;
+            border: 2.4mm solid #1c1513; outline: .3mm solid var(--accent); outline-offset: -3.4mm; box-shadow: 0 .6mm 1.6mm rgba(0,0,0,.25); }
+  .lettre::before { display: none; }
+  .lettre .nom { font-style: normal; font-weight: 900; font-size: 15pt; letter-spacing: .02em; margin-bottom: 2mm; }
+  .lettre .mention { font-style: normal; font-family: "Source Sans"; font-size: 6.8pt; letter-spacing: .25em; text-transform: uppercase; color: var(--doux); margin-top: 3mm; }
+  .lettre .filet { width: 18mm; height: .3mm; background: var(--accent); margin: 3mm auto; }
+
+  .plan { background: #fbf6ea; border: .25mm solid var(--filet); border-radius: 1.5mm; padding: 1mm; }
+  .plan svg { display: block; width: 100%; height: auto; }
+  .role .icone svg { color: var(--accent-clair); }
+
+  /* La lampe */
+  .lampe { display: grid; grid-template-columns: 30mm 1fr; gap: 4mm; align-items: center; margin: 3mm 0; }
+  .jauge { display: flex; gap: .8mm; margin-top: 2mm; }
+  .jauge span { flex: 1; height: 3mm; border-radius: .5mm; background: var(--accent); }
+  .jauge span.v { background: var(--filet); }
+  .graduation { display: flex; justify-content: space-between; font-size: 6.4pt; color: var(--doux); margin-top: .6mm; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="chandelle" viewBox="0 0 24 24"><path d="M12 1.5c2.2 2.6 2.6 4.6 0 6.6-2.6-2-2.2-4 0-6.6z" fill="currentColor"/><rect x="9" y="9.5" width="6" height="10" rx=".6" fill="currentColor"/><path d="M5.5 21.5h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-apothicaire" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M9 3h6M10 3v4.5a6.5 6.5 0 1 0 4 0V3"/><path d="M7 14h10"/></g></symbol>
+    <symbol id="i-peinture" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1"/><rect x="6" y="7" width="12" height="10"/><path d="M8 15l3-4 2 2 2-3 2 5"/></g></symbol>
+    <symbol id="i-inspecteur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 21 21"/></g></symbol>
+    <symbol id="i-spirite" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="10" r="6.5"/><path d="M7 20h10M9 16.5 8 20M15 16.5l1 3.5"/><path d="M9.5 8.5c1-1 2.5-1.4 3.5-.5"/></g></symbol>
+    <symbol id="i-chroniqueur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M6 8h12M6 11h5M6 14h5M6 17h5"/><rect x="13" y="11" width="5" height="6"/></g></symbol>
+    <symbol id="i-whist" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="5" width="11" height="15" rx="1.5" transform="rotate(-10 8 12)"/><rect x="10" y="4" width="11" height="15" rx="1.5" transform="rotate(8 15 12)"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image">
+    <svg viewBox="0 0 148 150" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="ciel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2430"/><stop offset=".6" stop-color="#3b3036"/><stop offset="1" stop-color="#1c1513"/></linearGradient>
+        <radialGradient id="lune" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#f6ecd0"/><stop offset=".7" stop-color="#e6cf9c"/><stop offset="1" stop-color="#e6cf9c" stop-opacity="0"/></radialGradient>
+        <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e6cf9c" stop-opacity=".35"/><stop offset="1" stop-color="#e6cf9c" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="148" height="150" fill="url(#ciel)"/>
+      <circle cx="104" cy="40" r="34" fill="url(#halo)"/>
+      <circle cx="104" cy="40" r="15" fill="url(#lune)"/>
+      <!-- nuages -->
+      <g fill="#1f1a20" opacity=".85"><path d="M60 46c6-6 18-6 22 0 6-4 16-2 18 4H56c0-2 2-4 4-4z"/><path d="M96 58c5-4 14-4 17 0 5-3 12-1 13 3H93c0-2 1-3 3-3z"/></g>
+      <!-- l'éclair -->
+      <path d="M30 8 L24 30 L31 30 L22 56 L38 24 L31 24 L37 8Z" fill="#f2ead6" opacity=".75"/>
+      <!-- la lande -->
+      <path d="M0 112 C30 104 60 110 90 104 S130 98 148 102 V150 H0Z" fill="#120d0c"/>
+      <!-- le manoir -->
+      <g fill="#0d0908">
+        <path d="M34 108 V72 H44 V62 L52 52 L60 62 V72 H86 V60 L96 48 L106 60 V108Z"/>
+        <path d="M60 72 L73 58 L86 72Z"/>
+        <rect x="40" y="54" width="3" height="10"/><rect x="99" y="40" width="3" height="10"/><rect x="66" y="52" width="2.5" height="8"/>
+        <path d="M106 108 V80 H122 V108Z"/><path d="M104 80 L114 70 L124 80Z"/>
+      </g>
+      <g fill="#e8b44a"><rect x="49" y="78" width="3.4" height="5"/><rect x="92" y="66" width="3" height="4.6" opacity=".9"/><rect x="113" y="86" width="2.8" height="4" opacity=".6"/></g>
+      <g fill="#e8b44a" opacity=".25"><circle cx="50.7" cy="80.5" r="5"/></g>
+      <!-- l'arbre mort et le corbeau -->
+      <g stroke="#0d0908" stroke-linecap="round" fill="none"><path d="M18 112 C19 96 16 86 20 74" stroke-width="2.6"/><path d="M19 90 L10 80 M19 84 L27 74 M20 78 L14 68 M18 98 L28 92" stroke-width="1.3"/></g>
+      <path d="M26 73.4 c1.4-1 3-1 4 0 l2-.8 -1 1.2 c-.6 1.4-2.6 1.8-4 .8z" fill="#0d0908"/>
+      <!-- la grille -->
+      <g stroke="#0d0908" stroke-width=".9"><path d="M0 128 H148"/><path d="M6 118 V138 M14 118 V138 M22 118 V138 M30 118 V138 M118 118 V138 M126 118 V138 M134 118 V138 M142 118 V138"/></g>
+    </svg>
+  </div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Le Manoir Blackwood</div>
+    <h1>La dernière nuit<br>de Lord Edgar</h1>
+    <p class="accroche">Dartmoor, 31 octobre 1893. La tempête a coupé les routes.<br>À minuit, l'affaire sera classée.</p>
+    <div class="badges">
+      <div class="badge"><b>3 à 8</b><span>joueurs</span></div>
+      <div class="badge"><b>60 min</b><span>une heure</span></div>
+      <div class="badge"><b class="etoiles">★★<i>★</i></b><span>intermédiaire</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant de franchir la grille</div><h2>Bienvenue au manoir</h2>
+    <p class="chapeau">Une enquête gothique : la tempête, une lampe qu'il faut sans cesse remonter, une séance de spiritisme… et un fantôme qui parle.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · L'invitation</td><td style="text-align:left">Le carton, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Les habitants</td><td style="text-align:left">Six personnes à interroger</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Vos rôles</td><td style="text-align:left">Six talents, six secrets</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le manoir</td><td style="text-align:left">Le plan, la lampe</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre du manoir</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · La fiche d'enquête</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez la façade du manoir. Le maître du jeu prépare le <b>tiroir secret</b> (voir le déroulé).</li>
+    <li>Étalez au centre les <b>cartes Lieu</b> et <b>Personnage</b>, face visible, et la carte <b>Le corbeau</b>.</li>
+    <li>Empilez les <b>enveloppes</b>, fermées. On ne les ouvre que lorsque le pupitre le demande.</li>
+    <li>Distribuez les <b>six rôles</b> et leurs documents secrets (chapitre III).</li>
+    <li>Baissez la lumière de la pièce, allumez une bougie si vous l'osez, glissez la carte <b>Le Manoir Blackwood</b> et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>On ne montre pas : on raconte.</strong> Ni les documents secrets, ni ce que l'on entend au casque. Les murs ont des oreilles.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · L'INVITATION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>I · L'invitation</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>L'invitation</h2>
+    <p class="chapeau">Un carton bordé de noir, reçu la semaine dernière.</p></div>
+  <div class="lettre">
+    <div class="nom">Lord Edgar Blackwood</div>
+    <p>vous prie de lui faire l'honneur<br>d'assister à une séance de spiritisme<br>en son manoir de Dartmoor,<br>le 31 octobre 1893, à dix heures du soir.</p>
+    <div class="filet"></div>
+    <div class="mention">Médium : Madame Zorah · Tenue de soirée</div>
+  </div>
+  <div class="encart" style="margin-top:8mm"><div class="titre">Onze heures du soir</div>
+    <p>La tempête hurle sur la lande. Ce soir, à table, Lord Edgar était d'humeur sombre ; il a quitté le dîner tôt, « pour une affaire qui ne peut pas attendre ». La séance devait commencer à dix heures, au salon. Il n'y est jamais venu.</p>
+    <p>À dix heures quarante, Graves, le majordome, l'a trouvé <b>mort dans sa bibliothèque</b>, un verre renversé à ses pieds. Le docteur Ashford parle d'une crise cardiaque.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#chandelle" x="0" width="24" height="24"/><use href="#chandelle" x="33" width="24" height="24"/><use href="#chandelle" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>I · L'invitation</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Vous n'y croyez pas, à cette crise cardiaque.</p></div>
+  <div class="trio">
+    <div><b>QUI ?</b><span>a tué Lord Edgar</span></div>
+    <div><b>OÙ ?</b><span>a-t-il été frappé</span></div>
+    <div><b>AVEC QUOI ?</b><span>l'arme du crime</span></div>
+  </div>
+  <div class="horloge"><div class="heures">23 h → 0 h</div>
+    <div>Les routes sont coupées : l'inspecteur et le notaire n'arriveront qu'à <b>minuit</b>. Alors le docteur signera le certificat, et l'affaire sera close. L'<b>horloge</b> du pupitre donne l'heure du manoir.</div></div>
+  <h3>Accuser</h3>
+  <ol class="etapes">
+    <li>Rendez-vous sur le <b>lieu du crime</b> : sa carte dans la fente.</li>
+    <li>Glissez le <b>coupable</b> dans la fente, et posez l'<b>arme</b> sur le plateau.</li>
+    <li>Appuyez sur le <b>gros bouton</b>, puis confirmez au bouton vert.</li>
+  </ol>
+  <p>Une accusation fausse coûte <b>5 minutes</b>. À la troisième erreur, le coupable s'enfuit dans la lande.</p>
+  <div class="signalement">
+    <div class="portrait"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#1c1513"/>
+      <text x="50" y="44" text-anchor="middle" font-family="Playfair" font-size="30" fill="#e6cf9c">✝</text>
+      <text x="50" y="72" text-anchor="middle" font-family="Source Sans" font-size="8" letter-spacing="2" fill="#b8893f">1893</text></svg></div>
+    <div><h3 style="margin-top:0">Lord Edgar Blackwood</h3>
+      <dl>
+        <dt>Titre</dt><dd>Lord, maître du manoir Blackwood</dd>
+        <dt>Trouvé</dt><dd>À 22 h 40, dans la bibliothèque, un verre renversé à ses pieds</dd>
+        <dt>Selon le docteur</dt><dd>Une crise cardiaque</dd>
+        <dt>Ce soir</dt><dd>Parti tôt du dîner, pour « une affaire qui ne peut pas attendre »</dd>
+      </dl></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LES HABITANTS (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>II · Les habitants</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Les habitants du manoir</h2>
+    <p class="chapeau">Glissez la carte d'un personnage dans la fente pour l'interroger. Posez un objet sur le plateau pour le lui montrer.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#4a2a3a">LM</div><div>
+    <h4>Lady Margaret Blackwood</h4><div class="qualite">L'épouse · 48 ans</div>
+    <p>Élégante et froide. Distante avec son mari, ces derniers temps.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#3a4a2a">TB</div><div>
+    <h4>Thomas Blackwood</h4><div class="qualite">Le neveu · 26 ans</div>
+    <p>Joueur, insolent. On le dit criblé de dettes.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#2a3a4a">HA</div><div>
+    <h4>Dr Henry Ashford</h4><div class="qualite">Médecin de la famille · 61 ans</div>
+    <p>Ami de la famille depuis vingt ans. C'est lui qui signera le certificat.</p></div></div>
+  <div class="encart"><div class="titre">Interroger</div>
+    <p>Un personnage seul raconte sa soirée. Montrez-lui un <b>objet</b> : il réagit, parfois plus qu'il ne le voudrait.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LES HABITANTS (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>II · Les habitants</span></div>
+  <div class="personne" style="padding-top:0"><div class="medaillon" style="background:#3a3330">G</div><div>
+    <h4>Graves</h4><div class="qualite">Le majordome · 63 ans</div>
+    <p>Trente-deux ans de service. C'est lui qui a trouvé le corps.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#6a4a3a">RM</div><div>
+    <h4>Rose Miller</h4><div class="qualite">Femme de chambre · 19 ans</div>
+    <p>Terrifiée. Elle sursaute au moindre coup de tonnerre.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#4a3a6a">MZ</div><div>
+    <h4>Madame Zorah</h4><div class="qualite">La médium · 50 ans</div>
+    <p>Venue pour la séance. Elle affirme que les esprits ont beaucoup à dire, ce soir.</p></div></div>
+  <div class="encart"><div class="titre">Le corbeau</div>
+    <p>Perché sur le buste de la bibliothèque, il en a vu d'autres. Quand vous bloquez, glissez <b>sa carte</b> dans la fente : les trois premiers conseils sont gratuits, les suivants coûtent <b>2 minutes</b>.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · VOS RÔLES (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>III · Vos rôles</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Vos rôles</h2>
+    <p class="chapeau">Chacun de vous a un savoir, et un document secret. Les six rôles sont toujours tous en jeu.</p></div>
+  <table class="repartition">
+    <tr><th>Joueurs</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7 ou 8</th></tr>
+    <tr><td>Rôles</td><td>2 chacun</td><td>2·2·1·1</td><td>2·1·1·1·1</td><td>1 chacun</td><td>en binômes</td></tr>
+  </table>
+  <p><b>Utiliser un pouvoir :</b> la carte visée sur un lecteur, puis votre carte Rôle sur le lecteur libre. Le pupitre décompte les utilisations.</p>
+  <div class="role"><div class="icone"><svg><use href="#i-apothicaire"/></svg></div><div>
+    <h4>L'Apothicaire <span class="fois">2 fois</span></h4>
+    <p class="atout">Les poisons et leurs symptômes.</p>
+    <p><b>Analyser</b> : votre carte et un objet.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-peinture"/></svg></div><div>
+    <h4>L'Expert en peinture <span class="fois">savoir</span></h4>
+    <p class="atout">La collection Blackwood.</p>
+    <p>Aucun pouvoir : votre savoir suffit. Ouvrez l'œil dans la galerie.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · VOS RÔLES (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>III · Vos rôles</span></div>
+  <div class="role"><div class="icone"><svg><use href="#i-inspecteur"/></svg></div><div>
+    <h4>L'Inspecteur en retraite <span class="fois">3 fois</span></h4>
+    <p class="atout">Le plan, l'emploi du temps.</p>
+    <p><b>Vérifier un alibi</b> : un personnage et votre carte. Réponse <b>au casque</b>.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-spirite"/></svg></div><div>
+    <h4>La Spirite <span class="fois">2 fois</span></h4>
+    <p class="atout">La planchette, la langue des esprits.</p>
+    <p><b>Interroger l'esprit</b> : un personnage et votre carte.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-chroniqueur"/></svg></div><div>
+    <h4>Le Chroniqueur mondain <span class="fois">2 fois</span></h4>
+    <p class="atout">Les ragots du <i>Times</i>.</p>
+    <p><b>Confidence</b> : un personnage et votre carte. Il vous parle <b>au casque</b>, à vous seul.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-whist"/></svg></div><div>
+    <h4>Le Joueur de whist <span class="fois">1 fois</span></h4>
+    <p class="atout">Dettes et ragots des salons.</p>
+    <p><b>Coup de poker</b> : votre carte seule, juste avant d'accuser. Si l'accusation est fausse, pas de pénalité, et l'élément faux vous est désigné.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE MANOIR ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>IV · Le manoir</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le manoir</h2>
+    <p class="chapeau">Glissez la carte d'un lieu dans la fente pour vous y rendre. Vous y restez jusqu'au lieu suivant.</p></div>
+  <div class="plan"><svg viewBox="0 0 680 600" xmlns="http://www.w3.org/2000/svg" font-family="Playfair, serif">
+  <defs>
+    <pattern id="parquet" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#efe3c8"/><path d="M0 12L12 0" stroke="#e2d2ae" stroke-width="1"/></pattern>
+    <pattern id="dalle" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#e6e1d6"/><rect width="8" height="8" fill="#d9d3c4"/><rect x="8" y="8" width="8" height="8" fill="#d9d3c4"/></pattern>
+  </defs>
+  <rect width="680" height="600" fill="#fbf5e6"/>
+  <text x="340" y="26" text-anchor="middle" font-size="15" font-weight="700" fill="#3a1f1a">REZ-DE-CHAUSSÉE</text>
+  <g stroke="#3a1f1a" stroke-width="2.5">
+    <rect x="40" y="40" width="190" height="130" fill="url(#parquet)"/>
+    <rect x="230" y="40" width="220" height="130" fill="url(#dalle)"/>
+    <rect x="450" y="40" width="190" height="130" fill="url(#parquet)"/>
+    <rect x="40" y="170" width="190" height="110" fill="url(#parquet)"/>
+    <rect x="230" y="170" width="220" height="110" fill="url(#parquet)"/>
+    <rect x="450" y="170" width="190" height="110" fill="url(#parquet)"/>
+    <rect x="40" y="280" width="600" height="46" fill="#e9dcc0"/>
+    <rect x="560" y="326" width="80" height="44" fill="#ddd6c6"/>
+  </g>
+  <g font-size="15" font-weight="700" fill="#3a1f1a" text-anchor="middle">
+    <text x="135" y="110">La bibliothèque</text>
+    <text x="340" y="104">Le grand hall</text>
+    <text x="545" y="110">Le fumoir</text>
+    <text x="135" y="230">Le bureau</text><text x="135" y="248" font-size="11" font-weight="400" font-style="italic">de Lord Edgar</text>
+    <text x="340" y="230">Le salon de la séance</text>
+    <text x="545" y="230">L'office</text>
+    <text x="300" y="308">La galerie des portraits</text>
+    <text x="600" y="352" font-size="12">Chapelle</text>
+  </g>
+  <g font-size="10" fill="#6b3b26" font-style="italic" text-anchor="middle">
+    <text x="340" y="126">escalier vers l'étage ↑</text>
+    <text x="135" y="160">fauteuil de Lord Edgar ✝</text>
+    <text x="545" y="160">plateau d'argent · verres au cerf</text>
+    <text x="340" y="268">le guéridon</text>
+  </g>
+  <!-- portes -->
+  <g stroke="#fbf5e6" stroke-width="6">
+    <path d="M230 90v24M450 90v24M230 210v24M450 210v24M135 170h24M340 170h24M545 170h24M340 280h24M600 326h24"/>
+  </g>
+  <text x="340" y="400" text-anchor="middle" font-size="15" font-weight="700" fill="#3a1f1a">ÉTAGE</text>
+  <g stroke="#3a1f1a" stroke-width="2.5">
+    <rect x="40" y="414" width="250" height="140" fill="url(#parquet)"/>
+    <rect x="290" y="414" width="100" height="140" fill="#e9dcc0"/>
+    <rect x="390" y="414" width="250" height="140" fill="url(#parquet)"/>
+  </g>
+  <g font-size="15" font-weight="700" fill="#3a1f1a" text-anchor="middle">
+    <text x="165" y="480">La chambre</text><text x="165" y="498">de Lady Margaret</text>
+    <text x="340" y="488" font-size="11">palier</text>
+    <text x="515" y="480">La chambre du docteur</text><text x="515" y="498" font-size="11" font-weight="400" font-style="italic">chambre d'amis · fermée à clé</text>
+  </g>
+  <g stroke="#fbf5e6" stroke-width="6"><path d="M290 470v24M390 470v24"/></g>
+  <g transform="translate(640 580)" font-size="11" fill="#3a1f1a"><text x="-8" y="0" text-anchor="end">N ↑</text></g>
+</svg></div>
+  <div class="lieux" style="margin-top:3mm">
+    <div><b>Le grand hall</b> · l'escalier</div>
+    <div><b>La bibliothèque</b> · le fauteuil</div>
+    <div><b>Le fumoir</b> · cigares et whisky</div>
+    <div><b>La galerie des portraits</b> · il faut de la lumière</div>
+    <div><b>La chapelle</b> · l'aile ouest</div>
+    <div><b>Le bureau de Lord Edgar</b> · un cadenas</div>
+    <div><b>L'office</b> · les domestiques</div>
+    <div><b>Le salon de la séance</b> · le guéridon</div>
+    <div style="grid-column:1/3"><b>À l'étage</b> · la chambre de Lady Margaret, et celle du docteur, fermée à clé.</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LA LAMPE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>IV · Le manoir</span></div>
+  <h3 style="margin-top:0;font-size:13pt">La lampe à huile</h3>
+  <div class="lampe">
+    <svg viewBox="0 0 60 80" style="width:30mm">
+      <ellipse cx="30" cy="30" rx="22" ry="22" fill="#e8b44a" opacity=".18"/>
+      <path d="M30 14c4 5 5 9 0 14-5-5-4-9 0-14z" fill="#e8b44a"/>
+      <path d="M22 30 C20 18 40 18 38 30 C42 36 40 44 36 46 H24 C20 44 18 36 22 30Z" fill="none" stroke="#b8893f" stroke-width="1.4"/>
+      <path d="M22 46 H38 L40 54 H20Z" fill="#2a211d"/>
+      <path d="M16 54 H44 C46 62 40 68 30 68 C20 68 14 62 16 54Z" fill="#2a211d"/>
+      <path d="M22 72 H38" stroke="#2a211d" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div><p>Ce soir, la lumière ne tient qu'à une mèche. Elle <b>baisse sans cesse</b> ; le <b>bouton bleu</b> la remonte. Appuyez souvent.</p>
+      <div class="jauge"><span></span><span></span><span></span><span></span><span></span><span></span><span class="v"></span><span class="v"></span><span class="v"></span><span class="v"></span></div>
+      <div class="graduation"><span>noir</span><span>60 % · la galerie</span><span>pleine lumière</span></div></div>
+  </div>
+  <div class="element"><b>Dans le noir</b><span>Plus rien ne se voit. Remontez la lampe, puis glissez de nouveau la carte.</span></div>
+  <div class="element"><b>La galerie</b><span>Les portraits ne se regardent qu'avec la lampe à <b>60 %</b> au moins.</span></div>
+  <div class="element"><b>Un appui</b><span>Chaque appui sur le bouton bleu rend un peu d'huile à la mèche.</span></div>
+  <div class="element"><b>Les voyants</b><span>Les cinq premiers suivent vos pistes ; les cinq derniers montrent la lampe, comme l'anneau.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le manoir vit</div>
+    <p>Le tonnerre, des pas dans le couloir… <strong>Écoutez les imprévus</strong> : certains demandent d'agir vite, d'autres de ne plus bouger.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#chandelle" x="0" width="24" height="24"/><use href="#chandelle" x="33" width="24" height="24"/><use href="#chandelle" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>V · Le pupitre du manoir</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre du manoir</h2>
+    <p class="chapeau">Il vous dira toujours quand vous servir de quoi. Voici ce que vous trouverez sur la façade.</p></div>
+  <div class="element"><b>La fente</b><span>Un <b>lieu</b> pour vous y rendre, un <b>personnage</b> pour l'interroger, votre <b>rôle</b> pour un pouvoir.</span></div>
+  <div class="element"><b>Le plateau</b><span>Posez-y l'<b>objet</b> à montrer ou à examiner seul.</span></div>
+  <div class="element"><b>Le bouton bleu</b><span>La <b>lampe</b> : appuyez souvent.</span></div>
+  <div class="element"><b>Le clavier</b><span>Les codes : tapez, <b>*</b> efface. L'<b>horloge</b> les affiche, et donne l'heure du manoir.</span></div>
+  <div class="element"><b>La forge</b><span>Le souffle : l'écran dit où, comment, combien de temps.</span></div>
+  <div class="element"><b>L'œil</b><span>La main à plat, à 5 cm au-dessus, d'un bord à l'autre.</span></div>
+  <div class="element"><b>Le casque</b><span>Quand le pupitre le demande, <b>un seul</b> joueur le met. Certains murmures ne passent qu'une fois.</span></div>
+  <div class="element"><b>Le gros bouton</b><span>Pour <b>accuser</b>.</span></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#chandelle" x="0" width="24" height="24"/><use href="#chandelle" x="33" width="24" height="24"/><use href="#chandelle" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT L'ENQUÊTE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>V · Le pupitre du manoir</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant l'enquête</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que lorsque le pupitre le demande</b>. Leur numéro s'affiche à l'écran.</span></div>
+  <div class="element"><b>Les objets</b><span>Ils sont dans les enveloppes. Montrez-les aux bonnes personnes, aux bons endroits.</span></div>
+  <div class="element"><b>Les portes</b><span>Un cadenas ici, une clé là, une galerie trop sombre… Le reste du manoir est ouvert.</span></div>
+  <div class="element"><b>La séance</b><span>Au salon, autour du guéridon, Lord Edgar a peut-être encore quelque chose à dire.</span></div>
+  <div class="element"><b>Le corbeau</b><span>Sa carte dans la fente quand vous bloquez : 3 conseils gratuits, puis 2 minutes chacun.</span></div>
+  <div class="element"><b>La fin</b><span>Une accusation juste avant minuit, et l'inspecteur trouvera le coupable qui l'attend.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Dans ce manoir, chacun ment un peu. <strong>Recoupez les heures</strong> : un alibi qui tient à dix minutes près ne tient pas.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#chandelle" x="0" width="24" height="24"/><use href="#chandelle" x="33" width="24" height="24"/><use href="#chandelle" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · FICHE D'ENQUÊTE (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>VI · La fiche d'enquête</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>La fiche d'enquête</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie. Celle-là, vous pouvez la montrer !</p></div>
+  <table>
+    <tr><th>Personne</th><th>Où était-il ce soir ?</th><th style="width:28mm">Mobile possible</th><th style="width:9mm">?</th></tr>
+    <tr><td>Lady Margaret</td><td></td><td></td><td></td></tr>
+    <tr><td>Thomas</td><td></td><td></td><td></td></tr>
+    <tr><td>Dr Ashford</td><td></td><td></td><td></td></tr>
+    <tr><td>Graves</td><td></td><td></td><td></td></tr>
+    <tr><td>Rose Miller</td><td></td><td></td><td></td></tr>
+    <tr><td>Madame Zorah</td><td></td><td></td><td></td></tr>
+  </table>
+  <h3>La soirée, heure par heure</h3>
+  <table>
+    <tr><th style="width:16mm">Heure</th><th>Ce qui s'est passé</th></tr>
+    <tr><td>20 h</td><td></td></tr><tr><td>21 h</td><td></td></tr><tr><td>21 h 30</td><td></td></tr>
+    <tr><td>22 h</td><td></td></tr><tr><td>22 h 40</td><td></td></tr><tr><td>23 h</td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · FICHE D'ENQUÊTE (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>VI · La fiche d'enquête</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3 style="margin-top:0">Le cadenas du bureau</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+    <div><h3 style="margin-top:0">Les portraits</h3><p style="font-size:7.8pt;line-height:2;margin:0">Ce qui ne va pas :<br>________________________</p></div>
+  </div>
+  <h3>Ce que disent les esprits</h3>
+  <div class="zone lignes" style="min-height:26mm"></div>
+  <h3>Les objets et ce qu'ils prouvent</h3>
+  <div class="zone lignes" style="min-height:40mm"></div>
+  <h3>L'accusation</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2.4mm">
+    <div class="zone"><b>Qui ?</b></div><div class="zone"><b>Où ?</b></div><div class="zone"><b>Avec quoi ?</b></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Blackwood</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Dartmoor, la nuit d'Halloween 1893. Lord Edgar Blackwood est mort dans sa bibliothèque, une heure avant minuit.
+    La tempête, une lampe qui faiblit, une séance de spiritisme… Qui a tué Lord Edgar, où, et avec quoi ?</p>
+  <table>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr class="ici"><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">3 à 8 joueurs · 60 minutes · pour adultes · enquête gothique et déduction</div>
+</section>
+
+</body>
+</html>
