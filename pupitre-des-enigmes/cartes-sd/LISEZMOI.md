@@ -22,7 +22,8 @@ carte de l'écran
 │   ├── haras/   (monde.json, mission-1.json, repliques-1.json, cartes.json)
 │   ├── casse/   …
 │   ├── kepler/  …
-│   └── narval/  …
+│   ├── narval/  …
+│   └── atelier/ …  (la mission 5, de test)
 └── pupitre/
     └── repliques.json
 ```
@@ -46,6 +47,7 @@ chacun des MP3 numérotés sur trois chiffres.
 | `20` · `21` | Monte-Carlo (mission 2) : voix · bruitages | 172 · 17 |
 | `30` · `31` | Kepler-9 (mission 3) : voix · bruitages | 153 · 17 |
 | `40` · `41` | Narval (mission 4) : voix · bruitages | 178 · 26 |
+| `50` · `51` | Atelier (mission 5, le banc d'essai) : voix · bruitages | 76 · 9 |
 
 Le numéro de chaque réplique et son texte sont dans le **script de doublage** de chaque
 mission (`pdf/mission-N-script-doublage.pdf`, colonne « fichier ») ; les bruitages sont

@@ -296,6 +296,11 @@ MISSIONS = [
         ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
         ("carnet-de-bord", "carnet-de-bord", ""),
     ]},
+    # La mission de test du pupitre : une fiche (joueurs, puis maître du jeu) et les cartes.
+    {"num": 5, "monde": "atelier", "nom": "L'Atelier du professeur Lumen", "materiel": [
+        ("fiche-mission-5", "fiche-mission", "Fiche de mission"),
+        ("cartes", "cartes", ""),
+    ]},
 ]
 
 

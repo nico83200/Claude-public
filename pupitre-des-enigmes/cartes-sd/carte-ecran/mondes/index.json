@@ -1,6 +1,10 @@
 {
   "mondes": [
     {
+      "id": "atelier",
+      "nom": "L'Atelier du professeur Lumen"
+    },
+    {
       "id": "casse",
       "nom": "Monte-Carlo 1928"
     },

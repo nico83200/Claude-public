@@ -2,7 +2,8 @@
 verifie phase accueil
 appui
 verifie phase choix_monde
-# Les mondes sont classés : casse (Monte-Carlo), haras, kepler
+# Les mondes sont classés : atelier (le banc d'essai), casse (Monte-Carlo), haras…
+molette 1
 appui
 verifie phase enrolement
 capture enrolement

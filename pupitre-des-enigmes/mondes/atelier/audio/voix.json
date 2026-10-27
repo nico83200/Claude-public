@@ -1,0 +1,17 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "lumen": {
+      "nom": "Le professeur Lumen",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, voix chaleureuse et enjouée, un peu malicieuse, d'inventeur passionné.",
+      "portrait": "L'inventeur du pupitre. Il fait passer l'examen à sa machine avec les joueurs, comme un grand-père bricoleur qui montre son atelier : il explique chaque geste clairement, il se réjouit de chaque essai réussi, et il dédramatise les ratés.",
+      "prompt_voice_design": "A warm, cheerful French male inventor in his sixties, native speaker from France, playful and clear, friendly grandfather tone, close to the microphone.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    }
+  }
+}

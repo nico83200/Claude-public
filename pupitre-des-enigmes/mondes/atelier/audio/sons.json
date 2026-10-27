@@ -1,0 +1,60 @@
+{
+  "dossier": 51,
+  "description": "Bruitages et musiques du monde L'Atelier du professeur Lumen (dossier /51/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 5,
+      "prompt": "Whimsical inventor workshop jingle, ticking clockwork, small brass fanfare, playful"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : l'atelier",
+      "duree": 20,
+      "prompt": "Cozy inventor workshop ambience, clocks ticking, gentle machine whirring, distant tools, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Organe validé",
+      "duree": 1.5,
+      "prompt": "Bright mechanical ding with a satisfying relay click, success sound"
+    },
+    {
+      "n": 4,
+      "nom": "Essai raté",
+      "duree": 1.5,
+      "prompt": "Short comic mechanical buzz and sputter, gentle failure sound"
+    },
+    {
+      "n": 5,
+      "nom": "Tic du rythme",
+      "duree": 0.5,
+      "prompt": "Single crisp wooden metronome tick"
+    },
+    {
+      "n": 6,
+      "nom": "Surtension",
+      "duree": 3,
+      "prompt": "Electrical surge, crackling sparks and humming transformer rising then cutting out"
+    },
+    {
+      "n": 7,
+      "nom": "Coffre qui s'ouvre",
+      "duree": 3,
+      "prompt": "Old safe combination mechanism clicking, heavy bolt releasing, door creaking open"
+    },
+    {
+      "n": 8,
+      "nom": "Victoire",
+      "duree": 6,
+      "prompt": "Triumphant playful orchestral fanfare with brass and glockenspiel, inventor success"
+    },
+    {
+      "n": 9,
+      "nom": "Fin du temps",
+      "duree": 4,
+      "prompt": "Clockwork winding down and stopping, final soft bell"
+    }
+  ]
+}

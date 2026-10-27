@@ -1,0 +1,28 @@
+{
+  "id": "atelier",
+  "nom": "L'Atelier du professeur Lumen",
+  "carte": "M5",
+  "aide": "A5",
+  "aide_nom": "Le carnet du professeur",
+  "theme": {
+    "fond": "#1d1a16",
+    "texte": "#f1e8d6",
+    "accent": "#e8a33c",
+    "alerte": "#d2402f",
+    "doux": "#9c8f78"
+  },
+  "accueil": {
+    "dossier": 50,
+    "dire": 13,
+    "jingle_dossier": 51,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 5,
+      "titre": "Banc d'essai",
+      "script": "mission-5.json",
+      "repliques": "repliques-5.json"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche de mission 5 · Banc d'essai</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #3b2f22; --or: #e8a33c; --cuivre: #9a5b16; }
+  @page { size: A4; margin: 13mm 14mm 16mm; }
+  body { font-size: 9.4pt; }
+  h2 { margin-top: .6em; font-size: 14pt; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: var(--cuivre); border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .titre { text-align: center; margin: 2px 0 10px; }
+  .titre .sur { color: var(--cuivre); font-size: 10pt; letter-spacing: .2em; }
+  .titre h1 { font-size: 32pt; margin: 2px 0; color: var(--vert); }
+  .titre .sous { font-size: 9.5pt; color: var(--gris); letter-spacing: .12em; }
+  .haut { display: grid; grid-template-columns: 1fr 62mm; gap: 12px; align-items: start; }
+  .plaque { background: linear-gradient(135deg, #c99a52, #8a5d22); color: #2b1e0e; border-radius: 6px; padding: 10px 12px; text-align: center;
+            border: 2px solid #6d4718; box-shadow: inset 0 0 0 3px #e8c88a; }
+  .plaque .petit-titre { font-size: 7.5pt; letter-spacing: .2em; text-transform: uppercase; }
+  .plaque .nom { font-family: "Playfair"; font-weight: 900; font-size: 15pt; margin: 2px 0 4px; }
+  .plaque .serie { font-family: "DejaVu Sans Mono", monospace; font-weight: 700; font-size: 22pt; letter-spacing: .25em;
+                   background: #2b1e0e; color: #f3d9a0; border-radius: 4px; padding: 2px 0; margin: 4px 0; }
+  .lettre { font-family: "Caveat"; font-size: 13pt; line-height: 1.15; background: #fffdf5; border: 1px solid var(--filet); padding: 8px 12px; }
+  .regle { display: grid; grid-template-columns: 26px 1fr; gap: 6px; align-items: start; margin-bottom: 3px; }
+  .regle .ico { font-size: 13pt; text-align: center; }
+  .regle p { margin: 0; }
+  table.bancs { font-size: 8.4pt; width: 100%; }
+  table.bancs td, table.bancs th { padding: 2.5px 5px; }
+  table.bancs th { background: var(--vert); }
+  table.bancs td:first-child { white-space: nowrap; font-weight: 700; color: var(--cuivre); }
+  .recette { font-size: 8.6pt; width: 100%; }
+  .recette td, .recette th { padding: 2px 6px; }
+  .case { display: inline-block; width: 11px; height: 11px; border: 1.2px solid #555; border-radius: 2px; vertical-align: -1px; margin-right: 3px; }
+  .pastilles { display: flex; justify-content: space-around; align-items: center; margin: 6px 0 4px; }
+  .pastille { width: 24mm; height: 24mm; border-radius: 50%; outline: .3mm dashed #999; outline-offset: 1.5mm; display: flex;
+              align-items: flex-end; justify-content: center; }
+  .pastille span { font-size: 7pt; color: #fff; letter-spacing: .1em; margin-bottom: 3mm; text-transform: uppercase; }
+  .etiquette { border: 1.5px dashed #999; border-radius: 6px; padding: 8px 12px; text-align: center; width: 90mm; margin: 6px auto 0; }
+  .etiquette b { font-family: "Playfair"; font-size: 20pt; color: var(--cuivre); display: block; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : pour les joueurs -->
+<div class="bandeau"><span>Le Pupitre des Énigmes · L'Atelier du professeur Lumen</span><span>Fiche de mission n° 5</span></div>
+<div class="titre">
+  <div class="sur">⚙ LE PUPITRE DES ÉNIGMES PRÉSENTE ⚙</div>
+  <h1>Banc d'essai</h1>
+  <div class="sous">MISSION DE TEST · 2 JOUEURS · 20 À 30 MINUTES · FACILE</div>
+</div>
+
+<div class="haut">
+  <div class="lettre">
+    Chers essayeurs,<br>
+    j'ai fini de construire mon pupitre. Avant de le livrer, il faut essayer chacun de ses organes :
+    les boutons, la molette, les voyants, les capteurs, les lecteurs de cartes, le casque, et même
+    le tiroir secret. Vous avez 30 minutes. Chaque organe qui répond allume un voyant vert.
+    Quand tout sera vert, le casque vous donnera le code du coffre… et le coffre, mon certificat.<br>
+    <span style="float:right">Pr Lumen</span><br>
+  </div>
+  <div class="plaque">
+    <div class="petit-titre">Atelier Lumen · Plaque du pupitre</div>
+    <div class="nom">Pupitre des Énigmes</div>
+    <div class="petit-titre">N° de série</div>
+    <div class="serie">2580</div>
+    <div class="petit-titre">Modèle 2026 · 5 V · 3 A</div>
+  </div>
+</div>
+
+<h2>Comment jouer</h2>
+<div class="regle"><div class="ico">📍</div><p>Les 13 <strong>cartes Banc d'essai</strong> sont posées devant vous. Glissez-en une dans la <strong>fente</strong>, et <strong>laissez-la en place</strong> pendant l'essai. Suivez la consigne, lue à voix haute et écrite à l'écran.</p></div>
+<div class="regle"><div class="ico">🤝</div><p>À deux : l'un lit la consigne, l'autre fait le geste. Puis vous échangez.</p></div>
+<div class="regle"><div class="ico">🚦</div><p>Chaque organe validé passe son <strong>voyant au vert</strong>. Commencez par le <strong>Poste de contrôle</strong>, puis faites les bancs dans l'ordre qui vous plaît.</p></div>
+<div class="regle"><div class="ico">🔄</div><p>Un essai raté ne coûte rien : <strong>retirez la carte du banc, reposez-la</strong>, et recommencez.</p></div>
+<div class="regle"><div class="ico">📋</div><p>Un appui sur la <strong>molette</strong> (hors essai) affiche la liste des organes déjà validés et de ceux qui restent.</p></div>
+<div class="regle"><div class="ico">📓</div><p>Bloqués ? Glissez la carte <strong>Le carnet du professeur</strong>. Les 3 premiers conseils sont gratuits, les suivants coûtent 2 minutes.</p></div>
+<div class="regle"><div class="ico">⚡</div><p>Un <strong>imprévu</strong> peut arriver : écoutez la consigne, et ne touchez plus à rien s'il le faut.</p></div>
+
+<h2>Les bancs d'essai</h2>
+<table class="bancs">
+  <tr><th>Carte</th><th>Ce qui est essayé</th><th>Ce qu'il faut faire</th></tr>
+  <tr><td>Poste de contrôle</td><td>Écran, haut-parleur, clavier, horloge</td><td>Taper le n° de série au clavier ; l'horloge l'affiche</td></tr>
+  <tr><td>Banc des boutons</td><td>Les 4 boutons de couleur</td><td>Rejouer une suite de couleurs, puis tenir les 4 boutons ensemble</td></tr>
+  <tr><td>Banc de la molette</td><td>La molette et son bouton</td><td>Ramener un compteur à zéro, puis régler un chiffre et appuyer</td></tr>
+  <tr><td>Banc du gros bouton</td><td>Le gros bouton rouge</td><td>Taper un rythme de trois coups</td></tr>
+  <tr><td>Tableau des voyants</td><td>Les 10 voyants</td><td>Les allumer un à un, touches 1 à 9 et 0</td></tr>
+  <tr><td>La forge</td><td>Le capteur de souffle</td><td>Souffler 2 s sur la grille FORGE, bouche grande ouverte</td></tr>
+  <tr><td>L'enclume</td><td>Le capteur d'aimant</td><td>Poser un aimant 2 s sur la marque ENCLUME</td></tr>
+  <tr><td>L'œil</td><td>Le capteur de gestes et de lumière</td><td>Passer la main dans les 4 directions, puis une lampe de téléphone</td></tr>
+  <tr><td>Le nuancier</td><td>Le capteur de couleur</td><td>Poser les pastilles : rouge, bleu, vert, jaune</td></tr>
+  <tr><td>La serrure</td><td>L'interrupteur à clé</td><td>Tourner la clé</td></tr>
+  <tr><td>Banc des lecteurs</td><td>La fente et le lecteur à plat</td><td>Un outil dans la fente, l'autre sur le lecteur à plat, en même temps</td></tr>
+  <tr><td>Le casque</td><td>Le casque</td><td>Quand tout est vert : écouter le code du coffre</td></tr>
+  <tr><td>Le coffre</td><td>Le tiroir secret</td><td>Taper le code ; poser le certificat sur le lecteur à plat</td></tr>
+</table>
+
+<!-- PAGE 2 : pour le maître du jeu -->
+<div class="saut"></div>
+<div class="bandeau"><span>Le Pupitre des Énigmes · L'Atelier du professeur Lumen</span><span>Fiche de mission n° 5 · maître du jeu</span></div>
+<h2 style="margin-top:0">La mise en place (5 minutes)</h2>
+<div class="regle"><div class="ico">🗄️</div><p><strong>Le certificat dans le tiroir</strong> : glissez la carte M5 dans la fente, choisissez <strong>3 · Tiroir secret</strong> au menu, rangez-y la carte <strong>Certificat de conformité</strong>, poussez le tiroir au fond et validez au bouton vert. Sans tiroir : mettez le certificat dans une enveloppe marquée E1 (étiquette ci-dessous).</p></div>
+<div class="regle"><div class="ico">🧲</div><p>À portée de main : <strong>un aimant</strong> (le fer à cheval aimanté, ou un aimant de réfrigérateur), <strong>un téléphone</strong> avec sa lampe, et <strong>le casque</strong> branché.</p></div>
+<div class="regle"><div class="ico">🎨</div><p><strong>Les pastilles</strong> ci-dessous, imprimées <strong>en couleur</strong> et découpées. Si le nuancier en refuse une, l'écran dit ce que le capteur voit : ajustez la balance du capteur (<code>broches.h</code>) ou réimprimez plus foncé.</p></div>
+<div class="regle"><div class="ico">📶</div><p>Pendant la partie, gardez le <strong>panneau Wi-Fi</strong> ouvert : le <strong>Journal</strong> note chaque essai réussi ou raté, et l'onglet <strong>Atelier</strong> montre les capteurs en direct. Un organe qui ne répond pas du tout ? Bouton <strong>Débloquer</strong>, et notez-le ci-dessous.</p></div>
+<div class="regle"><div class="ico">🎬</div><p>Pour jouer : la carte M5 dans la fente, <strong>1 · Jouer</strong>. Les joueurs n'ont besoin que de la page 1, des cartes et des pastilles.</p></div>
+
+<h2>Les pastilles du nuancier</h2>
+<div class="pastilles">
+  <div class="pastille" style="background:#d62020"><span>rouge</span></div>
+  <div class="pastille" style="background:#1f4fd8"><span>bleu</span></div>
+  <div class="pastille" style="background:#1f9a3a"><span>vert</span></div>
+  <div class="pastille" style="background:#f2c400"><span style="color:#5a4600">jaune</span></div>
+</div>
+
+<h2>La fiche de recette</h2>
+<p class="petit" style="margin-top:0">À remplir pendant la partie : ce qui a marché du premier coup, ce qui a demandé plusieurs essais, ce qui n'a pas répondu.</p>
+<table class="recette">
+  <tr><th>Organe</th><th>Du 1<sup>er</sup> coup</th><th>Après essais</th><th>Ne répond pas</th><th>Remarque</th></tr>
+  <tr><td>Écran, haut-parleur</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Clavier, horloge</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>4 boutons de couleur</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Molette</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Gros bouton</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>10 voyants</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Forge (souffle)</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Enclume (aimant)</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Œil (gestes, lampe)</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Nuancier (couleur)</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Interrupteur à clé</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Fente et lecteur à plat</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Anneau et lumière sous la boîte (surtension)</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Casque</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+  <tr><td>Tiroir secret et sa LED</td><td><span class="case"></span></td><td><span class="case"></span></td><td><span class="case"></span></td><td></td></tr>
+</table>
+
+<div class="etiquette"><b>E1</b>Le coffre du professeur · à n'ouvrir que si le pupitre le demande<br><span class="petit">(seulement pour un pupitre sans tiroir secret)</span></div>
+
+</body>
+</html>

@@ -1,0 +1,472 @@
+{
+  "monde": "L'Atelier du professeur Lumen",
+  "mission": "Banc d'essai",
+  "dossier": 50,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction",
+    "020-069": "Les bancs d'essai",
+    "070-079": "Imprévus",
+    "080-089": "Fins",
+    "090-099": "Le carnet du professeur (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "lumen",
+      "usage": "Écran titre",
+      "texte": "L'Atelier du professeur Lumen. Mission cinq : banc d'essai."
+    },
+    {
+      "n": 9,
+      "voix": "lumen",
+      "usage": "Pitch",
+      "texte": "Bonjour à vous deux ! Je suis le professeur Lumen, et ce pupitre, c'est moi qui l'ai construit. Avant de le livrer, il faut essayer chacun de ses organes. Vous avez treize cartes de banc d'essai. Glissez une carte dans la fente, suivez la consigne, et laissez la carte en place pendant l'essai. Chaque organe qui répond allume un voyant vert. Quand tout sera vert, le casque vous donnera le code du coffre. Vous avez trente minutes."
+    },
+    {
+      "n": 10,
+      "voix": "lumen",
+      "usage": "Départ du chrono",
+      "texte": "Top, c'est parti ! Commencez par le Poste de contrôle. Et si vous êtes perdus, un appui sur la molette affiche ce qu'il reste à essayer."
+    },
+    {
+      "n": 11,
+      "voix": "lumen",
+      "usage": "Carte sans effet",
+      "texte": "Rien à essayer avec cette carte pour le moment."
+    },
+    {
+      "n": 12,
+      "voix": "lumen",
+      "usage": "Banc déjà validé",
+      "texte": "Ce banc est déjà validé. Passez au suivant !"
+    },
+    {
+      "n": 13,
+      "voix": "lumen",
+      "usage": "Monde chargé",
+      "texte": "L'Atelier du professeur Lumen. Pas de façade spéciale pour cette mission : appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "lumen",
+      "usage": "Deux joueurs",
+      "texte": "Partagez-vous le travail : l'un lit la consigne à l'écran, l'autre fait le geste. Puis échangez."
+    },
+    {
+      "n": 15,
+      "voix": "lumen",
+      "usage": "Un essai raté",
+      "texte": "Raté. Ce n'est pas grave : retirez la carte du banc, reposez-la, et recommencez."
+    },
+    {
+      "n": 20,
+      "voix": "lumen",
+      "usage": "Poste de contrôle : consigne",
+      "texte": "Poste de contrôle. Si vous m'entendez, le haut-parleur marche. Si vous lisez ces mots, l'écran aussi ! Tapez maintenant au clavier le numéro de série du pupitre, écrit sur votre fiche. Regardez l'horloge à quatre chiffres : elle affiche ce que vous tapez."
+    },
+    {
+      "n": 21,
+      "voix": "lumen",
+      "usage": "Poste de contrôle : réussi",
+      "texte": "Numéro accepté. L'écran, le haut-parleur, le clavier et l'horloge : validés !"
+    },
+    {
+      "n": 22,
+      "voix": "lumen",
+      "usage": "Poste de contrôle : faux",
+      "texte": "Ce n'est pas le numéro de série. Relisez la fiche, et reposez la carte du Poste de contrôle."
+    },
+    {
+      "n": 23,
+      "voix": "lumen",
+      "usage": "Boutons : séquence",
+      "texte": "Banc des boutons. Le pupitre va allumer les quatre boutons de couleur, l'un après l'autre. Regardez bien, puis rejouez la même suite, dans le même ordre."
+    },
+    {
+      "n": 24,
+      "voix": "lumen",
+      "usage": "Boutons : ensemble",
+      "texte": "Bravo. Maintenant, à deux : enfoncez les quatre boutons en même temps, et tenez-les trois secondes. Chacun deux boutons, une main sur chaque."
+    },
+    {
+      "n": 25,
+      "voix": "lumen",
+      "usage": "Boutons : réussi",
+      "texte": "Les quatre boutons répondent. Validés !"
+    },
+    {
+      "n": 26,
+      "voix": "lumen",
+      "usage": "Molette : à zéro",
+      "texte": "Banc de la molette. Le compteur est à vingt. Tournez la molette pour le ramener à zéro : dans un sens il descend, dans l'autre il monte."
+    },
+    {
+      "n": 27,
+      "voix": "lumen",
+      "usage": "Molette : le sept",
+      "texte": "Parfait. Maintenant, sans toucher au clavier : réglez le chiffre sept avec la molette, puis appuyez sur la molette pour valider."
+    },
+    {
+      "n": 28,
+      "voix": "lumen",
+      "usage": "Molette : réussi",
+      "texte": "La molette tourne et son bouton répond. Validée !"
+    },
+    {
+      "n": 29,
+      "voix": "lumen",
+      "usage": "Gros bouton : rythme",
+      "texte": "Banc du gros bouton. Écoutez le rythme : trois coups réguliers. Puis tapez-le sur le gros bouton rouge, trois fois de suite."
+    },
+    {
+      "n": 30,
+      "voix": "lumen",
+      "usage": "Gros bouton : réussi",
+      "texte": "En plein dans le rythme. Le gros bouton : validé !"
+    },
+    {
+      "n": 31,
+      "voix": "lumen",
+      "usage": "Voyants : consigne",
+      "texte": "Tableau des voyants. Les dix voyants sont éteints. Allumez-les tous, un par un, avec les touches un à neuf et zéro du clavier. Vérifiez que chaque voyant s'allume, à sa place."
+    },
+    {
+      "n": 32,
+      "voix": "lumen",
+      "usage": "Voyants : réussi",
+      "texte": "Dix sur dix. Le panneau des voyants : validé !"
+    },
+    {
+      "n": 33,
+      "voix": "lumen",
+      "usage": "Forge : consigne",
+      "texte": "La forge. Trouvez la grille marquée FORGE sur la façade. Approchez la bouche à deux ou trois centimètres, et soufflez doucement, bouche grande ouverte, comme pour faire de la buée sur une vitre, pendant deux secondes."
+    },
+    {
+      "n": 34,
+      "voix": "lumen",
+      "usage": "Forge : réussi",
+      "texte": "Je sens votre souffle tout chaud. La forge : validée !"
+    },
+    {
+      "n": 35,
+      "voix": "lumen",
+      "usage": "Forge : rien senti",
+      "texte": "Je n'ai rien senti. Soufflez plus près, bouche grande ouverte. Retirez la carte de la forge, puis reposez-la pour réessayer."
+    },
+    {
+      "n": 36,
+      "voix": "lumen",
+      "usage": "Enclume : consigne",
+      "texte": "L'enclume. Posez un aimant à plat sur la marque ENCLUME de la façade : le fer à cheval aimanté, ou un simple aimant de réfrigérateur. Et laissez-le deux secondes."
+    },
+    {
+      "n": 37,
+      "voix": "lumen",
+      "usage": "Enclume : réussi",
+      "texte": "Champ magnétique détecté. L'enclume : validée ! Vous pouvez retirer l'aimant."
+    },
+    {
+      "n": 38,
+      "voix": "lumen",
+      "usage": "Enclume : rien",
+      "texte": "Pas d'aimant détecté. Posez-le bien au centre de la marque. Retirez la carte de l'enclume, puis reposez-la pour réessayer."
+    },
+    {
+      "n": 39,
+      "voix": "lumen",
+      "usage": "Œil : consigne",
+      "texte": "L'œil. C'est la petite fenêtre marquée ŒIL. Passez la main à plat, à cinq centimètres au-dessus, d'un bord à l'autre, en une demi-seconde, dans le sens de la flèche affichée à l'écran. Quatre gestes : un pour chaque direction."
+    },
+    {
+      "n": 40,
+      "voix": "lumen",
+      "usage": "Œil : bon geste",
+      "texte": "Vu !"
+    },
+    {
+      "n": 41,
+      "voix": "lumen",
+      "usage": "Œil : mauvais geste",
+      "texte": "Ce n'est pas ce sens-là. Regardez la flèche, et recommencez."
+    },
+    {
+      "n": 42,
+      "voix": "lumen",
+      "usage": "Œil : la lampe",
+      "texte": "Dernier essai de l'œil : allumez la lampe d'un téléphone, et braquez-la sur l'œil, à dix centimètres, pendant deux secondes."
+    },
+    {
+      "n": 43,
+      "voix": "lumen",
+      "usage": "Œil : réussi",
+      "texte": "Quelle lumière ! L'œil : validé."
+    },
+    {
+      "n": 44,
+      "voix": "lumen",
+      "usage": "Œil : pas de lumière",
+      "texte": "Je ne vois pas assez de lumière. Approchez la lampe. Retirez la carte de l'œil, puis reposez-la pour recommencer."
+    },
+    {
+      "n": 45,
+      "voix": "lumen",
+      "usage": "Nuancier : consigne",
+      "texte": "Le nuancier. Prenez les quatre pastilles de couleur découpées dans votre fiche. Posez-les une à une, bien à plat, sur le capteur marqué NUANCIER. D'abord la pastille rouge."
+    },
+    {
+      "n": 46,
+      "voix": "lumen",
+      "usage": "Nuancier : rouge",
+      "texte": "Rouge, reconnu. Retirez-la, et posez la pastille bleue."
+    },
+    {
+      "n": 47,
+      "voix": "lumen",
+      "usage": "Nuancier : bleu",
+      "texte": "Bleu, reconnu. Maintenant, la verte."
+    },
+    {
+      "n": 48,
+      "voix": "lumen",
+      "usage": "Nuancier : vert",
+      "texte": "Vert, reconnu. Et enfin, la jaune."
+    },
+    {
+      "n": 49,
+      "voix": "lumen",
+      "usage": "Nuancier : réussi",
+      "texte": "Jaune, reconnu ! Le capteur de couleur : validé."
+    },
+    {
+      "n": 50,
+      "voix": "lumen",
+      "usage": "Nuancier : mauvaise couleur",
+      "texte": "Ce n'est pas la couleur attendue. L'écran vous dit ce que le capteur voit. Retirez la pastille, et reposez-la bien à plat, au centre."
+    },
+    {
+      "n": 51,
+      "voix": "lumen",
+      "usage": "Serrure : consigne",
+      "texte": "La serrure. Tournez l'interrupteur à clé, d'un quart de tour."
+    },
+    {
+      "n": 52,
+      "voix": "lumen",
+      "usage": "Serrure : réussi",
+      "texte": "Clic ! La clé : validée. Ramenez-la au repos."
+    },
+    {
+      "n": 53,
+      "voix": "lumen",
+      "usage": "Serrure : rien",
+      "texte": "La clé n'a pas tourné. Vérifiez qu'elle est bien enfoncée. Retirez la carte de la serrure, puis reposez-la."
+    },
+    {
+      "n": 54,
+      "voix": "lumen",
+      "usage": "Lecteurs : consigne",
+      "texte": "Banc des lecteurs. Reprenez cette carte. Puis, en même temps, l'un de vous glisse la Clé à molette dans la fente, et l'autre pose la Burette d'huile sur le lecteur à plat."
+    },
+    {
+      "n": 55,
+      "voix": "lumen",
+      "usage": "Lecteurs : réussi",
+      "texte": "Les deux lecteurs voient les deux outils à la fois. Validés !"
+    },
+    {
+      "n": 56,
+      "voix": "lumen",
+      "usage": "Lecteurs : un seul outil",
+      "texte": "Un seul outil ? Il m'en faut deux à la fois : l'un dans la fente, l'autre sur le lecteur à plat."
+    },
+    {
+      "n": 57,
+      "voix": "lumen",
+      "usage": "Tous les voyants verts",
+      "texte": "Tous les voyants sont verts ! Il reste le casque et le coffre. Glissez la carte du Casque."
+    },
+    {
+      "n": 58,
+      "voix": "lumen",
+      "usage": "Casque : pas encore",
+      "texte": "Le casque attendra : des organes n'ont pas encore été essayés. Appuyez sur la molette : la liste vous dit lesquels."
+    },
+    {
+      "n": 59,
+      "voix": "lumen",
+      "usage": "Casque : annonce",
+      "texte": "Dernier organe : le casque. Un seul de vous deux l'écoute. L'autre prépare de quoi noter."
+    },
+    {
+      "n": 60,
+      "voix": "lumen",
+      "usage": "Casque : le code",
+      "texte": "Ici le professeur Lumen, rien que pour vous. Le code du coffre est : trois, huit, six, un. Je répète : trois, huit, six, un.",
+      "sortie": "casque"
+    },
+    {
+      "n": 61,
+      "voix": "lumen",
+      "usage": "Casque : raté",
+      "texte": "Personne n'a mis le casque ? Je redirai le code quand vous reposerez la carte du Casque."
+    },
+    {
+      "n": 62,
+      "voix": "lumen",
+      "usage": "Coffre : pas encore",
+      "texte": "Le coffre est fermé par un code que seul le casque connaît. Glissez d'abord la carte du Casque."
+    },
+    {
+      "n": 63,
+      "voix": "lumen",
+      "usage": "Coffre : consigne",
+      "texte": "Le coffre. Tapez au clavier le code entendu dans le casque."
+    },
+    {
+      "n": 64,
+      "voix": "lumen",
+      "usage": "Coffre : tiroir",
+      "texte": "Le coffre s'ouvre ! Regardez sur le côté gauche du pupitre, sous le clavier : le tiroir secret est sorti. Prenez ce qu'il contient, et posez-le sur le lecteur à plat."
+    },
+    {
+      "n": 65,
+      "voix": "lumen",
+      "usage": "Coffre : sans tiroir",
+      "texte": "Le coffre s'ouvre ! Ouvrez l'enveloppe E1, et posez ce qu'elle contient sur le lecteur à plat."
+    },
+    {
+      "n": 66,
+      "voix": "lumen",
+      "usage": "Coffre : faux",
+      "texte": "Ce n'est pas le code du coffre. Reposez la carte du Casque pour le réentendre, si besoin."
+    },
+    {
+      "n": 67,
+      "voix": "lumen",
+      "usage": "Certificat trop tôt",
+      "texte": "Le certificat ? Pas si vite ! Il ne se signe qu'une fois le coffre ouvert."
+    },
+    {
+      "n": 70,
+      "voix": "lumen",
+      "usage": "Surtension",
+      "texte": "Attention, surtension ! Ne touchez plus à rien pendant dix secondes. Regardez l'anneau de lumière, et la lumière sous la boîte : elles doivent clignoter."
+    },
+    {
+      "n": 71,
+      "voix": "lumen",
+      "usage": "Surtension : tenu",
+      "texte": "Tension stabilisée. L'anneau et la lumière sous la boîte fonctionnent."
+    },
+    {
+      "n": 72,
+      "voix": "lumen",
+      "usage": "Surtension : touché",
+      "texte": "Vous avez touché ! Ce n'est qu'un essai : on continue."
+    },
+    {
+      "n": 73,
+      "voix": "lumen",
+      "usage": "Cinq minutes",
+      "texte": "Plus que cinq minutes au chrono !"
+    },
+    {
+      "n": 80,
+      "voix": "lumen",
+      "usage": "Victoire",
+      "texte": "Le certificat de conformité ! Bravo à vous deux : tous les organes du pupitre ont passé l'essai. Je signe : ce pupitre est bon pour le service. Il ne reste qu'à repousser le tiroir au fond."
+    },
+    {
+      "n": 81,
+      "voix": "lumen",
+      "usage": "Rang : ingénieurs en chef",
+      "texte": "Ingénieurs en chef ! Tout essayé, avec plus de dix minutes d'avance, et sans un seul conseil payant."
+    },
+    {
+      "n": 82,
+      "voix": "lumen",
+      "usage": "Rang : techniciens confirmés",
+      "texte": "Techniciens confirmés. Le pupitre est prêt, et vous aussi."
+    },
+    {
+      "n": 83,
+      "voix": "lumen",
+      "usage": "Rang : apprentis",
+      "texte": "Apprentis de l'atelier. C'était juste, mais tout fonctionne !"
+    },
+    {
+      "n": 84,
+      "voix": "lumen",
+      "usage": "Défaite : temps écoulé",
+      "texte": "Temps écoulé ! Ce n'est pas grave : appuyez sur la molette, et notez les organes restés rouges. Ce sont eux qu'il faut vérifier."
+    },
+    {
+      "n": 85,
+      "voix": "lumen",
+      "usage": "La solution",
+      "texte": "Pour mémoire : numéro de série, deux, cinq, huit, zéro. Code du coffre, trois, huit, six, un."
+    },
+    {
+      "n": 90,
+      "voix": "lumen",
+      "usage": "Carnet : appel",
+      "texte": "Voyons ce que dit mon carnet…"
+    },
+    {
+      "n": 91,
+      "voix": "lumen",
+      "usage": "Conseil gratuit",
+      "texte": "Un conseil, offert par la maison."
+    },
+    {
+      "n": 92,
+      "voix": "lumen",
+      "usage": "Conseil payant",
+      "texte": "Un conseil… mais il vous coûte deux minutes."
+    },
+    {
+      "n": 93,
+      "voix": "lumen",
+      "usage": "Conseil : poste de contrôle, 1",
+      "texte": "Le numéro de série est écrit sur votre fiche, en haut, dans l'encadré du pupitre."
+    },
+    {
+      "n": 94,
+      "voix": "lumen",
+      "usage": "Conseil : poste de contrôle, 2",
+      "texte": "Numéro de série : deux, cinq, huit, zéro. Tapez-le au clavier, après avoir glissé la carte du Poste de contrôle."
+    },
+    {
+      "n": 95,
+      "voix": "lumen",
+      "usage": "Conseil : les essais, 1",
+      "texte": "Appuyez sur la molette : la liste montre les organes qui restent à essayer."
+    },
+    {
+      "n": 96,
+      "voix": "lumen",
+      "usage": "Conseil : les essais, 2",
+      "texte": "Chaque banc a sa carte. Glissez-la dans la fente, laissez-la en place, et suivez la consigne à l'écran."
+    },
+    {
+      "n": 97,
+      "voix": "lumen",
+      "usage": "Conseil : les essais, 3",
+      "texte": "Un organe ne répond pas du tout ? Le maître du jeu peut le valider depuis le panneau Wi-Fi, avec le bouton Débloquer. Notez-le : il faudra vérifier son câblage."
+    },
+    {
+      "n": 98,
+      "voix": "lumen",
+      "usage": "Conseil : le coffre",
+      "texte": "Le code du coffre : trois, huit, six, un. Ensuite, posez le certificat du tiroir sur le lecteur à plat."
+    },
+    {
+      "n": 99,
+      "voix": "lumen",
+      "usage": "Plus de conseil",
+      "texte": "Mon carnet est vide. Je vous fais confiance !"
+    }
+  ]
+}

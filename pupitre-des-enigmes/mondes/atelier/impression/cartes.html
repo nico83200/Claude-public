@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 5 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "L'Atelier du professeur Lumen",
+  mission: "Mission 5",
+  police: '"Playfair", serif',
+  accent: "#e8a33c",
+  motif: "⚙ ✦ ⚙",
+  types: {
+    monde: { c: "#3b2f22", fond: "#efe4d2", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#9a5b16", fond: "#f6e7cf", libelle: "Banc d'essai", zone: "📍 Fente" },
+    objet: { c: "#2f5d62", fond: "#dbecec", libelle: "Outil", zone: "✋ Fente ou plateau" },
+    aide:  { c: "#b23a2c", fond: "#f5dcd8", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M5", t: "monde", nom: "L'Atelier du professeur Lumen", sous: "Mission 5 · Banc d'essai", vis: "⚙️", txt: "Glissez cette carte dans la fente pour charger le monde. <em>La mission qui essaie tout le pupitre.</em>" },
+
+    { id: "L1", t: "lieu", nom: "Poste de contrôle", sous: "Écran · haut-parleur · clavier · horloge", vis: "🖥️", txt: "Tapez au clavier le numéro de série du pupitre. Commencez ici." },
+    { id: "L2", t: "lieu", nom: "Banc des boutons", sous: "Les 4 boutons de couleur", vis: "🔴", txt: "Rejouez la suite de couleurs, puis tenez les quatre boutons ensemble." },
+    { id: "L3", t: "lieu", nom: "Banc de la molette", sous: "Molette et son bouton", vis: "🎛️", txt: "Ramenez le compteur à zéro, puis réglez un chiffre." },
+    { id: "L4", t: "lieu", nom: "Banc du gros bouton", sous: "Le gros bouton rouge", vis: "🔘", txt: "Écoutez le rythme, puis tapez-le." },
+    { id: "L5", t: "lieu", nom: "Tableau des voyants", sous: "Les 10 voyants", vis: "🚦", txt: "Allumez les dix voyants avec les touches 1 à 9 et 0." },
+    { id: "L6", t: "lieu", nom: "La forge", sous: "Le capteur de souffle", vis: "🔥", txt: "Soufflez sur la grille FORGE, bouche grande ouverte." },
+    { id: "L7", t: "lieu", nom: "L'enclume", sous: "Le capteur d'aimant", vis: "🧲", txt: "Posez un aimant à plat sur la marque ENCLUME." },
+    { id: "L8", t: "lieu", nom: "L'œil", sous: "Gestes et lumière", vis: "👁️", txt: "La main au-dessus de l'ŒIL, dans le sens de la flèche. Puis une lampe." },
+    { id: "L9", t: "lieu", nom: "Le nuancier", sous: "Le capteur de couleur", vis: "🎨", txt: "Les pastilles une à une sur le NUANCIER : rouge, bleu, vert, jaune." },
+    { id: "L10", t: "lieu", nom: "La serrure", sous: "L'interrupteur à clé", vis: "🔑", txt: "Tournez la clé d'un quart de tour." },
+    { id: "L11", t: "lieu", nom: "Banc des lecteurs", sous: "La fente et le lecteur à plat", vis: "📡", txt: "Deux outils à la fois : un dans la fente, un sur le lecteur à plat." },
+    { id: "L12", t: "lieu", nom: "Le casque", sous: "Quand tout est vert", vis: "🎧", txt: "Un seul joueur écoute, l'autre note." },
+    { id: "L13", t: "lieu", nom: "Le coffre", sous: "Après le casque", vis: "🧰", txt: "Le code entendu au casque ouvre le tiroir secret." },
+
+    { id: "O1", t: "objet", nom: "Clé à molette", sous: "Banc des lecteurs", vis: "🔧", txt: "À glisser dans la fente." },
+    { id: "O2", t: "objet", nom: "Burette d'huile", sous: "Banc des lecteurs", vis: "🛢️", txt: "À poser sur le lecteur à plat." },
+    { id: "O3", t: "objet", nom: "Certificat de conformité", sous: "Dans le tiroir secret", vis: "📜", txt: "Rangé dans le tiroir avant la partie (ou dans l'enveloppe E1). Posez-le sur le lecteur à plat." },
+
+    { id: "A5", t: "aide", nom: "Le carnet du professeur", sous: "Les conseils de Lumen", vis: "📓", txt: "Glissez cette carte quand vous bloquez. 3 conseils gratuits, puis 2 minutes chacun." },
+  ],
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+# Mission 5 · Banc d'essai — la mission de test du pupitre, pour 2 joueurs, sur le pupitre à
+# deux lecteurs : chaque organe essayé, des ratés, l'imprévu de la surtension, le casque, le coffre,
+# le tiroir secret et le certificat.
+fente M5
+fente -
+verifie phase menu
+touches 1
+calme
+verifie phase jeu
+verifie voyant 1 rouge
+verifie voyant socle ambre
+
+# --- Le poste de contrôle : un faux numéro, puis 2580 (l'horloge suit la saisie)
+fente L1
+verifie epreuve code
+touches 1234
+verifie sans T_ecran
+fente -
+fente L1
+touches 25
+verifie afficheur 25--
+touches 80
+verifie drapeau T_ecran
+attendre 1
+verifie voyant 1 vert
+verifie compteur tests 1
+# Déjà validé : plus d'épreuve
+fente -
+fente L1
+verifie epreuve
+
+# --- Les boutons : la suite, puis les quatre ensemble
+fente L2
+verifie epreuve sequence
+sequence
+verifie epreuve ensemble
+ensemble 3500
+verifie drapeau T_boutons
+
+# --- La molette : à zéro, puis le chiffre 7
+fente L3
+verifie epreuve molette_zero
+molette_zero
+verifie epreuve code
+code 7
+verifie drapeau T_molette
+
+# --- Le gros bouton : le rythme
+fente L4
+verifie epreuve rythme
+rythme 0,500,1000 3
+verifie drapeau T_gros
+
+# --- Les voyants : les dix touches
+fente L5
+verifie epreuve voyants
+touches 1234567890
+verifie drapeau T_voyants
+
+# --- La forge : rien, puis un souffle
+fente L6
+verifie epreuve capteur
+attendre 50
+verifie sans T_forge
+fente -
+fente L6
+souffle 3
+verifie drapeau T_forge
+
+# --- La surtension (minute 8) : on attend l'imprévu, sans toucher
+restant 21
+verifie epreuve immobile
+attendre 12
+verifie epreuve
+
+# --- L'enclume
+fente L7
+verifie epreuve capteur
+aimant pose
+attendre 2
+calme
+verifie drapeau T_enclume
+aimant -
+
+# --- L'œil : un mauvais geste, puis haut, bas, gauche, droite, et la lampe
+fente L8
+verifie epreuve choix
+geste bas
+verifie epreuve choix
+geste haut
+geste bas
+geste gauche
+geste droite
+verifie epreuve capteur
+eclaire 3
+verifie drapeau T_oeil
+
+# --- Le nuancier : une mauvaise pastille, puis rouge, bleu, vert, jaune
+fente L9
+fente -
+couleur orange
+verifie ecran NUANCIER
+couleur -
+couleur rouge
+couleur -
+couleur bleu
+couleur -
+couleur vert
+couleur -
+couleur jaune
+couleur -
+verifie drapeau T_couleur
+
+# --- La serrure
+fente L10
+verifie epreuve cle
+cle tournee
+verifie drapeau T_cle
+cle repos
+
+# --- Le casque trop tôt : il manque les lecteurs
+fente L12
+verifie sans J_code
+fente -
+
+# --- Les deux lecteurs : un outil seul, puis les deux à la fois
+fente L11
+fente -
+plateau O2
+verifie sans T_lecteurs
+fente O1
+verifie drapeau T_lecteurs
+fente -
+plateau -
+verifie compteur tests 11
+verifie drapeau tous
+attendre 1
+verifie voyant 10 vert
+verifie voyant socle vert
+
+# --- Le certificat trop tôt, le coffre avant le casque
+plateau O3
+plateau -
+fente L13
+verifie epreuve
+fente -
+# --- Le casque, puis le coffre : le tiroir secret sort
+fente L12
+verifie drapeau J_code
+fente -
+fente L13
+verifie epreuve code
+touches 3861
+verifie drapeau J_coffre
+verifie tiroir ouvert
+fente -
+plateau O3
+verifie phase victoire
+verifie journal Épreuve réussie : LE COFFRE
