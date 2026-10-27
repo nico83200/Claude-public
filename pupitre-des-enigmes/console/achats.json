@@ -58,12 +58,6 @@
           "prix": 2
         },
         {
-          "article": "Interrupteur à clé en métal",
-          "detail": "Perçage Ø 12 mm, 2 positions, livré avec 2 clés. Recherche : « 12mm metal key switch »",
-          "qte": 1,
-          "prix": 4
-        },
-        {
           "article": "Module d'extension I2C PCF8574",
           "detail": "Un pour le clavier, un pour les 4 boutons de couleur et le fin de course du tiroir, un de secours. Recherche : « PCF8574 IO expansion board »",
           "qte": 3,

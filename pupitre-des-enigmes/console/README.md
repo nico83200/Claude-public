@@ -99,7 +99,6 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Boutons | Arcade 30 mm (rouge, bleu, jaune, vert) et champignon 60 mm | 4 + 1 | 11 € |
 | Molette | Encodeur KY-040 (et un de secours) | 2 | 3 € |
 | Clavier | Clavier membrane 4×4 (nappe de 8 fils, adhésif au dos) | 1 | 2 € |
-| Clé | Interrupteur à clé en métal, Ø 12 mm, 2 positions | 1 | 4 € |
 | Modules I2C | PCF8574 : le clavier ; les 4 boutons et le fin de course du tiroir ; un de secours | 3 | 5 € |
 | Capteurs I2C | TCS34725 (couleur), APDS-9960 (œil), BME280 (forge, **pas un BMP280**) | 1 de chaque | 13 € |
 | Horloge | Afficheur 4 chiffres 0,56" à HT16K33 | 1 | (déjà là) |
@@ -108,7 +107,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
 | Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
 | Fixations | 21 aimants néodyme 10 × 3 mm, entretoises et vis M3, patins | — | 16 € |
-| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 200 €** |
+| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 195 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 
