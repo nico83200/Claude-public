@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dernier souffle · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs du Narval : acier des grands fonds, ambre des voyants, rouge d'alerte */
+  :root { --fond: #10202a; --fond-transparent: rgba(16, 32, 42, .82); --accent: #d38f2a; --accent-clair: #f2cf8f;
+          --papier: #f2f4f2; --encre: #1b262b; --doux: #5d6e75; --filet: #cdd6d8; --rouge: #c0392b; }
+  .couverture .image svg { width: 100%; height: 100%; display: block; }
+  .couverture .image { top: 30mm; }
+
+  /* Le message de bord : un télégramme de la Marine */
+  .lettre { background: #fbfaf5; color: #1b262b; font-family: "Share Tech Mono", monospace; font-size: 9.2pt; line-height: 5.4mm;
+            transform: rotate(-.4deg); border-top: 3mm solid var(--fond); padding: 6mm 7mm 6mm; background-image: none; }
+  .lettre::before { content: "MARINE DE LA RÉPUBLIQUE DE VALDARIE"; background: none; box-shadow: none; transform: none; width: auto; height: auto;
+                    left: 0; right: 0; margin: 0; top: -2.6mm; font-size: 6.4pt; letter-spacing: .3em; color: var(--accent-clair); text-align: center; }
+  .lettre p { margin: 0 0 2.2mm; }
+  .lettre .date { text-align: left; color: var(--doux); }
+  .lettre .champ { color: var(--doux); }
+  .lettre .signature { text-align: left; font-size: 9.2pt; letter-spacing: .2em; }
+  .tampon { position: absolute; right: 8mm; bottom: 7mm; border: .6mm solid var(--rouge); color: var(--rouge); font-family: "Share Tech Mono";
+            font-size: 8pt; letter-spacing: .2em; padding: 1mm 2.4mm; transform: rotate(-9deg); opacity: .8; border-radius: 1mm; }
+
+  .horloge .heures { font-family: "Share Tech Mono", monospace; }
+  .profil { background: var(--fond); border-radius: 1.5mm; padding: 2mm; }
+  .profil svg { display: block; width: 100%; height: auto; }
+
+  /* Les mains */
+  .mains { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; margin: 2.5mm 0 3mm; }
+  .mains div { border: .25mm solid var(--accent); border-radius: 1.4mm; padding: 2.2mm 2mm; background: #fff; text-align: center; }
+  .mains b { display: block; font-family: "Share Tech Mono", monospace; font-size: 8.4pt; letter-spacing: .12em; color: var(--fond); }
+  .mains span { font-size: 7.6pt; color: var(--doux); line-height: 1.25; display: block; margin-top: .8mm; }
+
+  /* Le tableau de bord */
+  .bord { background: var(--fond); border-radius: 2mm; padding: 3.5mm 3mm 3mm; color: #d9e4e6; }
+  .bord .rangee { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1mm; text-align: center; margin-bottom: 2.5mm; }
+  .bord .rangee:last-child { margin-bottom: 0; }
+  .bord .v { width: 6mm; height: 6mm; border-radius: 50%; margin: 0 auto 1mm; border: .3mm solid #fff; }
+  .bord .r { background: radial-gradient(circle at 35% 35%, #f0a39a, #b3302a); }
+  .bord .o { background: radial-gradient(circle at 35% 35%, #ffd79a, #d38f2a); box-shadow: 0 0 2mm #f2b14a; }
+  .bord .g { background: radial-gradient(circle at 35% 35%, #9df0a6, #2f9e44); box-shadow: 0 0 2mm #5be070; }
+  .bord span { font-family: "Share Tech Mono", monospace; font-size: 6.4pt; display: block; line-height: 1.15; }
+  .legende-bord { display: flex; justify-content: center; gap: 5mm; font-size: 7.6pt; margin-top: 2mm; }
+  .legende-bord i { display: inline-block; width: 3mm; height: 3mm; border-radius: 50%; vertical-align: -.4mm; margin-right: 1mm; }
+
+  .poste .icone svg { color: var(--accent-clair); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="ancre" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5V21M7 10h10M4 14a8 8 0 0 0 16 0M4 14l-1.5 1.5M20 14l1.5 1.5"/></g></symbol>
+    <symbol id="i-dynamo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M13 6.5 9 13h3.5l-1 4.5 4-6.5H12z"/></g></symbol>
+    <symbol id="i-lecteur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 11h8M8 14h8M8 17h5"/></g></symbol>
+    <symbol id="i-fouille" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 21 21"/></g></symbol>
+    <symbol id="i-ecoute" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1"/><rect x="17" y="14" width="4" height="6" rx="1"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image">
+    <svg viewBox="0 0 148 150" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="eau" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f4a5c"/><stop offset=".55" stop-color="#10283a"/><stop offset="1" stop-color="#070f16"/></linearGradient>
+        <linearGradient id="rayon" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6f0" stop-opacity=".22"/><stop offset="1" stop-color="#bfe6f0" stop-opacity="0"/></linearGradient>
+        <linearGradient id="coque" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6e78"/><stop offset=".45" stop-color="#2e3d45"/><stop offset="1" stop-color="#141c21"/></linearGradient>
+        <radialGradient id="lampe" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd79a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd79a" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="148" height="150" fill="url(#eau)"/>
+      <path d="M30 0 L48 0 L70 150 L40 150Z M70 0 L80 0 L104 150 L86 150Z M104 0 L110 0 L130 150 L120 150Z" fill="url(#rayon)"/>
+      <!-- le fond -->
+      <path d="M0 128 C30 120 50 126 75 118 S120 104 148 108 V150 H0Z" fill="#0b1419"/>
+      <path d="M0 136 C40 130 70 138 100 128 S135 122 148 124 V150 H0Z" fill="#060c10"/>
+      <!-- le Narval, posé sur la pente -->
+      <g transform="rotate(-7 74 100)">
+        <path d="M18 102 C18 92 30 88 46 88 H108 C124 88 134 94 138 100 C134 106 124 110 108 110 H46 C30 110 18 108 18 102Z" fill="url(#coque)" stroke="#6f8894" stroke-width=".4"/>
+        <path d="M60 88 L64 74 H86 L90 88Z" fill="url(#coque)" stroke="#6f8894" stroke-width=".4"/>
+        <path d="M72 74 V64 M78 74 V68" stroke="#6f8894" stroke-width=".9"/>
+        <path d="M14 96 L20 100 L14 106Z" fill="#2e3d45"/><path d="M12 92 L18 101 L12 110 L9 101Z" fill="#232f36"/>
+        <text x="75" y="83.5" text-anchor="middle" font-family="Share Tech Mono" font-size="4.2" fill="#d9e4e6" letter-spacing=".6">S-417</text>
+        <g fill="#ffd79a"><circle cx="44" cy="98" r=".9"/><circle cx="56" cy="98" r=".9"/><circle cx="96" cy="98" r=".9"/><circle cx="108" cy="98" r=".9" opacity=".4"/></g>
+        <path d="M18 104 H136" stroke="#0a1014" stroke-width=".4" opacity=".6"/>
+      </g>
+      <circle cx="44" cy="102" r="10" fill="url(#lampe)" opacity=".5"/>
+      <!-- les bulles -->
+      <g fill="none" stroke="#bfe6f0" stroke-width=".35" opacity=".7">
+        <circle cx="82" cy="58" r="1.4"/><circle cx="85" cy="49" r="1"/><circle cx="81" cy="40" r="1.7"/><circle cx="86" cy="30" r=".9"/><circle cx="83" cy="20" r="1.3"/>
+        <circle cx="40" cy="76" r=".9"/><circle cx="38" cy="66" r="1.2"/><circle cx="118" cy="70" r="1"/>
+      </g>
+      <text x="138" y="146" text-anchor="end" font-family="Share Tech Mono" font-size="3.6" fill="#7f97a0" letter-spacing=".5">FOND · 142 M</text>
+    </svg>
+  </div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Sous-marin Narval</div>
+    <h1>Dernier<br>souffle</h1>
+    <p class="accroche">142 mètres de fond. Une heure d'air.<br>Et un sas qui refuse de s'ouvrir.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 6</b><span>matelots</span></div>
+      <div class="badge"><b>60 min</b><span>d'oxygène</span></div>
+      <div class="badge"><b class="etoiles">★★★</b><span>difficile</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant de plonger</div><h2>Bienvenue à bord</h2>
+    <p class="chapeau">Ce soir, pas d'enquête : un escape game. Fouiller, recouper, combiner… et une main toujours libre pour la dynamo.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · Le naufrage</td><td style="text-align:left">Le message de bord, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Les voix du bord</td><td style="text-align:left">Ceux qui vous parlent</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · L'équipage</td><td style="text-align:left">Tous matelots ; vos deux mains</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le Narval</td><td style="text-align:left">Les compartiments, le tableau de bord</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre du Narval</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le carnet de bord</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez le <b>plateau du Narval</b>. La <b>clé de commandement</b> reste au repos.</li>
+    <li>Posez les <b>dix cartes Compartiment</b>, face visible, à côté du pupitre : c'est le plan du bord. Et la carte <b>Interphone</b>.</li>
+    <li>Empilez les <b>enveloppes</b>, fermées. Les cartes Objet sont dedans.</li>
+    <li>Éteignez la lumière de la pièce, si vous l'osez.</li>
+    <li>Glissez la carte <b>Sous-marin Narval</b> dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>La dynamo ne s'arrête jamais.</strong> Sans elle, l'écran s'éteint et plus rien ne se voit à bord. Quelqu'un doit toujours la tenir.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · LE MESSAGE ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>I · Le naufrage</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Le naufrage</h2>
+    <p class="chapeau">Mer de Brennor, 4 h 12 du matin. Vous vous réveillez dans le noir.</p></div>
+  <div class="lettre">
+    <p class="date">MESSAGE DE BORD · PRIORITÉ ABSOLUE</p>
+    <p><span class="champ">BÂTIMENT :</span> sous-marin NARVAL · coque S-417<br><span class="champ">EXERCICE :</span> « BRUME D'ACIER »</p>
+    <p><span class="champ">POSITION :</span> mer de Brennor · fond à 142 m · 04 h 12</p>
+    <p><span class="champ">ÉTAT :</span> collision à 04 h 07 · épurateurs détruits · air non recyclé · batteries à genoux</p>
+    <p>Il vous reste une heure d'oxygène. Seule la dynamo de secours, actionnée à la main, garde un peu de lumière.</p>
+    <p>L'ORQUE, sous-marin de sauvetage de la marine alliée de Norrvik, fait route vers vous. Il s'accrochera sur votre sas de sauvetage… que le choc a bloqué.</p>
+    <p>La commandante est coincée au poste avant. Elle vous parle par l'interphone.</p>
+    <p class="signature">FIN DE MESSAGE.</p>
+    <div class="tampon">S-417 · URGENT</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>I · Le naufrage</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Débloquer la sortie avant de manquer d'air.</p></div>
+  <div class="trio">
+    <div><b>LE COURANT</b><span>rallumez ce qui peut l'être</span></div>
+    <div><b>LE SAS</b><span>levez ses blocages, libérez ses verrous</span></div>
+    <div><b>L'ORQUE</b><span>faites-vous reconnaître</span></div>
+  </div>
+  <div class="horloge"><div class="heures"><span style="font-family:'Source Sans';font-size:12pt;font-weight:700">O₂</span> 60:00</div>
+    <div>Le chrono de l'écran est votre <b>air</b>. Les erreurs vous essoufflent : elles en coûtent. Certaines trouvailles en rendent.</div></div>
+  <div class="encart"><div class="titre">Pas d'enquête ce soir</div>
+    <p>Pas de coupable, pas d'accusation, pas de rôle ni de document secret. Vous êtes tous <b>matelots</b>, à égalité. Ce qui vous sauvera : <b>fouiller</b>, <b>recouper</b> les documents, <b>vous parler</b>… et agir ensemble.</p></div>
+  <h3>La sortie</h3>
+  <ol class="etapes">
+    <li>Rallumez le <b>courant</b> : sans lui, ni console ni radio.</li>
+    <li>Levez les <b>blocages du sas</b>, un à un.</li>
+    <li>Établissez le <b>contact</b> avec l'Orque : il ne s'accroche qu'à un bâtiment qui répond.</li>
+    <li>Égalisez la pression, et ouvrez l'<b>écoutille</b>.</li>
+  </ol>
+  <div class="ornement" style="margin-top:4mm"><svg viewBox="0 0 90 24"><use href="#ancre" x="0" width="24" height="24"/><use href="#ancre" x="33" width="24" height="24"/><use href="#ancre" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LES VOIX DU BORD (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>II · Les voix du bord</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Les voix du bord</h2>
+    <p class="chapeau">Vous ne les verrez pas. Mais vous les entendrez, au haut-parleur ou au casque.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#2f4a5a">MS</div><div>
+    <h4>Commandante Mira Solvik</h4><div class="qualite">Commandante du Narval</div>
+    <p>Coincée au poste avant derrière une porte déformée, avec deux officiers. Elle ne peut vous parler que par l'interphone.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#5a4a3a">HL</div><div>
+    <h4>Henrik Lund</h4><div class="qualite">Le second</div>
+    <p>Assommé par le choc, il gît à l'infirmerie. Il sait beaucoup de choses sur ce bâtiment.</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#1f3d4f">⚓</div><div>
+    <h4>L'Orque</h4><div class="qualite">Sous-marin de sauvetage · marine de Norrvik</div>
+    <p>Il a capté votre balise et fait route vers vous. Son officier de quart ne s'accrochera qu'à un bâtiment qui répond.</p></div></div>
+  <h3>Cette nuit</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left;width:16mm"><b>4 h 07</b></td><td style="text-align:left">Le Narval heurte un haut-fond qui ne figurait sur aucune carte.</td></tr>
+    <tr><td style="text-align:left"><b>4 h 08</b></td><td style="text-align:left">Les lumières s'éteignent. Le sas se met en sécurité.</td></tr>
+    <tr><td style="text-align:left"><b>4 h 12</b></td><td style="text-align:left">Vous vous réveillez dans le noir, au poste d'équipage.</td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LES VOIX DU BORD (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>II · Les voix du bord</span></div>
+  <h3 style="margin-top:0;font-size:13pt">L'interphone</h3>
+  <p>Quand vous êtes bloqués, glissez la carte <b>Interphone</b> dans la fente : la commandante vous conseille. Les <b>trois premiers</b> conseils sont gratuits, les suivants coûtent <b>2 minutes d'air</b>.</p>
+  <h3>Le casque</h3>
+  <p>Quand le pupitre le demande, <b>un seul</b> d'entre vous met le casque. Ce qu'il entend, il le raconte aux autres. Certains sons ne passent qu'une fois : écoutez bien.</p>
+  <h3>Les bruits du bord</h3>
+  <p>Un sous-marin vit : il <b>glisse</b>, il <b>craque</b>, il <b>fuit</b>. Les imprévus arrivent sans prévenir. Écoutez la consigne, et agissez vite.</p>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Les matelots du Narval</div>
+    <p>Vos camarades ont laissé leurs affaires au poste d'équipage : casiers, photos, petits mots. <strong>Rien n'est là par hasard.</strong></p></div>
+  <div class="ornement" style="margin-top:6mm"><svg viewBox="0 0 90 24"><use href="#ancre" x="0" width="24" height="24"/><use href="#ancre" x="33" width="24" height="24"/><use href="#ancre" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · L'ÉQUIPAGE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>III · L'équipage</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>L'équipage</h2>
+    <p class="chapeau">Pas de rôle, pas de pouvoir : tous matelots. Mais un bon équipage se répartit les postes, et en change souvent.</p></div>
+  <div class="role poste"><div class="icone"><svg><use href="#i-dynamo"/></svg></div><div>
+    <h4>À la dynamo <span class="fois">toujours un</span></h4>
+    <p class="atout">La lumière du bord.</p>
+    <p>Il appuie régulièrement sur le gros bouton et surveille l'anneau. Relevez-le souvent : c'est fatigant.</p></div></div>
+  <div class="role poste"><div class="icone"><svg><use href="#i-fouille"/></svg></div><div>
+    <h4>À la fouille <span class="fois">un ou deux</span></h4>
+    <p class="atout">Les mains dans les enveloppes.</p>
+    <p>Ils ouvrent les enveloppes annoncées, trient les objets et les documents, et les montrent à tous.</p></div></div>
+  <div class="role poste"><div class="icone"><svg><use href="#i-lecteur"/></svg></div><div>
+    <h4>Aux documents <span class="fois">un ou deux</span></h4>
+    <p class="atout">La tête froide.</p>
+    <p>Ils recoupent ce qui est écrit, tiennent le <b>carnet de bord</b> et proposent les codes.</p></div></div>
+  <div class="role poste"><div class="icone"><svg><use href="#i-ecoute"/></svg></div><div>
+    <h4>À l'écoute <span class="fois">un à la fois</span></h4>
+    <p class="atout">L'oreille du bord.</p>
+    <p>Il met le casque quand on le demande, et raconte tout, mot pour mot.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · L'ÉQUIPAGE (2) : LES MAINS ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>III · L'équipage</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Vos deux mains</h3>
+  <p>Le plateau du Narval renomme les commandes du pupitre. Un compartiment, et deux mains pour les objets :</p>
+  <div class="mains">
+    <div><b>COMPARTIMENT</b><span>La fente : glissez-y un compartiment pour vous y rendre. Vous y restez.</span></div>
+    <div><b>MAIN GAUCHE</b><span>La fente, encore : un objet.</span></div>
+    <div><b>MAIN DROITE</b><span>Le lecteur à plat : un objet.</span></div>
+  </div>
+  <div class="element"><b>Un objet seul</b><span>Dans une main, il s'utilise <b>dans le compartiment où vous êtes</b>. Une clé dans la salle radio, ce n'est pas une clé dans le sas.</span></div>
+  <div class="element"><b>Deux objets</b><span>Un dans chaque main : ils se <b>combinent</b>, si c'est possible. Sinon, le dernier posé s'utilise seul.</span></div>
+  <div class="element"><b>Réessayer</b><span>Retirez la carte et glissez-la de nouveau : pour réessayer, ou après avoir changé de compartiment.</span></div>
+  <div class="element"><b>Quatre mains</b><span>Certains gestes demandent les quatre boutons de couleur enfoncés ensemble… pendant qu'un cinquième bras tient la dynamo.</span></div>
+  <div class="encart"><div class="titre">Dans le noir</div>
+    <p>Sous 40 % de lumière, l'écran s'assombrit ; à zéro, c'est le noir complet, et <b>une carte glissée dans le noir ne donne rien</b>. Actionnez la dynamo, puis glissez de nouveau la carte.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE NARVAL ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>IV · Le Narval</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le Narval</h2>
+    <p class="chapeau">Coque S-417, Marine de la République de Valdarie. Dix compartiments, un seul sas.</p></div>
+  <div class="profil">
+    <svg viewBox="0 0 240 70">
+      <path d="M14 40 C14 30 30 26 52 26 H186 C208 26 222 32 228 40 C222 48 208 52 186 52 H52 C30 52 14 50 14 40Z" fill="#2a3a43" stroke="#8aa2ad" stroke-width=".5"/>
+      <path d="M104 26 L108 12 H140 L144 26Z" fill="#2a3a43" stroke="#8aa2ad" stroke-width=".5"/>
+      <path d="M118 12 V4 M128 12 V7" stroke="#8aa2ad" stroke-width=".8"/>
+      <path d="M10 34 L16 40 L10 46Z M8 30 L14 40 L8 50 L5 40Z" fill="#1d2a31"/>
+      <g fill="#ffd79a" opacity=".8"><circle cx="60" cy="40" r="1"/><circle cx="80" cy="40" r="1"/><circle cx="100" cy="40" r="1"/><circle cx="150" cy="40" r="1"/><circle cx="170" cy="40" r="1"/><circle cx="190" cy="40" r="1"/></g>
+      <g font-family="Share Tech Mono" font-size="4.6" fill="#f2cf8f" text-anchor="middle" letter-spacing=".5">
+        <text x="40" y="42">ARRIÈRE</text><text x="124" y="21">KIOSQUE</text><text x="210" y="42">AVANT</text>
+      </g>
+      <text x="124" y="64" font-family="Share Tech Mono" font-size="4" fill="#7f97a0" text-anchor="middle" letter-spacing=".6">COQUE S-417 · 142 M</text>
+    </svg>
+  </div>
+  <p class="legende">Le profil du Narval. Les cartes Compartiment, face visible, forment le plan du bord.</p>
+  <div class="lieux">
+    <div><b>Poste d'équipage</b> · votre point de départ</div>
+    <div><b>Coursive</b> · l'axe du sous-marin</div>
+    <div><b>Infirmerie</b> · trois couchettes</div>
+    <div><b>Local des batteries</b> · huit bancs, A à H</div>
+    <div><b>Salle des machines</b> · tout à l'arrière</div>
+    <div><b>Poste de commande</b> · sous le kiosque</div>
+    <div><b>Salle radio</b> · téléphone, sonar</div>
+    <div><b>Carré des officiers</b> · la carte marine</div>
+    <div><b>Sas de sauvetage</b> · dans le kiosque</div>
+    <div><b>Poste avant</b> · la commandante</div>
+  </div>
+  <div class="encart"><div class="titre">Fiche du bâtiment</div>
+    <div class="signalement" style="margin:0;grid-template-columns:1fr"><dl>
+      <dt>Bâtiment</dt><dd>Sous-marin Narval, coque S-417</dd>
+      <dt>Pavillon</dt><dd>Marine de la République de Valdarie</dd>
+      <dt>Mission</dt><dd>Exercice « Brume d'acier », mer de Brennor</dd>
+      <dt>Position</dt><dd>Posé sur une pente, par 142 mètres de fond</dd>
+      <dt>Secours</dt><dd>L'Orque, marine alliée de Norrvik, en approche</dd>
+    </dl></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LE TABLEAU DE BORD ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>IV · Le Narval</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Le tableau de bord</h3>
+  <p>Les dix voyants du plateau montrent l'état du sous-marin. Un appui sur la <b>molette</b> affiche le détail : vos objectifs, le temps, la lumière.</p>
+  <div class="bord">
+    <div class="rangee">
+      <div><div class="v g"></div><span>porte</span></div>
+      <div><div class="v o"></div><span>courant</span></div>
+      <div><div class="v r"></div><span>hydrau-<br>lique</span></div>
+      <div><div class="v r"></div><span>sécurité</span></div>
+      <div><div class="v r"></div><span>radio</span></div>
+    </div>
+    <div class="rangee">
+      <div><div class="v r"></div><span>verrous</span></div>
+      <div><div class="v o"></div><span>O₂</span></div>
+      <div><div class="v o"></div><span>lumière</span></div>
+      <div><div class="v r"></div><span>Orque</span></div>
+      <div><div class="v r"></div><span>comman-<br>dante</span></div>
+    </div>
+  </div>
+  <div class="legende-bord"><span><i style="background:#b3302a"></i>bloqué</span><span><i style="background:#d38f2a"></i>en cours, clignote</span><span><i style="background:#2f9e44"></i>réglé</span></div>
+  <div class="encart" style="margin-top:4mm"><div class="titre">La clé de commandement</div>
+    <p>Elle reste dans le pupitre, <b>au repos</b>, depuis le début. Vous saurez quand la tourner.</p></div>
+  <div class="encart"><div class="titre">L'anneau, lumière du bord</div>
+    <p>Blanc chaud quand la dynamo tourne, il se vide quand elle faiblit, et vacille sous 30 %.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#ancre" x="0" width="24" height="24"/><use href="#ancre" x="33" width="24" height="24"/><use href="#ancre" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>V · Le pupitre du Narval</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre du Narval</h2>
+    <p class="chapeau">Il vous dira toujours quand vous servir de quoi. Voici ce que vous trouverez sur le plateau.</p></div>
+  <div class="element"><b>Compartiment</b><span>La fente : un compartiment pour vous y rendre, ou un objet (main gauche).</span></div>
+  <div class="element"><b>Main droite</b><span>Le lecteur à plat : un objet.</span></div>
+  <div class="element"><b>Dynamo</b><span>Le gros bouton : appuyez souvent !</span></div>
+  <div class="element"><b>Le clavier</b><span>Codes et mots de passe : <b>#</b> valide, <b>*</b> efface. Pour les lettres, 2 = ABC… comme sur un téléphone.</span></div>
+  <div class="element"><b>La molette</b><span>Régler un code ou une valeur ; un appui hors épreuve affiche le tableau de bord.</span></div>
+  <div class="element"><b>Les boutons</b><span>Quatre couleurs : les choix, les rythmes, et les gestes à quatre mains.</span></div>
+  <div class="element"><b>La clé</b><span>La clé de commandement, au repos jusqu'au bon moment.</span></div>
+  <div class="element"><b>Les voyants</b><span>Le tableau de bord : rouge, orange, vert.</span></div>
+  <div class="element"><b>Le casque</b><span>Un seul joueur à la fois, quand le pupitre le demande.</span></div>
+  <div class="ornement" style="margin-top:4mm"><svg viewBox="0 0 90 24"><use href="#ancre" x="0" width="24" height="24"/><use href="#ancre" x="33" width="24" height="24"/><use href="#ancre" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT LA PLONGÉE ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>V · Le pupitre du Narval</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant la plongée</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que quand le pupitre l'annonce</b>. Les cartes Objet sont dedans.</span></div>
+  <div class="element"><b>Les codes</b><span>Retirer le compartiment abandonne une saisie, sans pénalité.</span></div>
+  <div class="element"><b>L'air</b><span>Une erreur coûte de l'air ; certaines trouvailles en rendent.</span></div>
+  <div class="element"><b>Les imprévus</b><span>Le Narval glisse, craque, fuit… Écoutez bien la consigne.</span></div>
+  <div class="element"><b>L'interphone</b><span>Sa carte dans la fente quand vous bloquez : 3 conseils gratuits, puis 2 minutes d'air chacun.</span></div>
+  <div class="element"><b>La fin</b><span>L'écoutille s'ouvre, et l'air frais de l'Orque entre dans le sas.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Commencez par <strong>fouiller le poste d'équipage</strong>, et lisez tout à voix haute. Un document qui semble anodin donne souvent la clé d'un autre.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#ancre" x="0" width="24" height="24"/><use href="#ancre" x="33" width="24" height="24"/><use href="#ancre" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · CARNET (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Sous-marin Narval</span><span>VI · Le carnet de bord</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le carnet de bord</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie.</p></div>
+  <table>
+    <tr><th>Compartiment</th><th>Ce qu'on y a trouvé</th><th style="width:9mm">✓</th></tr>
+    <tr><td>Poste d'équipage</td><td></td><td></td></tr>
+    <tr><td>Coursive</td><td></td><td></td></tr>
+    <tr><td>Infirmerie</td><td></td><td></td></tr>
+    <tr><td>Local des batteries</td><td></td><td></td></tr>
+    <tr><td>Salle des machines</td><td></td><td></td></tr>
+    <tr><td>Poste de commande</td><td></td><td></td></tr>
+    <tr><td>Salle radio</td><td></td><td></td></tr>
+    <tr><td>Carré des officiers</td><td></td><td></td></tr>
+    <tr><td>Sas de sauvetage</td><td></td><td></td></tr>
+    <tr><td>Poste avant</td><td></td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · CARNET (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Sous-marin Narval</span><span>VI · Le carnet de bord</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3 style="margin-top:0">Le casier de Rasmus</h3><div class="cases"><span></span><span></span><span></span></div></div>
+    <div><h3 style="margin-top:0">L'armoire de survie</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+  </div>
+  <h3>Les bancs de batteries (volts)</h3>
+  <table>
+    <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th></tr>
+    <tr><td style="height:8mm"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <h3>La répartition du courant</h3>
+  <p style="font-size:7.8pt;line-height:2;margin:0">Radio __ · Console __ · Sas __ · Pompe de cale __ · Éclairage __</p>
+  <h3>Les vannes, dans le sens du fluide</h3>
+  <div class="zone lignes" style="min-height:15mm"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3>Les coups sur la coque</h3><p style="font-size:7.8pt;line-height:2;margin:0">Mot frappé : __________<br>Réponse : __________<br>Pression : ______ bars</p></div>
+    <div><h3>L'ordre des verrous</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+  </div>
+  <h3>Notes de quart</h3>
+  <div class="zone lignes" style="min-height:22mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Sous-marin Narval</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Le sous-marin Narval repose par 142 mètres de fond. L'air n'est plus recyclé, la lumière ne tient qu'à une dynamo,
+    et le sas de sauvetage est bloqué. Vous avez une heure pour rejoindre l'Orque.</p>
+  <table>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr class="ici"><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">2 à 6 joueurs · 60 minutes · pour adultes · escape game : fouille, déduction, coopération</div>
+</section>
+
+</body>
+</html>
