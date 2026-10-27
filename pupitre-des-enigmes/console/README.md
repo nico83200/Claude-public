@@ -95,7 +95,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Écran | TFT SPI 3,5" ILI9488 480×320, avec lecteur SD | 1 | 14 € |
 | Lecteurs RFID | RC522 13,56 MHz : la fente, le lecteur à plat, un de secours | 3 | 9 € |
 | Audio | DFPlayer Mini (haut-parleur, casque, secours), HP 3 W / 4 Ω, embase jack 3,5 mm stéréo, 3 micro-SD | — | 25 € |
-| Casque | Casque filaire jack, de préférence fermé (pour l'immersion) | 1 | 15 € |
+| Casque | Un casque filaire à jack 3,5 mm que vous avez déjà, de préférence fermé (pour l'immersion) | 1 | (déjà là) |
 | Boutons | Arcade 30 mm (rouge, bleu, jaune, vert) et champignon 60 mm | 4 + 1 | 11 € |
 | Molette | Encodeur KY-040 (et un de secours) | 2 | 3 € |
 | Clavier | Clavier membrane 4×4 (nappe de 8 fils, adhésif au dos) | 1 | 2 € |
@@ -108,7 +108,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
 | Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
 | Fixations | 21 aimants néodyme 10 × 3 mm, entretoises et vis M3, patins | — | 16 € |
-| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 205 €** |
+| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 190 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 
