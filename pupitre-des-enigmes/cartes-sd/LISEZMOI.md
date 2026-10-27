@@ -68,3 +68,11 @@ laisse le temps de les lire. Vous pouvez donc commencer à jouer avant d'avoir l
 formatée, un dossier après l'autre, et ne laissez rien d'autre à la racine (pas de
 dossier « System Volume Information » ajouté par Windows si possible, ni de fichiers
 cachés « ._ » ajoutés par macOS : sur Mac, éjectez puis lancez `dot_clean` sur la carte).
+
+**Le volume, en chiffres** : environ 900 fichiers (800 répliques, 100 bruitages), 1 h 30
+d'audio, une centaine de Mo : une carte de 8 Go suffit largement. Le DFPlayer joue un
+fichier par son dossier (01 à 99) et son numéro (001 à 255) ; aucun dossier ne dépasse 255
+fichiers (`outils/verifier_scripts.py` le contrôle). Au démarrage, il fait l'inventaire de sa
+carte : le pupitre lui laisse jusqu'à 8 secondes, puis écrit sur le moniteur série
+« DFPlayer : N fichiers sur la carte ». Si ce nombre ne correspond pas à ce que vous avez
+copié, un fichier manque ou un fichier caché s'est glissé sur la carte.
