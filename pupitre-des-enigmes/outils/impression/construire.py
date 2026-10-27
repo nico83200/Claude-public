@@ -90,6 +90,8 @@ def notice(cible):
     console = (JEU / "console" / "README.md").read_text(encoding="utf-8")
     console = re.sub(r"^# .*\n", "", console, count=1)
     binaires = (JEU / "firmware" / "binaires" / "LISEZMOI.md").read_text(encoding="utf-8")
+    cartes_sd = (JEU / "cartes-sd" / "LISEZMOI.md").read_text(encoding="utf-8")
+    cartes_sd = re.sub(r"^# .*\n", "", cartes_sd, count=1)
     binaires = re.sub(r"^# .*\n", "", binaires, count=1)
     programme = (JEU / "firmware" / "README.md").read_text(encoding="utf-8")
     debut, fin = programme.index("## 0. Sans rien installer"), programme.index("## 7. Le simulateur")
@@ -102,12 +104,14 @@ le programme de l'ESP32 et les cartes SD.</p></div>
 <h3>Partie 1 · La console</h3><ul class="sommaire">{sommaire}</ul>
 <h3>Partie 2 · Le programme et les cartes SD</h3>
 <ul class="sommaire"><li>Programmer l'ESP32 depuis un navigateur</li><li>Installer PlatformIO, téléverser, mettre à jour par le Wi-Fi</li>
-<li>Préparer les cartes micro-SD</li><li>Enregistrer les cartes, jouer, régler</li></ul>
+<li>Les cartes micro-SD, sans script</li><li>Préparer les cartes micro-SD avec le script</li><li>Enregistrer les cartes, jouer, régler</li></ul>
 <div class="partie">Partie 1 · La console</div>
 {md(console)}
 <div class="partie">Partie 2 · Le programme et les cartes SD</div>
 <h2>Programmer l'ESP32 depuis un navigateur</h2>
 {md(binaires)}
+<h2>Les cartes micro-SD, sans script</h2>
+{md(cartes_sd)}
 {md(programme)}"""
     cible.write_text(GABARIT_NOTICE.format(corps=corps), encoding="utf-8")
 

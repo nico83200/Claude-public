@@ -1,0 +1,1843 @@
+{
+  "titre": "Signal Perdu",
+  "dossier_voix": 30,
+  "dossier_sons": 31,
+  "chrono": {
+    "mode": "compte",
+    "prefixe": "O₂ ",
+    "duree": 75
+  },
+  "jauge": "oxygene",
+  "voix": {
+    "narrateur": "",
+    "helios": "HÉLIOS",
+    "okafor": "Cmdt Okafor",
+    "sorokin": "Dr Sorokin",
+    "marchetti": "Léa Marchetti",
+    "reyes": "Tomás Reyes",
+    "voss": "Ingrid Voss",
+    "mori": "Dr Mori",
+    "capcom": "Contrôle Mission",
+    "agent": "Message secret"
+  },
+  "cartes": {
+    "L1": {
+      "type": "lieu",
+      "nom": "Sas d'amarrage"
+    },
+    "L2": {
+      "type": "lieu",
+      "nom": "Pont de commandement"
+    },
+    "L3": {
+      "type": "lieu",
+      "nom": "Laboratoire"
+    },
+    "L4": {
+      "type": "lieu",
+      "nom": "Cryogénie"
+    },
+    "L5": {
+      "type": "lieu",
+      "nom": "Quartiers"
+    },
+    "L6": {
+      "type": "lieu",
+      "nom": "Antenne"
+    },
+    "L7": {
+      "type": "lieu",
+      "nom": "Hangar"
+    },
+    "L8": {
+      "type": "lieu",
+      "nom": "Noyau d'HÉLIOS"
+    },
+    "L9": {
+      "type": "lieu",
+      "nom": "Serre"
+    },
+    "P1": {
+      "type": "perso",
+      "nom": "Cmdt Okafor"
+    },
+    "P2": {
+      "type": "perso",
+      "nom": "Dr Sorokin"
+    },
+    "P3": {
+      "type": "perso",
+      "nom": "Léa Marchetti"
+    },
+    "P4": {
+      "type": "perso",
+      "nom": "Tomás Reyes"
+    },
+    "P5": {
+      "type": "perso",
+      "nom": "Ingrid Voss"
+    },
+    "P6": {
+      "type": "perso",
+      "nom": "Dr Mori"
+    },
+    "P7": {
+      "type": "perso",
+      "nom": "HÉLIOS"
+    },
+    "O1": {
+      "type": "objet",
+      "nom": "Boîte noire"
+    },
+    "O2": {
+      "type": "objet",
+      "nom": "Échantillon cristallin"
+    },
+    "O3": {
+      "type": "objet",
+      "nom": "Transmission interceptée"
+    },
+    "O4": {
+      "type": "objet",
+      "nom": "Carte d'accès de Voss"
+    },
+    "O5": {
+      "type": "objet",
+      "nom": "Tablette de Sorokin"
+    },
+    "O6": {
+      "type": "objet",
+      "nom": "Journal médical"
+    },
+    "O7": {
+      "type": "objet",
+      "nom": "Rapport de contamination"
+    },
+    "O8": {
+      "type": "objet",
+      "nom": "Registre de cryogénie"
+    },
+    "O9": {
+      "type": "objet",
+      "nom": "Relais sectionné"
+    },
+    "O10": {
+      "type": "objet",
+      "nom": "Photo d'équipage"
+    },
+    "R1": {
+      "type": "role",
+      "nom": "Commandante"
+    },
+    "R2": {
+      "type": "role",
+      "nom": "Ingénieur"
+    },
+    "R3": {
+      "type": "role",
+      "nom": "Biologiste"
+    },
+    "R4": {
+      "type": "role",
+      "nom": "Officier radio"
+    },
+    "R5": {
+      "type": "role",
+      "nom": "Médecin"
+    },
+    "R6": {
+      "type": "role",
+      "nom": "Hackeuse"
+    }
+  },
+  "roles": {
+    "R1": {
+      "dire": 3,
+      "pouvoir": 1
+    },
+    "R2": {
+      "dire": 4,
+      "pouvoir": 1
+    },
+    "R3": {
+      "dire": 5,
+      "pouvoir": 2
+    },
+    "R4": {
+      "dire": 6,
+      "pouvoir": 0
+    },
+    "R5": {
+      "dire": 7,
+      "pouvoir": 3
+    },
+    "R6": {
+      "dire": 8,
+      "pouvoir": 2
+    }
+  },
+  "pouvoir_epuise": 104,
+  "roles_demande": 2,
+  "intro": [
+    {
+      "dire": 9
+    },
+    {
+      "epreuve": {
+        "type": "choix",
+        "titre": "VARIANTE",
+        "texte": "Traître à bord ? (4 joueurs ou plus)",
+        "options": [
+          "Jouer sans",
+          "",
+          "",
+          "Traître à bord"
+        ],
+        "intro": {
+          "dire": 14
+        },
+        "actions": [
+          [],
+          [],
+          [],
+          [
+            {
+              "epreuve": {
+                "type": "traitre",
+                "titre": "TRAÎTRE À BORD",
+                "texte": "",
+                "minimum": 4,
+                "traitre": 16,
+                "loyal": 17,
+                "suivant": 18,
+                "intro": {
+                  "dire": 15
+                },
+                "reussite": [
+                  {
+                    "drapeau": "variante"
+                  }
+                ],
+                "echec": []
+              }
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "debut": [
+    {
+      "dire": 10
+    },
+    {
+      "ambiance": 2
+    }
+  ],
+  "reprise": [
+    {
+      "ambiance": 2
+    }
+  ],
+  "progression": [
+    {
+      "nom": "Sas",
+      "si": "J1"
+    },
+    {
+      "nom": "Énergie",
+      "si": "J2"
+    },
+    {
+      "nom": "Noyau",
+      "si": "J3"
+    },
+    {
+      "nom": "Transmission",
+      "si": "J4"
+    },
+    {
+      "nom": "Serre",
+      "si": "J5"
+    }
+  ],
+  "regles": [
+    {
+      "quand": {
+        "lieu": "L1"
+      },
+      "si": "J1",
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "note": "J1 · Le sas : la balise morse donne 4719",
+      "quand": {
+        "lieu": "L1"
+      },
+      "alors": [
+        {
+          "dire": 20
+        },
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "SAS D'AMARRAGE",
+            "texte": "Code d'accès à 4 chiffres",
+            "solution": "4719",
+            "quitter": true,
+            "aides": {
+              "R4": {
+                "type": "ecoute",
+                "dossier": 31,
+                "n": 20,
+                "dire": 21
+              }
+            },
+            "ecoute_role": "R4",
+            "reussite": [
+              {
+                "son": 4
+              },
+              {
+                "dire": 23
+              },
+              {
+                "enveloppe": "E1"
+              },
+              {
+                "drapeau": "J1"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 22
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "Tant que le sas est fermé, on reste dehors",
+      "quand": {
+        "lieu": "*"
+      },
+      "si": "!J1",
+      "alors": [
+        {
+          "dire": 20
+        }
+      ]
+    },
+    {
+      "note": "J2 · L'énergie : 3-2-2-2-1-0",
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!vu_L2",
+      "alors": [
+        {
+          "dire": 24
+        },
+        {
+          "enveloppe": "E2"
+        },
+        {
+          "drapeau": "vu_L2"
+        },
+        {
+          "epreuve": {
+            "type": "energie",
+            "titre": "RÉPARTITION DE L'ÉNERGIE",
+            "texte": "10 unités à répartir · Vert : valider",
+            "quitter": true,
+            "modules": [
+              "Survie",
+              "Antenne",
+              "Hangar",
+              "Serre",
+              "Laboratoire",
+              "Cryogénie"
+            ],
+            "total": 10,
+            "max": 5,
+            "regles": [
+              {
+                "expr": "somme==10",
+                "texte": "Les 10 unités doivent toutes être réparties."
+              },
+              {
+                "expr": "m0==3",
+                "texte": "Survie : exactement 3 unités."
+              },
+              {
+                "expr": "m1==2",
+                "texte": "Antenne : 2 unités."
+              },
+              {
+                "expr": "m2==m1",
+                "texte": "Hangar et Antenne : même puissance."
+              },
+              {
+                "expr": "m4+m5<=1 && m4>=1",
+                "texte": "Laboratoire + Cryogénie : 1 unité au plus, et le labo au moins 1."
+              },
+              {
+                "expr": "m3==0 || m3==2",
+                "texte": "Serre : 0 ou 2 unités."
+              }
+            ],
+            "aides": {
+              "R2": {
+                "type": "diagnostic",
+                "dire": 106
+              }
+            },
+            "erreur": [
+              {
+                "son": 6
+              },
+              {
+                "dire": 31
+              },
+              {
+                "temps": -2
+              }
+            ],
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 32
+              },
+              {
+                "drapeau": "J2"
+              }
+            ],
+            "echec": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "energie",
+            "titre": "RÉPARTITION DE L'ÉNERGIE",
+            "texte": "10 unités à répartir · Vert : valider",
+            "quitter": true,
+            "modules": [
+              "Survie",
+              "Antenne",
+              "Hangar",
+              "Serre",
+              "Laboratoire",
+              "Cryogénie"
+            ],
+            "total": 10,
+            "max": 5,
+            "regles": [
+              {
+                "expr": "somme==10",
+                "texte": "Les 10 unités doivent toutes être réparties."
+              },
+              {
+                "expr": "m0==3",
+                "texte": "Survie : exactement 3 unités."
+              },
+              {
+                "expr": "m1==2",
+                "texte": "Antenne : 2 unités."
+              },
+              {
+                "expr": "m2==m1",
+                "texte": "Hangar et Antenne : même puissance."
+              },
+              {
+                "expr": "m4+m5<=1 && m4>=1",
+                "texte": "Laboratoire + Cryogénie : 1 unité au plus, et le labo au moins 1."
+              },
+              {
+                "expr": "m3==0 || m3==2",
+                "texte": "Serre : 0 ou 2 unités."
+              }
+            ],
+            "aides": {
+              "R2": {
+                "type": "diagnostic",
+                "dire": 106
+              }
+            },
+            "erreur": [
+              {
+                "son": 6
+              },
+              {
+                "dire": 31
+              },
+              {
+                "temps": -2
+              }
+            ],
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 32
+              },
+              {
+                "drapeau": "J2"
+              }
+            ],
+            "echec": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "note": "Modules à réalimenter",
+      "quand": {
+        "lieu": [
+          "L3",
+          "L6",
+          "L7"
+        ]
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "dire": 30
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "si": "!vu_L3",
+      "alors": [
+        {
+          "dire": 25
+        },
+        {
+          "enveloppe": "E3"
+        },
+        {
+          "drapeau": "vu_L3"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "!vu_L4",
+      "alors": [
+        {
+          "dire": 27
+        },
+        {
+          "enveloppe": "E4"
+        },
+        {
+          "drapeau": "vu_L4"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!vu_L5",
+      "alors": [
+        {
+          "dire": 28
+        },
+        {
+          "enveloppe": "E5"
+        },
+        {
+          "drapeau": "vu_L5"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "si": "!vu_L6",
+      "alors": [
+        {
+          "dire": 26
+        },
+        {
+          "enveloppe": "E6"
+        },
+        {
+          "drapeau": "vu_L6"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "si": "!vu_L7",
+      "alors": [
+        {
+          "dire": 29
+        },
+        {
+          "enveloppe": "E7"
+        },
+        {
+          "drapeau": "vu_L7"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "si": "J3",
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "note": "J3 · Le noyau : SILENCE",
+      "quand": {
+        "lieu": "L8"
+      },
+      "alors": [
+        {
+          "dire": 33
+        },
+        {
+          "epreuve": {
+            "type": "lettres",
+            "titre": "NOYAU D'HÉLIOS",
+            "texte": "Mot de passe (7 lettres)",
+            "solution": "SILENCE",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 8
+              },
+              {
+                "dire": 34
+              },
+              {
+                "enveloppe": "E8"
+              },
+              {
+                "drapeau": "J3"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 35
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "J5",
+      "alors": [
+        {
+          "dire": 12
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "!J2",
+      "alors": [
+        {
+          "dire": 38
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "!J3",
+      "alors": [
+        {
+          "dire": 37
+        }
+      ]
+    },
+    {
+      "note": "J5 · La Serre",
+      "quand": {
+        "lieu": "L9"
+      },
+      "alors": [
+        {
+          "son": 17
+        },
+        {
+          "dire": 36
+        },
+        {
+          "enveloppe": "E9"
+        },
+        {
+          "drapeau": "J5"
+        },
+        {
+          "ambiance": 17
+        }
+      ]
+    },
+    {
+      "note": "Réserve d'O₂",
+      "quand": {
+        "role": "R1"
+      },
+      "si": "pouvoir_R1>0",
+      "alors": [
+        {
+          "pouvoir": "R1"
+        },
+        {
+          "dire": 103
+        },
+        {
+          "temps": 5
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R1"
+      },
+      "alors": [
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "note": "Intrusion (au Pont)",
+      "quand": {
+        "role": "R6",
+        "lieu": "L2"
+      },
+      "si": "pouvoir_R6>0 && !intrusion1",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 108
+        },
+        {
+          "drapeau": "intrusion1"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R6",
+        "lieu": "L2"
+      },
+      "si": "pouvoir_R6>0",
+      "alors": [
+        {
+          "pouvoir": "R6"
+        },
+        {
+          "dire": 109
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R6"
+      },
+      "si": "pouvoir_R6==0",
+      "alors": [
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R6"
+      },
+      "alors": [
+        {
+          "dire": 115
+        }
+      ]
+    },
+    {
+      "note": "Carte Rôle posée seule : on attend sa cible",
+      "quand": {
+        "role": "R5",
+        "qui": "-"
+      },
+      "alors": []
+    },
+    {
+      "quand": {
+        "role": "R5"
+      },
+      "si": "pouvoir_R5==0",
+      "alors": [
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "note": "Scanner biométrique",
+      "quand": {
+        "role": "R5",
+        "qui": "P5"
+      },
+      "alors": [
+        {
+          "pouvoir": "R5"
+        },
+        {
+          "dire": 102
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R5",
+        "qui": "P7"
+      },
+      "alors": [
+        {
+          "pouvoir": "R5"
+        },
+        {
+          "dire": 101
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R5"
+      },
+      "alors": [
+        {
+          "pouvoir": "R5"
+        },
+        {
+          "dire": 100
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3",
+        "quoi": "-"
+      },
+      "alors": []
+    },
+    {
+      "quand": {
+        "role": "R3"
+      },
+      "si": "pouvoir_R3==0",
+      "alors": [
+        {
+          "dire": 104
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3",
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 110
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3",
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 111
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 112
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3",
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 113
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R3"
+      },
+      "alors": [
+        {
+          "pouvoir": "R3"
+        },
+        {
+          "dire": 114
+        }
+      ]
+    },
+    {
+      "quand": {
+        "role": "R4"
+      },
+      "alors": [
+        {
+          "dire": 105
+        }
+      ]
+    },
+    {
+      "note": "HÉLIOS dit la vérité après le noyau",
+      "quand": {
+        "qui": "P7"
+      },
+      "si": "J3",
+      "alors": [
+        {
+          "dire": 231
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7"
+      },
+      "alors": [
+        {
+          "dire": 230
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7",
+        "quoi": "*"
+      },
+      "si": "!J3",
+      "alors": [
+        {
+          "dire": 221
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7",
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 232
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 233
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7",
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 234
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P7",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 235
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1"
+      },
+      "alors": [
+        {
+          "dire": 120
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2"
+      },
+      "alors": [
+        {
+          "dire": 135
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3"
+      },
+      "alors": [
+        {
+          "dire": 150
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4"
+      },
+      "alors": [
+        {
+          "dire": 165
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5"
+      },
+      "alors": [
+        {
+          "dire": 180
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6"
+      },
+      "alors": [
+        {
+          "dire": 195
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P1",
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 121
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 136
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P2",
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 137
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P3",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 151
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P4",
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "dire": 166
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 181
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 182
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 183
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P5",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 184
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "P6",
+        "quoi": "O6"
+      },
+      "alors": [
+        {
+          "dire": 196
+        }
+      ]
+    },
+    {
+      "quand": {
+        "qui": "*",
+        "quoi": "*"
+      },
+      "alors": [
+        {
+          "dire": 220
+        }
+      ]
+    },
+    {
+      "note": "J4 · La transmission décodée",
+      "quand": {
+        "quoi": "O3"
+      },
+      "si": "!J4",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "TRANSMISSION INTERCEPTÉE",
+            "texte": "Que dit la transmission ?",
+            "options": [
+              "Évacuer l'équipage",
+              "Purger la station, extraire Voss",
+              "Détruire le cristal",
+              "Réparer l'antenne"
+            ],
+            "bonne": 1,
+            "intro": {
+              "dire": 117
+            },
+            "reussite": [
+              {
+                "dire": 118
+              },
+              {
+                "drapeau": "J4"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 119
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 210
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 211
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 212
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 213
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 214
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O6"
+      },
+      "alors": [
+        {
+          "dire": 215
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 216
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 217
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "dire": 218
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "dire": 219
+        }
+      ]
+    }
+  ],
+  "defaut": {
+    "lieu": [
+      {
+        "dire": 11
+      }
+    ],
+    "qui": [
+      {
+        "dire": 11
+      }
+    ],
+    "quoi": [
+      {
+        "dire": 11
+      }
+    ],
+    "paire": [
+      {
+        "dire": 220
+      }
+    ],
+    "role": [
+      {
+        "dire": 11
+      }
+    ]
+  },
+  "imprevus": [
+    {
+      "minute": 8,
+      "actions": [
+        {
+          "son": 9
+        },
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 80
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "MICRO-MÉTÉORITE",
+            "texte": "Les 4 boutons, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "dire": 81
+              }
+            ],
+            "echec": [
+              {
+                "dire": 82
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 18,
+      "actions": [
+        {
+          "son": 3
+        },
+        {
+          "dire": 83
+        },
+        {
+          "epreuve": {
+            "type": "sequence",
+            "titre": "DÉPRESSURISATION",
+            "texte": "Retenez les vannes…",
+            "longueur": 5,
+            "reussite": [
+              {
+                "dire": 84
+              }
+            ],
+            "echec": [
+              {
+                "dire": 85
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 28,
+      "actions": [
+        {
+          "son": 10
+        },
+        {
+          "dire": 86
+        },
+        {
+          "dire": 87,
+          "unique": true,
+          "delai": 20
+        },
+        {
+          "dire": 88
+        }
+      ]
+    },
+    {
+      "minute": 40,
+      "actions": [
+        {
+          "son": 8
+        },
+        {
+          "dire": 89
+        },
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "HÉLIOS VOUS TESTE",
+            "texte": "« Quel est le nom du protocole ? »",
+            "options": [
+              "Lazare",
+              "Silence",
+              "Pandore",
+              "Aurore"
+            ],
+            "bonne": 1,
+            "intro": {
+              "dire": 90
+            },
+            "secondes": 30,
+            "reussite": [
+              {
+                "dire": 91
+              },
+              {
+                "temps": 3
+              }
+            ],
+            "echec": [
+              {
+                "dire": 92
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 55,
+      "actions": [
+        {
+          "son": 3
+        },
+        {
+          "dire": 93
+        },
+        {
+          "epreuve": {
+            "type": "molette_zero",
+            "titre": "FUITE !",
+            "texte": "Molette à zéro, 15 secondes !",
+            "secondes": 15,
+            "depart": 30,
+            "reussite": [
+              {
+                "dire": 94
+              }
+            ],
+            "echec": [
+              {
+                "dire": 95
+              },
+              {
+                "temps": -2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "restant": 15,
+      "actions": [
+        {
+          "dire": 19
+        }
+      ]
+    },
+    {
+      "restant": 5,
+      "actions": [
+        {
+          "son": 3
+        },
+        {
+          "effet": "alerte",
+          "duree": 5000
+        },
+        {
+          "dire": 96
+        },
+        {
+          "ambiance": 11
+        }
+      ]
+    },
+    {
+      "restant": 1,
+      "actions": [
+        {
+          "dire": 97
+        }
+      ]
+    }
+  ],
+  "relances": [
+    {
+      "minute": 6,
+      "si": "!J1"
+    },
+    {
+      "minute": 20,
+      "si": "!J2"
+    },
+    {
+      "minute": 35,
+      "si": "!J3"
+    },
+    {
+      "minute": 45,
+      "si": "!J4"
+    },
+    {
+      "minute": 55,
+      "si": "!J5"
+    }
+  ],
+  "aide": {
+    "carte": "A3",
+    "titre": "CONTRÔLE MISSION",
+    "gratuits": 2,
+    "cout": [
+      {
+        "temps": -3
+      }
+    ],
+    "appel": 237,
+    "gratuit": 238,
+    "payant": 239,
+    "fin": 229,
+    "blocages": [
+      {
+        "si": "!J1",
+        "niveaux": [
+          240,
+          241,
+          242
+        ]
+      },
+      {
+        "si": "!J2",
+        "niveaux": [
+          243,
+          244,
+          245
+        ]
+      },
+      {
+        "si": "!J3",
+        "niveaux": [
+          246,
+          247,
+          248
+        ]
+      },
+      {
+        "si": "!J4",
+        "niveaux": [
+          249,
+          250,
+          251
+        ]
+      },
+      {
+        "si": "!J5",
+        "niveaux": [
+          252,
+          253,
+          254
+        ]
+      },
+      {
+        "si": "1",
+        "niveaux": [
+          255,
+          227,
+          228
+        ]
+      }
+    ]
+  },
+  "accusation": {
+    "titre": "DÉSIGNER LE RESPONSABLE",
+    "qui": "P5",
+    "ou": "L9",
+    "quoi": "O3",
+    "erreurs_max": 3,
+    "penalite": [
+      {
+        "dire": 58
+      },
+      {
+        "temps": -5
+      }
+    ],
+    "speciaux": [
+      {
+        "qui": "P7",
+        "dire": 60
+      },
+      {
+        "quoi": "O7",
+        "dire": 62,
+        "gratuit": true
+      }
+    ],
+    "voix": {
+      "demande": 50,
+      "manque": 51,
+      "suspense": 54,
+      "resultats": [
+        55,
+        56,
+        57
+      ],
+      "juste": 63,
+      "troisieme": 69
+    }
+  },
+  "fins": {
+    "victoire": [
+      {
+        "son": 12
+      },
+      {
+        "dire": 64
+      },
+      {
+        "dire": 65
+      },
+      {
+        "dire": 236
+      },
+      {
+        "si": "variante",
+        "alors": [
+          {
+            "dire": 70
+          },
+          {
+            "attendre": 8000
+          },
+          {
+            "dire": 71
+          }
+        ]
+      }
+    ],
+    "rangs": [
+      {
+        "si": "restant>=15 && erreurs==0",
+        "dire": 66,
+        "titre": "Médaille Kepler"
+      },
+      {
+        "si": "restant>=5",
+        "dire": 67,
+        "titre": "Insigne de sauvetage"
+      },
+      {
+        "si": "1",
+        "dire": 68,
+        "titre": "Retour à bord"
+      }
+    ],
+    "temps": [
+      {
+        "son": 13
+      },
+      {
+        "dire": 76
+      }
+    ],
+    "erreurs": [
+      {
+        "son": 13
+      },
+      {
+        "si": "variante",
+        "alors": [
+          {
+            "dire": 71
+          }
+        ]
+      }
+    ],
+    "solution": [
+      {
+        "dire": 77
+      }
+    ]
+  }
+}

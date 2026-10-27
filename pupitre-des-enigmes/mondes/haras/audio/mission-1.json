@@ -11,7 +11,7 @@
     "100-119": "Pouvoirs et mécaniques",
     "120-209": "Personnages (15 numéros chacun)",
     "210-219": "Objets posés seuls",
-    "220-249": "Papy Marcel", "250-259": "Forge, grange, gestes et tiroir"
+    "220-247": "Papy Marcel", "248-255": "Forge, grange, gestes et tiroir (255 au plus : limite du lecteur audio)"
   },
   "lignes": [
     { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Le Haras des Trois Fers. Mission un : la disparition d'Éclipse." },
@@ -198,7 +198,7 @@
     { "n": 253, "voix": "narrateur", "usage": "Forge, fer pas posé", "texte": "Le feu est retombé avant que le fer soit posé. Glissez de nouveau la carte de la forge pour recommencer." },
     { "n": 254, "voix": "narrateur", "usage": "Forge, visites suivantes", "texte": "La forge est encore tiède. Sur l'établi, le gabarit d'Éclipse : un fer en œuf, fermé à l'arrière, six clous." },
     { "n": 255, "voix": "narrateur", "usage": "Grange, dans le noir", "texte": "La porte de la vieille grange grince. À l'intérieur, il fait noir comme dans un four. Allumez la lampe d'un téléphone, et éclairez l'œil du pupitre, la petite fenêtre ronde à gauche du gros bouton, pendant deux secondes." },
-    { "n": 256, "voix": "narrateur", "usage": "Bureau ouvert, avec le tiroir secret", "texte": "La porte s'ouvre. La clé du box sept est sagement accrochée au tableau. Sur l'enregistreur de la caméra, un message clignote : coupure de trois heures douze à quatre heures cinq. Et la lampe torche du bureau n'est plus sur son chargeur. Ouvrez l'enveloppe numéro 3." },
-    { "n": 257, "voix": "narrateur", "usage": "Le tiroir secret s'ouvre", "texte": "Clic ! Sous le plateau du bureau, un tiroir à secret vient de s'ouvrir. Regardez sur le flanc gauche du pupitre, sous le clavier : qu'est-ce qu'on y cachait ?" }
+    { "n": 248, "voix": "narrateur", "usage": "Bureau ouvert, avec le tiroir secret", "texte": "La porte s'ouvre. La clé du box sept est sagement accrochée au tableau. Sur l'enregistreur de la caméra, un message clignote : coupure de trois heures douze à quatre heures cinq. Et la lampe torche du bureau n'est plus sur son chargeur. Ouvrez l'enveloppe numéro 3." },
+    { "n": 249, "voix": "narrateur", "usage": "Le tiroir secret s'ouvre", "texte": "Clic ! Sous le plateau du bureau, un tiroir à secret vient de s'ouvrir. Regardez sur le flanc gauche du pupitre, sous le clavier : qu'est-ce qu'on y cachait ?" }
   ]
 }

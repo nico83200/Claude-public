@@ -118,6 +118,10 @@ Le pupitre utilise **trois** cartes micro-SD.
 - `preparer_sd.py` vérifie les scripts, copie les mondes et **conserve** les
   cartes déjà enregistrées si on le relance sur la même carte SD.
 
+**Sans le script** : le contenu de la carte de l'écran est déjà prêt dans
+`cartes-sd/carte-ecran/` (et `cartes-sd/carte-sd-ecran.zip`) : il suffit de le copier à
+la racine de la carte. Les cartes des lecteurs audio : voir `cartes-sd/LISEZMOI.md`.
+
 ## 4. Enregistrer les cartes (une fois par monde)
 
 Chaque carte du jeu porte un autocollant NFC dont l'identifiant est unique. Il

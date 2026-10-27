@@ -1,0 +1,28 @@
+{
+  "id": "haras",
+  "nom": "Le Haras des Trois Fers",
+  "carte": "M1",
+  "aide": "A1",
+  "aide_nom": "Papy Marcel",
+  "theme": {
+    "fond": "#1f3b2d",
+    "texte": "#f3ead8",
+    "accent": "#c9a54a",
+    "alerte": "#c0392b",
+    "doux": "#9fb59f"
+  },
+  "accueil": {
+    "dossier": 10,
+    "dire": 13,
+    "jingle_dossier": 11,
+    "jingle": 12
+  },
+  "missions": [
+    {
+      "numero": 1,
+      "titre": "La Disparition d'Éclipse",
+      "script": "mission-1.json",
+      "repliques": "repliques-1.json"
+    }
+  ]
+}

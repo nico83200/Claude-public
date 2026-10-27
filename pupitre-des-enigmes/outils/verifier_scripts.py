@@ -46,6 +46,11 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
     def erreur(texte):
         erreurs.append(f"{nom} : {texte}")
 
+    # Le DFPlayer ne joue que les fichiers 001 à 255 d'un dossier.
+    for n in sorted(voix | sons):
+        if not 1 <= n <= 255:
+            erreur(f"réplique ou son n° {n} : le lecteur audio ne joue que les numéros 1 à 255")
+
     def dire(n, pupitre=False):
         if not isinstance(n, int):
             return

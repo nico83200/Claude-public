@@ -1,0 +1,2783 @@
+{
+  "titre": "Dernier souffle",
+  "dossier_voix": 40,
+  "dossier_sons": 41,
+  "chrono": {
+    "mode": "compte",
+    "prefixe": "O₂ ",
+    "duree": 60
+  },
+  "jauge": "lumiere",
+  "objets_combinables": true,
+  "zones": {
+    "noms": [
+      "MAIN GAUCHE",
+      "COMPARTIMENT",
+      "MAIN DROITE"
+    ],
+    "dire_lieu": 15,
+    "dire_objet": 16
+  },
+  "materiel": [
+    "fente",
+    "plateau",
+    "clavier",
+    "voyants",
+    "cle",
+    "boutons",
+    "molette",
+    "gros_bouton",
+    "casque"
+  ],
+  "dynamo": {
+    "bouton": "GROS",
+    "duree": 80,
+    "gain": 15,
+    "noir": 17
+  },
+  "voix": {
+    "narrateur": "",
+    "commandante": "Cmdt Solvik (interphone)",
+    "systeme": "Système de bord",
+    "orque": "L'Orque (téléphone sous-marin)"
+  },
+  "cartes": {
+    "L1": {
+      "type": "lieu",
+      "nom": "Poste d'équipage"
+    },
+    "L2": {
+      "type": "lieu",
+      "nom": "Coursive"
+    },
+    "L3": {
+      "type": "lieu",
+      "nom": "Infirmerie"
+    },
+    "L4": {
+      "type": "lieu",
+      "nom": "Local des batteries"
+    },
+    "L5": {
+      "type": "lieu",
+      "nom": "Salle des machines"
+    },
+    "L6": {
+      "type": "lieu",
+      "nom": "Poste de commande"
+    },
+    "L7": {
+      "type": "lieu",
+      "nom": "Salle radio"
+    },
+    "L8": {
+      "type": "lieu",
+      "nom": "Carré des officiers"
+    },
+    "L9": {
+      "type": "lieu",
+      "nom": "Sas de sauvetage"
+    },
+    "L10": {
+      "type": "lieu",
+      "nom": "Poste avant"
+    },
+    "O1": {
+      "type": "objet",
+      "nom": "Casier de Rasmus"
+    },
+    "O2": {
+      "type": "objet",
+      "nom": "Multimètre"
+    },
+    "O3": {
+      "type": "objet",
+      "nom": "Câble de pontage"
+    },
+    "O4": {
+      "type": "objet",
+      "nom": "Manivelle de pompe"
+    },
+    "O5": {
+      "type": "objet",
+      "nom": "Clé du second"
+    },
+    "O6": {
+      "type": "objet",
+      "nom": "Clé de la commandante"
+    },
+    "O7": {
+      "type": "objet",
+      "nom": "Coffre de la commandante"
+    },
+    "O8": {
+      "type": "objet",
+      "nom": "Armoire de survie"
+    },
+    "O9": {
+      "type": "objet",
+      "nom": "Chandelle à oxygène"
+    },
+    "O10": {
+      "type": "objet",
+      "nom": "Cartouches de chaux sodée"
+    },
+    "O11": {
+      "type": "objet",
+      "nom": "Clé à cliquet"
+    },
+    "O12": {
+      "type": "objet",
+      "nom": "Pied-de-biche"
+    }
+  },
+  "roles": {},
+  "intro": [
+    {
+      "dire": 9
+    },
+    {
+      "dire": 14
+    }
+  ],
+  "debut": [
+    {
+      "son": 4
+    },
+    {
+      "dire": 10
+    },
+    {
+      "ambiance": 2
+    }
+  ],
+  "reprise": [
+    {
+      "si": "J_courant",
+      "alors": [
+        {
+          "ambiance": 3
+        }
+      ],
+      "sinon": [
+        {
+          "ambiance": 2
+        }
+      ]
+    }
+  ],
+  "objectifs": [
+    {
+      "nom": "Ouvrir la porte étanche",
+      "visible": "1",
+      "fait": "J_porte"
+    },
+    {
+      "nom": "Rétablir le courant",
+      "visible": "J_porte",
+      "fait": "J_courant"
+    },
+    {
+      "nom": "Pressuriser l'hydraulique",
+      "visible": "vu_L5 || vu_L9",
+      "fait": "J_hyd || J_verrous"
+    },
+    {
+      "nom": "Lever la sécurité du sas",
+      "visible": "vu_L6 || vu_L9",
+      "fait": "J_sec"
+    },
+    {
+      "nom": "Contacter l'Orque",
+      "visible": "J_porte",
+      "fait": "J_contact"
+    },
+    {
+      "nom": "Libérer les verrous",
+      "visible": "vu_L9",
+      "fait": "J_verrous"
+    },
+    {
+      "nom": "Ouvrir l'écoutille",
+      "visible": "J_verrous && J_contact",
+      "fait": "0"
+    },
+    {
+      "nom": "Bonus : la commandante",
+      "visible": "vu_L10",
+      "fait": "J_cmdt"
+    }
+  ],
+  "panneau": {
+    "voyants": [
+      {
+        "nom": "Porte",
+        "etats": [
+          {
+            "si": "J_porte",
+            "couleur": "vert"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Courant",
+        "etats": [
+          {
+            "si": "J_courant",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_raccord",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Hydraulique",
+        "etats": [
+          {
+            "si": "J_hyd || J_verrous",
+            "couleur": "vert"
+          },
+          {
+            "si": "vannes",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Sécurité",
+        "etats": [
+          {
+            "si": "J_sec",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_console",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "Radio",
+        "etats": [
+          {
+            "si": "J_contact",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_courant",
+            "couleur": "bleu",
+            "effet": "clignote"
+          }
+        ]
+      },
+      {
+        "nom": "Verrous",
+        "etats": [
+          {
+            "si": "J_verrous",
+            "couleur": "vert"
+          },
+          {
+            "si": "(J_hyd || J_verrous) && J_sec",
+            "couleur": "orange",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge"
+          }
+        ]
+      },
+      {
+        "nom": "O₂",
+        "etats": [
+          {
+            "si": "restant>=30",
+            "couleur": "vert"
+          },
+          {
+            "si": "restant>=15",
+            "couleur": "orange"
+          },
+          {
+            "si": "restant>=5",
+            "couleur": "rouge",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "rapide"
+          }
+        ]
+      },
+      {
+        "nom": "Lumière",
+        "etats": [
+          {
+            "si": "lumiere>=40",
+            "couleur": "ambre",
+            "intensite": "lumiere"
+          },
+          {
+            "si": "lumiere>=15",
+            "couleur": "orange"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "rapide"
+          }
+        ]
+      },
+      {
+        "nom": "Orque",
+        "etats": [
+          {
+            "si": "egal",
+            "couleur": "vert"
+          },
+          {
+            "si": "J_contact && J_verrous",
+            "couleur": "bleu"
+          },
+          {
+            "si": "J_contact",
+            "couleur": "bleu",
+            "effet": "pulse"
+          }
+        ]
+      },
+      {
+        "nom": "Commandante",
+        "etats": [
+          {
+            "si": "J_cmdt",
+            "couleur": "vert"
+          },
+          {
+            "si": "vu_L10",
+            "couleur": "rouge",
+            "effet": "clignote"
+          },
+          {
+            "si": "1",
+            "couleur": "rouge",
+            "effet": "faible"
+          }
+        ]
+      }
+    ]
+  },
+  "socle": {
+    "etats": [
+      {
+        "si": "lumiere<15",
+        "couleur": "rouge",
+        "effet": "pulse"
+      },
+      {
+        "si": "1",
+        "couleur": "ambre",
+        "intensite": "lumiere"
+      }
+    ]
+  },
+  "regles": [
+    {
+      "note": "Départ : le poste d'équipage",
+      "quand": {
+        "lieu": "L1"
+      },
+      "si": "!vu_L1",
+      "alors": [
+        {
+          "dire": 20
+        },
+        {
+          "enveloppe": "E1"
+        },
+        {
+          "drapeau": "vu_L1"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L1"
+      },
+      "alors": [
+        {
+          "dire": 21
+        }
+      ]
+    },
+    {
+      "note": "La porte étanche : 4 boutons tenus",
+      "quand": {
+        "lieu": "L2"
+      },
+      "si": "!J_porte",
+      "alors": [
+        {
+          "dire": 22
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "LA PORTE ÉTANCHE",
+            "texte": "4 boutons ensemble, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 24
+              },
+              {
+                "enveloppe": "E3"
+              },
+              {
+                "drapeau": [
+                  "J_porte",
+                  "vu_L2"
+                ]
+              }
+            ],
+            "echec": [
+              {
+                "dire": 23
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "Tout le reste est derrière la porte étanche",
+      "quand": {
+        "lieu": "*"
+      },
+      "si": "!J_porte",
+      "alors": [
+        {
+          "dire": 25
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L2"
+      },
+      "alors": [
+        {
+          "dire": 26
+        }
+      ]
+    },
+    {
+      "note": "L'infirmerie : Lund, sa clé, l'armoire",
+      "quand": {
+        "lieu": "L3"
+      },
+      "si": "!vu_L3",
+      "alors": [
+        {
+          "dire": 27
+        },
+        {
+          "enveloppe": "E4"
+        },
+        {
+          "drapeau": "vu_L3"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L3"
+      },
+      "alors": [
+        {
+          "dire": 28
+        }
+      ]
+    },
+    {
+      "note": "Le local des batteries",
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "!vu_L4",
+      "alors": [
+        {
+          "dire": 29
+        },
+        {
+          "enveloppe": "E6"
+        },
+        {
+          "drapeau": "vu_L4"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "J_courant",
+      "alors": [
+        {
+          "dire": 31
+        }
+      ]
+    },
+    {
+      "note": "Reprendre la répartition abandonnée",
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "J_raccord",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "energie",
+            "titre": "RÉPARTITION DE L'ÉNERGIE",
+            "texte": "9 unités · Vert : valider",
+            "intro": {
+              "dire": 82
+            },
+            "quitter": true,
+            "modules": [
+              "Radio",
+              "Console",
+              "Sas",
+              "Pompe de cale",
+              "Éclairage"
+            ],
+            "total": 9,
+            "max": 4,
+            "regles": [
+              {
+                "expr": "somme==9",
+                "texte": "Les 9 unités doivent toutes être réparties."
+              },
+              {
+                "expr": "m0==3",
+                "texte": "Radio : exactement 3 unités."
+              },
+              {
+                "expr": "m1==m2",
+                "texte": "Console et sas sont couplés : même puissance."
+              },
+              {
+                "expr": "m1>=2",
+                "texte": "Console et sas : au moins 2 unités chacun."
+              },
+              {
+                "expr": "m3>=1 && m3<=2",
+                "texte": "Pompe de cale : 1 ou 2 unités."
+              },
+              {
+                "expr": "m4==1",
+                "texte": "Éclairage : exactement 1 unité."
+              }
+            ],
+            "erreur": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 83
+              },
+              {
+                "temps": -2
+              },
+              {
+                "dynamo": {
+                  "charge": 0
+                }
+              }
+            ],
+            "reussite": [
+              {
+                "son": 10
+              },
+              {
+                "dire": 84
+              },
+              {
+                "drapeau": "J_courant"
+              },
+              {
+                "dynamo": {
+                  "duree": 160
+                }
+              },
+              {
+                "ambiance": 3
+              }
+            ],
+            "echec": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "si": "pont",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "lettres",
+            "titre": "TABLEAU DE RACCORDEMENT",
+            "texte": "Bancs sains utilisables, dans l'ordre",
+            "intro": {
+              "dire": 80
+            },
+            "solution": "ABF",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "drapeau": "J_raccord"
+              },
+              {
+                "epreuve": {
+                  "type": "energie",
+                  "titre": "RÉPARTITION DE L'ÉNERGIE",
+                  "texte": "9 unités · Vert : valider",
+                  "intro": {
+                    "dire": 82
+                  },
+                  "quitter": true,
+                  "modules": [
+                    "Radio",
+                    "Console",
+                    "Sas",
+                    "Pompe de cale",
+                    "Éclairage"
+                  ],
+                  "total": 9,
+                  "max": 4,
+                  "regles": [
+                    {
+                      "expr": "somme==9",
+                      "texte": "Les 9 unités doivent toutes être réparties."
+                    },
+                    {
+                      "expr": "m0==3",
+                      "texte": "Radio : exactement 3 unités."
+                    },
+                    {
+                      "expr": "m1==m2",
+                      "texte": "Console et sas sont couplés : même puissance."
+                    },
+                    {
+                      "expr": "m1>=2",
+                      "texte": "Console et sas : au moins 2 unités chacun."
+                    },
+                    {
+                      "expr": "m3>=1 && m3<=2",
+                      "texte": "Pompe de cale : 1 ou 2 unités."
+                    },
+                    {
+                      "expr": "m4==1",
+                      "texte": "Éclairage : exactement 1 unité."
+                    }
+                  ],
+                  "erreur": [
+                    {
+                      "son": 11
+                    },
+                    {
+                      "dire": 83
+                    },
+                    {
+                      "temps": -2
+                    },
+                    {
+                      "dynamo": {
+                        "charge": 0
+                      }
+                    }
+                  ],
+                  "reussite": [
+                    {
+                      "son": 10
+                    },
+                    {
+                      "dire": 84
+                    },
+                    {
+                      "drapeau": "J_courant"
+                    },
+                    {
+                      "dynamo": {
+                        "duree": 160
+                      }
+                    },
+                    {
+                      "ambiance": 3
+                    }
+                  ],
+                  "echec": []
+                }
+              }
+            ],
+            "echec": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 81
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4"
+      },
+      "alors": [
+        {
+          "dire": 30
+        }
+      ]
+    },
+    {
+      "note": "La salle des machines",
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "!vu_L5",
+      "alors": [
+        {
+          "dire": 32
+        },
+        {
+          "enveloppe": "E7"
+        },
+        {
+          "drapeau": "vu_L5"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "si": "vannes",
+      "alors": [
+        {
+          "dire": 36
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5"
+      },
+      "alors": [
+        {
+          "dire": 118
+        }
+      ]
+    },
+    {
+      "note": "Le poste de commande",
+      "quand": {
+        "lieu": "L6"
+      },
+      "si": "!vu_L6",
+      "alors": [
+        {
+          "dire": 37
+        },
+        {
+          "enveloppe": "E8"
+        },
+        {
+          "drapeau": "vu_L6"
+        },
+        {
+          "evenement": "console"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L6"
+      },
+      "alors": [
+        {
+          "evenement": "console"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "console"
+      },
+      "si": "!J_courant",
+      "alors": [
+        {
+          "dire": 38
+        }
+      ]
+    },
+    {
+      "note": "ABYSSE : le quart de 4 h, Søren et non Tomas",
+      "quand": {
+        "evenement": "console"
+      },
+      "si": "!J_console",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "lettres",
+            "titre": "CONSOLE DE COMMANDEMENT",
+            "texte": "Mot de passe : 6 lettres",
+            "intro": {
+              "dire": 39
+            },
+            "solution": "ABYSSE",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "dire": 41
+              },
+              {
+                "drapeau": "J_console"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 40
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "console"
+      },
+      "si": "!J_sec",
+      "alors": [
+        {
+          "dire": 42
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "console"
+      },
+      "alors": [
+        {
+          "dire": 43
+        }
+      ]
+    },
+    {
+      "note": "La salle radio",
+      "quand": {
+        "lieu": "L7"
+      },
+      "si": "!vu_L7",
+      "alors": [
+        {
+          "dire": 44
+        },
+        {
+          "enveloppe": "E11"
+        },
+        {
+          "drapeau": "vu_L7"
+        },
+        {
+          "evenement": "radio"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L7"
+      },
+      "alors": [
+        {
+          "evenement": "radio"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "radio"
+      },
+      "si": "!J_courant",
+      "alors": [
+        {
+          "dire": 45
+        }
+      ]
+    },
+    {
+      "note": "BRUME en code de frappe → 736",
+      "quand": {
+        "evenement": "radio"
+      },
+      "si": "!J_contact",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "TÉLÉPHONE SOUS-MARIN",
+            "texte": "🎧 Les coups de l'Orque · réponse en 3 chiffres",
+            "intro": {
+              "dire": 46
+            },
+            "solution": "736",
+            "quitter": true,
+            "boucle_casque": {
+              "dossier": 41,
+              "n": 20
+            },
+            "reussite": [
+              {
+                "son": 14
+              },
+              {
+                "dire": [
+                  48,
+                  49
+                ]
+              },
+              {
+                "drapeau": "J_contact"
+              }
+            ],
+            "echec": [
+              {
+                "son": 14
+              },
+              {
+                "dire": 47
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "radio"
+      },
+      "alors": [
+        {
+          "son": 14
+        },
+        {
+          "dire": 50
+        }
+      ]
+    },
+    {
+      "note": "Le carré : coffre, carte marine, cahier du second",
+      "quand": {
+        "lieu": "L8"
+      },
+      "si": "!vu_L8",
+      "alors": [
+        {
+          "dire": 51
+        },
+        {
+          "enveloppe": "E9"
+        },
+        {
+          "drapeau": "vu_L8"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L8"
+      },
+      "alors": [
+        {
+          "dire": 52
+        }
+      ]
+    },
+    {
+      "note": "Le sas",
+      "quand": {
+        "lieu": "L9"
+      },
+      "si": "!vu_L9",
+      "alors": [
+        {
+          "dire": 53
+        },
+        {
+          "enveloppe": "E12"
+        },
+        {
+          "drapeau": "vu_L9"
+        },
+        {
+          "evenement": "etat_sas"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9"
+      },
+      "alors": [
+        {
+          "evenement": "etat_sas"
+        }
+      ]
+    },
+    {
+      "note": "Pression déjà égalisée : il reste l'écoutille",
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "egal",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "L'ÉCOUTILLE",
+            "texte": "Tous sur le volant : 4 boutons, 4 secondes !",
+            "intro": {
+              "dire": 65
+            },
+            "secondes": 10,
+            "tenir": 4,
+            "reussite": [
+              {
+                "son": 26
+              },
+              {
+                "victoire": true
+              }
+            ],
+            "echec": [
+              {
+                "dire": 66
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "L'Orque accoste",
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "J_verrous && J_contact",
+      "alors": [
+        {
+          "son": 19
+        },
+        {
+          "dire": 62
+        },
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "ÉGALISATION DU SAS",
+            "texte": "Pression d'égalisation, en bars",
+            "champs": [
+              2
+            ],
+            "solution": "16",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "dire": 64
+              },
+              {
+                "drapeau": "egal"
+              },
+              {
+                "epreuve": {
+                  "type": "ensemble",
+                  "titre": "L'ÉCOUTILLE",
+                  "texte": "Tous sur le volant : 4 boutons, 4 secondes !",
+                  "intro": {
+                    "dire": 65
+                  },
+                  "secondes": 10,
+                  "tenir": 4,
+                  "reussite": [
+                    {
+                      "son": 26
+                    },
+                    {
+                      "victoire": true
+                    }
+                  ],
+                  "echec": [
+                    {
+                      "dire": 66
+                    }
+                  ]
+                }
+              }
+            ],
+            "echec": [
+              {
+                "dire": 63
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "J_verrous",
+      "alors": [
+        {
+          "dire": 61
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "J_hyd && J_sec",
+      "alors": [
+        {
+          "dire": 57
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "J_sec",
+      "alors": [
+        {
+          "dire": 56
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "si": "J_hyd",
+      "alors": [
+        {
+          "dire": 55
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "etat_sas"
+      },
+      "alors": [
+        {
+          "dire": 54
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L10"
+      },
+      "si": "J_cmdt",
+      "alors": [
+        {
+          "dire": 116
+        }
+      ]
+    },
+    {
+      "note": "Le poste avant : la commandante coincée",
+      "quand": {
+        "lieu": "L10"
+      },
+      "alors": [
+        {
+          "dire": 67
+        },
+        {
+          "drapeau": "vu_L10"
+        }
+      ]
+    },
+    {
+      "note": "Le casier : 3-7-9 (maillots échangés, du plus jeune au plus vieux)",
+      "quand": {
+        "quoi": "O1"
+      },
+      "si": "!casier",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "LE CASIER DE RASMUS",
+            "texte": "Cadenas à 3 chiffres",
+            "intro": {
+              "dire": 70
+            },
+            "solution": "379",
+            "reussite": [
+              {
+                "son": 8
+              },
+              {
+                "dire": 72
+              },
+              {
+                "enveloppe": "E2"
+              },
+              {
+                "drapeau": "casier"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 71
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O1"
+      },
+      "alors": [
+        {
+          "dire": 73
+        }
+      ]
+    },
+    {
+      "note": "Le multimètre : le relevé des huit bancs",
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 75
+        },
+        {
+          "titre": "RELEVÉ DES BANCS",
+          "texte": "A 121 V · B 118 V · C 64 V · D 119 V\nE 0 V · F 123 V · G 117 V · H 96 V"
+        },
+        {
+          "drapeau": "releve"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O2"
+      },
+      "alors": [
+        {
+          "dire": 74
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O3"
+      },
+      "si": "J_courant",
+      "alors": [
+        {
+          "dire": 31
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O3"
+      },
+      "si": "J_raccord",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "energie",
+            "titre": "RÉPARTITION DE L'ÉNERGIE",
+            "texte": "9 unités · Vert : valider",
+            "intro": {
+              "dire": 82
+            },
+            "quitter": true,
+            "modules": [
+              "Radio",
+              "Console",
+              "Sas",
+              "Pompe de cale",
+              "Éclairage"
+            ],
+            "total": 9,
+            "max": 4,
+            "regles": [
+              {
+                "expr": "somme==9",
+                "texte": "Les 9 unités doivent toutes être réparties."
+              },
+              {
+                "expr": "m0==3",
+                "texte": "Radio : exactement 3 unités."
+              },
+              {
+                "expr": "m1==m2",
+                "texte": "Console et sas sont couplés : même puissance."
+              },
+              {
+                "expr": "m1>=2",
+                "texte": "Console et sas : au moins 2 unités chacun."
+              },
+              {
+                "expr": "m3>=1 && m3<=2",
+                "texte": "Pompe de cale : 1 ou 2 unités."
+              },
+              {
+                "expr": "m4==1",
+                "texte": "Éclairage : exactement 1 unité."
+              }
+            ],
+            "erreur": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 83
+              },
+              {
+                "temps": -2
+              },
+              {
+                "dynamo": {
+                  "charge": 0
+                }
+              }
+            ],
+            "reussite": [
+              {
+                "son": 10
+              },
+              {
+                "dire": 84
+              },
+              {
+                "drapeau": "J_courant"
+              },
+              {
+                "dynamo": {
+                  "duree": 160
+                }
+              },
+              {
+                "ambiance": 3
+              }
+            ],
+            "echec": []
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O3"
+      },
+      "si": "pont",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "lettres",
+            "titre": "TABLEAU DE RACCORDEMENT",
+            "texte": "Bancs sains utilisables, dans l'ordre",
+            "intro": {
+              "dire": 80
+            },
+            "solution": "ABF",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "drapeau": "J_raccord"
+              },
+              {
+                "epreuve": {
+                  "type": "energie",
+                  "titre": "RÉPARTITION DE L'ÉNERGIE",
+                  "texte": "9 unités · Vert : valider",
+                  "intro": {
+                    "dire": 82
+                  },
+                  "quitter": true,
+                  "modules": [
+                    "Radio",
+                    "Console",
+                    "Sas",
+                    "Pompe de cale",
+                    "Éclairage"
+                  ],
+                  "total": 9,
+                  "max": 4,
+                  "regles": [
+                    {
+                      "expr": "somme==9",
+                      "texte": "Les 9 unités doivent toutes être réparties."
+                    },
+                    {
+                      "expr": "m0==3",
+                      "texte": "Radio : exactement 3 unités."
+                    },
+                    {
+                      "expr": "m1==m2",
+                      "texte": "Console et sas sont couplés : même puissance."
+                    },
+                    {
+                      "expr": "m1>=2",
+                      "texte": "Console et sas : au moins 2 unités chacun."
+                    },
+                    {
+                      "expr": "m3>=1 && m3<=2",
+                      "texte": "Pompe de cale : 1 ou 2 unités."
+                    },
+                    {
+                      "expr": "m4==1",
+                      "texte": "Éclairage : exactement 1 unité."
+                    }
+                  ],
+                  "erreur": [
+                    {
+                      "son": 11
+                    },
+                    {
+                      "dire": 83
+                    },
+                    {
+                      "temps": -2
+                    },
+                    {
+                      "dynamo": {
+                        "charge": 0
+                      }
+                    }
+                  ],
+                  "reussite": [
+                    {
+                      "son": 10
+                    },
+                    {
+                      "dire": 84
+                    },
+                    {
+                      "drapeau": "J_courant"
+                    },
+                    {
+                      "dynamo": {
+                        "duree": 160
+                      }
+                    },
+                    {
+                      "ambiance": 3
+                    }
+                  ],
+                  "echec": []
+                }
+              }
+            ],
+            "echec": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 81
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "Le câble : ponter E (voisin de F, le banc sain le plus chargé)",
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "choix",
+            "titre": "LE CÂBLE DE PONTAGE",
+            "texte": "Un seul câble. Quel banc pontez-vous ?",
+            "intro": {
+              "dire": 77
+            },
+            "options": [
+              "Banc C",
+              "Banc E",
+              "Banc H",
+              "Ne pas ponter"
+            ],
+            "bonne": 1,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "dire": 79
+              },
+              {
+                "drapeau": "pont"
+              },
+              {
+                "epreuve": {
+                  "type": "lettres",
+                  "titre": "TABLEAU DE RACCORDEMENT",
+                  "texte": "Bancs sains utilisables, dans l'ordre",
+                  "intro": {
+                    "dire": 80
+                  },
+                  "solution": "ABF",
+                  "quitter": true,
+                  "reussite": [
+                    {
+                      "son": 25
+                    },
+                    {
+                      "drapeau": "J_raccord"
+                    },
+                    {
+                      "epreuve": {
+                        "type": "energie",
+                        "titre": "RÉPARTITION DE L'ÉNERGIE",
+                        "texte": "9 unités · Vert : valider",
+                        "intro": {
+                          "dire": 82
+                        },
+                        "quitter": true,
+                        "modules": [
+                          "Radio",
+                          "Console",
+                          "Sas",
+                          "Pompe de cale",
+                          "Éclairage"
+                        ],
+                        "total": 9,
+                        "max": 4,
+                        "regles": [
+                          {
+                            "expr": "somme==9",
+                            "texte": "Les 9 unités doivent toutes être réparties."
+                          },
+                          {
+                            "expr": "m0==3",
+                            "texte": "Radio : exactement 3 unités."
+                          },
+                          {
+                            "expr": "m1==m2",
+                            "texte": "Console et sas sont couplés : même puissance."
+                          },
+                          {
+                            "expr": "m1>=2",
+                            "texte": "Console et sas : au moins 2 unités chacun."
+                          },
+                          {
+                            "expr": "m3>=1 && m3<=2",
+                            "texte": "Pompe de cale : 1 ou 2 unités."
+                          },
+                          {
+                            "expr": "m4==1",
+                            "texte": "Éclairage : exactement 1 unité."
+                          }
+                        ],
+                        "erreur": [
+                          {
+                            "son": 11
+                          },
+                          {
+                            "dire": 83
+                          },
+                          {
+                            "temps": -2
+                          },
+                          {
+                            "dynamo": {
+                              "charge": 0
+                            }
+                          }
+                        ],
+                        "reussite": [
+                          {
+                            "son": 10
+                          },
+                          {
+                            "dire": 84
+                          },
+                          {
+                            "drapeau": "J_courant"
+                          },
+                          {
+                            "dynamo": {
+                              "duree": 160
+                            }
+                          },
+                          {
+                            "ambiance": 3
+                          }
+                        ],
+                        "echec": []
+                      }
+                    }
+                  ],
+                  "echec": [
+                    {
+                      "son": 11
+                    },
+                    {
+                      "dire": 81
+                    },
+                    {
+                      "temps": -1
+                    }
+                  ]
+                }
+              }
+            ],
+            "echec": [
+              {
+                "son": 11
+              },
+              {
+                "dire": 78
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O3"
+      },
+      "alors": [
+        {
+          "dire": 76
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O4"
+      },
+      "si": "J_hyd",
+      "alors": [
+        {
+          "dire": 113
+        }
+      ]
+    },
+    {
+      "note": "Réamorcer la pompe (après la fuite d'huile)",
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O4"
+      },
+      "si": "vannes",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "rythme",
+            "titre": "LA POMPE À MAIN",
+            "texte": "Suivez le rythme de la pompe",
+            "intro": {
+              "dire": 87
+            },
+            "bouton": "JAUNE",
+            "motif": [
+              0,
+              900,
+              1200
+            ],
+            "repetitions": 3,
+            "son": 12,
+            "tolerance": 220,
+            "reussite": [
+              {
+                "son": 13
+              },
+              {
+                "dire": 89
+              },
+              {
+                "drapeau": "J_hyd"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 88
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "note": "La manivelle : la pompe tourne à vide, il faut d'abord ouvrir les vannes",
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 86
+        },
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "LE CIRCUIT DU SAS",
+            "texte": "4 vannes, dans le sens du fluide",
+            "intro": {
+              "dire": 33
+            },
+            "solution": "2586",
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "dire": 35
+              },
+              {
+                "drapeau": "vannes"
+              },
+              {
+                "epreuve": {
+                  "type": "rythme",
+                  "titre": "LA POMPE À MAIN",
+                  "texte": "Suivez le rythme de la pompe",
+                  "intro": {
+                    "dire": 87
+                  },
+                  "bouton": "JAUNE",
+                  "motif": [
+                    0,
+                    900,
+                    1200
+                  ],
+                  "repetitions": 3,
+                  "son": 12,
+                  "tolerance": 220,
+                  "reussite": [
+                    {
+                      "son": 13
+                    },
+                    {
+                      "dire": 89
+                    },
+                    {
+                      "drapeau": "J_hyd"
+                    }
+                  ],
+                  "echec": [
+                    {
+                      "dire": 88
+                    }
+                  ]
+                }
+              }
+            ],
+            "echec": [
+              {
+                "dire": 34
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O4"
+      },
+      "alors": [
+        {
+          "dire": 85
+        }
+      ]
+    },
+    {
+      "note": "Les deux clés au poste de commande",
+      "quand": {
+        "combiner": [
+          "O5",
+          "O6"
+        ]
+      },
+      "si": "ou_L6 && J_console && !J_sec",
+      "alors": [
+        {
+          "dire": 93
+        },
+        {
+          "epreuve": {
+            "type": "cle",
+            "titre": "LES CLÉS DE COMMANDEMENT",
+            "texte": "Tournez la clé du pupitre !",
+            "secondes": 15,
+            "reussite": [
+              {
+                "son": 25
+              },
+              {
+                "dire": 95
+              },
+              {
+                "drapeau": "J_sec"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 94
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O5",
+          "O6"
+        ]
+      },
+      "si": "ou_L6",
+      "alors": [
+        {
+          "evenement": "console"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "combiner": [
+          "O5",
+          "O6"
+        ]
+      },
+      "alors": [
+        {
+          "dire": 92
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O5"
+      },
+      "alors": [
+        {
+          "dire": 90
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O6"
+      },
+      "alors": [
+        {
+          "dire": 91
+        }
+      ]
+    },
+    {
+      "note": "Le coffre : les épaves J.S., de la plus ancienne à la plus récente",
+      "quand": {
+        "quoi": "O7"
+      },
+      "si": "!coffre",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "LE COFFRE DE LA COMMANDANTE",
+            "texte": "4 chiffres",
+            "intro": {
+              "dire": 96
+            },
+            "solution": "2479",
+            "reussite": [
+              {
+                "son": 8
+              },
+              {
+                "dire": 98
+              },
+              {
+                "enveloppe": "E10"
+              },
+              {
+                "drapeau": "coffre"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 97
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O7"
+      },
+      "alors": [
+        {
+          "dire": 99
+        }
+      ]
+    },
+    {
+      "note": "L'armoire : l'inventaire, du plus nombreux au moins nombreux",
+      "quand": {
+        "quoi": "O8"
+      },
+      "si": "!armoire",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "code",
+            "titre": "L'ARMOIRE DE SURVIE",
+            "texte": "4 chiffres",
+            "intro": {
+              "dire": 100
+            },
+            "solution": "9742",
+            "reussite": [
+              {
+                "son": 8
+              },
+              {
+                "dire": 102
+              },
+              {
+                "enveloppe": "E5"
+              },
+              {
+                "drapeau": "armoire"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 101
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O8"
+      },
+      "alors": [
+        {
+          "dire": 103
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O9"
+      },
+      "si": "chandelle",
+      "alors": [
+        {
+          "dire": 106
+        }
+      ]
+    },
+    {
+      "note": "Jamais près des batteries",
+      "quand": {
+        "lieu": "L4",
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "son": 4
+        },
+        {
+          "dire": 105
+        }
+      ]
+    },
+    {
+      "note": "Bonus : +6 minutes",
+      "quand": {
+        "quoi": "O9"
+      },
+      "alors": [
+        {
+          "son": 22
+        },
+        {
+          "dire": 104
+        },
+        {
+          "temps": 6
+        },
+        {
+          "drapeau": "chandelle"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O10"
+      },
+      "si": "chaux",
+      "alors": [
+        {
+          "dire": 109
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O10"
+      },
+      "si": "!J_courant",
+      "alors": [
+        {
+          "dire": 107
+        }
+      ]
+    },
+    {
+      "note": "Bonus : +5 minutes (avec le courant)",
+      "quand": {
+        "lieu": "L5",
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "son": 3
+        },
+        {
+          "dire": 108
+        },
+        {
+          "temps": 5
+        },
+        {
+          "drapeau": "chaux"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O10"
+      },
+      "alors": [
+        {
+          "dire": 117
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9",
+        "quoi": "O11"
+      },
+      "si": "J_verrous",
+      "alors": [
+        {
+          "evenement": "etat_sas"
+        }
+      ]
+    },
+    {
+      "note": "Les verrous : bleu, rouge, vert, jaune",
+      "quand": {
+        "lieu": "L9",
+        "quoi": "O11"
+      },
+      "si": "J_hyd && J_sec",
+      "alors": [
+        {
+          "epreuve": {
+            "type": "ordre",
+            "titre": "LES VERROUS DU SAS",
+            "texte": "Rouge en haut · bleu à droite (charnière) · jaune en bas · vert à gauche",
+            "intro": {
+              "dire": 58
+            },
+            "ordre": [
+              "BLEU",
+              "ROUGE",
+              "VERT",
+              "JAUNE"
+            ],
+            "quitter": true,
+            "reussite": [
+              {
+                "son": 15
+              },
+              {
+                "dire": 60
+              },
+              {
+                "drapeau": "J_verrous"
+              },
+              {
+                "evenement": "etat_sas"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 59
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L9",
+        "quoi": "O11"
+      },
+      "alors": [
+        {
+          "dire": 111
+        },
+        {
+          "evenement": "etat_sas"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O11"
+      },
+      "alors": [
+        {
+          "dire": 110
+        }
+      ]
+    },
+    {
+      "quand": {
+        "lieu": "L10",
+        "quoi": "O12"
+      },
+      "si": "J_cmdt",
+      "alors": [
+        {
+          "dire": 116
+        }
+      ]
+    },
+    {
+      "note": "Bonus : libérer la commandante (+4 minutes)",
+      "quand": {
+        "lieu": "L10",
+        "quoi": "O12"
+      },
+      "alors": [
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "LA PORTE DU POSTE AVANT",
+            "texte": "Tous sur la barre : 4 boutons, 4 secondes !",
+            "intro": {
+              "dire": 68
+            },
+            "secondes": 10,
+            "tenir": 4,
+            "reussite": [
+              {
+                "son": 7
+              },
+              {
+                "dire": 115
+              },
+              {
+                "enveloppe": "E13"
+              },
+              {
+                "temps": 4
+              },
+              {
+                "drapeau": "J_cmdt"
+              }
+            ],
+            "echec": [
+              {
+                "dire": 69
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "quand": {
+        "quoi": "O12"
+      },
+      "alors": [
+        {
+          "dire": 112
+        }
+      ]
+    }
+  ],
+  "defaut": {
+    "lieu": [
+      {
+        "dire": 11
+      }
+    ],
+    "quoi": [
+      {
+        "dire": 114
+      }
+    ]
+  },
+  "imprevus": [
+    {
+      "minute": 7,
+      "actions": [
+        {
+          "son": 6
+        },
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 120
+        },
+        {
+          "epreuve": {
+            "type": "immobile",
+            "titre": "LE NARVAL GLISSE",
+            "texte": "Ne touchez plus à rien, même pas la dynamo !",
+            "secondes": 15,
+            "reussite": [
+              {
+                "dire": 121
+              }
+            ],
+            "echec": [
+              {
+                "dire": 122
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 14,
+      "actions": [
+        {
+          "son": 11
+        },
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 123
+        },
+        {
+          "epreuve": {
+            "type": "voyants",
+            "titre": "COURT-CIRCUIT",
+            "texte": "Chaque disjoncteur réarme aussi ses voisins : rallumez les dix voyants",
+            "depart": "0000001000",
+            "cible": "1111111111",
+            "liens": "voisins",
+            "couleur": "ambre",
+            "secondes": 60,
+            "reussite": [
+              {
+                "son": 10
+              },
+              {
+                "dire": 124
+              }
+            ],
+            "echec": [
+              {
+                "dire": 125
+              },
+              {
+                "dynamo": {
+                  "charge": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 22,
+      "actions": [
+        {
+          "son": 21
+        },
+        {
+          "dire": 126
+        },
+        {
+          "dire": 127,
+          "unique": true,
+          "delai": 20
+        }
+      ]
+    },
+    {
+      "minute": 30,
+      "si": "J_hyd && !J_verrous",
+      "actions": [
+        {
+          "son": 5
+        },
+        {
+          "dire": 128
+        },
+        {
+          "epreuve": {
+            "type": "molette_zero",
+            "titre": "FUITE D'HUILE",
+            "texte": "Molette à zéro, 15 secondes !",
+            "depart": 30,
+            "secondes": 15,
+            "reussite": [
+              {
+                "dire": 129
+              }
+            ],
+            "echec": [
+              {
+                "dire": 130
+              },
+              {
+                "retirer": "J_hyd"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 38,
+      "actions": [
+        {
+          "son": 24
+        },
+        {
+          "dire": 131
+        },
+        {
+          "epreuve": {
+            "type": "rythme",
+            "titre": "LE CO₂ MONTE",
+            "texte": "Respirez lentement…",
+            "bouton": "VERT",
+            "motif": [
+              0,
+              1400,
+              2800
+            ],
+            "repetitions": 2,
+            "son": 24,
+            "tolerance": 320,
+            "reussite": [
+              {
+                "dire": 132
+              },
+              {
+                "temps": 2
+              }
+            ],
+            "echec": [
+              {
+                "dire": 133
+              },
+              {
+                "temps": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "minute": 46,
+      "actions": [
+        {
+          "son": 5
+        },
+        {
+          "effet": "alerte"
+        },
+        {
+          "dire": 134
+        },
+        {
+          "epreuve": {
+            "type": "ensemble",
+            "titre": "LA COQUE CRAQUE",
+            "texte": "Étayez : 4 boutons, 3 secondes !",
+            "secondes": 10,
+            "tenir": 3,
+            "reussite": [
+              {
+                "dire": 135
+              }
+            ],
+            "echec": [
+              {
+                "dire": 136
+              },
+              {
+                "temps": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "restant": 15,
+      "actions": [
+        {
+          "dire": 137
+        }
+      ]
+    },
+    {
+      "restant": 10,
+      "actions": [
+        {
+          "dire": 138
+        }
+      ]
+    },
+    {
+      "restant": 5,
+      "actions": [
+        {
+          "son": 4
+        },
+        {
+          "dire": 139
+        }
+      ]
+    },
+    {
+      "restant": 1,
+      "actions": [
+        {
+          "son": 4
+        },
+        {
+          "dire": 140
+        }
+      ]
+    }
+  ],
+  "relances": [
+    {
+      "minute": 6,
+      "si": "!casier"
+    },
+    {
+      "minute": 12,
+      "si": "!J_porte"
+    },
+    {
+      "minute": 25,
+      "si": "!J_courant"
+    },
+    {
+      "minute": 32,
+      "si": "!J_hyd && !J_verrous"
+    },
+    {
+      "minute": 38,
+      "si": "!J_sec"
+    },
+    {
+      "minute": 44,
+      "si": "!J_contact"
+    },
+    {
+      "minute": 50,
+      "si": "!J_verrous"
+    }
+  ],
+  "aide": {
+    "carte": "A4",
+    "titre": "L'INTERPHONE",
+    "gratuits": 3,
+    "cout": [
+      {
+        "temps": -2
+      }
+    ],
+    "appel": 160,
+    "gratuit": 161,
+    "payant": 162,
+    "fin": 199,
+    "blocages": [
+      {
+        "si": "!casier",
+        "niveaux": [
+          163,
+          164,
+          165
+        ]
+      },
+      {
+        "si": "!J_porte",
+        "niveaux": [
+          166,
+          167,
+          168
+        ]
+      },
+      {
+        "si": "!J_raccord",
+        "niveaux": [
+          169,
+          170,
+          171
+        ]
+      },
+      {
+        "si": "!J_courant",
+        "niveaux": [
+          172,
+          173,
+          174
+        ]
+      },
+      {
+        "si": "!vannes && !J_verrous",
+        "niveaux": [
+          175,
+          176,
+          177
+        ]
+      },
+      {
+        "si": "!J_hyd && !J_verrous",
+        "niveaux": [
+          178,
+          179,
+          180
+        ]
+      },
+      {
+        "si": "!J_console",
+        "niveaux": [
+          181,
+          182,
+          183
+        ]
+      },
+      {
+        "si": "!coffre",
+        "niveaux": [
+          184,
+          185,
+          186
+        ]
+      },
+      {
+        "si": "!J_sec",
+        "niveaux": [
+          187,
+          188,
+          189
+        ]
+      },
+      {
+        "si": "!J_contact",
+        "niveaux": [
+          190,
+          191,
+          192
+        ]
+      },
+      {
+        "si": "!J_verrous",
+        "niveaux": [
+          193,
+          194,
+          195
+        ]
+      },
+      {
+        "si": "1",
+        "niveaux": [
+          196,
+          197,
+          198
+        ]
+      }
+    ]
+  },
+  "fins": {
+    "victoire": [
+      {
+        "son": 17
+      },
+      {
+        "dire": 150
+      },
+      {
+        "si": "J_cmdt",
+        "alors": [
+          {
+            "dire": 151
+          }
+        ],
+        "sinon": [
+          {
+            "dire": 152
+          }
+        ]
+      },
+      {
+        "dire": 153
+      }
+    ],
+    "rangs": [
+      {
+        "si": "restant>=15 && J_cmdt && indices_payants==0",
+        "dire": 154,
+        "titre": "Médaille de la mer"
+      },
+      {
+        "si": "restant>=5",
+        "dire": 155,
+        "titre": "Insigne des profondeurs"
+      },
+      {
+        "si": "1",
+        "dire": 156,
+        "titre": "Rescapés du Narval"
+      }
+    ],
+    "temps": [
+      {
+        "son": 18
+      },
+      {
+        "dire": 157
+      }
+    ],
+    "solution": [
+      {
+        "dire": 158
+      }
+    ]
+  }
+}
