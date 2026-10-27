@@ -107,7 +107,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
 | Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
 | Fixations | 21 aimants néodyme 10 × 3 mm, entretoises et vis M3, patins | — | 16 € |
-| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 195 €** |
+| **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 200 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 
