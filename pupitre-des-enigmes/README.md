@@ -1,5 +1,7 @@
 # Le Pupitre des Énigmes
 
+![Le Pupitre des Énigmes](console/logo.jpg)
+
 Une console d'escape game de table pour adultes (2 à 6 joueurs), construite
 autour d'un ESP32. Elle a un écran, une **fente** où l'on glisse les cartes et un
 **lecteur à plat** où l'on pose des objets (puces NFC), un **clavier 4×4**, des

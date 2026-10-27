@@ -242,8 +242,8 @@ void Dessin::message(const char* titre, const char* texte) {
 }
 
 void Dessin::logo() {
-  g_.fillScreen(logo::FOND);
-  g_.drawJpg(logo::JPEG, sizeof(logo::JPEG), (L - logo::COTE) / 2, (H - logo::COTE) / 2);
+  g_.fillScreen(0x000000u);
+  g_.drawJpg(logo::JPEG, sizeof(logo::JPEG), (L - logo::LARGEUR) / 2, (H - logo::HAUTEUR) / 2);
   premiere_ = true;  // la vue suivante redessine tout l'écran
 }
 

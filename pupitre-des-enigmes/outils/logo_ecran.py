@@ -1,38 +1,37 @@
 #!/usr/bin/env python3
 """Prépare le logo affiché au démarrage du pupitre : firmware/src/logo.h.
 
-    python3 outils/logo_ecran.py [console/logo.png]
+    python3 outils/logo_ecran.py [console/logo.jpg]
 
-Le logo est recadré sur son cercle, réduit à 300 × 300 pixels (l'écran fait 480 × 320) et
-enregistré en JPEG dans le programme : il s'affiche avant même que la carte SD soit lue.
-La couleur du coin de l'image sert de fond au reste de l'écran."""
+L'image est recadrée au format de l'écran (3:2), autour de son centre, réduite à
+480 × 320 pixels et enregistrée en JPEG dans le programme : elle s'affiche en plein écran
+avant même que la carte SD soit lue."""
 import io
 import sys
 from pathlib import Path
 
-import numpy as np
 from PIL import Image
 
 JEU = Path(__file__).resolve().parents[1]
-COTE = 300
+LARGEUR, HAUTEUR = 480, 320
 
 
 def main():
-    source = Path(sys.argv[1]) if len(sys.argv) > 1 else JEU / "console" / "logo.png"
+    source = Path(sys.argv[1]) if len(sys.argv) > 1 else JEU / "console" / "logo.jpg"
     image = Image.open(source).convert("RGB")
-    fond = image.getpixel((4, 4))
 
-    # Le cadrage : tout ce qui se détache du fond, avec une petite marge.
-    a = np.asarray(image).astype(int)
-    ecart = np.abs(a - np.array(fond)).sum(axis=2) > 60
-    ys, xs = np.where(ecart)
-    cx, cy = (xs.min() + xs.max()) / 2, (ys.min() + ys.max()) / 2
-    demi = max(xs.max() - xs.min(), ys.max() - ys.min()) / 2 * 1.03
-    image = image.crop((round(cx - demi), round(cy - demi), round(cx + demi), round(cy + demi)))
-    image = image.resize((COTE, COTE), Image.LANCZOS)
+    # Le cadrage : la plus grande zone 3:2 centrée, puis la taille de l'écran.
+    l, h = image.size
+    if l * HAUTEUR > h * LARGEUR:
+        garde = h * LARGEUR // HAUTEUR
+        image = image.crop(((l - garde) // 2, 0, (l + garde) // 2, h))
+    else:
+        garde = l * HAUTEUR // LARGEUR
+        image = image.crop((0, (h - garde) // 2, l, (h + garde) // 2))
+    image = image.resize((LARGEUR, HAUTEUR), Image.LANCZOS)
 
     tampon = io.BytesIO()
-    image.save(tampon, "JPEG", quality=90, optimize=True)  # LovyanGFX : JPEG de base, pas progressif
+    image.save(tampon, "JPEG", quality=85, optimize=True)  # LovyanGFX : JPEG de base, pas progressif
     octets = tampon.getvalue()
 
     lignes = [", ".join(f"0x{b:02x}" for b in octets[i:i + 16]) for i in range(0, len(octets), 16)]
@@ -42,8 +41,7 @@ def main():
         "#pragma once\n\n"
         "#include <cstdint>\n\n"
         "namespace logo {\n\n"
-        f"constexpr int COTE = {COTE};\n"
-        f"constexpr uint32_t FOND = 0x{fond[0]:02x}{fond[1]:02x}{fond[2]:02x};\n\n"
+        f"constexpr int LARGEUR = {LARGEUR}, HAUTEUR = {HAUTEUR};\n\n"
         "const uint8_t JPEG[] = {\n  " + ",\n  ".join(lignes) + "\n};\n\n"
         "}  // namespace logo\n")
     print(f"✓ {cible.relative_to(JEU)} : {len(octets)} octets")
