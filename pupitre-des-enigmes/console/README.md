@@ -85,37 +85,34 @@ dans `firmware/src/broches.h`.
 
 ## 2. Liste des composants
 
+La liste d'achat complète, avec les quantités, les pièces de secours, le câblage, le bois, le
+matériel de jeu des 4 missions et l'outillage, est dans [`achats.json`](achats.json) et en PDF :
+`pdf/liste-achats.pdf`. En résumé :
+
 | Composant | Modèle | Qté | Prix approx. |
 |---|---|---|---|
-| Microcontrôleur | ESP-32S (module ESP32-WROOM-32), USB-C, puce USB CH340 | 1 | (déjà là) |
-| Écran | TFT SPI 3,5" ILI9488 480×320, avec lecteur SD | 1 | 12-15 € |
-| Lecteurs RFID | RC522 13,56 MHz : la fente et le lecteur à plat | 2 | 6 € |
-| Puces | Autocollants NTAG213 ronds de 25 mm (lot de 100) : cartes et objets | 1 | 15 € |
-| Audio haut-parleur | DFPlayer Mini, micro-SD et HP 3 W / 4 Ω | 1 | 6 € |
-| Audio casque | DFPlayer Mini, micro-SD et **embase jack 3,5 mm stéréo** | 1 | 5 € |
-| Casque | Casque filaire jack, de préférence fermé (pour l'immersion) | 1 | 10-15 € |
-| Boutons | Arcade 30 mm (rouge, bleu, jaune, vert) | 4 | 6 € |
-| Gros bouton | Champignon 60 mm | 1 | 4 € |
-| Molette | Encodeur KY-040 | 1 | 2 € |
+| Microcontrôleur | ESP32 DevKit 30 broches (ESP32-WROOM-32), USB-C, puce USB CP2102 ou CH340 (**pas un ESP8266**) | 1 | (déjà là) |
+| Écran | TFT SPI 3,5" ILI9488 480×320, avec lecteur SD | 1 | 14 € |
+| Lecteurs RFID | RC522 13,56 MHz : la fente, le lecteur à plat, un de secours | 3 | 9 € |
+| Puces | Autocollants NTAG213 ronds de 25 mm : 124 cartes et les objets (2 lots de 100) | 2 | 24 € |
+| Audio | DFPlayer Mini (haut-parleur, casque, secours), HP 3 W / 4 Ω, embase jack 3,5 mm stéréo, 3 micro-SD | — | 25 € |
+| Casque | Casque filaire jack, de préférence fermé (pour l'immersion) | 1 | 15 € |
+| Boutons | Arcade 30 mm (rouge, bleu, jaune, vert) et champignon 60 mm | 4 + 1 | 11 € |
+| Molette | Encodeur KY-040 (et un de secours) | 2 | 3 € |
 | Clavier | Clavier membrane 4×4 (nappe de 8 fils, adhésif au dos) | 1 | 2 € |
-| Modules I2C | PCF8574 (carte « IO expansion », adresse réglable) : le clavier, les 4 boutons de couleur | 2 | 4 € |
-| Capteur de couleur | TCS34725 (module avec LED blanche) | 1 | 4 € |
-| Œil | APDS-9960 (gestes, proximité, lumière) | 1 | 4 € |
-| Forge | BME280 (humidité, température) : **pas un BMP280**, qui n'a pas d'humidité | 1 | 5 € |
-| Enclume | QMC5883L (module « GY-271 ») | 1 | 3 € |
-| Horloge | Afficheur 4 chiffres 7 segments 0,56" avec HT16K33 (câblage Adafruit) | 1 | 10 € |
-| Tiroir secret | Module servomoteurs PCA9685 (I2C), micro-servomoteur MG90S (pignons métal) ou SG90, ressort de compression, microrupteur de fin de course, condensateur 470 µF | 1 de chaque | 12 € |
-| LED | Anneau WS2812B de 12 LED, 3 LED WS2812B individuelles (fente, plateau, tiroir secret) | 1 + 3 | 6 € |
-| Voyants | Ruban WS2812B 60 LED/m : 2 morceaux de 5 LED | 10 LED | 3 € |
-| Ruban sous la boîte | Ruban WS2812B : 6 à 10 LED | 8 LED | (même ruban) |
-| Alimentation | Chargeur USB-C 5 V / 3 A et embase USB-C à visser (alimentation seule) | 1 + 1 | 12 € |
-| Interrupteur | Interrupteur à bascule, à encastrer | 1 | 1 € |
-| Interrupteur à clé | Métal, perçage Ø 12 mm, 2 positions (repos, tourné), avec 2 clés | 1 | 4 € |
-| Façades | Aimants néodyme 10 × 3 mm | 8 par façade | 4 € |
-| Divers | Résistances 1 kΩ, 330 Ω, 10 kΩ, condensateur 1000 µF, fils, plaque à souder | — | 6 € |
-| **Total** | | | **≈ 120 €** |
+| Clé | Interrupteur à clé en métal, Ø 12 mm, 2 positions | 1 | 4 € |
+| Modules I2C | PCF8574 : le clavier ; les 4 boutons et le fin de course du tiroir ; un de secours | 3 | 5 € |
+| Capteurs I2C | TCS34725 (couleur), APDS-9960 (œil), BME280 (forge, **pas un BMP280**), QMC5883L « GY-271 » (enclume) | 1 de chaque | 16 € |
+| Horloge | Afficheur 4 chiffres 0,56" à HT16K33 | 1 | (déjà là) |
+| Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11, baguettes 5 × 5 mm | 1 de chaque | 14 € |
+| LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
+| Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser, interrupteur à bascule | — | 11 € |
+| Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG | — | 45 € |
+| Boîtier et façades | Contreplaqué 5 mm et 3 mm (4 façades, tiroir), tasseaux, 21 aimants néodyme 10 × 3 mm, entretoises M3 | — | 50 € |
+| Matériel de jeu | Papier cartonné, 37 enveloppes kraft, fer à cheval, attaches parisiennes | — | 30 € |
+| **Total** | hors outillage et services | | **≈ 315 €** |
 
-## 3. Câblage (ESP-32S, USB-C, CH340)
+## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 
 | Fonction | Broche du composant | GPIO |
 |---|---|---|

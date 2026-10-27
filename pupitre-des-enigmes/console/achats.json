@@ -1,52 +1,38 @@
 {
   "titre": "Liste d'achat du Pupitre des Énigmes",
-  "note": "Prix indicatifs en euros (AliExpress ou Amazon), à vérifier au moment de commander. Sur AliExpress, comptez 2 à 4 semaines de livraison.",
+  "note": "Prix indicatifs en euros (AliExpress ou Amazon), à vérifier au moment de commander. Sur AliExpress, comptez 2 à 4 semaines de livraison. Les modules marqués « de secours » évitent d'attendre une nouvelle commande si l'un d'eux est défectueux.",
   "sections": [
     {
-      "nom": "Électronique de la console",
+      "nom": "Le cerveau et l'écran",
       "articles": [
         {
-          "article": "ESP-32S (ESP32-WROOM-32), USB-C, CH340",
-          "detail": "Déjà en votre possession. Carte de développement 30 ou 38 broches",
+          "article": "Carte ESP32 DevKit, 30 broches, USB-C (ESP32-WROOM-32)",
+          "detail": "Déjà en votre possession (puce USB CP2102). Attention : une « NodeMCU V3 Lolin » est un ESP8266, qui ne convient pas",
           "qte": 1,
           "prix": 0
         },
         {
           "article": "Écran TFT 3,5\" SPI ILI9488",
-          "detail": "480×320, avec lecteur micro-SD intégré. Recherche : « 3.5 inch SPI TFT ILI9488 »",
+          "detail": "480 × 320, avec lecteur micro-SD intégré. Recherche : « 3.5 inch SPI TFT ILI9488 »",
           "qte": 1,
           "prix": 14
-        },
+        }
+      ]
+    },
+    {
+      "nom": "Les cartes et les objets (RFID)",
+      "articles": [
         {
           "article": "Module RFID RC522",
-          "detail": "13,56 MHz. Un pour la fente, un à plat sous le couvercle, un de secours",
+          "detail": "13,56 MHz. Un pour la fente, un à plat sous le couvercle, un de secours. 3,3 V uniquement",
           "qte": 3,
           "prix": 3
-        },
-        {
-          "article": "Lecteur MP3 DFPlayer Mini",
-          "detail": "Un pour le haut-parleur, un pour le casque, un de secours. Préférez la puce YX5200 ou MH2024K",
-          "qte": 3,
-          "prix": 2.5
-        },
-        {
-          "article": "Encodeur rotatif KY-040",
-          "detail": "La molette, avec bouton poussoir intégré. 1 de secours",
-          "qte": 2,
-          "prix": 1.5
-        },
-        {
-          "article": "Anneau WS2812B 12 LED",
-          "detail": "Le chrono lumineux. Recherche : « WS2812B ring 12 bits »",
-          "qte": 1,
-          "prix": 3
-        },
-        {
-          "article": "LED WS2812B sur mini-circuit",
-          "detail": "Lot de 10 : une LED pour la fente, une pour le lecteur à plat, une dans le tiroir secret",
-          "qte": 1,
-          "prix": 3
-        },
+        }
+      ]
+    },
+    {
+      "nom": "Les commandes",
+      "articles": [
         {
           "article": "Boutons d'arcade 30 mm",
           "detail": "Rouge, bleu, jaune, vert (lot de couleurs assorties)",
@@ -60,10 +46,10 @@
           "prix": 5
         },
         {
-          "article": "Interrupteur à clé en métal",
-          "detail": "Perçage Ø 12 mm, 2 positions, livré avec 2 clés. Recherche : « 12mm metal key switch »",
-          "qte": 1,
-          "prix": 4
+          "article": "Encodeur rotatif KY-040",
+          "detail": "La molette, avec bouton poussoir intégré. 1 de secours",
+          "qte": 2,
+          "prix": 1.5
         },
         {
           "article": "Clavier membrane 4×4",
@@ -72,11 +58,22 @@
           "prix": 2
         },
         {
+          "article": "Interrupteur à clé en métal",
+          "detail": "Perçage Ø 12 mm, 2 positions, livré avec 2 clés. Recherche : « 12mm metal key switch »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
           "article": "Module d'extension I2C PCF8574",
-          "detail": "Un pour le clavier, un pour les 4 boutons de couleur, un de secours. Recherche : « PCF8574 IO expansion board »",
+          "detail": "Un pour le clavier, un pour les 4 boutons de couleur et le fin de course du tiroir, un de secours. Recherche : « PCF8574 IO expansion board »",
           "qte": 3,
           "prix": 1.5
-        },
+        }
+      ]
+    },
+    {
+      "nom": "Les capteurs et l'horloge (I2C)",
+      "articles": [
         {
           "article": "Capteur de couleur TCS34725",
           "detail": "Module I2C avec LED blanche intégrée, pour reconnaître la couleur d'un objet posé. Recherche : « TCS34725 color sensor »",
@@ -85,7 +82,7 @@
         },
         {
           "article": "Capteur de gestes APDS-9960 (l'œil)",
-          "detail": "Module I2C : gestes de la main (haut, bas, gauche, droite) et lumière. Recherche : « APDS-9960 gesture sensor module »",
+          "detail": "Gestes de la main (haut, bas, gauche, droite) et lumière. Recherche : « APDS-9960 gesture sensor module »",
           "qte": 1,
           "prix": 4
         },
@@ -103,45 +100,50 @@
         },
         {
           "article": "Afficheur 4 chiffres HT16K33 (l'horloge)",
-          "detail": "7 segments 0,56 pouce avec module I2C HT16K33 (adresse 0x70), deux-points au centre. Recherche : « HT16K33 4 digit 7 segment I2C backpack »",
+          "detail": "Déjà en votre possession. 7 segments 0,56 pouce, deux-points au centre, adresse 0x70",
           "qte": 1,
-          "prix": 10
-        },
-        {
-          "article": "Module servomoteurs PCA9685 (le tiroir secret)",
-          "detail": "16 voies, I2C (adresse 0x40) : il pilote le servomoteur du verrou. Recherche : « PCA9685 16 channel servo driver I2C »",
-          "qte": 1,
-          "prix": 4
-        },
-        {
-          "article": "Micro-servomoteur MG90S",
-          "detail": "Pignons métal (plus robuste qu'un SG90 pour un verrou), avec ses bras. Recherche : « MG90S micro servo »",
-          "qte": 1,
-          "prix": 4
-        },
-        {
-          "article": "Ressorts de compression (assortiment)",
-          "detail": "Ø 8 à 10 mm, 25 à 30 mm de long, fil de 0,6 à 0,8 mm : il pousse le tiroir dehors. Recherche : « assortiment ressorts compression »",
-          "qte": 1,
-          "prix": 4
-        },
-        {
-          "article": "Microrupteur de fin de course",
-          "detail": "Petit microrupteur à levier (type KW11) : il sent le tiroir poussé au fond. Recherche : « micro switch KW11 »",
-          "qte": 1,
-          "prix": 1
-        },
-        {
-          "article": "Ruban LED WS2812B 5 V",
-          "detail": "60 LED/m, à couper : les 10 voyants (2 morceaux de 5) et 8 LED sous la boîte, tournées vers la table",
-          "qte": 1,
-          "prix": 4
+          "prix": 0
         }
       ]
     },
     {
-      "nom": "Son et casque",
+      "nom": "La lumière",
       "articles": [
+        {
+          "article": "Anneau WS2812B 12 LED",
+          "detail": "Le chrono lumineux. Recherche : « WS2812B ring 12 bits »",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "LED WS2812B sur mini-circuit",
+          "detail": "Lot de 10 : une pour la fente, une pour le lecteur à plat, une dans le tiroir secret",
+          "qte": 1,
+          "prix": 3
+        },
+        {
+          "article": "Ruban LED WS2812B 5 V, 60 LED/m, 1 m",
+          "detail": "À couper : les 10 voyants (2 morceaux de 5) et 8 LED sous la boîte, tournées vers la table",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Plexiglas dépoli 2 ou 3 mm",
+          "detail": "Un petit morceau : le disque de Ø 38 mm qui diffuse la lumière de l'anneau",
+          "qte": 1,
+          "prix": 3
+        }
+      ]
+    },
+    {
+      "nom": "Le son et le casque",
+      "articles": [
+        {
+          "article": "Lecteur MP3 DFPlayer Mini",
+          "detail": "Un pour le haut-parleur, un pour le casque, un de secours. Préférez la puce YX5200 ou MH2024K",
+          "qte": 3,
+          "prix": 2.5
+        },
         {
           "article": "Haut-parleur 3 W 4 Ω",
           "detail": "Diamètre 40 à 50 mm",
@@ -162,14 +164,49 @@
         },
         {
           "article": "Cartes micro-SD 8 ou 16 Go",
-          "detail": "Une pour l'écran, une pour chaque DFPlayer (32 Go maximum, formatées en FAT32)",
+          "detail": "Une pour l'écran, une pour chaque DFPlayer (FAT32 : 32 Go au plus)",
           "qte": 3,
           "prix": 4
         }
       ]
     },
     {
-      "nom": "Alimentation et connectique",
+      "nom": "Le tiroir secret",
+      "articles": [
+        {
+          "article": "Module servomoteurs PCA9685",
+          "detail": "16 voies, I2C (adresse 0x40) : il pilote le servomoteur du verrou. Recherche : « PCA9685 16 channel servo driver I2C »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Micro-servomoteur MG90S",
+          "detail": "Pignons métal (plus robuste qu'un SG90 pour un verrou), avec ses bras. Recherche : « MG90S micro servo »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Ressorts de compression (assortiment)",
+          "detail": "Ø 8 à 10 mm, 25 à 30 mm de long, fil de 0,6 à 0,8 mm : il pousse le tiroir dehors",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Microrupteur de fin de course",
+          "detail": "Petit microrupteur à levier (type KW11) : il sent le tiroir poussé au fond. Recherche : « micro switch KW11 »",
+          "qte": 2,
+          "prix": 0.5
+        },
+        {
+          "article": "Baguettes de bois 5 × 5 mm",
+          "detail": "Les coulisses et le taquet du tiroir (1 m suffit)",
+          "qte": 1,
+          "prix": 2
+        }
+      ]
+    },
+    {
+      "nom": "Alimentation, plaque et câblage",
       "articles": [
         {
           "article": "Chargeur USB-C 5 V 3 A",
@@ -190,40 +227,52 @@
           "prix": 1
         },
         {
-          "article": "Assortiment de résistances",
-          "detail": "Contient 330 Ω, 1 kΩ et 10 kΩ",
-          "qte": 1,
-          "prix": 4
-        },
-        {
-          "article": "Condensateur 1000 µF 10 V",
-          "detail": "Protection des LED. 1 de secours",
-          "qte": 2,
-          "prix": 0.5
-        },
-        {
           "article": "Plaque à souder à pastilles 7 × 9 cm",
-          "detail": "Pour le montage définitif",
+          "detail": "La carte principale (ESP32, deux DFPlayer). 1 de secours",
           "qte": 2,
           "prix": 1.5
         },
         {
-          "article": "Barrettes femelles 2,54 mm",
-          "detail": "Pour enficher l'ESP32 et les modules sans les souder directement",
-          "qte": 1,
-          "prix": 3
+          "article": "Barrettes femelles 2,54 mm (1 × 40)",
+          "detail": "Pour enficher l'ESP32 (2 × 15) et les deux DFPlayer (4 × 8) sans les souder",
+          "qte": 2,
+          "prix": 1.5
         },
         {
-          "article": "Fils Dupont (lot de 120)",
-          "detail": "Mâle-femelle, femelle-femelle, mâle-mâle",
+          "article": "Connecteurs JST-XH 2,54 mm (coffret de 2 à 8 broches, avec câbles)",
+          "detail": "Les 13 connecteurs de la plaque (plan de câblage) : la plaque se débranche en entier. À défaut : barrettes mâles et fils Dupont",
+          "qte": 1,
+          "prix": 8
+        },
+        {
+          "article": "Assortiment de résistances",
+          "detail": "Il en faut : 2 × 1 kΩ (DFPlayer), 1 × 330 Ω (LED), 1 × 10 kΩ (gros bouton)",
           "qte": 1,
           "prix": 4
         },
         {
-          "article": "Fil souple 24 AWG",
-          "detail": "Plusieurs couleurs, pour le câblage dans le boîtier",
+          "article": "Condensateurs électrolytiques 10 V ou 16 V",
+          "detail": "1 × 1000 µF (entrée de l'anneau de LED), 1 × 470 µF (servomoteur), 1 × 100 µF (plaque) : un petit assortiment",
           "qte": 1,
-          "prix": 6
+          "prix": 4
+        },
+        {
+          "article": "Fil souple silicone 24 ou 26 AWG, 6 couleurs × 5 m",
+          "detail": "Environ 30 m pour tous les signaux (plan de câblage : 116 fils). Rouge, noir, orange, jaune, vert, bleu",
+          "qte": 1,
+          "prix": 9
+        },
+        {
+          "article": "Fil souple 22 AWG, rouge et noir, 2 m de chaque",
+          "detail": "L'alimentation 5 V, le haut-parleur et le servomoteur",
+          "qte": 1,
+          "prix": 4
+        },
+        {
+          "article": "Fils Dupont (lot de 120)",
+          "detail": "Mâle-femelle, femelle-femelle, mâle-mâle : pour les essais sur breadboard",
+          "qte": 1,
+          "prix": 4
         },
         {
           "article": "Breadboard 830 points",
@@ -236,45 +285,57 @@
           "detail": "Assortiment",
           "qte": 1,
           "prix": 3
+        },
+        {
+          "article": "Colliers de serrage et embases adhésives",
+          "detail": "Pour tenir les câbles et leur boucle de mou",
+          "qte": 1,
+          "prix": 4
         }
       ]
     },
     {
-      "nom": "Boîtier et façade",
+      "nom": "Boîtier et façades",
       "articles": [
         {
           "article": "Contreplaqué 5 mm",
-          "detail": "Boîtier de 38 × 26 cm, 5 cm de haut à l'avant et 8 cm à l'arrière (liste de débit : console/README.md, § 4). Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
+          "detail": "Boîtier de 38 × 26 cm, 5 cm de haut à l'avant et 8 cm à l'arrière (liste de débit : notice de montage, § 4). Plaque d'environ 60 × 60 cm, ou découpe laser au fablab",
           "qte": 1,
           "prix": 10
         },
         {
           "article": "Tasseaux 15 × 15 mm",
-          "detail": "4 morceaux de 4 cm, pour poser le fond amovible",
+          "detail": "4 morceaux de 4 cm, pour poser le fond amovible, et la butée arrière du tiroir",
           "qte": 1,
           "prix": 2
         },
         {
           "article": "Contreplaqué bouleau 3 mm",
-          "detail": "Les 4 façades (Haras, Monte-Carlo, Kepler-9, Narval) et les 3 puits des fentes, en fablab",
+          "detail": "Les 4 façades (Haras, Monte-Carlo, Kepler-9, Narval), le puits de la fente et la caisse du tiroir",
           "qte": 4,
           "prix": 5
         },
         {
           "article": "Aimants néodyme 10 × 3 mm (lot de 30)",
-          "detail": "4 dans le boîtier et 4 par façade (4 façades) : 20 en tout",
+          "detail": "4 dans le boîtier, 4 par façade (4 façades) et 1 sous le fer à cheval : 21 en tout",
           "qte": 1,
           "prix": 7
         },
         {
-          "article": "Kit d'entretoises nylon M3",
-          "detail": "Avec vis et écrous, pour fixer l'écran et les circuits",
+          "article": "Kit d'entretoises nylon M3, et 4 vis M3 × 12 à tête fraisée",
+          "detail": "Pour fixer la plaque électronique sur le fond (vis par-dessous) et l'écran",
+          "qte": 1,
+          "prix": 7
+        },
+        {
+          "article": "Papier adhésif ou papier épais A4, couleur",
+          "detail": "Les plateaux imprimés des façades (2 feuilles par façade)",
           "qte": 1,
           "prix": 6
         },
         {
-          "article": "Pieds caoutchouc adhésifs",
-          "detail": "Pour ne pas rayer la table",
+          "article": "Patins caoutchouc adhésifs 5 à 8 mm",
+          "detail": "Sous le fond : ils laissent passer la lumière du ruban sous la boîte",
           "qte": 1,
           "prix": 2
         },
@@ -287,47 +348,47 @@
       ]
     },
     {
-      "nom": "Matériel de jeu : les missions",
+      "nom": "Matériel de jeu : les 4 missions",
       "articles": [
         {
-          "article": "Petit fer à cheval décoratif (mission 1)",
-          "detail": "6 à 8 cm, en métal ou en résine, avec un aimant néodyme 10 × 3 mm collé dessous : le fer de la forge. Recherche : « mini fer à cheval décoratif »",
-          "qte": 1,
-          "prix": 3
-        },
-        {
           "article": "Autocollants NFC NTAG213 (lot de 100)",
-          "detail": "Ronds, 25 mm. Il faut 100 cartes pour les 3 missions (33 + 33 + 34) : prenez 2 lots pour avoir de la marge · aussi pour cacher une puce sous des objets",
+          "detail": "Ronds, 25 mm. 124 cartes pour les 4 missions (33 + 33 + 34 + 24), plus les objets à puce : 2 lots",
           "qte": 2,
           "prix": 12
         },
         {
           "article": "Papier cartonné 300 à 350 g, A4",
-          "detail": "Pour imprimer les 100 cartes des 3 missions (12 feuilles recto verso ; ramette de 50)",
+          "detail": "Les 124 cartes : 15 feuilles en recto verso (ramette de 50)",
           "qte": 1,
           "prix": 8
         },
         {
           "article": "Pochettes de plastification",
-          "detail": "Optionnel : pour protéger les cartes",
+          "detail": "Optionnel : pour protéger les cartes et les plateaux",
           "qte": 1,
           "prix": 6
         },
         {
           "article": "Enveloppes kraft C5 (lot de 25)",
-          "detail": "24 pour les 3 missions (8 + 7 + 9)",
-          "qte": 1,
+          "detail": "37 pour les 4 missions (8 + 7 + 9 + 13) : 2 lots",
+          "qte": 2,
           "prix": 5
         },
         {
           "article": "Papier A4 120 g",
-          "detail": "Fiches de mission, documents secrets, contenu des enveloppes des 3 missions",
+          "detail": "Fiches de mission, documents secrets, contenu des enveloppes",
           "qte": 1,
           "prix": 5
         },
         {
+          "article": "Petit fer à cheval décoratif (mission 1)",
+          "detail": "6 à 8 cm, en métal ou en résine, avec un aimant collé dessous : le fer de la forge. Recherche : « mini fer à cheval décoratif »",
+          "qte": 1,
+          "prix": 3
+        },
+        {
           "article": "Attaches parisiennes",
-          "detail": "Pour la roue de chiffrement de la Vétérinaire",
+          "detail": "Pour la roue de chiffrement de la Vétérinaire (mission 1)",
           "qte": 1,
           "prix": 2
         }
@@ -351,19 +412,31 @@
         },
         {
           "article": "Multimètre",
-          "detail": "Pour vérifier les tensions 3,3 V et 5 V",
+          "detail": "Pour vérifier les tensions 3,3 V et 5 V, et l'absence de court-circuit avant la mise sous tension",
           "qte": 1,
           "prix": 12
         },
         {
           "article": "Scies cloches",
-          "detail": "Pour percer les trous des boutons (vérifiez le diamètre indiqué par le vendeur des boutons)",
+          "detail": "Pour les trous des boutons (vérifiez le diamètre indiqué par le vendeur des boutons)",
           "qte": 1,
           "prix": 10
         },
         {
+          "article": "Scie à chantourner",
+          "detail": "Pour découper la façade du tiroir dans la paroi, d'un trait fin",
+          "qte": 1,
+          "prix": 15
+        },
+        {
+          "article": "Pince à sertir pour JST-XH",
+          "detail": "Seulement si vous sertissez vos câbles vous-même (sinon, coffret de câbles déjà sertis)",
+          "qte": 1,
+          "prix": 15
+        },
+        {
           "article": "Pistolet à colle chaude",
-          "detail": "Pour fixer les lecteurs RFID sous la façade",
+          "detail": "Pour fixer les lecteurs RFID, les LED et les capteurs sous le couvercle",
           "qte": 1,
           "prix": 10
         }
@@ -375,13 +448,13 @@
       "articles": [
         {
           "article": "Abonnement ElevenLabs Starter",
-          "detail": "1 mois suffit pour enregistrer toutes les voix et bruitages de la mission 1 (résiliable)",
+          "detail": "Pour générer les voix et les bruitages : 1 mois par mission environ (résiliable). Sans voix, le jeu marche avec les sous-titres",
           "qte": 1,
           "prix": 6
         },
         {
           "article": "Découpe et gravure laser en fablab",
-          "detail": "Boîtier et façade, selon le tarif du fablab local",
+          "detail": "Boîtier et façades, selon le tarif du fablab local",
           "qte": 1,
           "prix": 15
         }
@@ -389,10 +462,11 @@
     }
   ],
   "conseils": [
-    "Commandez d'abord l'électronique : c'est le plus long à recevoir, et le programme de test pourra être écrit pendant l'attente.",
+    "Commandez d'abord l'électronique : c'est le plus long à recevoir.",
+    "Vérifiez les puces à réception : ESP32 (et non ESP8266), BME280 (et non BMP280), QMC5883L (et non HMC5883L).",
     "Les modules RC522 et DFPlayer sont fragiles et de qualité variable : les exemplaires de secours évitent d'attendre une nouvelle livraison.",
-    "Le RC522 s'alimente en 3,3 V uniquement : branché sur 5 V, il est détruit.",
-    "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier.",
-    "Les autocollants NTAG213 se collent au dos des cartes imprimées, au centre, pour être bien lus par le lecteur."
+    "Le RC522 et tous les modules I2C s'alimentent en 3,3 V : branchés sur 5 V, certains sont détruits.",
+    "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier ; l'onglet « Atelier » du panneau Wi-Fi montre chaque capteur en direct.",
+    "Les autocollants NTAG213 se collent au dos des cartes, en bas (le cercle « PUCE NFC » des planches) : c'est le bord qui entre dans la fente."
   ]
 }
