@@ -14,7 +14,7 @@
     "220-249": "Fernand"
   },
   "lignes": [
-    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Monte-Carlo, mille neuf cent vingt-huit. Mission deux : le casse du siècle." },
+    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Monte-Carlo, mille neuf cent vingt-huit. Le casse du siècle." },
     { "n": 2, "voix": "narrateur", "usage": "Demande des rôles", "texte": "Messieurs-dames, glissez chacun votre carte Rôle dans la fente, puis reprenez-la." },
     { "n": 3, "voix": "narrateur", "usage": "Rôle posé", "texte": "Le Cerveau est dans la place." },
     { "n": 4, "voix": "narrateur", "usage": "Rôle posé", "texte": "La Perceuse de coffres est dans la place." },

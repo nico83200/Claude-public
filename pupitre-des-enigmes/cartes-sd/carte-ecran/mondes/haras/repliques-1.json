@@ -14,7 +14,7 @@
     "220-247": "Papy Marcel", "248-255": "Forge, grange, gestes et tiroir (255 au plus : limite du lecteur audio)"
   },
   "lignes": [
-    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Le Haras des Trois Fers. Mission un : la disparition d'Éclipse." },
+    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Le Haras des Trois Fers. La disparition d'Éclipse." },
     { "n": 2, "voix": "narrateur", "usage": "Demande des rôles", "texte": "Avant de commencer, glissez chacun votre carte Rôle dans la fente, puis reprenez-la." },
     { "n": 3, "voix": "narrateur", "usage": "Rôle posé", "texte": "Le Maréchal-ferrant est arrivé." },
     { "n": 4, "voix": "narrateur", "usage": "Rôle posé", "texte": "La Vétérinaire est arrivée." },

@@ -187,7 +187,7 @@ RADIO_REPLIQUE = {mot: 40 + i for i, mot in enumerate(RADIO)}
 def repliques():
     L = lambda n, v, u, t, **k: dict(n=n, voix=v, usage=u, texte=t, **k)
     lignes = [
-        L(1, "qg", "Écran titre", "Brigade de déminage. Mission six : désamorçage."),
+        L(1, "qg", "Écran titre", "Brigade de déminage. Désamorçage."),
         L(9, "qg", "Pitch", "Ici le QG de la brigade de déminage. Une bombe vient d'être découverte, et vous êtes les seuls sur place. "
           "Le démineur reste au pupitre : il voit la bombe, mais n'a pas le droit de lire le manuel. Les experts ont le manuel, "
           "mais ne regardent pas l'écran. Le démineur décrit, les experts trouvent la règle, le démineur agit. "
@@ -436,7 +436,7 @@ def manuel():
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Mission 6 · Manuel de désamorçage</title>
+<title>Désamorçage · Manuel de désamorçage</title>
 <link rel="stylesheet" href="../../../outils/impression/commun.css">
 <style>
   /* Produit par mondes/deminage/generer.py : modifier les règles là-bas, pas ici. */
@@ -467,7 +467,7 @@ def manuel():
 </style>
 </head>
 <body>
-<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Mission 6 · Désamorçage</span></div>
+<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Désamorçage</span></div>
 <div class="couverture"><div><h1>Manuel de désamorçage</h1><p>Modèle de bombe « Pupitre » · édition des experts</p></div></div>
 
 <div class="attention"><strong>Experts : ne regardez jamais l'écran du pupitre.</strong> Le démineur vous décrit ce qu'il voit ;
@@ -507,7 +507,7 @@ bouche grande ouverte, pendant 2 secondes.</li>
 <li>Sinon : bouton <b>ROUGE</b> (laisser chauffer). Surtout ne pas souffler.</li></ol></div>
 
 <div class="saut"></div>
-<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Mission 6 · Désamorçage</span></div>
+<div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Désamorçage</span></div>
 <div class="module"><h2>Viseur <small>CARTE « MODULE VISEUR »</small></h2>
 <p>Une cible s'affiche. Le démineur passe la main à plat, à 5 cm au-dessus de l'<b>ŒIL</b>, d'un bord à l'autre, deux fois.
 Si le dernier chiffre du numéro de série est <b>impair</b>, faites les deux gestes <b>dans l'ordre inverse</b>.</p>

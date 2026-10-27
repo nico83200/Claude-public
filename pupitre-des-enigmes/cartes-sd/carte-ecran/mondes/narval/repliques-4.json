@@ -12,7 +12,7 @@
     "160-199": "L'interphone (conseils)"
   },
   "lignes": [
-    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Sous-marin Narval. Mission quatre : dernier souffle." },
+    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Sous-marin Narval. Dernier souffle." },
     { "n": 9, "voix": "narrateur", "usage": "Pitch", "texte": "Mer de Brennor, quatre heures douze du matin. Vous êtes matelots à bord du Narval, sous-marin de la Marine de la République de Valdarie. Pendant l'exercice Brume d'acier, le Narval a heurté un haut-fond qui ne figurait sur aucune carte. Il repose par cent quarante-deux mètres de fond. Le choc a détruit les épurateurs : l'air n'est plus recyclé. Il vous reste une heure d'oxygène. Les batteries sont à genoux : seule la dynamo de secours garde un peu de lumière à bord. Bonne nouvelle : l'Orque, un sous-marin de sauvetage de la marine de Norrvik, vient vous chercher. Il s'accrochera sur votre sas. Mauvaise nouvelle : le choc a bloqué le sas. Débloquez la sortie avant de manquer d'air." },
     { "n": 10, "voix": "systeme", "usage": "Départ du chrono", "texte": "Alerte. Épurateurs hors service. Réserve d'oxygène : soixante minutes. Énergie principale : hors service. Dynamo de secours : en service." },
     { "n": 11, "voix": "narrateur", "usage": "Carte inutile", "texte": "Ça ne servira à rien à bord." },

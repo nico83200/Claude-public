@@ -230,7 +230,7 @@ void Moteur::allerMenu(bool annoncer) {
   phase_ = Phase::MENU;
   optionsMenu_.clear();
   for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>())
-    optionsMenu_.push_back("Jouer · Mission " + std::to_string(m["numero"].as<int>()) + " · " + texte(m["titre"]));
+    optionsMenu_.push_back("Jouer · " + texte(m["titre"]));  // les joueurs ne voient que le nom de la mission
   std::string sauvegarde;
   if (p_.lireFichier(CHEMIN_SAUVEGARDE, sauvegarde) && sauvegarde.find("\"" + mondeId_ + "\"") != std::string::npos) {
     optionsMenu_.insert(optionsMenu_.begin(), "Reprendre la partie en cours");
@@ -926,8 +926,11 @@ void Moteur::appuiMolette() {
         choixMenu_ = static_cast<int>(std::find(mondes_.begin(), mondes_.end(), mondeId_) - mondes_.begin());
         appuiMolette();
       } else {
-        int numero = atoi(choix.substr(choix.find("Mission ") + 8).c_str());
-        if (chargerMission(numero)) lancerMission(false);
+        for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>())
+          if (choix == "Jouer · " + texte(m["titre"])) {
+            if (chargerMission(m["numero"].as<int>())) lancerMission(false);
+            break;
+          }
       }
       return;
     }

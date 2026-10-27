@@ -15,7 +15,7 @@
     "227-229 · 237-255": "Contrôle Mission (255 au plus : limite du lecteur audio)"
   },
   "lignes": [
-    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Station Kepler-9. Mission trois : signal perdu." },
+    { "n": 1, "voix": "narrateur", "usage": "Écran titre", "texte": "Station Kepler-9. Signal perdu." },
     { "n": 2, "voix": "narrateur", "usage": "Demande des rôles", "texte": "Équipe de secours, glissez chacun votre carte Rôle dans la fente, puis reprenez-la." },
     { "n": 3, "voix": "narrateur", "usage": "Rôle posé", "texte": "La Commandante est prête." },
     { "n": 4, "voix": "narrateur", "usage": "Rôle posé", "texte": "L'Ingénieur est prêt." },

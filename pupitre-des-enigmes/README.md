@@ -68,6 +68,15 @@ mission).
 | [Notice de montage](pdf/notice-montage.pdf) | Le constructeur : boîtier, composants, câblage, programme de l'ESP32 et cartes SD |
 | [Plan de câblage](pdf/plan-cablage.pdf) | Le constructeur : la plaque de l'ESP32 et la liste numérotée de tous les fils |
 
+**Les livrets A5** (fiche de mission et fiche d'enquête, avec une couverture : description, l'essentiel, nombre de joueurs, durée, difficulté ★ à ★★★). Deux fichiers par mission : `mission-N-livret-a5.pdf` (les pages dans l'ordre, pour l'écran) et `mission-N-livret-a5-brochure.pdf` (à imprimer en **recto verso, retourné sur le bord court**, puis à plier en deux et agrafer au milieu) :
+[La Disparition d'Éclipse](pdf/mission-1-livret-a5-brochure.pdf) ★ ·
+[Le Casse du Siècle](pdf/mission-2-livret-a5-brochure.pdf) ★★ ·
+[Signal Perdu](pdf/mission-3-livret-a5-brochure.pdf) ★★★ ·
+[Dernier souffle](pdf/mission-4-livret-a5-brochure.pdf) ★★★ ·
+[Banc d'essai](pdf/mission-5-livret-a5-brochure.pdf) ★ ·
+[Désamorçage](pdf/mission-6-livret-a5-brochure.pdf) ★★ ·
+[La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★
+
 | Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 | Mission 4 · Narval |
 |---|---|---|---|---|
 | **À imprimer en recto seul** (fiche, plateau, documents, enveloppes…) | [PDF](pdf/mission-1-a-imprimer-recto.pdf) | [PDF](pdf/mission-2-a-imprimer-recto.pdf) | [PDF](pdf/mission-3-a-imprimer-recto.pdf) | [PDF](pdf/mission-4-a-imprimer-recto.pdf) |
