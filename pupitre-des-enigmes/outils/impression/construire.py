@@ -361,6 +361,7 @@ def main():
     if not choix:
         rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf", pied="Le Pupitre des Énigmes · Mode d'emploi")
         rendre(ICI / "gabarit-facade.html", SORTIE / "gabarit-facade.pdf")
+        rendre(ICI / "plan-cablage.html", SORTIE / "plan-cablage.pdf", pied="Le Pupitre des Énigmes · Plan de câblage")
         temporaire("notice-montage", notice, SORTIE / "notice-montage.pdf", pied="Le Pupitre des Énigmes · Notice de montage")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
                    SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")
