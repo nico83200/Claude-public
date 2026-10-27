@@ -77,7 +77,7 @@ mission).
 [Désamorçage](pdf/mission-6-livret-a5-brochure.pdf) ★★ ·
 [La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★
 
-Le livret de *La Disparition d'Éclipse* est le modèle « édition premium » : 16 pages composées directement en A5 (`mondes/haras/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer de tous les livrets. Une mission qui a son `impression/livret.html` l'utilise ; les autres gardent le livret générique.
+Les livrets de *La Disparition d'Éclipse* et de *Banc d'essai* sont en « édition premium » : 16 pages composées directement en A5 (`mondes/<monde>/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer de tous les livrets. Une mission qui a son `impression/livret.html` l'utilise ; les autres gardent le livret générique.
 
 | Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 | Mission 4 · Narval |
 |---|---|---|---|---|

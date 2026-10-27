@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Banc d'essai · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs de l'Atelier du professeur Lumen : noyer, laiton, et le bleu des plans */
+  :root { --fond: #2a2018; --fond-transparent: rgba(42, 32, 24, .82); --accent: #d9963a; --accent-clair: #f1d49c;
+          --papier: #f8f3ea; --encre: #2a2420; --doux: #6e6457; --filet: #ddd0bc; --rouge: #b5462f; --plan: #17426b; }
+
+  /* La lettre du professeur, sur papier millimétré */
+  .lettre { background-color: #fbfaf4; color: #1d3550;
+            background-image: linear-gradient(#cfe0ee .15mm, transparent .15mm), linear-gradient(90deg, #cfe0ee .15mm, transparent .15mm),
+                              linear-gradient(#e6eef5 .1mm, transparent .1mm), linear-gradient(90deg, #e6eef5 .1mm, transparent .1mm);
+            background-size: 6.6mm 6.6mm, 6.6mm 6.6mm, 1.32mm 1.32mm, 1.32mm 1.32mm; background-position: -.1mm -.1mm; }
+  .croquis { position: absolute; right: 7mm; bottom: 8mm; width: 24mm; opacity: .55; transform: rotate(8deg); }
+
+  /* La plaque du pupitre */
+  .plaque { display: grid; grid-template-columns: 1fr 44mm; gap: 5mm; align-items: center; margin-top: 3mm; }
+  .plaque .metal { background: linear-gradient(135deg, #d6aa62, #9a6a28 55%, #c99a52); color: #2b1e0e; border-radius: 2mm; padding: 3mm 3mm 2.6mm;
+                   text-align: center; border: .5mm solid #6d4718; box-shadow: inset 0 0 0 .8mm #ecd09a, 0 .5mm 1.2mm rgba(0,0,0,.25); position: relative; }
+  .plaque .metal::before, .plaque .metal::after { content: ""; position: absolute; top: 2.2mm; width: 2mm; height: 2mm; border-radius: 50%;
+                   background: radial-gradient(circle at 35% 35%, #f5e2b8, #7a531c); }
+  .plaque .metal::before { left: 2.2mm; } .plaque .metal::after { right: 2.2mm; }
+  .plaque .petit { font-size: 5.6pt; letter-spacing: .2em; text-transform: uppercase; }
+  .plaque .nom { font-family: "Playfair"; font-weight: 900; font-size: 10.5pt; margin: .5mm 0 1.2mm; }
+  .plaque .serie { font-family: "Share Tech Mono", monospace; font-size: 19pt; letter-spacing: .25em; background: #2b1e0e; color: #f3d9a0;
+                   border-radius: 1mm; padding: .6mm 0 .2mm .25em; margin: 1mm 0; }
+
+  /* Les bancs d'essai */
+  .banc { display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; padding: 2.5mm 0; border-bottom: .2mm dotted var(--filet); break-inside: avoid; }
+  .banc:last-child { border-bottom: 0; }
+  .banc .n { width: 8mm; height: 8mm; border-radius: 50%; background: var(--plan); color: #fff; font-family: "Share Tech Mono", monospace;
+             font-size: 9.5pt; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 .5mm var(--papier), 0 0 0 .8mm var(--accent); }
+  .banc h4 { font-family: "Playfair"; font-size: 11pt; color: var(--fond); margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
+  .banc h4 small { font-family: "Source Sans"; font-size: 6.2pt; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .banc p { margin: .3mm 0 0; }
+  .banc .organe { font-style: italic; color: var(--doux); }
+
+  /* Le tableau de bord */
+  .tableau { background: var(--plan); border-radius: 2mm; padding: 4mm 3mm 3mm; color: #dce8f4; position: relative;
+             background-image: linear-gradient(rgba(255,255,255,.07) .15mm, transparent .15mm), linear-gradient(90deg, rgba(255,255,255,.07) .15mm, transparent .15mm);
+             background-size: 4mm 4mm; }
+  .tableau .rangee { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1mm; text-align: center; margin-bottom: 2.5mm; }
+  .tableau .v { width: 6.5mm; height: 6.5mm; border-radius: 50%; margin: 0 auto 1mm; border: .35mm solid #fff;
+                background: radial-gradient(circle at 35% 35%, #9df0a6, #2f9e44); box-shadow: 0 0 2mm #5be070; }
+  .tableau .v.r { background: radial-gradient(circle at 35% 35%, #f0a39a, #a83a2c); box-shadow: none; opacity: .75; }
+  .tableau span { font-family: "Share Tech Mono", monospace; font-size: 6.6pt; line-height: 1.15; display: block; }
+  .tableau .titre { font-family: "Share Tech Mono", monospace; font-size: 7pt; letter-spacing: .25em; color: var(--accent-clair); text-align: center; margin-bottom: 3mm; }
+
+  /* L'écran du pupitre */
+  .ecran { background: #10141a; border: 1.2mm solid #2e2a26; border-radius: 2mm; padding: 2.4mm 3.4mm; color: #e9e2d2;
+           font-family: "Share Tech Mono", monospace; font-size: 7.6pt; box-shadow: 0 .5mm 1.2mm rgba(0,0,0,.3); }
+  .ecran .haut { display: flex; justify-content: space-between; color: var(--accent); letter-spacing: .14em; border-bottom: .2mm solid #3a3a3a;
+                 padding-bottom: 1mm; margin-bottom: 1.4mm; }
+  .ecran .liste { display: grid; grid-template-columns: 1fr 1fr; gap: .6mm 3mm; }
+  .ecran .ok { color: #7fe08a; }
+
+  /* Les rangs */
+  .rangs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2mm; margin: 2mm 0; }
+  .rangs div { border: .25mm solid var(--accent); border-radius: 1.2mm; padding: 2mm 1.6mm; text-align: center; background: #fffdf7; }
+  .rangs b { display: block; font-family: "Playfair"; font-size: 9.4pt; color: var(--fond); line-height: 1.15; }
+  .rangs span { font-size: 7pt; color: var(--doux); }
+
+  /* La fiche de recette */
+  .recette td { height: 7.1mm; vertical-align: middle; }
+  .recette td:first-child { width: 42mm; font-size: 8pt; }
+  .recette th { text-align: center; } .recette th:first-child { text-align: left; }
+  .recette td.c { text-align: center; width: 13mm; }
+  .case { display: inline-block; width: 3.4mm; height: 3.4mm; border: .3mm solid var(--fond); border-radius: .5mm; background: #fff; vertical-align: middle; }
+
+  /* Le certificat */
+  .certificat { border: .5mm double var(--accent); outline: .25mm solid var(--accent); outline-offset: 1mm; border-radius: 1.5mm;
+                padding: 4mm 5mm; background: #fffdf7; text-align: center; margin-top: 3mm; }
+  .certificat h4 { font-family: "Playfair"; font-weight: 900; font-size: 13pt; color: var(--fond); margin: 0 0 1mm; letter-spacing: .02em; }
+  .certificat .ligne { display: flex; gap: 2mm; align-items: flex-end; margin-top: 3.6mm; font-size: 8.4pt; text-align: left; }
+  .certificat .ligne i { flex: 1; border-bottom: .25mm solid var(--doux); height: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- Les icônes et l'ornement, dessinés une fois -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="engrenage" viewBox="0 0 24 24"><path fill="currentColor" d="M10.3 1.5h3.4l.5 2.6a8 8 0 0 1 2.1.9l2.2-1.5 2.4 2.4-1.5 2.2a8 8 0 0 1 .9 2.1l2.6.5v3.4l-2.6.5a8 8 0 0 1-.9 2.1l1.5 2.2-2.4 2.4-2.2-1.5a8 8 0 0 1-2.1.9l-.5 2.6h-3.4l-.5-2.6a8 8 0 0 1-2.1-.9l-2.2 1.5-2.4-2.4 1.5-2.2a8 8 0 0 1-.9-2.1l-2.6-.5v-3.4l2.6-.5a8 8 0 0 1 .9-2.1L3.6 5.9 6 3.5l2.2 1.5a8 8 0 0 1 2.1-.9zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></symbol>
+    <symbol id="i-lecteur" viewBox="0 0 24 24"><g fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linejoin="round"><path d="M3 5.5c3-1.4 6-1.4 9 .5 3-1.9 6-1.9 9-.5V19c-3-1.4-6-1.4-9 .5-3-1.9-6-1.9-9-.5z"/><path d="M12 6v13.5"/></g></symbol>
+    <symbol id="i-operateur" viewBox="0 0 24 24"><g fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7-2.5 0-3.8-1.2-5.2-3.4L3.5 13a1.5 1.5 0 0 1 2.4-1.7L8 13.5"/></g></symbol>
+    <symbol id="i-cle" viewBox="0 0 24 24"><path d="M14.5 3.5a5 5 0 0 0-4.7 6.7L3.5 16.5 4 20l3.5.5 6.3-6.3a5 5 0 0 0 6.7-4.7l-3 1.3-2.3-2.3 1.3-3z" fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-burette" viewBox="0 0 24 24"><g fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linejoin="round"><path d="M5 11h10v9H5z"/><path d="M15 13l6-6M8 11V8h4v3"/><circle cx="21" cy="5" r=".6" fill="#d9963a"/></g></symbol>
+    <symbol id="i-certificat" viewBox="0 0 24 24"><g fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linejoin="round"><path d="M4 3h16v13H4z"/><path d="M7 7h10M7 10h7"/><circle cx="15" cy="17" r="3"/><path d="M13.5 19.5 13 22l2-1 2 1-.5-2.5"/></g></symbol>
+    <symbol id="i-carnet" viewBox="0 0 24 24"><g fill="none" stroke="#d9963a" stroke-width="1.6" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 3v18M11 8h5M11 11h5"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image" style="background-image:url(images/plan-banc-essai.jpg)"></div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">L'Atelier du professeur Lumen</div>
+    <h1>Banc d'essai</h1>
+    <p class="accroche">Treize organes, dix voyants, un coffre.<br>Trente minutes pour que tout passe au vert.</p>
+    <div class="badges">
+      <div class="badge"><b>2</b><span>joueurs</span></div>
+      <div class="badge"><b>20 à 30 min</b><span>une demi-heure</span></div>
+      <div class="badge"><b class="etoiles">★<i>★★</i></b><span>facile</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant d'entrer à l'atelier</div><h2>Bienvenue à l'atelier</h2>
+    <p class="chapeau">La mission qui essaie tout le pupitre : à jouer après le montage, ou avant une soirée, pour vérifier que tout répond.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · La commande</td><td style="text-align:left">La lettre du professeur, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Les bancs d'essai</td><td style="text-align:left">Treize cartes, treize organes</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Le binôme</td><td style="text-align:left">Qui lit, qui fait ; les outils</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le plan du banc</td><td style="text-align:left">La façade et le tableau de bord</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · La fiche de recette</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez le <b>plan du banc d'essai</b> (facultatif : la mission se joue aussi sans façade).</li>
+    <li><b>Le certificat dans le tiroir</b> : carte <b>L'Atelier du professeur Lumen</b> dans la fente, menu <b>Tiroir secret</b>, rangez-y la carte <b>Certificat de conformité</b>, poussez, validez au bouton vert. Sans tiroir : glissez-le dans une enveloppe <b>E1</b>.</li>
+    <li>Étalez les <b>13 cartes Banc d'essai</b>, la <b>Clé à molette</b>, la <b>Burette d'huile</b> et <b>Le carnet du professeur</b>.</li>
+    <li>À portée de main : un <b>aimant</b>, un <b>téléphone</b> avec sa lampe, et les <b>quatre pastilles</b> du nuancier, imprimées en couleur.</li>
+    <li>Carte du monde dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>Rien n'est caché, et rien n'est perdu.</strong> Un essai raté ne coûte rien : on retire la carte, on la repose, on recommence.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · LA LETTRE ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>I · La commande</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>La commande</h2>
+    <p class="chapeau">Sur l'établi, entre deux tournevis, une feuille vous attendait.</p></div>
+  <div class="lettre">
+    <p class="date">À l'atelier, tard le soir</p>
+    <p>Chers essayeurs,</p>
+    <p>Ça y est : j'ai fini de construire mon pupitre. Trois mois de soudures, de câbles et de nuits blanches !</p>
+    <p>Avant de le livrer, il faut essayer chacun de ses organes : les boutons, la molette, les voyants, les capteurs, les lecteurs de cartes, le casque, et même le tiroir secret.</p>
+    <p>Vous avez trente minutes. Chaque organe qui répond allume un voyant vert. Quand tout sera vert, le casque vous donnera le code du coffre… et le coffre, mon certificat.</p>
+    <p>Je compte sur vous.</p>
+    <p class="signature">Pr Lumen</p>
+    <p class="ps">P.-S. : ne soufflez pas trop fort sur la forge. Elle est sensible.</p>
+    <svg class="croquis" viewBox="0 0 24 24" style="color:#1d3550"><use href="#engrenage"/></svg>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>I · La commande</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Trois étapes, une demi-heure.</p></div>
+  <div class="trio">
+    <div><b>ESSAYER</b><span>chacun des treize bancs d'essai</span></div>
+    <div><b>VALIDER</b><span>les dix voyants, jusqu'au dernier</span></div>
+    <div><b>OUVRIR</b><span>le coffre du professeur</span></div>
+  </div>
+  <div class="horloge"><div class="heures">30:00</div>
+    <div>Le chrono part dès la présentation du professeur. L'<b>horloge</b> du pupitre l'affiche, et l'anneau de lumière égrène les minutes.</div></div>
+  <h3>Gagner</h3>
+  <ol class="etapes">
+    <li>Validez les <b>onze premiers bancs</b>, dans l'ordre qui vous plaît, en commençant par le <b>Poste de contrôle</b>.</li>
+    <li>Quand tout est vert, le <b>Casque</b> vous donne le code du coffre.</li>
+    <li>Le <b>Coffre</b> s'ouvre : posez le certificat sur le lecteur à plat.</li>
+  </ol>
+  <div class="plaque">
+    <div><h3 style="margin-top:0">La plaque du pupitre</h3>
+      <p>Le professeur grave un numéro de série sur chacune de ses machines. Le <b>Poste de contrôle</b> vous le demandera : le voici.</p></div>
+    <div class="metal">
+      <div class="petit">Atelier Lumen</div>
+      <div class="nom">Pupitre des Énigmes</div>
+      <div class="petit">N° de série</div>
+      <div class="serie">2580</div>
+      <div class="petit">Modèle 2026 · 5 V · 3 A</div>
+    </div>
+  </div>
+  <div class="ornement" style="margin-top:6mm"><svg viewBox="0 0 90 24"><use href="#engrenage" x="0" width="24" height="24"/><use href="#engrenage" x="33" width="24" height="24"/><use href="#engrenage" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LES BANCS (1) ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>II · Les bancs d'essai</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Les bancs d'essai</h2>
+    <p class="chapeau">Glissez la carte d'un banc dans la fente, et laissez-la en place pendant l'essai. La consigne est lue à voix haute et écrite à l'écran.</p></div>
+  <div class="banc"><div class="n">1</div><div><h4>Poste de contrôle <small>à faire en premier</small></h4>
+    <p class="organe">Écran, haut-parleur, clavier, horloge</p><p>Tapez le numéro de série du pupitre ; l'horloge l'affiche.</p></div></div>
+  <div class="banc"><div class="n">2</div><div><h4>Banc des boutons</h4>
+    <p class="organe">Les quatre boutons de couleur</p><p>Rejouez la suite de couleurs, puis tenez les quatre boutons ensemble.</p></div></div>
+  <div class="banc"><div class="n">3</div><div><h4>Banc de la molette</h4>
+    <p class="organe">La molette et son bouton</p><p>Ramenez le compteur à zéro, puis réglez un chiffre et appuyez.</p></div></div>
+  <div class="banc"><div class="n">4</div><div><h4>Banc du gros bouton</h4>
+    <p class="organe">Le gros bouton rouge</p><p>Écoutez le rythme de trois coups, puis tapez-le en mesure.</p></div></div>
+  <div class="banc"><div class="n">5</div><div><h4>Tableau des voyants</h4>
+    <p class="organe">Les dix voyants</p><p>Allumez-les un à un, touches 1 à 9 et 0.</p></div></div>
+  <div class="banc"><div class="n">6</div><div><h4>La forge</h4>
+    <p class="organe">Le capteur de souffle</p><p>Soufflez deux secondes sur la grille FORGE, bouche grande ouverte.</p></div></div>
+  <div class="banc"><div class="n">7</div><div><h4>L'enclume</h4>
+    <p class="organe">Le capteur d'aimant</p><p>Posez un aimant à plat, deux secondes, sur la marque ENCLUME.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LES BANCS (2) ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>II · Les bancs d'essai</span></div>
+  <div class="banc" style="padding-top:0"><div class="n">8</div><div><h4>L'œil</h4>
+    <p class="organe">Le capteur de gestes et de lumière</p><p>La main au-dessus de l'ŒIL, dans le sens de la flèche, quatre fois. Puis une lampe de téléphone.</p></div></div>
+  <div class="banc"><div class="n">9</div><div><h4>Le nuancier</h4>
+    <p class="organe">Le capteur de couleur</p><p>Les pastilles une à une : rouge, bleu, vert, jaune. Une mauvaise pastille ? L'écran dit ce que le capteur voit.</p></div></div>
+  <div class="banc"><div class="n">10</div><div><h4>La serrure</h4>
+    <p class="organe">L'interrupteur à clé</p><p>Tournez la clé d'un quart de tour.</p></div></div>
+  <div class="banc"><div class="n">11</div><div><h4>Banc des lecteurs</h4>
+    <p class="organe">La fente et le lecteur à plat</p><p>Deux outils à la fois : la clé à molette dans la fente, la burette sur le lecteur à plat.</p></div></div>
+  <div class="banc"><div class="n">12</div><div><h4>Le casque <small>quand tout est vert</small></h4>
+    <p class="organe">Le casque</p><p>Un seul joueur écoute, l'autre note. Le message ne passe qu'une fois.</p></div></div>
+  <div class="banc"><div class="n">13</div><div><h4>Le coffre <small>pour finir</small></h4>
+    <p class="organe">Le tiroir secret et sa lumière</p><p>Le code entendu au casque ouvre le tiroir.</p></div></div>
+  <div class="encart"><div class="titre">Un banc après l'autre</div>
+    <p>Un banc déjà validé le dit, et vous envoie au suivant. Perdus ? Un <b>appui sur la molette</b>, hors essai, affiche les treize bancs, faits ou non.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#engrenage" x="0" width="24" height="24"/><use href="#engrenage" x="33" width="24" height="24"/><use href="#engrenage" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · LE BINÔME (1) ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>III · Le binôme</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Le binôme</h2>
+    <p class="chapeau">Pas de rôle secret à l'atelier : deux essayeurs, deux casquettes, que l'on s'échange à chaque banc.</p></div>
+  <table class="repartition">
+    <tr><th>Banc</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>…</th></tr>
+    <tr><td>Joueur A</td><td>lit</td><td>fait</td><td>lit</td><td>fait</td><td>lit</td><td>…</td></tr>
+    <tr><td>Joueur B</td><td>fait</td><td>lit</td><td>fait</td><td>lit</td><td>fait</td><td>…</td></tr>
+  </table>
+  <div class="role"><div class="icone"><svg><use href="#i-lecteur"/></svg></div><div>
+    <h4>Le lecteur <span class="fois">un banc sur deux</span></h4>
+    <p class="atout">Les yeux sur l'écran, la voix pour guider.</p>
+    <p>Il lit la consigne, surveille les voyants et l'horloge, et dit à l'opérateur quand recommencer.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-operateur"/></svg></div><div>
+    <h4>L'opérateur <span class="fois">un banc sur deux</span></h4>
+    <p class="atout">Les mains sur le pupitre.</p>
+    <p>Il fait le geste : tape, tourne, souffle, pose, appuie. Il ne lit pas l'écran : il écoute le lecteur.</p></div></div>
+  <div class="encart"><div class="titre">Le conseil du professeur</div>
+    <p>Échangez vraiment : chacun doit avoir tenu la molette, soufflé sur la forge et tourné la clé. C'est ainsi qu'on connaît sa machine.</p></div>
+  <h3>Bien démarrer</h3>
+  <ol class="etapes">
+    <li>Asseyez-vous côte à côte, face au pupitre : l'un voit l'écran, l'autre a les mains libres.</li>
+    <li>Le <b>Poste de contrôle</b> d'abord : il vérifie l'écran, le son et le clavier dont dépend tout le reste.</li>
+    <li>Ensuite, les bancs dans l'ordre qui vous plaît. Gardez le <b>Casque</b> et le <b>Coffre</b> pour la fin.</li>
+  </ol>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · LE BINÔME (2) : LES OUTILS ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>III · Le binôme</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Les outils de l'atelier</h3>
+  <p>Trois cartes Outil, à glisser dans la fente ou à poser sur le lecteur à plat.</p>
+  <div class="role"><div class="icone"><svg><use href="#i-cle"/></svg></div><div>
+    <h4>Clé à molette <span class="fois">banc des lecteurs</span></h4>
+    <p class="atout">L'outil de la fente.</p>
+    <p>À glisser dans la fente pendant que la burette est posée.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-burette"/></svg></div><div>
+    <h4>Burette d'huile <span class="fois">banc des lecteurs</span></h4>
+    <p class="atout">L'outil du lecteur à plat.</p>
+    <p>À poser sur le lecteur à plat, en même temps que la clé à molette.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-certificat"/></svg></div><div>
+    <h4>Certificat de conformité <span class="fois">pour finir</span></h4>
+    <p class="atout">Rangé dans le tiroir secret avant la partie.</p>
+    <p>Posé sur le lecteur à plat, il termine l'essai.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-carnet"/></svg></div><div>
+    <h4>Le carnet du professeur <span class="fois">aide</span></h4>
+    <p class="atout">Les notes de Lumen, pour qui bloque.</p>
+    <p>Glissez la carte dans la fente : les trois premiers conseils sont gratuits, les suivants coûtent <b>2 minutes</b>.</p></div></div>
+  <div class="encart"><div class="titre">Les accessoires</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li><b>Un aimant</b> pour l'enclume : le fer à cheval aimanté, ou un simple aimant de réfrigérateur.</li>
+      <li><b>Un téléphone</b> et sa lampe, pour l'œil.</li>
+      <li><b>Les quatre pastilles</b> du nuancier, imprimées en couleur et découpées (fiche du maître du jeu).</li>
+    </ul></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE PLAN DU BANC ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>IV · Le plan du banc</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le plan du banc d'essai</h2>
+    <p class="chapeau">Le pupitre s'habille du plan d'ingénieur du professeur. Rien n'y est caché : la mission essaie tout.</p></div>
+  <img class="illustration" src="images/plan-banc-essai.jpg" alt="Le plan du banc d'essai">
+  <p class="legende">Chaque organe porte le nom et le numéro de son banc, de ① à ⑬.</p>
+  <div class="lieux">
+    <div><b>① Poste de contrôle</b> · clavier, écran, horloge</div>
+    <div><b>② Banc des boutons</b> · les quatre couleurs</div>
+    <div><b>③ La molette</b> · sous l'horloge</div>
+    <div><b>④ Le gros bouton</b> · en bas à droite</div>
+    <div><b>⑤ Tableau des voyants</b> · dix, en deux rangées</div>
+    <div><b>⑥ La forge</b> · ⑦ <b>L'enclume</b></div>
+    <div><b>⑧ L'œil</b> · entre les flèches</div>
+    <div><b>⑨ Le nuancier</b> · ⑩ <b>La serrure</b></div>
+    <div style="grid-column:1/3"><b>⑪ Banc des lecteurs</b> · la fente au centre, le lecteur à plat à droite · <b>⑫ Le casque</b> · <b>⑬ Le coffre</b>, dessous</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LE TABLEAU DE BORD ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>IV · Le plan du banc</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Le tableau de bord</h3>
+  <p>Les dix voyants suivent l'essai. <b>Rouge faible</b> : à essayer. <b>Vert</b> : validé. Ici, quatre organes déjà validés.</p>
+  <div class="tableau">
+    <div class="titre">TABLEAU DES VOYANTS</div>
+    <div class="rangee">
+      <div><div class="v"></div><span>1<br>écran<br>clavier</span></div>
+      <div><div class="v"></div><span>2<br>boutons</span></div>
+      <div><div class="v"></div><span>3<br>molette</span></div>
+      <div><div class="v"></div><span>4<br>gros<br>bouton</span></div>
+      <div><div class="v r"></div><span>5<br>lecteurs</span></div>
+    </div>
+    <div class="rangee" style="margin-bottom:0">
+      <div><div class="v r"></div><span>6<br>forge</span></div>
+      <div><div class="v r"></div><span>7<br>enclume</span></div>
+      <div><div class="v r"></div><span>8<br>œil</span></div>
+      <div><div class="v r"></div><span>9<br>nuancier</span></div>
+      <div><div class="v r"></div><span>10<br>clé</span></div>
+    </div>
+  </div>
+  <div class="encart"><div class="titre">À savoir</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Le <b>Tableau des voyants</b> n'a pas de voyant à lui : il les allume tous en blanc, puis chacun reprend sa couleur.</li>
+      <li>La <b>lumière sous la boîte</b> respire en ambre pendant l'essai, et passe au <b>vert</b> quand les onze premiers bancs sont faits.</li>
+      <li>Le <b>Casque</b> et le <b>Coffre</b> ne répondent qu'une fois tout le tableau au vert.</li>
+      <li>Un organe absent de votre pupitre ? Le maître du jeu le valide depuis le <b>panneau Wi-Fi</b> (Débloquer).</li>
+    </ul></div>
+  <h3>Un appui sur la molette</h3>
+  <div class="ecran">
+    <div class="haut"><span>BANCS D'ESSAI</span><span>4 / 13</span></div>
+    <div class="liste"><span class="ok">✓ Poste de contrôle</span><span class="ok">✓ Banc des boutons</span><span class="ok">✓ Banc de la molette</span>
+      <span class="ok">✓ Banc du gros bouton</span><span>○ Tableau des voyants</span><span>○ La forge</span><span>○ L'enclume</span><span>○ L'œil</span></div>
+  </div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#engrenage" x="0" width="24" height="24"/><use href="#engrenage" x="33" width="24" height="24"/><use href="#engrenage" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>V · Le pupitre</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre</h2>
+    <p class="chapeau">Chaque organe, et la façon de s'en servir.</p></div>
+  <div class="element"><b>La fente</b><span>Une carte <b>Banc d'essai</b> pour lancer un essai, un <b>outil</b>, ou le carnet du professeur.</span></div>
+  <div class="element"><b>Le lecteur à plat</b><span>Posez-y l'outil ou le certificat, bien à plat.</span></div>
+  <div class="element"><b>Clavier, horloge</b><span>Tapez les codes : l'horloge les affiche, <b>*</b> efface.</span></div>
+  <div class="element"><b>Les boutons</b><span>Quatre couleurs, et le <b>gros bouton</b> rouge.</span></div>
+  <div class="element"><b>La molette</b><span>Tournez pour régler, appuyez pour valider. Hors essai : la liste des bancs.</span></div>
+  <div class="element"><b>La forge</b><span>Soufflez sur la grille, bouche ouverte, comme pour faire de la buée.</span></div>
+  <div class="element"><b>L'enclume</b><span>Un aimant posé à plat sur la marque.</span></div>
+  <div class="element"><b>L'œil</b><span>La main <b>à plat, à 5 cm au-dessus</b>, d'un bord à l'autre. Ou une lampe de téléphone braquée dessus.</span></div>
+  <div class="element"><b>Le nuancier</b><span>La pastille posée bien à plat sur le capteur.</span></div>
+  <div class="element"><b>La serrure</b><span>La clé, un quart de tour.</span></div>
+  <div class="element"><b>Le casque</b><span>Quand le pupitre le demande, <b>un seul</b> joueur le met.</span></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#engrenage" x="0" width="24" height="24"/><use href="#engrenage" x="33" width="24" height="24"/><use href="#engrenage" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT L'ESSAI ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>V · Le pupitre</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant l'essai</h3>
+  <div class="element"><b>Un essai raté</b><span>Rien de perdu : retirez la carte du banc, reposez-la, et recommencez.</span></div>
+  <div class="element"><b>Les imprévus</b><span>Un atelier a ses caprices. Écoutez bien la consigne : parfois, il faut surtout <b>ne plus rien toucher</b>.</span></div>
+  <div class="element"><b>Le carnet</b><span>Sa carte dans la fente quand vous bloquez : 3 conseils gratuits, puis 2 minutes chacun.</span></div>
+  <div class="element"><b>Le temps</b><span>À cinq minutes de la fin, le professeur vous prévient. À zéro, il vous donne la solution.</span></div>
+  <div class="element"><b>La fin</b><span>Le certificat sur le lecteur à plat : le professeur vous décerne votre rang. Repoussez ensuite le tiroir.</span></div>
+  <h3>Les rangs</h3>
+  <div class="rangs">
+    <div><b>Ingénieurs en chef</b><span>10 min ou plus restantes, aucun conseil payant</span></div>
+    <div><b>Techniciens confirmés</b><span>3 min ou plus restantes</span></div>
+    <div><b>Apprentis de l'atelier</b><span>pour tous les autres</span></div>
+  </div>
+  <div class="encart sombre" style="margin-top:4mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Gardez le <strong>panneau Wi-Fi</strong> ouvert pendant la partie : le Journal note chaque essai, et l'onglet Atelier montre les capteurs en direct. C'est le meilleur moyen de régler un capteur trop timide.</p></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#engrenage" x="0" width="24" height="24"/><use href="#engrenage" x="33" width="24" height="24"/><use href="#engrenage" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · FICHE DE RECETTE (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>VI · La fiche de recette</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>La fiche de recette</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie : ce qui a marché, ce qui a résisté.</p></div>
+  <table class="recette">
+    <tr><th>Organe</th><th>1<sup>er</sup> coup</th><th>Essais</th><th>Muet</th></tr>
+    <tr><td>Écran, haut-parleur</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Clavier, horloge</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Quatre boutons</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Molette</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Gros bouton</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Dix voyants</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Forge (souffle)</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Enclume (aimant)</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Œil (gestes, lampe)</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Nuancier (couleur)</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Interrupteur à clé</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Fente, lecteur à plat</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Anneau, lumière sous la boîte</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Casque</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+    <tr><td>Tiroir secret et sa lumière</td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td><td class="c"><span class="case"></span></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · FICHE DE RECETTE (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>VI · La fiche de recette</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3 style="margin-top:0">Le code du coffre</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+    <div><h3 style="margin-top:0">Le temps restant</h3><div class="cases"><span></span><span></span><span style="border:0;width:3mm;background:none;text-align:center;font-size:14pt;line-height:11mm">:</span><span></span><span></span></div></div>
+  </div>
+  <h3>Les réglages à faire</h3>
+  <div class="zone lignes" style="min-height:45mm"></div>
+  <div class="certificat">
+    <h4>Certificat de recette</h4>
+    <div style="font-family:Playfair;font-style:italic;color:var(--doux);font-size:8.6pt">Le pupitre ci-dessus a été essayé, organe par organe.</div>
+    <div class="ligne">Le <i></i> · Rang obtenu : <i></i></div>
+    <div class="ligne">Les essayeurs : <i></i></div>
+    <div class="ligne"><i></i> et <i></i></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:2mm;color:var(--accent)"><svg viewBox="0 0 24 24" style="width:9mm;height:9mm"><use href="#engrenage"/></svg></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>L'Atelier du professeur Lumen</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Le professeur Lumen a fini de construire son pupitre. Avant de le livrer, il faut tout essayer : boutons, molette,
+    voyants, capteurs, lecteurs de cartes, casque… et le tiroir secret. Quand tout sera vert, le coffre s'ouvrira.</p>
+  <table>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr class="ici"><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">2 joueurs · 20 à 30 minutes · pour tous · la mission qui essaie tout le pupitre</div>
+</section>
+
+</body>
+</html>
