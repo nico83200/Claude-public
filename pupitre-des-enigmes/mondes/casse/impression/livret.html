@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Casse du Siècle · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs de Monte-Carlo 1928 : laque noire, or Art déco, velours rouge */
+  :root { --fond: #1b1622; --fond-transparent: rgba(27, 22, 34, .82); --accent: #c9a13b; --accent-clair: #ecd9a0;
+          --papier: #f8f4ea; --encre: #241f28; --doux: #6b6270; --filet: #dfd3bb; --rouge: #8e1f2f; }
+
+  /* La lettre de Rose : papier à en-tête parfumé */
+  .lettre { background-image: none; background-color: #fdf8ef; color: #3b1f2b; line-height: 6.3mm; border-top: 1.2mm solid var(--rouge); }
+  .lettre::before { background: none; box-shadow: none; content: "◆  ◇  ◆"; font-family: "Playfair"; font-size: 9pt; color: var(--accent);
+                    text-align: center; width: 30mm; margin-left: -15mm; top: 2mm; transform: none; }
+
+  /* La jauge de Soupçon */
+  .soupcon { display: flex; align-items: center; gap: 4mm; margin: 3mm 0; }
+  .soupcon .anneau { flex: 0 0 auto; width: 36mm; height: 36mm; }
+  .soupcon h3 { margin-top: 0; }
+
+  /* Rôles : icônes sur fond laqué */
+  .role .icone svg { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="losange" viewBox="0 0 24 24"><path d="M12 2 21 12 12 22 3 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7 16.5 12 12 17 7.5 12z" fill="currentColor"/></symbol>
+    <symbol id="i-cerveau" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></g></symbol>
+    <symbol id="i-perceuse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M14 10l3.5-3.5" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-faussaire" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2c3 3 5 7 5 10l-5 9-5-9c0-3 2-7 5-10z"/><circle cx="12" cy="11" r="1.6"/><path d="M12 12.6V21"/></g></symbol>
+    <symbol id="i-acrobate" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v7M5 9l7 2 7-2M12 14l-4 6M12 14l4 6M2 22h20"/></g></symbol>
+    <symbol id="i-pickpocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 7h16l-2 13H6z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/><path d="M10 12h4" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-parleur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 8l7 4-7 4zM21 8l-7 4 7 4z"/><rect x="10" y="10" width="4" height="4" rx="1"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image" style="background-image:url(images/photo-orlov-casino.jpg)"></div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Monte-Carlo 1928</div>
+    <h1>Le Casse<br>du Siècle</h1>
+    <p class="accroche">Un diamant de 42 carats dort dans le coffre du casino.<br>Vous avez jusqu'à minuit pour l'en sortir.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 6</b><span>joueurs</span></div>
+      <div class="badge"><b>60 min</b><span>une heure</span></div>
+      <div class="badge"><b class="etoiles">★★<i>★</i></b><span>intermédiaire</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant d'entrer au casino</div><h2>Bienvenue sur la Riviera</h2>
+    <p class="chapeau">Cette fois, c'est vous les voleurs. Bluff, discrétion et déduction : tout ce qu'il faut savoir est ici.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · Le contrat</td><td style="text-align:left">La lettre de Rose, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Le beau monde</td><td style="text-align:left">Six personnes à approcher</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Votre bande</td><td style="text-align:left">Six talents, six secrets</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le casino</td><td style="text-align:left">Le plan et le Soupçon</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre du casino</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le carnet de la bande</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez la <b>façade du casino</b>.</li>
+    <li>Étalez au centre les <b>cartes Lieu</b> et <b>Personnage</b>, face visible, et la carte <b>Fernand</b>.</li>
+    <li>Empilez les <b>enveloppes E1 à E7</b>, fermées. On ne les ouvre que lorsque le pupitre le demande.</li>
+    <li>Distribuez les <b>six rôles</b> et leurs documents secrets (chapitre III).</li>
+    <li>Glissez la carte <b>Monte-Carlo 1928</b> dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>On ne montre pas la marchandise.</strong> Ni les documents secrets, ni ce que l'on entend au casque. On se le raconte, à voix basse si possible.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · LA LETTRE ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>I · Le contrat</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Le contrat</h2>
+    <p class="chapeau">Samedi 18 août 1928, 23 h. Un chasseur vous a remis un billet parfumé à la rose.</p></div>
+  <div class="lettre">
+    <p class="date">Hôtel de Paris, ce soir</p>
+    <p>Mes chéris,</p>
+    <p>Ce soir, au Casino de la Riviera, ce vieux paon de baron de Valcourt exhibe son Œil du Nil. Quarante-deux carats de rose. Depuis 22 h 45, la pierre dort dans le coffre du casino, et à minuit, ce nigaud de directeur l'ouvrira pour son contrôle.</p>
+    <p>Vous avez une heure. Vous entrez, vous ouvrez le coffre, vous ressortez avec la pierre. Sans bruit, sans scandale, avec le sourire.</p>
+    <p>Je vous ai fait faire de beaux habits et de beaux papiers : faites-leur honneur. Fernand veille sur vous. Écoutez-le, il en a vu d'autres.</p>
+    <p class="signature">Rose</p>
+    <p class="ps">P.-S. : brûlez ce billet. Et ne faites confiance à personne. Pas même aux artistes.</p>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>I · Le contrat</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Trois cartes pour signer le coup du siècle.</p></div>
+  <div class="trio">
+    <div><b>QUI ?</b><span>détient le diamant</span></div>
+    <div><b>OÙ ?</b><span>se trouve-t-il</span></div>
+    <div><b>DANS QUOI ?</b><span>est-il caché</span></div>
+  </div>
+  <div class="horloge"><div class="heures">23 h → 0 h</div>
+    <div>Le chrono s'affiche à l'écran. À minuit, le coffre est contrôlé : si vous êtes encore là, c'est fini.</div></div>
+  <h3>Le coup final</h3>
+  <ol class="etapes">
+    <li>Rendez-vous sur le <b>lieu</b> où se trouve la pierre : sa carte dans la fente.</li>
+    <li>Glissez celui ou celle qui la <b>détient</b> dans la fente, et posez sur le plateau l'objet <b>dans lequel</b> elle est cachée.</li>
+    <li>Appuyez sur le <b>gros bouton</b>, puis confirmez au bouton vert.</li>
+  </ol>
+  <p>Un coup faux coûte <b>5 minutes</b> et fait monter le Soupçon.</p>
+  <div class="signalement">
+    <div class="portrait"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#1b1622"/>
+      <g fill="none" stroke="#ecd9a0" stroke-width="1.6" stroke-linejoin="round"><path d="M30 38h40l10 12-30 32-30-32z" fill="#c25a7c" fill-opacity=".55"/><path d="M30 38l10 12h20l10-12M40 50l10 32 10-32M20 50h60"/></g></svg></div>
+    <div><h3 style="margin-top:0">Fiche : l'Œil du Nil</h3>
+      <dl>
+        <dt>Nature</dt><dd>Diamant rose, taille ancienne</dd>
+        <dt>Poids</dt><dd>42 carats</dd>
+        <dt>Propriétaire</dt><dd>Baron Edmond de Valcourt</dd>
+        <dt>Ce soir</dt><dd>Exposé au Salon d'Or, puis au coffre depuis 22 h 45</dd>
+        <dt>Écrin</dt><dd>Velours rouge, fermoir gravé aux armes des Valcourt</dd>
+      </dl></div>
+  </div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#losange" x="0" width="24" height="24"/><use href="#losange" x="33" width="24" height="24"/><use href="#losange" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LE BEAU MONDE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>II · Le beau monde</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Le beau monde</h2>
+    <p class="chapeau">Glissez la carte d'un personnage dans la fente pour l'approcher. Posez un objet sur le plateau pour le lui montrer.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#5a3a1a">BV</div><div>
+    <h4>Baron Edmond de Valcourt</h4><div class="qualite">Propriétaire du diamant · 62 ans</div>
+    <p>Il donne le gala, et surtout, il adore qu'on l'admire.</p>
+    <p class="citation">« Il a orné le turban d'un pharaon, rien que ça. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#8e1f2f">JL</div><div>
+    <h4>Joséphine Lamour</h4><div class="qualite">Chanteuse vedette · 29 ans</div>
+    <p>« La Panthère » du music-hall, arrivée de Nice la semaine dernière.</p>
+    <p class="citation">« Pour vous servir, mon chou. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#2b3a5a">EP</div><div>
+    <h4>Ernest Pujol</h4><div class="qualite">Directeur du casino · 55 ans</div>
+    <p>Fier de son coffre « imprenable », il raffole des comtes russes.</p>
+    <p class="citation">« Ponctuel comme une horloge suisse. »</p></div></div>
+  <div class="encart"><div class="titre">Restez dans votre rôle</div>
+    <p>Certains vous poseront des questions. Répondez avec les <b>boutons de couleur</b> ou la <b>molette</b>, comme le ferait le comte que vous prétendez être. Une maladresse, et le Soupçon monte.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LE BEAU MONDE (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>II · Le beau monde</span></div>
+  <div class="personne" style="padding-top:0"><div class="medaillon" style="background:#2f5a3d">AR</div><div>
+    <h4>Albert Rinaldi</h4><div class="qualite">Chef de partie · 40 ans</div>
+    <p>Croupier depuis vingt ans. Il voit tout, il entend tout.</p>
+    <p class="citation">« Faites vos jeux. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#3a3a3a">DM</div><div>
+    <h4>Sergent Dominique Mattei</h4><div class="qualite">Chef de la sécurité · 45 ans</div>
+    <p>Il garde l'entrée du Salon d'Or et ne sourit jamais.</p>
+    <p class="citation">« Circulez. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#6b4a7a">AP</div><div>
+    <h4>Lady Agatha Pembroke</h4><div class="qualite">Collectionneuse anglaise · 68 ans</div>
+    <p>Elle collectionne les pierres… et les mots d'esprit.</p>
+    <p class="citation">« J'ai l'œil, ma chère. »</p></div></div>
+  <div class="encart"><div class="titre">Fernand</div>
+    <p>Vieux monte-en-l'air à la retraite, il connaît tous les coffres de la Côte. Quand vous coincez, glissez <b>sa carte</b> dans la fente : les trois premiers conseils sont gratuits, les suivants coûtent <b>2 minutes</b>.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · VOTRE BANDE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>III · Votre bande</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Votre bande</h2>
+    <p class="chapeau">Chacun de vous a un talent, et un document secret. Les six rôles sont toujours tous en jeu.</p></div>
+  <table class="repartition">
+    <tr><th>Joueurs</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+    <tr><td>Rôles par joueur</td><td>3 chacun</td><td>2 chacun</td><td>2·2·1·1</td><td>2·1·1·1·1</td><td>1 chacun</td></tr>
+  </table>
+  <p><b>Utiliser un pouvoir :</b> glissez la carte visée dans la fente, puis posez votre carte Rôle sur le plateau. Le pupitre décompte les utilisations.</p>
+  <div class="role"><div class="icone"><svg><use href="#i-cerveau"/></svg></div><div>
+    <h4>Le Cerveau <span class="fois">1 fois</span></h4>
+    <p class="atout">Le plan du coup.</p>
+    <p><b>Plan B</b> : juste après une hausse du Soupçon, glissez votre carte pour l'annuler.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-perceuse"/></svg></div><div>
+    <h4>La Perceuse <span class="fois">illimité</span></h4>
+    <p class="atout">La notice du coffre.</p>
+    <p><b>Stéthoscope</b> : au coffre, mettez le <b>casque</b> et écoutez les disques tourner.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · VOTRE BANDE (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>III · Votre bande</span></div>
+  <div class="role"><div class="icone"><svg><use href="#i-faussaire"/></svg></div><div>
+    <h4>Le Faussaire <span class="fois">3 fois · 1 fois</span></h4>
+    <p class="atout">Votre carton d'invitation, et l'œil pour le vrai et le faux.</p>
+    <p><b>Expertiser</b> : votre carte et un objet, l'un dans la fente, l'autre sur le plateau : vrai ou faux ? <b>Faux papiers</b> (1 fois) : entrer là où il faut un laissez-passer.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-acrobate"/></svg></div><div>
+    <h4>L'Acrobate <span class="fois">1 fois</span></h4>
+    <p class="atout">Les passages secrets du casino.</p>
+    <p><b>Monte-plats</b> : glissez votre carte pour éviter une épreuve de discrétion.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-pickpocket"/></svg></div><div>
+    <h4>Le Pickpocket <span class="fois">3 fois</span></h4>
+    <p class="atout">Vous savez ce que chacun a dans les poches.</p>
+    <p><b>Faire les poches</b> : un personnage dans la fente, votre carte sur le plateau. Le Soupçon monte à chaque fois.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-parleur"/></svg></div><div>
+    <h4>Le Beau Parleur <span class="fois">1 fois</span></h4>
+    <p class="atout">Votre fausse identité de comte russe.</p>
+    <p><b>Belle parole</b> : glissez votre carte, le Soupçon baisse de 3.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE CASINO ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>IV · Le casino</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le Casino de la Riviera</h2>
+    <p class="chapeau">Glissez la carte d'un lieu dans la fente pour vous y rendre. Vous y restez jusqu'au lieu suivant.</p></div>
+  <img class="illustration" src="images/plan-casino.jpg" alt="Plan du casino">
+  <p class="legende">Le rez-de-chaussée, et l'étage du personnel.</p>
+  <div class="lieux">
+    <div><b>Le Salon d'Or</b> · gardé par Mattei</div>
+    <div><b>La Salle de jeu</b> · roulette et baccara</div>
+    <div><b>Le Bar américain</b> · cocktails et ragots</div>
+    <div><b>La Scène</b> · le music-hall</div>
+    <div><b>Les Cuisines</b> · vapeur et vaisselle</div>
+    <div><b>Le Bureau du directeur</b> · sur invitation</div>
+    <div style="grid-column:1/3"><b>Le Couloir du personnel</b> · jeton de service exigé. Il mène à <b>la Loge des artistes</b> et à <b>la Salle des coffres</b>.</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LE SOUPÇON ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>IV · Le casino</span></div>
+  <div class="soupcon">
+    <svg class="anneau" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="40" fill="#1b1622"/>
+      <g id="pts"></g>
+      <g stroke-width="7" fill="none">
+        <circle cx="50" cy="50" r="33" stroke="#3a3340" />
+        <circle cx="50" cy="50" r="33" stroke="#c9a13b" stroke-dasharray="69 207" transform="rotate(-90 50 50)"/>
+        <circle cx="50" cy="50" r="33" stroke="#b3202c" stroke-dasharray="0 69 35 207" transform="rotate(-90 50 50)"/>
+      </g>
+      <text x="50" y="47" text-anchor="middle" font-family="Playfair" font-weight="900" font-size="16" fill="#ecd9a0">5/12</text>
+      <text x="50" y="60" text-anchor="middle" font-family="Source Sans" font-size="6.5" letter-spacing="1.5" fill="#ecd9a0">SOUPÇON</text>
+    </svg>
+    <div><h3>Le Soupçon</h3>
+      <p>L'<b>anneau lumineux</b> mesure la méfiance du personnel. Éteint au départ, il se remplit d'or puis de rouge. <b>Tout rouge, vous êtes démasqués.</b></p></div>
+  </div>
+  <div class="encart"><div class="titre">Ce qui le fait monter</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Une réponse maladroite à une question.</li>
+      <li>Faire les poches de quelqu'un, surtout de quelqu'un d'attentif.</li>
+      <li>Se faire voir pendant une ronde, ou entrer là où l'on n'a rien à faire.</li>
+      <li>Montrer ce qu'il ne faut pas à qui il ne faut pas.</li>
+      <li>Un imprévu raté, un mauvais code, un coup final faux.</li>
+    </ul></div>
+  <div class="encart sombre"><div class="titre">Ce que Rose vous a appris</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Le <strong>Salon d'Or</strong> est gardé : on n'y entre qu'avec un carton d'invitation.</li>
+      <li>Le <strong>couloir du personnel</strong> exige un <strong>jeton de service</strong>, et les gardes y font des rondes.</li>
+      <li>Le <strong>coffre Fichet</strong> a trois disques, de 00 à 99.</li>
+      <li>Le directeur n'invite dans son bureau que les gens « de qualité ».</li>
+    </ul></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#losange" x="0" width="24" height="24"/><use href="#losange" x="33" width="24" height="24"/><use href="#losange" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>V · Le pupitre du casino</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre du casino</h2>
+    <p class="chapeau">Il vous dira toujours quand vous servir de quoi. Voici ce que vous trouverez sur la façade.</p></div>
+  <div class="element"><b>La fente</b><span>Un <b>lieu</b> pour vous y rendre, un <b>personnage</b> pour l'approcher, votre <b>rôle</b> pour un pouvoir.</span></div>
+  <div class="element"><b>Le plateau</b><span>Posez-y l'<b>objet</b> à montrer ou à examiner, ou votre carte Rôle.</span></div>
+  <div class="element"><b>L'écran</b><span>Le chrono, de 23 h à minuit, et ce que l'on vous dit.</span></div>
+  <div class="element"><b>L'anneau</b><span>La jauge de <b>Soupçon</b>. Surveillez-la de près.</span></div>
+  <div class="element"><b>Les boutons</b><span>Les quatre couleurs pour répondre aux questions et aux imprévus.</span></div>
+  <div class="element"><b>La molette</b><span>Les numéros : un carton d'invitation, les disques du coffre. Tournez, puis appuyez.</span></div>
+  <div class="element"><b>Le gros bouton</b><span>Pour avancer quand la voie est libre, et pour le <b>coup final</b>.</span></div>
+  <div class="element"><b>Le casque</b><span>Quand le pupitre le demande, <b>un seul</b> joueur le met. Certains messages ne passent qu'une fois.</span></div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#losange" x="0" width="24" height="24"/><use href="#losange" x="33" width="24" height="24"/><use href="#losange" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT LE CASSE ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>V · Le pupitre du casino</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant le casse</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que lorsque le pupitre le demande</b>. Un vrai gentleman ne triche pas.</span></div>
+  <div class="element"><b>Les objets</b><span>Ils sont dans les enveloppes. Montrez-les aux bonnes personnes… et pas aux autres.</span></div>
+  <div class="element"><b>Les portes</b><span>Certaines pièces exigent une invitation, un jeton, ou de beaux papiers. Le reste du casino est ouvert.</span></div>
+  <div class="element"><b>Les rondes</b><span>Dans le couloir, on n'avance que quand la voie est libre. Patience.</span></div>
+  <div class="element"><b>Les imprévus</b><span>Un casino vit : l'orchestre s'arrête, la lumière vacille… Écoutez la consigne, et agissez vite.</span></div>
+  <div class="element"><b>Fernand</b><span>Sa carte dans la fente quand vous coincez : 3 conseils gratuits, puis 2 minutes chacun.</span></div>
+  <div class="element"><b>La fin</b><span>Un coup final juste avant minuit, et la Riviera parlera de vous pendant des années.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Rien n'est jamais tout à fait ce qu'il paraît, ce soir. <strong>Regardez les détails</strong> des photos et des objets, et demandez au Faussaire ce qu'il en pense.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#losange" x="0" width="24" height="24"/><use href="#losange" x="33" width="24" height="24"/><use href="#losange" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · CARNET (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>VI · Le carnet de la bande</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le carnet de la bande</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie. Celui-là, vous pouvez le montrer !</p></div>
+  <table>
+    <tr><th>Personne</th><th>Ce qu'il sait, ce qu'il cache</th><th style="width:26mm">Dans ses poches</th></tr>
+    <tr><td>Baron de Valcourt</td><td></td><td></td></tr>
+    <tr><td>Joséphine Lamour</td><td></td><td></td></tr>
+    <tr><td>Ernest Pujol</td><td></td><td></td></tr>
+    <tr><td>Albert Rinaldi</td><td></td><td></td></tr>
+    <tr><td>Sergent Mattei</td><td></td><td></td></tr>
+    <tr><td>Lady Pembroke</td><td></td><td></td></tr>
+  </table>
+  <h3>La soirée, quart d'heure par quart d'heure</h3>
+  <table>
+    <tr><th style="width:16mm">Heure</th><th>Ce qui s'est passé</th></tr>
+    <tr><td>22 h 30</td><td></td></tr><tr><td>22 h 45</td><td></td></tr><tr><td>23 h</td><td></td></tr>
+    <tr><td>23 h 15</td><td></td></tr><tr><td>23 h 30</td><td></td></tr><tr><td>23 h 45</td><td></td></tr><tr><td>Minuit</td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · CARNET (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>VI · Le carnet de la bande</span></div>
+  <h3 style="margin-top:0">Le coffre Fichet</h3>
+  <div style="display:flex;gap:6mm;align-items:center">
+    <div><div style="font-size:6.4pt;letter-spacing:.2em;color:var(--accent);font-weight:700">DISQUE 1</div><div class="cases"><span></span><span></span></div></div>
+    <div><div style="font-size:6.4pt;letter-spacing:.2em;color:var(--accent);font-weight:700">DISQUE 2</div><div class="cases"><span></span><span></span></div></div>
+    <div><div style="font-size:6.4pt;letter-spacing:.2em;color:var(--accent);font-weight:700">DISQUE 3</div><div class="cases"><span></span><span></span></div></div>
+  </div>
+  <h3>Les calculs</h3>
+  <div class="zone lignes" style="min-height:24mm"></div>
+  <h3>Les objets : vrai ou faux ?</h3>
+  <div class="zone lignes" style="min-height:40mm"></div>
+  <h3>Le coup final</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2.4mm">
+    <div class="zone"><b>Qui ?</b></div><div class="zone"><b>Où ?</b></div><div class="zone"><b>Dans quoi ?</b></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Monte-Carlo 1928</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Monte-Carlo, 1928. Ce soir, l'Œil du Nil dort dans le coffre du Casino de la Riviera. Bluffez le beau monde,
+    faites les poches, déjouez les rondes, ouvrez le coffre… et repartez avec la pierre avant minuit.</p>
+  <table>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr class="ici"><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">2 à 6 joueurs · 60 minutes · pour adultes · bluff, vol et déduction</div>
+</section>
+
+</body>
+</html>
