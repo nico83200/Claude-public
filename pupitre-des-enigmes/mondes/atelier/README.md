@@ -10,11 +10,11 @@ tiroir secret). À jouer après le montage, ou avant une soirée, pour vérifier
 |---|---|
 | **Mission** | 5 · Banc d'essai (🟢 facile, 30 min, 2 joueurs, sans rôles) · [déroulé](mission-5-deroule.md) |
 | **Carte Monde** | M5 « L'Atelier du professeur Lumen » ; carte Aide A5 « Le carnet du professeur » |
-| **Plateau** | Aucun : la mission se joue avec ou sans façade |
+| **Plateau** | Le **plan du banc d'essai** : un plan d'ingénieur bleu où chaque organe porte le nom et le numéro de son banc (① à ⑬), et chaque voyant l'organe qu'il valide. Rien n'est caché. La mission se joue aussi sans façade |
 | **Voix** | [`audio/voix.json`](audio/voix.json) (le professeur Lumen, dossier SD `50/`) |
 | **Bruitages** | [`audio/sons.json`](audio/sons.json) (dossier SD `51/`) |
 | **Script du pupitre** | [`pupitre/mission-5.json`](pupitre/mission-5.json) |
-| **Documents à imprimer** | [`impression/`](impression/) : fiche de mission (page des joueurs, page du maître du jeu avec les pastilles et la fiche de recette), cartes |
+| **Documents à imprimer** | [`impression/`](impression/) : fiche de mission (page des joueurs, page du maître du jeu avec les pastilles et la fiche de recette), plan du banc d'essai, cartes |
 
 ## Les cartes du monde (18)
 

@@ -14,6 +14,7 @@
 
 | Situation | Effet |
 |---|---|
+| **Le plateau** | Le plan du banc d'essai (facultatif) : chaque organe y porte le nom et le numéro de son banc, chaque voyant l'organe qu'il valide. |
 | **Une carte par banc** | 13 cartes Banc d'essai. Glissée dans la fente, la carte lance l'essai de son organe. Elle reste en place pendant l'essai. |
 | **Le tableau de bord** | Les 10 voyants : 1 écran et clavier, 2 boutons, 3 molette, 4 gros bouton, 5 lecteurs, 6 forge, 7 enclume, 8 œil, 9 nuancier, 10 clé. Rouge faible : à essayer ; vert : validé. |
 | **La lumière sous la boîte** | Ambre qui respire ; verte quand les 11 essais sont faits. |

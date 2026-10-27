@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 5 · Plateau du pupitre</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #17426b; --or: #e8a33c; }
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #9a5b16; border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
+</style>
+</head>
+<body>
+
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié
+     dans chaque page par le script en bas. Un plan d'ingénieur : chaque organe porte le nom
+     de son banc d'essai et le numéro de sa carte. Tout est découvert : la mission essaie tout. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <linearGradient id="plan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4f80"/><stop offset=".6" stop-color="#17426b"/><stop offset="1" stop-color="#113557"/></linearGradient>
+    <pattern id="fin" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M5 0V5H0" fill="none" stroke="#ffffff" stroke-width=".12" opacity=".14"/></pattern>
+    <pattern id="gros" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0V25H0" fill="none" stroke="#ffffff" stroke-width=".25" opacity=".18"/></pattern>
+    <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#0d2a47"/></pattern>
+    <g id="vis"><circle r="2" fill="none" stroke="#cfe3f5" stroke-width=".5"/><path d="M-1.4-1.4L1.4 1.4" stroke="#cfe3f5" stroke-width=".5"/></g>
+    <g id="engrenage"><path d="M0-9l1.6 2.6 3-.9.5 3.1 3 .9-1 3 2.2 2.2-2.2 2.2 1 3-3 .9-.5 3.1-3-.9L0 9l-1.6-2.6-3 .9-.5-3.1-3-.9 1-3L-9.3 0l2.2-2.2-1-3 3-.9.5-3.1 3 .9Z" fill="none" stroke="#e8a33c" stroke-width=".7"/><circle r="3" fill="none" stroke="#e8a33c" stroke-width=".7"/></g>
+  </defs>
+
+  <!-- la plaque : papier bleu de plan, quadrillé -->
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#plan)" stroke="#0b2540" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#fin)"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#gros)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#cfe3f5" stroke-width=".6"/>
+  <g><use href="#vis" x="100" y="9"/><use href="#vis" x="280" y="9"/><use href="#vis" x="100" y="253"/><use href="#vis" x="280" y="253"/></g>
+  <!-- aimants (repères) -->
+  <g fill="none" stroke="#cfe3f5" stroke-width=".4" opacity=".6"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+
+  <g font-family="Share Tech Mono, monospace">
+  <!-- le titre, en haut -->
+  <text x="190" y="14.5" text-anchor="middle" font-size="5.4" fill="#e8a33c" letter-spacing="1.2">ATELIER LUMEN · PUPITRE N° 2580 · PLAN DU BANC D'ESSAI</text>
+
+  <!-- le clavier : le poste de contrôle -->
+  <rect x="19" y="19" width="78" height="86" rx="3" fill="none" stroke="#cfe3f5" stroke-width=".9"/>
+  <rect x="23" y="23" width="70" height="78" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-size="4.5" fill="#5f84a8">✂ CLAVIER</text>
+  <rect x="31" y="16.5" width="54" height="5" fill="#17426b"/>
+  <text x="58" y="20.6" text-anchor="middle" font-size="4.2" fill="#e8a33c" letter-spacing=".4">① POSTE DE CONTRÔLE</text>
+
+  <!-- le haut-parleur et l'anneau : poste de contrôle, et la surtension -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="#cfe3f5" stroke-width=".9"/>
+  <text x="133" y="90" text-anchor="middle" font-size="4.4" fill="#cfe3f5">HAUT-PARLEUR</text>
+  <circle cx="190" cy="62" r="22" fill="none" stroke="#cfe3f5" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="190" cy="62" r="19" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="90" text-anchor="middle" font-size="4.4" fill="#cfe3f5">ANNEAU</text>
+
+  <!-- l'écran -->
+  <rect x="236" y="30" width="98" height="64" rx="3" fill="none" stroke="#cfe3f5" stroke-width=".9"/>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-size="4.5" fill="#5f84a8">✂ ÉCRAN 3,5"</text>
+  <!-- une cote d'ingénieur, pour le décor -->
+  <g stroke="#cfe3f5" stroke-width=".3" fill="none"><path d="M236 25H334M236 23v4M334 23v4"/></g>
+  <text x="285" y="23.6" text-anchor="middle" font-size="3" fill="#cfe3f5">98</text>
+  <text x="285" y="99" text-anchor="middle" font-size="3.6" fill="#cfe3f5">écran · haut-parleur · clavier · horloge : carte ①</text>
+
+  <!-- la serrure : l'interrupteur à clé -->
+  <circle cx="358" cy="40" r="10" fill="none" stroke="#e8a33c" stroke-width="1"/>
+  <circle cx="358" cy="40" r="6" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="358" y="57" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑩ SERRURE</text>
+
+  <!-- les 10 voyants : le tableau des voyants, un par organe -->
+  <rect x="31" y="108" width="98" height="56" rx="3" fill="none" stroke="#cfe3f5" stroke-width=".6"/>
+  <rect x="49" y="105.5" width="62" height="5" fill="#17426b"/>
+  <text x="80" y="109.6" text-anchor="middle" font-size="4.2" fill="#e8a33c" letter-spacing=".5">⑤ TABLEAU DES VOYANTS</text>
+  <g fill="#0d2a47" stroke="#ffffff" stroke-width=".45" stroke-dasharray="1 .8">
+    <circle cx="46.7" cy="116" r="3"/><circle cx="63.3" cy="116" r="3"/><circle cx="80" cy="116" r="3"/><circle cx="96.7" cy="116" r="3"/><circle cx="113.3" cy="116" r="3"/>
+  </g>
+  <g fill="#0d2a47" stroke="#ffffff" stroke-width=".45" stroke-dasharray="1 .8">
+    <circle cx="46.7" cy="148" r="3"/><circle cx="63.3" cy="148" r="3"/><circle cx="80" cy="148" r="3"/><circle cx="96.7" cy="148" r="3"/><circle cx="113.3" cy="148" r="3"/>
+  </g>
+  <g font-size="3" fill="#cfe3f5" text-anchor="middle">
+    <text x="46.7" y="124">1 ÉCRAN</text><text x="63.3" y="124">2 BOUTONS</text><text x="80" y="124">3 MOLETTE</text><text x="96.7" y="124">4 GROS BT.</text><text x="113.3" y="124">5 LECTEURS</text>
+    <text x="46.7" y="156">6 FORGE</text><text x="63.3" y="156">7 ENCLUME</text><text x="80" y="156">8 ŒIL</text><text x="96.7" y="156">9 NUANCIER</text><text x="113.3" y="156">10 CLÉ</text>
+  </g>
+  <text x="80" y="161.6" text-anchor="middle" font-size="2.9" fill="#9fc0de">rouge : à essayer · vert : validé</text>
+
+  <!-- la fente : le banc d'essai -->
+  <rect x="150" y="116" width="80" height="34" rx="3" fill="none" stroke="#e8a33c" stroke-width="1.2"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="125.5" text-anchor="middle" font-size="5.4" fill="#e8a33c" letter-spacing=".8">BANC D'ESSAI</text>
+  <text x="190" y="142" text-anchor="middle" font-size="3.8" fill="#cfe3f5">glissez la carte du banc ① à ⑬</text>
+  <text x="190" y="146.6" text-anchor="middle" font-size="3.3" fill="#9fc0de">et laissez-la pendant l'essai</text>
+
+  <!-- le lecteur à plat -->
+  <rect x="257" y="105" width="76" height="70" rx="5" fill="none" stroke="#e8a33c" stroke-width="1.2"/>
+  <text x="295" y="112.5" text-anchor="middle" font-size="5" fill="#e8a33c" letter-spacing=".6">LECTEUR À PLAT</text>
+  <rect x="270" y="117" width="50" height="40" rx="3" fill="none" stroke="#cfe3f5" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <g transform="translate(295 137)"><use href="#engrenage"/></g>
+  <text x="295" y="163" text-anchor="middle" font-size="3.6" fill="#cfe3f5">⑪ un outil ici, l'autre dans la fente</text>
+  <text x="295" y="168" text-anchor="middle" font-size="3.6" fill="#cfe3f5">⑬ puis le certificat</text>
+  <circle cx="325" cy="167" r="3.6" fill="none" stroke="#e8a33c" stroke-width=".8"/>
+  <circle cx="325" cy="167" r="2" fill="#0d2a47" stroke="#ffffff" stroke-width=".4" stroke-dasharray=".8 .6"/>
+
+  <!-- le nuancier : le capteur de couleur -->
+  <circle cx="358" cy="107" r="10" fill="none" stroke="#e8a33c" stroke-width="1"/>
+  <g stroke-width="2.2" fill="none"><path d="M358 95.5a11.5 11.5 0 0 1 11.5 11.5" stroke="#e5484d"/><path d="M369.5 107a11.5 11.5 0 0 1-11.5 11.5" stroke="#3e7bfa"/>
+     <path d="M358 118.5a11.5 11.5 0 0 1-11.5-11.5" stroke="#30a46c"/><path d="M346.5 107a11.5 11.5 0 0 1 11.5-11.5" stroke="#f5b83d"/></g>
+  <circle cx="358" cy="107" r="6" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="358" y="126" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑨ NUANCIER</text>
+  <text x="358" y="131" text-anchor="middle" font-size="3.3" fill="#cfe3f5">pastille à plat</text>
+
+  <!-- le casque -->
+  <circle cx="358" cy="167" r="7" fill="none" stroke="#e8a33c" stroke-width="1"/>
+  <circle cx="358" cy="167" r="3" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="358" y="181" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑫ CASQUE</text>
+
+  <!-- la forge : souffler sur la grille -->
+  <text x="60" y="172" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑥ FORGE</text>
+  <circle cx="60" cy="183" r="9" fill="none" stroke="#cfe3f5" stroke-width=".7"/>
+  <g fill="#0d2a47" stroke="#ffffff" stroke-width=".35" stroke-dasharray=".8 .6"><circle cx="60" cy="183" r="1"/><circle cx="56.5" cy="183" r="1"/><circle cx="63.5" cy="183" r="1"/><circle cx="60" cy="179.5" r="1"/><circle cx="60" cy="186.5" r="1"/><circle cx="57.5" cy="180.5" r="1"/><circle cx="62.5" cy="180.5" r="1"/><circle cx="57.5" cy="185.5" r="1"/><circle cx="62.5" cy="185.5" r="1"/></g>
+  <text x="60" y="197" text-anchor="middle" font-size="3.3" fill="#cfe3f5">soufflez ici</text>
+
+  <!-- l'enclume : l'aimant (rien à découper) -->
+  <text x="105" y="172" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑦ ENCLUME</text>
+  <circle cx="105" cy="183" r="9" fill="none" stroke="#cfe3f5" stroke-width=".7" stroke-dasharray="2 1.5"/>
+  <path d="M100 189v-6a5 5 0 0 1 10 0v6" fill="none" stroke="#cfe3f5" stroke-width="2.4"/>
+  <g fill="#e5484d"><rect x="98.8" y="187" width="2.4" height="2.6"/><rect x="108.8" y="187" width="2.4" height="2.6"/></g>
+  <text x="105" y="197" text-anchor="middle" font-size="3.3" fill="#cfe3f5">l'aimant ici</text>
+
+  <!-- l'horloge : l'afficheur à 4 chiffres -->
+  <text x="175" y="166" text-anchor="middle" font-size="4.4" fill="#e8a33c">HORLOGE</text>
+  <rect x="146" y="168.5" width="58" height="23" rx="2" fill="none" stroke="#cfe3f5" stroke-width=".8"/>
+  <rect x="150" y="170.5" width="50" height="19" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="175" y="182" text-anchor="middle" font-size="4" fill="#5f84a8">✂ HORLOGE</text>
+
+  <!-- l'œil : les quatre gestes, ou une lampe -->
+  <circle cx="235" cy="180" r="8" fill="none" stroke="#cfe3f5" stroke-width=".9"/>
+  <circle cx="235" cy="180" r="5" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <g fill="#e8a33c"><path d="M235 164l-3 4h6z"/><path d="M235 196l-3-4h6z"/><path d="M219 180l4-3v6z"/><path d="M251 180l-4-3v6z"/></g>
+  <text x="235" y="204" text-anchor="middle" font-size="4.4" fill="#e8a33c">⑧ ŒIL</text>
+  <text x="235" y="209" text-anchor="middle" font-size="3.3" fill="#cfe3f5">la main à 5 cm, ou une lampe</text>
+
+  <!-- les quatre boutons de couleur -->
+  <text x="95" y="249" text-anchor="middle" font-size="4.4" fill="#e8a33c" letter-spacing=".5">② BANC DES BOUTONS</text>
+  <g fill="none" stroke-width="2.4">
+    <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
+    <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
+  </g>
+  <g fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/></g>
+
+  <!-- la molette -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="#cfe3f5" stroke-width=".9"/>
+  <g stroke="#cfe3f5" stroke-width=".7"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <path d="M199 213a12.5 12.5 0 0 1 3 6" fill="none" stroke="#e8a33c" stroke-width=".7"/><path d="M202.6 216.6l-.4 2.6-2.1-1.6" fill="none" stroke="#e8a33c" stroke-width=".7"/>
+  <circle cx="190" cy="222" r="3.5" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="202" text-anchor="middle" font-size="4.4" fill="#e8a33c">③ MOLETTE</text>
+  <text x="190" y="244" text-anchor="middle" font-size="3.2" fill="#cfe3f5">appui : la liste des essais</text>
+
+  <!-- le gros bouton -->
+  <circle cx="295" cy="222" r="30" fill="none" stroke="#cfe3f5" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="295" cy="222" r="23" fill="none" stroke="#e8a33c" stroke-width="1.1"/>
+  <circle cx="295" cy="222" r="11" fill="#0d2a47" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="217" text-anchor="middle" font-size="5.6" fill="#e8a33c">④ GROS</text>
+  <text x="351" y="224" text-anchor="middle" font-size="5.6" fill="#e8a33c">BOUTON</text>
+  <text x="351" y="231" text-anchor="middle" font-size="3.3" fill="#cfe3f5">en rythme :</text>
+  <text x="351" y="235.5" text-anchor="middle" font-size="3.3" fill="#cfe3f5">tac · tac · tac</text>
+
+  <!-- la signature du plan -->
+  <text x="236" y="253" text-anchor="middle" font-size="3" fill="#9fc0de">dessiné par le Pr Lumen · échelle 1:1</text>
+  </g>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes · L'Atelier du professeur Lumen</span><span>Plateau de la mission 5</span></div>
+  <h1 style="margin-bottom:2mm">Le plan du banc d'essai</h1>
+  <p>Pour « Banc d'essai », le pupitre s'habille du <strong>plan d'ingénieur</strong> du professeur Lumen : chaque organe y
+     porte le nom de son banc et le <strong>numéro de sa carte</strong> (① Poste de contrôle … ⑬ Le coffre), et les dix voyants
+     sont légendés, un par organe essayé. Rien n'est caché : la mission essaie tout. Les joueurs trouvent ainsi sans chercher la
+     grille de la forge, la marque de l'enclume, l'œil, le nuancier et la serrure.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <h3>Fabrication</h3>
+  <ol style="font-size:10pt">
+    <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
+    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite. Le bord gauche de la moitié droite se pose sur la ligne de pointillés de la moitié gauche.</li>
+    <li>Collez sur la façade de 2 mm (contreplaqué), plastifiez si possible.</li>
+    <li>Découpez les <strong>fenêtres en pointillés blancs</strong> : écran, clavier, anneau, voyants, fente, clé, nuancier, LED du lecteur à plat, prise casque,
+        grille de la forge, horloge, œil, boutons, molette, gros bouton. Le lecteur à plat et l'enclume ne se découpent pas.</li>
+  </ol>
+  <p class="petit">Cotes du gabarit commun (pdf/gabarit-facade.pdf). Vérifiez les positions sur votre pupitre avant de découper.
+     Sans façade, la mission se joue aussi : le plan sert alors de feuille de repères posée à côté du pupitre.</p>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, après les pointillés) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · aligner le bord gauche sur les pointillés de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>';
+  document.querySelectorAll("svg.copie").forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    // Les identifiants doivent rester uniques dans la page : chaque copie a les siens.
+    s.innerHTML = modele.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/#([\w-]+)\)/g, `#$1-${i})`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`) + (i ? repere : "");
+  });
+</script>
+</body>
+</html>
