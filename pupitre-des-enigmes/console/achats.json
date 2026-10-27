@@ -58,6 +58,12 @@
           "prix": 2
         },
         {
+          "article": "Interrupteur à clé en métal",
+          "detail": "Perçage Ø 12 mm, 2 positions, livré avec 2 clés. Recherche : « 12mm metal key switch »",
+          "qte": 1,
+          "prix": 4
+        },
+        {
           "article": "Module d'extension I2C PCF8574",
           "detail": "Un pour le clavier, un pour les 4 boutons de couleur et le fin de course du tiroir, un de secours. Recherche : « PCF8574 IO expansion board »",
           "qte": 3,
@@ -85,6 +91,12 @@
           "detail": "Humidité, température, pression, I2C, 3,3 V. Vérifiez « BME280 » et non « BMP280 » (sans humidité). Recherche : « BME280 I2C 3.3V »",
           "qte": 1,
           "prix": 5
+        },
+        {
+          "article": "Magnétomètre QMC5883L (l'enclume)",
+          "detail": "Module « GY-271 » à puce QMC5883L (et non HMC5883L). Recherche : « GY-271 QMC5883L »",
+          "qte": 1,
+          "prix": 3
         },
         {
           "article": "Afficheur 4 chiffres HT16K33 (l'horloge)",
@@ -296,7 +308,7 @@
   ],
   "conseils": [
     "Commandez d'abord l'électronique : c'est le plus long à recevoir.",
-    "Vérifiez les puces à réception : ESP32 (et non ESP8266) et BME280 (et non BMP280).",
+    "Vérifiez les puces à réception : ESP32 (et non ESP8266), BME280 (et non BMP280), QMC5883L (et non HMC5883L).",
     "Les modules RC522 et DFPlayer sont fragiles et de qualité variable : les exemplaires de secours évitent d'attendre une nouvelle livraison.",
     "Le RC522 et tous les modules I2C s'alimentent en 3,3 V : branchés sur 5 V, certains sont détruits.",
     "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier ; l'onglet « Atelier » du panneau Wi-Fi montre chaque capteur en direct."
