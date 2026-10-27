@@ -1,0 +1,84 @@
+{
+  "dossier": 71,
+  "description": "Bruitages et musiques du monde Manoir Blackwood (dossier /71/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 5,
+      "prompt": "Gothic pipe organ chord, distant thunder and a raven caw, Victorian haunted manor intro"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : le manoir dans la tempête",
+      "duree": 20,
+      "prompt": "Old Victorian manor at night during a storm, rain on windows, wind howling, creaking wood, ticking grandfather clock, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Cadenas et tiroir",
+      "duree": 2,
+      "prompt": "Old brass padlock clicking open, then a wooden drawer sliding out"
+    },
+    {
+      "n": 4,
+      "nom": "Tonnerre",
+      "duree": 4,
+      "prompt": "Loud close thunder clap, window bursting open, wind rushing in"
+    },
+    {
+      "n": 5,
+      "nom": "Poussière soufflée",
+      "duree": 2,
+      "prompt": "Someone blowing dust off a stone plaque, soft whoosh, faint echo in a chapel"
+    },
+    {
+      "n": 6,
+      "nom": "Pas dans le couloir",
+      "duree": 4,
+      "prompt": "Slow creaking footsteps on old wooden floorboards in a corridor, stopping, then hurrying away"
+    },
+    {
+      "n": 7,
+      "nom": "Le portrait tombe",
+      "duree": 2,
+      "prompt": "Heavy framed painting falling off a wall, wood frame hitting stone floor"
+    },
+    {
+      "n": 8,
+      "nom": "Victoire",
+      "duree": 6,
+      "prompt": "Solemn but uplifting gothic organ and strings resolution, mystery solved"
+    },
+    {
+      "n": 9,
+      "nom": "Défaite",
+      "duree": 5,
+      "prompt": "Single tolling funeral church bell, fading into wind"
+    },
+    {
+      "n": 10,
+      "nom": "Apparition du fantôme",
+      "duree": 4,
+      "prompt": "Ghostly whisper and cold ethereal whoosh, eerie choir breath"
+    },
+    {
+      "n": 11,
+      "nom": "Minuit",
+      "duree": 6,
+      "prompt": "Grandfather clock chiming in an old manor hall"
+    },
+    {
+      "n": 12,
+      "nom": "Le corbeau",
+      "duree": 1.5,
+      "prompt": "Single raven caw, close, slightly echoing"
+    },
+    {
+      "n": 13,
+      "nom": "Porte qui grince",
+      "duree": 2,
+      "prompt": "Old heavy wooden door creaking open slowly"
+    }
+  ]
+}

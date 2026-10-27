@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 7 · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Le Manoir Blackwood",
+  mission: "Mission 7",
+  police: '"Playfair", serif',
+  accent: "#c79a4a",
+  motif: "☾ ✦ ☽",
+  types: {
+    monde: { c: "#2a1d16", fond: "#e9dfcc", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#3f4a3a", fond: "#e1e6dc", libelle: "Lieu", zone: "📍 Fente" },
+    perso: { c: "#6b2d2d", fond: "#f1dfdc", libelle: "Personnage", zone: "👤 Fente" },
+    objet: { c: "#7a5a22", fond: "#f2e7cf", libelle: "Objet", zone: "🔍 Plateau" },
+    role:  { c: "#3a2f5a", fond: "#e3dff0", libelle: "Rôle", zone: "Fente ou plateau" },
+    aide:  { c: "#1d1d24", fond: "#dedee6", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M7", t: "monde", nom: "Le Manoir Blackwood", sous: "Mission 7 · La dernière nuit de Lord Edgar", vis: "🕯️", txt: "Glissez cette carte dans la fente pour charger le monde." },
+
+    { id: "L1", t: "lieu", nom: "Le grand hall", sous: "Rez-de-chaussée", vis: "🚪", txt: "Les portraits des Blackwood, l'horloge, la tempête aux vitraux." },
+    { id: "L2", t: "lieu", nom: "La bibliothèque", sous: "Rez-de-chaussée", vis: "📚", txt: "Lord Edgar y a été trouvé, dans son fauteuil." },
+    { id: "L3", t: "lieu", nom: "Le fumoir", sous: "Rez-de-chaussée", vis: "🚬", txt: "Cigares, brandy, verres gravés d'un cerf." },
+    { id: "L4", t: "lieu", nom: "La galerie des portraits", sous: "Il faut de la lumière", vis: "🖼️", txt: "Cinq générations de Blackwood. Remontez la lampe avant d'y entrer." },
+    { id: "L5", t: "lieu", nom: "La chapelle", sous: "Au bout de l'aile ouest", vis: "⛪", txt: "Les plaques funéraires de la famille, sous la poussière." },
+    { id: "L6", t: "lieu", nom: "Le bureau de Lord Edgar", sous: "Fermé par un cadenas", vis: "🗝️", txt: "Le secrétaire de Lord Edgar." },
+    { id: "L7", t: "lieu", nom: "L'office", sous: "Le domaine des domestiques", vis: "🍽️", txt: "Le registre de la cave, la cuisinière." },
+    { id: "L8", t: "lieu", nom: "La chambre de Lady Margaret", sous: "Étage", vis: "🛏️", txt: "Un parfum de violette." },
+    { id: "L9", t: "lieu", nom: "La chambre du docteur", sous: "Étage · fermée à clé", vis: "🩺", txt: "La chambre d'amis du Dr Ashford." },
+    { id: "L10", t: "lieu", nom: "Le salon de la séance", sous: "Rez-de-chaussée", vis: "🔮", txt: "Le guéridon, la planchette, et Madame Zorah." },
+
+    { id: "P1", t: "perso", nom: "Lady Margaret Blackwood", sous: "48 ans · l'épouse", ini: "MB", coul: "#6b2d2d", txt: "Élégante, distante. Elle s'est disputée avec Edgar ce soir." },
+    { id: "P2", t: "perso", nom: "Thomas Blackwood", sous: "26 ans · le neveu", ini: "TB", coul: "#6b2d2d", txt: "Joueur, couvert de dettes, éconduit par son oncle." },
+    { id: "P3", t: "perso", nom: "Dr Henry Ashford", sous: "61 ans · médecin de famille", ini: "HA", coul: "#6b2d2d", txt: "Ami de vingt ans. Il a conclu à une crise cardiaque." },
+    { id: "P4", t: "perso", nom: "Graves", sous: "63 ans · le majordome", ini: "G", coul: "#6b2d2d", txt: "Trente-deux ans au service de Lord Edgar." },
+    { id: "P5", t: "perso", nom: "Rose Miller", sous: "19 ans · femme de chambre", ini: "RM", coul: "#6b2d2d", txt: "Elle tremble comme une feuille." },
+    { id: "P6", t: "perso", nom: "Madame Zorah", sous: "50 ans · la médium", ini: "Z", coul: "#6b2d2d", txt: "Venue pour la séance. Elle parle aux morts, dit-elle." },
+
+    { id: "O1", t: "objet", nom: "Verre au cerf", sous: "Enveloppe E1", vis: "🥃", txt: "Un verre de cristal gravé d'un cerf." },
+    { id: "O2", t: "objet", nom: "Carafe de brandy", sous: "Enveloppe E2", vis: "🍾", txt: "La carafe du fumoir, aux trois quarts pleine." },
+    { id: "O3", t: "objet", nom: "Mouchoir taché", sous: "Enveloppe E2", vis: "🧣", txt: "Batiste blanche, taches brunes." },
+    { id: "O4", t: "objet", nom: "Mort-aux-rats", sous: "Enveloppe E4", vis: "☠️", txt: "Une boîte d'arsenic, scellée." },
+    { id: "O5", t: "objet", nom: "Lettre de « J. »", sous: "Enveloppe E5", vis: "💌", txt: "Une lettre d'amour, sous l'oreiller." },
+    { id: "O6", t: "objet", nom: "Broche d'émeraude", sous: "Enveloppe E8", vis: "💎", txt: "La broche de Lady Margaret." },
+    { id: "O7", t: "objet", nom: "Flacon de laudanum", sous: "Enveloppe E6", vis: "🧪", txt: "Un flacon brun, à moitié vide." },
+    { id: "O8", t: "objet", nom: "Trousseau de Lord Edgar", sous: "Enveloppe E7", vis: "🔑", txt: "Toutes les clés du manoir." },
+    { id: "O9", t: "objet", nom: "Lettre à Scotland Yard", sous: "Tiroir secret (sinon E7)", vis: "✉️", txt: "Écrite ce soir par Lord Edgar." },
+    { id: "O10", t: "objet", nom: "Reçu de Christie's", sous: "Enveloppe E6", vis: "🧾", txt: "Une vente aux enchères, à Londres." },
+
+    { id: "R1", t: "role", nom: "L'Apothicaire", sous: "Analyser · 2 fois", vis: "🧪", txt: "Votre carte et un objet : le pupitre dit ce qu'il contient." },
+    { id: "R2", t: "role", nom: "L'Expert en peinture", sous: "Votre savoir", vis: "🖼️", txt: "Pas de pouvoir : votre catalogue vaut de l'or." },
+    { id: "R3", t: "role", nom: "L'Inspecteur en retraite", sous: "Alibi · 3 fois · 🎧", vis: "🔍", txt: "Un personnage et votre carte : son alibi, au casque." },
+    { id: "R4", t: "role", nom: "La Spirite", sous: "Interroger l'esprit · 2 fois", vis: "🔮", txt: "Un personnage et votre carte : le fantôme d'Edgar répond." },
+    { id: "R5", t: "role", nom: "Le Chroniqueur mondain", sous: "Confidence · 2 fois · 🎧", vis: "📰", txt: "Un personnage et votre carte : une confidence, au casque." },
+    { id: "R6", t: "role", nom: "Le Joueur de whist", sous: "Coup de poker · 1 fois", vis: "🃏", txt: "Seule, avant l'accusation : une erreur ne coûtera rien." },
+
+    { id: "A7", t: "aide", nom: "Le corbeau", sous: "Jamais plus…", vis: "🐦", txt: "Glissez cette carte quand vous bloquez. 3 conseils gratuits, puis 2 minutes chacun." },
+  ],
+});
+</script>
+</body>
+</html>

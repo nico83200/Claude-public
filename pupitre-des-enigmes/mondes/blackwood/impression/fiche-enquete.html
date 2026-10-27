@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mission 7 · Fiche d'enquête</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<link rel="stylesheet" href="gothique.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  td { height: 11mm; }
+  .heures td { height: 8.5mm; }
+  .cases { display: flex; gap: 3mm; }
+  .cases span { width: 11mm; height: 13mm; border: 1.5px solid #3a1f1a; border-radius: 3px; display: inline-block; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .zone { border: 1px solid var(--filet); border-radius: 6px; padding: 3mm 4mm; min-height: 28mm; }
+  .zone h4 { margin: 0 0 2mm; }
+</style>
+</head>
+<body>
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Manoir Blackwood</span><span>Fiche d'enquête · mission 7</span></div>
+<h1 style="font-size:22pt">Fiche d'enquête</h1>
+<p class="petit">Une feuille pour l'équipe, à remplir au crayon. Celle-ci, vous pouvez la montrer !</p>
+
+<h3>Les suspects</h3>
+<table>
+  <thead><tr><th style="width:20%">Personne</th><th>Où, de 22 h à 22 h 40 ?</th><th>Mobile possible</th><th style="width:20%">Mensonge ?</th><th style="width:9%">Suspect ?</th></tr></thead>
+  <tbody>
+    <tr><td>Lady Margaret</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Thomas Blackwood</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Dr Henry Ashford</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Graves</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Rose Miller</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>Madame Zorah</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="deux">
+  <div>
+    <h3>La soirée, heure par heure</h3>
+    <table class="heures">
+      <thead><tr><th style="width:20%">Heure</th><th>Ce qui s'est passé</th></tr></thead>
+      <tbody>
+        <tr><td>20 h 00</td><td></td></tr><tr><td>20 h 30</td><td></td></tr><tr><td>21 h 00</td><td></td></tr>
+        <tr><td>21 h 30</td><td></td></tr><tr><td>21 h 45</td><td></td></tr><tr><td>22 h 00</td><td></td></tr>
+        <tr><td>22 h 15</td><td></td></tr><tr><td>22 h 30</td><td></td></tr><tr><td>22 h 40</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Le cadenas du bureau</h3>
+    <div class="cases"><span></span><span></span><span></span><span></span></div>
+    <h3>Le poison</h3>
+    <div class="zone" style="min-height:20mm"></div>
+    <h3>Les tableaux de la galerie</h3>
+    <div class="zone" style="min-height:20mm"></div>
+  </div>
+</div>
+
+<h3>L'accusation</h3>
+<div class="deux" style="grid-template-columns:repeat(3,1fr)">
+  <div class="zone"><h4>👤 QUI ?</h4></div>
+  <div class="zone"><h4>📍 OÙ ?</h4></div>
+  <div class="zone"><h4>🧪 AVEC QUOI ?</h4></div>
+</div>
+</body>
+</html>

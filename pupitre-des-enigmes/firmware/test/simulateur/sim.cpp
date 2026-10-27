@@ -15,7 +15,7 @@
 //                                                      s'arrête si une épreuve commence)
 //   logo                      (le logo du démarrage, avant une capture)
 //   capture <nom>             (image de l'écran, avec test/ecrans.sh)
-//   dynamo auto | manuel      (un joueur actionne la dynamo toutes les 6 s, ou plus personne)
+//   dynamo auto [BLEU] | manuel  (un joueur actionne la dynamo toutes les 6 s, ou plus personne)
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type> | ecran <titre>
@@ -192,12 +192,13 @@ PlateformeSimulee* plateforme = nullptr;
 Moteur* moteur = nullptr;
 int echecs = 0;
 bool dynamoAuto = false;  // « dynamo auto » : un joueur actionne la dynamo toutes les 6 secondes
+Bouton boutonDynamo = GROS;  // « dynamo auto BLEU » : la dynamo est sur un bouton de couleur
 
 void tourner(uint32_t ms) {
   for (uint32_t t = 0; t < ms; t += 10) {
     plateforme->horloge += 10;
     if (dynamoAuto && plateforme->horloge % 6000 == 0 && moteur->phaseTexte() == "jeu" && moteur->epreuveType() != "immobile")
-      moteur->bouton(GROS);
+      moteur->bouton(boutonDynamo);
     moteur->miseAJour();
   }
 }
@@ -379,6 +380,7 @@ int main(int argc, char** argv) {
       if (!captures.empty() && p.capturer(captures + "/" + a + ".ppm")) printf("  📷 %s\n", a.c_str());
     } else if (cmd == "dynamo") {
       dynamoAuto = a == "auto";
+      boutonDynamo = b.empty() ? GROS : bouton(b);
     } else if (cmd == "calme") {
       calme();
     } else if (cmd == "code") {

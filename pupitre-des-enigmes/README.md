@@ -23,8 +23,9 @@ Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 | ⚓ [Sous-marin Narval](mondes/narval/) | 4 · [Dernier souffle](mondes/narval/mission-4-dernier-souffle.md) · [déroulé](mondes/narval/mission-4-deroule.md) · *escape game pour adultes, sans rôles* | 🔴 Difficile | 60 min |
 | ⚙️ [L'Atelier du professeur Lumen](mondes/atelier/) | 5 · Banc d'essai · [déroulé](mondes/atelier/mission-5-deroule.md) · *la mission de test du pupitre, pour 2 joueurs : chaque organe essayé une fois* | 🟢 Facile | 20 à 30 min |
 | 💣 [Brigade de déminage](mondes/deminage/) | 6 · Désamorçage · [déroulé](mondes/deminage/mission-6-deroule.md) · *jeu de communication : un démineur au pupitre, des experts avec le manuel ; 12 bombes tirées au sort* | 🟠 Tendu | 12 min par bombe |
+| 🕯️ [Le Manoir Blackwood](mondes/blackwood/) | 7 · [La dernière nuit de Lord Edgar](mondes/blackwood/mission-7-derniere-nuit.md) · [déroulé](mondes/blackwood/mission-7-deroule.md) · *enquête gothique, la lampe à remonter, une séance de spiritisme* | 🟠 Intermédiaire | 60 min |
 
-Les six missions sont complètes : scénario, déroulé, répliques, script de
+Les sept missions sont complètes : scénario, déroulé, répliques, script de
 doublage, matériel à imprimer et **script du pupitre**.
 
 ## Le programme
@@ -83,3 +84,5 @@ mission).
 **Mission 5 · Banc d'essai** (test du pupitre) : [à imprimer en recto seul](pdf/mission-5-a-imprimer-recto.pdf) (fiche des joueurs, page du maître du jeu avec les pastilles du nuancier et la fiche de recette, [plan du banc d'essai](pdf/mission-5-plateau.pdf) pour la façade) · [cartes en recto verso](pdf/mission-5-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-5-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-5-script-doublage.pdf)
 
 **Mission 6 · Désamorçage** (2 à 8 joueurs) : [à imprimer en recto seul](pdf/mission-6-a-imprimer-recto.pdf) (fiche du démineur avec les pastilles, [manuel de désamorçage](pdf/mission-6-manuel.pdf) des experts) · [cartes en recto verso](pdf/mission-6-a-imprimer-recto-verso.pdf) · [déroulé et solutions des 12 bombes](pdf/mission-6-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-6-script-doublage.pdf)
+
+**Mission 7 · La dernière nuit de Lord Edgar** (3 à 8 joueurs) : [à imprimer en recto seul](pdf/mission-7-a-imprimer-recto.pdf) (fiche de mission, documents secrets, enveloppes, fiche d'enquête) · [cartes en recto verso](pdf/mission-7-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-7-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-7-script-doublage.pdf)

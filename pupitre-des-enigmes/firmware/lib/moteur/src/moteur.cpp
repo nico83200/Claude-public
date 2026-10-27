@@ -754,6 +754,7 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
     }
   } else if (type == "objet") {
     ev.quoi = id;
+    ev.lieu = zones_[OU];  // pour les règles « un objet dans un lieu » : {"lieu": "L9", "quoi": "O8"}
     std::string q = zones_[QUI];
     if (!q.empty() && typeCarte(q) == "perso") {
       ev.type = "paire";

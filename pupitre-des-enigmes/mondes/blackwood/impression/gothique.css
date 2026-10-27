@@ -1,0 +1,19 @@
+/* Le Manoir Blackwood : papier ancien, encre brune, filets dorés. */
+:root { --vert: #3a1f1a; --or: #b08442; --cuir: #6b3b26; --rouge: #8e1f2f; --encre: #2a1d16; --filet: #d6c6a6; }
+body { color: var(--encre); }
+h1, h2, h3 { font-family: "Playfair", serif; color: #3a1f1a; }
+h2 { border-bottom: 1.5px solid var(--or); }
+.bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .16em; text-transform: uppercase; color: var(--cuir);
+           border-bottom: 1px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+.main { font-family: "Caveat", cursive; color: #2b2340; }
+.papier { background: #fbf5e6; border: 1px solid var(--filet); padding: 7mm 9mm; box-shadow: 3px 4px 0 rgba(0,0,0,.05); }
+.saut { break-before: page; }
+.page { break-after: page; position: relative; }
+.page:last-child { break-after: auto; }
+.ciseaux { border-top: 1px dashed #b9b2a6; margin: 6mm 0; position: relative; }
+.ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+.tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+.secret { display: flex; justify-content: space-between; align-items: center; border: 1.5px solid var(--rouge); color: var(--rouge);
+          border-radius: 4px; padding: 4px 10px; font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 7mm; }
+.secret b { font-size: 11pt; letter-spacing: .04em; }
+.encadre.or { border: 1.5px solid var(--or); }

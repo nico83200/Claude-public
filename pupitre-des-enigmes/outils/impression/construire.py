@@ -309,6 +309,7 @@ MISSIONS = [
         ("manuel", "manuel", "Manuel de désamorçage · experts"),
         ("cartes", "cartes", ""),
     ]},
+    {"num": 7, "monde": "blackwood", "nom": "Le Manoir Blackwood"},
 ]
 
 

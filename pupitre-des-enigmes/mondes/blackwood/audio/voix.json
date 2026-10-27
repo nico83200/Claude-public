@@ -1,0 +1,113 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "narrateur": {
+      "nom": "Le Narrateur (Blackwood)",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, voix grave et feutrée, ton de conteur gothique.",
+      "portrait": "Un conteur au coin du feu, qui raconte une histoire de fantômes : lent, précis, un brin théâtral, il fait entendre la tempête et les craquements du manoir.",
+      "prompt_voice_design": "A deep, hushed French male storyteller in his sixties, native speaker from France, gothic ghost story tone, slow and theatrical, close to the microphone.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "margaret": {
+      "nom": "Lady Margaret Blackwood",
+      "voice_id": "",
+      "description": "Femme, la cinquantaine, aristocrate, voix posée et froide, légèrement tremblante.",
+      "portrait": "L'épouse de Lord Edgar, élégante, distante. Elle cache un amant et une envie de fuir, mais pas un meurtre.",
+      "prompt_voice_design": "An elegant, cold French aristocratic woman in her fifties, native speaker from France, composed but slightly shaky voice.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "thomas": {
+      "nom": "Thomas Blackwood",
+      "voice_id": "",
+      "description": "Homme, la vingtaine, voix nonchalante et irritée, un peu éméchée.",
+      "portrait": "Le neveu joueur, criblé de dettes, insolent par nervosité.",
+      "prompt_voice_design": "A nonchalant, irritated young French man in his twenties, native speaker from France, slightly tipsy, defensive.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "ashford": {
+      "nom": "Le docteur Henry Ashford",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, voix grave, assurée, condescendante.",
+      "portrait": "Le médecin de famille, ami de vingt ans. Calme, sûr de lui, il balaie les questions d'un revers de main. Sous le vernis, une pointe de nervosité.",
+      "prompt_voice_design": "A confident, condescending French male doctor in his sixties, native speaker from France, deep calm voice with a hint of nervousness.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "graves": {
+      "nom": "Graves, le majordome",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, voix lente, digne, parfaitement polie.",
+      "portrait": "Trente-deux ans de service. D'une politesse impeccable, il pèse chaque mot et ne ment jamais.",
+      "prompt_voice_design": "A dignified, slow, perfectly polite French butler in his sixties, native speaker from France, measured and formal.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "rose": {
+      "nom": "Rose, la femme de chambre",
+      "voice_id": "",
+      "description": "Jeune femme, voix douce, timide, effrayée.",
+      "portrait": "Dix-neuf ans, terrifiée. Elle a vu quelque chose, et n'ose le dire que tout bas.",
+      "prompt_voice_design": "A shy, frightened young French maid of nineteen, native speaker from France, soft trembling whisper.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "zorah": {
+      "nom": "Madame Zorah, la médium",
+      "voice_id": "",
+      "description": "Femme, la cinquantaine, voix théâtrale, mystérieuse, roulant un peu les r.",
+      "portrait": "Une médium de salon, plus voleuse que voyante, qui joue la comédie de l'au-delà avec emphase.",
+      "prompt_voice_design": "A theatrical, mysterious French female psychic in her fifties, native speaker from France, dramatic and slightly exaggerated.",
+      "reglages": {
+        "stability": 0.55,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "edgar": {
+      "nom": "Le fantôme de Lord Edgar",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, voix d'outre-tombe : lente, soufflée, lointaine, réverbérée.",
+      "portrait": "L'esprit de Lord Edgar, qui erre jusqu'à minuit. Il parle par bribes, comme à travers un voile.",
+      "prompt_voice_design": "A ghostly, breathy, distant French male voice in his sixties, native speaker from France, slow fragmented whispers with reverb.",
+      "reglages": {
+        "stability": 0.4,
+        "similarity_boost": 0.75,
+        "style": 0.5
+      }
+    },
+    "corbeau": {
+      "nom": "Le corbeau du manoir",
+      "voice_id": "",
+      "description": "Voix rauque, grinçante, mi-homme mi-oiseau, un brin moqueuse.",
+      "portrait": "Le vieux corbeau du manoir, perché sur la bibliothèque. Il sait tout, et le fait payer.",
+      "prompt_voice_design": "A raspy, croaking, mocking voice of an old raven, half human, French, short sentences.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.5
+      }
+    }
+  }
+}

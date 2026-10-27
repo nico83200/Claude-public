@@ -1,0 +1,968 @@
+{
+  "monde": "Le Manoir Blackwood",
+  "mission": "La dernière nuit de Lord Edgar",
+  "dossier": 70,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction et rôles",
+    "020-049": "Les lieux",
+    "050-077": "Les personnages et les interrogatoires",
+    "080-089": "Les objets",
+    "090-117": "Les pouvoirs des rôles",
+    "120-131": "L'accusation",
+    "135-145": "Les imprévus",
+    "150-157": "Fins",
+    "160-178": "Le corbeau (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "narrateur",
+      "usage": "Écran titre",
+      "texte": "Le Manoir Blackwood. Mission sept : la dernière nuit de Lord Edgar."
+    },
+    {
+      "n": 2,
+      "voix": "narrateur",
+      "usage": "Demande des rôles",
+      "texte": "Avant de commencer, glissez chacun votre carte Rôle dans la fente, puis reprenez-la."
+    },
+    {
+      "n": 3,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "L'Apothicaire est arrivé."
+    },
+    {
+      "n": 4,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "L'Expert en peinture est arrivé."
+    },
+    {
+      "n": 5,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "L'Inspecteur en retraite est arrivé."
+    },
+    {
+      "n": 6,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "La Spirite est arrivée."
+    },
+    {
+      "n": 7,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "Le Chroniqueur mondain est arrivé."
+    },
+    {
+      "n": 8,
+      "voix": "narrateur",
+      "usage": "Rôle posé",
+      "texte": "Le Joueur de whist est arrivé."
+    },
+    {
+      "n": 9,
+      "voix": "narrateur",
+      "usage": "Pitch",
+      "texte": "Dartmoor, le trente et un octobre mil huit cent quatre-vingt-treize. Onze heures du soir. Vous êtes les invités de Lord Edgar Blackwood, venus pour une séance de spiritisme. Mais à dix heures quarante, Graves, le majordome, a trouvé Lord Edgar mort dans sa bibliothèque, un verre de brandy à ses pieds. Le docteur Ashford parle d'une crise cardiaque. Vous n'y croyez pas. La tempête a coupé les routes ; l'inspecteur et le notaire n'arriveront qu'à minuit. Vous avez une heure pour découvrir qui a tué Lord Edgar, où, et avec quoi."
+    },
+    {
+      "n": 10,
+      "voix": "narrateur",
+      "usage": "Départ du chrono",
+      "texte": "Onze heures sonnent. La tempête redouble. Gardez la lampe allumée : le bouton bleu la remonte."
+    },
+    {
+      "n": 11,
+      "voix": "narrateur",
+      "usage": "Carte sans effet",
+      "texte": "Rien d'intéressant de ce côté."
+    },
+    {
+      "n": 12,
+      "voix": "narrateur",
+      "usage": "Noir complet",
+      "texte": "Il fait noir comme dans une tombe. Remontez la lampe avec le bouton bleu, puis glissez de nouveau la carte."
+    },
+    {
+      "n": 13,
+      "voix": "narrateur",
+      "usage": "Monde chargé",
+      "texte": "Le Manoir Blackwood. Installez la façade du manoir, puis appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "narrateur",
+      "usage": "Comment jouer",
+      "texte": "Ce soir, un détail compte : la lumière. La lampe à huile baisse sans cesse. Remontez-la souvent avec le bouton bleu, sinon le manoir sombre dans le noir."
+    },
+    {
+      "n": 20,
+      "voix": "narrateur",
+      "usage": "Le grand hall",
+      "texte": "Le grand hall. Le vent siffle sous la porte. Au mur, les portraits des Blackwood vous regardent passer. L'horloge marque l'heure, et la tempête cogne aux vitraux."
+    },
+    {
+      "n": 21,
+      "voix": "narrateur",
+      "usage": "Le grand hall (retour)",
+      "texte": "Le hall est désert. Les portraits n'ont pas bougé… enfin, vous l'espérez."
+    },
+    {
+      "n": 22,
+      "voix": "narrateur",
+      "usage": "La bibliothèque",
+      "texte": "La bibliothèque. Lord Edgar est toujours dans son fauteuil, les yeux mi-clos, les lèvres bleues. À ses pieds, un verre renversé. Sur le bureau, son agenda est ouvert à la page du jour. Ouvrez l'enveloppe E1."
+    },
+    {
+      "n": 23,
+      "voix": "narrateur",
+      "usage": "La bibliothèque (retour)",
+      "texte": "Lord Edgar repose dans son fauteuil. Le feu meurt dans la cheminée."
+    },
+    {
+      "n": 24,
+      "voix": "narrateur",
+      "usage": "Le fumoir",
+      "texte": "Le fumoir. Une odeur de cigare froid. Sur le plateau d'argent, la carafe de brandy et les verres gravés d'un cerf… mais il en manque un. Ouvrez l'enveloppe E2."
+    },
+    {
+      "n": 25,
+      "voix": "narrateur",
+      "usage": "Le fumoir (retour)",
+      "texte": "Le fumoir. Le plateau, la carafe, le verre qui manque."
+    },
+    {
+      "n": 26,
+      "voix": "narrateur",
+      "usage": "La galerie : trop sombre",
+      "texte": "La galerie des portraits est plongée dans l'ombre. Avec si peu de lumière, impossible de rien distinguer. Remontez la lampe, puis revenez."
+    },
+    {
+      "n": 27,
+      "voix": "narrateur",
+      "usage": "La galerie des portraits",
+      "texte": "La galerie des portraits. À la lueur de la lampe, Sir Ambrose Blackwood vous toise depuis son cadre doré. Lord Edgar s'est arrêté ici, ce soir : sa lampe est encore posée devant le tableau. Ouvrez l'enveloppe E3."
+    },
+    {
+      "n": 28,
+      "voix": "narrateur",
+      "usage": "La galerie (retour)",
+      "texte": "Sir Ambrose vous regarde toujours. Son sourire semble moins sûr de lui."
+    },
+    {
+      "n": 29,
+      "voix": "narrateur",
+      "usage": "La chapelle : consigne",
+      "texte": "La chapelle. Sur le mur, une plaque funéraire est couverte d'une poussière épaisse. Trouvez la grille FORGE du pupitre, approchez la bouche à deux ou trois centimètres, et soufflez doucement, bouche grande ouverte, pendant deux secondes, comme pour faire de la buée sur une vitre."
+    },
+    {
+      "n": 30,
+      "voix": "narrateur",
+      "usage": "La chapelle : la plaque",
+      "texte": "La poussière s'envole. L'inscription apparaît : Sir Ambrose Blackwood. Né en mil sept cent soixante et onze, mort en mil huit cent quarante-neuf. Il veille sur nos secrets."
+    },
+    {
+      "n": 31,
+      "voix": "narrateur",
+      "usage": "La chapelle : raté",
+      "texte": "La poussière n'a pas bougé. Soufflez plus près, bouche grande ouverte. Retirez la carte de la chapelle, puis glissez-la de nouveau."
+    },
+    {
+      "n": 32,
+      "voix": "narrateur",
+      "usage": "La chapelle (retour)",
+      "texte": "La chapelle est silencieuse. Sir Ambrose veille… sur quels secrets ?"
+    },
+    {
+      "n": 33,
+      "voix": "narrateur",
+      "usage": "Le bureau : le cadenas",
+      "texte": "Le bureau de Lord Edgar. Quelqu'un a fouillé ici : les papiers jonchent le sol. Le secrétaire est fermé par un cadenas à quatre chiffres."
+    },
+    {
+      "n": 34,
+      "voix": "narrateur",
+      "usage": "Le bureau : faux code",
+      "texte": "Le cadenas ne cède pas."
+    },
+    {
+      "n": 35,
+      "voix": "narrateur",
+      "usage": "Le bureau : troisième faux code",
+      "texte": "Toujours rien. Lord Edgar avait ses habitudes… le majordome les connaît mieux que personne."
+    },
+    {
+      "n": 36,
+      "voix": "narrateur",
+      "usage": "Le bureau : tiroir secret",
+      "texte": "Le cadenas s'ouvre. Dans le secrétaire, le trousseau de Lord Edgar. Et… un déclic. Sur le côté gauche du pupitre, sous le clavier, un tiroir secret vient de sortir. Prenez ce qu'il contient, puis ouvrez l'enveloppe E7."
+    },
+    {
+      "n": 37,
+      "voix": "narrateur",
+      "usage": "Le bureau : sans tiroir",
+      "texte": "Le cadenas s'ouvre. Dans le secrétaire, le trousseau de Lord Edgar, et une lettre qu'on n'a pas trouvée. Ouvrez l'enveloppe E7."
+    },
+    {
+      "n": 38,
+      "voix": "narrateur",
+      "usage": "Le bureau (retour)",
+      "texte": "Le secrétaire est ouvert. Celui qui a fouillé le bureau cherchait ce que vous avez trouvé."
+    },
+    {
+      "n": 39,
+      "voix": "narrateur",
+      "usage": "L'office",
+      "texte": "L'office des domestiques. Le registre de la cave est ouvert sur la table, et une boîte de mort-aux-rats traîne sur l'étagère. Ouvrez l'enveloppe E4."
+    },
+    {
+      "n": 40,
+      "voix": "narrateur",
+      "usage": "L'office (retour)",
+      "texte": "L'office. Le registre, la boîte de mort-aux-rats, le tic-tac de la cuisinière."
+    },
+    {
+      "n": 41,
+      "voix": "narrateur",
+      "usage": "La chambre de Lady Margaret",
+      "texte": "La chambre de Lady Margaret. Un parfum de violette. Sur la coiffeuse, un écrin à bijoux, vide. Sous l'oreiller, une lettre. Ouvrez l'enveloppe E5."
+    },
+    {
+      "n": 42,
+      "voix": "narrateur",
+      "usage": "La chambre de Lady Margaret (retour)",
+      "texte": "La chambre de Lady Margaret. L'écrin vide vous nargue."
+    },
+    {
+      "n": 43,
+      "voix": "narrateur",
+      "usage": "La chambre du docteur : fermée",
+      "texte": "La chambre d'amis du docteur Ashford est fermée à clé. Il vous faudrait un trousseau : posez-le ici quand vous l'aurez."
+    },
+    {
+      "n": 44,
+      "voix": "narrateur",
+      "usage": "La chambre du docteur",
+      "texte": "Le trousseau de Lord Edgar ouvre la porte. La chambre du docteur est d'un ordre parfait. Sa sacoche de médecin est posée sur le lit. Ouvrez l'enveloppe E6."
+    },
+    {
+      "n": 45,
+      "voix": "narrateur",
+      "usage": "La chambre du docteur (retour)",
+      "texte": "La chambre du docteur. La sacoche est toujours sur le lit."
+    },
+    {
+      "n": 46,
+      "voix": "zorah",
+      "usage": "Le salon : la séance",
+      "texte": "Approchez, approchez… L'esprit de Lord Edgar erre encore dans ce manoir, jusqu'à minuit. Pour l'appeler, tracez le pentacle : passez la main à plat au-dessus du guéridon, c'est la petite fenêtre marquée ŒIL, à cinq centimètres, d'un bord à l'autre. Suivez les flèches à l'écran : quatre gestes, sans vous tromper."
+    },
+    {
+      "n": 47,
+      "voix": "edgar",
+      "usage": "Le salon : le fantôme",
+      "texte": "Je suis… Edgar… Il fait si froid… On a versé l'oubli dans mon verre… dans la fumée… avant que je ne le quitte… Le cerf… le verre au cerf…"
+    },
+    {
+      "n": 48,
+      "voix": "zorah",
+      "usage": "Le salon : geste raté",
+      "texte": "L'esprit s'éloigne ! Reprenez le pentacle depuis le début."
+    },
+    {
+      "n": 49,
+      "voix": "zorah",
+      "usage": "Le salon (retour)",
+      "texte": "L'esprit de Lord Edgar a parlé. Il ne reviendra pas pour nous."
+    },
+    {
+      "n": 50,
+      "voix": "margaret",
+      "usage": "Lady Margaret",
+      "texte": "Edgar… mort ? Il était si en colère ce soir. Nous nous sommes disputés à neuf heures, c'est vrai, mais pour des bêtises. Ensuite, je suis allée au salon préparer la séance. Je n'en ai pas bougé."
+    },
+    {
+      "n": 51,
+      "voix": "thomas",
+      "usage": "Thomas Blackwood",
+      "texte": "Mon oncle et moi, on ne s'aimait pas beaucoup. Il m'a refusé un prêt à huit heures et demie, et alors ? J'étais aux écuries, à fumer, de dix heures à dix heures et demie. Demandez au palefrenier."
+    },
+    {
+      "n": 52,
+      "voix": "ashford",
+      "usage": "Docteur Ashford",
+      "texte": "Un cœur fatigué, tout simplement. Edgar abusait du brandy et des cigares. J'étais dans ma chambre, à lire, de neuf heures et demie jusqu'à ce qu'on m'appelle. Inutile d'en faire un roman."
+    },
+    {
+      "n": 53,
+      "voix": "graves",
+      "usage": "Graves, le majordome",
+      "texte": "J'ai servi Monsieur pendant trente-deux ans. J'ai rempli la carafe du fumoir à neuf heures, comme chaque soir. Monsieur avait ses habitudes : tous ses cadenas portaient l'année de naissance de Sir Ambrose, son grand-père. Il disait que le vieil homme veillait sur ses secrets."
+    },
+    {
+      "n": 54,
+      "voix": "rose",
+      "usage": "Rose, la femme de chambre",
+      "texte": "Je… je ne sais rien, Monsieur. J'ai entendu Madame et Monsieur se disputer, vers neuf heures. Et puis j'ai fait mon service, c'est tout."
+    },
+    {
+      "n": 55,
+      "voix": "zorah",
+      "usage": "Madame Zorah",
+      "texte": "Les esprits m'avaient prévenue, mes chers. Cette maison sent la mort depuis des années. J'étais au salon dès dix heures, à méditer avant la séance."
+    },
+    {
+      "n": 60,
+      "voix": "ashford",
+      "usage": "Ashford et le laudanum",
+      "texte": "Ma trousse, naturellement. Du laudanum ? J'en prescris à Lady Margaret pour ses migraines. Rien de plus banal."
+    },
+    {
+      "n": 61,
+      "voix": "ashford",
+      "usage": "Ashford et le reçu",
+      "texte": "Une vente chez Christie's ? Une commission pour un ami. Cela ne vous regarde en rien."
+    },
+    {
+      "n": 62,
+      "voix": "ashford",
+      "usage": "Ashford et la lettre",
+      "texte": "Je… Où avez-vous trouvé cela ? Edgar n'avait plus toute sa tête, ces derniers temps. Il voyait des voleurs partout."
+    },
+    {
+      "n": 63,
+      "voix": "ashford",
+      "usage": "Ashford et le mouchoir",
+      "texte": "Un mouchoir. Tout le monde a des mouchoirs, que je sache."
+    },
+    {
+      "n": 64,
+      "voix": "thomas",
+      "usage": "Thomas et la mort-aux-rats",
+      "texte": "Pour les rats de la cave ! Graves me l'a demandé il y a trois jours. Demandez-lui, au lieu de me regarder comme ça."
+    },
+    {
+      "n": 65,
+      "voix": "graves",
+      "usage": "Graves et la mort-aux-rats",
+      "texte": "C'est exact. La cave grouille de rats. J'ai prié Monsieur Thomas d'en rapporter du village. La boîte n'a pas été ouverte."
+    },
+    {
+      "n": 66,
+      "voix": "graves",
+      "usage": "Graves et la carafe",
+      "texte": "Je l'ai remplie à neuf heures, de ma main. Monsieur est venu au fumoir vers dix heures, avec le docteur. Je les ai laissés seuls."
+    },
+    {
+      "n": 67,
+      "voix": "graves",
+      "usage": "Graves et le verre",
+      "texte": "Ce verre vient du fumoir, j'en suis certain. Il n'y a que là que nos verres portent le cerf des Blackwood."
+    },
+    {
+      "n": 68,
+      "voix": "margaret",
+      "usage": "Margaret et la lettre",
+      "texte": "Vous avez lu ça ? Oui, j'allais quitter Edgar. Julian m'attend à Londres. Mais je ne l'ai pas tué. À dix heures, j'étais au salon. Seule, hélas, jusqu'à ce que Madame Zorah arrive."
+    },
+    {
+      "n": 69,
+      "voix": "zorah",
+      "usage": "Zorah et la broche",
+      "texte": "Ah… Les esprits… Bon. Je l'ai prise. Entre dix heures et dix heures vingt-cinq, j'étais dans la chambre de Madame, pas au salon. Mais voler n'est pas tuer !"
+    },
+    {
+      "n": 70,
+      "voix": "margaret",
+      "usage": "Margaret et la broche",
+      "texte": "Ma broche ! Elle était dans mon écrin ce soir, j'en suis sûre."
+    },
+    {
+      "n": 71,
+      "voix": "rose",
+      "usage": "Rose et le mouchoir",
+      "texte": "Ce mouchoir… Le docteur en a de pareils. Je repasse son linge quand il vient."
+    },
+    {
+      "n": 72,
+      "voix": "margaret",
+      "usage": "Margaret : objet sans intérêt",
+      "texte": "Je ne vois pas ce que vous voulez que je vous dise."
+    },
+    {
+      "n": 73,
+      "voix": "thomas",
+      "usage": "Thomas : objet sans intérêt",
+      "texte": "Jamais vu. On peut passer à autre chose ?"
+    },
+    {
+      "n": 74,
+      "voix": "ashford",
+      "usage": "Ashford : objet sans intérêt",
+      "texte": "Vous perdez votre temps, et le mien."
+    },
+    {
+      "n": 75,
+      "voix": "graves",
+      "usage": "Graves : objet sans intérêt",
+      "texte": "Je regrette, je ne saurais vous renseigner."
+    },
+    {
+      "n": 76,
+      "voix": "rose",
+      "usage": "Rose : objet sans intérêt",
+      "texte": "Je… non, je ne sais pas."
+    },
+    {
+      "n": 77,
+      "voix": "zorah",
+      "usage": "Zorah : objet sans intérêt",
+      "texte": "Les esprits restent muets sur ce point."
+    },
+    {
+      "n": 80,
+      "voix": "narrateur",
+      "usage": "Le verre",
+      "texte": "Un verre de cristal gravé d'un cerf. Un fond de brandy a séché au fond, avec un dépôt brunâtre."
+    },
+    {
+      "n": 81,
+      "voix": "narrateur",
+      "usage": "La carafe",
+      "texte": "La carafe de brandy du fumoir, aux trois quarts pleine."
+    },
+    {
+      "n": 82,
+      "voix": "narrateur",
+      "usage": "Le mouchoir",
+      "texte": "Un mouchoir de batiste, taché de brun, roulé en boule derrière un fauteuil du fumoir."
+    },
+    {
+      "n": 83,
+      "voix": "narrateur",
+      "usage": "La mort-aux-rats",
+      "texte": "Une boîte de mort-aux-rats à l'arsenic. Le scellé est intact."
+    },
+    {
+      "n": 84,
+      "voix": "narrateur",
+      "usage": "La lettre de J.",
+      "texte": "Une lettre d'amour, signée J. Elle donne rendez-vous à Lady Margaret à Londres, le mois prochain."
+    },
+    {
+      "n": 85,
+      "voix": "narrateur",
+      "usage": "La broche",
+      "texte": "La broche de Lady Margaret, une émeraude sertie d'or. Elle a été trouvée dans le châle de Madame Zorah."
+    },
+    {
+      "n": 86,
+      "voix": "narrateur",
+      "usage": "Le flacon",
+      "texte": "Un flacon brun de laudanum. Il en manque la moitié."
+    },
+    {
+      "n": 87,
+      "voix": "narrateur",
+      "usage": "Le trousseau",
+      "texte": "Le trousseau de Lord Edgar : toutes les clés du manoir."
+    },
+    {
+      "n": 88,
+      "voix": "narrateur",
+      "usage": "La lettre au Yard",
+      "texte": "La lettre de Lord Edgar à Scotland Yard, écrite ce soir. Il y dénonce celui à qui il confiait ses clés depuis vingt ans."
+    },
+    {
+      "n": 89,
+      "voix": "narrateur",
+      "usage": "Le reçu de Christie's",
+      "texte": "Un reçu de la maison Christie's, à Londres. Vente d'un Gainsborough, en mil huit cent quatre-vingt-onze. Vendeur : H. A."
+    },
+    {
+      "n": 90,
+      "voix": "narrateur",
+      "usage": "Apothicaire : le verre",
+      "texte": "L'Apothicaire examine le verre. Au fond, un dépôt brun, une odeur de safran et de clou de girofle : du laudanum, en dose massive."
+    },
+    {
+      "n": 91,
+      "voix": "narrateur",
+      "usage": "Apothicaire : la carafe",
+      "texte": "L'Apothicaire goûte une goutte du brandy de la carafe. Il est pur. Le poison n'était que dans le verre."
+    },
+    {
+      "n": 92,
+      "voix": "narrateur",
+      "usage": "Apothicaire : le mouchoir",
+      "texte": "Les taches du mouchoir sentent le safran et le clou de girofle : du laudanum. Quelqu'un a essuyé un flacon qui avait coulé."
+    },
+    {
+      "n": 93,
+      "voix": "narrateur",
+      "usage": "Apothicaire : la mort-aux-rats",
+      "texte": "De l'arsenic. Mais l'arsenic fait vomir et brûle l'estomac. Rien de tel chez Lord Edgar."
+    },
+    {
+      "n": 94,
+      "voix": "narrateur",
+      "usage": "Apothicaire : le flacon",
+      "texte": "Du laudanum de Sydenham : opium, safran, clou de girofle. L'étiquette est datée du vingt-huit octobre, et il en manque la moitié."
+    },
+    {
+      "n": 95,
+      "voix": "narrateur",
+      "usage": "Apothicaire : rien",
+      "texte": "L'Apothicaire n'y trouve rien de suspect."
+    },
+    {
+      "n": 96,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Lady Margaret",
+      "texte": "Alibi de Lady Margaret : au salon de dix heures à dix heures quarante. Seule jusqu'à dix heures vingt-cinq, puis avec Madame Zorah. Personne ne l'a vue sortir.",
+      "sortie": "casque"
+    },
+    {
+      "n": 97,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Thomas",
+      "texte": "Alibi de Thomas : le palefrenier confirme. Aux écuries, de dix heures à dix heures et demie, à fumer et à boire. Alibi solide.",
+      "sortie": "casque"
+    },
+    {
+      "n": 98,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Ashford",
+      "texte": "Alibi du docteur : personne ne l'a vu dans sa chambre entre neuf heures et demie et dix heures quarante. Rose affirme que sa bougie n'était pas allumée.",
+      "sortie": "casque"
+    },
+    {
+      "n": 99,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Graves",
+      "texte": "Alibi de Graves : à l'office de dix heures à dix heures quarante, avec la cuisinière. Il n'en est sorti que pour trouver le corps.",
+      "sortie": "casque"
+    },
+    {
+      "n": 100,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Rose",
+      "texte": "Alibi de Rose : elle faisait les chambres de l'aile est. Personne ne l'a vue, mais elle n'avait aucune raison d'entrer au fumoir.",
+      "sortie": "casque"
+    },
+    {
+      "n": 101,
+      "voix": "narrateur",
+      "usage": "Inspecteur : Zorah",
+      "texte": "Alibi de Madame Zorah : elle dit avoir médité au salon dès dix heures. Lady Margaret affirme qu'elle n'est arrivée qu'à dix heures vingt-cinq. Elle ment.",
+      "sortie": "casque"
+    },
+    {
+      "n": 102,
+      "voix": "edgar",
+      "usage": "Spirite : Lady Margaret",
+      "texte": "Margaret… tu partais… je le savais… mais tu n'as pas de sang sur les mains."
+    },
+    {
+      "n": 103,
+      "voix": "edgar",
+      "usage": "Spirite : Thomas",
+      "texte": "Thomas… mon neveu… un panier percé… mais il n'était pas là quand j'ai bu."
+    },
+    {
+      "n": 104,
+      "voix": "edgar",
+      "usage": "Spirite : Ashford",
+      "texte": "Henry… mon ami… vingt ans que je te confiais mes clés… Le verre avait le goût du safran…"
+    },
+    {
+      "n": 105,
+      "voix": "edgar",
+      "usage": "Spirite : Graves",
+      "texte": "Graves… fidèle Graves… il a rempli la carafe… la carafe était pure…"
+    },
+    {
+      "n": 106,
+      "voix": "edgar",
+      "usage": "Spirite : Rose",
+      "texte": "Rose… petite Rose… elle a vu… elle a vu sortir quelqu'un de la fumée…"
+    },
+    {
+      "n": 107,
+      "voix": "edgar",
+      "usage": "Spirite : Zorah",
+      "texte": "La voleuse de bijoux… elle ne parle pas aux morts… mais elle ne m'a pas tué."
+    },
+    {
+      "n": 108,
+      "voix": "narrateur",
+      "usage": "Chroniqueur : insister",
+      "texte": "Le Chroniqueur mondain glisse un mot à l'oreille… et il est le seul à entendre la confidence."
+    },
+    {
+      "n": 109,
+      "voix": "margaret",
+      "usage": "Confidence : Lady Margaret",
+      "texte": "Entre nous… Edgar m'a dit ce soir : « Les toiles de la galerie ne sont plus les mêmes, Margaret. » Je croyais qu'il perdait la tête.",
+      "sortie": "casque"
+    },
+    {
+      "n": 110,
+      "voix": "thomas",
+      "usage": "Confidence : Thomas",
+      "texte": "Bon, d'accord. Je dois trois mille livres au club. Mais un mort ne prête pas d'argent, et sa veuve encore moins.",
+      "sortie": "casque"
+    },
+    {
+      "n": 111,
+      "voix": "ashford",
+      "usage": "Confidence : Ashford",
+      "texte": "Les affaires d'un médecin ne regardent personne. Edgar était… soupçonneux, ces derniers temps. Voilà tout.",
+      "sortie": "casque"
+    },
+    {
+      "n": 112,
+      "voix": "graves",
+      "usage": "Confidence : Graves",
+      "texte": "Le docteur venait souvent quand Monsieur était aux Indes. Il avait les clés de la galerie, pour les soins de Madame, disait-il.",
+      "sortie": "casque"
+    },
+    {
+      "n": 113,
+      "voix": "rose",
+      "usage": "Confidence : Rose",
+      "texte": "Je n'ose pas le dire devant eux… À dix heures passées, j'ai vu le docteur sortir du fumoir. Il a glissé une petite bouteille brune dans sa sacoche.",
+      "sortie": "casque"
+    },
+    {
+      "n": 114,
+      "voix": "zorah",
+      "usage": "Confidence : Zorah",
+      "texte": "Vers dix heures moins le quart, en passant par la galerie, j'ai entendu Lord Edgar crier : « Vingt ans, Henry ! Vingt ans que je vous confie mes clés ! »",
+      "sortie": "casque"
+    },
+    {
+      "n": 115,
+      "voix": "narrateur",
+      "usage": "Joueur de whist : coup de poker",
+      "texte": "Le Joueur de whist abat sa carte. Si votre accusation est fausse, elle ne vous coûtera rien."
+    },
+    {
+      "n": 116,
+      "voix": "narrateur",
+      "usage": "Pouvoir épuisé",
+      "texte": "Ce pouvoir a déjà été utilisé."
+    },
+    {
+      "n": 117,
+      "voix": "narrateur",
+      "usage": "Rôle sans cible",
+      "texte": "Ce pouvoir ne s'utilise pas comme ça. Relisez votre document secret."
+    },
+    {
+      "n": 120,
+      "voix": "narrateur",
+      "usage": "Accusation : demande",
+      "texte": "Êtes-vous prêts à accuser ? Bouton vert pour confirmer, bouton rouge pour annuler."
+    },
+    {
+      "n": 121,
+      "voix": "narrateur",
+      "usage": "Accusation : manque",
+      "texte": "Il manque une carte. Il en faut une sur chaque zone : qui, où, et avec quoi."
+    },
+    {
+      "n": 122,
+      "voix": "narrateur",
+      "usage": "Suspense",
+      "texte": "Le silence tombe sur le manoir…"
+    },
+    {
+      "n": 123,
+      "voix": "narrateur",
+      "usage": "Résultat",
+      "texte": "Aucun élément n'est juste."
+    },
+    {
+      "n": 124,
+      "voix": "narrateur",
+      "usage": "Résultat",
+      "texte": "Un seul élément sur trois est juste."
+    },
+    {
+      "n": 125,
+      "voix": "narrateur",
+      "usage": "Résultat",
+      "texte": "Deux éléments sur trois sont justes."
+    },
+    {
+      "n": 126,
+      "voix": "narrateur",
+      "usage": "Coup de poker",
+      "texte": "Coup de poker ! Cette erreur ne vous coûte rien. La lumière rouge vous montre ce qui est faux."
+    },
+    {
+      "n": 127,
+      "voix": "narrateur",
+      "usage": "Accusation juste",
+      "texte": "C'est juste ! Le docteur Ashford, dans le fumoir, avec le laudanum !"
+    },
+    {
+      "n": 128,
+      "voix": "narrateur",
+      "usage": "Troisième erreur",
+      "texte": "Troisième erreur. Le coupable a eu tout le temps de s'enfuir dans la nuit."
+    },
+    {
+      "n": 129,
+      "voix": "narrateur",
+      "usage": "Pénalité",
+      "texte": "Vous perdez cinq minutes. Reprenez l'enquête."
+    },
+    {
+      "n": 130,
+      "voix": "narrateur",
+      "usage": "Mort-aux-rats",
+      "texte": "La mort-aux-rats ? L'arsenic aurait fait vomir Lord Edgar, et sa boîte n'a pas été ouverte. Cette erreur ne vous coûte rien."
+    },
+    {
+      "n": 131,
+      "voix": "narrateur",
+      "usage": "Le verre",
+      "texte": "Le verre a servi, oui. Mais l'arme, c'est ce qu'on y a versé. Cette erreur ne vous coûte rien."
+    },
+    {
+      "n": 135,
+      "voix": "narrateur",
+      "usage": "Tonnerre",
+      "texte": "Un coup de tonnerre ! Une fenêtre s'ouvre en grand, le vent s'engouffre… et la lampe s'éteint. Vite, remontez-la !"
+    },
+    {
+      "n": 136,
+      "voix": "narrateur",
+      "usage": "Des pas",
+      "texte": "Des pas, dans le couloir. Quelqu'un vous épie. Plus un geste, plus un bruit, pendant dix secondes."
+    },
+    {
+      "n": 137,
+      "voix": "narrateur",
+      "usage": "Des pas : tenu",
+      "texte": "Les pas s'éloignent… vers la chambre du docteur."
+    },
+    {
+      "n": 138,
+      "voix": "narrateur",
+      "usage": "Des pas : raté",
+      "texte": "Le plancher a craqué. Les pas s'enfuient. Vous perdez deux minutes à les poursuivre."
+    },
+    {
+      "n": 139,
+      "voix": "narrateur",
+      "usage": "Le portrait tombe",
+      "texte": "Le grand portrait du hall se décroche ! Rattrapez-le : les quatre boutons de couleur ensemble, pendant trois secondes !"
+    },
+    {
+      "n": 140,
+      "voix": "narrateur",
+      "usage": "Le portrait : rattrapé",
+      "texte": "Rattrapé ! Derrière le cadre, une petite étiquette : copie exécutée par Monsieur Crane, Londres, mil huit cent quatre-vingt-dix."
+    },
+    {
+      "n": 141,
+      "voix": "narrateur",
+      "usage": "Le portrait : tombé",
+      "texte": "Trop tard. Le portrait s'écrase, et une petite étiquette s'envole dans la cheminée. Vous perdez deux minutes à ramasser les débris."
+    },
+    {
+      "n": 142,
+      "voix": "narrateur",
+      "usage": "Le murmure : annonce",
+      "texte": "Un murmure, venu de nulle part. Un seul d'entre vous l'entendra, et une seule fois."
+    },
+    {
+      "n": 143,
+      "voix": "rose",
+      "usage": "Le murmure",
+      "texte": "C'est Rose… je n'ose pas parler devant eux. À dix heures passées, le docteur est sorti du fumoir. Il a caché une petite bouteille brune dans sa sacoche. Je vous en prie, ne dites pas que c'est moi.",
+      "sortie": "casque"
+    },
+    {
+      "n": 144,
+      "voix": "narrateur",
+      "usage": "Le murmure : personne",
+      "texte": "Personne n'a écouté. Le murmure s'est tu."
+    },
+    {
+      "n": 145,
+      "voix": "narrateur",
+      "usage": "Minuit approche",
+      "texte": "L'horloge du hall sonne la demie. Minuit approche. Bientôt, l'inspecteur frappera à la porte."
+    },
+    {
+      "n": 150,
+      "voix": "narrateur",
+      "usage": "Victoire",
+      "texte": "Minuit. On frappe : l'inspecteur Lestrade et le notaire, trempés jusqu'aux os. Devant vos preuves, le docteur Ashford s'effondre. Depuis cinq ans, il vendait les tableaux de la galerie et les remplaçait par des copies. Ce soir, Edgar avait compris."
+    },
+    {
+      "n": 151,
+      "voix": "edgar",
+      "usage": "Le fantôme remercie",
+      "texte": "Merci… mes amis… Je peux partir, maintenant…"
+    },
+    {
+      "n": 152,
+      "voix": "narrateur",
+      "usage": "Rang : les limiers de Baker Street",
+      "texte": "Les limiers de Baker Street. Plus d'un quart d'heure d'avance, et sans une erreur : même un célèbre détective du quartier en serait jaloux."
+    },
+    {
+      "n": 153,
+      "voix": "narrateur",
+      "usage": "Rang : les fins limiers",
+      "texte": "Les fins limiers. Le coupable dort en prison, et le manoir peut enfin dormir aussi."
+    },
+    {
+      "n": 154,
+      "voix": "narrateur",
+      "usage": "Rang : les veilleurs de minuit",
+      "texte": "Les veilleurs de minuit. C'était juste, mais le coupable est démasqué."
+    },
+    {
+      "n": 155,
+      "voix": "narrateur",
+      "usage": "Défaite : minuit",
+      "texte": "Minuit. L'inspecteur arrive enfin. Le docteur signe le certificat de décès : crise cardiaque. Au petit matin, il quitte le manoir, sa sacoche à la main. Dans la galerie, Sir Ambrose a l'air de pleurer."
+    },
+    {
+      "n": 156,
+      "voix": "narrateur",
+      "usage": "Défaite : erreurs",
+      "texte": "Vos accusations ont semé le trouble. Profitant de la confusion, le coupable a disparu dans la tempête."
+    },
+    {
+      "n": 157,
+      "voix": "narrateur",
+      "usage": "La solution",
+      "texte": "La solution : le docteur Ashford a versé du laudanum dans le verre de Lord Edgar, dans le fumoir, vers dix heures. Edgar venait de découvrir que les tableaux de la galerie étaient des copies : depuis cinq ans, son ami vendait les originaux."
+    },
+    {
+      "n": 160,
+      "voix": "corbeau",
+      "usage": "Corbeau : appel",
+      "texte": "Croâ… Jamais plus… Que veux-tu savoir ?"
+    },
+    {
+      "n": 161,
+      "voix": "corbeau",
+      "usage": "Conseil gratuit",
+      "texte": "Celui-là, je te le donne. Croâ."
+    },
+    {
+      "n": 162,
+      "voix": "corbeau",
+      "usage": "Conseil payant",
+      "texte": "Ce secret-là te coûtera deux minutes. Croâ."
+    },
+    {
+      "n": 163,
+      "voix": "corbeau",
+      "usage": "Conseil : la bibliothèque, 1",
+      "texte": "Tout commence là où l'on a trouvé le corps."
+    },
+    {
+      "n": 164,
+      "voix": "corbeau",
+      "usage": "Conseil : la bibliothèque, 2",
+      "texte": "Glissez la carte de la bibliothèque dans la fente."
+    },
+    {
+      "n": 165,
+      "voix": "corbeau",
+      "usage": "Conseil : la bibliothèque, 3",
+      "texte": "La bibliothèque, vite ! Puis ouvrez l'enveloppe E1."
+    },
+    {
+      "n": 166,
+      "voix": "corbeau",
+      "usage": "Conseil : la chapelle, 1",
+      "texte": "Les morts gardent les secrets des vivants. Allez voir les morts."
+    },
+    {
+      "n": 167,
+      "voix": "corbeau",
+      "usage": "Conseil : la chapelle, 2",
+      "texte": "À la chapelle, la plaque est sous la poussière. Soufflez dessus."
+    },
+    {
+      "n": 168,
+      "voix": "corbeau",
+      "usage": "Conseil : la chapelle, 3",
+      "texte": "La chapelle, puis la grille FORGE du pupitre : bouche grande ouverte, deux secondes."
+    },
+    {
+      "n": 169,
+      "voix": "corbeau",
+      "usage": "Conseil : le bureau, 1",
+      "texte": "Le majordome connaît les habitudes de son maître. Écoutez-le."
+    },
+    {
+      "n": 170,
+      "voix": "corbeau",
+      "usage": "Conseil : le bureau, 2",
+      "texte": "Les cadenas de Lord Edgar portent l'année de naissance de son grand-père. La chapelle vous la donne."
+    },
+    {
+      "n": 171,
+      "voix": "corbeau",
+      "usage": "Conseil : le bureau, 3",
+      "texte": "Le code du bureau : un, sept, sept, un."
+    },
+    {
+      "n": 172,
+      "voix": "corbeau",
+      "usage": "Conseil : le docteur, 1",
+      "texte": "Une porte fermée ? Il faut des clés. Qui avait toutes les clés ?"
+    },
+    {
+      "n": 173,
+      "voix": "corbeau",
+      "usage": "Conseil : le docteur, 2",
+      "texte": "Le trousseau de Lord Edgar est dans son bureau."
+    },
+    {
+      "n": 174,
+      "voix": "corbeau",
+      "usage": "Conseil : le docteur, 3",
+      "texte": "Glissez la chambre du docteur dans la fente, puis posez le trousseau sur le plateau."
+    },
+    {
+      "n": 175,
+      "voix": "corbeau",
+      "usage": "Conseil : l'accusation, 1",
+      "texte": "Le poison était dans le verre, pas dans la carafe. Et ce verre vient d'une pièce bien précise."
+    },
+    {
+      "n": 176,
+      "voix": "corbeau",
+      "usage": "Conseil : l'accusation, 2",
+      "texte": "Les pupilles minuscules, les lèvres bleues : de l'opium. Qui avait de l'opium, et un mensonge dans son alibi ?"
+    },
+    {
+      "n": 177,
+      "voix": "corbeau",
+      "usage": "Conseil : l'accusation, 3",
+      "texte": "Le docteur, dans le fumoir, avec le laudanum."
+    },
+    {
+      "n": 178,
+      "voix": "corbeau",
+      "usage": "Plus de conseil",
+      "texte": "Jamais plus… je ne dirai rien. Croâ."
+    }
+  ]
+}

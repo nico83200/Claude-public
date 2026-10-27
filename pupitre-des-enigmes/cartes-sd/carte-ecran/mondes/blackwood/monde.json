@@ -1,0 +1,28 @@
+{
+  "id": "blackwood",
+  "nom": "Le Manoir Blackwood",
+  "carte": "M7",
+  "aide": "A7",
+  "aide_nom": "Le corbeau",
+  "theme": {
+    "fond": "#15110f",
+    "texte": "#eadfca",
+    "accent": "#c79a4a",
+    "alerte": "#b3202c",
+    "doux": "#8a7c66"
+  },
+  "accueil": {
+    "dossier": 70,
+    "dire": 13,
+    "jingle_dossier": 71,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 7,
+      "titre": "La dernière nuit de Lord Edgar",
+      "script": "mission-7.json",
+      "repliques": "repliques-7.json"
+    }
+  ]
+}

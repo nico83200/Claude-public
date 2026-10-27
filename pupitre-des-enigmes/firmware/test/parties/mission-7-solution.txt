@@ -1,0 +1,112 @@
+# Mission 7 · Le Manoir Blackwood — partie gagnante complète : la lampe (dynamo sur le bouton
+# bleu), la galerie dans le noir, la poussière de la chapelle, le secrétaire et le tiroir secret,
+# la chambre du docteur, la séance (le pentacle), les pouvoirs, une accusation fausse puis la bonne.
+pose QUI M7
+retire QUI
+verifie phase menu
+appui
+verifie phase roles
+pose QUI R1
+retire QUI
+pose QUI R2
+retire QUI
+pose QUI R3
+retire QUI
+pose QUI R4
+retire QUI
+pose QUI R5
+retire QUI
+pose QUI R6
+retire QUI
+calme
+verifie phase jeu
+verifie afficheur 23:00
+
+# --- La lampe baisse : sans elle, la galerie reste noire
+attendre 100
+pose OU L4
+verifie sans J2
+dynamo auto BLEU
+attendre 40
+
+# --- La scène du crime, le fumoir
+pose OU L2
+verifie drapeau J1
+pose OU L3
+verifie drapeau vu_L3
+
+# --- La galerie, éclairée cette fois
+pose OU L4
+verifie drapeau J2
+
+# --- La chapelle : la poussière de la plaque
+pose OU L5
+verifie epreuve capteur
+souffle 3
+verifie drapeau plaque
+
+# --- Le bureau : un faux code, puis 1771 (le tiroir secret sort)
+pose OU L6
+verifie epreuve code
+touches 1234
+verifie sans J3
+retire OU
+pose OU L6
+touches 1771
+verifie drapeau J3
+verifie tiroir ouvert
+
+# --- La chambre du docteur : fermée, puis le trousseau
+pose OU L9
+verifie sans J4
+pose QUOI O8
+verifie drapeau J4
+retire QUOI
+
+# --- La séance : un mauvais geste, puis le pentacle
+pose OU L10
+verifie epreuve choix
+geste bas
+geste haut
+geste droite
+geste bas
+geste gauche
+verifie drapeau J5
+
+# --- Interrogatoires et pouvoirs
+pose QUI P4
+retire QUI
+pose QUI P3
+pose QUOI O7
+retire QUOI
+pose QUOI R5
+verifie compteur pouvoir_R5 1
+retire QUOI
+pose QUOI R3
+verifie compteur pouvoir_R3 2
+retire QUOI
+pose QUOI R4
+verifie compteur pouvoir_R4 1
+retire QUOI
+retire QUI
+pose QUI R1
+pose QUOI O1
+verifie compteur pouvoir_R1 1
+retire QUOI
+retire QUI
+pose QUI R6
+retire QUI
+verifie drapeau poker
+
+# --- L'accusation : une fausse (le poker la couvre), puis la bonne
+pose QUI P2
+pose OU L3
+pose QUOI O7
+bouton GROS
+bouton VERT
+verifie sans poker
+pose QUI P3
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire
