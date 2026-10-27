@@ -93,12 +93,6 @@
           "prix": 5
         },
         {
-          "article": "Magnétomètre QMC5883L (l'enclume)",
-          "detail": "Module « GY-271 » à puce QMC5883L (et non HMC5883L). Recherche : « GY-271 QMC5883L »",
-          "qte": 1,
-          "prix": 3
-        },
-        {
           "article": "Afficheur 4 chiffres HT16K33 (l'horloge)",
           "detail": "Déjà en votre possession. 7 segments 0,56 pouce, deux-points au centre, adresse 0x70",
           "qte": 1,
@@ -215,12 +209,6 @@
           "prix": 1
         },
         {
-          "article": "Interrupteur à bascule",
-          "detail": "Marche / arrêt, à encastrer",
-          "qte": 1,
-          "prix": 1
-        },
-        {
           "article": "Plaque à souder à pastilles 7 × 9 cm",
           "detail": "La carte principale (ESP32, deux DFPlayer). 1 de secours",
           "qte": 2,
@@ -314,7 +302,7 @@
   ],
   "conseils": [
     "Commandez d'abord l'électronique : c'est le plus long à recevoir.",
-    "Vérifiez les puces à réception : ESP32 (et non ESP8266), BME280 (et non BMP280), QMC5883L (et non HMC5883L).",
+    "Vérifiez les puces à réception : ESP32 (et non ESP8266) et BME280 (et non BMP280).",
     "Les modules RC522 et DFPlayer sont fragiles et de qualité variable : les exemplaires de secours évitent d'attendre une nouvelle livraison.",
     "Le RC522 et tous les modules I2C s'alimentent en 3,3 V : branchés sur 5 V, certains sont détruits.",
     "Testez tout sur la breadboard avant de souder et de fixer dans le boîtier ; l'onglet « Atelier » du panneau Wi-Fi montre chaque capteur en direct."
