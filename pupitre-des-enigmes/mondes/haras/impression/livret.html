@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>La Disparition d'Éclipse · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs du Haras des Trois Fers */
+  :root { --fond: #1f3b2d; --fond-transparent: rgba(31, 59, 45, .82); --accent: #c9a54a; --accent-clair: #ecd9a4;
+          --papier: #faf6ec; --encre: #2a2622; --doux: #6d665d; --filet: #ddd2bc; --rouge: #a3392b; }
+</style>
+</head>
+<body>
+
+<!-- Les icônes et l'ornement, dessinés une fois -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="fer" viewBox="0 0 24 24"><path d="M6 3v8a6 6 0 0 0 12 0V3" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <g fill="#1f3b2d"><circle cx="6" cy="6" r=".9"/><circle cx="6" cy="10" r=".9"/><circle cx="18" cy="6" r=".9"/><circle cx="18" cy="10" r=".9"/></g></symbol>
+    <symbol id="i-marechal" viewBox="0 0 24 24"><path d="M6 3v8a6 6 0 0 0 12 0V3" fill="none" stroke="#c9a54a" stroke-width="2.6" stroke-linecap="round"/>
+      <g fill="#c9a54a"><circle cx="9.5" cy="16" r=".9"/><circle cx="14.5" cy="16" r=".9"/></g></symbol>
+    <symbol id="i-veto" viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="none" stroke="#c9a54a" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-journal" viewBox="0 0 24 24"><g fill="none" stroke="#c9a54a" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M6 8h12M6 11h5M6 14h5M6 17h5"/><rect x="13" y="11" width="5" height="6"/></g></symbol>
+    <symbol id="i-comptable" viewBox="0 0 24 24"><g fill="none" stroke="#c9a54a" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M15.5 9.5a4 4 0 1 0 0 5M8 11h5M8 13h5"/></g></symbol>
+    <symbol id="i-parieur" viewBox="0 0 24 24"><g fill="none" stroke="#c9a54a" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/></g>
+      <g fill="#c9a54a"><circle cx="8.5" cy="8.5" r="1.3"/><circle cx="15.5" cy="8.5" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="8.5" cy="15.5" r="1.3"/><circle cx="15.5" cy="15.5" r="1.3"/></g></symbol>
+    <symbol id="i-gendarme" viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z" fill="none" stroke="#c9a54a" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image" style="background-image:url(images/photo-box7.jpg)"></div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Le Haras des Trois Fers</div>
+    <h1>La Disparition<br>d'Éclipse</h1>
+    <p class="accroche">La favorite du Grand Prix a disparu cette nuit.<br>Vous avez une heure pour la retrouver.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 6</b><span>joueurs</span></div>
+      <div class="badge"><b>60 min</b><span>une heure</span></div>
+      <div class="badge"><b class="etoiles">★<i>★★</i></b><span>facile</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant d'ouvrir les écuries</div><h2>Bienvenue au haras</h2>
+    <p class="chapeau">Une enquête pour découvrir le pupitre en douceur : tout ce qu'il faut savoir est dans ce livret, et dans le jeu.</p></div>
+
+  <h3>Dans ce livret</h3>
+  <table class="repartition" style="text-align:left">
+    <tr><td style="text-align:left">I · L'affaire</td><td style="text-align:left">La lettre de Camille, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Les gens du haras</td><td style="text-align:left">Six personnes à interroger</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Vos rôles</td><td style="text-align:left">Six talents, six secrets</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le domaine</td><td style="text-align:left">Le haras et l'écurie</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le pupitre du haras</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le carnet d'enquête</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez la <b>façade du haras</b>.</li>
+    <li>Étalez au centre les <b>cartes Lieu</b> et <b>Personnage</b>, face visible, et la carte <b>Papy Marcel</b>.</li>
+    <li>Empilez les <b>enveloppes E1 à E8</b>, fermées. On ne les ouvre que lorsque le pupitre le demande.</li>
+    <li>Distribuez les <b>six rôles</b> et leurs documents secrets (chapitre III).</li>
+    <li>Gardez à portée de main le <b>fer à cheval aimanté</b> et un <b>téléphone avec une lampe</b>.</li>
+    <li>Glissez la carte <b>Le Haras des Trois Fers</b> dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>On ne montre pas : on raconte.</strong> Ni les documents secrets, ni ce que l'on entend au casque. C'est en se parlant que l'on trouve.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · LA LETTRE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>I · L'affaire</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>L'affaire</h2>
+    <p class="chapeau">Samedi matin, Normandie. Un message vous attendait au réveil.</p></div>
+  <div class="lettre">
+    <p class="date">Samedi, 7 h 15</p>
+    <p>Mes amis,</p>
+    <p>Je n'ai pas le temps de vous expliquer longuement : venez au haras, vite. Éclipse a disparu cette nuit. Lucas a trouvé son box grand ouvert à 6 h ce matin, et vide.</p>
+    <p>Demain, c'est le Grand Prix de Deauville. Elle en était la grande favorite. Hélène est effondrée, tout le monde se regarde de travers… et moi, je ne crois pas une seconde à un simple vol.</p>
+    <p>À 9 h, l'expert de l'assurance vient signer le constat. Après, l'affaire sera classée et plus personne ne la cherchera. Vous êtes les seuls en qui j'ai confiance. Chacun de vous a un talent : servez-vous-en.</p>
+    <p>Retrouvez-la. Je vous en supplie.</p>
+    <p class="signature">Camille</p>
+    <p class="ps">P.-S. : ne dites rien à personne de ce que vous trouverez. À personne.</p>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>I · L'affaire</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Trois questions, une seule heure.</p></div>
+  <div class="trio">
+    <div><b>QUI ?</b><span>a fait sortir Éclipse de son box</span></div>
+    <div><b>OÙ ?</b><span>se trouve-t-elle en ce moment</span></div>
+    <div><b>POURQUOI ?</b><span>l'objet qui prouve le mobile</span></div>
+  </div>
+  <div class="horloge"><div class="heures">8 h → 9 h</div>
+    <div>Le chrono s'arrête à l'arrivée de l'expert. L'<b>horloge</b> du pupitre donne l'heure du haras, et l'anneau de lumière égrène les minutes.</div></div>
+  <h3>Accuser</h3>
+  <ol class="etapes">
+    <li>Rendez-vous sur le <b>lieu</b> où se trouve Éclipse : sa carte dans la fente.</li>
+    <li>Glissez le <b>coupable</b> dans la fente, et posez l'<b>objet</b> qui prouve son mobile sur le plateau.</li>
+    <li>Appuyez sur le <b>gros bouton</b>, puis confirmez au bouton vert.</li>
+  </ol>
+  <p>Une accusation fausse coûte <b>5 minutes</b>. À la troisième erreur, l'enquête est perdue.</p>
+  <div class="signalement">
+    <div class="portrait"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#1f3b2d"/>
+      <text x="50" y="40" text-anchor="middle" font-family="Source Sans" font-size="9" letter-spacing="2" fill="#ecd9a4">BOX</text>
+      <text x="50" y="80" text-anchor="middle" font-family="Playfair" font-weight="900" font-size="46" fill="#c9a54a">7</text></svg></div>
+    <div><h3 style="margin-top:0">Fiche signalétique : Éclipse</h3>
+      <dl>
+        <dt>Robe</dt><dd>Grise pommelée : claire, semée de taches grises en anneaux</dd>
+        <dt>Âge, taille</dt><dd>9 ans · 1,68 m au garrot</dd>
+        <dt>Logement</dt><dd>Écurie principale, box n° 7</dd>
+        <dt>Palmarès</dt><dd>Gagnante du Grand Prix de Deauville, 2024 et 2025</dd>
+        <dt>Caractère</dt><dd>Douce, très gourmande, n'aime pas les inconnus</dd>
+      </dl></div>
+  </div>
+  <div class="ornement" style="margin-top:6mm"><svg viewBox="0 0 90 24"><use href="#fer" x="0" width="24" height="24"/><use href="#fer" x="33" width="24" height="24"/><use href="#fer" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LES GENS DU HARAS (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>II · Les gens du haras</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Les gens du haras</h2>
+    <p class="chapeau">Glissez la carte d'un personnage dans la fente pour l'interroger. Posez un objet sur le plateau pour le lui montrer.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#7a4e6e">HV</div><div>
+    <h4>Hélène Vasseur</h4><div class="qualite">Propriétaire du haras · 58 ans</div>
+    <p>Elle a repris le haras de son père il y a trente ans. Éclipse est sa fierté.</p>
+    <p class="citation">« Ce haras, c'est toute ma vie. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#4f6d3a">LB</div><div>
+    <h4>Lucas Bernier</h4><div class="qualite">Palefrenier · 24 ans</div>
+    <p>Il s'occupe des chevaux et loge au-dessus de l'écurie. C'est lui qui a découvert le box vide.</p>
+    <p class="citation">« Je connais chaque cheval par son prénom. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#2f6680">CR</div><div>
+    <h4>Camille Roussel</h4><div class="qualite">Cavalière d'Éclipse · 31 ans</div>
+    <p>Votre amie. Elle monte Éclipse depuis quatre ans, et c'est elle qui vous a appelés.</p>
+    <p class="citation">« Elle et moi, on se comprend sans un mot. »</p></div></div>
+  <div class="encart"><div class="titre">Interroger</div>
+    <p>Un personnage seul raconte sa version. Montrez-lui un <b>objet</b> : il réagit, parfois plus qu'il ne le voudrait.
+    Un même objet ne dit pas la même chose à tout le monde.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LES GENS DU HARAS (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>II · Les gens du haras</span></div>
+  <div class="personne" style="padding-top:0"><div class="medaillon" style="background:#9b6b2f">VL</div><div>
+    <h4>Victoire de Lancey</h4><div class="qualite">Cavalière rivale · 27 ans</div>
+    <p>Venue reconnaître la carrière avant le Grand Prix. Elle a fini trois fois deuxième derrière Éclipse.</p>
+    <p class="citation">« Je n'aime pas perdre. Jamais. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#5c5c6e">AV</div><div>
+    <h4>Antoine Vasseur</h4><div class="qualite">Fils d'Hélène · 33 ans</div>
+    <p>Revenu de Paris sans prévenir il y a une semaine. Il préfère les casinos aux écuries.</p>
+    <p class="citation">« Les chevaux, c'est le truc de ma mère. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#7d3b30">MD</div><div>
+    <h4>Marc Delorme</h4><div class="qualite">Marchand de chevaux · 52 ans</div>
+    <p>Il achète et revend des chevaux dans toute l'Europe. Il était dans le coin cette nuit.</p>
+    <p class="citation">« Tout s'achète, il suffit d'y mettre le prix. »</p></div></div>
+  <div class="encart"><div class="titre">Papy Marcel</div>
+    <p>L'ancien palefrenier du haras connaît chaque recoin. Quand vous séchez, glissez <b>sa carte</b> dans la fente : les trois premiers coups de main sont gratuits, les suivants coûtent <b>2 minutes</b>.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · VOS RÔLES (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>III · Vos rôles</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Vos rôles</h2>
+    <p class="chapeau">Chacun de vous a un talent, et un document secret. Les six rôles sont toujours tous en jeu.</p></div>
+  <table class="repartition">
+    <tr><th>Joueurs</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>
+    <tr><td>Rôles par joueur</td><td>3 chacun</td><td>2 chacun</td><td>2·2·1·1</td><td>2·1·1·1·1</td><td>1 chacun</td></tr>
+  </table>
+  <p><b>Utiliser un pouvoir :</b> glissez la carte visée dans la fente, puis posez votre carte Rôle sur le plateau (ou l'inverse). Le pupitre décompte les utilisations.</p>
+  <div class="role"><div class="icone"><svg><use href="#i-marechal"/></svg></div><div>
+    <h4>Maréchal-ferrant <span class="fois">1 fois</span></h4>
+    <p class="atout">Vous connaissez les fers de tous les chevaux du haras.</p>
+    <p><b>Lire une piste</b> : lors d'un choix de chemin, glissez votre carte pour éliminer une mauvaise option.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-veto"/></svg></div><div>
+    <h4>Vétérinaire <span class="fois">atout</span></h4>
+    <p class="atout">Vous savez lire les notes de votre confrère, le Dr Morel.</p>
+    <p>Vous seul·e pouvez <b>déchiffrer ses carnets de santé</b>.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · VOS RÔLES (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>III · Vos rôles</span></div>
+  <div class="role"><div class="icone"><svg><use href="#i-journal"/></svg></div><div>
+    <h4>Journaliste <span class="fois">2 fois</span></h4>
+    <p class="atout">Vos archives du <i>Courrier Équestre</i>.</p>
+    <p><b>Insister</b> : un personnage et votre carte. Il vous fait une <b>confidence au casque</b>, à vous seul·e.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-comptable"/></svg></div><div>
+    <h4>Expert-comptable <span class="fois">2 fois</span></h4>
+    <p class="atout">Vous avez eu accès aux comptes du haras.</p>
+    <p><b>Expertiser</b> : votre carte et un objet, pour une analyse financière.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-parieur"/></svg></div><div>
+    <h4>Parieur <span class="fois">1 fois</span></h4>
+    <p class="atout">Le programme du Grand Prix, et les rumeurs du milieu.</p>
+    <p><b>Coup de poker</b> : glissez votre carte seule, juste avant une accusation. Si elle est fausse, pas de pénalité, et une lumière rouge désigne l'élément faux.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-gendarme"/></svg></div><div>
+    <h4>Ancien gendarme <span class="fois">3 fois</span></h4>
+    <p class="atout">Votre fiche sur la nuit du vol.</p>
+    <p><b>Vérifier un alibi</b> : un personnage et votre carte ; réponse <b>au casque</b>. Juste après un imprévu raté, votre carte <b>annule la pénalité</b> (1 fois).</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE DOMAINE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>IV · Le domaine</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le domaine</h2>
+    <p class="chapeau">Glissez la carte d'un lieu dans la fente pour vous y rendre. Vous y restez jusqu'au lieu suivant.</p></div>
+  <img class="illustration" src="images/plan-haras.jpg" alt="Plan du haras">
+  <p class="legende">Le Haras des Trois Fers, vu du ciel. Échelle : 1 cm ≈ 40 m.</p>
+  <div class="lieux">
+    <div><b>L'Écurie</b> · huit boxes, et le n° 7, vide</div>
+    <div><b>La Sellerie</b> · cuir, harnais, couvertures</div>
+    <div><b>Le Bureau</b> · fermé par un code</div>
+    <div><b>Le Manège</b> · et son club-house</div>
+    <div><b>La Carrière</b> · la piste d'obstacles</div>
+    <div><b>Le Pré du Bas</b> · le long de la route</div>
+    <div><b>La Forge</b> · chez le maréchal</div>
+    <div><b>Le Sentier des bois</b> · derrière l'écurie</div>
+    <div style="grid-column:1/3"><b>La Vieille Grange</b> · quelque part au fond des bois. Il faut d'abord en trouver le chemin.</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · L'ÉCURIE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>IV · Le domaine</span></div>
+  <h3 style="margin-top:0;font-size:13pt">L'écurie</h3>
+  <img class="illustration" src="images/plan-ecurie.jpg" alt="Plan de l'écurie">
+  <p class="legende">Huit boxes, une allée, deux portes.</p>
+  <div class="encart"><div class="titre">À savoir</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Les boxes <b>se font face</b> deux à deux : 1 et 5, 2 et 6, 3 et 7, 4 et 8.</li>
+      <li>Une <b>caméra</b> filme l'entrée principale de l'écurie.</li>
+      <li>La <b>porte arrière</b> donne sur le sentier des bois.</li>
+      <li>Le <b>bureau</b> est fermé par un code à 4 chiffres.</li>
+      <li>Le Grand Prix a lieu <b>demain</b>. Quatre chevaux du haras y sont engagés.</li>
+    </ul></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#fer" x="0" width="24" height="24"/><use href="#fer" x="33" width="24" height="24"/><use href="#fer" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE PUPITRE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>V · Le pupitre du haras</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le pupitre du haras</h2>
+    <p class="chapeau">Il vous dira toujours quand vous servir de quoi. Voici ce que vous trouverez sur la façade.</p></div>
+  <div class="element"><b>La fente</b><span>Un <b>lieu</b> pour vous y rendre, un <b>personnage</b> pour l'interroger, votre <b>rôle</b> pour un pouvoir.</span></div>
+  <div class="element"><b>Le plateau</b><span>Posez-y l'<b>objet</b> à montrer ou à examiner.</span></div>
+  <div class="element"><b>Le clavier</b><span>Les codes et les réponses : tapez, <b>*</b> efface. L'<b>horloge</b> les affiche.</span></div>
+  <div class="element"><b>Les pistes</b><span>Cinq voyants suivent l'enquête : orange, la piste est ouverte ; vert, elle est élucidée.</span></div>
+  <div class="element"><b>La molette</b><span>Un appui affiche où en est l'enquête.</span></div>
+  <div class="element"><b>Le casque</b><span>Quand le pupitre le demande, <b>un seul</b> joueur le met. Certains messages ne passent qu'une fois.</span></div>
+  <div class="element"><b>L'œil</b><span>La main <b>à plat, à 5 cm au-dessus</b>, d'un bord à l'autre : elle indique une direction (<i>vers le haut</i> : en éloignant la main de vous). Ou une lampe de téléphone braquée dessus.</span></div>
+  <div class="element"><b>La forge</b><span>Soufflez sur la grille, bouche ouverte, comme pour faire de la buée. Puis le <b>fer à cheval</b> se pose sur l'<b>enclume</b>.</span></div>
+  <div class="element"><b>Les boutons</b><span>Les quatre couleurs pour les choix et les imprévus ; le <b>gros bouton</b> pour accuser.</span></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT L'ENQUÊTE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>V · Le pupitre du haras</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant l'enquête</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que lorsque le pupitre le demande</b>. Leur numéro s'affiche à l'écran. Ne trichez pas : c'est Éclipse qui en paierait le prix.</span></div>
+  <div class="element"><b>Les objets</b><span>Ils sont dans les enveloppes. Montrez-les aux bonnes personnes, aux bons endroits.</span></div>
+  <div class="element"><b>Les verrous</b><span>Le bureau a un code ; la Vieille Grange, un chemin à trouver. Le reste du domaine est ouvert.</span></div>
+  <div class="element"><b>Les imprévus</b><span>Un haras vit : un cheval s'échappe, le téléphone sonne… Écoutez bien la consigne, et agissez vite. Un imprévu raté coûte du temps.</span></div>
+  <div class="element"><b>Papy Marcel</b><span>Sa carte dans la fente quand vous bloquez : 3 coups de main gratuits, puis 2 minutes chacun.</span></div>
+  <div class="element"><b>La fin</b><span>Une accusation juste, et l'expert de l'assurance trouvera bien autre chose qu'un constat à signer.</span></div>
+  <div class="encart sombre" style="margin-top:5mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Commencez par l'<strong>écurie</strong>, et parlez-vous beaucoup : chaque rôle tient un morceau de la vérité. Notez tout dans le carnet d'enquête des pages suivantes.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#fer" x="0" width="24" height="24"/><use href="#fer" x="33" width="24" height="24"/><use href="#fer" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · CARNET (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>VI · Le carnet d'enquête</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le carnet d'enquête</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie. Celui-là, vous pouvez le montrer !</p></div>
+  <table>
+    <tr><th>Personne</th><th>Alibi pour la nuit</th><th style="width:28mm">Mobile possible</th><th style="width:11mm">?</th></tr>
+    <tr><td>Hélène Vasseur</td><td></td><td></td><td></td></tr>
+    <tr><td>Lucas Bernier</td><td></td><td></td><td></td></tr>
+    <tr><td>Camille Roussel</td><td></td><td></td><td></td></tr>
+    <tr><td>Victoire de Lancey</td><td></td><td></td><td></td></tr>
+    <tr><td>Antoine Vasseur</td><td></td><td></td><td></td></tr>
+    <tr><td>Marc Delorme</td><td></td><td></td><td></td></tr>
+  </table>
+  <h3>La nuit, heure par heure</h3>
+  <table>
+    <tr><th style="width:14mm">Heure</th><th>Ce qui s'est passé</th></tr>
+    <tr><td>22 h</td><td></td></tr><tr><td>0 h</td><td></td></tr><tr><td>2 h</td><td></td></tr>
+    <tr><td>3 h</td><td></td></tr><tr><td>4 h</td><td></td></tr><tr><td>6 h</td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · CARNET (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>VI · Le carnet d'enquête</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3 style="margin-top:0">Le code du bureau</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+    <div><h3 style="margin-top:0">Le sentier</h3><p style="font-size:7.8pt;line-height:2">Croisement 1 : ____________<br>Croisement 2 : ____________<br>Croisement 3 : ____________</p></div>
+  </div>
+  <h3>Le carnet de santé</h3>
+  <div class="zone lignes" style="min-height:30mm"></div>
+  <h3>Les objets et ce qu'ils prouvent</h3>
+  <div class="zone lignes" style="min-height:38mm"></div>
+  <h3>L'accusation</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2.4mm">
+    <div class="zone"><b>Qui ?</b></div><div class="zone"><b>Où ?</b></div><div class="zone"><b>Pourquoi ?</b></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Le Haras des Trois Fers</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Normandie, la veille du Grand Prix de Deauville. Éclipse, la jument favorite, a disparu de son box. Interrogez les gens du haras,
+    fouillez le domaine, servez-vous de vos talents… et retrouvez-la avant que l'affaire ne soit classée.</p>
+  <table>
+    <tr class="ici"><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+  </table>
+  <div class="mentions">2 à 6 joueurs · 60 minutes · pour adultes et adolescents · enquête et déduction</div>
+</section>
+
+</body>
+</html>

@@ -531,6 +531,29 @@ def livret(m):
     dossier = JEU / "mondes" / m["monde"]
     theme = json.loads((dossier / "pupitre" / "monde.json").read_text(encoding="utf-8"))["theme"]
     pages = []
+    lecture = PdfWriter()
+
+    # Un livret composé page à page (impression/livret.html, feuille livret.css) prime sur la
+    # mise au format A5 des fiches. Il doit compter un multiple de 4 pages.
+    natif = dossier / "impression" / "livret.html"
+    if natif.exists():
+        pdf = SORTIE / f"_livret-{n}.pdf"
+        rendre(natif, pdf)
+        pages.append(pdf)
+        for page in PdfReader(pdf).pages:
+            lecture.add_page(page)
+        if len(lecture.pages) % 4:
+            sys.exit(f"✗ {natif.relative_to(JEU)} : {len(lecture.pages)} pages, il en faut un multiple de 4")
+    else:
+        composer(m, L, dossier, theme, pages, lecture)
+    sortie = SORTIE / f"mission-{n}-livret-a5.pdf"
+    lecture.write(str(sortie))
+    imposer(m, lecture, pages, sortie)
+
+
+def composer(m, L, dossier, theme, pages, lecture):
+    """Le livret générique : couverture, fiches réduites au format A5, notes et 4e de couverture."""
+    n = m["num"]
 
     # La couverture. Un logo de mission (impression/images/logo-mission.png) remplace l'emblème.
     logo = dossier / "impression" / "images" / "logo-mission.png"
@@ -556,7 +579,6 @@ def livret(m):
             copie.unlink()
         pages.append(pdf)
 
-    lecture = PdfWriter()
     for p in pages:
         for page in PdfReader(p).pages:
             lecture.add_page(page)
@@ -574,9 +596,10 @@ def livret(m):
     temporaire(f"dos-{n}", lambda h: h.write_text(GABARIT_DOS.format(missions=lignes), encoding="utf-8"), pdf_dos)
     pages.append(pdf_dos)
     lecture.add_page(PdfReader(pdf_dos).pages[0])
-    sortie = SORTIE / f"mission-{n}-livret-a5.pdf"
-    lecture.write(str(sortie))
 
+
+def imposer(m, lecture, pages, sortie):
+    n = m["num"]
     # La brochure : deux pages A5 par face d'une feuille A4 paysage.
     total = len(lecture.pages)
     l5, h5 = float(lecture.pages[0].mediabox.width), float(lecture.pages[0].mediabox.height)
