@@ -77,7 +77,7 @@ mission).
 [Désamorçage](pdf/mission-6-livret-a5-brochure.pdf) ★★ ·
 [La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★
 
-Tous les livrets sont en « édition premium » : 16 pages composées directement en A5 (`mondes/<monde>/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer : couverture, bienvenue et sommaire, l'histoire, la mission, les personnages, les rôles, les lieux, le pupitre, le carnet à remplir, notes et quatrième de couverture. Chaque monde n'y change que ses couleurs, ses icônes et ses illustrations. Une mission sans `livret.html` retombe sur le livret générique.
+Tous les livrets sont en « édition premium » : 16 pages composées directement en A5 (`mondes/<monde>/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer : couverture, bienvenue et sommaire, l'histoire, la mission, les personnages, les rôles, les lieux, le pupitre, le carnet à remplir, notes et quatrième de couverture. Chaque monde n'y change que ses couleurs, ses icônes et ses illustrations. Une mission sans `livret.html` retombe sur le livret générique. Une page commune à toutes les missions explique comment lire une carte : [lire-une-carte-a5.pdf](pdf/lire-une-carte-a5.pdf) (à glisser dans la boîte, ou au dos d'un livret).
 
 | Par mission | Mission 1 · Haras | Mission 2 · Monte-Carlo | Mission 3 · Kepler-9 | Mission 4 · Narval |
 |---|---|---|---|---|

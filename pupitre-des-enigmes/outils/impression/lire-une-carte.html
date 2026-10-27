@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Lire une carte · Le Pupitre des Énigmes</title>
+<link rel="stylesheet" href="livret.css">
+<style>
+  /* Une page A5 commune à toutes les missions, aux couleurs du Pupitre */
+  :root { --fond: #1e1a17; --accent: #b8893f; --accent-clair: #e6cf9c; --papier: #f7f2e8; --encre: #2a2420;
+          --doux: #6e655b; --filet: #ddd2bc; --rouge: #a3392b; }
+  .page { padding-top: 13mm; }
+  .chapitre { margin-bottom: 3mm; }
+  .chapitre h2 { font-size: 20pt; }
+
+  .haut { display: grid; grid-template-columns: 63mm 1fr; gap: 5mm; padding-left: 1.5mm; align-items: start; }
+
+  /* La carte d'exemple, à taille réelle (63 × 88 mm), dessinée comme sur les planches */
+  .ex { --c: #2c3e63; --fond-c: #dbe2ef; width: 63mm; height: 88mm; position: relative; }
+  .ex .cadre { height: 100%; border-radius: 3mm; border: .5mm solid var(--c); background: #fffdf8; display: flex; flex-direction: column;
+               overflow: hidden; box-shadow: 0 .6mm 1.8mm rgba(0,0,0,.22); }
+  .ex .type { background: var(--c); color: #fff; font-size: 6.8pt; letter-spacing: .14em; text-transform: uppercase; padding: 1.4mm 2.5mm;
+              display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .ex .type .ou { background: rgba(255,255,255,.22); border-radius: 2mm; padding: .2mm 1.6mm; letter-spacing: .05em; }
+  .ex .tete { height: 20.5mm; display: flex; align-items: center; gap: 2.2mm; padding: 0 2.5mm; position: static;
+              background: radial-gradient(circle at 15% 50%, #fff, var(--fond-c)); border-bottom: .3mm solid var(--c);
+              font-size: inherit; letter-spacing: 0; text-transform: none; color: inherit; }
+  .ex .visuel { flex: none; width: 16mm; height: 16mm; border-radius: 50%; background: #fff; border: .4mm solid var(--c);
+                display: flex; align-items: center; justify-content: center; font-size: 21pt; line-height: 1; }
+  .ex .nom { font-family: "Playfair"; font-weight: 900; font-size: 11.5pt; color: var(--c); line-height: 1.05; }
+  .ex .sous { font-size: 6.5pt; text-transform: uppercase; letter-spacing: .06em; color: #6d665d; margin-top: .8mm; line-height: 1.15; }
+  .ex .texte { font-size: 7.6pt; line-height: 1.32; padding: 3mm 3mm 0; text-align: center; flex: 1; }
+  .ex .texte em { font-family: "Playfair"; color: #6d665d; }
+  .ex .filigrane { position: absolute; right: 3.5mm; bottom: 8mm; font-size: 34pt; line-height: 1; opacity: .13; }
+  .ex .pied { position: static; display: flex; justify-content: space-between; font-size: 6pt; color: #6d665d; letter-spacing: 0;
+              text-transform: none; padding: 1mm 2.5mm 1.4mm; border-top: .2mm solid #d9cfbd; }
+  .ex .pied::before, .ex .pied::after { display: none; }
+
+  /* Les repères numérotés */
+  .n { display: inline-flex; align-items: center; justify-content: center; width: 4.6mm; height: 4.6mm; border-radius: 50%;
+       background: var(--rouge); color: #fff; font-family: "Playfair"; font-weight: 700; font-size: 7pt; flex: none;
+       box-shadow: 0 0 0 .5mm #fff; }
+  .ex .n { position: absolute; z-index: 2; }
+  .reperes { list-style: none; margin: 0; padding: 0; }
+  .reperes li { display: grid; grid-template-columns: 5.4mm 1fr; gap: 1.6mm; padding: .95mm 0; border-bottom: .2mm dotted var(--filet); font-size: 8pt; line-height: 1.3; }
+  .reperes li:last-child { border-bottom: 0; }
+  .reperes b { color: var(--fond); }
+
+  .bas { display: grid; grid-template-columns: 35mm 1fr; gap: 5mm; align-items: start; margin-top: 4.5mm; }
+
+  /* Le dos, en réduction */
+  .dos-ex { width: 33mm; height: 46mm; border-radius: 2mm; background: #2c3e63; color: #f2d9a6; position: relative; text-align: center;
+            box-shadow: 0 .5mm 1.4mm rgba(0,0,0,.22); }
+  .dos-ex .motif { position: absolute; inset: 1.5mm; border: .3mm solid rgba(242,217,166,.55); border-radius: 1.4mm; }
+  .dos-ex .titre { position: absolute; top: 7mm; left: 2mm; right: 2mm; font-family: "Playfair"; font-weight: 700; font-size: 6.4pt; color: #fff; line-height: 1.2; }
+  .dos-ex .sens { position: absolute; top: 23mm; left: 0; right: 0; font-size: 4.2pt; letter-spacing: .1em; text-transform: uppercase; }
+  .dos-ex .nfc { position: absolute; bottom: 2.4mm; left: 50%; margin-left: -7mm; width: 14mm; height: 14mm; border-radius: 50%;
+                 border: .3mm dashed rgba(242,217,166,.8); font-size: 4pt; letter-spacing: .08em; display: flex; align-items: center; justify-content: center; }
+  .dos-ex .n { position: absolute; }
+  .legende-dos { font-size: 7.2pt; line-height: 1.3; color: var(--doux); margin-top: 1.6mm; }
+
+  table.familles { width: 100%; border-collapse: collapse; font-size: 7.6pt; }
+  .familles th { background: var(--fond); color: var(--papier); font-weight: 600; text-align: left; padding: 1mm 1.6mm; }
+  .familles td { padding: .7mm 1.6mm; border-bottom: .2mm solid var(--filet); vertical-align: top; background: transparent; }
+  .familles .pastille { display: inline-block; width: 2.6mm; height: 2.6mm; border-radius: .6mm; vertical-align: -.3mm; margin-right: 1.2mm; }
+  .familles td:first-child { white-space: nowrap; font-weight: 700; color: var(--fond); }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="tete"><span>Le Pupitre des Énigmes</span><span>Toutes les missions</span></div>
+  <div class="chapitre"><div class="num">Avant de jouer</div><h2>Lire une carte</h2>
+    <p class="chapeau">Toutes les cartes se lisent de la même façon, dans toutes les missions. Les couleurs changent d'un monde à l'autre ; la place de chaque élément, jamais.</p></div>
+
+  <div class="haut">
+    <div class="ex">
+      <div class="cadre">
+        <div class="type"><span>Rôle</span><span class="ou">Fente ou plateau</span></div>
+        <div class="tete"><div class="visuel">🔨</div><div><div class="nom">Maréchal-ferrant</div><div class="sous">Lire une piste · 1 fois</div></div></div>
+        <div class="texte">Pendant un choix de chemin, glissez cette carte : une mauvaise option est éliminée. <em>Vous connaissez les fers de tous les chevaux.</em></div>
+        <div class="filigrane">🔨</div>
+        <div class="pied"><span>Le Haras des Trois Fers</span><span>R1</span></div>
+      </div>
+      <span class="n" style="left:-2.4mm;top:.6mm">1</span>
+      <span class="n" style="right:-2.4mm;top:.6mm">2</span>
+      <span class="n" style="left:-2.4mm;top:13.6mm">3</span>
+      <span class="n" style="right:-2.4mm;top:11mm">4</span>
+      <span class="n" style="right:-2.4mm;top:17.4mm">5</span>
+      <span class="n" style="left:-2.4mm;top:30mm">6</span>
+      <span class="n" style="left:-2.4mm;bottom:.8mm">7</span>
+      <span class="n" style="right:-2.4mm;bottom:.8mm">8</span>
+    </div>
+    <ol class="reperes">
+      <li><span class="n">1</span><span><b>La famille</b> de la carte, et sa couleur : lieu, personnage, objet, rôle…</span></li>
+      <li><span class="n">2</span><span><b>Où la mettre</b> : dans la <b>fente</b>, sur le <b>plateau</b>, ou l'un ou l'autre.</span></li>
+      <li><span class="n">3</span><span><b>Le pictogramme</b>, ou les initiales d'un personnage : on reconnaît la carte d'un coup d'œil.</span></li>
+      <li><span class="n">4</span><span><b>Le nom</b>, tel que le pupitre le prononce.</span></li>
+      <li><span class="n">5</span><span><b>En bref</b> : le pouvoir et <b>combien de fois</b> l'utiliser ; l'enveloppe d'un objet ; la qualité d'un personnage.</span></li>
+      <li><span class="n">6</span><span><b>Ce qu'elle fait</b>, ou ce qu'on en sait. L'<em style="font-family:Playfair">italique</em>, c'est l'ambiance : pas une règle.</span></li>
+      <li><span class="n">7</span><span><b>Le monde</b> auquel elle appartient. Rangez-la avec lui.</span></li>
+      <li><span class="n">8</span><span><b>Le code</b> de la carte : pour le maître du jeu et le rangement.</span></li>
+    </ol>
+  </div>
+
+  <div class="bas">
+    <div>
+      <div class="dos-ex"><div class="motif"></div>
+        <div class="titre">Le Haras des<br>Trois Fers</div>
+        <div class="sens">▼ ce bord dans la fente ▼</div>
+        <div class="nfc">PUCE NFC</div>
+        <span class="n" style="right:-2.4mm;top:21.6mm">9</span>
+      </div>
+      <p class="legende-dos"><span class="n" style="width:3.8mm;height:3.8mm;font-size:6pt;vertical-align:-.6mm">9</span> <b>Le dos</b> : le bord de la puce entre dans la fente. Seul le haut de la carte dépasse.</p>
+    </div>
+    <table class="familles">
+      <tr><th>Famille</th><th>Ce que l'on en fait</th></tr>
+      <tr><td><span class="pastille" style="background:#9a7420"></span>Monde</td><td>Dans la fente, au début : le pupitre charge l'aventure.</td></tr>
+      <tr><td><span class="pastille" style="background:#2f5a3d"></span>Lieu</td><td>Dans la fente : vous y allez, et vous y restez. Ou : compartiment, module, banc d'essai.</td></tr>
+      <tr><td><span class="pastille" style="background:#7a3b4e"></span>Personnage</td><td>Dans la fente : vous lui parlez.</td></tr>
+      <tr><td><span class="pastille" style="background:#8a5a2b"></span>Objet</td><td>Sur le plateau : vous le montrez, ou l'examinez. Il attend dans son enveloppe.</td></tr>
+      <tr><td><span class="pastille" style="background:#2c3e63"></span>Rôle</td><td>Avec la carte visée : l'une dans la fente, l'autre sur le plateau.</td></tr>
+      <tr><td><span class="pastille" style="background:#5d6b2f"></span>Aide</td><td>Dans la fente, quand vous bloquez : un conseil.</td></tr>
+    </table>
+  </div>
+  <div class="pied"><span>Le Pupitre des Énigmes</span></div>
+</section>
+
+</body>
+</html>
