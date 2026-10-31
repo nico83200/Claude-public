@@ -1,0 +1,28 @@
+{
+  "id": "museum",
+  "nom": "Le Muséum national",
+  "carte": "M8",
+  "aide": "A8",
+  "aide_nom": "Le directeur",
+  "theme": {
+    "fond": "#1b2b2c",
+    "texte": "#f0e7d3",
+    "accent": "#c9a24a",
+    "alerte": "#c0392b",
+    "doux": "#93a59d"
+  },
+  "accueil": {
+    "dossier": 80,
+    "dire": 13,
+    "jingle_dossier": 81,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 8,
+      "titre": "Panique au Muséum",
+      "script": "mission-8.json",
+      "repliques": "repliques-8.json"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "fenwick": {
+      "nom": "L'inspecteur Fenwick",
+      "voice_id": "",
+      "description": "Homme, la quarantaine, inspecteur de Scotland Yard, voix grave, posée, pince-sans-rire.",
+      "portrait": "Le narrateur et l'aide. Il guide les joueurs comme ses jeunes collègues : précis, flegmatique, une pointe d'humour britannique.",
+      "prompt_voice_design": "A calm, low-voiced French male police inspector in his forties, dry humour, measured, native speaker from France, close to the microphone.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "jenkins": {
+      "nom": "Mr Jenkins",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, majordome anglais, voix feutrée, parfaitement correcte, un peu trop.",
+      "portrait": "Le coupable. Impeccable, serviable, et légèrement nerveux dès qu'on parle de livrée ou de pierre.",
+      "prompt_voice_design": "An elderly, impeccably polite French-speaking butler, soft and measured voice, subtly nervous, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "evelyn": {
+      "nom": "Miss Evelyn Harrington",
+      "voice_id": "",
+      "description": "Femme, la vingtaine, jeune aristocrate insolente des années folles.",
+      "portrait": "La nièce criblée de dettes : fausse piste. Ironique, piquante, jamais méchante.",
+      "prompt_voice_design": "A witty, sarcastic young French aristocratic woman in her twenties, 1920s flapper attitude, native speaker from France.",
+      "reglages": {
+        "stability": 0.45,
+        "similarity_boost": 0.75,
+        "style": 0.45
+      }
+    },
+    "crane": {
+      "nom": "Dr Silas Crane",
+      "voice_id": "",
+      "description": "Homme, la cinquantaine, expert du British Museum, passionné et un peu pédant.",
+      "portrait": "L'expert venu voir le jade : fausse piste, et témoin utile.",
+      "prompt_voice_design": "An enthusiastic, slightly pedantic French male museum expert in his fifties, articulate, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "doyle": {
+      "nom": "Mrs Moira Doyle",
+      "voice_id": "",
+      "description": "Femme, la soixantaine, gouvernante bienveillante, franche.",
+      "portrait": "La gouvernante : c'est son témoignage qui fait tomber l'alibi de Jenkins.",
+      "prompt_voice_design": "A warm, frank French housekeeper in her sixties, motherly and plain-spoken, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "harrington": {
+      "nom": "Lord Harrington",
+      "voice_id": "",
+      "description": "Homme âgé, à peine conscient, murmure faible.",
+      "portrait": "On ne l'entend qu'une fois, au casque, quand il reprend connaissance.",
+      "prompt_voice_design": "A weak, elderly French aristocrat whispering, barely conscious, breathy, native speaker from France.",
+      "reglages": {
+        "stability": 0.4,
+        "similarity_boost": 0.75,
+        "style": 0.3
+      }
+    },
+    "police": {
+      "nom": "Scotland Yard (TSF)",
+      "voice_id": "",
+      "description": "Opérateur radio de la police, voix nette et métallique.",
+      "portrait": "Le message intercepté sur la TSF du hall.",
+      "prompt_voice_design": "A crisp French male police radio operator, 1920s wireless transmission tone, native speaker from France.",
+      "reglages": {
+        "stability": 0.6,
+        "similarity_boost": 0.75,
+        "style": 0.2
+      }
+    }
+  }
+}

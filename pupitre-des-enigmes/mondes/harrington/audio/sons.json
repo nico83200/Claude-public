@@ -1,0 +1,78 @@
+{
+  "dossier": 83,
+  "description": "Bruitages et musiques du monde Le Manoir Harrington (dossier /83/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 5,
+      "prompt": "1920s London mystery jingle, muted jazz trumpet and piano, foggy and elegant"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : le manoir",
+      "duree": 20,
+      "prompt": "Quiet English manor at night, grandfather clock ticking, distant foghorn on the Thames, rain on windows, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Gemme acceptée",
+      "duree": 1.5,
+      "prompt": "Crystal chime with a soft mechanical click, precise and elegant"
+    },
+    {
+      "n": 4,
+      "nom": "Raté",
+      "duree": 1.5,
+      "prompt": "Short dull mechanical clunk, gentle failure"
+    },
+    {
+      "n": 5,
+      "nom": "Serrure qui cède",
+      "duree": 2.5,
+      "prompt": "Electromechanical lock releasing, heavy door unlocking, 1920s"
+    },
+    {
+      "n": 6,
+      "nom": "Alarme",
+      "duree": 3,
+      "prompt": "Old electric alarm bell ringing loudly in a manor hallway"
+    },
+    {
+      "n": 7,
+      "nom": "Coupure de courant",
+      "duree": 3,
+      "prompt": "Electrical buzz dying out, lights switching off with a thump, everything goes quiet"
+    },
+    {
+      "n": 8,
+      "nom": "Groupe électrogène",
+      "duree": 3,
+      "prompt": "Old generator coughing, then starting and humming steadily, lights buzzing back on"
+    },
+    {
+      "n": 9,
+      "nom": "Le coffret s'ouvre",
+      "duree": 3,
+      "prompt": "Antique jewellery box mechanism unlocking with several clicks, lid opening, music box note"
+    },
+    {
+      "n": 10,
+      "nom": "Un gémissement",
+      "duree": 2,
+      "prompt": "Old man groaning softly as he regains consciousness, fabric rustling"
+    },
+    {
+      "n": 11,
+      "nom": "Victoire",
+      "duree": 6,
+      "prompt": "Triumphant 1920s orchestral fanfare with brass, mystery solved"
+    },
+    {
+      "n": 12,
+      "nom": "Fin du temps",
+      "duree": 4,
+      "prompt": "Police whistles in the fog, a car driving away, distant Big Ben chime"
+    }
+  ]
+}

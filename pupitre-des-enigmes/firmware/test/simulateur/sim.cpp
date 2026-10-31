@@ -505,6 +505,8 @@ int main(int argc, char** argv) {
         int n = b == "socle" ? NB_VOYANTS : atoi(b.c_str()) - 1;
         uint32_t attendu = Moteur::couleurNommee(c);
         verifier(m.couleurVoyant(n) == attendu, "voyant " + b + " " + c, numero);
+      } else if (a == "anneau") {
+        verifier(m.vue().jauge == atoi(b.c_str()), "anneau " + b + " LED (en allume " + std::to_string(m.vue().jauge) + ")", numero);
       } else if (a == "lumiere_tiroir") {
         bool allumee = m.lumieres().tiroir != 0;
         verifier(allumee == (b == "allumee"), "lumière du tiroir " + b, numero);

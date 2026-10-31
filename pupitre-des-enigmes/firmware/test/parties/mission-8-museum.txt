@@ -1,0 +1,80 @@
+# Mission 8 · Panique au Muséum — le tutoriel de 15 minutes, sur le pupitre à deux lecteurs :
+# une salle trop tôt, la scène du vol, une fausse piste, le gardien, le soupirail (un raté puis
+# la lampe), le photographe, le coffre validé à la touche #, puis le crâne sur son socle.
+fente M8
+fente -
+verifie phase menu
+touches 1
+calme
+verifie phase jeu
+verifie voyant socle ambre
+
+# --- L'atelier trop tôt : il faut d'abord voir la scène du vol
+fente L3
+verifie sans J_loc
+fente -
+
+# --- La Grande Galerie : l'enveloppe E1
+fente L1
+verifie drapeau J_vu
+verifie drapeau enveloppe_E1
+fente -
+
+# --- Une fausse piste, sans pénalité
+fente L2
+verifie sans J_loc
+fente -
+
+# --- Le gardien, et la copie en plâtre
+fente P1
+plateau O2
+fente -
+plateau -
+
+# --- L'atelier de moulage : localisé ; le soupirail reste noir, puis la lampe
+fente L3
+verifie drapeau J_loc
+verifie epreuve capteur
+attendre 50
+verifie sans J_lumiere
+fente -
+fente L3
+verifie epreuve capteur
+eclaire 3
+calme
+verifie drapeau J_lumiere
+verifie drapeau enveloppe_E2
+fente -
+
+# --- Le photographe (minute 6) : la grille, au gros bouton
+restant 8
+verifie epreuve appui
+bouton GROS
+calme
+verifie epreuve
+
+# --- Le coffre : un faux code validé à #, puis 1908 qui attend la touche #
+fente L5
+verifie epreuve code
+touches 1907#
+verifie sans J_coffre
+fente -
+fente L5
+verifie epreuve code
+touches 1908
+verifie afficheur 1908
+verifie sans J_coffre
+touches #
+verifie drapeau J_coffre
+verifie tiroir ouvert
+verifie voyant socle vert
+fente -
+
+# --- Le crâne hors de la galerie, puis sur son socle
+plateau O1
+verifie phase jeu
+plateau -
+fente L1
+fente -
+plateau O1
+verifie phase victoire

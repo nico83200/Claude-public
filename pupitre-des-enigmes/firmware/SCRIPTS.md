@@ -41,6 +41,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `dossier_voix`, `dossier_sons` | Dossiers des DFPlayer | `30`, `31` |
 | `chrono` | `mode` `"horloge"` (heure qui avance depuis `depart`) ou `"compte"` (compte à rebours, avec un `prefixe`) ; `duree` en minutes | `{"mode": "compte", "prefixe": "O₂ ", "duree": 75}` |
 | `jauge` | Ce que montre l'anneau de LED : `"chrono"`, `"oxygene"` (se vide), `"eau"` (se remplit), `"soupcon"` ou `"lumiere"` (la lumière de la dynamo) | `"soupcon"` |
+| `anneau` | Un compteur de la mission prend l'anneau tant que `si` est vraie : `compteur`, `sur` (la valeur qui allume les 12 LED), `couleur`. Le Manoir Harrington s'en sert pour allumer un segment vert par gemme posée | `{"si": "gemmes>0", "compteur": "gemmes", "sur": 12, "couleur": "vert"}` |
 | `objets_combinables` | `true` : QUI et QUOI sont les deux mains des joueurs (pupitre à deux lecteurs : la fente et le plateau) ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
 | `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`, `gestes` (l'œil : gestes et lampe), `souffle` (la forge), `aimant` (l'enclume), `afficheur` (l'horloge à 4 chiffres), `tiroir` (le tiroir secret). Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
 | `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques quand une carte arrive sur la mauvaise zone d'un pupitre à trois lecteurs (`dire_lieu`, `dire_objet`, `dire_perso`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
@@ -189,7 +190,7 @@ Toutes les épreuves acceptent :
 
 | Type | Les joueurs… | Clés propres |
 |---|---|---|
-| `code` | règlent des chiffres à la molette (appui : champ suivant, rouge : effacer) ou les tapent au clavier (le code est essayé au dernier chiffre) | `solution` ; `champs` (largeur de chaque champ, ex. `[2, 2, 2]` pour un coffre 17-34-22) ; `ecoute` (stéthoscope : `dossier`, `tic`, `clac`, `audibles`) ; `boucle_casque` (`dossier`, `n`) |
+| `code` | règlent des chiffres à la molette (appui : champ suivant, rouge : effacer) ou les tapent au clavier (le code est essayé au dernier chiffre, ou à la touche # avec `"valider": "#"`) | `solution` ; `valider` ; `champs` (largeur de chaque champ, ex. `[2, 2, 2]` pour un coffre 17-34-22) ; `ecoute` (stéthoscope : `dossier`, `tic`, `clac`, `audibles`) ; `boucle_casque` (`dossier`, `n`) |
 | `lettres` | règlent des lettres A–Z (au clavier : 2 = ABC… comme sur un téléphone) | `solution` |
 | `choix` | appuient sur un bouton de couleur, ou passent la main au-dessus de l'œil | `options` (4 textes), `bonne` (0 rouge … 3 vert), `neutre` + `si_neutre`, ou `actions` (une liste par bouton) ; `gestes` : le geste qui choisit chaque option (`["haut", "droite", "gauche", "bas"]`), avec sa flèche à l'écran |
 | `ensemble` | tiennent les 4 boutons enfoncés | `tenir` (secondes) |

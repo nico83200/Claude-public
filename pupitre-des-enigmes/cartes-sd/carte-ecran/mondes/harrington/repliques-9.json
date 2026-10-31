@@ -1,0 +1,708 @@
+{
+  "monde": "Le Manoir Harrington",
+  "mission": "Le Vol de l'Œil de Jade",
+  "dossier": 82,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction",
+    "020-069": "Les pièces, la TSF, la vitrine, le coffret",
+    "070-079": "Imprévus",
+    "080-099": "Accusation et fins",
+    "100-149": "Les suspects et les pièces à conviction",
+    "150-169": "L'inspecteur Fenwick (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "fenwick",
+      "usage": "Écran titre",
+      "texte": "Le Manoir Harrington. Le Vol de l'Œil de Jade."
+    },
+    {
+      "n": 9,
+      "voix": "fenwick",
+      "usage": "Pitch",
+      "texte": "Inspecteur Fenwick, de Scotland Yard. Londres, novembre mille neuf cent vingt-cinq. Un brouillard à couper au couteau, et une affaire qui sent le soufre. Cette nuit, au manoir Harrington, le système de sécurité s'est bloqué de l'intérieur. Lord Harrington gît inconscient dans son bureau, et le coffre-fort central est vide : l'Œil de Jade a disparu. Dans une heure, le Yard bouclera le quartier, et les pistes s'évaporeront avec le brouillard. Le coupable est encore dans la maison."
+    },
+    {
+      "n": 10,
+      "voix": "fenwick",
+      "usage": "Départ du chrono",
+      "texte": "Une heure, pas une minute de plus. Commencez par le hall : le registre du poste de sécurité vous y attend."
+    },
+    {
+      "n": 11,
+      "voix": "fenwick",
+      "usage": "Carte sans effet",
+      "texte": "Rien d'utile de ce côté-là."
+    },
+    {
+      "n": 12,
+      "voix": "fenwick",
+      "usage": "Déjà fait",
+      "texte": "Vous avez déjà fouillé ici."
+    },
+    {
+      "n": 13,
+      "voix": "fenwick",
+      "usage": "Accueil du monde",
+      "texte": "Le manoir Harrington, Mayfair, Londres. Posez la plaque du poste de sécurité sur le pupitre, puis appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "fenwick",
+      "usage": "Comment jouer",
+      "texte": "Rappel de procédure. Une pièce : sa carte dans la fente. Un suspect : sa carte dans la fente, et une pièce à conviction sur le plateau pour la lui montrer. Les gemmes se posent sur la LOUPE. Et les enveloppes ne s'ouvrent que lorsque le pupitre le demande."
+    },
+    {
+      "n": 20,
+      "voix": "fenwick",
+      "usage": "Le hall",
+      "texte": "Le hall. Un escalier de chêne, des portraits d'ancêtres, et le poste de sécurité du manoir, tout clignotant. Sur le pupitre de garde, le registre de Mr Jenkins, le majordome. Ouvrez l'enveloppe E1."
+    },
+    {
+      "n": 21,
+      "voix": "fenwick",
+      "usage": "Le hall : rappel",
+      "texte": "Le hall. Le registre est formel : l'incident a eu lieu dans le bureau. Tout le monde attend au salon : interrogez-les quand vous voulez."
+    },
+    {
+      "n": 22,
+      "voix": "fenwick",
+      "usage": "Bureau trop tôt",
+      "texte": "La porte du bureau est verrouillée. Passez d'abord par le hall : le registre du poste vous dira comment la rouvrir."
+    },
+    {
+      "n": 24,
+      "voix": "fenwick",
+      "usage": "La TSF",
+      "texte": "Le poste de TSF du hall. Le carnet de Lord Harrington parle d'une longueur d'onde… Réglez-la au CADRAN : tournez la molette pour chaque chiffre, puis appuyez."
+    },
+    {
+      "n": 25,
+      "voix": "fenwick",
+      "usage": "La TSF accrochée",
+      "texte": "Ça grésille… et une voix sort du brouillard ! Un seul d'entre vous met le casque."
+    },
+    {
+      "n": 26,
+      "voix": "police",
+      "usage": "Interception de la police",
+      "texte": "Ici Scotland Yard, division K. À toutes les patrouilles. Le receleur Nathaniel Finch a été vu à Limehouse cette nuit. Selon notre indicateur, il attend à l'aube une pierre verte, livrée par un domestique d'une grande maison de Mayfair. Je répète : un domestique. Terminé.",
+      "sortie": "casque"
+    },
+    {
+      "n": 28,
+      "voix": "fenwick",
+      "usage": "La TSF : ratée",
+      "texte": "Rien que de la friture. Ce n'est pas la bonne longueur d'onde : relisez le carnet du Lord."
+    },
+    {
+      "n": 29,
+      "voix": "fenwick",
+      "usage": "La TSF : rappel",
+      "texte": "La TSF est toujours réglée sur la police. Un seul joueur au casque pour réécouter."
+    },
+    {
+      "n": 30,
+      "voix": "fenwick",
+      "usage": "Porte du bureau",
+      "texte": "La porte du bureau : un boîtier de sécurité, verrouillé de l'intérieur. Pour le réarmer, il faut le code du secteur, puis l'heure exacte de l'incident. Le code de secteur d'abord : quatre chiffres au clavier, et la touche dièse pour valider."
+    },
+    {
+      "n": 31,
+      "voix": "fenwick",
+      "usage": "Secteur accepté",
+      "texte": "Secteur accepté. Le boîtier demande maintenant l'heure de l'incident."
+    },
+    {
+      "n": 32,
+      "voix": "fenwick",
+      "usage": "L'heure",
+      "texte": "Réglez l'heure de l'incident au CADRAN : tournez la molette pour chaque chiffre, appuyez pour passer au suivant. L'horodateur affiche ce que vous réglez."
+    },
+    {
+      "n": 33,
+      "voix": "fenwick",
+      "usage": "Le bureau s'ouvre",
+      "texte": "Clic. La porte s'ouvre. Lord Harrington est étendu près de son fauteuil, inconscient mais vivant. Le coffre-fort mural est grand ouvert, et vide. Et au centre de la pièce, la vitrine de l'Œil de Jade, scellée par son mécanisme chromatique."
+    },
+    {
+      "n": 34,
+      "voix": "fenwick",
+      "usage": "Enveloppe E2",
+      "texte": "Ouvrez l'enveloppe E2 : les notes du Lord, et les gemmes de sa collection, éparpillées au pied de la vitrine."
+    },
+    {
+      "n": 35,
+      "voix": "fenwick",
+      "usage": "Heure fausse",
+      "texte": "Le boîtier refuse cette heure. Le registre la donne à la minute près : glissez de nouveau la carte du bureau."
+    },
+    {
+      "n": 36,
+      "voix": "fenwick",
+      "usage": "Secteur faux",
+      "texte": "Mauvais secteur. Le registre dit d'où venait le cri ; la notice du système donne le code de chaque secteur."
+    },
+    {
+      "n": 37,
+      "voix": "fenwick",
+      "usage": "La vitrine",
+      "texte": "La vitrine de l'Œil de Jade. Son sceau ne cède qu'aux bonnes gemmes, dans le bon ordre. Posez-les une à une sur la LOUPE du pupitre, bien à plat. Une erreur déclenche une fausse alerte."
+    },
+    {
+      "n": 38,
+      "voix": "fenwick",
+      "usage": "Rubis",
+      "texte": "Le rubis… Le sceau frémit."
+    },
+    {
+      "n": 39,
+      "voix": "fenwick",
+      "usage": "Émeraude",
+      "texte": "L'émeraude… Le champ de force faiblit."
+    },
+    {
+      "n": 40,
+      "voix": "fenwick",
+      "usage": "Saphir : vitrine ouverte",
+      "texte": "Le saphir ! Le sceau cède… mais la vitrine est vide, bien sûr. Attendez… les lumières vacillent !"
+    },
+    {
+      "n": 41,
+      "voix": "fenwick",
+      "usage": "Fausse alerte",
+      "texte": "Fausse alerte ! Le sceau se referme, et vous perdez deux minutes à calmer le système. Relisez le parchemin, et reprenez depuis la première gemme."
+    },
+    {
+      "n": 42,
+      "voix": "fenwick",
+      "usage": "Coupure générale",
+      "texte": "Coupure générale ! Tout le manoir est plongé dans le noir. Le mécanisme de la vitrine est bloqué à mi-course."
+    },
+    {
+      "n": 43,
+      "voix": "fenwick",
+      "usage": "La dérivation",
+      "texte": "Il faut basculer sur le groupe électrogène de secours. Insérez la clé de DÉRIVATION, et tournez-la d'un quart de tour."
+    },
+    {
+      "n": 44,
+      "voix": "fenwick",
+      "usage": "Courant rétabli",
+      "texte": "Le groupe électrogène tousse, puis ronronne. La lumière revient, et la vitrine achève de s'ouvrir."
+    },
+    {
+      "n": 45,
+      "voix": "fenwick",
+      "usage": "Enveloppe E3",
+      "texte": "Au fond de la vitrine, quelque chose que le voleur n'a pas vu. Ouvrez l'enveloppe E3."
+    },
+    {
+      "n": 46,
+      "voix": "fenwick",
+      "usage": "Courant : raté",
+      "texte": "Toujours le noir. Vous perdez deux minutes à tâtonner. Tournez la clé de DÉRIVATION, vite !"
+    },
+    {
+      "n": 47,
+      "voix": "fenwick",
+      "usage": "Le bureau, après",
+      "texte": "Le bureau. Lord Harrington respire calmement. C'est ici, sur les lieux du crime, que vous confondrez le coupable, l'Œil de Jade à la main."
+    },
+    {
+      "n": 48,
+      "voix": "fenwick",
+      "usage": "Le bureau : accuser",
+      "texte": "Vous avez l'Œil de Jade. Confondez le coupable : sa carte dans la fente, le jade sur le plateau, puis le gros bouton."
+    },
+    {
+      "n": 50,
+      "voix": "fenwick",
+      "usage": "La bibliothèque secrète",
+      "texte": "Derrière un rayonnage, une porte capitonnée et un petit clavier de cuivre. Quatre chiffres, puis la touche dièse."
+    },
+    {
+      "n": 51,
+      "voix": "fenwick",
+      "usage": "Bibliothèque ouverte",
+      "texte": "Le rayonnage pivote. La bibliothèque secrète de Lord Harrington : des livres rares, une odeur de cire… et sur le pupitre, un coffret à quatre logements de gemmes."
+    },
+    {
+      "n": 52,
+      "voix": "fenwick",
+      "usage": "Enveloppe E4",
+      "texte": "Ouvrez l'enveloppe E4. Puis posez les gemmes du coffret, une à une, sur la LOUPE."
+    },
+    {
+      "n": 53,
+      "voix": "fenwick",
+      "usage": "Bibliothèque : code faux",
+      "texte": "Le clavier de cuivre reste muet. Rapprochez la note de la vitrine et le carnet du Lord."
+    },
+    {
+      "n": 54,
+      "voix": "fenwick",
+      "usage": "Le coffret",
+      "texte": "Le coffret aux quatre gemmes. Posez-les une à une sur la LOUPE, dans l'ordre que dit le Lord."
+    },
+    {
+      "n": 55,
+      "voix": "fenwick",
+      "usage": "Coffret 1",
+      "texte": "Un déclic."
+    },
+    {
+      "n": 56,
+      "voix": "fenwick",
+      "usage": "Coffret 2",
+      "texte": "Un deuxième déclic."
+    },
+    {
+      "n": 57,
+      "voix": "fenwick",
+      "usage": "Coffret 3",
+      "texte": "Encore un… plus qu'une."
+    },
+    {
+      "n": 58,
+      "voix": "fenwick",
+      "usage": "Le jade : tiroir",
+      "texte": "Le coffret s'ouvre… et le tiroir secret du pupitre aussi ! L'Œil de Jade est là, intact. Le voleur comptait le reprendre à l'aube. Retournez dans le bureau pour le confondre."
+    },
+    {
+      "n": 59,
+      "voix": "fenwick",
+      "usage": "Le jade : enveloppe",
+      "texte": "Le coffret s'ouvre ! Ouvrez l'enveloppe E5 : l'Œil de Jade est là, intact. Le voleur comptait le reprendre à l'aube. Retournez dans le bureau pour le confondre."
+    },
+    {
+      "n": 60,
+      "voix": "fenwick",
+      "usage": "Coffret : erreur",
+      "texte": "Le mécanisme se réarme avec un claquement sec. Une minute perdue : reprenez depuis la première gemme."
+    },
+    {
+      "n": 61,
+      "voix": "fenwick",
+      "usage": "Bibliothèque : vide",
+      "texte": "Le coffret est vide. Il ne reste qu'à confondre le coupable, dans le bureau."
+    },
+    {
+      "n": 62,
+      "voix": "fenwick",
+      "usage": "Loupe hors contexte",
+      "texte": "La loupe n'a rien à analyser pour le moment."
+    },
+    {
+      "n": 70,
+      "voix": "fenwick",
+      "usage": "Imprévu : Lord Harrington",
+      "texte": "Lord Harrington remue ! Il murmure quelque chose… Un seul d'entre vous met le casque, vite : il ne le dira qu'une fois."
+    },
+    {
+      "n": 71,
+      "voix": "harrington",
+      "usage": "Murmure du Lord",
+      "texte": "Je… je l'ai vu… dans le noir… sa manche… il lui manquait un bouton… un bouton…",
+      "sortie": "casque"
+    },
+    {
+      "n": 72,
+      "voix": "fenwick",
+      "usage": "Murmure manqué",
+      "texte": "Trop tard : il a de nouveau perdu connaissance."
+    },
+    {
+      "n": 73,
+      "voix": "fenwick",
+      "usage": "Imprévu : la sirène",
+      "texte": "La sirène du manoir se déclenche ! Tout Mayfair va l'entendre. Coupez-la : les quatre boutons ensemble, trois secondes !"
+    },
+    {
+      "n": 74,
+      "voix": "fenwick",
+      "usage": "Sirène coupée",
+      "texte": "Silence. Personne dans la rue n'a rien remarqué."
+    },
+    {
+      "n": 75,
+      "voix": "fenwick",
+      "usage": "Sirène : ratée",
+      "texte": "Trop tard : un agent frappe à la porte. Deux minutes perdues à lui expliquer."
+    },
+    {
+      "n": 76,
+      "voix": "fenwick",
+      "usage": "Dix minutes",
+      "texte": "Plus que dix minutes avant le bouclage du quartier."
+    },
+    {
+      "n": 77,
+      "voix": "fenwick",
+      "usage": "Trois minutes",
+      "texte": "Trois minutes ! J'entends les sifflets dans le brouillard."
+    },
+    {
+      "n": 80,
+      "voix": "fenwick",
+      "usage": "Accusation : demande",
+      "texte": "Vous désignez un coupable. Sa carte dans la fente, l'Œil de Jade sur le plateau, et confirmez."
+    },
+    {
+      "n": 81,
+      "voix": "fenwick",
+      "usage": "Accusation : manque",
+      "texte": "Il me faut le coupable dans la fente, et l'Œil de Jade sur le plateau, ici, dans le bureau."
+    },
+    {
+      "n": 82,
+      "voix": "fenwick",
+      "usage": "Accusation : suspense",
+      "texte": "Voyons cela…"
+    },
+    {
+      "n": 83,
+      "voix": "fenwick",
+      "usage": "Résultat 0",
+      "texte": "Rien ne tient. Pas un élément juste."
+    },
+    {
+      "n": 84,
+      "voix": "fenwick",
+      "usage": "Résultat 1",
+      "texte": "Un seul élément tient debout."
+    },
+    {
+      "n": 85,
+      "voix": "fenwick",
+      "usage": "Résultat 2",
+      "texte": "Deux éléments sur trois. Vous chauffez."
+    },
+    {
+      "n": 86,
+      "voix": "fenwick",
+      "usage": "Accusation juste",
+      "texte": "C'est lui."
+    },
+    {
+      "n": 87,
+      "voix": "fenwick",
+      "usage": "Troisième erreur",
+      "texte": "Trois accusations fausses : le coupable a filé dans le brouillard."
+    },
+    {
+      "n": 88,
+      "voix": "fenwick",
+      "usage": "Pénalité",
+      "texte": "Une accusation fausse : cinq minutes perdues."
+    },
+    {
+      "n": 90,
+      "voix": "jenkins",
+      "usage": "Aveux",
+      "texte": "Bien… Bien. Vingt-deux ans de service, monsieur, et pas une livre de côté. Monsieur m'a refusé ma pension. Finch m'en offrait trois mille. J'ai bloqué le système de l'intérieur, j'ai frappé Monsieur… je n'ai jamais voulu lui faire de mal. Je comptais reprendre la pierre à l'aube."
+    },
+    {
+      "n": 91,
+      "voix": "fenwick",
+      "usage": "Rang : commissaires",
+      "texte": "Commissaires principaux ! Pas une erreur, pas un conseil payant, et vingt minutes d'avance. Le Yard vous doit une fière chandelle."
+    },
+    {
+      "n": 92,
+      "voix": "fenwick",
+      "usage": "Rang : inspecteurs",
+      "texte": "Inspecteurs de Scotland Yard. Du beau travail, avec de l'avance."
+    },
+    {
+      "n": 93,
+      "voix": "fenwick",
+      "usage": "Rang : sergents",
+      "texte": "Sergents de quartier. C'était juste, mais l'Œil de Jade est sauvé."
+    },
+    {
+      "n": 94,
+      "voix": "fenwick",
+      "usage": "Temps écoulé",
+      "texte": "Le Yard boucle le quartier. Trop tard : dans le brouillard, quelqu'un a quitté le manoir par l'office, une pierre verte dans la poche."
+    },
+    {
+      "n": 95,
+      "voix": "fenwick",
+      "usage": "Trop d'erreurs",
+      "texte": "Trois fausses accusations. Le vrai coupable a profité de la confusion pour disparaître."
+    },
+    {
+      "n": 96,
+      "voix": "fenwick",
+      "usage": "Solution",
+      "texte": "Le coupable était Mr Jenkins, le majordome. Il prétendait être à l'office à vingt-trois heures quarante-sept, mais Mrs Doyle l'y avait cherché en vain. Le bouton arraché à sa livrée était resté dans la vitrine, et la police savait qu'un domestique devait livrer la pierre au receleur Finch, à l'aube."
+    },
+    {
+      "n": 100,
+      "voix": "jenkins",
+      "usage": "Jenkins",
+      "texte": "Jenkins, majordome de Monsieur depuis vingt-deux ans. À vingt-trois heures quarante-sept, j'étais à l'office. J'ai entendu un cri, j'ai couru… la porte du bureau était verrouillée, le système bloqué. J'ai noté l'heure dans le registre, comme toujours."
+    },
+    {
+      "n": 101,
+      "voix": "jenkins",
+      "usage": "Jenkins et le registre",
+      "texte": "Mon registre. Tout y est consigné, à la minute près. Monsieur y tenait beaucoup."
+    },
+    {
+      "n": 102,
+      "voix": "jenkins",
+      "usage": "Jenkins et le bouton",
+      "texte": "Un bouton de livrée ? Ils se ressemblent tous, monsieur. Les gens de maison en perdent sans cesse."
+    },
+    {
+      "n": 103,
+      "voix": "jenkins",
+      "usage": "Jenkins et le jade",
+      "texte": "Dieu soit loué, la pierre est retrouvée ! Je… je vais prévenir Monsieur dès qu'il s'éveillera."
+    },
+    {
+      "n": 104,
+      "voix": "jenkins",
+      "usage": "Jenkins et le télégramme",
+      "texte": "Miss Evelyn a ses soucis, monsieur. Il ne m'appartient pas d'en parler… mais Monsieur refusait de payer ses dettes."
+    },
+    {
+      "n": 105,
+      "voix": "jenkins",
+      "usage": "Jenkins et l'écrin",
+      "texte": "Les pierres du docteur Crane ? Il les laisse traîner partout, ce monsieur."
+    },
+    {
+      "n": 109,
+      "voix": "jenkins",
+      "usage": "Jenkins : rien",
+      "texte": "Je ne saurais dire, monsieur."
+    },
+    {
+      "n": 110,
+      "voix": "evelyn",
+      "usage": "Evelyn",
+      "texte": "Evelyn Harrington. Oui, oncle Arthur et moi nous sommes disputés au dîner : il refuse de payer mes dettes. Mais je suis montée à onze heures, avec un roman, et je n'ai rien entendu. Ce brouillard étouffe tout."
+    },
+    {
+      "n": 111,
+      "voix": "evelyn",
+      "usage": "Evelyn et le télégramme",
+      "texte": "Vous avez lu mon courrier ? Charmant. Oui, je dois de l'argent à Monte-Carlo. Mais voler oncle Arthur ? Cet affreux caillou, il me le laisse en héritage !"
+    },
+    {
+      "n": 112,
+      "voix": "evelyn",
+      "usage": "Evelyn et le bouton",
+      "texte": "Un bouton de livrée ? Demandez aux domestiques, inspecteur. Je ne recouds pas les vestes de Jenkins."
+    },
+    {
+      "n": 113,
+      "voix": "evelyn",
+      "usage": "Evelyn et le jade",
+      "texte": "Le voilà donc. Toujours aussi laid. Pardon : aussi inestimable."
+    },
+    {
+      "n": 119,
+      "voix": "evelyn",
+      "usage": "Evelyn : rien",
+      "texte": "Je n'en ai pas la moindre idée."
+    },
+    {
+      "n": 120,
+      "voix": "crane",
+      "usage": "Crane",
+      "texte": "Docteur Silas Crane, du British Museum. Lord Harrington m'a fait venir pour expertiser l'Œil de Jade, demain matin. J'étais dans ma chambre, porte fermée, à classer mes pierres de comparaison… qu'on m'a volées, d'ailleurs !"
+    },
+    {
+      "n": 121,
+      "voix": "crane",
+      "usage": "Crane et l'écrin",
+      "texte": "Mes pierres de comparaison ! Du verre coloré, sans aucune valeur. Quelqu'un les a semées pour brouiller les pistes… Quelqu'un qui savait où je les rangeais : dans l'armoire du couloir, que seul le personnel ouvre."
+    },
+    {
+      "n": 122,
+      "voix": "crane",
+      "usage": "Crane et le jade",
+      "texte": "Le voilà ! L'authentique, sans le moindre doute. Regardez cet éclat, cette profondeur…"
+    },
+    {
+      "n": 123,
+      "voix": "crane",
+      "usage": "Crane et le bouton",
+      "texte": "Du laiton, aux armes des Harrington. Le fil a été arraché tout récemment : il n'a pas encore pris la poussière."
+    },
+    {
+      "n": 129,
+      "voix": "crane",
+      "usage": "Crane : rien",
+      "texte": "Ce n'est pas mon domaine, j'en ai peur."
+    },
+    {
+      "n": 130,
+      "voix": "doyle",
+      "usage": "Doyle",
+      "texte": "Mrs Doyle, la gouvernante, depuis vingt ans. Cette nuit ? J'ai fait mes comptes à la cuisine, puis je suis montée me coucher. Ce sont des choses qui n'arrivent pas, dans une maison comme celle-ci."
+    },
+    {
+      "n": 131,
+      "voix": "doyle",
+      "usage": "Doyle et le registre",
+      "texte": "Mr Jenkins a écrit qu'il était à l'office ? À moins le quart, je lui ai monté son thé, comme tous les soirs… L'office était vide. Je me suis dit qu'il faisait sa ronde."
+    },
+    {
+      "n": 132,
+      "voix": "doyle",
+      "usage": "Doyle et le bouton",
+      "texte": "Un bouton aux armes de la maison ! En ce moment, il n'y a que Mr Jenkins qui porte la livrée : le chauffeur est en congé depuis lundi."
+    },
+    {
+      "n": 133,
+      "voix": "doyle",
+      "usage": "Doyle et le télégramme",
+      "texte": "Pauvre Miss Evelyn. Elle a le jeu dans le sang, comme son père. Mais elle n'aurait pas fait de mal à une mouche."
+    },
+    {
+      "n": 139,
+      "voix": "doyle",
+      "usage": "Doyle : rien",
+      "texte": "Je ne vois pas, inspecteur."
+    },
+    {
+      "n": 140,
+      "voix": "fenwick",
+      "usage": "Le registre seul",
+      "texte": "Le registre du poste : 23 h 47, cri entendu, secteur Est. Écrit de la main de Jenkins."
+    },
+    {
+      "n": 141,
+      "voix": "fenwick",
+      "usage": "Le carnet seul",
+      "texte": "Le carnet de Lord Harrington. Lisez-le attentivement : un homme méticuleux note tout."
+    },
+    {
+      "n": 142,
+      "voix": "fenwick",
+      "usage": "Le télégramme seul",
+      "texte": "Un télégramme de Monte-Carlo pour Miss Evelyn. Des dettes, et un ultimatum."
+    },
+    {
+      "n": 143,
+      "voix": "fenwick",
+      "usage": "Le bouton seul",
+      "texte": "Un bouton de livrée en laiton, aux armes des Harrington, arraché. Montrez-le aux gens de la maison."
+    },
+    {
+      "n": 144,
+      "voix": "fenwick",
+      "usage": "Le jade seul",
+      "texte": "L'Œil de Jade ! Retournez dans le bureau pour confondre le coupable."
+    },
+    {
+      "n": 145,
+      "voix": "fenwick",
+      "usage": "L'écrin seul",
+      "texte": "Un écrin de pierres de couleur, renversé. Montrez-le à son propriétaire."
+    },
+    {
+      "n": 150,
+      "voix": "fenwick",
+      "usage": "Appel de l'inspecteur",
+      "texte": "Fenwick à l'appareil."
+    },
+    {
+      "n": 151,
+      "voix": "fenwick",
+      "usage": "Conseil gratuit",
+      "texte": "Un conseil, entre collègues :"
+    },
+    {
+      "n": 152,
+      "voix": "fenwick",
+      "usage": "Conseil payant",
+      "texte": "Celui-là vous coûte deux minutes :"
+    },
+    {
+      "n": 153,
+      "voix": "fenwick",
+      "usage": "Conseil : bureau 1",
+      "texte": "Le registre de Jenkins donne l'heure et le secteur de l'incident. La notice du système donne le code de chaque secteur."
+    },
+    {
+      "n": 154,
+      "voix": "fenwick",
+      "usage": "Conseil : bureau 2",
+      "texte": "Secteur Est : deux, six, sept, un, puis dièse. Puis l'heure : vingt-trois heures quarante-sept, au cadran."
+    },
+    {
+      "n": 155,
+      "voix": "fenwick",
+      "usage": "Conseil : vitrine 1",
+      "texte": "Relisez le parchemin : la lumière de l'aube, d'abord le rubis, puis l'émeraude, puis le saphir."
+    },
+    {
+      "n": 156,
+      "voix": "fenwick",
+      "usage": "Conseil : courant",
+      "texte": "Tournez la clé de DÉRIVATION d'un quart de tour."
+    },
+    {
+      "n": 157,
+      "voix": "fenwick",
+      "usage": "Conseil : bibliothèque 1",
+      "texte": "La note de la vitrine parle du jour où Rose a dit oui. Le carnet du Lord donne cette date."
+    },
+    {
+      "n": 158,
+      "voix": "fenwick",
+      "usage": "Conseil : coffret 1",
+      "texte": "D'abord la couleur des rois, puis celle de l'or, puis celle du sang, enfin celle du jade."
+    },
+    {
+      "n": 159,
+      "voix": "fenwick",
+      "usage": "Plus de conseils",
+      "texte": "Je n'ai plus rien à vous apprendre. À vous de conclure."
+    },
+    {
+      "n": 160,
+      "voix": "fenwick",
+      "usage": "Conseil : départ",
+      "texte": "Commencez par le hall : glissez sa carte dans la fente."
+    },
+    {
+      "n": 161,
+      "voix": "fenwick",
+      "usage": "Conseil : vitrine 2",
+      "texte": "Rouge, vert, bleu, une à une sur la LOUPE."
+    },
+    {
+      "n": 162,
+      "voix": "fenwick",
+      "usage": "Conseil : bibliothèque 2",
+      "texte": "Le douze juin : un, deux, zéro, six, puis dièse."
+    },
+    {
+      "n": 163,
+      "voix": "fenwick",
+      "usage": "Conseil : coffret 2",
+      "texte": "Violet, jaune, rouge, vert."
+    },
+    {
+      "n": 164,
+      "voix": "fenwick",
+      "usage": "Conseil : coupable 1",
+      "texte": "Qui mentait sur l'office ? Montrez le registre à Mrs Doyle, et le bouton de livrée aux gens de la maison."
+    },
+    {
+      "n": 165,
+      "voix": "fenwick",
+      "usage": "Conseil : coupable 2",
+      "texte": "Un domestique, en livrée, absent de l'office à l'heure du cri : Mr Jenkins. Accusez-le dans le bureau, l'Œil de Jade sur le plateau."
+    }
+  ]
+}

@@ -2104,6 +2104,8 @@ void Moteur::epreuveTouche(char k) {
     if (i + 1 < n) {
       ep_.curseur++;
       vueEpreuve();
+    } else if (texte(d["valider"]) == "#") {
+      vueEpreuve();  // le code attend la touche # (ou un appui sur la molette)
     } else {
       finEpreuve(ep_.valeurs == ep_.solution);
     }
@@ -2791,6 +2793,13 @@ void Moteur::majLumieres() {
       allumees = std::min(12, (reste * 12 + total - 1) / std::max(1, total));
       if (jauge == "oxygene") c = reste < 15 * 60 ? 0xd02010 : 0x2080ff;
       else c = reste * 2 > total ? 0x30c040 : (reste * 4 > total ? 0xe08010 : 0xd02010);
+    }
+    // Un compteur de la mission prend l'anneau tant que sa condition est vraie (les gemmes d'une vitrine…).
+    JsonVariantConst an = script_["anneau"];
+    if (!an.isNull() && condition(texte(an["si"], "1").c_str())) {
+      int sur = std::max(1, an["sur"].isNull() ? 12 : an["sur"].as<int>());
+      allumees = std::min(12, std::max(0, compteur(texte(an["compteur"]))) * 12 / sur);
+      c = couleurNommee(texte(an["couleur"], "vert"));
     }
     vue_.jauge = allumees;
   }

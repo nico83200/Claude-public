@@ -1,0 +1,327 @@
+{
+  "monde": "Le Muséum national",
+  "mission": "Panique au Muséum",
+  "dossier": 80,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction",
+    "020-069": "Les salles et le gardien",
+    "070-079": "Imprévus",
+    "080-089": "Fins",
+    "090-099": "Le directeur (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "directeur",
+      "usage": "Écran titre",
+      "texte": "Le Muséum national. Panique au Muséum."
+    },
+    {
+      "n": 9,
+      "voix": "directeur",
+      "usage": "Pitch",
+      "texte": "Ah, vous voilà enfin ! Je suis le professeur Larrieu, directeur du Muséum. Il est neuf heures quarante-cinq, et c'est la catastrophe : le crâne d'Auguste, notre tyrannosaure, a disparu ! À sa place, une grossière copie en plâtre, encore humide. Le ministre et la presse arrivent à dix heures pour l'inauguration. Le voleur est encore dans le bâtiment. Retrouvez le crâne, et remettez-le sur son socle avant l'ouverture des portes !"
+    },
+    {
+      "n": 10,
+      "voix": "directeur",
+      "usage": "Départ du chrono",
+      "texte": "L'horloge tourne : quinze minutes. Commencez par la Grande Galerie : c'est là que tout s'est passé."
+    },
+    {
+      "n": 11,
+      "voix": "directeur",
+      "usage": "Carte sans effet",
+      "texte": "Rien de ce côté-là. Essayez autre chose."
+    },
+    {
+      "n": 12,
+      "voix": "directeur",
+      "usage": "Déjà fait",
+      "texte": "Vous avez déjà tout vu ici."
+    },
+    {
+      "n": 13,
+      "voix": "directeur",
+      "usage": "Accueil du monde",
+      "texte": "Le Muséum national d'histoire naturelle, Paris, mille neuf cent douze. Posez la plaque du Muséum sur le pupitre, puis appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "directeur",
+      "usage": "Comment jouer",
+      "texte": "Voici comment me suivre. Pour vous rendre dans une salle, glissez sa carte dans la fente. Pour parler à quelqu'un, glissez sa carte. Pour montrer un objet, posez sa carte bien à plat sur le socle. Et quand une enveloppe s'affiche à l'écran, ouvrez-la : jamais avant !"
+    },
+    {
+      "n": 20,
+      "voix": "directeur",
+      "usage": "Grande Galerie",
+      "texte": "La Grande Galerie. Le squelette d'Auguste domine la salle… coiffé d'un crâne en plâtre qui sèche encore. Sur le parquet ciré, des traces de pas blanches s'éloignent vers l'escalier de service. Ouvrez l'enveloppe E1."
+    },
+    {
+      "n": 21,
+      "voix": "directeur",
+      "usage": "Grande Galerie : astuce",
+      "texte": "Un conseil : lisez tout à voix haute. Et montrez la copie en plâtre à Barnabé, le gardien : sa carte est devant vous."
+    },
+    {
+      "n": 22,
+      "voix": "directeur",
+      "usage": "Grande Galerie : rappel",
+      "texte": "Les traces de plâtre quittent la galerie par l'escalier de service. Mais vers quelle salle ?"
+    },
+    {
+      "n": 23,
+      "voix": "directeur",
+      "usage": "Grande Galerie : le socle attend",
+      "texte": "Le socle d'Auguste vous attend. Posez le crâne bien à plat sur le socle, vite !"
+    },
+    {
+      "n": 25,
+      "voix": "directeur",
+      "usage": "Galerie de Minéralogie",
+      "texte": "La galerie de Minéralogie. Des cristaux, des météorites… et pas la moindre trace de plâtre. Le voleur n'est pas passé par ici. Rien de perdu : essayez une autre salle."
+    },
+    {
+      "n": 26,
+      "voix": "directeur",
+      "usage": "Galerie d'Anatomie",
+      "texte": "La galerie d'Anatomie comparée. Des centaines de squelettes vous regardent… mais aucun ne sent le plâtre frais. Ce n'est pas ici."
+    },
+    {
+      "n": 27,
+      "voix": "directeur",
+      "usage": "Atelier trop tôt",
+      "texte": "L'atelier de moulage ? Voyez d'abord la scène du vol, dans la Grande Galerie."
+    },
+    {
+      "n": 28,
+      "voix": "directeur",
+      "usage": "Atelier : localisé",
+      "texte": "L'atelier de moulage ! Des sacs de plâtre éventrés, un moule de crâne encore ouvert… C'est ici que le voleur a fabriqué sa copie. Mais la pièce est plongée dans le noir : il a coupé l'électricité. Au fond, un soupirail donne sur la cave."
+    },
+    {
+      "n": 29,
+      "voix": "directeur",
+      "usage": "Atelier : éclairer",
+      "texte": "Allumez la lampe d'un téléphone, et braquez-la sur le SOUPIRAIL du pupitre, à une dizaine de centimètres. Tenez deux secondes."
+    },
+    {
+      "n": 30,
+      "voix": "directeur",
+      "usage": "Soupirail éclairé",
+      "texte": "La lumière fouille la cave… Une porte dérobée ! La réserve cachée du Muséum. Et là-bas, quelqu'un qui détale !"
+    },
+    {
+      "n": 31,
+      "voix": "voleur",
+      "usage": "Le voleur s'enfuit",
+      "texte": "Sacrebleu, de la lumière ! Cherchez toujours : vous ne trouverez jamais la combinaison !"
+    },
+    {
+      "n": 32,
+      "voix": "directeur",
+      "usage": "Soupirail : raté",
+      "texte": "Toujours le noir complet. Glissez de nouveau la carte de l'atelier, et visez bien le soupirail avec la lampe."
+    },
+    {
+      "n": 33,
+      "voix": "directeur",
+      "usage": "Atelier : déjà éclairé",
+      "texte": "L'atelier est vide. La porte de la réserve est ouverte, dans la cave."
+    },
+    {
+      "n": 34,
+      "voix": "directeur",
+      "usage": "Enveloppe E2",
+      "texte": "Dans l'enveloppe, la carte de la réserve cachée, et un papier tombé de la poche du voleur."
+    },
+    {
+      "n": 35,
+      "voix": "directeur",
+      "usage": "Le coffre",
+      "texte": "La réserve cachée. Des caisses, des bocaux… et un coffre-fort à quatre chiffres. Tapez le code sur le clavier, puis validez avec la touche dièse."
+    },
+    {
+      "n": 36,
+      "voix": "directeur",
+      "usage": "Coffre ouvert : tiroir",
+      "texte": "Clac ! Le coffre s'ouvre : le crâne d'Auguste est là, dans le tiroir secret du pupitre ! Vite, rapportez-le dans la Grande Galerie, et posez-le sur son socle."
+    },
+    {
+      "n": 37,
+      "voix": "directeur",
+      "usage": "Coffre ouvert : enveloppe",
+      "texte": "Clac ! Le coffre s'ouvre ! Ouvrez l'enveloppe E3 : le crâne d'Auguste est dedans. Vite, rapportez-le dans la Grande Galerie, et posez-le sur son socle."
+    },
+    {
+      "n": 38,
+      "voix": "directeur",
+      "usage": "Code faux",
+      "texte": "Le coffre résiste. Relisez le papier du voleur… et regardez bien ce que contenait l'enveloppe E1."
+    },
+    {
+      "n": 39,
+      "voix": "directeur",
+      "usage": "Coffre vide",
+      "texte": "Le coffre est vide. Le crâne doit retourner sur son socle, dans la Grande Galerie."
+    },
+    {
+      "n": 45,
+      "voix": "gardien",
+      "usage": "Barnabé",
+      "texte": "Barnabé, gardien de nuit, pour vous servir ! J'ai fait ma ronde à neuf heures : Auguste avait toute sa tête. Et puis on m'a appelé à l'autre bout du Muséum… pour rien. Si vous trouvez quelque chose, montrez-le-moi."
+    },
+    {
+      "n": 46,
+      "voix": "gardien",
+      "usage": "Barnabé et la copie",
+      "texte": "Du plâtre de moulage, ça, et du frais ! Ça ne peut venir que de l'atelier de moulage, au sous-sol. Les mouleurs n'arrivent qu'à onze heures, pourtant…"
+    },
+    {
+      "n": 47,
+      "voix": "gardien",
+      "usage": "Barnabé et le crâne",
+      "texte": "Auguste ! Enfin ! Vite, sur son socle, dans la Grande Galerie !"
+    },
+    {
+      "n": 49,
+      "voix": "directeur",
+      "usage": "La copie seule",
+      "texte": "Une copie en plâtre, encore humide. Elle n'a pas été faite bien loin… Montrez-la au gardien."
+    },
+    {
+      "n": 50,
+      "voix": "directeur",
+      "usage": "Le crâne hors de la galerie",
+      "texte": "Le crâne d'Auguste ! Il doit retourner sur son socle : rendez-vous dans la Grande Galerie, puis posez-le sur le socle."
+    },
+    {
+      "n": 70,
+      "voix": "directeur",
+      "usage": "Imprévu : le photographe",
+      "texte": "Un photographe de presse essaie d'entrer par la grande porte ! Fermez la grille : appuyez vite sur le gros bouton !"
+    },
+    {
+      "n": 71,
+      "voix": "directeur",
+      "usage": "Photographe repoussé",
+      "texte": "Grille fermée. Ouf, pas de photo !"
+    },
+    {
+      "n": 72,
+      "voix": "directeur",
+      "usage": "Photographe : raté",
+      "texte": "Trop tard, il a pris sa photo ! Une minute perdue à le raccompagner."
+    },
+    {
+      "n": 73,
+      "voix": "directeur",
+      "usage": "Trois minutes",
+      "texte": "Plus que trois minutes ! J'entends déjà la fanfare dans la cour !"
+    },
+    {
+      "n": 80,
+      "voix": "directeur",
+      "usage": "Victoire",
+      "texte": "Le crâne est en place… juste à temps ! Les portes s'ouvrent, le ministre s'approche d'Auguste, et la presse ne se doute de rien. Bravo, agents ! Quant au voleur, la police l'a cueilli à la sortie de la cave."
+    },
+    {
+      "n": 81,
+      "voix": "directeur",
+      "usage": "Rang : or",
+      "texte": "Médaille d'or du Muséum : du travail d'expert, sans un seul conseil payant !"
+    },
+    {
+      "n": 82,
+      "voix": "directeur",
+      "usage": "Rang : argent",
+      "texte": "Médaille d'argent : bien joué, et avec de l'avance."
+    },
+    {
+      "n": 83,
+      "voix": "directeur",
+      "usage": "Rang : bronze",
+      "texte": "Médaille de bronze : c'était juste… mais Auguste a retrouvé sa tête !"
+    },
+    {
+      "n": 84,
+      "voix": "directeur",
+      "usage": "Temps écoulé",
+      "texte": "Dix heures. Les portes s'ouvrent… et le ministre découvre un tyrannosaure coiffé d'un crâne en plâtre. Quel scandale !"
+    },
+    {
+      "n": 85,
+      "voix": "directeur",
+      "usage": "Solution",
+      "texte": "Le voleur avait fabriqué sa copie dans l'atelier de moulage. En éclairant le soupirail, on découvrait la réserve cachée. Le code du coffre était l'année d'arrivée d'Auguste au Muséum : mille neuf cent huit."
+    },
+    {
+      "n": 87,
+      "voix": "directeur",
+      "usage": "Plus de conseils",
+      "texte": "Je n'ai plus rien à vous apprendre : vous y êtes presque !"
+    },
+    {
+      "n": 90,
+      "voix": "directeur",
+      "usage": "Appel du directeur",
+      "texte": "Larrieu à l'appareil. Je vous écoute."
+    },
+    {
+      "n": 91,
+      "voix": "directeur",
+      "usage": "Conseil gratuit",
+      "texte": "Un conseil, offert par la maison :"
+    },
+    {
+      "n": 92,
+      "voix": "directeur",
+      "usage": "Conseil payant",
+      "texte": "Celui-là vous coûte une minute :"
+    },
+    {
+      "n": 93,
+      "voix": "directeur",
+      "usage": "Conseil : départ",
+      "texte": "Commencez par la scène du vol : glissez la carte de la Grande Galerie dans la fente."
+    },
+    {
+      "n": 94,
+      "voix": "directeur",
+      "usage": "Conseil : localiser 1",
+      "texte": "Montrez la copie en plâtre à Barnabé : glissez sa carte dans la fente, et posez la copie sur le socle."
+    },
+    {
+      "n": 95,
+      "voix": "directeur",
+      "usage": "Conseil : localiser 2",
+      "texte": "Le plâtre frais vient de l'atelier de moulage. Glissez sa carte dans la fente."
+    },
+    {
+      "n": 96,
+      "voix": "directeur",
+      "usage": "Conseil : éclairer",
+      "texte": "La pièce est noire : allumez la lampe d'un téléphone et braquez-la sur le SOUPIRAIL, deux secondes."
+    },
+    {
+      "n": 97,
+      "voix": "directeur",
+      "usage": "Conseil : code 1",
+      "texte": "Le voleur parle de l'année d'arrivée d'Auguste. Elle est gravée sur la plaque, dans l'enveloppe E1."
+    },
+    {
+      "n": 98,
+      "voix": "directeur",
+      "usage": "Conseil : code 2",
+      "texte": "Le code est un, neuf, zéro, huit. Puis la touche dièse."
+    },
+    {
+      "n": 99,
+      "voix": "directeur",
+      "usage": "Conseil : le socle",
+      "texte": "La carte de la Grande Galerie dans la fente, puis le crâne bien à plat sur le socle."
+    }
+  ]
+}

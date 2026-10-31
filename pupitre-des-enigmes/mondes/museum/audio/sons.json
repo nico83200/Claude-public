@@ -1,0 +1,66 @@
+{
+  "dossier": 81,
+  "description": "Bruitages et musiques du monde Le Muséum national (dossier /81/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 5,
+      "prompt": "Belle Epoque museum jingle, short brass and harp flourish, 1910s Paris, elegant and playful"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : le Muséum",
+      "duree": 20,
+      "prompt": "Large echoing museum hall before opening, distant footsteps on parquet, ticking wall clock, faint murmur of workers, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Trouvaille",
+      "duree": 1.5,
+      "prompt": "Bright short harp glissando with a soft bell, discovery sound"
+    },
+    {
+      "n": 4,
+      "nom": "Raté",
+      "duree": 1.5,
+      "prompt": "Short comic low bassoon descending notes, gentle failure"
+    },
+    {
+      "n": 5,
+      "nom": "Coffre qui s'ouvre",
+      "duree": 3,
+      "prompt": "Old safe combination dial clicking, heavy bolt releasing, iron door creaking open"
+    },
+    {
+      "n": 6,
+      "nom": "Victoire",
+      "duree": 6,
+      "prompt": "Triumphant brass fanfare for a 1912 inauguration, crowd applause, cheerful"
+    },
+    {
+      "n": 7,
+      "nom": "Fin du temps",
+      "duree": 4,
+      "prompt": "Grand clock striking ten, doors opening, crowd murmuring in surprise"
+    },
+    {
+      "n": 8,
+      "nom": "Le photographe",
+      "duree": 3,
+      "prompt": "Old magnesium flash powder camera going off with a pop, excited crowd at a door"
+    },
+    {
+      "n": 9,
+      "nom": "Le voleur détale",
+      "duree": 2.5,
+      "prompt": "Hurried footsteps running away on stone stairs, a door slamming in a cellar"
+    },
+    {
+      "n": 10,
+      "nom": "La grille",
+      "duree": 2,
+      "prompt": "Heavy iron gate sliding shut with a metallic clang"
+    }
+  ]
+}

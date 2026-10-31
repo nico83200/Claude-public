@@ -25,7 +25,9 @@ carte de l'écran
 │   ├── narval/  …
 │   ├── atelier/ …  (la mission 5, de test)
 │   ├── deminage/ … (la mission 6, désamorçage)
-│   └── blackwood/ … (la mission 7)
+│   ├── blackwood/ … (la mission 7)
+│   ├── museum/ …    (le tutoriel, Panique au Muséum)
+│   └── harrington/ … (Le Vol de l'Œil de Jade)
 └── pupitre/
     └── repliques.json
 ```
@@ -52,6 +54,8 @@ chacun des MP3 numérotés sur trois chiffres.
 | `50` · `51` | Atelier (mission 5, le banc d'essai) : voix · bruitages | 76 · 9 |
 | `60` · `61` | Déminage (mission 6, désamorçage) : voix · bruitages | 50 · 8 |
 | `70` · `71` | Blackwood (mission 7) : voix · bruitages | 156 · 13 |
+| `80` · `81` | Muséum (le tutoriel) : voix · bruitages | 52 · 10 |
+| `82` · `83` | Manoir Harrington (l'Œil de Jade) : voix · bruitages | 115 · 12 |
 
 Le numéro de chaque réplique et son texte sont dans le **script de doublage** de chaque
 mission (`pdf/mission-N-script-doublage.pdf`, colonne « fichier ») ; les bruitages sont
@@ -73,7 +77,7 @@ formatée, un dossier après l'autre, et ne laissez rien d'autre à la racine (p
 dossier « System Volume Information » ajouté par Windows si possible, ni de fichiers
 cachés « ._ » ajoutés par macOS : sur Mac, éjectez puis lancez `dot_clean` sur la carte).
 
-**Le volume, en chiffres** : environ 1 130 fichiers (1 000 répliques, 125 bruitages), 1 h 30
+**Le volume, en chiffres** : environ 1 320 fichiers (1 170 répliques, 147 bruitages), 1 h 30
 d'audio, une centaine de Mo : une carte de 8 Go suffit largement. Le DFPlayer joue un
 fichier par son dossier (01 à 99) et son numéro (001 à 255) ; aucun dossier ne dépasse 255
 fichiers (`outils/verifier_scripts.py` le contrôle). Au démarrage, il fait l'inventaire de sa

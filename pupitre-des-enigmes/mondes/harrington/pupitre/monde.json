@@ -1,0 +1,28 @@
+{
+  "id": "harrington",
+  "nom": "Le Manoir Harrington",
+  "carte": "M9",
+  "aide": "A9",
+  "aide_nom": "L'inspecteur Fenwick",
+  "theme": {
+    "fond": "#16201b",
+    "texte": "#eee6d4",
+    "accent": "#4fae7c",
+    "alerte": "#c0392b",
+    "doux": "#8a9a8f"
+  },
+  "accueil": {
+    "dossier": 82,
+    "dire": 13,
+    "jingle_dossier": 83,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 9,
+      "titre": "Le Vol de l'Œil de Jade",
+      "script": "mission-9.json",
+      "repliques": "repliques-9.json"
+    }
+  ]
+}

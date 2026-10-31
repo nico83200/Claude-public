@@ -1,0 +1,41 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "directeur": {
+      "nom": "Le professeur Larrieu",
+      "voice_id": "",
+      "description": "Homme, la cinquantaine, savant parisien de 1912, voix vive, un peu affolée mais bienveillante.",
+      "portrait": "Le directeur du Muséum, qui guide les joueurs pas à pas : c'est aussi le tutoriel du pupitre. Il explique chaque geste clairement, s'affole juste ce qu'il faut et félicite chaque trouvaille.",
+      "prompt_voice_design": "A lively French male museum director in his fifties, Paris 1912, native speaker from France, clear and warm, slightly flustered but kind, close to the microphone.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.4
+      }
+    },
+    "gardien": {
+      "nom": "Barnabé, le gardien",
+      "voice_id": "",
+      "description": "Homme, la soixantaine, gardien de nuit bonhomme, accent parisien populaire.",
+      "portrait": "Le gardien de nuit, brave et un peu vexé qu'on l'ait fait courir pour rien.",
+      "prompt_voice_design": "A good-natured older French night watchman, working-class Parisian accent, native speaker from France, gruff but friendly.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "voleur": {
+      "nom": "Le voleur",
+      "voice_id": "",
+      "description": "Homme, la trentaine, gentleman cambrioleur moqueur, essoufflé.",
+      "portrait": "On ne l'entend qu'une fois, en train de s'enfuir.",
+      "prompt_voice_design": "A mocking French gentleman thief in his thirties, out of breath, theatrical, native speaker from France.",
+      "reglages": {
+        "stability": 0.4,
+        "similarity_boost": 0.75,
+        "style": 0.5
+      }
+    }
+  }
+}

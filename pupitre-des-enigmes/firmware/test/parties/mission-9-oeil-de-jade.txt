@@ -1,0 +1,121 @@
+# Mission 9 · Le Vol de l'Œil de Jade — sur le pupitre à deux lecteurs : le hall, le bureau
+# (secteur au clavier, heure au cadran), la vitrine aux gemmes (une fausse alerte), la coupure et
+# la clé de dérivation, la TSF au cadran, le murmure du Lord, la sirène, la bibliothèque secrète,
+# le coffret aux quatre gemmes, le tiroir secret, une fausse accusation puis la bonne.
+fente M9
+fente -
+verifie phase menu
+touches 1
+calme
+verifie phase jeu
+
+# --- Le bureau trop tôt, puis le hall
+fente L2
+verifie sans J_bureau
+fente -
+fente L1
+verifie drapeau enveloppe_E1
+fente -
+
+# --- Les suspects et les pièces à conviction
+fente P4
+plateau O1
+fente -
+plateau -
+fente P3
+plateau O6
+fente -
+plateau -
+
+# --- Le bureau : un mauvais secteur, puis 2671 #, et l'heure 23:47 au cadran
+fente L2
+verifie epreuve code
+touches 1180#
+verifie sans J_bureau
+fente -
+fente L2
+touches 2671#
+verifie epreuve code
+code 2,3,4,7
+verifie drapeau J_bureau
+verifie drapeau enveloppe_E2
+fente -
+
+# --- La vitrine : rouge, puis une fausse gemme (fausse alerte), puis rouge, vert, bleu
+fente L2
+fente -
+couleur rouge
+verifie anneau 4
+couleur -
+couleur jaune
+verifie compteur gemmes 0
+couleur -
+couleur rouge
+couleur -
+couleur vert
+verifie anneau 8
+couleur -
+couleur bleu
+verifie drapeau J_vitrine
+verifie epreuve cle
+cle tournee
+verifie drapeau J_courant
+verifie drapeau enveloppe_E3
+cle repos
+couleur -
+
+# --- La TSF du hall : la longueur d'onde au cadran
+fente L1
+verifie epreuve code
+code 3,5,2
+verifie drapeau J_radio
+fente -
+
+# --- Le murmure de Lord Harrington (minute 18 ; la fausse alerte a coûté 2 minutes), au casque
+restant 39
+calme
+
+# --- La sirène (minute 35) : les quatre boutons
+restant 22
+verifie epreuve ensemble
+ensemble 3500
+calme
+
+# --- La bibliothèque secrète : 1206 #, puis violet, jaune, rouge, vert
+fente L3
+verifie epreuve code
+touches 1206#
+verifie drapeau J_biblio
+fente -
+couleur violet
+couleur -
+couleur bleu
+verifie compteur gemmes 0
+couleur -
+couleur violet
+couleur -
+couleur jaune
+couleur -
+couleur rouge
+verifie anneau 9
+couleur -
+couleur vert
+verifie drapeau J_jade
+verifie tiroir ouvert
+couleur -
+
+# --- L'accusation, dans le bureau : Miss Evelyn (faux), puis Mr Jenkins
+fente L2
+fente -
+fente P2
+plateau O5
+bouton GROS
+bouton VERT
+calme
+verifie phase jeu
+fente -
+fente P1
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire
