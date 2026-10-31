@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Vol de l'Œil de Jade · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs du Manoir Harrington : vert jade, laiton, brouillard de Londres */
+  :root { --fond: #172b21; --fond-transparent: rgba(23, 43, 33, .82); --accent: #b8913f; --accent-clair: #e9d7a6;
+          --papier: #f6f2e8; --encre: #23251f; --doux: #66695f; --filet: #dbd2bb; --rouge: #8b2a2a; --jade: #2d7a55; }
+  .couverture .image svg { width: 100%; height: 100%; display: block; }
+  .couverture .image { top: 30mm; }
+  .couverture h1 { font-size: 27pt; }
+  /* Le télégramme du Yard */
+  .lettre { background: #f6efd9; color: #23251f; font-family: "Share Tech Mono", monospace; font-size: 9.6pt; line-height: 5.8mm;
+            transform: rotate(-.5deg); border: .3mm solid #c9bb8f; padding: 7mm 7mm 6mm; background-image: none; }
+  .lettre::before { content: "SCOTLAND YARD · MESSAGE TÉLÉPHONÉ"; background: none; box-shadow: none; transform: none; width: auto; height: auto;
+                    left: 0; right: 0; margin: 0; top: 2mm; font-family: "Source Sans"; font-weight: 900; font-size: 6.4pt; letter-spacing: .3em; color: #7a2a1a; text-align: center; }
+  .lettre p { margin: 0 0 2mm; }
+  .lettre .date { text-align: left; color: var(--doux); margin-top: 2mm; }
+  .lettre .signature { text-align: right; font-size: 9.6pt; letter-spacing: .1em; }
+  .role .icone svg { color: var(--accent-clair); }
+  .gemmes { display: flex; gap: 5mm; align-items: center; padding: 2mm 0 1mm 2mm; }
+  .gemmes span { width: 9mm; height: 9mm; border: .35mm solid var(--fond); transform: rotate(45deg); border-radius: 1mm; background: #fff; }
+  .plan { background: #fbf7ec; border: .25mm solid var(--filet); border-radius: 1.5mm; padding: 1.5mm; }
+  .plan svg { display: block; width: 100%; height: auto; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="gemme" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 9l4-5h8l4 5-8 11z"/><path d="M4 9h16M8 4l4 5 4-5M9 9l3 11 3-11"/></g></symbol>
+    <symbol id="i-loupe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5 21 21"/><path d="M8 8l2-1 2 1-2 4z" stroke-width="1"/></g></symbol>
+    <symbol id="i-cle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M16 16l2-2M18 18l2-2"/></g></symbol>
+    <symbol id="i-tsf" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="9" cy="14" r="3"/><path d="M15 12h3M15 15h3M8 8l8-5"/></g></symbol>
+    <symbol id="i-carnet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 3v18M11 8h5M11 11h5M11 14h3"/></g></symbol>
+    <symbol id="i-enqueteur" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 10c2-4 14-4 16 0H4z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><path d="M9 20c0-2 1.5-3 3-3s3 1 3 3"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image">
+    <svg viewBox="0 0 148 150" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="nuit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3b33"/><stop offset=".6" stop-color="#1b2a23"/><stop offset="1" stop-color="#0f1a15"/></linearGradient>
+        <linearGradient id="brume" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfd8cf" stop-opacity="0"/><stop offset=".5" stop-color="#cfd8cf" stop-opacity=".22"/><stop offset="1" stop-color="#cfd8cf" stop-opacity="0"/></linearGradient>
+        <radialGradient id="lueur" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7fe0a8" stop-opacity=".55"/><stop offset="1" stop-color="#7fe0a8" stop-opacity="0"/></radialGradient>
+        <linearGradient id="jade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fe3b0"/><stop offset=".5" stop-color="#2d9a62"/><stop offset="1" stop-color="#145a37"/></linearGradient>
+        <radialGradient id="bec" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2a0" stop-opacity=".8"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="148" height="150" fill="url(#nuit)"/>
+      <!-- le manoir -->
+      <g fill="#0c1511">
+        <path d="M20 112V60l8-6h92l8 6v52z"/>
+        <rect x="30" y="46" width="6" height="10"/><rect x="112" y="46" width="6" height="10"/>
+        <path d="M60 54l14-10 14 10z"/>
+      </g>
+      <g fill="#e8b44a" opacity=".85"><rect x="32" y="68" width="6" height="9"/><rect x="110" y="68" width="6" height="9" opacity=".4"/><rect x="32" y="86" width="6" height="9" opacity=".3"/></g>
+      <g fill="#1b2a23"><rect x="48" y="68" width="6" height="9"/><rect x="94" y="68" width="6" height="9"/><rect x="48" y="86" width="6" height="9"/><rect x="94" y="86" width="6" height="9"/><rect x="110" y="86" width="6" height="9"/></g>
+      <rect x="66" y="86" width="16" height="26" fill="#1b2a23"/>
+      <!-- un bec de gaz -->
+      <g stroke="#0c1511" stroke-width="1.4"><path d="M130 130V96M126 96h8"/></g>
+      <circle cx="130" cy="93" r="10" fill="url(#bec)"/><rect x="127.5" y="89" width="5" height="6" fill="#ffe2a0"/>
+      <!-- l'Œil de Jade -->
+      <circle cx="74" cy="34" r="24" fill="url(#lueur)"/>
+      <g transform="translate(74 34)">
+        <path d="M-14-4l6-7h16l6 7-14 18z" fill="url(#jade)" stroke="#e9d7a6" stroke-width=".7"/>
+        <path d="M-14-4h28M-8-11l8 7 8-7M-6-4l6 18 6-18" fill="none" stroke="#e9d7a6" stroke-width=".45" opacity=".85"/>
+        <circle cx="-4" cy="-7" r="1" fill="#e5484d"/><circle cx="4" cy="-7" r="1" fill="#3e7bfa"/>
+      </g>
+      <!-- le brouillard -->
+      <rect x="-20" y="98" width="190" height="12" fill="url(#brume)"/>
+      <rect x="-40" y="112" width="200" height="14" fill="url(#brume)"/>
+      <rect x="-10" y="80" width="170" height="8" fill="url(#brume)" opacity=".7"/>
+      <rect y="126" width="148" height="24" fill="#0c1511"/>
+    </svg>
+  </div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Le Manoir Harrington</div>
+    <h1>Le Vol de<br>l'Œil de Jade</h1>
+    <p class="accroche">Londres, 1925. Une nuit de brouillard, un coffre vide.<br>Une heure avant que les pistes ne s'évaporent.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 6</b><span>joueurs</span></div>
+      <div class="badge"><b>60 min</b><span>une heure</span></div>
+      <div class="badge"><b class="etoiles">★★<i>★</i></b><span>intermédiaire</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant de franchir le perron</div><h2>Bienvenue à Mayfair</h2>
+    <p class="chapeau">Une enquête où l'on manipule autant qu'on déduit : des gemmes, une clé, un cadran… et quatre suspects.</p></div>
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · L'appel du Yard</td><td style="text-align:left">Le message, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · La maisonnée</td><td style="text-align:left">Quatre suspects, une victime</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · L'équipe d'intervention</td><td style="text-align:left">Les postes, les gemmes</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le manoir</td><td style="text-align:left">Le plan des secteurs</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · Le poste de sécurité</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le carnet d'enquête</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre, branchez le <b>casque</b>, et posez la <b>plaque du poste de sécurité</b>. La clé de dérivation est au repos.</li>
+    <li>Le maître du jeu range la carte de l'<b>Œil de Jade</b> dans le tiroir secret (ou dans l'enveloppe E5) et glisse les <b>cinq gemmes</b> dans l'enveloppe E2.</li>
+    <li>Posez face visible <b>Le Hall</b>, <b>Le Bureau</b>, les <b>quatre suspects</b> et <b>l'inspecteur Fenwick</b>. Les enveloppes restent fermées.</li>
+    <li>Glissez la carte <b>Le Manoir Harrington</b> dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>Un bon enquêteur recoupe.</strong> Montrez chaque pièce à conviction à chaque suspect : c'est ainsi que les alibis tombent.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · L'APPEL DU YARD ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>I · L'appel du Yard</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>L'appel du Yard</h2>
+    <p class="chapeau">Londres, novembre 1925, minuit passé. Le téléphone sonne au poste de Vine Street.</p></div>
+  <div class="lettre">
+    <p class="date">14 NOVEMBRE 1925 · 00 H 10 · DE : INSP. FENWICK</p>
+    <p>À L'ÉQUIPE D'INTERVENTION.</p>
+    <p>MANOIR HARRINGTON, MAYFAIR. SYSTÈME DE SÉCURITÉ BLOQUÉ DE L'INTÉRIEUR. LORD HARRINGTON INCONSCIENT DANS SON BUREAU. COFFRE CENTRAL VIDÉ.</p>
+    <p>OBJET DISPARU : L'ŒIL DE JADE, ARTÉFACT INESTIMABLE SERTI DE PIERRES PRÉCIEUSES.</p>
+    <p>BROUILLARD TRÈS ÉPAIS SUR LA VILLE. LE YARD BOUCLE LE QUARTIER DANS UNE HEURE. APRÈS, LES PISTES S'ÉVAPORERONT.</p>
+    <p>LE COUPABLE EST ENCORE DANS LA MAISON.</p>
+    <p class="signature">FENWICK. FIN.</p>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>I · L'appel du Yard</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Quatre étapes, une heure.</p></div>
+  <div class="trio">
+    <div><b>OUVRIR</b><span>le bureau, la vitrine et la bibliothèque</span></div>
+    <div><b>RETROUVER</b><span>l'Œil de Jade, encore dans la maison</span></div>
+    <div><b>CONFONDRE</b><span>le coupable, le jade à la main</span></div>
+  </div>
+  <div class="horloge"><div class="heures">60:00</div>
+    <div>L'<b>horodateur</b> du poste de sécurité donne le temps restant avant le bouclage du quartier.</div></div>
+  <h3>Accuser</h3>
+  <ol class="etapes">
+    <li>Retournez dans le <b>Bureau</b>, sur les lieux du crime : sa carte dans la fente.</li>
+    <li>Glissez le <b>coupable</b> dans la fente, et posez l'<b>Œil de Jade</b> sur le plateau.</li>
+    <li>Appuyez sur <b>ACCUSER</b> (le gros bouton), puis confirmez au bouton vert.</li>
+  </ol>
+  <p>Une accusation fausse coûte <b>5 minutes</b>. À la troisième, le coupable s'enfuit dans le brouillard.</p>
+  <div class="signalement">
+    <div class="portrait"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#172b21"/>
+      <g transform="translate(50 52) scale(2.2)"><path d="M-14-4l6-7h16l6 7-14 18z" fill="#2d9a62" stroke="#e9d7a6" stroke-width=".7"/>
+      <path d="M-14-4h28M-8-11l8 7 8-7M-6-4l6 18 6-18" fill="none" stroke="#e9d7a6" stroke-width=".45"/></g></svg></div>
+    <div><h3 style="margin-top:0">Fiche : l'Œil de Jade</h3>
+      <dl>
+        <dt>Nature</dt><dd>Jade impérial taillé, serti de pierres précieuses</dd>
+        <dt>Provenance</dt><dd>Canton, Chine</dd>
+        <dt>Propriétaire</dt><dd>Lord Arthur Harrington</dd>
+        <dt>Cette nuit</dt><dd>Disparu du coffre central ; la vitrine, scellée</dd>
+      </dl></div>
+  </div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#gemme" x="0" width="24" height="24"/><use href="#gemme" x="33" width="24" height="24"/><use href="#gemme" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LA MAISONNÉE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>II · La maisonnée</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>La maisonnée</h2>
+    <p class="chapeau">Glissez la carte d'un suspect dans la fente pour l'interroger. Posez une pièce à conviction sur le plateau pour la lui montrer.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#3a3a46">JJ</div><div>
+    <h4>Mr Jenkins</h4><div class="qualite">Le majordome · 61 ans</div>
+    <p>Vingt-deux ans au service de Lord Harrington. C'est lui qui tient le registre du poste de sécurité.</p>
+    <p class="citation">« J'ai noté l'heure dans le registre, comme toujours. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#8e1f4f">EH</div><div>
+    <h4>Miss Evelyn Harrington</h4><div class="qualite">La nièce · 24 ans</div>
+    <p>Spirituelle, insolente, et fâchée avec son oncle depuis le dîner.</p>
+    <p class="citation">« Ce brouillard étouffe tout. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#2b4a6a">SC</div><div>
+    <h4>Dr Silas Crane</h4><div class="qualite">Expert du British Museum · 54 ans</div>
+    <p>Venu expertiser l'Œil de Jade demain matin. Il ne se sépare jamais de ses pierres de comparaison.</p>
+    <p class="citation">« Regardez cet éclat, cette profondeur… »</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LA MAISONNÉE (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>II · La maisonnée</span></div>
+  <div class="personne" style="padding-top:0"><div class="medaillon" style="background:#7a5a2b">MD</div><div>
+    <h4>Mrs Moira Doyle</h4><div class="qualite">La gouvernante · 63 ans</div>
+    <p>Vingt ans dans la maison. Rien ne lui échappe des habitudes de chacun.</p>
+    <p class="citation">« Ce sont des choses qui n'arrivent pas, dans une maison comme celle-ci. »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#4a5a4f">AH</div><div>
+    <h4>Lord Arthur Harrington</h4><div class="qualite">La victime · 67 ans</div>
+    <p>Collectionneur méticuleux, veuf de sa chère Rose. Inconscient dans son bureau… pour l'instant.</p></div></div>
+  <div class="encart"><div class="titre">Interroger</div>
+    <p>Un suspect seul raconte sa nuit. Montrez-lui une <b>pièce à conviction</b> : il réagit, parfois plus qu'il ne le voudrait. Un même objet ne dit pas la même chose à tout le monde.</p></div>
+  <div class="encart sombre"><div class="titre">L'inspecteur Fenwick</div>
+    <p>Bloqués ? Glissez <strong>sa carte</strong> dans la fente : les trois premiers conseils sont gratuits, les suivants coûtent <strong>2 minutes</strong>.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · L'ÉQUIPE (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>III · L'équipe d'intervention</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>L'équipe d'intervention</h2>
+    <p class="chapeau">Pas de rôle secret : vous êtes tous du Yard. Mais une bonne équipe se répartit les postes.</p></div>
+  <div class="role"><div class="icone"><svg><use href="#i-loupe"/></svg></div><div>
+    <h4>Le gemmologue <span class="fois">la loupe</span></h4>
+    <p class="atout">Les mains sur les pierres.</p>
+    <p>Il garde les gemmes, les pose une à une sur la loupe, dans l'ordre que l'équipe a décidé.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-cle"/></svg></div><div>
+    <h4>L'électricien <span class="fois">la dérivation</span></h4>
+    <p class="atout">La clé, et le sang-froid.</p>
+    <p>Quand tout s'éteint, c'est lui qui bascule le courant, sans perdre une seconde.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-tsf"/></svg></div><div>
+    <h4>L'opérateur radio <span class="fois">le cadran</span></h4>
+    <p class="atout">L'oreille du Yard.</p>
+    <p>Il règle le cadran, met l'écouteur quand on le demande, et rapporte tout, mot pour mot.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · L'ÉQUIPE (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>III · L'équipe d'intervention</span></div>
+  <div class="role"><div class="icone"><svg><use href="#i-carnet"/></svg></div><div>
+    <h4>Le greffier <span class="fois">le carnet</span></h4>
+    <p class="atout">La mémoire de l'enquête.</p>
+    <p>Il lit les documents à voix haute, tient le carnet d'enquête et repère les heures qui ne collent pas.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#i-enqueteur"/></svg></div><div>
+    <h4>L'enquêteur <span class="fois">les suspects</span></h4>
+    <p class="atout">Le flair.</p>
+    <p>Il interroge, montre les pièces à conviction, et confronte les versions.</p></div></div>
+  <h3>Les gemmes</h3>
+  <p>La collection de Lord Harrington compte <b>cinq gemmes</b> : rouge, verte, bleue, jaune et violette. Elles serviront plus d'une fois. Posez-les <b>à plat</b> sur la loupe, une à la fois, et retirez-les avant la suivante.</p>
+  <div class="encart"><div class="titre">L'anneau des gemmes</div>
+    <p>À chaque gemme acceptée, un <b>segment vert</b> s'allume sur l'anneau. Une gemme refusée, et tout s'éteint : on reprend depuis la première.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#gemme" x="0" width="24" height="24"/><use href="#gemme" x="33" width="24" height="24"/><use href="#gemme" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE MANOIR ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>IV · Le manoir</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le manoir</h2>
+    <p class="chapeau">Glissez la carte d'une pièce dans la fente pour vous y rendre. Vous y restez jusqu'à la suivante.</p></div>
+  <div class="plan">
+    <svg viewBox="0 0 240 150" font-family="Playfair, serif">
+      <rect x="10" y="10" width="220" height="130" fill="#fffaf0" stroke="#172b21" stroke-width="1.6"/>
+      <path d="M120 10v130M10 75h220" stroke="#172b21" stroke-width=".8" stroke-dasharray="3 2"/>
+      <g font-size="6" fill="#b8913f" letter-spacing="1.5"><text x="16" y="20">NORD</text><text x="196" y="20">EST</text><text x="16" y="134">OUEST</text><text x="204" y="134">SUD</text></g>
+      <rect x="30" y="28" width="76" height="36" fill="#efe7d3" stroke="#172b21"/><text x="68" y="50" text-anchor="middle" font-size="9" font-weight="700" fill="#172b21">Le Hall</text>
+      <rect x="134" y="28" width="80" height="36" fill="#efe7d3" stroke="#172b21"/><text x="174" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#172b21">Le Bureau</text>
+      <text x="174" y="56" text-anchor="middle" font-size="5" fill="#66695f" font-style="italic">et la vitrine</text>
+      <rect x="134" y="66" width="80" height="4" fill="#d9cfb4"/><text x="174" y="80" text-anchor="middle" font-size="5" fill="#66695f" font-style="italic">bibliothèque</text>
+      <rect x="30" y="86" width="76" height="40" fill="#f7f1e2" stroke="#172b21" stroke-dasharray="2 1.5"/><text x="68" y="108" text-anchor="middle" font-size="7" fill="#66695f">Chambres</text>
+      <rect x="134" y="86" width="80" height="40" fill="#f7f1e2" stroke="#172b21" stroke-dasharray="2 1.5"/><text x="174" y="104" text-anchor="middle" font-size="7" fill="#66695f">Office</text>
+      <text x="174" y="113" text-anchor="middle" font-size="7" fill="#66695f">et cuisines</text>
+      <path d="M106 46h28" stroke="#172b21" stroke-width=".8"/><text x="120" y="43" text-anchor="middle" font-size="4.5" fill="#66695f">porte</text>
+    </svg>
+  </div>
+  <p class="legende">Le manoir Harrington, découpé en quatre secteurs de sûreté.</p>
+  <div class="lieux">
+    <div><b>Le Hall</b> · le poste de garde, la TSF</div>
+    <div><b>Le Bureau</b> · verrouillé de l'intérieur</div>
+    <div style="grid-column:1/3"><b>La Bibliothèque secrète</b> · quelque part derrière un rayonnage. Il faudra trouver comment l'ouvrir.</div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LONDRES, 1925 ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>IV · Le manoir</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Ce que vous savez</h3>
+  <div class="element"><b>Le système</b><span>Un système de sûreté Chubb à quatre secteurs. Il s'est bloqué de l'intérieur à l'heure de l'incident.</span></div>
+  <div class="element"><b>La victime</b><span>Lord Harrington a été frappé dans son bureau. Il respire, mais ne parle pas.</span></div>
+  <div class="element"><b>Le coffre</b><span>Le coffre mural du bureau est grand ouvert, et vide.</span></div>
+  <div class="element"><b>La vitrine</b><span>Celle de l'Œil de Jade est fermée par un sceau chromatique : il ne cède qu'aux bonnes gemmes.</span></div>
+  <div class="element"><b>La nuit</b><span>Un brouillard à couper au couteau : personne n'a pu quitter le quartier à pied sans se perdre.</span></div>
+  <div class="encart"><div class="titre">Londres, 1925</div>
+    <p>La TSF entre dans les maisons, et l'on capte parfois les messages de la police métropolitaine en réglant la bonne <b>longueur d'onde</b>, en mètres. Les domestiques en raffolent.</p></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#gemme" x="0" width="24" height="24"/><use href="#gemme" x="33" width="24" height="24"/><use href="#gemme" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LE POSTE DE SÉCURITÉ ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>V · Le poste de sécurité</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>Le poste de sécurité</h2>
+    <p class="chapeau">La plaque aimantée renomme chaque organe du pupitre. Le voici, sous ses noms de mission.</p></div>
+  <div class="element"><b>Pièces &amp; suspects</b><span>La <b>fente</b> : une pièce pour s'y rendre, un suspect pour l'interroger.</span></div>
+  <div class="element"><b>Pièce à conviction</b><span>Le <b>plateau</b> : un objet à montrer, ou l'Œil de Jade pour accuser.</span></div>
+  <div class="element"><b>La loupe</b><span>Le <b>capteur de couleur</b> : une gemme à plat, une à la fois.</span></div>
+  <div class="element"><b>Dérivation</b><span>L'<b>interrupteur à clé</b> : un quart de tour, quand le courant manque.</span></div>
+  <div class="element"><b>Le cadran</b><span>La <b>molette</b> : tourner pour régler un chiffre, appuyer pour le suivant.</span></div>
+  <div class="element"><b>Clavier</b><span>Les codes des portes, validés avec <b>#</b> ; <b>*</b> efface.</span></div>
+  <div class="element"><b>L'horodateur</b><span>Le temps restant, et ce que vous saisissez.</span></div>
+  <div class="element"><b>Écouteur TSF</b><span>Le <b>casque</b> : un seul joueur à la fois.</span></div>
+  <div class="element"><b>L'alarme</b><span>Les <b>4 boutons</b> ; le vert confirme une accusation.</span></div>
+  <div class="element"><b>Accuser</b><span>Le <b>gros bouton</b>, dans le bureau.</span></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT L'ENQUÊTE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>V · Le poste de sécurité</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant l'enquête</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que lorsque le pupitre le demande</b>. Leur numéro s'affiche à l'écran.</span></div>
+  <div class="element"><b>Une fausse alerte</b><span>Une gemme dans le mauvais ordre : deux minutes perdues, et l'on reprend depuis la première.</span></div>
+  <div class="element"><b>Les imprévus</b><span>Une sirène, un murmure… Écoutez la consigne : certains ne passent qu'une fois.</span></div>
+  <div class="element"><b>La molette</b><span>Hors saisie, un appui affiche vos objectifs : ce qui est fait, ce qui reste.</span></div>
+  <div class="element"><b>La fin</b><span>Le coupable confondu, le jade retrouvé : le Yard vous décerne votre grade.</span></div>
+  <h3>Les grades</h3>
+  <div class="trio">
+    <div><b style="font-size:10pt">Commissaires</b><span>20 min d'avance, sans erreur ni conseil payant</span></div>
+    <div><b style="font-size:10pt">Inspecteurs</b><span>8 min d'avance ou plus</span></div>
+    <div><b style="font-size:10pt">Sergents</b><span>juste à temps</span></div>
+  </div>
+  <div class="encart sombre" style="margin-top:4mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Notez les <strong>heures</strong> que chacun donne, et montrez le <strong>registre</strong> à tout le monde : dans cette maison, quelqu'un n'était pas là où il le prétend.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · CARNET (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Manoir Harrington</span><span>VI · Le carnet d'enquête</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le carnet d'enquête</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie. Celui-là, vous pouvez le montrer !</p></div>
+  <table>
+    <tr><th>Suspect</th><th>Où était-il à 23 h 45 ?</th><th style="width:26mm">Mobile possible</th><th style="width:9mm">?</th></tr>
+    <tr><td>Mr Jenkins</td><td></td><td></td><td></td></tr>
+    <tr><td>Miss Evelyn</td><td></td><td></td><td></td></tr>
+    <tr><td>Dr Crane</td><td></td><td></td><td></td></tr>
+    <tr><td>Mrs Doyle</td><td></td><td></td><td></td></tr>
+  </table>
+  <h3>La nuit, heure par heure</h3>
+  <table>
+    <tr><th style="width:16mm">Heure</th><th>Ce qui s'est passé</th></tr>
+    <tr><td>21 h 30</td><td></td></tr><tr><td>22 h 50</td><td></td></tr><tr><td>23 h</td><td></td></tr>
+    <tr><td>23 h 45</td><td></td></tr><tr><td>23 h 47</td><td></td></tr><tr><td>Minuit</td><td></td></tr>
+  </table>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · CARNET (2) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Manoir Harrington</span><span>VI · Le carnet d'enquête</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3 style="margin-top:0">Code de secteur</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+    <div><h3 style="margin-top:0">L'heure du cri</h3><div class="cases"><span></span><span></span><span style="border:0;width:3mm;background:none;text-align:center;font-size:14pt;line-height:11mm">:</span><span></span><span></span></div></div>
+    <div><h3>La longueur d'onde</h3><div class="cases"><span></span><span></span><span></span><span style="border:0;width:auto;background:none;font-size:8pt;line-height:11mm;padding-left:1mm">m</span></div></div>
+    <div><h3>La bibliothèque</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3>La vitrine</h3><div class="gemmes"><span></span><span></span><span></span></div></div>
+    <div><h3>Le coffret</h3><div class="gemmes"><span></span><span></span><span></span><span></span></div></div>
+  </div>
+  <h3>Les pièces à conviction, et ce qu'elles prouvent</h3>
+  <div class="zone lignes" style="min-height:34mm"></div>
+  <h3>L'accusation</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2.4mm">
+    <div class="zone"><b>Qui ?</b></div><div class="zone"><b>Où ?</b></div><div class="zone"><b>La preuve</b></div>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Le Manoir Harrington</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Londres, 1925. Une nuit de brouillard, un système de sécurité bloqué de l'intérieur, un Lord inconscient et un coffre vide.
+    Ouvrez le bureau, brisez le sceau de la vitrine, rétablissez le courant… et confondez le voleur de l'Œil de Jade.</p>
+  <table>
+    <tr><td>Panique au Muséum</td><td>Le Muséum national</td><td class="e">★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr class="ici"><td>Le Vol de l'Œil de Jade</td><td>Le Manoir Harrington</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+  </table>
+  <div class="mentions">2 à 6 joueurs · 60 minutes · pour adultes et adolescents · enquête et manipulation</div>
+</section>
+
+</body>
+</html>

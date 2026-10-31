@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Vol de l'Œil de Jade · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Le Manoir Harrington",
+  mission: "Le Vol de l'Œil de Jade",
+  police: '"Playfair", serif',
+  accent: "#d9bf7f",
+  motif: "◆ ◇ ◆",
+  types: {
+    monde: { c: "#172b21", fond: "#e3eee6", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#2d5a45", fond: "#d9eadf", libelle: "Pièce", zone: "📍 Fente" },
+    perso: { c: "#6b2f3a", fond: "#f0dde1", libelle: "Suspect", zone: "👤 Fente" },
+    objet: { c: "#7a5a1f", fond: "#f2e6cc", libelle: "Pièce à conviction", zone: "🔍 Plateau" },
+    aide:  { c: "#2c3e63", fond: "#dbe2ef", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M9", t: "monde", nom: "Le Manoir Harrington", sous: "Le Vol de l'Œil de Jade", vis: "🟢", txt: "Glissez cette carte dans la fente pour charger le monde. <em>Londres, novembre 1925.</em>" },
+
+    { id: "L1", t: "lieu", nom: "Le Hall", sous: "Le poste de sécurité, la TSF", vis: "🕰️", txt: "Le grand escalier, le registre de garde, et le poste de TSF." },
+    { id: "L2", t: "lieu", nom: "Le Bureau", sous: "Verrouillé de l'intérieur", vis: "🗄️", txt: "Le bureau de Lord Harrington, et la vitrine de l'Œil de Jade. <em>C'est ici que l'on accuse.</em>" },
+    { id: "L3", t: "lieu", nom: "La Bibliothèque secrète", sous: "Enveloppe E3", vis: "📚", txt: "Derrière un rayonnage, une porte capitonnée et un clavier de cuivre." },
+
+    { id: "P1", t: "perso", nom: "Mr Jenkins", sous: "Le majordome · 61 ans", ini: "JJ", coul: "#3a3a46", txt: "<em>« J'ai noté l'heure dans le registre, comme toujours. »</em>" },
+    { id: "P2", t: "perso", nom: "Miss Evelyn Harrington", sous: "La nièce · 24 ans", ini: "EH", coul: "#8e1f4f", txt: "<em>« Ce brouillard étouffe tout. »</em>" },
+    { id: "P3", t: "perso", nom: "Dr Silas Crane", sous: "Expert du British Museum · 54 ans", ini: "SC", coul: "#2b4a6a", txt: "<em>« Regardez cet éclat, cette profondeur… »</em>" },
+    { id: "P4", t: "perso", nom: "Mrs Moira Doyle", sous: "La gouvernante · 63 ans", ini: "MD", coul: "#7a5a2b", txt: "<em>« Ce sont des choses qui n'arrivent pas, dans une maison comme celle-ci. »</em>" },
+
+    { id: "O1", t: "objet", nom: "Le registre du poste", sous: "Enveloppe E1", vis: "📒", txt: "Tenu par Mr Jenkins, à la minute près." },
+    { id: "O2", t: "objet", nom: "Le carnet de Lord Harrington", sous: "Enveloppe E2", vis: "📓", txt: "Un homme méticuleux note tout." },
+    { id: "O3", t: "objet", nom: "Le télégramme de Monte-Carlo", sous: "Enveloppe E2", vis: "✉️", txt: "Adressé à Miss Evelyn." },
+    { id: "O4", t: "objet", nom: "Le bouton de livrée", sous: "Enveloppe E3", vis: "🔘", txt: "Laiton, aux armes des Harrington. Arraché." },
+    { id: "O5", t: "objet", nom: "L'Œil de Jade", sous: "Dans le tiroir secret (ou E5)", vis: "💚", txt: "L'artéfact inestimable. <em>Il sert à accuser.</em>" },
+    { id: "O6", t: "objet", nom: "L'écrin de pierres de verre", sous: "Enveloppe E1", vis: "🧰", txt: "Renversé au pied de l'escalier." },
+
+    { id: "A9", t: "aide", nom: "L'inspecteur Fenwick", sous: "Scotland Yard", vis: "🕵️", txt: "Glissez sa carte quand vous bloquez. 3 conseils gratuits, puis 2 minutes chacun." },
+  ],
+});
+</script>
+</body>
+</html>

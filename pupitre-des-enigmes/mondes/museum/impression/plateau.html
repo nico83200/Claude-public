@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panique au Muséum · Plateau du pupitre</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #1b2f2e; --or: #c9a24a; }
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #8a6d24; border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
+  table.organes td, table.organes th { padding: 1.5px 6px; font-size: 8.4pt; }
+  .notice p { font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié dans
+     chaque page par le script en bas. Les organes dont la mission ne se sert pas restent sous la
+     plaque : on ne découpe que les fenêtres en pointillés blancs. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#24403d"/><stop offset=".6" stop-color="#1b2f2e"/><stop offset="1" stop-color="#14211f"/></linearGradient>
+    <pattern id="motif" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M7 0 14 7 7 14 0 7Z" fill="none" stroke="#c9a24a" stroke-width=".18" opacity=".35"/></pattern>
+    <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#0f1a1b"/></pattern>
+    <g id="rivet"><circle r="2" fill="#c9a24a" opacity=".85"/><circle r="1" fill="#ffffff" opacity=".35" cx="-.5" cy="-.5"/></g>
+  </defs>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#fond)" stroke="#000" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#motif)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#c9a24a" stroke-width="1"/>
+  <rect x="7.5" y="7.5" width="365" height="247" rx="5.5" fill="none" stroke="#c9a24a" stroke-width=".35" opacity=".7"/>
+  <g><use href="#rivet" x="100" y="9"/><use href="#rivet" x="280" y="9"/><use href="#rivet" x="100" y="253"/><use href="#rivet" x="280" y="253"/></g>
+  <g fill="none" stroke="#e9dfc6" stroke-width=".4" opacity=".5"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+  <g font-family="Playfair, serif">
+  <text x="190" y="15" text-anchor="middle" font-size="5.2" fill="#c9a24a" letter-spacing="1.3">MUSÉUM NATIONAL D'HISTOIRE NATURELLE · GRANDE GALERIE · 1912</text>
+
+  <!-- le clavier -->
+  <rect x="19" y="19" width="78" height="86" rx="3" fill="none" stroke="#e9dfc6" stroke-width=".9"/>
+  <rect x="23" y="23" width="70" height="78" rx="2" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-size="4.5" fill="#7f9792">✂ CLAVIER</text>
+  <rect x="25" y="16.5" width="66" height="5" fill="#1b2f2e"/>
+  <text x="58" y="20.6" text-anchor="middle" font-size="4.2" fill="#c9a24a" letter-spacing=".4">COFFRE DE LA RÉSERVE</text>
+
+  <!-- le haut-parleur et l'anneau -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="#e9dfc6" stroke-width=".9"/>
+  <text x="133" y="90" text-anchor="middle" font-size="4" fill="#e9dfc6">LE DIRECTEUR</text>
+  <circle cx="190" cy="62" r="22" fill="none" stroke="#c9a24a" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="190" cy="62" r="19" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="90" text-anchor="middle" font-size="4" fill="#e9dfc6">L'HORLOGE</text>
+
+  <!-- l'écran -->
+  <rect x="236" y="30" width="98" height="64" rx="3" fill="none" stroke="#c9a24a" stroke-width=".9"/>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-size="4.5" fill="#7f9792">✂ ÉCRAN 3,5"</text>
+  <text x="285" y="99" text-anchor="middle" font-size="3.6" fill="#e9dfc6">l'écran du Muséum : la salle où vous êtes</text>
+
+  <!-- la clé : cachée, une rosace -->
+  <g transform="translate(358 40)" fill="none" stroke="#c9a24a" stroke-width=".5" opacity=".7"><circle r="9"/><circle r="5"/><path d="M0-9V9M-9 0H9M-6.4-6.4 6.4 6.4M-6.4 6.4 6.4-6.4"/></g>
+  <!-- les voyants : cachés, sous le cartouche d'Auguste -->
+  <rect x="31" y="108" width="98" height="56" rx="3" fill="none" stroke="#c9a24a" stroke-width=".8"/>
+  <rect x="34" y="111" width="92" height="50" rx="2" fill="none" stroke="#c9a24a" stroke-width=".3"/>
+  <text x="80" y="124" text-anchor="middle" font-size="7.4" fill="#c9a24a" font-weight="700" letter-spacing="1.5">AUGUSTE</text>
+  <text x="80" y="131" text-anchor="middle" font-size="3.8" fill="#e9dfc6" font-style="italic">Tyrannosaurus rex</text>
+  <path d="M50 136h60" stroke="#c9a24a" stroke-width=".3"/>
+  <text x="80" y="143" text-anchor="middle" font-size="3.4" fill="#e9dfc6">Hell Creek, Montana</text>
+  <text x="80" y="149" text-anchor="middle" font-size="3.4" fill="#e9dfc6">Crétacé supérieur</text>
+  <text x="80" y="156" text-anchor="middle" font-size="3" fill="#c9a24a" letter-spacing=".6">GRANDE GALERIE · TRAVÉE CENTRALE</text>
+
+  <!-- la fente -->
+  <rect x="150" y="116" width="80" height="34" rx="3" fill="none" stroke="#c9a24a" stroke-width="1.2"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="125.5" text-anchor="middle" font-size="5.2" fill="#c9a24a" letter-spacing=".8">SALLES & PERSONNES</text>
+  <text x="190" y="142" text-anchor="middle" font-size="3.7" fill="#e9dfc6">glissez la carte d'une salle,</text>
+  <text x="190" y="146.6" text-anchor="middle" font-size="3.3" fill="#e9dfc6" opacity=".8">ou celle d'une personne</text>
+
+  <!-- le lecteur à plat -->
+  <rect x="257" y="105" width="76" height="70" rx="5" fill="none" stroke="#c9a24a" stroke-width="1.2"/>
+  <text x="295" y="112.5" text-anchor="middle" font-size="4.8" fill="#c9a24a" letter-spacing=".6">LE SOCLE D'AUGUSTE</text>
+  <rect x="270" y="117" width="50" height="40" rx="3" fill="none" stroke="#e9dfc6" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <g transform="translate(295 137)"><g fill="none" stroke="#c9a24a" stroke-width=".8"><path d="M-14 4c0-8 6-13 15-13 6 0 11 3 13 7l3 1-1 3-4 1c-1 3-4 5-8 5h-6l-2 4h-4l1-4c-4-1-6-2-6-4z"/><path d="M-2 -1h3M4-4l1 2"/><path d="M-8 6l1 3M-4 7l1 3M0 7l1 3M4 6l1 3"/></g></g>
+  <text x="295" y="164" text-anchor="middle" font-size="3.5" fill="#e9dfc6">posez ici un objet, à plat</text>
+  <circle cx="325" cy="167" r="3.6" fill="none" stroke="#c9a24a" stroke-width=".8"/>
+  <circle cx="325" cy="167" r="2" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray=".8 .6"/>
+
+  <!-- le capteur de couleur : caché, une ammonite -->
+  <g transform="translate(358 107)" fill="none" stroke="#c9a24a" stroke-width=".6" opacity=".75"><path d="M0 0a2 2 0 0 1 2 2 4 4 0 0 1-4 4 6 6 0 0 1-6-6 8 8 0 0 1 8-8 10 10 0 0 1 10 10"/></g>
+  <!-- le casque : caché -->
+  <text x="358" y="170" text-anchor="middle" font-size="3.4" fill="#c9a24a" opacity=".7">✦</text>
+  <!-- la forge et l'enclume : cachées, sous la vitrine des fossiles -->
+  <rect x="38" y="168" width="90" height="30" rx="2" fill="none" stroke="#c9a24a" stroke-width=".5"/>
+  <text x="83" y="176" text-anchor="middle" font-size="3.4" fill="#c9a24a" letter-spacing=".8">VITRINE DES FOSSILES</text>
+  <g fill="none" stroke="#e9dfc6" stroke-width=".5" opacity=".8">
+    <g transform="translate(55 187)"><path d="M0 0a2 2 0 0 1 2 2 4 4 0 0 1-4 4 6 6 0 0 1-6-6 8 8 0 0 1 8-8"/></g>
+    <path d="M74 192c4-8 10-8 14 0M76 192v-3M80 192v-5M84 192v-3"/>
+    <path d="M100 190l6-6 6 6-6 3z"/><path d="M106 184v9"/>
+  </g>
+
+  <!-- l'horloge -->
+  <text x="175" y="166" text-anchor="middle" font-size="4.2" fill="#c9a24a">L'HORLOGE DE LA GALERIE</text>
+  <rect x="146" y="168.5" width="58" height="23" rx="2" fill="none" stroke="#e9dfc6" stroke-width=".8"/>
+  <rect x="150" y="170.5" width="50" height="19" rx="2" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="175" y="182" text-anchor="middle" font-size="4" fill="#7f9792">✂ HORLOGE</text>
+
+  <!-- l'œil : LE SOUPIRAIL, une lampe -->
+  <rect x="222" y="170" width="26" height="20" rx="2" fill="none" stroke="#c9a24a" stroke-width="1"/>
+  <g stroke="#c9a24a" stroke-width=".8"><path d="M228.5 170v20M235 170v20M241.5 170v20"/></g>
+  <circle cx="235" cy="180" r="5" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="235" y="200" text-anchor="middle" font-size="4.6" fill="#c9a24a" letter-spacing=".5">LE SOUPIRAIL</text>
+  <text x="235" y="205.5" text-anchor="middle" font-size="3.3" fill="#e9dfc6">une lampe de téléphone ici</text>
+  <!-- les boutons de couleur : cachés, sous la frise -->
+  <g fill="none" stroke="#c9a24a" stroke-width=".5" opacity=".7">
+    <path d="M20 222h150"/><path d="M20 218h150M20 226h150" stroke-dasharray="1 2"/>
+    <g transform="translate(95 222)"><circle r="7"/><path d="M-4 0h8M0-4v8"/></g>
+  </g>
+  <text x="95" y="240" text-anchor="middle" font-size="3.4" fill="#c9a24a" font-style="italic">« La nature ne fait pas de sauts. »</text>
+
+  <!-- la molette -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="#e9dfc6" stroke-width=".9"/>
+  <g stroke="#e9dfc6" stroke-width=".7"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <circle cx="190" cy="222" r="3.5" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="202" text-anchor="middle" font-size="4.2" fill="#c9a24a">MOLETTE</text>
+  <text x="190" y="244" text-anchor="middle" font-size="3.2" fill="#e9dfc6">appui : où en êtes-vous ?</text>
+
+  <!-- le gros bouton -->
+  <circle cx="295" cy="222" r="30" fill="none" stroke="#e9dfc6" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="295" cy="222" r="23" fill="none" stroke="#c9a24a" stroke-width="1.1"/>
+  <circle cx="295" cy="222" r="11" fill="#0f1a1b" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="219" text-anchor="middle" font-size="5.4" fill="#c9a24a">LA GRILLE</text>
+  <text x="351" y="226" text-anchor="middle" font-size="3.3" fill="#e9dfc6">la fermer : appuyez</text>
+  <text x="236" y="253" text-anchor="middle" font-size="3" fill="#e9dfc6" opacity=".8">Muséum national d'histoire naturelle · Jardin des Plantes · Paris</text>
+  </g>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes · Le Muséum national</span><span>Plateau · Panique au Muséum</span></div>
+  <h1 style="margin-bottom:2mm">La plaque du Muséum</h1>
+  <p>Pour « Panique au Muséum », la façade aimantée habille le pupitre en <strong>vitrine du Muséum</strong>. Seuls les organes du tutoriel sont découverts, chacun sous le nom qu'il porte dans l'histoire : la <strong>fente</strong> pour les salles et les personnes, le <strong>socle d'Auguste</strong> (le lecteur à plat), le <strong>soupirail</strong> (l'œil, qu'on éclaire avec une lampe), le <strong>clavier du coffre</strong>, l'<strong>horloge</strong>, la <strong>grille</strong> (le gros bouton) et la molette. Le reste du pupitre dort sous la plaque.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <h3>Les organes, sous leur nom de mission</h3>
+  <table class="organes"><tr><th>Sur la plaque</th><th>L'organe du pupitre</th><th>Ce qu'on en fait</th></tr><tr><td>Salles &amp; personnes</td><td>La fente</td><td>Glisser la carte d'une salle pour s'y rendre, ou d'une personne pour lui parler</td></tr><tr><td>Le socle d'Auguste</td><td>Le lecteur à plat</td><td>Poser un objet à plat : le montrer, ou remettre le crâne</td></tr><tr><td>Le soupirail</td><td>L'œil</td><td>Y braquer la lampe d'un téléphone, à 10 cm, 2 secondes</td></tr><tr><td>Le coffre de la réserve</td><td>Le clavier</td><td>Taper le code, puis valider avec #</td></tr><tr><td>L'horloge de la galerie</td><td>L'afficheur à 4 chiffres</td><td>Le temps restant, et le code pendant la saisie</td></tr><tr><td>La grille</td><td>Le gros bouton</td><td>La fermer au nez du photographe</td></tr><tr><td>Molette</td><td>La molette</td><td>Un appui : les étapes de la mission</td></tr></table>
+  <h3>Fabrication</h3>
+  <ol style="font-size:9pt;margin-top:0">
+    <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
+    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite.</li>
+    <li>Collez sur la façade aimantée (contreplaqué de 2 mm), plastifiez si possible.</li>
+    <li>Découpez <strong>seulement les fenêtres en pointillés blancs</strong> : écran, clavier, anneau, haut-parleur, fente, LED du lecteur à plat, horloge, soupirail (l'œil), molette et gros bouton. Le lecteur à plat ne se découpe pas.</li>
+  </ol>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, après les pointillés) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · aligner le bord gauche sur les pointillés de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>';
+  document.querySelectorAll("svg.copie").forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    s.innerHTML = modele.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/#([\w-]+)\)/g, `#$1-${i})`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`) + (i ? repere : "");
+  });
+</script>
+</body>
+</html>

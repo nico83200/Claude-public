@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche de mission · Panique au Muséum</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #1b2f2e; --or: #c9a24a; --laiton: #8a6d24; }
+  @page { size: A4; margin: 13mm 14mm 15mm; }
+  body { font-size: 10pt; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: var(--laiton); border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .titre { text-align: center; margin: 4px 0 10px; }
+  .titre .sur { color: var(--laiton); font-size: 9.5pt; letter-spacing: .25em; }
+  .titre h1 { font-size: 34pt; margin: 2px 0; color: var(--vert); }
+  .titre .sous { font-size: 9.5pt; color: var(--gris); letter-spacing: .14em; }
+  .heure { display: flex; align-items: center; gap: 14px; background: var(--vert); color: #f0e7d3; border-radius: 6px; padding: 9px 14px; margin: 8px 0 10px; }
+  .heure b { font-family: "Playfair"; font-size: 24pt; color: var(--or); white-space: nowrap; }
+  .lettre { font-family: "Caveat"; font-size: 15.5pt; line-height: 1.22; background: #fffdf5; border: 1px solid var(--filet); padding: 10px 16px;
+            box-shadow: 0 1mm 2mm #0001; }
+  .lettre p { margin: 0 0 5px; }
+  .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+  .etapes div { border: 1.5px solid var(--or); border-radius: 6px; padding: 8px 10px; background: #fff; }
+  .etapes b { display: block; font-family: "Playfair"; font-size: 14pt; color: var(--vert); }
+  .etapes .n { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: var(--vert); color: var(--or); align-items: center; justify-content: center;
+               font-family: "Playfair"; font-weight: 700; margin-right: 4px; }
+  .consignes { display: grid; grid-template-columns: 28px 1fr; gap: 5px 8px; align-items: start; }
+  .consignes .ico { font-size: 14pt; text-align: center; }
+  .consignes p { margin: 0; }
+  .organe { font-family: "Share Tech Mono", monospace; background: var(--vert); color: var(--or); padding: 0 4px; border-radius: 3px; font-size: 9pt; letter-spacing: .05em; }
+  h2 { font-size: 14pt; margin: 12px 0 6px; color: var(--vert); }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : pour les joueurs -->
+<div class="page">
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Muséum national</span><span>Fiche de mission</span></div>
+<div class="titre">
+  <div class="sur">✦ LE PUPITRE DES ÉNIGMES PRÉSENTE ✦</div>
+  <h1>Panique au Muséum</h1>
+  <div class="sous">TUTORIEL · EXPRESS · 15 MINUTES MAXIMUM · 2 À 6 JOUEURS</div>
+</div>
+
+<div class="heure"><b>9 h 45</b><span>Muséum national d'histoire naturelle, Paris, 1912. L'inauguration de la grande galerie est à <strong>10 h 00</strong>.</span></div>
+
+<div class="lettre">
+  <p>Chers agents de sûreté,</p>
+  <p>Le ministre et la presse arrivent à 10 h 00 pour l'inauguration de la grande galerie. Horreur : le crâne original du T-Rex « Auguste » a disparu ! À sa place, une grossière réplique en plâtre encore humide.</p>
+  <p>Le voleur est encore dans l'établissement. Retrouvez le crâne et remettez-le en place avant l'ouverture des portes !</p>
+  <p style="text-align:right">Pr Larrieu, directeur du Muséum</p>
+</div>
+
+<h2>Votre mission : retrouver le crâne en 3 étapes</h2>
+<div class="etapes">
+  <div><b><span class="n">1</span>Localiser</b>Identifiez la pièce où le voleur s'est réfugié.</div>
+  <div><b><span class="n">2</span>Éclairer</b>Éclairez la zone sombre pour débusquer la réserve cachée.</div>
+  <div><b><span class="n">3</span>Déverrouiller</b>Saisissez le code du coffre pour récupérer la relique.</div>
+</div>
+<p>Puis remettez le crâne sur <strong>le socle d'Auguste</strong>, dans la Grande Galerie, avant la fin du temps.</p>
+
+<h2>Consignes du pupitre</h2>
+<div class="consignes">
+  <div class="ico">⏱</div><p><span class="organe">L'HORLOGE</span> indique le temps restant (15:00).</p>
+  <div class="ico">📍</div><p>Glissez une carte <strong>Salle</strong> dans la <span class="organe">FENTE</span> pour vous y rendre. Une carte <strong>Personnage</strong>, pour lui parler.</p>
+  <div class="ico">🦖</div><p>Posez une carte <strong>Objet</strong> à plat sur <span class="organe">LE SOCLE D'AUGUSTE</span> pour la montrer, ou pour remettre le crâne en place.</p>
+  <div class="ico">🔦</div><p>Si la pièce est sombre, braquez la lampe de votre téléphone au-dessus du <span class="organe">SOUPIRAIL</span>, à 10 cm, deux secondes.</p>
+  <div class="ico">🔢</div><p>Saisissez le code sur le <span class="organe">CLAVIER</span>, puis validez avec la touche <strong>#</strong>.</p>
+  <div class="ico">✉</div><p>Les <strong>enveloppes</strong> ne s'ouvrent que lorsque l'écran le demande.</p>
+  <div class="ico">🎩</div><p>Bloqués ? Glissez la carte <strong>Le directeur</strong> : 3 conseils gratuits, puis 1 minute chacun.</p>
+  <div class="ico">⚠</div><p>Un <strong>imprévu</strong> peut arriver : écoutez la consigne et agissez vite.</p>
+</div>
+</div>
+
+<!-- PAGE 2 : pour le maître du jeu -->
+<div class="page">
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Muséum national</span><span>Fiche de mission · maître du jeu</span></div>
+<h1 style="font-size:20pt;margin:0 0 4px">Mise en place (3 minutes)</h1>
+<p>Ce tutoriel apprend le pupitre en un quart d'heure : la fente, le socle (lecteur à plat), une personne à interroger, un objet à montrer,
+   une enveloppe, l'œil (ici <strong>le soupirail</strong>, qu'on éclaire), le clavier validé à <strong>#</strong>, le gros bouton et le tiroir secret.</p>
+<div class="consignes">
+  <div class="ico">🧲</div><p>Posez la <strong>plaque du Muséum</strong> sur le pupitre (facultative : sans elle, dites aux joueurs où sont la fente, le socle et le soupirail).</p>
+  <div class="ico">🗄️</div><p><strong>Le crâne dans le tiroir</strong> : carte <strong>Le Muséum national</strong> dans la fente, menu <strong>Tiroir secret</strong>, rangez-y la carte <strong>O1 · Le crâne d'Auguste</strong>, poussez le tiroir au fond, validez au bouton vert. Sans tiroir : mettez-la dans l'enveloppe E3.</p>
+  <div class="ico">✉</div><p>Préparez les enveloppes <strong>E1</strong> (plaque, plan, copie en plâtre) et <strong>E2</strong> (papier du voleur, carte de la réserve), fermées.</p>
+  <div class="ico">🃏</div><p>Posez face visible les cartes <strong>L1 à L4</strong>, <strong>Barnabé</strong> et <strong>Le directeur</strong>. La carte L5 reste dans E2.</p>
+  <div class="ico">📱</div><p>Un <strong>téléphone avec une lampe</strong> à portée de main.</p>
+  <div class="ico">🎬</div><p>Pour jouer : la carte du Muséum dans la fente, <strong>Jouer</strong>.</p>
+</div>
+
+<h2>Le chemin de la solution</h2>
+<table>
+  <tr><th>Étape</th><th>Ce que font les joueurs</th><th>Ce qui se passe</th></tr>
+  <tr><td>Départ</td><td>Grande Galerie dans la fente</td><td>Enveloppe E1 : la plaque (« entré au Muséum en 1908 »), le plan et ses traces de plâtre vers le sous-sol</td></tr>
+  <tr><td>Indice</td><td>Barnabé dans la fente, la copie en plâtre sur le socle</td><td>« Ça ne peut venir que de l'atelier de moulage, au sous-sol. »</td></tr>
+  <tr><td>1 · Localiser</td><td>Atelier de moulage dans la fente</td><td>Le voleur est passé ici ; la pièce est noire</td></tr>
+  <tr><td>2 · Éclairer</td><td>Une lampe sur le soupirail, 2 s</td><td>La réserve cachée apparaît, le voleur détale ; enveloppe E2</td></tr>
+  <tr><td>Imprévu (minute 6)</td><td>Le gros bouton dans les 8 s</td><td>La grille se ferme au nez du photographe (sinon : −1 min)</td></tr>
+  <tr><td>3 · Déverrouiller</td><td>Réserve cachée dans la fente, <strong>1908</strong> puis <strong>#</strong></td><td>Le tiroir secret sort avec le crâne (ou enveloppe E3)</td></tr>
+  <tr><td>Fin</td><td>Grande Galerie dans la fente, puis le crâne sur le socle</td><td>Victoire, et la médaille d'or, d'argent ou de bronze</td></tr>
+</table>
+<p class="petit">Les fausses pistes (Minéralogie, Anatomie) ne coûtent rien : elles apprennent à changer de salle. Le directeur relance les joueurs à 3, 7 et 11 minutes si une étape manque.</p>
+</div>
+
+</body>
+</html>

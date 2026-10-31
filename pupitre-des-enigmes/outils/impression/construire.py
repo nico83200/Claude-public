@@ -310,6 +310,20 @@ MISSIONS = [
         ("cartes", "cartes", ""),
     ]},
     {"num": 7, "monde": "blackwood", "nom": "Le Manoir Blackwood"},
+    # Le tutoriel : une fiche (joueurs, puis maître du jeu), la plaque du Muséum, les cartes et les enveloppes.
+    {"num": 8, "monde": "museum", "nom": "Le Muséum national", "materiel": [
+        ("fiche-mission-8", "fiche-mission", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+    ]},
+    # Sans rôles : la fiche, la plaque du poste de sécurité, les cartes et les enveloppes (avec les gemmes).
+    {"num": 9, "monde": "harrington", "nom": "Le Manoir Harrington", "materiel": [
+        ("fiche-mission-9", "fiche-mission", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+    ]},
 ]
 
 
@@ -415,6 +429,18 @@ LIVRETS = {
         "essentiel": ["Treize bancs d'essai, un par organe", "Chaque organe validé passe son voyant au vert",
                       "Une fiche de recette pour noter ce qui marche", "Le casque, le coffre et le tiroir secret pour finir",
                       "Idéal après le montage, ou avant une soirée"]},
+    8: {"titre": "Panique au Muséum", "genre": "Le tutoriel du pupitre", "joueurs": "2 à 6", "duree": "15 min",
+        "public": "Tous", "etoiles": 1, "embleme": "🦖", "pages": ["fiche-mission-8"],
+        "description": "Paris, 1912. Le crâne du T-Rex Auguste a disparu un quart d'heure avant l'inauguration. Localisez le voleur, "
+                       "éclairez la cave, ouvrez le coffre et remettez le crâne sur son socle avant l'arrivée du ministre.",
+        "essentiel": ["Quinze minutes pour apprendre chaque geste du pupitre", "Trois étapes : localiser, éclairer, déverrouiller",
+                      "Une lampe de téléphone sur le soupirail", "Le crâne à reposer sur son socle"]},
+    9: {"titre": "Le Vol de l'Œil de Jade", "genre": "Enquête et manipulation", "joueurs": "2 à 6", "duree": "60 min",
+        "public": "Adultes et ados", "etoiles": 2, "embleme": "💚", "pages": ["fiche-mission-9"],
+        "description": "Londres, 1925. Lord Harrington gît inconscient, son coffre est vide et l'Œil de Jade a disparu. Ouvrez le "
+                       "bureau, brisez le sceau de la vitrine avec les bonnes gemmes, rétablissez le courant et confondez le coupable.",
+        "essentiel": ["Des gemmes à poser sur la loupe, dans le bon ordre", "La clé de dérivation et le cadran de la TSF",
+                      "Quatre suspects, un murmure au casque", "L'accusation, l'Œil de Jade à la main"]},
     6: {"titre": "Désamorçage", "genre": "Jeu de communication coopératif", "joueurs": "2 à 8", "duree": "12 min par bombe",
         "public": "Ados et adultes", "etoiles": 2, "embleme": "💣", "pages": ["fiche-mission-6"],
         "description": "Une bombe vient d'être découverte. Un seul d'entre vous la voit : le démineur, au pupitre. Les autres, les "

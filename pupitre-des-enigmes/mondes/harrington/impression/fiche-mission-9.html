@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche de mission · Le Vol de l'Œil de Jade</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #172b21; --or: #c8a45c; --jade: #2d7a55; }
+  @page { size: A4; margin: 13mm 14mm 15mm; }
+  body { font-size: 9.8pt; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: var(--jade); border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .titre { text-align: center; margin: 2px 0 8px; }
+  .titre .sur { color: var(--jade); font-size: 9.5pt; letter-spacing: .25em; }
+  .titre h1 { font-size: 30pt; margin: 2px 0; color: var(--vert); }
+  .titre .sous { font-size: 9pt; color: var(--gris); letter-spacing: .14em; }
+  .pitch { font-family: "Playfair"; font-style: italic; font-size: 11pt; line-height: 1.5; background: #f6f2e6; border-left: 4px solid var(--or); padding: 8px 14px; }
+  .trio { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 8px 0; }
+  .trio div { background: var(--vert); color: #ece3cc; border-radius: 6px; padding: 7px 12px; }
+  .trio b { display: block; font-family: "Playfair"; font-size: 13pt; color: var(--or); }
+  .organes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+  .organes div { display: grid; grid-template-columns: 30mm 1fr; gap: 6px; border-bottom: 1px dotted var(--filet); padding: 2px 0; }
+  .organes b { font-family: "Share Tech Mono", monospace; color: var(--jade); font-size: 9pt; }
+  .regle { display: grid; grid-template-columns: 26px 1fr; gap: 6px; margin-bottom: 3px; }
+  .regle .ico { font-size: 13pt; text-align: center; }
+  .regle p { margin: 0; }
+  .suspects { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .suspects div { border: 1px solid var(--filet); border-radius: 6px; padding: 6px 8px; background: #fff; text-align: center; }
+  .suspects .m { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 3px; display: flex; align-items: center; justify-content: center;
+                 color: #fff; font-family: "Playfair"; font-weight: 700; box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--or); }
+  .suspects b { font-family: "Playfair"; font-size: 10pt; color: var(--vert); display: block; }
+  .suspects span { font-size: 8pt; color: var(--gris); }
+  h2 { font-size: 13.5pt; margin: 10px 0 5px; color: var(--vert); }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : pour les joueurs -->
+<div class="page">
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Manoir Harrington</span><span>Fiche de mission</span></div>
+<div class="titre">
+  <div class="sur">◆ LE PUPITRE DES ÉNIGMES PRÉSENTE ◆</div>
+  <h1>Le Vol de l'Œil de Jade</h1>
+  <div class="sous">ENQUÊTE ET MANIPULATION · 2 À 6 JOUEURS · 60 MINUTES · LONDRES, 1925</div>
+</div>
+
+<div class="pitch">Londres, novembre 1925. Dans son manoir ultra-sécurisé, Lord Harrington expose sa fierté : « L'Œil de Jade », un artéfact
+  inestimable serti de pierres précieuses. Cette nuit, alors qu'une tempête de brouillard s'abat sur la ville, le système de sécurité s'est
+  bloqué de l'intérieur. Lord Harrington gît inconscient dans son bureau, et le coffre-fort central a été vidé. Vous êtes l'équipe
+  d'intervention de Scotland Yard. Vous avez une heure avant que le Yard ne boucle le quartier et que les pistes ne s'évaporent.</div>
+
+<div class="trio">
+  <div><b>Retrouver l'Œil de Jade</b>Il est encore dans la maison.</div>
+  <div><b>Confondre le coupable</b>Dans le bureau : le suspect dans la fente, le jade sur le plateau, puis ACCUSER.</div>
+</div>
+
+<h2>Les suspects</h2>
+<div class="suspects">
+  <div><div class="m" style="background:#3a3a46">JJ</div><b>Mr Jenkins</b><span>le majordome</span></div>
+  <div><div class="m" style="background:#8e1f4f">EH</div><b>Miss Evelyn</b><span>la nièce</span></div>
+  <div><div class="m" style="background:#2b4a6a">SC</div><b>Dr Silas Crane</b><span>l'expert du British Museum</span></div>
+  <div><div class="m" style="background:#7a5a2b">MD</div><b>Mrs Doyle</b><span>la gouvernante</span></div>
+</div>
+
+<h2>Le poste de sécurité du manoir</h2>
+<div class="organes">
+  <div><b>PIÈCES &amp; SUSPECTS</b><span>la fente : une pièce pour s'y rendre, un suspect pour l'interroger</span></div>
+  <div><b>PIÈCE À CONVICTION</b><span>le plateau : un objet à montrer au suspect</span></div>
+  <div><b>LA LOUPE</b><span>les gemmes, posées une à une, à plat</span></div>
+  <div><b>DÉRIVATION</b><span>la clé : un quart de tour</span></div>
+  <div><b>LE CADRAN</b><span>la molette : tourner pour régler, appuyer pour valider</span></div>
+  <div><b>CLAVIER</b><span>les codes des portes, validés avec #</span></div>
+  <div><b>L'HORODATEUR</b><span>le temps restant, et ce que vous saisissez</span></div>
+  <div><b>ÉCOUTEUR TSF</b><span>le casque : un seul joueur à la fois</span></div>
+  <div><b>L'ALARME</b><span>les 4 boutons ; le vert confirme</span></div>
+  <div><b>ACCUSER</b><span>le gros bouton, dans le bureau</span></div>
+</div>
+
+<h2>Règles de procédure</h2>
+<div class="regle"><div class="ico">✉</div><p>Les <strong>enveloppes</strong> ne s'ouvrent que lorsque le pupitre le demande. Les gemmes de la collection sont dans l'une d'elles.</p></div>
+<div class="regle"><div class="ico">💎</div><p>Une gemme posée dans le mauvais ordre déclenche une <strong>fausse alerte</strong> : deux minutes perdues.</p></div>
+<div class="regle"><div class="ico">⚖</div><p>Une accusation fausse coûte <strong>5 minutes</strong>. À la troisième, le coupable s'enfuit.</p></div>
+<div class="regle"><div class="ico">🕵</div><p>Bloqués ? Glissez la carte <strong>L'inspecteur Fenwick</strong> : 3 conseils gratuits, puis 2 minutes chacun.</p></div>
+<div class="regle"><div class="ico">⚠</div><p>Le manoir vit : <strong>imprévus</strong>, sirène, murmures… Écoutez bien les consignes.</p></div>
+</div>
+
+<!-- PAGE 2 : pour le maître du jeu -->
+<div class="page">
+<div class="bandeau"><span>Le Pupitre des Énigmes · Le Manoir Harrington</span><span>Fiche de mission · maître du jeu</span></div>
+<h1 style="font-size:20pt;margin:0 0 4px">Mise en place (5 minutes)</h1>
+<div class="regle"><div class="ico">🧲</div><p>Posez la <strong>plaque du poste de sécurité</strong>. La clé de dérivation est au repos.</p></div>
+<div class="regle"><div class="ico">🗄️</div><p><strong>Le jade dans le tiroir</strong> : carte <strong>Le Manoir Harrington</strong> dans la fente, menu <strong>Tiroir secret</strong>, rangez-y la carte <strong>O5 · L'Œil de Jade</strong>, poussez au fond, validez au vert. Sans tiroir : enveloppe E5.</p></div>
+<div class="regle"><div class="ico">💎</div><p><strong>Cinq fausses gemmes</strong> acryliques (rouge, verte, bleue, jaune, violette) dans l'enveloppe E2. Essayez-les avant sur la loupe : le panneau Wi-Fi (onglet Atelier) montre la couleur vue par le capteur.</p></div>
+<div class="regle"><div class="ico">✉</div><p>Les enveloppes <strong>E1 à E4</strong> (et E5 sans tiroir), fermées. Face visible : les cartes <strong>Le Hall</strong>, <strong>Le Bureau</strong>, les quatre suspects et l'inspecteur. La bibliothèque secrète est dans E3.</p></div>
+
+<h2>La vérité</h2>
+<p><strong>Mr Jenkins</strong>, le majordome, s'est vu refuser sa pension. Le receleur Nathaniel Finch lui offrait 3 000 livres. À 23 h 45, il bloque
+   le système de l'intérieur, assomme Lord Harrington qui le surprend, vide le coffre et cache l'Œil de Jade dans le coffret de la bibliothèque
+   secrète, en attendant l'aube. En fuyant, il perd un <strong>bouton de sa livrée</strong> dans la vitrine. Il sème les pierres de verre du Dr Crane
+   pour brouiller les pistes, puis écrit dans le registre qu'il était à l'office à 23 h 47 : Mrs Doyle, qui lui y montait son thé, l'a trouvé vide.</p>
+
+<h2>Le chemin de la solution</h2>
+<table>
+  <tr><th>Étape</th><th>Ce que font les joueurs</th><th>Solution</th></tr>
+  <tr><td>Le hall</td><td>Carte Le Hall dans la fente</td><td>E1 : registre (23 h 47, secteur EST), notice des secteurs</td></tr>
+  <tr><td>1 · Le bureau</td><td>Code de secteur au clavier, puis l'heure au cadran</td><td><strong>2671 #</strong>, puis <strong>23:47</strong> → E2</td></tr>
+  <tr><td>2 · La vitrine</td><td>Les gemmes sur la loupe, dans le bureau</td><td><strong>rouge, vert, bleu</strong> (une erreur : −2 min)</td></tr>
+  <tr><td>3 · Le courant</td><td>La clé de dérivation</td><td>un quart de tour → E3 (bouton de livrée, bibliothèque, billet)</td></tr>
+  <tr><td>La TSF</td><td>Carte Le Hall, la longueur d'onde au cadran</td><td><strong>352</strong> : « une pierre verte, livrée par un domestique »</td></tr>
+  <tr><td>La bibliothèque</td><td>Le jour et le mois du « oui » de Rose (carnet : 12 juin)</td><td><strong>1206 #</strong> → E4</td></tr>
+  <tr><td>Le coffret</td><td>Rois, or, sang, jade, sur la loupe</td><td><strong>violet, jaune, rouge, vert</strong> → le tiroir (ou E5)</td></tr>
+  <tr><td>4 · L'accusation</td><td>Dans le bureau : Jenkins dans la fente, le jade sur le plateau, ACCUSER, vert</td><td><strong>Mr Jenkins</strong></td></tr>
+</table>
+<p class="petit"><strong>Les preuves contre Jenkins</strong> : Mrs Doyle et le registre (l'office était vide) ; Mrs Doyle et le bouton (lui seul porte la livrée en ce moment) ;
+   la TSF (un domestique) ; le murmure du Lord (minute 18, au casque : « il lui manquait un bouton »). <strong>Les fausses pistes</strong> : Miss Evelyn (ses dettes,
+   le télégramme) et le Dr Crane (ses pierres de verre). <strong>Imprévus</strong> : le murmure (minute 18), la sirène (minute 35, les 4 boutons 3 s, sinon −2 min).</p>
+</div>
+
+</body>
+</html>

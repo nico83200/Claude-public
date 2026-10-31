@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Vol de l'Œil de Jade · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .page:last-child { break-after: auto; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 4.5mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  h2 { color: #172b21; }
+  .registre { background: #fbf8ef; border: 1px solid #cfc4a4; padding: 6mm 8mm 5mm; box-shadow: 0 1mm 3mm #0002; }
+  .registre .entete { display: flex; justify-content: space-between; font-family: "Playfair"; font-size: 11pt; color: #172b21; border-bottom: 1.5px solid #172b21; padding-bottom: 1.5mm; }
+  .registre table { width: 100%; border-collapse: collapse; margin-top: 2mm; }
+  .registre td { font-family: "Caveat"; font-size: 16pt; color: #1b2c55; padding: .6mm 2mm; border-bottom: 1px solid #d9cfb4; background: none !important; }
+  .registre td:first-child { width: 22mm; color: #7a5a1f; }
+  .registre td:last-child { width: 10mm; text-align: center; }
+  .notice { background: #fff; border: 1.5px solid #172b21; padding: 5mm 7mm; font-size: 10pt; }
+  .notice .marque { font-family: "Playfair"; font-weight: 900; font-size: 14pt; letter-spacing: .08em; color: #172b21; }
+  .notice table td, .notice table th { font-family: "Share Tech Mono", monospace; font-size: 11pt; padding: 1.2mm 4mm; }
+  .carnet { background: #fdfaf0; border: 1px solid #d9cfa8; padding: 6mm 9mm; font-family: "Caveat"; font-size: 15.5pt; color: #23325a; line-height: 8.2mm;
+            background-image: repeating-linear-gradient(#fdfaf0 0 7.9mm, #c9d6e8 7.9mm 8.2mm); }
+  .carnet p { margin: 0; }
+  .carnet .date { color: #7a5a1f; }
+  .parchemin { background: radial-gradient(ellipse at center, #f4e6c4 0%, #e6cf9c 100%); border-radius: 2mm; padding: 6mm 12mm; font-family: "Playfair"; font-style: italic;
+               font-size: 13pt; line-height: 1.45; color: #3a2a12; text-align: center; box-shadow: 0 1mm 3mm #0003; width: 150mm; margin: 0 auto; }
+  .telegramme { background: #f6efd9; border: 1px solid #c9bb8f; padding: 5mm 7mm; font-family: "Share Tech Mono", monospace; font-size: 11pt; width: 150mm; margin: 0 auto; }
+  .telegramme .entete { font-family: "Source Sans"; font-weight: 900; letter-spacing: .3em; text-align: center; color: #7a2a1a; margin-bottom: 3mm; }
+  .bande { background: #fff; border: 1px solid #ddd; padding: 1mm 2mm; display: inline; box-decoration-break: clone; -webkit-box-decoration-break: clone; line-height: 2; }
+  .billet { background: #fffdf8; border: 1px solid #e0d3b0; padding: 7mm 10mm; font-family: "Caveat"; font-size: 19pt; color: #2a2a4a; line-height: 1.3;
+            transform: rotate(-1.5deg); box-shadow: 0 1mm 3mm #0002; width: 120mm; margin: 0 auto; }
+  .couvercle { width: 150mm; margin: 0 auto; border-radius: 4mm; padding: 8mm 10mm; text-align: center; color: #e9dcb8;
+               background: linear-gradient(135deg, #2d5a45, #172b21); border: 1mm solid #c8a45c; box-shadow: inset 0 0 0 1.5mm #172b21, inset 0 0 0 1.9mm #c8a45c; }
+  .couvercle .logements { display: flex; justify-content: center; gap: 8mm; margin: 4mm 0 5mm; }
+  .couvercle .logements span { width: 14mm; height: 14mm; border-radius: 50%; border: .6mm solid #c8a45c; background: #0f1d16; }
+  .couvercle p { font-family: "Playfair"; font-style: italic; font-size: 14pt; line-height: 1.5; margin: 0; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 34mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 2.5mm 6mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Playfair"; font-weight: 900; font-size: 26pt; color: #172b21; line-height: 1; }
+  .etiquette .lieu { font-family: "Playfair"; font-style: italic; font-size: 12pt; color: #7a5a1f; margin: 1mm 0 1.2mm; }
+  .etiquette .avis { font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 1.2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; line-height: 1.3; }
+  .etiquette.dos h4 { margin: 0 0 .8mm; font-size: 10pt; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- ================= E1 · LE HALL ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · Le Hall</div>
+  <h2 style="margin-top:0">Le registre du poste de sécurité</h2>
+  <div class="registre">
+    <div class="entete"><span>Manoir Harrington · Registre de garde</span><span>Nuit du 13 au 14 novembre 1925</span></div>
+    <table>
+      <tr><td>21 h 30</td><td>Lord Harrington se retire dans son bureau. Système armé, tous secteurs.</td><td>J.</td></tr>
+      <tr><td>22 h 05</td><td>Le Dr Crane monte se coucher. Miss Evelyn au salon.</td><td>J.</td></tr>
+      <tr><td>22 h 50</td><td>Brouillard très épais. Ronde du rez-de-chaussée : rien à signaler.</td><td>J.</td></tr>
+      <tr><td>23 h 00</td><td>Miss Evelyn monte. Je redescends à l'office.</td><td>J.</td></tr>
+      <tr><td>23 h 47</td><td><strong>Cri entendu, secteur EST.</strong> Le système se bloque. Porte du bureau verrouillée de l'intérieur.</td><td>J.</td></tr>
+      <tr><td>23 h 52</td><td>Téléphoné à Scotland Yard.</td><td>J.</td></tr>
+    </table>
+  </div>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">La notice du système</h2>
+  <div class="notice">
+    <div class="marque">CHUBB &amp; SONS · Système de sûreté à secteurs, modèle 1924</div>
+    <p style="margin:2mm 0">En cas d'incident, le système verrouille les portes du secteur concerné. Pour réarmer une porte, saisir au clavier de
+       sécurité le <strong>code du secteur</strong>, valider par #, puis régler au cadran l'<strong>heure exacte de l'incident</strong>,
+       telle que portée au registre de garde.</p>
+    <table>
+      <tr><th>Secteur</th><th>Pièces</th><th>Code</th></tr>
+      <tr><td>NORD</td><td>Hall, salon</td><td>1180</td></tr>
+      <tr><td>EST</td><td>Bureau, bibliothèque</td><td>2671</td></tr>
+      <tr><td>SUD</td><td>Office, cuisines</td><td>4093</td></tr>
+      <tr><td>OUEST</td><td>Chambres</td><td>5512</td></tr>
+    </table>
+  </div>
+  <p class="petit">Dans l'enveloppe E1, glissez aussi les cartes <strong>O1 · Le registre du poste</strong> et <strong>O6 · L'écrin de pierres de verre</strong>.</p>
+</div>
+
+<!-- ================= E2 · LE BUREAU ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · Le Bureau</div>
+  <h2 style="margin-top:0">Le carnet de Lord Harrington</h2>
+  <div class="carnet">
+    <p class="date">Inventaire de la collection</p>
+    <p>L'Œil de Jade : jade impérial serti de rubis, d'émeraudes et de saphirs. Cadeau de mariage de ma chère Rose. Canton, le 12 juin 1898.</p>
+    <p class="date">2 novembre</p>
+    <p>Jenkins m'a encore parlé de sa pension. Vingt-deux ans de service… Je lui ai répondu non. Il n'a rien dit.</p>
+    <p class="date">9 novembre</p>
+    <p>Mes gens écoutent la police sur la TSF du hall, sur 352 mètres. Il faudra que je fasse cesser cela.</p>
+    <p class="date">13 novembre</p>
+    <p>Crane arrive ce soir pour l'expertise. Evelyn me harcèle : pas un shilling de plus pour Monte-Carlo.</p>
+  </div>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">Le parchemin de la vitrine</h2>
+  <div class="parchemin">
+    Pour briser le champ de force, l'ordre des éléments doit respecter la lumière de l'aube :<br>
+    d'abord le <strong>rubis</strong> ardent, puis l'<strong>émeraude</strong> des bois profonds,<br>
+    et enfin le <strong>saphir</strong> des grands fonds.
+  </div>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">Le télégramme</h2>
+  <div class="telegramme">
+    <div class="entete">POSTES ET TÉLÉGRAPHES · MONACO</div>
+    <span class="bande">MISS EVELYN HARRINGTON MAYFAIR LONDRES</span><br>
+    <span class="bande">DETTE 3000 LIVRES CASINO ECHUE LUNDI STOP PAS DE DELAI SUPPLEMENTAIRE STOP</span><br>
+    <span class="bande">DIRECTION DES JEUX</span>
+  </div>
+  <p class="petit">Dans l'enveloppe E2, glissez aussi les cartes <strong>O2 · Le carnet</strong> et <strong>O3 · Le télégramme</strong>, et
+     <strong>les gemmes de la collection</strong> : une rouge, une verte, une bleue, une jaune et une violette (fausses gemmes acryliques de loisirs créatifs).</p>
+</div>
+
+<!-- ================= E3 · LA VITRINE ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · La vitrine</div>
+  <h2 style="margin-top:0">Le billet caché au fond de la vitrine</h2>
+  <div class="billet">
+    Rose,<br>
+    la bibliothèque secrète s'ouvre toujours au jour et au mois où tu m'as dit oui. Comme cela, je ne l'oublierai jamais.<br>
+    <span style="float:right">Arthur</span><br>
+  </div>
+  <p class="petit" style="text-align:center;margin-top:5mm">Dans l'enveloppe E3, glissez aussi les cartes <strong>O4 · Le bouton de livrée</strong> et <strong>L3 · La Bibliothèque secrète</strong>.</p>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;margin-bottom:2mm">Enveloppe E4 · La Bibliothèque secrète</div>
+  <h2 style="margin-top:0">Le couvercle du coffret</h2>
+  <div class="couvercle">
+    <div style="font-family:Playfair;letter-spacing:.3em;font-size:10pt;color:#c8a45c">A · H · R · H</div>
+    <div class="logements"><span></span><span></span><span></span><span></span></div>
+    <p>D'abord la couleur des rois,<br>puis celle de l'or,<br>puis celle du sang,<br>enfin celle du jade.</p>
+  </div>
+
+  <div class="ciseaux"></div>
+  <p><strong>Enveloppe E5</strong> (seulement pour un pupitre sans tiroir secret) : la carte <strong>O5 · L'Œil de Jade</strong>. Sinon, avant la partie :
+     carte <strong>Le Manoir Harrington</strong> dans la fente, menu <strong>Tiroir secret</strong>, rangez-y la carte du jade, poussez le tiroir et validez au vert.</p>
+</div>
+
+<!-- ================= LES ÉTIQUETTES ================= -->
+<div class="page">
+  <h2 style="margin-top:0">Les étiquettes des enveloppes</h2>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">Le Hall</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E1 · contenu</h4><ul><li>Le registre de garde</li><li>La notice du système Chubb</li><li>Cartes O1 et O6</li></ul></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">Le Bureau</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E2 · contenu</h4><ul><li>Le carnet du Lord · le parchemin · le télégramme</li><li>Cartes O2 et O3</li><li>5 gemmes : rouge, verte, bleue, jaune, violette</li></ul></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">La vitrine</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E3 · contenu</h4><ul><li>Le billet d'Arthur à Rose</li><li>Cartes O4 et L3</li></ul></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">La Bibliothèque secrète</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E4 · contenu</h4><ul><li>Le couvercle du coffret</li></ul></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Le coffret</div><div class="avis">Sans tiroir secret seulement</div></div>
+    <div class="etiquette dos"><h4>E5 · contenu</h4><ul><li>Carte O5 · L'Œil de Jade</li></ul></div>
+  </div>
+</div>
+
+</body>
+</html>

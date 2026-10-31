@@ -24,8 +24,12 @@ Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 | ⚙️ [L'Atelier du professeur Lumen](mondes/atelier/) | 5 · Banc d'essai · [déroulé](mondes/atelier/mission-5-deroule.md) · *la mission de test du pupitre, pour 2 joueurs : chaque organe essayé une fois* | 🟢 Facile | 20 à 30 min |
 | 💣 [Brigade de déminage](mondes/deminage/) | 6 · Désamorçage · [déroulé](mondes/deminage/mission-6-deroule.md) · *jeu de communication : un démineur au pupitre, des experts avec le manuel ; 12 bombes tirées au sort* | 🟠 Tendu | 12 min par bombe |
 | 🕯️ [Le Manoir Blackwood](mondes/blackwood/) | 7 · [La dernière nuit de Lord Edgar](mondes/blackwood/mission-7-derniere-nuit.md) · [déroulé](mondes/blackwood/mission-7-deroule.md) · *enquête gothique, la lampe à remonter, une séance de spiritisme* | 🟠 Intermédiaire | 60 min |
+| 🦖 [Le Muséum national](mondes/museum/) | 8 · Panique au Muséum · [déroulé](mondes/museum/mission-8-deroule.md) · *le tutoriel : localiser, éclairer le soupirail, ouvrir le coffre* | 🟢 Tutoriel | 15 min |
+| 💚 [Le Manoir Harrington](mondes/harrington/) | 9 · Le Vol de l'Œil de Jade · [déroulé](mondes/harrington/mission-9-deroule.md) · *enquête et manipulation : les gemmes sur la loupe, la clé de dérivation, la TSF* | 🟠 Intermédiaire | 60 min |
 
-Les sept missions sont complètes : scénario, déroulé, répliques, script de
+Chaque mission a sa **plaque aimantée**, qui renomme les organes du pupitre pour l'immersion : l'œil devient *le soupirail* au Muséum, le capteur de couleur *la loupe* et l'interrupteur à clé *la dérivation* au manoir Harrington, le gros bouton *la dynamo* dans le Narval… Le script, l'écran, les répliques et le livret emploient les mêmes noms que la plaque.
+
+Les neuf missions sont complètes : scénario, déroulé, répliques, script de
 doublage, matériel à imprimer et **script du pupitre**.
 
 ## Le programme
@@ -75,7 +79,9 @@ mission).
 [Dernier souffle](pdf/mission-4-livret-a5-brochure.pdf) ★★★ ·
 [Banc d'essai](pdf/mission-5-livret-a5-brochure.pdf) ★ ·
 [Désamorçage](pdf/mission-6-livret-a5-brochure.pdf) ★★ ·
-[La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★
+[La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★ ·
+[Panique au Muséum](pdf/mission-8-livret-a5-brochure.pdf) ★ ·
+[Le Vol de l'Œil de Jade](pdf/mission-9-livret-a5-brochure.pdf) ★★
 
 Tous les livrets sont en « édition premium » : 16 pages composées directement en A5 (`mondes/<monde>/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer : couverture, bienvenue et sommaire, l'histoire, la mission, les personnages, les rôles, les lieux, le pupitre, le carnet à remplir, notes et quatrième de couverture. Chaque monde n'y change que ses couleurs, ses icônes et ses illustrations. Une mission sans `livret.html` retombe sur le livret générique. Une page commune à toutes les missions explique comment lire une carte : [lire-une-carte-a5.pdf](pdf/lire-une-carte-a5.pdf) (à glisser dans la boîte, ou au dos d'un livret).
 
@@ -97,3 +103,7 @@ Tous les livrets sont en « édition premium » : 16 pages composées directemen
 **Mission 6 · Désamorçage** (2 à 8 joueurs) : [à imprimer en recto seul](pdf/mission-6-a-imprimer-recto.pdf) (fiche du démineur avec les pastilles, [manuel de désamorçage](pdf/mission-6-manuel.pdf) des experts) · [cartes en recto verso](pdf/mission-6-a-imprimer-recto-verso.pdf) · [déroulé et solutions des 12 bombes](pdf/mission-6-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-6-script-doublage.pdf)
 
 **Mission 7 · La dernière nuit de Lord Edgar** (3 à 8 joueurs) : [à imprimer en recto seul](pdf/mission-7-a-imprimer-recto.pdf) (fiche de mission, documents secrets, enveloppes, fiche d'enquête) · [cartes en recto verso](pdf/mission-7-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-7-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-7-script-doublage.pdf)
+
+**Mission 8 · Panique au Muséum** (le tutoriel, 15 min) : [à imprimer en recto seul](pdf/mission-8-a-imprimer-recto.pdf) (fiche de mission, [plaque du Muséum](pdf/mission-8-plateau.pdf), enveloppes) · [cartes en recto verso](pdf/mission-8-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-8-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-8-script-doublage.pdf)
+
+**Mission 9 · Le Vol de l'Œil de Jade** (2 à 6 joueurs) : [à imprimer en recto seul](pdf/mission-9-a-imprimer-recto.pdf) (fiche de mission, [plaque du poste de sécurité](pdf/mission-9-plateau.pdf), enveloppes) · [cartes en recto verso](pdf/mission-9-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-9-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-9-script-doublage.pdf). À fournir : cinq fausses gemmes acryliques (rouge, verte, bleue, jaune, violette).

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panique au Muséum · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Le Muséum national",
+  mission: "Panique au Muséum",
+  police: '"Playfair", serif',
+  accent: "#e3c77a",
+  motif: "✦ ◆ ✦",
+  types: {
+    monde: { c: "#1b2f2e", fond: "#e6efe9", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#2f5a50", fond: "#dcebe4", libelle: "Salle", zone: "📍 Fente" },
+    perso: { c: "#7a3b2e", fond: "#f1e0d8", libelle: "Personnage", zone: "👤 Fente" },
+    objet: { c: "#8a6d24", fond: "#f3e8cc", libelle: "Objet", zone: "🦖 Socle" },
+    aide:  { c: "#3b4a6b", fond: "#dde3ef", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M8", t: "monde", nom: "Le Muséum national", sous: "Panique au Muséum", vis: "🦖", txt: "Glissez cette carte dans la fente pour charger le monde. <em>Le tutoriel du pupitre, en 15 minutes.</em>" },
+
+    { id: "L1", t: "lieu", nom: "La Grande Galerie", sous: "La scène du vol", vis: "🏛️", txt: "Le squelette d'Auguste, et son socle. <em>Commencez ici.</em>" },
+    { id: "L2", t: "lieu", nom: "La Galerie de Minéralogie", sous: "Premier étage", vis: "💎", txt: "Cristaux, météorites, et vitrines à perte de vue." },
+    { id: "L3", t: "lieu", nom: "L'Atelier de moulage", sous: "Au sous-sol", vis: "🪣", txt: "Là où l'on fabrique les copies en plâtre des fossiles." },
+    { id: "L4", t: "lieu", nom: "La Galerie d'Anatomie", sous: "Rez-de-chaussée", vis: "🦴", txt: "Des centaines de squelettes, alignés comme à la parade." },
+    { id: "L5", t: "lieu", nom: "La Réserve cachée", sous: "Enveloppe E2", vis: "🗝️", txt: "Une porte dérobée, dans la cave. <em>On ne la trouve qu'en y voyant clair.</em>" },
+
+    { id: "P1", t: "perso", nom: "Barnabé", sous: "Gardien de nuit", ini: "B", coul: "#7a3b2e", txt: "<em>« Pour vous servir ! »</em> Montrez-lui ce que vous trouvez." },
+
+    { id: "O1", t: "objet", nom: "Le crâne d'Auguste", sous: "Dans le tiroir secret (ou E3)", vis: "💀", txt: "L'original ! À reposer sur son socle, dans la Grande Galerie." },
+    { id: "O2", t: "objet", nom: "La copie en plâtre", sous: "Enveloppe E1", vis: "🗿", txt: "Grossière, et encore humide." },
+
+    { id: "A8", t: "aide", nom: "Le directeur", sous: "Professeur Larrieu", vis: "🎩", txt: "Glissez sa carte quand vous bloquez. 3 conseils gratuits, puis 1 minute chacun." },
+  ],
+});
+</script>
+</body>
+</html>

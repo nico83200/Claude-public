@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panique au Muséum · Livret</title>
+<link rel="stylesheet" href="../../../outils/impression/livret.css">
+<style>
+  /* Les couleurs du Muséum : vert-de-gris, laiton, papier d'archives */
+  :root { --fond: #1b2f2e; --fond-transparent: rgba(27, 47, 46, .82); --accent: #b8923a; --accent-clair: #ead7a0;
+          --papier: #f7f3ea; --encre: #262420; --doux: #6b6a60; --filet: #ddd3bc; --rouge: #a3392b; }
+  .couverture .image svg { width: 100%; height: 100%; display: block; }
+  .couverture .image { top: 30mm; }
+  .lettre { background-image: none; background-color: #fffdf6; border-top: 1.2mm solid var(--fond); }
+  .lettre::before { background: none; box-shadow: none; content: "MUSÉUM NATIONAL D'HISTOIRE NATURELLE"; font-family: "Source Sans"; font-size: 5.6pt;
+                    letter-spacing: .25em; color: var(--accent); width: 80mm; margin-left: -40mm; top: 2mm; transform: none; text-align: center; height: auto; }
+  .role .icone svg { color: var(--accent-clair); }
+  .catalogue td { padding: 1mm 1.6mm; }
+  .catalogue td.e { color: var(--accent); white-space: nowrap; text-align: right; }
+  .catalogue tr.ici td { font-weight: 700; color: var(--fond); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="ammonite" viewBox="0 0 24 24"><path d="M12 12a1.5 1.5 0 0 1 1.5 1.5 3 3 0 0 1-3 3 4.5 4.5 0 0 1-4.5-4.5 6 6 0 0 1 6-6 7.5 7.5 0 0 1 7.5 7.5 9 9 0 0 1-9 9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="g-fente" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M8 3h8v9H8z"/></g></symbol>
+    <symbol id="g-socle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 20h16M6 20v-4h12v4M8 16V9h8v7"/><path d="M9 9c0-3 2-5 4-5s3 2 3 3"/></g></symbol>
+    <symbol id="g-soupirail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="11" rx="1"/><path d="M8 8v11M12 8v11M16 8v11"/><path d="M12 2v3M7 3l1.5 2.5M17 3l-1.5 2.5" stroke-linecap="round"/></g></symbol>
+    <symbol id="g-clavier" viewBox="0 0 24 24"><g fill="currentColor"><rect x="4" y="4" width="4" height="4" rx=".8"/><rect x="10" y="4" width="4" height="4" rx=".8"/><rect x="16" y="4" width="4" height="4" rx=".8"/><rect x="4" y="10" width="4" height="4" rx=".8"/><rect x="10" y="10" width="4" height="4" rx=".8"/><rect x="16" y="10" width="4" height="4" rx=".8"/><rect x="16" y="16" width="4" height="4" rx=".8"/></g><text x="6" y="20" font-size="6" fill="currentColor" font-family="Source Sans" font-weight="700">#</text></symbol>
+    <symbol id="g-grille" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></g></symbol>
+    <symbol id="g-molette" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M16 5.5l1.5-1.5"/></g></symbol>
+    <symbol id="g-enveloppe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M3 7l9 6 9-6"/></g></symbol>
+    <symbol id="g-tiroir" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 12h18M10 15.5h4"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 · COUVERTURE ============ -->
+<section class="page plein couverture">
+  <div class="image">
+    <svg viewBox="0 0 148 150" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="salle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b5e58"/><stop offset=".6" stop-color="#22403c"/><stop offset="1" stop-color="#132422"/></linearGradient>
+        <linearGradient id="verriere" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e7bd" stop-opacity=".55"/><stop offset="1" stop-color="#f6e7bd" stop-opacity="0"/></linearGradient>
+      </defs>
+      <rect width="148" height="150" fill="url(#salle)"/>
+      <!-- la verrière et ses rayons -->
+      <path d="M14 0 L74 -10 L134 0 L134 18 L14 18Z" fill="#2a4a45"/>
+      <g stroke="#b8923a" stroke-width=".5" opacity=".7"><path d="M14 18 L74 2 L134 18"/><path d="M34 18V8M54 18V4M74 18V2M94 18V4M114 18V8"/></g>
+      <path d="M40 18 L60 18 L80 150 L30 150Z M88 18 L104 18 L128 150 L96 150Z" fill="url(#verriere)"/>
+      <!-- les arcades -->
+      <g fill="none" stroke="#b8923a" stroke-width=".6" opacity=".55">
+        <path d="M6 150V60a14 14 0 0 1 28 0V150M114 150V60a14 14 0 0 1 28 0V150"/>
+        <path d="M0 40H148M0 44H148"/>
+      </g>
+      <!-- Auguste, monté debout comme en 1912, sur son socle -->
+      <rect x="24" y="104" width="100" height="5" fill="#3a2f1e" stroke="#b8923a" stroke-width=".5"/>
+      <rect x="30" y="109" width="88" height="12" fill="#2a2216" stroke="#b8923a" stroke-width=".5"/>
+      <g transform="translate(14 30) scale(1.15)">
+        <g fill="#0f1c1a" stroke="#e8dcc0" stroke-width=".6" stroke-linejoin="round">
+          <!-- la jambe de derrière -->
+          <path d="M44 42c4 4 6 9 5 13l-2 9h7l-1 1h-10l1-10c-1-4-3-7-5-9z"/>
+          <!-- le corps, la queue et la tête -->
+          <path d="M2 64C10 58 22 50 36 40c6-6 12-12 18-16 4-3 6-6 8-10 2-4 6-7 10-7h12c4 0 7 2 7 5v3c0 2-2 3-4 3h-6l2 2c0 2-2 3-4 3h-7c-2 3-4 6-6 9l-1 4c1 2 0 4-2 5l-3 3c-2 6-5 10-9 13l1 4c3 3 4 7 3 11l-2 9h7v1H43l2-11c0-3-2-6-4-8-6 2-12 4-18 8C14 62 8 64 2 64z"/>
+          <!-- le bras -->
+          <path d="M63 30l4 4 2 0M64 31l2 5" fill="none"/>
+        </g>
+        <g fill="none" stroke="#e8dcc0" stroke-width=".35" opacity=".85">
+          <path d="M40 40l3 6M44 36l3 7M48 33l3 7M52 30l2 6M56 27l2 5"/>
+          <path d="M14 58l2 3M20 54l2 3M26 50l2 3M32 46l2 3"/>
+          <path d="M74 12l6 0M78 15l6 0" />
+        </g>
+        <circle cx="77" cy="10" r=".9" fill="#e8dcc0"/>
+      </g>
+      <text x="74" y="117" text-anchor="middle" font-family="Playfair" font-size="4.2" fill="#ead7a0" letter-spacing="1.2">AUGUSTE</text>
+    </svg>
+  </div>
+  <div class="voile"></div>
+  <div class="cadre"></div>
+  <div class="marque"><img src="../../../console/logo-medaillon.png" alt=""><span>Le Pupitre des Énigmes</span></div>
+  <div class="bas">
+    <div class="monde">Le Muséum national</div>
+    <h1>Panique<br>au Muséum</h1>
+    <p class="accroche">Le crâne du T-Rex a disparu.<br>L'inauguration est dans un quart d'heure.</p>
+    <div class="badges">
+      <div class="badge"><b>2 à 6</b><span>joueurs</span></div>
+      <div class="badge"><b>15 min</b><span>tutoriel</span></div>
+      <div class="badge"><b class="etoiles">★<i>★★</i></b><span>facile</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · BIENVENUE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>Bienvenue</span></div>
+  <div class="chapitre"><div class="num">Avant d'ouvrir les portes</div><h2>Bienvenue au Muséum</h2>
+    <p class="chapeau">La première mission à jouer : un quart d'heure pour apprendre chaque geste du pupitre, avant les grandes enquêtes.</p></div>
+  <h3>Dans ce livret</h3>
+  <table class="repartition">
+    <tr><td style="text-align:left">I · L'affaire</td><td style="text-align:left">La lettre du directeur, votre mission</td><td>3</td></tr>
+    <tr><td style="text-align:left">II · Les gens du Muséum</td><td style="text-align:left">Qui vous aidera</td><td>5</td></tr>
+    <tr><td style="text-align:left">III · Les gestes du pupitre</td><td style="text-align:left">Huit gestes, appris en jouant</td><td>7</td></tr>
+    <tr><td style="text-align:left">IV · Le Muséum</td><td style="text-align:left">Les salles</td><td>9</td></tr>
+    <tr><td style="text-align:left">V · La plaque du Muséum</td><td style="text-align:left">Comment jouer</td><td>11</td></tr>
+    <tr><td style="text-align:left">VI · Le carnet de l'agent</td><td style="text-align:left">À remplir au crayon</td><td>13</td></tr>
+  </table>
+  <h3>Avant de jouer</h3>
+  <ol class="etapes">
+    <li>Allumez le pupitre et posez la <b>plaque du Muséum</b>.</li>
+    <li>Le maître du jeu range la carte du <b>crâne d'Auguste</b> dans le tiroir secret (menu <b>Tiroir secret</b>), ou dans l'enveloppe <b>E3</b>.</li>
+    <li>Posez face visible les <b>quatre salles</b>, <b>Barnabé</b> et <b>Le directeur</b>. Les enveloppes <b>E1</b> et <b>E2</b> restent fermées.</li>
+    <li>Gardez un <b>téléphone avec une lampe</b> à portée de main.</li>
+    <li>Glissez la carte <b>Le Muséum national</b> dans la fente, et choisissez <b>Jouer</b>.</li>
+  </ol>
+  <div class="encart sombre"><div class="titre">La règle d'or</div>
+    <p><strong>Ici, se tromper ne coûte rien.</strong> Essayez, écoutez le directeur, recommencez : c'est fait pour apprendre.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 3 · LA LETTRE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>I · L'affaire</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>L'affaire</h2>
+    <p class="chapeau">Paris, 1912. Neuf heures quarante-cinq. Un coursier vous tend un pli, essoufflé.</p></div>
+  <div class="lettre">
+    <p class="date">Jardin des Plantes, 9 h 45</p>
+    <p>Chers agents de sûreté,</p>
+    <p>Le ministre et la presse arrivent à 10 h 00 pour l'inauguration de la grande galerie.</p>
+    <p>Horreur : le crâne original du T-Rex « Auguste » a disparu ! À sa place, une grossière réplique en plâtre encore humide.</p>
+    <p>Le voleur est encore dans l'établissement. Retrouvez le crâne et remettez-le en place avant l'ouverture des portes !</p>
+    <p class="signature">Pr Larrieu</p>
+    <p class="ps">P.-S. : je vous guiderai pas à pas. Écoutez bien le pupitre.</p>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 4 · LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>I · L'affaire</span></div>
+  <div class="chapitre"><div class="num">Chapitre I</div><h2>Votre mission</h2>
+    <p class="chapeau">Retrouver le crâne en trois étapes.</p></div>
+  <div class="trio">
+    <div><b>LOCALISER</b><span>la pièce où le voleur s'est réfugié</span></div>
+    <div><b>ÉCLAIRER</b><span>la zone sombre, pour trouver la réserve</span></div>
+    <div><b>OUVRIR</b><span>le coffre, avec le bon code</span></div>
+  </div>
+  <div class="horloge"><div class="heures">15:00</div>
+    <div>L'<b>horloge de la galerie</b> donne le temps restant. À zéro, les portes s'ouvrent et le ministre entre.</div></div>
+  <h3>Gagner</h3>
+  <ol class="etapes">
+    <li>Retrouvez le <b>crâne d'Auguste</b>, au bout des trois étapes.</li>
+    <li>Rendez-vous dans la <b>Grande Galerie</b> : sa carte dans la fente.</li>
+    <li>Posez le crâne bien à plat sur <b>le socle d'Auguste</b>.</li>
+  </ol>
+  <div class="signalement">
+    <div class="portrait"><svg viewBox="0 0 100 100" width="100%" height="100%"><rect width="100" height="100" fill="#1b2f2e"/>
+      <g fill="none" stroke="#ead7a0" stroke-width="2.2" stroke-linejoin="round"><path d="M20 58c0-16 12-26 30-26 12 0 22 6 26 14l6 2-2 6-8 2c-2 6-8 10-16 10H44l-4 8h-8l2-8c-8-2-14-4-14-8z"/>
+      <path d="M44 48h6M58 42l2 4"/><path d="M30 62l2 6M38 64l2 6M46 64l2 6M54 62l2 6"/></g></svg></div>
+    <div><h3 style="margin-top:0">Fiche : Auguste</h3>
+      <dl>
+        <dt>Espèce</dt><dd>Tyrannosaurus rex</dd>
+        <dt>Origine</dt><dd>Montana, Amérique du Nord</dd>
+        <dt>Âge</dt><dd>66 millions d'années, environ</dd>
+        <dt>Taille</dt><dd>12 mètres de long ; un crâne de 1,40 m</dd>
+        <dt>Ce matin</dt><dd>Coiffé d'une copie en plâtre</dd>
+      </dl></div>
+  </div>
+  <div class="ornement" style="margin-top:5mm"><svg viewBox="0 0 90 24"><use href="#ammonite" x="0" width="24" height="24"/><use href="#ammonite" x="33" width="24" height="24"/><use href="#ammonite" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 5 · LES GENS DU MUSÉUM (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>II · Les gens du Muséum</span></div>
+  <div class="chapitre"><div class="num">Chapitre II</div><h2>Les gens du Muséum</h2>
+    <p class="chapeau">Ceux que vous entendrez au haut-parleur. Glissez la carte d'une personne dans la fente pour lui parler.</p></div>
+  <div class="personne"><div class="medaillon" style="background:#3b4a6b">PL</div><div>
+    <h4>Professeur Larrieu</h4><div class="qualite">Directeur du Muséum</div>
+    <p>Savant passionné, un peu affolé ce matin. C'est lui qui vous guide, pas à pas, et vous félicite à chaque trouvaille.</p>
+    <p class="citation">« Écoutez bien le pupitre ! »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#7a3b2e">B</div><div>
+    <h4>Barnabé</h4><div class="qualite">Gardien de nuit</div>
+    <p>Trente ans de rondes dans les galeries. Il connaît chaque recoin du Muséum… et chaque atelier.</p>
+    <p class="citation">« Pour vous servir ! »</p></div></div>
+  <div class="personne"><div class="medaillon" style="background:#26201a">?</div><div>
+    <h4>Le voleur</h4><div class="qualite">Introuvable, pour l'instant</div>
+    <p>Il a eu le temps de fabriquer une copie en plâtre. Il est encore dans le bâtiment.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 6 · LES GENS DU MUSÉUM (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>II · Les gens du Muséum</span></div>
+  <div class="encart"><div class="titre">Interroger, montrer</div>
+    <p>Glissez la carte de <b>Barnabé</b> dans la fente : il raconte sa nuit. Posez en même temps un <b>objet</b> sur le socle : il vous dit ce qu'il en pense. C'est souvent là que se cache l'indice.</p></div>
+  <div class="encart"><div class="titre">Le directeur</div>
+    <p>Bloqués ? Glissez la carte <b>Le directeur</b> dans la fente. Les trois premiers conseils sont gratuits, les suivants coûtent <b>1 minute</b>. S'il clignote à l'écran, c'est qu'il a une idée.</p></div>
+  <h3>Les objets</h3>
+  <div class="role"><div class="icone"><svg><use href="#g-socle"/></svg></div><div>
+    <h4>La copie en plâtre <span class="fois">enveloppe E1</span></h4>
+    <p class="atout">Grossière, et encore humide.</p>
+    <p>D'où peut bien venir ce plâtre frais ?</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#ammonite"/></svg></div><div>
+    <h4>Le crâne d'Auguste <span class="fois">à retrouver</span></h4>
+    <p class="atout">L'original, 66 millions d'années.</p>
+    <p>À reposer sur son socle, dans la Grande Galerie.</p></div></div>
+  <div class="ornement" style="margin-top:6mm"><svg viewBox="0 0 90 24"><use href="#ammonite" x="0" width="24" height="24"/><use href="#ammonite" x="33" width="24" height="24"/><use href="#ammonite" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 7 · LES GESTES (1) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>III · Les gestes du pupitre</span></div>
+  <div class="chapitre"><div class="num">Chapitre III</div><h2>Les gestes du pupitre</h2>
+    <p class="chapeau">Pas de rôle à distribuer : dans ce tutoriel, chacun apprend tout. Voici les huit gestes que vous ferez, et que toutes les missions réutilisent.</p></div>
+  <div class="role"><div class="icone"><svg><use href="#g-fente"/></svg></div><div>
+    <h4>Glisser une carte <span class="fois">la fente</span></h4>
+    <p>Une <b>salle</b> pour vous y rendre (vous y restez jusqu'à la suivante), une <b>personne</b> pour lui parler.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-socle"/></svg></div><div>
+    <h4>Poser un objet <span class="fois">le socle</span></h4>
+    <p>À plat, sur le lecteur à plat : pour le montrer, ou pour le remettre en place.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-enveloppe"/></svg></div><div>
+    <h4>Ouvrir une enveloppe <span class="fois">sur ordre</span></h4>
+    <p>Seulement quand l'écran l'annonce. Les cartes qu'elle contient rejoignent le jeu.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-soupirail"/></svg></div><div>
+    <h4>Éclairer <span class="fois">le soupirail</span></h4>
+    <p>La lampe d'un téléphone, à 10 cm au-dessus, pendant 2 secondes.</p></div></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 8 · LES GESTES (2) ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>III · Les gestes du pupitre</span></div>
+  <div class="role"><div class="icone"><svg><use href="#g-clavier"/></svg></div><div>
+    <h4>Taper un code <span class="fois">le clavier</span></h4>
+    <p>Les chiffres, puis la touche <b>#</b> pour valider. La touche <b>*</b> efface. L'horloge affiche ce que vous tapez.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-grille"/></svg></div><div>
+    <h4>Réagir vite <span class="fois">le gros bouton</span></h4>
+    <p>Quand un imprévu le demande : ici, fermer <b>la grille</b> au nez d'un photographe.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-molette"/></svg></div><div>
+    <h4>Faire le point <span class="fois">la molette</span></h4>
+    <p>Un appui : les étapes faites et celles qui restent. Un autre : retour au jeu.</p></div></div>
+  <div class="role"><div class="icone"><svg><use href="#g-tiroir"/></svg></div><div>
+    <h4>Le tiroir secret <span class="fois">surprise</span></h4>
+    <p>Il sort tout seul du pupitre quand vous ouvrez le bon coffre. À la fin, repoussez-le.</p></div></div>
+  <div class="encart sombre"><div class="titre">Et dans les autres missions ?</div>
+    <p>Les mêmes gestes, et quelques autres : <strong>souffler</strong> sur la forge, poser un <strong>aimant</strong>, passer la main au-dessus de l'œil, tourner une <strong>clé</strong>, poser une <strong>couleur</strong>, mettre le <strong>casque</strong>.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 9 · LE MUSÉUM ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>IV · Le Muséum</span></div>
+  <div class="chapitre"><div class="num">Chapitre IV</div><h2>Le Muséum</h2>
+    <p class="chapeau">Glissez la carte d'une salle dans la fente pour vous y rendre. Une fausse piste ne coûte rien.</p></div>
+  <div style="background:#efe7d3;border:.25mm solid var(--filet);border-radius:1.5mm;padding:1.5mm">
+    <svg viewBox="0 0 240 120" style="display:block;width:100%" font-family="Playfair, serif">
+      <path d="M10 34 L120 12 L230 34" fill="none" stroke="#1b2f2e" stroke-width="1.2"/>
+      <rect x="10" y="34" width="220" height="34" fill="#f7f1e2" stroke="#1b2f2e" stroke-width="1"/>
+      <rect x="10" y="68" width="220" height="40" fill="#f7f1e2" stroke="#1b2f2e" stroke-width="1"/>
+      <rect x="10" y="108" width="220" height="10" fill="#e2d8c0" stroke="#1b2f2e" stroke-width="1"/>
+      <text x="120" y="55" text-anchor="middle" font-size="8" fill="#1b2f2e">Galerie de Minéralogie</text>
+      <path d="M86 68v40" stroke="#1b2f2e" stroke-width=".8"/>
+      <text x="48" y="90" text-anchor="middle" font-size="7.5" fill="#1b2f2e">Galerie d'Anatomie</text>
+      <text x="158" y="86" text-anchor="middle" font-size="9" font-weight="700" fill="#1b2f2e">La Grande Galerie</text>
+      <text x="158" y="97" text-anchor="middle" font-size="5.5" fill="#8a6d24" font-style="italic">et Auguste, sur son socle</text>
+      <text x="120" y="115.5" text-anchor="middle" font-size="5" fill="#6b6a60" font-style="italic">sous-sol : les ateliers techniques</text>
+    </svg>
+  </div>
+  <p class="legende">Le Muséum national d'histoire naturelle, en coupe.</p>
+  <div class="lieux">
+    <div><b>La Grande Galerie</b> · la scène du vol</div>
+    <div><b>La Galerie d'Anatomie</b> · des squelettes</div>
+    <div><b>La Galerie de Minéralogie</b> · des cristaux</div>
+    <div><b>L'Atelier de moulage</b> · au sous-sol</div>
+    <div style="grid-column:1/3"><b>???</b> · une cinquième salle, que personne ne connaît. Il faudra y voir clair pour la trouver.</div>
+  </div>
+  <div class="encart"><div class="titre">Se déplacer</div>
+    <p>Vous restez dans une salle tant que vous n'en glissez pas une autre : vous pouvez donc reprendre la carte pour en glisser une autre, une personne par exemple.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 10 · LE SAVIEZ-VOUS ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>IV · Le Muséum</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Le saviez-vous ?</h3>
+  <div class="element"><b>Le T-Rex</b><span>Ses dents mesuraient jusqu'à 30 cm, racine comprise. Sa morsure était l'une des plus puissantes de tous les animaux terrestres.</span></div>
+  <div class="element"><b>Les copies</b><span>Les muséums fabriquent depuis longtemps des moulages en plâtre de leurs fossiles, pour les étudier ou les échanger.</span></div>
+  <div class="element"><b>Le Jardin des Plantes</b><span>Le Muséum de Paris est né en 1793, dans l'ancien jardin royal des plantes médicinales.</span></div>
+  <div class="element"><b>Les galeries</b><span>Paléontologie, anatomie comparée, minéralogie : chaque galerie raconte une part de l'histoire de la Terre.</span></div>
+  <div class="encart"><div class="titre">Ce que vous savez</div>
+    <ul style="margin:0;padding-left:4mm">
+      <li>Le crâne a été remplacé il y a peu : le plâtre est <b>encore humide</b>.</li>
+      <li>Le voleur est <b>encore dans le bâtiment</b>.</li>
+      <li>Barnabé, le gardien, a été appelé à l'autre bout du Muséum… pour rien.</li>
+    </ul></div>
+  <div class="ornement"><svg viewBox="0 0 90 24"><use href="#ammonite" x="0" width="24" height="24"/><use href="#ammonite" x="33" width="24" height="24"/><use href="#ammonite" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 11 · LA PLAQUE ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>V · La plaque du Muséum</span></div>
+  <div class="chapitre"><div class="num">Chapitre V</div><h2>La plaque du Muséum</h2>
+    <p class="chapeau">Chaque mission habille le pupitre d'une plaque aimantée. Ici, chaque organe porte un nom du Muséum.</p></div>
+  <div class="element"><b>Salles &amp; personnes</b><span>La <b>fente</b> : une salle, une personne.</span></div>
+  <div class="element"><b>Le socle d'Auguste</b><span>Le <b>lecteur à plat</b> : un objet, bien à plat.</span></div>
+  <div class="element"><b>Le soupirail</b><span>L'<b>œil</b> du pupitre : on l'éclaire avec une lampe.</span></div>
+  <div class="element"><b>Le coffre de la réserve</b><span>Le <b>clavier</b> : les chiffres, puis <b>#</b>.</span></div>
+  <div class="element"><b>L'horloge de la galerie</b><span>L'<b>afficheur</b> à quatre chiffres : le temps, et les codes.</span></div>
+  <div class="element"><b>La grille</b><span>Le <b>gros bouton</b>, pour les imprévus.</span></div>
+  <div class="element"><b>Molette</b><span>Un appui : où en êtes-vous ?</span></div>
+  <div class="element"><b>L'écran</b><span>La salle où vous êtes, les paroles des personnages, et les enveloppes à ouvrir.</span></div>
+  <div class="ornement" style="margin-top:4mm"><svg viewBox="0 0 90 24"><use href="#ammonite" x="0" width="24" height="24"/><use href="#ammonite" x="33" width="24" height="24"/><use href="#ammonite" x="66" width="24" height="24"/></svg></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 12 · PENDANT LA MISSION ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>V · La plaque du Muséum</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Pendant la mission</h3>
+  <div class="element"><b>Les enveloppes</b><span>Elles ne s'ouvrent <b>que lorsque l'écran le demande</b>.</span></div>
+  <div class="element"><b>Un raté</b><span>Rien de perdu : reglissez la carte, et recommencez.</span></div>
+  <div class="element"><b>L'imprévu</b><span>Un photographe tente d'entrer : réagissez vite. Un imprévu raté coûte une minute.</span></div>
+  <div class="element"><b>Le directeur</b><span>Sa carte dans la fente : 3 conseils gratuits, puis 1 minute chacun.</span></div>
+  <div class="element"><b>La fin</b><span>Le crâne sur son socle : les portes s'ouvrent, et le ministre ne se doute de rien.</span></div>
+  <h3>Les médailles</h3>
+  <div class="trio">
+    <div><b style="font-size:10.5pt">Or</b><span>7 min ou plus, sans conseil payant</span></div>
+    <div><b style="font-size:10.5pt">Argent</b><span>3 min ou plus d'avance</span></div>
+    <div><b style="font-size:10.5pt">Bronze</b><span>juste à temps</span></div>
+  </div>
+  <div class="encart sombre" style="margin-top:4mm"><div class="titre">Le conseil du concepteur</div>
+    <p>Jouez ce tutoriel <strong>avant toute autre mission</strong>, même entre joueurs aguerris : un quart d'heure, et tout le monde connaît le pupitre.</p></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 13 · CARNET (1) ============ -->
+<section class="page carnet">
+  <div class="tete"><span>Le Muséum national</span><span>VI · Le carnet de l'agent</span></div>
+  <div class="chapitre"><div class="num">Chapitre VI</div><h2>Le carnet de l'agent</h2>
+    <p class="chapeau">À remplir au crayon pendant la partie.</p></div>
+  <table>
+    <tr><th>Salle</th><th>Ce qu'on y a trouvé</th><th style="width:9mm">✓</th></tr>
+    <tr><td>Grande Galerie</td><td></td><td></td></tr>
+    <tr><td>Anatomie</td><td></td><td></td></tr>
+    <tr><td>Minéralogie</td><td></td><td></td></tr>
+    <tr><td>Atelier de moulage</td><td></td><td></td></tr>
+    <tr><td>???</td><td></td><td></td></tr>
+  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm">
+    <div><h3>Le code du coffre</h3><div class="cases"><span></span><span></span><span></span><span></span></div></div>
+    <div><h3>Le temps restant</h3><div class="cases"><span></span><span></span><span style="border:0;width:3mm;background:none;text-align:center;font-size:14pt;line-height:11mm">:</span><span></span><span></span></div></div>
+  </div>
+  <h3>Ce que dit Barnabé</h3>
+  <div class="zone lignes" style="min-height:22mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 14 · ET APRÈS ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>VI · Le carnet de l'agent</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Et maintenant ?</h3>
+  <p>Vous connaissez le pupitre. Choisissez votre prochaine mission, de la plus douce à la plus redoutable.</p>
+  <table class="repartition catalogue">
+    <tr><th style="text-align:left">Mission</th><th style="text-align:left">Le genre</th><th style="text-align:right">Niveau</th></tr>
+    <tr class="ici"><td style="text-align:left">Panique au Muséum</td><td style="text-align:left">Le tutoriel</td><td class="e">★</td></tr>
+    <tr><td style="text-align:left">Banc d'essai</td><td style="text-align:left">Essayer tout le pupitre, à deux</td><td class="e">★</td></tr>
+    <tr><td style="text-align:left">La Disparition d'Éclipse</td><td style="text-align:left">Enquête : qui, où, pourquoi</td><td class="e">★</td></tr>
+    <tr><td style="text-align:left">Le Casse du Siècle</td><td style="text-align:left">Bluff, vol et déduction</td><td class="e">★★</td></tr>
+    <tr><td style="text-align:left">Le Vol de l'Œil de Jade</td><td style="text-align:left">Enquête et manipulation</td><td class="e">★★</td></tr>
+    <tr><td style="text-align:left">La dernière nuit de Lord Edgar</td><td style="text-align:left">Enquête gothique</td><td class="e">★★</td></tr>
+    <tr><td style="text-align:left">Désamorçage</td><td style="text-align:left">Communication sous pression</td><td class="e">★★</td></tr>
+    <tr><td style="text-align:left">Signal Perdu</td><td style="text-align:left">Énigmes en parallèle</td><td class="e">★★★</td></tr>
+    <tr><td style="text-align:left">Dernier souffle</td><td style="text-align:left">Escape game</td><td class="e">★★★</td></tr>
+  </table>
+  <div class="certificat" style="border:.5mm double var(--accent);outline:.25mm solid var(--accent);outline-offset:1mm;border-radius:1.5mm;padding:4mm 5mm;background:#fffdf7;text-align:center;margin-top:5mm">
+    <div style="font-family:Playfair;font-weight:900;font-size:12pt;color:var(--fond)">Diplôme d'agent de sûreté du Muséum</div>
+    <p style="font-family:Playfair;font-style:italic;color:var(--doux);font-size:8.4pt;margin:1mm 0 3mm">décerné le ____________ à :</p>
+    <div class="lignes" style="height:16mm"></div>
+    <p style="font-size:8pt;margin:2mm 0 0">Médaille obtenue : ☐ or · ☐ argent · ☐ bronze</p>
+  </div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 15 · NOTES ============ -->
+<section class="page">
+  <div class="tete"><span>Le Muséum national</span><span>Notes</span></div>
+  <h3 style="margin-top:0;font-size:13pt">Notes</h3>
+  <div class="lignes" style="height:164mm"></div>
+  <div class="pied"><span class="folio"></span></div>
+</section>
+
+<!-- ============ 16 · QUATRIÈME DE COUVERTURE ============ -->
+<section class="page dos">
+  <div class="cadre"></div>
+  <img src="../../../console/logo-medaillon.png" alt="">
+  <h2>Le Pupitre des Énigmes</h2>
+  <p class="slogan">Missions · Mystères · Évasion</p>
+  <p class="resume">Paris, 1912. Un quart d'heure avant l'inauguration, le crâne du T-Rex Auguste a disparu. Localisez le voleur, éclairez la cave,
+    ouvrez le coffre… et apprenez, en jouant, tous les gestes du pupitre.</p>
+  <table>
+    <tr class="ici"><td>Panique au Muséum</td><td>Le Muséum national</td><td class="e">★</td></tr>
+    <tr><td>Banc d'essai</td><td>L'Atelier du professeur Lumen</td><td class="e">★</td></tr>
+    <tr><td>La Disparition d'Éclipse</td><td>Le Haras des Trois Fers</td><td class="e">★</td></tr>
+    <tr><td>Le Casse du Siècle</td><td>Monte-Carlo 1928</td><td class="e">★★</td></tr>
+    <tr><td>Le Vol de l'Œil de Jade</td><td>Le Manoir Harrington</td><td class="e">★★</td></tr>
+    <tr><td>La dernière nuit de Lord Edgar</td><td>Le Manoir Blackwood</td><td class="e">★★</td></tr>
+    <tr><td>Désamorçage</td><td>Brigade de déminage</td><td class="e">★★</td></tr>
+    <tr><td>Signal Perdu</td><td>Station Kepler-9</td><td class="e">★★★</td></tr>
+    <tr><td>Dernier souffle</td><td>Sous-marin Narval</td><td class="e">★★★</td></tr>
+  </table>
+  <div class="mentions">2 à 6 joueurs · 15 minutes · pour tous · le tutoriel du pupitre</div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panique au Muséum · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .page:last-child { break-after: auto; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 5mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  .plaque { width: 150mm; margin: 4mm auto; padding: 7mm 10mm; text-align: center; border-radius: 3mm; color: #2b1e0e;
+            background: linear-gradient(135deg, #d9b56a, #a77c30 55%, #cfa75a); border: .6mm solid #6d4c18; box-shadow: inset 0 0 0 1.2mm #edd29c, 0 1mm 3mm #0003; }
+  .plaque .nom { font-family: "Playfair"; font-weight: 900; font-size: 30pt; letter-spacing: .12em; }
+  .plaque .latin { font-family: "Playfair"; font-style: italic; font-size: 14pt; }
+  .plaque .filet { width: 50mm; height: .5mm; background: #5a3d10; margin: 3mm auto; }
+  .plaque p { margin: 1mm 0; font-size: 11pt; }
+  .plaque .entree { font-family: "Playfair"; font-weight: 700; font-size: 13pt; margin-top: 3mm; }
+  .plan { border: 1px solid #1b2f2e; border-radius: 4px; background: #f6f1e4; padding: 3mm; }
+  .plan svg { width: 100%; display: block; }
+  .note { background: #fffdf5; border: 1px solid #ddd2b8; padding: 7mm 9mm; font-family: "Caveat"; font-size: 18pt; color: #2a2a4a; line-height: 1.2;
+          width: 130mm; margin: 3mm auto; transform: rotate(-1.4deg); box-shadow: 0 1mm 3mm #0003; }
+  .note p { margin: 0 0 2mm; }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 31mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; margin-top: 4mm; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 3mm 7mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Playfair"; font-weight: 900; font-size: 30pt; color: #1b2f2e; line-height: 1; }
+  .etiquette .lieu { font-family: "Playfair"; font-style: italic; font-size: 13pt; color: #8a6d24; margin: 1mm 0 1.5mm; }
+  .etiquette .avis { font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 1.5mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9.5pt; line-height: 1.35; }
+  .etiquette.dos h4 { margin: 0 0 1mm; font-size: 10.5pt; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- ================= E1 · LA GRANDE GALERIE ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · La Grande Galerie</div>
+  <h2 style="margin-top:0">La plaque du socle</h2>
+  <div class="plaque">
+    <div class="nom">AUGUSTE</div>
+    <div class="latin">Tyrannosaurus rex</div>
+    <div class="filet"></div>
+    <p>Formation de Hell Creek, Montana · Crétacé supérieur</p>
+    <p>Squelette monté en 1911 par les ateliers du Muséum</p>
+    <p class="entree">Entré au Muséum en 1908</p>
+  </div>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">Le plan du Muséum, et les traces de plâtre</h2>
+  <div class="plan">
+    <svg viewBox="0 0 640 330" font-family="Playfair, serif">
+      <rect width="640" height="330" fill="#f6f1e4"/>
+      <!-- le toit et les niveaux -->
+      <path d="M40 80 L320 30 L600 80" fill="none" stroke="#1b2f2e" stroke-width="2"/>
+      <rect x="40" y="80" width="560" height="80" fill="#efe7d3" stroke="#1b2f2e" stroke-width="2"/>
+      <rect x="40" y="160" width="560" height="100" fill="#efe7d3" stroke="#1b2f2e" stroke-width="2"/>
+      <rect x="40" y="260" width="560" height="55" fill="#e2d8c0" stroke="#1b2f2e" stroke-width="2"/>
+      <g font-size="10" fill="#8a6d24" letter-spacing="1.5">
+        <text x="46" y="94">1ER ÉTAGE</text><text x="46" y="174">REZ-DE-CHAUSSÉE</text><text x="46" y="274">SOUS-SOL</text>
+      </g>
+      <!-- les salles -->
+      <rect x="140" y="98" width="300" height="52" fill="#fffaf0" stroke="#1b2f2e"/>
+      <text x="290" y="128" text-anchor="middle" font-size="15" fill="#1b2f2e">Galerie de Minéralogie</text>
+      <rect x="60" y="180" width="150" height="70" fill="#fffaf0" stroke="#1b2f2e"/>
+      <text x="135" y="212" text-anchor="middle" font-size="14" fill="#1b2f2e">Galerie</text>
+      <text x="135" y="230" text-anchor="middle" font-size="14" fill="#1b2f2e">d'Anatomie</text>
+      <rect x="230" y="172" width="270" height="80" fill="#fffaf0" stroke="#1b2f2e" stroke-width="1.6"/>
+      <text x="365" y="192" text-anchor="middle" font-size="16" font-weight="700" fill="#1b2f2e">La Grande Galerie</text>
+      <!-- Auguste -->
+      <g transform="translate(330 232)" fill="none" stroke="#1b2f2e" stroke-width="1.6">
+        <path d="M-60 0c10-10 25-14 40-12l30-6c8-2 14 0 18 4l12-2-2 6-10 2c-2 4-6 6-10 6l-6 10M-20-12l-6 18M0-16l4 20"/>
+      </g>
+      <text x="300" y="248" text-anchor="middle" font-size="10" fill="#8a6d24">Auguste</text>
+      <!-- l'escalier de service -->
+      <rect x="520" y="172" width="60" height="80" fill="#fffaf0" stroke="#1b2f2e"/>
+      <g stroke="#1b2f2e" stroke-width="1"><path d="M525 180h50M525 192h50M525 204h50M525 216h50M525 228h50M525 240h50"/></g>
+      <text x="550" y="166" text-anchor="middle" font-size="10" fill="#1b2f2e">escalier de service</text>
+      <path d="M550 252v18" stroke="#1b2f2e" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="565" y="290" text-anchor="middle" font-size="11" fill="#1b2f2e" font-style="italic">vers le sous-sol</text>
+      <rect x="250" y="270" width="210" height="38" fill="#fffaf0" stroke="#1b2f2e" stroke-dasharray="4 3"/>
+      <text x="355" y="294" text-anchor="middle" font-size="12" fill="#6d665d" font-style="italic">ateliers techniques (fermés au public)</text>
+      <!-- les traces de plâtre -->
+      <g fill="#ffffff" stroke="#8a8478" stroke-width=".8">
+        <ellipse cx="372" cy="236" rx="4" ry="6"/><ellipse cx="392" cy="230" rx="4" ry="6"/><ellipse cx="412" cy="236" rx="4" ry="6"/>
+        <ellipse cx="432" cy="230" rx="4" ry="6"/><ellipse cx="452" cy="236" rx="4" ry="6"/><ellipse cx="472" cy="230" rx="4" ry="6"/>
+        <ellipse cx="492" cy="236" rx="4" ry="6"/><ellipse cx="512" cy="230" rx="4" ry="6"/>
+      </g>
+      <text x="440" y="218" text-anchor="middle" font-size="10" fill="#c0392b" font-style="italic">traces de plâtre frais</text>
+      <text x="610" y="320" text-anchor="end" font-size="9" fill="#6d665d">Muséum national d'histoire naturelle · coupe des galeries</text>
+    </svg>
+  </div>
+  <p class="petit">Dans l'enveloppe E1, glissez aussi la carte <strong>O2 · La copie en plâtre</strong>.</p>
+</div>
+
+<!-- ================= E2 · L'ATELIER DE MOULAGE ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · L'Atelier de moulage</div>
+  <h2 style="margin-top:0">Le papier tombé de la poche du voleur</h2>
+  <div class="note">
+    <p>Pour Monsieur X.,</p>
+    <p>Le crâne est à l'abri dans le coffre de la réserve, sous l'atelier. Personne ne connaît cette cave.</p>
+    <p>Le code ? L'année où ce gros lézard est entré au Muséum. Ces savants sont si prévisibles…</p>
+    <p>Passage du fiacre à 10 h 30. Ne soyez pas en retard.</p>
+    <p style="text-align:right">— R.</p>
+  </div>
+  <p class="petit" style="text-align:center">Dans l'enveloppe E2, glissez aussi la carte <strong>L5 · La Réserve cachée</strong>.</p>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;margin-bottom:2mm">Enveloppe E3 · seulement pour un pupitre sans tiroir secret</div>
+  <p>Si votre pupitre n'a pas de tiroir secret, glissez la carte <strong>O1 · Le crâne d'Auguste</strong> dans l'enveloppe E3. Sinon,
+     avant la partie : carte <strong>Le Muséum national</strong> dans la fente, menu <strong>Tiroir secret</strong>, rangez-y la carte du crâne,
+     poussez le tiroir au fond et validez au bouton vert.</p>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">Les étiquettes des enveloppes</h2>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">La Grande Galerie</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E1 · contenu</h4><ul><li>La plaque du socle d'Auguste</li><li>Le plan du Muséum</li><li>Carte O2 · La copie en plâtre</li></ul></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">L'Atelier de moulage</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E2 · contenu</h4><ul><li>Le papier du voleur</li><li>Carte L5 · La Réserve cachée</li></ul></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Le coffre de la réserve</div><div class="avis">Sans tiroir secret seulement</div></div>
+    <div class="etiquette dos"><h4>E3 · contenu</h4><ul><li>Carte O1 · Le crâne d'Auguste</li></ul></div>
+  </div>
+</div>
+
+</body>
+</html>
