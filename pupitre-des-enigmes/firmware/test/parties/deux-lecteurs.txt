@@ -45,6 +45,15 @@ plateau -
 fente -
 verifie zone QUI -
 
+# --- Le lecteur à plat refuse un personnage ou un lieu : ils se glissent dans la fente
+plateau P2
+verifie journal refusée sur le lecteur à plat
+verifie zone QUI -
+plateau -
+plateau L9
+verifie zone OU L1
+plateau -
+
 # --- Le bureau : son code tapé au clavier
 fente L3
 touches 3715

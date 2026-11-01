@@ -44,7 +44,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `anneau` | Un compteur de la mission prend l'anneau tant que `si` est vraie : `compteur`, `sur` (la valeur qui allume les 12 LED), `couleur`. Le Manoir Harrington s'en sert pour allumer un segment vert par gemme posée | `{"si": "gemmes>0", "compteur": "gemmes", "sur": 12, "couleur": "vert"}` |
 | `objets_combinables` | `true` : QUI et QUOI sont les deux mains des joueurs (pupitre à deux lecteurs : la fente et le plateau) ; deux objets ensemble font un événement « combinaison » (§ 3) | `true` |
 | `materiel` | Les éléments du pupitre dont la mission se sert : `fente`, `plateau`, `clavier`, `voyants`, `couleur`, `cle`, `boutons`, `molette`, `gros_bouton`, `casque`, `anneau`, `gestes` (l'œil : gestes et lampe), `souffle` (la forge), `aimant` (l'enclume), `afficheur` (l'horloge à 4 chiffres), `tiroir` (le tiroir secret). Sa façade cache les autres ; l'écran ne les cite pas. Absente : tout. | `["fente", "plateau", "clavier"]` |
-| `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques quand une carte arrive sur la mauvaise zone d'un pupitre à trois lecteurs (`dire_lieu`, `dire_objet`, `dire_perso`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
+| `zones` | Les noms des trois zones à l'écran (`noms`), et les répliques qui remplacent celles du pupitre quand une carte est refusée : un lieu ou un personnage posé sur le lecteur à plat (`dire_lieu`, `dire_perso`), ou une carte sur la mauvaise zone d'un pupitre à trois lecteurs (les mêmes, et `dire_objet`) | `{"noms": ["MAIN GAUCHE", "COMPARTIMENT", "MAIN DROITE"]}` |
 | `tiroir_lumiere` | La couleur de la LED qui éclaire le tiroir secret quand il sort (blanc chaud par défaut) | `"ambre"` |
 | `dynamo` | La lumière à entretenir au gros bouton (`bouton`) : elle se vide en `duree` secondes, chaque appui rend `gain` %, à zéro c'est le noir complet et les cartes ne donnent que la réplique `noir` | `{"bouton": "GROS", "duree": 80, "gain": 15, "noir": 17}` |
 | `objectifs` | Le tableau de bord (appui sur la molette) et la ligne du bas : `nom`, `visible` et `fait` (conditions) | `[{"nom": "Rétablir le courant", "visible": "J_porte", "fait": "J_courant"}]` |
@@ -114,7 +114,9 @@ avec les mêmes trois zones : chaque carte rejoint la zone de son type (lieu →
 personnage → QUI, objet → QUOI ; avec `objets_combinables`, l'objet de la fente
 va sur QUI et celui du plateau sur QUOI), une carte Rôle prend la zone que l'autre
 lecteur laisse libre, et **le lieu reste sur OÙ** quand on reprend sa carte,
-jusqu'au lieu suivant. Les scripts écrits pour trois lecteurs marchent tels quels.
+jusqu'au lieu suivant. Le lecteur à plat ne prend que les objets (et les cartes Rôle) :
+un lieu ou un personnage y est refusé, et le pupitre dit de le glisser dans la fente.
+Les scripts écrits pour trois lecteurs marchent tels quels.
 Retirer la carte d'un lieu abandonne toujours une épreuve `quitter`.
 
 ## 4. Les conditions
@@ -319,7 +321,7 @@ ces états ; l'épreuve `voyants` (§ 6) prend le panneau le temps de l'épreuve
 
 La voix du pupitre (dossier 91, `console/audio/repliques.json`) et ses bruitages
 (dossier 90) sont utilisés par le moteur sans que le script ait à les citer :
-carte posée au mauvais endroit (7 à 9, mode trois lecteurs seulement : avec deux lecteurs, chaque carte rejoint d'elle-même la zone de son type), carte inconnue (10), carte d'un autre monde (4), casque
+personnage ou lieu posé sur le lecteur à plat, qui ne prend que les objets (7 et 8 : « glissez-la dans la fente » ; une mission peut les remplacer par `zones.dire_perso` et `zones.dire_lieu`), objet au mauvais endroit en mode trois lecteurs (9), carte inconnue (10), carte d'un autre monde (4), casque
 (5 et 6), pause et reprise (11 et 12)… Les bruitages : bip (2), erreur (3),
 carillon du casque (6), roulement de l'accusation (7).
 

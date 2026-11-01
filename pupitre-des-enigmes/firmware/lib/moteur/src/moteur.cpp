@@ -456,6 +456,20 @@ void Moteur::lecteur(int n, const std::string& uid) {
   }
   std::string id = idCarte(uid);
   std::string type = id.empty() ? "" : typeCarte(id);
+  // Le lecteur à plat reçoit les objets : un lieu ou un personnage y est refusé (il se glisse
+  // dans la fente). La mission peut dire le refus à sa façon (« zones » : dire_lieu, dire_perso).
+  if (n == 1 && phase_ == Phase::JEU && (type == "lieu" || type == "perso")) {
+    lecteurZone_[n] = -1;
+    flashZone_[QUOI] = maintenant() + 500;
+    couleurZone_[QUOI] = 0xff0000;
+    noter("Carte " + id + " · " + nomCarte(id) + " refusée sur le lecteur à plat");
+    p_.jouer(DOSSIER_SONS_PUPITRE, 3, false);
+    JsonVariantConst propre = script_["zones"][type == "lieu" ? "dire_lieu" : "dire_perso"];
+    if (!propre.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, propre.as<int>()));
+    else ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, type == "lieu" ? 8 : 7));
+    majZones();
+    return;
+  }
   int z = n == 0 ? QUI : QUOI;  // monde, aide, carte inconnue : la zone du lecteur
   if (type == "lieu") {
     z = OU;
