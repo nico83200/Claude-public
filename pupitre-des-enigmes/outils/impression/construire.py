@@ -285,8 +285,22 @@ MISSIONS = [
         ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
         ("fiche-enquete", "fiche-enquete", ""),
     ]},
-    {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928"},
-    {"num": 3, "monde": "kepler", "nom": "Station Kepler-9"},
+    {"num": 2, "monde": "casse", "nom": "Monte-Carlo 1928", "materiel": [
+        ("fiche-mission-2", "fiche-joueurs", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "fiche-enquete", ""),
+    ]},
+    {"num": 3, "monde": "kepler", "nom": "Station Kepler-9", "materiel": [
+        ("fiche-mission-3", "fiche-joueurs", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "fiche-enquete", ""),
+    ]},
     # Un escape game : pas de rôles (donc pas de documents secrets), un carnet de bord au lieu de la fiche d'enquête.
     # Le plateau renomme les lecteurs du pupitre (MAIN GAUCHE · COMPARTIMENT · MAIN DROITE · DYNAMO).
     {"num": 4, "monde": "narval", "nom": "Sous-marin Narval", "materiel": [
@@ -307,9 +321,17 @@ MISSIONS = [
     {"num": 6, "monde": "deminage", "nom": "Brigade de déminage", "materiel": [
         ("fiche-mission-6", "fiche-mission", "Fiche de mission"),
         ("manuel", "manuel", "Manuel de désamorçage · experts"),
+        ("plateau", "plateau", ""),
         ("cartes", "cartes", ""),
     ]},
-    {"num": 7, "monde": "blackwood", "nom": "Le Manoir Blackwood"},
+    {"num": 7, "monde": "blackwood", "nom": "Le Manoir Blackwood", "materiel": [
+        ("fiche-mission-7", "fiche-joueurs", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("documents-secrets", "documents-secrets", "Documents secrets des rôles"),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+        ("fiche-enquete", "fiche-enquete", ""),
+    ]},
     # Le tutoriel : une fiche (joueurs, puis maître du jeu), la plaque du Muséum, les cartes et les enveloppes.
     {"num": 8, "monde": "museum", "nom": "Le Muséum national", "materiel": [
         ("fiche-mission-8", "fiche-mission", "Fiche de mission"),
@@ -654,6 +676,7 @@ def main():
         rendre(ICI / "mode-emploi.html", SORTIE / "mode-emploi.pdf", pied="Le Pupitre des Énigmes · Mode d'emploi")
         rendre(ICI / "gabarit-facade.html", SORTIE / "gabarit-facade.pdf")
         rendre(ICI / "lire-une-carte.html", SORTIE / "lire-une-carte-a5.pdf")
+        rendre(ICI / "installer-esp32-mac.html", SORTIE / "installer-esp32-mac.pdf", pied="Le Pupitre des Énigmes · Installer le programme depuis un Mac")
         rendre(ICI / "plan-cablage.html", SORTIE / "plan-cablage.pdf", pied="Le Pupitre des Énigmes · Plan de câblage")
         temporaire("notice-montage", notice, SORTIE / "notice-montage.pdf", pied="Le Pupitre des Énigmes · Notice de montage")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),

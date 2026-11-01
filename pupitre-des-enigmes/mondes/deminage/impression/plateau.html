@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Désamorçage · Plateau du pupitre</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #1d1f24; --or: #f2b134; }
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #a8721a; border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
+  table.organes td, table.organes th { padding: 1.5px 6px; font-size: 8.4pt; }
+  .notice p { font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié dans
+     chaque page par le script en bas. Les organes dont la mission ne se sert pas restent sous la
+     plaque : on ne découpe que les fenêtres en pointillés blancs. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2d33"/><stop offset=".6" stop-color="#1d1f24"/><stop offset="1" stop-color="#131418"/></linearGradient>
+    <pattern id="motif" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".4" fill="#ece9e2" opacity=".12"/></pattern>
+    <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#0b0c0f"/></pattern>
+    <pattern id="hachures" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="8" fill="#f2b134"/><rect x="4" width="4" height="8" fill="#16181c"/></pattern>
+    <g id="rivet"><circle r="2" fill="#f2b134" opacity=".85"/><circle r="1" fill="#ffffff" opacity=".35" cx="-.5" cy="-.5"/></g>
+  </defs>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#fond)" stroke="#000" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#motif)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#f2b134" stroke-width="1"/>
+  <rect x="7.5" y="7.5" width="365" height="247" rx="5.5" fill="none" stroke="#f2b134" stroke-width=".35" opacity=".7"/>
+  <g><use href="#rivet" x="100" y="9"/><use href="#rivet" x="280" y="9"/><use href="#rivet" x="100" y="253"/><use href="#rivet" x="280" y="253"/></g>
+  <g fill="none" stroke="#ece9e2" stroke-width=".4" opacity=".5"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+  <g font-family="Share Tech Mono, monospace">
+  <text x="190" y="15" text-anchor="middle" font-size="5.2" fill="#f2b134" letter-spacing="1.3">⚠ ENGIN EXPLOSIF · NE PAS DÉPLACER · BRIGADE DE DÉMINAGE ⚠</text>
+
+  <!-- le clavier -->
+  <rect x="19" y="19" width="78" height="86" rx="3" fill="none" stroke="#ece9e2" stroke-width=".9"/>
+  <rect x="23" y="23" width="70" height="78" rx="2" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-size="4.5" fill="#6b6f78">✂ CLAVIER</text>
+  <rect x="25" y="16.5" width="66" height="5" fill="#1d1f24"/>
+  <text x="58" y="20.6" text-anchor="middle" font-size="4.2" fill="#f2b134" letter-spacing=".4">CLAVIER</text>
+
+  <!-- le haut-parleur et l'anneau -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="#ece9e2" stroke-width=".9"/>
+  <text x="133" y="90" text-anchor="middle" font-size="4" fill="#ece9e2">LE QG</text>
+  <circle cx="190" cy="62" r="22" fill="none" stroke="#f2b134" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="190" cy="62" r="19" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="90" text-anchor="middle" font-size="4" fill="#ece9e2">COMPTE À REBOURS</text>
+
+  <!-- l'écran -->
+  <rect x="236" y="30" width="98" height="64" rx="3" fill="none" stroke="#f2b134" stroke-width=".9"/>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-size="4.5" fill="#6b6f78">✂ ÉCRAN 3,5"</text>
+  <text x="285" y="99" text-anchor="middle" font-size="3.6" fill="#ece9e2">l'écran : n° de série, modules, consignes</text>
+
+  <circle cx="358" cy="40" r="10" fill="none" stroke="#f2b134" stroke-width="1"/>
+  <circle cx="358" cy="40" r="6" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="358" y="57" text-anchor="middle" font-size="4.1" fill="#f2b134" letter-spacing=".4">SÉCURITÉ FINALE</text>
+  <text x="358" y="61.5" text-anchor="middle" font-size="2.9" fill="#ece9e2" opacity=".85">la clé, 15 s</text>
+  <rect x="31" y="108" width="98" height="56" rx="3" fill="none" stroke="#ece9e2" stroke-width=".6"/>
+  <rect x="44" y="105.5" width="72" height="5" fill="#00000000"/>
+  <text x="80" y="109.6" text-anchor="middle" font-size="4" fill="#f2b134" letter-spacing=".5">FILS 1 → 5 · MODULES</text>
+  <circle cx="46.7" cy="116" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="63.3" cy="116" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="80" cy="116" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="96.7" cy="116" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="113.3" cy="116" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="46.7" cy="148" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="63.3" cy="148" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="80" cy="148" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="96.7" cy="148" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/><circle cx="113.3" cy="148" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <g font-size="2.9" fill="#ece9e2" text-anchor="middle"><text x="46.7" y="124">FIL 1</text><text x="63.3" y="124">FIL 2</text><text x="80" y="124">FIL 3</text><text x="96.7" y="124">FIL 4</text><text x="113.3" y="124">FIL 5</text><text x="46.7" y="156">MOD.</text><text x="63.3" y="156">MOD.</text><text x="80" y="156">MOD.</text><text x="96.7" y="156">MOD.</text><text x="113.3" y="156">MOD.</text></g>
+  <text x="80" y="161.6" text-anchor="middle" font-size="2.8" fill="#ece9e2" opacity=".85">en haut : les fils · en bas : désamorcés</text>
+
+  <!-- la fente -->
+  <rect x="150" y="116" width="80" height="34" rx="3" fill="none" stroke="#f2b134" stroke-width="1.2"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="125.5" text-anchor="middle" font-size="5.2" fill="#f2b134" letter-spacing=".8">MODULES</text>
+  <text x="190" y="142" text-anchor="middle" font-size="3.7" fill="#ece9e2">glissez la carte d'un module</text>
+  <text x="190" y="146.6" text-anchor="middle" font-size="3.3" fill="#ece9e2" opacity=".8">et laissez-la pendant l'essai</text>
+
+  <!-- le lecteur à plat : caché, sous la plaque constructeur -->
+  <rect x="257" y="105" width="76" height="70" rx="3" fill="#00000033" stroke="#f2b134" stroke-width=".8"/>
+  <rect x="257" y="105" width="76" height="6" fill="url(#hachures)"/>
+  <g font-size="3.6" fill="#ece9e2" text-anchor="middle"><text x="295" y="124">MODÈLE  XB-12</text><text x="295" y="132">CHARGE : 4 KG</text>
+  <text x="295" y="140">MODULES : 5 / 8</text><text x="295" y="148">MINUTERIE : 12:00</text></g>
+  <text x="295" y="166" text-anchor="middle" font-size="4" fill="#f2b134" letter-spacing=".8">NE PAS OUVRIR</text>
+  <circle cx="358" cy="107" r="10" fill="none" stroke="#f2b134" stroke-width="1"/>
+  <g stroke-width="2.2" fill="none"><path d="M358 95.5a11.5 11.5 0 0 1 11.5 11.5" stroke="#e5484d"/><path d="M369.5 107a11.5 11.5 0 0 1-11.5 11.5" stroke="#3e7bfa"/>
+     <path d="M358 118.5a11.5 11.5 0 0 1-11.5-11.5" stroke="#30a46c"/><path d="M346.5 107a11.5 11.5 0 0 1 11.5-11.5" stroke="#f5b83d"/></g>
+  <circle cx="358" cy="107" r="6" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="358" y="126" text-anchor="middle" font-size="4.2" fill="#f2b134">LE NUANCIER</text>
+  <text x="358" y="131" text-anchor="middle" font-size="3.1" fill="#ece9e2" opacity=".85">une pastille à plat</text>
+  <circle cx="358" cy="167" r="7" fill="none" stroke="#f2b134" stroke-width="1"/>
+  <circle cx="358" cy="167" r="3" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="358" y="181" text-anchor="middle" font-size="4.1" fill="#f2b134">LA RADIO</text>
+  <text x="358" y="185.5" text-anchor="middle" font-size="2.9" fill="#ece9e2" opacity=".85">casque : le mot de code</text>
+  <text x="60" y="171.5" text-anchor="middle" font-size="4" fill="#f2b134">REFROIDISSEUR</text>
+  <circle cx="60" cy="183" r="9" fill="none" stroke="#ece9e2" stroke-width=".7"/>
+  <g fill="#0b0c0f" stroke="#ffffff" stroke-width=".35" stroke-dasharray=".8 .6"><circle cx="60" cy="183" r="1"/><circle cx="56.5" cy="183" r="1"/><circle cx="63.5" cy="183" r="1"/><circle cx="60" cy="179.5" r="1"/><circle cx="60" cy="186.5" r="1"/><circle cx="57.5" cy="180.5" r="1"/><circle cx="62.5" cy="180.5" r="1"/><circle cx="57.5" cy="185.5" r="1"/><circle cx="62.5" cy="185.5" r="1"/></g>
+  <text x="60" y="197" text-anchor="middle" font-size="3.1" fill="#ece9e2" opacity=".85">soufflez ici</text>
+  <!-- l'enclume : cachée -->
+  <g transform="translate(105 183)" fill="none" stroke="#f2b134" stroke-width=".7"><path d="M0-9 9 7H-9Z"/><path d="M0-3v5" stroke-width="1.2"/><circle cy="4.5" r=".7" fill="#f2b134"/></g>
+
+  <!-- l'horloge -->
+  <text x="175" y="166" text-anchor="middle" font-size="4.2" fill="#f2b134">LA MINUTERIE</text>
+  <rect x="146" y="168.5" width="58" height="23" rx="2" fill="none" stroke="#ece9e2" stroke-width=".8"/>
+  <rect x="150" y="170.5" width="50" height="19" rx="2" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="175" y="182" text-anchor="middle" font-size="4" fill="#6b6f78">✂ HORLOGE</text>
+
+  <circle cx="235" cy="180" r="8" fill="none" stroke="#ece9e2" stroke-width=".9"/>
+  <circle cx="235" cy="180" r="5" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <g fill="#f2b134"><path d="M235 164l-3 4h6z"/><path d="M235 196l-3-4h6z"/><path d="M219 180l4-3v6z"/><path d="M251 180l-4-3v6z"/></g>
+  <text x="235" y="204" text-anchor="middle" font-size="4.2" fill="#f2b134">LE VISEUR</text>
+  <text x="235" y="209" text-anchor="middle" font-size="3.1" fill="#ece9e2" opacity=".85">la main à plat, à 5 cm</text>
+  <text x="95" y="249" text-anchor="middle" font-size="4.1" fill="#f2b134" letter-spacing=".5">DÉTONATEUR · SURCHAUFFE</text>
+  <g fill="none" stroke-width="2.4">
+    <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
+    <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
+  </g>
+  <g fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/></g>
+
+  <!-- la molette -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="#ece9e2" stroke-width=".9"/>
+  <g stroke="#ece9e2" stroke-width=".7"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <circle cx="190" cy="222" r="3.5" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="202" text-anchor="middle" font-size="4.2" fill="#f2b134">TABLEAU DE BORD</text>
+  <text x="190" y="244" text-anchor="middle" font-size="3.2" fill="#ece9e2">appui : n° de série, modules, temps</text>
+
+  <!-- le gros bouton -->
+  <circle cx="295" cy="222" r="30" fill="none" stroke="#ece9e2" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="295" cy="222" r="23" fill="none" stroke="#f2b134" stroke-width="1.1"/>
+  <circle cx="295" cy="222" r="11" fill="#0b0c0f" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="219" text-anchor="middle" font-size="5.4" fill="#f2b134">STABILISATEUR</text>
+  <text x="351" y="226" text-anchor="middle" font-size="3.3" fill="#ece9e2">gros bouton : rythme, nuancier</text>
+  <text x="236" y="253" text-anchor="middle" font-size="3" fill="#ece9e2" opacity=".8">Brigade de déminage · ne rien toucher sans l'ordre des experts</text>
+  </g>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes · Brigade de déminage</span><span>Plateau · Désamorçage</span></div>
+  <h1 style="margin-bottom:2mm">La plaque de la bombe</h1>
+  <p>Pour « Désamorçage », la façade fait du pupitre <strong>la bombe</strong>. Chaque organe y porte le nom de son module : la forge devient <strong>le refroidisseur</strong> (Surchauffe), l'œil <strong>le viseur</strong>, le capteur de couleur <strong>le nuancier</strong>, l'interrupteur à clé <strong>la sécurité finale</strong>, le gros bouton <strong>le stabilisateur</strong>, le casque <strong>la radio</strong>. Le lecteur à plat et l'enclume ne servent pas : la plaque les cache.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <h3>Les organes, sous leur nom de mission</h3>
+  <table class="organes"><tr><th>Sur la plaque</th><th>L'organe du pupitre</th><th>Ce qu'on en fait</th></tr><tr><td>Modules</td><td>La fente</td><td>La carte d'un module, laissée en place pendant l'essai</td></tr><tr><td>Fils · modules</td><td>Les 10 voyants</td><td>En haut : les 5 fils ; en bas : les modules désamorcés</td></tr><tr><td>Clavier</td><td>Le clavier</td><td>Le numéro d'un fil, un code, une fréquence</td></tr><tr><td>Détonateur · surchauffe</td><td>Les 4 boutons</td><td>Le bouton à presser</td></tr><tr><td>Refroidisseur</td><td>La forge</td><td>Souffler, bouche grande ouverte, 2 s</td></tr><tr><td>Le viseur</td><td>L'œil</td><td>La main à plat, à 5 cm, deux gestes</td></tr><tr><td>Le nuancier</td><td>Le capteur de couleur</td><td>La pastille demandée, à plat</td></tr><tr><td>La radio</td><td>Le casque</td><td>Le mot de code du QG</td></tr><tr><td>Stabilisateur</td><td>Le gros bouton</td><td>Le rythme, et la validation du nuancier</td></tr><tr><td>Sécurité finale</td><td>L'interrupteur à clé</td><td>À tourner dans les 15 secondes</td></tr><tr><td>La minuterie · compte à rebours</td><td>L'horloge et l'anneau</td><td>Le temps qui reste</td></tr><tr><td>Tableau de bord</td><td>La molette</td><td>Un appui : le numéro de série et les modules</td></tr></table>
+  <h3>Fabrication</h3>
+  <ol style="font-size:9pt;margin-top:0">
+    <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
+    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite.</li>
+    <li>Collez sur la façade aimantée (contreplaqué de 2 mm), plastifiez si possible.</li>
+    <li>Découpez <strong>seulement les fenêtres en pointillés blancs</strong> : écran, clavier, haut-parleur, anneau, clé, voyants, fente, nuancier, prise casque, grille du refroidisseur, horloge, viseur, quatre boutons, molette et gros bouton. Le lecteur à plat et l'enclume restent couverts.</li>
+  </ol>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, après les pointillés) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · aligner le bord gauche sur les pointillés de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>';
+  document.querySelectorAll("svg.copie").forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    s.innerHTML = modele.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/#([\w-]+)\)/g, `#$1-${i})`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`) + (i ? repere : "");
+  });
+</script>
+</body>
+</html>

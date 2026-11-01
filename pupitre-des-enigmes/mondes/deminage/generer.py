@@ -203,7 +203,7 @@ def repliques():
         L(21, "bombe", "Détonateur", "Module détonateur. Lisez l'étiquette, puis appuyez sur un seul bouton de couleur."),
         L(22, "bombe", "Clavier", "Module clavier. Quatre mots, un code à quatre chiffres."),
         L(23, "bombe", "Surchauffe", "Module surchauffe. Bouton vert pour refroidir, bouton rouge pour laisser chauffer."),
-        L(24, "bombe", "Surchauffe : refroidir", "Refroidissement. Soufflez sur la grille FORGE, bouche grande ouverte, pendant deux secondes."),
+        L(24, "bombe", "Surchauffe : refroidir", "Refroidissement. Soufflez sur la grille du REFROIDISSEUR, bouche grande ouverte, pendant deux secondes."),
         L(25, "bombe", "Viseur", "Module viseur. Deux gestes de la main au-dessus de l'œil, dans le bon ordre."),
         L(26, "bombe", "Nuancier", "Module nuancier. Posez la bonne pastille sur le capteur, puis appuyez sur le gros bouton."),
         L(27, "bombe", "Radio", "Module radio. Le démineur met le casque, et écoute le mot de code."),
@@ -304,7 +304,7 @@ def module(mod, b, sol):
                              "solution": sol, "afficheur": True, "intro": {"dire": 22}, "reussite": ok, "echec": ERREUR}}]
     if mod == "surchauffe":
         souffler = {"epreuve": {"type": "capteur", "capteur": "souffle", "titre": titre, "texte": "Refroidissement en cours…",
-                                "consigne": "Grille FORGE · à 2 ou 3 cm · bouche ouverte · 2 secondes",
+                                "consigne": "Grille REFROIDISSEUR · à 2 ou 3 cm · bouche ouverte · 2 secondes",
                                 "pendant": "Le noyau refroidit… continuez !", "tenir": 2, "secondes": 25,
                                 "intro": {"dire": 24}, "reussite": ok, "echec": ERREUR}}
         vert = [souffler] if sol == "VERT" else ERREUR
@@ -502,14 +502,14 @@ Lisez les règles <b>dans l'ordre</b> : la première qui s'applique est la bonne
 <div class="module"><h2>Surchauffe <small>CARTE « MODULE SURCHAUFFE »</small></h2>
 <p>Le démineur lit la température du noyau. Le <b>seuil</b> est de <b>60 °C</b> si le dernier chiffre du numéro de série est impair,
 de <b>80 °C</b> sinon.</p>
-<ol><li>Température <b>au-dessus du seuil</b> : bouton <b>VERT</b> (refroidir), puis le démineur <b>souffle</b> sur la grille FORGE,
+<ol><li>Température <b>au-dessus du seuil</b> : bouton <b>VERT</b> (refroidir), puis le démineur <b>souffle</b> sur la grille du REFROIDISSEUR,
 bouche grande ouverte, pendant 2 secondes.</li>
 <li>Sinon : bouton <b>ROUGE</b> (laisser chauffer). Surtout ne pas souffler.</li></ol></div>
 
 <div class="saut"></div>
 <div class="bandeau"><span>Brigade de déminage · document réservé aux experts</span><span>Désamorçage</span></div>
 <div class="module"><h2>Viseur <small>CARTE « MODULE VISEUR »</small></h2>
-<p>Une cible s'affiche. Le démineur passe la main à plat, à 5 cm au-dessus de l'<b>ŒIL</b>, d'un bord à l'autre, deux fois.
+<p>Une cible s'affiche. Le démineur passe la main à plat, à 5 cm au-dessus du <b>VISEUR</b>, d'un bord à l'autre, deux fois.
 Si le dernier chiffre du numéro de série est <b>impair</b>, faites les deux gestes <b>dans l'ordre inverse</b>.</p>
 <table><tr><th>Cible</th><th>1<sup>er</sup> geste</th><th>2<sup>e</sup> geste</th></tr>{lignes_cibles}</table></div>
 

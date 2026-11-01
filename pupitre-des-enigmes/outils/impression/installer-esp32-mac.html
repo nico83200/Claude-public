@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Installer le programme sur l'ESP32 depuis un Mac</title>
+<link rel="stylesheet" href="commun.css">
+<style>
+  @page { size: A4; margin: 15mm 16mm 17mm; }
+  body { font-size: 10pt; line-height: 1.45; }
+  .couv { background: #1d1a2e; color: #f1ead8; border-radius: 4mm; padding: 9mm 11mm; margin-bottom: 6mm; position: relative; overflow: hidden; }
+  .couv img { position: absolute; right: 8mm; top: 7mm; width: 34mm; }
+  .couv .sur { font-size: 8pt; letter-spacing: .25em; text-transform: uppercase; color: #d4af37; }
+  .couv h1 { color: #fff; font-size: 24pt; margin: 2mm 0 2mm; max-width: 120mm; }
+  .couv p { margin: 0; max-width: 120mm; color: #dcd5c4; }
+  h2 { font-size: 15pt; color: #1d1a2e; border-bottom: 1.5px solid #d4af37; padding-bottom: 1mm; margin: 7mm 0 3mm; break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 4mm 0 1.5mm; break-after: avoid; }
+  .chemins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin: 3mm 0; }
+  .chemins div { border: 1px solid var(--filet); border-top: 4px solid #d4af37; border-radius: 2mm; padding: 3mm 3.5mm; background: #fff; }
+  .chemins b { display: block; font-family: "Playfair"; font-size: 11.5pt; color: #1d1a2e; margin-bottom: 1mm; }
+  .chemins span { font-size: 8.8pt; color: var(--gris); }
+  ol.etapes { counter-reset: e; list-style: none; padding: 0; margin: 2mm 0; }
+  ol.etapes > li { counter-increment: e; position: relative; padding: 0 0 2.6mm 9mm; break-inside: avoid; }
+  ol.etapes > li::before { content: counter(e); position: absolute; left: 0; top: -.2mm; width: 6mm; height: 6mm; border-radius: 50%;
+                            background: #1d1a2e; color: #d4af37; font-family: "Playfair"; font-weight: 700; font-size: 9pt;
+                            display: flex; align-items: center; justify-content: center; }
+  .term { background: #15141c; color: #e6e1d3; font-family: "Share Tech Mono", monospace; font-size: 9pt; border-radius: 2mm; padding: 2.5mm 4mm;
+          margin: 1.5mm 0; white-space: pre-wrap; break-inside: avoid; }
+  .term .c { color: #8f8aa3; }
+  .encart { border: 1px solid #d4af37; background: #fffaf0; border-radius: 2mm; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+  .encart.alerte { border-color: #c0392b; background: #fff4f2; }
+  .encart .t { font-size: 7.5pt; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; color: #8a6d24; margin-bottom: 1mm; }
+  .encart.alerte .t { color: #c0392b; }
+  kbd { font-family: "Share Tech Mono", monospace; font-size: 8.6pt; background: #eee9dc; border: 1px solid #cfc6b0; border-radius: 1mm; padding: 0 1.2mm; }
+  code { font-family: "Share Tech Mono", monospace; font-size: 9pt; background: #f1ede2; padding: 0 1mm; border-radius: 1mm; }
+  table td, table th { font-size: 9pt; padding: 1.6mm 2.5mm; vertical-align: top; }
+  .saut { break-before: page; }
+</style>
+</head>
+<body>
+
+<div class="couv">
+  <img src="../../console/logo-medaillon.png" alt="">
+  <div class="sur">Le Pupitre des Énigmes · Guide technique</div>
+  <h1>Installer le programme sur l'ESP32 depuis un Mac</h1>
+  <p>La carte ESP-32S du pupitre (ESP32-WROOM-32, prise USB-C, puce USB CH340), programmée depuis macOS : sans rien installer avec un navigateur, ou avec PlatformIO pour modifier le code.</p>
+</div>
+
+<h2>Trois chemins, selon ce que vous voulez faire</h2>
+<div class="chemins">
+  <div><b>A · Le navigateur</b><span>Installer le programme déjà compilé, sans rien installer sur le Mac. <strong>Le plus simple</strong> : 10 minutes.</span></div>
+  <div><b>B · VS Code + PlatformIO</b><span>Pour <strong>modifier le code</strong> et le renvoyer dans l'ESP32 d'un clic. 30 minutes la première fois.</span></div>
+  <div><b>C · Le Terminal</b><span>La même chose que B, en ligne de commande, pour ceux qui préfèrent.</span></div>
+</div>
+<p>Une fois le programme installé une première fois par le câble, les <strong>mises à jour</strong> peuvent passer par le Wi-Fi du pupitre (chapitre 6) : plus besoin d'ouvrir la boîte.</p>
+
+<h2>1. Le matériel</h2>
+<table>
+  <tr><th>Il vous faut</th><th>Pourquoi, et le piège à éviter</th></tr>
+  <tr><td>Un câble <strong>USB-A → USB-C</strong> qui transporte les <strong>données</strong></td><td>Beaucoup de câbles ne font que charger : la carte s'allume, mais le Mac ne la voit pas. Avec un câble USB-C → USB-C, certaines de ces cartes ne sont pas reconnues du tout.</td></tr>
+  <tr><td>Un <strong>adaptateur ou hub USB-C → USB-A</strong></td><td>Les Mac récents n'ont que des prises USB-C (Thunderbolt). Branchez-y l'adaptateur, puis le câble USB-A → USB-C.</td></tr>
+  <tr><td><strong>Google Chrome</strong> ou Microsoft Edge</td><td>Pour le chemin A : Safari et Firefox ne savent pas parler au port USB.</td></tr>
+  <tr><td>macOS 11 (Big Sur) ou plus récent</td><td>Les Mac Intel et Apple (M1 à M4) conviennent tous les deux.</td></tr>
+</table>
+<div class="encart alerte"><div class="t">Avant de brancher</div>
+  <p style="margin:0">Si l'ESP32 est déjà câblé dans le pupitre, <strong>débranchez le fil de la GPIO 2</strong> (TX vers le DFPlayer du casque) le temps de la programmation : la GPIO 2 doit être libre quand la carte démarre en mode programmation. L'alimentation du pupitre peut rester débranchée : le câble USB alimente la carte.</p></div>
+
+<h2>2. Le Mac voit-il la carte ?</h2>
+<p>La carte parle au Mac par une petite puce, la <strong>CH340</strong>. Les versions récentes de macOS la reconnaissent souvent sans rien installer. Vérifions-le.</p>
+<ol class="etapes">
+  <li>Branchez la carte. Sa petite LED rouge s'allume.</li>
+  <li>Ouvrez le <strong>Terminal</strong> : <kbd>⌘</kbd> + <kbd>Espace</kbd>, tapez <em>Terminal</em>, <kbd>Entrée</kbd>.</li>
+  <li>Tapez cette commande, puis <kbd>Entrée</kbd> :
+    <div class="term">ls /dev/cu.*</div>
+    Vous devez voir une ligne comme <code>/dev/cu.usbserial-1420</code> ou <code>/dev/cu.wchusbserial1420</code> : c'est la carte. Débranchez-la et relancez la commande : la ligne disparaît. C'est bon, passez au chapitre 3.</li>
+  <li>Si seules des lignes comme <code>/dev/cu.Bluetooth-Incoming-Port</code> apparaissent, essayez d'abord <strong>un autre câble</strong> (c'est la cause la plus fréquente), puis installez le pilote ci-dessous.</li>
+</ol>
+<h3>Installer le pilote CH34x (seulement si besoin)</h3>
+<ol class="etapes">
+  <li>Sur le site du fabricant de la puce, <strong>wch-ic.com</strong>, cherchez <em>CH34XSER_MAC</em> (le pilote « CH34x » pour macOS) et téléchargez-le.</li>
+  <li>Ouvrez le fichier téléchargé et suivez l'installation. Sur macOS 11 et plus, il s'installe comme une application : lancez-la et cliquez sur <strong>Install</strong>.</li>
+  <li>macOS bloque l'extension : ouvrez <strong>Réglages Système → Confidentialité et sécurité</strong>, descendez jusqu'au message sur le logiciel du développeur de la puce (WCH, « Nanjing Qinheng Microelectronics ») et cliquez sur <strong>Autoriser</strong>.</li>
+  <li><strong>Redémarrez le Mac</strong>, rebranchez la carte et refaites <code>ls /dev/cu.*</code> : une ligne <code>/dev/cu.wchusbserial…</code> apparaît.</li>
+</ol>
+
+<h2>3. Chemin A : le navigateur, sans rien installer</h2>
+<p>Le programme déjà compilé est dans le projet : <code>pupitre-des-enigmes/firmware/binaires/pupitre-complet.bin</code>.</p>
+<h3>Récupérer le fichier</h3>
+<ol class="etapes">
+  <li>Ouvrez le projet sur GitHub, dans la branche qui contient la dernière version du pupitre.</li>
+  <li>Allez dans <code>pupitre-des-enigmes</code> → <code>firmware</code> → <code>binaires</code>, cliquez sur <code>pupitre-complet.bin</code>, puis sur le bouton de téléchargement (<em>Download raw file</em>, la flèche vers le bas). Le fichier arrive dans <em>Téléchargements</em>.</li>
+</ol>
+<h3>Le mettre dans l'ESP32</h3>
+<ol class="etapes">
+  <li>Dans <strong>Chrome</strong>, ouvrez <strong>https://espressif.github.io/esptool-js/</strong> : l'outil officiel d'Espressif, le fabricant de l'ESP32.</li>
+  <li>Laissez <em>Baudrate</em> à 115200 (ou 460800 pour aller plus vite) et cliquez sur <strong>Connect</strong>.</li>
+  <li>Chrome affiche la liste des ports : choisissez la carte (<em>USB Serial</em>, <em>USB2.0-Serial</em> ou <em>wchusbserial</em>), puis <strong>Connexion</strong>.
+     Si la connexion échoue, recommencez en <strong>maintenant le bouton BOOT</strong> de la carte enfoncé pendant « Connecting… », puis relâchez-le.</li>
+  <li>Dans le tableau qui apparaît, <strong>Flash Address</strong> : laissez <code>0x0</code>. Choisissez le fichier <code>pupitre-complet.bin</code>.</li>
+  <li>Cliquez sur <strong>Program</strong>. La barre avance pendant une minute environ. Attendez le message de fin (<em>Leaving…</em>).</li>
+  <li>Cliquez sur <strong>Disconnect</strong>, débranchez, rebranchez : <strong>le logo du Pupitre s'affiche</strong> sur l'écran (si l'écran est câblé). Rebranchez le fil de la GPIO 2.</li>
+</ol>
+<div class="encart"><div class="t">Bon à savoir</div>
+  <p style="margin:0"><code>pupitre-complet.bin</code> contient tout (démarrage, table des partitions, programme) : il s'écrit <strong>toujours à l'adresse 0x0</strong>. L'autre fichier, <code>pupitre-mise-a-jour.bin</code>, ne sert qu'aux mises à jour par le Wi-Fi (chapitre 6) : ne l'envoyez jamais à 0x0.</p></div>
+
+<h2>4. Chemin B : VS Code et PlatformIO, pour modifier le code</h2>
+<h3>Installer les outils (une seule fois)</h3>
+<ol class="etapes">
+  <li><strong>Les outils de développement d'Apple</strong> (Python, Git) : dans le Terminal,
+    <div class="term">xcode-select --install</div>
+    Une fenêtre propose l'installation : acceptez (quelques minutes). Si la commande répond qu'ils sont déjà installés, tout va bien.</li>
+  <li><strong>Visual Studio Code</strong> : téléchargez-le sur <strong>code.visualstudio.com</strong> (version macOS, « Universal »), décompressez, et glissez <em>Visual Studio Code</em> dans le dossier <em>Applications</em>. Ouvrez-le.</li>
+  <li><strong>PlatformIO</strong> : dans VS Code, cliquez sur l'icône des <em>Extensions</em> (les quatre carrés, à gauche), cherchez <strong>PlatformIO IDE</strong>, cliquez sur <strong>Install</strong>. Patientez : PlatformIO télécharge ses outils (quelques minutes), puis demande de recharger la fenêtre.</li>
+</ol>
+<h3>Récupérer le code</h3>
+<ol class="etapes">
+  <li>Sur GitHub, dans la branche du projet, bouton vert <strong>Code → Download ZIP</strong>. Décompressez le ZIP (double-clic), par exemple dans <em>Documents</em>.
+     <br>Ou, dans le Terminal :
+    <div class="term">cd ~/Documents
+git clone https://github.com/nico83200/Claude-public.git
+cd Claude-public
+git checkout <span class="c"># le nom de la branche du projet</span></div></li>
+  <li>Dans VS Code : <strong>Fichier → Ouvrir le dossier…</strong> et choisissez le dossier <code>pupitre-des-enigmes/firmware</code> (celui qui contient <code>platformio.ini</code>), pas le dossier du dessus.</li>
+</ol>
+<h3>Compiler et téléverser</h3>
+<ol class="etapes">
+  <li>En bas de la fenêtre, la <strong>barre bleue de PlatformIO</strong> apparaît. Cliquez sur la coche <strong>✓ (Build)</strong>. La première fois, PlatformIO télécharge l'ESP32 et les bibliothèques (écran, RFID, audio, LED, JSON) : comptez quelques minutes. Le message <em>SUCCESS</em> termine la compilation.</li>
+  <li>Branchez la carte (fil de la GPIO 2 débranché). Cliquez sur la flèche <strong>→ (Upload)</strong>. PlatformIO trouve le port tout seul.</li>
+  <li>Si <em>« Connecting…… »</em> s'éternise : maintenez le bouton <strong>BOOT</strong> enfoncé jusqu'à ce que les pourcentages s'affichent.</li>
+  <li>Cliquez sur la <strong>prise (Serial Monitor)</strong> pour voir le journal du pupitre : lecteurs RFID détectés, capteurs présents, cartes posées, erreurs. Pour fermer le moniteur : <kbd>Ctrl</kbd> + <kbd>C</kbd> dans son terminal.</li>
+</ol>
+<div class="encart"><div class="t">Choisir le port à la main</div>
+  <p style="margin:0">Si PlatformIO prend le mauvais port (un casque Bluetooth, par exemple), ajoutez dans <code>platformio.ini</code>, sous <code>[env:pupitre]</code>, la ligne <code>upload_port = /dev/cu.usbserial-1420</code> (le nom vu au chapitre 2).</p></div>
+
+<h2>5. Chemin C : tout dans le Terminal</h2>
+<div class="term"><span class="c"># une seule fois : PlatformIO (avec Homebrew, ou avec pip)</span>
+brew install platformio            <span class="c"># si Homebrew est installé</span>
+python3 -m pip install --user platformio   <span class="c"># sinon</span>
+
+<span class="c"># ensuite, à chaque fois</span>
+cd ~/Documents/Claude-public/pupitre-des-enigmes/firmware
+pio run                  <span class="c"># compiler</span>
+pio run -t upload        <span class="c"># téléverser par le câble USB</span>
+pio device monitor       <span class="c"># le journal série (115 200 bauds) ; Ctrl+C pour quitter</span></div>
+<p class="petit">Avec pip, si le Terminal répond <em>« command not found: pio »</em>, utilisez <code>python3 -m platformio</code> à la place de <code>pio</code>.</p>
+
+<h2>6. Les mises à jour suivantes, par le Wi-Fi</h2>
+<p>Après la première installation par le câble, plus besoin d'ouvrir la boîte : le pupitre se met à jour par son propre Wi-Fi.</p>
+<ol class="etapes">
+  <li>Allumez le pupitre. Sur le Mac, menu Wi-Fi : rejoignez le réseau <strong>Pupitre-des-Enigmes</strong> (mot de passe <code>enigmes123</code>).</li>
+  <li><strong>Sans PlatformIO</strong> : dans un navigateur, ouvrez <strong>http://192.168.4.1</strong>, onglet <strong>Mise à jour</strong>, et envoyez le fichier <code>firmware/binaires/pupitre-mise-a-jour.bin</code> (ou, après une compilation, <code>firmware/.pio/build/pupitre/firmware.bin</code>).</li>
+  <li><strong>Avec PlatformIO</strong> : choisissez l'environnement <strong>pupitre-wifi</strong> dans la barre bleue (ou <code>pio run -e pupitre-wifi -t upload</code> dans le Terminal).</li>
+  <li>Le pupitre redémarre tout seul. <strong>Ne coupez pas le courant pendant l'envoi</strong> : en cas d'échec, l'ancien programme reste en place.</li>
+</ol>
+<div class="encart"><div class="t">Penser à revenir</div>
+  <p style="margin:0">Pendant ce temps, le Mac n'a plus Internet. Une fois la mise à jour faite, rejoignez de nouveau votre réseau Wi-Fi habituel.</p></div>
+
+<h2>7. Si ça coince</h2>
+<table>
+  <tr><th style="width:52mm">Le symptôme</th><th>La solution</th></tr>
+  <tr><td>Aucun port <code>/dev/cu.usbserial…</code> ou <code>wchusbserial…</code></td><td>Changez de câble (il doit transporter les données) et d'adaptateur ; essayez une autre prise du Mac. Puis installez le pilote CH34x (chapitre 2) et redémarrez.</td></tr>
+  <tr><td>Le pilote est installé mais rien n'apparaît</td><td>Réglages Système → Confidentialité et sécurité : autorisez l'extension de WCH (Nanjing Qinheng), puis redémarrez.</td></tr>
+  <tr><td><em>Failed to connect to ESP32</em> · <em>Timed out waiting for packet header</em></td><td>Maintenez <strong>BOOT</strong> pendant « Connecting… ». Débranchez le <strong>fil de la GPIO 2</strong>. Essayez une vitesse plus basse (115200 dans esptool-js).</td></tr>
+  <tr><td><em>Resource busy</em> · <em>Permission denied</em> sur le port</td><td>Un autre programme tient le port : fermez le moniteur série, l'IDE Arduino, un autre onglet esptool-js. Débranchez, rebranchez.</td></tr>
+  <tr><td>Chrome ne propose aucun port</td><td>Vérifiez que vous êtes bien dans Chrome ou Edge (pas Safari). Autorisez Chrome si macOS le demande.</td></tr>
+  <tr><td>Le journal affiche des caractères illisibles</td><td>Réglez le moniteur sur <strong>115 200 bauds</strong>.</td></tr>
+  <tr><td>La carte redémarre en boucle après l'installation</td><td>Réinstallez <code>pupitre-complet.bin</code> à <strong>0x0</strong> (pas le fichier de mise à jour). Débranchez l'écran et les modules pour tester la carte seule.</td></tr>
+  <tr><td>L'écran reste noir, mais le journal défile</td><td>Le programme tourne : vérifiez le câblage de l'écran (voir la notice de montage et le plan de câblage).</td></tr>
+</table>
+
+<h2>8. Et après ?</h2>
+<ol class="etapes">
+  <li>Préparez la <strong>carte micro-SD de l'écran</strong> : copiez le contenu de <code>cartes-sd/carte-sd-ecran.zip</code> à sa racine (formatée en FAT32). Sur Mac : <em>Utilitaire de disque</em> → Effacer → format <strong>MS-DOS (FAT)</strong>.</li>
+  <li>Préparez les deux cartes des lecteurs audio (voir <code>cartes-sd/LISEZMOI.md</code>). Sur Mac, après la copie, lancez <code>dot_clean /Volumes/NOM_DE_LA_CARTE</code> dans le Terminal pour effacer les fichiers cachés « ._ » que macOS ajoute, puis éjectez la carte.</li>
+  <li>Allumez le pupitre, appuyez sur la molette : <strong>Préparer le pupitre</strong>, et enregistrez les cartes de chaque monde.</li>
+  <li>Jouez votre première partie avec <strong>Panique au Muséum</strong>, le tutoriel.</li>
+</ol>
+
+</body>
+</html>

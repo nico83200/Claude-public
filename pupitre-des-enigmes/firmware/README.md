@@ -43,6 +43,8 @@ firmware/
 
 ## 0. Sans rien installer
 
+Sur Mac, tout est expliqué pas à pas dans [`pdf/installer-esp32-mac.pdf`](../pdf/installer-esp32-mac.pdf) : le câble, le pilote CH340, le navigateur, PlatformIO, le Wi-Fi et le dépannage.
+
 Le programme compilé est dans [`binaires/`](binaires/LISEZMOI.md) : un navigateur (Chrome
 ou Edge) suffit pour le mettre dans l'ESP32 la première fois, puis le Wi-Fi du pupitre
 pour les mises à jour. PlatformIO ne sert qu'à **modifier** le programme.

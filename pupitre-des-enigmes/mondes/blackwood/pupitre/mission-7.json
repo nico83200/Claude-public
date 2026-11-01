@@ -529,8 +529,8 @@
             "type": "capteur",
             "capteur": "souffle",
             "titre": "LA CHAPELLE",
-            "texte": "Une plaque funéraire sous la poussière.\nSoufflez sur la grille FORGE, bouche ouverte, comme pour faire de la buée.",
-            "consigne": "Grille FORGE · à 2 ou 3 cm · bouche ouverte · 2 secondes",
+            "texte": "Une plaque funéraire sous la poussière.\nSoufflez sur la PLAQUE FUNÉRAIRE, bouche ouverte, comme pour faire de la buée.",
+            "consigne": "PLAQUE FUNÉRAIRE · à 2 ou 3 cm · bouche ouverte · 2 secondes",
             "pendant": "La poussière s'envole… continuez !",
             "tenir": 2,
             "secondes": 45,
@@ -777,7 +777,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "LE PENTACLE · 1 / 4",
-            "texte": "La main à plat, 5 cm au-dessus du guéridon (l'ŒIL) : VERS LE HAUT",
+            "texte": "La main à plat, 5 cm au-dessus du GUÉRIDON : VERS LE HAUT",
             "options": [
               "Vers le haut",
               "Vers la droite",
@@ -817,7 +817,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "LE PENTACLE · 2 / 4",
-            "texte": "La main à plat, 5 cm au-dessus du guéridon (l'ŒIL) : VERS LA DROITE",
+            "texte": "La main à plat, 5 cm au-dessus du GUÉRIDON : VERS LA DROITE",
             "options": [
               "Vers le haut",
               "Vers la droite",
@@ -857,7 +857,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "LE PENTACLE · 3 / 4",
-            "texte": "La main à plat, 5 cm au-dessus du guéridon (l'ŒIL) : VERS LE BAS",
+            "texte": "La main à plat, 5 cm au-dessus du GUÉRIDON : VERS LE BAS",
             "options": [
               "Vers le haut",
               "Vers la droite",
@@ -897,7 +897,7 @@
           "epreuve": {
             "type": "choix",
             "titre": "LE PENTACLE · 4 / 4",
-            "texte": "La main à plat, 5 cm au-dessus du guéridon (l'ŒIL) : VERS LA GAUCHE",
+            "texte": "La main à plat, 5 cm au-dessus du GUÉRIDON : VERS LA GAUCHE",
             "options": [
               "Vers le haut",
               "Vers la droite",

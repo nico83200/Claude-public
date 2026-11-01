@@ -27,7 +27,7 @@ Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 | 🦖 [Le Muséum national](mondes/museum/) | 8 · Panique au Muséum · [déroulé](mondes/museum/mission-8-deroule.md) · *le tutoriel : localiser, éclairer le soupirail, ouvrir le coffre* | 🟢 Tutoriel | 15 min |
 | 💚 [Le Manoir Harrington](mondes/harrington/) | 9 · Le Vol de l'Œil de Jade · [déroulé](mondes/harrington/mission-9-deroule.md) · *enquête et manipulation : les gemmes sur la loupe, la clé de dérivation, la TSF* | 🟠 Intermédiaire | 60 min |
 
-Chaque mission a sa **plaque aimantée**, qui renomme les organes du pupitre pour l'immersion : l'œil devient *le soupirail* au Muséum, le capteur de couleur *la loupe* et l'interrupteur à clé *la dérivation* au manoir Harrington, le gros bouton *la dynamo* dans le Narval… Le script, l'écran, les répliques et le livret emploient les mêmes noms que la plaque.
+Chaque mission a sa **plaque aimantée**, qui renomme les organes du pupitre pour l'immersion : l'œil devient *le soupirail* au Muséum, le capteur de couleur *la loupe* et l'interrupteur à clé *la dérivation* au manoir Harrington, le gros bouton *la dynamo* dans le Narval… Le script, l'écran, les répliques et le livret emploient les mêmes noms que la plaque. Les neuf missions ont leur plaque (`pdf/mission-N-plateau.pdf`) ; celles du Muséum, d'Harrington, de Monte-Carlo, de Kepler-9, du déminage et de Blackwood sont fabriquées par `outils/impression/plaques.py`, qui ne découvre que les organes dont chaque mission se sert.
 
 Les neuf missions sont complètes : scénario, déroulé, répliques, script de
 doublage, matériel à imprimer et **script du pupitre**.

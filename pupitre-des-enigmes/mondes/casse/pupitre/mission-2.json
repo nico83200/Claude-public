@@ -8,6 +8,7 @@
     "duree": 60
   },
   "jauge": "soupcon",
+  "materiel": ["fente", "plateau", "clavier", "boutons", "molette", "gros_bouton", "casque", "anneau", "afficheur"],
   "soupcon": {
     "max": 12,
     "annulation": {

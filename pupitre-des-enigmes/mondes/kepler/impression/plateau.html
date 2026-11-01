@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Signal Perdu · Plateau du pupitre</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  :root { --vert: #0d1c2b; --or: #3fc1e8; }
+  @page { size: A4; margin: 5mm; }
+  .page { break-after: page; position: relative; }
+  .page:last-child { break-after: auto; }
+  .notice { padding: 6mm 9mm 0; }
+  .bandeau { display: flex; justify-content: space-between; font-size: 8pt; letter-spacing: .14em; text-transform: uppercase;
+             color: #1f7fa8; border-bottom: 1.5px solid var(--or); padding-bottom: 3px; margin-bottom: 8px; }
+  .apercu svg { width: 100%; display: block; border-radius: 3mm; box-shadow: 0 1mm 3mm #0004; }
+  .moitie { width: 195mm; height: 262mm; margin: 0 auto; position: relative; }
+  .moitie svg { width: 195mm; height: 262mm; display: block; }
+  .reperes { font-family: "Share Tech Mono", monospace; font-size: 8pt; color: var(--gris); text-align: center; margin-top: 2mm; letter-spacing: .05em; }
+  table.organes td, table.organes th { padding: 1.5px 6px; font-size: 8.4pt; }
+  .notice p { font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<!-- Le plateau (380 × 262 mm, cotes du gabarit outils/impression/gabarit-facade.html), copié dans
+     chaque page par le script en bas. Les organes dont la mission ne se sert pas restent sous la
+     plaque : on ne découpe que les fenêtres en pointillés blancs. -->
+<script type="text/plain" id="modele">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14283a"/><stop offset=".6" stop-color="#0d1c2b"/><stop offset="1" stop-color="#07111b"/></linearGradient>
+    <pattern id="motif" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0V10H0" fill="none" stroke="#3fc1e8" stroke-width=".12" opacity=".35"/></pattern>
+    <pattern id="grille-hp" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.1" fill="#06101a"/></pattern>
+    <g id="rivet"><circle r="2" fill="#3fc1e8" opacity=".85"/><circle r="1" fill="#ffffff" opacity=".35" cx="-.5" cy="-.5"/></g>
+  </defs>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#fond)" stroke="#000" stroke-width="1"/>
+  <rect x=".5" y=".5" width="379" height="261" rx="10" fill="url(#motif)"/>
+  <rect x="5" y="5" width="370" height="252" rx="7" fill="none" stroke="#3fc1e8" stroke-width="1"/>
+  <rect x="7.5" y="7.5" width="365" height="247" rx="5.5" fill="none" stroke="#3fc1e8" stroke-width=".35" opacity=".7"/>
+  <g><use href="#rivet" x="100" y="9"/><use href="#rivet" x="280" y="9"/><use href="#rivet" x="100" y="253"/><use href="#rivet" x="280" y="253"/></g>
+  <g fill="none" stroke="#cfe8f2" stroke-width=".4" opacity=".5"><circle cx="15" cy="15" r="5"/><circle cx="365" cy="15" r="5"/><circle cx="15" cy="247" r="5"/><circle cx="365" cy="247" r="5"/></g>
+  <g font-family="Share Tech Mono, monospace">
+  <text x="190" y="15" text-anchor="middle" font-size="5.2" fill="#3fc1e8" letter-spacing="1.3">CONSORTIUM ARKAN · STATION KEPLER-9 · CONSOLE DE BORD · 2147</text>
+
+  <!-- le clavier -->
+  <rect x="19" y="19" width="78" height="86" rx="3" fill="none" stroke="#cfe8f2" stroke-width=".9"/>
+  <rect x="23" y="23" width="70" height="78" rx="2" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="58" y="64" text-anchor="middle" font-size="4.5" fill="#4f7590">✂ CLAVIER</text>
+  <rect x="25" y="16.5" width="66" height="5" fill="#0d1c2b"/>
+  <text x="58" y="20.6" text-anchor="middle" font-size="4.2" fill="#3fc1e8" letter-spacing=".4">LE TERMINAL</text>
+
+  <!-- le haut-parleur et l'anneau -->
+  <circle cx="133" cy="62" r="20" fill="url(#grille-hp)" stroke="#cfe8f2" stroke-width=".9"/>
+  <text x="133" y="90" text-anchor="middle" font-size="4" fill="#cfe8f2">HÉLIOS</text>
+  <circle cx="190" cy="62" r="22" fill="none" stroke="#3fc1e8" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="190" cy="62" r="19" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="190" y="90" text-anchor="middle" font-size="4" fill="#cfe8f2">RÉSERVE D'O₂</text>
+
+  <!-- l'écran -->
+  <rect x="236" y="30" width="98" height="64" rx="3" fill="none" stroke="#3fc1e8" stroke-width=".9"/>
+  <rect x="248" y="37.5" width="74" height="49" rx="2" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="285" y="64" text-anchor="middle" font-size="4.5" fill="#4f7590">✂ ÉCRAN 3,5"</text>
+  <text x="285" y="99" text-anchor="middle" font-size="3.6" fill="#cfe8f2">l'écran : le module où vous êtes</text>
+
+  <g transform="translate(358 40)" fill="none" stroke="#3fc1e8" stroke-width=".5" opacity=".7"><circle r="8"/><path d="M0-8 2.0-2.0 8 0 2.0 2.0 0 8-2.0 2.0-8 0-2.0-2.0Z"/></g>
+  <rect x="31" y="108" width="98" height="56" rx="3" fill="none" stroke="#3fc1e8" stroke-width=".8"/>
+  <rect x="34" y="111" width="92" height="50" rx="2" fill="none" stroke="#3fc1e8" stroke-width=".3"/><text x="80.0" y="120" text-anchor="middle" font-size="4.4" fill="#3fc1e8" letter-spacing="1">STATION KEPLER-9</text><text x="80.0" y="128" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">6 modules · 1 noyau</text><text x="80.0" y="136" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">orbite de Kepler-9 b</text><text x="80.0" y="144" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">équipage : 6</text><text x="80.0" y="152" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">statut : silence radio</text>
+
+  <!-- la fente -->
+  <rect x="150" y="116" width="80" height="34" rx="3" fill="none" stroke="#3fc1e8" stroke-width="1.2"/>
+  <rect x="156" y="129.5" width="68" height="5" rx="1" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1.5 1"/>
+  <text x="190" y="125.5" text-anchor="middle" font-size="5.2" fill="#3fc1e8" letter-spacing=".8">MODULES &amp; ÉQUIPAGE</text>
+  <text x="190" y="142" text-anchor="middle" font-size="3.7" fill="#cfe8f2">un module, un membre d'équipage,</text>
+  <text x="190" y="146.6" text-anchor="middle" font-size="3.3" fill="#cfe8f2" opacity=".8">ou votre carte Rôle</text>
+
+    <!-- le lecteur à plat -->
+  <rect x="257" y="105" width="76" height="70" rx="5" fill="none" stroke="#3fc1e8" stroke-width="1.2"/>
+  <text x="295" y="112.5" text-anchor="middle" font-size="4.8" fill="#3fc1e8" letter-spacing=".6">LE SCANNER</text>
+  <rect x="270" y="117" width="50" height="40" rx="3" fill="none" stroke="#cfe8f2" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <g transform="translate(295 137)"><g fill="none" stroke="#3fc1e8" stroke-width=".7"><rect x="-10" y="-8" width="20" height="16" rx="2"/><path d="M-10 0h20" stroke-dasharray="2 1"/><circle r="3"/></g></g>
+  <text x="295" y="164" text-anchor="middle" font-size="3.5" fill="#cfe8f2">un objet à analyser, ou votre Rôle</text>
+  <circle cx="325" cy="167" r="3.6" fill="none" stroke="#3fc1e8" stroke-width=".8"/>
+  <circle cx="325" cy="167" r="2" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray=".8 .6"/>
+
+
+  <g transform="translate(358 107)" fill="none" stroke="#3fc1e8" stroke-width=".5" opacity=".7"><circle r="9"/><path d="M0-9 2.25-2.25 9 0 2.25 2.25 0 9-2.25 2.25-9 0-2.25-2.25Z"/></g>
+  <circle cx="358" cy="167" r="7" fill="none" stroke="#3fc1e8" stroke-width="1"/>
+  <circle cx="358" cy="167" r="3" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="358" y="181" text-anchor="middle" font-size="4.1" fill="#3fc1e8">CASQUE RADIO</text>
+  <text x="358" y="185.5" text-anchor="middle" font-size="2.9" fill="#cfe8f2" opacity=".85">balises, canal caché</text>
+  <rect x="38" y="168" width="90" height="30" rx="3" fill="none" stroke="#3fc1e8" stroke-width=".8"/>
+  <rect x="41" y="171" width="84" height="24" rx="2" fill="none" stroke="#3fc1e8" stroke-width=".3"/><text x="83.0" y="180" text-anchor="middle" font-size="4.4" fill="#3fc1e8" letter-spacing="1">ALBATROS</text><text x="83.0" y="188" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">amarré au sas</text><text x="83.0" y="196" text-anchor="middle" font-size="3.4" fill="#cfe8f2" letter-spacing="0.3">contrôle mission</text>
+
+  <!-- l'horloge -->
+  <text x="175" y="166" text-anchor="middle" font-size="4.2" fill="#3fc1e8">O₂ RESTANT</text>
+  <rect x="146" y="168.5" width="58" height="23" rx="2" fill="none" stroke="#cfe8f2" stroke-width=".8"/>
+  <rect x="150" y="170.5" width="50" height="19" rx="2" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="175" y="182" text-anchor="middle" font-size="4" fill="#4f7590">✂ HORLOGE</text>
+
+  <g transform="translate(235 180)" fill="none" stroke="#3fc1e8" stroke-width=".5" opacity=".7"><circle r="8"/><path d="M0-8 2.0-2.0 8 0 2.0 2.0 0 8-2.0 2.0-8 0-2.0-2.0Z"/></g>
+  <text x="95" y="249" text-anchor="middle" font-size="4.1" fill="#3fc1e8" letter-spacing=".5">LES COMMANDES · choix, avaries</text>
+  <g fill="none" stroke-width="2.4">
+    <circle cx="35" cy="222" r="17" stroke="#e5484d"/><circle cx="75" cy="222" r="17" stroke="#3e7bfa"/>
+    <circle cx="115" cy="222" r="17" stroke="#f5b83d"/><circle cx="155" cy="222" r="17" stroke="#30a46c"/>
+  </g>
+  <g fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"><circle cx="35" cy="222" r="15"/><circle cx="75" cy="222" r="15"/><circle cx="115" cy="222" r="15"/><circle cx="155" cy="222" r="15"/></g>
+
+  <!-- la molette -->
+  <circle cx="190" cy="222" r="13" fill="none" stroke="#cfe8f2" stroke-width=".9"/>
+  <g stroke="#cfe8f2" stroke-width=".7"><path d="M190 206v3M190 235v3M174 222h3M203 222h3"/></g>
+  <circle cx="190" cy="222" r="3.5" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="1 .8"/>
+  <text x="190" y="202" text-anchor="middle" font-size="4.2" fill="#3fc1e8">LE RÉGULATEUR</text>
+  <text x="190" y="244" text-anchor="middle" font-size="3.2" fill="#cfe8f2">molette : énergie, lettres, codes</text>
+
+  <!-- le gros bouton -->
+  <circle cx="295" cy="222" r="30" fill="none" stroke="#cfe8f2" stroke-width=".6" stroke-dasharray="4 1 1 1"/>
+  <circle cx="295" cy="222" r="23" fill="none" stroke="#3fc1e8" stroke-width="1.1"/>
+  <circle cx="295" cy="222" r="11" fill="#06101a" stroke="#ffffff" stroke-width=".5" stroke-dasharray="2 1.5"/>
+  <text x="351" y="219" text-anchor="middle" font-size="5.4" fill="#3fc1e8">RAPPORT FINAL</text>
+  <text x="351" y="226" text-anchor="middle" font-size="3.3" fill="#cfe8f2">gros bouton</text>
+  <text x="236" y="253" text-anchor="middle" font-size="3" fill="#cfe8f2" opacity=".8">Consortium Arkan · division minière · station de classe Pallas</text>
+  </g>
+</script>
+
+<div class="page notice">
+  <div class="bandeau"><span>Le Pupitre des Énigmes · Station Kepler-9</span><span>Plateau · Signal Perdu</span></div>
+  <h1 style="margin-bottom:2mm">La plaque de la console de bord</h1>
+  <p>Pour « Signal Perdu », la façade fait du pupitre la <strong>console de bord de Kepler-9</strong>. Le clavier devient <strong>le terminal</strong>, la molette <strong>le régulateur</strong> (énergie, lettres, codes), le lecteur à plat <strong>le scanner</strong>, le casque <strong>le casque radio</strong>, l'anneau et l'horloge la <strong>réserve d'oxygène</strong>, et le gros bouton <strong>le rapport final</strong>. Les voyants, la clé, le capteur de couleur, la forge, l'enclume et l'œil restent sous la plaque.</p>
+  <div class="apercu"><svg viewBox="0 0 380 262" class="copie"></svg></div>
+  <h3>Les organes, sous leur nom de mission</h3>
+  <table class="organes"><tr><th>Sur la plaque</th><th>L'organe du pupitre</th><th>Ce qu'on en fait</th></tr><tr><td>Modules &amp; équipage</td><td>La fente</td><td>Un module pour s'y rendre, un membre d'équipage pour son journal, votre Rôle</td></tr><tr><td>Le scanner</td><td>Le lecteur à plat</td><td>Un objet à analyser, ou votre carte Rôle</td></tr><tr><td>Le terminal</td><td>Le clavier</td><td>Les codes d'accès, le mot de passe</td></tr><tr><td>Le régulateur</td><td>La molette</td><td>Répartir l'énergie, régler des lettres</td></tr><tr><td>Les commandes</td><td>Les 4 boutons</td><td>Les choix, les avaries, une suite à rejouer</td></tr><tr><td>Casque radio</td><td>Le casque</td><td>La balise morse, le canal caché, le traître</td></tr><tr><td>Réserve d'O₂</td><td>L'anneau et l'horloge</td><td>L'oxygène qui reste</td></tr><tr><td>Rapport final</td><td>Le gros bouton</td><td>L'accusation</td></tr></table>
+  <h3>Fabrication</h3>
+  <ol style="font-size:9pt;margin-top:0">
+    <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
+    <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite.</li>
+    <li>Collez sur la façade aimantée (contreplaqué de 2 mm), plastifiez si possible.</li>
+    <li>Découpez <strong>seulement les fenêtres en pointillés blancs</strong> : écran, clavier, haut-parleur, anneau, fente, LED du lecteur à plat, prise casque, horloge, quatre boutons, molette et gros bouton. Le lecteur à plat ne se découpe pas.</li>
+  </ol>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="0 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ GAUCHE · la bande de droite (10 mm, après les pointillés) passe sous la moitié droite</div>
+</div>
+
+<div class="page">
+  <div class="moitie"><svg viewBox="185 0 195 262" class="copie"></svg></div>
+  <div class="reperes">MOITIÉ DROITE · aligner le bord gauche sur les pointillés de la moitié gauche</div>
+</div>
+
+<script>
+  const modele = document.getElementById("modele").textContent;
+  const repere = '<path d="M185 0v262" stroke="#ffffff" stroke-width=".3" stroke-dasharray="3 3" opacity=".5"/>';
+  document.querySelectorAll("svg.copie").forEach((s, i) => {
+    s.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    s.innerHTML = modele.replace(/id="([\w-]+)"/g, `id="$1-${i}"`).replace(/#([\w-]+)\)/g, `#$1-${i})`).replace(/href="#([\w-]+)"/g, `href="#$1-${i}"`) + (i ? repere : "");
+  });
+</script>
+</body>
+</html>

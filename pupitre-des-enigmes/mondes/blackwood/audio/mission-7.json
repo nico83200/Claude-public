@@ -157,7 +157,7 @@
       "n": 29,
       "voix": "narrateur",
       "usage": "La chapelle : consigne",
-      "texte": "La chapelle. Sur le mur, une plaque funéraire est couverte d'une poussière épaisse. Trouvez la grille FORGE du pupitre, approchez la bouche à deux ou trois centimètres, et soufflez doucement, bouche grande ouverte, pendant deux secondes, comme pour faire de la buée sur une vitre."
+      "texte": "La chapelle. Sur le mur, une plaque funéraire est couverte d'une poussière épaisse. Trouvez la PLAQUE FUNÉRAIRE du pupitre, approchez la bouche à deux ou trois centimètres, et soufflez doucement, bouche grande ouverte, pendant deux secondes, comme pour faire de la buée sur une vitre."
     },
     {
       "n": 30,
@@ -902,7 +902,7 @@
       "n": 168,
       "voix": "corbeau",
       "usage": "Conseil : la chapelle, 3",
-      "texte": "La chapelle, puis la grille FORGE du pupitre : bouche grande ouverte, deux secondes."
+      "texte": "La chapelle, puis la PLAQUE FUNÉRAIRE du pupitre : bouche grande ouverte, deux secondes."
     },
     {
       "n": 169,

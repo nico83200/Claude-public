@@ -216,7 +216,7 @@ Les lieux se visitent **dans l'ordre qu'on veut**, avec trois verrous :
 | J1 Bibliothèque | La carte → E1 | Opium (symptômes) ; le verre du fumoir |
 | Fumoir | La carte → E2 | La carafe est pure ; un verre au cerf manque ; le mouchoir |
 | J2 Galerie | La carte, lampe ≥ 60 % → E3 | Les faux (avec l'Expert en peinture) |
-| Chapelle | Souffler 2 s sur la grille FORGE | 1771 |
+| Chapelle | Souffler 2 s sur la plaque funéraire (la forge) | 1771 |
 | J3 Bureau | Code 1771 → tiroir secret + E7 | La lettre au Yard, le trousseau |
 | J4 Chambre du docteur | La carte, puis le trousseau sur le plateau → E6 | Le flacon, le reçu de Christie's, le copiste |
 | J5 Séance (salon) | Le pentacle à l'œil → E8 | « Le verre au cerf, la fumée » ; la broche de Zorah |

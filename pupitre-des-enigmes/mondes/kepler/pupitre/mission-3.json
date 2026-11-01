@@ -8,6 +8,7 @@
     "duree": 75
   },
   "jauge": "oxygene",
+  "materiel": ["fente", "plateau", "clavier", "boutons", "molette", "gros_bouton", "casque", "anneau", "afficheur"],
   "voix": {
     "narrateur": "",
     "helios": "HÉLIOS",
