@@ -32,8 +32,8 @@
 | la carte **Papy Marcel** | n'importe quel lecteur | Un **indice** |
 | 3 cartes, puis le **gros bouton** | QUI + OÙ + QUOI | **Accusation** |
 
-- **Une carte mal placée** déclenche le buzzer (90/003) et le message
-  91/007, 008 ou 009 : *« Cette carte se pose sur la zone… »*
+- **Un lieu ou un personnage posé sur le plateau** (le lecteur à plat) est refusé :
+  buzzer (90/003) et 91/007 ou 008, *« Cette carte est un lieu : glissez-la dans la fente. »*
 - **Retirer puis reposer** la même carte donne un rappel court.
 
 **Les autres gestes du haras.** Le pupitre dit toujours quand et comment s'en servir :

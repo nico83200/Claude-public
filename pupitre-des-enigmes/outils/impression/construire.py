@@ -677,6 +677,7 @@ def main():
         rendre(ICI / "gabarit-facade.html", SORTIE / "gabarit-facade.pdf")
         rendre(ICI / "lire-une-carte.html", SORTIE / "lire-une-carte-a5.pdf")
         rendre(ICI / "installer-esp32-mac.html", SORTIE / "installer-esp32-mac.pdf", pied="Le Pupitre des Énigmes · Installer le programme depuis un Mac")
+        rendre(ICI / "checklist-premiere-partie.html", SORTIE / "checklist-premiere-partie.pdf", pied="Le Pupitre des Énigmes · Checklist de la première partie")
         rendre(ICI / "plan-cablage.html", SORTIE / "plan-cablage.pdf", pied="Le Pupitre des Énigmes · Plan de câblage")
         temporaire("notice-montage", notice, SORTIE / "notice-montage.pdf", pied="Le Pupitre des Énigmes · Notice de montage")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
