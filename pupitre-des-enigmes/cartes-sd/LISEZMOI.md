@@ -61,7 +61,7 @@ Le numéro de chaque réplique et son texte sont dans le **script de doublage** 
 mission (`pdf/mission-N-script-doublage.pdf`, colonne « fichier ») ; les bruitages sont
 décrits dans `mondes/<monde>/audio/sons.json` et `console/audio/sons.json`.
 
-**Ces MP3 ne sont pas fournis** : les voix sont à produire. Trois façons :
+**Ces MP3 ne sont pas fournis** : les voix sont à produire. Le classeur [`suivi/suivi-audio.xlsx`](../suivi/suivi-audio.xlsx) les liste tous (voix et bruitages, une ligne par audio, avec narrateur, texte, mission et fichiers), avec une colonne de statut pour suivre la production. Trois façons :
 - **Le script** `outils/generer_audio.py` avec un compte ElevenLabs : il fait tout, et
   range les fichiers comme ci-dessus.
 - **Le site d'ElevenLabs**, à la main : collez chaque texte du script de doublage, téléchargez
