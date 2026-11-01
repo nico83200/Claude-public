@@ -45,162 +45,153 @@
 
 <div class="grille">
   <div class="cadre">
-    <p><strong>La mission conseillée : La Disparition d'Éclipse</strong> (Le Haras des Trois Fers), de 2 à 6 joueurs adultes, 60 minutes.</p>
-    <p>C'est la mission la plus avancée : 140 audios sur 202 sont faits, et tout son matériel est prêt à imprimer.</p>
+    <p><strong>La mission : Banc d'essai</strong> (L'Atelier du professeur Lumen). 2 joueurs, 30 minutes au chrono, sans rôles ni accusation.</p>
+    <p>Les joueurs passent 13 bancs d'essai, un par organe du pupitre. C'est la meilleure recette de votre machine.</p>
   </div>
   <div class="cadre">
     <p><strong>Date de la partie :</strong> ............................................</p>
-    <p><strong>Joueurs</strong> (2 à 6) : ......................................................</p>
-    <p>Pour un premier essai, 4 joueurs est l'idéal.</p>
+    <p><strong>Les 2 joueurs :</strong> ................................................</p>
+    <p><strong>Audio :</strong> les 85 audios de la mission sont faits. Il reste 2 phrases du pupitre à refaire.</p>
   </div>
 </div>
 
-<div class="note"><strong>Si vous manquez de temps</strong>, le jeu fonctionne sans voix : l'écran affiche les sous-titres et laisse le temps de les lire. Dans ce cas, restent indispensables, dans l'ordre : le programme à jour, les capteurs qui marchent, les cartes imprimées et enregistrées, puis une partie d'essai.</div>
+<div class="note"><strong>Le point le plus important : le matériel.</strong> Cette mission essaie <em>tous</em> les organes, du nuancier à la serrure. Commencez donc par les tests de l'Atelier. Tout organe qui ne marche pas le jour J peut quand même être validé à distance avec <strong>Débloquer</strong>, depuis le panneau Wi-Fi, et la partie continue.</div>
 
-<h2>1 · Le programme et le pupitre <span class="quand">J-15 à J-13</span></h2>
-<p class="but">But : un pupitre à jour, dont chaque capteur de la mission répond.</p>
+<h2>1 · Le programme et le pupitre <span class="quand">J-15 à J-12</span></h2>
+<p class="but">But : un pupitre à jour, dont chacun des 16 organes répond.</p>
 <ul class="cases">
-  <li>Récupérez le nouveau programme : <span class="f">firmware/binaires/pupitre-mise-a-jour.bin</span> (dépôt GitHub, branche de travail).
-    <span class="det">Il contient le refus des lieux et des personnages sur le lecteur à plat, et les dernières corrections.</span></li>
-  <li>Mettez-le dans le pupitre par le Wi-Fi : réseau <strong>Pupitre-des-Enigmes</strong> (mot de passe <code>enigmes123</code>), page <code>http://192.168.4.1</code>, onglet <strong>Mise à jour</strong>.
-    <span class="det">Si c'est le tout premier téléversement, passez par l'USB avec <span class="f">pupitre-complet.bin</span> : voir le PDF <span class="f">installer-esp32-mac.pdf</span>. Ne coupez pas le courant pendant l'envoi.</span></li>
-  <li>Glissez la carte Monde du Haras, puis ouvrez <strong>« État du pupitre »</strong> dans le menu du monde. Aucune ligne ne doit être rouge pour la mission 1.</li>
-  <li>Réglages du pupitre (molette à l'accueil, dernière ligne) : volume du haut-parleur, du casque, luminosité de l'écran et des LED. Validez avec le bouton vert.</li>
+  <li>Récupérez le nouveau programme : <span class="f">firmware/binaires/pupitre-mise-a-jour.bin</span>, sur le dépôt GitHub, branche de travail.</li>
+  <li>Installez-le par le Wi-Fi : connectez-vous au réseau <strong>Pupitre-des-Enigmes</strong> (mot de passe <code>enigmes123</code>), ouvrez la page <code>http://192.168.4.1</code>, onglet <strong>Mise à jour</strong>.
+    <span class="det">Si c'est le tout premier téléversement, passez par l'USB avec <span class="f">pupitre-complet.bin</span> : voir <span class="f">installer-esp32-mac.pdf</span>. Ne coupez pas le courant pendant l'envoi.</span></li>
+  <li>Glissez la carte Monde de l'Atelier, puis ouvrez <strong>« État du pupitre »</strong>. Aucune ligne ne doit être rouge pour la mission 5.</li>
+  <li>Réglages du pupitre (à l'accueil, molette puis dernière ligne) : volumes du haut-parleur et du casque, luminosité de l'écran et des LED. Validez avec le bouton vert.</li>
 </ul>
-
 <h3>Les essais, dans l'onglet « Atelier » du panneau Wi-Fi</h3>
 <table>
-  <tr><th></th><th>Organe (nom sur la façade du haras)</th><th>Le test</th></tr>
-  <tr><td class="c"><span></span></td><td>Fente et lecteur à plat</td><td>Une carte dans chacun : elle apparaît dans l'onglet Partie</td></tr>
-  <tr><td class="c"><span></span></td><td>Clavier, molette, gros bouton, 4 boutons de couleur</td><td>Chaque appui s'affiche dans les mesures en direct</td></tr>
-  <tr><td class="c"><span></span></td><td>Voyants, anneau, horloge (afficheur)</td><td>Essais « arc-en-ciel » et « 88:88 »</td></tr>
-  <tr><td class="c"><span></span></td><td>Haut-parleur et casque</td><td>Essai « bip » sur chacun</td></tr>
-  <tr><td class="c"><span></span></td><td>La forge (capteur d'humidité)</td><td>Soufflez 3 s, bouche ouverte : la valeur doit monter nettement</td></tr>
-  <tr><td class="c"><span></span></td><td>L'enclume (capteur magnétique)</td><td>Posez le fer à cheval aimanté : l'écart doit dépasser le seuil (1 500)</td></tr>
-  <tr><td class="c"><span></span></td><td>L'œil (gestes et lumière)</td><td>Passez la main de gauche à droite, puis éclairez avec la lampe d'un téléphone</td></tr>
-  <tr><td class="c"><span></span></td><td>Le tiroir secret</td><td>« Ouvrir » puis « verrouiller »</td></tr>
+  <tr><th></th><th>Organe (et son banc)</th><th>Le test</th></tr>
+  <tr><td class="c"><span></span></td><td>Écran, clavier, horloge (① Poste de contrôle)</td><td>Chaque touche s'affiche ; essai « 88:88 »</td></tr>
+  <tr><td class="c"><span></span></td><td>4 boutons de couleur (② Banc des boutons)</td><td>Chaque appui s'affiche, puis les 4 ensemble</td></tr>
+  <tr><td class="c"><span></span></td><td>Molette et son appui (③)</td><td>Tourner dans les deux sens : un cran à la fois</td></tr>
+  <tr><td class="c"><span></span></td><td>Gros bouton (④)</td><td>Chaque appui s'affiche</td></tr>
+  <tr><td class="c"><span></span></td><td>10 voyants et anneau (⑤)</td><td>Essai « arc-en-ciel »</td></tr>
+  <tr><td class="c"><span></span></td><td>La forge, capteur d'humidité (⑥)</td><td>Souffler 2 à 3 s, bouche ouverte : la valeur monte nettement</td></tr>
+  <tr><td class="c"><span></span></td><td>L'enclume, capteur magnétique (⑦)</td><td>Un aimant sur la marque : l'écart dépasse 1 500</td></tr>
+  <tr><td class="c"><span></span></td><td>L'œil, gestes et lumière (⑧)</td><td>La main vers le haut, le bas, la gauche, la droite ; puis la lampe d'un téléphone</td></tr>
+  <tr><td class="c"><span></span></td><td>Le nuancier, capteur de couleur (⑨)</td><td>Les 4 pastilles imprimées : chacune doit être lue dans la bonne couleur</td></tr>
+  <tr><td class="c"><span></span></td><td>La serrure, clé (⑩)</td><td>Tourner la clé : l'état change</td></tr>
+  <tr><td class="c"><span></span></td><td>Fente et lecteur à plat (⑪)</td><td>Une carte dans chacun : elle apparaît dans l'onglet Partie</td></tr>
+  <tr><td class="c"><span></span></td><td>Haut-parleur et casque (⑫)</td><td>Essai « bip » sur chacun</td></tr>
+  <tr><td class="c"><span></span></td><td>Tiroir secret et sa LED (⑬)</td><td>Essais « Ouvrir » puis « Verrouiller »</td></tr>
 </table>
 <ul class="cases">
-  <li>Si un capteur réagit mal, notez la valeur lue au repos et pendant le geste, et envoyez-la-moi : j'ajuste le seuil et je vous renvoie un programme.</li>
+  <li>Si un organe réagit mal, notez la valeur lue au repos et pendant le geste, puis envoyez-la-moi. J'ajuste le seuil et je vous renvoie un programme.</li>
 </ul>
 
-<h2>2 · Les voix et les bruitages <span class="quand">J-14 à J-8</span></h2>
-<p class="but">But : tous les audios de la mission 1 et du pupitre, bien nommés, dans le Drive.</p>
+<h2>2 · Les audios <span class="quand">J-13 à J-11</span></h2>
+<p class="but">But : des dossiers audio complets et bien nommés. La mission est presque prête.</p>
 <ul class="cases">
   <li>Remettez sur le Drive le classeur de suivi que je vous ai renvoyé (<span class="f">suivi-audio-1.xlsx</span>), à la place de l'ancien.</li>
-  <li>Pupitre, à refaire avec le nouveau texte : <strong>91/007</strong> et <strong>91/008</strong>. <span class="tag crit">utiles</span>
-    <span class="det">« Cette carte est un personnage : glissez-la dans la fente. » · « Cette carte est un lieu : glissez-la dans la fente. »</span></li>
-  <li class="option">Pupitre : <strong>91/009</strong> (il ne sert qu'avec trois lecteurs, il n'est jamais joué aujourd'hui).</li>
-  <li>Haras, dossier <strong>10</strong> : les <strong>62 voix restantes</strong>. Les textes sont dans le suivi (filtre Statut « À faire ») et dans <span class="f">mission-1-script-doublage.pdf</span>.
-    <span class="det">077 · 094 à 105 · 150 à 155 · 165 à 169 · 180 à 184 · 195 à 200 · 220 à 238 · 248 à 255</span></li>
-  <li>Comptez environ 12 voix par jour sur cinq jours, ou une grosse séance avec <span class="f">outils/generer_audio.py</span> et ElevenLabs.</li>
-  <li>Chaque fichier se nomme exactement <code>NNN.mp3</code> (par exemple <code>077.mp3</code>), dans le bon dossier, sans préfixe.</li>
-  <li>Cochez chaque ligne « Fait » dans le suivi, avec la date.</li>
-  <li class="option">Dossier 50 : écoutez les deux prises de 054 et gardez la meilleure sous le nom <code>054.mp3</code>. Ce dossier ne sert pas à la mission 1.</li>
+  <li><strong>Dossier 50, fichier 054</strong> : il en existe deux prises. Écoutez-les, gardez la meilleure sous le nom <code>054.mp3</code> et supprimez l'autre. <span class="tag crit">indispensable</span>
+    <span class="det">Le fichier <code>054 (ancienne prise).mp3</code> ne doit pas aller sur la carte SD.</span></li>
+  <li>Pupitre : enregistrez de nouveau <strong>91/007</strong> et <strong>91/008</strong> avec leur nouveau texte.
+    <span class="det">« Cette carte est un personnage : glissez-la dans la fente. » · « Cette carte est un lieu : glissez-la dans la fente. » Dans cette mission, on entend 91/008 si une carte Banc est posée sur le lecteur à plat.</span></li>
+  <li class="option">Pupitre : 91/009. Cette phrase ne sert qu'avec trois lecteurs : elle n'est jamais jouée aujourd'hui.</li>
+  <li>Vérifiez que chaque fichier s'appelle exactement <code>NNN.mp3</code>, par exemple <code>054.mp3</code>, sans préfixe. Mettez le suivi à jour.</li>
 </ul>
-
 
 <h2>3 · Les achats et l'impression <span class="quand">J-12 à J-9</span></h2>
 <p class="but">But : tout le matériel de jeu, imprimé et découpé.</p>
 <h3>À avoir sous la main</h3>
 <ul class="cases">
-  <li><strong>40 autocollants NFC NTAG213</strong> : il y a 33 cartes à équiper (31 de la mission, plus la carte Monde et la carte Papy Marcel), et quelques-uns en réserve.</li>
-  <li><strong>8 enveloppes kraft</strong> (E1 à E8).</li>
-  <li><strong>Un petit fer à cheval décoratif</strong> (6 à 8 cm) et un aimant néodyme Ø 10 × 3 mm à coller dessous.</li>
-  <li>Papier 120 g pour les documents, papier cartonné (250 à 300 g) pour les cartes, éventuellement du papier adhésif pour les étiquettes.</li>
-  <li>Massicot ou règle et cutter, colle, ciseaux. <span class="det">La liste complète du pupitre est dans <span class="f">liste-achats.pdf</span>.</span></li>
+  <li><strong>20 autocollants NFC NTAG213</strong> : 18 cartes à équiper (13 cartes Banc, 3 cartes Objet, la carte Monde et la carte d'aide), plus 2 en réserve.</li>
+  <li><strong>Un aimant</strong> pour l'enclume : un aimant néodyme, le fer à cheval aimanté ou un simple aimant de réfrigérateur.</li>
+  <li><strong>Un téléphone avec sa lampe</strong>, pour l'œil.</li>
+  <li>Papier cartonné de 250 à 300 g pour les cartes et les pastilles, papier de 120 g pour la fiche, massicot ou cutter, colle.</li>
+  <li class="option">Une enveloppe, marquée E1, seulement si le pupitre n'a pas de tiroir secret.</li>
 </ul>
 <h3>À imprimer (dossier <span class="f">pdf/</span>)</h3>
 <table>
   <tr><th></th><th>Fichier</th><th>Comment</th></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-1-a-imprimer-recto.pdf</span> (27 pages)</td><td>Couleur, recto seul : fiche de mission, documents secrets des rôles, contenu des enveloppes, fiche d'enquête</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-1-a-imprimer-recto-verso.pdf</span> (8 pages)</td><td>Les planches de cartes, sur papier cartonné, recto verso <strong>bord long</strong>. Faites d'abord une page d'essai pour vérifier que les dos tombent bien en face.</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-1-plateau.pdf</span> (3 pages)</td><td>La façade du haras, à coller sur sa plaque aimantée</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-1-livret-a5-brochure.pdf</span></td><td>Le livret de règles : A4 recto verso bord court, plié en deux</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-1-deroule-maitre-du-jeu.pdf</span></td><td>Pour vous seul : la partie minute par minute et les solutions</td></tr>
-  <tr><td class="c"><span></span></td><td class="option"><span class="f">lire-une-carte-a5.pdf</span>, <span class="f">mode-emploi.pdf</span></td><td>Facultatif : l'aide-mémoire des joueurs, et le mode d'emploi complet</td></tr>
+  <tr><td class="c"><span></span></td><td><span class="f">mission-5-a-imprimer-recto.pdf</span> (6 pages)</td><td>En couleur, recto seul. Il contient la fiche de mission (page 1 pour les joueurs ; page 2 pour vous, avec les pastilles du nuancier et la fiche de recette) et le plan du banc d'essai.</td></tr>
+  <tr><td class="c"><span></span></td><td><span class="f">mission-5-a-imprimer-recto-verso.pdf</span> (4 pages)</td><td>Les cartes, sur papier cartonné, recto verso <strong>bord long</strong>. Imprimez d'abord une page d'essai pour vérifier que les dos tombent en face.</td></tr>
+  <tr><td class="c"><span></span></td><td><span class="f">mission-5-livret-a5-brochure.pdf</span></td><td>Le livret : A4 recto verso bord court, plié en deux</td></tr>
+  <tr><td class="c"><span></span></td><td><span class="f">mission-5-deroule-maitre-du-jeu.pdf</span></td><td>Pour vous seul : la partie minute par minute et toutes les solutions</td></tr>
 </table>
 
 <h2>4 · La fabrication <span class="quand">J-9 et J-8</span></h2>
-<p class="but">But : les cartes équipées, les enveloppes prêtes, la façade montée.</p>
+<p class="but">But : les cartes équipées, les pastilles découpées, le plan monté.</p>
 <ul class="cases">
-  <li>Découpez les cartes. Collez un autocollant NFC au dos de chacune, <strong>en bas</strong>, sur le cercle « PUCE NFC » : c'est le bord qui entre dans la fente.</li>
-  <li>Vérifiez qu'aucune carte ne force dans la fente et qu'aucun autocollant ne dépasse.</li>
-  <li>Collez la façade du haras sur sa plaque aimantée, et découpez les fenêtres des organes qui servent (forge, enclume, œil, horloge, clavier, voyants, boutons…).</li>
-  <li>Enveloppes : étiquette « recto » devant, étiquette « contenu » au dos. Glissez dans chacune ses documents et ses cartes Objet, en suivant la page 1 de <span class="f">mission-1-enveloppes.pdf</span>.</li>
-  <li>Collez l'aimant sous le fer à cheval.</li>
-  <li>Rangez à part les 6 cartes Rôle avec leurs documents secrets, face cachée.</li>
+  <li>Découpez les 16 cartes de la mission. Collez un autocollant NFC au dos de chacune, <strong>en bas</strong>, sur le cercle « PUCE NFC » : c'est ce bord qui entre dans la fente.</li>
+  <li>Vérifiez que chaque carte glisse dans la fente sans forcer et qu'aucun autocollant ne dépasse.</li>
+  <li>Découpez les 4 pastilles du nuancier (rouge, bleu, vert, jaune), sur papier épais.
+    <span class="det">Si le capteur confond deux couleurs, réimprimez plus foncé ou envoyez-moi les valeurs lues : on ajuste la balance des couleurs.</span></li>
+  <li>Collez le plan du banc d'essai sur sa plaque aimantée. Rien n'est caché : toutes les fenêtres sont ouvertes.</li>
 </ul>
-
 
 <h2>5 · Les cartes SD et l'enregistrement des cartes <span class="quand">J-7 et J-6</span></h2>
 <p class="but">But : le pupitre reconnaît chaque carte et joue chaque son.</p>
 <h3>La carte SD de l'écran</h3>
 <ul class="cases">
-  <li>Copiez à sa racine le contenu de <span class="f">cartes-sd/carte-sd-ecran.zip</span> (les dossiers <code>mondes</code> et <code>pupitre</code>, tout en haut).
+  <li>Copiez à sa racine le contenu de <span class="f">cartes-sd/carte-sd-ecran.zip</span> : les dossiers <code>mondes</code> et <code>pupitre</code>, tout en haut.
     <span class="det">Si des cartes ont déjà été enregistrées, ne remplacez pas les fichiers <span class="f">mondes/*/cartes.json</span> : ils contiennent vos puces.</span></li>
 </ul>
 <h3>Les deux cartes SD des lecteurs audio (contenu identique)</h3>
 <ul class="cases">
   <li>Formatez chaque carte en FAT32 (8 ou 16 Go).</li>
-  <li>Copiez depuis le Drive les dossiers <code>90</code>, <code>91</code>, <code>10</code> et <code>11</code>, un dossier après l'autre, sans rien d'autre à la racine.</li>
-  <li>Sur Mac, lancez <code>dot_clean</code> sur chaque carte avant de l'éjecter : cela supprime les fichiers cachés « ._ », qui perturbent le lecteur audio.</li>
-  <li>Remettez les trois cartes dans le pupitre. Si un son ne part pas, vérifiez le nom du fichier (<code>NNN.mp3</code>) et le dossier.</li>
+  <li>Copiez depuis le Drive les dossiers <code>90</code>, <code>91</code>, <code>50</code> et <code>51</code>, un dossier après l'autre, sans rien d'autre à la racine.</li>
+  <li>Sur Mac, lancez <code>dot_clean</code> sur chaque carte avant de l'éjecter : la commande supprime les fichiers cachés « ._ », qui perturbent les lecteurs audio.</li>
+  <li>Remettez les trois cartes SD dans le pupitre.</li>
 </ul>
 <h3>L'enregistrement des cartes</h3>
 <ul class="cases">
-  <li>Accueil, molette : <strong>Préparer le pupitre</strong>, puis <strong>Le Haras des Trois Fers</strong>.</li>
-  <li>Glissez chaque carte demandée dans la fente (M1, A1, L1…) : un bip la confirme. Rouge passe une carte, vert termine et enregistre. Il y en a 33.</li>
-  <li>Contrôle : glissez quelques cartes au hasard en jeu. Le bon nom doit s'afficher.</li>
-  <li>Mettez la carte O3 (Contrat d'assurance) dans le tiroir secret : menu du monde, « Tiroir secret : l'ouvrir », repoussez-le au fond, validez.</li>
+  <li>Sur l'accueil, appuyez sur la molette : <strong>Préparer le pupitre</strong>, puis <strong>L'Atelier du professeur Lumen</strong>.</li>
+  <li>Glissez chaque carte demandée dans la fente (M5, A5, L1…) : un bip la confirme. Le bouton rouge passe une carte, le vert termine et enregistre. Il y a 18 cartes.</li>
+  <li>Contrôlez en glissant quelques cartes au hasard pendant le jeu : le bon nom doit s'afficher.</li>
 </ul>
 
 <h2>6 · La partie d'essai <span class="quand">J-5 et J-4</span></h2>
-<p class="but">But : jouer toute la mission avec le déroulé sous les yeux, pour trouver ce qui coince avant les joueurs.</p>
+<p class="but">But : passer les 13 bancs avec le déroulé sous les yeux, et remplir la fiche de recette.</p>
 <ul class="cases">
-  <li>Jouez seul, ou à deux, en suivant <span class="f">mission-1-deroule-maitre-du-jeu.pdf</span> du lancement à l'épilogue.</li>
-  <li>Gardez le panneau Wi-Fi ouvert sur un téléphone, onglet <strong>Souffleur → journal</strong> : chaque carte, code et geste y apparaît.</li>
-  <li>Vérifiez chaque étape :
-    <span class="det">les rôles, l'écurie, le code du bureau (le tiroir s'ouvre), le carnet, le message au casque, le sentier (gestes de la main sur l'œil), la forge (souffle) et l'enclume (fer à cheval), la vieille grange (lampe), Papy Marcel (indice), un lieu posé sur le plateau (refusé), l'accusation au gros bouton.</span></li>
-  <li>Testez une coupure : débranchez en pleine partie, rebranchez, glissez la carte Monde, puis « Reprendre la partie en cours ».</li>
-  <li>Notez tout ce qui ne va pas : son absent, texte, capteur, carte non reconnue. Envoyez-moi la liste et je corrige.</li>
+  <li>Jouez seul, ou à deux, en suivant <span class="f">mission-5-deroule-maitre-du-jeu.pdf</span>.
+    <span class="det">Codes : 2580 au poste de contrôle, 7 à la molette, 3861 au coffre. Il faut 11 essais réussis avant le casque.</span></li>
+  <li>Gardez le panneau Wi-Fi ouvert sur un téléphone, onglet <strong>Souffleur → journal</strong>.</li>
+  <li>Cochez chaque organe sur la <strong>fiche de recette</strong> (page 2 de la fiche de mission). Notez ceux qu'il a fallu débloquer.</li>
+  <li>Vérifiez l'imprévu « surtension » à la minute 8 : ne rien toucher pendant 10 s.</li>
+  <li>Posez une carte Banc sur le lecteur à plat : elle doit être refusée, avec le message « glissez-la dans la fente ».</li>
+  <li>Testez une coupure de courant : débranchez en pleine partie, rebranchez, glissez la carte Monde, puis « Reprendre la partie en cours ».</li>
+  <li>Envoyez-moi la liste de ce qui ne va pas : son absent, texte, capteur, carte non reconnue. Je corrige.</li>
 </ul>
 
 <h2>7 · Les corrections et la répétition <span class="quand">J-3 et J-2</span></h2>
 <ul class="cases">
-  <li>Installez les corrections : nouveau programme par le Wi-Fi, fichiers sur les cartes SD, audios refaits.</li>
-  <li>Faites une deuxième partie d'essai, au moins jusqu'au code du bureau et au sentier.</li>
-  <li class="option">Faites tester par une personne qui ne connaît pas l'histoire, avec le tutoriel « Panique au Muséum » (15 minutes). Il marche avec les sous-titres, même sans ses voix.</li>
-  <li>Remettez tout à zéro : cartes Objet dans leurs enveloppes, O3 dans le tiroir, enveloppes fermées et dans l'ordre.</li>
+  <li>Installez les corrections : nouveau programme par le Wi-Fi, nouveaux fichiers sur les cartes SD.</li>
+  <li>Faites une deuxième partie d'essai complète, chrono en main : elle doit tenir en moins de 30 minutes.</li>
+  <li>Remettez tout à zéro : la carte O3 (Certificat) à part, le tiroir repoussé et verrouillé, les cartes Banc dans l'ordre.</li>
 </ul>
-
 
 <h2>8 · La veille <span class="quand">J-1</span></h2>
 <ul class="cases">
-  <li>Alimentation du pupitre testée, rallonge et chargeur du téléphone du maître du jeu.</li>
-  <li>Casque branché et volume réglé. Les trois cartes SD sont en place.</li>
-  <li>Un téléphone avec lampe pour la vieille grange : le vôtre, ou celui d'un joueur.</li>
-  <li>Le matériel de jeu au complet : fiche de mission, 9 cartes Lieu, 6 cartes Personnage, carte Papy Marcel, 8 enveloppes, 6 rôles avec leurs documents secrets, fiches d'enquête et crayons, le fer à cheval, la façade.</li>
-  <li>Relisez le déroulé, surtout les étapes, les filets de sécurité et la solution de l'accusation.</li>
+  <li>Testez l'alimentation du pupitre ; prévoyez une rallonge et le chargeur du téléphone du maître du jeu.</li>
+  <li>Branchez le casque et réglez son volume. Vérifiez que les trois cartes SD sont en place.</li>
+  <li>Le matériel est au complet : fiche de mission (page 1), 13 cartes Banc, clé à molette, burette, certificat, carte d'aide (le carnet du professeur), 4 pastilles, aimant, téléphone avec lampe, plan du banc d'essai.</li>
+  <li>Relisez le déroulé : les solutions, les conseils du carnet du professeur et les rangs de fin.</li>
 </ul>
 
-<h2>9 · Le jour J <span class="quand">30 minutes avant</span></h2>
+<h2>9 · Le jour J <span class="quand">20 minutes avant</span></h2>
 <ul class="cases">
-  <li>Le pupitre au centre de la table, allumé : le jingle sonne et l'écran dit « Glissez une carte Monde ».</li>
-  <li>Le téléphone du maître du jeu connecté au Wi-Fi du pupitre, page <code>http://192.168.4.1</code> ouverte.</li>
-  <li>Onglet <strong>Équipe</strong> : le nom de l'équipe et les prénoms (pour le classement).</li>
-  <li>Sur la table : fiche de mission, cartes Lieu et Personnage, carte Papy Marcel, enveloppes E1 à E8 empilées.</li>
-  <li>Le fer à cheval posé près du pupitre, sans rien dire.</li>
-  <li>Les 6 rôles distribués face cachée (avec moins de 6 joueurs, certains en prennent deux, ou on lance au bouton vert).</li>
-  <li>Un joueur glisse la carte Monde, installe la façade, choisit la mission 1. Chacun glisse son Rôle. C'est parti.</li>
+  <li>Le pupitre au centre de la table, allumé, avec le plan du banc d'essai installé.</li>
+  <li>Le téléphone du maître du jeu connecté au Wi-Fi du pupitre, page <code>http://192.168.4.1</code> ouverte. Dans l'onglet <strong>Équipe</strong>, entrez le nom de l'équipe et les deux prénoms.</li>
+  <li>Sur la table : la page 1 de la fiche de mission, les cartes Banc, la clé à molette, la burette, les pastilles, l'aimant et la carte d'aide.</li>
+  <li>Gardez le certificat (O3) de côté : il se remet aux joueurs à la fin, quand le coffre est ouvert. Sans tiroir, il va dans l'enveloppe E1.</li>
+  <li>Un joueur glisse la carte Monde M5 et choisit « Jouer ». Le professeur Lumen présente l'essai, et c'est parti.</li>
 </ul>
-<div class="note bloc"><strong>Pendant la partie, si ça coince.</strong> Dans l'onglet Partie : <strong>Aide</strong> donne un indice, <strong>Débloquer</strong> fait réussir une épreuve quand un capteur ne répond pas, <strong>± minutes</strong> ajuste le chrono. Dans l'onglet Souffleur : vous pouvez afficher un message ou rejouer n'importe quelle réplique. Après une coupure de courant, glissez de nouveau la carte Monde pour reprendre la partie.</div>
+<div class="note bloc"><strong>Pendant la partie, si ça coince.</strong> Dans l'onglet Partie : <strong>Débloquer</strong> valide le banc en cours quand un organe ne répond pas (notez-le sur la fiche de recette), <strong>Aide</strong> donne un conseil, <strong>± minutes</strong> ajuste le chrono. Les 3 premiers conseils sont gratuits ; les suivants coûtent 2 minutes. Après une coupure de courant, glissez de nouveau la carte Monde.</div>
 
 <h2>Après la partie</h2>
 <ul class="cases">
-  <li>Notez les réactions : ce qui a plu, où l'équipe a bloqué, le temps restant.</li>
-  <li>Remettez tout en place pour la prochaine équipe : enveloppes, O3 dans le tiroir, rôles.</li>
-  <li>Envoyez-moi vos notes : j'ajuste la difficulté, les textes ou les indices.</li>
+  <li>Gardez la fiche de recette : elle dit quels organes sont fiables et lesquels sont à revoir avant une partie plus longue.</li>
+  <li>Notez les réactions des joueurs, le temps restant et le rang obtenu.</li>
+  <li>Envoyez-moi vos notes. Ensuite, une vraie enquête vous attend : « La Disparition d'Éclipse », dont il reste 62 voix à enregistrer.</li>
 </ul>
 
 </body>
