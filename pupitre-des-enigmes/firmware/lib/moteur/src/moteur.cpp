@@ -675,7 +675,8 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
     flashZone_[zone] = maintenant() + 500;
     couleurZone_[zone] = 0xff0000;
     p_.jouer(DOSSIER_SONS_PUPITRE, 3, false);
-    // Avec des lecteurs renommés, « mettez-la sur QUI » n'a plus de sens : la mission a sa réplique.
+    // Les répliques 7 à 9 du pupitre disent le type de la carte sans nommer de zone (les plaques
+    // renomment les lecteurs) ; une mission peut les remplacer par les siennes.
     JsonVariantConst propre = script_["zones"][type == "lieu" ? "dire_lieu" : type == "objet" ? "dire_objet" : "dire_perso"];
     if (!propre.isNull()) ajouterInterne(Action::de(Action::DIRE, dossierVoix_, propre.as<int>()));
     else ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 7 + zoneAttendue));

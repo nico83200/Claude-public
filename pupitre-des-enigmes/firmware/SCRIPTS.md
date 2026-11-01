@@ -319,7 +319,7 @@ ces états ; l'épreuve `voyants` (§ 6) prend le panneau le temps de l'épreuve
 
 La voix du pupitre (dossier 91, `console/audio/repliques.json`) et ses bruitages
 (dossier 90) sont utilisés par le moteur sans que le script ait à les citer :
-mauvaise zone (7 à 9), carte inconnue (10), carte d'un autre monde (4), casque
+carte posée au mauvais endroit (7 à 9, mode trois lecteurs seulement : avec deux lecteurs, chaque carte rejoint d'elle-même la zone de son type), carte inconnue (10), carte d'un autre monde (4), casque
 (5 et 6), pause et reprise (11 et 12)… Les bruitages : bip (2), erreur (3),
 carillon du casque (6), roulement de l'accusation (7).
 
