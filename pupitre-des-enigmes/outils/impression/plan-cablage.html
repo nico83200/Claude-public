@@ -273,69 +273,72 @@ le rail 5 V. Contrôle : pas de bip entre deux rails.</li>
 et soudé dessous. Plusieurs connecteurs sur une même broche (18, 19, 23) : un fil par connecteur, ou un fil qui va de l'un à l'autre.</li>
 <li><b>Les contrôles</b> du § 7.</li>
 </ol>
-<table class="liaisons"><tr><th>N°</th><th>De</th><th>À</th><th>Avec</th></tr>
-<tr><td colspan="4" class="sous"><b>L'alimentation</b></td></tr>
-<tr><td>A1</td><td>Plot + de J1</td><td>Rail 5 V</td><td>fil nu (court)</td></tr>
-<tr><td>A2</td><td>Plot − de J1</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A3</td><td>VIN de l'ESP32</td><td>Bas du rail 5 V</td><td>fil nu (court)</td></tr>
-<tr><td>A4</td><td>GND de l'ESP32, rangée du haut</td><td>Rail masse du haut</td><td>fil nu (court)</td></tr>
-<tr><td>A5</td><td>GND de l'ESP32, rangée du bas</td><td>Rail masse du bas</td><td><b>fil isolé</b> (croise le rail 3,3 V)</td></tr>
-<tr><td>A6</td><td>3V3 de l'ESP32</td><td>Rail 3,3 V du haut</td><td><b>fil isolé</b> (croise le rail masse)</td></tr>
-<tr><td>A7</td><td>Rail 3,3 V du haut</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b>, le long du bord gauche</td></tr>
-<tr><td>A8</td><td>Rail masse du bas</td><td>Branche masse de droite</td><td>fil nu (le prolongement du rail)</td></tr>
-<tr><td>A9</td><td>C1 (100 µF) : patte longue (+)</td><td>Rail 5 V, près de J1 ; la patte « − » sur la masse</td><td>les pattes du condensateur</td></tr>
-<tr><td colspan="4" class="sous"><b>Le 5 V, la masse et le 3,3 V des connecteurs</b></td></tr>
-<tr><td>A10</td><td>J2-1</td><td>Rail 3,3 V du haut</td><td>fil nu (court)</td></tr>
-<tr><td>A11</td><td>J2-2</td><td>Rail masse du haut</td><td><b>fil isolé</b></td></tr>
-<tr><td>A12</td><td>J3-1 et J3-2</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td></tr>
-<tr><td>A13</td><td>J3-3</td><td>Rail masse du bas</td><td>fil nu (court)</td></tr>
-<tr><td>A14</td><td>J4-1 et J4-2</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td></tr>
-<tr><td>A15</td><td>J4-3</td><td>Rail masse du bas</td><td>fil nu (court)</td></tr>
-<tr><td>A16</td><td>Plot + de J12</td><td>Rail 5 V</td><td><b>fil isolé</b></td></tr>
-<tr><td>A17</td><td>Plot − de J12</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A18</td><td>J14-1</td><td>Rail 5 V</td><td>fil nu (court)</td></tr>
-<tr><td>A19</td><td>J14-2</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A20</td><td>J15-1</td><td>Rail 3,3 V du haut</td><td><b>fil isolé</b></td></tr>
-<tr><td>A21</td><td>J15-2</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A22</td><td>J7-1</td><td>Rail 5 V</td><td><b>fil isolé</b></td></tr>
-<tr><td>A23</td><td>J7-2</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A24</td><td>J8-1</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td></tr>
-<tr><td>A25</td><td>J8-2</td><td>Branche masse de droite</td><td>fil nu (court)</td></tr>
-<tr><td>A26</td><td>J9-2 et J10-2</td><td>Rail masse du bas</td><td>fil nu (court)</td></tr>
-<tr><td colspan="4" class="sous"><b>L'écran et le tactile</b> (tous en fil isolé)</td></tr>
-<tr><td>A27</td><td>J2-3</td><td>Broche 5</td><td><b>fil isolé</b></td></tr>
-<tr><td>A28</td><td>J2-4</td><td>Broche EN</td><td><b>fil isolé</b></td></tr>
-<tr><td>A29</td><td>J2-5</td><td>Broche 21</td><td><b>fil isolé</b></td></tr>
-<tr><td>A30</td><td>J2-6 et J2-10</td><td>Broche 23</td><td><b>fil isolé</b></td></tr>
-<tr><td>A31</td><td>J2-7 et J2-12</td><td>Broche 18</td><td><b>fil isolé</b></td></tr>
-<tr><td>A32</td><td>J2-8</td><td>Broche 12</td><td><b>fil isolé</b></td></tr>
-<tr><td>A33</td><td>J2-9</td><td>Broche 4</td><td><b>fil isolé</b></td></tr>
-<tr><td>A34</td><td>J2-11</td><td>Broche 19</td><td><b>fil isolé</b></td></tr>
-<tr><td>A35</td><td>J13-1</td><td>Broche 14</td><td><b>fil isolé</b></td></tr>
-<tr><td>A36</td><td>J13-2</td><td>Broche 18</td><td><b>fil isolé</b></td></tr>
-<tr><td>A37</td><td>J13-3</td><td>Broche 23</td><td><b>fil isolé</b></td></tr>
-<tr><td>A38</td><td>J13-4</td><td>Broche 19</td><td><b>fil isolé</b></td></tr>
-<tr><td>A39</td><td>J13-5</td><td>Broche 15 (réserve)</td><td><b>fil isolé</b></td></tr>
-<tr><td colspan="4" class="sous"><b>Les deux lecteurs RFID</b> (fil isolé)</td></tr>
-<tr><td>A40</td><td>J3-4 et J4-4</td><td>Broche 19</td><td><b>fil isolé</b></td></tr>
-<tr><td>A41</td><td>J3-5 et J4-5</td><td>Broche 23</td><td><b>fil isolé</b></td></tr>
-<tr><td>A42</td><td>J3-6 et J4-6</td><td>Broche 18</td><td><b>fil isolé</b></td></tr>
-<tr><td>A43</td><td>J3-7</td><td>Broche 13</td><td><b>fil isolé</b></td></tr>
-<tr><td>A44</td><td>J4-7</td><td>Broche 22</td><td><b>fil isolé</b></td></tr>
-<tr><td colspan="4" class="sous"><b>Les LED, les commandes, le son et l'I2C</b></td></tr>
-<tr><td>A45</td><td>R3 (330 Ω) : une patte</td><td>Broche 25 ; l'autre patte de R3 à J7-3</td><td>les pattes de R3, prolongées d'un <b>fil isolé</b></td></tr>
-<tr><td>A46</td><td>R4 (10 kΩ) : une patte</td><td>Broche 39 ; l'autre patte de R4 au rail 3,3 V du bas</td><td>les pattes de R4</td></tr>
-<tr><td>A47</td><td>J9-1</td><td>Broche 39</td><td><b>fil isolé</b></td></tr>
-<tr><td>A48</td><td>J10-1</td><td>Broche 33</td><td><b>fil isolé</b></td></tr>
-<tr><td>A49</td><td>J8-3</td><td>Broche 34</td><td><b>fil isolé</b></td></tr>
-<tr><td>A50</td><td>J8-4</td><td>Broche 35</td><td><b>fil isolé</b></td></tr>
-<tr><td>A51</td><td>J8-5</td><td>Broche 32</td><td><b>fil isolé</b></td></tr>
-<tr><td>A52</td><td>J14-3</td><td>Broche 17</td><td><b>fil isolé</b></td></tr>
-<tr><td>A53</td><td>J14-4</td><td>Broche 16</td><td><b>fil isolé</b></td></tr>
-<tr><td>A54</td><td>J14-5</td><td>Broche 2</td><td><b>fil isolé</b></td></tr>
-<tr><td>A55</td><td>J14-6</td><td>Broche 36 (VP)</td><td><b>fil isolé</b></td></tr>
-<tr><td>A56</td><td>J15-3</td><td>Broche 26</td><td><b>fil isolé</b></td></tr>
-<tr><td>A57</td><td>J15-4</td><td>Broche 27</td><td><b>fil isolé</b></td></tr>
+<div class="note"><b>La colonne « Fil »</b> : <b>22 AWG</b> pour tout ce qui porte le courant (5 V, masse générale, arrivée du 3,3 V,
+haut-parleur) ; <b>30 AWG</b> (fil fin) pour les signaux et les petites alimentations des connecteurs ; « pattes du composant » quand
+les pattes d'une résistance ou d'un condensateur suffisent à faire la liaison. Les rails : fil nu épais (0,5 à 0,6 mm).</div>
+<table class="liaisons"><tr><th>N°</th><th>De</th><th>À</th><th>Avec</th><th>Fil</th></tr>
+<tr><td colspan="5" class="sous"><b>L'alimentation</b></td></tr>
+<tr><td>A1</td><td>Plot + de J1</td><td>Rail 5 V</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A2</td><td>Plot − de J1</td><td>Branche masse de droite</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A3</td><td>VIN de l'ESP32</td><td>Bas du rail 5 V</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A4</td><td>GND de l'ESP32, rangée du haut</td><td>Rail masse du haut</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A5</td><td>GND de l'ESP32, rangée du bas</td><td>Rail masse du bas</td><td><b>fil isolé</b> (croise le rail 3,3 V)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A6</td><td>3V3 de l'ESP32</td><td>Rail 3,3 V du haut</td><td><b>fil isolé</b> (croise le rail masse)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A7</td><td>Rail 3,3 V du haut</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b>, le long du bord gauche</td><td><b>22 AWG</b></td></tr>
+<tr><td>A8</td><td>Rail masse du bas</td><td>Branche masse de droite</td><td>fil nu (le prolongement du rail)</td><td>fil nu épais</td></tr>
+<tr><td>A9</td><td>C1 (100 µF) : patte longue (+)</td><td>Rail 5 V, près de J1 ; la patte « − » sur la masse</td><td>les pattes du condensateur</td><td>pattes du composant</td></tr>
+<tr><td colspan="5" class="sous"><b>Le 5 V, la masse et le 3,3 V des connecteurs</b></td></tr>
+<tr><td>A10</td><td>J2-1</td><td>Rail 3,3 V du haut</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A11</td><td>J2-2</td><td>Rail masse du haut</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A12</td><td>J3-1 et J3-2</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A13</td><td>J3-3</td><td>Rail masse du bas</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A14</td><td>J4-1 et J4-2</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A15</td><td>J4-3</td><td>Rail masse du bas</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A16</td><td>Plot + de J12</td><td>Rail 5 V</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>A17</td><td>Plot − de J12</td><td>Branche masse de droite</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A18</td><td>J14-1</td><td>Rail 5 V</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A19</td><td>J14-2</td><td>Branche masse de droite</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A20</td><td>J15-1</td><td>Rail 3,3 V du haut</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A21</td><td>J15-2</td><td>Branche masse de droite</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A22</td><td>J7-1</td><td>Rail 5 V</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>A23</td><td>J7-2</td><td>Branche masse de droite</td><td>fil nu (court)</td><td><b>22 AWG</b></td></tr>
+<tr><td>A24</td><td>J8-1</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A25</td><td>J8-2</td><td>Branche masse de droite</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A26</td><td>J9-2 et J10-2</td><td>Rail masse du bas</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td colspan="5" class="sous"><b>L'écran et le tactile</b> (tous en fil isolé)</td></tr>
+<tr><td>A27</td><td>J2-3</td><td>Broche 5</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A28</td><td>J2-4</td><td>Broche EN</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A29</td><td>J2-5</td><td>Broche 21</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A30</td><td>J2-6 et J2-10</td><td>Broche 23</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A31</td><td>J2-7 et J2-12</td><td>Broche 18</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A32</td><td>J2-8</td><td>Broche 12</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A33</td><td>J2-9</td><td>Broche 4</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A34</td><td>J2-11</td><td>Broche 19</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A35</td><td>J13-1</td><td>Broche 14</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A36</td><td>J13-2</td><td>Broche 18</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A37</td><td>J13-3</td><td>Broche 23</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A38</td><td>J13-4</td><td>Broche 19</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A39</td><td>J13-5</td><td>Broche 15 (réserve)</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td colspan="5" class="sous"><b>Les deux lecteurs RFID</b> (fil isolé)</td></tr>
+<tr><td>A40</td><td>J3-4 et J4-4</td><td>Broche 19</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A41</td><td>J3-5 et J4-5</td><td>Broche 23</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A42</td><td>J3-6 et J4-6</td><td>Broche 18</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A43</td><td>J3-7</td><td>Broche 13</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A44</td><td>J4-7</td><td>Broche 22</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td colspan="5" class="sous"><b>Les LED, les commandes, le son et l'I2C</b></td></tr>
+<tr><td>A45</td><td>R3 (330 Ω) : une patte</td><td>Broche 25 ; l'autre patte de R3 à J7-3</td><td>les pattes de R3, prolongées d'un <b>fil isolé</b></td><td>pattes du composant + 30 AWG</td></tr>
+<tr><td>A46</td><td>R4 (10 kΩ) : une patte</td><td>Broche 39 ; l'autre patte de R4 au rail 3,3 V du bas</td><td>les pattes de R4</td><td>pattes du composant</td></tr>
+<tr><td>A47</td><td>J9-1</td><td>Broche 39</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A48</td><td>J10-1</td><td>Broche 33</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A49</td><td>J8-3</td><td>Broche 34</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A50</td><td>J8-4</td><td>Broche 35</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A51</td><td>J8-5</td><td>Broche 32</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A52</td><td>J14-3</td><td>Broche 17</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A53</td><td>J14-4</td><td>Broche 16</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A54</td><td>J14-5</td><td>Broche 2</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A55</td><td>J14-6</td><td>Broche 36 (VP)</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A56</td><td>J15-3</td><td>Broche 26</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>A57</td><td>J15-4</td><td>Broche 27</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
 </table>
 
 <h2 class="saut">5. La plaque B, pas à pas</h2>
@@ -358,18 +361,18 @@ et soudé dessous. Plusieurs connecteurs sur une même broche (18, 19, 23) : un 
 <li><b>Les composants</b> : C2 près de J14 (patte longue au 5 V), R1 et R2 entre J14 et les DFPlayer.</li>
 <li><b>Les liaisons</b> du tableau, puis les contrôles du § 7.</li>
 </ol>
-<table class="liaisons"><tr><th>N°</th><th>De</th><th>À</th><th>Avec</th></tr>
-<tr><td>B1</td><td>J14-1</td><td>Rail 5 V</td><td><b>fil isolé</b></td></tr>
-<tr><td>B2</td><td>J14-2</td><td>Rail masse</td><td><b>fil isolé</b></td></tr>
-<tr><td>B3</td><td>C2 (100 µF) : patte longue (+)</td><td>Rail 5 V, près de J14 ; la patte « − » sur la masse</td><td>les pattes du condensateur</td></tr>
-<tr><td>B4</td><td>VCC des deux DFPlayer</td><td>Rail 5 V</td><td>fil nu (court) ou <b>fil isolé</b></td></tr>
-<tr><td>B5</td><td>GND des deux DFPlayer</td><td>Rail masse</td><td>fil nu (court) ou <b>fil isolé</b></td></tr>
-<tr><td>B6</td><td>R1 : une patte</td><td>J14-3 ; l'autre patte de R1 au RX du DFPlayer haut-parleur</td><td>les pattes de R1, prolongées d'un <b>fil isolé</b></td></tr>
-<tr><td>B7</td><td>R2 : une patte</td><td>J14-5 ; l'autre patte de R2 au RX du DFPlayer casque</td><td>les pattes de R2, prolongées d'un <b>fil isolé</b></td></tr>
-<tr><td>B8</td><td>TX du DFPlayer haut-parleur</td><td>J14-4</td><td><b>fil isolé</b></td></tr>
-<tr><td>B9</td><td>TX du DFPlayer casque</td><td>J14-6</td><td><b>fil isolé</b></td></tr>
-<tr><td>B10</td><td>SPK_1 et SPK_2 (haut-parleur)</td><td>J5, plots 1 et 2</td><td><b>fil isolé</b></td></tr>
-<tr><td>B11</td><td>DAC_L, DAC_R, GND (casque)</td><td>J6, plots 1, 2 et 3</td><td><b>fil isolé</b></td></tr>
+<table class="liaisons"><tr><th>N°</th><th>De</th><th>À</th><th>Avec</th><th>Fil</th></tr>
+<tr><td>B1</td><td>J14-1</td><td>Rail 5 V</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>B2</td><td>J14-2</td><td>Rail masse</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>B3</td><td>C2 (100 µF) : patte longue (+)</td><td>Rail 5 V, près de J14 ; la patte « − » sur la masse</td><td>les pattes du condensateur</td><td>pattes du composant</td></tr>
+<tr><td>B4</td><td>VCC des deux DFPlayer</td><td>Rail 5 V</td><td>fil nu (court) ou <b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>B5</td><td>GND des deux DFPlayer</td><td>Rail masse</td><td>fil nu (court) ou <b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>B6</td><td>R1 : une patte</td><td>J14-3 ; l'autre patte de R1 au RX du DFPlayer haut-parleur</td><td>les pattes de R1, prolongées d'un <b>fil isolé</b></td><td>pattes du composant + 30 AWG</td></tr>
+<tr><td>B7</td><td>R2 : une patte</td><td>J14-5 ; l'autre patte de R2 au RX du DFPlayer casque</td><td>les pattes de R2, prolongées d'un <b>fil isolé</b></td><td>pattes du composant + 30 AWG</td></tr>
+<tr><td>B8</td><td>TX du DFPlayer haut-parleur</td><td>J14-4</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>B9</td><td>TX du DFPlayer casque</td><td>J14-6</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
+<tr><td>B10</td><td>SPK_1 et SPK_2 (haut-parleur)</td><td>J5, plots 1 et 2</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
+<tr><td>B11</td><td>DAC_L, DAC_R, GND (casque)</td><td>J6, plots 1, 2 et 3</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
 </table>
 
 <h2>6. La plaque C, pas à pas</h2>
