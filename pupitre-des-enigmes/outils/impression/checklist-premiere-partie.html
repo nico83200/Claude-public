@@ -28,10 +28,10 @@
   code, .f { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.4pt; background: #efe9da; padding: 0 1mm; border-radius: .6mm; }
   .tag { display: inline-block; font-size: 7pt; font-weight: 700; letter-spacing: .8pt; text-transform: uppercase; padding: .2mm 1.4mm; border-radius: .8mm; margin-left: 1mm; vertical-align: 1px; }
   .tag.crit { background: var(--rouge); color: #fff; } .tag.opt { background: #e6e1d4; color: var(--doux); }
-  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 1mm 0 2mm; }
+  table { break-inside: avoid; width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 1mm 0 2mm; }
   th { text-align: left; background: var(--encre); color: #fff; font-weight: 600; padding: 1.2mm 2mm; }
   td { border-bottom: 1px solid var(--trait); padding: 1.2mm 2mm; vertical-align: top; }
-  td.c { width: 6mm; } td.c span { display: inline-block; width: 3.4mm; height: 3.4mm; border: 1.2px solid var(--encre); border-radius: .7mm; }
+  td.c { width: 6mm; } td.c.option span { border-style: dashed; border-color: var(--doux); } td.c span { display: inline-block; width: 3.4mm; height: 3.4mm; border: 1.2px solid var(--encre); border-radius: .7mm; }
   .note { border-left: 3px solid var(--or); padding: 1mm 0 1mm 3mm; margin: 2mm 0 3mm; color: #3a3548; break-inside: avoid; }
   .saut { break-before: page; }
   .bloc { break-inside: avoid; }
@@ -40,158 +40,163 @@
 <body>
 
 <div class="sur">Le Pupitre des Énigmes · checklist</div>
-<h1>Votre première partie dans 15 jours</h1>
-<p class="chapo">Tout ce qu'il reste à faire, dans l'ordre, du jour J-15 jusqu'à la fin de la partie. Cochez au fur et à mesure. Les cases en pointillés sont facultatives.</p>
+<h1>Du carton de composants à la première partie</h1>
+<p class="chapo">Construire le pupitre et jouer la mission « Banc d'essai » en 15 jours. Chaque étape suit la précédente : cochez au fur et à mesure. Les cases en pointillés sont facultatives.</p>
 
 <div class="grille">
   <div class="cadre">
-    <p><strong>La mission : Banc d'essai</strong> (L'Atelier du professeur Lumen). 2 joueurs, 30 minutes au chrono, sans rôles ni accusation.</p>
-    <p>Les joueurs passent 13 bancs d'essai, un par organe du pupitre. C'est la meilleure recette de votre machine.</p>
+    <p><strong>La mission : Banc d'essai</strong> (L'Atelier du professeur Lumen). 2 joueurs, 30 minutes au chrono. Ses 85 audios sont faits.</p>
+    <p>Elle essaie chaque organe du pupitre : c'est la recette de votre machine.</p>
   </div>
   <div class="cadre">
     <p><strong>Date de la partie :</strong> ............................................</p>
-    <p><strong>Les 2 joueurs :</strong> ................................................</p>
-    <p><strong>Audio :</strong> les 85 audios de la mission sont faits. Il reste 2 phrases du pupitre à refaire.</p>
+    <p><strong>Le temps de travail :</strong> environ 40 heures. Il faut <strong>deux grosses journées</strong>, l'une pour la menuiserie, l'autre pour la soudure, et des soirées pour le reste.</p>
   </div>
 </div>
 
-<div class="note"><strong>Le point le plus important : le matériel.</strong> Cette mission essaie <em>tous</em> les organes, du nuancier à la serrure. Commencez donc par les tests de l'Atelier. Tout organe qui ne marche pas le jour J peut quand même être validé à distance avec <strong>Débloquer</strong>, depuis le panneau Wi-Fi, et la partie continue.</div>
+<div class="note"><strong>Le délai est serré, voici comment le tenir.</strong> Montez dans l'ordre de priorité.
+<br><strong>1. Indispensable :</strong> l'ESP32, l'écran et sa SD, les 2 lecteurs RFID, le DFPlayer du haut-parleur, la molette, le clavier, les boutons, le gros bouton et les LED.
+<br><strong>2. Ensuite :</strong> le casque, l'horloge, la clé, les capteurs (couleur, œil, forge, enclume).
+<br><strong>3. En dernier :</strong> le tiroir secret.
+<br>Le jour J, tout organe absent ou capricieux se valide d'un geste avec <strong>Débloquer</strong>, dans le panneau Wi-Fi : la partie continue. Si la boîte n'est pas finie, jouez avec un <strong>couvercle provisoire en carton fort</strong> percé au gabarit : le jeu sera le même.</div>
 
-<h2>1 · Le programme et le pupitre <span class="quand">J-15 à J-12</span></h2>
-<p class="but">But : un pupitre à jour, dont chacun des 16 organes répond.</p>
+<h2>1 · L'inventaire et les achats <span class="quand">J-14</span></h2>
+<p class="but">But : savoir ce qui manque, et l'avoir sous la main dès que possible.</p>
 <ul class="cases">
-  <li>Récupérez le nouveau programme : <span class="f">firmware/binaires/pupitre-mise-a-jour.bin</span>, sur le dépôt GitHub, branche de travail.</li>
-  <li>Installez-le par le Wi-Fi : connectez-vous au réseau <strong>Pupitre-des-Enigmes</strong> (mot de passe <code>enigmes123</code>), ouvrez la page <code>http://192.168.4.1</code>, onglet <strong>Mise à jour</strong>.
-    <span class="det">Si c'est le tout premier téléversement, passez par l'USB avec <span class="f">pupitre-complet.bin</span> : voir <span class="f">installer-esp32-mac.pdf</span>. Ne coupez pas le courant pendant l'envoi.</span></li>
-  <li>Glissez la carte Monde de l'Atelier, puis ouvrez <strong>« État du pupitre »</strong>. Aucune ligne ne doit être rouge pour la mission 5.</li>
-  <li>Réglages du pupitre (à l'accueil, molette puis dernière ligne) : volumes du haut-parleur et du casque, luminosité de l'écran et des LED. Validez avec le bouton vert.</li>
+  <li>Imprimez <span class="f">liste-achats.pdf</span> et cochez chaque composant reçu, avec les quantités.</li>
+  <li>Vérifiez les puces, à la loupe : un <strong>ESP32</strong> (pas un ESP8266), un <strong>BME280</strong> (pas un BMP280), un <strong>QMC5883L</strong> (pas un HMC5883L).</li>
+  <li>Ce qui manque en électronique : commandez-le avec une <strong>livraison en 1 à 2 jours</strong>, en magasin ou sur un site rapide. AliExpress met 2 à 4 semaines : trop tard.</li>
+  <li>Commandez aussi tout de suite <strong>20 autocollants NFC NTAG213</strong> : 18 cartes à équiper, plus 2 en réserve.</li>
 </ul>
-<h3>Les essais, dans l'onglet « Atelier » du panneau Wi-Fi</h3>
+<h3>Au magasin de bricolage : le bois et la quincaillerie</h3>
 <table>
-  <tr><th></th><th>Organe (et son banc)</th><th>Le test</th></tr>
-  <tr><td class="c"><span></span></td><td>Écran, clavier, horloge (① Poste de contrôle)</td><td>Chaque touche s'affiche ; essai « 88:88 »</td></tr>
-  <tr><td class="c"><span></span></td><td>4 boutons de couleur (② Banc des boutons)</td><td>Chaque appui s'affiche, puis les 4 ensemble</td></tr>
-  <tr><td class="c"><span></span></td><td>Molette et son appui (③)</td><td>Tourner dans les deux sens : un cran à la fois</td></tr>
-  <tr><td class="c"><span></span></td><td>Gros bouton (④)</td><td>Chaque appui s'affiche</td></tr>
-  <tr><td class="c"><span></span></td><td>10 voyants et anneau (⑤)</td><td>Essai « arc-en-ciel »</td></tr>
-  <tr><td class="c"><span></span></td><td>La forge, capteur d'humidité (⑥)</td><td>Souffler 2 à 3 s, bouche ouverte : la valeur monte nettement</td></tr>
-  <tr><td class="c"><span></span></td><td>L'enclume, capteur magnétique (⑦)</td><td>Un aimant sur la marque : l'écart dépasse 1 500</td></tr>
-  <tr><td class="c"><span></span></td><td>L'œil, gestes et lumière (⑧)</td><td>La main vers le haut, le bas, la gauche, la droite ; puis la lampe d'un téléphone</td></tr>
-  <tr><td class="c"><span></span></td><td>Le nuancier, capteur de couleur (⑨)</td><td>Les 4 pastilles imprimées : chacune doit être lue dans la bonne couleur</td></tr>
-  <tr><td class="c"><span></span></td><td>La serrure, clé (⑩)</td><td>Tourner la clé : l'état change</td></tr>
-  <tr><td class="c"><span></span></td><td>Fente et lecteur à plat (⑪)</td><td>Une carte dans chacun : elle apparaît dans l'onglet Partie</td></tr>
-  <tr><td class="c"><span></span></td><td>Haut-parleur et casque (⑫)</td><td>Essai « bip » sur chacun</td></tr>
-  <tr><td class="c"><span></span></td><td>Tiroir secret et sa LED (⑬)</td><td>Essais « Ouvrir » puis « Verrouiller »</td></tr>
+  <tr><th></th><th>Article</th><th>Quantité, usage</th></tr>
+  <tr><td class="c"><span></span></td><td>Contreplaqué 5 mm</td><td>Un panneau de 60 × 60 cm au moins : couvercle, faces, côtés et fond. Faites débiter au magasin si possible (voir § 3).</td></tr>
+  <tr><td class="c"><span></span></td><td>Contreplaqué 2 mm (ou médium 3 mm)</td><td>40 × 30 cm : la façade de la mission</td></tr>
+  <tr><td class="c"><span></span></td><td>Contreplaqué 3 mm, ou carton fort</td><td>Un petit morceau : le puits de la fente et le tiroir secret</td></tr>
+  <tr><td class="c"><span></span></td><td>Tasseau 15 × 15 mm, baguette 5 × 5 mm</td><td>1 m de chaque : appuis du fond, coulisses du tiroir</td></tr>
+  <tr><td class="c"><span></span></td><td>Colle à bois (vinylique), colle cyanoacrylate, bâtons de colle chaude</td><td>L'assemblage, les aimants, les modules sous le couvercle</td></tr>
+  <tr><td class="c"><span></span></td><td>Vis à bois 3 × 16 mm (une boîte), petits clous ou pointes</td><td>Le fond sur les tasseaux, le maintien pendant le collage</td></tr>
+  <tr><td class="c"><span></span></td><td>Interrupteur à bascule (petit modèle, 2 broches)</td><td>L'interrupteur général de la face arrière (absent de la liste d'électronique)</td></tr>
+  <tr><td class="c"><span></span></td><td>Papier de verre (grain 120 et 240), adhésif de masquage, ruban double-face</td><td>Les finitions, le report des cotes</td></tr>
+  <tr><td class="c option"><span></span></td><td>Peinture, vernis ou teinte</td><td>Facultatif : la décoration attendra une autre fois.</td></tr>
+</table>
+<h3>Les outils (à emprunter s'il le faut)</h3>
+<table>
+  <tr><th></th><th>Outil</th><th>Pour</th></tr>
+  <tr><td class="c"><span></span></td><td>Scie sauteuse ou scie à chantourner, scie fine</td><td>Les panneaux, les fenêtres, la porte du tiroir (trait fin)</td></tr>
+  <tr><td class="c"><span></span></td><td>Perceuse et forets à bois de 2 · 3 · 4 · 6 · 7 · 10 · 12 mm</td><td>Forge, haut-parleur, LED, voyants, molette, œil, clé et capteur de couleur</td></tr>
+  <tr><td class="c"><span></span></td><td>Scies cloches de 30 et 38 mm, plus celle du gros bouton (22 à 60 mm selon son modèle)</td><td>Les boutons d'arcade, l'anneau de LED, le gros bouton</td></tr>
+  <tr><td class="c"><span></span></td><td>Serre-joints, équerre, règle métallique, cutter, limes</td><td>L'assemblage d'équerre, les fentes nettes</td></tr>
+  <tr><td class="c"><span></span></td><td>Fer à souder (30 à 60 W) et étain, pince coupante, pince à dénuder, multimètre, pistolet à colle chaude</td><td>L'électronique</td></tr>
 </table>
 <ul class="cases">
-  <li>Si un organe réagit mal, notez la valeur lue au repos et pendant le geste, puis envoyez-la-moi. J'ajuste le seuil et je vous renvoie un programme.</li>
+  <li>Imprimez <span class="f">gabarit-facade.pdf</span> à <strong>100 %</strong>, sans « ajuster à la page ». Contrôlez une cote à la règle, puis assemblez les 3 feuilles.</li>
+  <li>Imprimez aussi <span class="f">plan-cablage.pdf</span> et <span class="f">notice-montage.pdf</span> : ce sont vos références pour toute la construction.</li>
 </ul>
 
-<h2>2 · Les audios <span class="quand">J-13 à J-11</span></h2>
-<p class="but">But : des dossiers audio complets et bien nommés. La mission est presque prête.</p>
+<h2>2 · L'électronique sur la breadboard <span class="quand">J-13 à J-10</span></h2>
+<p class="but">But : chaque module branché et reconnu par le programme, avant toute soudure.</p>
 <ul class="cases">
-  <li>Remettez sur le Drive le classeur de suivi que je vous ai renvoyé (<span class="f">suivi-audio-1.xlsx</span>), à la place de l'ancien.</li>
-  <li><strong>Dossier 50, fichier 054</strong> : il en existe deux prises. Écoutez-les, gardez la meilleure sous le nom <code>054.mp3</code> et supprimez l'autre. <span class="tag crit">indispensable</span>
-    <span class="det">Le fichier <code>054 (ancienne prise).mp3</code> ne doit pas aller sur la carte SD.</span></li>
-  <li>Pupitre : enregistrez de nouveau <strong>91/007</strong> et <strong>91/008</strong> avec leur nouveau texte.
-    <span class="det">« Cette carte est un personnage : glissez-la dans la fente. » · « Cette carte est un lieu : glissez-la dans la fente. » Dans cette mission, on entend 91/008 si une carte Banc est posée sur le lecteur à plat.</span></li>
-  <li class="option">Pupitre : 91/009. Cette phrase ne sert qu'avec trois lecteurs : elle n'est jamais jouée aujourd'hui.</li>
-  <li>Vérifiez que chaque fichier s'appelle exactement <code>NNN.mp3</code>, par exemple <code>054.mp3</code>, sans préfixe. Mettez le suivi à jour.</li>
+  <li>Mettez le programme dans l'ESP32, seul sur la breadboard : Chrome, puis <span class="f">pupitre-complet.bin</span>, comme l'explique <span class="f">installer-esp32-mac.pdf</span>.</li>
+  <li>Ouvrez le journal série sur le Mac, à la vitesse de 115200 : <code>screen /dev/cu.wchusbserial* 115200</code>. Il dit, au démarrage, quels modules répondent.</li>
+  <li>Ajoutez les modules <strong>un par un</strong>, en suivant le tableau du § 3 de la notice. Débranchez l'USB avant chaque ajout, puis relisez le journal.</li>
 </ul>
-
-<h2>3 · Les achats et l'impression <span class="quand">J-12 à J-9</span></h2>
-<p class="but">But : tout le matériel de jeu, imprimé et découpé.</p>
-<h3>À avoir sous la main</h3>
-<ul class="cases">
-  <li><strong>20 autocollants NFC NTAG213</strong> : 18 cartes à équiper (13 cartes Banc, 3 cartes Objet, la carte Monde et la carte d'aide), plus 2 en réserve.</li>
-  <li><strong>Un aimant</strong> pour l'enclume : un aimant néodyme, le fer à cheval aimanté ou un simple aimant de réfrigérateur.</li>
-  <li><strong>Un téléphone avec sa lampe</strong>, pour l'œil.</li>
-  <li>Papier cartonné de 250 à 300 g pour les cartes et les pastilles, papier de 120 g pour la fiche, massicot ou cutter, colle.</li>
-  <li class="option">Une enveloppe, marquée E1, seulement si le pupitre n'a pas de tiroir secret.</li>
-</ul>
-<h3>À imprimer (dossier <span class="f">pdf/</span>)</h3>
 <table>
-  <tr><th></th><th>Fichier</th><th>Comment</th></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-5-a-imprimer-recto.pdf</span> (6 pages)</td><td>En couleur, recto seul. Il contient la fiche de mission (page 1 pour les joueurs ; page 2 pour vous, avec les pastilles du nuancier et la fiche de recette) et le plan du banc d'essai.</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-5-a-imprimer-recto-verso.pdf</span> (4 pages)</td><td>Les cartes, sur papier cartonné, recto verso <strong>bord long</strong>. Imprimez d'abord une page d'essai pour vérifier que les dos tombent en face.</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-5-livret-a5-brochure.pdf</span></td><td>Le livret : A4 recto verso bord court, plié en deux</td></tr>
-  <tr><td class="c"><span></span></td><td><span class="f">mission-5-deroule-maitre-du-jeu.pdf</span></td><td>Pour vous seul : la partie minute par minute et toutes les solutions</td></tr>
+  <tr><th></th><th>Module</th><th>Ce que le journal (ou l'onglet Atelier) doit montrer</th></tr>
+  <tr><td class="c"><span></span></td><td>Écran et sa carte SD (préparée au § 6)</td><td>Le logo, puis l'accueil. Si la carte redémarre en boucle : la broche LED de l'écran va sur le 3,3 V (voir la notice).</td></tr>
+  <tr><td class="c"><span></span></td><td>RFID de la fente (CS 13) et du lecteur à plat (CS 22), en <strong>3,3 V</strong></td><td>« 2 lecteurs » ; l'UID de chaque carte posée</td></tr>
+  <tr><td class="c"><span></span></td><td>DFPlayer du haut-parleur (avec sa SD), via 1 kΩ sur le TX</td><td>« DFPlayer : N fichiers sur la carte » et le jingle du démarrage</td></tr>
+  <tr><td class="c"><span></span></td><td>DFPlayer du casque et embase jack</td><td>Débranchez son fil de la GPIO 2 pour téléverser le programme</td></tr>
+  <tr><td class="c"><span></span></td><td>Chaîne de LED (330 Ω sur DIN, 1000 µF sur le 5 V)</td><td>Dans l'ordre : anneau, LED de la fente, LED du plateau, 10 voyants, ruban du dessous, LED du tiroir</td></tr>
+  <tr><td class="c"><span></span></td><td>Molette, gros bouton (10 kΩ), clé</td><td>Les menus défilent ; un appui valide</td></tr>
+  <tr><td class="c"><span></span></td><td>Bus I2C (SDA 26, SCL 27), tous les modules en <strong>3,3 V</strong></td><td>Les PCF8574 du clavier (0x20) et des boutons (0x21), l'horloge (0x70), la couleur (0x29), l'œil (0x39), la forge (0x76), l'enclume (0x0D), le tiroir (0x40)</td></tr>
 </table>
-
-<h2>4 · La fabrication <span class="quand">J-9 et J-8</span></h2>
-<p class="but">But : les cartes équipées, les pastilles découpées, le plan monté.</p>
 <ul class="cases">
-  <li>Découpez les 16 cartes de la mission. Collez un autocollant NFC au dos de chacune, <strong>en bas</strong>, sur le cercle « PUCE NFC » : c'est ce bord qui entre dans la fente.</li>
-  <li>Vérifiez que chaque carte glisse dans la fente sans forcer et qu'aucun autocollant ne dépasse.</li>
-  <li>Découpez les 4 pastilles du nuancier (rouge, bleu, vert, jaune), sur papier épais.
-    <span class="det">Si le capteur confond deux couleurs, réimprimez plus foncé ou envoyez-moi les valeurs lues : on ajuste la balance des couleurs.</span></li>
-  <li>Collez le plan du banc d'essai sur sa plaque aimantée. Rien n'est caché : toutes les fenêtres sont ouvertes.</li>
+  <li>Une fois le Wi-Fi visible (réseau <strong>Pupitre-des-Enigmes</strong>, mot de passe <code>enigmes123</code>), ouvrez la page <code>http://192.168.4.1</code>, onglet <strong>Atelier</strong>. Testez chaque organe : la valeur doit réagir au geste.</li>
+  <li>Envoyez-moi le journal série si un module ne répond pas, ou si une valeur paraît bizarre : j'adapte le programme.</li>
 </ul>
 
-<h2>5 · Les cartes SD et l'enregistrement des cartes <span class="quand">J-7 et J-6</span></h2>
-<p class="but">But : le pupitre reconnaît chaque carte et joue chaque son.</p>
-<h3>La carte SD de l'écran</h3>
+<h2>3 · La menuiserie <span class="quand">J-10 à J-8 · une grosse journée</span></h2>
+<p class="but">But : la boîte assemblée et percée, prête à recevoir l'électronique. Les cotes sont au § 4 de la notice.</p>
+<table>
+  <tr><th></th><th>Pièce (contreplaqué 5 mm)</th><th>Qté</th><th>Dimensions</th></tr>
+  <tr><td class="c"><span></span></td><td>Couvercle (dessus incliné)</td><td>1</td><td>38,0 × 26,2 cm</td></tr>
+  <tr><td class="c"><span></span></td><td>Face avant · face arrière</td><td>1 + 1</td><td>38,0 × 4,5 cm · 38,0 × 7,5 cm</td></tr>
+  <tr><td class="c"><span></span></td><td>Côtés (trapèzes)</td><td>2</td><td>25,0 cm de long, 7,5 cm à l'arrière, 4,5 cm à l'avant</td></tr>
+  <tr><td class="c"><span></span></td><td>Fond amovible</td><td>1</td><td>37,0 × 25,0 cm</td></tr>
+  <tr><td class="c"><span></span></td><td>Tasseaux 15 × 15 mm</td><td>4</td><td>Un dans chaque coin intérieur, à 5 mm du bas</td></tr>
+</table>
 <ul class="cases">
-  <li>Copiez à sa racine le contenu de <span class="f">cartes-sd/carte-sd-ecran.zip</span> : les dossiers <code>mondes</code> et <code>pupitre</code>, tout en haut.
-    <span class="det">Si des cartes ont déjà été enregistrées, ne remplacez pas les fichiers <span class="f">mondes/*/cartes.json</span> : ils contiennent vos puces.</span></li>
-</ul>
-<h3>Les deux cartes SD des lecteurs audio (contenu identique)</h3>
-<ul class="cases">
-  <li>Formatez chaque carte en FAT32 (8 ou 16 Go).</li>
-  <li>Copiez depuis le Drive les dossiers <code>90</code>, <code>91</code>, <code>50</code> et <code>51</code>, un dossier après l'autre, sans rien d'autre à la racine.</li>
-  <li>Sur Mac, lancez <code>dot_clean</code> sur chaque carte avant de l'éjecter : la commande supprime les fichiers cachés « ._ », qui perturbent les lecteurs audio.</li>
-  <li>Remettez les trois cartes SD dans le pupitre.</li>
-</ul>
-<h3>L'enregistrement des cartes</h3>
-<ul class="cases">
-  <li>Sur l'accueil, appuyez sur la molette : <strong>Préparer le pupitre</strong>, puis <strong>L'Atelier du professeur Lumen</strong>.</li>
-  <li>Glissez chaque carte demandée dans la fente (M5, A5, L1…) : un bip la confirme. Le bouton rouge passe une carte, le vert termine et enregistre. Il y a 18 cartes.</li>
-  <li>Contrôlez en glissant quelques cartes au hasard pendant le jeu : le bon nom doit s'afficher.</li>
-</ul>
-
-<h2>6 · La partie d'essai <span class="quand">J-5 et J-4</span></h2>
-<p class="but">But : passer les 13 bancs avec le déroulé sous les yeux, et remplir la fiche de recette.</p>
-<ul class="cases">
-  <li>Jouez seul, ou à deux, en suivant <span class="f">mission-5-deroule-maitre-du-jeu.pdf</span>.
-    <span class="det">Codes : 2580 au poste de contrôle, 7 à la molette, 3861 au coffre. Il faut 11 essais réussis avant le casque.</span></li>
-  <li>Gardez le panneau Wi-Fi ouvert sur un téléphone, onglet <strong>Souffleur → journal</strong>.</li>
-  <li>Cochez chaque organe sur la <strong>fiche de recette</strong> (page 2 de la fiche de mission). Notez ceux qu'il a fallu débloquer.</li>
-  <li>Vérifiez l'imprévu « surtension » à la minute 8 : ne rien toucher pendant 10 s.</li>
-  <li>Posez une carte Banc sur le lecteur à plat : elle doit être refusée, avec le message « glissez-la dans la fente ».</li>
-  <li>Testez une coupure de courant : débranchez en pleine partie, rebranchez, glissez la carte Monde, puis « Reprendre la partie en cours ».</li>
-  <li>Envoyez-moi la liste de ce qui ne va pas : son absent, texte, capteur, carte non reconnue. Je corrige.</li>
+  <li>Scotchez le gabarit sur le couvercle, puis pointez et percez <strong>avant</strong> l'assemblage : c'est plus facile à plat.
+    <span class="det">Fente 68 × 5 mm · fenêtre de l'écran · clavier (fente de 25 × 3 mm pour la nappe) · haut-parleur (grille Ø 3 mm) · anneau Ø 38 · 10 voyants Ø 6 · capteur de couleur Ø 12 · jack Ø 6 · clé Ø 12 · forge 9 × Ø 2 · horloge 50 × 19 · œil Ø 10 · LED du plateau Ø 4 · 4 boutons Ø 30 · molette Ø 7 · gros bouton.</span></li>
+  <li>Face arrière : un trou pour la prise USB-C et un pour l'interrupteur général, regroupés à droite.</li>
+  <li>Côté gauche : découpez à la scie fine la porte du tiroir, 82 × 26 mm, centrée sous le clavier. Gardez la pièce découpée, c'est la façade du tiroir.</li>
+  <li>Collez et serrez : la face avant, la face arrière et les côtés, puis le couvercle. Vérifiez l'équerre. Collez les tasseaux et vissez-y le fond, sans colle : il doit rester amovible.</li>
+  <li>Puits de la fente : une goulotte de 50 mm de profondeur sous la fente, en contreplaqué 3 mm ou en carton fort. Laissez-la ouverte en bas pour le câble.</li>
+  <li>Collez les 4 aimants en surface du couvercle, dans les coins : ils tiendront la façade.</li>
+  <li class="option">Tiroir secret : la caisse de 100 × 76 × 20 mm, les coulisses, le ressort et le microrupteur (§ 4.6 de la notice). S'il manque de temps, laissez-le pour plus tard : le coffre s'ouvrira sur l'enveloppe E1.</li>
 </ul>
 
-<h2>7 · Les corrections et la répétition <span class="quand">J-3 et J-2</span></h2>
+<h2>4 · La soudure et le montage <span class="quand">J-8 à J-6 · une grosse journée</span></h2>
+<p class="but">But : l'électronique définitive, fixée dans la boîte, et tous les organes qui répondent.</p>
 <ul class="cases">
-  <li>Installez les corrections : nouveau programme par le Wi-Fi, nouveaux fichiers sur les cartes SD.</li>
-  <li>Faites une deuxième partie d'essai complète, chrono en main : elle doit tenir en moins de 30 minutes.</li>
-  <li>Remettez tout à zéro : la carte O3 (Certificat) à part, le tiroir repoussé et verrouillé, les cartes Banc dans l'ordre.</li>
+  <li>Plaque à pastilles de 7 × 9 cm, en suivant <span class="f">plan-cablage.pdf</span> : d'abord les supports femelles de l'ESP32 et des 2 DFPlayer, puis les connecteurs sur les bords, puis les rails 5 V et masse.</li>
+  <li>Avant d'y poser l'ESP32, contrôlez au multimètre : pas de court-circuit entre 5 V et masse, ni entre 3,3 V et masse.</li>
+  <li>Préparez les fils vers le couvercle avec des connecteurs (JST ou Dupont), et 25 cm de mou pour pouvoir sortir le fond.</li>
+  <li>Fixez sous le couvercle :
+    <span class="det">le RC522 de la fente contre la paroi du puits, tout au fond · le RC522 à plat sous la zone du plateau · l'écran · le clavier (adhésif) · le haut-parleur · l'anneau sous son plexiglas · les voyants · le capteur de couleur · la forge sous sa grille · l'enclume, à 8 cm au moins du haut-parleur et des aimants · l'horloge · l'œil, son côté « haut » vers l'arrière · les boutons, la molette, la clé et le jack.</span></li>
+  <li>Plaque sur le fond, dans le coin arrière droit, sur 4 entretoises M3. Ruban de LED sous le fond, près du bord avant. Patins dessous.</li>
+  <li>Branchez, allumez, et repassez tous les tests de l'onglet Atelier, boîte fermée cette fois.</li>
+  <li>Réglez dans Atelier les valeurs de la forge (souffle), de l'enclume (aimant), de l'œil (gestes, lampe) et du nuancier (les 4 pastilles du § 5). Envoyez-les-moi si un seuil est à changer.</li>
 </ul>
 
-<h2>8 · La veille <span class="quand">J-1</span></h2>
+<h2>5 · Le matériel de la mission <span class="quand">J-7 à J-5 · en soirée</span></h2>
 <ul class="cases">
-  <li>Testez l'alimentation du pupitre ; prévoyez une rallonge et le chargeur du téléphone du maître du jeu.</li>
-  <li>Branchez le casque et réglez son volume. Vérifiez que les trois cartes SD sont en place.</li>
-  <li>Le matériel est au complet : fiche de mission (page 1), 13 cartes Banc, clé à molette, burette, certificat, carte d'aide (le carnet du professeur), 4 pastilles, aimant, téléphone avec lampe, plan du banc d'essai.</li>
-  <li>Relisez le déroulé : les solutions, les conseils du carnet du professeur et les rangs de fin.</li>
+  <li>Imprimez, en couleur, <span class="f">mission-5-a-imprimer-recto.pdf</span> (fiche de mission, pastilles, fiche de recette, plan du banc d'essai) et <span class="f">mission-5-a-imprimer-recto-verso.pdf</span> (les cartes : papier cartonné, recto verso bord long, après une page d'essai).</li>
+  <li>Imprimez le livret <span class="f">mission-5-livret-a5-brochure.pdf</span> et le déroulé <span class="f">mission-5-deroule-maitre-du-jeu.pdf</span>.</li>
+  <li>Découpez les 16 cartes et collez la puce au dos, <strong>en bas</strong>, sur le cercle « PUCE NFC ». Découpez les 4 pastilles du nuancier sur papier épais.</li>
+  <li>La façade : collez le plan du banc d'essai sur le contreplaqué de 2 mm, découpez-y toutes les fenêtres (rien n'est caché dans cette mission), et collez 4 aimants ou rondelles en face de ceux du couvercle.</li>
+  <li>Un aimant pour l'enclume, et le téléphone avec sa lampe pour l'œil.</li>
+</ul>
+
+<h2>6 · Les audios et les cartes SD <span class="quand">en parallèle, avant J-5</span></h2>
+<ul class="cases">
+  <li>Dossier 50, fichier 054 : écoutez les deux prises, gardez la meilleure sous le nom <code>054.mp3</code> et supprimez l'autre. <span class="tag crit">indispensable</span></li>
+  <li>Réenregistrez 91/007 et 91/008 avec leur nouveau texte, puis mettez à jour le suivi Excel sur le Drive.</li>
+  <li>SD de l'écran : copiez à sa racine le contenu de <span class="f">cartes-sd/carte-sd-ecran.zip</span>.</li>
+  <li>Les 2 SD audio, au contenu identique : formatez-les en FAT32, puis copiez les dossiers <code>90</code>, <code>91</code>, <code>50</code> et <code>51</code> un par un. Sur Mac, lancez <code>dot_clean</code> sur chaque carte, puis éjectez-la.</li>
+</ul>
+
+<h2>7 · L'enregistrement et la partie d'essai <span class="quand">J-5 à J-3</span></h2>
+<ul class="cases">
+  <li>Enregistrez les cartes. À l'accueil, appuyez sur la molette : <strong>Préparer le pupitre</strong>, puis <strong>L'Atelier du professeur Lumen</strong>. Glissez dans la fente les 18 cartes demandées, une par une.</li>
+  <li>Réglez le pupitre : volumes du haut-parleur et du casque, luminosité de l'écran et des LED.</li>
+  <li>Faites une partie complète, seul ou à deux, avec le déroulé sous les yeux et le panneau Wi-Fi ouvert sur l'onglet <strong>Souffleur, puis Journal</strong>. Remplissez la fiche de recette.</li>
+  <li>Vérifiez la surtension de la minute 8, une carte Banc refusée sur le lecteur à plat, puis une coupure de courant suivie de la reprise de la partie.</li>
+  <li>Envoyez-moi tout ce qui coince. Installez ensuite les corrections : programme par le Wi-Fi (onglet Mise à jour), fichiers sur les SD.</li>
+</ul>
+
+<h2>8 · La répétition et la veille <span class="quand">J-2 et J-1</span></h2>
+<ul class="cases">
+  <li>Faites une deuxième partie, chrono en main : elle doit tenir en moins de 30 minutes.</li>
+  <li>Remettez tout à zéro : le certificat (O3) à part, le tiroir repoussé, les cartes dans l'ordre.</li>
+  <li>Préparez l'alimentation et une rallonge, le casque, l'aimant, le téléphone avec sa lampe, les pastilles, la fiche de mission et la carte d'aide.</li>
+  <li>Relisez les solutions : 2580 au poste de contrôle, 7 à la molette, 3861 au coffre. Il faut 11 essais réussis avant le casque.</li>
 </ul>
 
 <h2>9 · Le jour J <span class="quand">20 minutes avant</span></h2>
 <ul class="cases">
-  <li>Le pupitre au centre de la table, allumé, avec le plan du banc d'essai installé.</li>
-  <li>Le téléphone du maître du jeu connecté au Wi-Fi du pupitre, page <code>http://192.168.4.1</code> ouverte. Dans l'onglet <strong>Équipe</strong>, entrez le nom de l'équipe et les deux prénoms.</li>
-  <li>Sur la table : la page 1 de la fiche de mission, les cartes Banc, la clé à molette, la burette, les pastilles, l'aimant et la carte d'aide.</li>
-  <li>Gardez le certificat (O3) de côté : il se remet aux joueurs à la fin, quand le coffre est ouvert. Sans tiroir, il va dans l'enveloppe E1.</li>
-  <li>Un joueur glisse la carte Monde M5 et choisit « Jouer ». Le professeur Lumen présente l'essai, et c'est parti.</li>
+  <li>Installez le pupitre allumé, avec la façade du banc d'essai. Ouvrez le panneau Wi-Fi sur votre téléphone et entrez le nom de l'équipe et les 2 prénoms dans l'onglet <strong>Équipe</strong>.</li>
+  <li>Sur la table : la fiche de mission (page 1), les cartes Banc, la clé à molette, la burette, les pastilles, l'aimant et la carte d'aide. Le certificat reste dans le coffre, ou dans l'enveloppe E1.</li>
+  <li>Un joueur glisse la carte M5 et choisit « Jouer ». C'est parti.</li>
 </ul>
-<div class="note bloc"><strong>Pendant la partie, si ça coince.</strong> Dans l'onglet Partie : <strong>Débloquer</strong> valide le banc en cours quand un organe ne répond pas (notez-le sur la fiche de recette), <strong>Aide</strong> donne un conseil, <strong>± minutes</strong> ajuste le chrono. Les 3 premiers conseils sont gratuits ; les suivants coûtent 2 minutes. Après une coupure de courant, glissez de nouveau la carte Monde.</div>
+<div class="note bloc"><strong>Si ça coince pendant la partie.</strong> <strong>Débloquer</strong> valide le banc en cours ; notez-le sur la fiche de recette. <strong>Aide</strong> donne un conseil : les 3 premiers sont gratuits, les suivants coûtent 2 minutes. <strong>± minutes</strong> ajuste le chrono. Après une coupure de courant, glissez de nouveau la carte Monde : la partie reprend où elle en était.</div>
 
 <h2>Après la partie</h2>
 <ul class="cases">
-  <li>Gardez la fiche de recette : elle dit quels organes sont fiables et lesquels sont à revoir avant une partie plus longue.</li>
-  <li>Notez les réactions des joueurs, le temps restant et le rang obtenu.</li>
-  <li>Envoyez-moi vos notes. Ensuite, une vraie enquête vous attend : « La Disparition d'Éclipse », dont il reste 62 voix à enregistrer.</li>
+  <li>Gardez la fiche de recette : elle dit quels organes sont fiables avant de passer à une vraie enquête.</li>
+  <li>Envoyez-moi vos notes. La suite logique est « La Disparition d'Éclipse », dont il reste 62 voix à enregistrer.</li>
 </ul>
 
 </body>
