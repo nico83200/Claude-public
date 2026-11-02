@@ -95,7 +95,7 @@
   <li>Laissez <em>Baudrate</em> à 115200 (ou 460800 pour aller plus vite) et cliquez sur <strong>Connect</strong>.</li>
   <li>Chrome affiche la liste des ports : choisissez la carte (<em>USB Serial</em>, <em>USB2.0-Serial</em> ou <em>wchusbserial</em>), puis <strong>Connexion</strong>.
      Si la connexion échoue, recommencez en <strong>maintenant le bouton BOOT</strong> de la carte enfoncé pendant « Connecting… », puis relâchez-le.</li>
-  <li>Dans le tableau qui apparaît, <strong>Flash Address</strong> : laissez <code>0x0</code>. Choisissez le fichier <code>pupitre-complet.bin</code>.</li>
+  <li>Dans le tableau qui apparaît, <strong>Flash Address</strong> : <strong>écrivez <code>0x0</code></strong>. La page propose souvent <code>0x1000</code> par défaut : remplacez-le, sinon la carte redémarre en boucle en affichant « invalid header: 0xffffffff ». Choisissez le fichier <code>pupitre-complet.bin</code>.</li>
   <li>Cliquez sur <strong>Program</strong>. La barre avance pendant une minute environ. Attendez le message de fin (<em>Leaving…</em>).</li>
   <li>Cliquez sur <strong>Disconnect</strong>, débranchez, rebranchez : <strong>le logo du Pupitre s'affiche</strong> sur l'écran (si l'écran est câblé). Rebranchez le fil de la GPIO 2.</li>
 </ol>

@@ -16,7 +16,8 @@ Pour programmer l'ESP32 **sans rien installer**, avec un simple navigateur.
 3. Cliquez sur **Connect**, choisissez le port de la carte (« USB-SERIAL CH340 »…).
    Si rien n'apparaît : le pilote CH340 manque (macOS, anciens Windows : pilote « CH34x »
    du fabricant WCH), ou le câble ne fait que charger.
-4. Dans **Flash Address**, laissez **0x0** ; choisissez le fichier `pupitre-complet.bin`.
+4. Dans **Flash Address**, **écrivez 0x0** : la page propose souvent **0x1000** par défaut, il faut le remplacer (sinon la carte
+   redémarre en boucle en affichant « invalid header: 0xffffffff »). Choisissez le fichier `pupitre-complet.bin`.
 5. Cliquez sur **Program** et attendez la fin (une minute environ). Si la connexion échoue,
    maintenez le bouton **BOOT** de la carte pendant « Connecting… ».
 6. Débranchez, rebranchez : le logo s'affiche.
