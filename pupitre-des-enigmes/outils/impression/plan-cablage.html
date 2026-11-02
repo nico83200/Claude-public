@@ -108,6 +108,24 @@ broche 1, ou le plot 1 d'un bornier.</p>
 <text x="58" y="53" font-size="5.5" text-anchor="middle" fill="#222" font-weight="700">ESP-32</text>
 <rect x="8" y="23" width="92" height="3" fill="#e8c46a"/><rect x="8" y="74" width="92" height="3" fill="#e8c46a"/>
 <text x="54" y="31" font-size="2.6" fill="#fde9b0" text-anchor="middle">R3 · R4 · C1 couchés dessous, entre les deux barrettes</text>
+<g fill="none" stroke-width="1.5" stroke-dasharray="2.2 1.2" opacity=".95">
+  <path d="M10 12.5H100" stroke="#f08a24"/><path d="M10 16.5H100" stroke="#111"/>
+  <path d="M10 81.5H118" stroke="#f08a24"/><path d="M10 85.5H125.5" stroke="#111"/>
+  <path d="M3.5 12.5V81.5" stroke="#f08a24"/>
+  <path d="M107 18V74" stroke="#d23b2e"/><path d="M112 14L107 18" stroke="#d23b2e"/>
+  <path d="M107 21H97" stroke="#d23b2e"/><path d="M107 57H118" stroke="#d23b2e"/>
+  <path d="M125.5 15V85.5" stroke="#111"/><path d="M122.3 10L125.5 15" stroke="#111"/>
+</g>
+<g fill="none" stroke-width=".9" stroke-dasharray=".6 .9">
+  <path d="M107 28H129" stroke="#d23b2e"/><path d="M107 74Q120 76 130.5 82.5" stroke="#d23b2e"/>
+</g>
+<g font-size="2.6" font-weight="700">
+  <text x="11" y="11.6" fill="#ffb066">rail 3,3 V</text><text x="40" y="20.4" fill="#fff">rail masse</text>
+  <text x="11" y="80.6" fill="#ffb066">rail 3,3 V</text><text x="44" y="89.6" fill="#fff">rail masse</text>
+  <text transform="translate(105.6 46) rotate(-90)" text-anchor="middle" fill="#ff8a80">rail 5 V</text>
+  <text transform="translate(127.6 72) rotate(-90)" text-anchor="middle" fill="#fff">masse</text>
+  <text transform="translate(2.6 47) rotate(-90)" text-anchor="middle" fill="#ffb066">fil isolé</text>
+</g>
 <rect x="11" y="3" width="60.96" height="5.0" rx=".6" fill="#222"/><rect x="12.64" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="17.72" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="22.80" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="27.88" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="32.96" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="38.04" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="43.12" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="48.20" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="53.28" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="58.36" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="63.44" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="68.52" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="13.54" cy="5.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="41.5" y="12.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J2 ÉCRAN</text>
 <rect x="76" y="3" width="25.4" height="5.0" rx=".6" fill="#222"/><rect x="77.64" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="82.72" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="87.80" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="92.88" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="97.96" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="78.54" cy="5.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="88.7" y="12.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J13 TACTILE</text>
 <rect x="11" y="92" width="35.56" height="5.0" rx=".6" fill="#222"/><rect x="12.64" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="17.72" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="22.80" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="27.88" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="32.96" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="38.04" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="43.12" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="13.54" cy="94.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="28.8" y="90.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J3 RFID FENTE</text>
@@ -127,7 +145,11 @@ broche 1, ou le plot 1 d'un bornier.</p>
 </svg>
 <p class="petit">En haut : J2 (écran) et J13 (tactile) ; en bas : J3 et J4 (lecteurs RFID). Les borniers ont leurs entrées de fils vers un
 bord libre : J1 (entrée du 5 V) vers le haut, J12 (5 V du servomoteur) vers la droite. Au milieu, les barrettes J15 (vers C) et J14 (vers B) ;
-au bord, J8 (molette) et J7 (LED) ; en bas, J9 (gros bouton) et J10 (clé). Les trois ronds : les trous des entretoises. Le port USB de l'ESP32, à gauche, ne sert qu'au premier
+au bord, J8 (molette) et J7 (LED) ; en bas, J9 (gros bouton) et J10 (clé). Les trois ronds : les trous des entretoises.
+<b>En pointillés de couleur, les rails</b>, soudés par-dessous en fil nu : 3,3 V en orange (deux rails, en haut et en bas, reliés par un
+fil isolé le long du bord gauche ; alimentés par la broche 3V3 de l'ESP32), masse en noir (en haut, en bas, et une branche verticale à droite
+jusqu'à J1 ; reliés aussi par les deux broches GND de l'ESP32), 5 V en rouge (vertical, de J1 à la broche VIN de l'ESP32, J14 et, par des fils
+isolés en petits pointillés, J12 et J7). Le port USB de l'ESP32, à gauche, ne sert qu'au premier
 téléversement, fait avant le montage.</p>
 
 <div class="deux">
@@ -143,7 +165,13 @@ téléversement, fait avant le montage.</p>
 <rect x="56" y="6" width="41" height="41" rx="1.5" fill="#1d4f8a"/><text x="76.5" y="25" font-size="4" fill="#fff" text-anchor="middle" font-weight="700">DFPlayer</text>
 <text x="76.5" y="31" font-size="3.4" fill="#cfe2ff" text-anchor="middle">casque</text>
 <g fill="#ddd"><rect x="21" y="44" width="21" height="5"/><rect x="66" y="44" width="21" height="5"/></g>
-<text x="54" y="56" font-size="3" fill="#fde9b0" text-anchor="middle">fentes micro-SD vers le bas</text>
+<text x="86" y="59.2" font-size="2.6" fill="#fde9b0" text-anchor="middle">fentes micro-SD ↓</text>
+<g fill="none" stroke-width="1.5" stroke-dasharray="2.2 1.2">
+  <path d="M9 51.5H110" stroke="#d23b2e"/><path d="M9 55.5H108" stroke="#111"/>
+  <path d="M114.5 26.6Q111 40 110 51.5" stroke="#d23b2e"/><path d="M114.5 31.7Q109 44 108 55.5" stroke="#111"/>
+</g>
+<g font-size="2.6" font-weight="700"><text x="24" y="50.4" fill="#ff8a80">rail 5 V</text><text x="60" y="59.2" fill="#fff">rail masse</text></g>
+
 <rect x="102" y="1" width="20.3" height="15" rx="1" fill="#2e6fd1"/><circle cx="107.1" cy="10" r="3.2" fill="#c9d3dd"/><path d="M107.1 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="105.1" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="117.2" cy="10" r="3.2" fill="#c9d3dd"/><path d="M117.2 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="115.2" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="107.1" cy="10" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="112.2" y="20.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J5 HP</text>
 <rect x="123" y="22" width="15" height="30.5" rx="1" fill="#2e6fd1"/><circle cx="129" cy="27.1" r="3.2" fill="#c9d3dd"/><path d="M126.8 27.1h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="25.1" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="37.2" r="3.2" fill="#c9d3dd"/><path d="M126.8 37.2h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="35.2" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="47.4" r="3.2" fill="#c9d3dd"/><path d="M126.8 47.4h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="45.4" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="27.1" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="130.5" y="20.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J6</text>
 <rect x="100" y="25" width="7" height="2.6" rx="1" fill="#d9b98a"/><rect x="100" y="31" width="7" height="2.6" rx="1" fill="#d9b98a"/>
@@ -154,7 +182,8 @@ téléversement, fait avant le montage.</p>
 </g>
 </svg>
 <p class="petit">Les deux DFPlayer enfichés, <strong>fentes micro-SD vers le bas</strong> : fond retiré, on change les cartes sans rien
-démonter. Bornier J5 (haut-parleur), entrées vers le haut, juste sous le haut-parleur ; bornier J6 (casque), entrées vers la droite ; R1, R2 (1 kΩ), C2 (100 µF) et la barrette J14 vers A.</p>
+démonter. Bornier J5 (haut-parleur), entrées vers le haut, juste sous le haut-parleur ; bornier J6 (casque), entrées vers la droite ; R1, R2 (1 kΩ), C2 (100 µF) et la barrette J14 vers A.
+En pointillés, les rails 5 V et masse (par-dessous), alimentés par J14-1 et J14-2, qui desservent VCC et GND des deux DFPlayer.</p>
 </div>
 <div class="bloc">
 <h3>Plaque C · le bus I2C (80 × 20 mm)</h3>
