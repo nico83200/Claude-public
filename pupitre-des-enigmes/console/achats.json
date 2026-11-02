@@ -221,8 +221,8 @@
           "prix": 1.5
         },
         {
-          "article": "Connecteurs JST-XH 2,54 mm (coffret de 2 à 8 broches, avec câbles)",
-          "detail": "Les 13 connecteurs de la plaque (plan de câblage) : la plaque se débranche en entier. À défaut : barrettes mâles et fils Dupont",
+          "article": "Barrettes mâles 2,54 mm (1 × 40) et borniers à vis 2 et 3 plots (pas de 5,08 mm)",
+          "detail": "Les connecteurs des trois plaques : borniers pour l'alimentation, le servomoteur, le haut-parleur et le casque ; barrettes mâles et fils Dupont femelles pour le reste (des JST-XH conviennent aussi). Avec des embouts de câblage pour les borniers",
           "qte": 1,
           "prix": 8
         },

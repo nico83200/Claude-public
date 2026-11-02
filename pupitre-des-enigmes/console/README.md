@@ -107,7 +107,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11 | 1 de chaque | 13 € |
 | LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
-| Plaque et câblage | 3 plaques à pastilles (50 × 70, 30 × 70, 20 × 80 mm), barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
+| Plaque et câblage | 3 plaques à pastilles (50 × 70, 30 × 70, 20 × 80 mm), barrettes femelles et mâles, borniers à vis, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
 | Fixations | 5 aimants néodyme 10 × 3 mm (4 encastrés dans le couvercle, 1 sous le fer à cheval), pastilles d'acier adhésives sous les façades, entretoises et vis M3, patins | — | 16 € |
 | **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 190 €** |
 
@@ -347,7 +347,8 @@ le premier trou de 30 mm aurait touché la paroi.
   - Les fils vers l'écran et les lecteurs sont ainsi courts (une quinzaine de cm), et le
     **fond se retire sans rien débrancher**, sauf le ruban de LED du dessous : les plaques
     et les fentes micro-SD des DFPlayer (tournées vers le bas) sont alors à portée de main.
-- **Les fils** arrivent aux plaques par des **connecteurs** (JST-XH ou barrettes) : chaque
+- **Les fils** arrivent aux plaques par des **connecteurs** (borniers à vis pour l'alimentation, le
+  servomoteur, le haut-parleur et le casque ; barrettes mâles et fils Dupont pour le reste) : chaque
   plaque se débranche en entier. Le port USB de l'ESP32 ne sert qu'au premier
   téléversement, fait avant le montage ; ensuite, le programme se met à jour par le Wi-Fi.
 
