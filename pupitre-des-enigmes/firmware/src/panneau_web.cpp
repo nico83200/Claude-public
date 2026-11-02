@@ -93,7 +93,7 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 <div class="carte"><b>Essais</b><br><small>À faire hors partie : les LED et l'horloge reprennent ensuite leur rôle.</small>
 <div class="grille" style="margin-top:8px">
 <button onclick="e('led')">LED</button><button onclick="e('afficheur')">Horloge 88:88</button><button onclick="e('son_hp')">Son 🔊</button>
-<button onclick="e('son_casque')">Son 🎧</button><button onclick="e('tiroir_ouvrir')">Tiroir : ouvrir</button><button onclick="e('tiroir_fermer')">Tiroir : verrouiller</button>
+<button onclick="e('son_casque')">Son 🎧</button><button onclick="e('tiroir_ouvrir')">Tiroir : ouvrir</button><button onclick="e('tiroir_fermer')">Tiroir : verrouiller</button><button onclick="e('tactile')">Étalonner l'écran tactile</button>
 </div></div>
 <div class="carte"><b>Mesures en direct</b><br><small>Pour régler les seuils (firmware/src/broches.h) : soufflez, posez l'aimant, passez la main, éclairez…</small>
 <div id="mesures"></div></div>

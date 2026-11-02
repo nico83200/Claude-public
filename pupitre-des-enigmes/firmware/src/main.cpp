@@ -38,6 +38,53 @@ pupitre::Moteur moteur(plateforme);
 Commandes::Rappels rappels;
 uint32_t essaiAfficheur = 0;  // l'atelier du panneau : « 88:88 » sur l'horloge jusqu'à cet instant
 
+// L'écran tactile : l'étalonnage (sur la carte SD, /tactile.json), demandé par l'atelier du
+// panneau Wi-Fi ou en gardant le doigt sur l'écran pendant le logo du démarrage.
+const char* const CHEMIN_TACTILE = "/tactile.json";
+bool etalonnageDemande = false;
+
+void etalonnerTactile() {
+  uint16_t p[8];
+  ecran.etalonner(p);
+  ecran.appliquerEtalonnage(p);
+  File f = SD.open(CHEMIN_TACTILE, FILE_WRITE);
+  if (f) {
+    f.printf("[%u,%u,%u,%u,%u,%u,%u,%u]\n", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+    f.close();
+  }
+  Serial.println("Écran tactile étalonné.");
+}
+
+void chargerEtalonnage() {
+  File f = SD.open(CHEMIN_TACTILE);
+  if (!f) return;
+  String t = f.readString();
+  f.close();
+  uint16_t p[8];
+  unsigned v[8];
+  if (sscanf(t.c_str(), "[%u,%u,%u,%u,%u,%u,%u,%u]", &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &v[6], &v[7]) != 8) return;
+  for (int i = 0; i < 8; i++) p[i] = static_cast<uint16_t>(v[i]);
+  ecran.appliquerEtalonnage(p);
+}
+
+// Un toucher (au moment où le doigt se pose) devient un choix de menu, un réglage ou une lettre.
+void lireTactile() {
+  static uint32_t prochaineLecture = 0;
+  static bool appuye = false;
+  if (broches::TACTILE_CS < 0 || millis() < prochaineLecture) return;
+  prochaineLecture = millis() + 25;
+  int x, y;
+  if (!ecran.touche(x, y)) {
+    appuye = false;
+    return;
+  }
+  if (appuye) return;
+  appuye = true;
+  pupitre::Toucher t = ecran.cible(moteur.vue(), x, y);
+  Serial.printf("Écran tactile : %d, %d (%d)\n", x, y, static_cast<int>(t.type));
+  moteur.toucher(t);
+}
+
 }  // namespace
 
 void setup() {
@@ -45,7 +92,9 @@ void setup() {
   Serial.println("\nLe Pupitre des Énigmes");
 
   // Toutes les puces du bus SPI désélectionnées avant d'initialiser quoi que ce soit.
-  for (int cs : {broches::ECRAN_CS, broches::SD_CS, broches::RFID_CS[0], broches::RFID_CS[1], broches::RFID_CS[2]}) {
+  for (int cs : {broches::ECRAN_CS, broches::SD_CS, broches::RFID_CS[0], broches::RFID_CS[1], broches::RFID_CS[2],
+                 broches::TACTILE_CS}) {
+    if (cs < 0) continue;
     pinMode(cs, OUTPUT);
     digitalWrite(cs, HIGH);
   }
@@ -67,6 +116,7 @@ void setup() {
     for (;;) delay(1000);
   }
 
+  chargerEtalonnage();
   lecteurs.demarrer();
   commandes.demarrer();  // démarre aussi le bus I2C
   capteur.demarrer();
@@ -95,6 +145,8 @@ void setup() {
 
   // Le logo reste au moins 2,5 secondes, le temps que tout démarre.
   while (millis() - debutLogo < reglages::DUREE_LOGO_MS) delay(10);
+  int tx, ty;
+  if (ecran.touche(tx, ty)) etalonnerTactile();  // le doigt posé sur l'écran pendant le logo
   plateforme.etat = [] {
     auto t = [](bool present) { return present ? 1 : 0; };
     return std::vector<pupitre::EtatElement>{
@@ -143,6 +195,7 @@ void setup() {
     else if (a == "son_casque") plateforme.jouer(90, 2, true);
     else if (a == "tiroir_ouvrir") moteur.commande("tiroir");
     else if (a == "tiroir_fermer") moteur.commande("tiroir_fermer");
+    else if (a == "tactile") etalonnageDemande = true;
   };
   panneau::demarrer(moteur, atelier);
 }
@@ -166,6 +219,11 @@ void loop() {
   forge.maj(capteurActif);
   afficheur.montrer(millis() < essaiAfficheur ? "88:88" : moteur.afficheur());
   plateforme.servomoteurTiroir().maj();
+  lireTactile();
+  if (etalonnageDemande) {
+    etalonnageDemande = false;
+    etalonnerTactile();
+  }
   moteur.miseAJour();
   panneau::maj();
   delay(2);

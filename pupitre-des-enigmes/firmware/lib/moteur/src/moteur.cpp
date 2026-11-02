@@ -17,6 +17,8 @@ const char* const CHEMIN_SAUVEGARDE = "/sauvegarde.json";
 const char* const CHEMIN_REGLAGES = "/reglages.json";
 const char* const REGLAGES_PUPITRE = "Réglages du pupitre";
 const char* const ETAT_PUPITRE = "État du pupitre";
+const char* const NOM_EQUIPE = "Nom de l'équipe";
+constexpr size_t SAISIE_MAX = 24;  // le nom de l'équipe : 24 caractères au plus
 const char* const CHEMIN_CLASSEMENT = "/classement.json";
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
@@ -235,6 +237,8 @@ void Moteur::allerMenu(bool annoncer) {
   if (p_.lireFichier(CHEMIN_SAUVEGARDE, sauvegarde) && sauvegarde.find("\"" + mondeId_ + "\"") != std::string::npos) {
     optionsMenu_.insert(optionsMenu_.begin(), "Reprendre la partie en cours");
   }
+  // Le nom de l'équipe se tape sur le clavier tactile (ou se donne par le panneau Wi-Fi).
+  if (p_.tactile()) optionsMenu_.push_back(std::string(NOM_EQUIPE) + (equipe_.empty() ? "" : " : " + equipe_));
   optionsMenu_.push_back("Enregistrer les cartes de ce monde");
   if (p_.tiroirPresent()) optionsMenu_.push_back(tiroirOuvert_ ? "Tiroir secret : le refermer" : "Tiroir secret : l'ouvrir");
   optionsMenu_.push_back(ETAT_PUPITRE);
@@ -378,7 +382,7 @@ void Moteur::terminer(bool victoire, const std::string& cause) {
 // ======================================================================
 
 void Moteur::carte(Zone zone, const std::string& uid) {
-  if (phase_ == Phase::REGLAGES) return;
+  if (phase_ == Phase::REGLAGES || phase_ == Phase::EQUIPE) return;
   if (phase_ == Phase::ENROLEMENT) {
     if (!uid.empty()) enrolement(uid);
     return;
@@ -833,6 +837,10 @@ void Moteur::bouton(Bouton b) {
     case Phase::ETAT:
       allerMenu(false);
       return;
+    case Phase::EQUIPE:
+      if (b == VERT) fermerSaisieEquipe(true);
+      if (b == ROUGE) fermerSaisieEquipe(false);
+      return;
     case Phase::JEU:
       break;
   }
@@ -933,6 +941,8 @@ void Moteur::appuiMolette() {
         ouvrirReglages();
       } else if (choix == ETAT_PUPITRE) {
         afficherEtat();
+      } else if (choix.rfind(NOM_EQUIPE, 0) == 0) {
+        ouvrirSaisieEquipe();
       } else if (choix.rfind("Tiroir", 0) == 0) {  // préparer la partie : y glisser une carte, puis refermer
         if (!tiroirOuvert_) ouvrirTiroir();
         afficherRangement(false);
@@ -954,6 +964,9 @@ void Moteur::appuiMolette() {
       return;
     case Phase::ETAT:
       allerMenu(false);
+      return;
+    case Phase::EQUIPE:
+      fermerSaisieEquipe(true);
       return;
     default:
       break;
@@ -1231,6 +1244,162 @@ void Moteur::fermerReglages(bool enregistrer) {
     choixMenu_ = static_cast<int>(mondes_.size());
     afficherChoixMonde();
   }
+}
+
+// ======================================================================
+// L'écran tactile : menus, réglages, nom de l'équipe et épreuves « lettres »
+// ======================================================================
+// Le tactile ne remplace rien : tout se fait aussi à la molette, au clavier et aux boutons.
+// Il ne sert qu'à choisir (menus, réglages) et à taper du texte (clavier AZERTY à l'écran).
+
+void Moteur::rafraichir() {
+  bool tactile = p_.tactile();
+  if (!(ep_.active && ep_.type == "lettres")) clavierOuvert_ = false;
+  vue_.tactile = tactile;
+  vue_.clavier = tactile && (phase_ == Phase::EQUIPE || (phase_ == Phase::JEU && clavierOuvert_ && !accusationOuverte_));
+  vue_.saisie = phase_ == Phase::EQUIPE ? saisie_ : std::string();
+  vue_.boutons[0].clear();
+  vue_.boutons[1].clear();
+  if (tactile) {
+    switch (phase_) {
+      case Phase::CHOIX_MONDE:
+      case Phase::MENU:
+      case Phase::ETAT:
+        vue_.boutons[0] = "‹ Retour";
+        break;
+      case Phase::REGLAGES:
+        vue_.boutons[0] = "Annuler";
+        vue_.boutons[1] = "Enregistrer ✓";
+        break;
+      case Phase::ENROLEMENT:
+        vue_.boutons[0] = "Passer cette carte";
+        vue_.boutons[1] = "Terminer ✓";
+        break;
+      default:
+        break;
+    }
+  }
+  vue_.version++;
+}
+
+void Moteur::toucher(const Toucher& t) {
+  if (t.type == Toucher::RIEN || !p_.tactile()) return;
+  switch (phase_) {
+    case Phase::ACCUEIL:  // comme un appui sur la molette : préparer les cartes, ou les réglages
+      appuiMolette();
+      return;
+    case Phase::CHOIX_MONDE:
+    case Phase::MENU: {
+      int n = static_cast<int>(phase_ == Phase::MENU ? optionsMenu_.size() : mondes_.size() + 1);
+      if (t.type == Toucher::LIGNE && t.ligne >= 0 && t.ligne < n) {
+        molette(t.ligne - choixMenu_);
+        appuiMolette();
+      } else if (t.type == Toucher::DEFILER) {
+        molette(t.ligne < 0 ? -std::min(choixMenu_, 3) : std::min(n - 1 - choixMenu_, 3));
+      } else if (t.type == Toucher::RETOUR) {
+        bouton(ROUGE);
+      } else if (t.type == Toucher::VALIDER) {
+        appuiMolette();
+      }
+      return;
+    }
+    case Phase::ETAT:
+      allerMenu(false);
+      return;
+    case Phase::REGLAGES:
+      if ((t.type == Toucher::LIGNE || t.type == Toucher::MOINS || t.type == Toucher::PLUS) && t.ligne >= 0 && t.ligne < 4) {
+        ligneReglage_ = t.ligne;
+        if (t.type == Toucher::LIGNE) vueReglages();
+        else reglerValeur(t.type == Toucher::PLUS ? 1 : -1);
+      } else if (t.type == Toucher::VALIDER) {
+        fermerReglages(true);
+      } else if (t.type == Toucher::RETOUR) {
+        fermerReglages(false);
+      }
+      return;
+    case Phase::ENROLEMENT:
+      if (t.type == Toucher::VALIDER) bouton(VERT);
+      if (t.type == Toucher::RETOUR) bouton(ROUGE);
+      return;
+    case Phase::EQUIPE:
+      if (t.type == Toucher::CARACTERE) ecrireSaisie(t.caractere);
+      if (t.type == Toucher::EFFACER) effacerSaisie();
+      if (t.type == Toucher::VALIDER) fermerSaisieEquipe(true);
+      if (t.type == Toucher::RETOUR) fermerSaisieEquipe(false);
+      return;
+    case Phase::JEU:
+      break;
+    default:
+      return;
+  }
+  // En jeu : seulement le texte d'une épreuve « lettres ».
+  if (!ep_.active || ep_.type != "lettres" || accusationOuverte_) return;
+  int n = static_cast<int>(ep_.valeurs.size());
+  ep_.multi = 0;
+  if (t.type == Toucher::CLAVIER && !clavierOuvert_) {
+    clavierOuvert_ = true;
+    vueEpreuve();
+  } else if (t.type == Toucher::RETOUR) {  // referme le clavier ; les lettres restent
+    clavierOuvert_ = false;
+    vueEpreuve();
+  } else if (t.type == Toucher::CARACTERE && t.caractere >= 'A' && t.caractere <= 'Z' && n > 0) {
+    if (ep_.valeurs[ep_.curseur] >= 0 && ep_.curseur + 1 < n) ep_.curseur++;
+    ep_.valeurs[ep_.curseur] = t.caractere - 'A';
+    p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+    vueEpreuve();
+  } else if (t.type == Toucher::EFFACER) {
+    epreuveBouton(ROUGE);
+  } else if (t.type == Toucher::VALIDER) {
+    epreuveAppui();
+  }
+}
+
+void Moteur::ouvrirSaisieEquipe() {
+  phase_ = Phase::EQUIPE;
+  saisie_ = equipe_;
+  vueSaisie();
+}
+
+void Moteur::vueSaisie() {
+  vue_.ecran = Vue::SAISIE;
+  vue_.titre = "NOM DE L'ÉQUIPE";
+  vue_.texte.clear();
+  vue_.info = "Clavier de l'écran · # ou vert : valider · * : effacer";
+  rafraichir();
+}
+
+// Une lettre tapée : majuscule en début de mot, minuscule ensuite (« Les Fins Limiers »).
+void Moteur::ecrireSaisie(char c) {
+  if (saisie_.size() >= SAISIE_MAX) return;
+  bool debutMot = saisie_.empty() || saisie_.back() == ' ' || saisie_.back() == '-' || saisie_.back() == '\'';
+  if (c == ' ' && debutMot) return;  // pas d'espace au début, ni deux de suite
+  if (c >= 'A' && c <= 'Z' && !debutMot) c = static_cast<char>(c - 'A' + 'a');
+  saisie_ += c;
+  p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+  vueSaisie();
+}
+
+void Moteur::effacerSaisie() {
+  if (saisie_.empty()) return;
+  size_t i = saisie_.size() - 1;
+  while (i > 0 && (static_cast<unsigned char>(saisie_[i]) & 0xC0) == 0x80) i--;  // un caractère accentué entier
+  saisie_.erase(i);
+  vueSaisie();
+}
+
+void Moteur::fermerSaisieEquipe(bool valider) {
+  if (valider) {
+    while (!saisie_.empty() && saisie_.back() == ' ') saisie_.pop_back();
+    if (saisie_ != equipe_) {
+      equipe_ = saisie_;
+      noter("Équipe : " + (equipe_.empty() ? std::string("sans nom") : equipe_));
+    }
+    p_.jouer(DOSSIER_SONS_PUPITRE, 4, false);
+  }
+  allerMenu(false);
+  for (size_t i = 0; i < optionsMenu_.size(); i++)
+    if (optionsMenu_[i].rfind(NOM_EQUIPE, 0) == 0) choixMenu_ = static_cast<int>(i);
+  molette(0);
 }
 
 // ======================================================================
@@ -2060,6 +2229,14 @@ void Moteur::touche(char k) {
         appuiMolette();  // le tableau de bord
       }
       return;
+    case Phase::EQUIPE:  // le nom de l'équipe : les chiffres s'ajoutent, * efface, # valide
+      if (chiffre) ecrireSaisie(k);
+      if (k == '*') {
+        if (saisie_.empty()) fermerSaisieEquipe(false);
+        else effacerSaisie();
+      }
+      if (k == '#') fermerSaisieEquipe(true);
+      return;
     default:  // réglages, enregistrement des cartes, rôles, fin de partie
       if (k == '#') bouton(VERT);
       if (k == '*') bouton(ROUGE);
@@ -2447,6 +2624,7 @@ void Moteur::vueEpreuve() {
       if (!materiel("clavier")) vue_.info = "Tourner : changer · Appuyer : valider · Rouge : effacer";
       else vue_.info = ep_.type == "code" ? "Clavier ou molette · * ou rouge : effacer · # : valider"
                                           : "Clavier (2 = ABC…) ou molette · * : effacer · # : valider";
+      if (ep_.type == "lettres" && p_.tactile() && !clavierOuvert_) vue_.info = "Touchez l'écran : clavier AZERTY · molette ou clavier aussi";
     }
   } else if (ep_.type == "choix") {
     vue_.ecran = Vue::CHOIX;
@@ -3049,6 +3227,7 @@ std::string Moteur::phaseTexte() const {
     case Phase::REGLAGES: return "reglages";
     case Phase::RANGEMENT: return "rangement";
     case Phase::ETAT: return "etat";
+    case Phase::EQUIPE: return "equipe";
   }
   return "?";
 }

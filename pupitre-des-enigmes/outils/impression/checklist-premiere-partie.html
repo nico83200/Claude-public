@@ -72,10 +72,11 @@
 <table>
   <tr><th></th><th>Article</th><th>Quantité, usage</th></tr>
   <tr><td class="c"><span></span></td><td>Contreplaqué 5 mm</td><td>Un panneau de 60 × 60 cm au moins : couvercle, faces, côtés et fond. Faites débiter au magasin si possible (voir § 3).</td></tr>
-  <tr><td class="c"><span></span></td><td>Contreplaqué 2 mm (ou médium 3 mm)</td><td>40 × 30 cm : la façade de la mission</td></tr>
+  <tr><td class="c"><span></span></td><td>Carton gris 1,5 mm (beaux-arts, loisirs créatifs), peinture noire mate</td><td>40 × 30 cm : la façade de la mission, posée à même le couvercle ; son dessous peint en noir</td></tr>
   <tr><td class="c"><span></span></td><td>Contreplaqué 3 mm, ou carton fort</td><td>Un petit morceau : le puits de la fente et le tiroir secret</td></tr>
   <tr><td class="c"><span></span></td><td>Tasseau 15 × 15 mm, baguette 5 × 5 mm</td><td>1 m de chaque : appuis du fond, coulisses du tiroir</td></tr>
-  <tr><td class="c"><span></span></td><td>Colle à bois (vinylique), colle cyanoacrylate, bâtons de colle chaude</td><td>L'assemblage, les aimants, les modules sous le couvercle</td></tr>
+  <tr><td class="c"><span></span></td><td>Colle à bois (vinylique), colle cyanoacrylate, bâtons de colle chaude <strong>transparente</strong></td><td>L'assemblage, les aimants ; la colle chaude remplit aussi les trous des voyants</td></tr>
+  <tr><td class="c"><span></span></td><td>Pastilles d'acier adhésives fines (0,3 à 0,5 mm)</td><td>Sous la façade, en face des 4 aimants encastrés</td></tr>
   <tr><td class="c"><span></span></td><td>Vis à bois 3 × 16 mm (une boîte), petits clous ou pointes</td><td>Le fond sur les tasseaux, le maintien pendant le collage</td></tr>
   <tr><td class="c"><span></span></td><td>Interrupteur à bascule (petit modèle, 2 broches)</td><td>L'interrupteur général de la face arrière (absent de la liste d'électronique)</td></tr>
   <tr><td class="c"><span></span></td><td>Papier de verre (grain 120 et 240), adhésif de masquage, ruban double-face</td><td>Les finitions, le report des cotes</td></tr>
@@ -85,7 +86,7 @@
 <table>
   <tr><th></th><th>Outil</th><th>Pour</th></tr>
   <tr><td class="c"><span></span></td><td>Scie sauteuse ou scie à chantourner, scie fine</td><td>Les panneaux, les fenêtres, la porte du tiroir (trait fin)</td></tr>
-  <tr><td class="c"><span></span></td><td>Perceuse et forets à bois de 2 · 3 · 4 · 6 · 7 · 10 · 12 mm</td><td>Forge, haut-parleur, LED, voyants, molette, œil, clé et capteur de couleur</td></tr>
+  <tr><td class="c"><span></span></td><td>Perceuse et forets à bois de 2 · 3 · 4 · 6 · 7 · 10 · 12 mm ; foret à façonner (« Forstner ») de 10 et 14 mm</td><td>Forge, haut-parleur, LED, voyants, molette, œil, clé, capteur de couleur ; aimants encastrés et lamage du jack</td></tr>
   <tr><td class="c"><span></span></td><td>Scies cloches de 30 et 38 mm, plus celle du gros bouton (22 à 60 mm selon son modèle)</td><td>Les boutons d'arcade, l'anneau de LED, le gros bouton</td></tr>
   <tr><td class="c"><span></span></td><td>Serre-joints, équerre, règle métallique, cutter, limes</td><td>L'assemblage d'équerre, les fentes nettes</td></tr>
   <tr><td class="c"><span></span></td><td>Fer à souder (30 à 60 W) et étain, pince coupante, pince à dénuder, multimètre, pistolet à colle chaude</td><td>L'électronique</td></tr>
@@ -110,6 +111,7 @@
   <tr><td class="c"><span></span></td><td>DFPlayer du casque et embase jack</td><td>Débranchez son fil de la GPIO 2 pour téléverser le programme</td></tr>
   <tr><td class="c"><span></span></td><td>Chaîne de LED (330 Ω sur DIN, 1000 µF sur le 5 V)</td><td>Dans l'ordre : anneau, LED de la fente, LED du plateau, 10 voyants, ruban du dessous, LED du tiroir</td></tr>
   <tr><td class="c"><span></span></td><td>Molette, gros bouton (10 kΩ), clé</td><td>Les menus défilent ; un appui valide</td></tr>
+  <tr><td class="c"><span></span></td><td>Dalle tactile de l'écran : T_CS sur la GPIO 14, T_CLK, T_DIN, T_DO sur le bus SPI</td><td>Touchez l'écran pendant le logo : les 4 cibles d'étalonnage. Ensuite, un menu se choisit au doigt.</td></tr>
   <tr><td class="c"><span></span></td><td>Bus I2C (SDA 26, SCL 27), tous les modules en <strong>3,3 V</strong></td><td>Les PCF8574 du clavier (0x20) et des boutons (0x21), l'horloge (0x70), la couleur (0x29), l'œil (0x39), la forge (0x76), l'enclume (0x0D), le tiroir (0x40)</td></tr>
 </table>
 <ul class="cases">
@@ -134,7 +136,9 @@
   <li>Côté gauche : découpez à la scie fine la porte du tiroir, 82 × 26 mm, centrée sous le clavier. Gardez la pièce découpée, c'est la façade du tiroir.</li>
   <li>Collez et serrez : la face avant, la face arrière et les côtés, puis le couvercle. Vérifiez l'équerre. Collez les tasseaux et vissez-y le fond, sans colle : il doit rester amovible.</li>
   <li>Puits de la fente : une goulotte de 50 mm de profondeur sous la fente, en contreplaqué 3 mm ou en carton fort. Laissez-la ouverte en bas pour le câble.</li>
-  <li>Collez les 4 aimants en surface du couvercle, dans les coins : ils tiendront la façade.</li>
+  <li>Encastrez les 4 aimants dans les coins du couvercle : un trou de Ø 10 mm, 3 mm de profondeur, l'aimant collé au ras. Rien ne doit dépasser du dessus : la façade s'y pose à plat.</li>
+  <li>Remplissez de <strong>colle chaude</strong> les trous des 10 voyants et celui de la LED du lecteur à plat : un adhésif de masquage sur le dessus, on remplit par-dessous, on retire l'adhésif, un coup de papier de verre 240. La lumière arrive ainsi à la surface.
+    <span class="det">Aussi : le disque de plexiglas de l'anneau au ras du dessus ; l'afficheur de l'horloge passé à travers le couvercle, chiffres au ras ; l'œil et le capteur de couleur dans une encoche creusée par-dessous ; un lamage de Ø 14 mm pour l'écrou du jack ; le bord avant de la fenêtre de l'écran chanfreiné, sans appuyer sur la vitre.</span></li>
   <li class="option">Tiroir secret : la caisse de 100 × 76 × 20 mm, les coulisses, le ressort et le microrupteur (§ 4.6 de la notice). S'il manque de temps, laissez-le pour plus tard : le coffre s'ouvrira sur l'enveloppe E1.</li>
 </ul>
 
@@ -156,7 +160,7 @@
   <li>Imprimez, en couleur, <span class="f">mission-5-a-imprimer-recto.pdf</span> (fiche de mission, pastilles, fiche de recette, plan du banc d'essai) et <span class="f">mission-5-a-imprimer-recto-verso.pdf</span> (les cartes : papier cartonné, recto verso bord long, après une page d'essai).</li>
   <li>Imprimez le livret <span class="f">mission-5-livret-a5-brochure.pdf</span> et le déroulé <span class="f">mission-5-deroule-maitre-du-jeu.pdf</span>.</li>
   <li>Découpez les 16 cartes et collez la puce au dos, <strong>en bas</strong>, sur le cercle « PUCE NFC ». Découpez les 4 pastilles du nuancier sur papier épais.</li>
-  <li>La façade : collez le plan du banc d'essai sur le contreplaqué de 2 mm, découpez-y toutes les fenêtres (rien n'est caché dans cette mission), et collez 4 aimants ou rondelles en face de ceux du couvercle.</li>
+  <li>La façade : collez le plan du banc d'essai sur le carton gris de 1,5 mm, peignez le dessous en noir mat, découpez toutes les fenêtres au cutter (rien n'est caché dans cette mission), et collez dessous 4 pastilles d'acier en face des aimants.</li>
   <li>Un aimant pour l'enclume, et le téléphone avec sa lampe pour l'œil.</li>
 </ul>
 
@@ -171,7 +175,8 @@
 <h2>7 · L'enregistrement et la partie d'essai <span class="quand">J-5 à J-3</span></h2>
 <ul class="cases">
   <li>Enregistrez les cartes. À l'accueil, appuyez sur la molette : <strong>Préparer le pupitre</strong>, puis <strong>L'Atelier du professeur Lumen</strong>. Glissez dans la fente les 18 cartes demandées, une par une.</li>
-  <li>Réglez le pupitre : volumes du haut-parleur et du casque, luminosité de l'écran et des LED.</li>
+  <li>Réglez le pupitre : volumes du haut-parleur et du casque, luminosité de l'écran et des LED (au doigt : − et +).</li>
+  <li>Dans le menu du monde, touchez « Nom de l'équipe » : le clavier AZERTY de l'écran sert à le taper.</li>
   <li>Faites une partie complète, seul ou à deux, avec le déroulé sous les yeux et le panneau Wi-Fi ouvert sur l'onglet <strong>Souffleur, puis Journal</strong>. Remplissez la fiche de recette.</li>
   <li>Vérifiez la surtension de la minute 8, une carte Banc refusée sur le lecteur à plat, puis une coupure de courant suivie de la reprise de la partie.</li>
   <li>Envoyez-moi tout ce qui coince. Installez ensuite les corrections : programme par le Wi-Fi (onglet Mise à jour), fichiers sur les SD.</li>

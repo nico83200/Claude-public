@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "audio.h"
+#include "broches.h"
 #include "capteurs_i2c.h"
 #include "ecran.h"
 #include "plateforme.h"
@@ -29,6 +30,7 @@ class PlateformeESP32 : public pupitre::Plateforme {
   void appliquer(const pupitre::Reglages& r) override;
   void tiroir(bool ouvrir) override { tiroir_.commander(ouvrir); }
   bool tiroirPresent() override { return tiroir_.present(); }
+  bool tactile() override { return broches::TACTILE_CS >= 0; }
   std::vector<pupitre::EtatElement> etatMateriel() override { return etat ? etat() : std::vector<pupitre::EtatElement>{}; }
   std::function<std::vector<pupitre::EtatElement>()> etat;  // rempli par main.cpp, qui connaît tous les modules
   Tiroir& servomoteurTiroir() { return tiroir_; }

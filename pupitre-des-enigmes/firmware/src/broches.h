@@ -10,6 +10,10 @@ constexpr int SCK = 18, MOSI = 23, MISO = 19;
 constexpr int ECRAN_CS = 5, ECRAN_DC = 21;  // RST de l'écran sur EN
 constexpr int ECRAN_LED = 12;               // rétroéclairage (broche LED de l'écran) ; -1 s'il reste sur 3,3 V
 constexpr int SD_CS = 4;
+// La dalle tactile de l'écran (puce XPT2046, sur le même bus SPI : T_CLK, T_DIN, T_DO sur SCK,
+// MOSI, MISO ; T_IRQ non branchée). Elle ne sert qu'aux menus et à la saisie de texte.
+// -1 : pas de dalle tactile (un écran sans tactile, ou T_CS non branché).
+constexpr int TACTILE_CS = 14;
 // Les lecteurs RFID (RST sur 3,3 V) : la fente à cartes, puis le lecteur à plat sous le
 // contreplaqué (un objet posé). Avec trois lecteurs (QUI, OÙ, QUOI), mettre NB_LECTEURS = 3
 // et ajouter le troisième CS (15).

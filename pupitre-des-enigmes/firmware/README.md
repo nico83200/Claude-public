@@ -157,6 +157,13 @@ Six onglets : la partie (dont **« Aide »** et **« Débloquer »**), l'équipe
 des capteurs) et la mise à jour du programme (voir `console/README.md`, § 9). Avant la partie, le menu du monde affiche le même état
 (**« État du pupitre »**), en signalant ce qui manque à une mission.
 
+**L'écran tactile** (si le module en a un, `TACTILE_CS` dans `src/broches.h`) : on touche une
+ligne de menu pour la choisir, les boutons − et + des réglages, « Retour », « Passer cette
+carte »… Le menu du monde a une ligne **« Nom de l'équipe »** : un clavier AZERTY s'affiche
+à l'écran. Dans une épreuve où l'on tape des **lettres**, toucher l'écran ouvre le même
+clavier. Le reste du jeu ne se joue pas au doigt. Étalonnage : le doigt sur l'écran pendant
+le logo du démarrage, ou l'onglet Atelier du panneau Wi-Fi (`/tactile.json` sur la carte SD).
+
 ## 6. Réglages
 
 ### Sur le pupitre : luminosités et volumes

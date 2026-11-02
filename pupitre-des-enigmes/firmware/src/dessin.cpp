@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstring>
 
+using pupitre::Toucher;
 using pupitre::Vue;
 
 namespace {
@@ -52,7 +53,8 @@ bool memeCorps(const Vue& a, const Vue& b) {
   if (a.ecran != b.ecran || a.titre != b.titre || a.texte != b.texte || a.auteur != b.auteur || a.bandeau != b.bandeau ||
       a.barre != b.barre || a.champs != b.champs || a.curseur != b.curseur || a.modules != b.modules || a.valeurs != b.valeurs ||
       a.etiquettes != b.etiquettes || a.maximums != b.maximums || a.menu != b.menu || a.voyant != b.voyant ||
-      a.pasFaits != b.pasFaits || a.pasTotal != b.pasTotal || a.image != b.image || (a.secondes < 0) != (b.secondes < 0))
+      a.pasFaits != b.pasFaits || a.pasTotal != b.pasTotal || a.image != b.image || (a.secondes < 0) != (b.secondes < 0) ||
+      a.tactile != b.tactile || a.clavier != b.clavier || a.saisie != b.saisie)
     return false;
   for (int i = 0; i < 4; i++)
     if (a.options[i] != b.options[i]) return false;
@@ -262,7 +264,7 @@ void Dessin::afficher(const Vue& v, uint32_t t) {
   float facteur = facteurLumiere(v);
   bool noirAvant = !premiere_ && dansLeNoir(derniere_);
   bool tout = premiere_ || v.theme.fond != derniere_.theme.fond || v.theme.accent != derniere_.theme.accent ||
-              facteur != facteur_ || dansLeNoir(v) != noirAvant;
+              facteur != facteur_ || dansLeNoir(v) != noirAvant || (!premiere_ && v.clavier != derniere_.clavier);
   facteur_ = facteur;
   const auto& th = v.theme;
   pal_ = {th.fond,
@@ -287,12 +289,15 @@ void Dessin::afficher(const Vue& v, uint32_t t) {
       entete(v);
     if (corpsChange) corps(v);
     if (corpsChange || v.secondes != derniere_.secondes) minuteur(v);
-    if (tout || corpsChange || v.info != derniere_.info || v.progression != derniere_.progression ||
-        v.objectifs != derniere_.objectifs || v.etatsObjectifs != derniere_.etatsObjectifs)
+    if (!v.clavier && (tout || corpsChange || v.info != derniere_.info || v.progression != derniere_.progression ||
+                       v.objectifs != derniere_.objectifs || v.etatsObjectifs != derniere_.etatsObjectifs))
       ligneInfo(v);
-    bool zones = tout;
+    bool zones = tout || v.boutons[0] != derniere_.boutons[0] || v.boutons[1] != derniere_.boutons[1];
     for (int i = 0; i < 3; i++) zones |= v.zones[i] != derniere_.zones[i] || v.nomsZones[i] != derniere_.nomsZones[i];
-    if (zones) barreZones(v);
+    if (zones && !v.clavier) {
+      if (v.tactile && (!v.boutons[0].empty() || !v.boutons[1].empty())) boutonsTactiles(v);
+      else barreZones(v);
+    }
   }
   g_.endWrite();
   derniere_ = v;
@@ -362,6 +367,13 @@ void Dessin::entete(const Vue& v) {
 // Le corps
 // ---------------------------------------------------------------------
 void Dessin::corps(const Vue& v) {
+  if (v.clavier) {  // le clavier AZERTY prend tout le bas de l'écran
+    g_.fillRect(0, Y_CORPS, L, H - Y_CORPS, c(pal_.fond));
+    if (v.ecran == Vue::SAISIE) corpsSaisie(v);
+    else corpsLettresClavier(v);
+    clavierAzerty(v);
+    return;
+  }
   g_.fillRect(0, Y_CORPS, L, HAUT_CORPS, c(pal_.fond));
   switch (v.ecran) {
     case Vue::ACCUEIL: corpsAccueil(v); return;
@@ -461,7 +473,8 @@ void Dessin::corpsAccueil(const Vue& v) {
 }
 
 void Dessin::corpsMenu(const Vue& v) {
-  ecrire(couper(v.titre, &polices::titre, L - 40), 20, Y_CORPS + 6, &polices::titre, pal_.texte, pal_.fond);
+  int lt = v.tactile && v.menu.size() > 4 ? L - 140 : L - 40;
+  ecrire(couper(v.titre, &polices::titre, lt), 20, Y_CORPS + 6, &polices::titre, pal_.texte, pal_.fond);
   const auto& lignes = v.menu;
   const int hauteur = 38, y0 = Y_CORPS + 46, visibles = 4;
   int debut = std::max(0, std::min(v.curseur - 1, static_cast<int>(lignes.size()) - visibles));
@@ -480,6 +493,13 @@ void Dessin::corpsMenu(const Vue& v) {
     ecrire(couper(lignes[i], &polices::texteGras, L - 100), 56, y + 9, actif ? &polices::texteGras : &polices::texte,
            actif ? pal_.texte : pal_.doux, fond);
     if (actif) ecrire("›", L - 34, y + 7, &polices::titre, pal_.accent, fond);
+  }
+  if (v.tactile && lignes.size() > static_cast<size_t>(visibles)) {  // défiler au doigt
+    for (int k = 0; k < 2; k++) {
+      int x = L - 96 + k * 46;
+      pastille(x, Y_CORPS + 6, 40, 30, pal_.surface2);
+      ecrire(k ? "↓" : "↑", x + 20, Y_CORPS + 9, &polices::texteGras, pal_.texte, pal_.surface2, 1);
+    }
   }
   if (lignes.size() > static_cast<size_t>(visibles)) {
     int total = static_cast<int>(lignes.size());
@@ -734,18 +754,27 @@ void Dessin::corpsEtat(const Vue& v) {
 void Dessin::corpsReglages(const Vue& v) {
   ecrire(v.titre, 20, Y_CORPS + 4, &polices::titre, pal_.accent, pal_.fond);
   int y = Y_CORPS + 40;
+  // Avec le tactile, chaque ligne a ses boutons − et + aux deux bouts.
+  const int marge = v.tactile ? 56 : 26;
   for (size_t i = 0; i < v.modules.size(); i++, y += 39) {
     bool actif = static_cast<int>(i) == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
     g_.fillRoundRect(10, y, L - 20, 35, 10, c(fond));
-    if (actif) g_.fillRoundRect(10, y + 7, 5, 21, 2, c(pal_.accent));
-    ecrire(v.modules[i], 26, y + 3, actif ? &polices::texteGras : &polices::compact, actif ? pal_.texte : pal_.doux, fond);
+    if (actif && !v.tactile) g_.fillRoundRect(10, y + 7, 5, 21, 2, c(pal_.accent));
+    if (v.tactile) {
+      for (int cote = 0; cote < 2; cote++) {
+        int cx = cote ? L - 32 : 32;
+        g_.fillCircle(cx, y + 17, 14, c(actif ? pal_.accent : pal_.surface2));
+        ecrire(cote ? "+" : "-", cx, y + 6, &polices::texteGras, actif ? pal_.fond : pal_.texte, actif ? pal_.accent : pal_.surface2, 1);
+      }
+    }
+    ecrire(v.modules[i], marge, y + 3, actif ? &polices::texteGras : &polices::compact, actif ? pal_.texte : pal_.doux, fond);
     std::string e = i < v.etiquettes.size() ? v.etiquettes[i] : "";
-    ecrire(e, L - 26, y + 3, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
+    ecrire(e, L - marge, y + 3, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
     int max = i < v.maximums.size() && v.maximums[i] > 0 ? v.maximums[i] : 1;
     int valeur = i < v.valeurs.size() ? v.valeurs[i] : 0;
-    g_.fillRoundRect(26, y + 26, L - 52, 5, 2, c(pal_.trait));
-    g_.fillRoundRect(26, y + 26, std::max(6, (L - 52) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
+    g_.fillRoundRect(marge, y + 26, L - 2 * marge, 5, 2, c(pal_.trait));
+    g_.fillRoundRect(marge, y + 26, std::max(6, (L - 2 * marge) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
   }
 }
 
@@ -813,5 +842,170 @@ void Dessin::barreZones(const Vue& v) {
     std::string nom = pleine ? sansArticle(v.zones[z]) : "—";
     const lgfx::IFont* police = largeur(nom, &polices::texteGras) <= w - 24 ? &polices::texteGras : &polices::compact;
     ecrire(couper(nom, police, w - 24), x + 12, y + 19, police, pleine ? pal_.texte : pal_.trait, fond);
+  }
+}
+
+// ---------------------------------------------------------------------
+// L'écran tactile : le clavier AZERTY, les boutons du bas, et la lecture d'un toucher.
+// ---------------------------------------------------------------------
+namespace {
+
+// Le clavier : 4 rangées de 10 unités (une touche = une unité de 48 px, sauf mention).
+constexpr int KB_Y = 132, KB_H = 42, KB_ECART = 4, KB_UNITE = 48;
+struct Touche {
+  const char* etiquette;
+  char caractere;  // 0 : touche spéciale (voir type)
+  pupitre::Toucher::Type type;
+  int unites;
+};
+constexpr pupitre::Toucher::Type CAR = pupitre::Toucher::CARACTERE;
+const Touche RANGEES[4][10] = {
+    {{"A", 'A', CAR, 1}, {"Z", 'Z', CAR, 1}, {"E", 'E', CAR, 1}, {"R", 'R', CAR, 1}, {"T", 'T', CAR, 1},
+     {"Y", 'Y', CAR, 1}, {"U", 'U', CAR, 1}, {"I", 'I', CAR, 1}, {"O", 'O', CAR, 1}, {"P", 'P', CAR, 1}},
+    {{"Q", 'Q', CAR, 1}, {"S", 'S', CAR, 1}, {"D", 'D', CAR, 1}, {"F", 'F', CAR, 1}, {"G", 'G', CAR, 1},
+     {"H", 'H', CAR, 1}, {"J", 'J', CAR, 1}, {"K", 'K', CAR, 1}, {"L", 'L', CAR, 1}, {"M", 'M', CAR, 1}},
+    {{"W", 'W', CAR, 1}, {"X", 'X', CAR, 1}, {"C", 'C', CAR, 1}, {"V", 'V', CAR, 1}, {"B", 'B', CAR, 1},
+     {"N", 'N', CAR, 1}, {"-", '-', CAR, 1}, {"'", '\'', CAR, 1}, {"←", 0, pupitre::Toucher::EFFACER, 2}, {nullptr, 0, CAR, 0}},
+    {{"‹", 0, pupitre::Toucher::RETOUR, 3}, {"Espace", ' ', CAR, 4}, {"✓", 0, pupitre::Toucher::VALIDER, 3},
+     {nullptr, 0, CAR, 0}},
+};
+
+// Une touche sert-elle ici ? Les épreuves « lettres » ne prennent que A à Z.
+bool toucheUtile(const Touche& t, const pupitre::Vue& v) {
+  if (t.type != CAR) return true;
+  return v.ecran == pupitre::Vue::SAISIE || (t.caractere >= 'A' && t.caractere <= 'Z');
+}
+
+}  // namespace
+
+void Dessin::clavierAzerty(const Vue& v) {
+  for (int r = 0; r < 4; r++) {
+    int x = 2, y = KB_Y + r * (KB_H + KB_ECART);
+    for (const Touche& t : RANGEES[r]) {
+      if (!t.etiquette) break;
+      int w = t.unites * KB_UNITE - KB_ECART;
+      bool utile = toucheUtile(t, v);
+      bool valider = t.type == Toucher::VALIDER;
+      uint32_t fond = valider ? pal_.accent : t.type == CAR ? pal_.surface2 : pal_.surface;
+      g_.fillRoundRect(x, y, w, KB_H, 8, c(fond));
+      std::string e = t.etiquette;
+      if (t.type == Toucher::RETOUR) e = v.ecran == Vue::SAISIE ? "‹ Annuler" : "‹ Fermer";
+      if (t.type == Toucher::VALIDER) e = "✓ Valider";
+      if (t.caractere == ' ' && !utile) e = "";
+      ecrire(e, x + w / 2, y + 11, &polices::texteGras, valider ? pal_.fond : utile ? pal_.texte : pal_.trait, fond, 1);
+      x += t.unites * KB_UNITE;
+    }
+  }
+}
+
+void Dessin::corpsSaisie(const Vue& v) {
+  ecrire(v.titre, 14, Y_CORPS + 4, &polices::petit, pal_.accent, pal_.fond);
+  const int y = Y_CORPS + 24, h = 52;
+  g_.fillRoundRect(10, y, L - 20, h, 12, c(pal_.accent));
+  g_.fillRoundRect(12, y + 2, L - 24, h - 4, 10, c(pal_.surface));
+  std::string t = v.saisie;
+  const lgfx::IFont* police = &polices::titre;
+  while (!t.empty() && largeur(t, police) > L - 70) t.erase(0, 1);  // la fin du nom reste visible
+  ecrire(t, 26, y + 12, police, pal_.texte, pal_.surface);
+  int xc = 26 + (t.empty() ? 0 : largeur(t, police)) + 3;
+  g_.fillRect(xc, y + 12, 3, 28, c(pal_.accent));  // le curseur
+  if (v.saisie.empty()) ecrire("Tapez le nom de l'équipe", xc + 14, y + 16, &polices::texte, pal_.trait, pal_.surface);
+}
+
+void Dessin::corpsLettresClavier(const Vue& v) {
+  ecrire(couper(v.titre, &polices::petit, L - 30), 14, Y_CORPS + 4, &polices::petit, pal_.accent, pal_.fond);
+  int n = static_cast<int>(v.champs.size());
+  if (n == 0) return;
+  const int ecart = 6, h = 52, y = Y_CORPS + 24;
+  int w = std::min(52, (L - 20 - ecart * (n - 1)) / n);
+  int x = (L - n * w - ecart * (n - 1)) / 2;
+  for (int i = 0; i < n; i++, x += w + ecart) {
+    bool actif = i == v.curseur;
+    g_.fillRoundRect(x, y, w, h, 10, c(actif ? pal_.accent : pal_.surface2));
+    uint32_t fond = actif ? pal_.accentDoux : pal_.surface2;
+    g_.fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, c(fond));
+    std::string s = v.champs[i];
+    if (s.find_first_not_of('_') == std::string::npos) g_.fillRoundRect(x + w / 2 - 9, y + h - 14, 18, 3, 1, c(pal_.trait));
+    else ecrire(s, x + w / 2, y + 11, &polices::titre, actif ? pal_.accent : pal_.texte, fond, 1);
+  }
+}
+
+void Dessin::boutonsTactiles(const Vue& v) {
+  g_.fillRect(0, Y_ZONES, L, H - Y_ZONES, c(pal_.fond));
+  for (int k = 0; k < 2; k++) {
+    if (v.boutons[k].empty()) continue;
+    int x = k ? L / 2 + 5 : 10, w = L / 2 - 15, y = Y_ZONES + 4, h = 40;
+    uint32_t fond = k ? pal_.accent : pal_.surface2;
+    g_.fillRoundRect(x, y, w, h, 12, c(fond));
+    ecrire(couper(v.boutons[k], &polices::texteGras, w - 20), x + w / 2, y + 10, &polices::texteGras, k ? pal_.fond : pal_.texte,
+           fond, 1);
+  }
+}
+
+Toucher Dessin::cible(const Vue& v, int x, int y) const {
+  Toucher t;
+  if (!v.tactile) return t;
+  // Le clavier AZERTY.
+  if (v.clavier) {
+    if (y < KB_Y) return t;
+    int r = (y - KB_Y) / (KB_H + KB_ECART);
+    if (r > 3) return t;
+    int u = x / KB_UNITE, debut = 0;
+    for (const Touche& k : RANGEES[r]) {
+      if (!k.etiquette) break;
+      if (u < debut + k.unites) {
+        if (!toucheUtile(k, v)) return t;
+        t.type = k.type;
+        t.caractere = k.caractere;
+        return t;
+      }
+      debut += k.unites;
+    }
+    return t;
+  }
+  // Les boutons du bas (retour, valider), à la place des lecteurs.
+  if (y >= Y_ZONES && (!v.boutons[0].empty() || !v.boutons[1].empty())) {
+    int k = x >= L / 2 ? 1 : 0;
+    if (!v.boutons[k].empty()) t.type = k ? Toucher::VALIDER : Toucher::RETOUR;
+    return t;
+  }
+  switch (v.ecran) {
+    case Vue::ACCUEIL:
+      t.type = Toucher::VALIDER;
+      return t;
+    case Vue::ETAT:
+      t.type = Toucher::RETOUR;
+      return t;
+    case Vue::MENU: {
+      const int hauteur = 38, y0 = Y_CORPS + 46, visibles = 4;
+      int n = static_cast<int>(v.menu.size());
+      if (n > visibles && y < y0 && x >= L - 100) {  // les flèches pour défiler
+        t.type = Toucher::DEFILER;
+        t.ligne = x < L - 50 ? -1 : 1;
+        return t;
+      }
+      int debut = std::max(0, std::min(v.curseur - 1, n - visibles));
+      for (int i = debut; i < n && i < debut + visibles; i++) {
+        int yl = y0 + (i - debut) * (hauteur + 6);
+        if (y >= yl - 3 && y < yl + hauteur + 3 && y < Y_INFO) {
+          t.type = Toucher::LIGNE;
+          t.ligne = i;
+          return t;
+        }
+      }
+      return t;
+    }
+    case Vue::REGLAGES: {
+      int i = (y - (Y_CORPS + 40)) / 39;
+      if (y < Y_CORPS + 40 || i >= static_cast<int>(v.modules.size())) return t;
+      t.ligne = i;
+      t.type = x < 70 ? Toucher::MOINS : x >= L - 70 ? Toucher::PLUS : Toucher::LIGNE;
+      return t;
+    }
+    case Vue::CODE:  // une épreuve « lettres » : un toucher ouvre le clavier
+      if (y >= Y_CORPS && y < Y_INFO) t.type = Toucher::CLAVIER;
+      return t;
+    default:
+      return t;
   }
 }

@@ -149,7 +149,7 @@ def page(T):
   <ol style="font-size:9pt;margin-top:0">
     <li>Imprimez les deux pages suivantes <strong>à 100 %</strong> (sans « ajuster à la page »), en couleur, sur papier épais ou adhésif.</li>
     <li>Assemblez-les : la bande de 10 mm en trop à droite de la moitié gauche passe sous la moitié droite.</li>
-    <li>Collez sur la façade aimantée (contreplaqué de 2 mm), plastifiez si possible.</li>
+    <li>Collez sur la façade (carton gris de 1,5 mm, dessous peint en noir mat), plastifiez si possible.</li>
     <li>Découpez <strong>seulement les fenêtres en pointillés blancs</strong> : {T['decoupes']}.</li>
   </ol>
 </div>

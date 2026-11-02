@@ -92,7 +92,7 @@ un tracé trou par trou : l'écartement des deux rangées de broches de l'ESP32 
     <g fill="#f2f2f2"><rect x="4" y="12" width="5" height="8"/><rect x="4" y="104" width="5" height="6"/><rect x="4" y="113" width="5" height="9"/></g>
     <text x="10.5" y="17">J1 ALIM</text><text x="10.5" y="108">J5 HP</text><text x="10.5" y="118">J6 CASQUE</text>
     <g fill="#f2f2f2"><rect x="44" y="4" width="31" height="5"/><rect x="80" y="4" width="18" height="5"/><rect x="103" y="4" width="18" height="5"/><rect x="126" y="4" width="8" height="5"/></g>
-    <text x="44" y="13.5">J2 ÉCRAN (12)</text><text x="80" y="13.5">J3 RFID fente</text><text x="103" y="13.5">J4 RFID plat</text><text x="126" y="13.5">J13</text>
+    <text x="44" y="13.5">J2 ÉCRAN (12)</text><text x="80" y="13.5">J3 RFID fente</text><text x="103" y="13.5">J4 RFID plat</text><text x="126" y="13.5">J13 TACTILE</text>
     <g fill="#f2f2f2"><rect x="177" y="30" width="5" height="8"/><rect x="177" y="44" width="5" height="13"/><rect x="177" y="62" width="5" height="5"/><rect x="177" y="72" width="5" height="5"/></g>
     <text x="175" y="35" text-anchor="end">J7 LED</text><text x="175" y="51" text-anchor="end">J8 MOLETTE</text>
     <text x="175" y="65.5" text-anchor="end">J9 GROS BOUTON</text><text x="175" y="75.5" text-anchor="end">J10 CLÉ</text>
@@ -140,7 +140,7 @@ pontant les pastilles à l'étain ; les fils vers la boîte partent <strong>par-
 <tr><td><b>J10</b> CLÉ (2)</td><td>1 → 33 · 2 GND</td><td>L'interrupteur à clé</td></tr>
 <tr><td><b>J11a … d</b> I2C (4 chacun)</td><td>1 3,3 V · 2 GND · 3 SDA ↔ 26 · 4 SCL ← 27 (les quatre en parallèle)</td><td>Les quatre branches du bus I2C</td></tr>
 <tr><td><b>J12</b> 5 V servo (2)</td><td>1 + 5 V · 2 GND</td><td>Le bornier V+ du PCA9685</td></tr>
-<tr><td><b>J13</b> réserve (3)</td><td>1 GPIO 14 · 2 GPIO 15 · 3 GND</td><td>Rien (pour plus tard)</td></tr>
+<tr><td><b>J13</b> TACTILE (5)</td><td>1 T_CS ← 14 · 2 T_CLK ← 18 · 3 T_DIN ← 23 · 4 T_DO → 19 · 5 GPIO 15 (réserve)</td><td>La dalle tactile de l'écran (puce XPT2046)</td></tr>
 </table>
 
 <h2 class="saut">2. Tous les fils du pupitre</h2>
@@ -169,7 +169,12 @@ pontant les pastilles à l'étain ; les fils vers la boîte partent <strong>par-
 <tr><td class="n">13</td><td>SD : données vers la carte</td><td>J2-10 (GPIO 23)</td><td>Écran SD_MOSI</td><td><span class="c blanc"></span></td></tr>
 <tr><td class="n">14</td><td>SD : données vers l'ESP32</td><td>J2-11 (GPIO 19)</td><td>Écran SD_MISO</td><td><span class="c blanc"></span></td></tr>
 <tr><td class="n">15</td><td>SD : horloge</td><td>J2-12 (GPIO 18)</td><td>Écran SD_SCK</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">—</td><td colspan="4">Ne pas brancher : SDO (MISO) de l'écran, et les broches du tactile (T_CLK, T_CS, T_DIN, T_DO, T_IRQ).</td></tr>
+<tr><td class="n">—</td><td colspan="4">Ne pas brancher : SDO (MISO) de l'écran, ni T_IRQ.</td></tr>
+<tr><td colspan="5"><b>La dalle tactile de l'écran (J13)</b> — 4 fils, sur les broches T_… du même module (elle s'alimente par son VCC)</td></tr>
+<tr><td class="n">T1</td><td>Sélection du tactile</td><td>J13-1 (GPIO 14)</td><td>Écran T_CS</td><td><span class="c violet"></span></td></tr>
+<tr><td class="n">T2</td><td>SPI : horloge</td><td>J13-2 (GPIO 18)</td><td>Écran T_CLK</td><td><span class="c blanc"></span></td></tr>
+<tr><td class="n">T3</td><td>SPI : données vers la dalle</td><td>J13-3 (GPIO 23)</td><td>Écran T_DIN</td><td><span class="c blanc"></span></td></tr>
+<tr><td class="n">T4</td><td>SPI : données vers l'ESP32</td><td>J13-4 (GPIO 19)</td><td>Écran T_DO</td><td><span class="c blanc"></span></td></tr>
 
 <tr><td colspan="5"><b>Le lecteur RFID de la fente (J3)</b> — 7 fils</td></tr>
 <tr><td class="n">16</td><td>Alimentation (3,3 V seulement)</td><td>J3-1</td><td>RC522 fente 3.3V</td><td><span class="c orange"></span></td></tr>
@@ -250,8 +255,8 @@ BME280 : SDO libre (0x76). Les autres modules ont une adresse fixe.</td></tr>
 <tr><td>Les deux masses</td><td>Rail GND du haut</td><td>Rail GND du bas</td></tr>
 <tr><td>DFPlayer haut-parleur</td><td>Rail 5 V, rail GND · GPIO 17 → R1 · GPIO 16</td><td>VCC, GND · RX · TX</td></tr>
 <tr><td>DFPlayer casque</td><td>Rail 5 V, rail GND · GPIO 2 → R2 · GPIO 36 (VP)</td><td>VCC, GND · RX · TX</td></tr>
-<tr><td>Bus SPI</td><td>GPIO 18, 23, 19</td><td>J2 (7, 12 · 6, 10 · 11), J3 et J4 (6 · 5 · 4)</td></tr>
-<tr><td>Sélections (CS)</td><td>GPIO 5, 4, 13, 22</td><td>J2-3, J2-9, J3-7, J4-7</td></tr>
+<tr><td>Bus SPI</td><td>GPIO 18, 23, 19</td><td>J2 (7, 12 · 6, 10 · 11), J3 et J4 (6 · 5 · 4), J13 (2 · 3 · 4)</td></tr>
+<tr><td>Sélections (CS)</td><td>GPIO 5, 4, 13, 22, 14</td><td>J2-3, J2-9, J3-7, J4-7, J13-1</td></tr>
 <tr><td>Écran</td><td>EN · GPIO 21 · GPIO 12</td><td>J2-4 · J2-5 · J2-8</td></tr>
 <tr><td>RST des RFID</td><td>Rail 3,3 V</td><td>J3-2 et J4-2</td></tr>
 <tr><td>LED</td><td>GPIO 25 → R3 · rail 5 V · rail GND</td><td>J7-3 · J7-1 · J7-2</td></tr>
@@ -259,7 +264,7 @@ BME280 : SDO libre (0x76). Les autres modules ont une adresse fixe.</td></tr>
 <tr><td>Bus I2C</td><td>GPIO 26 (SDA), 27 (SCL), rail 3,3 V, rail GND</td><td>Les 4 connecteurs J11a à J11d, en parallèle</td></tr>
 <tr><td>Servomoteur</td><td>Rail 5 V, rail GND</td><td>J12</td></tr>
 <tr><td>Son</td><td>DFPlayer HP : SPK_1, SPK_2 · DFPlayer casque : DAC_L, DAC_R, GND</td><td>J5 · J6</td></tr>
-<tr><td>Réserve</td><td>GPIO 14, GPIO 15, GND</td><td>J13</td></tr>
+<tr><td>Réserve</td><td>GPIO 15</td><td>J13-5</td></tr>
 </table>
 
 <div class="alerte"><b>Avant de mettre sous tension</b> : vérifiez au multimètre qu'il n'y a pas de court-circuit entre 5 V et masse, ni entre

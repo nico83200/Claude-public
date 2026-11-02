@@ -48,6 +48,7 @@ class Moteur {
   void molette(int pas);
   void appuiMolette();
   void touche(char touche);                       // clavier 4×4 : '0'–'9', 'A'–'D', '*', '#'
+  void toucher(const Toucher& t);                 // écran tactile : menus, réglages, saisie de texte
   void commande(const std::string& commande);     // panneau Wi-Fi : pause, reprise, temps:+5…
 
   std::string etatJson();                         // pour le panneau Wi-Fi
@@ -63,6 +64,7 @@ class Moteur {
   // L'afficheur à 4 chiffres (HT16K33) : « 08:14 », « 37-- »… ; vide : éteint.
   std::string afficheur() const;
   const Vue& vue() const { return vue_; }
+  const std::string& equipe() const { return equipe_; }
 
   // Pour le simulateur et les tests.
   bool drapeau(const std::string& nom) const { return drapeaux_.count(nom) > 0; }
@@ -88,7 +90,7 @@ class Moteur {
 
  private:
   // ---------- Types internes ----------
-  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT, ETAT };
+  enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT, ETAT, EQUIPE };
   enum class Attente { RIEN, AUDIO, CASQUE, DELAI, MOLETTE, VERT_ROUGE };
 
   struct Replique {
@@ -155,6 +157,11 @@ class Moteur {
   // ---------- Phases ----------
   void allerAccueil();
   void allerMenu(bool annoncer = true);
+  void ouvrirSaisieEquipe();
+  void fermerSaisieEquipe(bool valider);
+  void ecrireSaisie(char c);
+  void effacerSaisie();
+  void vueSaisie();
   void afficherChoixMonde();
   void lancerMission(bool reprise);
   void commencerJeu();
@@ -220,7 +227,7 @@ class Moteur {
   void majImprevus();
   void majEntete();
   void majZones();
-  void rafraichir() { vue_.version++; }
+  void rafraichir();
   void majLumieres();
   void sauvegarder();
   bool restaurer();
@@ -326,6 +333,8 @@ class Moteur {
   Reglages reglages_, reglagesAvant_;
   int ligneReglage_ = 0;
   Phase phaseAvantReglages_ = Phase::ACCUEIL;
+  bool clavierOuvert_ = false;  // épreuve « lettres » : le clavier AZERTY tactile est affiché
+  std::string saisie_;          // le nom de l'équipe en cours de saisie
   uint32_t debutEnsemble_ = 0;
 };
 

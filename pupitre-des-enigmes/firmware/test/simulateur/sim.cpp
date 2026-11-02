@@ -28,6 +28,11 @@
 //   equipe Les Fers | Léa, Tom     (l'équipe de la partie, depuis le panneau Wi-Fi)
 //   hasard <n>                     (le prochain tirage au sort donnera n, à partir de 0)
 //   verifie points 820 | journal <texte> | classement <texte>
+//   tactile                        (le pupitre a un écran tactile)
+//   ecran ligne <n> | plus <n> | moins <n> | valider | retour | clavier | efface | defile haut|bas
+//   ecran texte <texte>            (tapé sur le clavier AZERTY de l'écran)
+//   ecran tape <x> <y>             (un toucher à ces coordonnées, avec test/ecrans.sh)
+//   verifie equipe <nom> · verifie saisie <texte> · verifie clavier oui|non
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -152,6 +157,11 @@ class PlateformeSimulee : public Plateforme {
     if (bavard_) printf("        🗄 tiroir %s\n", ouvrir ? "libéré" : "verrouillé");
   }
   bool tiroirPresent() override { return true; }
+  bool tactile() override { return tactile_; }
+  bool tactile_ = false;
+#ifdef AVEC_ECRAN
+  Toucher cible(const Vue& v, int x, int y) { return dessin_.cible(v, x, y); }
+#endif
   // Tout répond, sauf ce qu'une partie déclare absent (« absent gestes »).
   std::vector<EtatElement> etatMateriel() override {
     std::vector<EtatElement> v = {{"", "Carte SD", 1}, {"", "Écran", -1}, {"fente", "Lecteur de la fente", 1},
@@ -391,6 +401,41 @@ int main(int argc, char** argv) {
       for (char ch : a) v.push_back(ch - 'A');
       saisir(v);
       calme();
+    } else if (cmd == "tactile") {
+      p.tactile_ = true;  // à placer avant la carte Monde : le menu du monde en tient compte
+    } else if (cmd == "ecran") {
+      // L'écran tactile : « ecran ligne 2 », « ecran texte LES FINS LIMIERS », « ecran tape 240 160 ».
+      Toucher t;
+      if (a == "ligne" || a == "plus" || a == "moins") {
+        t.type = a == "ligne" ? Toucher::LIGNE : a == "plus" ? Toucher::PLUS : Toucher::MOINS;
+        t.ligne = atoi(b.c_str()) - 1;
+      } else if (a == "valider") t.type = Toucher::VALIDER;
+      else if (a == "retour") t.type = Toucher::RETOUR;
+      else if (a == "clavier") t.type = Toucher::CLAVIER;
+      else if (a == "efface") t.type = Toucher::EFFACER;
+      else if (a == "defile") {
+        t.type = Toucher::DEFILER;
+        t.ligne = b == "haut" ? -1 : 1;
+      } else if (a == "texte") {
+        std::string mot = ligne.substr(ligne.find("texte") + 6);
+        for (char k : mot) {
+          Toucher c;
+          c.type = Toucher::CARACTERE;
+          c.caractere = k;
+          m.toucher(c);
+          tourner(150);
+        }
+        calme();
+        continue;
+      } else if (a == "tape") {
+#ifdef AVEC_ECRAN
+        t = p.cible(m.vue(), atoi(b.c_str()), atoi(c.c_str()));
+#else
+        continue;  // sans écran compilé, les coordonnées ne veulent rien dire
+#endif
+      }
+      m.toucher(t);
+      calme();
     } else if (cmd == "touches") {
       // Le clavier 4×4 : « touches 379# », « _ » = une pause de 1,5 s.
       for (char k : a) {
@@ -514,6 +559,14 @@ int main(int argc, char** argv) {
         verifier(m.tiroirVerrouille() == (b == "verrouille"), "tiroir " + b, numero);
       } else if (a == "points") {
         verifier(m.points() == atoi(b.c_str()), "points " + b + " (vaut " + std::to_string(m.points()) + ")", numero);
+      } else if (a == "equipe") {
+        std::string nom = ligne.substr(ligne.find("equipe") + 7);
+        verifier(m.equipe() == nom, "équipe « " + nom + " » (vaut « " + m.equipe() + " »)", numero);
+      } else if (a == "saisie") {
+        std::string t = ligne.substr(ligne.find("saisie") + 7);
+        verifier(m.vue().saisie == t, "saisie « " + t + " » (vaut « " + m.vue().saisie + " »)", numero);
+      } else if (a == "clavier") {
+        verifier(m.vue().clavier == (b == "oui"), "clavier " + b, numero);
       } else if (a == "journal") {
         std::string cherche = ligne.substr(ligne.find("journal") + 8);
         verifier(m.journalJson(0).find(cherche) != std::string::npos, "journal « " + cherche + " »", numero);

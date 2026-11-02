@@ -13,7 +13,7 @@
         },
         {
           "article": "Écran TFT 3,5\" SPI ILI9488",
-          "detail": "480 × 320, avec lecteur micro-SD intégré. Recherche : « 3.5 inch SPI TFT ILI9488 »",
+          "detail": "480 × 320, avec lecteur micro-SD intégré et dalle tactile résistive (puce XPT2046, broches T_CS, T_CLK, T_DIN, T_DO, T_IRQ). Recherche : « 3.5 inch SPI TFT ILI9488 touch »",
           "qte": 1,
           "prix": 14
         }
@@ -281,9 +281,15 @@
       "articles": [
         {
           "article": "Aimants néodyme 10 × 3 mm (lot de 30)",
-          "detail": "4 dans le boîtier, 4 par façade (4 façades) et 1 sous le fer à cheval : 21 en tout",
+          "detail": "4 encastrés dans le couvercle (2 de plus si une façade se soulève) et 1 sous le fer à cheval",
           "qte": 1,
           "prix": 7
+        },
+        {
+          "article": "Pastilles d'acier adhésives fines (Ø 10 à 15 mm, 0,3 à 0,5 mm)",
+          "detail": "Sous chaque façade, en face des aimants du couvercle : 4 par façade. Recherche : « pastilles métalliques adhésives »",
+          "qte": 1,
+          "prix": 4
         },
         {
           "article": "Kit d'entretoises nylon M3, et 4 vis M3 × 12 à tête fraisée",

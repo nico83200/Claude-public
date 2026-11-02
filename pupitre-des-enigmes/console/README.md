@@ -26,9 +26,10 @@ des cartes : clavier, voyants, capteur de couleur, œil (gestes et lumière), fo
                           sous la boîte : un ruban de LED tourné vers la table
 ```
 
-- **Façade aimantée** : une plaque fine (2 ou 3 mm : contreplaqué, laiton, alu
-  brossé, PVC…) découpée autour de l'écran, du clavier, de la fente et des boutons,
-  et tenue par 4 paires d'aimants néodyme. Il y en a une par monde : le plateau du
+- **Façade aimantée** : une plaque fine (1 à 1,5 mm : carton gris, contreplaqué
+  aviation, PVC, alu…) découpée autour de l'écran, du clavier, de la fente et des
+  boutons, posée **à même le couvercle** et tenue par 4 aimants encastrés dans le
+  couvercle (§ 4.5). Il y en a une par monde : le plateau du
   haras (mission 1), le plateau du Narval (mission 4). La façade **montre ou cache** le panneau de
   voyants et le capteur de couleur selon la mission, et marque l'emplacement du
   lecteur à plat.
@@ -107,7 +108,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
 | Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
-| Fixations | 21 aimants néodyme 10 × 3 mm, entretoises et vis M3, patins | — | 16 € |
+| Fixations | 5 aimants néodyme 10 × 3 mm (4 encastrés dans le couvercle, 1 sous le fer à cheval), pastilles d'acier adhésives sous les façades, entretoises et vis M3, patins | — | 16 € |
 | **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 190 €** |
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
@@ -118,7 +119,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Écran ILI9488 | CS / DC / RST | 5 / 21 / EN |
 | | MISO de l'écran | ⚠️ non branché |
 | | LED (rétroéclairage) | 12 (luminosité réglable) |
-| | Broches du tactile (T_CLK, T_CS, T_DIN, T_DO, T_IRQ) | ⚠️ non branchées |
+| **Dalle tactile** (XPT2046, sur le même module) | T_CS / T_CLK / T_DIN / T_DO | **14** / 18 / 23 / 19 (le bus SPI commun) ; T_IRQ non branchée |
 | SD de l'écran | CS | 4 |
 | **RFID de la fente** | SDA (CS) | 13 |
 | **RFID à plat** | SDA (CS) | 22 |
@@ -142,7 +143,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | **Tiroir** : microrupteur de fin de course | P4 du PCF8574 des boutons ↔ GND (fermé quand le tiroir est au fond) | I2C |
 | **Horloge** HT16K33 (0x70) | SDA / SCL, VCC 3,3 V ; l'afficheur lui-même en 5 V si le module a une broche V+ séparée | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
-| (libres) | — | 14 et 15 |
+| (libre) | — | 15 (le CS d'un troisième lecteur RFID, si un jour il y en a un) |
 
 **L'ordre de la chaîne de LED compte** : le fil de données part de la GPIO 25, entre
 dans l'anneau, sort vers la LED de la fente, puis celle du plateau, puis les 10
@@ -183,12 +184,23 @@ réglages sont dans `firmware/src/broches.h` :
   **BMP280** vendu pour un BME280 (même allure, puce 0x58) n'a pas d'humidité : le pupitre
   suit alors la température (+ 0,8 °C), moins sûr. Vérifiez le journal.
 - **`ENCLUME_SEUIL`** : l'écart du champ magnétique qui signale un aimant. L'enclume doit
-  rester **à 8 cm au moins** du haut-parleur, des aimants de la façade et de tout fil
+  rester **à 8 cm au moins** du haut-parleur, des aimants du couvercle et de tout fil
   d'alimentation épais. Certains modules « GY-271 » portent un HMC5883L (adresse 0x1E) au
   lieu du QMC5883L : ils ne sont pas reconnus.
 - **L'horloge** suit le câblage des afficheurs Adafruit (chiffres aux adresses 0, 2, 6, 8,
   deux-points à l'adresse 4). Si votre module affiche des chiffres décalés, dites-le : la
   table `POSITIONS` de `firmware/src/capteurs_i2c.cpp` s'adapte.
+
+**L'écran tactile** : la dalle résistive du module (puce XPT2046) partage le bus SPI ; seule
+sa sélection, T_CS, a sa broche (GPIO 14). Sa sortie T_DO se met en haute impédance quand elle
+n'est pas sélectionnée : elle peut rejoindre le MISO commun, contrairement au SDO de l'écran.
+Elle ne sert qu'aux **menus**, aux **réglages**, à l'enregistrement des cartes, au **nom de
+l'équipe** (un clavier AZERTY à l'écran) et aux épreuves où l'on tape des **lettres** : le jeu
+reste aux commandes du pupitre, et tout se fait aussi à la molette et au clavier. À la première
+mise en route, **étalonnez-la** : gardez le doigt sur l'écran pendant le logo du démarrage, ou
+bouton « Étalonner l'écran tactile » de l'onglet Atelier, puis touchez les quatre cibles (la
+pointe d'un stylo est plus précise). L'étalonnage est gardé dans `/tactile.json` sur la carte SD.
+Un écran sans dalle tactile : `TACTILE_CS = -1` dans `firmware/src/broches.h`.
 
 **Alimentation 5 V** (par l'embase USB-C de la face arrière) : l'ESP32 (VIN), les
 deux DFPlayer et toutes les LED, avec le condensateur de 1000 µF près de l'anneau.
@@ -245,32 +257,33 @@ vers le joueur (5 cm de haut à l'avant, 8 cm à l'arrière : pente de 11,5 %, s
 
 ### 4.2 Les découpes de la façade et du couvercle
 
-Façade de **38,0 × 26,2 cm** (épaisseur 2 ou 3 mm). Le couvercle fixe reçoit les
-mêmes découpes, alignées. Cotes du **centre** de chaque élément, depuis le **coin
+Façade de **38,0 × 26,2 cm** (épaisseur 1 à 1,5 mm, posée à même le couvercle). Le
+couvercle fixe reçoit les mêmes découpes, alignées (§ 4.5 pour ce qui change dans le
+couvercle : les voyants remplis de colle chaude, l'afficheur et les capteurs au ras). Cotes du **centre** de chaque élément, depuis le **coin
 avant gauche** (X vers la droite, Y vers l'arrière) :
 
 | Élément | X (cm) | Y (cm) | Découpe |
 |---|---|---|---|
 | Clavier 4×4 | 5,8 | 20,0 | Fenêtre 70 × 78 mm dans la façade. Le clavier se colle sur le couvercle, qui a une fente de 25 × 3 mm sous son bord avant pour la nappe. |
 | Haut-parleur (« interphone ») | 13,3 | 20,0 | Grille de trous Ø 3 mm dans un cercle Ø 40 mm |
-| Anneau 12 LED (« lumière du bord ») | 19,0 | 20,0 | Cercle Ø 38 mm (un disque de plexiglas dépoli en diffuseur) |
+| Anneau 12 LED (« lumière du bord ») | 19,0 | 20,0 | Cercle Ø 38 mm ; dans le couvercle, un disque de plexiglas dépoli collé **au ras du dessus** |
 | Écran TFT 3,5" | 28,5 | 20,0 | Fenêtre rectangulaire selon le gabarit du vendeur (zone visible ≈ 74 × 49 mm) |
-| Voyants 1 à 5 | 4,67 · 6,33 · 8,0 · 9,67 · 11,33 | 14,6 | Ø 6 mm (ruban à 60 LED/m : 16,7 mm d'axe en axe). Façade sans voyants : pas de trou. |
-| Voyants 6 à 10 | mêmes X | 11,4 | Ø 6 mm |
+| Voyants 1 à 5 | 4,67 · 6,33 · 8,0 · 9,67 · 11,33 | 14,6 | Ø 6 mm (ruban à 60 LED/m : 16,7 mm d'axe en axe). Dans le couvercle, le trou est **rempli de colle chaude** au ras (§ 4.5). Façade sans voyants : pas de trou. |
+| Voyants 6 à 10 | mêmes X | 11,4 | Ø 6 mm, rempli de colle chaude dans le couvercle |
 | Fente à cartes | 19,0 | 13,0 | 68 × 5 mm, dans le sens de la largeur |
 | Lecteur à plat | 29,5 | 12,5 | Rien à découper : une zone de 76 × 76 mm marquée sur la façade (le RC522 est dessous, à plat contre le couvercle) |
-| LED du lecteur à plat | 32,5 | 9,5 | Ø 4 mm, dans le coin avant droit de la zone ; la LED juste dessous, tournée vers le haut (§ 4.3) |
-| Capteur de couleur | 35,8 | 15,5 | Ø 12 mm (le module est dessous, capteur et LED tournés vers le haut). Façade qui le cache : pas de trou. |
-| Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase) |
+| LED du lecteur à plat | 32,5 | 9,5 | Ø 4 mm, dans le coin avant droit de la zone, rempli de colle chaude dans le couvercle ; la LED juste dessous, tournée vers le haut (§ 4.3) |
+| Capteur de couleur | 35,8 | 15,5 | Ø 12 mm. Dans le couvercle, le module est logé dans une encoche creusée par-dessous (3 mm de profondeur), capteur et LED tournés vers le haut, à 2 mm de la surface. Façade qui le cache : pas de trou. |
+| Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase), avec un **lamage** Ø 14 × 2 mm dans le couvercle : l'écrou s'y noie, la façade reste à plat |
 | Interrupteur à clé | 35,8 | 22,0 | Ø 12 mm |
 | Forge (BME280) | 6,0 | 7,9 | 9 trous Ø 2 mm dans un cercle Ø 14 mm, dans la façade et le couvercle ; le module juste dessous |
 | Enclume (QMC5883L) | 10,5 | 7,9 | Rien : le module est collé sous le couvercle, à plat ; une zone Ø 24 mm marquée sur la façade |
-| Horloge (HT16K33) | 17,5 | 8,2 | Fenêtre 50 × 19 mm (selon l'afficheur), l'afficheur affleurant sous le couvercle |
-| Œil (APDS-9960) | 23,5 | 8,2 | Ø 10 mm ; le module juste dessous, capteur tourné vers le haut, son côté « haut » vers l'arrière du pupitre |
+| Horloge (HT16K33) | 17,5 | 8,2 | Façade : fenêtre 50 × 19 mm. Couvercle : la découpe du **boîtier** de l'afficheur (≈ 50 × 19 mm, à mesurer), qui le traverse ; sa carte reste dessous, calée par des rondelles pour que les chiffres arrivent **au ras du dessus** |
+| Œil (APDS-9960) | 23,5 | 8,2 | Ø 10 mm ; dans le couvercle, le module logé dans une encoche creusée par-dessous (3 mm), capteur tourné vers le haut, son côté « haut » vers l'arrière du pupitre |
 | 4 boutons d'arcade | 3,5 · 7,5 · 11,5 · 15,5 | 4,0 | 4 × Ø 30 mm, à 40 mm d'axe en axe |
 | Encodeur rotatif (molette) | 19,0 | 4,0 | Ø 7 mm (axe du KY-040) |
 | Bouton champignon (dynamo) | 29,5 | 4,0 | Selon le bouton : Ø 22 mm pour un champignon à visser, Ø 45 à 60 mm pour un gros dôme d'arcade |
-| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | Ø 10 mm : collés **en surface** du couvercle (ils servent de cales de 3 mm, § 4.5) ; sous la façade, un aimant encastré en face (polarités opposées) ou une rondelle d'acier |
+| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | Ø 10 mm, **encastrés** dans le couvercle (trou de 3 mm de profondeur au foret à façonner « Forstner », collés à la cyanoacrylate, au ras) ; sous chaque façade, une pastille d'acier adhésive fine (0,3 à 0,5 mm) en face. Si une façade se soulève au milieu : 2 aimants de plus en X = 19,0, Y = 1,5 et 24,7 |
 
 **Par rapport au premier plan (trois fentes) :** une seule fente, au centre ; le
 lecteur à plat prend la place de la fente de droite ; les deux rangées de voyants
@@ -283,7 +296,7 @@ le premier trou de 30 mm aurait touché la paroi.
 
 - Sous la fente, un **puits** étanche de **50 mm de profondeur** (intérieur
   68 × 5 mm environ) : la carte y descend jusqu'à la butée. Les fentes de la façade
-  (2-3 mm) et du couvercle (5 mm) doivent être alignées à 100 %.
+  (1 à 1,5 mm) et du couvercle (5 mm) doivent être alignées à 100 %.
 - **Le RC522 de la fente** se colle **verticalement** contre une paroi du puits,
   tout au fond, antenne face à la carte. Il fait 40 × 60 mm : posez-le couché
   (60 mm dans le sens de la fente, 40 mm de haut), son bord inférieur au niveau de
@@ -300,9 +313,9 @@ le premier trou de 30 mm aurait touché la paroi.
   passe.
 - **La LED du lecteur à plat** se colle sous le couvercle, sous le trou de Ø 4 mm du
   coin avant droit de la zone, à côté du RC522 (pas dessus : elle gênerait l'antenne).
-  Une goutte de colle chaude transparente dans le trou diffuse la lumière.
+  Le trou, rempli de colle chaude au ras du couvercle, amène la lumière à la surface (§ 4.5).
 - **Le RC522 à plat** se colle sous le couvercle, centré sous la zone marquée,
-  antenne vers le haut. Il lit à travers 8 mm de bois environ (couvercle et
+  antenne vers le haut. Il lit à travers 6,5 mm de bois environ (couvercle et
   façade) : une carte couchée (puce en bas, à placer sur la cible marquée) ou un
   objet dont la puce est collée **sous la base**. Évitez le métal entre la puce et
   le lecteur (pièces de monnaie, socles métalliques).
@@ -334,26 +347,54 @@ le premier trou de 30 mm aurait touché la paroi.
 
 ### 4.5 Une façade par mission : montrer ou cacher
 
-Chaque mission a sa façade : **2 mm de contreplaqué**, découpée et décorée pour
-elle. Elle repose sur les **aimants collés en surface du couvercle** (3 mm
-d'épaisseur) : elle flotte donc 3 mm au-dessus, ce qui laisse la place de cacher
-ce qui ne dépasse pas, et ce dont la mission ne se sert pas reste sous la plaque.
+Chaque mission a sa façade : une plaque **fine, de 1 à 1,5 mm** (carton gris,
+contreplaqué aviation, PVC…), découpée et décorée pour elle, qui se pose **à même le
+couvercle**. Les aimants sont encastrés dans le couvercle, au ras ; sous la façade, de
+fines pastilles d'acier adhésives leur font face. Ce dont la mission ne se sert pas reste
+sous la plaque.
+
+**Le dessous de chaque façade est peint en noir mat** (ou couvert d'un adhésif noir) :
+une plaque aussi fine laisserait passer la lumière d'un voyant caché.
+
+**Pourquoi pas d'espace entre les deux :** une LED collée sous le couvercle, vue à
+travers 5 mm de bois, 3 mm de vide et 2 mm de façade, se trouve au fond d'un puits de
+10 mm ; un joueur assis, qui regarde le pupitre de biais, ne verrait que la paroi du
+trou. Posée à même le couvercle, la façade ne laisse plus que l'épaisseur du couvercle,
+et celle-ci est comblée :
+
+- **Les voyants et la LED du lecteur à plat** : chaque trou du couvercle est **rempli de
+  colle chaude** transparente. Couvercle retourné, un adhésif de masquage collé sur le
+  dessus ferme le trou ; on le remplit par-dessous, on laisse refroidir, on retire
+  l'adhésif, et l'on ponce légèrement au grain 240 : la colle, au ras du dessus, conduit
+  la lumière et la diffuse. La LED se colle ensuite dessous, centrée sur le trou.
+- **L'anneau** : un disque de plexiglas dépoli dans le trou de Ø 38 mm, au ras du dessus.
+- **L'horloge** : l'afficheur traverse le couvercle, ses chiffres au ras du dessus.
+- **L'œil et le capteur de couleur** : chacun dans une encoche creusée par-dessous, à
+  2 mm de la surface, pour voir loin (les gestes) ou de près (la couleur).
+- **L'écran** reste sous le couvercle : chanfreinez à la lime le bord avant de sa
+  fenêtre (couvercle et façade) pour ne pas masquer le bas de l'image. Le bord de la
+  fenêtre ne doit pas appuyer sur la vitre : la dalle tactile prendrait la pression pour
+  un toucher.
+
+Rien ne doit dépasser du dessus du couvercle, sauf ce que toutes les façades découpent
+(boutons, molette, gros bouton, clé) : l'écrou du jack se noie dans son lamage, le
+clavier (membrane de 1 mm) a sa fenêtre dans toutes les façades.
 
 | Élément | Si la mission s'en sert | Sinon |
 |---|---|---|
 | Écran | Fenêtre (toujours) | — |
-| Clavier (membrane, ≈ 1 mm) | Fenêtre 70 × 78 mm | Caché |
-| Voyants, anneau de LED | Trous Ø 6 mm, cercle Ø 38 mm | Cachés (la lumière ne traverse pas 2 mm de bois peint) |
+| Clavier (membrane, ≈ 1 mm) | Fenêtre 70 × 78 mm | Toujours découpé (toutes les missions s'en servent) |
+| Voyants, anneau de LED | Trous Ø 6 mm, cercle Ø 38 mm | Cachés (dessous de la façade peint en noir) |
 | Capteur de couleur | Trou Ø 12 mm | Caché |
 | Œil | Trou Ø 10 mm | Caché |
 | Forge | 9 trous Ø 2 mm | Cachée (le souffle ne passe plus) |
 | Enclume | Zone marquée (rien à découper) | Rien de marqué : elle ne gêne pas |
-| Horloge (afficheur à fleur du couvercle) | Fenêtre 50 × 19 mm | Cachée |
+| Horloge (afficheur au ras du couvercle) | Fenêtre 50 × 19 mm | Cachée |
 | Fente à cartes | Fente 68 × 5 mm | Plaque pleine : la fente est fermée |
 | Lecteur à plat | Zone marquée (rien à découper) | Rien de marqué : il ne gêne pas |
 | LED du lecteur à plat | Trou Ø 4 mm | Cachée |
 | Haut-parleur | Grille de trous | Toujours percé (le son passe mal à travers le bois) |
-| Prise jack | Trou Ø 6 mm | Caché si l'écrou dépasse de moins de 3 mm |
+| Prise jack | Trou Ø 6 mm | Cachée (l'écrou est noyé dans son lamage) |
 | Interrupteur à clé (≈ 10 mm de relief) | Trou Ø 12 mm | Trou Ø 22 mm et un cache rond, ou un cache en relief sur la façade |
 | Boutons d'arcade, molette, gros bouton | Trous | Toujours découpés : ils dépassent trop pour être cachés |
 
@@ -519,7 +560,7 @@ connecté à ce réseau, la page **http://192.168.4.1** a six onglets.
 | **Équipe** | Le nom de l'équipe et les prénoms des joueurs, avant ou pendant la partie : ils entrent au classement à la fin. |
 | **Souffleur** | Un **message** à afficher à l'écran du pupitre (sur la ligne du bas pendant une épreuve). Toutes les **répliques** de la mission, à chercher par numéro ou par mot, à faire dire au haut-parleur 🔊 ou au casque 🎧. Le **journal de la partie** en direct : chaque carte glissée, chaque code tapé, chaque épreuve réussie ou ratée, chaque geste, et le texte de ce que le joueur entend au casque (🎧). |
 | **Classement** | Par mission, les meilleures équipes ; par joueur, le total des points de toutes ses parties. |
-| **Atelier** | Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
+| **Atelier** | Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir, étalonner l'écran tactile) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
 | **Mise à jour** | Envoyer un nouveau programme (`firmware.bin`) sans ouvrir la boîte (§ 2 de `firmware/README.md`). |
 
 **Les points** (onglet Équipe) : 500 pour une victoire, 50 par étape franchie, 10 par

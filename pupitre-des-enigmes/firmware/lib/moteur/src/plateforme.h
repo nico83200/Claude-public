@@ -19,7 +19,7 @@ struct Theme {
 // Ce que l'écran doit montrer. Le moteur la remplit, le matériel la dessine.
 struct Vue {
   enum Ecran { ACCUEIL, MENU, ROLES, PRINCIPAL, CODE, CHOIX, ENERGIE, EPREUVE, CASQUE, ACCUSATION, RESULTAT, ENROLEMENT, REGLAGES,
-               TABLEAU, ETAT };
+               TABLEAU, ETAT, SAISIE };
   Ecran ecran = ACCUEIL;
   uint32_t version = 0;          // change dès que le corps de l'écran change
   uint32_t versionEntete = 0;    // change quand seule la ligne du haut change (chrono)
@@ -53,6 +53,19 @@ struct Vue {
   std::string imageDonnees;              // son contenu (JPEG ou PNG), lu par le moteur
   std::vector<std::string> objectifs;    // tableau de bord
   std::vector<int> etatsObjectifs;       // 1 : en cours, 2 : fait
+  // L'écran tactile (menus, réglages, saisie de texte seulement : le jeu reste aux commandes).
+  bool tactile = false;                  // le pupitre a une dalle tactile
+  bool clavier = false;                  // le clavier AZERTY occupe le bas de l'écran
+  std::string saisie;                    // le texte en cours de saisie (nom de l'équipe)
+  std::string boutons[2];                // boutons tactiles du bas : [0] retour, [1] valider ("" : absent)
+};
+
+// Un toucher sur l'écran, traduit par le dessin selon ce qui est affiché.
+struct Toucher {
+  enum Type { RIEN, LIGNE, MOINS, PLUS, VALIDER, RETOUR, CARACTERE, EFFACER, CLAVIER, DEFILER };
+  Type type = RIEN;
+  int ligne = -1;      // LIGNE, MOINS, PLUS : la ligne touchée ; DEFILER : -1 vers le haut, +1 vers le bas
+  char caractere = 0;  // CARACTERE : 'A'–'Z', '0'–'9', ' ', '-', '\''
 };
 
 // Les réglages du pupitre, enregistrés sur la carte SD (/reglages.json).
@@ -101,6 +114,7 @@ class Plateforme {
   virtual void tiroir(bool ouvrir) { (void)ouvrir; }
   virtual bool tiroirPresent() { return false; }
   virtual std::vector<EtatElement> etatMateriel() { return {}; }
+  virtual bool tactile() { return false; }  // une dalle tactile est branchée (menus et saisie de texte)
 };
 
 }  // namespace pupitre

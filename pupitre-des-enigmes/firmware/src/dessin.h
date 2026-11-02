@@ -18,6 +18,9 @@ class Dessin {
   void afficher(const pupitre::Vue& v, uint32_t maintenant);
   void message(const char* titre, const char* texte);
   void logo();  // le logo du démarrage
+  // L'écran tactile : ce qu'un toucher en (x, y) veut dire sur la vue affichée.
+  pupitre::Toucher cible(const pupitre::Vue& v, int x, int y) const;
+  void toutRedessiner() { premiere_ = true; }
 
  private:
   struct Palette {
@@ -47,6 +50,10 @@ class Dessin {
   void corpsReglages(const pupitre::Vue& v);
   void corpsEtat(const pupitre::Vue& v);
   void corpsEnrolement(const pupitre::Vue& v);
+  void corpsSaisie(const pupitre::Vue& v);
+  void corpsLettresClavier(const pupitre::Vue& v);
+  void clavierAzerty(const pupitre::Vue& v);
+  void boutonsTactiles(const pupitre::Vue& v);
 
   // Texte.
   void ecrire(const std::string& t, int x, int y, const lgfx::IFont* police, uint32_t fg, uint32_t bg, int ancrage = 0);

@@ -1,0 +1,132 @@
+# L'écran tactile : les menus, les réglages, le nom de l'équipe, et le clavier AZERTY d'une
+# épreuve « lettres » (Dernier souffle). Le tactile ne change rien au jeu lui-même.
+tactile
+verifie phase accueil
+ecran valider
+verifie phase choix_monde
+capture tactile-choix-monde
+# La dernière ligne : les réglages. On baisse l'écran, on monte le haut-parleur, puis on annule.
+ecran ligne 10
+verifie phase reglages
+capture tactile-reglages
+ecran moins 1
+verifie reglage ecran 90
+ecran plus 2
+verifie reglage hp 25
+ecran retour
+verifie reglage ecran 100
+verifie reglage hp 24
+verifie phase choix_monde
+ecran retour
+verifie phase accueil
+
+# --- Le menu du monde : le nom de l'équipe, tapé sur le clavier de l'écran
+pose QUI M4
+retire QUI
+verifie phase menu
+capture tactile-menu
+ecran ligne 2
+verifie phase equipe
+ecran texte LES FINS LIMIERS
+verifie saisie Les Fins Limiers
+ecran efface
+verifie saisie Les Fins Limier
+ecran texte S
+capture tactile-equipe
+ecran valider
+verifie phase menu
+verifie equipe Les Fins Limiers
+# Retour : le nom ne change pas
+ecran ligne 2
+ecran texte XYZ
+ecran retour
+verifie equipe Les Fins Limiers
+# Au clavier 4×4 aussi : # valide
+ecran ligne 2
+verifie phase equipe
+touches #
+verifie phase menu
+verifie equipe Les Fins Limiers
+
+# --- On joue : le chemin de la solution jusqu'au raccordement (épreuve « lettres »)
+ecran ligne 1
+calme
+verifie phase jeu
+dynamo auto
+# --- Le poste d'équipage : le casier de Rasmus (le piège 739, puis 379)
+pose OU L1
+verifie drapeau vu_L1
+pose QUOI O1
+verifie epreuve code
+touches 739
+verifie sans casier
+pose QUOI O1
+touches 37_9
+verifie drapeau casier
+retire QUOI
+
+# --- Un compartiment posé sur une main est refusé ; tout est derrière la porte
+pose QUI L3
+retire QUI
+pose OU L3
+verifie sans vu_L3
+
+# --- La porte étanche (ratée, puis réussie)
+pose OU L2
+verifie epreuve ensemble
+ensemble 1000
+verifie sans J_porte
+pose OU L2
+ensemble 3500
+verifie drapeau J_porte
+
+# --- Le Narval glisse (minute 7) : on ne touche à rien, même pas la dynamo
+avance 10
+verifie epreuve immobile
+attendre 16
+calme
+
+# --- L'infirmerie : l'armoire de survie (9742), la chandelle refusée près des batteries, puis allumée
+pose OU L3
+verifie drapeau vu_L3
+pose QUOI O8
+code 9,7,4,2
+verifie drapeau armoire
+retire QUOI
+pose OU L4
+verifie drapeau vu_L4
+pose QUI O9
+verifie sans chandelle
+retire QUI
+pose OU L3
+pose QUI O9
+verifie drapeau chandelle
+retire QUI
+
+# --- Le local des batteries : le relevé, le pontage (un mauvais banc, puis E), le raccordement, l'énergie
+pose OU L4
+pose QUOI O2
+verifie drapeau releve
+retire QUOI
+pose QUOI O3
+verifie epreuve choix
+bouton ROUGE
+calme
+verifie sans pont
+pose QUOI O3
+verifie epreuve choix
+touches 2
+verifie drapeau pont
+verifie epreuve lettres
+verifie clavier non
+capture tactile-lettres
+ecran clavier
+verifie clavier oui
+capture tactile-lettres-clavier
+ecran texte ABG
+ecran efface
+ecran texte F
+ecran valider
+verifie drapeau J_raccord
+verifie clavier non
+verifie epreuve energie
