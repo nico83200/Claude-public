@@ -341,7 +341,7 @@ le premier trou de 30 mm aurait touché la paroi.
     à tête fraisée passée de l'extérieur** à travers la face arrière (trou de 3,2 mm
     fraisé, tête au ras) et un écrou. Pas de vis à bois : 5 mm de contreplaqué tiennent
     mal une vis.
-  - **C, le bus I2C** (20 × 80 mm : quatre départs vers les modules du couvercle) se visse
+  - **C, le bus I2C** (20 × 80 mm : huit départs, un par module I2C du couvercle) se visse
     sous le couvercle, sur 2 entretoises collées, entre la rangée haute des voyants et le
     haut-parleur (X = 12,5 à 20,5 cm, Y = 15 à 17 cm).
   - Les fils vers l'écran et les lecteurs sont ainsi courts (une quinzaine de cm), et le
