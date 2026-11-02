@@ -26,90 +26,138 @@
   .alerte { background: #fbeceb; border-left: 4px solid var(--rouge); padding: 6px 10px; margin: 6px 0; font-size: 8.8pt; }
   svg text { font-family: "Source Sans", sans-serif; }
   .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .petit { font-size: 8.2pt; margin: 2px 0 6px; }
+  td.lg { white-space: nowrap; color: var(--gris); }
+  .bloc { break-inside: avoid; }
 </style>
 </head>
 <body>
-
 <div class="couverture"><h1>Plan de câblage</h1>
-<p>Les trois plaques à pastilles et tous les fils du pupitre : leur rôle, leur départ et leur arrivée.</p></div>
+<p>Les trois plaques à pastilles et tous les fils du pupitre : où va chaque fil, comment il se branche, et quelle longueur couper.</p></div>
 
-<h2>1. Les trois plaques à pastilles</h2>
-<p>L'électronique est répartie sur <strong>trois plaques</strong>, chacune à l'endroit où ses fils sont les plus courts :</p>
-<table>
-<tr><th>Plaque</th><th>Taille</th><th>Ce qu'elle porte</th><th>Où</th></tr>
-<tr><td><b>A · le cerveau</b></td><td>50 × 70 mm</td><td>L'ESP32, l'entrée du 5 V, l'écran et son tactile, les deux lecteurs RFID, les LED, la molette, le gros bouton, la clé, le 5 V du servomoteur</td><td>Face arrière, X ≈ 21 à 28 cm, derrière l'écran</td></tr>
-<tr><td><b>B · le son</b></td><td>30 × 70 mm</td><td>Les deux DFPlayer (haut-parleur et casque), leurs résistances, le haut-parleur et la prise casque</td><td>Face arrière, X ≈ 11,5 à 18,5 cm, sous le haut-parleur</td></tr>
-<tr><td><b>C · le bus I2C</b></td><td>20 × 80 mm</td><td>Les huit départs du bus I2C, un par module</td><td>Sous le couvercle, X ≈ 12,5 à 20,5 cm, Y ≈ 15 à 17 cm</td></tr>
-</table>
-<p>Ce sont des <strong>plans d'implantation</strong>, vus côté composants, la plaque montée : où poser chaque élément et chaque connecteur.
-Ce n'est pas un tracé trou par trou : l'écartement des deux rangées de broches de l'ESP32 change d'un modèle à l'autre (25,4 ou
-22,9 mm). Posez d'abord les barrettes femelles des modules, puis les connecteurs. Les rails et les liaisons se font
-<strong>par-dessous</strong> (fil isolé de 26 AWG, ou pastilles pontées à l'étain).</p>
-
-<h3>Plaque A · le cerveau (50 × 70 mm), vue de face, montée sur la face arrière</h3>
-<svg viewBox="0 0 186 116" width="88%" style="display:block;margin:0 auto">
-  <defs>
-    <pattern id="trous" width="2.54" height="2.54" patternUnits="userSpaceOnUse"><circle cx="1.27" cy="1.27" r=".45" fill="#c9a86a"/></pattern>
-  </defs>
-  <g transform="translate(23 8)">
-  <rect x="0" y="0" width="140" height="100" rx="3" fill="#2f6b3c"/>
-  <rect x="0" y="0" width="140" height="100" rx="3" fill="url(#trous)" opacity=".9"/>
-  <!-- trous de fixation : 3 entretoises -->
-  <g fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="94" r="3"/><circle cx="108.5" cy="50" r="2.6"/></g>
-  <!-- l'ESP32 couché, son port USB à gauche -->
-  <rect x="2" y="22" width="104" height="56" rx="2" fill="#1b1b1b" stroke="#888" stroke-width=".5"/>
-  <rect x="-5" y="42" width="11" height="16" rx="1.5" fill="#c0c0c0"/>
-  <text x="-7" y="66" font-size="3.2" fill="#333">USB</text>
-  <rect x="40" y="32" width="38" height="36" rx="1" fill="#9aa2a8"/>
-  <text x="59" y="53" font-size="5.5" text-anchor="middle" fill="#222" font-weight="700">ESP-32</text>
-  <g fill="#e8c46a"><rect x="8" y="22" width="94" height="3"/><rect x="8" y="75" width="94" height="3"/></g>
-  <!-- rangée du haut : écran et tactile -->
-  <g fill="#f2f2f2"><rect x="12" y="3" width="65" height="11"/><rect x="80" y="3" width="30" height="11"/></g>
-  <g font-size="3.6" fill="#1a3d22" font-weight="700"><text x="15" y="10.5">J2 ÉCRAN (12)</text><text x="82" y="10.5">J13 TACTILE</text></g>
-  <!-- rangée du bas : les deux lecteurs RFID -->
-  <g fill="#f2f2f2"><rect x="12" y="86" width="40" height="11"/><rect x="56" y="86" width="40" height="11"/></g>
-  <g font-size="3.6" fill="#1a3d22" font-weight="700"><text x="15" y="93.5">J3 RFID fente</text><text x="59" y="93.5">J4 RFID plat</text></g>
-  <!-- colonne intérieure : alimentation et liaisons vers B et C -->
-  <g fill="#f2f2f2"><rect x="112" y="2" width="11" height="15"/><rect x="112" y="20" width="11" height="15"/><rect x="112" y="38" width="11" height="25"/><rect x="112" y="66" width="11" height="32"/></g>
-  <!-- colonne du bord : commandes -->
-  <g fill="#f2f2f2"><rect x="127" y="2" width="11" height="30"/><rect x="127" y="35" width="11" height="20"/><rect x="127" y="58" width="11" height="17"/><rect x="127" y="78" width="11" height="17"/></g>
-  <g font-size="3.4" fill="#1a3d22" font-weight="700" text-anchor="middle">
-    <text transform="translate(118.6 9.5) rotate(-90)">J1 5V</text><text transform="translate(118.6 27.5) rotate(-90)">J12</text>
-    <text transform="translate(118.6 50.5) rotate(-90)">J15 → C</text><text transform="translate(118.6 82) rotate(-90)">J14 → B</text>
-    <text transform="translate(133.6 17) rotate(-90)">J8 MOLETTE</text><text transform="translate(133.6 45) rotate(-90)">J7 LED</text>
-    <text transform="translate(133.6 66.5) rotate(-90)">J9</text><text transform="translate(133.6 86.5) rotate(-90)">J10</text>
-  </g>
-  </g>
+<h2>1. Vue d'ensemble</h2>
+<p>L'électronique tient sur <strong>trois plaques</strong> : <strong>A</strong>, le cerveau (l'ESP32), et <strong>B</strong>, le son
+(les deux DFPlayer), vissées contre la face arrière ; <strong>C</strong>, le bus I2C, sous le couvercle. Les flèches portent le nom du
+connecteur de départ.</p>
+<svg viewBox="0 0 186 122" width="100%">
+<defs><marker id="f" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="3.2" markerHeight="3.2" orient="auto"><path d="M0 0L6 3L0 6z" fill="#6d665d"/></marker></defs>
+<rect x="66" y="44" width="54" height="24" rx="2" fill="#1f3b2d" stroke="#1f3b2d" stroke-width=".5"/><text x="93.0" y="55.2" text-anchor="middle" font-size="3.4" fill="#fff" font-weight="700">A · LE CERVEAU</text><text x="93.0" y="59.6" text-anchor="middle" font-size="2.7" fill="#6d665d">ESP32 · face arrière</text>
+<rect x="4" y="46" width="40" height="20" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="24.0" y="55.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Prise USB-C</text><text x="24.0" y="59.6" text-anchor="middle" font-size="2.7" fill="#6d665d">puis l'interrupteur</text>
+<path d="M44 56L66 56" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="55" y="54.5" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J1</text>
+<rect x="58" y="4" width="44" height="14" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="80.0" y="10.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Écran 3,5 pouces</text><text x="80.0" y="14.6" text-anchor="middle" font-size="2.7" fill="#6d665d">et son lecteur SD</text>
+<rect x="108" y="4" width="34" height="14" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="125.0" y="10.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Dalle tactile</text><text x="125.0" y="14.6" text-anchor="middle" font-size="2.7" fill="#6d665d">du même module</text>
+<path d="M80 44L80 18" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="83" y="32" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J2</text>
+<path d="M108 44L120 18" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="116" y="32" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J13</text>
+<rect x="144" y="22" width="40" height="13" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="164.0" y="27.7" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Lecteur RFID</text><text x="164.0" y="32.1" text-anchor="middle" font-size="2.7" fill="#6d665d">de la fente</text>
+<rect x="144" y="39" width="40" height="13" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="164.0" y="44.7" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Lecteur RFID</text><text x="164.0" y="49.1" text-anchor="middle" font-size="2.7" fill="#6d665d">à plat</text>
+<rect x="144" y="56" width="40" height="17" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="164.0" y="63.7" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Molette</text><text x="164.0" y="68.1" text-anchor="middle" font-size="2.7" fill="#6d665d">gros bouton · clé</text>
+<path d="M120 48L144 30" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="132" y="37" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J3</text>
+<path d="M120 53L144 45" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="132" y="48" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J4</text>
+<path d="M120 62L144 64" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="132" y="61" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J8 J9 J10</text>
+<rect x="4" y="82" width="40" height="18" rx="2" fill="#1f3b2d" stroke="#1f3b2d" stroke-width=".5"/><text x="24.0" y="90.2" text-anchor="middle" font-size="3.4" fill="#fff" font-weight="700">B · LE SON</text><text x="24.0" y="94.6" text-anchor="middle" font-size="2.7" fill="#6d665d">2 DFPlayer · face arrière</text>
+<path d="M70 68L30 82" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="46" y="73" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J14</text>
+<rect x="4" y="106" width="18" height="12" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="13.0" y="113.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="400">Haut-parleur</text><rect x="26" y="106" width="18" height="12" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="35.0" y="113.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="400">Casque</text>
+<path d="M13 100L13 106" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="15" y="104" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J5</text><path d="M35 100L35 106" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="37" y="104" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J6</text>
+<rect x="50" y="82" width="48" height="18" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="74.0" y="90.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="700">Chaîne de LED</text><text x="74.0" y="94.6" text-anchor="middle" font-size="2.7" fill="#6d665d">anneau, fente, plateau, voyants…</text>
+<path d="M84 68L76 82" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="82" y="76" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J7</text>
+<rect x="60" y="106" width="52" height="12" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="86.0" y="113.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="400">Servomoteur du tiroir (5 V)</text>
+<path d="M106 68L106 106" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="108" y="90" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J12</text>
+<rect x="118" y="82" width="40" height="18" rx="2" fill="#1f3b2d" stroke="#1f3b2d" stroke-width=".5"/><text x="138.0" y="90.2" text-anchor="middle" font-size="3.4" fill="#fff" font-weight="700">C · LE BUS I2C</text><text x="138.0" y="94.6" text-anchor="middle" font-size="2.7" fill="#6d665d">sous le couvercle</text>
+<path d="M112 68L132 82" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="125" y="73" text-anchor="middle" font-size="2.7" fill="#a3392b" font-weight="700">J15</text>
+<rect x="118" y="106" width="66" height="12" rx="2" fill="#fbf7ee" stroke="#b8893a" stroke-width=".5"/><text x="151.0" y="113.2" text-anchor="middle" font-size="3.4" fill="#2a2622" font-weight="400">8 modules : clavier, tiroir, boutons, forge…</text>
+<path d="M138 100L138 106" stroke="#6d665d" stroke-width=".45" marker-end="url(#f)"/><text x="140" y="104" text-anchor="start" font-size="2.7" fill="#a3392b" font-weight="700">J11a … h</text>
 </svg>
-<p style="font-size:8.2pt;margin-top:0">Colonne intérieure : J1 (entrée du 5 V), J12 (5 V du servomoteur), J15 (vers la plaque C), J14 (vers la plaque B).
-Colonne du bord : J8 molette, J7 LED, J9 gros bouton, J10 clé. R3, R4 et C1 se couchent sous l'ESP32, entre ses deux barrettes.
-Les trois ronds : les trous des entretoises.</p>
 
 <div class="deux">
 <div>
-<h3>Plaque B · le son (30 × 70 mm)</h3>
-<svg viewBox="0 0 146 66" width="100%">
-  <g transform="translate(3 3)">
-  <rect x="0" y="0" width="140" height="60" rx="3" fill="#2f6b3c"/>
-  <rect x="0" y="0" width="140" height="60" rx="3" fill="url(#trous)" opacity=".9"/>
-  <g fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"><circle cx="6" cy="7" r="3"/><circle cx="6" cy="53" r="3"/><circle cx="120" cy="53" r="3"/></g>
-  <rect x="12" y="9" width="41" height="41" rx="1.5" fill="#1d4f8a"/><text x="32.5" y="28" font-size="4" fill="#fff" text-anchor="middle" font-weight="700">DFPlayer</text>
-  <text x="32.5" y="34" font-size="3.4" fill="#cfe2ff" text-anchor="middle">haut-parleur</text>
-  <rect x="57" y="9" width="41" height="41" rx="1.5" fill="#1d4f8a"/><text x="77.5" y="28" font-size="4" fill="#fff" text-anchor="middle" font-weight="700">DFPlayer</text>
-  <text x="77.5" y="34" font-size="3.4" fill="#cfe2ff" text-anchor="middle">casque</text>
-  <g fill="#ddd"><rect x="22" y="47" width="21" height="5"/><rect x="67" y="47" width="21" height="5"/></g>
-  <text x="55" y="58" font-size="3" fill="#fde9b0" text-anchor="middle">fentes micro-SD vers le bas</text>
-  <g fill="#f2f2f2"><rect x="103" y="4" width="11" height="15"/><rect x="103" y="22" width="11" height="20"/><rect x="127" y="8" width="11" height="40"/></g>
-  <g font-size="3" fill="#1a3d22" font-weight="700"><text x="104" y="13">J5</text><text x="104" y="33">J6</text><text x="128.5" y="30">J14</text></g>
-  <rect x="117" y="12" width="7" height="3" rx="1" fill="#d9b98a"/><rect x="117" y="20" width="7" height="3" rx="1" fill="#d9b98a"/>
-  <circle cx="120.5" cy="35" r="3.2" fill="#3a3a3a"/>
-  </g>
-</svg>
-<p style="font-size:8.2pt;margin:2px 0">J5 haut-parleur · J6 casque · J14 vers la plaque A · R1, R2 (1 kΩ) et C2 (100 µF) entre J6 et J14.
-Les DFPlayer sont enfichés, <strong>fentes micro-SD tournées vers le bas</strong> : fond retiré, on change les cartes sans rien démonter.</p>
+<h3>Trois façons de raccorder un fil</h3>
+<table>
+<tr><th>Raccord</th><th>Pour</th></tr>
+<tr><td><b>Bornier à vis</b> (fil muni d'un embout, jamais étamé)</td><td>J1, J12 (5 V), J5 (haut-parleur), J6 (casque)</td></tr>
+<tr><td><b>Barrette mâle et fils Dupont femelles</b>, regroupés en bloc, broche 1 marquée d'un point de peinture</td><td>Tous les autres connecteurs des plaques, et les modules qui ont des broches (écran, RC522, molette, modules I2C)</td></tr>
+<tr><td><b>Soudure</b>, sous gaine thermorétractable</td><td>La prise USB-C, l'interrupteur, le haut-parleur, la prise jack, les boutons, la clé, les LED</td></tr>
+</table>
 </div>
 <div>
-<h3>Plaque C · le bus I2C (20 × 80 mm)</h3>
+<h3>Les couleurs</h3>
+<p style="margin:0 0 4px"><span class="c rouge"></span>+ 5 V · <span class="c orange"></span>3,3 V · <span class="c noir"></span>masse ·
+<span class="c jaune"></span>SDA · <span class="c vert"></span>SCL · <span class="c bleu"></span>données des LED · <span class="c blanc"></span>SPI ·
+<span class="c violet"></span>sélection (CS) · <span class="c gris"></span>autres signaux.</p>
+<div class="note">Fil de <strong>22 AWG</strong> pour le 5 V et la masse (fils 1 à 3, S1-S2, 97-98) et le haut-parleur (30-31) ; 24 ou 26 AWG
+(ou fils Dupont) pour le reste. Chaque fil porte son numéro sur un drapeau d'adhésif, à chaque bout. Les longueurs sont indicatives :
+mesurez sur la boîte et ajoutez 3 cm.</div>
+</div>
+</div>
+
+<h2 class="saut">2. Les trois plaques</h2>
+<p>Des <strong>plans d'implantation</strong>, vus côté composants, la plaque montée : où poser chaque élément et chaque connecteur. Ce n'est pas
+un tracé trou par trou : l'écartement des deux rangées de broches de l'ESP32 change d'un modèle à l'autre (25,4 ou 22,9 mm). Posez d'abord
+les barrettes femelles des modules, puis les connecteurs. Les liaisons se font <strong>par-dessous</strong> : fil nu pour les rails, pont
+d'étain entre deux pastilles voisines, fil isolé de 26 AWG pour le reste (entré par le dessus, soudé dessous). Un cercle rouge marque la
+broche 1, ou le plot 1 d'un bornier.</p>
+
+<h3>Plaque A · le cerveau (70 × 50 mm)</h3>
+<svg viewBox="0 0 160 110" width="92%" style="display:block;margin:0 auto">
+<defs><pattern id="trous" width="2.54" height="2.54" patternUnits="userSpaceOnUse"><circle cx="1.27" cy="1.27" r=".45" fill="#c9a86a"/></pattern></defs>
+<g transform="translate(8 5)">
+<rect x="0" y="0" width="140" height="100" rx="3" fill="#2f6b3c"/><rect x="0" y="0" width="140" height="100" rx="3" fill="url(#trous)" opacity=".9"/>
+<circle cx="6" cy="6" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/><circle cx="6" cy="94" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/><circle cx="104" cy="14" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/>
+<rect x="2" y="23" width="102" height="54" rx="2" fill="#1b1b1b" stroke="#888" stroke-width=".5"/>
+<rect x="-6" y="42" width="11" height="16" rx="1.5" fill="#c0c0c0"/>
+<rect x="40" y="32" width="36" height="36" rx="1" fill="#9aa2a8"/>
+<text x="58" y="53" font-size="5.5" text-anchor="middle" fill="#222" font-weight="700">ESP-32</text>
+<rect x="8" y="23" width="92" height="3" fill="#e8c46a"/><rect x="8" y="74" width="92" height="3" fill="#e8c46a"/>
+<text x="54" y="31" font-size="2.6" fill="#fde9b0" text-anchor="middle">R3 · R4 · C1 couchés dessous, entre les deux barrettes</text>
+<rect x="11" y="3" width="60.96" height="5.0" rx=".6" fill="#222"/><rect x="12.64" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="17.72" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="22.80" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="27.88" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="32.96" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="38.04" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="43.12" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="48.20" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="53.28" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="58.36" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="63.44" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="68.52" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="13.54" cy="5.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="41.5" y="12.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J2 ÉCRAN</text>
+<rect x="76" y="3" width="25.4" height="5.0" rx=".6" fill="#222"/><rect x="77.64" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="82.72" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="87.80" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="92.88" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="97.96" y="4.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="78.54" cy="5.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="88.7" y="12.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J13 TACTILE</text>
+<rect x="11" y="92" width="35.56" height="5.0" rx=".6" fill="#222"/><rect x="12.64" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="17.72" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="22.80" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="27.88" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="32.96" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="38.04" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="43.12" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="13.54" cy="94.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="28.8" y="90.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J3 RFID FENTE</text>
+<rect x="55" y="92" width="35.56" height="5.0" rx=".6" fill="#222"/><rect x="56.64" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="61.72" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="66.80" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="71.88" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="76.96" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="82.04" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="87.12" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="57.54" cy="94.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="72.8" y="90.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J4 RFID PLAT</text>
+<rect x="107" y="1" width="20.3" height="15" rx="1" fill="#2e6fd1"/><circle cx="112.1" cy="10" r="3.2" fill="#c9d3dd"/><path d="M112.1 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="110.1" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="122.2" cy="10" r="3.2" fill="#c9d3dd"/><path d="M122.2 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="120.2" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="112.1" cy="10" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="117.2" y="20.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J1 + 5 V</text>
+<rect x="123" y="24" width="15" height="20.3" rx="1" fill="#2e6fd1"/><circle cx="129" cy="29.1" r="3.2" fill="#c9d3dd"/><path d="M126.8 29.1h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="27.1" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="39.2" r="3.2" fill="#c9d3dd"/><path d="M126.8 39.2h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="37.2" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="29.1" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="130.5" y="22.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J12</text>
+<rect x="116" y="26" width="5" height="20.3" rx=".6" fill="#222"/><rect x="117.60" y="27.64" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="32.72" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="37.80" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="42.88" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="118.50" cy="28.54" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/>
+<rect x="116" y="52" width="5" height="30.5" rx=".6" fill="#222"/><rect x="117.60" y="53.64" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="58.72" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="63.80" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="68.88" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="73.96" width="1.8" height="1.8" fill="#e8c46a"/><rect x="117.60" y="79.04" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="118.50" cy="54.54" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/>
+<text transform="translate(113 36) rotate(-90)" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J15 → C</text>
+<text transform="translate(113 67) rotate(-90)" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J14 → B</text>
+<rect x="128" y="50" width="5" height="25.4" rx=".6" fill="#222"/><rect x="129.60" y="51.64" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="56.72" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="61.80" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="66.88" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="71.96" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="130.50" cy="52.54" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text transform="translate(136 62.7) rotate(-90)" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J8 MOLETTE</text>
+<rect x="128" y="80" width="5" height="15.2" rx=".6" fill="#222"/><rect x="129.60" y="81.64" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="86.72" width="1.8" height="1.8" fill="#e8c46a"/><rect x="129.60" y="91.80" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="130.50" cy="82.54" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text transform="translate(136 87.6) rotate(-90)" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J7</text>
+<rect x="92" y="92" width="10.16" height="5.0" rx=".6" fill="#222"/><rect x="93.64" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="98.72" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="94.54" cy="94.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="97.1" y="90.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J9</text>
+<rect x="105" y="92" width="10.16" height="5.0" rx=".6" fill="#222"/><rect x="106.64" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><rect x="111.72" y="93.60" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="107.54" cy="94.50" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="110.1" y="90.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J10</text>
+</g>
+<text x="0" y="57" font-size="3" fill="#333">USB</text>
+</svg>
+<p class="petit">En haut : J2 (écran) et J13 (tactile) ; en bas : J3 et J4 (lecteurs RFID). Les borniers ont leurs entrées de fils vers un
+bord libre : J1 (entrée du 5 V) vers le haut, J12 (5 V du servomoteur) vers la droite. Au milieu, les barrettes J15 (vers C) et J14 (vers B) ;
+au bord, J8 (molette) et J7 (LED) ; en bas, J9 (gros bouton) et J10 (clé). Les trois ronds : les trous des entretoises. Le port USB de l'ESP32, à gauche, ne sert qu'au premier
+téléversement, fait avant le montage.</p>
+
+<div class="deux">
+<div class="bloc">
+<h3>Plaque B · le son (70 × 30 mm)</h3>
+<svg viewBox="0 0 150 66" width="100%">
+<defs><pattern id="trous" width="2.54" height="2.54" patternUnits="userSpaceOnUse"><circle cx="1.27" cy="1.27" r=".45" fill="#c9a86a"/></pattern></defs>
+<g transform="translate(3 3)">
+<rect x="0" y="0" width="140" height="60" rx="3" fill="#2f6b3c"/><rect x="0" y="0" width="140" height="60" rx="3" fill="url(#trous)" opacity=".9"/>
+<circle cx="5" cy="5" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/><circle cx="5" cy="55" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/><circle cx="113" cy="55" r="2.8" fill="#1a3d22" stroke="#e8e0c8" stroke-width=".4"/>
+<rect x="11" y="6" width="41" height="41" rx="1.5" fill="#1d4f8a"/><text x="31.5" y="25" font-size="4" fill="#fff" text-anchor="middle" font-weight="700">DFPlayer</text>
+<text x="31.5" y="31" font-size="3.4" fill="#cfe2ff" text-anchor="middle">haut-parleur</text>
+<rect x="56" y="6" width="41" height="41" rx="1.5" fill="#1d4f8a"/><text x="76.5" y="25" font-size="4" fill="#fff" text-anchor="middle" font-weight="700">DFPlayer</text>
+<text x="76.5" y="31" font-size="3.4" fill="#cfe2ff" text-anchor="middle">casque</text>
+<g fill="#ddd"><rect x="21" y="44" width="21" height="5"/><rect x="66" y="44" width="21" height="5"/></g>
+<text x="54" y="56" font-size="3" fill="#fde9b0" text-anchor="middle">fentes micro-SD vers le bas</text>
+<rect x="102" y="1" width="20.3" height="15" rx="1" fill="#2e6fd1"/><circle cx="107.1" cy="10" r="3.2" fill="#c9d3dd"/><path d="M107.1 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="105.1" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="117.2" cy="10" r="3.2" fill="#c9d3dd"/><path d="M117.2 7.8v4.4" stroke="#556" stroke-width=".8"/><rect x="115.2" y="1.6" width="4" height="3.4" fill="#173a6b"/><circle cx="107.1" cy="10" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="112.2" y="20.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J5 HP</text>
+<rect x="123" y="22" width="15" height="30.5" rx="1" fill="#2e6fd1"/><circle cx="129" cy="27.1" r="3.2" fill="#c9d3dd"/><path d="M126.8 27.1h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="25.1" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="37.2" r="3.2" fill="#c9d3dd"/><path d="M126.8 37.2h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="35.2" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="47.4" r="3.2" fill="#c9d3dd"/><path d="M126.8 47.4h4.4" stroke="#556" stroke-width=".8"/><rect x="134" y="45.4" width="3.4" height="4" fill="#173a6b"/><circle cx="129" cy="27.1" r="3.9" fill="none" stroke="#e5484d" stroke-width=".6"/><text x="130.5" y="20.5" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J6</text>
+<rect x="100" y="25" width="7" height="2.6" rx="1" fill="#d9b98a"/><rect x="100" y="31" width="7" height="2.6" rx="1" fill="#d9b98a"/>
+<text x="103.5" y="38" font-size="2.6" fill="#fff" text-anchor="middle">R1 R2</text>
+<circle cx="103.5" cy="44" r="3" fill="#3a3a3a"/><text x="103.5" y="50.5" font-size="2.6" fill="#fff" text-anchor="middle">C2</text>
+<rect x="112" y="24" width="5" height="30.5" rx=".6" fill="#222"/><rect x="113.60" y="25.64" width="1.8" height="1.8" fill="#e8c46a"/><rect x="113.60" y="30.72" width="1.8" height="1.8" fill="#e8c46a"/><rect x="113.60" y="35.80" width="1.8" height="1.8" fill="#e8c46a"/><rect x="113.60" y="40.88" width="1.8" height="1.8" fill="#e8c46a"/><rect x="113.60" y="45.96" width="1.8" height="1.8" fill="#e8c46a"/><rect x="113.60" y="51.04" width="1.8" height="1.8" fill="#e8c46a"/><circle cx="114.50" cy="26.54" r="1.25" fill="none" stroke="#e5484d" stroke-width=".6"/>
+<text transform="translate(110 39) rotate(-90)" text-anchor="middle" font-size="3.3" font-weight="700" fill="#fff">J14</text>
+</g>
+</svg>
+<p class="petit">Les deux DFPlayer enfichés, <strong>fentes micro-SD vers le bas</strong> : fond retiré, on change les cartes sans rien
+démonter. Bornier J5 (haut-parleur), entrées vers le haut, juste sous le haut-parleur ; bornier J6 (casque), entrées vers la droite ; R1, R2 (1 kΩ), C2 (100 µF) et la barrette J14 vers A.</p>
+</div>
+<div class="bloc">
+<h3>Plaque C · le bus I2C (80 × 20 mm)</h3>
 <svg viewBox="0 0 166 46" width="100%">
   <g transform="translate(3 3)">
   <rect x="0" y="0" width="160" height="40" rx="3" fill="#2f6b3c"/>
@@ -122,12 +170,12 @@ Les DFPlayer sont enfichés, <strong>fentes micro-SD tournées vers le bas</stro
   <text x="3" y="5" font-size="2.8" fill="#fde9b0">● broche 1 (3,3 V)</text>
   </g>
 </svg>
-<p style="font-size:8.2pt;margin:2px 0">Neuf barrettes 1 × 4 posées en travers, tous les 3 trous, broche 1 du même côté : J15 (l'arrivée depuis A) et les huit départs J11a à J11h, un par module. Chaque rangée de broches tombe sur son rail : quatre fils nus, par-dessous (3,3 V, masse, SDA, SCL), les relient broche à broche.
-La plaque se visse sur 2 entretoises nylon collées sous le couvercle (colle époxy ou cyanoacrylate en gel), composants vers le bas.</p>
+<p class="petit">Neuf barrettes 1 × 4 en travers, tous les 3 trous, broche 1 du même côté : J15 (l'arrivée depuis A) et les huit départs
+J11a à J11h. Quatre fils nus par-dessous (3,3 V, masse, SDA, SCL) les relient broche à broche. Composants vers le bas.</p>
 </div>
 </div>
 
-<h3>Leur place dans la boîte : la face arrière, vue de l'intérieur (de l'avant du pupitre)</h3>
+<h3>Leur place dans la boîte : la face arrière, vue de l'intérieur</h3>
 <svg viewBox="0 0 166 46" width="100%">
   <g transform="translate(4 4)" font-size="2.6">
     <!-- la face arrière : 38 cm × 8 cm, à l'échelle 4 mm par cm -->
@@ -152,196 +200,158 @@ La plaque se visse sur 2 entretoises nylon collées sous le couvercle (colle ép
 </svg>
 <table>
 <tr><th>Plaque</th><th>Position</th><th>Fixation</th></tr>
-<tr><td>A</td><td>X = 21 à 28 cm ; de 7 à 57 mm au-dessus du dessous du pupitre (6 mm de jeu sous l'écran)</td><td rowspan="2">3 entretoises nylon M3 de 10 mm, chacune tenue par une <strong>vis M3 × 16 à tête fraisée</strong> passée de l'extérieur à travers la face arrière (trou de 3,2 mm fraisé, tête au ras), et un écrou côté plaque. Une vis à bois ne tiendrait pas dans 5 mm de contreplaqué.</td></tr>
+<tr><td>A</td><td>X = 21 à 28 cm ; de 7 à 57 mm au-dessus du dessous du pupitre (6 mm de jeu sous l'écran)</td><td rowspan="2">Entretoises nylon M3 de 10 mm (3 pour A, 3 pour B), chacune tenue par une <strong>vis M3 × 16 à tête fraisée</strong> passée de l'extérieur à travers la face arrière (trou de 3,2 mm fraisé, tête au ras) et un écrou côté plaque.</td></tr>
 <tr><td>B</td><td>X = 11,5 à 18,5 cm ; de 10 à 40 mm au-dessus du dessous du pupitre (sous l'aimant du haut-parleur)</td></tr>
-<tr><td>C</td><td>Sous le couvercle, X = 12,5 à 20,5 cm, Y = 15 à 17 cm : entre la rangée haute des voyants et le haut-parleur, à côté du puits de la fente</td><td>2 entretoises collées sous le couvercle (rien ne doit traverser le dessus)</td></tr>
+<tr><td>C</td><td>Sous le couvercle, X = 12,5 à 20,5 cm, Y = 15 à 17 cm : entre la rangée haute des voyants et le haut-parleur, à côté du puits de la fente</td><td>2 entretoises collées sous le couvercle (époxy ou cyanoacrylate en gel), la plaque vissée dessus. Rien ne traverse le dessus.</td></tr>
 </table>
-<div class="note">Mesurez avant de percer : l'aimant de votre haut-parleur, le module de l'écran et la clé ne descendent pas tous autant.
-A dépasse de la face arrière d'environ 35 mm, B d'environ 25 mm. Le port USB de l'ESP32 (à gauche de A) ne sert qu'au tout
-premier téléversement, fait avant le montage : ensuite, le programme se met à jour par le Wi-Fi.</div>
+<div class="note">Mesurez avant de percer : l'aimant de votre haut-parleur, le module de l'écran et la clé ne descendent pas tous autant
+sous le couvercle. A dépasse de la face arrière d'environ 35 mm, B d'environ 25 mm.</div>
 
-<div class="deux">
-<div>
-<h3>Sur les plaques</h3>
-<table>
-<tr><th>Repère</th><th>Élément</th></tr>
-<tr><td>ESP32 (A)</td><td>Sur 2 barrettes femelles 1 × 15 (on peut le retirer)</td></tr>
-<tr><td>DFPlayer × 2 (B)</td><td>Sur 2 barrettes femelles 1 × 8 chacun ; la fente micro-SD vers le bas</td></tr>
-<tr><td>R1, R2 (B)</td><td>1 kΩ entre J14-3 et RX du DFPlayer HP, entre J14-5 et RX du DFPlayer casque</td></tr>
-<tr><td>R3 (A)</td><td>330 Ω entre GPIO 25 et la broche DIN de J7</td></tr>
-<tr><td>R4 (A)</td><td>10 kΩ entre GPIO 39 et le rail 3,3 V (tirage du gros bouton)</td></tr>
-<tr><td>C1 (A), C2 (B)</td><td>100 µF entre 5 V et masse, près de J1 (A) et près de J14 (B)</td></tr>
-<tr><td>Rails</td><td>A : 5 V, 3,3 V, masse · B : 5 V, masse · C : 3,3 V, masse, SDA, SCL</td></tr>
-</table>
-</div>
-<div>
-<h3>Les connecteurs</h3>
-<p style="margin:0 0 4px"><b>J1, J12, J5 et J6</b> (alimentation, servomoteur, haut-parleur, casque) : <b>borniers à vis</b> au pas de 5,08 mm,
-fils munis d'embouts (pas d'étain sous une vis). <b>Tous les autres</b> : <b>barrettes mâles</b> au pas de 2,54 mm, et fils
-Dupont femelles, regroupés par connecteur (boîtier multibroche, ou fils collés en bloc). Repérez la broche 1 d'un point de
-peinture sur la plaque et sur le bloc ; une goutte de colle chaude les tient une fois les essais faits. (Des JST-XH, détrompés,
-conviennent aussi.)</p>
-<div class="note">Les deux câbles entre plaques : <strong>J14</strong> (A ↔ B, 6 fils, dont le 5 V et la masse en 22 AWG) et
-<strong>J15</strong> (A → C, 4 fils). Le même numéro aux deux bouts, broche 1 face à broche 1.</div>
-</div>
-</div>
-
-<h3>Le brochage de chaque connecteur (broche 1 marquée d'un point)</h3>
-<table>
-<tr><th>Connecteur</th><th>Broches, dans l'ordre</th><th>Vers</th></tr>
-<tr><td><b>J1</b> ALIM (2) · A</td><td>1 + 5 V (rail 5 V) · 2 GND</td><td>L'interrupteur général et l'embase USB-C</td></tr>
-<tr><td><b>J2</b> ÉCRAN (12) · A</td><td>1 3,3 V · 2 GND · 3 CS ← 5 · 4 RESET ← EN · 5 DC ← 21 · 6 MOSI ← 23 · 7 SCK ← 18 · 8 LED ← 12 · 9 SD_CS ← 4 · 10 SD_MOSI ← 23 · 11 SD_MISO → 19 · 12 SD_SCK ← 18</td><td>L'écran ILI9488 et son lecteur SD</td></tr>
-<tr><td><b>J3</b> RFID fente (7) · A</td><td>1 3,3 V · 2 RST (3,3 V) · 3 GND · 4 MISO → 19 · 5 MOSI ← 23 · 6 SCK ← 18 · 7 SDA (CS) ← 13</td><td>Le RC522 de la fente</td></tr>
-<tr><td><b>J4</b> RFID plat (7) · A</td><td>Comme J3, mais 7 SDA (CS) ← 22</td><td>Le RC522 du lecteur à plat</td></tr>
-<tr><td><b>J5</b> HP (2) · B</td><td>1 SPK_1 · 2 SPK_2 du DFPlayer haut-parleur</td><td>Le haut-parleur</td></tr>
-<tr><td><b>J6</b> CASQUE (3) · B</td><td>1 DAC_L · 2 DAC_R · 3 GND du DFPlayer casque</td><td>L'embase jack</td></tr>
-<tr><td><b>J7</b> LED (3) · A</td><td>1 + 5 V · 2 GND · 3 DIN ← R3 ← 25</td><td>L'anneau, début de la chaîne de LED</td></tr>
-<tr><td><b>J8</b> MOLETTE (5) · A</td><td>1 3,3 V (+) · 2 GND · 3 CLK → 34 · 4 DT → 35 · 5 SW → 32</td><td>Le KY-040</td></tr>
-<tr><td><b>J9</b> GROS BOUTON (2) · A</td><td>1 → 39 (et R4) · 2 GND</td><td>Le bouton champignon</td></tr>
-<tr><td><b>J10</b> CLÉ (2) · A</td><td>1 → 33 · 2 GND</td><td>L'interrupteur à clé</td></tr>
-<tr><td><b>J11a … h</b> I2C (4 chacun) · C</td><td>1 3,3 V · 2 GND · 3 SDA · 4 SCL (les huit en parallèle avec J15)</td><td>Un module I2C chacun (voir la liste des fils)</td></tr>
-<tr><td><b>J12</b> 5 V servo (2) · A</td><td>1 + 5 V · 2 GND</td><td>Le bornier V+ du PCA9685</td></tr>
-<tr><td><b>J13</b> TACTILE (5) · A</td><td>1 T_CS ← 14 · 2 T_CLK ← 18 · 3 T_DIN ← 23 · 4 T_DO → 19 · 5 GPIO 15 (réserve)</td><td>La dalle tactile de l'écran (puce XPT2046)</td></tr>
-<tr><td><b>J14</b> SON (6) · A et B</td><td>1 + 5 V · 2 GND · 3 TX2 ← 17 · 4 RX2 → 16 · 5 TX1 ← 2 · 6 RX1 → 36 (VP)</td><td>Le câble A ↔ B : les deux DFPlayer (R1 et R2 sont sur B)</td></tr>
-<tr><td><b>J15</b> I2C (4) · A et C</td><td>1 3,3 V · 2 GND · 3 SDA ↔ 26 · 4 SCL ← 27</td><td>Le câble A → C, le départ du bus I2C</td></tr>
-</table>
-
-<h2 class="saut">2. Tous les fils du pupitre</h2>
-<p>Les numéros servent d'étiquettes : notez-les sur un morceau de ruban adhésif à chaque bout. Couleurs conseillées :
-<span class="c rouge"></span>5 V · <span class="c orange"></span>3,3 V · <span class="c noir"></span>masse · <span class="c jaune"></span>SDA ·
-<span class="c vert"></span>SCL · <span class="c bleu"></span>données des LED · <span class="c blanc"></span>SPI · <span class="c violet"></span>sélection (CS) ·
-<span class="c gris"></span>autres signaux. Fil de 22 AWG pour l'alimentation (fils 1 à 3), 24 ou 26 AWG pour le reste.</p>
-
-<table>
-<tr><th class="n">N°</th><th>Rôle</th><th>Départ</th><th>Arrivée</th><th>Fil</th></tr>
-<tr><td colspan="5"><b>Alimentation</b></td></tr>
-<tr><td class="n">1</td><td>+ 5 V avant l'interrupteur</td><td>Embase USB-C, borne VBUS (+)</td><td>Interrupteur général, borne 1</td><td><span class="c rouge"></span>22 AWG</td></tr>
-<tr><td class="n">2</td><td>+ 5 V après l'interrupteur</td><td>Interrupteur général, borne 2</td><td>J1 broche 1</td><td><span class="c rouge"></span>22 AWG</td></tr>
-<tr><td class="n">3</td><td>Masse générale</td><td>Embase USB-C, borne GND (−)</td><td>J1 broche 2</td><td><span class="c noir"></span>22 AWG</td></tr>
-
-<tr><td colspan="5"><b>Les câbles entre plaques</b></td></tr>
-<tr><td class="n">S1–S2</td><td>5 V et masse du son</td><td>A : J14-1, J14-2</td><td>B : J14-1, J14-2</td><td><span class="c rouge"></span><span class="c noir"></span>22 AWG</td></tr>
-<tr><td class="n">S3–S6</td><td>Liaisons série des deux DFPlayer</td><td>A : J14-3 à J14-6 (GPIO 17, 16, 2, 36)</td><td>B : J14-3 à J14-6</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">I1–I4</td><td>Départ du bus I2C</td><td>A : J15-1 à J15-4 (3,3 V, GND, GPIO 26, GPIO 27)</td><td>C : J15-1 à J15-4</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-
-<tr><td colspan="5"><b>L'écran (J2)</b> — un câble de 12 fils, ou une nappe</td></tr>
-<tr><td class="n">4</td><td>Alimentation</td><td>J2-1 (3,3 V)</td><td>Écran VCC</td><td><span class="c orange"></span></td></tr>
-<tr><td class="n">5</td><td>Masse</td><td>J2-2</td><td>Écran GND</td><td><span class="c noir"></span></td></tr>
-<tr><td class="n">6</td><td>Sélection de l'écran</td><td>J2-3 (GPIO 5)</td><td>Écran CS</td><td><span class="c violet"></span></td></tr>
-<tr><td class="n">7</td><td>Réinitialisation</td><td>J2-4 (EN)</td><td>Écran RESET</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">8</td><td>Donnée ou commande</td><td>J2-5 (GPIO 21)</td><td>Écran DC (ou RS)</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">9</td><td>SPI : données vers l'écran</td><td>J2-6 (GPIO 23)</td><td>Écran SDI (MOSI)</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">10</td><td>SPI : horloge</td><td>J2-7 (GPIO 18)</td><td>Écran SCK</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">11</td><td>Rétroéclairage</td><td>J2-8 (GPIO 12)</td><td>Écran LED</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">12</td><td>Sélection de la carte SD</td><td>J2-9 (GPIO 4)</td><td>Écran SD_CS</td><td><span class="c violet"></span></td></tr>
-<tr><td class="n">13</td><td>SD : données vers la carte</td><td>J2-10 (GPIO 23)</td><td>Écran SD_MOSI</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">14</td><td>SD : données vers l'ESP32</td><td>J2-11 (GPIO 19)</td><td>Écran SD_MISO</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">15</td><td>SD : horloge</td><td>J2-12 (GPIO 18)</td><td>Écran SD_SCK</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">—</td><td colspan="4">Ne pas brancher : SDO (MISO) de l'écran, ni T_IRQ.</td></tr>
-<tr><td colspan="5"><b>La dalle tactile de l'écran (J13)</b> — 4 fils, sur les broches T_… du même module (elle s'alimente par son VCC)</td></tr>
-<tr><td class="n">T1</td><td>Sélection du tactile</td><td>J13-1 (GPIO 14)</td><td>Écran T_CS</td><td><span class="c violet"></span></td></tr>
-<tr><td class="n">T2</td><td>SPI : horloge</td><td>J13-2 (GPIO 18)</td><td>Écran T_CLK</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">T3</td><td>SPI : données vers la dalle</td><td>J13-3 (GPIO 23)</td><td>Écran T_DIN</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">T4</td><td>SPI : données vers l'ESP32</td><td>J13-4 (GPIO 19)</td><td>Écran T_DO</td><td><span class="c blanc"></span></td></tr>
-
-<tr><td colspan="5"><b>Le lecteur RFID de la fente (J3)</b> — 7 fils</td></tr>
-<tr><td class="n">16</td><td>Alimentation (3,3 V seulement)</td><td>J3-1</td><td>RC522 fente 3.3V</td><td><span class="c orange"></span></td></tr>
-<tr><td class="n">17</td><td>RST tenu à 3,3 V</td><td>J3-2</td><td>RC522 fente RST</td><td><span class="c orange"></span></td></tr>
-<tr><td class="n">18</td><td>Masse</td><td>J3-3</td><td>RC522 fente GND</td><td><span class="c noir"></span></td></tr>
-<tr><td class="n">19</td><td>SPI : MISO</td><td>J3-4 (GPIO 19)</td><td>RC522 fente MISO</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">20</td><td>SPI : MOSI</td><td>J3-5 (GPIO 23)</td><td>RC522 fente MOSI</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">21</td><td>SPI : horloge</td><td>J3-6 (GPIO 18)</td><td>RC522 fente SCK</td><td><span class="c blanc"></span></td></tr>
-<tr><td class="n">22</td><td>Sélection</td><td>J3-7 (GPIO 13)</td><td>RC522 fente SDA</td><td><span class="c violet"></span></td></tr>
-<tr><td class="n">—</td><td colspan="4">IRQ du RC522 : non branchée.</td></tr>
-
-<tr><td colspan="5"><b>Le lecteur RFID à plat (J4)</b> — 7 fils, comme la fente</td></tr>
-<tr><td class="n">23–28</td><td>3,3 V, RST, GND, MISO, MOSI, SCK</td><td>J4-1 à J4-6</td><td>RC522 à plat : 3.3V, RST, GND, MISO, MOSI, SCK</td><td>comme 16 à 21</td></tr>
-<tr><td class="n">29</td><td>Sélection</td><td>J4-7 (GPIO 22)</td><td>RC522 à plat SDA</td><td><span class="c violet"></span></td></tr>
-
-<tr><td colspan="5"><b>Le son</b></td></tr>
-<tr><td class="n">30</td><td>Haut-parleur +</td><td>J5-1 (SPK_1)</td><td>Haut-parleur, borne +</td><td><span class="c rouge"></span> 22 AWG</td></tr>
-<tr><td class="n">31</td><td>Haut-parleur −</td><td>J5-2 (SPK_2)</td><td>Haut-parleur, borne −</td><td><span class="c noir"></span> 22 AWG</td></tr>
-<tr><td class="n">32</td><td>Casque, voie gauche</td><td>J6-1 (DAC_L)</td><td>Embase jack, pointe</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">33</td><td>Casque, voie droite</td><td>J6-2 (DAC_R)</td><td>Embase jack, anneau</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">34</td><td>Casque, masse</td><td>J6-3</td><td>Embase jack, manchon</td><td><span class="c noir"></span></td></tr>
-
-<tr><td colspan="5"><b>La chaîne de LED</b> — 3 fils à chaque maillon (+ 5 V, masse, données) ; la sortie DOUT d'une LED va dans l'entrée DIN de la suivante</td></tr>
-<tr><td class="n">35–37</td><td>Début de la chaîne</td><td>J7 (5 V, GND, DIN)</td><td>Anneau de 12 LED : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">—</td><td colspan="4">Condensateur de 1000 µF soudé à l'entrée de l'anneau, entre 5 V et GND (le − du condensateur sur GND).</td></tr>
-<tr><td class="n">38–40</td><td>Anneau → LED de la fente</td><td>Anneau : 5V, GND, DOUT</td><td>LED de la fente : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">41–43</td><td>LED de la fente → LED du lecteur à plat</td><td>LED fente : 5V, GND, DOUT</td><td>LED plateau : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">44–46</td><td>LED du plateau → voyants 1 à 5</td><td>LED plateau : 5V, GND, DOUT</td><td>Ruban des voyants 1-5 : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">47–49</td><td>Voyants 1-5 → voyants 6-10</td><td>Fin du ruban 1-5 : 5V, GND, DOUT</td><td>Ruban des voyants 6-10 : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">50–52</td><td>Voyants → ruban sous la boîte</td><td>Fin du ruban 6-10 : 5V, GND, DOUT</td><td>Ruban sous la boîte (par le trou de 6 mm du fond) : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-<tr><td class="n">53–55</td><td>Ruban sous la boîte → tiroir</td><td>Fin du ruban : 5V, GND, DOUT</td><td>LED du tiroir secret : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td></tr>
-
-<tr><td colspan="5"><b>Les commandes en direct sur l'ESP32</b></td></tr>
-<tr><td class="n">56</td><td>Molette : alimentation</td><td>J8-1 (3,3 V)</td><td>KY-040 +</td><td><span class="c orange"></span></td></tr>
-<tr><td class="n">57</td><td>Molette : masse</td><td>J8-2</td><td>KY-040 GND</td><td><span class="c noir"></span></td></tr>
-<tr><td class="n">58</td><td>Molette : rotation A</td><td>J8-3 (GPIO 34)</td><td>KY-040 CLK</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">59</td><td>Molette : rotation B</td><td>J8-4 (GPIO 35)</td><td>KY-040 DT</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">60</td><td>Molette : appui</td><td>J8-5 (GPIO 32)</td><td>KY-040 SW</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">61</td><td>Gros bouton : signal</td><td>J9-1 (GPIO 39)</td><td>Gros bouton, contact NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">62</td><td>Gros bouton : masse</td><td>J9-2</td><td>Gros bouton, contact COM</td><td><span class="c noir"></span></td></tr>
-<tr><td class="n">63</td><td>Clé : signal</td><td>J10-1 (GPIO 33)</td><td>Interrupteur à clé, borne 1</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">64</td><td>Clé : masse</td><td>J10-2</td><td>Interrupteur à clé, borne 2</td><td><span class="c noir"></span></td></tr>
-
-<tr><td colspan="5"><b>Le bus I2C</b> (au départ de la plaque C, en étoile) — un câble de 4 fils Dupont par module (3,3 V, GND, SDA, SCL) : rien à souder sur les modules.</td></tr>
-<tr><td class="n">65–68</td><td>Départ a</td><td>J11a-1 à J11a-4</td><td>PCF8574 du clavier (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">69–72</td><td>Départ b</td><td>J11b-1 à J11b-4</td><td>PCA9685 du tiroir (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">73–76</td><td>Départ c</td><td>J11c-1 à J11c-4</td><td>PCF8574 des boutons (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">77–80</td><td>Départ d</td><td>J11d-1 à J11d-4</td><td>Forge BME280 (VIN, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">81–84</td><td>Départ e</td><td>J11e-1 à J11e-4</td><td>Enclume QMC5883L (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">85–88</td><td>Départ f</td><td>J11f-1 à J11f-4</td><td>Horloge HT16K33 (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">89–92</td><td>Départ g</td><td>J11g-1 à J11g-4</td><td>Œil APDS-9960 (VCC, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-<tr><td class="n">93–96</td><td>Départ h</td><td>J11h-1 à J11h-4</td><td>Capteur de couleur TCS34725 (VIN, GND, SDA, SCL)</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td></tr>
-
-<tr><td colspan="5"><b>Le tiroir secret</b></td></tr>
-<tr><td class="n">97</td><td>Puissance du servomoteur</td><td>J12-1 (+ 5 V)</td><td>PCA9685, bornier V+</td><td><span class="c rouge"></span> 22 AWG</td></tr>
-<tr><td class="n">98</td><td>Masse du servomoteur</td><td>J12-2</td><td>PCA9685, bornier GND</td><td><span class="c noir"></span> 22 AWG</td></tr>
-<tr><td class="n">—</td><td colspan="4">Condensateur de 470 µF sur le bornier du PCA9685 (+ sur V+). Le servomoteur se branche sur la voie 0 : marron GND, rouge V+, orange PWM.</td></tr>
-<tr><td class="n">99</td><td>Fin de course : signal</td><td>PCF8574 des boutons, P4</td><td>Microrupteur, borne NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">100</td><td>Fin de course : masse</td><td>PCF8574 des boutons, GND</td><td>Microrupteur, borne COM</td><td><span class="c noir"></span></td></tr>
-
-<tr><td colspan="5"><b>Les boutons de couleur et le clavier</b> (sur les PCF8574, pas sur la plaque)</td></tr>
-<tr><td class="n">101</td><td>Bouton rouge</td><td>PCF8574 des boutons, P0</td><td>Bouton rouge, contact NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">102</td><td>Bouton bleu</td><td>PCF8574 des boutons, P1</td><td>Bouton bleu, contact NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">103</td><td>Bouton jaune</td><td>PCF8574 des boutons, P2</td><td>Bouton jaune, contact NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">104</td><td>Bouton vert</td><td>PCF8574 des boutons, P3</td><td>Bouton vert, contact NO</td><td><span class="c gris"></span></td></tr>
-<tr><td class="n">105–108</td><td>Masse commune des 4 boutons</td><td>PCF8574 des boutons, GND</td><td>COM du rouge → COM du bleu → COM du jaune → COM du vert (en chaîne)</td><td><span class="c noir"></span></td></tr>
-<tr><td class="n">109–116</td><td>Les 8 fils du clavier</td><td>PCF8574 du clavier, P0 à P7</td><td>Nappe du clavier, fils 1 à 8 (lignes 1-4, puis colonnes 1-4)</td><td>nappe</td></tr>
-<tr><td class="n">—</td><td colspan="4">Adresses : PCF8574 du clavier, cavaliers A0, A1, A2 sur GND (0x20) ; PCF8574 des boutons, A0 sur VCC, A1 et A2 sur GND (0x21).
-BME280 : SDO libre (0x76). Les autres modules ont une adresse fixe.</td></tr>
-</table>
-
-<h3>Ce qui se fait sur les plaques elles-mêmes</h3>
+<h2>3. Ce qui se fait sur les plaques</h2>
 <table>
 <tr><th>Liaison</th><th>De</th><th>À</th></tr>
-<tr><td>A · alimentation de l'ESP32</td><td>Rail 5 V · rail GND</td><td>ESP32 VIN · ESP32 GND</td></tr>
-<tr><td>Rail 3,3 V</td><td>ESP32 3V3</td><td>Rail 3,3 V (alimente J2, J3, J4, J8, J15, R4)</td></tr>
-<tr><td>A · 5 V et masse</td><td>Rail 5 V · rail GND</td><td>J1, J7, J12, J14-1 et J14-2</td></tr>
-<tr><td>A · le son</td><td>GPIO 17 · 16 · 2 · 36 (VP)</td><td>J14-3 · J14-4 · J14-5 · J14-6</td></tr>
-<tr><td>B · DFPlayer haut-parleur</td><td>J14-1, J14-2 · J14-3 → R1 · J14-4</td><td>VCC, GND · RX · TX</td></tr>
-<tr><td>B · DFPlayer casque</td><td>J14-1, J14-2 · J14-5 → R2 · J14-6</td><td>VCC, GND · RX · TX</td></tr>
-<tr><td>Bus SPI</td><td>GPIO 18, 23, 19</td><td>J2 (7, 12 · 6, 10 · 11), J3 et J4 (6 · 5 · 4), J13 (2 · 3 · 4)</td></tr>
-<tr><td>Sélections (CS)</td><td>GPIO 5, 4, 13, 22, 14</td><td>J2-3, J2-9, J3-7, J4-7, J13-1</td></tr>
+<tr><td colspan="3"><b>Plaque A</b></td></tr>
+<tr><td>Rails</td><td>Fil nu, par-dessous</td><td>Rail 5 V, rail 3,3 V, rail masse, sans contact entre eux</td></tr>
+<tr><td>Alimentation de l'ESP32</td><td>Rail 5 V · rail masse</td><td>ESP32 VIN · ESP32 GND (barrette)</td></tr>
+<tr><td>3,3 V</td><td>ESP32 3V3</td><td>Rail 3,3 V</td></tr>
+<tr><td>5 V et masse</td><td>Rail 5 V · rail masse</td><td>J1 (+, −), J7-1/2, J12 (+, −), J14-1/2 ; C1 (100 µF) près de J1</td></tr>
+<tr><td>3,3 V et masse</td><td>Rail 3,3 V · rail masse</td><td>J2-1/2, J3-1/3, J4-1/3, J8-1/2, J15-1/2 ; J3-2 et J4-2 (RST) au 3,3 V</td></tr>
+<tr><td>Bus SPI</td><td>GPIO 18 · 23 · 19</td><td>J2-7, J2-12, J3-6, J4-6, J13-2 · J2-6, J2-10, J3-5, J4-5, J13-3 · J2-11, J3-4, J4-4, J13-4</td></tr>
+<tr><td>Sélections (CS)</td><td>GPIO 5 · 4 · 13 · 22 · 14</td><td>J2-3 · J2-9 · J3-7 · J4-7 · J13-1</td></tr>
 <tr><td>Écran</td><td>EN · GPIO 21 · GPIO 12</td><td>J2-4 · J2-5 · J2-8</td></tr>
-<tr><td>RST des RFID</td><td>Rail 3,3 V</td><td>J3-2 et J4-2</td></tr>
-<tr><td>LED</td><td>GPIO 25 → R3 · rail 5 V · rail GND</td><td>J7-3 · J7-1 · J7-2</td></tr>
-<tr><td>Molette, gros bouton, clé</td><td>GPIO 34, 35, 32 · 39 (+ R4 vers 3,3 V) · 33</td><td>J8-3, J8-4, J8-5 · J9-1 · J10-1</td></tr>
-<tr><td>A · bus I2C</td><td>Rail 3,3 V, rail GND, GPIO 26 (SDA), 27 (SCL)</td><td>J15-1 à J15-4</td></tr>
-<tr><td>C · bus I2C</td><td>J15-1 à J15-4</td><td>J11a à J11h, broche à broche (quatre rails)</td></tr>
-<tr><td>Servomoteur</td><td>Rail 5 V, rail GND</td><td>J12</td></tr>
-<tr><td>B · sorties du son</td><td>DFPlayer HP : SPK_1, SPK_2 · DFPlayer casque : DAC_L, DAC_R, GND</td><td>J5 · J6</td></tr>
+<tr><td>LED</td><td>GPIO 25 → R3 (330 Ω)</td><td>J7-3</td></tr>
+<tr><td>Molette, gros bouton, clé</td><td>GPIO 34, 35, 32 · 39 (+ R4 10 kΩ vers 3,3 V) · 33</td><td>J8-3, J8-4, J8-5 · J9-1 · J10-1 ; J9-2, J10-2 à la masse</td></tr>
+<tr><td>Le son</td><td>GPIO 17 · 16 · 2 · 36 (VP)</td><td>J14-3 · J14-4 · J14-5 · J14-6</td></tr>
+<tr><td>Bus I2C</td><td>GPIO 26 (SDA) · 27 (SCL)</td><td>J15-3 · J15-4</td></tr>
 <tr><td>Réserve</td><td>GPIO 15</td><td>J13-5</td></tr>
+<tr><td colspan="3"><b>Plaque B</b></td></tr>
+<tr><td>Rails</td><td>J14-1 · J14-2</td><td>Rail 5 V · rail masse ; C2 (100 µF) près de J14</td></tr>
+<tr><td>DFPlayer haut-parleur</td><td>Rails · J14-3 → R1 (1 kΩ) · J14-4</td><td>VCC, GND · RX · TX ; SPK_1, SPK_2 → J5</td></tr>
+<tr><td>DFPlayer casque</td><td>Rails · J14-5 → R2 (1 kΩ) · J14-6</td><td>VCC, GND · RX · TX ; DAC_L, DAC_R, GND → J6</td></tr>
+<tr><td colspan="3"><b>Plaque C</b></td></tr>
+<tr><td>Quatre rails</td><td>J15-1 · 2 · 3 · 4</td><td>Broches 1 · 2 · 3 · 4 de J11a à J11h (barrettes posées en travers des rails)</td></tr>
+</table>
+<div class="alerte"><b>Avant de mettre sous tension</b>, sur chaque plaque, au multimètre en position bip : pas de contact entre 5 V et masse,
+ni entre 3,3 V et masse, ni entre deux rails voisins de C. Puis, sans l'ESP32 ni les DFPlayer : 5,0 à 5,2 V entre les plots + et − de J1,
+interrupteur sur marche. Ensuite seulement, enfichez les modules. <b>Aucun module I2C, RFID ou écran sur le 5 V</b> : ils sont en 3,3 V
+(seuls le PCA9685 (V+), les LED et les DFPlayer prennent le 5 V).</div>
+
+<h3>Le brochage de chaque connecteur</h3>
+<table>
+<tr><th>Connecteur</th><th>Plaque</th><th>Type</th><th>Broches, dans l'ordre</th><th>Vers</th></tr>
+<tr><td><b>J1</b> + 5 V</td><td>A</td><td>Bornier à vis, 2 plots</td><td>+ (rail 5 V) · − (masse)</td><td>L'interrupteur général et la prise USB-C</td></tr>
+<tr><td><b>J2</b> ÉCRAN</td><td>A</td><td>Barrette mâle 1 × 12</td><td>1 3,3 V · 2 GND · 3 CS ← 5 · 4 RESET ← EN · 5 DC ← 21 · 6 MOSI ← 23 · 7 SCK ← 18 · 8 LED ← 12 · 9 SD_CS ← 4 · 10 SD_MOSI ← 23 · 11 SD_MISO → 19 · 12 SD_SCK ← 18</td><td>L'écran ILI9488 et son lecteur SD</td></tr>
+<tr><td><b>J3</b> RFID FENTE</td><td>A</td><td>Barrette mâle 1 × 7</td><td>1 3,3 V · 2 RST (3,3 V) · 3 GND · 4 MISO → 19 · 5 MOSI ← 23 · 6 SCK ← 18 · 7 SDA (CS) ← 13</td><td>Le RC522 de la fente</td></tr>
+<tr><td><b>J4</b> RFID PLAT</td><td>A</td><td>Barrette mâle 1 × 7</td><td>Comme J3, mais 7 SDA (CS) ← 22</td><td>Le RC522 du lecteur à plat</td></tr>
+<tr><td><b>J5</b> HP</td><td>B</td><td>Bornier à vis, 2 plots</td><td>1 SPK_1 · 2 SPK_2 du DFPlayer haut-parleur</td><td>Le haut-parleur</td></tr>
+<tr><td><b>J6</b> CASQUE</td><td>B</td><td>Bornier à vis, 3 plots</td><td>1 DAC_L · 2 DAC_R · 3 GND du DFPlayer casque</td><td>La prise jack</td></tr>
+<tr><td><b>J7</b> LED</td><td>A</td><td>Barrette mâle 1 × 3</td><td>1 + 5 V · 2 GND · 3 DIN ← R3 ← 25</td><td>L'anneau, début de la chaîne de LED</td></tr>
+<tr><td><b>J8</b> MOLETTE</td><td>A</td><td>Barrette mâle 1 × 5</td><td>1 3,3 V (+) · 2 GND · 3 CLK → 34 · 4 DT → 35 · 5 SW → 32</td><td>Le KY-040</td></tr>
+<tr><td><b>J9</b> GROS BOUTON</td><td>A</td><td>Barrette mâle 1 × 2</td><td>1 → 39 (et R4) · 2 GND</td><td>Le bouton champignon</td></tr>
+<tr><td><b>J10</b> CLÉ</td><td>A</td><td>Barrette mâle 1 × 2</td><td>1 → 33 · 2 GND</td><td>L'interrupteur à clé</td></tr>
+<tr><td><b>J11a … h</b> I2C</td><td>C</td><td>8 barrettes mâles 1 × 4</td><td>1 3,3 V · 2 GND · 3 SDA · 4 SCL (toutes en parallèle avec J15)</td><td>Un module I2C chacune</td></tr>
+<tr><td><b>J12</b> SERVO</td><td>A</td><td>Bornier à vis, 2 plots</td><td>+ (rail 5 V) · − (masse)</td><td>Le bornier V+ du PCA9685</td></tr>
+<tr><td><b>J13</b> TACTILE</td><td>A</td><td>Barrette mâle 1 × 5</td><td>1 T_CS ← 14 · 2 T_CLK ← 18 · 3 T_DIN ← 23 · 4 T_DO → 19 · 5 GPIO 15 (réserve)</td><td>La dalle tactile de l'écran (XPT2046)</td></tr>
+<tr><td><b>J14</b> SON</td><td>A et B</td><td>Barrette mâle 1 × 6 (une sur chaque plaque)</td><td>1 + 5 V · 2 GND · 3 TX2 ← 17 · 4 RX2 → 16 · 5 TX1 ← 2 · 6 RX1 → 36 (VP)</td><td>Le câble A ↔ B (R1 et R2 sont sur B)</td></tr>
+<tr><td><b>J15</b> I2C</td><td>A et C</td><td>Barrette mâle 1 × 4 (une sur chaque plaque)</td><td>1 3,3 V · 2 GND · 3 SDA ← 26 · 4 SCL ← 27</td><td>Le câble A → C, le départ du bus I2C</td></tr>
 </table>
 
-<div class="alerte"><b>Avant de mettre sous tension</b> : vérifiez au multimètre qu'il n'y a pas de court-circuit entre 5 V et masse, ni entre
-3,3 V et masse. Faites-le sur chaque plaque, et mettez l'ESP32 et les DFPlayer sur leurs supports seulement ensuite. <b>Aucun module I2C, RFID ou écran sur le
-5 V</b> : ils sont en 3,3 V (sauf V+ du PCA9685 et le 5 V des LED et des DFPlayer).</div>
+<h2 class="saut">4. Tous les fils du pupitre</h2>
+<table>
+<tr><th class="n">N°</th><th>Rôle</th><th>Départ</th><th>Arrivée</th><th>Fil</th><th>Long.</th></tr>
+<tr><td colspan="6"><b>L'alimentation</b> — fil souple de 22 AWG, soudé sur la prise et l'interrupteur, serré dans le bornier J1 avec des embouts</td></tr>
+<tr><td class="n">1</td><td>+ 5 V avant l'interrupteur</td><td>Prise USB-C, borne VBUS (+)</td><td>Interrupteur général, borne 1</td><td><span class="c rouge"></span></td><td class="lg">8 cm</td></tr>
+<tr><td class="n">2</td><td>+ 5 V après l'interrupteur</td><td>Interrupteur général, borne 2</td><td>J1, plot + (bornier)</td><td><span class="c rouge"></span></td><td class="lg">12 cm</td></tr>
+<tr><td class="n">3</td><td>Masse générale</td><td>Prise USB-C, borne GND (−)</td><td>J1, plot − (bornier)</td><td><span class="c noir"></span></td><td class="lg">15 cm</td></tr>
+<tr><td colspan="6"><b>Les câbles entre plaques</b> — fils Dupont femelle-femelle, broche 1 face à broche 1 ; le 5 V et la masse de J14 en 22 AWG</td></tr>
+<tr><td class="n">S1–S2</td><td>5 V et masse du son</td><td>A : J14-1, J14-2</td><td>B : J14-1, J14-2</td><td><span class="c rouge"></span><span class="c noir"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">S3–S6</td><td>Liaisons série des deux DFPlayer</td><td>A : J14-3 à J14-6 (GPIO 17, 16, 2, 36)</td><td>B : J14-3 à J14-6</td><td><span class="c gris"></span><span class="c gris"></span><span class="c gris"></span><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">I1–I4</td><td>Départ du bus I2C</td><td>A : J15-1 à J15-4 (3,3 V, GND, GPIO 26, 27)</td><td>C : J15-1 à J15-4</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">20 cm</td></tr>
+<tr><td colspan="6"><b>L'écran (J2)</b> — 12 fils Dupont femelle-femelle, sur la barrette de l'écran</td></tr>
+<tr><td class="n">4</td><td>Alimentation</td><td>J2-1 (3,3 V)</td><td>Écran VCC</td><td><span class="c orange"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">5</td><td>Masse</td><td>J2-2</td><td>Écran GND</td><td><span class="c noir"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">6</td><td>Sélection de l'écran</td><td>J2-3 (GPIO 5)</td><td>Écran CS</td><td><span class="c violet"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">7</td><td>Réinitialisation</td><td>J2-4 (EN)</td><td>Écran RESET</td><td><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">8</td><td>Donnée ou commande</td><td>J2-5 (GPIO 21)</td><td>Écran DC (ou RS)</td><td><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">9</td><td>SPI : données vers l'écran</td><td>J2-6 (GPIO 23)</td><td>Écran SDI (MOSI)</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">10</td><td>SPI : horloge</td><td>J2-7 (GPIO 18)</td><td>Écran SCK</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">11</td><td>Rétroéclairage</td><td>J2-8 (GPIO 12)</td><td>Écran LED</td><td><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">12</td><td>Sélection de la carte SD</td><td>J2-9 (GPIO 4)</td><td>Écran SD_CS</td><td><span class="c violet"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">13</td><td>SD : données vers la carte</td><td>J2-10 (GPIO 23)</td><td>Écran SD_MOSI</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">14</td><td>SD : données vers l'ESP32</td><td>J2-11 (GPIO 19)</td><td>Écran SD_MISO</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">15</td><td>SD : horloge</td><td>J2-12 (GPIO 18)</td><td>Écran SD_SCK</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">—</td><td colspan="5">Ne pas brancher : SDO (MISO) de l'écran, ni T_IRQ.</td></tr>
+<tr><td colspan="6"><b>La dalle tactile (J13)</b> — 4 fils Dupont, sur les broches T_… du même module (elle s'alimente par son VCC)</td></tr>
+<tr><td class="n">T1</td><td>Sélection du tactile</td><td>J13-1 (GPIO 14)</td><td>Écran T_CS</td><td><span class="c violet"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">T2</td><td>SPI : horloge</td><td>J13-2 (GPIO 18)</td><td>Écran T_CLK</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">T3</td><td>SPI : données vers la dalle</td><td>J13-3 (GPIO 23)</td><td>Écran T_DIN</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">T4</td><td>SPI : données vers l'ESP32</td><td>J13-4 (GPIO 19)</td><td>Écran T_DO</td><td><span class="c blanc"></span></td><td class="lg">15 cm</td></tr>
+<tr><td colspan="6"><b>Le lecteur RFID de la fente (J3)</b> — 7 fils Dupont, sur la barrette du RC522 (3,3 V seulement)</td></tr>
+<tr><td class="n">16</td><td>Alimentation</td><td>J3-1 (3,3 V)</td><td>RC522 fente 3.3V</td><td><span class="c orange"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">17</td><td>RST tenu à 3,3 V</td><td>J3-2</td><td>RC522 fente RST</td><td><span class="c orange"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">18</td><td>Masse</td><td>J3-3</td><td>RC522 fente GND</td><td><span class="c noir"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">19</td><td>SPI : MISO</td><td>J3-4 (GPIO 19)</td><td>RC522 fente MISO</td><td><span class="c blanc"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">20</td><td>SPI : MOSI</td><td>J3-5 (GPIO 23)</td><td>RC522 fente MOSI</td><td><span class="c blanc"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">21</td><td>SPI : horloge</td><td>J3-6 (GPIO 18)</td><td>RC522 fente SCK</td><td><span class="c blanc"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">22</td><td>Sélection</td><td>J3-7 (GPIO 13)</td><td>RC522 fente SDA</td><td><span class="c violet"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">—</td><td colspan="5">IRQ du RC522 : non branchée.</td></tr>
+<tr><td colspan="6"><b>Le lecteur RFID à plat (J4)</b> — 7 fils Dupont, comme la fente</td></tr>
+<tr><td class="n">23–28</td><td>3,3 V, RST, GND, MISO, MOSI, SCK</td><td>J4-1 à J4-6</td><td>RC522 à plat : 3.3V, RST, GND, MISO, MOSI, SCK</td><td><span class="c orange"></span><span class="c orange"></span><span class="c noir"></span><span class="c blanc"></span><span class="c blanc"></span><span class="c blanc"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">29</td><td>Sélection</td><td>J4-7 (GPIO 22)</td><td>RC522 à plat SDA</td><td><span class="c violet"></span></td><td class="lg">20 cm</td></tr>
+<tr><td colspan="6"><b>Le son</b> — depuis la plaque B ; haut-parleur en 22 AWG, soudé sur ses cosses ; casque en fil fin, soudé sur l'embase</td></tr>
+<tr><td class="n">30</td><td>Haut-parleur +</td><td>J5, plot 1 (SPK_1)</td><td>Haut-parleur, borne +</td><td><span class="c rouge"></span></td><td class="lg">12 cm</td></tr>
+<tr><td class="n">31</td><td>Haut-parleur −</td><td>J5, plot 2 (SPK_2)</td><td>Haut-parleur, borne −</td><td><span class="c noir"></span></td><td class="lg">12 cm</td></tr>
+<tr><td class="n">32</td><td>Casque, voie gauche</td><td>J6, plot 1 (DAC_L)</td><td>Prise jack, pointe</td><td><span class="c gris"></span></td><td class="lg">35 cm</td></tr>
+<tr><td class="n">33</td><td>Casque, voie droite</td><td>J6, plot 2 (DAC_R)</td><td>Prise jack, anneau</td><td><span class="c gris"></span></td><td class="lg">35 cm</td></tr>
+<tr><td class="n">34</td><td>Casque, masse</td><td>J6, plot 3</td><td>Prise jack, manchon</td><td><span class="c noir"></span></td><td class="lg">35 cm</td></tr>
+<tr><td colspan="6"><b>La chaîne de LED</b> — 3 fils à chaque maillon (+ 5 V, masse, données), soudés sur les pastilles des LED ; la sortie DOUT d'une LED va dans l'entrée DIN de la suivante</td></tr>
+<tr><td class="n">35–37</td><td>Début de la chaîne</td><td>J7 (5 V, GND, DIN)</td><td>Anneau de 12 LED : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">—</td><td colspan="5">Condensateur de 1000 µF soudé à l'entrée de l'anneau, entre 5 V et GND (le − du condensateur sur GND).</td></tr>
+<tr><td class="n">38–40</td><td>Anneau → LED de la fente</td><td>Anneau : 5V, GND, DOUT</td><td>LED de la fente : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">41–43</td><td>LED de la fente → LED du plateau</td><td>LED fente : 5V, GND, DOUT</td><td>LED plateau : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">44–46</td><td>LED du plateau → voyants 1 à 5</td><td>LED plateau : 5V, GND, DOUT</td><td>Ruban des voyants 1-5 : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">47–49</td><td>Voyants 1-5 → voyants 6-10</td><td>Fin du ruban 1-5 : 5V, GND, DOUT</td><td>Ruban des voyants 6-10 : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">50–52</td><td>Voyants → ruban sous la boîte</td><td>Fin du ruban 6-10 : 5V, GND, DOUT</td><td>Ruban sous la boîte (trou de 6 mm du fond) : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">—</td><td colspan="5">Coupez ce maillon par un petit connecteur Dupont de 3 broches (broche 1 marquée), juste au-dessus du fond : c'est le seul fil à débrancher pour retirer le fond.</td></tr>
+<tr><td class="n">53–55</td><td>Ruban sous la boîte → tiroir</td><td>Fin du ruban : 5V, GND, DOUT</td><td>LED du tiroir secret : 5V, GND, DIN</td><td><span class="c rouge"></span><span class="c noir"></span><span class="c bleu"></span></td><td class="lg">30 cm</td></tr>
+<tr><td colspan="6"><b>Les commandes</b> — molette : fils Dupont sur sa barrette ; gros bouton et clé : fils soudés sur leurs cosses, gaine thermorétractable</td></tr>
+<tr><td class="n">56</td><td>Molette : alimentation</td><td>J8-1 (3,3 V)</td><td>KY-040 +</td><td><span class="c orange"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">57</td><td>Molette : masse</td><td>J8-2</td><td>KY-040 GND</td><td><span class="c noir"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">58</td><td>Molette : rotation A</td><td>J8-3 (GPIO 34)</td><td>KY-040 CLK</td><td><span class="c gris"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">59</td><td>Molette : rotation B</td><td>J8-4 (GPIO 35)</td><td>KY-040 DT</td><td><span class="c gris"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">60</td><td>Molette : appui</td><td>J8-5 (GPIO 32)</td><td>KY-040 SW</td><td><span class="c gris"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">61</td><td>Gros bouton : signal</td><td>J9-1 (GPIO 39)</td><td>Gros bouton, contact NO</td><td><span class="c gris"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">62</td><td>Gros bouton : masse</td><td>J9-2</td><td>Gros bouton, contact COM</td><td><span class="c noir"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">63</td><td>Clé : signal</td><td>J10-1 (GPIO 33)</td><td>Interrupteur à clé, borne 1</td><td><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">64</td><td>Clé : masse</td><td>J10-2</td><td>Interrupteur à clé, borne 2</td><td><span class="c noir"></span></td><td class="lg">15 cm</td></tr>
+<tr><td colspan="6"><b>Le bus I2C</b> — en étoile depuis la plaque C : un câble de 4 fils Dupont par module (3,3 V, GND, SDA, SCL), branché sur sa barrette. Rien à souder sur les modules.</td></tr>
+<tr><td class="n">65–68</td><td>Départ a</td><td>J11a-1 à J11a-4</td><td>PCF8574 du clavier : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">69–72</td><td>Départ b</td><td>J11b-1 à J11b-4</td><td>PCA9685 du tiroir : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">73–76</td><td>Départ c</td><td>J11c-1 à J11c-4</td><td>PCF8574 des boutons : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">77–80</td><td>Départ d</td><td>J11d-1 à J11d-4</td><td>Forge BME280 (VIN au lieu de VCC) : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">81–84</td><td>Départ e</td><td>J11e-1 à J11e-4</td><td>Enclume QMC5883L : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">85–88</td><td>Départ f</td><td>J11f-1 à J11f-4</td><td>Horloge HT16K33 : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">89–92</td><td>Départ g</td><td>J11g-1 à J11g-4</td><td>Œil APDS-9960 : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">93–96</td><td>Départ h</td><td>J11h-1 à J11h-4</td><td>Capteur de couleur TCS34725 (VIN au lieu de VCC) : VCC, GND, SDA, SCL</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">25 cm</td></tr>
+<tr><td colspan="6"><b>Le tiroir secret</b></td></tr>
+<tr><td class="n">97</td><td>Puissance du servomoteur</td><td>J12, plot + (bornier)</td><td>PCA9685, bornier V+</td><td><span class="c rouge"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">98</td><td>Masse du servomoteur</td><td>J12, plot − (bornier)</td><td>PCA9685, bornier GND</td><td><span class="c noir"></span></td><td class="lg">20 cm</td></tr>
+<tr><td class="n">—</td><td colspan="5">Condensateur de 470 µF sur le bornier du PCA9685 (+ sur V+). Le servomoteur se branche sur la voie 0 : marron GND, rouge V+, orange PWM.</td></tr>
+<tr><td class="n">99</td><td>Fin de course : signal</td><td>PCF8574 des boutons, P4</td><td>Microrupteur, borne NO</td><td><span class="c gris"></span></td><td class="lg">25 cm</td></tr>
+<tr><td class="n">100</td><td>Fin de course : masse</td><td>PCF8574 des boutons, GND</td><td>Microrupteur, borne COM</td><td><span class="c noir"></span></td><td class="lg">25 cm</td></tr>
+<tr><td colspan="6"><b>Les boutons de couleur et le clavier</b> — sur les modules PCF8574, pas sur les plaques</td></tr>
+<tr><td class="n">101</td><td>Bouton rouge</td><td>PCF8574 des boutons, P0</td><td>Bouton rouge, contact NO</td><td><span class="c gris"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">102</td><td>Bouton bleu</td><td>PCF8574 des boutons, P1</td><td>Bouton bleu, contact NO</td><td><span class="c gris"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">103</td><td>Bouton jaune</td><td>PCF8574 des boutons, P2</td><td>Bouton jaune, contact NO</td><td><span class="c gris"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">104</td><td>Bouton vert</td><td>PCF8574 des boutons, P3</td><td>Bouton vert, contact NO</td><td><span class="c gris"></span></td><td class="lg">10 cm</td></tr>
+<tr><td class="n">105–108</td><td>Masse commune des 4 boutons</td><td>PCF8574 des boutons, GND</td><td>COM du rouge → bleu → jaune → vert (en chaîne)</td><td><span class="c noir"></span></td><td class="lg">5 cm chacun</td></tr>
+<tr><td class="n">109–116</td><td>Les 8 fils du clavier</td><td>PCF8574 du clavier, P0 à P7</td><td>Nappe du clavier, fils 1 à 8 (lignes 1-4, puis colonnes 1-4)</td><td></td><td class="lg">nappe</td></tr>
+<tr><td class="n">—</td><td colspan="5">Adresses : PCF8574 du clavier, cavaliers A0, A1, A2 sur GND (0x20) ; PCF8574 des boutons, A0 sur VCC, A1 et A2 sur GND (0x21). BME280 : SDO libre (0x76). Les autres modules ont une adresse fixe.</td></tr>
+</table>
+
 <div class="note"><b>Si l'ESP32 ne démarre plus une fois tout branché</b> : débranchez J2 (la GPIO 12 du rétroéclairage doit être basse au
-démarrage) ou le câble J14 du son (GPIO 2, le DFPlayer casque). <b>Si des modules I2C répondent mal</b> (journal série), le bus est peut-être trop long : passez sa
-vitesse de 400 à 100 kHz dans <code>firmware/src/commandes.cpp</code> (<code>Wire.begin(…, 100000)</code>).</div>
+démarrage) ou le câble J14 du son (la GPIO 2 du DFPlayer casque). <b>Si des modules I2C répondent mal</b> (journal série), passez la vitesse
+du bus de 400 à 100 kHz dans <code>firmware/src/commandes.cpp</code> (<code>Wire.begin(…, 100000)</code>).</div>
 
 </body>
 </html>
