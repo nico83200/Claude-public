@@ -107,7 +107,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Tiroir secret | PCA9685, micro-servomoteur MG90S, ressort de compression, microrupteur KW11 | 1 de chaque | 13 € |
 | LED | Anneau WS2812B 12 LED, 3 LED individuelles (fente, plateau, tiroir), ruban 60 LED/m (10 voyants, 8 LED sous la boîte), plexiglas dépoli | — | 13 € |
 | Alimentation | Chargeur USB-C 5 V / 3 A, embase USB-C à visser | — | 10 € |
-| Plaque et câblage | Plaque à souder 7 × 9 cm, barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
+| Plaque et câblage | 3 plaques à pastilles (50 × 70, 30 × 70, 20 × 80 mm), barrettes femelles, connecteurs JST-XH, résistances (2 × 1 kΩ, 330 Ω, 10 kΩ), condensateurs (1000, 470, 100 µF), fil 24/26 AWG (30 m) et 22 AWG, fils Dupont et breadboard d'essai | — | 50 € |
 | Fixations | 5 aimants néodyme 10 × 3 mm (4 encastrés dans le couvercle, 1 sous le fer à cheval), pastilles d'acier adhésives sous les façades, entretoises et vis M3, patins | — | 16 € |
 | **Total** | électronique seule, sans le bois, le matériel de jeu ni l'outillage | | **≈ 190 €** |
 
@@ -331,19 +331,25 @@ le premier trou de 30 mm aurait touché la paroi.
   table ; ses fils remontent par un trou de 6 mm dans le fond. Les patins laissent
   la lumière s'étaler sur la table.
 
-- **La carte électronique** (la plaque à pastilles 7 × 9 cm qui porte l'ESP32 et les
-  deux DFPlayer) se fixe **sur le fond amovible, dans le coin arrière droit** : près de
-  la prise USB-C, loin de l'enclume (le magnétomètre, à l'avant gauche) et du tiroir
-  secret (à l'arrière gauche). Quatre **entretoises nylon M3 de 10 mm**, chacune tenue
-  par une **vis M3 × 12 à tête fraisée passée par-dessous** le fond (trou de 3,2 mm,
-  fraisé pour que la tête affleure et que le pupitre reste à plat). Pas de vis à bois
-  ni de colle chaude : 5 mm de contreplaqué tiennent mal une vis, et il faut pouvoir
-  démonter la carte. Les entretoises gardent les soudures à distance du bois.
-- **Les fils** qui montent vers le couvercle (écran, lecteurs, modules I2C, LED…)
-  arrivent à la carte par des **connecteurs** (JST-XH ou barrettes Dupont), avec une
-  boucle de 25 cm de mou, tenue par des colliers sur des embases adhésives : on sort le
-  fond, on débranche, et la carte est libre. Orientez la **prise USB de l'ESP32** vers
-  l'intérieur de la boîte, accessible fond retiré, pour téléverser le programme.
+- **L'électronique** tient sur **trois plaques à pastilles** (le plan d'implantation et
+  leur place exacte sont dans `pdf/plan-cablage.pdf`, § 1) :
+  - **A, le cerveau** (50 × 70 mm : l'ESP32 et presque tous les connecteurs) et **B, le
+    son** (30 × 70 mm : les deux DFPlayer) sont vissées **contre la face arrière, à
+    l'intérieur**, assez bas pour passer sous l'écran, le haut-parleur et la clé : A de
+    X = 21 à 28 cm, derrière l'écran, B de X = 11,5 à 18,5 cm, sous le haut-parleur.
+    Fixation : des **entretoises nylon M3 de 10 mm**, chacune tenue par une **vis M3 × 16
+    à tête fraisée passée de l'extérieur** à travers la face arrière (trou de 3,2 mm
+    fraisé, tête au ras) et un écrou. Pas de vis à bois : 5 mm de contreplaqué tiennent
+    mal une vis.
+  - **C, le bus I2C** (20 × 80 mm : quatre départs vers les modules du couvercle) se visse
+    sous le couvercle, sur 4 entretoises collées, entre la rangée haute des voyants et le
+    haut-parleur (X = 12,5 à 20,5 cm, Y = 15 à 17 cm).
+  - Les fils vers l'écran et les lecteurs sont ainsi courts (une quinzaine de cm), et le
+    **fond se retire sans rien débrancher**, sauf le ruban de LED du dessous : les plaques
+    et les fentes micro-SD des DFPlayer (tournées vers le bas) sont alors à portée de main.
+- **Les fils** arrivent aux plaques par des **connecteurs** (JST-XH ou barrettes) : chaque
+  plaque se débranche en entier. Le port USB de l'ESP32 ne sert qu'au premier
+  téléversement, fait avant le montage ; ensuite, le programme se met à jour par le Wi-Fi.
 
 ### 4.5 Une façade par mission : montrer ou cacher
 

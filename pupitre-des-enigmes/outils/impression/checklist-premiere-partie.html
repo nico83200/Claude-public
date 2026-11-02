@@ -132,7 +132,7 @@
 <ul class="cases">
   <li>Scotchez le gabarit sur le couvercle, puis pointez et percez <strong>avant</strong> l'assemblage : c'est plus facile à plat.
     <span class="det">Fente 68 × 5 mm · fenêtre de l'écran · clavier (fente de 25 × 3 mm pour la nappe) · haut-parleur (grille Ø 3 mm) · anneau Ø 38 · 10 voyants Ø 6 · capteur de couleur Ø 12 · jack Ø 6 · clé Ø 12 · forge 9 × Ø 2 · horloge 50 × 19 · œil Ø 10 · LED du plateau Ø 4 · 4 boutons Ø 30 · molette Ø 7 · gros bouton.</span></li>
-  <li>Face arrière : un trou pour la prise USB-C et un pour l'interrupteur général, regroupés à droite.</li>
+  <li>Face arrière : un trou pour la prise USB-C et un pour l'interrupteur général, regroupés à droite, et les 6 trous fraisés de Ø 3,2 mm des plaques A et B (positions dans <span class="f">plan-cablage.pdf</span>, § 1).</li>
   <li>Côté gauche : découpez à la scie fine la porte du tiroir, 82 × 26 mm, centrée sous le clavier. Gardez la pièce découpée, c'est la façade du tiroir.</li>
   <li>Collez et serrez : la face avant, la face arrière et les côtés, puis le couvercle. Vérifiez l'équerre. Collez les tasseaux et vissez-y le fond, sans colle : il doit rester amovible.</li>
   <li>Puits de la fente : une goulotte de 50 mm de profondeur sous la fente, en contreplaqué 3 mm ou en carton fort. Laissez-la ouverte en bas pour le câble.</li>
@@ -145,12 +145,12 @@
 <h2>4 · La soudure et le montage <span class="quand">J-8 à J-6 · une grosse journée</span></h2>
 <p class="but">But : l'électronique définitive, fixée dans la boîte, et tous les organes qui répondent.</p>
 <ul class="cases">
-  <li>Plaque à pastilles de 7 × 9 cm, en suivant <span class="f">plan-cablage.pdf</span> : d'abord les supports femelles de l'ESP32 et des 2 DFPlayer, puis les connecteurs sur les bords, puis les rails 5 V et masse.</li>
-  <li>Avant d'y poser l'ESP32, contrôlez au multimètre : pas de court-circuit entre 5 V et masse, ni entre 3,3 V et masse.</li>
+  <li>Les trois plaques, en suivant <span class="f">plan-cablage.pdf</span> : <strong>A</strong> (50 × 70, l'ESP32), <strong>B</strong> (30 × 70, les 2 DFPlayer, fentes micro-SD vers le bas) et <strong>C</strong> (20 × 80, le bus I2C). D'abord les barrettes femelles, puis les connecteurs, puis les rails par-dessous. Enfin les deux câbles entre plaques, J14 (A ↔ B) et J15 (A → C).</li>
+  <li>Avant d'y poser l'ESP32 et les DFPlayer, contrôlez chaque plaque au multimètre : pas de court-circuit entre 5 V et masse, ni entre 3,3 V et masse.</li>
   <li>Préparez les fils vers le couvercle avec des connecteurs (JST ou Dupont), et 25 cm de mou pour pouvoir sortir le fond.</li>
   <li>Fixez sous le couvercle :
     <span class="det">le RC522 de la fente contre la paroi du puits, tout au fond · le RC522 à plat sous la zone du plateau · l'écran · le clavier (adhésif) · le haut-parleur · l'anneau sous son plexiglas · les voyants · le capteur de couleur · la forge sous sa grille · l'enclume, à 8 cm au moins du haut-parleur et des aimants · l'horloge · l'œil, son côté « haut » vers l'arrière · les boutons, la molette, la clé et le jack.</span></li>
-  <li>Plaque sur le fond, dans le coin arrière droit, sur 4 entretoises M3. Ruban de LED sous le fond, près du bord avant. Patins dessous.</li>
+  <li>Vissez A et B contre la face arrière, à l'intérieur : A de X = 21 à 28 cm, B de X = 11,5 à 18,5 cm, assez bas pour passer sous l'écran et le haut-parleur (entretoises M3, vis à tête fraisée passées de l'extérieur). Vissez C sous le couvercle, sur 4 entretoises collées. Mesurez avant de percer. Ruban de LED sous le fond, près du bord avant ; patins dessous.</li>
   <li>Branchez, allumez, et repassez tous les tests de l'onglet Atelier, boîte fermée cette fois.</li>
   <li>Réglez dans Atelier les valeurs de la forge (souffle), de l'enclume (aimant), de l'œil (gestes, lampe) et du nuancier (les 4 pastilles du § 5). Envoyez-les-moi si un seuil est à changer.</li>
 </ul>

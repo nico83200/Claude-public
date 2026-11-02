@@ -209,8 +209,8 @@
           "prix": 1
         },
         {
-          "article": "Plaque à souder à pastilles 7 × 9 cm",
-          "detail": "La carte principale (ESP32, deux DFPlayer). 1 de secours",
+          "article": "Plaques à pastilles 50 × 70, 30 × 70 et 20 × 80 mm",
+          "detail": "Les trois plaques : A, le cerveau (ESP32) ; B, le son (deux DFPlayer) ; C, le bus I2C. Un jeu de secours",
           "qte": 2,
           "prix": 1.5
         },
@@ -292,8 +292,8 @@
           "prix": 4
         },
         {
-          "article": "Kit d'entretoises nylon M3, et 4 vis M3 × 12 à tête fraisée",
-          "detail": "Pour fixer la plaque électronique sur le fond (vis par-dessous) et l'écran",
+          "article": "Kit d'entretoises nylon M3, 6 vis M3 × 16 à tête fraisée et leurs écrous",
+          "detail": "Les plaques A et B contre la face arrière (vis de l'extérieur, tête au ras), la plaque C et l'écran sous le couvercle (entretoises collées)",
           "qte": 1,
           "prix": 7
         },
