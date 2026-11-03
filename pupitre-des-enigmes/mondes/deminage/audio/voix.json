@@ -15,7 +15,7 @@
     },
     "bombe": {
       "nom": "Le système de la bombe",
-      "voice_id": "",
+      "voice_id": "6ttbYOa7qzV4SVBtOEQS",
       "description": "Voix synthétique féminine, froide, détachée, légèrement métallique.",
       "portrait": "La voix de la bombe elle-même : un automate sans émotion qui annonce les modules, les erreurs et le compte à rebours. Sa politesse glaciale fait monter la tension.",
       "prompt_voice_design": "A cold, detached synthetic French female voice, automated device announcement, slightly metallic, perfectly even.",
@@ -23,7 +23,8 @@
         "stability": 0.85,
         "similarity_boost": 0.75,
         "style": 0.0
-      }
+      },
+      "filtre": "highpass=f=220,aecho=0.85:0.9:7|11:0.35|0.25,flanger=delay=1.5:depth=1:speed=0.3:regen=20"
     }
   }
 }
