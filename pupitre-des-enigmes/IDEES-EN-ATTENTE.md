@@ -21,6 +21,24 @@ et à la liste d'achat.
   (environ 2 s), angles fermé/ouvert à régler, boutons dans l'onglet Atelier du panneau.
 - Achats : 1 MG90S (le second du lot), 2 mini-charnières, un bout de corde à piano.
 
+## L'aile au petit écran (OLED bicolore 0,96")
+
+- **L'écran** : l'OLED 0,96" déjà en votre possession (SSD1306, 128 × 64, **bande jaune** des
+  16 lignes du haut, bleu en dessous : le jaune sert de barre de titre). À vérifier : **4 broches**
+  (I2C) ; adresse 0x3C (ou 0x3D), libre sur le bus. Branché sur le départ de réserve **J11i**.
+- **Le mécanisme** : une petite aile (environ 35 × 30 mm) sur l'**arête du haut du flanc droit**.
+  Repliée, plaquée contre le flanc, écran tourné vers la paroi (caché) ; elle pivote de **90°**
+  et se pose **à plat, dans le prolongement du dessus**, écran vers le haut. Petite butée sous
+  l'aile dépliée.
+- **Le servomoteur** : MG90S en entraînement direct (palonnier vissé sur l'aile, axe sur la ligne de
+  pivot, à travers le flanc), sur une voie libre du PCA9685 (la voie 2).
+- **Le câble** : 4 fils silicone très souples, au plus près de l'axe, avec une boucle de mou.
+- **Programme** : l'aile se replie au démarrage, en fin de partie et à l'accueil ; l'écran ne
+  s'allume qu'aile dépliée ; l'image tourne de 90° ou 270° (à régler) pour se lire depuis l'avant.
+  Actions : `{"aile": "deplier"}`, `{"petit_ecran": {"titre": "RADAR", "texte": "…"}}`.
+- **À décider** : sa place par rapport à la trappe, sur le même flanc droit (l'une au-dessus de
+  l'autre, ou l'aile seule).
+
 ## Les autres pistes
 
 - **Cadran à aiguille** : micro-servomoteur sous un hublot de plexiglas, devant au centre
