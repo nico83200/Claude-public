@@ -11,7 +11,7 @@ Contenu produit :
     /mondes/<monde>/monde.json         thème, missions, carte Monde
     /mondes/<monde>/mission-N.json     le script de la mission
     /mondes/<monde>/repliques-N.json   les sous-titres (copie de audio/mission-N.json)
-    /mondes/<monde>/cartes.json        puce NFC de chaque carte (rempli par l'enrôlement)
+    /mondes/<monde>/cartes.json        puce NFC de chaque carte (créé par l'enrôlement, sur le pupitre)
 
 Les scripts sont d'abord vérifiés (outils/verifier_scripts.py). Les cartes déjà
 enregistrées sur la carte SD de destination sont conservées.
@@ -69,6 +69,9 @@ def main():
             identifiants += [i for i in script["cartes"] if i not in identifiants]
 
         # Les puces déjà enregistrées sont gardées ; les nouvelles cartes sont ajoutées vides.
+        # Pas de cartes.json vide pour un monde jamais enregistré : recopiée par-dessus une carte
+        # SD en service, l'archive effacerait les puces déjà enregistrées. Le pupitre crée ce
+        # fichier lui-même, à l'enregistrement des cartes.
         fichier_cartes = cible / "cartes.json"
         cartes = lire(fichier_cartes) if fichier_cartes.exists() else {}
         for i in identifiants:
@@ -76,7 +79,10 @@ def main():
                 cartes[i] = f"UID-{i}"
             else:
                 cartes.setdefault(i, "")
-        ecrire(fichier_cartes, cartes)
+        if args.test or any(cartes.values()):
+            ecrire(fichier_cartes, cartes)
+        elif fichier_cartes.exists():
+            fichier_cartes.unlink()
         index.append({"id": monde["id"], "nom": monde["nom"]})
         print(f"✓ {monde['nom']} : {len(monde['missions'])} mission(s), {len(identifiants)} cartes")
 

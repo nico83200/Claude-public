@@ -19,11 +19,11 @@ contenu).
 carte de l'écran
 ├── mondes/
 │   ├── index.json
-│   ├── haras/   (monde.json, mission-1.json, repliques-1.json, cartes.json)
+│   ├── haras/   (monde.json, mission-1.json, repliques-1.json)
 │   ├── casse/   …
 │   ├── kepler/  …
 │   ├── narval/  …
-│   ├── atelier/ …  (la mission 5, de test)
+│   ├── atelier/ …  (Banc d'essai, de test, et la présentation du pupitre)
 │   ├── deminage/ … (la mission 6, désamorçage)
 │   ├── blackwood/ … (la mission 7)
 │   ├── museum/ …    (le tutoriel, Panique au Muséum)
@@ -32,11 +32,13 @@ carte de l'écran
     └── repliques.json
 ```
 
-**Pour une nouvelle version plus tard**, copiez tout **sauf** les fichiers
-`mondes/*/cartes.json` : ils contiennent les puces NFC que vous avez enregistrées. Les
-écraser oblige à refaire l'enregistrement des cartes. Le classement des équipes
-(`classement.json`, à la racine) et les réglages (`reglages.json`) ne sont pas dans
-l'archive : ils restent en place.
+**Pour une nouvelle version plus tard**, recopiez simplement tout le contenu de l'archive
+par-dessus, **sans reformater** la carte. L'archive ne contient aucun des fichiers propres à
+votre pupitre : les puces enregistrées (`mondes/*/cartes.json`, créés par le pupitre à
+l'enregistrement des cartes), le classement (`classement.json`), les réglages
+(`reglages.json`), l'étalonnage du tactile (`tactile.json`) et le code du panneau
+(`code-panneau.txt`) restent en place. L'onglet **Missions** du panneau Wi-Fi fait la même
+chose sans retirer la carte.
 
 ## 2. Les deux cartes des lecteurs audio (haut-parleur et casque)
 

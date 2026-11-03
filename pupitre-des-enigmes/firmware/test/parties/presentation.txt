@@ -1,0 +1,65 @@
+# La présentation du pupitre (une seule fois, pour Jimmy) : le pupitre se montre tout seul, puis
+# chaque commande est essayée ; un essai raté ne bloque pas la suite.
+fente M5
+fente -
+verifie phase menu
+# Le menu de l'Atelier : 1 Banc d'essai, 2 Présentation du pupitre
+touches 2
+calme
+verifie phase jeu
+# Le gros bouton, puis un mauvais bouton de couleur (raté : on continue quand même)
+verifie epreuve appui
+bouton GROS
+calme
+verifie epreuve choix
+bouton ROUGE
+calme
+verifie epreuve molette_zero
+molette_zero
+calme
+verifie epreuve code
+touches 1234
+calme
+verifie epreuve cle
+cle tournee
+calme
+cle repos
+verifie epreuve voyants
+touches 1234567890
+calme
+verifie epreuve choix
+geste droite
+calme
+verifie epreuve capteur
+eclaire 3
+calme
+verifie epreuve capteur
+souffle 3
+calme
+verifie epreuve capteur
+aimant pose
+attendre 3
+calme
+aimant -
+# Le capteur de couleur : une mauvaise pastille, puis la rouge
+verifie drapeau attend_couleur
+couleur bleu
+couleur -
+verifie drapeau attend_couleur
+couleur rouge
+couleur -
+verifie sans attend_couleur
+# Les cartes : la fente, puis le lecteur à plat
+verifie drapeau attend_fente
+fente L1
+calme
+fente -
+verifie drapeau attend_plateau
+plateau O1
+calme
+plateau -
+# Le casque, le tiroir, la fin
+calme
+verifie drapeau fini
+verifie phase victoire
+verifie journal Fin : victoire

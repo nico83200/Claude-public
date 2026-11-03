@@ -1,0 +1,308 @@
+{
+  "monde": "L'Atelier du professeur Lumen",
+  "mission": "Présentation du pupitre",
+  "dossier": 52,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "009-016": "Le pupitre se présente",
+    "017-051": "Les commandes, une par une",
+    "080-090": "Fins"
+  },
+  "lignes": [
+    {
+      "n": 9,
+      "voix": "pupitre",
+      "usage": "Accueil",
+      "texte": "Bonjour Jimmy ! Je suis le Pupitre des Énigmes. On m'a construit pièce par pièce, ici, pour toi. Pendant quelques minutes, je vais te présenter tout ce que je sais faire. Installe-toi bien : on commence."
+    },
+    {
+      "n": 10,
+      "voix": "pupitre",
+      "usage": "L'écran",
+      "texte": "Voici mon écran. C'est lui qui raconte les histoires, affiche les codes, les indices et le chrono. Et il est tactile : un doigt suffit pour choisir dans mes menus."
+    },
+    {
+      "n": 11,
+      "voix": "pupitre",
+      "usage": "Rien à faire ici",
+      "texte": "Pas maintenant : suis ce que je te montre à l'écran."
+    },
+    {
+      "n": 12,
+      "voix": "pupitre",
+      "usage": "Le socle",
+      "texte": "Et sous la boîte, un ruban de lumière éclaire la table, de la couleur de chaque monde."
+    },
+    {
+      "n": 13,
+      "voix": "pupitre",
+      "usage": "Les voyants",
+      "texte": "Voici mes dix voyants. Dans les missions, ils deviennent des interrupteurs, les fils d'une bombe, ou des signaux à décoder."
+    },
+    {
+      "n": 14,
+      "voix": "pupitre",
+      "usage": "Le son",
+      "texte": "J'ai une voix, bien sûr, toute une troupe de comédiens, et une collection de bruitages. Écoute."
+    },
+    {
+      "n": 15,
+      "voix": "pupitre",
+      "usage": "Raté, on continue",
+      "texte": "Pas grave, tu pourras réessayer plus tard. On passe à la suite !"
+    },
+    {
+      "n": 16,
+      "voix": "pupitre",
+      "usage": "À toi de jouer",
+      "texte": "Maintenant, c'est à toi. Je vais te présenter mes commandes, une par une. Suis bien ce qui s'affiche à l'écran."
+    },
+    {
+      "n": 17,
+      "voix": "pupitre",
+      "usage": "Gros bouton",
+      "texte": "Commençons par le gros bouton. Appuie dessus, franchement !"
+    },
+    {
+      "n": 18,
+      "voix": "pupitre",
+      "usage": "Gros bouton : réussi",
+      "texte": "Excellent ! Dans les missions, il sert à valider, à actionner une dynamo, ou à fermer une grille juste à temps."
+    },
+    {
+      "n": 19,
+      "voix": "pupitre",
+      "usage": "Boutons de couleur",
+      "texte": "Voici mes quatre boutons de couleur. Appuie sur le bouton vert."
+    },
+    {
+      "n": 20,
+      "voix": "pupitre",
+      "usage": "Boutons : réussi",
+      "texte": "Bravo. Rouge, bleu, jaune, vert : ils servent à répondre aux questions, et à rejouer des suites de couleurs."
+    },
+    {
+      "n": 21,
+      "voix": "pupitre",
+      "usage": "Molette",
+      "texte": "Ma molette, maintenant. Tourne-la pour ramener le compteur à zéro."
+    },
+    {
+      "n": 22,
+      "voix": "pupitre",
+      "usage": "Molette : réussi",
+      "texte": "Parfait. On tourne pour choisir, on appuie dessus pour valider. En pleine partie, elle ouvre aussi le tableau de bord."
+    },
+    {
+      "n": 23,
+      "voix": "pupitre",
+      "usage": "Clavier",
+      "texte": "Voici mon clavier. Tape un, deux, trois, quatre. Et regarde l'horloge en même temps."
+    },
+    {
+      "n": 24,
+      "voix": "pupitre",
+      "usage": "Clavier : réussi",
+      "texte": "Tu as vu ? L'horloge affiche ce que tu tapes. Le reste du temps, elle montre le chrono, ou l'heure d'une enquête."
+    },
+    {
+      "n": 25,
+      "voix": "pupitre",
+      "usage": "Clé",
+      "texte": "Prends la clé, et tourne-la d'un quart de tour."
+    },
+    {
+      "n": 26,
+      "voix": "pupitre",
+      "usage": "Clé : réussi",
+      "texte": "Clic ! Dans certaines missions, rien ne se passe tant qu'on n'a pas tourné la clé au bon moment."
+    },
+    {
+      "n": 27,
+      "voix": "pupitre",
+      "usage": "Voyants",
+      "texte": "Mes voyants peuvent aussi devenir des interrupteurs. Allume-les tous, avec les touches un à zéro du clavier."
+    },
+    {
+      "n": 28,
+      "voix": "pupitre",
+      "usage": "Voyants : réussi",
+      "texte": "Magnifique ! On se croirait dans un sous-marin."
+    },
+    {
+      "n": 29,
+      "voix": "pupitre",
+      "usage": "Œil : geste",
+      "texte": "Au-dessus de mon œil, je vois les gestes de la main. Passe ta main de gauche à droite, à quelques centimètres."
+    },
+    {
+      "n": 30,
+      "voix": "pupitre",
+      "usage": "Œil : réussi",
+      "texte": "Je t'ai vu ! L'œil reconnaît le haut, le bas, la gauche et la droite."
+    },
+    {
+      "n": 31,
+      "voix": "pupitre",
+      "usage": "Œil : lampe",
+      "texte": "L'œil sent aussi la lumière. Allume la lampe de ton téléphone, et braque-la sur lui."
+    },
+    {
+      "n": 32,
+      "voix": "pupitre",
+      "usage": "Lampe : réussi",
+      "texte": "Quelle lumière ! Dans une grange sombre ou au fond d'une cave, c'est bien utile."
+    },
+    {
+      "n": 33,
+      "voix": "pupitre",
+      "usage": "Forge",
+      "texte": "Voici ma forge : la petite grille. Souffle dessus, bouche ouverte, comme pour faire de la buée sur une vitre."
+    },
+    {
+      "n": 34,
+      "voix": "pupitre",
+      "usage": "Forge : réussi",
+      "texte": "Je l'ai senti ! Ton souffle peut ranimer un feu, ou gonfler les voiles d'un navire."
+    },
+    {
+      "n": 35,
+      "voix": "pupitre",
+      "usage": "Enclume",
+      "texte": "Et voici l'enclume. Pose le fer aimanté dessus."
+    },
+    {
+      "n": 36,
+      "voix": "pupitre",
+      "usage": "Enclume : réussi",
+      "texte": "Je sens l'aimant. Certaines énigmes ne s'ouvrent qu'avec lui."
+    },
+    {
+      "n": 37,
+      "voix": "pupitre",
+      "usage": "Capteur de couleur",
+      "texte": "Mon capteur de couleur reconnaît ce qu'on lui montre. Pose la pastille rouge dessus."
+    },
+    {
+      "n": 38,
+      "voix": "pupitre",
+      "usage": "Couleur : réussi",
+      "texte": "Rouge ! Bien vu. Les couleurs ouvrent des coffres, et désignent parfois un coupable."
+    },
+    {
+      "n": 39,
+      "voix": "pupitre",
+      "usage": "Couleur : pas la bonne",
+      "texte": "Jolie couleur, mais je cherche le rouge."
+    },
+    {
+      "n": 40,
+      "voix": "pupitre",
+      "usage": "La fente",
+      "texte": "Les cartes, maintenant : c'est le cœur du jeu. Glisse la carte du Poste de contrôle dans la fente."
+    },
+    {
+      "n": 41,
+      "voix": "pupitre",
+      "usage": "Fente : réussi",
+      "texte": "Je la reconnais ! Chaque carte cache une puce. Les lieux et les personnages se glissent dans la fente."
+    },
+    {
+      "n": 42,
+      "voix": "pupitre",
+      "usage": "Le lecteur à plat",
+      "texte": "Et les objets se posent à plat, juste là. Pose la clé à molette sur le lecteur à plat."
+    },
+    {
+      "n": 43,
+      "voix": "pupitre",
+      "usage": "Plateau : réussi",
+      "texte": "Trouvée ! Une carte couchée ou un vrai objet : je les lis à travers le bois."
+    },
+    {
+      "n": 44,
+      "voix": "pupitre",
+      "usage": "Casque : annonce",
+      "texte": "Il me reste un secret : le casque. Mets-le, je vais te parler à l'oreille."
+    },
+    {
+      "n": 45,
+      "voix": "pupitre",
+      "usage": "Casque : message",
+      "texte": "Rien que pour toi, Jimmy. Dans les missions, le casque murmure des secrets qu'un seul joueur entend. À toi, ensuite, de décider ce que tu racontes aux autres… Tu peux l'enlever.",
+      "sortie": "casque"
+    },
+    {
+      "n": 46,
+      "voix": "pupitre",
+      "usage": "Casque : raté",
+      "texte": "Personne n'a mis le casque ? Tant pis : ce sera pour une prochaine fois."
+    },
+    {
+      "n": 47,
+      "voix": "pupitre",
+      "usage": "Tiroir : annonce",
+      "texte": "Et maintenant, ma plus belle surprise…"
+    },
+    {
+      "n": 48,
+      "voix": "pupitre",
+      "usage": "Tiroir : ouvert",
+      "texte": "Mon tiroir secret ! Il s'ouvre quand une énigme est résolue. Regarde ce qu'il y a dedans."
+    },
+    {
+      "n": 49,
+      "voix": "pupitre",
+      "usage": "Tiroir : absent",
+      "texte": "Normalement, c'est le moment où mon tiroir secret s'ouvre. Il n'est pas encore installé : patience !"
+    },
+    {
+      "n": 50,
+      "voix": "pupitre",
+      "usage": "Le Wi-Fi",
+      "texte": "Dernière chose : je crée mon propre Wi-Fi. Le maître du jeu suit la partie sur son téléphone, donne des indices, et voit même mon écran."
+    },
+    {
+      "n": 51,
+      "voix": "pupitre",
+      "usage": "Finale",
+      "texte": "Voilà, Jimmy : tu connais tous mes secrets… ou presque. Des mondes entiers t'attendent : un haras, un casino, un sous-marin, une station spatiale, un manoir hanté… Je suis prêt quand tu veux."
+    },
+    {
+      "n": 52,
+      "voix": "pupitre",
+      "usage": "Monde : la présentation",
+      "texte": "La présentation du pupitre. Appuie sur la molette quand tu es prêt."
+    },
+    {
+      "n": 53,
+      "voix": "pupitre",
+      "usage": "L'anneau",
+      "texte": "Autour de moi, il y a mon anneau de lumière. Selon les missions, il montre le temps qui passe, l'oxygène qui baisse, ou le soupçon qui monte."
+    },
+    {
+      "n": 80,
+      "voix": "pupitre",
+      "usage": "Fin",
+      "texte": "Présentation terminée ! Bienvenue dans le monde du Pupitre des Énigmes."
+    },
+    {
+      "n": 81,
+      "voix": "pupitre",
+      "usage": "Titre",
+      "texte": "Et tu es officiellement le tout premier joueur du pupitre."
+    },
+    {
+      "n": 84,
+      "voix": "pupitre",
+      "usage": "Temps écoulé",
+      "texte": "Le temps est écoulé, mais je recommence la présentation quand tu veux."
+    },
+    {
+      "n": 90,
+      "voix": "pupitre",
+      "usage": "Carte sans effet",
+      "texte": "Cette carte attendra une vraie mission. Suis ce que je te montre à l'écran."
+    }
+  ]
+}

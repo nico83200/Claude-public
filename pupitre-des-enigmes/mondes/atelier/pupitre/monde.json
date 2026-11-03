@@ -23,6 +23,12 @@
       "titre": "Banc d'essai",
       "script": "mission-5.json",
       "repliques": "repliques-5.json"
+    },
+    {
+      "numero": 10,
+      "titre": "Présentation du pupitre",
+      "script": "mission-10.json",
+      "repliques": "repliques-10.json"
     }
   ]
 }
