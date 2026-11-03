@@ -282,7 +282,18 @@ def ajouter_lignes(wb, ws, nouveaux):
         dv.sqref = type(dv.sqref)(str(dv.sqref).replace(f"{dernier}", f"{ws.max_row}"))
 
 
-def statuts_classeur(wb, classeur, audios, empreintes, sortie, essai):
+def lire_statuts(wb):
+    """Le statut de chaque fichier dans le classeur : « Fait », « À refaire »…"""
+    statuts = {}
+    if wb is not None:
+        ws = wb["Suivi audio"]
+        for r in range(2, ws.max_row + 1):
+            for d, n in re.findall(r"(\d{2})/(\d{3})\.(?:mp3|wav)", str(ws.cell(r, COL["fichiers"]).value)):
+                statuts[f"{d}/{n}"] = ws.cell(r, COL["statut"]).value
+    return statuts
+
+
+def statuts_classeur(wb, classeur, audios, empreintes, sortie, essai, fabriques=frozenset()):
     """« Fait » et la date pour ce qui a été fabriqué ; « À refaire » pour ce qui a changé depuis."""
     if wb is None:
         return
@@ -304,7 +315,8 @@ def statuts_classeur(wb, classeur, audios, empreintes, sortie, essai):
                 if not remarque:
                     ws.cell(r, COL["remarques"]).value = BROUILLON
             else:
-                if statut in (None, "", "À faire", "En cours", "À refaire"):
+                # « À refaire » ne redevient « Fait » que si le fichier vient d'être refait.
+                if statut in (None, "", "À faire", "En cours") or (statut == "À refaire" and set(cles) <= fabriques):
                     ws.cell(r, COL["statut"]).value = "Fait"
                     ws.cell(r, COL["date"]).value = aujourdhui
                     faits += 1
@@ -463,8 +475,10 @@ def main():
     fichier_empreintes = args.sortie / "empreintes.json"
     empreintes = charger(fichier_empreintes) if fichier_empreintes.exists() else {}
 
-    # Ce qu'il reste à faire.
-    a_faire, sans_voix, outils = [], {}, []
+    # Ce qu'il reste à faire. Le classeur a le dernier mot : « Fait » ou « Validé » sans fichier ici,
+    # c'est un audio rangé ailleurs (le Google Drive) : on ne le refait pas. « À refaire » : on le refait.
+    statuts = lire_statuts(wb)
+    a_faire, sans_voix, outils, ailleurs = [], {}, [], []
     for a in audios:
         if args.seulement and a.n not in args.seulement:
             continue
@@ -473,6 +487,12 @@ def main():
                 outils.append(a)
             continue
         etat = etat_fichier(a, empreintes, args.sortie)
+        statut = statuts.get(a.cle)
+        if etat == "absent" and statut in ("Fait", "Validé") and not args.forcer:
+            ailleurs.append(a)
+            continue
+        if statut == "À refaire" and etat == "à jour" and not args.brouillon:
+            etat = "périmé"
         source = empreintes.get(a.cle, {}).get("source")
         provisoire_a_remplacer = source in PROVISOIRES and not (args.brouillon or args.simulation)
         a_remplacer = etat != "à jour" or args.forcer or provisoire_a_remplacer
@@ -498,6 +518,11 @@ def main():
         print(f"  {a.cle}  {'(refaire) ' if etat == 'périmé' else ''}{a.libelle()}")
     if len(a_faire) > 40:
         print(f"  … et {len(a_faire) - 40} autre(s).")
+    if ailleurs:
+        dossiers = sorted({f"{a.dossier:02d}" for a in ailleurs})
+        print(f"📁 {len(ailleurs)} audio(s) déjà faits d'après le classeur, mais absents de {args.sortie.name}/ "
+              f"(dossiers {', '.join(dossiers)}) : ils ne sont pas refaits. Copiez-les depuis le Google Drive")
+        print(f"   dans {args.sortie.name}/ pour que tout soit au même endroit (et que les volumes soient harmonisés).")
     for a in outils:
         print(f"ℹ️  {a.cle} ({a.element.get('nom')}) : lancez {a.outil}")
     if sans_voix:
@@ -519,7 +544,7 @@ def main():
         if not args.oui and input(f"Lancer ElevenLabs pour {caracteres} caractères ? [o/N] ").strip().lower() not in ("o", "oui"):
             sys.exit("Rien n'a été fabriqué.")
 
-    faits = 0
+    faits, fabriques = 0, set()
     try:
         for groupe in groupes.values():
             premier = groupe[0][0]
@@ -534,11 +559,12 @@ def main():
                 empreintes[a.cle] = {"empreinte": a.empreinte(),
                                      "source": "brouillon" if args.brouillon else "simulation" if args.simulation else "elevenlabs"}
                 faits += 1
+                fabriques.add(a.cle)
                 print(f"  ✓ {chemin.relative_to(args.sortie.parent)}  {a.libelle()}")
     finally:  # même interrompu, on garde la trace de ce qui est fait
         args.sortie.mkdir(parents=True, exist_ok=True)
         enregistrer(fichier_empreintes, dict(sorted(empreintes.items())))
-        statuts_classeur(wb, args.classeur, audios, empreintes, args.sortie, False)
+        statuts_classeur(wb, args.classeur, audios, empreintes, args.sortie, False, fabriques)
     print(f"Terminé : {faits} fichier(s) fabriqué(s). Copiez le dossier {args.sortie.name}/ sur les deux cartes SD "
           "des lecteurs audio (sans empreintes.json).")
 
