@@ -53,6 +53,8 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 .barre{height:8px;background:#5b8def;border-radius:4px}
 </style></head><body>
 <header>Le Pupitre des Énigmes · maître du jeu</header>
+<div id="codeDefaut" style="display:none;background:#9a3a3a;padding:8px 16px">⚠ Le panneau a encore son code d'origine :
+changez-le (onglet Atelier) avant la première partie.</div>
 <nav id="onglets"></nav>
 <main>
 
@@ -133,6 +135,12 @@ longue est celle qui fait le plus souvent caler les équipes : c'est là qu'un i
 <button onclick="e('led')">LED</button><button onclick="e('afficheur')">Horloge 88:88</button><button onclick="e('son_hp')">Son 🔊</button>
 <button onclick="e('son_casque')">Son 🎧</button><button onclick="e('tiroir_ouvrir')">Tiroir : ouvrir</button><button onclick="e('tiroir_fermer')">Tiroir : verrouiller</button><button onclick="e('tactile')">Étalonner l'écran tactile</button>
 </div></div>
+<div class="carte"><b>Code d'accès du panneau</b><br><small>4 à 8 chiffres. Il est gardé sur la carte SD de l'écran
+(<code>code-panneau.txt</code> : effacez ce fichier pour revenir au code d'origine).</small>
+<input id="codeAncien" type="password" inputmode="numeric" placeholder="Code actuel">
+<input id="codeNouveau" type="password" inputmode="numeric" placeholder="Nouveau code">
+<button onclick="changerCode()">Changer le code</button> <button class="rouge" onclick="location='/deconnexion'">Se déconnecter</button>
+<div id="codeOk" style="margin-top:6px"></div></div>
 <div class="carte"><b>Mesures en direct</b><br><small>Pour régler les seuils (firmware/src/broches.h) : soufflez, posez l'aimant, passez la main, éclairez…</small>
 <div id="mesures"></div></div>
 </section>
@@ -149,6 +157,7 @@ longue est celle qui fait le plus souvent caler les équipes : c'est là qu'un i
 
 </main>
 <script>
+const f0=window.fetch;window.fetch=(...a)=>f0(...a).then(r=>{if(r.status==401)location.reload();return r});
 const O=[['partie','Partie'],['equipe','Équipe'],['souffleur','Souffleur'],['classement','Classement'],['stats','Statistiques'],['missions','Missions'],['atelier','Atelier'],['maj','Mise à jour']];
 let actif='partie',dernier=0,repl=[],missionVue='';
 const $=i=>document.getElementById(i);
@@ -225,6 +234,10 @@ async function envoyerMission(){const f=[...$('dossier').files].map(x=>{const r=
  await c('recharger');
  $('envoi').innerHTML='<b>'+ok+' fichier(s) envoyé(s)</b>'+(garde?' · '+garde+' gardé(s) (cartes déjà enregistrées)':'')+(ko?' · <span class="ko">'+ko+' en échec</span>':'')
   +'<br><small>Le pupitre a relu ses mondes (s\'il n\'était pas en partie). Pour un nouveau monde : enregistrez ses cartes depuis son menu.</small>'}
+function changerCode(){const f=new URLSearchParams();f.append('ancien',$('codeAncien').value);f.append('nouveau',$('codeNouveau').value);
+ fetch('/code',{method:'POST',body:f}).then(r=>r.text()).then(t=>{$('codeOk').textContent=t;$('codeAncien').value=$('codeNouveau').value='';verifierCode()})}
+function verifierCode(){fetch('/code').then(r=>r.json()).then(d=>{$('codeDefaut').style.display=d.defaut?'block':'none'}).catch(()=>{})}
+verifierCode();
 function journal(){fetch('/journal?depuis='+dernier).then(r=>r.json()).then(j=>{
  if(j.dernier<dernier){$('journal').innerHTML='';dernier=0}
  (j.lignes||[]).forEach(([n,t])=>{const d=document.createElement('div');d.textContent=t;$('journal').prepend(d)});
@@ -292,6 +305,39 @@ fetch('/diplome.json').then(r=>r.json()).then(p=>{if(!p.equipe){document.getElem
  .catch(()=>{document.getElementById('d').textContent='Le pupitre ne répond pas.'});
 </script></body></html>)HTML";
 
+// Le code d'accès du panneau. Le diplôme (/diplome, /diplome.json) reste ouvert : les joueurs
+// rejoignent le Wi-Fi par le QR code de l'écran de victoire, ils ne doivent rien voir d'autre.
+const char* const CHEMIN_CODE = "/code-panneau.txt";
+constexpr int ESSAIS_MAX = 5;
+String codePanneau, jeton;
+int echecs = 0;
+uint32_t bloqueJusqua = 0;
+bool majAutorisee = false;
+
+bool autorise() { return jeton.length() && serveur.header("Cookie").indexOf("jeton=" + jeton) >= 0; }
+
+bool garde() {
+  if (autorise()) return true;
+  serveur.send(401, "text/plain; charset=utf-8", "Code d'accès requis");
+  return false;
+}
+
+const char CONNEXION[] PROGMEM = R"HTML(<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pupitre des Énigmes</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#15161a;color:#eee;display:flex;justify-content:center;padding:40px 16px}
+form{background:#22242a;border-radius:12px;padding:20px;max-width:320px;width:100%;text-align:center}
+input{width:100%;box-sizing:border-box;font-size:2em;letter-spacing:.3em;text-align:center;padding:10px;border-radius:8px;border:1px solid #444;background:#111;color:#eee;margin:12px 0}
+button{width:100%;font-size:1.1em;padding:12px;border:0;border-radius:8px;background:#2f7d4a;color:#fff}
+p{color:#ff7a7a;min-height:1.2em}small{color:#999}
+</style></head><body>
+<form method="post" action="/connexion"><b>Le Pupitre des Énigmes</b><br><small>Panneau du maître du jeu</small>
+<input name="code" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Code" autofocus required>
+<button>Entrer</button><p id="m"></p></form>
+<script>const q=location.search;document.getElementById('m').textContent=q.includes('erreur')?'Code incorrect.':q.includes('attente')?'Trop d\'essais : attendez une minute.':''</script>
+</body></html>)HTML";
+
 // L'envoi d'une mission par le Wi-Fi : les fichiers des dossiers /mondes et /pupitre de la carte SD.
 File fichierRecu;
 String cheminRecu, reponseEnvoi;
@@ -320,23 +366,99 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
   atelier = a;
   WiFi.mode(WIFI_AP);
   WiFi.softAP(reglages::WIFI_NOM, reglages::WIFI_MOT_DE_PASSE);
-  serveur.on("/", [] { serveur.send_P(200, "text/html; charset=utf-8", PAGE); });
-  serveur.on("/etat", [] { serveur.send(200, "application/json", moteur->etatJson().c_str()); });
-  serveur.on("/journal", [] { serveur.send(200, "application/json", moteur->journalJson(serveur.arg("depuis").toInt()).c_str()); });
-  serveur.on("/repliques", [] { serveur.send(200, "application/json", moteur->repliquesJson().c_str()); });
-  serveur.on("/classement", [] { serveur.send(200, "application/json", moteur->classementJson().c_str()); });
-  serveur.on("/indices", [] { serveur.send(200, "application/json", moteur->indicesJson().c_str()); });
+  // Le code d'accès : celui de la carte SD s'il a été changé, sinon celui de broches.h.
+  codePanneau = reglages::CODE_PANNEAU;
+  File f = SD.open(CHEMIN_CODE);
+  if (f) {
+    String c = f.readString();
+    c.trim();
+    if (c.length() >= 4) codePanneau = c;
+    f.close();
+  }
+  // Un jeton tiré au sort à chaque démarrage : le navigateur le garde une fois le code donné.
+  char hex[17];
+  snprintf(hex, sizeof hex, "%08lx%08lx", static_cast<unsigned long>(esp_random()), static_cast<unsigned long>(esp_random()));
+  jeton = hex;
+  static const char* entetes[] = {"Cookie"};
+  serveur.collectHeaders(entetes, 1);
+  // Le panneau : la page de connexion tant que le navigateur n'a pas donné le bon code.
+  serveur.on("/", [] {
+    if (autorise()) serveur.send_P(200, "text/html; charset=utf-8", PAGE);
+    else serveur.send_P(200, "text/html; charset=utf-8", CONNEXION);
+  });
+  serveur.on("/connexion", HTTP_POST, [] {
+    if (millis() < bloqueJusqua) {
+      serveur.sendHeader("Location", "/?attente=1");
+    } else if (serveur.arg("code") == codePanneau) {
+      echecs = 0;
+      serveur.sendHeader("Set-Cookie", "jeton=" + jeton + "; Path=/; HttpOnly; SameSite=Strict");
+      serveur.sendHeader("Location", "/");
+    } else {
+      if (++echecs >= ESSAIS_MAX) {  // trop d'essais : une minute de pause, pour tout le monde
+        echecs = 0;
+        bloqueJusqua = millis() + 60000;
+      }
+      Serial.println("Panneau : mauvais code d'accès");
+      serveur.sendHeader("Location", "/?erreur=1");
+    }
+    serveur.send(303);
+  });
+  serveur.on("/deconnexion", [] {
+    serveur.sendHeader("Set-Cookie", "jeton=; Path=/; Max-Age=0");
+    serveur.sendHeader("Location", "/");
+    serveur.send(303);
+  });
+  // Changer le code (onglet Atelier) : gardé sur la carte SD de l'écran.
+  serveur.on("/code", HTTP_GET, [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", codePanneau == reglages::CODE_PANNEAU ? "{\"defaut\":true}" : "{\"defaut\":false}");
+  });
+  serveur.on("/code", HTTP_POST, [] {
+    if (!garde()) return;
+    String ancien = serveur.arg("ancien"), nouveau = serveur.arg("nouveau");
+    bool chiffres = nouveau.length() >= 4 && nouveau.length() <= 8;
+    for (char ch : nouveau) chiffres = chiffres && ch >= '0' && ch <= '9';
+    if (ancien != codePanneau) return serveur.send(200, "text/plain; charset=utf-8", "Le code actuel n'est pas le bon.");
+    if (!chiffres) return serveur.send(200, "text/plain; charset=utf-8", "Le nouveau code : 4 à 8 chiffres.");
+    File f = SD.open(CHEMIN_CODE, FILE_WRITE);
+    if (!f) return serveur.send(200, "text/plain; charset=utf-8", "Carte SD absente : code non enregistré.");
+    f.print(nouveau);
+    f.close();
+    codePanneau = nouveau;
+    serveur.send(200, "text/plain; charset=utf-8", "Nouveau code enregistré ✓");
+  });
+  serveur.on("/etat", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", moteur->etatJson().c_str()); });
+  serveur.on("/journal", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", moteur->journalJson(serveur.arg("depuis").toInt()).c_str()); });
+  serveur.on("/repliques", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", moteur->repliquesJson().c_str()); });
+  serveur.on("/classement", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", moteur->classementJson().c_str()); });
+  serveur.on("/indices", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", moteur->indicesJson().c_str()); });
   serveur.on("/diplome", [] { serveur.send_P(200, "text/html; charset=utf-8", DIPLOME); });
   serveur.on("/diplome.json", [] { serveur.send(200, "application/json", moteur->diplomeJson().c_str()); });
   // Un fichier de mission, écrit d'abord à côté (.tmp) puis mis en place une fois complet.
   // Les cartes déjà enregistrées (cartes.json) ne sont jamais écrasées.
   serveur.on(
-      "/fichier", HTTP_POST, [] { serveur.send(200, "text/plain; charset=utf-8", reponseEnvoi); },
+      "/fichier", HTTP_POST,
+      [] {
+        if (garde()) serveur.send(200, "text/plain; charset=utf-8", reponseEnvoi);
+      },
       [] {
         HTTPUpload& envoi = serveur.upload();
         if (envoi.status == UPLOAD_FILE_START) {
           cheminRecu = serveur.arg("chemin");
-          if (!cheminPermis(cheminRecu)) {
+          if (!autorise()) {
+            reponseEnvoi = "ko : code d'accès";
+            cheminRecu = "";
+          } else if (!cheminPermis(cheminRecu)) {
             reponseEnvoi = "ko : chemin refusé";
             cheminRecu = "";
           } else if (cheminRecu.endsWith("/cartes.json") && SD.exists(cheminRecu)) {
@@ -366,10 +488,12 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
         }
       });
   serveur.on("/commande", [] {
+    if (!garde()) return;
     moteur->commande(serveur.arg("c").c_str());
     serveur.send(200, "text/plain", "ok");
   });
   serveur.on("/equipe", HTTP_POST, [] {
+    if (!garde()) return;
     std::vector<std::string> joueurs;
     String liste = serveur.arg("joueurs");
     int debut = 0;
@@ -384,8 +508,11 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
     moteur->definirEquipe(serveur.arg("nom").c_str(), joueurs, serveur.arg("date").c_str());
     serveur.send(200, "text/plain", "ok");
   });
-  serveur.on("/mesures", [] { serveur.send(200, "application/json", atelier.mesures ? atelier.mesures().c_str() : "{}"); });
+  serveur.on("/mesures", [] {
+    if (!garde()) return;
+    serveur.send(200, "application/json", atelier.mesures ? atelier.mesures().c_str() : "{}"); });
   serveur.on("/essai", [] {
+    if (!garde()) return;
     if (atelier.essai) atelier.essai(serveur.arg("a").c_str());
     serveur.send(200, "text/plain", "ok");
   });
@@ -394,7 +521,8 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
   serveur.on(
       "/maj", HTTP_POST,
       [] {
-        bool ok = !Update.hasError();
+        if (!garde()) return;
+        bool ok = majAutorisee && !Update.hasError();
         serveur.send(200, "text/plain; charset=utf-8",
                      ok ? "Programme reçu : le pupitre redémarre…" : "Échec : le programme n'a pas été installé.");
         if (ok) {
@@ -405,8 +533,12 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
       [] {
         HTTPUpload& envoi = serveur.upload();
         if (envoi.status == UPLOAD_FILE_START) {
+          majAutorisee = autorise();  // sans le code, le fichier est ignoré
+          if (!majAutorisee) return;
           Serial.printf("Mise à jour : %s\n", envoi.filename.c_str());
           Update.begin(UPDATE_SIZE_UNKNOWN);
+        } else if (!majAutorisee) {
+          return;
         } else if (envoi.status == UPLOAD_FILE_WRITE) {
           Update.write(envoi.buf, envoi.currentSize);
         } else if (envoi.status == UPLOAD_FILE_END) {
@@ -417,7 +549,7 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
 
   // La mise à jour depuis PlatformIO, par le Wi-Fi : « pio run -e pupitre-wifi -t upload ».
   ArduinoOTA.setHostname("pupitre");
-  ArduinoOTA.setPassword(reglages::WIFI_MOT_DE_PASSE);
+  ArduinoOTA.setPassword(reglages::OTA_MOT_DE_PASSE);  // pas celui du Wi-Fi : les joueurs le connaissent
   ArduinoOTA.begin();
   Serial.printf("Panneau : Wi-Fi « %s », http://%s\n", reglages::WIFI_NOM, WiFi.softAPIP().toString().c_str());
 }

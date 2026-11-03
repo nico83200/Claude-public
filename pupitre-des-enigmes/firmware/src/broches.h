@@ -95,5 +95,10 @@ constexpr uint32_t DUREE_LOGO_MS = 2500;  // le logo au démarrage
 // (le nom et le mot de passe sont dans lib/moteur/src/plateforme.h : l'écran de victoire les affiche en QR code)
 using pupitre::WIFI_NOM;
 using pupitre::WIFI_MOT_DE_PASSE;
+// Le code d'accès du panneau du maître du jeu, à la première connexion. Changez-le depuis le
+// panneau (onglet Atelier) : le nouveau est gardé sur la carte SD de l'écran (code-panneau.txt).
+constexpr const char* CODE_PANNEAU = "1234";
+// La mise à jour depuis PlatformIO par le Wi-Fi (« upload_flags = --auth=… » de platformio.ini).
+constexpr const char* OTA_MOT_DE_PASSE = "atelier-du-maitre";
 
 }  // namespace reglages

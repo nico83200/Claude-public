@@ -151,7 +151,8 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
    partie en cours »*.
 
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
-`Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1.
+`Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1, puis
+taper le code d'accès (`1234` au départ, à changer dans l'onglet Atelier).
 Huit onglets : la partie (dont **« Aide »**, **« Débloquer »** et l'écran du pupitre en
 miroir), l'équipe, le souffleur (indices tout prêts, messages, répliques, journal de
 partie), le classement, les statistiques, l'envoi d'une mission par le Wi-Fi, l'atelier

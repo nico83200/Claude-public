@@ -147,7 +147,7 @@ pio device monitor       <span class="c"># le journal série (115 200 bauds) ; C
 <p>Après la première installation par le câble, plus besoin d'ouvrir la boîte : le pupitre se met à jour par son propre Wi-Fi.</p>
 <ol class="etapes">
   <li>Allumez le pupitre. Sur le Mac, menu Wi-Fi : rejoignez le réseau <strong>Pupitre-des-Enigmes</strong> (mot de passe <code>enigmes123</code>).</li>
-  <li><strong>Sans PlatformIO</strong> : dans un navigateur, ouvrez <strong>http://192.168.4.1</strong>, onglet <strong>Mise à jour</strong>, et envoyez le fichier <code>firmware/binaires/pupitre-mise-a-jour.bin</code> (ou, après une compilation, <code>firmware/.pio/build/pupitre/firmware.bin</code>).</li>
+  <li><strong>Sans PlatformIO</strong> : dans un navigateur, ouvrez <strong>http://192.168.4.1</strong>, tapez le code d'accès (<code>1234</code> au départ, ou celui que vous avez choisi), onglet <strong>Mise à jour</strong>, et envoyez le fichier <code>firmware/binaires/pupitre-mise-a-jour.bin</code> (ou, après une compilation, <code>firmware/.pio/build/pupitre/firmware.bin</code>).</li>
   <li><strong>Avec PlatformIO</strong> : choisissez l'environnement <strong>pupitre-wifi</strong> dans la barre bleue (ou <code>pio run -e pupitre-wifi -t upload</code> dans le Terminal).</li>
   <li>Le pupitre redémarre tout seul. <strong>Ne coupez pas le courant pendant l'envoi</strong> : en cas d'échec, l'ancien programme reste en place.</li>
 </ol>

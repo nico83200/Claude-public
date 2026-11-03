@@ -25,7 +25,7 @@ Pour programmer l'ESP32 **sans rien installer**, avec un simple navigateur.
 ## Les fois suivantes, par le Wi-Fi
 
 Connectez le téléphone ou l'ordinateur au Wi-Fi « Pupitre-des-Enigmes » (mot de passe
-`enigmes123`), ouvrez http://192.168.4.1, onglet **Mise à jour**, et envoyez
+`enigmes123`), ouvrez http://192.168.4.1, tapez le code d'accès (`1234` au départ), onglet **Mise à jour**, et envoyez
 `pupitre-mise-a-jour.bin`. Le pupitre redémarre tout seul.
 
 Ces fichiers correspondent au code de ce dépôt au moment où ils ont été produits. Après

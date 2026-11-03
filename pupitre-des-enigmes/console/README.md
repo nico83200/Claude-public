@@ -559,7 +559,13 @@ des cartes, le thème et les scripts des missions. Elle se prépare avec
 
 La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »** (mot de passe
 `enigmes123`, modifiable dans `firmware/lib/moteur/src/plateforme.h`). Depuis un téléphone
-connecté à ce réseau, la page **http://192.168.4.1** a huit onglets.
+connecté à ce réseau, la page **http://192.168.4.1** demande d'abord **le code d'accès du
+maître du jeu** : `1234` au départ. Un bandeau rouge le rappelle tant qu'il n'a pas été
+changé : faites-le dans l'onglet **Atelier** (4 à 8 chiffres). Le nouveau code est gardé sur
+la carte SD de l'écran (`code-panneau.txt` ; effacez ce fichier pour revenir à `1234`).
+Après 5 codes faux, le panneau refuse tout essai pendant une minute. Le téléphone reste
+connecté jusqu'au prochain redémarrage du pupitre (ou « Se déconnecter », onglet Atelier).
+Le panneau a ensuite huit onglets.
 
 | Onglet | Ce qu'on y fait |
 |---|---|
@@ -584,10 +590,10 @@ se règle par mission (`"souffleur"` dans le script, voir `firmware/SCRIPTS.md`)
 centre des voyants, les lecteurs et le ruban sous la boîte), puis l'écran de résultat
 avec **deux QR codes** : le premier connecte un téléphone au Wi-Fi du pupitre, le second
 ouvre **le diplôme de l'équipe** (http://192.168.4.1/diplome) : nom de l'équipe, prénoms,
-mission, titre obtenu, temps, points et rang, à imprimer ou enregistrer en PDF. Cette
-page ne mène pas au panneau ; mais un joueur qui a rejoint le Wi-Fi *peut* ouvrir
-http://192.168.4.1 s'il en connaît l'adresse : changez le mot de passe du Wi-Fi si vos
-joueurs sont malicieux.
+mission, titre obtenu, temps, points et rang, à imprimer ou enregistrer en PDF. Le
+diplôme est la seule page ouverte sans code : un joueur qui tape http://192.168.4.1 tombe
+sur la demande du code d'accès. La mise à jour par PlatformIO a son propre mot de passe
+(`OTA_MOT_DE_PASSE`, dans `firmware/src/broches.h`), distinct de celui du Wi-Fi.
 
 **Les points** (onglet Équipe) : 500 pour une victoire, 50 par étape franchie, 10 par
 minute restante en cas de victoire, moins 50 par indice payant et 100 par erreur
