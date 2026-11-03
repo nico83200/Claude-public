@@ -24,12 +24,24 @@ bool PlateformeESP32::lireFichier(const std::string& chemin, std::string& conten
 bool PlateformeESP32::ecrireFichier(const std::string& chemin, const std::string& contenu) {
   std::string temporaire = chemin + ".tmp";
   File f = SD.open(temporaire.c_str(), FILE_WRITE);
-  if (!f) return false;
+  if (!f) {
+    Serial.printf("Carte SD : impossible d'écrire %s (carte protégée en écriture, ou mal reliée ?)\n", chemin.c_str());
+    return false;
+  }
   size_t n = f.write(reinterpret_cast<const uint8_t*>(contenu.data()), contenu.size());
   f.close();
-  if (n != contenu.size()) return false;
+  if (n != contenu.size()) {
+    Serial.printf("Carte SD : écriture incomplète de %s (%u octets sur %u)\n", chemin.c_str(), static_cast<unsigned>(n),
+                  static_cast<unsigned>(contenu.size()));
+    return false;
+  }
   SD.remove(chemin.c_str());
-  return SD.rename(temporaire.c_str(), chemin.c_str());
+  if (!SD.rename(temporaire.c_str(), chemin.c_str())) {
+    Serial.printf("Carte SD : impossible de remplacer %s\n", chemin.c_str());
+    return false;
+  }
+  Serial.printf("Carte SD : %s enregistré\n", chemin.c_str());
+  return true;
 }
 
 void PlateformeESP32::appliquer(const pupitre::Reglages& r) {
