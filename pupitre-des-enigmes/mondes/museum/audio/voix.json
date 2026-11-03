@@ -3,7 +3,7 @@
   "voix": {
     "directeur": {
       "nom": "Le professeur Larrieu",
-      "voice_id": "",
+      "voice_id": "IkfcUEbph0VDk0K5otE2",
       "description": "Homme, la cinquantaine, savant parisien de 1912, voix vive, un peu affolée mais bienveillante.",
       "portrait": "Le directeur du Muséum, qui guide les joueurs pas à pas : c'est aussi le tutoriel du pupitre. Il explique chaque geste clairement, s'affole juste ce qu'il faut et félicite chaque trouvaille.",
       "prompt_voice_design": "A lively French male museum director in his fifties, Paris 1912, native speaker from France, clear and warm, slightly flustered but kind, close to the microphone.",

@@ -3,7 +3,7 @@
   "voix": {
     "narrateur": {
       "nom": "Le Narrateur (Narval)",
-      "voice_id": "",
+      "voice_id": "BV4nmJBQqteA5KS8Pj1C",
       "description": "Homme, la cinquantaine, voix grave, un peu rauque, ton de film de sous-marin.",
       "portrait": "La voix du récit, comme un vieux marin qui raconte une nuit dont il se souvient encore. Grave, tendue, sobre : il fait entendre le métal qui grince et l'air qui se raréfie. Il guide les gestes sans paniquer, avec des phrases courtes et précises, presque des ordres.",
       "prompt_voice_design": "A deep, slightly gravelly French male narrator in his fifties, native speaker from France, tense submarine film tone, calm and precise, low and close to the microphone.",
@@ -27,7 +27,7 @@
     },
     "systeme": {
       "nom": "Le système de bord",
-      "voice_id": "",
+      "voice_id": "TWY9ZBv62QlWhFdiROSp",
       "description": "Voix féminine synthétique, neutre, détachée, légèrement métallique.",
       "portrait": "La voix automatique du Narval : alarmes, réserve d'oxygène, console, sas. Aucune émotion, articulation parfaite, débit régulier. Sa neutralité rend chaque annonce plus inquiétante.",
       "prompt_voice_design": "A neutral, detached synthetic French female voice, automated military ship announcement system, slightly metallic, perfectly even.",
@@ -39,7 +39,7 @@
     },
     "orque": {
       "nom": "L'officier de quart de l'Orque",
-      "voice_id": "",
+      "voice_id": "jbtC6A6NO9is50JtwyL8",
       "description": "Homme, la quarantaine, accent nordique léger, voix radio claire et posée, un peu grésillante.",
       "portrait": "L'officier de quart de l'Orque, sous-marin de sauvetage de la marine alliée de Norrvik. Il parle un français impeccable avec un léger accent du Nord. Professionnel, méthodique, il répète l'essentiel comme on le fait à la radio. Il veut vous sortir de là, et ça s'entend.",
       "prompt_voice_design": "A calm, clear male naval officer in his forties speaking French with a light Scandinavian accent, submarine underwater telephone, methodical and reassuring, slightly crackly radio quality.",

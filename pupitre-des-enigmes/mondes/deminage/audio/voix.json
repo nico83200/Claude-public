@@ -3,7 +3,7 @@
   "voix": {
     "qg": {
       "nom": "Le QG de la brigade (radio)",
-      "voice_id": "",
+      "voice_id": "ms1mrcbkd39gsyvvOKKW",
       "description": "Homme, la quarantaine, voix calme et ferme, ton militaire, légèrement grésillante comme à la radio.",
       "portrait": "Le chef de la brigade de déminage, qui guide à distance. Calme, précis, il ne s'énerve jamais : il sait que la panique tue. Phrases courtes, ton d'instructeur bienveillant.",
       "prompt_voice_design": "A calm, firm French male bomb squad commander in his forties, native speaker from France, military instructor tone, slightly crackly radio quality.",
