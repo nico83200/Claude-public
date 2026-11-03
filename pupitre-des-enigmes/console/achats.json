@@ -100,9 +100,9 @@
         },
         {
           "article": "Afficheur 4 chiffres HT16K33 (l'horloge)",
-          "detail": "Déjà en votre possession. 7 segments 0,56 pouce, deux-points au centre, adresse 0x70",
+          "detail": "Afficheur 7 segments 0,56 pouce déjà monté sur sa carte I2C HT16K33, avec le deux-points au centre (afficheur « horloge »), adresse 0x70. Recherche : « HT16K33 4 digit 7 segment 0.56 I2C clock » (Adafruit 0,56\" 4-Digit 7-Segment avec I2C Backpack, ou copie). Un afficheur nu à 12 broches (5641AS…) ne convient pas seul : il lui faut une carte HT16K33",
           "qte": 1,
-          "prix": 0
+          "prix": 6
         }
       ]
     },
