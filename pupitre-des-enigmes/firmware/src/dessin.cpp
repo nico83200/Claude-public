@@ -12,6 +12,8 @@ namespace {
 
 constexpr int L = 480, H = 320;
 constexpr int Y_CORPS = 48, Y_INFO = 248, Y_ZONES = 272;
+// Les menus : 4 lignes qui tiennent entières au-dessus de la ligne d'information (Y_INFO).
+constexpr int MENU_H = 33, MENU_ECART = 5, MENU_Y0 = Y_CORPS + 44, MENU_VISIBLES = 4;
 constexpr int HAUT_CORPS = Y_INFO - Y_CORPS;
 // Le minuteur des épreuves, en haut à droite du corps.
 constexpr int MIN_X = 438, MIN_Y = 84, MIN_R = 26;
@@ -491,10 +493,10 @@ void Dessin::corpsMenu(const Vue& v) {
   int lt = v.tactile && v.menu.size() > 4 ? L - 140 : L - 40;
   ecrire(couper(v.titre, &polices::titre, lt), 20, Y_CORPS + 6, &polices::titre, pal_.texte, pal_.fond);
   const auto& lignes = v.menu;
-  const int hauteur = 38, y0 = Y_CORPS + 46, visibles = 4;
+  const int hauteur = MENU_H, y0 = MENU_Y0, visibles = MENU_VISIBLES;
   int debut = std::max(0, std::min(v.curseur - 1, static_cast<int>(lignes.size()) - visibles));
   for (int i = debut; i < static_cast<int>(lignes.size()) && i < debut + visibles; i++) {
-    int y = y0 + (i - debut) * (hauteur + 6);
+    int y = y0 + (i - debut) * (hauteur + MENU_ECART);
     bool actif = i == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
     g_->fillRoundRect(10, y, L - 20, hauteur, 10, c(fond));
@@ -503,11 +505,11 @@ void Dessin::corpsMenu(const Vue& v) {
     if (i < 9) {
       uint32_t pastilleFond = actif ? pal_.accent : pal_.surface2;
       g_->fillCircle(36, y + hauteur / 2, 11, c(pastilleFond));
-      ecrire(std::to_string(i + 1), 36, y + 11, &polices::petit, actif ? pal_.fond : pal_.doux, pastilleFond, 1);
+      ecrire(std::to_string(i + 1), 36, y + hauteur / 2 - 6, &polices::petit, actif ? pal_.fond : pal_.doux, pastilleFond, 1);
     }
-    ecrire(couper(lignes[i], &polices::texteGras, L - 100), 56, y + 9, actif ? &polices::texteGras : &polices::texte,
+    ecrire(couper(lignes[i], &polices::texteGras, L - 100), 56, y + hauteur / 2 - 9, actif ? &polices::texteGras : &polices::texte,
            actif ? pal_.texte : pal_.doux, fond);
-    if (actif) ecrire("›", L - 34, y + 7, &polices::titre, pal_.accent, fond);
+    if (actif) ecrire("›", L - 34, y + hauteur / 2 - 15, &polices::titre, pal_.accent, fond);
   }
   if (v.tactile && lignes.size() > static_cast<size_t>(visibles)) {  // défiler au doigt
     for (int k = 0; k < 2; k++) {
@@ -1040,7 +1042,7 @@ Toucher Dessin::cible(const Vue& v, int x, int y) const {
       t.type = Toucher::RETOUR;
       return t;
     case Vue::MENU: {
-      const int hauteur = 38, y0 = Y_CORPS + 46, visibles = 4;
+      const int hauteur = MENU_H, y0 = MENU_Y0, visibles = MENU_VISIBLES;
       int n = static_cast<int>(v.menu.size());
       if (n > visibles && y < y0 && x >= L - 100) {  // les flèches pour défiler
         t.type = Toucher::DEFILER;
@@ -1049,8 +1051,8 @@ Toucher Dessin::cible(const Vue& v, int x, int y) const {
       }
       int debut = std::max(0, std::min(v.curseur - 1, n - visibles));
       for (int i = debut; i < n && i < debut + visibles; i++) {
-        int yl = y0 + (i - debut) * (hauteur + 6);
-        if (y >= yl - 3 && y < yl + hauteur + 3 && y < Y_INFO) {
+        int yl = y0 + (i - debut) * (hauteur + MENU_ECART);
+        if (y >= yl - 2 && y < yl + hauteur + 3 && y < Y_INFO) {
           t.type = Toucher::LIGNE;
           t.ligne = i;
           return t;
