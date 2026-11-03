@@ -207,6 +207,7 @@ Wi-Fi, la fréquence de l'écran et le sens de la molette.
 | Les LED ont les mauvaises couleurs | `GRB` → `RGB` dans `main.cpp` |
 | Un lecteur RFID est « absent » au démarrage | Vérifier son CS et son 3,3 V (journal série) |
 | Pas de son | Le journal dit *« DFPlayer absent »* : vérifier TX/RX (croisés) et la carte SD |
+| Le logo s'affiche, puis l'image se délave, devient blanche ou noire | Le VCC de l'écran est sur le 3,3 V : le brancher sur le **5 V** (VIN) |
 | La carte ne démarre plus depuis que l'écran est branché | Broche LED de l'écran sur 3,3 V et `ECRAN_LED = -1` (voir `console/README.md`) |
 | La luminosité de l'écran ne change pas | La broche LED de l'écran est encore sur le 3,3 V : la relier à la GPIO 12 |
 

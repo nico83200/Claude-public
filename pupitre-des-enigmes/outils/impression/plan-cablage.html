@@ -297,7 +297,7 @@ les pattes d'une résistance ou d'un condensateur suffisent à faire la liaison.
 <tr><td>A8</td><td>Rail masse du bas</td><td>Branche masse de droite</td><td>fil nu (le prolongement du rail)</td><td>fil nu épais</td></tr>
 <tr><td>A9</td><td>C1 (100 µF) : patte longue (+)</td><td>Rail 5 V, près de J1 ; la patte « − » sur la masse</td><td>les pattes du condensateur</td><td>pattes du composant</td></tr>
 <tr><td colspan="5" class="sous"><b>Le 5 V, la masse et le 3,3 V des connecteurs</b></td></tr>
-<tr><td>A10</td><td>J2-1</td><td>Rail 3,3 V du haut</td><td>fil nu (court)</td><td>30 AWG</td></tr>
+<tr><td>A10</td><td>J2-1</td><td>Rail 5 V (l'écran : son régulateur veut du 5 V ; en 3,3 V il décroche quand le Wi-Fi démarre)</td><td><b>fil isolé</b></td><td><b>22 AWG</b></td></tr>
 <tr><td>A11</td><td>J2-2</td><td>Rail masse du haut</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
 <tr><td>A12</td><td>J3-1 et J3-2</td><td>Rail 3,3 V du bas</td><td><b>fil isolé</b></td><td>30 AWG</td></tr>
 <tr><td>A13</td><td>J3-3</td><td>Rail masse du bas</td><td>fil nu (court)</td><td>30 AWG</td></tr>
@@ -404,14 +404,14 @@ soudez-les sur chaque broche (9 points par rail). Ils restent bien droits : deux
 <tr><td>B, câble J14 branché</td><td>Tension entre VCC et GND des barrettes des DFPlayer, avant de les enficher</td><td><b>5,0 à 5,2 V</b></td></tr>
 <tr><td>C, câble J15 branché</td><td>Tension entre J11a-1 et J11a-2 (et un autre départ)</td><td><b>3,2 à 3,4 V</b></td></tr>
 </table>
-<div class="alerte"><b>Aucun module I2C, RFID ou écran sur le 5 V</b> : ils sont en 3,3 V. Seuls le PCA9685 (V+), les LED et les DFPlayer
-prennent le 5 V. Enfichez ou débranchez toujours un module <b>interrupteur coupé</b>.</div>
+<div class="alerte"><b>Aucun module I2C ni lecteur RFID sur le 5 V</b> : ils sont en 3,3 V. Seuls l'écran (son VCC : le module a son propre régulateur),
+le PCA9685 (V+), les LED et les DFPlayer prennent le 5 V. Enfichez ou débranchez toujours un module <b>interrupteur coupé</b>.</div>
 
 <h2 class="saut">8. Le brochage de chaque connecteur</h2>
 <table>
 <tr><th>Connecteur</th><th>Plaque</th><th>Type</th><th>Broches, dans l'ordre</th><th>Vers</th></tr>
 <tr><td><b>J1</b> + 5 V</td><td>A</td><td>Bornier à vis, 2 plots</td><td>+ (rail 5 V) · − (masse)</td><td>L'interrupteur général et la prise USB-C</td></tr>
-<tr><td><b>J2</b> ÉCRAN</td><td>A</td><td>Barrette mâle 1 × 12</td><td>1 3,3 V · 2 GND · 3 CS ← 5 · 4 RESET ← EN · 5 DC ← 21 · 6 MOSI ← 23 · 7 SCK ← 18 · 8 LED ← 12 · 9 SD_CS ← 4 · 10 SD_MOSI ← 23 · 11 SD_MISO → 19 · 12 SD_SCK ← 18</td><td>L'écran ILI9488 et son lecteur SD</td></tr>
+<tr><td><b>J2</b> ÉCRAN</td><td>A</td><td>Barrette mâle 1 × 12</td><td>1 5 V (VCC) · 2 GND · 3 CS ← 5 · 4 RESET ← EN · 5 DC ← 21 · 6 MOSI ← 23 · 7 SCK ← 18 · 8 LED ← 12 · 9 SD_CS ← 4 · 10 SD_MOSI ← 23 · 11 SD_MISO → 19 · 12 SD_SCK ← 18</td><td>L'écran ILI9488 et son lecteur SD</td></tr>
 <tr><td><b>J3</b> RFID FENTE</td><td>A</td><td>Barrette mâle 1 × 7</td><td>1 3,3 V · 2 RST (3,3 V) · 3 GND · 4 MISO → 19 · 5 MOSI ← 23 · 6 SCK ← 18 · 7 SDA (CS) ← 13</td><td>Le RC522 de la fente</td></tr>
 <tr><td><b>J4</b> RFID PLAT</td><td>A</td><td>Barrette mâle 1 × 7</td><td>Comme J3, mais 7 SDA (CS) ← 22</td><td>Le RC522 du lecteur à plat</td></tr>
 <tr><td><b>J5</b> HP</td><td>B</td><td>Bornier à vis, 2 plots</td><td>1 SPK_1 · 2 SPK_2 du DFPlayer haut-parleur</td><td>Le haut-parleur</td></tr>
@@ -439,7 +439,7 @@ prennent le 5 V. Enfichez ou débranchez toujours un module <b>interrupteur coup
 <tr><td class="n">S3–S6</td><td>Liaisons série des deux DFPlayer</td><td>A : J14-3 à J14-6 (GPIO 17, 16, 2, 36)</td><td>B : J14-3 à J14-6</td><td><span class="c gris"></span><span class="c gris"></span><span class="c gris"></span><span class="c gris"></span></td><td class="lg">15 cm</td></tr>
 <tr><td class="n">I1–I4</td><td>Départ du bus I2C</td><td>A : J15-1 à J15-4 (3,3 V, GND, GPIO 26, 27)</td><td>C : J15-1 à J15-4</td><td><span class="c orange"></span><span class="c noir"></span><span class="c jaune"></span><span class="c vert"></span></td><td class="lg">20 cm</td></tr>
 <tr><td colspan="6"><b>L'écran (J2)</b> — 12 fils Dupont femelle-femelle, sur la barrette de l'écran</td></tr>
-<tr><td class="n">4</td><td>Alimentation</td><td>J2-1 (3,3 V)</td><td>Écran VCC</td><td><span class="c orange"></span></td><td class="lg">15 cm</td></tr>
+<tr><td class="n">4</td><td>Alimentation (5 V : le module a son propre régulateur)</td><td>J2-1 (5 V)</td><td>Écran VCC</td><td><span class="c rouge"></span></td><td class="lg">15 cm</td></tr>
 <tr><td class="n">5</td><td>Masse</td><td>J2-2</td><td>Écran GND</td><td><span class="c noir"></span></td><td class="lg">15 cm</td></tr>
 <tr><td class="n">6</td><td>Sélection de l'écran</td><td>J2-3 (GPIO 5)</td><td>Écran CS</td><td><span class="c violet"></span></td><td class="lg">15 cm</td></tr>
 <tr><td class="n">7</td><td>Réinitialisation</td><td>J2-4 (EN)</td><td>Écran RESET</td><td><span class="c gris"></span></td><td class="lg">15 cm</td></tr>

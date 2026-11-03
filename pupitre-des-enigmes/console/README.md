@@ -116,7 +116,8 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | Fonction | Broche du composant | GPIO |
 |---|---|---|
 | **Bus SPI commun** | SCK / MOSI / MISO | **18 / 23 / 19** |
-| Écran ILI9488 | CS / DC / RST | 5 / 21 / EN |
+| Écran ILI9488 | VCC / GND | **5 V** (VIN) / GND : le module a son propre régulateur |
+| | CS / DC / RST | 5 / 21 / EN (broche parfois nommée « RST » ; à défaut, RST de l'écran sur 3,3 V) |
 | | MISO de l'écran | ⚠️ non branché |
 | | LED (rétroéclairage) | 12 (luminosité réglable) |
 | **Dalle tactile** (XPT2046, sur le même module) | T_CS / T_CLK / T_DIN / T_DO | **14** / 18 / 23 / 19 (le bus SPI commun) ; T_IRQ non branchée |
@@ -202,9 +203,10 @@ bouton « Étalonner l'écran tactile » de l'onglet Atelier, puis touchez les q
 pointe d'un stylo est plus précise). L'étalonnage est gardé dans `/tactile.json` sur la carte SD.
 Un écran sans dalle tactile : `TACTILE_CS = -1` dans `firmware/src/broches.h`.
 
-**Alimentation 5 V** (par l'embase USB-C de la face arrière) : l'ESP32 (VIN), les
-deux DFPlayer et toutes les LED, avec le condensateur de 1000 µF près de l'anneau.
-**3,3 V** (fourni par l'ESP32) : l'écran, les 2 lecteurs RFID, la molette, les deux
+**Alimentation 5 V** (par l'embase USB-C de la face arrière) : l'ESP32 (VIN), **l'écran
+(VCC)**, les deux DFPlayer et toutes les LED, avec le condensateur de 1000 µF près de
+l'anneau.
+**3,3 V** (fourni par l'ESP32) : les 2 lecteurs RFID, la molette, les deux
 PCF8574, le capteur de couleur, l'œil, la forge, l'enclume et l'horloge.
 
 **La carte ESP-32S** : c'est un module ESP32-WROOM-32 (4 Mo de flash) sur une
@@ -216,9 +218,10 @@ broches (« D25 », « P25 » ou « 25 » selon la sérigraphie), pas leur posit
 - La LED bleue de la carte est sur la GPIO 2 : elle clignote quand le pupitre
   parle au DFPlayer casque. C'est normal.
 - Le régulateur 3,3 V de la carte (AMS1117) alimente l'ESP32, les lecteurs RFID, la
-  molette et les modules I2C. Si le module écran accepte le 5 V sur VCC (la plupart
-  des modules ILI9488 3,5" ont leur propre régulateur : vérifier sa fiche), le
-  brancher sur le 5 V soulage ce régulateur. Ses signaux restent en 3,3 V.
+  molette et les modules I2C. **L'écran se branche sur le 5 V** : le module 3,5" a son
+  propre régulateur, et en 3,3 V il ne reçoit qu'environ 2,8 V. Il affiche alors le logo,
+  puis **décroche dès que le Wi-Fi démarre** (image délavée, écran blanc ou noir). Ses
+  signaux, eux, restent en 3,3 V.
 
 **Pièges à éviter :**
 - La GPIO 0 reste libre, pour ne pas gêner le démarrage.
