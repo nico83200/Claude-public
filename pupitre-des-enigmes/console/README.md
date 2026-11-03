@@ -139,7 +139,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | **Œil** APDS-9960 (0x39) | SDA / SCL, VCC 3,3 V (INT : en l'air) | I2C |
 | **Forge** BME280 (0x76, ou 0x77 selon la soudure SDO) | SDA / SCL, VIN 3,3 V | I2C |
 | **Enclume** QMC5883L (0x0D) | SDA / SCL, VCC 3,3 V (DRDY : en l'air) | I2C |
-| **Tiroir** : module PCA9685 (0x40) | SDA / SCL, VCC 3,3 V ; **V+ 5 V** (bornier, avec le 470 µF) ; le servomoteur sur la voie **0** (marron GND, rouge V+, orange PWM) | I2C |
+| **Tiroir** : module PCA9685 (0x40) | SDA / SCL, VCC 3,3 V ; **V+ 5 V** (bornier, avec le 470 µF) ; le servomoteur sur la voie **0** (marron GND, rouge V+, orange PWM). Vissé à l'intérieur de la face arrière, à gauche (X = 2 à 8,5 cm, 40 à 65 mm du dessous), au-dessus du tiroir, voies vers le haut : les 15 voies libres restent à portée pour de futurs servomoteurs | I2C |
 | **Tiroir** : microrupteur de fin de course | P4 du PCF8574 des boutons ↔ GND (fermé quand le tiroir est au fond) | I2C |
 | **Horloge** HT16K33 (0x70) | SDA / SCL, VCC 3,3 V ; l'afficheur lui-même en 5 V si le module a une broche V+ séparée | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
@@ -341,7 +341,7 @@ le premier trou de 30 mm aurait touché la paroi.
     à tête fraisée passée de l'extérieur** à travers la face arrière (trou de 3,2 mm
     fraisé, tête au ras) et un écrou. Pas de vis à bois : 5 mm de contreplaqué tiennent
     mal une vis.
-  - **C, le bus I2C** (20 × 80 mm : huit départs, un par module I2C du couvercle) se visse
+  - **C, le bus I2C** (20 × 80 mm : huit départs, un par module I2C du couvercle, et deux en réserve pour de futurs modules) se visse
     sous le couvercle, sur 2 entretoises collées, entre la rangée haute des voyants et le
     haut-parleur (X = 12,5 à 20,5 cm, Y = 15 à 17 cm).
   - Les fils vers l'écran et les lecteurs sont ainsi courts (une quinzaine de cm), et le
