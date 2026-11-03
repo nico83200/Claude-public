@@ -87,7 +87,7 @@ La carte ESP-32S (USB-C) passe par une puce USB **CH340**.
    posées (avec leur UID), erreurs de script.
 
 **Le logo du démarrage** (`console/logo.png`) est intégré au programme : il s'affiche
-2,5 secondes à l'allumage, avant même la lecture de la carte SD. Pour en changer,
+7 secondes à l'allumage, avant même la lecture de la carte SD. Pour en changer,
 remplacer l'image puis lancer `python3 outils/logo_ecran.py` et téléverser de nouveau.
 La durée se règle dans `src/broches.h` (`DUREE_LOGO_MS`).
 
