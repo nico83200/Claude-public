@@ -150,6 +150,19 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
    coupure de courant, glisser de nouveau la carte Monde : le menu propose *« Reprendre la
    partie en cours »*.
 
+**Ce qu'une mise à jour ne touche jamais.** Les fichiers propres à *votre* pupitre sont sur
+la carte SD de l'écran, à la racine : `reglages.json` (luminosité, volumes, mode démonstration),
+`classement.json` (toutes les parties), `tactile.json` (l'étalonnage de l'écran tactile),
+`code-panneau.txt` (le code d'accès du panneau), et dans chaque monde `cartes.json` (les puces
+enregistrées). **Aucune mise à jour ne les écrase** :
+- le programme (par USB ou par l'onglet Mise à jour) ne touche pas à la carte SD ;
+- l'archive `carte-sd-ecran.zip` ne contient aucun de ces fichiers : on la recopie par-dessus ;
+- l'onglet **Missions** du panneau n'écrit que dans `mondes/` et `pupitre/`, et garde les
+  `cartes.json` déjà enregistrés.
+
+La seule façon de les perdre : **reformater** la carte SD. Pour une mise à jour, ne la
+reformatez pas, recopiez simplement par-dessus.
+
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
 `Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1, puis
 taper le code d'accès (`1234` au départ, à changer dans l'onglet Atelier).

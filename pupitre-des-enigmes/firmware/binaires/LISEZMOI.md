@@ -30,3 +30,8 @@ Connectez le téléphone ou l'ordinateur au Wi-Fi « Pupitre-des-Enigmes » (mot
 
 Ces fichiers correspondent au code de ce dépôt au moment où ils ont été produits. Après
 une modification du code, il faut les refaire (PlatformIO, voir `firmware/README.md`).
+
+**Vos réglages restent.** Flasher le programme, par USB comme par le Wi-Fi, ne touche jamais à
+la carte SD de l'écran : réglages, classement, étalonnage du tactile, code d'accès du panneau et
+cartes enregistrées sont conservés (voir `firmware/README.md`, « Ce qu'une mise à jour ne touche
+jamais »).

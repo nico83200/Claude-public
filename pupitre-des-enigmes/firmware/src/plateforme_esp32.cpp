@@ -6,6 +6,9 @@
 
 bool PlateformeESP32::lireFichier(const std::string& chemin, std::string& contenu) {
   File f = SD.open(chemin.c_str(), FILE_READ);
+  // Une coupure pile entre l'effacement de l'ancien fichier et la mise en place du nouveau
+  // (ecrireFichier) laisse seulement le « .tmp », complet : on le reprend (réglages, classement…).
+  if (!f) f = SD.open((chemin + ".tmp").c_str(), FILE_READ);
   if (!f) return false;
   contenu.clear();
   contenu.reserve(f.size());
