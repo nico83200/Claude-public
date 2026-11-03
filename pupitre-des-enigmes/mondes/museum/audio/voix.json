@@ -15,7 +15,7 @@
     },
     "gardien": {
       "nom": "Barnabé, le gardien",
-      "voice_id": "",
+      "voice_id": "SlhQaKdVdNmGWvRpE1rw",
       "description": "Homme, la soixantaine, gardien de nuit bonhomme, accent parisien populaire.",
       "portrait": "Le gardien de nuit, brave et un peu vexé qu'on l'ait fait courir pour rien.",
       "prompt_voice_design": "A good-natured older French night watchman, working-class Parisian accent, native speaker from France, gruff but friendly.",
@@ -27,7 +27,7 @@
     },
     "voleur": {
       "nom": "Le voleur",
-      "voice_id": "",
+      "voice_id": "cfmSdkhSB7AR6HeVKZA0",
       "description": "Homme, la trentaine, gentleman cambrioleur moqueur, essoufflé.",
       "portrait": "On ne l'entend qu'une fois, en train de s'enfuir.",
       "prompt_voice_design": "A mocking French gentleman thief in his thirties, out of breath, theatrical, native speaker from France.",
