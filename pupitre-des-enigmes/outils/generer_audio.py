@@ -46,7 +46,29 @@ API = "https://api.elevenlabs.io/v1"
 FORMAT = "mp3_44100_128"
 RACINE = Path(__file__).resolve().parent.parent
 CLASSEUR = RACINE / "suivi" / "suivi-audio.xlsx"
-ETAT_CLASSEUR = RACINE / "suivi" / "synchro-classeur.json"  # le dernier texte sur lequel classeur et jeu étaient d'accord
+ETAT_CLASSEUR = RACINE / "suivi" / "synchro-classeur.json"
+DOSSIER_DRIVE = "LE PUPITRE DES ENIGMES/AUDIOS"  # le dossier des audios sur le Google Drive
+CLASSEUR_DRIVE = "suivi-audio-1.xlsx"
+
+
+def dossier_drive():
+    """Le dossier AUDIOS du Google Drive, tel que « Google Drive pour ordinateur » le montre :
+    sur Mac ~/Library/CloudStorage/GoogleDrive-…/Mon Drive/…, sous Windows G:/Mon Drive/….
+    La variable PUPITRE_AUDIOS peut donner un autre chemin. None : pas de Drive sur cet ordinateur."""
+    if os.environ.get("PUPITRE_AUDIOS"):
+        p = Path(os.environ["PUPITRE_AUDIOS"]).expanduser()
+        return p if p.is_dir() else None
+    racines = list((Path.home() / "Library" / "CloudStorage").glob("GoogleDrive-*"))
+    racines += [Path(f"{l}:/") for l in "GHIJ"] + [Path.home() / "Google Drive"]
+    for r in racines:
+        for mon in ("Mon Drive", "My Drive", ""):
+            p = r / mon / DOSSIER_DRIVE
+            try:
+                if p.is_dir():
+                    return p
+            except OSError:
+                continue
+    return None  # le dernier texte sur lequel classeur et jeu étaient d'accord
 PROVISOIRES = {"brouillon", "simulation"}  # remplacés par ElevenLabs dès qu'on le lance
 BROUILLON = "Brouillon : voix de l'ordinateur"
 PERIME = "Le texte ou la voix a changé depuis l'enregistrement"
@@ -337,7 +359,7 @@ def statuts_classeur(wb, classeur, audios, empreintes, sortie, essai, fabriques=
 # ----------------------------------------------------------------------------------------------
 
 def chemin_existant(audio, sortie):
-    for ext in (".mp3", ".wav"):
+    for ext in (".mp3", ".wav", ""):  # "" : un fichier du Drive enregistré sans extension
         p = sortie / f"{audio.dossier:02d}" / f"{audio.n:03d}{ext}"
         if p.exists():
             return p
@@ -361,7 +383,7 @@ def ecrire(audio, donnees_wav_ou_mp3, extension, sortie, normaliser):
     """Range le fichier à sa place (sd/40/122.mp3), en harmonisant le volume si ffmpeg est là."""
     dossier = sortie / f"{audio.dossier:02d}"
     dossier.mkdir(parents=True, exist_ok=True)
-    for ext in (".mp3", ".wav"):  # un seul fichier par numéro, sinon le lecteur audio hésite
+    for ext in (".mp3", ".wav", ""):  # un seul fichier par numéro, sinon le lecteur audio hésite
         (dossier / f"{audio.n:03d}{ext}").unlink(missing_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         brut = Path(tmp) / f"brut{extension}"
@@ -456,18 +478,33 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("fichiers", nargs="*", help="fichiers de répliques ou de bruitages (par défaut : tous)")
     parser.add_argument("--seulement", type=plage, default=set(), help="numéros à traiter, ex. 120-129,135")
-    parser.add_argument("--sortie", type=Path, default=RACINE / "sd", help="dossier des cartes SD (défaut : sd/)")
+    parser.add_argument("--sortie", type=Path, help="dossier des audios (défaut : AUDIOS du Google Drive s'il est là, sinon sd/)")
     parser.add_argument("--forcer", action="store_true", help="refaire même les fichiers à jour")
     parser.add_argument("--essai", action="store_true", help="tout montrer, sans rien fabriquer ni modifier")
     parser.add_argument("--oui", action="store_true", help="ne pas demander de confirmation")
     parser.add_argument("--brouillon", action="store_true",
                         help="voix provisoires avec la voix de l'ordinateur (gratuit ; remplacées ensuite par ElevenLabs)")
     parser.add_argument("--simulation", action="store_true", help="fichiers muets, pour essayer sans compte")
-    parser.add_argument("--classeur", type=Path, default=CLASSEUR, help="le classeur de suivi (défaut : suivi/suivi-audio.xlsx)")
+    parser.add_argument("--classeur", type=Path,
+                        help="le classeur de suivi (défaut : celui du Google Drive s'il est là, sinon suivi/suivi-audio.xlsx)")
+    parser.add_argument("--sans-drive", action="store_true", help="ignorer le Google Drive de cet ordinateur")
     parser.add_argument("--sans-classeur", action="store_true", help="ne pas lire ni modifier le classeur")
     parser.add_argument("--sans-normaliser", action="store_true", help="ne pas harmoniser les volumes")
     args = parser.parse_args()
-    args.sortie = args.sortie.resolve()
+    # Le Google Drive d'abord : les audios s'y rangent et son classeur est tenu à jour à chaque passage ;
+    # la copie du dépôt (suivi/suivi-audio.xlsx) est remise à l'identique à la fin.
+    drive = None if args.sans_drive else dossier_drive()
+    if drive:
+        print(f"☁️  Google Drive : {drive}")
+        if args.sortie is None:
+            args.sortie = drive
+        if args.classeur is None and (drive / CLASSEUR_DRIVE).exists():
+            args.classeur = drive / CLASSEUR_DRIVE
+    else:
+        print("ℹ️  Pas de Google Drive sur cet ordinateur : les audios vont dans sd/, le classeur du dépôt est mis à jour.")
+        print("   Pensez à reporter les nouveaux fichiers et le classeur sur le Drive.")
+    args.sortie = (args.sortie or RACINE / "sd").resolve()
+    args.classeur = (args.classeur or CLASSEUR).resolve()
 
     audios, contenus, castings = lire_audios(fichiers_sources(args.fichiers))
     wb = None if args.sans_classeur else synchroniser_classeur(args.classeur.resolve(), audios, contenus, castings, args.essai)
@@ -565,8 +602,10 @@ def main():
         args.sortie.mkdir(parents=True, exist_ok=True)
         enregistrer(fichier_empreintes, dict(sorted(empreintes.items())))
         statuts_classeur(wb, args.classeur, audios, empreintes, args.sortie, False, fabriques)
-    print(f"Terminé : {faits} fichier(s) fabriqué(s). Copiez le dossier {args.sortie.name}/ sur les deux cartes SD "
-          "des lecteurs audio (sans empreintes.json).")
+        if wb is not None and args.classeur != CLASSEUR.resolve():
+            shutil.copy(args.classeur, CLASSEUR)  # la copie du dépôt suit le classeur du Drive
+    print(f"Terminé : {faits} fichier(s) fabriqué(s). Copiez les dossiers numérotés de {args.sortie.name}/ (10, 11, 40…) "
+          "sur les deux cartes SD des lecteurs audio, sans rien d'autre.")
 
 
 if __name__ == "__main__":

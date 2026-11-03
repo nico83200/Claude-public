@@ -87,9 +87,15 @@ caractères restant à fabriquer.
 
 **Conseils :**
 - Les heures et les montants sont écrits en toutes lettres pour une bonne prononciation.
-- Le classeur peut vivre sur le Google Drive : téléchargez-le à la place de
-  `suivi/suivi-audio.xlsx` avant de lancer la commande, et renvoyez-le ensuite (ou passez
-  `--classeur chemin/vers/le-classeur.xlsx`).
+- **Le Google Drive est tenu à jour à chaque passage.** Avec l'application « Google Drive pour
+  ordinateur », la commande trouve toute seule le dossier `LE PUPITRE DES ENIGMES/AUDIOS` :
+  les audios s'y rangent (dossiers `10`, `11`, `40`…), son classeur `suivi-audio-1.xlsx` est mis
+  à jour, et la copie du dépôt (`suivi/suivi-audio.xlsx`) est remise à l'identique. Un audio
+  marqué « Fait » dans le classeur n'est jamais refait, même s'il n'est pas dans le dossier ; un
+  audio « À refaire » est refait. Autre emplacement : `PUPITRE_AUDIOS=/chemin/vers/AUDIOS`.
+  Pour ne pas toucher au Drive : `--sans-drive`.
+- Sans le Drive sur l'ordinateur, les audios vont dans `sd/` et seul le classeur du dépôt change :
+  reportez ensuite les nouveaux fichiers et le classeur sur le Drive.
 
 ## 2. Les documents à imprimer (PDF)
 
