@@ -8,6 +8,11 @@
 
 namespace pupitre {
 
+// Le Wi-Fi du pupitre (le panneau du maître du jeu, et le diplôme de la fin de partie).
+constexpr const char* WIFI_NOM = "Pupitre-des-Enigmes";
+constexpr const char* WIFI_MOT_DE_PASSE = "enigmes123";  // 8 caractères au moins
+constexpr const char* ADRESSE_PANNEAU = "192.168.4.1";
+
 enum Zone : int { QUI = 0, OU = 1, QUOI = 2 };
 enum Bouton : int { ROUGE = 0, BLEU = 1, JAUNE = 2, VERT = 3, GROS = 4 };
 
@@ -58,6 +63,8 @@ struct Vue {
   bool clavier = false;                  // le clavier AZERTY occupe le bas de l'écran
   std::string saisie;                    // le texte en cours de saisie (nom de l'équipe)
   std::string boutons[2];                // boutons tactiles du bas : [0] retour, [1] valider ("" : absent)
+  // La fin de film : deux QR codes sur l'écran de victoire (le Wi-Fi du pupitre, puis le diplôme).
+  std::string qr[2], qrLegende[2];       // texte encodé ; "" : pas de QR code
 };
 
 // Un toucher sur l'écran, traduit par le dessin selon ce qui est affiché.

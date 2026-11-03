@@ -55,6 +55,10 @@ class Moteur {
   std::string journalJson(int depuis) const;      // les lignes du journal de partie après « depuis »
   std::string repliquesJson() const;              // les répliques de la mission (le souffleur)
   std::string classementJson();                   // toutes les parties jouées (/classement.json)
+  // Les indices tout prêts du souffleur : chaque blocage, s'il est actif, et le texte de ses niveaux.
+  std::string indicesJson();
+  // Le diplôme de la dernière partie gagnée (page /diplome du panneau) ; "{}" s'il n'y en a pas.
+  std::string diplomeJson();
   // L'équipe de la partie (prénoms des joueurs), pour le classement ; « date » vient du téléphone.
   void definirEquipe(const std::string& nom, const std::vector<std::string>& joueurs, const std::string& date);
   int points() const { return points_; }
@@ -210,6 +214,7 @@ class Moteur {
   void basculerVoyant(int i);
   void actionVoyant(JsonVariantConst v, bool socle = false);
   void majVoyants(uint32_t t, Lumieres& l, float pulse);
+  void feuArtifice(uint32_t dt, Lumieres& l);  // la victoire : 15 s de lumière sur tout le pupitre
   void epreuveCarte(const std::string& id);
   void vueEpreuve();
   bool energieValide(std::string* regleFausse);
@@ -225,6 +230,8 @@ class Moteur {
   int secondesEcoulees() const;
   void majChrono();
   void majImprevus();
+  void majSouffleur(bool occupe);  // le souffleur automatique : propose l'aide après un long blocage
+  void avancee();                  // les joueurs viennent de progresser (un objectif, une étape)
   void majEntete();
   void majZones();
   void rafraichir();
@@ -291,6 +298,16 @@ class Moteur {
   int ambiance_ = 0;
   bool ambianceEnCours_ = false;
   uint32_t silenceDepuis_ = 0;
+
+  // Le souffleur automatique et les statistiques de la partie.
+  int derniereAvancee_ = 0;        // secondes de jeu écoulées à la dernière progression
+  int avancees_ = -1;              // objectifs faits + étapes franchies (-1 : pas encore compté)
+  int souffleurs_ = 0;             // interventions du souffleur automatique
+  bool souffleurDit_ = false;      // il a déjà parlé depuis la dernière progression
+  bool souffleurClignote_ = false; // il fait clignoter la carte d'aide
+  std::string messageSouffleur_;
+  std::set<std::string> objectifsFaits_;
+  std::vector<std::pair<std::string, int>> etapes_;  // objectif atteint, à la seconde de jeu près
 
   // Accusation.
   bool accusationOuverte_ = false;

@@ -1,6 +1,7 @@
 #include "panneau_web.h"
 
 #include <ArduinoOTA.h>
+#include <SD.h>
 #include <Update.h>
 #include <WebServer.h>
 #include <WiFi.h>
@@ -39,6 +40,17 @@ small{color:#999}
 #journal div{font-family:ui-monospace,monospace;font-size:.85em;border-bottom:1px solid #2c2e35;padding:3px 0}
 table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;border-bottom:1px solid #2c2e35}td.n{text-align:right}
 .mesure{display:flex;justify-content:space-between;border-bottom:1px solid #2c2e35;padding:5px 0}
+.miroir{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;padding:8px 10px;box-sizing:border-box;display:flex;flex-direction:column;font-size:.85em;border:3px solid #000}
+.miroir .haut{display:flex;justify-content:space-between;opacity:.85;font-size:.85em;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:3px}
+.miroir .titre{font-weight:700;margin:6px 0 4px}
+.miroir .corps{flex:1;overflow:hidden;white-space:pre-wrap;line-height:1.3}
+.miroir .bas{font-size:.85em;opacity:.8;min-height:1.2em}
+.miroir .sel{border-radius:4px;padding:0 4px}
+.miroir .opts{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}.miroir .opts div{border-radius:4px;padding:2px 6px;color:#fff}
+.badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:.8em;margin-left:6px}
+.b-suiv{background:#c9a54a;color:#111}.b-actif{background:#3a5a9a}.b-fini{background:#2f7d4a}.b-non{background:#333;color:#999}
+.indice{border-left:3px solid #444;padding:4px 8px;margin:6px 0}.indice.donne{border-color:#2f7d4a;opacity:.7}
+.barre{height:8px;background:#5b8def;border-radius:4px}
 </style></head><body>
 <header>Le Pupitre des Énigmes · maître du jeu</header>
 <nav id="onglets"></nav>
@@ -47,7 +59,9 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 <section id="partie">
 <div class="chrono" id="chrono">—</div>
 <div class="carte"><b id="monde">—</b> <small id="phase"></small><br><small id="zones"></small><br><small id="equipeLigne"></small></div>
-<div class="carte" id="texte"></div>
+<div class="carte"><b>L'écran du pupitre</b> <small>(en miroir, chaque seconde)</small>
+<div class="miroir" id="miroir"></div></div>
+<div class="carte" id="souffleurAuto" style="display:none"></div>
 <div class="carte" id="blocage" style="display:none"><b>Épreuve en cours :</b> <span id="epreuve"></span><br>
 <small>Si les joueurs sont bloqués (un capteur qui ne répond pas, par exemple), faites-la réussir.</small><br><br>
 <button class="vert" onclick="if(confirm('Faire réussir l\'épreuve en cours ?'))c('debloquer')">Débloquer</button></div>
@@ -74,6 +88,11 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 </section>
 
 <section id="souffleur">
+<div class="carte"><b>Les indices tout prêts</b> <small id="indicesResume"></small><br>
+<small>Le blocage marqué <span class="badge b-suiv">suivant</span> est celui que donnerait la carte d'aide.
+🔊 haut-parleur · 🎧 casque · ✉ écrire à l'écran.</small>
+<div id="indicesListe"></div>
+<button onclick="if(confirm('Donner l\'indice suivant, comme la carte d\'aide ?'))c('aide').then(indices)">Donner l'indice suivant</button></div>
 <div class="carte"><b>Un message à l'écran</b>
 <textarea id="message" rows="2" placeholder="Ex. : Avez-vous bien regardé la photo du box ?"></textarea>
 <button onclick="message()">Afficher</button></div>
@@ -87,6 +106,25 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 <section id="classement">
 <div class="carte"><b>Par mission</b><div id="parMission"></div></div>
 <div class="carte"><b>Par joueur</b> <small>(total des points de toutes ses parties)</small><div id="parJoueur"></div></div>
+</section>
+
+<section id="stats">
+<div class="carte"><b>Statistiques des parties</b><br><small>Calculées sur toutes les parties du classement. L'étape la plus
+longue est celle qui fait le plus souvent caler les équipes : c'est là qu'un indice ou une retouche du script aide le plus.</small></div>
+<div id="statsListe"></div>
+</section>
+
+<section id="missions">
+<div class="carte"><b>Envoyer une mission par le Wi-Fi</b><br>
+<small>Sans retirer la carte SD de l'écran.<br>
+1. Sur l'ordinateur ou la tablette, décompressez <code>carte-sd-ecran.zip</code>.<br>
+2. Choisissez le dossier décompressé (celui qui contient <code>mondes</code>) : seuls les fichiers des dossiers
+<code>mondes</code> et <code>pupitre</code> partent sur le pupitre.<br>
+3. Les cartes déjà enregistrées (<code>cartes.json</code>) sont gardées. Le pupitre relit ensuite ses mondes
+(hors partie seulement).</small><br><br>
+<input type="file" id="dossier" webkitdirectory directory multiple>
+<button class="vert" onclick="envoyerMission()">Envoyer</button>
+<div id="envoi" style="margin-top:8px"></div><div id="envoiDetail" style="max-height:30vh;overflow-y:auto;font-size:.85em"></div></div>
 </section>
 
 <section id="atelier">
@@ -111,13 +149,13 @@ table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:5px;bord
 
 </main>
 <script>
-const O=[['partie','Partie'],['equipe','Équipe'],['souffleur','Souffleur'],['classement','Classement'],['atelier','Atelier'],['maj','Mise à jour']];
+const O=[['partie','Partie'],['equipe','Équipe'],['souffleur','Souffleur'],['classement','Classement'],['stats','Statistiques'],['missions','Missions'],['atelier','Atelier'],['maj','Mise à jour']];
 let actif='partie',dernier=0,repl=[],missionVue='';
 const $=i=>document.getElementById(i);
 const esc=t=>String(t).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]));
 O.forEach(([i,n])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>onglet(i);b.id='o_'+i;$('onglets').appendChild(b)});
 function onglet(i){actif=i;O.forEach(([k])=>{$(k).classList.toggle('actif',k==i);$('o_'+k).classList.toggle('actif',k==i)});
- if(i=='classement')classement();if(i=='souffleur')chargerRepliques()}
+ if(i=='classement')classement();if(i=='souffleur'){chargerRepliques();indices()}if(i=='stats')stats()}
 onglet('partie');
 function c(x){return fetch('/commande?c='+encodeURIComponent(x))}
 function e(x){fetch('/essai?a='+x)}
@@ -127,7 +165,10 @@ function maj(){fetch('/etat').then(r=>r.json()).then(e=>{
  $('phase').textContent=e.phase+(e.pause?' (pause)':'');
  $('zones').textContent='QUI : '+(e.zones[0]||'—')+' · OÙ : '+(e.zones[1]||'—')+' · QUOI : '+(e.zones[2]||'—');
  $('equipeLigne').textContent=e.equipe?'Équipe : '+e.equipe+((e.joueurs||[]).length?' ('+e.joueurs.join(', ')+')':''):'Pas encore d\'équipe';
- $('texte').textContent=e.texte||'';
+ miroir(e.ecran||{});
+ const sa=$('souffleurAuto');sa.style.display=e.sansAvancee!=null?'block':'none';
+ if(e.sansAvancee!=null)sa.innerHTML='<small>Dernière avancée des joueurs il y a <b>'+Math.floor(e.sansAvancee/60)+' min</b>'
+  +(e.ecran&&e.ecran.aide?' · <span class="ko">la carte d\'aide clignote</span>':'')+'</small>';
  $('etapes').textContent=(e.etapes||[]).join(', ')||'—';
  $('erreurs').textContent=e.erreurs;$('indices').textContent=e.indices;
  $('blocage').style.display=e.epreuve?'block':'none';
@@ -137,6 +178,53 @@ function maj(){fetch('/etat').then(r=>r.json()).then(e=>{
    +(m.etat==1?'● ':m.etat==0?'✗ ':'○ ')+esc(m.nom)+'</div>').join('');
  const mv=(e.monde||'')+e.mission;if(mv!=missionVue){missionVue=mv;repl=[];if(actif=='souffleur')chargerRepliques()}
 }).catch(()=>{})}
+const COUL=['#d02020','#2050e0','#e0b000','#20b040'];
+function miroir(v){const m=$('miroir');m.style.background=v.fond||'#1f3b2d';m.style.color=v.couleur||'#f3ead8';
+ const ac=v.accent||'#c9a54a';let corps='';
+ if(v.menu&&v.menu.length)corps=v.menu.map((l,i)=>'<div'+(i==v.curseur?' class="sel" style="background:'+ac+';color:'+(v.fond||'#000')+'"':'')+'>'+esc(l)+'</div>').join('');
+ else corps=esc(v.texte||'');
+ if(v.champs&&v.champs.length)corps+='<div style="font-size:1.6em;letter-spacing:.3em;text-align:center;margin-top:6px">'+esc(v.champs.join(' '))+'</div>';
+ if(v.saisie!=null)corps+='<div style="font-size:1.3em;margin-top:6px">'+esc(v.saisie)+'▌</div>';
+ if(v.options&&v.options.some(o=>o))corps+='<div class="opts">'+v.options.map((o,i)=>o?'<div style="background:'+COUL[i]+'">'+esc(o)+'</div>':'').join('')+'</div>';
+ if(v.type=='tableau'&&v.objectifs)corps=v.objectifs.map(([n,f])=>(f==2?'✓ ':'· ')+esc(n)).join('<br>');
+ m.innerHTML='<div class="haut"><span>'+esc(v.mission||'')+(v.compteurs?' · '+esc(v.compteurs):'')+'</span><b>'+esc(v.entete||'')+'</b></div>'
+  +'<div class="titre" style="color:'+ac+'">'+esc(v.titre||'')+(v.aide?' <span style="color:#ff7a7a">● aide</span>':'')+'</div>'
+  +'<div class="corps">'+corps+'</div><div class="bas">'+esc(v.info||v.bandeau||'')+(v.secondes!=null?' · ⏱ '+v.secondes+' s':'')+'</div>'}
+function indices(){if(actif!='souffleur')return;fetch('/indices').then(r=>r.json()).then(d=>{
+ $('indicesResume').textContent=d.mission?'· '+d.donnes+' donné(s), '+d.gratuits+' gratuit(s) restant(s)':'';
+ $('indicesListe').innerHTML=(d.blocages||[]).map((b,i)=>{
+  const etat=b.suivant?'<span class="badge b-suiv">suivant</span>':b.actif?'<span class="badge b-actif">à venir</span>':'<span class="badge b-non">pas maintenant</span>';
+  return '<div class="carte" style="background:#1b1d22"><b>Blocage '+(i+1)+'</b>'+etat+' <small>('+esc(b.si)+')</small>'
+   +(b.niveaux||[]).map((n,k)=>'<div class="indice'+(k<b.donnes?' donne':'')+'"><small>Niveau '+(k+1)+(k<b.donnes?' · déjà donné':'')+' · réplique '+n.n+'</small><br>'
+    +esc(n.texte)+'<br><button class="petit" onclick="c(\'dire:'+n.n+'\')">🔊</button> <button class="petit" onclick="c(\'casque:'+n.n+'\')">🎧</button> '
+    +'<button class="petit" onclick="ecrireIndice('+n.n+')">✉</button></div>').join('')+'</div>'}).join('')
+  ||'<small>Aucune mission en cours.</small>';indicesCache=d}).catch(()=>{})}
+let indicesCache={};
+function ecrireIndice(n){const t=replTexte(n);if(t&&confirm('Écrire cet indice à l\'écran ?'))c('message:'+t)}
+function replTexte(n){for(const b of indicesCache.blocages||[])for(const x of b.niveaux||[])if(x.n==n)return x.texte;return ''}
+function mmss(s){s=Math.round(s||0);return Math.floor(s/60)+' min '+String(s%60).padStart(2,'0')}
+function stats(){fetch('/classement').then(r=>r.json()).then(d=>{const g={};
+ (d.parties||[]).forEach(x=>{const k=x.monde+' · '+(x.titre||'');(g[k]=g[k]||[]).push(x)});
+ $('statsListe').innerHTML=Object.keys(g).map(k=>{const p=g[k],n=p.length,v=p.filter(x=>x.victoire),moy=(a,f)=>a.length?a.reduce((s,x)=>s+(f(x)||0),0)/a.length:0;
+  const et={},ordre=[];p.forEach(x=>{let avant=0;(x.etapes||[]).forEach(e=>{if(!et[e.nom]){et[e.nom]=[];ordre.push(e.nom)}et[e.nom].push(e.t-avant);avant=e.t})});
+  const lignes=ordre.map(e=>[e,moy(et[e],x=>x),et[e].length]);const max=Math.max(1,...lignes.map(l=>l[1]));const pire=lignes.reduce((a,l)=>l[1]>(a?a[1]:-1)?l:a,null);
+  return '<div class="carte"><b>'+esc(k)+'</b><br><small>'+n+' partie'+(n>1?'s':'')+' · réussite '+Math.round(100*v.length/n)+' %'
+   +(v.length?' · durée moyenne (victoires) '+mmss(moy(v,x=>x.duree)):'')+' · indices '+moy(p,x=>x.aides!=null?x.aides:x.indices).toFixed(1)
+   +' · souffleur auto '+moy(p,x=>x.souffleur).toFixed(1)+'</small>'
+   +(pire?'<p>Étape la plus longue : <b class="ko">'+esc(pire[0])+'</b> ('+mmss(pire[1])+' en moyenne)</p>':'')
+   +'<table>'+lignes.map(([e,t,c])=>'<tr><td>'+esc(e)+'<div class="barre" style="width:'+Math.round(100*t/max)+'%"></div></td><td class="n">'+mmss(t)+'<br><small>'+c+' équipe'+(c>1?'s':'')+'</small></td></tr>').join('')+'</table></div>'}).join('')
+  ||'<div class="carte"><small>Aucune partie enregistrée.</small></div>'})}
+async function envoyerMission(){const f=[...$('dossier').files].map(x=>{const r=x.webkitRelativePath||x.name;const i=r.search(/(^|\/)(mondes|pupitre)\//);
+  return i<0?null:{f:x,chemin:'/'+r.slice(i).replace(/^\//,'')}}).filter(x=>x&&/\.(json|jpg|png)$/i.test(x.chemin));
+ if(!f.length){$('envoi').textContent='Aucun fichier des dossiers mondes ou pupitre dans ce dossier.';return}
+ $('envoiDetail').innerHTML='';let ok=0,garde=0,ko=0;
+ for(let i=0;i<f.length;i++){$('envoi').textContent='Envoi '+(i+1)+' / '+f.length+'…';const d=new FormData();d.append('fichier',f[i].f);
+  let t;try{t=await (await fetch('/fichier?chemin='+encodeURIComponent(f[i].chemin),{method:'POST',body:d})).text()}catch(e){t='ko: réseau'}
+  if(t.startsWith('ok'))ok++;else if(t.startsWith('garde'))garde++;else ko++;
+  const l=document.createElement('div');l.className=t.startsWith('ok')?'ok':t.startsWith('garde')?'nv':'ko';l.textContent=f[i].chemin+' — '+t;$('envoiDetail').prepend(l)}
+ await c('recharger');
+ $('envoi').innerHTML='<b>'+ok+' fichier(s) envoyé(s)</b>'+(garde?' · '+garde+' gardé(s) (cartes déjà enregistrées)':'')+(ko?' · <span class="ko">'+ko+' en échec</span>':'')
+  +'<br><small>Le pupitre a relu ses mondes (s\'il n\'était pas en partie). Pour un nouveau monde : enregistrez ses cartes depuis son menu.</small>'}
 function journal(){fetch('/journal?depuis='+dernier).then(r=>r.json()).then(j=>{
  if(j.dernier<dernier){$('journal').innerHTML='';dernier=0}
  (j.lignes||[]).forEach(([n,t])=>{const d=document.createElement('div');d.textContent=t;$('journal').prepend(d)});
@@ -166,8 +254,62 @@ function televerser(){const f=$('fichier').files[0];if(!f)return;const x=new XML
  x.upload.onprogress=v=>{$('avancee').textContent='Envoi : '+Math.round(100*v.loaded/v.total)+' %'};
  x.onload=()=>{$('avancee').textContent=x.responseText};x.onerror=()=>{$('avancee').textContent='Échec de l\'envoi'};
  x.open('POST','/maj');x.send(d)}
-setInterval(maj,1000);setInterval(journal,1000);setInterval(mesures,500);maj();journal();
+setInterval(maj,1000);setInterval(journal,1000);setInterval(mesures,500);setInterval(indices,3000);maj();journal();
 </script></body></html>)HTML";
+
+// Le diplôme de l'équipe, sur le téléphone des joueurs (QR code de l'écran de victoire).
+// Une page à part : elle ne mène pas au panneau du maître du jeu.
+const char DIPLOME[] PROGMEM = R"HTML(<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diplôme · Le Pupitre des Énigmes</title>
+<style>
+body{margin:0;background:#2b2118;font-family:Georgia,'Times New Roman',serif;color:#3b2a14;display:flex;justify-content:center;align-items:flex-start;padding:16px;box-sizing:border-box;min-height:100vh}
+.d{background:radial-gradient(circle at 50% 30%,#fff8e6,#f1dfb4);max-width:560px;width:100%;border:10px double #b08a3e;border-radius:6px;padding:28px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.sur{letter-spacing:.3em;font-size:.8em;color:#8a6a2a}
+h1{font-size:2.4em;margin:.2em 0;color:#7a4f12}
+.equipe{font-size:1.8em;font-weight:700;margin:.4em 0;color:#2c1d0a}
+.joueurs{font-style:italic;margin-bottom:1em}
+.titre{display:inline-block;background:#7a4f12;color:#fff4d6;border-radius:30px;padding:6px 18px;margin:.6em 0;font-size:1.1em}
+.chiffres{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:1em 0}
+.chiffres div{border:1px solid #c9a54a;border-radius:8px;padding:8px 12px;min-width:80px}
+.chiffres b{display:block;font-size:1.4em;color:#7a4f12}
+.sceau{font-size:2.6em;margin-top:.3em}
+small{color:#8a6a2a}
+button{font-family:inherit;font-size:1em;margin-top:14px;padding:10px 18px;border:0;border-radius:8px;background:#7a4f12;color:#fff}
+@media print{body{background:#fff}button{display:none}.d{box-shadow:none}}
+</style></head><body><div class="d" id="d"><p>Le pupitre prépare votre diplôme…</p></div>
+<script>
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]));
+fetch('/diplome.json').then(r=>r.json()).then(p=>{if(!p.equipe){document.getElementById('d').innerHTML='<p>Pas encore de diplôme : terminez d\'abord une mission !</p>';return}
+ const t=s=>Math.floor(s/60)+' min '+String(s%60).padStart(2,'0');
+ document.getElementById('d').innerHTML='<div class="sur">LE PUPITRE DES ÉNIGMES</div><h1>Diplôme</h1><small>décerné à</small>'
+  +'<div class="equipe">'+esc(p.equipe)+'</div>'+((p.joueurs||[]).length?'<div class="joueurs">'+esc(p.joueurs.join(' · '))+'</div>':'')
+  +'<div>pour avoir réussi la mission</div><div style="font-size:1.4em;margin:.3em 0"><b>« '+esc(p.mission)+' »</b></div><small>'+esc(p.monde)+'</small><br>'
+  +(p.titre?'<div class="titre">★ '+esc(p.titre)+' ★</div>':'')
+  +'<div class="chiffres"><div><b>'+t(p.duree||0)+'</b>de jeu</div><div><b>'+t(p.restant||0)+'</b>d\'avance</div><div><b>'+p.points+'</b>points</div>'
+  +'<div><b>'+p.rang+(p.rang==1?'er':'e')+'</b>au classement</div></div>'
+  +'<div class="sceau">🏅</div><small>'+esc(p.date?new Date(p.date+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'')+'</small><br><button onclick="print()">Imprimer ou enregistrer en PDF</button>'})
+ .catch(()=>{document.getElementById('d').textContent='Le pupitre ne répond pas.'});
+</script></body></html>)HTML";
+
+// L'envoi d'une mission par le Wi-Fi : les fichiers des dossiers /mondes et /pupitre de la carte SD.
+File fichierRecu;
+String cheminRecu, reponseEnvoi;
+
+bool cheminPermis(const String& c) {
+  if (!c.startsWith("/mondes/") && !c.startsWith("/pupitre/")) return false;
+  if (c.indexOf("..") >= 0 || c.indexOf("//") >= 0 || c.indexOf('\\') >= 0 || c.length() > 96) return false;
+  String m = c;
+  m.toLowerCase();
+  return m.endsWith(".json") || m.endsWith(".jpg") || m.endsWith(".png");
+}
+
+void creerDossiers(const String& c) {
+  for (int i = c.indexOf('/', 1); i > 0; i = c.indexOf('/', i + 1)) {
+    String d = c.substring(0, i);
+    if (!SD.exists(d)) SD.mkdir(d);
+  }
+}
 
 }  // namespace
 
@@ -183,6 +325,46 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
   serveur.on("/journal", [] { serveur.send(200, "application/json", moteur->journalJson(serveur.arg("depuis").toInt()).c_str()); });
   serveur.on("/repliques", [] { serveur.send(200, "application/json", moteur->repliquesJson().c_str()); });
   serveur.on("/classement", [] { serveur.send(200, "application/json", moteur->classementJson().c_str()); });
+  serveur.on("/indices", [] { serveur.send(200, "application/json", moteur->indicesJson().c_str()); });
+  serveur.on("/diplome", [] { serveur.send_P(200, "text/html; charset=utf-8", DIPLOME); });
+  serveur.on("/diplome.json", [] { serveur.send(200, "application/json", moteur->diplomeJson().c_str()); });
+  // Un fichier de mission, écrit d'abord à côté (.tmp) puis mis en place une fois complet.
+  // Les cartes déjà enregistrées (cartes.json) ne sont jamais écrasées.
+  serveur.on(
+      "/fichier", HTTP_POST, [] { serveur.send(200, "text/plain; charset=utf-8", reponseEnvoi); },
+      [] {
+        HTTPUpload& envoi = serveur.upload();
+        if (envoi.status == UPLOAD_FILE_START) {
+          cheminRecu = serveur.arg("chemin");
+          if (!cheminPermis(cheminRecu)) {
+            reponseEnvoi = "ko : chemin refusé";
+            cheminRecu = "";
+          } else if (cheminRecu.endsWith("/cartes.json") && SD.exists(cheminRecu)) {
+            reponseEnvoi = "gardé : les cartes de ce monde sont déjà enregistrées";
+            cheminRecu = "";
+          } else {
+            creerDossiers(cheminRecu);
+            fichierRecu = SD.open(cheminRecu + ".tmp", FILE_WRITE);
+            reponseEnvoi = fichierRecu ? "ok" : "ko : carte SD";
+            if (!fichierRecu) cheminRecu = "";
+          }
+        } else if (envoi.status == UPLOAD_FILE_WRITE && fichierRecu) {
+          if (fichierRecu.write(envoi.buf, envoi.currentSize) != envoi.currentSize) reponseEnvoi = "ko : carte SD pleine ?";
+        } else if (envoi.status == UPLOAD_FILE_END && fichierRecu) {
+          fichierRecu.close();
+          if (reponseEnvoi == "ok") {
+            SD.remove(cheminRecu);
+            if (!SD.rename(cheminRecu + ".tmp", cheminRecu)) reponseEnvoi = "ko : renommage";
+          } else {
+            SD.remove(cheminRecu + ".tmp");
+          }
+          Serial.printf("Panneau : %s reçu (%u octets) : %s\n", cheminRecu.c_str(), envoi.totalSize, reponseEnvoi.c_str());
+        } else if (envoi.status == UPLOAD_FILE_ABORTED && fichierRecu) {
+          fichierRecu.close();
+          SD.remove(cheminRecu + ".tmp");
+          reponseEnvoi = "ko : envoi interrompu";
+        }
+      });
   serveur.on("/commande", [] {
     moteur->commande(serveur.arg("c").c_str());
     serveur.send(200, "text/plain", "ok");

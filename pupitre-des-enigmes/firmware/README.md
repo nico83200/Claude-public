@@ -152,9 +152,13 @@ moment depuis son menu (*« Enregistrer les cartes de ce monde »*).
 
 Le **panneau Wi-Fi** du maître du jeu : se connecter au réseau
 `Pupitre-des-Enigmes` (mot de passe `enigmes123`) et ouvrir http://192.168.4.1.
-Six onglets : la partie (dont **« Aide »** et **« Débloquer »**), l'équipe, le souffleur
-(messages, répliques, journal de partie), le classement, l'atelier (essais et mesures
-des capteurs) et la mise à jour du programme (voir `console/README.md`, § 9). Avant la partie, le menu du monde affiche le même état
+Huit onglets : la partie (dont **« Aide »**, **« Débloquer »** et l'écran du pupitre en
+miroir), l'équipe, le souffleur (indices tout prêts, messages, répliques, journal de
+partie), le classement, les statistiques, l'envoi d'une mission par le Wi-Fi, l'atelier
+(essais et mesures des capteurs) et la mise à jour du programme (voir
+`console/README.md`, § 9). Le souffleur automatique propose l'aide après 8 minutes sans
+avancée ; à la victoire, 15 secondes de lumière, puis deux QR codes à l'écran : le Wi-Fi
+du pupitre et le diplôme de l'équipe (http://192.168.4.1/diplome). Avant la partie, le menu du monde affiche le même état
 (**« État du pupitre »**), en signalant ce qui manque à une mission.
 
 **L'écran tactile** (si le module en a un, `TACTILE_CS` dans `src/broches.h`) : on touche une
@@ -237,6 +241,9 @@ commande debloquer   # le panneau Wi-Fi : « pause », « temps:5 », « debloqu
                      # « message:Regardez la photo », « dire:46 », « casque:75 », « tiroir »…
 equipe Les Fers | Léa, Tom   # l'équipe et ses prénoms (onglet Équipe)
 verifie points 1190  # et : « verifie journal <texte> », « verifie classement <texte> »
+verifie indices "suivant":true  # ce que lit le panneau : « etat », « indices », « diplome »
+verifie qr oui       # les QR codes de la fin de film ; « verifie info <texte> » : la ligne du bas
+json etat /tmp/e.json  # écrire ce que lit le panneau (etat, indices, diplome, classement)
 bouton VERT          # ROUGE, BLEU, JAUNE, VERT, GROS
 code 3,7,1,5         # saisir un code à la molette ; lettres SILENCE pour un mot
 avance 10            # faire passer 10 minutes (s'arrête si un imprévu commence)

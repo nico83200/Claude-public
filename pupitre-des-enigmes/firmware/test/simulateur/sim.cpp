@@ -28,6 +28,8 @@
 //   equipe Les Fers | Léa, Tom     (l'équipe de la partie, depuis le panneau Wi-Fi)
 //   hasard <n>                     (le prochain tirage au sort donnera n, à partir de 0)
 //   verifie points 820 | journal <texte> | classement <texte>
+//   verifie etat <texte> | indices <texte> | diplome <texte> | info <texte> | qr oui|non
+//   json etat|indices|diplome|classement <fichier>   (ce que lit le panneau Wi-Fi)
 //   tactile                        (le pupitre a un écran tactile)
 //   ecran ligne <n> | plus <n> | moins <n> | valider | retour | clavier | efface | defile haut|bas
 //   ecran texte <texte>            (tapé sur le clavier AZERTY de l'écran)
@@ -514,6 +516,9 @@ int main(int argc, char** argv) {
     } else if (cmd == "commande") {
       m.commande(ligne.substr(ligne.find(' ') + 1));  // le reste de la ligne : « commande message:Regardez la photo »
       calme();
+    } else if (cmd == "json") {  // json etat|indices|diplome|classement <fichier> : ce que lit le panneau Wi-Fi
+      std::ofstream(b) << (a == "etat" ? m.etatJson() : a == "indices" ? m.indicesJson()
+                           : a == "diplome" ? m.diplomeJson() : m.classementJson());
     } else if (cmd == "equipe") {
       // « equipe Les Fers | Léa, Tom, Inès » : le nom, puis les prénoms.
       std::string reste = ligne.substr(ligne.find(' ') + 1), nom = reste, liste;
@@ -573,6 +578,13 @@ int main(int argc, char** argv) {
       } else if (a == "classement") {
         std::string cherche = ligne.substr(ligne.find("classement") + 11);
         verifier(m.classementJson().find(cherche) != std::string::npos, "classement « " + cherche + " »", numero);
+      } else if (a == "etat" || a == "indices" || a == "diplome" || a == "info") {
+        // Le panneau Wi-Fi (miroir de l'écran, indices tout prêts, diplôme) et la ligne d'info de l'écran.
+        std::string cherche = ligne.substr(ligne.find(a) + a.size() + 1);
+        std::string json = a == "etat" ? m.etatJson() : a == "indices" ? m.indicesJson() : a == "diplome" ? m.diplomeJson() : m.vue().info;
+        verifier(json.find(cherche) != std::string::npos, a + " « " + cherche + " »" + (a == "info" ? " (vaut « " + json + " »)" : ""), numero);
+      } else if (a == "qr") {
+        verifier(!m.vue().qr[0].empty() == (b == "oui"), "QR codes " + b, numero);
       } else if (a == "afficheur") {
         verifier(m.afficheur() == b, "afficheur « " + b + " » (montre « " + m.afficheur() + " »)", numero);
       } else if (a == "zone") {

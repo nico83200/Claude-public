@@ -65,6 +65,7 @@ produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 | `defaut` | Actions si aucune règle ne correspond, par type d'événement | `{"lieu": [{"dire": 11}]}` |
 | `imprevus` | Événements minutés (§ 7) | |
 | `relances` | Quand faire clignoter « AIDE ? » à l'écran | `[{"minute": 25, "si": "!J3"}]` |
+| `souffleur` | Le souffleur automatique : après combien de minutes sans avancée (aucun objectif atteint, aucune étape franchie) le pupitre propose la carte d'aide. 8 par défaut ; `0` ou `false` : jamais | `5` |
 | `aide` | La carte Aide et ses indices (§ 8) | |
 | `accusation` | L'accusation finale (§ 9). Absente : le gros bouton ne sert qu'aux épreuves `appui` | |
 | `fins` | Victoire, rangs et défaites (§ 10) | |

@@ -45,6 +45,8 @@ class Dessin {
   void corpsEpreuve(const pupitre::Vue& v);
   void corpsCasque(const pupitre::Vue& v);
   void corpsResultat(const pupitre::Vue& v);
+  void resultatAvecQr(const pupitre::Vue& v, bool victoire, const std::string& rang,
+                      const std::vector<std::pair<std::string, std::string>>& tuiles);
   void corpsAccusation(const pupitre::Vue& v);
   void corpsTableau(const pupitre::Vue& v);
   void corpsReglages(const pupitre::Vue& v);

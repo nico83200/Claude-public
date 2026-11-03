@@ -1,0 +1,188 @@
+# Le souffleur automatique, les indices tout prêts, le miroir de l'écran, les statistiques et la
+# fin de film, sur la mission Banc d'essai (pupitre à deux lecteurs).
+equipe Les Bricoleurs | Léa, Tom
+fente M5
+fente -
+touches 1
+calme
+verifie phase jeu
+# Le miroir : l'écran du pupitre, tel que le panneau le redessine
+verifie etat "ecran":{"type":"principal"
+verifie etat "objectifs":[
+# Les indices tout prêts : le premier blocage (l'écran à tester) est celui que donnera la carte
+verifie indices "actif":true,"suivant":true,"donnes":0,"si":"!T_ecran"
+verifie indices "n":93,"texte":"
+
+# --- Une première avancée : le poste de contrôle
+fente L1
+verifie epreuve code
+touches 2580
+verifie drapeau T_ecran
+fente -
+verifie indices "si":"!T_ecran","niveaux"
+
+# --- Plus rien pendant 6 minutes : le souffleur se tait encore (8 minutes par défaut)
+avance 6
+verifie etat "sansAvancee":3
+verifie etat "aide":false
+
+# --- La surtension (minute 8) : on attend l'imprévu, sans toucher
+restant 21
+verifie epreuve immobile
+attendre 12
+verifie epreuve
+
+
+# --- Le souffleur automatique : 8 minutes sans avancée, après l'imprévu, la carte d'aide clignote
+attendre 15
+calme
+verifie info Bloqués ? Glissez la carte « Le carnet du professeur » dans la fente.
+verifie etat "aide":true
+verifie journal Souffleur automatique : 8 min sans avancée
+# Les joueurs glissent la carte d'aide : le souffleur se tait
+fente A5
+calme
+fente -
+verifie etat "aide":false
+verifie journal Aide demandée
+verifie indices "donnes":1
+
+# --- Les boutons : la suite, puis les quatre ensemble
+fente L2
+verifie epreuve sequence
+sequence
+verifie epreuve ensemble
+ensemble 3500
+verifie drapeau T_boutons
+
+# --- La molette : à zéro, puis le chiffre 7
+fente L3
+verifie epreuve molette_zero
+molette_zero
+verifie epreuve code
+code 7
+verifie drapeau T_molette
+
+# --- Le gros bouton : le rythme
+fente L4
+verifie epreuve rythme
+rythme 0,500,1000 3
+verifie drapeau T_gros
+
+# --- Les voyants : les dix touches
+fente L5
+verifie epreuve voyants
+touches 1234567890
+verifie drapeau T_voyants
+
+# --- La forge : rien, puis un souffle
+fente L6
+verifie epreuve capteur
+attendre 50
+verifie sans T_forge
+fente -
+fente L6
+souffle 3
+verifie drapeau T_forge
+
+# --- L'enclume
+fente L7
+verifie epreuve capteur
+aimant pose
+attendre 2
+calme
+verifie drapeau T_enclume
+aimant -
+
+# --- L'œil : un mauvais geste, puis haut, bas, gauche, droite, et la lampe
+fente L8
+verifie epreuve choix
+geste bas
+verifie epreuve choix
+geste haut
+geste bas
+geste gauche
+geste droite
+verifie epreuve capteur
+eclaire 3
+verifie drapeau T_oeil
+
+# --- Le nuancier : une mauvaise pastille, puis rouge, bleu, vert, jaune
+fente L9
+fente -
+couleur orange
+verifie ecran NUANCIER
+couleur -
+couleur rouge
+couleur -
+couleur bleu
+couleur -
+couleur vert
+couleur -
+couleur jaune
+couleur -
+verifie drapeau T_couleur
+
+# --- La serrure
+fente L10
+verifie epreuve cle
+cle tournee
+verifie drapeau T_cle
+cle repos
+
+# --- Le casque trop tôt : il manque les lecteurs
+fente L12
+verifie sans J_code
+fente -
+
+# --- Les deux lecteurs : un outil seul, puis les deux à la fois
+fente L11
+fente -
+plateau O2
+verifie sans T_lecteurs
+fente O1
+verifie drapeau T_lecteurs
+fente -
+plateau -
+verifie compteur tests 11
+verifie drapeau tous
+attendre 1
+verifie voyant 10 vert
+verifie voyant socle vert
+
+# --- Le certificat trop tôt, le coffre avant le casque
+plateau O3
+plateau -
+fente L13
+verifie epreuve
+fente -
+# --- Le casque, puis le coffre : le tiroir secret sort
+fente L12
+verifie drapeau J_code
+fente -
+fente L13
+verifie epreuve code
+touches 3861
+verifie drapeau J_coffre
+verifie tiroir ouvert
+fente -
+plateau O3
+verifie phase victoire
+verifie journal Épreuve réussie : LE COFFRE
+
+
+# --- La fin de film : les QR codes (Wi-Fi, diplôme), le diplôme et les statistiques
+calme
+verifie qr oui
+verifie etat "type":"resultat"
+capture fin-de-film
+verifie diplome "equipe":"Les Bricoleurs"
+verifie diplome "joueurs":["Léa","Tom"]
+verifie diplome "titre":
+verifie classement "souffleur":1
+verifie classement "aides":1
+verifie classement "etapes":[{"nom":"
+verifie classement "duree":
+bouton VERT
+calme
+verifie qr non

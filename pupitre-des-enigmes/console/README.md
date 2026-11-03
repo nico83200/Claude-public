@@ -558,17 +558,36 @@ des cartes, le thème et les scripts des missions. Elle se prépare avec
 ## 9. Le panneau du maître du jeu (Wi-Fi)
 
 La console crée un réseau Wi-Fi **« Pupitre-des-Enigmes »** (mot de passe
-`enigmes123`, modifiable dans `firmware/src/broches.h`). Depuis un téléphone
-connecté à ce réseau, la page **http://192.168.4.1** a six onglets.
+`enigmes123`, modifiable dans `firmware/lib/moteur/src/plateforme.h`). Depuis un téléphone
+connecté à ce réseau, la page **http://192.168.4.1** a huit onglets.
 
 | Onglet | Ce qu'on y fait |
 |---|---|
-| **Partie** | Le chrono, le monde et la mission, les cartes en place, l'équipe, les étapes. Pause, reprise, ± minutes, abandon, retour à l'accueil. **Aide** : comme la carte d'aide glissée dans un lecteur (mêmes indices gratuits puis payants ; pas pendant une épreuve). **Débloquer** : fait réussir l'épreuve en cours quand les joueurs sont coincés (un capteur muet, une lampe trop faible…). Le tiroir secret (ouvrir à distance) et l'état des modules. |
+| **Partie** | Le chrono, le monde et la mission, les cartes en place, l'équipe, les étapes. Pause, reprise, ± minutes, abandon, retour à l'accueil. **Aide** : comme la carte d'aide glissée dans un lecteur (mêmes indices gratuits puis payants ; pas pendant une épreuve). **Débloquer** : fait réussir l'épreuve en cours quand les joueurs sont coincés (un capteur muet, une lampe trop faible…). Le tiroir secret (ouvrir à distance) et l'état des modules. **L'écran du pupitre en miroir** : ce que voient les joueurs, redessiné chaque seconde (titre, texte, menu, code en cours, choix de couleur, ligne du bas) ; et depuis combien de minutes l'équipe n'a plus avancé. |
 | **Équipe** | Le nom de l'équipe et les prénoms des joueurs, avant ou pendant la partie : ils entrent au classement à la fin. |
-| **Souffleur** | Un **message** à afficher à l'écran du pupitre (sur la ligne du bas pendant une épreuve). Toutes les **répliques** de la mission, à chercher par numéro ou par mot, à faire dire au haut-parleur 🔊 ou au casque 🎧. Le **journal de la partie** en direct : chaque carte glissée, chaque code tapé, chaque épreuve réussie ou ratée, chaque geste, et le texte de ce que le joueur entend au casque (🎧). |
+| **Souffleur** | **Les indices tout prêts** : chaque blocage de la mission, avec le texte de ses indices. Le blocage *suivant* (celui que donnerait la carte d'aide) est marqué, les indices déjà donnés sont grisés. Chaque indice se fait dire au haut-parleur 🔊, au casque 🎧, ou s'écrit à l'écran ✉ ; « Donner l'indice suivant » fait comme la carte d'aide. Un **message** à afficher à l'écran du pupitre (sur la ligne du bas pendant une épreuve). Toutes les **répliques** de la mission, à chercher par numéro ou par mot, à faire dire au haut-parleur 🔊 ou au casque 🎧. Le **journal de la partie** en direct : chaque carte glissée, chaque code tapé, chaque épreuve réussie ou ratée, chaque geste, et le texte de ce que le joueur entend au casque (🎧). |
 | **Classement** | Par mission, les meilleures équipes ; par joueur, le total des points de toutes ses parties. |
+| **Statistiques** | Par mission : nombre de parties, taux de réussite, durée moyenne des victoires, indices et interventions du souffleur automatique en moyenne, et le temps moyen passé sur chaque étape (avec une barre). **L'étape la plus longue** est signalée : c'est là que les équipes calent, là qu'un indice ou une retouche du script aide le plus. |
+| **Missions** | **Envoyer une mission par le Wi-Fi**, sans retirer la carte SD : choisir le dossier décompressé de `carte-sd-ecran.zip` (celui qui contient `mondes`). Les fichiers des dossiers `mondes` et `pupitre` partent un par un ; les `cartes.json` déjà présents (les puces enregistrées) sont gardés. Hors partie, le pupitre relit aussitôt ses mondes. Un nouveau monde demande ensuite d'enregistrer ses cartes depuis son menu. Les sons, eux, restent sur les cartes SD des lecteurs audio. |
 | **Atelier** | Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir, étalonner l'écran tactile) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
 | **Mise à jour** | Envoyer un nouveau programme (`firmware.bin`) sans ouvrir la boîte (§ 2 de `firmware/README.md`). |
+
+**Le souffleur automatique** : quand l'équipe n'a plus avancé depuis 8 minutes (aucun
+objectif atteint, aucune étape franchie), le pupitre fait clignoter « AIDE » et écrit en
+bas de l'écran *« Bloqués ? Glissez la carte « … » dans la fente. »*, avec un petit
+signal sonore. Il ne parle qu'une fois par blocage, jamais pendant une épreuve, une
+accusation ou une réplique ; il se tait dès que l'équipe avance ou prend l'aide. Le délai
+se règle par mission (`"souffleur"` dans le script, voir `firmware/SCRIPTS.md`).
+
+**La fin de film** : à la victoire, 15 secondes de lumière sur tout le pupitre (trois
+éclairs blancs, puis l'anneau qui tourne en arc-en-ciel, des fusées qui partent du
+centre des voyants, les lecteurs et le ruban sous la boîte), puis l'écran de résultat
+avec **deux QR codes** : le premier connecte un téléphone au Wi-Fi du pupitre, le second
+ouvre **le diplôme de l'équipe** (http://192.168.4.1/diplome) : nom de l'équipe, prénoms,
+mission, titre obtenu, temps, points et rang, à imprimer ou enregistrer en PDF. Cette
+page ne mène pas au panneau ; mais un joueur qui a rejoint le Wi-Fi *peut* ouvrir
+http://192.168.4.1 s'il en connaît l'adresse : changez le mot de passe du Wi-Fi si vos
+joueurs sont malicieux.
 
 **Les points** (onglet Équipe) : 500 pour une victoire, 50 par étape franchie, 10 par
 minute restante en cas de victoire, moins 50 par indice payant et 100 par erreur

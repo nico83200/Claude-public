@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "plateforme.h"
+
 namespace broches {
 
 // Bus SPI commun : écran, carte SD de l'écran et les 3 lecteurs RFID.
@@ -90,7 +92,8 @@ constexpr uint32_t FREQ_ECRAN = 27000000;
 constexpr uint32_t DUREE_LOGO_MS = 2500;  // le logo au démarrage
 
 // Le panneau Wi-Fi du maître du jeu : se connecter au réseau, puis ouvrir http://192.168.4.1
-constexpr const char* WIFI_NOM = "Pupitre-des-Enigmes";
-constexpr const char* WIFI_MOT_DE_PASSE = "enigmes123";  // 8 caractères au moins
+// (le nom et le mot de passe sont dans lib/moteur/src/plateforme.h : l'écran de victoire les affiche en QR code)
+using pupitre::WIFI_NOM;
+using pupitre::WIFI_MOT_DE_PASSE;
 
 }  // namespace reglages

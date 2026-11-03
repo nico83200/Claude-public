@@ -651,6 +651,10 @@ void Dessin::corpsResultat(const Vue& v) {
     else tuiles.emplace_back(ligne.substr(0, sep), ligne.substr(sep + 3));
     i = f + 1;
   }
+  if (!v.qr[0].empty()) {  // la fin de film : les tuiles à gauche, deux QR codes à droite
+    resultatAvecQr(v, victoire, rang, tuiles);
+    return;
+  }
   int y = Y_CORPS + 52;
   if (!rang.empty()) {
     std::string r = "★  " + rang;
@@ -673,6 +677,50 @@ void Dessin::corpsResultat(const Vue& v) {
     std::string b = nettoyer(v.bandeau);
     ecrire(b, L / 2, Y_INFO - 22, &polices::compact, pal_.doux, pal_.fond, 1);
   }
+}
+
+// L'écran de victoire de la fin de film : à droite, de quoi rejoindre le Wi-Fi du pupitre puis
+// ouvrir le diplôme de l'équipe sur un téléphone ; à gauche, le rang et les tuiles du score.
+void Dessin::resultatAvecQr(const Vue& v, bool victoire, const std::string& rang,
+                            const std::vector<std::pair<std::string, std::string>>& tuiles) {
+  constexpr int COTE = 104, ECART = 8, DROITE = 2 * COTE + ECART + 10;
+  const int wg = L - 20 - DROITE, cx = 10 + wg / 2;
+  g_.fillRect(0, Y_CORPS, L, Y_INFO - Y_CORPS, c(pal_.fond));
+  std::string titre = victoire ? "Mission réussie" : "Mission échouée";
+  const lgfx::IFont* pt = largeur(titre, &polices::grand) <= wg ? &polices::grand : &polices::titre;
+  ecrire(titre, cx, Y_CORPS + 4, pt, victoire ? pal_.accent : pal_.alerte, pal_.fond, 1);
+  int y = Y_CORPS + 50;
+  if (!rang.empty()) {
+    std::string r = "★  " + rang;
+    const lgfx::IFont* pr = largeur(r, &polices::texteGras) <= wg - 24 ? &polices::texteGras : &polices::compact;
+    r = couper(r, pr, wg - 24);
+    int w = std::min(wg, largeur(r, pr) + 24);
+    pastille(cx - w / 2, y, w, 30, pal_.accent);
+    ecrire(r, cx, y + (pr == &polices::compact ? 7 : 5), pr, pal_.fond, pal_.accent, 1);
+  }
+  y += 40;
+  int wt = (wg - 8) / 2;
+  for (int k = 0; k < static_cast<int>(tuiles.size()) && k < 6; k++) {
+    int x = 10 + (k % 2) * (wt + 8), yt = y + (k / 2) * 52;
+    g_.fillRoundRect(x, yt, wt, 46, 10, c(pal_.surface));
+    ecrire(couper(tuiles[k].first, &polices::petit, wt - 12), x + wt / 2, yt + 4, &polices::petit, pal_.doux, pal_.surface, 1);
+    const std::string& val = tuiles[k].second;
+    const lgfx::IFont* pv = largeur(val, &polices::texteGras) <= wt - 12 ? &polices::texteGras : &polices::compact;
+    ecrire(couper(val, pv, wt - 12), x + wt / 2, yt + (pv == &polices::compact ? 23 : 20), pv, pal_.texte, pal_.surface, 1);
+  }
+  int x0 = L - 10 - (2 * COTE + ECART);
+  ecrire("Votre diplôme sur un téléphone", x0 + COTE + ECART / 2, Y_CORPS + 6, &polices::petit, pal_.doux, pal_.fond, 1);
+  for (int k = 0; k < 2; k++) {
+    if (v.qr[k].empty()) continue;
+    int x = x0 + k * (COTE + ECART), yq = Y_CORPS + 30;
+    g_.fillRoundRect(x, yq, COTE, COTE, 8, c(0xffffff));
+    g_.qrcode(v.qr[k].c_str(), x + 5, yq + 5, COTE - 10, 1);
+    ecrire(couper(v.qrLegende[k], &polices::petit, COTE + ECART), x + COTE / 2, yq + COTE + 6, &polices::petit, pal_.texte,
+           pal_.fond, 1);
+  }
+  if (!v.bandeau.empty())
+    ecrire(couper(nettoyer(v.bandeau), &polices::compact, 2 * COTE + ECART), x0 + COTE + ECART / 2, Y_INFO - 22,
+           &polices::compact, pal_.doux, pal_.fond, 1);
 }
 
 void Dessin::corpsAccusation(const Vue& v) {
