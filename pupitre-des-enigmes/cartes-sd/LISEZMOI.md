@@ -62,8 +62,10 @@ mission (`pdf/mission-N-script-doublage.pdf`, colonne « fichier ») ; les bruit
 décrits dans `mondes/<monde>/audio/sons.json` et `console/audio/sons.json`.
 
 **Ces MP3 ne sont pas fournis** : les voix sont à produire. Le classeur [`suivi/suivi-audio.xlsx`](../suivi/suivi-audio.xlsx) les liste tous (voix et bruitages, une ligne par audio, avec narrateur, texte, mission et fichiers), avec une colonne de statut pour suivre la production. Trois façons :
-- **Le script** `outils/generer_audio.py` avec un compte ElevenLabs : il fait tout, et
-  range les fichiers comme ci-dessus.
+- **Le script** `outils/generer_audio.py` avec un compte ElevenLabs : il fait tout (seulement
+  ce qui manque ou a changé), range les fichiers comme ci-dessus, harmonise les volumes et
+  met le classeur à jour. Sans compte, `--brouillon` fabrique des voix provisoires avec la voix
+  de l'ordinateur, pour jouer tout de suite (voir `outils/README.md`).
 - **Le site d'ElevenLabs**, à la main : collez chaque texte du script de doublage, téléchargez
   le MP3 et renommez-le (`020.mp3` pour la réplique 20) dans le bon dossier.
 - **Vos propres voix** : enregistrez-vous au téléphone, convertissez en MP3, et nommez de la
