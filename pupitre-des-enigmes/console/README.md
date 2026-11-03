@@ -401,6 +401,20 @@ clavier (membrane de 1 mm) a sa fenêtre dans toutes les façades.
 | Lecteur à plat | Zone marquée (rien à découper) | Rien de marqué : il ne gêne pas |
 | LED du lecteur à plat | Trou Ø 4 mm | Cachée |
 | Haut-parleur | Grille de trous | Toujours percé (le son passe mal à travers le bois) |
+
+**Le haut-parleur** (4 Ω, 3 W, en caisson fermé) se fixe sous le couvercle, membrane vers
+le haut, centrée sous la grille de trous :
+- un cadre de **mousse adhésive** (calfeutrage) entre le caisson et le couvercle, autour de la
+  membrane : sans lui, le son fuit par les côtés et le couvercle vibre ;
+- **deux vis à bois** de 2,5 à 3 mm par les oreilles, plus courtes que l'épaisseur du couvercle
+  (8 à 10 mm), serrées juste assez pour écraser un peu la mousse ;
+- ne percez pas le caisson et ne bouchez pas la membrane ;
+- ses deux fils vont au bornier du haut-parleur de la plaque B (SPK1, SPK2 du lecteur audio
+  « haut-parleur » ; le sens n'a pas d'importance), avec des embouts ou étamés ; rallonge
+  éventuelle en 22 AWG ;
+- son aimant reste à 8 cm au moins des lecteurs de cartes et de l'enclume, et le caisson
+  (2 à 3 cm de haut) ne doit pas toucher la plaque B couvercle fermé ;
+- volume conseillé : 22 à 24 sur 30 (au-delà, il sature).
 | Prise jack | Trou Ø 6 mm | Cachée (l'écrou est noyé dans son lamage) |
 | Interrupteur à clé (≈ 10 mm de relief) | Trou Ø 12 mm | Trou Ø 22 mm et un cache rond, ou un cache en relief sur la façade |
 | Boutons d'arcade, molette, gros bouton | Trous | Toujours découpés : ils dépassent trop pour être cachés |
