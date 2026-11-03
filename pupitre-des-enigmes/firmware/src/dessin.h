@@ -14,7 +14,7 @@
 
 class Dessin {
  public:
-  explicit Dessin(lgfx::LovyanGFX& g) : g_(g) {}
+  explicit Dessin(lgfx::LovyanGFX& g) : g_(&g) {}
   void afficher(const pupitre::Vue& v, uint32_t maintenant);
   void message(const char* titre, const char* texte);
   void logo();  // le logo du démarrage
@@ -29,6 +29,7 @@ class Dessin {
 
   // Les zones de l'écran.
   void entete(const pupitre::Vue& v);
+  void enteteDessin(const pupitre::Vue& v);
   void corps(const pupitre::Vue& v);
   void minuteur(const pupitre::Vue& v);
   void ligneInfo(const pupitre::Vue& v);
@@ -76,7 +77,11 @@ class Dessin {
   void points(int cx, int y, int faits, int total);
   uint32_t c(uint32_t rgb) const;  // la couleur, assombrie quand la lumière baisse
 
-  lgfx::LovyanGFX& g_;
+  lgfx::LovyanGFX* g_;  // là où l'on dessine : l'écran, ou l'image de l'en-tête en mémoire
+  // L'en-tête (chrono, compteurs) est dessiné dans une image en mémoire, puis envoyé d'un bloc :
+  // sinon, redessiné chaque seconde, on le verrait s'effacer puis se reconstruire.
+  lgfx::LGFX_Sprite tampon_;
+  bool tamponEssaye_ = false, tamponPret_ = false;
   pupitre::Vue derniere_;
   Palette pal_{};
   float facteur_ = 1.0f;

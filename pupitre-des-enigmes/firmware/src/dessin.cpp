@@ -91,25 +91,25 @@ uint32_t Dessin::c(uint32_t rgb) const {
 }
 
 int Dessin::largeur(const std::string& t, const lgfx::IFont* police) {
-  g_.setFont(police);
-  return g_.textWidth(nettoyer(t).c_str());
+  g_->setFont(police);
+  return g_->textWidth(nettoyer(t).c_str());
 }
 
 void Dessin::ecrire(const std::string& brut, int x, int y, const lgfx::IFont* police, uint32_t fg, uint32_t bg, int ancrage) {
   std::string t = nettoyer(brut);
-  g_.setFont(police);
-  g_.setTextColor(c(fg), c(bg));
-  int w = g_.textWidth(t.c_str());
+  g_->setFont(police);
+  g_->setTextColor(c(fg), c(bg));
+  int w = g_->textWidth(t.c_str());
   if (ancrage == 1) x -= w / 2;
   if (ancrage == 2) x -= w;
-  g_.drawString(t.c_str(), x, y);
+  g_->drawString(t.c_str(), x, y);
 }
 
 std::string Dessin::couper(const std::string& brut, const lgfx::IFont* police, int l) {
   std::string t = nettoyer(brut);
-  g_.setFont(police);
-  if (g_.textWidth(t.c_str()) <= l) return t;
-  while (!t.empty() && g_.textWidth((t + "…").c_str()) > l) {
+  g_->setFont(police);
+  if (g_->textWidth(t.c_str()) <= l) return t;
+  while (!t.empty() && g_->textWidth((t + "…").c_str()) > l) {
     size_t p = t.size() - 1;
     while (p > 0 && (static_cast<uint8_t>(t[p]) & 0xc0) == 0x80) p--;
     t.erase(p);
@@ -122,8 +122,8 @@ std::string Dessin::couper(const std::string& brut, const lgfx::IFont* police, i
 int Dessin::paragraphe(const std::string& brut, int x, int y, int l, int yMax, const lgfx::IFont* police, uint32_t fg,
                        uint32_t bg, bool centre, int interligne, bool dessiner) {
   std::string t = nettoyer(brut);
-  g_.setFont(police);
-  if (dessiner) g_.setTextColor(c(fg), c(bg));
+  g_->setFont(police);
+  if (dessiner) g_->setTextColor(c(fg), c(bg));
   size_t i = 0;
   while (i < t.size() && y + interligne <= yMax + 4) {
     size_t finLigne = t.find('\n', i);
@@ -134,13 +134,13 @@ int Dessin::paragraphe(const std::string& brut, int x, int y, int l, int yMax, c
       size_t espace = t.find(' ', j);
       if (espace == std::string::npos || espace > finLigne) espace = finLigne;
       std::string essai = ligne.empty() ? t.substr(j, espace - j) : ligne + " " + t.substr(j, espace - j);
-      if (!ligne.empty() && g_.textWidth(essai.c_str()) > l) break;
+      if (!ligne.empty() && g_->textWidth(essai.c_str()) > l) break;
       ligne = essai;
       j = espace + 1;
     }
     if (dessiner) {
-      int px = centre ? x + (l - g_.textWidth(ligne.c_str())) / 2 : x;
-      g_.drawString(ligne.c_str(), px, y);
+      int px = centre ? x + (l - g_->textWidth(ligne.c_str())) / 2 : x;
+      g_->drawString(ligne.c_str(), px, y);
     }
     y += interligne;
     i = j >= finLigne ? finLigne + 1 : j;
@@ -169,7 +169,7 @@ const lgfx::IFont* Dessin::policeQuiTient(const std::string& t, int l, int h, in
 // Formes et pictogrammes
 // ======================================================================
 
-void Dessin::pastille(int x, int y, int w, int h, uint32_t fond) { g_.fillRoundRect(x, y, w, h, h / 2, c(fond)); }
+void Dessin::pastille(int x, int y, int w, int h, uint32_t fond) { g_->fillRoundRect(x, y, w, h, h / 2, c(fond)); }
 
 void Dessin::bandeau(const std::string& t, int x, int y, int w, bool enveloppe) {
   uint32_t fond = enveloppe ? pal_.accent : pal_.alerte;
@@ -188,34 +188,34 @@ void Dessin::bandeau(const std::string& t, int x, int y, int w, bool enveloppe) 
 void Dessin::coche(int x, int y, int t, uint32_t couleur) {
   // Une coche épaisse : deux traits doublés.
   for (int e = 0; e < 3; e++) {
-    g_.drawLine(x, y + t / 2 + e - 1, x + t / 3, y + t - 1 + e - 1, c(couleur));
-    g_.drawLine(x + t / 3, y + t - 1 + e - 1, x + t, y + e - 1, c(couleur));
+    g_->drawLine(x, y + t / 2 + e - 1, x + t / 3, y + t - 1 + e - 1, c(couleur));
+    g_->drawLine(x + t / 3, y + t - 1 + e - 1, x + t, y + e - 1, c(couleur));
   }
 }
 
 void Dessin::iconeEnveloppe(int x, int y, uint32_t couleur, uint32_t fond) {
-  g_.fillRoundRect(x, y, 22, 15, 2, c(couleur));
-  g_.fillTriangle(x + 2, y + 2, x + 20, y + 2, x + 11, y + 9, c(fond));
-  g_.fillTriangle(x + 4, y + 2, x + 18, y + 2, x + 11, y + 7, c(couleur));
+  g_->fillRoundRect(x, y, 22, 15, 2, c(couleur));
+  g_->fillTriangle(x + 2, y + 2, x + 20, y + 2, x + 11, y + 9, c(fond));
+  g_->fillTriangle(x + 4, y + 2, x + 18, y + 2, x + 11, y + 7, c(couleur));
 }
 
 void Dessin::iconeCasque(int cx, int cy, int r, uint32_t couleur) {
-  g_.fillArc(cx, cy, r - 7, r, 180, 360, c(couleur));
-  g_.fillRoundRect(cx - r - 6, cy - 6, 16, r + 4, 6, c(couleur));
-  g_.fillRoundRect(cx + r - 10, cy - 6, 16, r + 4, 6, c(couleur));
+  g_->fillArc(cx, cy, r - 7, r, 180, 360, c(couleur));
+  g_->fillRoundRect(cx - r - 6, cy - 6, 16, r + 4, 6, c(couleur));
+  g_->fillRoundRect(cx + r - 10, cy - 6, 16, r + 4, 6, c(couleur));
 }
 
 void Dessin::iconeAmpoule(int cx, int cy, uint32_t couleur) {
-  g_.fillCircle(cx, cy - 2, 6, c(couleur));
-  g_.fillRect(cx - 3, cy + 4, 7, 2, c(couleur));
-  g_.fillRect(cx - 2, cy + 7, 5, 2, c(couleur));
+  g_->fillCircle(cx, cy - 2, 6, c(couleur));
+  g_->fillRect(cx - 3, cy + 4, 7, 2, c(couleur));
+  g_->fillRect(cx - 2, cy + 7, 5, 2, c(couleur));
 }
 
 void Dessin::iconeHorloge(int cx, int cy, uint32_t couleur, uint32_t fond) {
-  g_.fillCircle(cx, cy, 8, c(couleur));
-  g_.fillCircle(cx, cy, 6, c(fond));
-  g_.drawLine(cx, cy, cx, cy - 4, c(couleur));
-  g_.drawLine(cx, cy, cx + 3, cy + 1, c(couleur));
+  g_->fillCircle(cx, cy, 8, c(couleur));
+  g_->fillCircle(cx, cy, 6, c(fond));
+  g_->drawLine(cx, cy, cx, cy - 4, c(couleur));
+  g_->drawLine(cx, cy, cx + 3, cy + 1, c(couleur));
 }
 
 void Dessin::points(int cx, int y, int faits, int total) {
@@ -224,10 +224,10 @@ void Dessin::points(int cx, int y, int faits, int total) {
   int x = cx - (total - 1) * pas / 2;
   for (int i = 0; i < total; i++, x += pas) {
     if (i < faits) {
-      g_.fillCircle(x, y, 8, c(pal_.accent));
+      g_->fillCircle(x, y, 8, c(pal_.accent));
     } else {
-      g_.fillCircle(x, y, 8, c(pal_.trait));
-      g_.fillCircle(x, y, 6, c(pal_.fond));
+      g_->fillCircle(x, y, 8, c(pal_.trait));
+      g_->fillCircle(x, y, 6, c(pal_.fond));
     }
   }
 }
@@ -238,14 +238,14 @@ void Dessin::points(int cx, int y, int faits, int total) {
 
 void Dessin::message(const char* titre, const char* texte) {
   polices::charger();
-  g_.fillScreen(0x101418u);
+  g_->fillScreen(0x101418u);
   ecrire(titre, L / 2, 112, &polices::titre, 0xf0c060, 0x101418, 1);
   paragraphe(texte, 40, 156, L - 80, H - 20, &polices::compact, 0xd8dde3, 0x101418, true, 21);
 }
 
 void Dessin::logo() {
-  g_.fillScreen(0x000000u);
-  g_.drawJpg(logo::JPEG, sizeof(logo::JPEG), (L - logo::LARGEUR) / 2, (H - logo::HAUTEUR) / 2);
+  g_->fillScreen(0x000000u);
+  g_->drawJpg(logo::JPEG, sizeof(logo::JPEG), (L - logo::LARGEUR) / 2, (H - logo::HAUTEUR) / 2);
   premiere_ = true;  // la vue suivante redessine tout l'écran
 }
 
@@ -277,11 +277,11 @@ void Dessin::afficher(const Vue& v, uint32_t t) {
           melange(th.fond, th.accent, 0.20f),
           th.alerte};
 
-  g_.startWrite();
+  g_->startWrite();
   if (dansLeNoir(v)) {
     if (tout) noir();
   } else {
-    if (tout) g_.fillScreen(c(pal_.fond));
+    if (tout) g_->fillScreen(c(pal_.fond));
     bool corpsChange = tout || !memeCorps(v, derniere_);
     if (tout || v.entete != derniere_.entete || v.compteurs != derniere_.compteurs || v.monde != derniere_.monde ||
         v.mission != derniere_.mission || v.restantPourMille != derniere_.restantPourMille || v.lumiere != derniere_.lumiere ||
@@ -299,7 +299,7 @@ void Dessin::afficher(const Vue& v, uint32_t t) {
       else barreZones(v);
     }
   }
-  g_.endWrite();
+  g_->endWrite();
   derniere_ = v;
   premiere_ = false;
 }
@@ -307,7 +307,7 @@ void Dessin::afficher(const Vue& v, uint32_t t) {
 void Dessin::noir() {
   float f = facteur_;
   facteur_ = 1.0f;  // ces deux lignes, à peine visibles, ne s'assombrissent pas davantage
-  g_.fillScreen(0x000000u);
+  g_->fillScreen(0x000000u);
   ecrire("Noir complet", L / 2, 128, &polices::titre, 0x5a5f66, 0x000000, 1);
   ecrire("Actionnez la dynamo !", L / 2, 166, &polices::compact, 0x9a7428, 0x000000, 1);
   facteur_ = f;
@@ -318,7 +318,22 @@ void Dessin::noir() {
 // et la barre du temps restant.
 // ---------------------------------------------------------------------
 void Dessin::entete(const Vue& v) {
-  g_.fillRect(0, 0, L, Y_CORPS - 2, c(pal_.fond));
+  lgfx::LovyanGFX* ecran = g_;
+  if (!tamponEssaye_) {  // une fois : 480 × 46 pixels en 16 bits, environ 44 Ko
+    tamponEssaye_ = true;
+    tampon_.setColorDepth(16);
+    tamponPret_ = tampon_.createSprite(L, Y_CORPS - 2) != nullptr;
+  }
+  if (tamponPret_) g_ = &tampon_;
+  enteteDessin(v);
+  if (tamponPret_) {
+    g_ = ecran;
+    tampon_.pushSprite(g_, 0, 0);
+  }
+}
+
+void Dessin::enteteDessin(const Vue& v) {
+  g_->fillRect(0, 0, L, Y_CORPS - 2, c(pal_.fond));
   int droite = L - 10;
 
   if (!v.entete.empty()) {
@@ -339,8 +354,8 @@ void Dessin::entete(const Vue& v) {
     uint32_t couleur = faible ? pal_.alerte : pal_.accent;
     pastille(droite - w, 6, w, 32, pal_.surface2);
     iconeAmpoule(droite - w + 18, 21, couleur);
-    g_.fillRoundRect(droite - w + 32, 18, 36, 8, 4, c(pal_.trait));
-    g_.fillRoundRect(droite - w + 32, 18, std::max(4, 36 * v.lumiere / 100), 8, 4, c(couleur));
+    g_->fillRoundRect(droite - w + 32, 18, 36, 8, 4, c(pal_.trait));
+    g_->fillRoundRect(droite - w + 32, 18, std::max(4, 36 * v.lumiere / 100), 8, 4, c(couleur));
     droite -= w + 8;
   }
   if (v.aideClignote && clignote_) {
@@ -357,9 +372,9 @@ void Dessin::entete(const Vue& v) {
 
   // La barre du temps restant.
   if (v.restantPourMille >= 0) {
-    g_.fillRect(0, Y_CORPS - 5, L, 3, c(pal_.surface2));
+    g_->fillRect(0, Y_CORPS - 5, L, 3, c(pal_.surface2));
     uint32_t couleur = v.restantPourMille < 200 ? pal_.alerte : pal_.accent;
-    g_.fillRect(0, Y_CORPS - 5, L * v.restantPourMille / 1000, 3, c(couleur));
+    g_->fillRect(0, Y_CORPS - 5, L * v.restantPourMille / 1000, 3, c(couleur));
   }
 }
 
@@ -368,13 +383,13 @@ void Dessin::entete(const Vue& v) {
 // ---------------------------------------------------------------------
 void Dessin::corps(const Vue& v) {
   if (v.clavier) {  // le clavier AZERTY prend tout le bas de l'écran
-    g_.fillRect(0, Y_CORPS, L, H - Y_CORPS, c(pal_.fond));
+    g_->fillRect(0, Y_CORPS, L, H - Y_CORPS, c(pal_.fond));
     if (v.ecran == Vue::SAISIE) corpsSaisie(v);
     else corpsLettresClavier(v);
     clavierAzerty(v);
     return;
   }
-  g_.fillRect(0, Y_CORPS, L, HAUT_CORPS, c(pal_.fond));
+  g_->fillRect(0, Y_CORPS, L, HAUT_CORPS, c(pal_.fond));
   switch (v.ecran) {
     case Vue::ACCUEIL: corpsAccueil(v); return;
     case Vue::MENU: corpsMenu(v); return;
@@ -400,14 +415,14 @@ void Dessin::corpsTexte(const Vue& v) {
     return;
   }
   const int x = 10, y = Y_CORPS + 2, w = L - 20, h = HAUT_CORPS - 4;
-  g_.fillRoundRect(x, y, w, h, 14, c(pal_.surface));
+  g_->fillRoundRect(x, y, w, h, 14, c(pal_.surface));
   int gauche = x + 16, l = w - 32;
   if (!v.imageDonnees.empty()) {
     // L'illustration : 150 × 150 au maximum, collée au bord gauche de la carte.
     const uint8_t* d = reinterpret_cast<const uint8_t*>(v.imageDonnees.data());
     bool png = v.imageDonnees.size() > 4 && v.imageDonnees[1] == 'P' && v.imageDonnees[2] == 'N';
-    if (png) g_.drawPng(d, v.imageDonnees.size(), x + 8, y + 8, 150, h - 16);
-    else g_.drawJpg(d, v.imageDonnees.size(), x + 8, y + 8, 150, h - 16);
+    if (png) g_->drawPng(d, v.imageDonnees.size(), x + 8, y + 8, 150, h - 16);
+    else g_->drawJpg(d, v.imageDonnees.size(), x + 8, y + 8, 150, h - 16);
     gauche = x + 8 + 150 + 14;
     l = x + w - 16 - gauche;
   }
@@ -439,7 +454,7 @@ void Dessin::corpsTexte(const Vue& v) {
 // L'enregistrement des cartes : « Glissez la carte » + identifiant en très grand + nom.
 void Dessin::corpsEnrolement(const Vue& v) {
   const int x = 10, y = Y_CORPS + 2, w = L - 20, h = HAUT_CORPS - 4;
-  g_.fillRoundRect(x, y, w, h, 14, c(pal_.surface));
+  g_->fillRoundRect(x, y, w, h, 14, c(pal_.surface));
   ecrire(couper(v.titre, &polices::petit, w - 32), x + 16, y + 12, &polices::petit, pal_.doux, pal_.surface);
   std::string t = v.texte, ligne1 = t, nom;
   size_t f = t.find('\n');
@@ -463,12 +478,12 @@ void Dessin::corpsAccueil(const Vue& v) {
   // Trois lecteurs stylisés au-dessus du titre.
   for (int i = 0; i < 3; i++) {
     int cx = L / 2 + (i - 1) * 56;
-    g_.fillCircle(cx, Y_CORPS + 36, 18, c(i == 1 ? pal_.accent : pal_.surface2));
-    g_.fillCircle(cx, Y_CORPS + 36, 11, c(pal_.fond));
-    g_.fillCircle(cx, Y_CORPS + 36, 5, c(i == 1 ? pal_.accent : pal_.trait));
+    g_->fillCircle(cx, Y_CORPS + 36, 18, c(i == 1 ? pal_.accent : pal_.surface2));
+    g_->fillCircle(cx, Y_CORPS + 36, 11, c(pal_.fond));
+    g_->fillCircle(cx, Y_CORPS + 36, 5, c(i == 1 ? pal_.accent : pal_.trait));
   }
   int y = paragraphe(v.titre, 30, Y_CORPS + 66, L - 60, Y_CORPS + 150, &polices::grand, pal_.texte, pal_.fond, true, 40);
-  g_.fillRoundRect(L / 2 - 30, y + 4, 60, 4, 2, c(pal_.accent));
+  g_->fillRoundRect(L / 2 - 30, y + 4, 60, 4, 2, c(pal_.accent));
   paragraphe(v.texte, 40, y + 20, L - 80, Y_INFO - 4, &polices::texte, pal_.doux, pal_.fond, true, 24);
 }
 
@@ -482,12 +497,12 @@ void Dessin::corpsMenu(const Vue& v) {
     int y = y0 + (i - debut) * (hauteur + 6);
     bool actif = i == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
-    g_.fillRoundRect(10, y, L - 20, hauteur, 10, c(fond));
-    if (actif) g_.fillRoundRect(10, y + 6, 5, hauteur - 12, 2, c(pal_.accent));
+    g_->fillRoundRect(10, y, L - 20, hauteur, 10, c(fond));
+    if (actif) g_->fillRoundRect(10, y + 6, 5, hauteur - 12, 2, c(pal_.accent));
     // Le numéro de la ligne : la touche du clavier qui la choisit.
     if (i < 9) {
       uint32_t pastilleFond = actif ? pal_.accent : pal_.surface2;
-      g_.fillCircle(36, y + hauteur / 2, 11, c(pastilleFond));
+      g_->fillCircle(36, y + hauteur / 2, 11, c(pastilleFond));
       ecrire(std::to_string(i + 1), 36, y + 11, &polices::petit, actif ? pal_.fond : pal_.doux, pastilleFond, 1);
     }
     ecrire(couper(lignes[i], &polices::texteGras, L - 100), 56, y + 9, actif ? &polices::texteGras : &polices::texte,
@@ -504,8 +519,8 @@ void Dessin::corpsMenu(const Vue& v) {
   if (lignes.size() > static_cast<size_t>(visibles)) {
     int total = static_cast<int>(lignes.size());
     int hBarre = Y_INFO - 8 - y0;
-    g_.fillRoundRect(L - 6, y0, 3, hBarre, 1, c(pal_.surface2));
-    g_.fillRoundRect(L - 6, y0 + hBarre * debut / total, 3, hBarre * visibles / total, 1, c(pal_.accent));
+    g_->fillRoundRect(L - 6, y0, 3, hBarre, 1, c(pal_.surface2));
+    g_->fillRoundRect(L - 6, y0 + hBarre * debut / total, 3, hBarre * visibles / total, 1, c(pal_.accent));
   }
 }
 
@@ -531,12 +546,12 @@ void Dessin::corpsCode(const Vue& v) {
     int w = static_cast<int>(largeurs[i] * echelle);
     bool actif = i == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface2;
-    g_.fillRoundRect(x, y, w, h, 12, c(actif ? pal_.accent : pal_.surface2));
-    g_.fillRoundRect(x + 3, y + 3, w - 6, h - 6, 10, c(fond));
+    g_->fillRoundRect(x, y, w, h, 12, c(actif ? pal_.accent : pal_.surface2));
+    g_->fillRoundRect(x + 3, y + 3, w - 6, h - 6, 10, c(fond));
     std::string s = v.champs[i];
     bool vide = s.find_first_not_of('_') == std::string::npos;
     if (vide) {
-      g_.fillRoundRect(x + w / 2 - 14, y + h - 24, 28, 4, 2, c(actif ? pal_.accent : pal_.trait));
+      g_->fillRoundRect(x + w / 2 - 14, y + h - 24, 28, 4, 2, c(actif ? pal_.accent : pal_.trait));
     } else {
       ecrire(s, x + w / 2, y + 12, &polices::chiffres, actif ? pal_.accent : pal_.texte, fond, 1);
     }
@@ -556,10 +571,10 @@ void Dessin::corpsChoix(const Vue& v) {
     bool barre = i == v.barre || v.options[i].empty();
     uint32_t fond = barre ? pal_.surface : BOUTONS[i];
     uint32_t encre = barre ? pal_.trait : (i == 2 ? 0x1c1a14u : 0xffffffu);
-    g_.fillRoundRect(x, y, w, h, 12, c(fond));
+    g_->fillRoundRect(x, y, w, h, 12, c(fond));
     // La pastille du bouton à presser.
-    g_.fillCircle(x + 22, y + h / 2, 10, c(barre ? pal_.surface2 : 0xffffff));
-    g_.fillCircle(x + 22, y + h / 2, 6, c(barre ? pal_.surface : BOUTONS[i]));
+    g_->fillCircle(x + 22, y + h / 2, 10, c(barre ? pal_.surface2 : 0xffffff));
+    g_->fillCircle(x + 22, y + h / 2, 6, c(barre ? pal_.surface : BOUTONS[i]));
     if (!v.options[i].empty()) {
       int interligne;
       const lgfx::IFont* police = policeQuiTient(v.options[i], w - 52, h - 10, &interligne);
@@ -567,7 +582,7 @@ void Dessin::corpsChoix(const Vue& v) {
       int hauteurTexte = paragraphe(v.options[i], 0, 0, w - 52, 1000, police, 0, 0, false, interligne, false);
       paragraphe(v.options[i], x + 42, y + (h - hauteurTexte) / 2 + 2, w - 52, y + h, police, encre, fond, false, interligne);
     }
-    if (i == v.barre) g_.drawLine(x + 12, y + h / 2, x + w - 12, y + h / 2, c(pal_.trait));
+    if (i == v.barre) g_->drawLine(x + 12, y + h / 2, x + w - 12, y + h / 2, c(pal_.trait));
   }
 }
 
@@ -586,12 +601,12 @@ void Dessin::corpsEnergie(const Vue& v) {
   for (int i = 0; i < n; i++, y += pas) {
     bool actif = i == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.fond;
-    if (actif) g_.fillRoundRect(8, y - 2, L - 16, pas - 1, 8, c(fond));
+    if (actif) g_->fillRoundRect(8, y - 2, L - 16, pas - 1, 8, c(fond));
     ecrire(couper(v.modules[i], &polices::compact, 170), 22, y + 1, actif ? &polices::texteGras : &polices::compact,
            actif ? pal_.texte : pal_.doux, fond);
     int valeur = i < static_cast<int>(v.valeurs.size()) ? v.valeurs[i] : 0;
     for (int k = 0; k < 5; k++)
-      g_.fillRoundRect(206 + k * 42, y + 4, 36, pas - 12, 5, c(k < valeur ? (actif ? pal_.accent : pal_.texte) : pal_.surface2));
+      g_->fillRoundRect(206 + k * 42, y + 4, 36, pas - 12, 5, c(k < valeur ? (actif ? pal_.accent : pal_.texte) : pal_.surface2));
     ecrire(std::to_string(valeur), L - 26, y, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
   }
 }
@@ -620,8 +635,8 @@ void Dessin::corpsEpreuve(const Vue& v) {
   if (v.voyant >= 0) {
     uint32_t couleur = v.voyant < 4 ? BOUTONS[v.voyant] : v.voyant == 4 ? FEU_VERT : FEU_ROUGE;
     int cy = bas + 42;
-    g_.fillCircle(L / 2, cy, 38, c(melange(pal_.fond, couleur, 0.35f)));
-    g_.fillCircle(L / 2, cy, 30, c(couleur));
+    g_->fillCircle(L / 2, cy, 38, c(melange(pal_.fond, couleur, 0.35f)));
+    g_->fillCircle(L / 2, cy, 30, c(couleur));
   }
   if (v.pasTotal > 0) points(L / 2, Y_INFO - 20, v.pasFaits, v.pasTotal);
 }
@@ -667,7 +682,7 @@ void Dessin::corpsResultat(const Vue& v) {
   int ecart = 8, w = (L - 20 - ecart * (n - 1)) / n;
   for (int k = 0; k < static_cast<int>(tuiles.size()); k++) {
     int x = 10 + k * (w + ecart);
-    g_.fillRoundRect(x, y, w, 70, 12, c(pal_.surface));
+    g_->fillRoundRect(x, y, w, 70, 12, c(pal_.surface));
     ecrire(couper(tuiles[k].first, &polices::petit, w - 16), x + w / 2, y + 10, &polices::petit, pal_.doux, pal_.surface, 1);
     std::string valeur = tuiles[k].second;
     const lgfx::IFont* police = largeur(valeur, &polices::titre) <= w - 16 ? &polices::titre : &polices::texteGras;
@@ -685,7 +700,7 @@ void Dessin::resultatAvecQr(const Vue& v, bool victoire, const std::string& rang
                             const std::vector<std::pair<std::string, std::string>>& tuiles) {
   constexpr int COTE = 104, ECART = 8, DROITE = 2 * COTE + ECART + 10;
   const int wg = L - 20 - DROITE, cx = 10 + wg / 2;
-  g_.fillRect(0, Y_CORPS, L, Y_INFO - Y_CORPS, c(pal_.fond));
+  g_->fillRect(0, Y_CORPS, L, Y_INFO - Y_CORPS, c(pal_.fond));
   std::string titre = victoire ? "Mission réussie" : "Mission échouée";
   const lgfx::IFont* pt = largeur(titre, &polices::grand) <= wg ? &polices::grand : &polices::titre;
   ecrire(titre, cx, Y_CORPS + 4, pt, victoire ? pal_.accent : pal_.alerte, pal_.fond, 1);
@@ -702,7 +717,7 @@ void Dessin::resultatAvecQr(const Vue& v, bool victoire, const std::string& rang
   int wt = (wg - 8) / 2;
   for (int k = 0; k < static_cast<int>(tuiles.size()) && k < 6; k++) {
     int x = 10 + (k % 2) * (wt + 8), yt = y + (k / 2) * 52;
-    g_.fillRoundRect(x, yt, wt, 46, 10, c(pal_.surface));
+    g_->fillRoundRect(x, yt, wt, 46, 10, c(pal_.surface));
     ecrire(couper(tuiles[k].first, &polices::petit, wt - 12), x + wt / 2, yt + 4, &polices::petit, pal_.doux, pal_.surface, 1);
     const std::string& val = tuiles[k].second;
     const lgfx::IFont* pv = largeur(val, &polices::texteGras) <= wt - 12 ? &polices::texteGras : &polices::compact;
@@ -713,8 +728,8 @@ void Dessin::resultatAvecQr(const Vue& v, bool victoire, const std::string& rang
   for (int k = 0; k < 2; k++) {
     if (v.qr[k].empty()) continue;
     int x = x0 + k * (COTE + ECART), yq = Y_CORPS + 30;
-    g_.fillRoundRect(x, yq, COTE, COTE, 8, c(0xffffff));
-    g_.qrcode(v.qr[k].c_str(), x + 5, yq + 5, COTE - 10, 1);
+    g_->fillRoundRect(x, yq, COTE, COTE, 8, c(0xffffff));
+    g_->qrcode(v.qr[k].c_str(), x + 5, yq + 5, COTE - 10, 1);
     ecrire(couper(v.qrLegende[k], &polices::petit, COTE + ECART), x + COTE / 2, yq + COTE + 6, &polices::petit, pal_.texte,
            pal_.fond, 1);
   }
@@ -727,7 +742,7 @@ void Dessin::corpsAccusation(const Vue& v) {
   ecrire(couper(v.titre, &polices::titre, L - 40), L / 2, Y_CORPS + 6, &polices::titre, pal_.alerte, pal_.fond, 1);
   int y = Y_CORPS + 46;
   for (int z = 0; z < 3; z++, y += 44) {
-    g_.fillRoundRect(10, y, L - 20, 38, 10, c(pal_.surface));
+    g_->fillRoundRect(10, y, L - 20, 38, 10, c(pal_.surface));
     ecrire(v.nomsZones[z], 26, y + 11, &polices::petit, pal_.doux, pal_.surface);
     ecrire(couper(v.zones[z].empty() ? "—" : v.zones[z], &polices::texteGras, L - 160), 130, y + 8, &polices::texteGras,
            pal_.texte, pal_.surface);
@@ -738,7 +753,7 @@ void Dessin::corpsAccusation(const Vue& v) {
 // Le tableau de bord : les objectifs, le temps, la lumière.
 void Dessin::corpsTableau(const Vue& v) {
   const int xg = 10, wg = 290;
-  g_.fillRoundRect(xg, Y_CORPS + 2, wg, HAUT_CORPS - 6, 14, c(pal_.surface));
+  g_->fillRoundRect(xg, Y_CORPS + 2, wg, HAUT_CORPS - 6, 14, c(pal_.surface));
   ecrire("OBJECTIFS", xg + 16, Y_CORPS + 12, &polices::petit, pal_.doux, pal_.surface);
   int faits = 0;
   for (int e : v.etatsObjectifs) faits += e == 2;
@@ -751,29 +766,29 @@ void Dessin::corpsTableau(const Vue& v) {
   for (int i = 0; i < n && y + pas <= Y_INFO - 4; i++, y += pas) {
     bool fait = v.etatsObjectifs[i] == 2;
     if (fait) {
-      g_.fillCircle(xg + 24, y + 9, 8, c(pal_.accent));
+      g_->fillCircle(xg + 24, y + 9, 8, c(pal_.accent));
       coche(xg + 19, y + 5, 10, pal_.surface);
     } else {
-      g_.fillCircle(xg + 24, y + 9, 8, c(pal_.trait));
-      g_.fillCircle(xg + 24, y + 9, 6, c(pal_.surface));
+      g_->fillCircle(xg + 24, y + 9, 8, c(pal_.trait));
+      g_->fillCircle(xg + 24, y + 9, 6, c(pal_.surface));
     }
     ecrire(couper(v.objectifs[i], police, wg - 56), xg + 40, y + (police == &polices::petit ? 2 : 0), police,
            fait ? pal_.doux : pal_.texte, pal_.surface);
   }
   // À droite : le temps, la lumière, l'aide.
   const int xd = xg + wg + 10, wd = L - 10 - xd;
-  g_.fillRoundRect(xd, Y_CORPS + 2, wd, 92, 14, c(pal_.surface));
+  g_->fillRoundRect(xd, Y_CORPS + 2, wd, 92, 14, c(pal_.surface));
   ecrire("TEMPS", xd + 14, Y_CORPS + 12, &polices::petit, pal_.doux, pal_.surface);
   bool urgent = v.restantPourMille >= 0 && v.restantPourMille < 200;
   ecrire(couper(v.entete, &polices::grand, wd - 20), xd + wd / 2, Y_CORPS + 36, &polices::grand, urgent ? pal_.alerte : pal_.accent,
          pal_.surface, 1);
   int y2 = Y_CORPS + 102;
   if (v.dynamo) {
-    g_.fillRoundRect(xd, y2, wd, 56, 14, c(pal_.surface));
+    g_->fillRoundRect(xd, y2, wd, 56, 14, c(pal_.surface));
     ecrire("LUMIÈRE", xd + 14, y2 + 10, &polices::petit, pal_.doux, pal_.surface);
     ecrire(std::to_string(v.lumiere) + " %", xd + wd - 14, y2 + 8, &polices::texteGras, pal_.texte, pal_.surface, 2);
-    g_.fillRoundRect(xd + 14, y2 + 36, wd - 28, 8, 4, c(pal_.trait));
-    g_.fillRoundRect(xd + 14, y2 + 36, std::max(4, (wd - 28) * v.lumiere / 100), 8, 4,
+    g_->fillRoundRect(xd + 14, y2 + 36, wd - 28, 8, 4, c(pal_.trait));
+    g_->fillRoundRect(xd + 14, y2 + 36, std::max(4, (wd - 28) * v.lumiere / 100), 8, 4,
                      c(v.lumiere < 30 ? pal_.alerte : pal_.accent));
     y2 += 64;
   }
@@ -792,7 +807,7 @@ void Dessin::corpsEtat(const Vue& v) {
     int etat = i < static_cast<int>(v.valeurs.size()) ? v.valeurs[i] : -1;
     bool manque = i < static_cast<int>(v.etiquettes.size()) && !v.etiquettes[i].empty();
     uint32_t pastille = etat == 1 ? FEU_VERT : etat == 0 ? FEU_ROUGE : pal_.trait;
-    g_.fillCircle(x + 5, y + 8, 5, c(pastille));
+    g_->fillCircle(x + 5, y + 8, 5, c(pastille));
     std::string t = v.modules[i] + (manque ? " · " + v.etiquettes[i] : "");
     ecrire(couper(t, &polices::petit, L / 2 - 36), x + 16, y, &polices::petit,
            manque ? pal_.alerte : etat == 0 ? pal_.doux : pal_.texte, pal_.fond);
@@ -807,12 +822,12 @@ void Dessin::corpsReglages(const Vue& v) {
   for (size_t i = 0; i < v.modules.size(); i++, y += 39) {
     bool actif = static_cast<int>(i) == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
-    g_.fillRoundRect(10, y, L - 20, 35, 10, c(fond));
-    if (actif && !v.tactile) g_.fillRoundRect(10, y + 7, 5, 21, 2, c(pal_.accent));
+    g_->fillRoundRect(10, y, L - 20, 35, 10, c(fond));
+    if (actif && !v.tactile) g_->fillRoundRect(10, y + 7, 5, 21, 2, c(pal_.accent));
     if (v.tactile) {
       for (int cote = 0; cote < 2; cote++) {
         int cx = cote ? L - 32 : 32;
-        g_.fillCircle(cx, y + 17, 14, c(actif ? pal_.accent : pal_.surface2));
+        g_->fillCircle(cx, y + 17, 14, c(actif ? pal_.accent : pal_.surface2));
         ecrire(cote ? "+" : "-", cx, y + 6, &polices::texteGras, actif ? pal_.fond : pal_.texte, actif ? pal_.accent : pal_.surface2, 1);
       }
     }
@@ -821,8 +836,8 @@ void Dessin::corpsReglages(const Vue& v) {
     ecrire(e, L - marge, y + 3, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
     int max = i < v.maximums.size() && v.maximums[i] > 0 ? v.maximums[i] : 1;
     int valeur = i < v.valeurs.size() ? v.valeurs[i] : 0;
-    g_.fillRoundRect(marge, y + 26, L - 2 * marge, 5, 2, c(pal_.trait));
-    g_.fillRoundRect(marge, y + 26, std::max(6, (L - 2 * marge) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
+    g_->fillRoundRect(marge, y + 26, L - 2 * marge, 5, 2, c(pal_.trait));
+    g_->fillRoundRect(marge, y + 26, std::max(6, (L - 2 * marge) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
   }
 }
 
@@ -830,11 +845,11 @@ void Dessin::corpsReglages(const Vue& v) {
 void Dessin::minuteur(const Vue& v) {
   bool plein = v.ecran == Vue::CODE || v.ecran == Vue::CHOIX || v.ecran == Vue::EPREUVE;
   if (!plein || v.secondes < 0 || v.secondesTotal <= 0) return;
-  g_.fillCircle(MIN_X, MIN_Y, MIN_R + 1, c(pal_.fond));
-  g_.fillArc(MIN_X, MIN_Y, MIN_R - 5, MIN_R, 0, 360, c(pal_.surface2));
+  g_->fillCircle(MIN_X, MIN_Y, MIN_R + 1, c(pal_.fond));
+  g_->fillArc(MIN_X, MIN_Y, MIN_R - 5, MIN_R, 0, 360, c(pal_.surface2));
   float part = static_cast<float>(v.secondes) / v.secondesTotal;
   uint32_t couleur = part < 0.34f ? pal_.alerte : pal_.accent;
-  if (part > 0) g_.fillArc(MIN_X, MIN_Y, MIN_R - 5, MIN_R, 270, 270 + 360 * part, c(couleur));
+  if (part > 0) g_->fillArc(MIN_X, MIN_Y, MIN_R - 5, MIN_R, 270, 270 + 360 * part, c(couleur));
   ecrire(std::to_string(v.secondes), MIN_X, MIN_Y - 11, &polices::texteGras, pal_.texte, pal_.fond, 1);
 }
 
@@ -842,7 +857,7 @@ void Dessin::minuteur(const Vue& v) {
 // La ligne d'information : une consigne, ou les objectifs en pastilles.
 // ---------------------------------------------------------------------
 void Dessin::ligneInfo(const Vue& v) {
-  g_.fillRect(0, Y_INFO, L, Y_ZONES - Y_INFO, c(pal_.fond));
+  g_->fillRect(0, Y_INFO, L, Y_ZONES - Y_INFO, c(pal_.fond));
   std::string info = v.info;
   if (v.ecran == Vue::TABLEAU) info = "Molette : revenir au jeu";
   if (v.ecran == Vue::ENERGIE && info.empty()) info = v.texte;
@@ -878,14 +893,14 @@ void Dessin::ligneInfo(const Vue& v) {
 // Les trois lecteurs, en tuiles.
 // ---------------------------------------------------------------------
 void Dessin::barreZones(const Vue& v) {
-  g_.fillRect(0, Y_ZONES, L, H - Y_ZONES, c(pal_.fond));
+  g_->fillRect(0, Y_ZONES, L, H - Y_ZONES, c(pal_.fond));
   const int w = 148, h = 42, y = Y_ZONES + 2;
   for (int z = 0; z < 3; z++) {
     int x = 10 + z * (w + 8);
     bool pleine = !v.zones[z].empty();
     uint32_t fond = pleine ? pal_.surface2 : pal_.surface;
-    g_.fillRoundRect(x, y, w, h, 10, c(fond));
-    if (pleine) g_.fillRoundRect(x, y + 9, 4, h - 18, 2, c(pal_.accent));
+    g_->fillRoundRect(x, y, w, h, 10, c(fond));
+    if (pleine) g_->fillRoundRect(x, y + 9, 4, h - 18, 2, c(pal_.accent));
     ecrire(couper(v.nomsZones[z], &polices::petit, w - 24), x + 12, y + 4, &polices::petit, pleine ? pal_.accent : pal_.doux, fond);
     std::string nom = pleine ? sansArticle(v.zones[z]) : "—";
     const lgfx::IFont* police = largeur(nom, &polices::texteGras) <= w - 24 ? &polices::texteGras : &polices::compact;
@@ -935,7 +950,7 @@ void Dessin::clavierAzerty(const Vue& v) {
       bool utile = toucheUtile(t, v);
       bool valider = t.type == Toucher::VALIDER;
       uint32_t fond = valider ? pal_.accent : t.type == CAR ? pal_.surface2 : pal_.surface;
-      g_.fillRoundRect(x, y, w, KB_H, 8, c(fond));
+      g_->fillRoundRect(x, y, w, KB_H, 8, c(fond));
       std::string e = t.etiquette;
       if (t.type == Toucher::RETOUR) e = v.ecran == Vue::SAISIE ? "‹ Annuler" : "‹ Fermer";
       if (t.type == Toucher::VALIDER) e = "✓ Valider";
@@ -949,14 +964,14 @@ void Dessin::clavierAzerty(const Vue& v) {
 void Dessin::corpsSaisie(const Vue& v) {
   ecrire(v.titre, 14, Y_CORPS + 4, &polices::petit, pal_.accent, pal_.fond);
   const int y = Y_CORPS + 24, h = 52;
-  g_.fillRoundRect(10, y, L - 20, h, 12, c(pal_.accent));
-  g_.fillRoundRect(12, y + 2, L - 24, h - 4, 10, c(pal_.surface));
+  g_->fillRoundRect(10, y, L - 20, h, 12, c(pal_.accent));
+  g_->fillRoundRect(12, y + 2, L - 24, h - 4, 10, c(pal_.surface));
   std::string t = v.saisie;
   const lgfx::IFont* police = &polices::titre;
   while (!t.empty() && largeur(t, police) > L - 70) t.erase(0, 1);  // la fin du nom reste visible
   ecrire(t, 26, y + 12, police, pal_.texte, pal_.surface);
   int xc = 26 + (t.empty() ? 0 : largeur(t, police)) + 3;
-  g_.fillRect(xc, y + 12, 3, 28, c(pal_.accent));  // le curseur
+  g_->fillRect(xc, y + 12, 3, 28, c(pal_.accent));  // le curseur
   if (v.saisie.empty()) ecrire("Tapez le nom de l'équipe", xc + 14, y + 16, &polices::texte, pal_.trait, pal_.surface);
 }
 
@@ -969,22 +984,22 @@ void Dessin::corpsLettresClavier(const Vue& v) {
   int x = (L - n * w - ecart * (n - 1)) / 2;
   for (int i = 0; i < n; i++, x += w + ecart) {
     bool actif = i == v.curseur;
-    g_.fillRoundRect(x, y, w, h, 10, c(actif ? pal_.accent : pal_.surface2));
+    g_->fillRoundRect(x, y, w, h, 10, c(actif ? pal_.accent : pal_.surface2));
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface2;
-    g_.fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, c(fond));
+    g_->fillRoundRect(x + 2, y + 2, w - 4, h - 4, 8, c(fond));
     std::string s = v.champs[i];
-    if (s.find_first_not_of('_') == std::string::npos) g_.fillRoundRect(x + w / 2 - 9, y + h - 14, 18, 3, 1, c(pal_.trait));
+    if (s.find_first_not_of('_') == std::string::npos) g_->fillRoundRect(x + w / 2 - 9, y + h - 14, 18, 3, 1, c(pal_.trait));
     else ecrire(s, x + w / 2, y + 11, &polices::titre, actif ? pal_.accent : pal_.texte, fond, 1);
   }
 }
 
 void Dessin::boutonsTactiles(const Vue& v) {
-  g_.fillRect(0, Y_ZONES, L, H - Y_ZONES, c(pal_.fond));
+  g_->fillRect(0, Y_ZONES, L, H - Y_ZONES, c(pal_.fond));
   for (int k = 0; k < 2; k++) {
     if (v.boutons[k].empty()) continue;
     int x = k ? L / 2 + 5 : 10, w = L / 2 - 15, y = Y_ZONES + 4, h = 40;
     uint32_t fond = k ? pal_.accent : pal_.surface2;
-    g_.fillRoundRect(x, y, w, h, 12, c(fond));
+    g_->fillRoundRect(x, y, w, h, 12, c(fond));
     ecrire(couper(v.boutons[k], &polices::texteGras, w - 20), x + w / 2, y + 10, &polices::texteGras, k ? pal_.fond : pal_.texte,
            fond, 1);
   }
