@@ -15,7 +15,7 @@
     },
     "commandante": {
       "nom": "La commandante Mira Solvik (l'interphone)",
-      "voice_id": "",
+      "voice_id": "gbNtA12inAHkoDMpOE9v",
       "description": "Femme, la cinquantaine, voix ferme et chaleureuse, un peu essoufflée, à travers un interphone.",
       "portrait": "La commandante du Narval, coincée au poste avant avec deux officiers blessés, derrière une porte tordue. Elle ne peut rien faire d'autre que parler à l'interphone : elle garde son calme pour ses matelots, plaisante parfois pour les rassurer, et laisse échapper la fatigue. Autorité naturelle, jamais de cris.",
       "prompt_voice_design": "A firm, warm French female naval commander in her fifties, native speaker from France, slightly out of breath, calm authority, speaking through a ship intercom.",
