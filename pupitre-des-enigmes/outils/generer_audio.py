@@ -121,6 +121,8 @@ class Audio:
         if self.voix:
             v = self.personnage()
             base = [self.texte, v.get("voice_id", ""), v.get("modele", self.casting.get("modele_par_defaut")), v.get("reglages")]
+            if v.get("filtre"):
+                base.append(v["filtre"])
         else:
             base = [self.texte, self.element.get("duree")]
         return hashlib.sha1(json.dumps(base, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
@@ -391,8 +393,10 @@ def ecrire(audio, donnees_wav_ou_mp3, extension, sortie, normaliser):
         if normaliser and shutil.which("ffmpeg"):
             cible = dossier / f"{audio.n:03d}.mp3"
             lufs = LUFS_VOIX if audio.voix else LUFS_SONS
+            # Un effet propre à la voix (« filtre » dans voix.json : la bombe métallique, une radio…), puis le volume.
+            filtre = (audio.personnage().get("filtre", "") + ",") if audio.voix and audio.personnage().get("filtre") else ""
             r = subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", str(brut), "-af",
-                                f"loudnorm=I={lufs}:TP=-1.5:LRA=11", "-ar", "44100", "-ac", "2", "-b:a", "128k", str(cible)])
+                                f"{filtre}loudnorm=I={lufs}:TP=-1.5:LRA=11", "-ar", "44100", "-ac", "2", "-b:a", "128k", str(cible)])
             if r.returncode == 0:
                 return cible
             cible.unlink(missing_ok=True)  # pas de fichier à moitié écrit à côté de la copie brute
