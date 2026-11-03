@@ -664,6 +664,12 @@
         },
         {
           "drapeau": "attend_couleur"
+        },
+        {
+          "plus_tard": {
+            "secondes": 30,
+            "evenement": "couleur_temps"
+          }
         }
       ]
     },
@@ -831,6 +837,12 @@
         },
         {
           "drapeau": "attend_fente"
+        },
+        {
+          "plus_tard": {
+            "secondes": 30,
+            "evenement": "fente_temps"
+          }
         }
       ]
     },
@@ -868,6 +880,12 @@
         },
         {
           "drapeau": "attend_plateau"
+        },
+        {
+          "plus_tard": {
+            "secondes": 30,
+            "evenement": "plateau_temps"
+          }
         }
       ]
     },
@@ -967,6 +985,66 @@
         },
         {
           "victoire": true
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "couleur_temps"
+      },
+      "si": "attend_couleur",
+      "alors": [
+        {
+          "retirer": "attend_couleur"
+        },
+        {
+          "son": 4
+        },
+        {
+          "dire": 54
+        },
+        {
+          "evenement": "fente"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "fente_temps"
+      },
+      "si": "attend_fente",
+      "alors": [
+        {
+          "retirer": "attend_fente"
+        },
+        {
+          "son": 4
+        },
+        {
+          "dire": 55
+        },
+        {
+          "evenement": "plateau"
+        }
+      ]
+    },
+    {
+      "quand": {
+        "evenement": "plateau_temps"
+      },
+      "si": "attend_plateau",
+      "alors": [
+        {
+          "retirer": "attend_plateau"
+        },
+        {
+          "son": 4
+        },
+        {
+          "dire": 55
+        },
+        {
+          "evenement": "casque"
         }
       ]
     }

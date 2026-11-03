@@ -8,7 +8,6 @@ tiroir secret). À jouer après le montage, ou avant une soirée, pour vérifier
 
 | Élément | Choix |
 |---|---|
-| **Présentation du pupitre** | Une visite guidée, à jouer une fois, pour faire découvrir le pupitre à Jimmy : le pupitre se présente, puis fait essayer chaque commande, une à une. Un essai raté ne bloque jamais la suite. Voix du pupitre (dossier SD `52/`), script [`pupitre/mission-10.json`](pupitre/mission-10.json). Menu de l'Atelier : « Jouer · Présentation du pupitre » |
 | **Mission** | 5 · Banc d'essai (🟢 facile, 30 min, 2 joueurs, sans rôles) · [déroulé](mission-5-deroule.md) |
 | **Carte Monde** | M5 « L'Atelier du professeur Lumen » ; carte Aide A5 « Le carnet du professeur » |
 | **Plateau** | Le **plan du banc d'essai** : un plan d'ingénieur bleu où chaque organe porte le nom et le numéro de son banc (① à ⑬), et chaque voyant l'organe qu'il valide. Rien n'est caché. La mission se joue aussi sans façade |

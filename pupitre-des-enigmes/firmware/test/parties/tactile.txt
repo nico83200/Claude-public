@@ -5,8 +5,8 @@ verifie phase accueil
 ecran valider
 verifie phase choix_monde
 capture tactile-choix-monde
-# La dernière ligne : les réglages. On baisse l'écran, on monte le haut-parleur, puis on annule.
-ecran ligne 10
+# La dernière ligne (11, après les 10 mondes) : les réglages. On baisse l'écran, on monte le haut-parleur, puis on annule.
+ecran ligne 11
 verifie phase reglages
 capture tactile-reglages
 ecran moins 1

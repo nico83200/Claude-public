@@ -306,6 +306,9 @@ class Moteur {
   bool ambianceEnCours_ = false;
   uint32_t silenceDepuis_ = 0;
 
+  // Les événements différés (action « plus_tard ») : instant, nom de l'événement.
+  std::vector<std::pair<uint32_t, std::string>> minuteries_;
+
   // Le mode démonstration.
   struct Diapo {
     std::string titre, texte;

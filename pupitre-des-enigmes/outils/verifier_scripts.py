@@ -39,7 +39,13 @@ def verifier_mission(dossier_monde, monde, mission, erreurs):
     script = json.loads((dossier_monde / "pupitre" / mission["script"]).read_text(encoding="utf-8"))
     voix = numeros(dossier_monde / "audio" / f"mission-{mission['numero']}.json", "lignes")
     voix_pupitre = numeros(RACINE / "console" / "audio" / "repliques.json", "lignes")
-    sons = numeros(dossier_monde / "audio" / "sons.json", "sons")
+    # Les bruitages du monde, ou ceux d'un autre monde si le script en emprunte le dossier
+    # (la présentation du pupitre reprend ceux de l'Atelier).
+    fichier_sons = dossier_monde / "audio" / "sons.json"
+    for f in sorted((RACINE / "mondes").glob("*/audio/sons.json")):
+        if json.loads(f.read_text(encoding="utf-8")).get("dossier") == script.get("dossier_sons"):
+            fichier_sons = f
+    sons = numeros(fichier_sons, "sons")
     sons_pupitre = numeros(RACINE / "console" / "audio" / "sons.json", "sons")
     cartes = set(script.get("cartes", {})) | {monde["carte"], monde.get("aide", "")}
 

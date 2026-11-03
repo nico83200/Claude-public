@@ -35,6 +35,10 @@
     {
       "id": "narval",
       "nom": "Sous-marin Narval"
+    },
+    {
+      "id": "presentation",
+      "nom": "Le Pupitre des Énigmes"
     }
   ]
 }

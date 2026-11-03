@@ -355,6 +355,7 @@ void Moteur::lancerMission(bool reprise) {
   file_.clear();
   enAttente_.clear();
   erreurs_ = indicesDonnes_ = indicesPayants_ = 0;
+  minuteries_.clear();
   derniereAvancee_ = souffleurs_ = 0;
   avancees_ = -1;
   souffleurDit_ = souffleurClignote_ = false;
@@ -482,7 +483,13 @@ void Moteur::carte(Zone zone, const std::string& uid) {
   if (phase_ == Phase::ACCUEIL || phase_ == Phase::CHOIX_MONDE) {
     auto it = mondeParUid_.find(uid);
     if (it != mondeParUid_.end() && chargerMonde(it->second)) {
-      allerMenu();
+      // Un monde « direct » (une présentation, une mission unique) : sa carte lance aussitôt sa
+      // première mission, sans passer par le menu.
+      JsonVariantConst premiere = monde_["missions"][0];
+      if (monde_["direct"].as<bool>() && !premiere.isNull() && chargerMission(premiere["numero"].as<int>()))
+        lancerMission(false);
+      else
+        allerMenu();
     } else {
       p_.jouer(DOSSIER_SONS_PUPITRE, 3, false);
       ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 10));
@@ -1990,6 +1997,13 @@ void Moteur::executer(JsonVariantConst act) {
     terminer(false, texte(act["defaite"]));
     return;
   }
+  if (!act["plus_tard"].isNull()) {
+    // Un événement différé, sans bloquer la suite : une étape qui attend un geste peut ainsi
+    // passer d'elle-même à la suite si personne ne fait rien (la règle vérifie un drapeau).
+    JsonVariantConst pt = act["plus_tard"];
+    minuteries_.emplace_back(maintenant() + static_cast<uint32_t>(pt["secondes"].as<float>() * 1000), texte(pt["evenement"]));
+    return;
+  }
   if (!act["attendre"].isNull()) {
     attente_ = Attente::DELAI;
     finAttente_ = maintenant() + act["attendre"].as<int>();
@@ -3433,6 +3447,20 @@ void Moteur::miseAJour() {
       defaiteApres_ = false;
       terminer(false, "erreurs");
     }
+  }
+
+  // Les événements différés : seulement en jeu, chrono en marche et hors pause.
+  if (phase_ == Phase::JEU && chronoActif_ && !pause_) {
+    for (size_t i = 0; i < minuteries_.size();) {
+      if (static_cast<int32_t>(t - minuteries_[i].first) >= 0) {
+        ajouterInterne(Action::de(Action::EVENEMENT, 0, 0, minuteries_[i].second));
+        minuteries_.erase(minuteries_.begin() + i);
+      } else {
+        i++;
+      }
+    }
+  } else if (phase_ != Phase::JEU) {
+    minuteries_.clear();
   }
 
   // Le mode démonstration : il commence quand l'accueil reste seul, et change de monde toutes les 8 s.

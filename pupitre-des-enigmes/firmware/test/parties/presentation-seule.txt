@@ -1,0 +1,10 @@
+# La présentation du pupitre, sans que personne ne touche à rien : chaque étape passe d'elle-même
+# à la suivante (délais des épreuves, et « plus_tard » pour la couleur et les cartes).
+fente M10
+fente -
+calme
+verifie phase jeu
+attendre 900
+calme
+verifie phase victoire
+verifie journal Fin : victoire

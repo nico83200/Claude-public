@@ -1,10 +1,8 @@
-# La présentation du pupitre (une seule fois, pour Jimmy) : le pupitre se montre tout seul, puis
+# La présentation du pupitre (une seule fois, pour Jimmy) : on glisse sa carte, et : le pupitre se montre tout seul, puis
 # chaque commande est essayée ; un essai raté ne bloque pas la suite.
-fente M5
+# La carte M10 lance la présentation aussitôt, sans menu (monde « direct »)
+fente M10
 fente -
-verifie phase menu
-# Le menu de l'Atelier : 1 Banc d'essai, 2 Présentation du pupitre
-touches 2
 calme
 verifie phase jeu
 # Le gros bouton, puis un mauvais bouton de couleur (raté : on continue quand même)

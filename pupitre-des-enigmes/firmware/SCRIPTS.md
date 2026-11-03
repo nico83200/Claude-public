@@ -33,6 +33,9 @@ Les fichiers `repliques-N.json` (sous-titres) et `cartes.json` (puces NFC) sont
 produits par `outils/preparer_sd.py` et par l'enregistrement des cartes.
 (Les commentaires `//` ci-dessus sont là pour l'explication : JSON n'en accepte pas.)
 
+Un monde peut être **direct** : `"direct": true`. Sa carte lance aussitôt sa première mission,
+sans passer par le menu (la présentation du pupitre, une mission unique offerte en cadeau…).
+
 ## 2. L'en-tête d'une mission
 
 | Clé | Rôle | Exemple |
@@ -169,6 +172,7 @@ condition mal écrite.
 | `{"si": "J3", "alors": [ … ], "sinon": [ … ]}` | Condition |
 | `{"hasard": [[ … ], [ … ]]}` | Une des listes d'actions, au hasard |
 | `{"attendre": 10000}` | Pause en millisecondes |
+| `{"plus_tard": {"secondes": 30, "evenement": "trop_tard"}}` | Déclencher un événement dans 30 s, **sans bloquer** la suite. Une étape qui attend un geste (une couleur, une carte) passe ainsi d'elle-même à la suite si personne ne fait rien : la règle `trop_tard` vérifie un drapeau levé au début de l'étape |
 | `{"annulable": {"role": "R6", "pouvoir": "R6_annulation", "secondes": 10, "alors": [ … ]}}` | Pendant 10 s, poser la carte R6 exécute `alors` (et consomme le pouvoir) |
 | `{"effet": "alerte", "duree": 5000}` | Animation de l'anneau : `alerte`, `succes`, `echec` |
 | `{"dynamo": {"duree": 160}}` · `{"dynamo": {"charge": 0}}` | La lumière se vide moins vite · noir complet |

@@ -1,5 +1,5 @@
 {
-  "monde": "L'Atelier du professeur Lumen",
+  "monde": "Le Pupitre des Énigmes",
   "mission": "Présentation du pupitre",
   "dossier": 52,
   "sortie_par_defaut": "haut-parleur",
@@ -279,6 +279,18 @@
       "voix": "pupitre",
       "usage": "L'anneau",
       "texte": "Autour de moi, il y a mon anneau de lumière. Selon les missions, il montre le temps qui passe, l'oxygène qui baisse, ou le soupçon qui monte."
+    },
+    {
+      "n": 54,
+      "voix": "pupitre",
+      "usage": "Couleur : pas de pastille",
+      "texte": "Pas de pastille sous la main ? Ce n'est rien, tu l'essaieras plus tard."
+    },
+    {
+      "n": 55,
+      "voix": "pupitre",
+      "usage": "Cartes : pas de carte",
+      "texte": "Pas de carte sous la main ? On verra ça pendant une vraie mission."
     },
     {
       "n": 80,

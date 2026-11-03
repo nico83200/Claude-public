@@ -1,0 +1,21 @@
+{
+  "id": "presentation",
+  "nom": "Le Pupitre des Énigmes",
+  "carte": "M10",
+  "direct": true,
+  "theme": {
+    "fond": "#141a2e",
+    "texte": "#efe9dc",
+    "accent": "#e2b04a",
+    "alerte": "#d2402f",
+    "doux": "#8e95ab"
+  },
+  "missions": [
+    {
+      "numero": 10,
+      "titre": "Présentation du pupitre",
+      "script": "mission-10.json",
+      "repliques": "repliques-10.json"
+    }
+  ]
+}
