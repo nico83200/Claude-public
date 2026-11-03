@@ -135,6 +135,11 @@ longue est celle qui fait le plus souvent caler les équipes : c'est là qu'un i
 <button onclick="e('led')">LED</button><button onclick="e('afficheur')">Horloge 88:88</button><button onclick="e('son_hp')">Son 🔊</button>
 <button onclick="e('son_casque')">Son 🎧</button><button onclick="e('tiroir_ouvrir')">Tiroir : ouvrir</button><button onclick="e('tiroir_fermer')">Tiroir : verrouiller</button><button onclick="e('tactile')">Étalonner l'écran tactile</button>
 </div></div>
+<div class="carte"><b>Mode démonstration</b><br><small>À l'accueil, après 2 minutes sans personne : le pupitre présente
+ses mondes et ses lumières s'animent. Un bouton, un toucher ou une carte le réveille.</small><br>
+<select id="modeDemo" onchange="c('demo:'+this.value)" style="font-size:1em;padding:8px;border-radius:8px;margin:6px 0">
+<option value="0">Arrêt</option><option value="1">Muet</option><option value="2">Sonore (« Glissez une carte Monde… » toutes les 5 min)</option></select>
+<button onclick="c('demo')">Lancer maintenant</button></div>
 <div class="carte"><b>Code d'accès du panneau</b><br><small>4 à 8 chiffres. Il est gardé sur la carte SD de l'écran
 (<code>code-panneau.txt</code> : effacez ce fichier pour revenir au code d'origine).</small>
 <input id="codeAncien" type="password" inputmode="numeric" placeholder="Code actuel">
@@ -175,6 +180,8 @@ function maj(){fetch('/etat').then(r=>r.json()).then(e=>{
  $('zones').textContent='QUI : '+(e.zones[0]||'—')+' · OÙ : '+(e.zones[1]||'—')+' · QUOI : '+(e.zones[2]||'—');
  $('equipeLigne').textContent=e.equipe?'Équipe : '+e.equipe+((e.joueurs||[]).length?' ('+e.joueurs.join(', ')+')':''):'Pas encore d\'équipe';
  miroir(e.ecran||{});
+ if(e.modeDemo!=null&&document.activeElement!=$('modeDemo'))$('modeDemo').value=e.modeDemo;
+ if(e.demo)$('phase').textContent='démonstration';
  const sa=$('souffleurAuto');sa.style.display=e.sansAvancee!=null?'block':'none';
  if(e.sansAvancee!=null)sa.innerHTML='<small>Dernière avancée des joueurs il y a <b>'+Math.floor(e.sansAvancee/60)+' min</b>'
   +(e.ecran&&e.ecran.aide?' · <span class="ko">la carte d\'aide clignote</span>':'')+'</small>';

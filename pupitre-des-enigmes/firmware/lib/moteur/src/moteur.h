@@ -43,6 +43,7 @@ class Moteur {
   // Le contact de fin de course du tiroir secret : vrai quand le tiroir est poussé au fond.
   void tiroirAuFond(bool auFond);
   bool tiroirVerrouille() const { return !tiroirOuvert_; }
+  bool enDemonstration() const { return demo_; }
   void bouton(Bouton bouton);                     // appui
   void boutonsEnfonces(uint8_t masque);           // état courant (bit i = bouton i)
   void molette(int pas);
@@ -159,7 +160,13 @@ class Moteur {
   uint32_t couleur(const char* texte, uint32_t defaut) const;
 
   // ---------- Phases ----------
-  void allerAccueil();
+  void allerAccueil(bool annoncer = true);
+  // Le mode démonstration : après 2 minutes sans personne à l'accueil, le pupitre présente ses
+  // mondes (leurs couleurs, leurs missions) et ses lumières s'animent. Un geste le réveille.
+  void entrerDemo();
+  bool sortirDemo();  // vrai s'il était en démonstration
+  void diapoSuivante();
+  void lumieresDemo(uint32_t t, Lumieres& l);
   void allerMenu(bool annoncer = true);
   void ouvrirSaisieEquipe();
   void fermerSaisieEquipe(bool valider);
@@ -298,6 +305,16 @@ class Moteur {
   int ambiance_ = 0;
   bool ambianceEnCours_ = false;
   uint32_t silenceDepuis_ = 0;
+
+  // Le mode démonstration.
+  struct Diapo {
+    std::string titre, texte;
+    Theme theme;
+  };
+  std::vector<Diapo> diapos_;
+  bool demo_ = false;
+  int diapo_ = 0;
+  uint32_t derniereEntree_ = 0, prochaineDiapo_ = 0, dernierAppel_ = 0;
 
   // Le souffleur automatique et les statistiques de la partie.
   int derniereAvancee_ = 0;        // secondes de jeu écoulées à la dernière progression

@@ -1,0 +1,43 @@
+# Le mode démonstration : après 2 minutes sans personne à l'accueil, le pupitre présente ses
+# mondes, un par un, dans leurs couleurs. Un geste le réveille ; une carte compte aussitôt.
+verifie phase accueil
+attendre 110
+verifie demo non
+attendre 11
+verifie demo oui
+verifie phase accueil
+verifie ecran PUPITRE
+capture demo-pupitre
+# Toutes les 8 secondes, le monde suivant (ses missions par leur nom, jamais par un numéro)
+attendre 8
+verifie demo oui
+verifie etat "demo":true
+verifie ecran Atelier
+capture demo-monde
+# Le premier bouton réveille seulement le pupitre : on reste à l'accueil
+bouton VERT
+verifie demo non
+verifie phase accueil
+verifie ecran PUPITRE
+# De nouveau seul : la démonstration revient, puis une carte Monde ouvre son menu aussitôt
+attendre 130
+verifie demo oui
+pose QUI M4
+retire QUI
+verifie demo non
+verifie phase menu
+# Hors de l'accueil, jamais de démonstration
+attendre 200
+verifie demo non
+verifie phase menu
+# Le panneau : la lancer tout de suite, puis l'arrêter pour de bon
+commande demo
+verifie demo oui
+verifie phase accueil
+commande demo:0
+verifie demo non
+attendre 300
+verifie demo non
+commande demo:2
+attendre 130
+verifie demo oui

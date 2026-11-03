@@ -81,6 +81,7 @@ struct Reglages {
   int hp = 24;       // volume du haut-parleur, 0 à 30
   int casque = 18;   // volume du casque, 0 à 30
   int led = 30;      // luminosité des LED, en %
+  int demo = 1;      // le mode démonstration, à l'accueil : 0 arrêt, 1 muet, 2 sonore (panneau Wi-Fi)
 };
 
 // Les LED. Sur le pupitre, elles sont chaînées dans cet ordre : l'anneau, une LED par lecteur,

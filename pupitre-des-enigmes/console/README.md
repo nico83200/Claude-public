@@ -589,8 +589,16 @@ Le panneau a ensuite huit onglets.
 | **Classement** | Par mission, les meilleures équipes ; par joueur, le total des points de toutes ses parties. |
 | **Statistiques** | Par mission : nombre de parties, taux de réussite, durée moyenne des victoires, indices et interventions du souffleur automatique en moyenne, et le temps moyen passé sur chaque étape (avec une barre). **L'étape la plus longue** est signalée : c'est là que les équipes calent, là qu'un indice ou une retouche du script aide le plus. |
 | **Missions** | **Envoyer une mission par le Wi-Fi**, sans retirer la carte SD : choisir le dossier décompressé de `carte-sd-ecran.zip` (celui qui contient `mondes`). Les fichiers des dossiers `mondes` et `pupitre` partent un par un ; les `cartes.json` déjà présents (les puces enregistrées) sont gardés. Hors partie, le pupitre relit aussitôt ses mondes. Un nouveau monde demande ensuite d'enregistrer ses cartes depuis son menu. Les sons, eux, restent sur les cartes SD des lecteurs audio. |
-| **Atelier** | Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir, étalonner l'écran tactile) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
+| **Atelier** | Le **mode démonstration** (arrêt, muet ou sonore ; le lancer tout de suite), le **code d'accès** du panneau. Des essais (les LED en arc-en-ciel, l'horloge en 88:88, un bip au haut-parleur et au casque, ouvrir ou verrouiller le tiroir, étalonner l'écran tactile) et **les mesures des capteurs en direct** : boutons enfoncés, dernière touche, molette, clé, tiroir, couleur, lumière et gestes de l'œil, humidité de la forge, champ de l'enclume. C'est l'outil du montage : soufflez, posez l'aimant, passez la main, et réglez les seuils de `broches.h` d'après les valeurs lues. |
 | **Mise à jour** | Envoyer un nouveau programme (`firmware.bin`) sans ouvrir la boîte (§ 2 de `firmware/README.md`). |
+
+**Le mode démonstration** : à l'accueil, après 2 minutes sans personne, le pupitre se
+présente tout seul. Chaque monde passe 8 secondes à l'écran, dans ses couleurs, avec le nom
+de ses missions. L'anneau tourne comme une comète, une vague lente parcourt les voyants et
+le ruban sous la boîte respire. Le premier bouton, toucher ou tour de molette réveille
+seulement le pupitre ; une carte Monde glissée ouvre aussitôt son menu. Dans l'onglet
+Atelier du panneau : **Arrêt**, **Muet** (par défaut) ou **Sonore** (la voix du pupitre dit
+« Glissez une carte Monde dans la fente » toutes les 5 minutes), et « Lancer maintenant ».
 
 **Le souffleur automatique** : quand l'équipe n'a plus avancé depuis 8 minutes (aucun
 objectif atteint, aucune étape franchie), le pupitre fait clignoter « AIDE » et écrit en

@@ -157,7 +157,8 @@ Huit onglets : la partie (dont **« Aide »**, **« Débloquer »** et l'écran 
 miroir), l'équipe, le souffleur (indices tout prêts, messages, répliques, journal de
 partie), le classement, les statistiques, l'envoi d'une mission par le Wi-Fi, l'atelier
 (essais et mesures des capteurs) et la mise à jour du programme (voir
-`console/README.md`, § 9). Le souffleur automatique propose l'aide après 8 minutes sans
+`console/README.md`, § 9). À l'accueil, après 2 minutes sans personne, le mode démonstration présente les mondes (réglable
+dans l'onglet Atelier). Le souffleur automatique propose l'aide après 8 minutes sans
 avancée ; à la victoire, 15 secondes de lumière, puis deux QR codes à l'écran : le Wi-Fi
 du pupitre et le diplôme de l'équipe (http://192.168.4.1/diplome). Avant la partie, le menu du monde affiche le même état
 (**« État du pupitre »**), en signalant ce qui manque à une mission.

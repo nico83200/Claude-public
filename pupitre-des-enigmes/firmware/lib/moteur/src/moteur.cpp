@@ -22,6 +22,9 @@ constexpr size_t SAISIE_MAX = 24;  // le nom de l'équipe : 24 caractères au pl
 const char* const CHEMIN_CLASSEMENT = "/classement.json";
 const char* const CHEMIN_DIPLOME = "/diplome.json";
 constexpr uint32_t DUREE_FEU_ARTIFICE = 15000;  // le spectacle de lumière de la victoire, en ms
+constexpr uint32_t DEMO_APRES = 120000;          // le mode démonstration : 2 min sans personne à l'accueil
+constexpr uint32_t DEMO_DIAPO = 8000;            // chaque monde reste 8 s à l'écran
+constexpr uint32_t DEMO_APPEL = 300000;          // sonore : « Glissez une carte Monde » toutes les 5 min
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
   const char* s = v.as<const char*>();
@@ -206,7 +209,9 @@ void Moteur::demarrer() {
   allerAccueil();
 }
 
-void Moteur::allerAccueil() {
+void Moteur::allerAccueil(bool annoncer) {
+  demo_ = false;
+  derniereEntree_ = maintenant();
   if (phase_ == Phase::FIN || phase_ == Phase::RANGEMENT) {  // la prochaine équipe se présentera
     equipe_.clear();
     joueurs_.clear();
@@ -225,9 +230,79 @@ void Moteur::allerAccueil() {
   vue_.texte = "Glissez une carte Monde dans la fente.";
   vue_.info = "Molette : préparer les cartes d'un monde";
   rafraichir();
+  if (!annoncer) return;
   ajouterInterne(Action::de(Action::SON, DOSSIER_SONS_PUPITRE, 1));
   ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 1));
   ajouterInterne(Action::de(Action::DIRE, DOSSIER_VOIX_PUPITRE, 2));
+}
+
+// ======================================================================
+// Le mode démonstration
+// ======================================================================
+
+void Moteur::entrerDemo() {
+  diapos_.clear();
+  diapos_.push_back({"LE PUPITRE DES ÉNIGMES", "Des cartes, des codes, des voix… et des mondes à explorer.", Theme()});
+  for (const std::string& id : mondes_) {
+    JsonDocument m;
+    if (!chargerJson("/mondes/" + id + "/monde.json", m)) continue;
+    Diapo d;
+    d.titre = texte(m["nom"]);
+    for (JsonVariantConst mi : m["missions"].as<JsonArrayConst>())  // les titres seulement, jamais de numéro
+      d.texte += (d.texte.empty() ? "" : " · ") + texte(mi["titre"]);
+    JsonVariantConst t = m["theme"];
+    d.theme.fond = couleur(t["fond"], d.theme.fond);
+    d.theme.texte = couleur(t["texte"], d.theme.texte);
+    d.theme.accent = couleur(t["accent"], d.theme.accent);
+    d.theme.alerte = couleur(t["alerte"], d.theme.alerte);
+    d.theme.doux = couleur(t["doux"], d.theme.doux);
+    diapos_.push_back(d);
+  }
+  demo_ = true;
+  diapo_ = -1;
+  dernierAppel_ = maintenant();
+  diapoSuivante();
+}
+
+void Moteur::diapoSuivante() {
+  diapo_ = (diapo_ + 1) % static_cast<int>(diapos_.size());
+  const Diapo& d = diapos_[diapo_];
+  vue_.ecran = Vue::ACCUEIL;
+  vue_.theme = d.theme;
+  vue_.titre = d.titre;
+  vue_.texte = d.texte;
+  vue_.info = "Glissez une carte Monde dans la fente pour commencer";
+  vue_.versionEntete++;
+  prochaineDiapo_ = maintenant() + DEMO_DIAPO;
+  rafraichir();
+}
+
+bool Moteur::sortirDemo() {
+  derniereEntree_ = maintenant();
+  if (!demo_) return false;
+  allerAccueil(false);  // l'accueil, sans rejouer son annonce
+  return true;
+}
+
+// Les lumières de la démonstration : une comète qui tourne sur l'anneau dans la couleur du monde
+// présenté, une vague lente sur les voyants, le ruban sous la boîte qui respire.
+void Moteur::lumieresDemo(uint32_t t, Lumieres& l) {
+  uint32_t accent = vue_.theme.accent;
+  float tete = static_cast<float>(t % 2400) / 200.0f;  // un tour en 2,4 s
+  for (int i = 0; i < 12; i++) {
+    float d = tete - i;
+    while (d < 0) d += 12;
+    l.anneau[i] = d < 4 ? attenuer(accent, 0.9f * (1.0f - d / 4)) : attenuer(accent, 0.05f);
+  }
+  for (int i = 0; i < NB_VOYANTS; i++) {
+    float phase = static_cast<float>((t + i * 300) % 3000) / 3000.0f;  // une vague de gauche à droite
+    float v = phase < 0.5f ? phase * 2 : (1 - phase) * 2;
+    l.voyants[i] = attenuer(accent, 0.05f + 0.5f * v * v);
+  }
+  float souffle = static_cast<float>((t / 10) % 400) / 400.0f;
+  souffle = souffle < 0.5f ? souffle * 2 : (1 - souffle) * 2;
+  l.socle = attenuer(accent, 0.1f + 0.4f * souffle);
+  for (auto& z : l.lecteurs) z = 0;
 }
 
 void Moteur::allerMenu(bool annoncer) {
@@ -391,6 +466,7 @@ void Moteur::terminer(bool victoire, const std::string& cause) {
 // ======================================================================
 
 void Moteur::carte(Zone zone, const std::string& uid) {
+  sortirDemo();  // une carte glissée pendant la démonstration compte aussitôt
   if (phase_ == Phase::REGLAGES || phase_ == Phase::EQUIPE) return;
   if (phase_ == Phase::ENROLEMENT) {
     if (!uid.empty()) enrolement(uid);
@@ -452,6 +528,7 @@ void Moteur::abandonnerEpreuve() {
 // Rôle prend la zone que l'autre lecteur laisse libre, pour viser ce qu'il porte.
 // Retirer la carte d'un lieu ne fait pas quitter ce lieu : on y reste jusqu'au suivant.
 void Moteur::lecteur(int n, const std::string& uid) {
+  sortirDemo();
   if (n < 0 || n > 1) return;
   deuxLecteurs_ = true;
   int autre = 1 - n;
@@ -513,6 +590,7 @@ void Moteur::couleurPosee(const std::string& nom) {
 // L'interrupteur à clé : règles {"cle": "tournee"} et {"cle": "repos"}, condition « cle » ;
 // pendant une épreuve « cle », il suffit de la tourner.
 void Moteur::cle(bool tournee) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   if (tournee == cleTournee_) return;
   cleTournee_ = tournee;
   if (phase_ != Phase::JEU) return;
@@ -528,6 +606,7 @@ void Moteur::cle(bool tournee) {
 }
 
 void Moteur::geste(const std::string& sens) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   if (phase_ != Phase::JEU) return;
   noter("Geste : " + sens);
   if (ep_.active) {
@@ -799,6 +878,7 @@ void Moteur::carteEnJeu(Zone zone, const std::string& id) {
 }
 
 void Moteur::bouton(Bouton b) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   switch (phase_) {
     case Phase::ACCUEIL:
       return;
@@ -877,6 +957,7 @@ void Moteur::bouton(Bouton b) {
 void Moteur::boutonsEnfonces(uint8_t masque) { masqueBoutons_ = masque; }
 
 void Moteur::molette(int pas) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   if (phase_ == Phase::REGLAGES) {
     reglerValeur(pas);
     return;
@@ -902,6 +983,7 @@ void Moteur::molette(int pas) {
 }
 
 void Moteur::appuiMolette() {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   if (attente_ == Attente::MOLETTE) {
     attente_ = Attente::RIEN;
     return;
@@ -1053,6 +1135,20 @@ void Moteur::commande(const std::string& c) {
     }
   } else if (c == "tiroir") {
     ouvrirTiroir();
+  } else if (c.rfind("demo:", 0) == 0) {
+    // Le mode démonstration : 0 arrêt, 1 muet, 2 sonore (gardé dans /reglages.json).
+    reglages_.demo = std::max(0, std::min(2, atoi(c.c_str() + 5)));
+    JsonDocument d;
+    std::string contenu;
+    if (p_.lireFichier(CHEMIN_REGLAGES, contenu)) deserializeJson(d, contenu);
+    d["demo"] = reglages_.demo;
+    std::string json;
+    serializeJsonPretty(d, json);
+    p_.ecrireFichier(CHEMIN_REGLAGES, json);
+    if (reglages_.demo == 0 && demo_) allerAccueil(false);
+  } else if (c == "demo" && phase_ != Phase::JEU && !mondes_.empty()) {  // tout de suite
+    if (phase_ != Phase::ACCUEIL) allerAccueil(false);
+    entrerDemo();
   } else if (c == "recharger" && phase_ != Phase::JEU) {
     // Une mission vient d'arriver par le Wi-Fi : le pupitre relit la liste des mondes.
     chargerIndex();
@@ -1190,6 +1286,7 @@ void Moteur::chargerReglages() {
     reglages_.hp = d["hp"] | reglages_.hp;
     reglages_.casque = d["casque"] | reglages_.casque;
     reglages_.led = d["led"] | reglages_.led;
+    reglages_.demo = std::max(0, std::min(2, d["demo"] | reglages_.demo));
     for (const auto& l : LIGNES_REGLAGES) reglages_.*l.valeur = borner(reglages_.*l.valeur, l);
   }
   p_.appliquer(reglages_);
@@ -1254,6 +1351,7 @@ void Moteur::fermerReglages(bool enregistrer) {
     d["hp"] = reglages_.hp;
     d["casque"] = reglages_.casque;
     d["led"] = reglages_.led;
+    d["demo"] = reglages_.demo;
     std::string json;
     serializeJsonPretty(d, json);
     p_.ecrireFichier(CHEMIN_REGLAGES, json);
@@ -1312,6 +1410,7 @@ void Moteur::rafraichir() {
 }
 
 void Moteur::toucher(const Toucher& t) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   if (t.type == Toucher::RIEN || !p_.tactile()) return;
   switch (phase_) {
     case Phase::ACCUEIL:  // comme un appui sur la molette : préparer les cartes, ou les réglages
@@ -2228,6 +2327,7 @@ void Moteur::majEpreuve() {
 // Le clavier 4×4 : les chiffres pour les codes et les menus, # pour valider, * pour
 // effacer ou revenir. La molette et les boutons font toujours la même chose.
 void Moteur::touche(char k) {
+  if (sortirDemo()) return;  // le premier geste réveille seulement le pupitre
   bool chiffre = k >= '0' && k <= '9';
   if (attente_ == Attente::MOLETTE) {  // « appuyez sur la molette » : # aussi
     if (k == '#') appuiMolette();
@@ -3162,6 +3262,7 @@ void Moteur::majLumieres() {
   }
   // La fin de film : 15 secondes de feu d'artifice sur tout le pupitre (anneau, voyants, lecteurs, socle).
   if (phase_ == Phase::FIN && victoire_ && finJeu_ && t - finJeu_ < DUREE_FEU_ARTIFICE) feuArtifice(t - finJeu_, l);
+  if (demo_) lumieresDemo(t, l);
   lumieres_ = l;
   p_.eclairer(l);
 }
@@ -3334,6 +3435,18 @@ void Moteur::miseAJour() {
     }
   }
 
+  // Le mode démonstration : il commence quand l'accueil reste seul, et change de monde toutes les 8 s.
+  if (demo_) {
+    if (t >= prochaineDiapo_) diapoSuivante();
+    if (reglages_.demo == 2 && t - dernierAppel_ >= DEMO_APPEL) {
+      dernierAppel_ = t;
+      p_.jouer(DOSSIER_VOIX_PUPITRE, 2, false);  // « Glissez une carte Monde dans la fente. », sans sous-titre
+    }
+  } else if (phase_ == Phase::ACCUEIL && reglages_.demo > 0 && calme() && !p_.joue(false) && !mondes_.empty() &&
+             t - derniereEntree_ >= DEMO_APRES) {
+    entrerDemo();
+  }
+
   majChrono();
   majImprevus();
   majDynamo();
@@ -3371,6 +3484,8 @@ std::string Moteur::phaseTexte() const {
 std::string Moteur::etatJson() {
   JsonDocument d;
   d["phase"] = phaseTexte();
+  d["demo"] = demo_;
+  d["modeDemo"] = reglages_.demo;
   d["monde"] = vue_.monde;
   d["mission"] = missionNumero_;
   d["restant"] = chronoActif_ ? secondesRestantes() : 0;

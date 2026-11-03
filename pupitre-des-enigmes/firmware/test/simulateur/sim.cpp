@@ -28,7 +28,7 @@
 //   equipe Les Fers | Léa, Tom     (l'équipe de la partie, depuis le panneau Wi-Fi)
 //   hasard <n>                     (le prochain tirage au sort donnera n, à partir de 0)
 //   verifie points 820 | journal <texte> | classement <texte>
-//   verifie etat <texte> | indices <texte> | diplome <texte> | info <texte> | qr oui|non
+//   verifie etat <texte> | indices <texte> | diplome <texte> | info <texte> | qr oui|non | demo oui|non
 //   json etat|indices|diplome|classement <fichier>   (ce que lit le panneau Wi-Fi)
 //   tactile                        (le pupitre a un écran tactile)
 //   ecran ligne <n> | plus <n> | moins <n> | valider | retour | clavier | efface | defile haut|bas
@@ -583,6 +583,8 @@ int main(int argc, char** argv) {
         std::string cherche = ligne.substr(ligne.find(a) + a.size() + 1);
         std::string json = a == "etat" ? m.etatJson() : a == "indices" ? m.indicesJson() : a == "diplome" ? m.diplomeJson() : m.vue().info;
         verifier(json.find(cherche) != std::string::npos, a + " « " + cherche + " »" + (a == "info" ? " (vaut « " + json + " »)" : ""), numero);
+      } else if (a == "demo") {
+        verifier(m.enDemonstration() == (b == "oui"), "démonstration " + b, numero);
       } else if (a == "qr") {
         verifier(!m.vue().qr[0].empty() == (b == "oui"), "QR codes " + b, numero);
       } else if (a == "afficheur") {
