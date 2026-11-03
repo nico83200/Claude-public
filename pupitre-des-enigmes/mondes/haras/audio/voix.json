@@ -3,7 +3,7 @@
   "voix": {
     "narrateur": {
       "nom": "Le Narrateur (voix de la console)",
-      "voice_id": "",
+      "voice_id": "5l4ttmr4SKNgi0HnOelT",
       "description": "Homme, la cinquantaine, voix grave et chaleureuse, ton de conteur, légèrement mystérieux.",
       "portrait": "Le conteur de l'histoire. Bienveillant mais jamais complice : il pose l'ambiance, laisse planer le doute et ménage ses effets. Rythme posé, petites pauses avant les révélations, sourire dans la voix lors des réussites.",
       "prompt_voice_design": "A warm, deep French male voice in his fifties, native French speaker from France, calm storyteller tone with a hint of mystery, clear diction, like the narrator of a detective audio drama.",
@@ -39,7 +39,7 @@
     },
     "camille": {
       "nom": "Camille Roussel, cavalière d'Éclipse",
-      "voice_id": "",
+      "voice_id": "i6ke7jvmGEVUyV4zjSaT",
       "description": "Femme de 31 ans, énergique, inquiète, très attachée à sa jument.",
       "portrait": "La cavalière, l'amie des joueurs. Inquiète, énergique, sincère, la gorge serrée quand elle évoque sa jument. Éclate d'indignation quand elle découvre la blessure cachée.",
       "prompt_voice_design": "A French woman in her early thirties, native speaker from France, energetic and sincere, worried and emotional, warm voice, sporty and determined.",
@@ -51,7 +51,7 @@
     },
     "victoire": {
       "nom": "Victoire de Lancey, cavalière rivale",
-      "voice_id": "",
+      "voice_id": "O31r762Gb3WFygrEOGh0",
       "description": "Femme de 27 ans, aristocrate, hautaine et ironique.",
       "portrait": "La rivale. Hautaine, ironique, un brin provocatrice, elle soupire et prend les questions de haut. Sous l'arrogance, une vraie passion des chevaux : elle n'est pas méchante, juste insupportable.",
       "prompt_voice_design": "A young aristocratic French woman in her late twenties, native speaker from Paris, haughty, ironic and condescending, crisp posh diction, slightly bored tone.",
@@ -63,7 +63,7 @@
     },
     "antoine": {
       "nom": "Antoine Vasseur, fils d'Hélène",
-      "voice_id": "",
+      "voice_id": "IbbR6Av0dWuQJS0b8JVT",
       "description": "Homme de 33 ans, nonchalant et sarcastique, voix un peu rauque de lendemain de fête.",
       "portrait": "Le fils prodigue. Nonchalant, sarcastique, sur la défensive, voix un peu cassée de lendemain de casino. Masque sa honte par l'humour et pique sa mère dès qu'il le peut.",
       "prompt_voice_design": "A French man in his early thirties, native speaker from France, nonchalant and sarcastic, slightly hoarse voice as if he partied all night, lazy and defensive tone.",
@@ -75,7 +75,7 @@
     },
     "delorme": {
       "nom": "Marc Delorme, marchand de chevaux",
-      "voice_id": "",
+      "voice_id": "fEtpdogpDkBrq53KdupV",
       "description": "Homme de 52 ans, voix rocailleuse, bonhomme mais roublard.",
       "portrait": "Le marchand de chevaux. Jovial, rocailleux, beau parleur, roublard mais pas coupable. Il parle d'argent avec gourmandise et lâche ses informations comme on fait une faveur.",
       "prompt_voice_design": "A French man in his early fifties, native speaker from France, gravelly voice, jovial horse trader, a bit sly and smooth-talking, confident.",
@@ -87,7 +87,7 @@
     },
     "papy_marcel": {
       "nom": "Papy Marcel, ancien palefrenier (les indices)",
-      "voice_id": "",
+      "voice_id": "GFj5Qf6cNQ3Lgp8VKBwc",
       "description": "Vieil homme de 80 ans, accent normand, malicieux et bienveillant.",
       "portrait": "L'ancien palefrenier, la voix des indices. Vieux Normand malicieux et tendre, il taquine les joueurs (« mes p'tits gars ») sans jamais les vexer. Lent, chaleureux, un peu rocailleux.",
       "prompt_voice_design": "An old French man around eighty, native speaker with a light rural Normandy accent, mischievous and kind grandfather, slow, amused and warm, slightly raspy.",
@@ -99,7 +99,7 @@
     },
     "gendarme": {
       "nom": "Le gendarme (téléphone et vérifications)",
-      "voice_id": "",
+      "voice_id": "TGAegA0zNRi8I6nUdq3i",
       "description": "Homme de 45 ans, voix neutre et professionnelle, comme au téléphone.",
       "portrait": "Le gendarme, au téléphone et pour les vérifications. Neutre, précis, administratif : il lit des faits, sans émotion. Un léger effet téléphonique peut être ajouté au montage.",
       "prompt_voice_design": "A French police officer in his mid forties, native speaker from France, neutral, efficient and professional tone, speaking clearly as if on the phone.",
