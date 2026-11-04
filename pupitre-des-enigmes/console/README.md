@@ -242,40 +242,34 @@ broches (« D25 », « P25 » ou « 25 » selon la sérigraphie), pas leur posit
 
 ## 4. Fabrication du boîtier
 
-Boîtier en contreplaqué de **3 mm**, de **38,0 × 26,0 cm**, dont le dessus est incliné
+Boîtier en contreplaqué de **5 mm** (okoumé : léger, stable, facile à couper et à peindre), de **38,0 × 26,0 cm**, dont le dessus est incliné
 vers le joueur (5 cm de haut à l'avant, 8 cm à l'arrière : pente de 11,5 %, soit
 6,6°). Le gabarit de perçage, à l'échelle 1, est dans `pdf/gabarit-facade.pdf`.
 
-### 4.1 Liste de débit (contreplaqué 3 mm)
-
-Toutes les pièces en contreplaqué de **3 mm** (peuplier ou bouleau). Les dimensions
-extérieures ne changent pas : le gabarit de la façade reste valable.
+### 4.1 Liste de débit (contreplaqué 5 mm)
 
 | Pièce | Qté | Dimensions (cm) | Rôle, assemblage |
 |---|---|---|---|
 | Couvercle fixe | 1 | 38,0 × 26,2 | Dessus incliné. Recouvre toutes les parois verticales. Percé comme la façade. |
-| Face avant | 1 | 38,0 × 4,7 | Hauteur brute : 5,0 cm une fois le couvercle posé. |
-| Face arrière | 1 | 38,0 × 7,7 | Hauteur brute : 8,0 cm une fois le couvercle posé. Alimentation et interrupteur. |
-| Côtés (trapèzes) | 2 | 25,4 × (7,7 / 4,7) | Se glissent entre l'avant et l'arrière ; le haut en pente. |
-| Fond amovible | 1 | 37,4 × 25,4 | Se glisse à l'intérieur, sur les 4 tasseaux d'angle, vissé par le dessous. |
-| Pastille de renfort du jack | 1 | 4,0 × 4,0 | Collée sous le couvercle, centrée sur le jack : 6 mm d'épaisseur pour son lamage. |
+| Face avant | 1 | 38,0 × 4,5 | Hauteur brute : 5,0 cm une fois le couvercle posé. |
+| Face arrière | 1 | 38,0 × 7,5 | Hauteur brute : 8,0 cm une fois le couvercle posé. Alimentation et interrupteur. |
+| Côtés (trapèzes) | 2 | 25,0 × (7,5 / 4,5) | Se glissent entre l'avant et l'arrière. |
+| Fond amovible | 1 | 36,8 × 24,8 | Se glisse à l'intérieur (37,0 × 25,0 cm), avec 1 à 2 mm de jeu, sur 4 tasseaux, vissé par le dessous. Recoupez-le à la fin, d'après l'intérieur réel de la boîte. |
+| Tasseaux | 4 | 15 × 15 mm | Dans les coins intérieurs, remontés de 5 mm par rapport à la base. |
+| Liteaux de collage (conseillés) | 4 | 10 × 10 mm | En haut des parois, à l'intérieur, entre les tasseaux : 2 de 34,0 cm (avant, arrière), 2 de 22,0 cm (côtés, en suivant la pente). Le couvercle s'y colle : collage plus large et plus solide que sur le seul chant. |
 | Puits de la fente | 1 | voir § 4.3 | Petite goulotte sous la fente (contreplaqué 3 mm, carton fort ou impression 3D). |
 
-**Les tasseaux** (bois massif, pin ou hêtre). En 3 mm, un chant ne se colle pas sur un
-chant : c'est sur les tasseaux que tout se colle et se visse.
+**À demander au magasin : deux morceaux.** Les bords coupés par le magasin sont exacts ;
+chaque coupe faite à la scie sauteuse mange 3 à 4 mm (le trait de lame, 1,5 à 2 mm, plus la
+marge pour couper à côté du trait et poncer jusqu'à lui).
 
-| Tasseau | Qté | Section | Longueur (cm) | Où |
-|---|---|---|---|---|
-| Tasseaux d'angle | 2 + 2 | 15 × 15 mm | 4,4 (avant) · 7,4 (arrière) | Dans les 4 coins intérieurs, de 3 mm au-dessus du bas (l'épaisseur du fond) jusque sous le couvercle ; le haut coupé en biais, ou 2 mm plus court. Les parois s'y collent, le fond s'y visse. |
-| Liteaux de collage avant et arrière | 2 | 10 × 10 mm | 34,4 | Collés en haut de la face avant et de la face arrière, à l'intérieur, entre les tasseaux d'angle : le couvercle se colle dessus. |
-| Liteaux de collage des côtés | 2 | 10 × 10 mm | 22,4 | De même en haut des côtés, en suivant la pente. |
-| Renfort du couvercle, droite | 1 | 10 × 10 mm | 23,5 | Collé sous le couvercle, d'avant en arrière, à **X = 34,0 cm** : entre le gros bouton, le lecteur à plat et l'écran d'un côté, la clé, le jack et le capteur de couleur de l'autre. |
-| Renfort du couvercle, milieu | 1 | 10 × 10 mm | 10,7 | Sous le couvercle, d'avant en arrière, à **X = 22,9 cm**, de Y = 14,0 cm jusqu'au liteau arrière : entre le puits de la fente et l'anneau d'un côté, l'écran de l'autre. |
-| Renfort du couvercle, gauche | 1 | 10 × 10 mm | 15,2 | Sous le couvercle, de gauche à droite, à **Y = 6,3 cm**, du liteau gauche jusqu'à X = 16,5 cm : juste derrière les boutons d'arcade, devant la forge et l'enclume. |
+| Morceau | Dimensions | Ce qu'on y coupe |
+|---|---|---|
+| 1 | **38 × 39 cm** | Le couvercle (26,2), la face arrière (7,5) et la face avant (4,5), dans cet ordre : les trois pièces gardent les 38 cm exacts du magasin. |
+| 2 | **25 × 50 cm** | Le fond (37,0, recoupé ensuite à 36,8 × 24,8), puis une bande de 12,4 cm où les **deux côtés** se coupent **tête-bêche** : une seule coupe en biais, de 7,5 cm à un bout à 4,5 cm à l'autre (cotes prises depuis le même bord), la lame au milieu du trait. Les côtés gardent les 25 cm du magasin. |
 
-Le puits de la fente et la plaque C, collés sous le couvercle, le raidissent aussi. Avant de
-coller les renforts, posez les modules à blanc (écran, boutons, lecteurs) et vérifiez
-qu'aucun ne touche.
+Le tiroir et le puits de la fente viennent plus tard, dans une chute ou un petit morceau à part.
+Après chaque coupe, mesurez de nouveau avant de tracer la suivante.
 
 ### 4.2 Les découpes de la façade et du couvercle
 
@@ -295,17 +289,17 @@ avant gauche** (X vers la droite, Y vers l'arrière) :
 | Fente à cartes | 19,0 | 13,0 | 68 × 5 mm, dans le sens de la largeur |
 | Lecteur à plat | 29,5 | 12,5 | Rien à découper : une zone de 76 × 76 mm marquée sur la façade (le RC522 est dessous, à plat contre le couvercle) |
 | LED du lecteur à plat | 32,5 | 9,5 | Ø 4 mm, dans le coin avant droit de la zone, rempli de colle chaude dans le couvercle ; la LED juste dessous, tournée vers le haut (§ 4.3) |
-| Capteur de couleur | 35,8 | 15,5 | Ø 12 mm. Dans le couvercle, le module est collé par-dessous, centré sur le trou, capteur et LED tournés vers le haut, à 3 mm de la surface (le couvercle de 3 mm suffit : pas d'encoche). Façade qui le cache : pas de trou. |
-| Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase), avec un **lamage** Ø 14 × 2 mm dans le couvercle, renforcé dessous par la pastille de 4 × 4 cm (§ 4.1) : l'écrou s'y noie, la façade reste à plat |
+| Capteur de couleur | 35,8 | 15,5 | Ø 12 mm. Dans le couvercle, le module est logé dans une encoche creusée par-dessous (3 mm de profondeur), capteur et LED tournés vers le haut, à 2 mm de la surface. Façade qui le cache : pas de trou. |
+| Prise jack 3,5 mm (« téléphone ») | 35,8 | 9,5 | Ø 6 mm (selon l'embase), avec un **lamage** Ø 14 × 2 mm dans le couvercle : l'écrou s'y noie, la façade reste à plat |
 | Interrupteur à clé | 35,8 | 22,0 | Ø 12 mm |
 | Forge (BME280) | 6,0 | 7,9 | 9 trous Ø 2 mm dans un cercle Ø 14 mm, dans la façade et le couvercle ; le module juste dessous |
 | Enclume (QMC5883L) | 10,5 | 7,9 | Rien : le module est collé sous le couvercle, à plat ; une zone Ø 24 mm marquée sur la façade |
 | Horloge (HT16K33) | 17,5 | 8,2 | Façade : fenêtre 50 × 19 mm. Couvercle : la découpe du **boîtier** de l'afficheur (≈ 50 × 19 mm, à mesurer), qui le traverse ; sa carte reste dessous, calée par des rondelles pour que les chiffres arrivent **au ras du dessus** |
-| Œil (APDS-9960) | 23,5 | 8,2 | Ø 10 mm ; dans le couvercle, le module collé par-dessous (pas d'encoche), capteur tourné vers le haut, son côté « haut » vers l'arrière du pupitre |
+| Œil (APDS-9960) | 23,5 | 8,2 | Ø 10 mm ; dans le couvercle, le module logé dans une encoche creusée par-dessous (3 mm), capteur tourné vers le haut, son côté « haut » vers l'arrière du pupitre |
 | 4 boutons d'arcade | 3,5 · 7,5 · 11,5 · 15,5 | 4,0 | 4 × Ø 30 mm, à 40 mm d'axe en axe |
 | Encodeur rotatif (molette) | 19,0 | 4,0 | Ø 7 mm (axe du KY-040) |
 | Bouton champignon (dynamo) | 29,5 | 4,0 | Selon le bouton : Ø 22 mm pour un champignon à visser, Ø 45 à 60 mm pour un gros dôme d'arcade |
-| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | **encastrés au ras** dans un trou **traversant** du couvercle (l'aimant fait 3 mm, comme le bois), posés sur le tasseau d'angle qui est juste dessous et collés à la cyanoacrylate ; sous chaque façade, une pastille d'acier adhésive fine (0,3 à 0,5 mm) en face. Si une façade se soulève au milieu : 2 aimants de plus en X = 19,0, Y = 1,5 et 24,7, en appui de même sur les liteaux avant et arrière |
+| Aimants (×4) | 1,5 et 36,5 | 1,5 et 24,7 | Ø 10 mm, **encastrés** dans le couvercle (trou de 3 mm de profondeur au foret à façonner « Forstner », collés à la cyanoacrylate, au ras) ; sous chaque façade, une pastille d'acier adhésive fine (0,3 à 0,5 mm) en face. Si une façade se soulève au milieu : 2 aimants de plus en X = 19,0, Y = 1,5 et 24,7 |
 
 **Par rapport au premier plan (trois fentes) :** une seule fente, au centre ; le
 lecteur à plat prend la place de la fente de droite ; les deux rangées de voyants
@@ -318,7 +312,7 @@ le premier trou de 30 mm aurait touché la paroi.
 
 - Sous la fente, un **puits** étanche de **50 mm de profondeur** (intérieur
   68 × 5 mm environ) : la carte y descend jusqu'à la butée. Les fentes de la façade
-  (1 à 1,5 mm) et du couvercle (3 mm) doivent être alignées à 100 %.
+  (1 à 1,5 mm) et du couvercle (5 mm) doivent être alignées à 100 %.
 - **Le RC522 de la fente** se colle **verticalement** contre une paroi du puits,
   tout au fond, antenne face à la carte. Il fait 40 × 60 mm : posez-le couché
   (60 mm dans le sens de la fente, 40 mm de haut), son bord inférieur au niveau de
@@ -337,7 +331,7 @@ le premier trou de 30 mm aurait touché la paroi.
   coin avant droit de la zone, à côté du RC522 (pas dessus : elle gênerait l'antenne).
   Le trou, rempli de colle chaude au ras du couvercle, amène la lumière à la surface (§ 4.5).
 - **Le RC522 à plat** se colle sous le couvercle, centré sous la zone marquée,
-  antenne vers le haut. Il lit à travers 4,5 mm de bois environ (couvercle et
+  antenne vers le haut. Il lit à travers 6,5 mm de bois environ (couvercle et
   façade) : une carte couchée (puce en bas, à placer sur la cible marquée) ou un
   objet dont la puce est collée **sous la base**. Évitez le métal entre la puce et
   le lecteur (pièces de monnaie, socles métalliques).
@@ -362,8 +356,8 @@ le premier trou de 30 mm aurait touché la paroi.
     X = 21 à 28 cm, derrière l'écran, B de X = 11,5 à 18,5 cm, sous le haut-parleur.
     Fixation : des **entretoises nylon M3 de 10 mm**, chacune tenue par une **vis M3 × 16
     à tête fraisée passée de l'extérieur** à travers la face arrière (trou de 3,2 mm
-    fraisé à peine, 1,5 mm, ou vis à tête bombée) et un écrou. Pas de vis à bois : 3 mm de
-    contreplaqué ne tiennent pas une vis.
+    fraisé, tête au ras) et un écrou. Pas de vis à bois : 5 mm de contreplaqué tiennent
+    mal une vis.
   - **C, le bus I2C** (20 × 80 mm : huit départs, un par module I2C du couvercle, et deux en réserve pour de futurs modules) se visse
     sous le couvercle, sur 2 entretoises collées, entre la rangée haute des voyants et le
     haut-parleur (X = 12,5 à 20,5 cm, Y = 15 à 17 cm).
@@ -379,7 +373,7 @@ le premier trou de 30 mm aurait touché la paroi.
 
 Chaque mission a sa façade : une plaque **fine, de 1 à 1,5 mm** (carton gris,
 contreplaqué aviation, PVC…), découpée et décorée pour elle, qui se pose **à même le
-couvercle**. Les aimants sont encastrés dans le couvercle, au ras (en appui sur les tasseaux d'angle) ; sous la façade, de
+couvercle**. Les aimants sont encastrés dans le couvercle, au ras ; sous la façade, de
 fines pastilles d'acier adhésives leur font face. Ce dont la mission ne se sert pas reste
 sous la plaque.
 
@@ -387,7 +381,7 @@ sous la plaque.
 une plaque aussi fine laisserait passer la lumière d'un voyant caché.
 
 **Pourquoi pas d'espace entre les deux :** une LED collée sous le couvercle, vue à
-travers 3 mm de bois, 3 mm de vide et 2 mm de façade, se trouve au fond d'un puits de
+travers 5 mm de bois, 3 mm de vide et 2 mm de façade, se trouve au fond d'un puits de
 10 mm ; un joueur assis, qui regarde le pupitre de biais, ne verrait que la paroi du
 trou. Posée à même le couvercle, la façade ne laisse plus que l'épaisseur du couvercle,
 et celle-ci est comblée :
@@ -399,7 +393,8 @@ et celle-ci est comblée :
   la lumière et la diffuse. La LED se colle ensuite dessous, centrée sur le trou.
 - **L'anneau** : un disque de plexiglas dépoli dans le trou de Ø 38 mm, au ras du dessus.
 - **L'horloge** : l'afficheur traverse le couvercle, ses chiffres au ras du dessus.
-- **L'œil et le capteur de couleur** : chacun collé sous son trou, à 3 mm de la surface, pour voir loin (les gestes) ou de près (la couleur).
+- **L'œil et le capteur de couleur** : chacun dans une encoche creusée par-dessous, à
+  2 mm de la surface, pour voir loin (les gestes) ou de près (la couleur).
 - **L'écran** reste sous le couvercle : chanfreinez à la lime le bord avant de sa
   fenêtre (couvercle et façade) pour ne pas masquer le bas de l'image. Le bord de la
   fenêtre ne doit pas appuyer sur la vitre : la dalle tactile prendrait la pression pour
@@ -428,9 +423,8 @@ clavier (membrane de 1 mm) a sa fenêtre dans toutes les façades.
 le haut, centrée sous la grille de trous :
 - un cadre de **mousse adhésive** (calfeutrage) entre le caisson et le couvercle, autour de la
   membrane : sans lui, le son fuit par les côtés et le couvercle vibre ;
-- **deux vis à bois** de 2,5 à 3 mm par les oreilles, vissées dans **deux cales de 10 × 10 mm**
-  collées sous le couvercle (3 mm de contreplaqué ne tiennent pas une vis) ; vis de 8 mm,
-  serrées juste assez pour écraser un peu la mousse ;
+- **deux vis à bois** de 2,5 à 3 mm par les oreilles, plus courtes que l'épaisseur du couvercle
+  (8 à 10 mm), serrées juste assez pour écraser un peu la mousse ;
 - ne percez pas le caisson et ne bouchez pas la membrane ;
 - ses deux fils vont au bornier du haut-parleur de la plaque B (SPK1, SPK2 du lecteur audio
   « haut-parleur » ; le sens n'a pas d'importance), avec des embouts ou étamés ; rallonge
