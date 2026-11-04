@@ -681,6 +681,8 @@ def main():
         rendre(ICI / "plan-cablage.html", SORTIE / "plan-cablage.pdf", pied="Le Pupitre des Énigmes · Plan de câblage")
         subprocess.run([sys.executable, str(ICI / "plaque_a.py")], check=True)
         rendre(ICI / "plaque-a.html", SORTIE / "plaque-a.pdf", paysage=True, pied="Le Pupitre des Énigmes · Plaque A")
+        subprocess.run([sys.executable, str(ICI / "plaque_b.py")], check=True)
+        rendre(ICI / "plaque-b.html", SORTIE / "plaque-b.pdf", paysage=True, pied="Le Pupitre des Énigmes · Plaque B")
         temporaire("notice-montage", notice, SORTIE / "notice-montage.pdf", pied="Le Pupitre des Énigmes · Notice de montage")
         temporaire("liste-achats", lambda h: achats(JEU / "console" / "achats.json", h),
                    SORTIE / "liste-achats.pdf", pied="Le Pupitre des Énigmes · Liste d'achat")

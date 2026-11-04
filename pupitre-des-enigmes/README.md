@@ -72,6 +72,7 @@ mission).
 | [Notice de montage](pdf/notice-montage.pdf) | Le constructeur : boîtier, composants, câblage, programme de l'ESP32 et cartes SD |
 | [Plan de câblage](pdf/plan-cablage.pdf) | Le constructeur : la plaque de l'ESP32 et la liste numérotée de tous les fils |
 | [Plaque A trou par trou](pdf/plaque-a.pdf) | Le constructeur : chaque trou, chaque soudure de la plaque de l'ESP32, recto et verso, en sept étapes testées |
+| [Plaque B trou par trou](pdf/plaque-b.pdf) | Le constructeur : la plaque du son (les deux DFPlayer), recto et verso, en trois étapes testées |
 
 **Les livrets A5** (fiche de mission et fiche d'enquête, avec une couverture : description, l'essentiel, nombre de joueurs, durée, difficulté ★ à ★★★). Deux fichiers par mission : `mission-N-livret-a5.pdf` (les pages dans l'ordre, pour l'écran) et `mission-N-livret-a5-brochure.pdf` (à imprimer en **recto verso, retourné sur le bord court**, puis à plier en deux et agrafer au milieu) :
 [La Disparition d'Éclipse](pdf/mission-1-livret-a5-brochure.pdf) ★ ·

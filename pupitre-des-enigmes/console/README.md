@@ -337,8 +337,8 @@ le premier trou de 30 mm aurait touché la paroi.
 - **L'électronique** tient sur **trois plaques à pastilles** (le plan d'implantation et
   leur place exacte sont dans `pdf/plan-cablage.pdf`, § 1) :
   - **A, le cerveau** (50 × 70 mm : l'ESP32 et presque tous les connecteurs) et **B, le
-    son** (30 × 70 mm : les deux DFPlayer ; la plaque A a son plan trou par trou dans
-    `pdf/plaque-a.pdf`) sont vissées **contre la face arrière, à
+    son** (30 × 70 mm : les deux DFPlayer ; A et B ont chacune leur plan trou par trou :
+    `pdf/plaque-a.pdf`, `pdf/plaque-b.pdf`) sont vissées **contre la face arrière, à
     l'intérieur**, assez bas pour passer sous l'écran, le haut-parleur et la clé : A de
     X = 21 à 28 cm, derrière l'écran, B de X = 11,5 à 18,5 cm, sous le haut-parleur.
     Fixation : des **entretoises nylon M3 de 10 mm**, chacune tenue par une **vis M3 × 16
