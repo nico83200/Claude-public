@@ -107,7 +107,8 @@ C'est lui qui fait foi : il remplace l'ancien plan d'implantation de cette page.
 <div class="alerte">La plaque B a son propre plan, <b>trou par trou</b> : <b>plaque-b.pdf</b> (recto, verso, chaque soudure, en trois étapes testées).
 Il remplace l'ancien plan d'implantation : J5 a maintenant ses entrées de fils vers la gauche, J6 vers la droite. Le brochage des connecteurs (§ 8) ne change pas.</div>
 
-<h3>Plaque C · le bus I2C (80 × 20 mm)</h3>
+<h3>Plaque C · le bus I2C (80 × 20 mm, 8 × 28 trous)</h3>
+<p class="petit">Le plan trou par trou est dans <b>plaque-c.pdf</b> ; le dessin ci-dessous en montre le principe.</p>
 <svg viewBox="0 0 166 46" width="100%">
   <g transform="translate(3 3)">
   <rect x="0" y="0" width="160" height="40" rx="3" fill="#2f6b3c"/>
@@ -188,15 +189,7 @@ sous le couvercle. A dépasse de la face arrière d'environ 35 mm, B d'environ 2
 <p>Voir <b>plaque-b.pdf</b> : les coordonnées de chaque trou, les fils nus, les sept fils isolés numérotés et un test après chaque étape.</p>
 
 <h2>6. La plaque C, pas à pas</h2>
-<ol class="etapes">
-<li>Coupez <b>9 barrettes mâles de 4 broches</b> (une broche sacrifiée à chaque coupe). Marquez la broche 1 de chacune.</li>
-<li>Posez-les <b>en travers</b> de la plaque, tous les 2 trous (une colonne libre entre deux), <b>broche 1 du même côté</b> : J15 à un bout, puis J11a à J11j (i et j : la réserve). Laissez libre
-le trou de l'entretoise à chaque extrémité. Soudez une broche de chacune, vérifiez l'aplomb, puis les trois autres.</li>
-<li>Posez <b>4 fils nus</b> par-dessous, chacun le long d'une rangée de broches (1 : 3,3 V · 2 : masse · 3 : SDA · 4 : SCL), de J15 à J11j, et
-soudez-les sur chaque broche (9 points par rail). Ils restent bien droits : deux rails voisins ne sont qu'à 2,5 mm.</li>
-<li>Contrôle : bip entre J15-1 et J11j-1 (de même pour 2, 3, 4) ; <b>pas de bip</b> entre deux rails voisins.</li>
-<li>Vissez les 2 entretoises sur la plaque, collez leurs bouts sous le couvercle, barrettes vers le bas.</li>
-</ol>
+<p>Voir <b>plaque-c.pdf</b> : les onze barrettes à leur coordonnée, les quatre rails et leurs tests.</p>
 
 <h2>7. Les contrôles, avant d'enficher les modules</h2>
 <table class=""><tr><th>Où</th><th>Multimètre</th><th>Résultat attendu</th></tr>
