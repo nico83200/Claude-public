@@ -140,7 +140,7 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 | **Œil** APDS-9960 (0x39) | SDA / SCL, VCC 3,3 V (INT : en l'air) | I2C |
 | **Forge** BME280 (0x76, ou 0x77 selon la soudure SDO) | SDA / SCL, VIN 3,3 V | I2C |
 | **Enclume** QMC5883L (0x0D) | SDA / SCL, VCC 3,3 V (DRDY : en l'air) | I2C |
-| **Tiroir** : module PCA9685 (0x40) | SDA / SCL, VCC 3,3 V ; **V+ 5 V** (bornier, avec le 470 µF) ; le servomoteur sur la voie **0** (marron GND, rouge V+, orange PWM). Vissé à l'intérieur de la face arrière, à gauche (X = 2 à 8,5 cm, 40 à 65 mm du dessous), au-dessus du tiroir, voies vers le haut : les 15 voies libres restent à portée pour de futurs servomoteurs | I2C |
+| **Tiroir** : module PCA9685 (0x40) | SDA / SCL, VCC 3,3 V ; **V+ 5 V** (bornier, avec le 470 µF) ; le servomoteur sur la voie **0** (marron GND, rouge V+, orange PWM). Vissé à l'intérieur de la face arrière, à gauche (X = 2 à 8,5 cm, 45 à 70 mm du dessous), au-dessus du fourreau du tiroir (dont le dessus est à 42 mm), voies vers le haut : les 15 voies libres restent à portée pour de futurs servomoteurs | I2C |
 | **Tiroir** : microrupteur de fin de course | P4 du PCF8574 des boutons ↔ GND (fermé quand le tiroir est au fond) | I2C |
 | **Horloge** HT16K33 (0x70) | SDA / SCL, VCC 3,3 V ; l'afficheur lui-même en 5 V si le module a une broche V+ séparée | I2C |
 | Modules I2C | VCC / GND | ⚠️ **3,3 V** (leurs résistances de tirage I2C sont reliées à VCC) |
@@ -256,7 +256,7 @@ vers le joueur (5 cm de haut à l'avant, 8 cm à l'arrière : pente de 11,5 %, s
 | Côtés (trapèzes) | 2 | 25,0 × (7,5 / 4,5) | Se glissent entre l'avant et l'arrière. |
 | Fond amovible | 1 | 36,8 × 24,8 | Se glisse à l'intérieur (37,0 × 25,0 cm), avec 1 à 2 mm de jeu, sur 4 tasseaux, vissé par le dessous. Recoupez-le à la fin, d'après l'intérieur réel de la boîte. |
 | Tasseaux | 4 | 15 × 15 mm | Dans les coins intérieurs, remontés de 5 mm par rapport à la base. |
-| Liteaux de collage (conseillés) | 4 | 10 × 10 mm | En haut des parois, à l'intérieur, entre les tasseaux : 2 de 34,0 cm (avant, arrière), 2 de 22,0 cm (côtés, en suivant la pente). Le couvercle s'y colle : collage plus large et plus solide que sur le seul chant. |
+| Liteaux de collage (conseillés) | 4 | 10 × 10 mm | En haut des parois, à l'intérieur, entre les tasseaux : 2 de 22,0 cm (côtés, en suivant la pente), 1 de 34,0 cm (avant) et 1 de 27,0 cm (arrière, de X = 9,0 à 36,0 cm : il laisse la place du PCA9685, à gauche). Le couvercle s'y colle : collage plus large et plus solide que sur le seul chant. |
 | Puits de la fente | 1 | voir § 4.3 | Petite goulotte sous la fente (contreplaqué 3 mm, carton fort ou impression 3D). |
 
 **À demander au magasin : deux morceaux.** Les bords coupés par le magasin sont exacts ;
@@ -448,47 +448,65 @@ dehors, assez pour le saisir.
 
 ```
    vue de dessus : le coin arrière gauche, sous le clavier
-   paroi
-   gauche
-     ┃
-     ┃◀ façade (la pièce découpée dans la paroi)
-     ┃┌──────────────────────────────────┐ ┌──┐
-     ┃│  tiroir 100 × 76 × 20 mm         │ │∿∿│ ressort ┐ butée
-     ┃│  (cartes de 63 × 88 mm)      ▪ ◀─┼─┤  │         │ arrière
-     ┃│                           taquet │ │▣ │ microrupteur
-     ┃└──────────────────────────────────┘ └──┘
+   paroi                                                    face arrière
+   gauche  ════════════════════════════════════════════════════ (intérieur)
+     ┃     ▓▓ tasseau d'angle   ████ cale 15 × 15 mm, collée ████
+     ┃┌────────────────────────────────────────────┬────┐
+     ┃│  fourreau (dessus, dessous, deux flancs)   │    │
+     ┃│ ┌──────────────────────────────────┐       │∿∿  │ butée : ressort
+     ┃│ │  tiroir 100 × 76 × 20 mm         │       │    │ et microrupteur
+     ┃│ │                       taquet ▪ ◀─┼───────┤▣   │
+     ┃│ └──────────────────────────────────┘       │    │
+     ┃└────────────────────────────────────────────┴────┘
      ┃   ◀── le tiroir sort vers la gauche
-         le servomoteur est au-dessus du taquet, son bras baissé devant lui (verrou)
+         le servomoteur est sur le fourreau, son bras passe par une fente du dessus
 ```
 
+**Le principe.** Le fond se démonte : rien du tiroir n'y est fixé. Le tiroir coulisse dans
+un **fourreau**, une boîte sans bouts (dessus, dessous, deux flancs) qui le guide sur ses
+quatre faces. Le fourreau est collé à la **paroi gauche**, autour de l'ouverture, et à la
+**face arrière** par une cale : il reste en place fond retiré, avec le servomoteur, le
+ressort, le microrupteur et la LED.
+
 **Les cotes**
-- **Ouverture dans la paroi gauche** : 82 × 26 mm, centrée sur Y = 20 cm (sous le
-  clavier), bord inférieur à 12 mm du dessous du pupitre (au-dessus du fond). La paroi
-  fait 68 à 78 mm de haut à cet endroit : il reste de la place au-dessus pour le clavier
-  et sa nappe.
+- **Ouverture dans la paroi gauche** : 82 × 26 mm, centrée sur **Y = 19,65 cm**, bord
+  inférieur à **13 mm** du dessous du pupitre. La paroi fait 68 à 78 mm de haut à cet
+  endroit : il reste de la place au-dessus pour le servomoteur, le clavier et sa nappe.
 - **Tiroir** (contreplaqué 3 mm) : 100 × 76 mm hors tout, 20 mm de haut ; dedans,
   94 × 70 mm, de quoi coucher quelques cartes de 63 × 88 mm.
-- **Façade** : la pièce de 82 × 26 mm sortie de la paroi, collée au bout du tiroir.
-  Découpez-la à la scie fine (scie à chantourner, trait de 0,5 mm) en commençant par un
-  petit trou de départ à l'intérieur d'un angle, et poncez à peine les chants : le jeu
-  doit rester un trait.
-- **Coulisses** : deux baguettes de 5 × 5 mm collées sur le fond, de chaque côté, et une
-  troisième au-dessus du tiroir pour qu'il ne bascule pas. Un peu de cire (bougie) sur
-  les frottements.
-- **Butée arrière** : un tasseau à 102 mm de la paroi, qui porte le **ressort** (Ø 8 à
-  10 mm, 25 à 30 mm de long, fil de 0,6 à 0,8 mm, dans un trou de 10 mm de profondeur)
-  et le **microrupteur**, que le tiroir enfonce quand il est au fond.
-- **Butée avant** : un petit taquet sous le tiroir et un autre sur le fond, pour qu'il
-  ne sorte pas en entier (course d'environ 70 mm, de quoi prendre la carte).
+- **Façade** : la pièce de 82 × 26 mm sortie de la paroi, collée au bout du tiroir,
+  centrée (elle le dépasse de 3 mm de chaque côté). Découpez-la à la scie fine (scie à
+  chantourner, trait de 0,5 mm) en commençant par un petit trou de départ à l'intérieur
+  d'un angle, et poncez à peine les chants : le jeu doit rester un trait.
+- **Fourreau** (contreplaqué 5 mm) : un **dessus** et un **dessous** de 117 × 87 mm, deux
+  **flancs** de 117 × 21 mm collés entre eux. Dedans : **77 × 21 mm** (0,5 mm de jeu de
+  chaque côté du tiroir, 1 mm au-dessus), 117 mm de long. Dehors : 87 × 31 mm. Collé
+  contre la paroi gauche, il dépasse l'ouverture de 2,5 mm tout autour : c'est là qu'il
+  se colle. Son dessous est à 11 mm du dessous du pupitre, **1 mm au-dessus du fond** :
+  il ne le touche pas.
+- **Cale arrière** : un tasseau de 15 × 15 × 100 mm, de X = 2,0 à 12,0 cm, collé à la fois
+  contre la face arrière et contre le flanc arrière du fourreau (qui vient aussi toucher
+  le tasseau d'angle). C'est elle qui porte le fourreau ; la paroi gauche le positionne.
+- **Butée arrière** : un tasseau de 15 × 15 × 77 mm collé au bout du fourreau, entre ses
+  flancs, à 102 mm de la paroi. Il porte le **ressort** (Ø 8 à 10 mm, 25 à 30 mm de long,
+  fil de 0,6 à 0,8 mm, dans un trou de 10 mm de profondeur) et le **microrupteur**, que le
+  tiroir enfonce quand il est au fond.
+- **Butée avant** : un petit taquet sous le tiroir, près de l'arrière, et un autre sur le
+  **dessous du fourreau**, pour que le tiroir ne sorte pas en entier (course d'environ
+  70 mm, de quoi prendre la carte).
+- Un peu de cire de bougie sur les surfaces qui frottent. Collez le fourreau **tiroir en
+  place**, une feuille de papier pliée de chaque côté pour le jeu : il sera parfaitement
+  aligné sur l'ouverture.
 
-**La lumière.** Une LED WS2812B (sur mini-circuit) est collée **au plafond du logement,
-juste derrière la paroi**, tournée vers le bas : quand le tiroir sort, elle s'allume
+**La lumière.** Une LED WS2812B (sur mini-circuit) est collée **sous le dessus du fourreau,
+juste derrière la paroi** (ses fils sortent par un trou de 4 mm), tournée vers le bas : quand le tiroir sort, elle s'allume
 doucement en blanc chaud et éclaire son contenu ; repoussé au fond, il s'éteint. Elle
 est la dernière de la chaîne de LED (§ 3) : un fil de données part du dernier ruban,
 avec le 5 V et la masse. Une mission peut choisir sa couleur (`"tiroir_lumiere"`).
 
-**Le verrou.** Le servomoteur est posé **au-dessus du tiroir, son axe parallèle au
-mouvement du tiroir**. Un taquet de 6 × 6 mm est collé sur le dessus du tiroir, près de
+**Le verrou.** Le servomoteur est collé (colle chaude ou adhésif double face épais) **sur le
+dessus du fourreau, couché, son axe parallèle au mouvement du tiroir** ; son bras descend
+par une **fente de 8 × 25 mm** percée dans le dessus du fourreau, en travers. Un taquet de 6 × 6 mm est collé sur le dessus du tiroir, près de
 l'arrière. Verrouillé (90°), le bras du servomoteur descend juste devant ce taquet,
 côté paroi : le ressort plaque le taquet contre le bras. Libéré (0°), le bras se relève
 et le tiroir sort. Comme la poussée du ressort suit l'axe du servomoteur, elle ne le
