@@ -114,6 +114,69 @@ fil("G36", "D13", "G22", 3, "TX du DFPlayer casque → J14-6 (broche 36)")
 fil("DACL", "F13", "D24", 3, "DAC_L → J6 plot 1 (voie gauche)")
 fil("DACR", "E13", "F24", 3, "DAC_R → J6 plot 2 (voie droite)")
 
+INTERDITS_EN_PLUS = set()
+# Chaque bout de fil isolé a son propre trou : un trou libre voisin de sa cible, où le fil
+# entre par le verso (il dépasse de 1 mm au recto, plié), relié à la cible par un pont. Un fil
+# ainsi tenu par son trou ne tire jamais sur la soudure de la broche. S'il n'y a aucun trou
+# libre à côté, le bout dénudé s'enroule d'un demi-tour autour de la broche avant d'être soudé.
+INTERDITS = set(INTERDITS_EN_PLUS)   # sous le corps des borniers : rien ne doit dépasser au recto
+for _cid, _t, _genre, _trous, _e in composants:
+    if _genre == "bornier":
+        _rs = [t[0] for t in _trous]
+        _cs = [t[1] for t in _trous]
+        _r = range(min(_rs) - 1, max(_rs) + 2)
+        _c = range(min(_cs) - 1, max(_cs) + 2)
+        INTERDITS.update((r, c) for r in _r for c in _c)
+entrees = {}   # (n° du fil, 0 ou 1) → ("trou", entrée, cible) ou ("enroule", cible, cible)
+VOISINS = ((0, 1), (0, -1), (1, 0), (-1, 0))
+
+
+def placer_entrees():
+    occ = set(pads)
+    reseau = {t: p[2] for t, p in pads.items()}
+    for s, tr, _, _ in nus:
+        occ.update(tr)
+        for t in tr:
+            reseau.setdefault(t, s)
+    nouveaux = []
+    for n, sig, a, b, et, role, ep in fils:
+        bouts = []
+        for k, (t, autre) in enumerate(((a, b), (b, a))):
+            cands = []
+            for dr, dc in VOISINS:
+                u = (t[0] + dr, t[1] + dc)
+                if not (0 <= u[0] < NR and 1 <= u[1] <= NC) or u in occ or u in INTERDITS:
+                    continue
+                gene = sum(1 for d2 in VOISINS if (u[0] + d2[0], u[1] + d2[1]) != t
+                           and reseau.get((u[0] + d2[0], u[1] + d2[1])) not in (None, sig))
+                cands.append((gene * 3 + abs(u[0] - autre[0]) + abs(u[1] - autre[1]), u))
+            if cands:
+                u = min(cands)[1]
+                occ.add(u)
+                reseau[u] = sig
+                nus.append((sig, [u, t], et, f"pont du fil {n}"))
+                entrees[(n, k)] = ("trou", u, t)
+                bouts.append(u)
+            else:
+                assert t in occ, f"fil {n} : aucun trou libre à côté de {nom(t)}, ni broche ni fil nu où s'enrouler"
+                entrees[(n, k)] = ("enroule" if t in pads else "rail", t, t)
+                bouts.append(t)
+        nouveaux.append((n, sig, bouts[0], bouts[1], et, role, ep))
+    fils[:] = nouveaux
+
+
+placer_entrees()
+
+
+def bout_txt(n, k):
+    genre, u, t = entrees[(n, k)]
+    if genre == "trou":
+        return f"{nom(t)} <span class='g'>(entre en {nom(u)})</span>"
+    if genre == "rail":
+        return f"{nom(t)} <span class='g'>(enroulé sur le fil nu)</span>"
+    return f"{nom(t)} <span class='g'>(enroulé sur la broche)</span>"
+
+
 ETAPES = {
     1: ("L'alimentation et les barrettes", "Les quatre barrettes femelles 1 × 8, J14, C2, le rail 5 V et le rail de masse."),
     2: ("Le haut-parleur", "R1, le bornier J5, les ponts SPK et trois fils."),
@@ -432,7 +495,7 @@ def tables():
             lignes.append(f"<tr><td class='q'>{len(trous)}</td><td><b>{t_}</b> — {desc}</td><td>{places}</td></tr>")
             n_pts += len(trous)
         for sig, trous, et, titre_nu in nus:
-            if et != e:
+            if et != e or titre_nu.startswith("pont du fil"):
                 continue
             libres = [t for t in trous if t not in pads]
             lignes.append(f"<tr><td class='q'>{len(trous)}</td><td>{puce(sig)}<b>Fil nu</b> : {titre_nu}</td>"
@@ -442,9 +505,10 @@ def tables():
         for n, sig, a, b, et, role, epais in fils:
             if et != e:
                 continue
-            lignes.append(f"<tr><td class='q'>2</td><td>{puce(sig)}<b>Fil {n}</b> · {role}</td>"
-                          f"<td>{nom(a)} → {nom(b)} <span class='g'>· {'22 AWG' if epais else '26 à 30 AWG'} · ≈ {longueur(a, b)} mm</span></td></tr>")
-            n_pts += 2
+            pts = sum(2 if entrees[(n, k)][0] == "trou" else 1 for k in (0, 1))
+            lignes.append(f"<tr><td class='q'>{pts}</td><td>{puce(sig)}<b>Fil {n}</b> · {role}</td>"
+                          f"<td>{bout_txt(n, 0)} → {bout_txt(n, 1)} <span class='g'>· {'22 AWG' if epais else '26 à 30 AWG'} · ≈ {longueur(a, b)} mm</span></td></tr>")
+            n_pts += pts
         total += n_pts
         tests = "".join(f"<li>{t}</li>" for t in TESTS[e])
         out.append(f"""<div class="etape saut"><h2>Étape {e} · {titre} <span class="g">— environ {n_pts} soudures</span></h2>
@@ -507,8 +571,14 @@ def page():
 Une coordonnée comme <b>C13</b> désigne toujours le même trou, <b>vu du recto</b> (le côté des composants). Le verso est dessiné tel que vous le voyez
 en retournant la plaque comme une page de livre : la colonne 1 passe à droite. Écrivez « 1 », « 24 », « A » et « J » dans les coins des deux faces.
 Comptez les trous de votre plaque : <b>10 rangées de 24</b>. Si elle en a d'autres, ne commencez pas : dites-le.</p>
-<p class="petit"><b>Fil nu</b> : cuivre étamé de 0,5 à 0,6 mm, soudé à chaque trou qu'il traverse. <b>Fil isolé numéroté</b> : soudé sur les deux pastilles
-indiquées, couché à plat au verso (il peut passer par-dessus les fils nus).</p>
+<p class="petit"><b>Fil nu</b> : cuivre étamé de 0,5 à 0,6 mm, soudé à chaque trou qu'il traverse. <b>Fil isolé numéroté</b> : couché à plat au verso
+(il peut passer par-dessus les fils nus), chaque bout dans son propre trou d'entrée, relié à sa broche par un pont.</p>
+<div class="note"><b>Comment souder un fil isolé sans faux contact.</b> Un fil n'est jamais posé sur une soudure déjà faite.
+<b>« entre en C5 »</b> : le bout dénudé (3 mm) passe par le trou libre <b>C5</b> depuis le verso, dépasse de 1 mm au recto (plié, il tient seul),
+et se soude au verso ; un <b>pont</b> (2 mm de fil nu, ou une chute de patte de résistance) relie ensuite ce trou à la pastille de la broche.
+<b>« enroulé sur la broche »</b> : pas de trou libre à côté (une barrette bordée par un rail) ; le bout dénudé fait un demi-tour serré autour
+de la broche qui dépasse au verso, <b>avant</b> de souder. <b>« enroulé sur le fil nu »</b> : de même autour du rail. Tirez doucement sur chaque
+fil une fois soudé : il ne doit pas bouger. Quand tout est testé, une goutte de colle chaude sur chaque fil, à 5 mm de sa soudure.</div>
 <div class="alerte"><b>Le sens des DFPlayer</b> : chaque module se pose <b>VCC en haut à gauche</b> (le nom des broches est imprimé au dos) ; la colonne
 VCC, RX, TX… SPK_2 descend alors de B à I. Seule compte la place de VCC : la fente micro-SD tombe en haut ou en bas selon le modèle, peu importe.
 <br><b>Avant toute soudure</b>, enfoncez les quatre barrettes femelles dans la plaque avec les modules dessus : la colonne VCC en <b>4</b> et en <b>13</b>,
