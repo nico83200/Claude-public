@@ -2,7 +2,7 @@
  * Village de Noël - Arduino Nano
  * ---------------------------------------------------------------
  * Matériel :
- *   - 8 lampadaires (3,3 V)  -> MOSFET logique sur D3 (PWM : fondu + crépitement)
+ *   - 8 lampadaires (3,3 V)  -> relais 3 sur D3 (alimentés en 5 V via résistance)
  *   - Buvette (LED 5 V)      -> D5 (PWM : lumière de lanterne qui vacille)
  *   - 3 cabanes WS2812B      -> D6 (une animation différente par cabane)
  *   - Sapin 9 V              -> relais 1 sur D7
@@ -23,7 +23,7 @@
 
 // ------------------------- Brochage -------------------------
 const uint8_t PIN_BOUTON          = 2;
-const uint8_t PIN_LAMPADAIRES     = 3;   // PWM
+const uint8_t PIN_RELAIS_LAMPADAIRES = 3;
 const uint8_t PIN_BUVETTE         = 5;   // PWM
 const uint8_t PIN_WS2812          = 6;
 const uint8_t PIN_RELAIS_SAPIN    = 7;
@@ -46,8 +46,6 @@ const uint8_t  LEDS_PAR_CABANE  = 3;      // <-- à adapter au nombre de WS2812B
 const uint8_t  NB_LEDS          = NB_CABANES * LEDS_PAR_CABANE;
 const uint8_t  LUMINOSITE_WS    = 140;    // 0..255
 const uint16_t COURANT_MAX_WS   = 1500;   // mA, limite de sécurité pour le convertisseur 5 V
-
-const uint8_t  LAMPADAIRES_MAX  = 255;    // luminosité maxi des lampadaires (PWM)
 
 // Durées du cycle automatique (millisecondes)
 const uint32_t DUREE_JOUR       = 2UL * 60UL * 1000UL;   // 2 min
@@ -92,32 +90,13 @@ uint8_t niveauNuit(uint32_t now) {
 }
 
 // ------------------------- Lampadaires -------------------------
-// Allumage façon vieux lampadaire : quelques crépitements puis montée progressive.
-void majLampadaires(uint8_t nuit, uint32_t now) {
-  static bool     allumes   = false;
-  static uint32_t tAllumage = 0;
-  static uint8_t  niveau    = 0;
-  static bool     etincelle = false;
-
-  if (!allumes && nuit > 70) {
-    allumes   = true;
-    tAllumage = now;
-    niveau    = LAMPADAIRES_MAX / 3;
-  } else if (allumes && nuit < 50) {
-    allumes = false;
-  }
-
-  uint8_t sortie;
-  if (allumes && now - tAllumage < 1800) {
-    if (random8() < 60) etincelle = !etincelle;
-    sortie = etincelle ? LAMPADAIRES_MAX / 3 : 0;
-  } else {
-    uint8_t cible = allumes ? LAMPADAIRES_MAX : 0;
-    if (niveau < cible) niveau++;
-    else if (niveau > cible) niveau--;
-    sortie = niveau;
-  }
-  analogWrite(PIN_LAMPADAIRES, dim8_video(sortie));
+// Sur relais : simple allumage à la tombée de la nuit (avec hystérésis
+// pour que le relais ne claque pas en boucle autour du seuil).
+void majLampadaires(uint8_t nuit) {
+  static bool allumes = false;
+  if (nuit > 70)      allumes = true;
+  else if (nuit < 50) allumes = false;
+  commanderRelais(PIN_RELAIS_LAMPADAIRES, allumes);
 }
 
 // ------------------------- Buvette -------------------------
@@ -274,10 +253,11 @@ void setup() {
   // Relais au repos AVANT de passer les broches en sortie (évite un claquement au démarrage)
   commanderRelais(PIN_RELAIS_SAPIN, false);
   commanderRelais(PIN_RELAIS_VOITURES, false);
+  commanderRelais(PIN_RELAIS_LAMPADAIRES, false);
   pinMode(PIN_RELAIS_SAPIN, OUTPUT);
   pinMode(PIN_RELAIS_VOITURES, OUTPUT);
+  pinMode(PIN_RELAIS_LAMPADAIRES, OUTPUT);
 
-  pinMode(PIN_LAMPADAIRES, OUTPUT);
   pinMode(PIN_BUVETTE, OUTPUT);
   pinMode(PIN_BOUTON, INPUT_PULLUP);
   pinMode(PIN_INTER2, INPUT_PULLUP);
@@ -307,7 +287,7 @@ void loop() {
   derniereImage = now;
 
   uint8_t nuit = niveauNuit(now);
-  majLampadaires(nuit, now);
+  majLampadaires(nuit);
   majBuvette(nuit);
   majRelais(nuit, now);
   majCabanes(nuit, now);

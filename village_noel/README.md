@@ -6,7 +6,7 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 
 | Élément | Commande | Effet |
 |---|---|---|
-| 8 lampadaires (3,3 V) | MOSFET sur **D3** (PWM) | Crépitement à l'allumage puis montée progressive, comme de vrais lampadaires |
+| 8 lampadaires (3,3 V) | Relais 3 sur **D3** | S'allument en premier à la tombée de la nuit |
 | Buvette (LED 5 V) | **D5** (PWM) | Lumière chaude qui vacille comme une lanterne |
 | 3 cabanes WS2812B | **D6** | Cabane 1 : bougie / blanc chaud · Cabane 2 : guirlande multicolore · Cabane 3 : rouge ↔ vert. Elles s'allument une par une au crépuscule |
 | Sapin 9 V | Relais 1 sur **D7** | S'allume à la nuit tombée |
@@ -40,9 +40,9 @@ Alim 9 V (+) ──┬──────────────► VIN du Nano
                                              ├─► VCC modules relais
                                              ├─► 5V WS2812B (+ condensateur 1000 µF)
                                              ├─► (+) buvette
-                                             └─► (+) lampadaires (via résistance)
+                                             └─► COM relais 3 ──NO──► R ──► (+) lampadaires
 
-TOUS LES GND (alim, convertisseur, Nano, relais, WS2812B, MOSFET, sapin, voitures) RELIÉS ENSEMBLE
+TOUS LES GND (alim, convertisseur, Nano, relais, WS2812B, lampadaires, sapin, voitures) RELIÉS ENSEMBLE
 ```
 
 - **Réglez le convertisseur à 5,0 V au multimètre AVANT** de brancher quoi que ce soit dessus.
@@ -51,20 +51,18 @@ TOUS LES GND (alim, convertisseur, Nano, relais, WS2812B, MOSFET, sapin, voiture
 
 ## Câblage détaillé
 
-### Lampadaires (3,3 V) – MOSFET recommandé
-Le Nano ne peut pas fournir le courant de 8 lampadaires (max ~20 mA par broche), et un relais ne permet pas de faire de fondu. Ajoutez un **MOSFET canal N « logic level »** (IRLZ44N, IRL540N, ou module MOSFET tout prêt – ~1 €) :
-
+### Lampadaires (3,3 V) – sur relais 3
 ```
-Rail 5 V ──► Résistance R ──► (+) lampadaires
-                               (−) lampadaires ──► Drain MOSFET
-D3 ──► 220 Ω ──► Grille MOSFET      Grille ──► 10 kΩ ──► GND
-                               Source MOSFET ──► GND
+Rail 5 V ──► COM relais 3
+             NO  relais 3 ──► Résistance R ──► (+) lampadaires
+                                               (−) lampadaires ──► GND
 ```
 
+Le relais sert d'interrupteur ; la résistance **R** fait passer le 5 V à ~3,3 V.
 Calcul de **R** : mesurez le courant des lampadaires sous 3 V (2 piles AA font très bien l'affaire), puis
 `R = (5 − 3,3) / I`. Exemple : 160 mA → R ≈ 10 Ω, ½ W.
 
-> Sans MOSFET : branchez les lampadaires en fixe sur le 5 V via R (toujours allumés), ou partagez un relais avec un autre élément.
+> Sans multimètre pour mesurer le courant : **2 diodes 1N4007 en série** (bague grise côté lampadaires) à la place de R font chuter d'environ 1,4 V → ~3,6 V.
 
 ### Buvette (LED 5 V)
 - LED nue : D5 → résistance 220 Ω → LED → GND.
@@ -76,8 +74,8 @@ Calcul de **R** : mesurez le courant des lampadaires sous 3 V (2 piles AA font t
 - D6 → **résistance 330 Ω** → DIN de la 1ʳᵉ LED.
 - Modifiez `LEDS_PAR_CABANE` dans le sketch selon votre nombre de LED par cabane.
 
-### Relais (sapin & voitures)
-- Module relais : VCC → 5 V, GND → GND, IN1 → D7, IN2 → D8.
+### Relais (sapin, voitures, lampadaires)
+- Modules relais : VCC → 5 V, GND → GND, IN1 → D7 (sapin), IN2 → D8 (voitures), IN du 3ᵉ relais → D3 (lampadaires).
 - Côté puissance : le **+9 V** passe par COM → NO ; le (−) des éléments retourne au GND.
 - Si les relais fonctionnent « à l'envers », passez `RELAIS_ACTIF_BAS` à `false`.
 
@@ -86,6 +84,6 @@ Calcul de **R** : mesurez le courant des lampadaires sous 3 V (2 piles AA font t
 - LDR entre 5 V et A0, résistance 10 kΩ entre A0 et GND, puis `UTILISER_LDR = true`. Ajustez les seuils 600/300 dans `niveauNuit()` en regardant `analogRead(A0)`.
 
 ## Pour aller plus loin
-- **2 MOSFET de plus** à la place des relais → sapin qui « respire » et phares des voitures qui s'allument en fondu, sans claquement.
+- **MOSFET** (IRLZ44N, ~1 €) à la place des relais → lampadaires qui crépitent puis s'allument en fondu, sapin qui « respire », sans claquement.
 - **Module MP3 DFPlayer Mini** (~3 €) → musique de Noël en mode FÊTE.
 - **Capteur PIR** → le village se réveille quand quelqu'un s'approche.
