@@ -57,7 +57,7 @@ def dfplayer(cid, titre, col, utiles):
 
 dfplayer("HP", "DFPlayer du haut-parleur", 4, ["5V", "RX-HP", "G16", "NC-HP-a", "NC-HP-b", "SPK1", "GND", "SPK2"])
 dfplayer("CQ", "DFPlayer du casque", 13, ["5V", "RX-CQ", "G36", "DACR", "DACL", "NC-CQ-a", "GND", "NC-CQ-b"])
-poser("J14", "J14 · vers la plaque A", "male", 1, 22, ["5V", "GND", "G17", "G16", "G2", "G36"], vertical=True)
+poser("J14", "J14 · vers les plaques A et D", "male", 1, 22, ["5V", "GND", "G17", "G16", "G2", "G36"], vertical=True)
 poser("J5", "J5 · haut-parleur", "bornier", 6, 1, ["SPK1", None, "SPK2"], vertical=True, noms=["1", "", "2"], etape=2)
 poser("J6", "J6 · casque", "bornier", 3, 24, ["DACL", None, "DACR", None, "GND"], vertical=True, noms=["1 G", "", "2 D", "", "3 ⏚"], etape=3)
 poser("R1", "R1 · 1 kΩ (haut-parleur)", "resistance", 4, 14, ["RX-HP", None, None, None, "G17"], etape=2)
@@ -185,7 +185,7 @@ ETAPES = {
 TESTS = {
     1: ["Multimètre en position bip, <b>sans les DFPlayer</b> : pas de bip entre A4 (5 V) et H4 (masse).",
         "Bip entre J14-1 et B4, B13 ; bip entre J14-2 et H4, H13.",
-        "Branchez le câble J14 depuis la plaque A et allumez : 5 V entre B4 et H4, et entre B13 et H13. Coupez avant d'enficher un DFPlayer."],
+        "Branchez J14-1 et J14-2 sur les rails 5 V et masse de la plaque D, allumez : 5 V entre B4 et H4, et entre B13 et H13. Coupez avant d'enficher un DFPlayer."],
     2: ["Environ 1 kΩ entre J14-3 et C4. Bip entre D4 et J14-4, entre I4 et le plot 2 de J5.",
         "Enfichez le DFPlayer du haut-parleur (sa carte micro-SD dedans), branchez le haut-parleur sur J5, allumez : le son d'accueil."],
     3: ["Environ 1 kΩ entre J14-5 et C13. Bip entre D13 et J14-6, entre F13 et le plot 1 de J6, entre E13 et le plot 2, entre H4 et le plot 3.",
@@ -358,7 +358,7 @@ def recto():
         x, y = xy(h(ref))
         s.append(f'<text x="{x + dx:.1f}" y="{y + dy:.1f}" font-size="7" text-anchor="middle" fill="#fff" font-weight="700" '
                  f'paint-order="stroke" stroke="#2f6b3c" stroke-width="2">{txt}</text>')
-    for ref, ang, txt in (("I22", 0, "J14 → A"), ("F1", 0, "J5 · HP"), ("F24", 0, "J6 · CASQUE")):
+    for ref, ang, txt in (("I22", 0, "J14 → A, D"), ("F1", 0, "J5 · HP"), ("F24", 0, "J6 · CASQUE")):
         x, y = xy(h(ref))
         if ang:
             s.append(f'<text transform="translate({x - 9:.1f} {y:.1f}) rotate(-90)" font-size="6.5" text-anchor="middle" fill="#fff" font-weight="700">{txt}</text>')
@@ -533,31 +533,31 @@ def page():
 <title>Plaque B trou par trou</title>
 <link rel="stylesheet" href="commun.css">
 <style>
-  @page {{{{ size: A4 landscape; margin: 10mm 11mm 12mm; }}}}
-  body {{{{ font-size: 9.2pt; }}}}
-  .couverture {{{{ background: var(--vert); color: #fff; border-radius: 10px; padding: 12px 18px; margin-bottom: 8px; }}}}
-  .couverture h1 {{{{ color: #fff; margin: 0; font-size: 21pt; }}}}
-  .couverture p {{{{ color: #f2d9a6; margin: 3px 0 0; }}}}
-  h2 {{{{ break-after: avoid; border-bottom: 2px solid var(--or); padding-bottom: 2px; margin: 10px 0 5px; }}}}
-  h3 {{{{ break-after: avoid; margin: 8px 0 3px; }}}}
-  .saut {{{{ break-before: page; }}}}
-  table {{{{ width: 100%; border-collapse: collapse; font-size: 8.1pt; }}}}
-  th {{{{ background: var(--vert); color: #fff; text-align: left; padding: 3px 5px; }}}}
-  td {{{{ border-bottom: 1px solid var(--filet); padding: 2.2px 5px; vertical-align: top; }}}}
-  tr {{{{ break-inside: avoid; }}}}
-  td.q, th.q {{{{ width: 26px; text-align: right; color: var(--gris); }}}}
-  .g {{{{ color: var(--gris); font-weight: 400; }}}}
-  .c {{{{ display: inline-block; width: 9px; height: 9px; border-radius: 2px; border: 1px solid #0003; vertical-align: -1px; margin-right: 4px; }}}}
-  .note {{{{ background: #fbf7ee; border-left: 4px solid var(--or); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}}}
-  .alerte {{{{ background: #fbeceb; border-left: 4px solid var(--rouge); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}}}
-  .test {{{{ background: #eef3ec; border-left: 4px solid var(--vert); padding: 4px 10px; margin: 5px 0 10px; font-size: 8.4pt; }}}}
-  .test ul {{{{ margin: 2px 0 0 16px; padding: 0; }}}}
-  .cote {{{{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: start; }}}}
-  .cote table {{{{ font-size: 7.6pt; }}}}
-  .deux {{{{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; align-items: start; }}}}
-  .petit {{{{ font-size: 8.2pt; margin: 2px 0 5px; }}}}
-  .legende span {{{{ margin-right: 12px; white-space: nowrap; }}}}
-  svg text {{{{ font-family: "Source Sans", sans-serif; }}}}
+  @page {{ size: A4 landscape; margin: 10mm 11mm 12mm; }}
+  body {{ font-size: 9.2pt; }}
+  .couverture {{ background: var(--vert); color: #fff; border-radius: 10px; padding: 12px 18px; margin-bottom: 8px; }}
+  .couverture h1 {{ color: #fff; margin: 0; font-size: 21pt; }}
+  .couverture p {{ color: #f2d9a6; margin: 3px 0 0; }}
+  h2 {{ break-after: avoid; border-bottom: 2px solid var(--or); padding-bottom: 2px; margin: 10px 0 5px; }}
+  h3 {{ break-after: avoid; margin: 8px 0 3px; }}
+  .saut {{ break-before: page; }}
+  table {{ width: 100%; border-collapse: collapse; font-size: 8.1pt; }}
+  th {{ background: var(--vert); color: #fff; text-align: left; padding: 3px 5px; }}
+  td {{ border-bottom: 1px solid var(--filet); padding: 2.2px 5px; vertical-align: top; }}
+  tr {{ break-inside: avoid; }}
+  td.q, th.q {{ width: 26px; text-align: right; color: var(--gris); }}
+  .g {{ color: var(--gris); font-weight: 400; }}
+  .c {{ display: inline-block; width: 9px; height: 9px; border-radius: 2px; border: 1px solid #0003; vertical-align: -1px; margin-right: 4px; }}
+  .note {{ background: #fbf7ee; border-left: 4px solid var(--or); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}
+  .alerte {{ background: #fbeceb; border-left: 4px solid var(--rouge); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}
+  .test {{ background: #eef3ec; border-left: 4px solid var(--vert); padding: 4px 10px; margin: 5px 0 10px; font-size: 8.4pt; }}
+  .test ul {{ margin: 2px 0 0 16px; padding: 0; }}
+  .cote {{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: start; }}
+  .cote table {{ font-size: 7.6pt; }}
+  .deux {{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; align-items: start; }}
+  .petit {{ font-size: 8.2pt; margin: 2px 0 5px; }}
+  .legende span {{ margin-right: 12px; white-space: nowrap; }}
+  svg text {{ font-family: "Source Sans", sans-serif; }}
 </style>
 </head>
 <body>
@@ -597,7 +597,8 @@ de la même étape. Au total, environ <b>{total} soudures</b>. Longueurs des fil
 <tr><td>{puce("G5")}SPK_1, SPK_2 (G, I)</td><td>J5 plots 1 et 2, par deux fils nus</td><td>libres</td></tr>
 <tr><td>{puce("GND")}GND (H)</td><td colspan="2">Rail de masse de la rangée H, qui passe par les GND des deux modules et rejoint J14-2 et J6 plot 3</td></tr>
 </table>
-<p class="petit">Le 5 V et la masse n'arrivent que par J14 : un seul câble à six fils depuis la plaque A. Les résistances R1 et R2 protègent l'entrée RX
+<p class="petit">Le 5 V et la masse arrivent par J14-1 et J14-2, depuis les rails de la plaque D ; les quatre liaisons série (J14-3 à J14-6)
+viennent du J14 de la plaque A. Les résistances R1 et R2 protègent l'entrée RX
 des DFPlayer ; elles se couchent à plat <b>sous le DFPlayer du casque</b>, et C2 sous celui du haut-parleur : posez-les avant d'enficher les modules.</p>
 </div>
 </div>

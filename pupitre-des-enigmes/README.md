@@ -74,6 +74,7 @@ mission).
 | [Plaque A trou par trou](pdf/plaque-a.pdf) | Le constructeur : chaque trou, chaque soudure de la plaque de l'ESP32, recto et verso, en sept étapes testées |
 | [Plaque B trou par trou](pdf/plaque-b.pdf) | Le constructeur : la plaque du son (les deux DFPlayer), recto et verso, en trois étapes testées |
 | [Plaque C trou par trou](pdf/plaque-c.pdf) | Le constructeur : le bus I2C (onze barrettes et quatre rails), en deux étapes testées |
+| [Plaque D trou par trou](pdf/plaque-d.pdf) | Le constructeur : la distribution (l’arrivée du 5 V et les rails partagés : 5 V, masse, 3,3 V, bus SPI), en deux étapes testées |
 
 **Les livrets A5** (fiche de mission et fiche d'enquête, avec une couverture : description, l'essentiel, nombre de joueurs, durée, difficulté ★ à ★★★). Deux fichiers par mission : `mission-N-livret-a5.pdf` (les pages dans l'ordre, pour l'écran) et `mission-N-livret-a5-brochure.pdf` (à imprimer en **recto verso, retourné sur le bord court**, puis à plier en deux et agrafer au milieu) :
 [La Disparition d'Éclipse](pdf/mission-1-livret-a5-brochure.pdf) ★ ·

@@ -113,6 +113,10 @@ câblage, est dans [`achats.json`](achats.json) et en PDF :
 
 ## 3. Câblage (ESP32 DevKit 30 broches, USB-C)
 
+Les GPIO ne changent pas. Sur les plaques, un signal **propre à un module** (une sélection, une
+commande) se branche sur la plaque A ; un signal **partagé** (5 V, masse, 3,3 V, SCK, MOSI, MISO)
+sur un rail de la plaque D. Le tableau fil par fil est dans `pdf/plaque-a.pdf`.
+
 | Fonction | Broche du composant | GPIO |
 |---|---|---|
 | **Bus SPI commun** | SCK / MOSI / MISO | **18 / 23 / 19** |
@@ -203,7 +207,7 @@ bouton « Étalonner l'écran tactile » de l'onglet Atelier, puis touchez les q
 pointe d'un stylo est plus précise). L'étalonnage est gardé dans `/tactile.json` sur la carte SD.
 Un écran sans dalle tactile : `TACTILE_CS = -1` dans `firmware/src/broches.h`.
 
-**Alimentation 5 V** (par l'embase USB-C de la face arrière) : l'ESP32 (VIN), **l'écran
+**Alimentation 5 V** (par l'embase USB-C de la paroi droite, jusqu'au bornier J1 de la plaque D, d'où partent les rails) : l'ESP32 (VIN), **l'écran
 (VCC)**, les deux DFPlayer et toutes les LED, avec le condensateur de 1000 µF près de
 l'anneau.
 **3,3 V** (fourni par l'ESP32) : les 2 lecteurs RFID, la molette, les deux
@@ -338,9 +342,10 @@ le premier trou de 30 mm aurait touché la paroi.
 
 ### 4.4 La face arrière et le dessous
 
-- Face arrière (38,0 × 7,5 cm), éléments regroupés à droite : **prise USB-C**
-  (alimentation) à X = 34,0 cm, Y = 3,75 cm ; **interrupteur général** à X = 30,0 cm,
-  Y = 3,75 cm.
+- **Prise USB-C** (alimentation) et **interrupteur général** : sur la **paroi droite**,
+  près de l'arrière, centrés à 3,0 cm du bas, l'interrupteur à 20,0 cm de l'avant et la prise
+  à 17,5 cm (la face arrière, à droite, porte la plaque D). Ils restent sous la clé, qui
+  descend du couvercle juste au-dessus.
 - **Fond** : posé sur les 4 tasseaux, vissé par le dessous, avec des patins
   caoutchouc de 5 à 8 mm de haut.
 - **Ruban sous la boîte** : collé sous le fond, près du bord avant, tourné vers la
@@ -350,10 +355,14 @@ le premier trou de 30 mm aurait touché la paroi.
 - **L'électronique** tient sur **trois plaques à pastilles** (le plan d'implantation et
   leur place exacte sont dans `pdf/plan-cablage.pdf`, § 1) :
   - **A, le cerveau** (50 × 70 mm : l'ESP32 et presque tous les connecteurs) et **B, le
-    son** (30 × 70 mm : les deux DFPlayer ; chaque plaque a son plan trou par trou :
-    `pdf/plaque-a.pdf`, `pdf/plaque-b.pdf`, `pdf/plaque-c.pdf`) sont vissées **contre la face arrière, à
-    l'intérieur**, assez bas pour passer sous l'écran, le haut-parleur et la clé : A de
-    X = 21 à 28 cm, derrière l'écran, B de X = 11,5 à 18,5 cm, sous le haut-parleur.
+    son** (30 × 70 mm : les deux DFPlayer) et **D, la distribution** (30 × 70 mm : l'arrivée
+    du 5 V et sept rails, 5 V, masse, 3,3 V, MOSI, SCK, MISO, où chaque module prend ses fils
+    communs) sont vissées **contre la face arrière, à l'intérieur**, assez bas pour passer sous
+    l'écran, le haut-parleur et la clé : A de X = 21 à 28 cm, derrière l'écran, D juste à sa
+    droite (X = 28,5 à 35,5 cm, de 8 à 38 mm du bas), B de X = 11,5 à 18,5 cm, sous le
+    haut-parleur. Chaque plaque a son plan trou par trou : `pdf/plaque-a.pdf` à
+    `pdf/plaque-d.pdf`. Sur A, chaque broche de l'ESP32 ne reçoit qu'un fil ; tout ce qui
+    est partagé passe par D.
     Fixation : des **entretoises nylon M3 de 10 mm**, chacune tenue par une **vis M3 × 16
     à tête fraisée passée de l'extérieur** à travers la face arrière (trou de 3,2 mm
     fraisé, tête au ras) et un écrou. Pas de vis à bois : 5 mm de contreplaqué tiennent

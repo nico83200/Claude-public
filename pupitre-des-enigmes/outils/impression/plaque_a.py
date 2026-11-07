@@ -10,6 +10,8 @@
 import sys
 from pathlib import Path
 
+from cablage_modules import STYLE as STYLE_MODULES, table_modules
+
 ICI = Path(__file__).parent
 RANGS = "ABCDEFGHIJKLMNOPQR"
 NC, NR = 24, 18
@@ -50,21 +52,23 @@ BAS_N = ["EN", "36", "39", "34", "35", "32", "33", "25", "26", "27", "14", "12",
 # TX0 et RX0 ne vont nulle part : on les garde comme signaux distincts pour la vérification.
 poser("ESP-H", "ESP32, rangée du haut", "femelle", 3, 1, HAUT, noms=HAUT_N)
 poser("ESP-B", "ESP32, rangée du bas", "femelle", 13, 1, BAS, noms=BAS_N)
-poser("J2", "J2 · écran", "male", 0, 2, ["5V", "GND", "G5", "EN", "G21", "MOSI", "SCK", "G12", "G4", "MOSI", "MISO", "SCK"], etape=2)
-poser("J13", "J13 · tactile", "male", 0, 15, ["G14", "SCK", "MOSI", "MISO", "G15"], etape=2)
-poser("J1", "J1 · arrivée du 5 V", "bornier", 1, 21, ["GND", None, "5V"], noms=["−", "", "+"], etape=1)
-poser("J14", "J14 · vers la plaque B (le son)", "male", 4, 24, ["5V", "GND", "G17", "G16", "G2", "G36"], sens=-1, etape=4)
-poser("J8", "J8 · molette", "male", 15, 2, ["3V3", "GND", "G34", "G35", "G32"], etape=6)
-poser("J15", "J15 · vers la plaque C (I2C)", "male", 15, 7, ["3V3", "GND", "G26", "G27"], etape=5)
-poser("J10", "J10 · clé", "male", 15, 12, ["G33", "GND"], etape=6)
-poser("J9", "J9 · gros bouton", "male", 15, 15, ["G39", "GND"], etape=6)
-poser("J7", "J7 · chaîne de LED", "male", 15, 18, ["5V", "GND", "DIN"], etape=7)
-poser("J12", "J12 · 5 V du servomoteur", "bornier", 15, 22, ["GND", None, "5V"], noms=["−", "", "+"], etape=7)
-poser("J3", "J3 · lecteur RFID de la fente", "male", 17, 2, ["3V3", "3V3", "GND", "MISO", "MOSI", "SCK", "G13"], etape=3)
-poser("J4", "J4 · lecteur RFID à plat", "male", 17, 10, ["3V3", "3V3", "GND", "MISO", "MOSI", "SCK", "G22"], etape=3)
-poser("R4", "R4 · 10 kΩ (gros bouton)", "resistance", 14, 11, ["3V3", None, None, None, "G39"], etape=6)
-poser("R3", "R3 · 330 Ω (LED)", "resistance", 14, 16, ["G25", None, None, None, "DIN"], etape=7)
-poser("C1", "C1 · 100 µF", "condo", 11, 23, ["GND", "5V"], noms=["−", "+"], etape=1)
+# La plaque A ne porte que les signaux propres à chaque module : tout ce qui est partagé
+# (5 V, masse, 3,3 V, MOSI, SCK, MISO) part vers la plaque D par J16, et chaque module y prend
+# ses fils communs. Ainsi chaque broche de l'ESP32 ne reçoit qu'un seul fil.
+poser("J16", "J16 · vers la plaque D", "male", 0, 18, ["MOSI", "SCK", "MISO", "3V3", "5V", "GND"],
+      noms=["MOSI", "SCK", "MISO", "3,3 V", "5 V", "GND"], etape=1)
+poser("J2", "J2 · écran (sélections et commandes)", "male", 0, 2, ["G5", "EN", "G21", "G12", "G4", "G14"],
+      noms=["CS", "RESET", "DC", "LED", "SD_CS", "T_CS"], etape=2)
+poser("J3", "J3 · sélection des lecteurs RFID", "male", 0, 9, ["G13", "G22", "G15"],
+      noms=["fente", "à plat", "réserve"], etape=3)
+poser("J14", "J14 · vers la plaque B (le son)", "male", 0, 13, ["G17", "G16", "G2", "G36"],
+      noms=["3 (17)", "4 (16)", "5 (2)", "6 (36)"], etape=4)
+poser("J15", "J15 · vers la plaque C (I2C)", "male", 15, 9, ["G26", "G27"], noms=["SDA", "SCL"], etape=5)
+poser("J8", "J8 · commandes", "male", 15, 4, ["G34", "G35", "G32", "G33", "G39"],
+      noms=["CLK", "DT", "SW", "clé", "bouton"], etape=6)
+poser("R4", "R4 · 10 kΩ (gros bouton)", "resistance", 16, 8, ["G39", None, None, None, "3V3"], etape=6)
+poser("J7", "J7 · données des LED", "male", 15, 18, ["DIN"], noms=["DIN"], etape=7)
+poser("R3", "R3 · 330 Ω (LED)", "resistance", 16, 14, ["G25", None, None, None, "DIN"], etape=7)
 
 # --------------------------------------------------------------------------------------------
 # Le verso : fils nus (rails, barres de distribution, ponts) et fils isolés
@@ -100,7 +104,7 @@ def fil(signal, a, b, etape, role, epais=False):
 # GUIRLANDE : chaque broche reçoit au plus deux fils, celui qui arrive et celui qui repart.
 # Les guirlandes se construisent étape par étape : un nouveau connecteur se raccroche à la
 # broche la plus proche du même signal déjà câblée qui a encore une place libre.
-SOURCES = {"5V": h("B23"), "GND": h("B21"), "3V3": h("D15")}
+SOURCES = {"5V": h("A22"), "GND": h("A23"), "3V3": h("D15")}
 SANS_FIL = {h("N14")}           # le GND du bas de l'ESP32 : relié à D14 dans la carte elle-même
 EPAIS = {"5V", "GND"}
 etape_pad = {t: et for _, _, _, trous, et in composants for t in trous}
@@ -112,7 +116,7 @@ def nom_broche(t):
         return f"broche {b}" if b not in ("GND", "3V3", "VIN", "EN") else b
     if c in ("R3", "R4", "C1"):
         return f"{c} ({nom(t)})"
-    return f"{c} {b}" if b in ("+", "−") else f"{c}-{b}"
+    return f"{c} {b}"
 
 
 def guirlandes():
@@ -211,32 +215,29 @@ def bout_txt(n, k):
 
 
 ETAPES = {
-    1: ("L'alimentation et l'ESP32", "Bornier J1, barrettes femelles de l'ESP32, C1, et les premiers fils du 5 V et de la masse."),
-    2: ("L'écran et le tactile", "J2, J13 et leurs fils, dont les guirlandes des broches 23, 18 et 19."),
-    3: ("Les deux lecteurs RFID", "J3, J4, et leurs fils (les guirlandes SPI et le 3,3 V se prolongent jusqu'à eux)."),
+    1: ("L'ESP32 et la liaison vers D", "Les barrettes femelles de l'ESP32, J16 et ses six fils : la plaque D doit être faite avant."),
+    2: ("L'écran et le tactile", "J2 et ses six fils."),
+    3: ("Les lecteurs RFID", "J3 et ses trois fils."),
     4: ("Le son (vers la plaque B)", "J14 et ses quatre fils."),
-    5: ("Le bus I2C (vers la plaque C)", "J15."),
-    6: ("La molette, le gros bouton et la clé", "J8, J9, J10 et R4."),
-    7: ("Les LED et le servomoteur", "J7, R3 et le bornier J12."),
+    5: ("Le bus I2C (vers la plaque C)", "J15 et ses deux fils."),
+    6: ("La molette, la clé et le gros bouton", "J8, R4 et leurs fils."),
+    7: ("Les LED", "J7, R3 et leurs fils."),
 }
 TESTS = {
-    1: ["Multimètre en position bip, <b>sans l'ESP32</b> : pas de bip entre le + et le − de J1.",
-        "Bip entre J1 − et la broche GND du haut de l'ESP32 (D14) ; bip entre J1 + et VIN (N15).",
-        "Branchez le 5 V sur J1, toujours sans l'ESP32 : 5 V entre VIN (+) et GND (−). Débranchez, enfoncez l'ESP32 (USB à droite), rebranchez : sa LED rouge s'allume. Entre 3V3 et GND : 3,3 V."],
-    2: ["Bip entre la broche 23 et J2-6, J2-10, J13-3 ; entre 18 et J2-7, J2-12, J13-2 ; entre 19 et J2-11, J13-4.",
-        "<b>Pas de bip</b> entre 23, 18 et 19, ni entre l'une d'elles et la masse. Bip entre J1 + et J2-1, entre J1 − et J2-2.",
-        "Branchez l'écran sur J2 et J13 : le logo, puis le menu ; le doigt sur la dalle fait réagir les menus. Avec la carte SD : le menu des mondes."],
-    3: ["Bip entre 3V3 et J3-1, J3-2, J4-1, J4-2. Pas de bip entre 3V3 et la masse, ni avec le 5 V.",
-        "Bip entre 23 et J3-5, J4-5 ; 18 et J3-6, J4-6 ; 19 et J3-4, J4-4.",
-        "Branchez les deux RC522 : le journal série affiche leur version (0x91 ou 0x92, et non 0xFF) ; une carte passée dans la fente est lue."],
-    4: ["Bip entre J1 + et J14-1, entre J1 − et J14-2.",
-        "Branchez la plaque B : le son d'accueil sort du haut-parleur."],
-    5: ["Bip entre 3V3 et J15-1, entre J1 − et J15-2.",
-        "Branchez la plaque C : le journal série liste les modules I2C trouvés (0x20, 0x21…)."],
-    6: ["Bip entre 3V3 et J8-1, entre J1 − et J8-2, J9-2, J10-2. Résistance de R4 : environ 10 kΩ entre ses deux pattes.",
-        "Branchez la molette, le gros bouton et la clé : le menu « Tester le pupitre » les voit."],
-    7: ["Bip entre J1 + et J7-1, J12 + ; entre J1 − et J7-2, J12 −. Environ 330 Ω entre les deux pattes de R3.",
-        "Branchez l'anneau de LED : il s'allume au démarrage. Branchez le servomoteur (par le PCA9685) : le tiroir s'ouvre au test."],
+    1: ["<b>Sans l'ESP32</b> : branchez J16 sur la plaque D (six fils Dupont, chacun sur son rail) et le 5 V sur J1 de D. Entre VIN (+) et GND (−) de la barrette : 5 V.",
+        "Coupez, enfoncez l'ESP32 (USB à droite), rallumez : sa LED rouge s'allume ; entre 3V3 et GND : 3,3 V. Le journal série affiche « Le Pupitre des Énigmes »."],
+    2: ["Branchez l'écran : CS, RESET, DC, LED, SD_CS et T_CS sur J2 ; ses autres fils sur les rails de D (tableau « Les câbles des modules »).",
+        "Le logo, puis le menu ; le doigt sur la dalle fait réagir les menus. Avec la carte SD : le menu des mondes."],
+    3: ["Branchez les deux RC522 : SDA sur J3 (la fente sur J3-1, le lecteur à plat sur J3-2), le reste sur D.",
+        "Le journal série affiche leur version (0x91 ou 0x92, et non 0xFF) ; une carte passée dans la fente est lue."],
+    4: ["Câble vers la plaque B : ses broches 3 à 6 sur J14, ses broches 1 (5 V) et 2 (masse) sur les rails de D.",
+        "Le son d'accueil sort du haut-parleur."],
+    5: ["Câble vers la plaque C : SDA et SCL sur J15, le 3,3 V et la masse sur D.",
+        "Le journal série liste les modules I2C trouvés (0x20, 0x21…)."],
+    6: ["Branchez la molette (CLK, DT, SW sur J8 ; + et GND sur D), la clé et le gros bouton (un fil sur J8, l'autre sur la masse de D).",
+        "Le menu « Tester le pupitre » les voit."],
+    7: ["Branchez DIN de l'anneau sur J7, son 5 V et sa masse sur le bornier J12 de D.",
+        "L'anneau s'allume au démarrage."],
 }
 
 # --------------------------------------------------------------------------------------------
@@ -403,11 +404,9 @@ def recto():
                      f'<text x="{xb_:.1f}" y="{yb_ - 5:.1f}" font-size="6" text-anchor="middle" fill="#fff" font-weight="700">+</text>')
     # Les noms des connecteurs
     etiquettes = {
-        "J2": ("A7", 0, -12, "J2 · ÉCRAN"), "J13": ("A17", 0, -12, "J13 · TACTILE"), "J1": ("B22", 0, -18.5, "J1 · 5 V"),
-        "J14": ("E21", 0, 13, "J14 → B"), "J8": ("P4", 0, 13, "J8"), "J15": ("P8", 5, 13, "J15 → C"),
-        "J10": ("P12", 5, 13, "J10"), "J9": ("P15", 5, 13, "J9"), "J7": ("P19", 0, 13, "J7"), "J12": ("P23", 0, -18, "J12 · SERVO"),
-        "J3": ("R5", 0, 12, "J3 · RFID FENTE"), "J4": ("R13", 0, 12, "J4 · RFID À PLAT"),
-        "R4": ("O13", 0, -5, "R4 10 kΩ"), "R3": ("O18", 0, -5, "R3 330 Ω"),
+        "J2": ("A4", 5, -12, "J2 · ÉCRAN"), "J3": ("A10", 0, -12, "J3 · RFID"), "J14": ("A14", 5, -12, "J14 → B"),
+        "J16": ("A20", 5, -12, "J16 → PLAQUE D"), "J8": ("P6", 0, 13, "J8 · COMMANDES"), "J15": ("P9", 5, 13, "J15 → C"),
+        "J7": ("P18", 0, 13, "J7 LED"), "R4": ("Q10", 0, 10, "R4 10 kΩ"), "R3": ("Q16", 0, 10, "R3 330 Ω"),
     }
     for cid, (ref, dx, dy, txt) in etiquettes.items():
         x, y = xy(h(ref))
@@ -592,7 +591,7 @@ def page():
             ordre.append(t)
             pile.extend(sorted(voisins.get(t, []), reverse=True))
         return " → ".join(nom_broche(t) for t in ordre)
-    ponts_partages = "<table><tr><th>Signal</th><th>La guirlande, de broche en broche</th></tr>" + "".join(
+    ponts_partages = "" and "<table><tr><th>Signal</th><th>La guirlande, de broche en broche</th></tr>" + "".join(
         f"<tr><td>{puce(sg)}<b>{lib}</b></td><td>{chemin(sg)}</td></tr>"
         for sg, lib in (("MOSI", "23 · MOSI"), ("MISO", "19 · MISO"), ("SCK", "18 · SCK"), ("3V3", "3,3 V"), ("5V", "5 V"), ("GND", "Masse"))) + "</table>"
     return f"""<!doctype html>
@@ -626,6 +625,7 @@ def page():
   .deux {{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; align-items: start; }}
   .petit {{ font-size: 8.2pt; margin: 2px 0 5px; }}
   .legende span {{ margin-right: 12px; white-space: nowrap; }}
+""" + STYLE_MODULES + f"""
   svg text {{ font-family: "Source Sans", sans-serif; }}
 </style>
 </head>
@@ -659,25 +659,31 @@ connecteurs, puis les fils dans l'ordre de leur numéro. « Pts » : le nombre d
 La longueur des fils isolés est indicative (coupez 1 cm de plus, dénudez 2 mm à chaque bout).</div>
 </div>
 <div>
-<h2>Les fils qui arrivent sur la même broche</h2>
-<p class="petit">Un signal qui va à plusieurs connecteurs passe <b>en guirlande</b>, de broche en broche : une broche reçoit <b>au plus deux fils</b>,
-celui qui arrive et celui qui repart. Une broche de l'ESP32 ne reçoit qu'<b>un seul</b> fil (deux pour le 3,3 V, la masse et VIN). Le courant ne
-passe que par les fils et les soudures, jamais par les contacts des connecteurs : la guirlande convient aussi au 5 V et à la masse des LED.</p>
-{ponts_partages}
+<h2>Une broche, un fil</h2>
+<p class="petit">La plaque A ne porte plus que les signaux <b>propres à chaque module</b> : la sélection de l'écran, des lecteurs, les liaisons
+du son, de l'I2C, des commandes et des LED. Tout ce qui est <b>partagé</b> (5 V, masse, 3,3 V et les trois lignes du bus SPI : 23, 18, 19)
+part par <b>J16</b> vers la <b>plaque D</b>, qui le distribue sur ses rails (plaque-d.pdf). Chaque broche de l'ESP32 ne reçoit donc
+qu'<b>un seul fil</b>, qui va droit à son connecteur : {len(fils)} fils en tout, sans guirlande.</p>
+<p class="petit">Chaque module a ainsi une partie de ses fils sur A et l'autre sur D : le tableau « Les câbles des modules », en fin de document,
+dit où va chaque fil. Sur un rail de D, n'importe quelle broche convient.</p>
 </div>
 </div>
 
 <h2 class="saut">Le recto : où poser chaque composant</h2>
 <p class="petit legende"><span><b style="color:#e5484d">○</b> broche 1 (ou plot repéré)</span><span>Bleu : bornier à vis</span><span>Noir : barrette mâle</span><span>Gris foncé : barrette femelle de l'ESP32</span>
 <span>Pointillés : la carte ESP32 au-dessus (elle déborde de quelques millimètres à gauche, c'est normal : l'antenne reste dégagée)</span></p>
-<div class="note" style="margin-bottom:4px"><b>J1</b> : le <b>+</b> à droite (B23), le <b>−</b> à gauche (B21) — marquez le + au feutre rouge sur le bornier. <b>J14</b> est posé à l'envers :
-sa broche 1 est à <b>droite</b> (E24), le câble vers la plaque B reste droit (broche 1 face à broche 1). <b>J12</b> : le <b>+</b> à droite (P24).
-R3, R4 et C1 se couchent à plat : ils passent sous le bord de l'ESP32.</div>
+<div class="note" style="margin-bottom:4px">En haut, de gauche à droite : <b>J2</b> (écran), <b>J3</b> (sélection des lecteurs RFID), <b>J14</b> (son),
+<b>J16</b> (vers la plaque D). En bas : <b>J8</b> (molette, clé, gros bouton), <b>J15</b> (I2C), <b>J7</b> (données des LED). R4 et R3 se couchent à plat,
+sous les connecteurs du bas. Plus de bornier sur A : le 5 V arrive par la plaque D.</div>
 {svg(recto(), "Recto de la plaque A")}
 
 
 
 {corps}
+<h2 class="saut">Les câbles des modules : sur A ou sur D</h2>
+<p class="petit">Chaque fil Dupont d'un module se branche soit sur un connecteur de la <b style="color:#2e6fd1">plaque A</b> (son signal propre),
+soit sur un <b style="color:#a3392b">rail de la plaque D</b> (n'importe quelle broche libre du rail). Les modules eux-mêmes ne changent pas.</p>
+<div class="colonnes">{table_modules()}</div>
 <h2 class="saut">Le verso terminé (pour la vérification finale)</h2>
 <p class="petit legende"><span>{puce("5V")}5 V</span><span>{puce("GND")}masse</span><span>{puce("3V3")}3,3 V</span><span>{puce("MOSI")}MOSI (23)</span>
 <span>{puce("MISO")}MISO (19)</span><span>{puce("SCK")}SCK (18)</span><span>{puce("DIN")}LED</span><span>{puce("G5")}les autres signaux</span>

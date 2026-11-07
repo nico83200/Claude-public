@@ -46,7 +46,7 @@ def poser(cid, titre, genre, rang, col0, signaux, sens=1, vertical=False, etape=
 # plaque A), puis les départs J11a à J11h (les modules) et J11i, J11j (la réserve).
 BUS = ["3V3", "GND", "SDA", "SCL"]
 BUS_N = ["3,3 V", "GND", "SDA", "SCL"]
-DEPARTS = [("J15", "J15 · arrivée depuis la plaque A", 1)] + [
+DEPARTS = [("J15", "J15 · arrivée depuis les plaques A et D", 1)] + [
     ("J11" + l, f"J11{l} · {m}", 1) for l, m in zip("abcdefghij", [
         "clavier (PCF8574)", "tiroir (PCA9685)", "boutons (PCF8574)", "forge (BME280)", "enclume (QMC5883L)",
         "horloge (HT16K33)", "œil (APDS-9960)", "couleur (TCS34725)", "réserve", "réserve"])]
@@ -96,7 +96,7 @@ TESTS = {
     1: ["Les onze barrettes sont droites et à la même hauteur ; la broche 1 de chacune est en rangée C (point de peinture du même côté)."],
     2: ["Bip entre C4 (J15-1) et C24 (J11j-1) ; de même entre D4 et D24, E4 et E24, F4 et F24.",
         "<b>Pas de bip</b> entre deux rails voisins (C et D, D et E, E et F), ni entre C et F.",
-        "Branchez le câble J15 depuis la plaque A et allumez : 3,2 à 3,4 V entre C et D sur un départ quelconque.",
+        "Branchez J15-1 et J15-2 sur les rails 3,3 V et masse de la plaque D, J15-3 et J15-4 sur le J15 (SDA, SCL) de la plaque A, et allumez : 3,2 à 3,4 V entre C et D sur un départ quelconque.",
         "Branchez le clavier sur J11a : le journal série de l'ESP32 trouve le module 0x20. Puis les autres modules, un par un."],
 }
 
@@ -422,31 +422,31 @@ def page():
 <title>Plaque C trou par trou</title>
 <link rel="stylesheet" href="commun.css">
 <style>
-  @page {{{{ size: A4 landscape; margin: 10mm 11mm 12mm; }}}}
-  body {{{{ font-size: 9.2pt; }}}}
-  .couverture {{{{ background: var(--vert); color: #fff; border-radius: 10px; padding: 12px 18px; margin-bottom: 8px; }}}}
-  .couverture h1 {{{{ color: #fff; margin: 0; font-size: 21pt; }}}}
-  .couverture p {{{{ color: #f2d9a6; margin: 3px 0 0; }}}}
-  h2 {{{{ break-after: avoid; border-bottom: 2px solid var(--or); padding-bottom: 2px; margin: 10px 0 5px; }}}}
-  h3 {{{{ break-after: avoid; margin: 8px 0 3px; }}}}
-  .saut {{{{ break-before: page; }}}}
-  table {{{{ width: 100%; border-collapse: collapse; font-size: 8.1pt; }}}}
-  th {{{{ background: var(--vert); color: #fff; text-align: left; padding: 3px 5px; }}}}
-  td {{{{ border-bottom: 1px solid var(--filet); padding: 2.2px 5px; vertical-align: top; }}}}
-  tr {{{{ break-inside: avoid; }}}}
-  td.q, th.q {{{{ width: 26px; text-align: right; color: var(--gris); }}}}
-  .g {{{{ color: var(--gris); font-weight: 400; }}}}
-  .c {{{{ display: inline-block; width: 9px; height: 9px; border-radius: 2px; border: 1px solid #0003; vertical-align: -1px; margin-right: 4px; }}}}
-  .note {{{{ background: #fbf7ee; border-left: 4px solid var(--or); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}}}
-  .alerte {{{{ background: #fbeceb; border-left: 4px solid var(--rouge); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}}}
-  .test {{{{ background: #eef3ec; border-left: 4px solid var(--vert); padding: 4px 10px; margin: 5px 0 10px; font-size: 8.4pt; }}}}
-  .test ul {{{{ margin: 2px 0 0 16px; padding: 0; }}}}
-  .cote {{{{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: start; }}}}
-  .cote table {{{{ font-size: 7.6pt; }}}}
-  .deux {{{{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; align-items: start; }}}}
-  .petit {{{{ font-size: 8.2pt; margin: 2px 0 5px; }}}}
-  .legende span {{{{ margin-right: 12px; white-space: nowrap; }}}}
-  svg text {{{{ font-family: "Source Sans", sans-serif; }}}}
+  @page {{ size: A4 landscape; margin: 10mm 11mm 12mm; }}
+  body {{ font-size: 9.2pt; }}
+  .couverture {{ background: var(--vert); color: #fff; border-radius: 10px; padding: 12px 18px; margin-bottom: 8px; }}
+  .couverture h1 {{ color: #fff; margin: 0; font-size: 21pt; }}
+  .couverture p {{ color: #f2d9a6; margin: 3px 0 0; }}
+  h2 {{ break-after: avoid; border-bottom: 2px solid var(--or); padding-bottom: 2px; margin: 10px 0 5px; }}
+  h3 {{ break-after: avoid; margin: 8px 0 3px; }}
+  .saut {{ break-before: page; }}
+  table {{ width: 100%; border-collapse: collapse; font-size: 8.1pt; }}
+  th {{ background: var(--vert); color: #fff; text-align: left; padding: 3px 5px; }}
+  td {{ border-bottom: 1px solid var(--filet); padding: 2.2px 5px; vertical-align: top; }}
+  tr {{ break-inside: avoid; }}
+  td.q, th.q {{ width: 26px; text-align: right; color: var(--gris); }}
+  .g {{ color: var(--gris); font-weight: 400; }}
+  .c {{ display: inline-block; width: 9px; height: 9px; border-radius: 2px; border: 1px solid #0003; vertical-align: -1px; margin-right: 4px; }}
+  .note {{ background: #fbf7ee; border-left: 4px solid var(--or); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}
+  .alerte {{ background: #fbeceb; border-left: 4px solid var(--rouge); padding: 5px 10px; margin: 5px 0; font-size: 8.6pt; }}
+  .test {{ background: #eef3ec; border-left: 4px solid var(--vert); padding: 4px 10px; margin: 5px 0 10px; font-size: 8.4pt; }}
+  .test ul {{ margin: 2px 0 0 16px; padding: 0; }}
+  .cote {{ display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: start; }}
+  .cote table {{ font-size: 7.6pt; }}
+  .deux {{ display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px; align-items: start; }}
+  .petit {{ font-size: 8.2pt; margin: 2px 0 5px; }}
+  .legende span {{ margin-right: 12px; white-space: nowrap; }}
+  svg text {{ font-family: "Source Sans", sans-serif; }}
 </style>
 </head>
 <body>
