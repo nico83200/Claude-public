@@ -86,38 +86,6 @@ def nu(signal, chemin, etape, titre):
     nus.append((signal, full, etape, titre))
 
 
-# Étape 1 : l'alimentation
-nu("GND", "B3 B21", 1, "rail de masse du haut (rangée B)")
-nu("GND", "A3 B3", 2, "pont J2-2 → rail de masse")
-nu("GND", "D14 B14", 1, "pont GND de l'ESP32 → rail de masse")
-nu("GND", "B21 C21 C23 Q23", 1, "rail de masse de droite (colonne 23)")
-nu("GND", "Q3 Q23", 3, "rail de masse du bas (rangée Q)")
-nu("5V", "B23 B24 P24", 1, "rail 5 V de droite (colonne 24)")
-nu("GND", "P23 P22", 7, "pont J12 − → rail de masse")
-# Les barres de distribution : un seul fil part de la broche de l'ESP32, chaque connecteur a son trou.
-nu("3V3", "D15 H15", 3, "barre 3,3 V (sous l'ESP32)")
-nu("MOSI", "D1 F1 F5", 2, "barre MOSI (broche 23, sous l'ESP32)")
-nu("MISO", "D6 H6 H2", 2, "barre MISO (broche 19, sous l'ESP32)")
-nu("SCK", "D7 K7 K2", 2, "barre SCK (broche 18, sous l'ESP32)")
-# Les ponts entre broches voisines
-nu("3V3", "P2 R2", 3, "pont J8-1 → J3-1 (3,3 V)")
-nu("3V3", "R2 R3", 3, "pont J3-1 → J3-2 (RST du RC522 tenu à 3,3 V)")
-nu("3V3", "R10 R11", 3, "pont J4-1 → J4-2 (RST du RC522 tenu à 3,3 V)")
-nu("GND", "R4 Q4", 3, "pont J3-3 → rail de masse")
-nu("GND", "R12 Q12", 3, "pont J4-3 → rail de masse")
-nu("GND", "P8 Q8", 5, "pont J15-2 → rail de masse")
-nu("G26", "N9 P9", 5, "pont broche 26 → J15-3 (SDA)")
-nu("G27", "N10 P10", 5, "pont broche 27 → J15-4 (SCL)")
-nu("GND", "P3 Q3", 6, "pont J8-2 → rail de masse")
-nu("G34", "N4 P4", 6, "pont broche 34 → J8-3")
-nu("G35", "N5 P5", 6, "pont broche 35 → J8-4")
-nu("G32", "N6 P6", 6, "pont broche 32 → J8-5")
-nu("GND", "P13 Q13", 6, "pont J10-2 → rail de masse")
-nu("GND", "P16 Q16", 6, "pont J9-2 → rail de masse")
-nu("G39", "O15 P15", 6, "pont R4 → J9-1")
-nu("GND", "P19 Q19", 7, "pont J7-2 → rail de masse")
-nu("DIN", "O20 P20", 7, "pont R3 → J7-3")
-
 fils = []   # (n°, signal, de, à, étape, rôle, épais)
 _n = [0]
 
@@ -127,50 +95,57 @@ def fil(signal, a, b, etape, role, epais=False):
     fils.append((_n[0], signal, h(a), h(b), etape, role, epais))
 
 
-# Étape 1
-fil("5V", "N24", "N15", 1, "5 V → VIN de l'ESP32", True)
-# Étape 2 : l'écran et le tactile
-fil("5V", "D24", "A2", 2, "5 V → J2-1 (alimentation de l'écran)", True)
-fil("G5", "D8", "A4", 2, "broche 5 → J2-3 (CS de l'écran)")
-fil("EN", "N1", "A5", 2, "EN → J2-4 (RESET de l'écran)")
-fil("G21", "D5", "A6", 2, "broche 21 → J2-5 (DC de l'écran)")
-fil("MOSI", "F1", "A7", 2, "barre MOSI → J2-6")
-fil("SCK", "K2", "A8", 2, "barre SCK → J2-7")
-fil("G12", "N12", "A9", 2, "broche 12 → J2-8 (rétroéclairage)")
-fil("G4", "D11", "A10", 2, "broche 4 → J2-9 (CS de la carte SD)")
-fil("MOSI", "F2", "A11", 2, "barre MOSI → J2-10")
-fil("MISO", "H2", "A12", 2, "barre MISO → J2-11")
-fil("SCK", "K3", "A13", 2, "barre SCK → J2-12")
-fil("G14", "N11", "A15", 2, "broche 14 → J13-1 (CS du tactile)")
-fil("SCK", "K4", "A16", 2, "barre SCK → J13-2")
-fil("MOSI", "F3", "A17", 2, "barre MOSI → J13-3")
-fil("MISO", "H3", "A18", 2, "barre MISO → J13-4")
-fil("G15", "D13", "A19", 2, "broche 15 → J13-5 (réserve)")
-# Étape 3 : les lecteurs RFID
-fil("3V3", "E15", "P2", 3, "barre 3,3 V → J8-1, J3-1 et J3-2")
-fil("3V3", "F15", "R10", 3, "barre 3,3 V → J4-1 et J4-2")
-fil("MISO", "H4", "R5", 3, "barre MISO → J3-4")
-fil("MOSI", "F4", "R6", 3, "barre MOSI → J3-5")
-fil("SCK", "K5", "R7", 3, "barre SCK → J3-6")
-fil("G13", "N13", "R8", 3, "broche 13 → J3-7 (CS de la fente)")
-fil("MISO", "H5", "R13", 3, "barre MISO → J4-4")
-fil("MOSI", "F5", "R14", 3, "barre MOSI → J4-5")
-fil("SCK", "K6", "R15", 3, "barre SCK → J4-6")
-fil("G22", "D2", "R16", 3, "broche 22 → J4-7 (CS du lecteur à plat)")
-# Étape 4 : le son
-fil("G17", "D9", "E22", 4, "broche 17 → J14-3")
-fil("G16", "D10", "E21", 4, "broche 16 → J14-4")
-fil("G2", "D12", "E20", 4, "broche 2 → J14-5")
-fil("G36", "N2", "E19", 4, "broche 36 → J14-6")
-# Étape 5 : l'I2C
-fil("3V3", "G15", "P7", 5, "barre 3,3 V → J15-1")
-# Étape 6 : les commandes
-fil("G33", "N7", "P12", 6, "broche 33 → J10-1 (clé)")
-fil("G39", "N3", "O15", 6, "broche 39 → R4 et J9-1 (gros bouton)")
-fil("3V3", "H15", "O11", 6, "barre 3,3 V → R4")
-# Étape 7 : les LED et le servomoteur
-fil("G25", "N8", "O16", 7, "broche 25 → R3")
-fil("5V", "O24", "P18", 7, "5 V → J7-1 (LED)", True)
+# Aucun fil nu : chaque liaison est un fil isolé. Un signal qui va à plusieurs broches (la
+# masse, le 5 V, le 3,3 V, les lignes 18, 19 et 23 du bus SPI) passe de broche en broche, en
+# GUIRLANDE : chaque broche reçoit au plus deux fils, celui qui arrive et celui qui repart.
+# Les guirlandes se construisent étape par étape : un nouveau connecteur se raccroche à la
+# broche la plus proche du même signal déjà câblée qui a encore une place libre.
+SOURCES = {"5V": h("B23"), "GND": h("B21"), "3V3": h("D15")}
+SANS_FIL = {h("N14")}           # le GND du bas de l'ESP32 : relié à D14 dans la carte elle-même
+EPAIS = {"5V", "GND"}
+etape_pad = {t: et for _, _, _, trous, et in composants for t in trous}
+
+
+def nom_broche(t):
+    c, b, _ = pads[t]
+    if c.startswith("ESP"):
+        return f"broche {b}" if b not in ("GND", "3V3", "VIN", "EN") else b
+    if c in ("R3", "R4", "C1"):
+        return f"{c} ({nom(t)})"
+    return f"{c} {b}" if b in ("+", "−") else f"{c}-{b}"
+
+
+def guirlandes():
+    par_signal = {}
+    for t, (c, b, s) in pads.items():
+        if t in SANS_FIL or s in ("TX0", "RX0"):
+            continue
+        par_signal.setdefault(s, []).append(t)
+    degre = {}
+    for e in sorted(ETAPES_NUM):
+        for s, trous in sorted(par_signal.items()):
+            if s in SOURCES:
+                source = SOURCES[s]
+            else:
+                esp = [t for t in trous if pads[t][0].startswith("ESP")]
+                source = esp[0] if esp else min(trous, key=lambda t: (etape_pad[t], t))
+            relies = {t for t in trous if etape_pad[t] < e} | {source}
+            relies = {t for t in relies if etape_pad[t] <= e}
+            nouveaux = [t for t in trous if etape_pad[t] == e and t not in relies]
+            while nouveaux:
+                libres = [t for t in relies if degre.get(t, 0) < (1 if pads[t][0].startswith("ESP") and s not in SOURCES else 2)]
+                if not libres:
+                    libres = [t for t in relies if degre.get(t, 0) < 2]
+                d, a, b = min((abs(a[0] - b[0]) + abs(a[1] - b[1]), a, b) for a in libres for b in nouveaux)
+                fil(s, nom(a), nom(b), e, f"{nom_broche(a)} → {nom_broche(b)}", s in EPAIS)
+                degre[a] = degre.get(a, 0) + 1
+                degre[b] = degre.get(b, 0) + 1
+                relies.add(b)
+                nouveaux.remove(b)
+
+
+ETAPES_NUM = range(1, 8)
+guirlandes()
 
 INTERDITS_EN_PLUS = {(12, c) for c in range(1, 16)}  # rangée M : la variante d'ESP32 étroit y met ses broches
 # Chaque bout de fil isolé a son propre trou : un trou libre voisin de sa cible, où le fil
@@ -212,7 +187,7 @@ def placer_entrees():
                 u = min(cands)[1]
                 occ.add(u)
                 reseau[u] = sig
-                nus.append((sig, [u, t], et, f"pont du fil {n}"))
+                nus.append((sig, [u, t], et, f"queue du fil {n}"))
                 entrees[(n, k)] = ("trou", u, t)
                 bouts.append(u)
             else:
@@ -236,31 +211,31 @@ def bout_txt(n, k):
 
 
 ETAPES = {
-    1: ("L'alimentation et l'ESP32", "Bornier J1, barrettes femelles de l'ESP32, rails 5 V et masse, C1."),
-    2: ("L'écran et le tactile", "J2, J13, les trois barres SPI et leurs fils."),
-    3: ("Les deux lecteurs RFID", "J3, J4, la barre 3,3 V, le rail de masse du bas."),
+    1: ("L'alimentation et l'ESP32", "Bornier J1, barrettes femelles de l'ESP32, C1, et les premiers fils du 5 V et de la masse."),
+    2: ("L'écran et le tactile", "J2, J13 et leurs fils, dont les guirlandes des broches 23, 18 et 19."),
+    3: ("Les deux lecteurs RFID", "J3, J4, et leurs fils (les guirlandes SPI et le 3,3 V se prolongent jusqu'à eux)."),
     4: ("Le son (vers la plaque B)", "J14 et ses quatre fils."),
     5: ("Le bus I2C (vers la plaque C)", "J15."),
     6: ("La molette, le gros bouton et la clé", "J8, J9, J10 et R4."),
     7: ("Les LED et le servomoteur", "J7, R3 et le bornier J12."),
 }
 TESTS = {
-    1: ["Multimètre en position bip, <b>sans l'ESP32</b> : pas de bip entre B23 (+) et B21 (−) de J1.",
-        "Bip entre B21 et Q23, entre B21 et D14 ; bip entre B23 et P24, entre B23 et N15 (VIN).",
-        "Branchez le 5 V sur J1, toujours sans l'ESP32 : 5 V entre N15 (+) et D14 (−). Débranchez, enfoncez l'ESP32 (USB à droite), rebranchez : la LED rouge de l'ESP32 s'allume. Entre D15 et D14 : 3,3 V."],
-    2: ["Bip entre la broche 23 (D1) et J2-6, J2-10, J13-3 ; entre 18 (D7) et J2-7, J2-12, J13-2 ; entre 19 (D6) et J2-11, J13-4.",
-        "<b>Pas de bip</b> entre deux barres voisines (D1 et D6, D6 et D7), ni entre une barre et la masse.",
+    1: ["Multimètre en position bip, <b>sans l'ESP32</b> : pas de bip entre le + et le − de J1.",
+        "Bip entre J1 − et la broche GND du haut de l'ESP32 (D14) ; bip entre J1 + et VIN (N15).",
+        "Branchez le 5 V sur J1, toujours sans l'ESP32 : 5 V entre VIN (+) et GND (−). Débranchez, enfoncez l'ESP32 (USB à droite), rebranchez : sa LED rouge s'allume. Entre 3V3 et GND : 3,3 V."],
+    2: ["Bip entre la broche 23 et J2-6, J2-10, J13-3 ; entre 18 et J2-7, J2-12, J13-2 ; entre 19 et J2-11, J13-4.",
+        "<b>Pas de bip</b> entre 23, 18 et 19, ni entre l'une d'elles et la masse. Bip entre J1 + et J2-1, entre J1 − et J2-2.",
         "Branchez l'écran sur J2 et J13 : le logo, puis le menu ; le doigt sur la dalle fait réagir les menus. Avec la carte SD : le menu des mondes."],
-    3: ["Bip entre E15 (barre 3,3 V) et J3-1, J3-2, J4-1, J4-2, J8-1. Pas de bip entre la barre 3,3 V et la masse, ni avec le 5 V.",
-        "Bip entre D1 et J3-5, J4-5 ; D7 et J3-6, J4-6 ; D6 et J3-4, J4-4.",
+    3: ["Bip entre 3V3 et J3-1, J3-2, J4-1, J4-2. Pas de bip entre 3V3 et la masse, ni avec le 5 V.",
+        "Bip entre 23 et J3-5, J4-5 ; 18 et J3-6, J4-6 ; 19 et J3-4, J4-4.",
         "Branchez les deux RC522 : le journal série affiche leur version (0x91 ou 0x92, et non 0xFF) ; une carte passée dans la fente est lue."],
-    4: ["Bip entre B23 (5 V) et J14-1, entre B21 (masse) et J14-2.",
+    4: ["Bip entre J1 + et J14-1, entre J1 − et J14-2.",
         "Branchez la plaque B : le son d'accueil sort du haut-parleur."],
-    5: ["Bip entre E15 (3,3 V) et J15-1, entre Q3 (masse) et J15-2.",
+    5: ["Bip entre 3V3 et J15-1, entre J1 − et J15-2.",
         "Branchez la plaque C : le journal série liste les modules I2C trouvés (0x20, 0x21…)."],
-    6: ["Bip entre E15 (3,3 V) et J8-1. Résistance de R4 : environ 10 kΩ entre O11 et O15.",
+    6: ["Bip entre 3V3 et J8-1, entre J1 − et J8-2, J9-2, J10-2. Résistance de R4 : environ 10 kΩ entre ses deux pattes.",
         "Branchez la molette, le gros bouton et la clé : le menu « Tester le pupitre » les voit."],
-    7: ["Bip entre B23 et J7-1, entre B23 et J12 + ; bip entre B21 et J7-2, J12 −. Environ 330 Ω entre O16 et O20.",
+    7: ["Bip entre J1 + et J7-1, J12 + ; entre J1 − et J7-2, J12 −. Environ 330 Ω entre les deux pattes de R3.",
         "Branchez l'anneau de LED : il s'allume au démarrage. Branchez le servomoteur (par le PCA9685) : le tiroir s'ouvre au test."],
 }
 
@@ -296,8 +271,9 @@ def verifier():
             if reseau.get(t) != s:
                 erreurs.append(f"fil {n} : le bout {nom(t)} est {reseau.get(t)}, pas {s}")
             bouts[t] = bouts.get(t, 0) + 1
-            if bouts[t] > 1:
-                erreurs.append(f"fil {n} : deux fils soudés sur {nom(t)}")
+            # deux fils au plus sur une même broche (enroulés l'un après l'autre), jamais trois
+            if bouts[t] > (2 if t in pads else 1):
+                erreurs.append(f"fil {n} : trop de fils soudés sur {nom(t)}")
         unir(a, b)
     # Les deux GND de l'ESP32 sont reliés dans la carte elle-même.
     unir(h("D14"), h("N14"))
@@ -464,11 +440,15 @@ def verso(e=None):
             x, y = xy(t, True)
             s.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.3" fill="{"#e6e6e6" if st == "vif" else "#b8b8b8"}" stroke="#777" stroke-width=".6"/>')
     # Les fils nus
-    for sig, trous, et, _ in nus:
+    for sig, trous, et, titre_q in nus:
         st = etat(et)
         if not st:
             continue
         pts = " ".join(f"{xy(t, True)[0]:.1f},{xy(t, True)[1]:.1f}" for t in trous)
+        if titre_q.startswith("queue du fil"):
+            if st == "vif":
+                s.append(f'<polyline points="{pts}" fill="none" stroke="{coul(sig)}" stroke-width="1.3" stroke-dasharray="1.4 .8"/>')
+            continue
         if st == "fait":
             s.append(f'<polyline points="{pts}" fill="none" stroke="#9a9a9a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>')
             continue
@@ -500,16 +480,6 @@ def verso(e=None):
         s.append(f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="4.4" fill="#fff" stroke="{coul(sig)}" stroke-width="1"/>'
                  f'<text x="{tx:.1f}" y="{ty + 2.2:.1f}" font-size="6" text-anchor="middle" font-weight="700" fill="#222">{n}</text>')
     # Les noms des rails et des barres (vus du verso : la droite et la gauche sont inversées)
-    for ref, dx, dy, txt, sig, et in [("F3", 0, -5, "barre MOSI (23)", "MOSI", 2), ("H4", 0, -5, "barre MISO (19)", "MISO", 2),
-                                       ("K4", 0, 10, "barre SCK (18)", "SCK", 2), ("G15", -6, 2, "barre 3,3 V", "3V3", 3),
-                                       ("B12", 0, -4.5, "rail de masse", "GND", 1), ("Q13", 0, 10, "rail de masse", "GND", 3),
-                                       ("K24", -6, 2, "5 V", "5V", 1), ("K23", 6, 2, "masse", "GND", 1)]:
-        if etat(et) != "vif":
-            continue
-        x, y = xy(h(ref), True)
-        anc = "middle" if dx == 0 else ("start" if dx > 0 else "end")
-        s.append(f'<text x="{x + dx:.1f}" y="{y + dy:.1f}" font-size="6.5" text-anchor="{anc}" font-weight="700" fill="{coul(sig)}" '
-                 f'paint-order="stroke" stroke="#fff" stroke-width="2.2">{txt}</text>')
     return s
 
 
@@ -567,7 +537,7 @@ def tables():
             lignes.append(f"<tr><td class='q'>{len(trous)}</td><td><b>{t_}</b> — {desc}</td><td>{places}</td></tr>")
             n_pts += len(trous)
         for sig, trous, et, titre_nu in nus:
-            if et != e or titre_nu.startswith("pont du fil"):
+            if et != e or titre_nu.startswith("queue du fil"):
                 continue
             libres = [t for t in trous if t not in pads]
             lignes.append(f"<tr><td class='q'>{len(trous)}</td><td>{puce(sig)}<b>Fil nu</b> : {titre_nu}</td>"
@@ -603,15 +573,28 @@ def page():
         ns = [str(f[0]) for f in fils if f[1] == sig]
         return ", ".join(ns[:-1]) + " et " + ns[-1]
     rang_n = ", ".join(sorted({str(n) for (n, k), v in entrees.items() if v[2][0] == 13}, key=int))
-    ponts_partages = """
-<table><tr><th>Broche de l'ESP32</th><th>Elle part vers</th><th>Comment</th></tr>
-<tr><td>{p}<b>23 · MOSI</b> (D1)</td><td>J2-6, J2-10, J13-3, J3-5, J4-5</td><td>Un fil nu descend de D1 à F1 puis longe la rangée F jusqu'à F5 : la <b>barre MOSI</b>. Les fils {nm} arrivent chacun dans son trou, F1 à F5.</td></tr>
-<tr><td>{q}<b>19 · MISO</b> (D6)</td><td>J2-11, J13-4, J3-4, J4-4</td><td>Fil nu de D6 à H6, puis de H6 à H2 : la <b>barre MISO</b>. Fils {ni} dans H2 à H5.</td></tr>
-<tr><td>{r}<b>18 · SCK</b> (D7)</td><td>J2-7, J2-12, J13-2, J3-6, J4-6</td><td>Fil nu de D7 à K7, puis de K7 à K2 : la <b>barre SCK</b>. Fils {nk} dans K2 à K6.</td></tr>
-<tr><td>{s}<b>3V3</b> (D15)</td><td>J3, J4, J8, J15, R4</td><td>Fil nu de D15 à H15 : la <b>barre 3,3 V</b>. Fils {n3} dans E15 à H15. J8-1 et J3 se partagent un seul fil (pont P2 → R2).</td></tr>
-<tr><td>{t}<b>VIN</b> et le 5 V</td><td>J2-1, J14-1, J7-1, J12 +</td><td>Le 5 V ne passe pas par l'ESP32 : il part du <b>rail 5 V</b> (colonne 24), qui va de J1 à J12. Fils épais {n5} vers VIN, l'écran et les LED.</td></tr>
-<tr><td>{u}<b>GND</b></td><td>tout le reste</td><td>Trois rails de masse en fil nu (rangée B, colonne 23, rangée Q) ; chaque connecteur s'y raccroche par un petit pont.</td></tr>
-</table>""".format(p=puce("MOSI"), q=puce("MISO"), r=puce("SCK"), s=puce("3V3"), t=puce("5V"), u=puce("GND"), nm=liste("MOSI"), ni=liste("MISO"), nk=liste("SCK"), n3=liste("3V3"), n5=liste("5V"))
+    def chemin(sig):
+        """La guirlande d'un signal, de broche en broche, depuis sa source (un arbre sans branche à plus de 2 fils)."""
+        voisins = {}
+        for n, sg, a, b, *_ in fils:
+            if sg != sig:
+                continue
+            ta, tb = entrees[(n, 0)][2], entrees[(n, 1)][2]
+            voisins.setdefault(ta, []).append(tb)
+            voisins.setdefault(tb, []).append(ta)
+        depart = SOURCES.get(sig) or next(t for t in voisins if pads[t][0].startswith("ESP"))
+        vus, ordre, pile = set(), [], [depart]
+        while pile:
+            t = pile.pop()
+            if t in vus:
+                continue
+            vus.add(t)
+            ordre.append(t)
+            pile.extend(sorted(voisins.get(t, []), reverse=True))
+        return " → ".join(nom_broche(t) for t in ordre)
+    ponts_partages = "<table><tr><th>Signal</th><th>La guirlande, de broche en broche</th></tr>" + "".join(
+        f"<tr><td>{puce(sg)}<b>{lib}</b></td><td>{chemin(sg)}</td></tr>"
+        for sg, lib in (("MOSI", "23 · MOSI"), ("MISO", "19 · MISO"), ("SCK", "18 · SCK"), ("3V3", "3,3 V"), ("5V", "5 V"), ("GND", "Masse"))) + "</table>"
     return f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -658,30 +641,28 @@ Les <b>colonnes</b> vont de <b>1 à 24</b>, les <b>rangées</b> de <b>A à R</b>
 <b>vu du recto</b> (le côté des composants), colonne 1 à gauche. Écrivez au feutre « 1 », « 24 », « A » et « R » dans les coins des deux faces avant de commencer.</p>
 <p class="petit"><b>Le verso</b> (côté soudures) est dessiné tel que vous le voyez en retournant la plaque <b>comme une page de livre</b> :
 la colonne 1 passe à droite. Les coordonnées restent les mêmes.</p>
-<p class="petit"><b>Trois sortes de liaisons</b>, toutes au verso :</p>
-<ul class="petit" style="margin:0 0 4px 16px;padding:0">
-<li><b>Fil nu</b> (trait de couleur cerné de blanc) : fil de cuivre étamé de 0,5 à 0,6 mm, couché le long des trous et soudé à <b>chaque</b> trou qu'il traverse (les petits points).</li>
-<li><b>Pont</b> : un fil nu de 2 ou 3 trous entre deux pastilles voisines (ou un pont d'étain si elles se touchent presque).</li>
-<li><b>Fil isolé numéroté</b> (courbe avec un numéro) : couché à plat sur le verso, chaque bout dans son propre trou d'entrée, relié à sa broche par un pont (encadré ci-dessous). Il peut passer par-dessus les fils nus : son isolant le protège.</li>
-</ul>
+<p class="petit"><b>Une seule sorte de liaison : le fil isolé numéroté</b>, au verso. <b>Aucun fil nu</b>, aucun pont d'étain : chaque fil va d'une
+broche à une autre, couché à plat, et peut croiser les autres (leur isolant les protège). Les fils de la masse et du 5 V sont en <b>22 AWG</b>,
+les autres en fil fin (26 à 30 AWG).</p>
 <div class="alerte"><b>Avant toute soudure</b>, posez l'ESP32 sur ses deux barrettes femelles et enfoncez celles-ci dans la plaque : la rangée du haut en <b>D1 à D15</b>,
 la rangée du bas doit tomber en <b>N1 à N15</b> (9 trous libres entre les deux). Si elle tombe en <b>M</b> (ESP32 plus étroit, 22,9 mm), soudez-la en M :
-tout le reste du plan est inchangé : les fils nus et les ponts qui arrivent à une broche de la rangée N (vers J8, J15, et les ponts des fils
-{rang_n}) s'allongent d'un trou pour rejoindre la rangée M.</div>
+tout le reste du plan est inchangé : les fils {rang_n}, qui arrivent à une broche de la rangée N, se soudent sur la broche de la rangée M
+(leur trou d'entrée reste le même, leur bout dénudé va un trou plus loin).</div>
 <div class="note"><b>Comment souder un fil isolé sans faux contact.</b> Un fil n'est jamais posé sur une soudure déjà faite.
 <b>« entre en C5 »</b> : le bout dénudé (3 mm) passe par le trou libre <b>C5</b> depuis le verso, dépasse de 1 mm au recto (plié, il tient seul),
-et se soude au verso ; un <b>pont</b> (2 mm de fil nu, ou une chute de patte de résistance) relie ensuite ce trou à la pastille de la broche.
-<b>« enroulé sur la broche »</b> : pas de trou libre à côté (une barrette bordée par un rail) ; le bout dénudé fait un demi-tour serré autour
-de la broche qui dépasse au verso, <b>avant</b> de souder. <b>« enroulé sur le fil nu »</b> : de même autour du rail. Tirez doucement sur chaque
-fil une fois soudé : il ne doit pas bouger. Quand tout est testé, une goutte de colle chaude sur chaque fil, à 5 mm de sa soudure.</div>
-<div class="note"><b>Les sept étapes</b> — Soudez une étape, faites son test, puis passez à la suivante : une erreur se trouve tout de suite. Les fils nus se soudent avant les
-fils isolés de la même étape. « Pts » : le nombre de soudures de la ligne. Au total, environ <b>{total} soudures</b>.
+et se soude au verso ; dénudez-le sur 5 mm : ce qui dépasse au verso se couche jusqu'à la broche voisine et s'y soude. Le fil fait
+lui-même la liaison, tenu par son trou. <b>« enroulé sur la broche »</b> : pas de trou libre à côté ; le bout dénudé fait un demi-tour serré
+autour de la broche qui dépasse au verso, <b>avant</b> de souder. Deux fils sur une même broche : enroulez le premier, puis le second
+par-dessus, et soudez les deux ensemble. Tirez doucement sur chaque fil une fois soudé : il ne doit pas bouger. Quand tout est testé, une goutte de colle chaude sur chaque fil, à 5 mm de sa soudure.</div>
+<div class="note"><b>Les sept étapes</b> — Soudez une étape, faites son test, puis passez à la suivante : une erreur se trouve tout de suite. Dans une étape, soudez d'abord les
+connecteurs, puis les fils dans l'ordre de leur numéro. « Pts » : le nombre de soudures de la ligne. Au total, environ <b>{total} soudures</b>.
 La longueur des fils isolés est indicative (coupez 1 cm de plus, dénudez 2 mm à chaque bout).</div>
 </div>
 <div>
 <h2>Les fils qui arrivent sur la même broche</h2>
-<p class="petit">Jamais deux fils sur la même broche de l'ESP32 : une broche ne reçoit qu'<b>un seul</b> fil (ou un fil nu), qui file vers une
-<b>barre de distribution</b> cachée sous l'ESP32, au verso. Chaque connecteur a ensuite son propre trou sur la barre.</p>
+<p class="petit">Un signal qui va à plusieurs connecteurs passe <b>en guirlande</b>, de broche en broche : une broche reçoit <b>au plus deux fils</b>,
+celui qui arrive et celui qui repart. Une broche de l'ESP32 ne reçoit qu'<b>un seul</b> fil (deux pour le 3,3 V, la masse et VIN). Le courant ne
+passe que par les fils et les soudures, jamais par les contacts des connecteurs : la guirlande convient aussi au 5 V et à la masse des LED.</p>
 {ponts_partages}
 </div>
 </div>
@@ -703,8 +684,8 @@ R3, R4 et C1 se couchent à plat : ils passent sous le bord de l'ESP32.</div>
 <span>Cercles gris : soudures des broches · gros traits : fils isolés épais (22 AWG)</span></p>
 {svg(verso(), "Verso de la plaque A")}
 
-<div class="note"><b>Ce plan a été vérifié automatiquement</b> : chaque signal forme un seul morceau, aucun fil nu ne passe par la pastille d'un autre
-signal, et aucune pastille ne reçoit deux fils. Les broches TX0, RX0 et le GND du bas de l'ESP32 (N14) sont soudées mais ne reçoivent rien : c'est voulu
+<div class="note"><b>Ce plan a été vérifié automatiquement</b> : chaque signal forme un seul morceau, aucun fil ne relie deux signaux différents,
+et aucune broche ne reçoit plus de deux fils. Les broches TX0, RX0 et le GND du bas de l'ESP32 (N14) sont soudées mais ne reçoivent rien : c'est voulu
 (N14 est déjà relié à D14 dans l'ESP32).</div>
 </body>
 </html>
