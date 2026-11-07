@@ -29,6 +29,13 @@ const uint8_t PIN_WS2812          = 6;
 const uint8_t PIN_RELAIS_SAPIN    = 7;
 const uint8_t PIN_RELAIS_VOITURES = 8;
 const uint8_t PIN_LDR             = A0;
+const uint8_t PIN_INTER2          = 4;   // 2e interrupteur ON/OFF (si NB_INTERRUPTEURS = 2)
+
+// ------------------------- Commande des modes -------------------------
+// NB_INTERRUPTEURS = 2 : deux interrupteurs ON/OFF (D2 et D4) choisissent directement le mode
+// NB_INTERRUPTEURS = 1 : un seul bouton/interrupteur sur D2
+#define NB_INTERRUPTEURS 2
+const bool TYPE_INTERRUPTEUR = true;     // (avec 1 seul) true = interrupteur ON/OFF, false = bouton poussoir
 
 // ------------------------- Réglages -------------------------
 const bool     RELAIS_ACTIF_BAS = true;   // la plupart des modules relais chinois s'activent avec LOW
@@ -221,20 +228,46 @@ void signalerMode() {
   Serial.println(NOMS_MODES[mode]);
 }
 
+void changerMode(Mode nouveau) {
+  if (nouveau == mode) return;
+  mode = nouveau;
+  if (mode == MODE_AUTO) debutCycle = millis() - DUREE_JOUR;  // repart au crépuscule
+  signalerMode();
+}
+
+#if NB_INTERRUPTEURS == 2
+// Deux interrupteurs ON/OFF : la position choisit directement le mode
+//   D2 OFF + D4 OFF = AUTO   |  D2 ON + D4 OFF = NUIT
+//   D2 OFF + D4 ON  = FÊTE   |  D2 ON + D4 ON  = ARRÊT
+Mode lireModeInterrupteurs() {
+  uint8_t code = (digitalRead(PIN_BOUTON) == LOW ? 1 : 0)
+               | (digitalRead(PIN_INTER2) == LOW ? 2 : 0);
+  return (Mode)code;
+}
+
 void lireBouton(uint32_t now) {
-  static bool     etatPrec = HIGH;
+  static Mode     lu      = MODE_AUTO;
+  static uint32_t tChange = 0;
+  Mode lecture = lireModeInterrupteurs();
+  if (lecture != lu) { lu = lecture; tChange = now; }      // anti-rebond
+  else if (now - tChange > 80) changerMode(lu);
+}
+#else
+// Un bouton poussoir OU un interrupteur ON/OFF :
+// chaque appui (poussoir) ou chaque basculement (interrupteur) passe au mode suivant.
+void lireBouton(uint32_t now) {
+  static bool     etatPrec = digitalRead(PIN_BOUTON);
   static uint32_t tChange  = 0;
   bool lecture = digitalRead(PIN_BOUTON);
   if (lecture != etatPrec && now - tChange > 40) {   // anti-rebond
     tChange  = now;
     etatPrec = lecture;
-    if (lecture == LOW) {
-      mode = (Mode)((mode + 1) % NB_MODES);
-      if (mode == MODE_AUTO) debutCycle = millis() - DUREE_JOUR;  // repart au crépuscule
-      signalerMode();
+    if (lecture == LOW || TYPE_INTERRUPTEUR) {
+      changerMode((Mode)((mode + 1) % NB_MODES));
     }
   }
 }
+#endif
 
 // ------------------------- Programme principal -------------------------
 void setup() {
@@ -247,6 +280,7 @@ void setup() {
   pinMode(PIN_LAMPADAIRES, OUTPUT);
   pinMode(PIN_BUVETTE, OUTPUT);
   pinMode(PIN_BOUTON, INPUT_PULLUP);
+  pinMode(PIN_INTER2, INPUT_PULLUP);
 
   Serial.begin(115200);
   randomSeed(analogRead(A7));
@@ -257,7 +291,11 @@ void setup() {
   FastLED.clear(true);
 
   debutCycle = millis() - DUREE_JOUR;   // on démarre directement au crépuscule : effet garanti !
-  Serial.println(F("Village de Noel pret - Mode : AUTO"));
+#if NB_INTERRUPTEURS == 2
+  mode = lireModeInterrupteurs();       // démarre dans le mode choisi par les interrupteurs
+#endif
+  Serial.print(F("Village de Noel pret - Mode : "));
+  Serial.println(NOMS_MODES[mode]);
 }
 
 void loop() {

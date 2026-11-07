@@ -11,10 +11,20 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 | 3 cabanes WS2812B | **D6** | Cabane 1 : bougie / blanc chaud · Cabane 2 : guirlande multicolore · Cabane 3 : rouge ↔ vert. Elles s'allument une par une au crépuscule |
 | Sapin 9 V | Relais 1 sur **D7** | S'allume à la nuit tombée |
 | Feux des 3 voitures 9 V | Relais 2 sur **D8** | « Passent » de temps en temps la nuit (allumés 20–40 s, éteints 8–20 s) |
-| Bouton | **D2** → GND | Change de mode |
+| 2 interrupteurs ON/OFF | **D2** et **D4** → GND | Choisissent le mode |
 | Photorésistance (option) | **A0** | Le village s'allume tout seul quand la pièce s'assombrit |
 
-**Modes** (1 à 4 flashs bleus sur la 1ʳᵉ LED pour confirmer) :
+**Modes** avec 2 interrupteurs ON/OFF (1 à 4 flashs bleus sur la 1ʳᵉ LED pour confirmer) :
+
+| Inter D2 | Inter D4 | Mode |
+|---|---|---|
+| OFF | OFF | AUTO |
+| ON | OFF | NUIT |
+| OFF | ON | FÊTE |
+| ON | ON | ARRÊT |
+
+Avec un seul interrupteur : mettre `NB_INTERRUPTEURS 1`, chaque basculement passe au mode suivant (`TYPE_INTERRUPTEUR = false` pour un bouton poussoir).
+
 1. **AUTO** – cycle jour (2 min) → crépuscule (20 s) → nuit (8 min) → aube. Démarre au crépuscule.
 2. **NUIT** – tout allumé en permanence.
 3. **FÊTE** – arc-en-ciel + paillettes dans les cabanes, feux des voitures qui clignotent.
@@ -71,8 +81,8 @@ Calcul de **R** : mesurez le courant des lampadaires sous 3 V (2 piles AA font t
 - Côté puissance : le **+9 V** passe par COM → NO ; le (−) des éléments retourne au GND.
 - Si les relais fonctionnent « à l'envers », passez `RELAIS_ACTIF_BAS` à `false`.
 
-### Bouton & photorésistance (option)
-- Bouton entre D2 et GND (résistance de tirage interne activée).
+### Interrupteurs & photorésistance (option)
+- Chaque interrupteur ON/OFF a 2 pattes utiles : l'une sur D2 (ou D4), l'autre sur GND. Pas de résistance nécessaire (tirage interne activé). S'il a 3 pattes : celle du milieu sur GND, une des deux autres sur la broche.
 - LDR entre 5 V et A0, résistance 10 kΩ entre A0 et GND, puis `UTILISER_LDR = true`. Ajustez les seuils 600/300 dans `niveauNuit()` en regardant `analogRead(A0)`.
 
 ## Pour aller plus loin
