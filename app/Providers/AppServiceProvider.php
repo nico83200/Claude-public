@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ApplicationSetting;
+use App\Models\AuditLog;
 use App\Models\CalendarEvent;
 use App\Models\CareRecord;
 use App\Models\Expense;
@@ -20,6 +21,7 @@ use App\Services\Entitlements;
 use App\Services\HalfLeases;
 use App\Services\HorseAccess;
 use App\Services\IntegrationSettings;
+use App\Services\InvitationService;
 use App\Services\LessonCosts;
 use App\Services\LoadSimulation;
 use App\Services\MailDesign;
@@ -27,6 +29,9 @@ use App\Services\ToValidate;
 use App\Services\Upsell;
 use App\Support\Installation;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -58,6 +63,23 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Partages de chevaux en attente : ouverts d'office dès que l'adresse est vérifiée (2.53), et à chaque connexion
+        // (connexion Google/Apple, invitation reçue avant la mise à jour). Les demi-pensions restent à accepter.
+        Event::listen([Verified::class, Login::class], function ($event) {
+            if ($event->user instanceof User) {
+                app(InvitationService::class)->autoAcceptShares($event->user);
+            }
+        });
+        // Historique des actions : connexions et déconnexions (adresse IP, appareil).
+        Event::listen([Login::class, Logout::class], function ($event) {
+            if (! $event->user instanceof User) {
+                return;
+            }
+            AuditLog::create([
+                'user_id' => $event->user->id, 'action' => $event instanceof Login ? ($event->remember ? 'auth.login_remembered' : 'auth.login') : 'auth.logout',
+                'ip_address' => request()?->ip(), 'user_agent' => substr((string) request()?->userAgent(), 0, 250) ?: null,
+            ]);
+        });
         // Simulation de charge : aucun e-mail ne part vers les comptes de test (@simulation.invalid).
         Event::listen(MessageSending::class, function (MessageSending $event) {
             $to = $event->message->getTo();

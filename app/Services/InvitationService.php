@@ -18,7 +18,8 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Invitations par email : le jeton n'est stocké que sous forme de hash.
- * Un accès n'est créé qu'après acceptation par le compte correspondant à l'email invité.
+ * Partage d'un cheval (2.53) : accepté d'office pour un compte à l'adresse vérifiée, sinon dès que l'adresse l'est
+ * (la personne peut toujours le quitter). Demi-pension et invitation dans un espace : il faut toujours l'accord de la personne.
  */
 class InvitationService
 {
@@ -40,12 +41,39 @@ class InvitationService
         $this->ensureCanShare($org, $inviter, $email);
 
         $permissions = array_values(array_unique([Perm::HORSE_VIEW, ...array_intersect($permissions, Perm::shareableKeys())]));
-
-        return $this->create([
+        $data = [
             'type' => 'horse_access', 'email' => $email, 'horse_id' => $horse->id, 'organization_id' => $org->id,
             'permissions' => $permissions, 'label' => $label ? mb_substr(trim($label), 0, 60) : null, 'access_starts_at' => $startsAt, 'access_expires_at' => $expiresAt,
             'invited_by' => $inviter->id,
-        ], "Accès au dossier de {$horse->shortName()}", "{$inviter->name} vous invite à accéder au dossier du cheval {$horse->shortName()}".($label ? " ({$label})" : '').'.');
+        ];
+
+        // Compte existant à l'adresse vérifiée : partage ouvert tout de suite, la personne est prévenue (sans rien à valider).
+        $user = User::where('email', $email)->whereNotNull('email_verified_at')->first();
+        if ($user) {
+            [$invitation, $token] = $this->create($data, null, null);
+            $this->accept($invitation, $user, auto: true);
+
+            return [$invitation->fresh(), $token];
+        }
+
+        // Sinon, lien par e-mail : le partage s'ouvrira de lui-même dès l'inscription (adresse vérifiée).
+        return $this->create($data, "Accès au dossier de {$horse->shortName()}", "{$inviter->name} partage avec vous le dossier du cheval {$horse->shortName()}".($label ? " ({$label})" : '').'. Créez votre compte avec cette adresse : le dossier s\'y trouvera.');
+    }
+
+    /** Partages simples (pas une demi-pension) en attente pour cette personne, ouverts d'office une fois son adresse vérifiée. */
+    public function autoAcceptShares(User $user): int
+    {
+        if (! $user->hasVerifiedEmail()) {
+            return 0;
+        }
+        $leaseInvitations = HalfLease::whereNotNull('invitation_id')->pluck('invitation_id');
+        $count = 0;
+        foreach (Invitation::pending()->where('type', 'horse_access')->where('email', strtolower($user->email))->whereNotIn('id', $leaseInvitations)->get() as $invitation) {
+            $this->accept($invitation, $user, auto: true);
+            $count++;
+        }
+
+        return $count;
     }
 
     /** Proposition de demi-pension : l'invitation porte les conditions ; l'accès s'ouvre à l'acceptation, jusqu'au soir du dernier jour. */
@@ -101,11 +129,13 @@ class InvitationService
     }
 
     /** @return array{0: Invitation, 1: string} invitation + jeton en clair (envoyé par e-mail, et montré une fois à l'invitant pour un message ; lié à l'adresse invitée) */
-    private function create(array $data, string $title, string $body): array
+    private function create(array $data, ?string $title, ?string $body): array
     {
         $token = Str::random(48);
         $invitation = Invitation::create($data + ['token_hash' => hash('sha256', $token), 'expires_at' => now()->addDays(14)]);
-        $this->send($data['email'], $title, $body, route('invitations.show', $token));
+        if ($title !== null) {
+            $this->send($data['email'], $title, $body, route('invitations.show', $token));
+        }
 
         Audit::log('invitation.created', $invitation, ['email' => $data['email'], 'type' => $data['type']], $data['organization_id'] ?? null);
 
@@ -143,7 +173,8 @@ class InvitationService
         return Invitation::where('token_hash', hash('sha256', $token))->first();
     }
 
-    public function accept(Invitation $invitation, User $user): void
+    /** $auto : partage ouvert d'office (2.53) ; la personne reçoit « … partage … avec vous » au lieu d'une invitation à valider. */
+    public function accept(Invitation $invitation, User $user, bool $auto = false): void
     {
         if (! $invitation->isPending()) {
             throw ValidationException::withMessages(['invitation' => 'Cette invitation n\'est plus valable.']);
@@ -175,7 +206,15 @@ class InvitationService
             }
         });
 
-        Audit::log('invitation.accepted', $invitation, ['user' => $user->email], $invitation->organization_id);
+        Audit::log('invitation.accepted', $invitation, ['user' => $user->email] + ($auto ? ['auto' => true] : []), $invitation->organization_id);
+        if ($auto) {
+            $invitation->loadMissing(['horse', 'inviter']);
+            $user->notify(new AppNotification('invitation', ($invitation->inviter?->name ?? 'Quelqu\'un').' partage '.$invitation->horse?->shortName().' avec vous',
+                'Vous avez maintenant accès au dossier de '.$invitation->horse?->shortName().($invitation->label ? ' ('.$invitation->label.')' : '').'. Vous pouvez quitter ce partage à tout moment depuis « Partages ».',
+                $invitation->horse ? route('horses.show', $invitation->horse) : route('sharing.index')));
+
+            return;
+        }
         if (! $lease) {
             $invitation->inviter?->notify(new AppNotification('invitation_accepted', 'Invitation acceptée', "{$user->name} a accepté votre invitation.", null, false));
         }

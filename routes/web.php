@@ -467,6 +467,7 @@ Route::middleware(['auth', 'verified', 'org', 'super-admin', 'password.confirm']
     Route::get('/serveur', [Admin\SimulationController::class, 'status'])->name('simulation.status');
     Route::post('/simulation/navigation', [Admin\SimulationController::class, 'navigation'])->middleware('throttle:600,1')->name('simulation.navigation');
     Route::get('/journal', [Admin\AuditController::class, 'index'])->name('audit.index');
+    Route::get('/journal/export.csv', [Admin\AuditController::class, 'export'])->middleware('throttle:10,1')->name('audit.export');
     Route::get('/erreurs', [Admin\AuditController::class, 'errors'])->name('errors.index');
     Route::get('/demandes-rgpd', [Admin\DataRequestController::class, 'index'])->name('data-requests.index');
     Route::put('/demandes-rgpd/{dataRequest}', [Admin\DataRequestController::class, 'update'])->name('data-requests.update');

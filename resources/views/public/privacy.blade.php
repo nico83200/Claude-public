@@ -11,7 +11,7 @@
         <li>Compte : nom, email, mot de passe chiffré, préférences — exécution du contrat.</li>
         <li>Données des chevaux, soins, séances, dépenses et documents saisis — exécution du contrat.</li>
         <li>Facturation : gérée par Stripe ; aucune donnée de carte bancaire n'est stockée par l'application — obligations légales et contrat.</li>
-        <li>Journaux de sécurité (connexions, opérations sensibles) — intérêt légitime (sécurité), conservés 3 ans maximum.</li>
+        <li>Historique des actions (connexions, ajouts, modifications et suppressions, avec la date, l'adresse IP et l'élément concerné, sans le contenu saisi) — intérêt légitime (sécurité, assistance) : 1 an pour les actions courantes, 3 ans maximum pour les opérations sensibles (partages, administration, facturation, exports).</li>
     </ul>
     <h2>Partage</h2>
     <p>Les informations d'un cheval ne sont visibles que par les personnes auxquelles un accès a été explicitement donné (propriétaire, membres d'écurie selon leur rôle, demi-pensions avec droits choisis). L'administration de la plateforme n'a pas d'accès implicite au contenu métier.</p>

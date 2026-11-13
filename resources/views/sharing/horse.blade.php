@@ -56,7 +56,7 @@
                     </div>
                 @empty <p class="text-sm text-slate-500">Personne d'autre n'a accès à ce dossier via un partage.</p> @endforelse
                 @if ($invitations->isNotEmpty())
-                    <p class="mt-3 text-sm font-semibold">Invitations en attente</p>
+                    <p class="mt-3 text-sm font-semibold">En attente d'inscription</p><p class="text-xs text-slate-500">Le partage s'ouvrira de lui-même dès que la personne aura créé son compte avec cette adresse.</p>
                     @foreach ($invitations as $i)<div class="flex items-center justify-between py-1 text-sm"><span>{{ $i->email }} <span class="text-xs text-slate-500">expire le {{ $i->expires_at->format('d/m/Y') }}</span></span><span class="flex shrink-0 items-center gap-1"><form method="POST" action="{{ route('horses.sharing.invitations.resend', [$horse, $i]) }}">@csrf<button class="btn-ghost min-h-11 px-3 text-sm" data-invite-resend>Renvoyer</button></form><x-confirm-delete :action="route('horses.sharing.invitations.revoke', [$horse, $i])" label="Annuler" message="Annuler l'invitation ?" /></span></div>@endforeach
                 @endif
                 <p class="mt-3 text-xs text-slate-500">La révocation est immédiate.</p>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="space-y-4">
-            <x-section title="Inviter une autre personne (cavalier, coach, vétérinaire…)">
+            <x-section title="Partager avec une autre personne (cavalier, coach, vétérinaire…)">
                 <form method="POST" action="{{ route('horses.sharing.invite', $horse) }}" class="space-y-3">
                     @csrf
                     <p class="text-xs text-slate-500">Pour une demi-pension (jours, tarif, préavis), utilisez « Ajouter une demi-pension ».</p>
@@ -107,7 +107,7 @@
                     <x-field name="label" label="Libellé" value="Cavalier" help="Affiché dans la liste des accès." />
                     @include('sharing._perms', ['selected' => old('permissions', $presets['half_lease']), 'prefix' => 'permissions'])
                     <div class="grid grid-cols-2 gap-2"><x-field name="starts_at" type="date" label="Début de l'accès" /><x-field name="expires_at" type="date" label="Fin de l'accès" /></div>
-                    <button class="btn-primary w-full" @disabled(! $sharingIncluded || $upsell)>Envoyer l'invitation</button>
+                    <button class="btn-primary w-full" @disabled(! $sharingIncluded || $upsell)>Partager</button>
                     <p class="text-xs text-slate-500">La personne n'accédera ni à vos autres chevaux, ni à votre abonnement, ni à vos factures.</p>
                 </form>
             </x-section>

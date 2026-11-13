@@ -37,6 +37,9 @@ class PurgeData extends Command
         }
         DB::table('sync_operations')->where('created_at', '<', now()->subDays(180))->delete(); // ancien mode hors ligne
         DB::table('audit_logs')->where('created_at', '<', now()->subYears(3))->delete();
+        // Historique des saisies courantes et des connexions : 1 an.
+        DB::table('audit_logs')->where('created_at', '<', now()->subYear())
+            ->where(fn ($q) => $q->where('properties', 'like', '%"auto":true%')->orWhereIn('action', ['auth.login', 'auth.login_remembered', 'auth.logout']))->delete();
         // Consignes de l'assistant : texte et actions conservés 90 jours (l'audio n'est jamais stocké).
         DB::table('assistant_requests')->where('created_at', '<', now()->subDays(90))->delete();
         DB::table('notifications')->whereNotNull('read_at')->where('created_at', '<', now()->subYear())->delete();

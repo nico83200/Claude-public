@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\EnsureEmailVerifiedWithGrace;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\LoadCurrentOrganization;
+use App\Http\Middleware\RecordUserActions;
 use App\Http\Middleware\RedirectIfNotInstalled;
 use App\Http\Middleware\RedirectLegacyHost;
 use App\Http\Middleware\ResetRequestCaches;
@@ -24,15 +25,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(ResetRequestCaches::class);
         // Ancienne adresse (jackcie.nlapps.fr) → adresse actuelle, avant toute session ou maintenance.
         $middleware->prepend(RedirectLegacyHost::class);
-        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class]);
+        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class, RecordUserActions::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,
             'verified.grace' => EnsureEmailVerifiedWithGrace::class,
             'super-admin' => EnsureSuperAdmin::class,
         ]);
         // Webhook Stripe : authentifié par signature, pas par jeton CSRF.
-        // Boutons des notifications de rappel : adresse signée propre à la personne (le service worker n'a pas de jeton CSRF).
-        $middleware->validateCsrfTokens(except: ['stripe/webhook', 'connexion/apple/retour', 'push/recu', 'rappels/soins/*']);
+        // Boutons des notifications (rappel de soin, relance d'un point d'attention) : adresse signée propre à la personne (le service worker n'a pas de jeton CSRF).
+        $middleware->validateCsrfTokens(except: ['stripe/webhook', 'connexion/apple/retour', 'push/recu', 'rappels/soins/*', 'points-attention/*/mieux', 'points-attention/*/clos']);
         // Reprise d'une mise à jour restée en maintenance : accessible pendant la maintenance.
         $middleware->preventRequestsDuringMaintenance(except: ['maintenance/reprise']);
         // Cookie de contournement de la maintenance (mise à jour depuis l'administration) : lu en clair par le mode maintenance.

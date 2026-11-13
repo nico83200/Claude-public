@@ -25,6 +25,11 @@ class Invitation extends Model
         return $this->belongsTo(Role::class);
     }
 
+    public function acceptor()
+    {
+        return $this->belongsTo(User::class, 'accepted_by');
+    }
+
     public function inviter()
     {
         return $this->belongsTo(User::class, 'invited_by');

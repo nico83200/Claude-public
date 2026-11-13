@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\HorseAccessGrant;
 use App\Models\Invitation;
 use App\Services\InvitationService;
 use App\Support\Perm;
@@ -63,18 +64,18 @@ class MobileInstallTest extends TestCase
         $this->get(str_replace('/confirmer/'.$user->id.'/', '/confirmer/'.($user->id + 999).'/', $url))->assertForbidden();
     }
 
-    public function test_invitation_can_be_accepted_from_the_dashboard(): void
+    public function test_share_opens_without_accepting_from_the_dashboard(): void
     {
         $owner = $this->user();
         $horse = $this->horseFor($owner);
+        // 2.53 : un partage s'ouvre d'office pour un compte à l'adresse vérifiée, plus rien à accepter sur l'accueil.
         $guest = $this->user(['email' => 'cavaliere@exemple.fr']);
         app(InvitationService::class)->inviteToHorse($horse, $owner, 'cavaliere@exemple.fr', Perm::halfLeasePreset(), null, null, null);
         $invitation = Invitation::latest('id')->first();
 
-        $this->actingAs($this->user())->post(route('invitations.respond', $invitation), ['decision' => 'accept'])->assertNotFound();
-        $this->actingAs($guest)->get('/dashboard')->assertOk()->assertSee('Accepter');
-        $this->actingAs($guest)->post(route('invitations.respond', $invitation), ['decision' => 'accept'])->assertRedirect(route('horses.show', $horse));
-        $this->assertNotNull($invitation->fresh()->accepted_at);
+        $this->assertNotNull($invitation->accepted_at);
+        $this->assertTrue(HorseAccessGrant::where('horse_id', $horse->id)->where('user_id', $guest->id)->exists());
+        $this->actingAs($guest)->get('/dashboard')->assertOk()->assertDontSee('Accepter');
         $this->actingAs($guest)->post(route('invitations.respond', $invitation), ['decision' => 'accept'])->assertNotFound();
     }
 }

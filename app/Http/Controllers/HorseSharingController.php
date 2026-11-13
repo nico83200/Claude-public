@@ -78,10 +78,15 @@ class HorseSharingController extends Controller
         ]);
         // Budget du cheval : réservé au propriétaire.
         $data['permissions'] = array_values(array_intersect($data['permissions'] ?? [], Perm::shareableKeys()));
-        [, $token] = $invitations->inviteToHorse($horse, $request->user(), $data['email'], $data['permissions'] ?? [], $data['label'] ?? null, $data['starts_at'] ?? null, $data['expires_at'] ?? null);
+        [$invitation, $token] = $invitations->inviteToHorse($horse, $request->user(), $data['email'], $data['permissions'] ?? [], $data['label'] ?? null, $data['starts_at'] ?? null, $data['expires_at'] ?? null);
+
+        // Compte existant : partage ouvert tout de suite, rien à valider de son côté.
+        if ($invitation->accepted_at) {
+            return back()->with('success', 'Partage ouvert : '.$invitation->acceptor?->name.' a maintenant accès à '.$horse->shortName().' et en est prévenu.');
+        }
 
         // Lien montré une seule fois, à transmettre aussi par WhatsApp ou SMS (il ne fonctionne que pour l'adresse invitée).
-        return back()->with('success', 'Invitation envoyée par e-mail. L\'accès sera actif dès son acceptation.')
+        return back()->with('success', 'Partage envoyé par e-mail : il s\'ouvrira dès que la personne aura créé son compte avec cette adresse.')
             ->with('invite_link', ['url' => route('invitations.show', $token), 'email' => strtolower($data['email'])]);
     }
 
