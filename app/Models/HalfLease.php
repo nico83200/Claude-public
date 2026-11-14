@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use App\Services\RidingDays;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -18,7 +19,7 @@ class HalfLease extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
+    protected $casts = ['name' => PersonNameCast::class,
         'starts_on' => 'date', 'trial_ends_on' => 'date', 'ends_on' => 'date', 'weekdays' => 'array', 'permissions' => 'array',
         'monthly_amount' => 'decimal:2', 'skipped_months' => 'array', 'accepted_at' => 'datetime', 'answered_at' => 'datetime', 'days_applied_at' => 'datetime', 'trial_reminded_at' => 'datetime',
     ];

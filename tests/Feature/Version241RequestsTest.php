@@ -25,10 +25,10 @@ class Version241RequestsTest extends TestCase
     private function shared(string $plan = 'particulier'): array
     {
         Carbon::setTestNow('2026-10-17 09:00'); // samedi
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), $plan);
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND']);
+        $lea = $this->user(['name' => 'Léa Durand']);
         $grant = HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'permissions' => Perm::halfLeasePreset(), 'label' => 'Demi-pension']);
 
         return [$owner, $horse, $lea, $grant];
@@ -54,7 +54,7 @@ class Version241RequestsTest extends TestCase
     public function test_owner_sets_the_week_and_the_half_leaser_is_told(): void
     {
         [$owner, $horse, $lea] = $this->shared();
-        $this->actingAs($owner)->get(route('horses.riding-days', $horse))->assertOk()->assertSee('data-riding-week-form', false)->assertSee('Léa DURAND');
+        $this->actingAs($owner)->get(route('horses.riding-days', $horse))->assertOk()->assertSee('data-riding-week-form', false)->assertSee('Léa Durand');
         // Lundi et jeudi à Léa, mercredi au propriétaire.
         $this->actingAs($owner)->put(route('horses.riding-days.update', $horse), ['days' => [1 => $lea->id, 3 => $owner->id, 4 => $lea->id]])
             ->assertSessionHas('success');
@@ -81,7 +81,7 @@ class Version241RequestsTest extends TestCase
 
         // Agenda (semaine du 19 octobre) : les jours attribués apparaissent même sans rendez-vous.
         $html = $this->actingAs($owner)->get(route('calendar.index', ['view' => 'week', 'date' => '2026-10-19']))->assertOk()->getContent();
-        $this->assertMatchesRegularExpression('#data-riding-day="2026-10-19"[^>]*>Jour de Léa DURAND#', $html);
+        $this->assertMatchesRegularExpression('#data-riding-day="2026-10-19"[^>]*>Jour de Léa Durand#', $html);
         $this->assertMatchesRegularExpression('#data-riding-day="2026-10-21"[^>]*>Mon jour#', $html);
         $this->assertStringNotContainsString('data-riding-day="2026-10-20"', $html);
         // Côté Léa : « Mon jour » le lundi.
@@ -108,7 +108,7 @@ class Version241RequestsTest extends TestCase
         $this->actingAs($lea)->post(route('horses.riding-days.give', $horse), ['date' => '2026-10-19'])->assertSessionHas('success', 'Lundi 19 octobre laissé libre.');
         $this->fresh();
         $this->assertNull(app(RidingDays::class)->on($horse, '2026-10-19')['user']);
-        $this->assertNotNull($this->noteWith($owner, 'Léa DURAND laisse lundi 19 octobre libre pour Uni.'));
+        $this->assertNotNull($this->noteWith($owner, 'Léa Durand laisse lundi 19 octobre libre pour Uni.'));
         $this->actingAs($owner)->get(route('calendar.index', ['view' => 'week', 'date' => '2026-10-19']))->assertSee('Jour libre · échange');
 
         // Léa ne peut pas céder le mercredi du propriétaire, ni un jour passé.
@@ -119,7 +119,7 @@ class Version241RequestsTest extends TestCase
         $this->actingAs($owner)->post(route('horses.riding-days.give', $horse), ['date' => '2026-10-21', 'to' => $lea->id])->assertSessionHas('success');
         $this->fresh();
         $this->assertSame($lea->id, app(RidingDays::class)->on($horse, '2026-10-21')['user']->id);
-        $this->assertNotNull($this->noteWith($lea, 'Paul MARTIN vous laisse mercredi 21 octobre avec Uni.'));
+        $this->assertNotNull($this->noteWith($lea, 'Paul Martin vous laisse mercredi 21 octobre avec Uni.'));
         // Et le reprend : retour au jour habituel, l'échange disparaît.
         $this->actingAs($owner)->post(route('horses.riding-days.give', $horse), ['date' => '2026-10-21', 'to' => $owner->id]);
         $this->assertFalse(RidingDayChange::whereDate('date', '2026-10-21')->exists());
@@ -142,8 +142,8 @@ class Version241RequestsTest extends TestCase
         // Séance prévue lundi (jour de Léa) par le propriétaire : Léa est prévenue, avertissement affiché.
         $data = ['horse_id' => $horse->id, 'session_type' => 'free', 'planned_minutes' => 45];
         $this->actingAs($owner)->post(route('sessions.store'), $data + ['scheduled_at' => '2026-10-19 18:00'])
-            ->assertSessionHas('warning', 'C\'est le jour de monte de Léa DURAND : une notification lui a été envoyée.');
-        $this->assertNotNull($this->noteWith($lea, 'Paul MARTIN a prévu une séance avec Uni lundi 19 octobre à 18:00, votre jour de monte.'));
+            ->assertSessionHas('warning', 'C\'est le jour de monte de Léa Durand : une notification lui a été envoyée.');
+        $this->assertNotNull($this->noteWith($lea, 'Paul Martin a prévu une séance avec Uni lundi 19 octobre à 18:00, votre jour de monte.'));
 
         // Mercredi (son propre jour) ou une séance de Léa sur son lundi : personne n'est dérangé.
         $before = $this->ridingNotes($lea)->count();

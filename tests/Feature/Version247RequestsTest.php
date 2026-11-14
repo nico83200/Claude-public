@@ -32,7 +32,7 @@ class Version247RequestsTest extends TestCase
     private function accepted(User $owner, Horse $horse, User $lea, array $data = []): HalfLease
     {
         $this->actingAs($owner)->post(route('horses.half-leases.store', $horse), array_merge([
-            'name' => 'Léa DURAND', 'email' => $lea->email, 'starts_on' => '2026-11-01', 'notice_days' => 30, 'weekdays' => [2, 4],
+            'name' => 'Léa Durand', 'email' => $lea->email, 'starts_on' => '2026-11-01', 'notice_days' => 30, 'weekdays' => [2, 4],
             'monthly_amount' => '180', 'payment_day' => 5, 'first_month' => 'full', 'permissions' => Perm::halfLeasePreset(),
         ], $data))->assertSessionHasNoErrors();
         $lease = HalfLease::latest('id')->first();
@@ -45,10 +45,10 @@ class Version247RequestsTest extends TestCase
     private function setUpOwner(string $now = '2026-10-17 18:00'): array
     {
         Carbon::setTestNow($now);
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
 
         return [$owner, $horse, $lea];
     }
@@ -63,7 +63,7 @@ class Version247RequestsTest extends TestCase
         [$owner, $horse, $lea] = $this->setUpOwner();
         $lease = $this->accepted($owner, $horse, $lea);
         $rec = RecurringIncome::sole();
-        $this->assertSame([$lease->id, 'half_lease', '180.00', '2026-11-05', 'Léa DURAND'], [$rec->half_lease_id, $rec->category, $rec->amount, $rec->next_due_on->toDateString(), $rec->payer]);
+        $this->assertSame([$lease->id, 'half_lease', '180.00', '2026-11-05', 'Léa Durand'], [$rec->half_lease_id, $rec->category, $rec->amount, $rec->next_due_on->toDateString(), $rec->payer]);
         $this->assertSame(0, Income::count(), 'Rien de dû avant la première échéance.');
         $this->actingAs($owner)->get(route('half-leases.show', $lease))->assertSee('data-half-lease-fees', false)->assertSee('Prochaine mensualité : <strong class="text-slate-900">180,00 €</strong> le 5 novembre 2026', false);
 
@@ -96,7 +96,7 @@ class Version247RequestsTest extends TestCase
         $this->artisan('expenses:recurring');
         Carbon::setTestNow('2026-12-12 07:00');
         $this->artisan('reminders:send');
-        $this->assertContains('Demi-pension non reçue : Léa DURAND', $this->titles($owner));
+        $this->assertContains('Demi-pension non reçue : Léa Durand', $this->titles($owner));
     }
 
     public function test_first_month_prorata_and_month_without_fee(): void
@@ -117,7 +117,7 @@ class Version247RequestsTest extends TestCase
 
         // Nouveau tarif : il vaut pour les mensualités suivantes.
         $this->actingAs($owner)->put(route('half-leases.update', $lease), [
-            'name' => 'Léa DURAND', 'starts_on' => '2026-10-19', 'notice_days' => 30, 'weekdays' => [2, 4], 'monthly_amount' => '200', 'payment_day' => 5,
+            'name' => 'Léa Durand', 'starts_on' => '2026-10-19', 'notice_days' => 30, 'weekdays' => [2, 4], 'monthly_amount' => '200', 'payment_day' => 5,
             'first_month' => 'prorata', 'permissions' => Perm::halfLeasePreset(),
         ])->assertSessionHasNoErrors();
         Carbon::setTestNow('2027-02-05 07:00');
@@ -148,19 +148,19 @@ class Version247RequestsTest extends TestCase
     public function test_stable_horse_fee_on_the_monthly_statement(): void
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $manager = $this->user(['name' => 'Marc ROUX']);
+        $manager = $this->user(['name' => 'Marc Roux']);
         $stable = $this->stable($manager, 'Écurie des Pins');
         $manager->forceFill(['current_organization_id' => $stable->id])->save();
         $manager = $manager->fresh();
         $prince = $this->horseFor($manager, $stable, ['official_name' => 'PRINCE', 'usual_name' => 'Prince']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $lease = $this->accepted($manager, $prince, $lea, ['starts_on' => '2026-10-10', 'first_month' => 'prorata', 'monthly_amount' => '155']);
         $this->assertSame(0, RecurringIncome::count(), 'Cheval de l\'écurie : pas de recette, la mensualité va sur le relevé.');
         // Un cours avec l'enseignant de l'écurie, au nom de Léa.
         $jimmy = Professional::forceCreate(['organization_id' => $stable->id, 'first_name' => 'Jimmy', 'last_name' => 'BLANC', 'kind' => 'instructor']);
         $jimmy->rates()->create(['kind' => 'private_lesson', 'unit' => 'session', 'amount' => 40]);
         $this->actingAs($manager)->post(route('sessions.store'), ['horse_id' => $prince->id, 'scheduled_at' => '2026-10-14 10:00', 'session_type' => 'private_lesson',
-            'planned_minutes' => 45, 'instructor' => 'Jimmy BLANC', 'rider_id' => $lea->id])->assertSessionHasNoErrors();
+            'planned_minutes' => 45, 'instructor' => 'Jimmy Blanc', 'rider_id' => $lea->id])->assertSessionHasNoErrors();
 
         $this->actingAs($manager)->post(route('boarding.generate'), ['period' => '2026-10'])->assertSessionHas('success');
         $statement = BoardingStatement::where('owner_user_id', $lea->id)->sole();

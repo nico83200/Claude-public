@@ -18,7 +18,7 @@ class BudgetOwnerOnlyTest extends TestCase
 {
     private function setUpHorse(): array
     {
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
         $expense = Expense::forceCreate(['organization_id' => $horse->organization_id, 'author_id' => $owner->id, 'horse_id' => $horse->id,
@@ -31,7 +31,7 @@ class BudgetOwnerOnlyTest extends TestCase
     public function test_a_half_lease_never_sees_the_budget_even_with_old_rights(): void
     {
         [$owner, $horse, $expense] = $this->setUpHorse();
-        $lea = $this->user(['name' => 'Léa DURAND']);
+        $lea = $this->user(['name' => 'Léa Durand']);
         // Partage enregistré avant la 2.42.1 avec les droits budget cochés.
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Demi-pension', 'permissions' => [...Perm::halfLeasePreset(), Perm::EXPENSES_VIEW, Perm::EXPENSES_CREATE]]);
 

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use Illuminate\Database\Eloquent\Model;
 
 class HorseOwnership extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = ['started_on' => 'date', 'ended_on' => 'date', 'share_percent' => 'decimal:2'];
+    protected $casts = ['owner_name' => PersonNameCast::class, 'started_on' => 'date', 'ended_on' => 'date', 'share_percent' => 'decimal:2'];
 
     public function horse()
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use App\Casts\PhoneNumber;
 use App\Models\Concerns\HasClientUuid;
 use App\Models\Concerns\Versioned;
@@ -21,7 +22,7 @@ class Horse extends Model
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['version' => 1, 'sex' => 'unknown'];
 
-    protected $casts = [
+    protected $casts = ['emergency_contact_name' => PersonNameCast::class,
         'emergency_contact_phone' => PhoneNumber::class,
         'birth_date' => 'date',
         'archived_at' => 'datetime',

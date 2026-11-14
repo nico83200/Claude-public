@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use Illuminate\Database\Eloquent\Model;
 
 /** Pension d'un cheval dans une écurie : montant mensuel facturé à son propriétaire. */
@@ -9,7 +10,7 @@ class BoardingContract extends Model
 {
     protected $guarded = ['id', 'organization_id'];
 
-    protected $casts = ['starts_on' => 'date', 'ends_on' => 'date', 'monthly_amount' => 'decimal:2'];
+    protected $casts = ['owner_name' => PersonNameCast::class, 'starts_on' => 'date', 'ends_on' => 'date', 'monthly_amount' => 'decimal:2'];
 
     public function horse()
     {

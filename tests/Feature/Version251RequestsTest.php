@@ -36,10 +36,10 @@ class Version251RequestsTest extends TestCase
     {
         Carbon::setTestNow('2026-10-24 09:00');
         Storage::fake('local');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'multi-chevaux');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND']);
+        $lea = $this->user(['name' => 'Léa Durand']);
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Demi-pension', 'permissions' => [Perm::HORSE_VIEW, Perm::SESSIONS_CREATE, Perm::COMMENTS_CREATE, Perm::DAILYLOG_CREATE]]);
         $this->fresh();
 
@@ -74,7 +74,7 @@ class Version251RequestsTest extends TestCase
 
         // Avant même d'enregistrer : le message pour garder son calme et le vétérinaire du cheval.
         $this->actingAs($lea)->get(route('horses.observations.create', $horse))->assertOk()
-            ->assertSee('Gardez votre calme')->assertSee('Vétérinaire de Uni')->assertSee('href="tel:0611223344"', false)->assertDontSee('AUTRE');
+            ->assertSee('Gardez votre calme')->assertSee('Vétérinaire de Uni')->assertSee('href="tel:0611223344"', false)->assertDontSee('Bruno Autre');
 
         $this->open($lea, $horse, [], [UploadedFile::fake()->image('narine.jpg', 800, 600)])->assertRedirect()->assertSessionHas('success');
         $point = HealthObservation::sole();
@@ -103,7 +103,7 @@ class Version251RequestsTest extends TestCase
         $this->vet($horse, ['last_name' => 'BERNARD', 'phone' => '06 00 00 00 01']);
         $this->fresh();
         $this->actingAs($owner)->get(route('horses.observations.create', $horse))
-            ->assertSee('Vétérinaire de vos intervenants')->assertSee('BERNARD')->assertSee('href="tel:0600000001"', false)
+            ->assertSee('Vétérinaire de vos intervenants')->assertSee('Bernard')->assertSee('href="tel:0600000001"', false)
             ->assertSee('Indiquer le vétérinaire de Uni');
     }
 

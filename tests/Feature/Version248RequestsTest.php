@@ -30,12 +30,12 @@ class Version248RequestsTest extends TestCase
     {
         Carbon::setTestNow('2026-10-17 18:00');
         Storage::fake('local');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), $plan);
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->actingAs($owner)->post(route('horses.half-leases.store', $horse), [
-            'name' => 'Léa DURAND', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [2], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
+            'name' => 'Léa Durand', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [2], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
         ])->assertSessionHasNoErrors();
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept']);
@@ -68,14 +68,14 @@ class Version248RequestsTest extends TestCase
 
         // Fiche : liste et points à fournir.
         $this->actingAs($lea)->get(route('half-leases.show', $lease))->assertOk()->assertSee('data-half-lease-documents', false)
-            ->assertSee('Contrat signé · Léa DURAND')->assertSee('jusqu\'au 31/12/2026')->assertSee('à déposer');
+            ->assertSee('Contrat signé · Léa Durand')->assertSee('jusqu\'au 31/12/2026')->assertSee('à déposer');
         $this->actingAs($lea)->get(route('half-leases.documents.show', [$lease, $contract]))->assertOk();
         $this->actingAs($owner)->get(route('half-leases.documents.show', [$lease, $insurance]))->assertOk();
 
         // Ni la liste des documents du cheval, ni un membre qui voit les documents, ni un tiers.
         $assistant = $this->memberWith($horse, [Perm::HORSE_VIEW, Perm::DOCUMENTS_VIEW], 'Assistante');
         $this->fresh();
-        $this->actingAs($owner)->get(route('horses.documents.index', $horse))->assertOk()->assertDontSee('Attestation d\'assurance · Léa DURAND');
+        $this->actingAs($owner)->get(route('horses.documents.index', $horse))->assertOk()->assertDontSee('Attestation d\'assurance · Léa Durand');
         $this->actingAs($assistant)->get(route('horses.documents.download', [$horse, $insurance]))->assertNotFound();
         $this->actingAs($assistant)->get(route('half-leases.documents.show', [$lease, $insurance]))->assertNotFound();
         $this->actingAs($this->user())->get(route('half-leases.documents.show', [$lease, $insurance]))->assertNotFound();
@@ -93,12 +93,12 @@ class Version248RequestsTest extends TestCase
         $this->upload($lea, $lease, 'license', '2026-11-10');
         $this->artisan('reminders:send')->assertSuccessful();
         $this->artisan('reminders:send');
-        $this->assertSame(1, collect($this->titles($lea))->filter(fn ($t) => $t === 'Licence à renouveler : Léa DURAND')->count(), 'Une fois, dans les 30 jours.');
-        $this->assertContains('Licence à renouveler : Léa DURAND', $this->titles($owner));
+        $this->assertSame(1, collect($this->titles($lea))->filter(fn ($t) => $t === 'Licence à renouveler : Léa Durand')->count(), 'Une fois, dans les 30 jours.');
+        $this->assertContains('Licence à renouveler : Léa Durand', $this->titles($owner));
 
         Carbon::setTestNow('2026-11-11 07:00');
         $this->artisan('reminders:send');
-        $this->assertContains('Licence expirée : Léa DURAND', $this->titles($lea));
+        $this->assertContains('Licence expirée : Léa Durand', $this->titles($lea));
         $this->fresh();
         $this->actingAs($owner)->get(route('half-leases.show', $lease))->assertSee('Expirée');
     }

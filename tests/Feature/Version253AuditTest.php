@@ -20,7 +20,7 @@ class Version253AuditTest extends TestCase
 
     private function admin(): User
     {
-        $admin = $this->user(['name' => 'Super ADMIN']);
+        $admin = $this->user(['name' => 'Super Admin']);
         $admin->forceFill(['is_super_admin' => true])->save();
 
         return $admin;
@@ -28,7 +28,7 @@ class Version253AuditTest extends TestCase
 
     public function test_user_actions_are_recorded_without_form_content(): void
     {
-        $owner = $this->user(['name' => 'Paul MARTIN', 'email' => 'paul@exemple.fr']);
+        $owner = $this->user(['name' => 'Paul Martin', 'email' => 'paul@exemple.fr']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
         AuditLog::query()->delete();
@@ -71,8 +71,8 @@ class Version253AuditTest extends TestCase
     public function test_super_admin_searches_by_action_user_date_and_exports(): void
     {
         $admin = $this->admin();
-        $paul = $this->user(['name' => 'Paul MARTIN', 'email' => 'paul@exemple.fr']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $paul = $this->user(['name' => 'Paul Martin', 'email' => 'paul@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         AuditLog::query()->delete();
         AuditLog::create(['user_id' => $paul->id, 'action' => 'sessions.store', 'ip_address' => '92.184.1.1', 'properties' => ['auto' => true], 'created_at' => '2026-11-01 10:00']);
         AuditLog::create(['user_id' => $lea->id, 'action' => 'horses.care.destroy', 'ip_address' => '81.2.3.4', 'properties' => ['auto' => true], 'created_at' => '2026-11-10 18:00']);
@@ -82,7 +82,7 @@ class Version253AuditTest extends TestCase
         $page = fn (array $q) => $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get(route('admin.audit.index', $q))->assertOk();
         $page([])->assertSee('Historique des actions')->assertSee('Séance · ajout')->assertSee('Soin · suppression')->assertSee('3 actions');
         // Par libellé en clair (sans accents), par code, par personne (nom ou e-mail), par période, catégorie et IP.
-        $page(['q' => 'seance'])->assertSee('1 action')->assertSee('Paul MARTIN');
+        $page(['q' => 'seance'])->assertSee('1 action')->assertSee('Paul Martin');
         $page(['q' => 'suppression'])->assertSee('Soin · suppression')->assertDontSee('Séance · ajout');
         $page(['q' => 'horses.care'])->assertSee('1 action');
         $page(['user' => 'durand'])->assertSee('2 actions');
@@ -93,8 +93,8 @@ class Version253AuditTest extends TestCase
         $page(['q' => 'introuvable'])->assertSee('Aucune action ne correspond');
 
         $csv = $this->actingAs($admin)->withSession(['auth.password_confirmed_at' => time()])->get(route('admin.audit.export', ['user' => 'durand']))->assertOk()->streamedContent();
-        $this->assertStringContainsString('"Soin · suppression";horses.care.destroy;"Léa DURAND";lea@exemple.fr', $csv);
-        $this->assertStringNotContainsString('Paul MARTIN', $csv);
+        $this->assertStringContainsString('"Soin · suppression";horses.care.destroy;"Léa Durand";lea@exemple.fr', $csv);
+        $this->assertStringNotContainsString('Paul Martin', $csv);
         $this->assertSame(1, AuditLog::where('action', 'admin.audit_exported')->count());
     }
 

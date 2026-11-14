@@ -83,8 +83,8 @@ class NextVersionRequestsTest extends TestCase
 
     public function test_personal_space_carries_the_rider_name_and_follows_renames(): void
     {
-        $user = $this->user(['name' => 'Nicolas LEFEVRE']);
-        $this->assertSame('Nicolas LEFEVRE', $user->personalOrganization()->name);
+        $user = $this->user(['name' => 'Nicolas Lefevre']);
+        $this->assertSame('Nicolas Lefevre', $user->personalOrganization()->name);
 
         $this->actingAs($user)->put('/parametres/profil', ['name' => 'Nicolas Lefèvre', 'email' => $user->email])->assertSessionHasNoErrors();
         $this->assertSame('Nicolas Lefèvre', $user->personalOrganization()->name);

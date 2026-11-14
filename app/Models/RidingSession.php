@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use App\Models\Concerns\HasClientUuid;
 use App\Models\Concerns\Versioned;
 use App\Observers\RidingSessionObserver;
@@ -21,7 +22,7 @@ class RidingSession extends Model
     /** Valeurs par défaut (identiques à la base) disponibles dès la création. */
     protected $attributes = ['version' => 1, 'status' => 'planned'];
 
-    protected $casts = ['scheduled_at' => 'datetime', 'completed_at' => 'datetime', 'cancelled_at' => 'datetime', 'lesson_price' => 'decimal:2'];
+    protected $casts = ['rider_name' => PersonNameCast::class, 'scheduled_at' => 'datetime', 'completed_at' => 'datetime', 'cancelled_at' => 'datetime', 'lesson_price' => 'decimal:2'];
 
     /** Types proposés à la saisie d'une séance. */
     public const TYPES = ['private_lesson' => 'Cours particulier', 'group_lesson' => 'Cours collectif', 'free' => 'Monte libre', 'ride' => 'Balade'];

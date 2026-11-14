@@ -28,17 +28,17 @@ class Version243RequestsTest extends TestCase
     private function setUpStable(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
         $jimmy = $this->instructor($owner, [['private_lesson', 'session', 45, 40], ['private_lesson', 'hour', null, 50], ['group_lesson', 'session', null, 25], ['travel', 'visit', null, 15], ['coaching', 'round', null, 30]]);
-        $lea = $this->user(['name' => 'Léa DURAND']);
+        $lea = $this->user(['name' => 'Léa Durand']);
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Demi-pension', 'permissions' => Perm::halfLeasePreset()]);
 
         return [$owner, $horse, $jimmy, $lea];
     }
 
-    /** Enseignant « Jimmy BLANC » dans l'espace de la personne, avec ses tarifs [type, unité, durée, montant]. */
+    /** Enseignant « Jimmy Blanc » dans l'espace de la personne, avec ses tarifs [type, unité, durée, montant]. */
     private function instructor(User $user, array $rates): Professional
     {
         $pro = Professional::forceCreate(['organization_id' => $user->personalOrganization()->id, 'first_name' => 'Jimmy', 'last_name' => 'BLANC', 'kind' => 'instructor']);
@@ -51,7 +51,7 @@ class Version243RequestsTest extends TestCase
 
     private function lesson(User $by, Horse $horse, string $at, array $extra = [])
     {
-        return $this->actingAs($by)->post(route('sessions.store'), array_merge(['horse_id' => $horse->id, 'scheduled_at' => $at, 'session_type' => 'private_lesson', 'planned_minutes' => 45, 'instructor' => 'Jimmy BLANC'], $extra));
+        return $this->actingAs($by)->post(route('sessions.store'), array_merge(['horse_id' => $horse->id, 'scheduled_at' => $at, 'session_type' => 'private_lesson', 'planned_minutes' => 45, 'instructor' => 'Jimmy Blanc'], $extra));
     }
 
     private function fresh(): void
@@ -85,7 +85,7 @@ class Version243RequestsTest extends TestCase
         $this->assertSame($jimmy->id, $session->professional_id, 'Enseignant relié à sa fiche.');
         $charges = LessonCharge::where('payer_id', $owner->id)->orderBy('kind', 'desc')->get();
         $this->assertSame([['travel', '15.00'], ['private_lesson', '40.00']], $charges->map(fn ($c) => [$c->kind, $c->amount])->all());
-        $this->assertSame('Cours particulier 45 min avec Jimmy BLANC', $charges[1]->label);
+        $this->assertSame('Cours particulier 45 min avec Jimmy Blanc', $charges[1]->label);
         // Recopié dans le budget du cheval (catégorie « Cours et coaching »).
         $expenses = Expense::with('category')->where('horse_id', $horse->id)->get();
         $this->assertSame(['lessons', 'lessons'], $expenses->pluck('category.key')->all());
@@ -99,7 +99,7 @@ class Version243RequestsTest extends TestCase
 
         // Page « Frais de cours » et carte de la séance.
         $this->actingAs($owner)->get(route('lesson-costs.index'))->assertOk()->assertSee('105,00 €')->assertSee('aussi dans le budget du cheval');
-        $this->actingAs($owner)->get(route('sessions.show', $session))->assertOk()->assertSee('data-lesson-cost', false)->assertSee('Déplacement de Jimmy BLANC');
+        $this->actingAs($owner)->get(route('sessions.show', $session))->assertOk()->assertSee('data-lesson-cost', false)->assertSee('Déplacement de Jimmy Blanc');
     }
 
     public function test_half_lease_lesson_costs_stay_in_her_space(): void
@@ -132,8 +132,8 @@ class Version243RequestsTest extends TestCase
         $this->assertSame([$lea->id, $lea->id], LessonCharge::orderBy('id')->pluck('payer_id')->all(), 'À la charge de la cavalière : cours et déplacement.');
         $this->assertSame(0, Expense::where('horse_id', $horse->id)->count());
         $note = $lea->notifications()->get()->first(fn ($n) => $n->data['kind'] === 'lesson_cost' && str_contains($n->data['body'], 'Cours particulier'));
-        $this->assertStringContainsString('Paul MARTIN a noté « Cours particulier 45 min avec Jimmy BLANC » du 16 octobre avec Uni à votre charge : 40,00 €.', $note->data['body']);
-        $this->actingAs($owner)->get(route('sessions.show', $session))->assertSee('À la charge de Léa DURAND');
+        $this->assertStringContainsString('Paul Martin a noté « Cours particulier 45 min avec Jimmy Blanc » du 16 octobre avec Uni à votre charge : 40,00 €.', $note->data['body']);
+        $this->actingAs($owner)->get(route('sessions.show', $session))->assertSee('À la charge de Léa Durand');
 
         // Le propriétaire prend le cours à sa charge : frais déplacés chez lui, et dans son budget.
         $this->actingAs($owner)->put(route('sessions.cost', $session), ['payer_id' => $owner->id, 'lesson_price' => ''])->assertSessionHas('success');
@@ -214,7 +214,7 @@ class Version243RequestsTest extends TestCase
         $this->assertSame(0, LessonCharge::count(), 'Concours pas encore validé.');
         $this->actingAs($owner)->post(route('calendar.done', $event));
         $charge = LessonCharge::sole();
-        $this->assertSame(['coaching', '60.00', $owner->id, 'Coaching (2 parcours) avec Jimmy BLANC – CSO de Lyon'], [$charge->kind, $charge->amount, $charge->payer_id, $charge->label]);
+        $this->assertSame(['coaching', '60.00', $owner->id, 'Coaching (2 parcours) avec Jimmy Blanc – CSO de Lyon'], [$charge->kind, $charge->amount, $charge->payer_id, $charge->label]);
         $this->assertNotNull($charge->expense_id, 'Coaching du propriétaire : aussi dans son budget.');
         $this->actingAs($owner)->get(route('calendar.show', $event))->assertSee('data-event-coaching-cost', false)->assertSee('60,00 €');
         // Formulaire du concours : nombre de parcours coachés.

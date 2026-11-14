@@ -28,21 +28,21 @@ class Version245RequestsTest extends TestCase
     private function setUpStable(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $manager = $this->user(['name' => 'Marc ROUX']);
+        $manager = $this->user(['name' => 'Marc Roux']);
         $stable = $this->stable($manager, 'Écurie des Pins');
         $manager->forceFill(['current_organization_id' => $stable->id])->save();
-        $paul = $this->user(['name' => 'Paul MARTIN', 'email' => 'paul@exemple.fr']);
+        $paul = $this->user(['name' => 'Paul Martin', 'email' => 'paul@exemple.fr']);
         $this->grantLicense($paul->personalOrganization(), 'particulier');
         $horse = $this->horseFor($paul, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
         HorseOrganizationAssignment::create(['horse_id' => $horse->id, 'organization_id' => $stable->id, 'kind' => 'boarding',
             'permissions' => [...Perm::boardingPreset(), Perm::SESSIONS_CREATE], 'status' => 'active', 'starts_at' => now()->subYear()]);
-        $lea = $this->user(['name' => 'Léa DURAND']);
+        $lea = $this->user(['name' => 'Léa Durand']);
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Demi-pension', 'permissions' => Perm::halfLeasePreset()]);
         $jimmy = Professional::forceCreate(['organization_id' => $stable->id, 'first_name' => 'Jimmy', 'last_name' => 'BLANC', 'kind' => 'instructor']);
         $jimmy->rates()->create(['kind' => 'private_lesson', 'unit' => 'session', 'duration_minutes' => 45, 'amount' => 40]);
         $jimmy->rates()->create(['kind' => 'group_lesson', 'unit' => 'session', 'amount' => 25]);
         $manager = $manager->fresh();
-        $this->actingAs($manager)->post(route('boarding.contracts.store'), ['horse_id' => $horse->id, 'owner_name' => 'Paul MARTIN', 'owner_email' => 'paul@exemple.fr',
+        $this->actingAs($manager)->post(route('boarding.contracts.store'), ['horse_id' => $horse->id, 'owner_name' => 'Paul Martin', 'owner_email' => 'paul@exemple.fr',
             'label' => 'Pension box', 'monthly_amount' => '420', 'starts_on' => '2026-10-01'])->assertSessionHas('success');
 
         return [$manager, $stable, $paul, $horse, $lea];
@@ -53,7 +53,7 @@ class Version245RequestsTest extends TestCase
     {
         $this->fresh();
         $this->actingAs($by)->post(route('sessions.store'), array_filter(['horse_id' => $horse->id, 'scheduled_at' => $at, 'session_type' => $type,
-            'planned_minutes' => 45, 'instructor' => 'Jimmy BLANC', 'rider_id' => $rider?->id]))->assertSessionHasNoErrors();
+            'planned_minutes' => 45, 'instructor' => 'Jimmy Blanc', 'rider_id' => $rider?->id]))->assertSessionHasNoErrors();
     }
 
     private function fresh(): void
@@ -77,14 +77,14 @@ class Version245RequestsTest extends TestCase
         $this->lesson($manager, $school, '2026-10-09 10:00', null);
         $this->assertSame(['40.00', '40.00', '25.00', '40.00'], LessonCharge::orderBy('id')->pluck('amount')->all());
 
-        $this->actingAs($manager)->get(route('boarding.index', ['mois' => '2026-10']))->assertOk()->assertSee('data-stable-lessons', false)->assertSee('Léa DURAND')
+        $this->actingAs($manager)->get(route('boarding.index', ['mois' => '2026-10']))->assertOk()->assertSee('data-stable-lessons', false)->assertSee('Léa Durand')
             ->assertSee('Cours collectif');
         $this->actingAs($manager)->post(route('boarding.generate'), ['period' => '2026-10'])->assertSessionHas('success');
         $this->assertSame(2, BoardingStatement::count(), 'Paul et Léa ; personne de l\'équipe.');
         $ofPaul = $this->statementOf($paul);
         $this->assertSame(['Relevé de pension et de cours', '460.00', ['pension', 'lesson']], [$ofPaul->title(), $ofPaul->total, array_column($ofPaul->lines, 'kind')]);
         $ofLea = $this->statementOf($lea);
-        $this->assertSame(['Relevé de cours', 'Léa DURAND', '65.00', 2], [$ofLea->title(), $ofLea->owner_name, $ofLea->total, count($ofLea->lines)]);
+        $this->assertSame(['Relevé de cours', 'Léa Durand', '65.00', 2], [$ofLea->title(), $ofLea->owner_name, $ofLea->total, count($ofLea->lines)]);
         $this->assertSame([$ofPaul->id, $ofLea->id, $ofLea->id, null], LessonCharge::orderBy('id')->pluck('boarding_statement_id')->all());
 
         // Brouillons recalculés : les mêmes cours, sans doublon.
@@ -134,10 +134,10 @@ class Version245RequestsTest extends TestCase
         $sophie->rates()->create(['kind' => 'private_lesson', 'unit' => 'session', 'amount' => 50]);
         $this->fresh();
         $this->actingAs($paul)->post(route('sessions.store'), ['horse_id' => $horse->id, 'scheduled_at' => '2026-10-07 10:00', 'session_type' => 'private_lesson',
-            'planned_minutes' => 45, 'instructor' => 'Sophie LOIR'])->assertSessionHasNoErrors();
+            'planned_minutes' => 45, 'instructor' => 'Sophie Loir'])->assertSessionHasNoErrors();
         $this->assertSame('50.00', LessonCharge::sole()->amount);
 
-        $this->actingAs($manager)->get(route('boarding.index', ['mois' => '2026-10']))->assertDontSee('Sophie LOIR');
+        $this->actingAs($manager)->get(route('boarding.index', ['mois' => '2026-10']))->assertDontSee('Sophie Loir');
         $this->actingAs($manager)->post(route('boarding.generate'), ['period' => '2026-10']);
         $ofPaul = $this->statementOf($paul);
         $this->assertSame(['Relevé de pension', '420.00'], [$ofPaul->title(), $ofPaul->total]);

@@ -24,7 +24,7 @@ class Version244RequestsTest extends TestCase
     private function setUpOwner(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
         $jimmy = Professional::forceCreate(['organization_id' => $owner->personalOrganization()->id, 'first_name' => 'Jimmy', 'last_name' => 'BLANC', 'kind' => 'instructor']);
@@ -36,7 +36,7 @@ class Version244RequestsTest extends TestCase
 
     private function lesson(User $by, Horse $horse, string $at): void
     {
-        $this->actingAs($by)->post(route('sessions.store'), ['horse_id' => $horse->id, 'scheduled_at' => $at, 'session_type' => 'private_lesson', 'planned_minutes' => 45, 'instructor' => 'Jimmy BLANC']);
+        $this->actingAs($by)->post(route('sessions.store'), ['horse_id' => $horse->id, 'scheduled_at' => $at, 'session_type' => 'private_lesson', 'planned_minutes' => 45, 'instructor' => 'Jimmy Blanc']);
     }
 
     private function package(User $by, Horse $horse, Professional $jimmy, array $data)
@@ -54,7 +54,7 @@ class Version244RequestsTest extends TestCase
         [$owner, $horse, $jimmy] = $this->setUpOwner();
         $this->package($owner, $horse, $jimmy, ['kind' => 'card', 'lessons' => 3, 'price' => '110', 'starts_on' => '2026-10-01'])->assertSessionHas('success');
         $fee = LessonCharge::where('kind', 'card')->sole();
-        $this->assertSame(['110.00', 'Carte de 3 cours avec Jimmy BLANC', '2026-10-01'], [$fee->amount, $fee->label, $fee->charged_on->toDateString()]);
+        $this->assertSame(['110.00', 'Carte de 3 cours avec Jimmy Blanc', '2026-10-01'], [$fee->amount, $fee->label, $fee->charged_on->toDateString()]);
         $this->assertNotNull($fee->expense_id, 'Prix de la carte : dans le budget du propriétaire.');
 
         foreach (['2026-10-13 10:00', '2026-10-14 10:00', '2026-10-15 10:00', '2026-10-16 10:00'] as $at) {
@@ -101,7 +101,7 @@ class Version244RequestsTest extends TestCase
     {
         [$owner, $horse, $jimmy] = $this->setUpOwner();
         $this->package($owner, $horse, $jimmy, ['kind' => 'monthly', 'lessons' => 2, 'price' => '70', 'starts_on' => '2026-10-01']);
-        $this->assertSame(['Forfait d\'octobre 2026 (2 cours) avec Jimmy BLANC'], LessonCharge::where('kind', 'monthly')->pluck('label')->all());
+        $this->assertSame(['Forfait d\'octobre 2026 (2 cours) avec Jimmy Blanc'], LessonCharge::where('kind', 'monthly')->pluck('label')->all());
         foreach (['2026-10-05 10:00', '2026-10-06 10:00', '2026-10-07 10:00'] as $at) {
             $this->lesson($owner, $horse, $at);
         }
@@ -132,7 +132,7 @@ class Version244RequestsTest extends TestCase
 
         $this->actingAs($owner)->post(route('sessions.cancel', $soon));
         $charge = LessonCharge::sole();
-        $this->assertSame(['40.00', 'Cours particulier 45 min avec Jimmy BLANC · annulé tardivement'], [$charge->amount, $charge->label]);
+        $this->assertSame(['40.00', 'Cours particulier 45 min avec Jimmy Blanc · annulé tardivement'], [$charge->amount, $charge->label]);
         $this->assertSame(0, LessonCharge::where('kind', 'travel')->count(), 'Pas de déplacement pour un cours annulé.');
         $this->actingAs($owner)->post(route('sessions.cancel', $later));
         $this->assertSame(1, LessonCharge::count(), 'Annulé assez tôt : rien de dû.');

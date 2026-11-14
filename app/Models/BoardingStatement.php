@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\PersonNameCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -12,7 +13,7 @@ class BoardingStatement extends Model
 
     protected $guarded = ['id', 'organization_id'];
 
-    protected $casts = ['lines' => 'array', 'sent_at' => 'datetime', 'paid_on' => 'date', 'total' => 'decimal:2'];
+    protected $casts = ['owner_name' => PersonNameCast::class, 'lines' => 'array', 'sent_at' => 'datetime', 'paid_on' => 'date', 'total' => 'decimal:2'];
 
     public function organization()
     {

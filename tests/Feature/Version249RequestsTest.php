@@ -33,12 +33,12 @@ class Version249RequestsTest extends TestCase
     private function setUpWeek(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->actingAs($owner)->post(route('horses.half-leases.store', $horse), [
-            'name' => 'Léa DURAND', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [2, 4], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
+            'name' => 'Léa Durand', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [2, 4], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
         ])->assertSessionHasNoErrors();
         $this->actingAs($lea)->post(route('invitations.respond', HalfLease::sole()->invitation_id), ['decision' => 'accept']);
         RidingDay::create(['horse_id' => $horse->id, 'weekday' => 3, 'user_id' => $owner->id]);
@@ -63,14 +63,14 @@ class Version249RequestsTest extends TestCase
     public function test_request_a_day_then_accept_from_the_week_page(): void
     {
         [$owner, $horse, $lea] = $this->setUpWeek();
-        $this->actingAs($lea)->get(route('horses.riding-days', $horse))->assertOk()->assertSee('data-riding-ask-open', false)->assertSee('Demander à Paul MARTIN');
+        $this->actingAs($lea)->get(route('horses.riding-days', $horse))->assertOk()->assertSee('data-riding-ask-open', false)->assertSee('Demander à Paul Martin');
         $this->actingAs($lea)->post(route('horses.riding-days.request', $horse), ['date' => '2026-10-24'])->assertSessionHas('success');
         $this->assertContains('Demande de jour : samedi 24 octobre', $this->titles($owner));
         $this->actingAs($lea)->post(route('horses.riding-days.request', $horse), ['date' => '2026-10-24'])->assertSessionHasErrors('date');
         $this->actingAs($lea)->post(route('horses.riding-days.request', $horse), ['date' => '2026-10-20'])->assertSessionHasErrors('date'); // déjà son jour
 
         $this->fresh();
-        $this->actingAs($owner)->get(route('horses.riding-days', $horse))->assertSee('Léa DURAND</strong> aimerait monter samedi 24 octobre', false);
+        $this->actingAs($owner)->get(route('horses.riding-days', $horse))->assertSee('Léa Durand</strong> aimerait monter samedi 24 octobre', false);
         $request = RidingDayRequest::sole();
         $this->actingAs($owner)->post(route('horses.riding-days.answer', [$horse, $request]), ['decision' => 'accept'])->assertSessionHas('success');
         $this->assertSame([$lea->id, 'accepted'], [$this->holder($horse, '2026-10-24'), $request->fresh()->status]);

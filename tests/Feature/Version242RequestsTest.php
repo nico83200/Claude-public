@@ -29,7 +29,7 @@ class Version242RequestsTest extends TestCase
     private function owner(): array
     {
         Carbon::setTestNow('2026-10-17 09:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
 

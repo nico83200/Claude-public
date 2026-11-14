@@ -26,7 +26,7 @@ class Version246RequestsTest extends TestCase
     private function setUpOwner(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
 
@@ -36,7 +36,7 @@ class Version246RequestsTest extends TestCase
     private function propose(User $owner, Horse $horse, array $data = [])
     {
         return $this->actingAs($owner)->post(route('horses.half-leases.store', $horse), array_merge([
-            'name' => 'Léa DURAND', 'email' => 'lea@exemple.fr', 'phone' => '06 12 34 56 78', 'starts_on' => '2026-11-01', 'trial_ends_on' => '2026-11-30',
+            'name' => 'Léa Durand', 'email' => 'lea@exemple.fr', 'phone' => '06 12 34 56 78', 'starts_on' => '2026-11-01', 'trial_ends_on' => '2026-11-30',
             'notice_days' => 30, 'weekdays' => [2, 4], 'monthly_amount' => '180', 'payment_day' => 5, 'notes' => 'Balades le week-end avec accord.',
             'permissions' => Perm::halfLeasePreset(),
         ], $data));
@@ -63,11 +63,11 @@ class Version246RequestsTest extends TestCase
         $this->assertSame(['proposed', 'Demi-pension', 'lea@exemple.fr'], [$lease->status, $invitation->label, $invitation->email]);
         $this->assertSame($invitation->id, $lease->invitation_id);
         $this->assertSame(0, HorseAccessGrant::count(), 'Pas d\'accès avant son accord.');
-        $this->actingAs($owner)->get(route('half-leases.show', $lease))->assertOk()->assertSee('En attente de la réponse de Léa DURAND')
+        $this->actingAs($owner)->get(route('half-leases.show', $lease))->assertOk()->assertSee('En attente de la réponse de Léa Durand')
             ->assertSee('180,00 € par mois, payable le 5')->assertSee('Mardi et jeudi')->assertSee('data-invite-link', false);
 
         // Inscription avec l'adresse invitée : la page d'invitation montre les conditions, puis acceptation.
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $token = app(InvitationService::class)->resend($invitation, $owner);
         $this->actingAs($lea)->get(route('invitations.show', $token))->assertOk()->assertSee('Proposition de demi-pension')->assertSee('mardi et jeudi')->assertSee('Préavis : 1 mois');
         $this->actingAs($lea)->post(route('invitations.accept', $token))->assertRedirect(route('half-leases.show', $lease));
@@ -90,7 +90,7 @@ class Version246RequestsTest extends TestCase
     public function test_existing_account_sees_the_proposal_in_the_app_and_can_decline(): void
     {
         [$owner, $horse] = $this->setUpOwner();
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->propose($owner, $horse);
         $lease = HalfLease::sole();
         $this->assertContains('Proposition de demi-pension : Uni', $this->titles($lea));
@@ -112,15 +112,15 @@ class Version246RequestsTest extends TestCase
     public function test_acceptance_from_the_app_applies_days_now_and_blocks_a_taken_day(): void
     {
         [$owner, $horse] = $this->setUpOwner();
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->propose($owner, $horse, ['starts_on' => '2026-10-17', 'trial_ends_on' => '2026-10-19']);
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept'])->assertRedirect(route('half-leases.show', $lease));
         $this->assertSame([2 => $lea->id, 4 => $lea->id], RidingDay::pluck('user_id', 'weekday')->all(), 'Commencée : jours inscrits tout de suite.');
 
         // Deuxième demi-pension : le mardi est déjà pris.
-        $this->propose($owner, $horse, ['name' => 'Inès ROY', 'email' => 'ines@exemple.fr', 'weekdays' => [2, 6]])->assertSessionHasErrors('weekdays');
-        $this->propose($owner, $horse, ['name' => 'Inès ROY', 'email' => 'ines@exemple.fr', 'weekdays' => [6]])->assertSessionHasNoErrors();
+        $this->propose($owner, $horse, ['name' => 'Inès Roy', 'email' => 'ines@exemple.fr', 'weekdays' => [2, 6]])->assertSessionHasErrors('weekdays');
+        $this->propose($owner, $horse, ['name' => 'Inès Roy', 'email' => 'ines@exemple.fr', 'weekdays' => [6]])->assertSessionHasNoErrors();
         $this->propose($owner, $horse, ['email' => 'lea@exemple.fr', 'weekdays' => [7]])->assertSessionHasErrors('email');
         // Proposition retirée avant sa réponse : le lien ne marche plus.
         $ines = HalfLease::where('email', 'ines@exemple.fr')->sole();
@@ -138,7 +138,7 @@ class Version246RequestsTest extends TestCase
     public function test_owner_edits_days_and_the_week_page_stays_in_sync(): void
     {
         [$owner, $horse] = $this->setUpOwner();
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->propose($owner, $horse, ['starts_on' => '2026-10-01']);
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept']);
@@ -146,7 +146,7 @@ class Version246RequestsTest extends TestCase
 
         $this->actingAs($owner)->get(route('half-leases.edit', $lease))->assertOk();
         $this->actingAs($owner)->put(route('half-leases.update', $lease), [
-            'name' => 'Léa DURAND', 'starts_on' => '2026-10-01', 'notice_days' => 30, 'weekdays' => [3, 6], 'monthly_amount' => '200', 'payment_day' => 5,
+            'name' => 'Léa Durand', 'starts_on' => '2026-10-01', 'notice_days' => 30, 'weekdays' => [3, 6], 'monthly_amount' => '200', 'payment_day' => 5,
             'permissions' => Perm::halfLeasePreset(),
         ])->assertRedirect(route('half-leases.show', $lease));
         $this->assertSame([3 => $lea->id, 6 => $lea->id], RidingDay::pluck('user_id', 'weekday')->all());
@@ -164,7 +164,7 @@ class Version246RequestsTest extends TestCase
     public function test_end_with_notice_closes_access_and_frees_days(): void
     {
         [$owner, $horse] = $this->setUpOwner();
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->propose($owner, $horse, ['starts_on' => '2026-10-01']);
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept']);
@@ -188,7 +188,7 @@ class Version246RequestsTest extends TestCase
     public function test_revoked_access_ends_the_half_lease_and_shares_keep_their_label(): void
     {
         [$owner, $horse] = $this->setUpOwner();
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $this->propose($owner, $horse, ['starts_on' => '2026-10-01']);
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept']);

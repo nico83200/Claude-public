@@ -37,10 +37,10 @@ class Version250RequestsTest extends TestCase
     private function setUpHorse(): array
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'particulier');
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Demi-pension', 'permissions' => Perm::halfLeasePreset()]);
         RidingDay::create(['horse_id' => $horse->id, 'weekday' => 2, 'user_id' => $lea->id]);
         $this->fresh();
@@ -130,14 +130,14 @@ class Version250RequestsTest extends TestCase
     public function test_half_lease_page_for_someone_already_sharing_the_horse(): void
     {
         Carbon::setTestNow('2026-10-17 18:00');
-        $owner = $this->user(['name' => 'Paul MARTIN']);
+        $owner = $this->user(['name' => 'Paul Martin']);
         $this->grantLicense($owner->personalOrganization(), 'decouverte'); // 1 partage au plus
         $horse = $this->horseFor($owner, null, ['official_name' => 'UNIVERS', 'usual_name' => 'Uni']);
-        $lea = $this->user(['name' => 'Léa DURAND', 'email' => 'lea@exemple.fr']);
+        $lea = $this->user(['name' => 'Léa Durand', 'email' => 'lea@exemple.fr']);
         $grant = HorseAccessGrant::create(['horse_id' => $horse->id, 'user_id' => $lea->id, 'label' => 'Partage', 'permissions' => [Perm::HORSE_VIEW], 'granted_by' => $owner->id]);
         // Sa fiche reprend l'accès existant : pas de partage en plus, pas de second accès.
         $this->actingAs($owner)->post(route('horses.half-leases.store', $horse), [
-            'name' => 'Léa DURAND', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [3], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
+            'name' => 'Léa Durand', 'email' => 'lea@exemple.fr', 'starts_on' => '2026-10-01', 'weekdays' => [3], 'monthly_amount' => '0', 'permissions' => Perm::halfLeasePreset(),
         ])->assertSessionHasNoErrors();
         $lease = HalfLease::sole();
         $this->actingAs($lea)->post(route('invitations.respond', $lease->invitation_id), ['decision' => 'accept']);
