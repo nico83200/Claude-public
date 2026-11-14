@@ -2,7 +2,7 @@
     <x-page-header title="Modifier la dépense" :back="route('budget.index')">
         <x-confirm-delete :action="route('budget.destroy', $expense)" message="Supprimer cette dépense ?" :check="$linkedCare ? 'with_care' : null" :check-label="$linkedCare ? 'Supprimer aussi le soin associé du '.$linkedCare->performed_at->format('d/m/Y') : null" />
     </x-page-header>
-    <form method="POST" action="{{ route('budget.update', $expense) }}" enctype="multipart/form-data" class="max-w-lg space-y-3">
+    <form method="POST" action="{{ route('budget.update', $expense) }}" enctype="multipart/form-data" class="max-w-lg space-y-3" data-return-origin>
         @csrf @method('PUT')
         <x-horse-select name="horse_id" :options="$horses" :value="$expense->horse_id" placeholder="Choisir…" required />
         <div class="grid grid-cols-2 gap-3">

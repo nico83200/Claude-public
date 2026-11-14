@@ -1,6 +1,6 @@
 <x-layouts.app :title="$record->exists ? 'Modifier le soin' : 'Nouveau soin'">
     <x-page-header :title="$record->exists ? 'Modifier le soin' : 'Nouveau soin'" :subtitle="$horse->shortName()" :back="route('horses.care.index', $horse)" />
-    <form method="POST" action="{{ $record->exists ? route('horses.care.update', [$horse, $record]) : route('horses.care.store', $horse) }}" enctype="multipart/form-data" class="space-y-4"
+    <form method="POST" action="{{ $record->exists ? route('horses.care.update', [$horse, $record]) : route('horses.care.store', $horse) }}" enctype="multipart/form-data" class="space-y-4" data-return-origin
         x-data="careNext({ rules: @js($rules), usualPros: @js($usualPros), cat: @js((string) old('care_category_id', $record->care_category_id)), performed: @js(old('performed_at', $record->performed_at?->format('Y-m-d\TH:i'))),
             mode: @js(old('next_mode', $defaultMode)), value: @js(old('next_interval_value')), unit: @js(old('next_interval_unit', 'weeks')), fromOld: @js(old('next_interval_value') !== null),
             cost: @js((string) old('cost', $record->cost)), addExpense: @js((bool) old('add_expense', filled(old('cost', $record->cost)) || ! $record->exists)) })">

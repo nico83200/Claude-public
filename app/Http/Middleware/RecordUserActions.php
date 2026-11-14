@@ -43,7 +43,7 @@ class RecordUserActions
             return;
         }
         // Formulaire refusé (erreurs de saisie) : rien n'a été fait.
-        if ($request->hasSession() && $request->session()->has('errors')) {
+        if ($request->hasSession() && in_array('errors', $request->session()->get('_flash.new', []), true)) {
             return;
         }
         $models = collect($request->route()->parameters())->filter(fn ($v) => $v instanceof Model);

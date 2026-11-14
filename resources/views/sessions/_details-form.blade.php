@@ -1,5 +1,5 @@
 {{-- Informations d'une séance (page Modifier et page Préparer). --}}
-<form method="POST" action="{{ route('sessions.update', $session) }}" class="grid gap-3 sm:grid-cols-2">
+<form method="POST" action="{{ route('sessions.update', $session) }}" class="grid gap-3 sm:grid-cols-2" data-return-origin>
     @csrf @method('PUT')
     @isset($returnTo)<input type="hidden" name="return_to" value="{{ $returnTo }}">@endisset
     <x-field name="scheduled_at" type="datetime-local" label="Date et heure" :value="$session->scheduled_at->format('Y-m-d\TH:i')" required />

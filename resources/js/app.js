@@ -20,6 +20,7 @@ import { agendaScroll } from './agenda-scroll.js';
 import { startTimeStatus } from './time-status.js';
 import { ridingDayHint } from './riding-days.js';
 import { loadSimulation, navigationSimulation, serverMonitor } from './simulation.js';
+import { startReturnPosition } from './return-position.js';
 
 window.Alpine = Alpine;
 // Avant tout autre écouteur d'envoi : un formulaire à confirmer n'est traité qu'une fois confirmé.
@@ -69,6 +70,7 @@ Alpine.start();
 startSelectEnhancer();
 startLightbox();
 startTimeStatus();
+startReturnPosition();
 
 // Application installée sur l'écran d'accueil : la déconnexion ramène à la connexion de l'application
 // (et non vers le site, qui s'ouvrirait dans le navigateur).

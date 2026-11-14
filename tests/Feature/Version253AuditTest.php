@@ -48,6 +48,10 @@ class Version253AuditTest extends TestCase
         $this->actingAs($owner)->post(route('sessions.store'), []);
         $this->actingAs($owner)->get(route('dashboard'));
         $this->assertSame(1, AuditLog::where('action', 'sessions.store')->count());
+        // La saisie réussie qui suit une saisie refusée est bien notée (les erreurs affichées viennent de la précédente).
+        $this->actingAs($owner)->post(route('sessions.store'), []);
+        $this->actingAs($owner)->post(route('sessions.store'), ['horse_id' => $horse->id, 'scheduled_at' => now()->addDays(2)->format('Y-m-d H:i'), 'session_type' => 'ride', 'planned_minutes' => 30]);
+        $this->assertSame(2, AuditLog::where('action', 'sessions.store')->count());
         $this->actingAs($owner)->post(route('horses.archive', $horse));
         $this->assertSame(0, AuditLog::where('action', 'horses.archive')->count(), 'Déjà détaillée par horse.archived.');
         $this->assertSame(1, AuditLog::where('action', 'horse.archived')->count());

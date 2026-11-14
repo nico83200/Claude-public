@@ -2,7 +2,7 @@
     <x-page-header title="Modifier la recette" :subtitle="$income->horse?->shortName()" :back="route('budget.index', array_filter(['horse' => request('retour_cheval')]))">
         <x-confirm-delete :action="route('budget.incomes.destroy', array_filter(['income' => $income, 'retour_cheval' => request('retour_cheval')]))" message="Supprimer cette recette ?" />
     </x-page-header>
-    <form method="POST" action="{{ route('budget.incomes.update', $income) }}" class="max-w-lg space-y-3" data-income-edit>
+    <form method="POST" action="{{ route('budget.incomes.update', $income) }}" class="max-w-lg space-y-3" data-income-edit data-return-origin>
         @csrf @method('PUT')
         @if (request('retour_cheval'))<input type="hidden" name="retour_cheval" value="{{ request('retour_cheval') }}">@endif
         @php $ie = $errors->income; @endphp

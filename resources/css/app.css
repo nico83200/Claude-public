@@ -327,3 +327,8 @@ html.jc-sheet-open, html.jc-sheet-open body { overflow: hidden; }
 @media (max-width: 639px) {
     .jc-sticky-strip { position: sticky; top: 4rem; z-index: 20; margin-inline: -1rem; padding: .375rem 1rem .5rem; background: color-mix(in srgb, var(--color-slate-50) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 }
+
+/* Retour au même endroit après une saisie : la ligne modifiée est surlignée un instant. */
+.jc-returned { animation: jc-returned 1.8s ease-out; border-radius: 1rem; }
+@keyframes jc-returned { 0%, 35% { box-shadow: 0 0 0 3px var(--color-brand-400, #6fa287); background-color: color-mix(in srgb, var(--color-brand-100, #dcebe2) 60%, transparent); } 100% { box-shadow: 0 0 0 3px transparent; } }
+

@@ -1,6 +1,6 @@
 <x-layouts.app :title="'Modifier · '.$event->title">
     <x-page-header title="Modifier l'événement" :subtitle="$event->title" :back="route('calendar.show', $event)" />
-    <form method="POST" action="{{ route('calendar.update', $event) }}" class="max-w-3xl space-y-4">
+    <form method="POST" action="{{ route('calendar.update', $event) }}" class="max-w-3xl space-y-4" data-return-origin>
         @csrf @method('PUT')
         <x-section>
             @include('calendar._form', ['horses' => $event->horse ? collect([$event->horse_id => $event->horse->shortName()]) : collect(), 'event' => $event])

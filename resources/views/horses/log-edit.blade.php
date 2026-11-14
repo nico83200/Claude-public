@@ -2,7 +2,7 @@
     <x-horse-header :horse="$horse" />
     <div class="mx-auto max-w-xl">
         <x-section title="Modifier la saisie">
-            <form method="POST" action="{{ route('horses.logs.update', [$horse, $log]) }}" class="space-y-3">
+            <form method="POST" action="{{ route('horses.logs.update', [$horse, $log]) }}" class="space-y-3" data-return-origin>
                 @csrf @method('PUT')
                 @include('horses._log-form')
                 <div class="flex gap-2"><a href="{{ route('horses.logs.index', $horse) }}" class="btn-secondary flex-1 justify-center">Annuler</a><button class="btn-primary flex-1 justify-center">Enregistrer</button></div>

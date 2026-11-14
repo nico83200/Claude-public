@@ -8,6 +8,7 @@ use App\Http\Middleware\RecordUserActions;
 use App\Http\Middleware\RedirectIfNotInstalled;
 use App\Http\Middleware\RedirectLegacyHost;
 use App\Http\Middleware\ResetRequestCaches;
+use App\Http\Middleware\ReturnToOrigin;
 use App\Http\Middleware\RunSchedulerFallback;
 use App\Services\SystemMonitor;
 use Illuminate\Foundation\Application;
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(ResetRequestCaches::class);
         // Ancienne adresse (jackcie.nlapps.fr) → adresse actuelle, avant toute session ou maintenance.
         $middleware->prepend(RedirectLegacyHost::class);
-        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class, RecordUserActions::class]);
+        $middleware->web(prepend: [RedirectIfNotInstalled::class], append: [EnsureAccountActive::class, RunSchedulerFallback::class, RecordUserActions::class, ReturnToOrigin::class]);
         $middleware->alias([
             'org' => LoadCurrentOrganization::class,
             'verified.grace' => EnsureEmailVerifiedWithGrace::class,

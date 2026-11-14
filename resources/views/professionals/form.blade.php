@@ -1,6 +1,6 @@
 <x-layouts.app :title="$professional->exists ? 'Modifier l\'intervenant' : 'Nouvel intervenant'">
     <x-page-header :title="$professional->exists ? $professional->fullName() : 'Nouvel intervenant'" :back="$professional->exists ? route('professionals.show', $professional) : route('professionals.index')" />
-    <form method="POST" action="{{ $professional->exists ? route('professionals.update', $professional) : route('professionals.store') }}" class="space-y-4" x-data="contactImport()">
+    <form method="POST" action="{{ $professional->exists ? route('professionals.update', $professional) : route('professionals.store') }}" class="space-y-4" x-data="contactImport()" data-return-origin>
         @csrf @if ($professional->exists) @method('PUT') @endif
         <x-section>
             <div class="mb-4">@include('professionals._import')</div>
