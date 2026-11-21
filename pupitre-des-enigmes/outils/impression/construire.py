@@ -346,6 +346,13 @@ MISSIONS = [
         ("cartes", "cartes", ""),
         ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
     ]},
+    # Sans rôles : la fiche, la plaque du tableau de régie, les cartes et les enveloppes.
+    {"num": 11, "monde": "cabaret", "nom": "Le Cabaret Bleu", "materiel": [
+        ("fiche-mission-11", "fiche-mission", "Fiche de mission"),
+        ("plateau", "plateau", ""),
+        ("cartes", "cartes", ""),
+        ("enveloppes", "enveloppes", "Contenu des enveloppes (ne pas montrer aux joueurs)"),
+    ]},
 ]
 
 
@@ -463,6 +470,14 @@ LIVRETS = {
                        "bureau, brisez le sceau de la vitrine avec les bonnes gemmes, rétablissez le courant et confondez le coupable.",
         "essentiel": ["Des gemmes à poser sur la loupe, dans le bon ordre", "La clé de dérivation et le cadran de la TSF",
                       "Quatre suspects, un murmure au casque", "L'accusation, l'Œil de Jade à la main"]},
+    11: {"titre": "Le Secret du Cabaret Bleu", "genre": "Enquête historique et émouvante", "joueurs": "2 à 6", "duree": "60 min",
+         "public": "Adultes et ados", "etoiles": 2, "embleme": "🎭", "pages": ["fiche-mission-11"],
+         "description": "Paris, 1932. Le soir de la première, la vedette du Cabaret Bleu a disparu, et avec lui le carnet rouge : les noms de "
+                        "tous les habitués d'un lieu où l'on vient pour être soi-même. Retrouvez Lucien, protégez le carnet et démasquez "
+                        "celui qui veut le vendre à la police des mœurs.",
+         "essentiel": ["Les feux de la rampe à rallumer", "Un message à faire apparaître sur le miroir, d'un souffle",
+                       "Les fleurs d'un amour secret, sur l'œillet", "Un disque de Lucien au gramophone, et une descente de police",
+                       "Mado pour les indices", "L'accusation, le carnet rouge à la main"]},
     6: {"titre": "Désamorçage", "genre": "Jeu de communication coopératif", "joueurs": "2 à 8", "duree": "12 min par bombe",
         "public": "Ados et adultes", "etoiles": 2, "embleme": "💣", "pages": ["fiche-mission-6"],
         "description": "Une bombe vient d'être découverte. Un seul d'entre vous la voit : le démineur, au pupitre. Les autres, les "

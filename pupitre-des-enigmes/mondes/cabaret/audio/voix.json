@@ -1,0 +1,89 @@
+{
+  "modele_par_defaut": "eleven_multilingual_v2",
+  "voix": {
+    "mado": {
+      "nom": "Mado",
+      "voice_id": "WQKwBV2Uzw1gSGr69N8I",
+      "description": "Femme, la quarantaine, meneuse de revue parisienne, voix chaude et gouailleuse, tendre.",
+      "portrait": "La narratrice et l'aide. Elle appelle tout le monde « mes chéris », mène sa troupe d'une main de fer dans un gant de velours.",
+      "prompt_voice_design": "A warm, husky French woman in her forties, Parisian music-hall singer and host, affectionate and witty, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "gaston": {
+      "nom": "Gaston Morel",
+      "voice_id": "59dhv4BKONM60oDSKECM",
+      "description": "Homme, la soixantaine, barman parisien, voix rocailleuse, bourru et tendre.",
+      "portrait": "Le barman depuis vingt ans. Il protège tout le monde sans le dire.",
+      "prompt_voice_design": "A gruff but kind elderly Parisian bartender in his sixties, gravelly voice, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "suzy": {
+      "nom": "Suzy Lamour",
+      "voice_id": "uyCFY7D8n0oaM5Smchqu",
+      "description": "Femme, la trentaine, chanteuse de cabaret, voix piquante et théâtrale.",
+      "portrait": "La rivale de Lucien sur scène : jalouse, mais loyale. Fausse piste.",
+      "prompt_voice_design": "A sassy, theatrical French cabaret singer in her thirties, playful and sharp, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "valmont": {
+      "nom": "Henri Valmont",
+      "voice_id": "wyZnrAs18zdIj8UgFSV8",
+      "description": "Homme, la cinquantaine, directeur de cabaret, voix mielleuse et condescendante.",
+      "portrait": "Le coupable : il veut faire fermer le Cabaret Bleu. Courtois, venimeux.",
+      "prompt_voice_design": "A smooth, condescending French man in his fifties, wealthy nightclub owner, honeyed and menacing, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "antoine": {
+      "nom": "Antoine de Rivière",
+      "voice_id": "1a3lMdKLUcfcMtvN772u",
+      "description": "Homme, vingt-neuf ans, jeune officier, voix douce, retenue, émue.",
+      "portrait": "L'homme qu'aime Lucien. Il risque tout : son régiment, sa famille, ses fiançailles.",
+      "prompt_voice_design": "A gentle, restrained young French officer in his late twenties, soft and emotional voice, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "lucien": {
+      "nom": "Lucien Ferrand",
+      "voice_id": "imDSDag6GbkW8mdzqJ0D",
+      "description": "Homme, trente et un ans, vedette de cabaret, voix chaude, élégante et émouvante.",
+      "portrait": "La vedette disparue. Charmeur sur scène, vulnérable en coulisse.",
+      "prompt_voice_design": "A charming, warm-voiced French male cabaret star in his early thirties, elegant and tender, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    },
+    "brachet": {
+      "nom": "L'inspecteur Brachet",
+      "voice_id": "2AGrjHJgmTgUqzy68M9W",
+      "description": "Homme, la cinquantaine, policier de la brigade des mœurs, voix sèche et menaçante.",
+      "portrait": "La menace : il veut le carnet pour ficher les habitués.",
+      "prompt_voice_design": "A cold, harsh French police inspector in his fifties, authoritarian and threatening, native speaker from France.",
+      "reglages": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.35
+      }
+    }
+  }
+}

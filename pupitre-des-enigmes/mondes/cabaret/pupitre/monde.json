@@ -1,0 +1,28 @@
+{
+  "id": "cabaret",
+  "nom": "Le Cabaret Bleu",
+  "carte": "M11",
+  "aide": "A11",
+  "aide_nom": "Mado",
+  "theme": {
+    "fond": "#141a33",
+    "texte": "#efe9f7",
+    "accent": "#7d8cff",
+    "alerte": "#d23b5a",
+    "doux": "#9c98bd"
+  },
+  "accueil": {
+    "dossier": 84,
+    "dire": 13,
+    "jingle_dossier": 85,
+    "jingle": 1
+  },
+  "missions": [
+    {
+      "numero": 11,
+      "titre": "Le Secret du Cabaret Bleu",
+      "script": "mission-11.json",
+      "repliques": "repliques-11.json"
+    }
+  ]
+}

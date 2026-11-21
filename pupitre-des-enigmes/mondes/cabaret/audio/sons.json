@@ -1,0 +1,84 @@
+{
+  "dossier": 85,
+  "description": "Bruitages et musiques du monde Le Cabaret Bleu (dossier /85/ des cartes SD).",
+  "sons": [
+    {
+      "n": 1,
+      "nom": "Jingle du monde",
+      "duree": 5,
+      "prompt": "1930s Paris cabaret jingle, muted jazz trumpet, brushed drums and accordion flourish, elegant and mysterious"
+    },
+    {
+      "n": 2,
+      "nom": "Ambiance : le cabaret",
+      "duree": 22,
+      "prompt": "Smoky 1930s Paris cabaret before the show, soft piano in the background, glasses clinking, distant laughter and murmurs, seamless loop"
+    },
+    {
+      "n": 3,
+      "nom": "Réussite",
+      "duree": 2,
+      "prompt": "Bright jazzy piano chord with a soft cymbal shimmer, success"
+    },
+    {
+      "n": 4,
+      "nom": "Raté",
+      "duree": 1.5,
+      "prompt": "Short out-of-tune piano note, gentle failure"
+    },
+    {
+      "n": 5,
+      "nom": "Serrure qui cède",
+      "duree": 2.5,
+      "prompt": "Old padlock clicking open, metal latch, small door creaking"
+    },
+    {
+      "n": 6,
+      "nom": "Sifflets de police",
+      "duree": 3,
+      "prompt": "1930s French police whistles blowing, footsteps rushing, a door slammed open"
+    },
+    {
+      "n": 7,
+      "nom": "Coupure de courant",
+      "duree": 2,
+      "prompt": "Electric switch clunk and lights buzzing off, then a few accordion waltz notes starting in the dark"
+    },
+    {
+      "n": 8,
+      "nom": "Le gramophone",
+      "duree": 3,
+      "prompt": "Gramophone needle dropped on a 78 rpm record, crackle and hiss starting"
+    },
+    {
+      "n": 9,
+      "nom": "Sonnette du vestiaire",
+      "duree": 0.6,
+      "prompt": "Single short ring of a small brass desk bell"
+    },
+    {
+      "n": 10,
+      "nom": "Téléphone",
+      "duree": 3,
+      "prompt": "Old 1930s telephone ringing twice, mechanical bell"
+    },
+    {
+      "n": 11,
+      "nom": "Victoire",
+      "duree": 8,
+      "prompt": "Cabaret orchestra fanfare, curtain rising, enthusiastic applause and cheers, 1930s jazz"
+    },
+    {
+      "n": 12,
+      "nom": "Défaite",
+      "duree": 4,
+      "prompt": "Midnight church bell tolling over a sad slow accordion phrase"
+    },
+    {
+      "n": 13,
+      "nom": "Note du coffret",
+      "duree": 1.5,
+      "prompt": "Single delicate music box note, tinkling"
+    }
+  ]
+}

@@ -2,8 +2,8 @@
 verifie phase accueil
 appui
 verifie phase choix_monde
-# Les mondes sont classés : atelier, blackwood, casse (Monte-Carlo), deminage, haras…
-molette 2
+# Les mondes sont classés : atelier, blackwood, cabaret, casse (Monte-Carlo), deminage, haras…
+molette 3
 appui
 verifie phase enrolement
 capture enrolement

@@ -1,0 +1,732 @@
+{
+  "monde": "Le Cabaret Bleu",
+  "mission": "Le Secret du Cabaret Bleu",
+  "dossier": 84,
+  "sortie_par_defaut": "haut-parleur",
+  "plages": {
+    "001-019": "Introduction",
+    "020-069": "La salle, la loge, le bar et la cave, la rue des Martyrs",
+    "070-079": "Imprévus",
+    "080-099": "Accusation et fins",
+    "100-149": "Les personnages et les objets",
+    "150-179": "Mado (conseils)"
+  },
+  "lignes": [
+    {
+      "n": 1,
+      "voix": "mado",
+      "usage": "Écran titre",
+      "texte": "Le Cabaret Bleu. Le Secret du Cabaret Bleu."
+    },
+    {
+      "n": 9,
+      "voix": "mado",
+      "usage": "Pitch",
+      "texte": "Bonsoir, mes chéris. Moi, c'est Mado, la meneuse de revue du Cabaret Bleu, rue de Lappe. Paris, mars mille neuf cent trente-deux. Ce soir, c'est la première de notre nouvelle revue, et notre vedette, Lucien Ferrand, a disparu. Pas un mot, pas une valise. Et ce n'est pas tout : le carnet rouge a disparu avec lui. Le carnet rouge, c'est la liste de tous nos habitués, avec leurs noms et leurs adresses. Ici, on vient pour être soi-même, ce qu'on ne peut pas être dehors. Si ce carnet tombe entre les mains de l'inspecteur Brachet, de la police des mœurs, ce sont des dizaines de vies qui basculent. Le rideau se lève dans une heure. Retrouvez Lucien, et retrouvez ce carnet."
+    },
+    {
+      "n": 10,
+      "voix": "mado",
+      "usage": "Départ du chrono",
+      "texte": "Une heure, mes chéris, pas une minute de plus. Commencez par la salle : c'est là que Lucien a été vu pour la dernière fois."
+    },
+    {
+      "n": 11,
+      "voix": "mado",
+      "usage": "Carte sans effet",
+      "texte": "Rien à tirer de ce côté-là, mon chou."
+    },
+    {
+      "n": 12,
+      "voix": "mado",
+      "usage": "Déjà fait",
+      "texte": "On est déjà passés par là."
+    },
+    {
+      "n": 13,
+      "voix": "mado",
+      "usage": "Accueil du monde",
+      "texte": "Le Cabaret Bleu, rue de Lappe, à Paris. Posez la plaque du cabaret sur le pupitre, puis appuyez sur la molette."
+    },
+    {
+      "n": 14,
+      "voix": "mado",
+      "usage": "Comment jouer",
+      "texte": "Le mode d'emploi, mes chéris. Un endroit du cabaret : sa carte dans la fente. Une personne : sa carte dans la fente, et un objet sur le plateau pour le lui montrer. Les fleurs se posent sur l'ŒILLET. Et les enveloppes ne s'ouvrent que quand je vous le dis."
+    },
+    {
+      "n": 20,
+      "voix": "mado",
+      "usage": "La salle, première visite",
+      "texte": "La salle du Cabaret Bleu. Des tables rondes, des abat-jour bleus, le piano à queue, et la scène, plongée dans le noir. Le régisseur est parti en laissant ses feux en désordre. Sur le piano, le programme de la revue, et un petit mot de Lucien, plié en quatre. Ouvrez l'enveloppe E1."
+    },
+    {
+      "n": 21,
+      "voix": "mado",
+      "usage": "Les feux de la rampe : consigne",
+      "texte": "Sans les feux de la rampe, pas de revue. La feuille du régisseur dit comment les allumer pour l'entrée de Lucien. Allumez exactement les feux noircis sur son dessin : chaque touche du clavier, de un à zéro, allume ou éteint un feu. Puis validez avec la touche dièse."
+    },
+    {
+      "n": 22,
+      "voix": "mado",
+      "usage": "Les feux : réussite",
+      "texte": "Lumière ! La scène s'illumine… et sous le tabouret du piano, quelque chose brille : une petite clé, nouée d'un ruban violet. La clé de la loge de Lucien."
+    },
+    {
+      "n": 23,
+      "voix": "mado",
+      "usage": "Les feux : raté",
+      "texte": "Non, ce n'est pas la lumière de Lucien. Reprenez la feuille du régisseur."
+    },
+    {
+      "n": 24,
+      "voix": "mado",
+      "usage": "La salle, de nouveau",
+      "texte": "La salle se remplit doucement. Les premiers habitués s'installent, et le vestiaire déborde déjà de manteaux."
+    },
+    {
+      "n": 25,
+      "voix": "mado",
+      "usage": "La salle, au retour de la rue des Martyrs",
+      "texte": "La salle est pleine. Celui qui a pris le carnet est peut-être là, ce soir, à une de ces tables. Lucien est sûr d'une chose : il a senti l'odeur des cigares du Paradis. Et le Paradis, mes chéris, a son propre vestiaire… mais ses clients laissent leur manteau chez nous. Si vous avez un ticket de vestiaire, posez-le sur le plateau."
+    },
+    {
+      "n": 26,
+      "voix": "mado",
+      "usage": "Le vestiaire : consigne",
+      "texte": "Le vestiaire. Fernande, la dame du vestiaire, ne rend un manteau qu'aux habitués qui connaissent la sonnerie de la maison. Écoutez bien la sonnette, puis sonnez pareil, au gros bouton."
+    },
+    {
+      "n": 27,
+      "voix": "mado",
+      "usage": "Le vestiaire : réussite, le tiroir",
+      "texte": "Fernande décroche le manteau numéro vingt-sept : un pardessus en poil de chameau, qui sent le cigare. Dans la poche intérieure… le carnet rouge ! Elle vous le glisse discrètement. Regardez dans le tiroir secret."
+    },
+    {
+      "n": 28,
+      "voix": "mado",
+      "usage": "Le vestiaire : réussite, sans tiroir",
+      "texte": "Fernande décroche le manteau numéro vingt-sept : un pardessus en poil de chameau, qui sent le cigare. Dans la poche intérieure… le carnet rouge ! Ouvrez l'enveloppe E5."
+    },
+    {
+      "n": 29,
+      "voix": "mado",
+      "usage": "Le vestiaire : raté",
+      "texte": "Fernande hausse un sourcil. Ce n'est pas la sonnerie de la maison. Réessayez, et écoutez mieux."
+    },
+    {
+      "n": 30,
+      "voix": "mado",
+      "usage": "La loge, fermée",
+      "texte": "La loge de Lucien est fermée à clé. Sa clé doit bien traîner quelque part, dans la salle."
+    },
+    {
+      "n": 31,
+      "voix": "mado",
+      "usage": "La loge : le miroir",
+      "texte": "La loge de Lucien. Des costumes à paillettes, un boa de plumes, l'odeur de la poudre de riz. Tout a été fouillé. Sur le miroir de la coiffeuse, on devine des traces de doigt, comme un mot écrit puis effacé. Un vieux truc d'artiste : soufflez sur la FORGE, bouche grande ouverte, comme pour faire de la buée sur une vitre, pendant deux secondes."
+    },
+    {
+      "n": 32,
+      "voix": "mado",
+      "usage": "Le miroir : réussite",
+      "texte": "La buée fait apparaître le mot : « Pour toi, A., à la vie à la mort ». Et coincée derrière le cadre du miroir, une lettre. Ouvrez l'enveloppe E2."
+    },
+    {
+      "n": 33,
+      "voix": "mado",
+      "usage": "Le miroir : raté",
+      "texte": "Le miroir reste muet. Plus près, la bouche bien ouverte, et soufflez longtemps."
+    },
+    {
+      "n": 34,
+      "voix": "mado",
+      "usage": "Le coffret : consigne",
+      "texte": "Sur la coiffeuse, le coffret à bijoux de Lucien. Il ne s'ouvre qu'avec les fleurs de leur code secret, posées une à une sur l'ŒILLET, dans le bon ordre. La lettre d'Antoine vous dira lesquelles."
+    },
+    {
+      "n": 35,
+      "voix": "mado",
+      "usage": "Le coffret : première fleur",
+      "texte": "Le mécanisme joue une note. C'est la bonne fleur."
+    },
+    {
+      "n": 36,
+      "voix": "mado",
+      "usage": "Le coffret : deuxième fleur",
+      "texte": "Une deuxième note. Encore une."
+    },
+    {
+      "n": 37,
+      "voix": "mado",
+      "usage": "Le coffret : ouvert",
+      "texte": "La petite musique se termine, et le coffret s'ouvre. Il est vide : le carnet rouge y était, et il a été pris. Mais au fond, oublié par le voleur dans sa hâte, un ticket de vestiaire. Ouvrez l'enveloppe E3."
+    },
+    {
+      "n": 38,
+      "voix": "mado",
+      "usage": "Le coffret : mauvaise fleur",
+      "texte": "Une fausse note : le coffret se referme. Reprenez depuis la première fleur."
+    },
+    {
+      "n": 39,
+      "voix": "mado",
+      "usage": "La loge, de nouveau",
+      "texte": "La loge de Lucien. Le coffret ouvert, les costumes, et ce mot sur le miroir."
+    },
+    {
+      "n": 40,
+      "voix": "mado",
+      "usage": "Le bar, première visite",
+      "texte": "Le bar. Gaston essuie ses verres derrière le comptoir en zinc, comme depuis vingt ans. Derrière lui, la porte de la cave, fermée par un cadenas à quatre chiffres. Parlez à Gaston, il sait beaucoup de choses."
+    },
+    {
+      "n": 41,
+      "voix": "gaston",
+      "usage": "Le bar, la cave fermée",
+      "texte": "La cave ? Lucien a changé le cadenas la semaine dernière. Il a dit que le code, c'était une date qu'il n'oublierait jamais. Une date à lui. Je n'en sais pas plus."
+    },
+    {
+      "n": 42,
+      "voix": "mado",
+      "usage": "Le cadenas : consigne",
+      "texte": "Le cadenas de la cave. Une date que Lucien n'oubliera jamais : le jour et le mois, quatre chiffres au clavier, puis dièse."
+    },
+    {
+      "n": 43,
+      "voix": "mado",
+      "usage": "La cave : ouverte",
+      "texte": "Le cadenas cède. Dans la cave, entre les caisses de champagne, Lucien avait installé un gramophone. Sur le plateau, un disque sans étiquette, enregistré à la main. Mais le gramophone est réglé n'importe comment."
+    },
+    {
+      "n": 44,
+      "voix": "mado",
+      "usage": "Le cadenas : raté",
+      "texte": "Le cadenas ne bouge pas. Une date qu'on n'oublie jamais, mes chéris."
+    },
+    {
+      "n": 45,
+      "voix": "mado",
+      "usage": "Le gramophone : consigne",
+      "texte": "Réglez la vitesse du gramophone au CADRAN : le nombre de tours par minute de tous les disques de l'époque. Tournez, appuyez pour valider."
+    },
+    {
+      "n": 46,
+      "voix": "lucien",
+      "usage": "Le disque de Lucien, au casque",
+      "texte": "Mado… si tu écoutes ce disque, c'est que tu me cherches. Ne t'inquiète pas pour moi. Cette nuit, pendant la revue, quelqu'un est entré dans ma loge. J'ai senti son cigare en revenant. Le coffret était ouvert, le carnet avait disparu. Je suis parti tout de suite, pour qu'on ne remonte pas jusqu'à lui. Je suis rue des Martyrs, chez A. Je n'ouvrirai qu'à l'heure de notre premier rendez-vous. Pas avant, pas après. Je t'embrasse.",
+      "sortie": "casque"
+    },
+    {
+      "n": 47,
+      "voix": "mado",
+      "usage": "Après le disque",
+      "texte": "Rue des Martyrs… chez A. Lucien s'est caché chez celui qu'il aime. Le disque glissait une adresse dans sa pochette. Ouvrez l'enveloppe E4."
+    },
+    {
+      "n": 48,
+      "voix": "mado",
+      "usage": "Le gramophone : raté",
+      "texte": "Le disque grince et piaille, beaucoup trop vite, ou beaucoup trop lent. Essayez encore."
+    },
+    {
+      "n": 49,
+      "voix": "mado",
+      "usage": "La cave, de nouveau",
+      "texte": "La cave. Le champagne de la première attend au frais, et le gramophone se tait."
+    },
+    {
+      "n": 50,
+      "voix": "mado",
+      "usage": "La garçonnière : consigne",
+      "texte": "Rue des Martyrs, au troisième étage. Derrière la porte, une pendule sonne doucement. Lucien n'ouvrira qu'à l'heure de leur premier rendez-vous. Réglez cette heure au CADRAN : tournez, appuyez."
+    },
+    {
+      "n": 51,
+      "voix": "mado",
+      "usage": "La garçonnière : raté",
+      "texte": "Personne ne répond. Ce n'est pas la bonne heure, mon chou."
+    },
+    {
+      "n": 52,
+      "voix": "lucien",
+      "usage": "Lucien ouvre",
+      "texte": "Mado ! Tu m'as trouvé… Entrez, vite. Je vous présente Antoine. Antoine de Rivière. Celui à qui j'écris mes chansons."
+    },
+    {
+      "n": 53,
+      "voix": "antoine",
+      "usage": "Antoine",
+      "texte": "Lucien ne voulait pas que je sois mêlé à tout ça. Mon régiment, ma famille, mes fiançailles… Si mon nom sortait, je perdrais tout. Mais je ne le laisserai pas porter ça seul."
+    },
+    {
+      "n": 54,
+      "voix": "lucien",
+      "usage": "Lucien raconte",
+      "texte": "Celui qui a pris le carnet veut le vendre à Brachet, cette nuit, à minuit. Le cabaret serait fermé, et nos habitués fichés, un par un. J'ai senti le cigare, Mado. Un gros havane, comme ceux qu'on fume au Paradis. Il était dans la salle, hier soir. Il y est peut-être encore."
+    },
+    {
+      "n": 55,
+      "voix": "mado",
+      "usage": "Retour au cabaret",
+      "texte": "Retournez au Cabaret Bleu, mes chéris. Le voleur a peut-être laissé une trace de son passage. Et s'il est encore dans la salle, il a laissé son manteau au vestiaire."
+    },
+    {
+      "n": 56,
+      "voix": "mado",
+      "usage": "La garçonnière, de nouveau",
+      "texte": "Lucien et Antoine se tiennent la main, sans rien dire. Ils vous attendent pour la revue."
+    },
+    {
+      "n": 60,
+      "voix": "mado",
+      "usage": "Une fleur hors du coffret",
+      "texte": "Jolie fleur. Mais ce n'est pas le moment de la poser là."
+    },
+    {
+      "n": 70,
+      "voix": "brachet",
+      "usage": "La descente de police",
+      "texte": "Police ! Brigade des mœurs ! Que personne ne bouge !"
+    },
+    {
+      "n": 71,
+      "voix": "mado",
+      "usage": "La descente : consigne",
+      "texte": "Une descente ! Vite, on fait comme d'habitude : on éteint tout, et la salle devient un bal musette bien sage. Tournez la clé du COMPTEUR d'un quart de tour, et vite !"
+    },
+    {
+      "n": 72,
+      "voix": "mado",
+      "usage": "La descente : réussite",
+      "texte": "Noir complet, l'accordéon attaque une valse, et quand la lumière revient, tout le monde danse en couple bien comme il faut. Brachet repart bredouille. Ouf."
+    },
+    {
+      "n": 73,
+      "voix": "mado",
+      "usage": "La descente : ratée",
+      "texte": "Trop tard : Brachet a tout vu, et il a fallu lui offrir le champagne pour qu'il s'en aille. On a perdu un temps fou."
+    },
+    {
+      "n": 74,
+      "voix": "gaston",
+      "usage": "Le téléphone",
+      "texte": "Téléphone ! Quelqu'un demande le monsieur du manteau vingt-sept. Prenez le casque, ça ne passera qu'une fois."
+    },
+    {
+      "n": 75,
+      "voix": "brachet",
+      "usage": "Brachet au téléphone, au casque",
+      "texte": "Allô ? C'est bien vous ? Ici Brachet. Alors, notre petite affaire tient toujours ? Minuit, comme convenu. Vous m'apportez le carnet, et je fermerai les yeux sur les tables de jeu de votre Paradis. Et le Cabaret Bleu fermera ses portes. Tout le monde y gagne. Enfin… presque tout le monde.",
+      "sortie": "casque"
+    },
+    {
+      "n": 76,
+      "voix": "gaston",
+      "usage": "Le téléphone, raté",
+      "texte": "Trop tard, ils ont raccroché. Dommage, ça avait l'air important."
+    },
+    {
+      "n": 77,
+      "voix": "mado",
+      "usage": "Dix minutes",
+      "texte": "Dix minutes avant le lever du rideau ! L'orchestre accorde ses instruments."
+    },
+    {
+      "n": 78,
+      "voix": "mado",
+      "usage": "Trois minutes",
+      "texte": "Trois minutes ! Les filles sont en coulisse, il faut le carnet, et il faut le nom du voleur !"
+    },
+    {
+      "n": 80,
+      "voix": "mado",
+      "usage": "Accusation : demande",
+      "texte": "Alors, mes chéris ? Qui a volé le carnet rouge, où, et avec quelle preuve ? Glissez sa carte, posez la preuve, et appuyez sur le gros bouton."
+    },
+    {
+      "n": 81,
+      "voix": "mado",
+      "usage": "Accusation : il manque une carte",
+      "texte": "Il me faut le coupable, l'endroit du vol et la preuve, tous les trois."
+    },
+    {
+      "n": 82,
+      "voix": "mado",
+      "usage": "Accusation : suspense",
+      "texte": "Roulement de tambour…"
+    },
+    {
+      "n": 83,
+      "voix": "mado",
+      "usage": "Accusation : rien de juste",
+      "texte": "Non, rien ne colle. Réfléchissez encore."
+    },
+    {
+      "n": 84,
+      "voix": "mado",
+      "usage": "Accusation : un élément juste",
+      "texte": "Il y a du vrai, mais pas assez. Un seul élément est juste."
+    },
+    {
+      "n": 85,
+      "voix": "mado",
+      "usage": "Accusation : deux éléments justes",
+      "texte": "Presque ! Deux éléments sur trois sont justes."
+    },
+    {
+      "n": 86,
+      "voix": "mado",
+      "usage": "Accusation : juste",
+      "texte": "Henri Valmont ! Le directeur du Paradis s'est glissé dans la loge pendant la revue, a forcé le coffret et pris le carnet, pour le vendre à Brachet et faire fermer son concurrent. Il a juste oublié son ticket de vestiaire."
+    },
+    {
+      "n": 87,
+      "voix": "mado",
+      "usage": "Accusation : troisième erreur",
+      "texte": "Trois erreurs… Valmont a eu le temps de filer."
+    },
+    {
+      "n": 88,
+      "voix": "mado",
+      "usage": "Accusation : pénalité",
+      "texte": "Mauvaise piste : cinq minutes de perdues."
+    },
+    {
+      "n": 90,
+      "voix": "lucien",
+      "usage": "Victoire",
+      "texte": "Mesdames, messieurs, bonsoir. Ce soir, le Cabaret Bleu est à vous, comme chaque soir. Cette chanson, je la dédie à quelqu'un qui est dans la salle. Il se reconnaîtra."
+    },
+    {
+      "n": 91,
+      "voix": "mado",
+      "usage": "Rang : vedettes",
+      "texte": "Un triomphe ! Carnet retrouvé, voleur démasqué, et sans perdre une minute. Vous êtes les vedettes de la revue, mes chéris."
+    },
+    {
+      "n": 92,
+      "voix": "mado",
+      "usage": "Rang : habitués",
+      "texte": "Bravo ! Le carnet est à l'abri et le rideau se lève à l'heure. Vous êtes de vrais habitués du Cabaret Bleu."
+    },
+    {
+      "n": 93,
+      "voix": "mado",
+      "usage": "Rang : spectateurs",
+      "texte": "Juste à temps ! Le rideau se lève, un peu en retard, mais il se lève. Installez-vous au premier rang, vous l'avez mérité."
+    },
+    {
+      "n": 94,
+      "voix": "mado",
+      "usage": "Défaite : le temps",
+      "texte": "Minuit sonne. Le carnet est parti au Paradis, et demain, Brachet viendra fermer le Cabaret Bleu. Mais tant qu'il y aura des Lucien et des Antoine, il y aura un autre cabaret, quelque part dans Paris."
+    },
+    {
+      "n": 95,
+      "voix": "mado",
+      "usage": "Défaite : les erreurs",
+      "texte": "Trop de fausses pistes. Pendant qu'on cherchait, le voleur a filé avec le carnet."
+    },
+    {
+      "n": 96,
+      "voix": "mado",
+      "usage": "La solution",
+      "texte": "Le coupable, c'était Henri Valmont, le directeur du Paradis. Il s'est glissé dans la loge de Lucien pendant la revue et a pris le carnet rouge dans le coffret. Son ticket de vestiaire, le numéro vingt-sept, est tombé au fond. Le carnet, lui, était dans la poche de son pardessus, au vestiaire."
+    },
+    {
+      "n": 100,
+      "voix": "gaston",
+      "usage": "Gaston",
+      "texte": "Vingt ans que je sers à ce comptoir. J'en ai vu passer, des amoureux qui ne pouvaient pas se tenir la main dans la rue. Ici, ils peuvent. Faut que ça continue."
+    },
+    {
+      "n": 101,
+      "voix": "gaston",
+      "usage": "Gaston et le programme",
+      "texte": "La nouvelle revue. Lucien a tout écrit lui-même, les paroles, la mise en scène. Il a mis son cœur là-dedans."
+    },
+    {
+      "n": 102,
+      "voix": "gaston",
+      "usage": "Gaston et la lettre",
+      "texte": "Je ne lis pas le courrier des autres. Mais je reconnais l'écriture : c'est celle du jeune lieutenant qui boit toujours seul au fond de la salle."
+    },
+    {
+      "n": 103,
+      "voix": "gaston",
+      "usage": "Gaston et le ticket",
+      "texte": "Un ticket de chez nous, numéro vingt-sept. Hier soir, le vingt-sept, c'était un pardessus en poil de chameau. Un client qui ne boit que du cognac et fume de gros cigares. Il ne vient pas souvent, mais il regarde tout."
+    },
+    {
+      "n": 104,
+      "voix": "gaston",
+      "usage": "Gaston et le disque",
+      "texte": "Lucien passait des heures à la cave avec son gramophone. Il enregistrait des chansons pour quelqu'un."
+    },
+    {
+      "n": 105,
+      "voix": "gaston",
+      "usage": "Gaston et le carnet",
+      "texte": "Le carnet rouge… Tu sais ce qu'il y a dedans, ce carnet ? Des vies. Faut le brûler, Mado, après ce soir."
+    },
+    {
+      "n": 109,
+      "voix": "gaston",
+      "usage": "Gaston, autre chose",
+      "texte": "Ça, je ne sais pas, mon petit. Moi, je sers à boire."
+    },
+    {
+      "n": 110,
+      "voix": "suzy",
+      "usage": "Suzy",
+      "texte": "Lucien, Lucien, toujours Lucien ! On croirait qu'il n'y a que lui, dans cette revue. Bon. Il me manque, cet idiot."
+    },
+    {
+      "n": 111,
+      "voix": "suzy",
+      "usage": "Suzy et le programme",
+      "texte": "Tu as vu ? Mon numéro est coincé entre le jongleur et l'entracte. Mais l'entrée de Lucien, elle, a droit à tous les feux."
+    },
+    {
+      "n": 112,
+      "voix": "suzy",
+      "usage": "Suzy et le mouchoir",
+      "texte": "Un mouchoir violet à la boutonnière… Tout le monde ici sait ce que ça veut dire, mon chou. Sauf la police."
+    },
+    {
+      "n": 113,
+      "voix": "suzy",
+      "usage": "Suzy et le ticket",
+      "texte": "Le vingt-sept ? C'est le gros monsieur aux cigares. Il m'a proposé de chanter au Paradis, pour le double de mon cachet. J'ai dit non. Moi, je reste au Cabaret Bleu."
+    },
+    {
+      "n": 119,
+      "voix": "suzy",
+      "usage": "Suzy, autre chose",
+      "texte": "Ça ne me dit rien, chéri."
+    },
+    {
+      "n": 120,
+      "voix": "valmont",
+      "usage": "Valmont",
+      "texte": "Henri Valmont, directeur du Paradis, le plus beau cabaret de Montmartre. Je passais en voisin, pour admirer la concurrence. Charmant, votre petit établissement. Si fragile."
+    },
+    {
+      "n": 121,
+      "voix": "valmont",
+      "usage": "Valmont et le ticket",
+      "texte": "Un ticket de vestiaire ? Tout le monde en a un, mon cher. Je ne vois pas en quoi ça me concerne."
+    },
+    {
+      "n": 122,
+      "voix": "valmont",
+      "usage": "Valmont et le carnet",
+      "texte": "Un carnet ? Jamais vu. Et quand bien même… Qui irait croire des gens qui se cachent ?"
+    },
+    {
+      "n": 123,
+      "voix": "valmont",
+      "usage": "Valmont et le programme",
+      "texte": "Une revue amusante. Dommage qu'elle risque de ne jamais se jouer."
+    },
+    {
+      "n": 129,
+      "voix": "valmont",
+      "usage": "Valmont, autre chose",
+      "texte": "Ça ne m'intéresse pas le moins du monde."
+    },
+    {
+      "n": 130,
+      "voix": "antoine",
+      "usage": "Antoine",
+      "texte": "Lieutenant Antoine de Rivière. Je viens écouter la musique, c'est tout. Je… je ne devrais pas être ici."
+    },
+    {
+      "n": 131,
+      "voix": "antoine",
+      "usage": "Antoine et la lettre",
+      "texte": "Où avez-vous trouvé ça ? C'est… c'est à lui que je l'ai écrite. Je vous en prie, ne la montrez à personne."
+    },
+    {
+      "n": 132,
+      "voix": "antoine",
+      "usage": "Antoine et le mouchoir",
+      "texte": "C'est notre signal. Quand il porte le mouchoir violet, je sais qu'il chantera pour moi."
+    },
+    {
+      "n": 133,
+      "voix": "antoine",
+      "usage": "Antoine et le carnet",
+      "texte": "Mon nom est dedans. Le sien aussi. Si ce carnet arrive à la police, nous sommes perdus, tous les deux."
+    },
+    {
+      "n": 139,
+      "voix": "antoine",
+      "usage": "Antoine, autre chose",
+      "texte": "Je ne sais rien de cela. Je suis désolé."
+    },
+    {
+      "n": 140,
+      "voix": "mado",
+      "usage": "Le programme",
+      "texte": "Le programme de la nouvelle revue. Huit tableaux, et en clou du spectacle, l'entrée de Lucien sous tous les feux."
+    },
+    {
+      "n": 141,
+      "voix": "mado",
+      "usage": "La lettre d'Antoine",
+      "texte": "Une lettre d'amour, écrite d'une main tremblante. Lisez-la bien : les amoureux cachent toujours des choses dans leurs lettres."
+    },
+    {
+      "n": 142,
+      "voix": "mado",
+      "usage": "Le mouchoir violet",
+      "texte": "Un mouchoir de soie violette, parfumé à la violette. À la boutonnière, c'est un signe de reconnaissance."
+    },
+    {
+      "n": 143,
+      "voix": "mado",
+      "usage": "Le ticket de vestiaire",
+      "texte": "Un ticket de vestiaire du Cabaret Bleu, numéro vingt-sept. Au dos, la sonnerie de la maison, pour les habitués."
+    },
+    {
+      "n": 144,
+      "voix": "mado",
+      "usage": "Le disque",
+      "texte": "Un disque soixante-dix-huit tours, sans étiquette, enregistré par Lucien lui-même."
+    },
+    {
+      "n": 145,
+      "voix": "mado",
+      "usage": "Le carnet rouge",
+      "texte": "Le carnet rouge. Je ne l'ouvre pas : ce qu'il contient ne regarde personne."
+    },
+    {
+      "n": 150,
+      "voix": "mado",
+      "usage": "Aide : appel",
+      "texte": "Tu m'appelles, mon chou ? Voyons voir."
+    },
+    {
+      "n": 151,
+      "voix": "mado",
+      "usage": "Aide : indice offert",
+      "texte": "Celui-là, c'est la maison qui offre."
+    },
+    {
+      "n": 152,
+      "voix": "mado",
+      "usage": "Aide : indice payant",
+      "texte": "Celui-là va vous coûter deux minutes, mes chéris."
+    },
+    {
+      "n": 159,
+      "voix": "mado",
+      "usage": "Aide : plus d'indice",
+      "texte": "Je vous ai tout dit, mes chéris. À vous de jouer."
+    },
+    {
+      "n": 160,
+      "voix": "mado",
+      "usage": "Indice : la salle",
+      "texte": "Commencez par la salle : glissez sa carte dans la fente."
+    },
+    {
+      "n": 161,
+      "voix": "mado",
+      "usage": "Indice : les feux, 1",
+      "texte": "La feuille du régisseur, dans l'enveloppe E1 : les feux noircis sont ceux à allumer. Les feux sont numérotés de un à dix, et la touche zéro, c'est le dixième."
+    },
+    {
+      "n": 162,
+      "voix": "mado",
+      "usage": "Indice : les feux, 2",
+      "texte": "Les feux à allumer, ce sont le deux, le quatre, le cinq, le six, le sept et le neuf. Puis la touche dièse."
+    },
+    {
+      "n": 163,
+      "voix": "mado",
+      "usage": "Indice : la loge",
+      "texte": "La clé de la loge est maintenant à vous : glissez la carte de la loge dans la fente."
+    },
+    {
+      "n": 164,
+      "voix": "mado",
+      "usage": "Indice : le miroir, 1",
+      "texte": "Le miroir garde un mot écrit au doigt. Comme sur une vitre, il faut de la buée : soufflez sur la FORGE, bouche ouverte."
+    },
+    {
+      "n": 165,
+      "voix": "mado",
+      "usage": "Indice : le miroir, 2",
+      "texte": "La FORGE, ce sont les petits trous ronds de la plaque. Penchez-vous à cinq centimètres, bouche grande ouverte, et soufflez comme pour faire de la buée, deux bonnes secondes."
+    },
+    {
+      "n": 166,
+      "voix": "mado",
+      "usage": "Indice : le coffret, 1",
+      "texte": "Dans sa lettre, Antoine parle des fleurs qu'il porte à la boutonnière pour Lucien, dans l'ordre de leurs rendez-vous."
+    },
+    {
+      "n": 167,
+      "voix": "mado",
+      "usage": "Indice : le coffret, 2",
+      "texte": "Les fleurs, dans l'ordre : la violette, la jonquille, puis le coquelicot. Violet, jaune, rouge, sur l'ŒILLET."
+    },
+    {
+      "n": 168,
+      "voix": "mado",
+      "usage": "Indice : la cave, 1",
+      "texte": "Le code de la cave est une date : celle du premier rendez-vous de Lucien et Antoine. Elle est dans la lettre."
+    },
+    {
+      "n": 169,
+      "voix": "mado",
+      "usage": "Indice : la cave, 2",
+      "texte": "Ils se sont rencontrés un quatorze juillet, le soir du bal. Tapez un, quatre, zéro, sept, puis dièse."
+    },
+    {
+      "n": 170,
+      "voix": "mado",
+      "usage": "Indice : le gramophone",
+      "texte": "Les disques de l'époque tournent tous à la même vitesse : soixante-dix-huit tours par minute."
+    },
+    {
+      "n": 171,
+      "voix": "mado",
+      "usage": "Indice : la rue des Martyrs, 1",
+      "texte": "L'heure du premier rendez-vous est dans la lettre d'Antoine, elle aussi."
+    },
+    {
+      "n": 172,
+      "voix": "mado",
+      "usage": "Indice : la rue des Martyrs, 2",
+      "texte": "Ils se sont vus pour la première fois à vingt-trois heures trente. Réglez vingt-trois, puis trente."
+    },
+    {
+      "n": 173,
+      "voix": "mado",
+      "usage": "Indice : le vestiaire, 1",
+      "texte": "Le ticket de vestiaire, le vingt-sept, venait du coffret. Posez-le sur le plateau, quand la carte de la salle est dans la fente."
+    },
+    {
+      "n": 174,
+      "voix": "mado",
+      "usage": "Indice : le vestiaire, 2",
+      "texte": "La sonnerie de la maison est imprimée au dos du ticket : trois coups rapides, un silence, puis deux coups."
+    },
+    {
+      "n": 175,
+      "voix": "mado",
+      "usage": "Indice : l'accusation, 1",
+      "texte": "Qui fume le cigare, a laissé son manteau au vingt-sept, et rêve de voir fermer le Cabaret Bleu ?"
+    },
+    {
+      "n": 176,
+      "voix": "mado",
+      "usage": "Indice : l'accusation, 2",
+      "texte": "Henri Valmont, dans la loge de Lucien, avec le carnet rouge comme preuve. Glissez les cartes, posez le carnet, et appuyez sur le gros bouton."
+    }
+  ]
+}

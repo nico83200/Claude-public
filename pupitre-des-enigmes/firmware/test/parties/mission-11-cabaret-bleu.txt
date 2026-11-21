@@ -1,0 +1,122 @@
+# Mission 11 · Le Secret du Cabaret Bleu — sur le pupitre à deux lecteurs : la salle (les feux de la
+# rampe au clavier, une erreur), la loge (le miroir à la forge, le coffret aux fleurs, une fausse
+# note), le bar et la cave (le cadenas, le gramophone au cadran, le disque au casque), la descente
+# de police à la clé, la rue des Martyrs (l'heure au cadran), le téléphone de Brachet au casque,
+# le vestiaire au gros bouton et le tiroir secret, une fausse accusation puis la bonne.
+fente M11
+fente -
+verifie phase menu
+touches 1
+calme
+verifie phase jeu
+
+# --- La loge trop tôt, puis la salle
+fente L2
+verifie sans J_miroir
+fente -
+fente L1
+verifie drapeau enveloppe_E1
+fente -
+
+# --- Les personnages
+fente P1
+plateau O1
+fente -
+plateau -
+fente P3
+fente -
+
+# --- Les feux de la rampe : une erreur, puis 2, 4, 5, 6, 7, 9
+fente L1
+verifie epreuve voyants
+touches 1#
+verifie sans J_feux
+fente -
+fente L1
+verifie epreuve voyants
+touches 245679#
+verifie drapeau J_feux
+fente -
+
+# --- La loge : le miroir à la forge, puis le coffret (une fausse note)
+fente L2
+verifie epreuve capteur
+souffle 3
+verifie drapeau J_miroir
+verifie drapeau enveloppe_E2
+couleur violet
+couleur -
+couleur rouge
+verifie compteur f 0
+couleur -
+couleur violet
+couleur -
+couleur jaune
+couleur -
+couleur rouge
+verifie drapeau J_coffret
+verifie drapeau enveloppe_E3
+couleur -
+fente -
+
+# --- Le bar : Gaston, puis le cadenas (une erreur, puis 1407) et le gramophone (78)
+fente L3
+verifie drapeau J_bar
+fente -
+fente L3
+verifie epreuve code
+touches 1231#
+verifie sans J_cave
+fente -
+fente L3
+touches 1407#
+verifie drapeau J_cave
+verifie epreuve code
+code 7,8
+verifie drapeau J_disque
+verifie drapeau enveloppe_E4
+fente -
+
+# --- La descente de police (minute 22) : la clé du compteur
+restant 37
+verifie epreuve cle
+cle tournee
+calme
+cle repos
+
+# --- La rue des Martyrs : l'heure du rendez-vous au cadran
+fente L4
+verifie epreuve code
+code 2,3,3,0
+verifie drapeau J_lucien
+fente -
+
+# --- Le téléphone de Brachet (minute 38), au casque
+restant 21
+calme
+
+# --- Le vestiaire : le ticket dans la salle, la sonnette au gros bouton, le tiroir
+fente L1
+plateau O4
+verifie epreuve rythme
+rythme 0,300,600,1400,1700 1
+verifie drapeau J_carnet
+verifie tiroir ouvert
+plateau -
+fente -
+
+# --- L'accusation, dans la loge : Suzy (faux), puis Henri Valmont
+fente L2
+fente -
+fente P2
+plateau O6
+bouton GROS
+bouton VERT
+calme
+verifie phase jeu
+fente -
+fente P3
+bouton GROS
+bouton VERT
+calme
+verifie phase victoire

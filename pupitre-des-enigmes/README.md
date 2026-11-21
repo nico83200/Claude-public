@@ -26,6 +26,7 @@ Monde** dans la fente, et s'habille d'une **façade aimantée** à son image.
 | 🕯️ [Le Manoir Blackwood](mondes/blackwood/) | 7 · [La dernière nuit de Lord Edgar](mondes/blackwood/mission-7-derniere-nuit.md) · [déroulé](mondes/blackwood/mission-7-deroule.md) · *enquête gothique, la lampe à remonter, une séance de spiritisme* | 🟠 Intermédiaire | 60 min |
 | 🦖 [Le Muséum national](mondes/museum/) | 8 · Panique au Muséum · [déroulé](mondes/museum/mission-8-deroule.md) · *le tutoriel : localiser, éclairer le soupirail, ouvrir le coffre* | 🟢 Tutoriel | 15 min |
 | 💚 [Le Manoir Harrington](mondes/harrington/) | 9 · Le Vol de l'Œil de Jade · [déroulé](mondes/harrington/mission-9-deroule.md) · *enquête et manipulation : les gemmes sur la loupe, la clé de dérivation, la TSF* | 🟠 Intermédiaire | 60 min |
+| 🎭 [Le Cabaret Bleu](mondes/cabaret/) | 11 · Le Secret du Cabaret Bleu · [déroulé](mondes/cabaret/mission-11-deroule.md) · *enquête historique : les feux de la rampe, le miroir à la forge, les fleurs sur l'œillet, le disque au casque* | 🟠 Intermédiaire | 60 min |
 
 Chaque mission a sa **plaque aimantée**, qui renomme les organes du pupitre pour l'immersion : l'œil devient *le soupirail* au Muséum, le capteur de couleur *la loupe* et l'interrupteur à clé *la dérivation* au manoir Harrington, le gros bouton *la dynamo* dans le Narval… Le script, l'écran, les répliques et le livret emploient les mêmes noms que la plaque. Les neuf missions ont leur plaque (`pdf/mission-N-plateau.pdf`) ; celles du Muséum, d'Harrington, de Monte-Carlo, de Kepler-9, du déminage et de Blackwood sont fabriquées par `outils/impression/plaques.py`, qui ne découvre que les organes dont chaque mission se sert.
 
@@ -85,7 +86,8 @@ mission).
 [Désamorçage](pdf/mission-6-livret-a5-brochure.pdf) ★★ ·
 [La dernière nuit de Lord Edgar](pdf/mission-7-livret-a5-brochure.pdf) ★★ ·
 [Panique au Muséum](pdf/mission-8-livret-a5-brochure.pdf) ★ ·
-[Le Vol de l'Œil de Jade](pdf/mission-9-livret-a5-brochure.pdf) ★★
+[Le Vol de l'Œil de Jade](pdf/mission-9-livret-a5-brochure.pdf) ★★ ·
+[Le Secret du Cabaret Bleu](pdf/mission-11-livret-a5-brochure.pdf) ★★
 
 Tous les livrets sont en « édition premium » : 16 pages composées directement en A5 (`mondes/<monde>/impression/livret.html`) sur la feuille de style commune `outils/impression/livret.css`, qui fixe la charte et le chemin de fer : couverture, bienvenue et sommaire, l'histoire, la mission, les personnages, les rôles, les lieux, le pupitre, le carnet à remplir, notes et quatrième de couverture. Chaque monde n'y change que ses couleurs, ses icônes et ses illustrations. Une mission sans `livret.html` retombe sur le livret générique. Une page commune à toutes les missions explique comment lire une carte : [lire-une-carte-a5.pdf](pdf/lire-une-carte-a5.pdf) (à glisser dans la boîte, ou au dos d'un livret).
 
@@ -111,3 +113,5 @@ Tous les livrets sont en « édition premium » : 16 pages composées directemen
 **Mission 8 · Panique au Muséum** (le tutoriel, 15 min) : [à imprimer en recto seul](pdf/mission-8-a-imprimer-recto.pdf) (fiche de mission, [plaque du Muséum](pdf/mission-8-plateau.pdf), enveloppes) · [cartes en recto verso](pdf/mission-8-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-8-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-8-script-doublage.pdf)
 
 **Mission 9 · Le Vol de l'Œil de Jade** (2 à 6 joueurs) : [à imprimer en recto seul](pdf/mission-9-a-imprimer-recto.pdf) (fiche de mission, [plaque du poste de sécurité](pdf/mission-9-plateau.pdf), enveloppes) · [cartes en recto verso](pdf/mission-9-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-9-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-9-script-doublage.pdf). À fournir : cinq fausses gemmes acryliques (rouge, verte, bleue, jaune, violette).
+
+**Mission 11 · Le Secret du Cabaret Bleu** (2 à 6 joueurs) : [à imprimer en recto seul](pdf/mission-11-a-imprimer-recto.pdf) (fiche de mission, [plaque du tableau de régie](pdf/mission-11-plateau.pdf), enveloppes) · [cartes en recto verso](pdf/mission-11-a-imprimer-recto-verso.pdf) · [déroulé](pdf/mission-11-deroule-maitre-du-jeu.pdf) · [script de doublage](pdf/mission-11-script-doublage.pdf). À fournir : cinq fleurs, rubans ou papiers de couleur vive (violet, jaune, rouge, bleu, vert).

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Secret du Cabaret Bleu · Contenu des enveloppes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<style>
+  @page { size: A4; margin: 12mm 13mm 13mm; }
+  .page { break-after: page; position: relative; padding-top: 5mm; }
+  .page:last-child { break-after: auto; }
+  .tag { position: absolute; top: 0; right: 0; font-size: 7.5pt; color: var(--gris); letter-spacing: .1em; text-transform: uppercase; }
+  .ciseaux { border-top: 1px dashed #b9b2a6; margin: 3.5mm 0; position: relative; }
+  .ciseaux::before { content: "✂"; position: absolute; left: -2mm; top: -3.3mm; font-size: 10pt; color: #b9b2a6; background: #fff; }
+  h2 { color: #1b2147; }
+  .programme { width: 150mm; margin: 0 auto; background: #141a33; color: #e9e3f5; border: 1mm solid #c9a86a; padding: 4mm 10mm;
+               box-shadow: inset 0 0 0 1.5mm #141a33, inset 0 0 0 1.9mm #c9a86a; text-align: center; }
+  .programme .haut { font-family: "Playfair"; letter-spacing: .3em; font-size: 9pt; color: #c9a86a; }
+  .programme h3 { font-family: "Playfair"; font-size: 24pt; margin: 1mm 0 0; color: #fff; }
+  .programme .sous { font-style: italic; font-family: "Playfair"; color: #b9b6e0; margin-bottom: 3mm; }
+  .programme ol { text-align: left; margin: 0 auto; width: 110mm; font-family: "Playfair"; font-size: 10.5pt; line-height: 1.38; }
+  .programme ol li::marker { color: #c9a86a; }
+  .programme em { color: #c9a86a; }
+  .regie { width: 150mm; margin: 0 auto; background: #fff; border: 1.5px solid #1b2147; padding: 5mm 8mm; }
+  .regie .entete { display: flex; justify-content: space-between; font-family: "Share Tech Mono", monospace; font-size: 10pt; color: #1b2147;
+                   border-bottom: 1.5px solid #1b2147; padding-bottom: 1.5mm; margin-bottom: 3mm; }
+  .feux { display: grid; grid-template-columns: repeat(5, 18mm); gap: 4mm 6mm; justify-content: center; margin: 2mm 0 3mm; }
+  .feu { text-align: center; font-family: "Share Tech Mono", monospace; font-size: 10pt; color: #555; }
+  .feu span { display: block; width: 10mm; height: 10mm; margin: 0 auto 1mm; border-radius: 50%; border: .7mm solid #1b2147; background: #fff; }
+  .feu.on span { background: #1b2147; }
+  .regie .note { font-family: "Caveat"; font-size: 16pt; color: #2a3270; line-height: 1.2; }
+  .mot { background: #fffdf8; border: 1px solid #e0d3b0; padding: 4mm 9mm; font-family: "Caveat"; font-size: 16pt; color: #2a2a4a; line-height: 1.3;
+         transform: rotate(-1.2deg); box-shadow: 0 1mm 3mm #0002; width: 120mm; margin: 0 auto; }
+  .lettre { background: #fbf7ee; border: 1px solid #d9cfa8; padding: 8mm 12mm; font-family: "Caveat"; font-size: 17pt; color: #23325a; line-height: 1.32;
+            box-shadow: 0 1mm 3mm #0002; width: 160mm; margin: 0 auto; }
+  .lettre p { margin: 0 0 2.5mm; }
+  .ticket { display: inline-block; width: 70mm; height: 40mm; border: .6mm solid #1b2147; border-radius: 2mm; background: #e9e6fb; margin: 0 4mm;
+            vertical-align: top; text-align: center; padding: 3mm; box-sizing: border-box; position: relative; }
+  .ticket .maison { font-family: "Playfair"; font-weight: 900; letter-spacing: .12em; color: #1b2147; font-size: 11pt; }
+  .ticket .num { font-family: "Playfair"; font-weight: 900; font-size: 34pt; color: #a0285a; line-height: 1.05; }
+  .ticket .petitmot { font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: #555; }
+  .ticket .sonnerie { font-size: 26pt; letter-spacing: 2.5mm; color: #1b2147; margin-top: 2mm; }
+  .pochette { width: 120mm; height: 120mm; margin: 0 auto; border-radius: 2mm; background: radial-gradient(circle at center, #1a1a1a 0 18mm, #c9a86a 18mm 19mm, #2a2f5e 19mm);
+              display: flex; align-items: flex-end; justify-content: center; box-shadow: 0 1mm 3mm #0003; }
+  .pochette div { background: #fffdf8; font-family: "Caveat"; font-size: 18pt; color: #2a2a4a; padding: 3mm 6mm; margin-bottom: 8mm; transform: rotate(-2deg); }
+  .etiquettes { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 34mm; border-top: 1px dashed #b9b2a6; border-left: 1px dashed #b9b2a6; }
+  .etiquette { border-right: 1px dashed #b9b2a6; border-bottom: 1px dashed #b9b2a6; padding: 2.5mm 6mm; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .etiquette .num { font-family: "Playfair"; font-weight: 900; font-size: 26pt; color: #1b2147; line-height: 1; }
+  .etiquette .lieu { font-family: "Playfair"; font-style: italic; font-size: 12pt; color: #a0285a; margin: 1mm 0 1.2mm; }
+  .etiquette .avis { font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: var(--rouge); border-top: 1px solid var(--filet); padding-top: 1.2mm; }
+  .etiquette.dos { text-align: left; justify-content: flex-start; font-size: 9pt; line-height: 1.3; }
+  .etiquette.dos h4 { margin: 0 0 .8mm; font-size: 10pt; }
+  .etiquette.dos ul { margin: 0; padding-left: 4mm; }
+</style>
+</head>
+<body>
+
+<!-- ================= E1 · LA SALLE ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E1 · La Salle</div>
+  <h2 style="margin-top:0">Le programme de la revue</h2>
+  <div class="programme">
+    <div class="haut">✦ CABARET BLEU · RUE DE LAPPE ✦</div>
+    <h3>« Paris la Nuit »</h3>
+    <div class="sous">grande revue en huit tableaux · première le 12 mars 1932</div>
+    <ol>
+      <li>Ouverture : les Girls du Cabaret Bleu</li>
+      <li>« Mon homme est marin » · <em>Suzy Lamour</em></li>
+      <li>Le jongleur Pipo et ses assiettes</li>
+      <li>Entracte : l'orchestre de Django Frères</li>
+      <li>« Les Violettes de Montmartre » · <em>les Girls</em></li>
+      <li>Le tango des Apaches</li>
+      <li>« Danse avec moi, mon lieutenant » · <em>Suzy Lamour</em></li>
+      <li><em>Entrée de Lucien Ferrand</em> : « Pour toi, à la vie à la mort »</li>
+    </ol>
+  </div>
+
+  <div class="ciseaux"></div>
+  <h2 style="margin-top:0">La feuille du régisseur</h2>
+  <div class="regie">
+    <div class="entete"><span>CABARET BLEU · RÉGIE</span><span>Tableau 8 · Entrée de Lucien</span></div>
+    <div class="feux">
+      <div class="feu"><span></span>1</div><div class="feu on"><span></span>2</div><div class="feu"><span></span>3</div><div class="feu on"><span></span>4</div><div class="feu on"><span></span>5</div>
+      <div class="feu on"><span></span>6</div><div class="feu on"><span></span>7</div><div class="feu"><span></span>8</div><div class="feu on"><span></span>9</div><div class="feu"><span></span>10</div>
+    </div>
+    <div class="note">Feux noircis = allumés. Le 10, c'est la touche 0. Puis on valide (#). Ne pas toucher aux autres, Lucien déteste.</div>
+  </div>
+
+  <div class="ciseaux"></div>
+  <div class="mot">
+    Ma Mado,<br>
+    si je ne suis pas là ce soir, ne me cherche pas, et ne crois pas ce qu'on dira. Protège le carnet rouge, il y va de nous tous.<br>
+    <span style="float:right">Ton L.</span><br>
+  </div>
+  <p class="petit" style="text-align:center;margin-top:4mm">Dans l'enveloppe E1, glissez aussi la carte <strong>O1 · Le programme de la revue</strong>.</p>
+</div>
+
+<!-- ================= E2 · LE MIROIR ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E2 · La Loge de Lucien</div>
+  <h2 style="margin-top:0">La lettre, derrière le miroir</h2>
+  <div class="lettre">
+    <p>Mon Lucien,</p>
+    <p>Je relis tes chansons chaque nuit, à la caserne, et je t'entends. Te souviens-tu de ce soir du bal, le 14 juillet, rue de Lappe ?
+       Il était vingt-trois heures trente quand tu m'as souri à travers les lampions. Je n'ai jamais oublié l'heure ni le jour : c'est
+       mon vrai anniversaire.</p>
+    <p>À notre premier rendez-vous, j'avais une violette à la boutonnière. Au deuxième, une jonquille, pour faire le fier. Au troisième,
+       un coquelicot, rouge comme ma honte et mon bonheur. Ce sont nos trois fleurs, dans cet ordre : personne d'autre ne les connaît.</p>
+    <p>Bientôt, je n'aurai plus besoin de fleurs pour te dire que je t'aime. En attendant, garde mon mouchoir violet sur ton cœur.</p>
+    <p style="text-align:right">Ton A.</p>
+  </div>
+  <p class="petit" style="text-align:center;margin-top:5mm">Dans l'enveloppe E2, glissez aussi les cartes <strong>O2 · La lettre d'Antoine</strong> et
+     <strong>O3 · Le mouchoir violet</strong>.</p>
+</div>
+
+<!-- ================= E3 · LE COFFRET ================= -->
+<div class="page">
+  <div class="tag">Enveloppe E3 · Le coffret</div>
+  <h2 style="margin-top:0">Au fond du coffret : un ticket de vestiaire</h2>
+  <p class="petit">À découper : le recto et le verso, à coller dos à dos.</p>
+  <div style="text-align:center;margin:4mm 0">
+    <div class="ticket"><div class="maison">CABARET BLEU</div><div class="petitmot">vestiaire</div><div class="num">N° 27</div><div class="petitmot">rue de Lappe · Paris XI<sup>e</sup></div></div>
+    <div class="ticket"><div class="petitmot">la sonnerie de la maison</div><div class="sonnerie">• • • &nbsp; • •</div><div class="petitmot" style="margin-top:2mm">trois coups, un silence, deux coups</div></div>
+  </div>
+  <p class="petit" style="text-align:center">Dans l'enveloppe E3, glissez aussi la carte <strong>O4 · Le ticket de vestiaire n° 27</strong>.</p>
+
+  <div class="ciseaux"></div>
+  <div class="tag" style="position:static;margin-bottom:2mm">Enveloppe E4 · La cave</div>
+  <h2 style="margin-top:0">La pochette du disque</h2>
+  <div class="pochette"><div>Chez A. · 12, rue des Martyrs · 3<sup>e</sup> étage</div></div>
+  <p class="petit" style="text-align:center;margin-top:4mm">Dans l'enveloppe E4, glissez aussi les cartes <strong>O5 · Le disque de Lucien</strong> et <strong>L4 · Rue des Martyrs</strong>.</p>
+
+  <div class="ciseaux"></div>
+  <p><strong>Enveloppe E5</strong> (seulement pour un pupitre sans tiroir secret) : la carte <strong>O6 · Le carnet rouge</strong>. Sinon, avant la partie :
+     carte <strong>Le Cabaret Bleu</strong> dans la fente, menu <strong>Tiroir secret</strong>, rangez-y la carte du carnet, poussez le tiroir et validez au vert.</p>
+</div>
+
+<!-- ================= LES ÉTIQUETTES ================= -->
+<div class="page">
+  <h2 style="margin-top:0">Les étiquettes des enveloppes</h2>
+  <div class="etiquettes">
+    <div class="etiquette"><div class="num">E1</div><div class="lieu">La Salle</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E1 · contenu</h4><ul><li>Le programme de la revue</li><li>La feuille du régisseur · le mot de Lucien</li><li>Carte O1</li></ul></div>
+    <div class="etiquette"><div class="num">E2</div><div class="lieu">La Loge de Lucien</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E2 · contenu</h4><ul><li>La lettre d'Antoine</li><li>Cartes O2 et O3</li></ul></div>
+    <div class="etiquette"><div class="num">E3</div><div class="lieu">Le coffret</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E3 · contenu</h4><ul><li>Le ticket de vestiaire n° 27</li><li>Carte O4</li></ul></div>
+    <div class="etiquette"><div class="num">E4</div><div class="lieu">La cave</div><div class="avis">À n'ouvrir que si le pupitre le demande</div></div>
+    <div class="etiquette dos"><h4>E4 · contenu</h4><ul><li>La pochette du disque</li><li>Cartes O5 et L4</li></ul></div>
+    <div class="etiquette"><div class="num">E5</div><div class="lieu">Le vestiaire</div><div class="avis">Sans tiroir secret seulement</div></div>
+    <div class="etiquette dos"><h4>E5 · contenu</h4><ul><li>Carte O6 · Le carnet rouge</li></ul></div>
+  </div>
+</div>
+
+</body>
+</html>

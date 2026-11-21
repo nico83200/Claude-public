@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Secret du Cabaret Bleu · Cartes</title>
+<link rel="stylesheet" href="../../../outils/impression/commun.css">
+<script src="../../../outils/impression/cartes.js"></script>
+</head>
+<body>
+<div id="contenu"></div>
+<script>
+planches({
+  nom: "Le Cabaret Bleu",
+  mission: "Le Secret du Cabaret Bleu",
+  police: '"Playfair", serif',
+  accent: "#c9a86a",
+  motif: "✦ ✧ ✦",
+  types: {
+    monde: { c: "#1b2147", fond: "#e3e5f6", libelle: "Carte Monde", zone: "Fente" },
+    lieu:  { c: "#2e3d8f", fond: "#dfe3f6", libelle: "Lieu", zone: "📍 Fente" },
+    perso: { c: "#7a2350", fond: "#f3dfe9", libelle: "Personne", zone: "👤 Fente" },
+    objet: { c: "#7a5a1f", fond: "#f2e6cc", libelle: "Objet", zone: "🔍 Plateau" },
+    aide:  { c: "#5b2f6e", fond: "#eadff0", libelle: "Aide", zone: "Fente" },
+  },
+  cartes: [
+    { id: "M11", t: "monde", nom: "Le Cabaret Bleu", sous: "Le Secret du Cabaret Bleu", vis: "🎭", txt: "Glissez cette carte dans la fente pour charger le monde. <em>Paris, mars 1932.</em>" },
+
+    { id: "L1", t: "lieu", nom: "La Salle", sous: "La scène, le piano, le vestiaire", vis: "🎹", txt: "Tables rondes, abat-jour bleus, et les feux de la rampe." },
+    { id: "L2", t: "lieu", nom: "La Loge de Lucien", sous: "Fermée à clé", vis: "🪞", txt: "Le miroir, la coiffeuse, le coffret. <em>C'est ici que l'on accuse.</em>" },
+    { id: "L3", t: "lieu", nom: "Le Bar et la Cave", sous: "Chez Gaston", vis: "🍸", txt: "Le comptoir en zinc, et la cave fermée par un cadenas." },
+    { id: "L4", t: "lieu", nom: "Rue des Martyrs", sous: "Enveloppe E4", vis: "🗝️", txt: "Au troisième étage, une porte, et une pendule qui sonne." },
+
+    { id: "P1", t: "perso", nom: "Gaston Morel", sous: "Le barman · 61 ans", ini: "GM", coul: "#5b4636", txt: "<em>« Ici, ils peuvent se tenir la main. Faut que ça continue. »</em>" },
+    { id: "P2", t: "perso", nom: "Suzy Lamour", sous: "La chanteuse · 34 ans", ini: "SL", coul: "#a0285a", txt: "<em>« Lucien, Lucien, toujours Lucien ! »</em>" },
+    { id: "P3", t: "perso", nom: "Henri Valmont", sous: "Directeur du Paradis · 52 ans", ini: "HV", coul: "#2b2b33", txt: "<em>« Charmant, votre petit établissement. Si fragile. »</em>" },
+    { id: "P4", t: "perso", nom: "Antoine de Rivière", sous: "Lieutenant · 29 ans", ini: "AR", coul: "#2c4a7a", txt: "<em>« Je viens écouter la musique, c'est tout. »</em>" },
+
+    { id: "O1", t: "objet", nom: "Le programme de la revue", sous: "Enveloppe E1", vis: "📜", txt: "« Paris la Nuit », en huit tableaux." },
+    { id: "O2", t: "objet", nom: "La lettre d'Antoine", sous: "Enveloppe E2", vis: "💌", txt: "Écrite d'une main tremblante." },
+    { id: "O3", t: "objet", nom: "Le mouchoir violet", sous: "Enveloppe E2", vis: "🌸", txt: "Soie violette, parfum de violette." },
+    { id: "O4", t: "objet", nom: "Le ticket de vestiaire n° 27", sous: "Enveloppe E3", vis: "🎟️", txt: "Oublié au fond du coffret." },
+    { id: "O5", t: "objet", nom: "Le disque de Lucien", sous: "Enveloppe E4", vis: "💿", txt: "Un 78 tours enregistré à la main." },
+    { id: "O6", t: "objet", nom: "Le carnet rouge", sous: "Dans le tiroir secret (ou E5)", vis: "📕", txt: "Des noms, des adresses, des vies. <em>Il sert à accuser.</em>" },
+
+    { id: "A11", t: "aide", nom: "Mado", sous: "La meneuse de revue", vis: "💃", txt: "Glissez sa carte quand vous bloquez. 3 conseils gratuits, puis 2 minutes chacun." },
+  ],
+});
+</script>
+</body>
+</html>
