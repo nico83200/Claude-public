@@ -73,7 +73,7 @@ doivent pas le lire. Le déroulé minute par minute est dans
 | Élément | Utilisation dans la mission 7 |
 |---|---|
 | **La lampe** (bouton bleu) | Une dynamo : la lumière baisse en 2 min 30 ; chaque appui rend 20 %. À zéro, le noir complet : les cartes ne donnent plus rien. **La galerie ne se voit qu'avec 60 % de lumière.** L'anneau et les voyants 6 à 10 montrent la lampe. |
-| **La fente et le plateau** | Le lieu (il reste en mémoire), un personnage à interroger ; l'objet à lui montrer sur le plateau. Un rôle sur le lecteur libre utilise son pouvoir. |
+| **La fente et le plateau** | Le lieu (il reste en mémoire), un personnage à interroger ; l'objet à lui montrer sur le plateau. Un rôle sur l'autre lecteur utilise son pouvoir. |
 | **La forge** | À la chapelle, souffler la poussière de la plaque funéraire. |
 | **L'œil** | Au salon, le pentacle de la séance : quatre gestes au-dessus du guéridon. |
 | **Clavier et horloge** | Le cadenas du secrétaire (1771). L'horloge donne l'heure du manoir : 23:00 → minuit. |
@@ -107,7 +107,7 @@ certains en ont deux ; à 7 ou 8, des binômes se partagent un rôle.
 
 **Règle d'or :** un document de rôle **ne se montre pas** ; ce qu'on entend au
 casque se **raconte**. Pour utiliser un pouvoir : la carte visée sur son lecteur,
-puis **la carte Rôle sur le lecteur libre**.
+puis **la carte Rôle sur l'autre lecteur**.
 
 | Rôle | Document secret | Pouvoir |
 |---|---|---|
@@ -116,7 +116,7 @@ puis **la carte Rôle sur le lecteur libre**.
 | 🔍 **L'Inspecteur en retraite** | Le plan du manoir et l'emploi du temps de la soirée | **Vérifier un alibi** : un personnage et la carte Rôle. Réponse **au casque**. *3 fois.* |
 | 🔮 **La Spirite** | Le manuel de la planchette, les mots de l'au-delà | **Interroger l'esprit** : un personnage et la carte Rôle. Le fantôme d'Edgar répond, à voix haute. *2 fois.* |
 | 📰 **Le Chroniqueur mondain** | Les coupures du *Times* | **Confidence** : un personnage et la carte Rôle. Il parle **au casque**, au Chroniqueur seul. *2 fois.* |
-| 🃏 **Le Joueur de whist** | Ses carnets de dettes et de ragots | **Coup de poker** : la carte seule, avant l'accusation. Une accusation fausse ne coûte rien, et la zone fausse s'allume en rouge. *1 fois.* |
+| 🃏 **Le Joueur de whist** | Ses carnets de dettes et de ragots | **Coup de poker** : la carte seule, avant l'accusation. Une accusation fausse ne coûte rien, et la case fausse passe au rouge à l'écran. *1 fois.* |
 
 ### Contenu des documents secrets
 

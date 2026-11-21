@@ -37,3 +37,10 @@
 | 10 | KN-4357 | oui | non | **Fils** (blanc, bleu, vert, bleu, blanc) → fil 2 · **Clavier** (FUSÉE, GUITARE, LAMPE, JOKER) → 8285 · **Surchauffe** 53 °C → ROUGE · **Radio** AMBRE → 185 · **Stabilisateur** (rythme 0, 250, 750 ms) |
 | 11 | IR-5636 | non | oui | **Fils** (bleu, vert, blanc, bleu, vert) → fil 2 · **Viseur** ALPHA → vers le haut, vers la droite · **Nuancier** niveau 3 → pastille bleu · **Radio** ONYX → 947 · **Stabilisateur** (rythme 0, 400, 600, 1000 ms) |
 | 12 | LH-9910 | non | non | **Fils** (rouge, jaune, jaune, rouge, jaune) → fil 5 · **Détonateur** « EXPLOSER » → ROUGE · **Viseur** CHARLIE → vers la gauche, vers le haut · **Radio** SAPHIR → 472 · **Stabilisateur** (rythme 0, 500, 750, 1000 ms) |
+
+## Avant la partie
+
+- Le **manuel de désamorçage** imprimé pour les experts (un exemplaire pour deux suffit), la fiche du démineur et les 8 cartes **Module**.
+- Les **pastilles** du nuancier découpées (page du démineur) ; le **casque** branché.
+- Installez les experts **dos à l'écran** : ils ne doivent jamais le voir. Le démineur ne lit jamais le manuel.
+- Pour une première fois : jouez une bombe d'essai sans pression, en lisant ensemble le chapitre « Fils » du manuel.

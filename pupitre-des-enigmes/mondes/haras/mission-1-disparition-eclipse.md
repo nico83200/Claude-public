@@ -81,7 +81,7 @@ toucher l'assurance.**
 | **Le tiroir secret** | Le code du bureau ouvre aussi le tiroir caché dans le flanc gauche du pupitre : la carte du contrat d'assurance y attend. À la fin, le pupitre demande de l'y remettre et de refermer le tiroir |
 | **L'œil** | Au sentier, la main au-dessus de l'œil indique la piste choisie (capteur de gestes) ; dans la grange, une lampe de téléphone éclaire l'œil |
 | **🎧 Casque** | Trois usages : les **confidences** obtenues par le Journaliste, les **vérifications d'alibi** de l'Ancien gendarme, et **l'appel anonyme** (diffusé une seule fois) |
-| **LED de zone** | Elles confirment chaque carte posée, puis s'allument une à une lors de l'accusation |
+| **LED de la fente et du plateau** | Elles confirment chaque carte posée ; lors de l'accusation, les trois cases passent au vert une à une à l'écran |
 
 ---
 
@@ -118,16 +118,16 @@ décrit, on le résume, mais on ne le pose jamais au milieu de la table. Il en v
 de même pour **ce qu'on entend au casque** : on le raconte.
 
 **Utiliser un pouvoir :** on pose la carte visée sur sa zone, puis **sa carte Rôle
-sur un lecteur libre**.
+sur l'autre lecteur**.
 
 | Rôle | Document secret | Pouvoir |
 |---|---|---|
-| 🔨 **Maréchal-ferrant** | Catalogue des fers des 8 chevaux | **Lire une piste** : pendant le sentier, la carte Rôle posée sur QUI ou QUOI barre une mauvaise balise. *1 fois.* |
+| 🔨 **Maréchal-ferrant** | Catalogue des fers des 8 chevaux | **Lire une piste** : pendant le sentier, la carte Rôle glissée dans la fente ou posée sur le plateau barre une mauvaise balise. *1 fois.* |
 | 🩺 **Vétérinaire** | La roue de chiffrement et la note du Dr Morel | Seul ce rôle peut décoder le carnet de santé. |
-| 📰 **Journaliste** | 3 articles du *Courrier Équestre* | **Insister** : personnage sur QUI et carte Rôle sur QUOI. Le personnage fait une **confidence au casque**, que le Journaliste écoute seul. *2 fois.* |
-| 💼 **Expert-comptable** | Les comptes du haras | **Expertiser** : carte Rôle sur QUI et objet sur QUOI. Analyse financière à l'écran. *2 fois.* |
-| 🎲 **Parieur** | Le programme du Grand Prix et ses notes de rumeurs | **Coup de poker** : la carte posée seule, avant l'accusation, arme le pouvoir. Si l'accusation est fausse, pas de pénalité, et la LED de la zone fausse s'allume en rouge. *1 fois.* |
-| 👮 **Ancien gendarme** | Fiche de la nuit (accès, météo, caméra) | **Vérifier un alibi** : personnage sur QUI et carte Rôle sur QUOI. Le résultat est donné **au casque**. *3 fois.* **Bonus** : la carte posée juste après un imprévu raté annule la pénalité. *1 fois.* |
+| 📰 **Journaliste** | 3 articles du *Courrier Équestre* | **Insister** : personnage dans la fente et carte Rôle sur le plateau. Le personnage fait une **confidence au casque**, que le Journaliste écoute seul. *2 fois.* |
+| 💼 **Expert-comptable** | Les comptes du haras | **Expertiser** : objet sur le plateau et carte Rôle dans la fente. Analyse financière à l'écran. *2 fois.* |
+| 🎲 **Parieur** | Le programme du Grand Prix et ses notes de rumeurs | **Coup de poker** : la carte posée seule, avant l'accusation, arme le pouvoir. Si l'accusation est fausse, pas de pénalité, et la case fausse passe au rouge à l'écran. *1 fois.* |
+| 👮 **Ancien gendarme** | Fiche de la nuit (accès, météo, caméra) | **Vérifier un alibi** : personnage dans la fente et carte Rôle sur le plateau. Le résultat est donné **au casque**. *3 fois.* **Bonus** : la carte posée juste après un imprévu raté annule la pénalité. *1 fois.* |
 
 ### Contenu des documents secrets
 
@@ -253,7 +253,7 @@ Après l'introduction, l'équipe fouille les lieux et interroge les personnages
    minutes chacune.
 
 ### Étape 1 : La scène du crime (J1)
-**Écurie sur OÙ → enveloppe E1.**
+**Écurie dans la fente → enveloppe E1.**
 
 > *Le box 7 est grand ouvert. La serrure n'a pas été forcée : on l'a ouvert avec sa
 > clé. Dans l'allée, une empreinte de fer étrange, ovale, file vers la porte
@@ -267,12 +267,12 @@ Ce qu'on en déduit :
 - Le Maréchal reconnaît le **fer en œuf** : c'est bien elle.
 
 ### Étape 2 : Les interrogatoires (en continu)
-- Un personnage sur **QUI** donne sa déclaration.
-- Un objet sur **QUOI** en plus donne sa réaction (chapitre 9).
+- Un personnage dans la **fente** donne sa déclaration.
+- Un objet sur le **plateau** en plus donne sa réaction (chapitre 9).
 - Le **Journaliste** peut faire **insister** un personnage, avec une confidence au casque.
 
 ### Étape 3 : Le code du bureau 🔒 (J3)
-**Bureau sur OÙ → saisie du code au clavier.**
+**Bureau dans la fente → saisie du code au clavier.**
 
 La règle du code est donnée par Lucas : *« Ce sont les numéros de box des 4 chevaux
 engagés demain, dans l'ordre de passage. »*
@@ -314,12 +314,12 @@ VGY SKSK R GYYAXGTIK
 > COMPÉTITION SIX MOIS MINIMUM — MME V EXIGE QUE PERSONNE NE SOIT PRÉVENU, PAS
 > MÊME L'ASSURANCE
 
-**Le carnet sur QUOI** ouvre une question à 3 choix, avec réponse sur les boutons
+**Le carnet sur le plateau** ouvre une question à 4 choix, avec réponse sur les boutons
 (bleu = tendinite). La bonne réponse débloque les réactions « carnet décodé » de
 tous les personnages.
 
 ### Étape 5 : Le sentier des bois 🐾 (J4)
-**Sentier sur OÙ** (possible seulement après J1) **→ enveloppe E8**, le carnet du
+**Sentier dans la fente** (possible seulement après J1) **→ enveloppe E8**, le carnet du
 sentier. Il y a 3 croisements. Le carnet montre chacun vue du ciel : 4 pistes, une dans
 chaque direction, chacune marquée d'une balise de couleur. Pour en prendre une, on passe la
 main au-dessus de l'**œil** du pupitre dans sa direction, ou on appuie sur le bouton de sa
@@ -352,18 +352,18 @@ clous**. Un raté ne coûte rien : on glisse de nouveau la carte de la forge.
 ### Étape 7 : L'accusation ⚖️ (J6)
 1. *(Facultatif)* Le **Parieur** pose sa carte seule pour armer le Coup de poker,
    puis la reprend.
-2. L'équipe pose **Hélène sur QUI**, la **Vieille Grange sur OÙ** et le **Contrat
-   d'assurance sur QUOI**.
+2. L'équipe glisse la **Vieille Grange** dans la fente (puis la reprend : le lieu reste en mémoire),
+   puis **Hélène** dans la fente, et pose le **Contrat d'assurance** sur le plateau.
 3. Elle appuie sur le **gros bouton**. L'écran récapitule, et le **bouton vert**
    confirme.
-4. Roulement de tambour : les 3 LED de zone passent **au vert une par une**.
+4. Roulement de tambour : les 3 cases de l'écran passent **au vert une par une**.
 
 | Cas | Réponse du pupitre |
 |---|---|
 | Tout est juste | Épilogue (chapitre 12) |
 | Erreur | *« X élément(s) sur 3 sont justes »*, −5 minutes |
-| Erreur avec Coup de poker | La LED de la zone fausse s'allume en rouge, pas de pénalité |
-| Carnet de santé posé sur QUOI | *« Presque ! Ce document explique le problème… mais pas ce que le coupable y gagnait. »* Compte faux, sans pénalité. |
+| Erreur avec Coup de poker | La case fausse passe au rouge à l'écran, pas de pénalité |
+| Carnet de santé posé sur le plateau | *« Presque ! Ce document explique le problème… mais pas ce que le coupable y gagnait. »* Compte faux, sans pénalité. |
 | Une zone vide | *« Il manque une carte. »* |
 | 3 erreurs ou chrono à 0 | Épilogue d'échec |
 
@@ -373,12 +373,12 @@ clous**. Un raté ne coûte rien : on glisse de nouveau la carte de la forge.
 
 | Je pose… | Effet |
 |---|---|
-| un **Lieu** sur OÙ | On s'y rend : description, enveloppe éventuelle, ambiance sonore |
-| un **Personnage** sur QUI | Sa déclaration (rappel court si on le repose) |
-| un **Personnage** sur QUI et un **Objet** sur QUOI | Sa réaction à l'objet |
-| un **Objet** seul sur QUOI | Une courte description de l'objet (et la question si c'est le carnet) |
-| une carte **Rôle** sur un lecteur libre | Son pouvoir s'applique aux cartes posées sur les autres zones |
-| **Papy Marcel** sur n'importe quel lecteur | Un indice |
+| un **Lieu** dans la fente | On s'y rend : description, enveloppe éventuelle, ambiance sonore |
+| un **Personnage** dans la fente | Sa déclaration (rappel court si on le repose) |
+| un **Personnage** dans la fente et un **Objet** sur le plateau | Sa réaction à l'objet |
+| un **Objet** seul sur le plateau | Une courte description de l'objet (et la question si c'est le carnet) |
+| une carte **Rôle** sur l'autre lecteur | Son pouvoir s'applique à la carte posée sur l'autre lecteur |
+| **Papy Marcel** dans la fente | Un indice |
 | une carte sur la mauvaise zone | *« Cette carte se pose sur la zone… »* |
 
 ---
@@ -550,7 +550,7 @@ reste faisable.
 
 | Blocage | Indice 1 | Indice 2 | Indice 3 |
 |---|---|---|---|
-| Départ | « Une enquête commence sur la scène du crime. » | « Allez voir l'écurie. » | « Posez la carte Écurie sur OÙ. » |
+| Départ | « Une enquête commence sur la scène du crime. » | « Allez voir l'écurie. » | « Glissez la carte Écurie dans la fente. » |
 | Code du bureau | « Lucas vous a donné la règle. Qui a l'ordre de passage ? » | « Les boxes se font face : 1↔5, 2↔6, 3↔7, 4↔8. Commencez par Rafale. » | « Rafale est au 3. Sultan ne peut être qu'au 5. » |
 | Carnet | « Le Dr Morel parle de clous… qui s'y connaît en fers ? » | « La clé est le nombre de clous du fer d'Éclipse. » | « Reculez chaque lettre de 6 : J devient D. » |
 | Sentier | « Suivez toujours le même fer… et quelqu'un qui marchait à côté. » | « Le fer d'Éclipse est fermé à l'arrière, avec 6 clous. » | « Au premier croisement, c'est la balise jaune : la piste de gauche. » |

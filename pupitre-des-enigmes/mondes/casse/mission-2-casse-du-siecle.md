@@ -100,9 +100,9 @@ Deux voix sans carte : **Madame Rose** (votre commanditaire, au casque) et
 |---|---|---|
 | 🧠 **Le Cerveau** | Le plan du coup : horaires, objectifs, règles de la bande | **Plan B** : posée juste après une hausse du Soupçon, la carte l'annule. *1 fois.* |
 | 🔩 **La Perceuse** | Notice du coffre Fichet à 3 disques | **Stéthoscope** : dans la salle des coffres, elle met le casque et entend le bon cran des disques 1 et 2. *Illimité.* |
-| ✒️ **Le Faussaire** | Le carton d'invitation **n° 428** (un faux parfait) et le guide « Reconnaître un vrai diamant » | **Expertiser** : carte Rôle sur QUI, objet sur QUOI. *3 fois.* **Faux papiers** : posée sur le couloir sans jeton, elle permet d'entrer. *1 fois.* |
+| ✒️ **Le Faussaire** | Le carton d'invitation **n° 428** (un faux parfait) et le guide « Reconnaître un vrai diamant » | **Expertiser** : objet sur le plateau, carte Rôle dans la fente. *3 fois.* **Faux papiers** : posée sur le couloir sans jeton, elle permet d'entrer. *1 fois.* |
 | 🤸 **L'Acrobate** | Plan des toits et du monte-plats | **Monte-plats** : dans le couloir, la carte fait sauter l'épreuve des rondes. *1 fois.* |
-| 🃏 **Le Pickpocket** | Ses repérages : ce que chacun a dans les poches | **Faire les poches** : personnage sur QUI, carte Rôle sur QUOI. *3 fois*, +1 Soupçon à chaque fois. |
+| 🃏 **Le Pickpocket** | Ses repérages : ce que chacun a dans les poches | **Faire les poches** : personnage dans la fente, carte Rôle sur le plateau. *3 fois*, +1 Soupçon à chaque fois. |
 | 💋 **Le Beau Parleur** | La fiche de couverture du **comte Alexis Orlov** | **Belle parole** : −3 au Soupçon. *1 fois.* |
 
 ### Les documents secrets
@@ -188,27 +188,27 @@ Deux voix sans carte : **Madame Rose** (votre commanditaire, au casque) et
 ```
 
 ### J1 · Le Salon d'Or (bluff du sergent)
-**Salon d'Or sur OÙ.** Mattei garde l'entrée : *« Votre carton d'invitation… quel
+**Salon d'Or dans la fente.** Mattei garde l'entrée : *« Votre carton d'invitation… quel
 est son numéro ? »* Il faut entrer **428** à la molette (le faux carton du
 Faussaire). Une erreur donne +2 au Soupçon, et on peut réessayer. Réussite :
 **E1**. Le programme et la photo montrent l'écrin au **fermoir doré**.
 
 ### J2 · Le bluff du directeur
-**Pujol sur QUI**, la première fois : *« Monsieur le comte ! Vous arrivez d'où,
+**Pujol dans la fente**, la première fois : *« Monsieur le comte ! Vous arrivez d'où,
 déjà ? Ma femme est née en Russie. »* On répond avec les boutons : rouge
 Saint-Pétersbourg, **bleu Odessa** ✅, jaune Moscou, vert Kiev. Une erreur donne
 +2 au Soupçon (on réessaie en reposant la carte). Réussite : il raconte le
 transfert et invite le comte dans son **bureau**, qui s'ouvre (**E2**).
 
 ### J3 · Les poches
-Le **Pickpocket** fait les poches (personnage sur QUI, carte Rôle sur QUOI) :
+Le **Pickpocket** fait les poches (personnage dans la fente, carte Rôle sur le plateau) :
 - **Albert** donne le jeton (**E5**) ;
 - **Pujol** donne le carnet (**E6**) ;
 - **le baron** donne la lettre (**E7**) ;
 - **Joséphine** l'attrape au poignet, +2 au Soupçon : *une professionnelle…*
 
 ### J4 · Le couloir du personnel
-**Couloir sur OÙ.**
+**Couloir dans la fente.**
 - **Sans jeton** : refoulé, +1 au Soupçon (sauf si le Faussaire pose sa carte).
 - **Avec le jeton** : **les rondes**. La lumière de l'anneau passe du vert au
   rouge de façon irrégulière. Il faut **5 appuis** sur le gros bouton pendant
@@ -217,7 +217,7 @@ Le **Pickpocket** fait les poches (personnage sur QUI, carte Rôle sur QUOI) :
 - Une fois au bout, la **Loge** et la **Salle des coffres** s'ouvrent.
 
 ### J5 · Le coffre (17 – 34 – 22)
-**Salle des coffres sur OÙ.** Trois disques, de 00 à 99, à régler à la molette.
+**Salle des coffres dans la fente.** Trois disques, de 00 à 99, à régler à la molette.
 - **Disques 1 et 2** : la Perceuse met le casque. Chaque cran fait un « tic »,
   et le bon cran fait un « CLAC ». Elle trouve **17**, puis **34**.
 - **Disque 3** : il est muet. D'après le carnet, c'est *« l'âge de Marie le soir
@@ -238,7 +238,7 @@ Fernand glisse : *« Vérifiez toujours la marchandise. »*
   verre, et Joséphine, elle, parle de *« strass »* au premier coup d'œil.
 
 ### J6 · La loge des artistes
-**Loge sur OÙ → E4.** On y trouve le **vrai écrin** (fermoir doré, armes des
+**Loge dans la fente → E4.** On y trouve le **vrai écrin** (fermoir doré, armes des
 Valcourt), **vide**, un **poudrier** d'argent trop lourd, une **plume de pie** et
 la coupure de presse sur La Pie.
 
@@ -250,15 +250,15 @@ Recoupements :
   creux »*.
 
 ### J7 · Le coup final
-**Joséphine sur QUI, Loge des artistes sur OÙ, Poudrier sur QUOI**, puis le gros
+**La Loge des artistes dans la fente (puis reprise), Joséphine dans la fente, le Poudrier sur le plateau**, puis le gros
 bouton.
 
 | Cas | Réponse |
 |---|---|
 | Juste | Épilogue de victoire |
 | Faux | « X sur 3 », −5 min et +2 au Soupçon |
-| Pierre (O6) sur QUOI | *« C'est le faux ! Le vrai est ailleurs. »* Pas de pénalité. |
-| Salle des coffres sur OÙ | Compte faux |
+| Pierre (O6) sur le plateau | *« C'est le faux ! Le vrai est ailleurs. »* Pas de pénalité. |
+| Salle des coffres dans la fente | Compte faux |
 
 ---
 
@@ -391,7 +391,7 @@ coup, vérifiez ce que vous volez. Et ne vous faites pas doubler. »*
 |---|---|---|---|
 | Entrer au Salon d'Or | « Le sergent veut voir un carton. Qui en a fabriqué un ? » | « Le Faussaire a votre carton d'invitation. » | « Le numéro est 428. » |
 | Le directeur | « Pujol aime les comtes russes. Qui connaît votre couverture ? » | « Le Beau Parleur sait d'où vient le comte. » | « Odessa, bouton bleu. » |
-| Le couloir | « Il faut un jeton de service. Qui en porte un ? » | « Les croupiers… Albert. Le Pickpocket sait y faire. » | « Albert sur QUI, carte Pickpocket sur QUOI. » |
+| Le couloir | « Il faut un jeton de service. Qui en porte un ? » | « Les croupiers… Albert. Le Pickpocket sait y faire. » | « Albert dans la fente, carte Pickpocket sur le plateau. » |
 | Le coffre | « Deux disques s'écoutent, le troisième se calcule. » | « Le carnet de Pujol, la photo de Marie, et Albert. » | « 15 ans + table 7 = 22. » |
 | Le faux | « Combien pèse un vrai 42 carats ? » | « Faites expertiser la pierre par le Faussaire. » | « 8,4 g attendus, 6,02 g pesés : du strass. » |
 | Le coup final | « Qui a croisé l'écrin entre la vitrine et le coffre ? » | « Mattei vous racontera la bousculade. Allez voir la loge. » | « Un poudrier bien trop lourd… » |

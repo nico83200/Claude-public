@@ -133,8 +133,8 @@ s'assombrit par paliers.
 | 48 | **Chandelle** en main (hors local des batteries) | `41/022`, 🔊 104, **+6 min**. Au local : `41/004`, 🔊 105, rien |
 | 47 | **Local des batteries** | 🔊 29, **E6** : manivelle (O4), tableau des bancs, manuel |
 | 46 | **Multimètre** en main | 🔊 75, le relevé à l'écran |
-| 45 | **Salle des machines** | 🔊 32, **E7** : câble (O3), chaux sodée (O10), pied-de-biche (O12), schéma hydraulique |
 | 46 (14ᵉ min) | ⚡ **Court-circuit** | `41/011`, 🔊 123 : les voyants deviennent des disjoncteurs (seul le 7 est allumé ; chaque disjoncteur bascule ses voisins). Tout rallumer en 60 s : **2, 5, 9**. `41/010`, 🔊 124, ou 🔊 125 et **noir complet** |
+| 45 | **Salle des machines** | 🔊 32, **E7** : câble (O3), chaux sodée (O10), pied-de-biche (O12), schéma hydraulique |
 | 43 | **Câble** en main, au local | 🔊 77 : C, **E**, H, ne pas ponter. Erreur : `41/011`, 🔊 78, −1 min. Juste : 🔊 79 |
 | 42 | Raccordement | 🔊 80 : **ABF**. Erreur : 🔊 81, −1 min |
 | 41 | Répartition | 🔊 82 : **3-2-2-1-1**, bouton vert. Surcharge : `41/011`, 🔊 83, −2 min, **noir complet**. Juste : `41/010`, 🔊 84, ambiance `41/003` |
@@ -179,7 +179,7 @@ s'assombrit par paliers.
 
 ## 5. Les LED
 
-| Moment | Anneau | LED des zones |
+| Moment | Anneau | LED de la fente et du plateau |
 |---|---|---|
 | Partie | **Blanc chaud** : la jauge de lumière, qui se vide quand la dynamo faiblit ; elle **vacille** sous 30 % | Blanc faible quand une carte est posée |
 | Noir complet | Éteint | — |
@@ -187,3 +187,10 @@ s'assombrit par paliers.
 | Court-circuit | (tournoiement rouge) | Les voyants : les disjoncteurs, en ambre |
 | Réussite / échec d'une épreuve | Vert / rouge, un instant | — |
 | Victoire | Arc-en-ciel | — |
+
+## Avant la partie
+
+- Les cartes **Compartiment** au centre ; les cartes Objet restent dans leurs enveloppes. Pas de rôles : tout le monde est matelot.
+- Les enveloppes **E1 à E13** fermées (contenu sur leurs étiquettes) ; le carnet de bord de l'équipage.
+- La façade du Narval sur le pupitre (fente = COMPARTIMENT ou MAIN GAUCHE, plateau = MAIN DROITE, gros bouton = DYNAMO) ; le **casque** branché.
+- Pour des débutants : montrez la **dynamo** avant de commencer. Il faut que quelqu'un s'en occupe pendant toute la partie.

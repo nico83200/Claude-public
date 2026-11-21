@@ -49,9 +49,9 @@ sauvé l'équipage.**
 | Ingrid Voss | La Serre | La transmission interceptée |
 
 **Pièges :**
-- **HÉLIOS** sur QUI : c'est le coupable apparent, et c'est faux.
-- **Cryogénie** sur OÙ : les caissons y sont vides.
-- **Rapport de contamination** sur QUOI : *« Un mensonge n'est pas une preuve. »*
+- **HÉLIOS** dans la fente : c'est le coupable apparent, et c'est faux.
+- **Cryogénie** dans la fente : les caissons y sont vides.
+- **Rapport de contamination** sur le plateau : *« Un mensonge n'est pas une preuve. »*
   Compte faux, sans pénalité.
 
 ---
@@ -71,7 +71,7 @@ sauvé l'équipage.**
 
 ## 4. Les personnages
 
-Six membres d'équipage sont **absents**. Poser leur carte sur QUI fait jouer leur
+Six membres d'équipage sont **absents**. Poser leur carte dans la fente fait jouer leur
 **dernier journal personnel**. Les réactions aux objets (personnage + objet) sont
 données par **HÉLIOS**, qui croise ses données.
 
@@ -96,9 +96,9 @@ l'Albatros.
 |---|---|---|
 | 👩‍✈️ **La Commandante** | L'ordre de mission de l'Albatros | **Réserve d'O₂** : +5 minutes. *1 fois.* |
 | 🔧 **L'Ingénieur** | Le manuel de répartition d'énergie (les 6 règles) | **Diagnostic** : sur l'écran d'énergie, indique la règle violée. *1 fois.* |
-| 🧬 **La Biologiste** | Fiche « contamination et cristaux » | **Analyse** : carte Rôle sur QUI, objet sur QUOI. *2 fois.* |
+| 🧬 **La Biologiste** | Fiche « contamination et cristaux » | **Analyse** : objet sur le plateau, carte Rôle dans la fente. *2 fois.* |
 | 📡 **L'Officier radio** | Table morse et table de décodage des transmissions | **Écoute** : au sas, il entend au **🎧 casque** la balise de détresse en morse. *Illimité.* |
-| 💉 **Le Médecin** | Les dossiers médicaux de l'équipage | **Scanner biométrique** : personnage sur QUI, carte Rôle sur QUOI. *3 fois.* |
+| 💉 **Le Médecin** | Les dossiers médicaux de l'équipage | **Scanner biométrique** : personnage dans la fente, carte Rôle sur le plateau. *3 fois.* |
 | 💻 **La Hackeuse** | Notes sur l'architecture d'HÉLIOS | **Intrusion** : au Pont, révèle deux horodatages effacés de la boîte noire. *2 fois.* |
 
 ### Les documents secrets
@@ -181,7 +181,7 @@ l'Albatros.
 ```
 
 ### J1 · Le sas (code 4719)
-**Sas sur OÙ.** *« Code d'accès modifié. Balise de détresse active. »*
+**Sas dans la fente.** *« Code d'accès modifié. Balise de détresse active. »*
 - L'Officier radio pose sa carte et met le **🎧 casque** : la balise répète en
   boucle `....- --... .---- ----.`
 - Sa table morse donne **4 7 1 9**. On entre le code à la molette.
@@ -190,7 +190,7 @@ l'Albatros.
   deviennent accessibles.
 
 ### J2 · L'énergie (Pont)
-**Pont sur OÙ → E2**, puis l'écran d'énergie. On répartit 10 unités entre 6
+**Pont dans la fente → E2**, puis l'écran d'énergie. On répartit 10 unités entre 6
 modules à la molette.
 
 **Le manuel de l'Ingénieur :**
@@ -229,47 +229,47 @@ corrompus ; la Hackeuse peut les restaurer.
 
 **Ordre : S I L E N C E → mot de passe `SILENCE`.**
 
-- **Noyau d'HÉLIOS sur OÙ** : on saisit les 7 lettres à la molette (A à Z).
+- **Noyau d'HÉLIOS dans la fente** : on saisit les 7 lettres à la molette (A à Z).
 - **Réussite** : HÉLIOS dit toute la vérité (long monologue), puis **E8**. Ses
   réactions deviennent sincères, et la **Serre** s'ouvre.
 - **Erreur** : *« Mot de passe refusé »*, −1 min d'O₂.
 
 ### J4 · L'antenne et le spectrogramme
-**Antenne sur OÙ** (après J2) **→ E6.** Le spectrogramme montre 25 motifs.
+**Antenne dans la fente** (après J2) **→ E6.** Le spectrogramme montre 25 motifs.
 L'Officier radio les décode avec sa table :
 
 > **PURGER STATION EXTRAIRE VOSS**
 
-Poser la **Transmission (O3) seule sur QUOI** ouvre une question à 4 choix :
+Poser la **Transmission (O3) seule sur le plateau** ouvre une question à 4 choix :
 rouge « Évacuer l'équipage », **bleu « Purger la station, extraire Voss »** ✅,
 jaune « Détruire le cristal », vert « Réparer l'antenne ». La bonne réponse fixe
 la preuve.
 
 ### Le hangar (facultatif, mais révélateur)
-**Hangar sur OÙ → E7** : la navette de secours est **scellée de l'intérieur**, la
+**Hangar dans la fente → E7** : la navette de secours est **scellée de l'intérieur**, la
 carte d'accès de Voss traîne au sol, et un relais sectionné dépasse d'une sacoche.
 
 ### J5 · La Serre
-**Serre sur OÙ** : il faut **J2 et J3**. Sinon, HÉLIOS répond : *« Je n'ouvrirai la
+**Serre dans la fente** : il faut **J2 et J3**. Sinon, HÉLIOS répond : *« Je n'ouvrirai la
 Serre qu'à ceux qui connaissent la vérité. »* À l'ouverture, **E9** : les cinq
 caissons et l'équipage endormi, vivant.
 
 ### J6 · L'accusation
-**Voss sur QUI, Serre sur OÙ, Transmission interceptée sur QUOI.**
+**La Serre dans la fente (puis reprise), Voss dans la fente, la Transmission interceptée sur le plateau.**
 
 | Cas | Réponse |
 |---|---|
 | Juste | Victoire |
 | Faux | « X sur 3 », −5 min d'O₂ |
-| HÉLIOS sur QUI | *« … Vous me croyez coupable ? Je comprends. »* Compte faux. |
-| Rapport de contamination sur QUOI | *« Un mensonge n'est pas une preuve. »* Compte faux, sans pénalité. |
+| HÉLIOS dans la fente | *« … Vous me croyez coupable ? Je comprends. »* Compte faux. |
+| Rapport de contamination sur le plateau | *« Un mensonge n'est pas une preuve. »* Compte faux, sans pénalité. |
 | 3 erreurs ou O₂ à 0 | Échec |
 
 ---
 
 ## 8. Les journaux et les réactions
 
-### Les journaux personnels (personnage seul sur QUI)
+### Les journaux personnels (personnage seul dans la fente)
 - **Okafor** : *« Journal personnel, Commandante Okafor, J-1. La contamination
   déclarée au labo ne tient pas debout : Sorokin jure que le cristal est inerte.
   Voss insiste pour appliquer la purge. HÉLIOS refuse. Je ne sais plus à qui

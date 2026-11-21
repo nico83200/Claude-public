@@ -12,14 +12,16 @@
 
 ## 1. Les règles de pose
 
-Les règles du pupitre sont identiques à la mission 1 (lieu sur OÙ, personnage sur
-QUI, objet sur QUOI, rôle sur un lecteur libre). Ce monde y ajoute :
+Les règles du pupitre sont identiques à la mission 1 : un lieu ou un personnage se glisse dans la
+**fente**, un objet se pose sur le **plateau** ; pour un pouvoir, la cible d'abord, puis la carte Rôle
+sur l'autre lecteur. Le dernier lieu glissé reste en mémoire (la case **OÙ** de l'écran) ; les
+colonnes QUI, OÙ et QUOI des tableaux sont les trois cases que le pupitre retient. Ce monde y ajoute :
 
 | Situation | Effet |
 |---|---|
 | **Pujol** posé la première fois | **Bluff** : question à 4 couleurs |
 | **Salon d'Or** posé la première fois | **Bluff** de Mattei : numéro d'invitation à la molette |
-| **Pickpocket** + personnage | **Faire les poches** : une enveloppe, +1 au Soupçon |
+| **Pickpocket** + personnage (le personnage dans la fente, le Pickpocket sur le plateau) | **Faire les poches** : une enveloppe, +1 au Soupçon |
 | **Pierre (O6)** + baron / Pujol / Mattei / Albert | +3 au Soupçon |
 | **Couloir du personnel** | Épreuve des **rondes** (gros bouton sur le vert) |
 | **Salle des coffres** | Saisie des 3 disques ; **stéthoscope au casque** pour la Perceuse |
@@ -39,7 +41,7 @@ chrono s'affiche à l'écran.
 | **J4** Couloir | Jeton (ou Faux papiers), puis les rondes (ou Monte-plats) | La Loge et la Salle des coffres |
 | **J5** Coffre | **17 – 34 – 22** | E3 : la pierre et l'écrin argenté |
 | **J5 bis** Le faux | Expertise : 6,02 g contre 8,4 g | (prise de conscience) |
-| **J6** Loge | Loge sur OÙ | E4 : le vrai écrin, le poudrier, la plume |
+| **J6** Loge | La Loge glissée dans la fente | E4 : le vrai écrin, le poudrier, la plume |
 | **J7** Coup final | Joséphine + Loge + Poudrier | Victoire |
 
 ### Filets de sécurité (Fernand clignote)
@@ -158,8 +160,8 @@ Mêmes écrans que l'accusation de la mission 1, intitulés **« LE COUP FINAL �
 | Heure | Joueurs | QUI | OÙ | QUOI | Son | Soupçon | Étape |
 |---|---|---|---|---|---|---|---|
 | 23:27 | Salle des coffres. La Perceuse met le casque | | **Coffres** | | 🔊 039, 116 | | |
-| 23:29 | « CLAC » à 17, puis à 34 | | | | 🎧 21/005, 21/006 · 🔊 117, 118 | | |
-| 23:31 | Disque 3 : carnet + Marie 15 ans + table 7 = **22** | | | | 🔊 119 | | |
+| 23:29 | « CLAC » à 17, puis à 34 (la Perceuse seule l'entend, au casque) | | | | 🎧 21/005, 21/006 | | |
+| 23:31 | Disque 3, muet (la notice du coffre) : carnet + Marie 15 ans + table 7 = **22** | | | | | | |
 | 23:32 | **IMPRÉVU** Pujol vous cherche : bouton jaune (table 7) | | | | 🔊 089 à 091 | | |
 | 23:33 | 17-34-22 : le coffre s'ouvre | | | | 21/007 · 🔊 041, 042 | | ✅ **J5** (E3) |
 | 23:35 | Le Faussaire expertise la pierre : 6,02 g | **Faussaire** | | **Pierre** | 🔊 107 | | |
@@ -198,12 +200,20 @@ Mêmes écrans que l'accusation de la mission 1, intitulés **« LE COUP FINAL �
 
 ## 5. Les LED
 
-| Situation | Anneau | LED de zone |
+| Situation | Anneau | LED de la fente et du plateau |
 |---|---|---|
 | Partie | **Soupçon** : 0 à 12 LED, or puis rouge | Blanc si une carte est posée |
-| Bluff | Or qui pulse | Blanc sur QUI |
+| Bluff | Or qui pulse | Blanc dans la fente |
 | Rondes | Tout vert / tout rouge | — |
 | Coffre | Une LED tourne à chaque cran | — |
 | Message au casque | Violet | Éteintes |
 | Coup final | Clignotement or | Vert une par une |
 | Victoire / échec | Pluie dorée / rouge fixe | Vertes / rouges |
+
+## Avant la partie
+
+- Les cartes **Lieu** et **Personnage** et la carte de **Fernand** (A2) au centre ; les cartes Objet restent dans leurs enveloppes.
+- Les 6 **rôles** et leurs **documents secrets**, distribués face cachée ; la fiche de la bande.
+- Les enveloppes **E1 à E7** fermées (contenu sur leurs étiquettes).
+- Le **casque** branché : la Perceuse en a besoin au coffre.
+- Pour des débutants : expliquez la **jauge de Soupçon** (l'anneau) avant de commencer, c'est la seule vraie menace.

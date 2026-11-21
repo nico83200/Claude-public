@@ -15,22 +15,22 @@
 
 ## 1. Les règles de pose
 
-```
-      ┌─────────┐        ┌─────────┐        ┌─────────┐
-      │ 👤 QUI  │        │ 📍 OÙ   │        │ 🔍 QUOI │
-      └────•────┘        └────•────┘        └────•────┘        🎧 casque
-```
+Le pupitre a **deux lecteurs** : la **fente** (on y glisse une carte debout) et le **plateau**
+(le lecteur à plat, où l'on pose un objet). Il retient trois cases, que l'écran affiche en bas :
+**QUI** (la personne dans la fente), **OÙ** (le dernier lieu glissé : il reste en mémoire quand on
+reprend sa carte, jusqu'au lieu suivant) et **QUOI** (l'objet sur le plateau). Les colonnes QUI, OÙ
+et QUOI des tableaux ci-dessous sont ces trois cases.
 
-| Je pose… | …sur | Effet |
+| Je glisse ou je pose… | …où | Effet |
 |---|---|---|
-| la carte **Monde** | n'importe quel lecteur, au démarrage | Le monde se charge |
-| une carte **Lieu** | OÙ | L'équipe **s'y rend** : description, enveloppe éventuelle, ambiance sonore tant que la carte est posée |
-| une carte **Personnage** | QUI | **Interrogatoire** : sa déclaration |
-| un **Personnage** et un **Objet** | QUI + QUOI | Sa **réaction** à l'objet |
-| un **Objet** seul | QUOI | Une courte description (ou la question, pour le carnet) |
-| une carte **Rôle** | un lecteur libre | Son **pouvoir** s'applique aux cartes posées à côté |
-| la carte **Papy Marcel** | n'importe quel lecteur | Un **indice** |
-| 3 cartes, puis le **gros bouton** | QUI + OÙ + QUOI | **Accusation** |
+| la carte **Monde** | la fente, au démarrage | Le monde se charge |
+| une carte **Lieu** | la fente | L'équipe **s'y rend** : description, enveloppe éventuelle, ambiance sonore. On peut reprendre la carte : on reste dans ce lieu |
+| une carte **Personnage** | la fente | **Interrogatoire** : sa déclaration |
+| un **Personnage** et un **Objet** | le personnage dans la fente, l'objet sur le plateau | Sa **réaction** à l'objet |
+| un **Objet** seul | le plateau | Une courte description (ou la question, pour le carnet) |
+| une carte **Rôle** et sa cible | la cible d'abord (une personne dans la fente, un objet sur le plateau), puis la carte Rôle sur l'autre lecteur | Son **pouvoir** s'applique à la cible |
+| la carte **Papy Marcel** | la fente | Un **indice** |
+| l'**accusation** | le lieu glissé puis repris, le suspect dans la fente, l'objet sur le plateau, puis le **gros bouton** et le vert | **Accusation** |
 
 - **Un lieu ou un personnage posé sur le plateau** (le lecteur à plat) est refusé :
   buzzer (90/003) et 91/007 ou 008, *« Cette carte est un lieu : glissez-la dans la fente. »*
@@ -70,7 +70,7 @@ pendant le geste l'abandonne.
  ┌─────────────────┐ ┌──────────────────┐ ┌───────────────────┐
  │ J2 CARNET lu    │ │ J3 BUREAU ouvert │ │ J4 SENTIER réussi │
  │ (clé 6, question│ │ (code 3715, E3)  │ │ (jaune, bleue,    │
- │  à 3 boutons)   │ │                  │ │  verte, E8)       │
+ │  à 4 boutons)   │ │                  │ │  verte, E8)       │
  └────────┬────────┘ └────────┬─────────┘ └─────────┬─────────┘
           │                   │                     ▼
           │                   │           ┌───────────────────┐
@@ -85,8 +85,8 @@ pendant le geste l'abandonne.
 
 | Jalon | Condition | Débloque |
 |---|---|---|
-| **J1** Écurie | Carte Écurie posée sur OÙ | Le Sentier (avant J1 : 🔊 017) |
-| **J2** Carnet | Carnet sur QUOI, puis bouton **bleu** | Les réactions « carnet décodé » |
+| **J1** Écurie | Carte Écurie glissée dans la fente | Le Sentier (avant J1 : 🔊 017) |
+| **J2** Carnet | Carnet sur le plateau, puis bouton **bleu** | Les réactions « carnet décodé » |
 | **J3** Bureau | Code `3715` | L'enveloppe E3, la question « caméra » de la gendarmerie |
 | **J4** Sentier | 3 bonnes pistes (la main au-dessus de l'œil, ou le bouton de couleur) | La Vieille Grange |
 | **J5** Grange | Carte Vieille Grange, puis une lampe de téléphone sur l'œil | L'enveloppe E4 |
@@ -121,9 +121,9 @@ crème, titres en Playfair Display.
 │            LE PUPITRE DES ÉNIGMES              │
 │                    ✦ ? ✦                       │
 │                                                │
-│      Posez une carte Monde sur un lecteur      │
+│     Glissez une carte Monde dans la fente      │
 │                                                │
-│     ( QUI )        ( OÙ )        ( QUOI )      │
+│                                                │
 │                                                │
 └────────────────────────────────────────────────┘
 ```
@@ -335,16 +335,17 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 ### Avant la partie (5 min)
 | Action | Détail |
 |---|---|
-| Mise en place | Fiche de mission, cartes Lieu et Personnage et carte Papy Marcel au centre. Enveloppes E1 à E8 empilées, cartes Objet à l'intérieur. Casque branché. |
+| Mise en place | Fiche de mission, cartes Lieu et Personnage et carte Papy Marcel au centre. Enveloppes E1 à E8 empilées, cartes Objet à l'intérieur. Casque branché. Le fer à cheval aimanté près du pupitre, un téléphone avec sa lampe pour la grange. |
+| Tiroir secret | Carte du Haras dans la fente, menu **Tiroir secret** : rangez-y la carte **O3** (le contrat d'assurance), poussez le tiroir, validez au vert. Sans tiroir, la carte O3 va dans E3. |
 | Distribution | Les 6 rôles et leurs documents secrets, **face cachée** |
 | Allumage | **Écran A** · 90/001 jingle du pupitre · 91/001, 91/002 |
 
 ### Lancement (avant le chrono)
 | Moment | Joueurs | Cartes | Écran | Son | LED |
 |---|---|---|---|---|---|
-| — | Posent la carte **Monde Haras** | Monde | **B** | 11/012 jingle · 🔊 013 | Vert prairie |
+| — | Glissent la carte **Monde Haras** dans la fente | Monde | **B** | 11/012 jingle · 🔊 013 | Vert prairie |
 | — | Installent la façade en bois, appuient sur la molette | — | B : mission 1 | 🔊 001 | |
-| — | Chacun pose sa carte Rôle puis la reprend | Rôles | **C** | 🔊 002 à 008 · 90/002 | Flash vert sur la zone |
+| — | Chacun glisse sa carte Rôle dans la fente, puis la reprend | Rôles | **C** | 🔊 002 à 008 · 90/002 | Flash vert sur la zone |
 | — | 6/6 : un joueur lit la lettre de Camille, puis le narrateur | — | Texte défilant | 🔊 009 | Bleu nuit |
 | **8:00** | Le chrono démarre | — | **D** | 🔊 010 · 11/005 ambiance | **12 LED vertes** |
 
@@ -352,7 +353,7 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:01 | Lisent leurs documents secrets en silence | — | — | — | D | ambiance | |
-| 8:02 | Posent l'Écurie | — | **Écurie** | — | **E** + « E1 » | 🔊 020 | ✅ **J1** |
+| 8:02 | Glissent l'Écurie dans la fente | — | **Écurie** | — | **E** + « E1 » | 🔊 020 | ✅ **J1** |
 | 8:03 | Ouvrent E1 : carnet chiffré, photo du box, carte O1 | — | Écurie | — | E | 90/009 | |
 | 8:04 | Le Maréchal reconnaît le fer ovale d'Éclipse | | | | | | |
 | 8:05 | Vont à la Forge : un joueur souffle sur la grille | — | **Forge** | — | « LA FORGE » | 🔊 250 · 11/015 · 🔊 252 | |
@@ -367,10 +368,10 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:10 | Interrogent Hélène | **Hélène** | Écurie | — | F | 🔊 120 | |
-| 8:11 | Posent le Bureau : verrouillé | — | **Bureau** | — | **H** | 🔊 024 · 11/014 | |
+| 8:11 | Glissent le Bureau : verrouillé | — | **Bureau** | — | **H** | 🔊 024 · 11/014 | |
 | 8:12 | Le Journaliste raconte : *« Rafale et Éclipse se font face »* | | | | | | |
 | 8:13 | Le Parieur lit l'ordre de passage : Rafale, Éclipse, Comète, Sultan | | | | | | |
-| 8:14 | Grille sur le plan : Rafale au 3, Sultan au 5, Comète au 1 | | | | | | |
+| 8:14 | Grille sur le plan : Rafale au 3, Sultan au 5, Comète au 1, et Éclipse au 7 (le box vide) | | | | | | |
 | 8:15 | Essai `3751` | — | Bureau | — | H : incorrect | 🔊 025 · 90/003 | |
 | 8:16 | *L'imprévu Comète devrait tomber, mais il attend la fin de la saisie* | | | | H | — | |
 | 8:17 | **`3715`** | — | Bureau | — | E Bureau + « E3 » | 11/003 · 🔊 248 | ✅ **J3** |
@@ -383,7 +384,7 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:21 | Les déchiffreurs finissent : *« TENDINITE… SIX MOIS… PAS MÊME L'ASSURANCE »* | | | | | | |
-| 8:22 | Posent le carnet et appuient sur le bouton **bleu** | — | — | **Carnet** | **I** | 🔊 112, 113 · 90/004 | ✅ **J2** |
+| 8:22 | Posent le carnet sur le plateau et appuient sur le bouton **bleu** | — | — | **Carnet** | **I** | 🔊 112, 113 · 90/004 | ✅ **J2** |
 | 8:23 | Montrent le carnet à Hélène | **Hélène** | — | **Carnet** | **G** | 🔊 122 | Elle ment |
 | 8:24 | **IMPRÉVU Appel anonyme 🎧** : un joueur met le casque et appuie sur la molette | | | | **L** | 11/007 · 🔊 074 · 90/006 | |
 | 8:24 | Il écoute **seul**, une seule fois | | | | L (lecture) | 🎧 🔊 075 | |
@@ -426,13 +427,13 @@ Les heures sont celles du **chrono du jeu**, de 8:00 à 9:00, pour un rythme moy
 | Heure | Joueurs | QUI | OÙ | QUOI | Écran | Son | Étape |
 |---|---|---|---|---|---|---|---|
 | 8:50 | Le Parieur arme le Coup de poker | **Rôle Parieur** | — | — | « Coup de poker armé » | 🔊 115 | |
-| 8:51 | Posent les 3 cartes et débattent | **Hélène** | **Grange** | **Contrat** | **N** | — | |
+| 8:51 | Glissent la Grange (puis la reprennent), glissent Hélène, posent le contrat sur le plateau, et débattent | **Hélène** | **Grange** | **Contrat** | **N** | — | |
 | 8:52 | **Gros bouton**, puis **vert** | | | | N | 🔊 050, 054 · 90/007 | LED de zone clignotantes |
-| 8:53 | Les zones passent au vert une par une : QUI ✓ · OÙ ✓ · POURQUOI ✓ | | | | « C'est juste ! » | 🔊 063 · 11/008 | ✅ **J6** |
+| 8:53 | Les cases passent au vert une par une à l'écran : QUI ✓ · OÙ ✓ · POURQUOI ✓ | | | | « C'est juste ! » | 🔊 063 · 11/008 | ✅ **J6** |
 
 **Si l'accusation est fausse :** l'écran affiche « 2 éléments sur 3 sont justes »
-(🔊 057, 058 : −5 min). Avec le Coup de poker : 🔊 059, la LED de la zone fausse
-passe au rouge, et il n'y a pas de pénalité.
+(🔊 057, 058 : −5 min). Avec le Coup de poker : 🔊 059, la case fausse passe au
+rouge à l'écran, et il n'y a pas de pénalité.
 
 ### Épilogue (chrono arrêté)
 | Écran | Son |
@@ -455,7 +456,7 @@ passe au rouge, et il n'y a pas de pénalité.
 
 ## 5. Les LED en résumé
 
-| Situation | Anneau (12 LED) | LED de zone (×3) |
+| Situation | Anneau (12 LED) | LED de la fente et du plateau |
 |---|---|---|
 | Accueil du pupitre | Arc-en-ciel lent | Blanc qui respire |
 | Partie en cours | **Chrono** : une LED s'éteint toutes les 5 min, du vert au rouge | Blanc faible si une carte est posée |

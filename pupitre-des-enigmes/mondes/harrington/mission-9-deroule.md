@@ -66,3 +66,10 @@ l'office à 23 h 47 : Mrs Doyle, qui lui y montait son thé à moins le quart, l
 | La bibliothèque | 🔊 157, 162 |
 | Le coffret | 🔊 158, 163 |
 | Le coupable | 🔊 164, 165 |
+
+## Avant la partie
+
+- Les cartes **L1** et **L2**, les quatre **suspects** (P1 à P4) et la carte de l'**inspecteur Fenwick** (A9) au centre.
+- Les enveloppes **E1 à E4** fermées (contenu sur leurs étiquettes) ; les **5 gemmes** (rouge, verte, bleue, jaune, violette) dans **E2**. **E5** seulement sans tiroir secret : la carte O5, le jade.
+- Avec un tiroir secret : carte du monde dans la fente, menu **Tiroir secret**, rangez-y la carte **O5** (l'Œil de Jade), poussez le tiroir et validez au vert.
+- Le **casque** branché (la TSF, Lord Harrington qui remue).

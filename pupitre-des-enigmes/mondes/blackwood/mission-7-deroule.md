@@ -66,3 +66,11 @@
 | Ensuite | 🔊 175 à 177 (le dernier : la solution) |
 
 3 conseils gratuits, puis 2 minutes chacun.
+
+## Avant la partie
+
+- Les cartes **Lieu** et **Personnage** et la carte du **corbeau** (A7) au centre ; les cartes Objet restent dans leurs enveloppes.
+- Les 6 **rôles** et leurs **documents secrets**, distribués face cachée ; la fiche d'enquête.
+- Les enveloppes **E1 à E8** fermées (contenu sur leurs étiquettes). Sans tiroir secret, la carte **O9** (la lettre au Yard) va dans **E7**.
+- Avec un tiroir secret : carte du monde dans la fente, menu **Tiroir secret**, rangez-y la carte **O9** (la lettre au Yard), poussez le tiroir et validez au vert.
+- Le **casque** branché. Prévenez les joueurs que le **bouton bleu** remonte la lampe : sans lumière, plus rien ne se voit.

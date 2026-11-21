@@ -77,3 +77,11 @@
 | Le coffre | 🔊 98 (3861, puis le certificat) |
 
 Les 3 premiers conseils sont gratuits, les suivants coûtent 2 minutes.
+
+## Avant la partie
+
+- Les 13 cartes **Banc d'essai** (L1 à L13) et les cartes **O1** (clé à molette) et **O2** (burette) au centre ; la carte du carnet du professeur (A5).
+- La carte **O3** (le certificat) dans le tiroir secret, ou, sans tiroir, dans l'enveloppe **E1**.
+- Avec un tiroir secret : carte du monde dans la fente, menu **Tiroir secret**, rangez-y la carte **O3** (le certificat), poussez le tiroir et validez au vert.
+- Les **pastilles** rouge, bleue, verte et jaune (page du maître du jeu), un **aimant**, un **téléphone avec sa lampe**, le **casque** branché.
+- La fiche de recette à portée de main, pour noter ce qui répond ou non.

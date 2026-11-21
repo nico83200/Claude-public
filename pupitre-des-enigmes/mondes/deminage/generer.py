@@ -583,6 +583,11 @@ def deroule(bombes):
             elif m == "stabilisateur":
                 parts.append(f"**Stabilisateur** (rythme {', '.join(map(str, b['motif']))} ms)")
         t.append(f"| {b['n']} | {s} | {'oui' if impair(s) else 'non'} | {'oui' if voyelle(s) else 'non'} | " + " · ".join(parts) + " |")
+    t += ["", "## Avant la partie", "",
+          "- Le **manuel de désamorçage** imprimé pour les experts (un exemplaire pour deux suffit), la fiche du démineur et les 8 cartes **Module**.",
+          "- Les **pastilles** du nuancier découpées (page du démineur) ; le **casque** branché.",
+          "- Installez les experts **dos à l'écran** : ils ne doivent jamais le voir. Le démineur ne lit jamais le manuel.",
+          "- Pour une première fois : jouez une bombe d'essai sans pression, en lisant ensemble le chapitre « Fils » du manuel."]
     return "\n".join(t) + "\n"
 
 

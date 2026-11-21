@@ -60,3 +60,11 @@
 | Le soupirail | 🔊 96 |
 | Le coffre | 🔊 97 (la plaque de l'enveloppe E1), 🔊 98 (1908 #) |
 | Le crâne | 🔊 99 (la galerie, puis le socle) |
+
+## Avant la partie
+
+- Les cartes **Lieu** (sauf L5, dans E2), la carte **Barnabé** (P1) et la carte du **directeur** (A8) au centre de la table.
+- Les enveloppes **E1** (la plaque, le plan, les traces, la carte O2) et **E2** (le papier du voleur, la carte L5) fermées. **E3** seulement pour un pupitre sans tiroir secret : la carte O1, le crâne.
+- Avec un tiroir secret : carte du monde dans la fente, menu **Tiroir secret**, rangez-y la carte **O1** (le crâne), poussez le tiroir et validez au vert.
+- Un **téléphone avec sa lampe** pour le soupirail. La plaque du Muséum sur la façade.
+- Pour des débutants : lisez la fiche à voix haute, et rappelez qu'**une erreur ne coûte rien**, sauf l'imprévu du photographe.

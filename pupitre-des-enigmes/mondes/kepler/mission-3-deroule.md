@@ -17,7 +17,9 @@
 | **Sas** | Code à 4 chiffres. Officier radio + 🎧 : balise morse en boucle. |
 | **Pont** | Écran d'énergie : tourner la molette pour choisir un module, appuyer pour régler sa valeur, bouton vert pour valider. |
 | **Noyau d'HÉLIOS** | Mot de passe de 7 lettres à la molette (A à Z). |
-| **Personnage d'équipage sur QUI** | Joue son **dernier journal**. |
+| **Un lieu, un personnage** | Dans la **fente** ; le dernier lieu reste en mémoire (case **OÙ** ; les colonnes QUI, OÙ, QUOI des tableaux sont les cases que le pupitre retient). |
+| **Un objet** | Sur le **plateau**. Un pouvoir : la cible d'abord, puis la carte Rôle sur l'autre lecteur. |
+| **Personnage d'équipage dans la fente** | Joue son **dernier journal**. |
 | **Personnage + objet** | **HÉLIOS** analyse le lien. |
 | **Variante traître** | Le casque passe de main en main au lancement, puis vote final. |
 
@@ -101,7 +103,7 @@ Thème : fond bleu nuit, lignes cyan, titres en Orbitron, police Share Tech Mono
 |---|---|---|---|
 | — | Carte Monde Kepler-9, façade alu | Monde chargé, choix de la variante traître | 31/001 · 🔊 013 |
 | — | *(Variante)* Nombre de joueurs, puis le casque passe de main en main | « 🎧 Joueur 1… » | 🎧 🔊 016 / 017 |
-| — | Rôles posés | Rôles | 🔊 002 à 008 |
+| — | Rôles glissés dans la fente, un par un | Rôles | 🔊 002 à 008 |
 | — | Un joueur lit l'ordre de mission ; puis le narrateur | Texte | 🔊 009 |
 | **75:00** | Début de la réserve d'O₂ | Principal | 🔊 010 · 31/002 ambiance |
 
@@ -149,7 +151,7 @@ Thème : fond bleu nuit, lignes cyan, titres en Orbitron, police Share Tech Mono
 |---|---|---|---|---|---|---|
 | 33 | Antenne : E6 spectrogramme | | **Antenne** | | 🔊 026 | |
 | 31→24 | L'Officier radio décode avec 2 coéquipiers : PURGER STATION EXTRAIRE VOSS | | | | | |
-| 23 | Transmission sur QUOI : bouton bleu | | | **Transmission** | 🔊 117, 118 | ✅ **J4** |
+| 23 | Transmission sur le plateau : bouton bleu | | | **Transmission** | 🔊 117, 118 | ✅ **J4** |
 | 22 | Hangar : navette scellée (E7) | | **Hangar** | | 🔊 029 | |
 | 21 | Voss + carte d'accès : « hangar, 3 h 12 » | **Voss** | | **Carte** | 🔊 181 | |
 | 20 | **IMPRÉVU** fuite : molette à 0 | | | | 🔊 093 | |
@@ -160,7 +162,7 @@ Thème : fond bleu nuit, lignes cyan, titres en Orbitron, police Share Tech Mono
 | 19 | Serre : HÉLIOS ouvre | | **Serre** | | 🔊 036 · E9 | ✅ **J5** |
 | 17 | Débat ; on écarte HÉLIOS, Sorokin et Reyes | | | | | |
 | 15 | Les 3 cartes, gros bouton, vert | **Voss** | **Serre** | **Transmission** | 🔊 050, 054 · 90/007 | |
-| 14 | Les 3 zones passent au vert | | | | 🔊 063 · 31/012 | ✅ **J6** |
+| 14 | Les 3 cases passent au vert, une par une, à l'écran | | | | 🔊 063 · 31/012 | ✅ **J6** |
 | — | Épilogue, puis HÉLIOS | | | | 🔊 064, 065 · 🔊 236 | |
 | — | *(Variante)* Vote : « à trois, pointez le traître » | | | | 🔊 070, 071 | |
 | — | Rang | | | | 🔊 066 / 067 / 068 | |
@@ -176,7 +178,7 @@ Thème : fond bleu nuit, lignes cyan, titres en Orbitron, police Share Tech Mono
 
 ## 5. Les LED
 
-| Situation | Anneau | LED de zone |
+| Situation | Anneau | LED de la fente et du plateau |
 |---|---|---|
 | Partie | **Oxygène** : 12 LED bleues, qui s'éteignent et virent au rouge sous 15 min | Blanc si une carte est posée |
 | Écran d'énergie | Une LED par unité répartie (cyan) | — |
@@ -185,3 +187,11 @@ Thème : fond bleu nuit, lignes cyan, titres en Orbitron, police Share Tech Mono
 | Imprévu | Rouge clignotant | Rouges |
 | Accusation | Cyan qui tourne | Vert une par une |
 | Victoire / échec | Vert qui respire / extinction | Vertes / éteintes |
+
+## Avant la partie
+
+- Les cartes **Lieu** et **Personnage** et la carte du **Contrôle Mission** au centre ; les cartes Objet restent dans leurs enveloppes.
+- Les 6 **rôles** et leurs **documents secrets**, distribués face cachée ; le rapport d'enquête.
+- Les enveloppes **E1 à E9** fermées (contenu sur leurs étiquettes).
+- Le **casque** branché : l'Officier radio en a besoin dès le sas.
+- **La variante du traître** se choisit au lancement : à réserver à des joueurs habitués. Pour une première partie, choisissez « Jouer sans ».
