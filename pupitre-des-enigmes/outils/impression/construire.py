@@ -476,7 +476,7 @@ LIVRETS = {
                         "tous les habitués d'un lieu où l'on vient pour être soi-même. Retrouvez Lucien, protégez le carnet et démasquez "
                         "celui qui veut le vendre à la police des mœurs.",
          "essentiel": ["Les feux de la rampe à rallumer", "Un message à faire apparaître sur le miroir, d'un souffle",
-                       "Les fleurs d'un amour secret, sur l'œillet", "Un disque de Lucien au gramophone, et une descente de police",
+                       "Des fleurs à poser sur l'œillet, dans le bon ordre", "Un disque de Lucien au gramophone, et une descente de police",
                        "Mado pour les indices", "L'accusation, le carnet rouge à la main"]},
     6: {"titre": "Désamorçage", "genre": "Jeu de communication coopératif", "joueurs": "2 à 8", "duree": "12 min par bombe",
         "public": "Ados et adultes", "etoiles": 2, "embleme": "💣", "pages": ["fiche-mission-6"],
