@@ -29,7 +29,7 @@
 //   hasard <n>                     (le prochain tirage au sort donnera n, à partir de 0)
 //   verifie points 820 | journal <texte> | classement <texte>
 //   verifie etat <texte> | indices <texte> | diplome <texte> | info <texte> | qr oui|non | demo oui|non
-//   json etat|indices|diplome|classement <fichier>   (ce que lit le panneau Wi-Fi)
+//   json etat|indices|diplome|classement|repliques <fichier>   (ce que lit le panneau Wi-Fi)
 //   tactile                        (le pupitre a un écran tactile)
 //   ecran ligne <n> | plus <n> | moins <n> | valider | retour | clavier | efface | defile haut|bas
 //   ecran texte <texte>            (tapé sur le clavier AZERTY de l'écran)
@@ -536,7 +536,7 @@ int main(int argc, char** argv) {
       calme();
     } else if (cmd == "json") {  // json etat|indices|diplome|classement <fichier> : ce que lit le panneau Wi-Fi
       std::ofstream(b) << (a == "etat" ? m.etatJson() : a == "indices" ? m.indicesJson()
-                           : a == "diplome" ? m.diplomeJson() : m.classementJson());
+                           : a == "diplome" ? m.diplomeJson() : a == "repliques" ? m.repliquesJson() : m.classementJson());
     } else if (cmd == "equipe") {
       // « equipe Les Fers | Léa, Tom, Inès » : le nom, puis les prénoms.
       std::string reste = ligne.substr(ligne.find(' ') + 1), nom = reste, liste;

@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -56,6 +57,9 @@ class Moteur {
   std::string etatJson();                         // pour le panneau Wi-Fi
   std::string journalJson(int depuis) const;      // les lignes du journal de partie après « depuis »
   std::string repliquesJson() const;              // les répliques de la mission (le souffleur)
+  // La même liste, morceau par morceau (une réplique à la fois) : le panneau l'envoie au fil
+  // de l'eau, sans jamais l'avoir en entier dans la mémoire de l'ESP32.
+  void repliquesEnFlux(const std::function<void(const std::string&)>& envoyer) const;
   std::string classementJson();                   // toutes les parties jouées (/classement.json)
   // Les indices tout prêts du souffleur : chaque blocage, s'il est actif, et le texte de ses niveaux.
   std::string indicesJson();

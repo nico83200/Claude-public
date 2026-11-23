@@ -442,7 +442,11 @@ void demarrer(pupitre::Moteur& m, const Atelier& a) {
     serveur.send(200, "application/json", moteur->journalJson(serveur.arg("depuis").toInt()).c_str()); });
   serveur.on("/repliques", [] {
     if (!garde()) return;
-    serveur.send(200, "application/json", moteur->repliquesJson().c_str()); });
+    // Envoyée réplique par réplique : la liste entière ne tiendrait pas dans la mémoire.
+    serveur.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    serveur.send(200, "application/json", "");
+    moteur->repliquesEnFlux([](const std::string& morceau) { serveur.sendContent(morceau.c_str(), morceau.size()); });
+    serveur.sendContent(""); });
   serveur.on("/classement", [] {
     if (!garde()) return;
     serveur.send(200, "application/json", moteur->classementJson().c_str()); });

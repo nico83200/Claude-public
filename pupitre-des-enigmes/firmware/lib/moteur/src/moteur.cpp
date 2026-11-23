@@ -3810,7 +3810,15 @@ void Moteur::noter(const std::string& ligne) {
   int s = std::max(0, secondesEcoulees());
   char horodatage[16];
   snprintf(horodatage, sizeof horodatage, "%02d:%02d  ", s / 60, s % 60);
-  journalPartie_.emplace_back(++numeroJournal_, horodatage + ligne);
+  // Une ligne courte (le début de la réplique suffit au maître du jeu) : 80 lignes entières
+  // pèseraient une quinzaine de Ko dans la mémoire de l'ESP32.
+  std::string courte = ligne;
+  if (courte.size() > 110) {
+    size_t fin = 110;
+    while (fin > 0 && (static_cast<uint8_t>(courte[fin]) & 0xC0) == 0x80) fin--;  // pas au milieu d'un caractère
+    courte = courte.substr(0, fin) + "…";
+  }
+  journalPartie_.emplace_back(++numeroJournal_, horodatage + courte);
   if (journalPartie_.size() > 80) journalPartie_.erase(journalPartie_.begin());
 }
 
@@ -3829,18 +3837,37 @@ std::string Moteur::journalJson(int depuis) const {
 }
 
 std::string Moteur::repliquesJson() const {
-  JsonDocument d;
-  const std::map<int, std::string> textes = textesRepliques(repliques_, {});
-  for (const auto& kv : repliques_) {
-    JsonArray a = d.add<JsonArray>();
-    a.add(kv.first);
-    auto t = textes.find(kv.first);
-    a.add(t != textes.end() ? t->second : "");
-    a.add(texte(script_["voix"][kv.second.voix]));
-  }
   std::string json;
-  serializeJson(d, json);
+  repliquesEnFlux([&json](const std::string& morceau) { json += morceau; });
   return json;
+}
+
+void Moteur::repliquesEnFlux(const std::function<void(const std::string&)>& envoyer) const {
+  envoyer("[");
+  std::unique_ptr<FichierLu> f = ouvrirFichier(cheminRepliques_);
+  if (f && !repliques_.empty()) {
+    Parcours lu(*f);
+    if (lu.allerAuxLignes()) {
+      JsonDocument filtre;
+      filtre["n"] = filtre["texte"] = true;
+      JsonDocument l;
+      bool premier = true;
+      while (lu.elementSuivant()) {
+        if (deserializeJson(l, lu, DeserializationOption::Filter(filtre))) break;
+        auto r = repliques_.find(l["n"].as<int>());
+        if (r == repliques_.end()) continue;
+        JsonDocument e;
+        e.add(r->first);
+        e.add(l["texte"]);
+        e.add(texte(script_["voix"][r->second.voix]));
+        std::string morceau;
+        serializeJson(e, morceau);  // serializeJson remplace le contenu de la chaîne
+        envoyer(premier ? morceau : "," + morceau);
+        premier = false;
+      }
+    }
+  }
+  envoyer("]");
 }
 
 void Moteur::definirEquipe(const std::string& nom, const std::vector<std::string>& joueurs, const std::string& date) {
