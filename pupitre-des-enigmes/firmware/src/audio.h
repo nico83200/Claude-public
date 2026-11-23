@@ -8,7 +8,12 @@ class LecteurAudio {
  public:
   explicit LecteurAudio(HardwareSerial& serie) : serie_(serie) {}
 
-  bool demarrer(int rx, int tx, uint8_t volume);
+  // Le démarrage en trois temps, pour attendre les deux lecteurs en même temps (main.cpp) :
+  // commencer() les réveille, reessayer() les interroge encore (ceux qui inventorient une
+  // grosse carte répondent tard), finir() règle le volume de ceux qui ont répondu.
+  void commencer(int rx, int tx);
+  void reessayer();
+  void finir(uint8_t volume);
   void jouer(int dossier, int numero);
   void arreter();
   void volume(int v);  // 0 à 30

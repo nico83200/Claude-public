@@ -172,8 +172,19 @@ void setup() {
   // Le PCA9685 répond aussi à 0x70 tant qu'on ne le lui a pas interdit : avant l'horloge.
   plateforme.servomoteurTiroir().demarrer();
   afficheur.demarrer();
-  if (!hp.demarrer(broches::HP_RX, broches::HP_TX, defaut.hp)) Serial.println("DFPlayer haut-parleur absent.");
-  if (!casque.demarrer(broches::CASQUE_RX, broches::CASQUE_TX, defaut.casque)) Serial.println("DFPlayer casque absent.");
+  // Les deux DFPlayer en même temps : on leur laisse jusqu'à 6 s de plus pour inventorier leur
+  // carte, une seule fois pour les deux (sans plaque B, le démarrage ne traîne plus 30 s).
+  hp.commencer(broches::HP_RX, broches::HP_TX);
+  casque.commencer(broches::CASQUE_RX, broches::CASQUE_TX);
+  for (int essai = 0; essai < 6 && !(hp.present() && casque.present()); essai++) {
+    delay(1000);
+    hp.reessayer();
+    casque.reessayer();
+  }
+  hp.finir(defaut.hp);
+  casque.finir(defaut.casque);
+  if (!hp.present()) Serial.println("DFPlayer haut-parleur absent.");
+  if (!casque.present()) Serial.println("DFPlayer casque absent.");
 
   rappels.bouton = [](int b) { moteur.bouton(static_cast<pupitre::Bouton>(b)); };
   rappels.enfonces = [](uint8_t masque) { moteur.boutonsEnfonces(masque); };
@@ -189,7 +200,9 @@ void setup() {
     moteur.cle(tournee);
   };
 
-  // Le logo reste le temps choisi dans les réglages (de 0 à 15 s ; 7 s au départ).
+  Serial.printf("Démarrage des modules : %lu ms (le logo reste au moins %lu ms)\n", millis() - debutLogo, dureeLogo);
+  // Le logo reste le temps choisi dans les réglages (de 0 à 15 s ; 7 s au départ). C'est un
+  // minimum : il couvre aussi le démarrage des modules, plus long quand un module manque.
   while (millis() - debutLogo < dureeLogo) delay(10);
   int tx, ty;
   if (ecran.touche(tx, ty)) etalonnerTactile();  // le doigt posé sur l'écran pendant le logo

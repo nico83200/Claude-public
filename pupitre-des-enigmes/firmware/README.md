@@ -196,7 +196,7 @@ le logo du démarrage, ou l'onglet Atelier du panneau Wi-Fi (`/tactile.json` sur
 | Volume du haut-parleur | 0 à 30 | 24 |
 | Volume du casque | 0 à 30 | 18 |
 | Luminosité des LED | 10 à 100 % | 30 % |
-| Logo au démarrage | 0 à 15 s (0 : pas de logo ; pour étalonner le tactile, il faut alors passer par l'onglet Atelier) | 7 s |
+| Logo au démarrage | 0 à 15 s : une durée **minimum**, car le logo couvre aussi le démarrage des modules (bien plus long tant que les DFPlayer de la plaque B ne sont pas branchés). À 0, pour étalonner le tactile, passez par l'onglet Atelier | 7 s |
 
 - **Molette** : changer la valeur de la ligne choisie ; le changement s'applique
   aussitôt (un bip dans le haut-parleur ou dans le casque, l'anneau allumé pour
