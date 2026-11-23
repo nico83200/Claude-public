@@ -146,7 +146,7 @@
 <h2>4 · La soudure et le montage <span class="quand">J-8 à J-6 · une grosse journée</span></h2>
 <p class="but">But : l'électronique définitive, fixée dans la boîte, et tous les organes qui répondent.</p>
 <ul class="cases">
-  <li>Les trois plaques, en suivant <span class="f">plan-cablage.pdf</span> : <strong>A</strong> (50 × 70, l'ESP32), <strong>B</strong> (30 × 70, les 2 DFPlayer, fentes micro-SD vers le bas) et <strong>C</strong> (20 × 80, le bus I2C). D'abord les barrettes femelles, puis les connecteurs, puis les rails par-dessous. Enfin les deux câbles entre plaques, J14 (A ↔ B) et J15 (A → C).</li>
+  <li>Les quatre plaques, dans cet ordre, en suivant <span class="f">plan-cablage.pdf</span> et le plan trou par trou de chacune : <strong>D</strong> (30 × 70, la distribution : J1, J12 et sept rails), <strong>A</strong> (50 × 70, l'ESP32), <strong>B</strong> (30 × 70, les 2 DFPlayer, fentes micro-SD vers le bas) et <strong>C</strong> (20 × 80, le bus I2C). Enfin les câbles entre plaques : J16 (A → D), J14 (A et D → B), J15 (A et D → C).</li>
   <li>Avant d'y poser l'ESP32 et les DFPlayer, contrôlez chaque plaque au multimètre : pas de court-circuit entre 5 V et masse, ni entre 3,3 V et masse.</li>
   <li>Les connecteurs des plaques : borniers à vis pour J1, J12, J5 et J6 (embouts sur les fils) ; barrettes mâles et fils Dupont femelles, regroupés en bloc, pour tous les autres. Marquez la broche 1 d'un point de peinture, et fixez chaque bloc d'une goutte de colle chaude une fois les essais faits.</li>
   <li>Fixez sous le couvercle :

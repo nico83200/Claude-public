@@ -352,7 +352,7 @@ le premier trou de 30 mm aurait touché la paroi.
   table ; ses fils remontent par un trou de 6 mm dans le fond. Les patins laissent
   la lumière s'étaler sur la table.
 
-- **L'électronique** tient sur **trois plaques à pastilles** (le plan d'implantation et
+- **L'électronique** tient sur **quatre plaques à pastilles** (le plan d'implantation et
   leur place exacte sont dans `pdf/plan-cablage.pdf`, § 1) :
   - **A, le cerveau** (50 × 70 mm : l'ESP32 et presque tous les connecteurs) et **B, le
     son** (30 × 70 mm : les deux DFPlayer) et **D, la distribution** (30 × 70 mm : l'arrivée
