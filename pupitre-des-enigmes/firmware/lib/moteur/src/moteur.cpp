@@ -100,21 +100,153 @@ bool Moteur::chargerJson(const std::string& chemin, JsonDocument& doc, const Jso
   return true;
 }
 
+namespace {
+
+// Un fichier lu caractère par caractère, avec sa position et un caractère « remis » : de quoi
+// parcourir le tableau "lignes" d'un fichier de répliques élément par élément.
+class Parcours {
+ public:
+  explicit Parcours(FichierLu& f) : f_(f) {}
+  int read() {
+    int c = remis_ >= 0 ? remis_ : f_.read();
+    remis_ = -1;
+    if (c >= 0) pos_++;
+    return c;
+  }
+  size_t readBytes(char* tampon, size_t taille) {
+    size_t n = 0;
+    while (n < taille) {
+      int c = read();
+      if (c < 0) break;
+      tampon[n++] = static_cast<char>(c);
+    }
+    return n;
+  }
+  void remettre(int c) {
+    remis_ = c;
+    pos_--;
+  }
+  uint32_t pos() const { return pos_; }
+  // Avance jusqu'au début du tableau "lignes".
+  bool allerAuxLignes() {
+    const char* cle = "\"lignes\"";
+    size_t k = 0;
+    for (int c; (c = read()) >= 0;) {
+      k = c == cle[k] ? k + 1 : (c == cle[0] ? 1 : 0);
+      if (cle[k] == 0) break;
+    }
+    for (int c; (c = read()) >= 0;)
+      if (c == '[') return true;
+    return false;
+  }
+  // Le début de l'élément suivant du tableau (false à la fin).
+  bool elementSuivant() {
+    for (int c; (c = read()) >= 0;) {
+      if (c == '{') {
+        remettre(c);
+        return true;
+      }
+      if (c == ']') return false;
+    }
+    return false;
+  }
+
+ private:
+  FichierLu& f_;
+  int remis_ = -1;
+  uint32_t pos_ = 0;
+};
+
+// Un fichier déjà en mémoire (la plateforme ne sait pas le lire au fil de l'eau).
+class TexteLu : public FichierLu {
+ public:
+  explicit TexteLu(std::string t) : t_(std::move(t)) {}
+  int read() override { return i_ < t_.size() ? static_cast<uint8_t>(t_[i_++]) : -1; }
+  size_t readBytes(char* tampon, size_t taille) override {
+    size_t n = std::min(taille, t_.size() - i_);
+    memcpy(tampon, t_.data() + i_, n);
+    i_ += n;
+    return n;
+  }
+
+ private:
+  std::string t_;
+  size_t i_ = 0;
+};
+
+}  // namespace
+
+std::unique_ptr<FichierLu> Moteur::ouvrirFichier(const std::string& chemin) const {
+  if (std::unique_ptr<FichierLu> f = p_.ouvrir(chemin)) return f;
+  std::string contenu;
+  if (!p_.lireFichier(chemin, contenu)) return nullptr;
+  return std::unique_ptr<FichierLu>(new TexteLu(std::move(contenu)));
+}
+
 void Moteur::chargerRepliques(const std::string& chemin, std::map<int, Replique>& cible) {
   cible.clear();
-  // Seuls le numéro, le texte, la voix et la sortie servent au pupitre (pas l'« usage »).
+  (&cible == &repliquesPupitre_ ? cheminRepliquesPupitre_ : cheminRepliques_) = chemin;
+  std::unique_ptr<FichierLu> f = ouvrirFichier(chemin);
+  if (!f) {
+    p_.journal("Fichier introuvable : " + chemin);
+    return;
+  }
+  Parcours lu(*f);
+  if (!lu.allerAuxLignes()) return;
+  // Une ligne à la fois, sans son texte : le numéro, la voix, la sortie, et sa position.
   JsonDocument filtre;
-  JsonObject ligne = filtre["lignes"].add<JsonObject>();
-  ligne["n"] = ligne["texte"] = ligne["voix"] = ligne["sortie"] = true;
-  JsonDocument doc;
-  if (!chargerJson(chemin, doc, &filtre)) return;
-  for (JsonVariantConst l : doc["lignes"].as<JsonArrayConst>()) {
+  filtre["n"] = filtre["voix"] = filtre["sortie"] = true;
+  JsonDocument l;
+  while (lu.elementSuivant()) {
+    uint32_t pos = lu.pos();
+    if (deserializeJson(l, lu, DeserializationOption::Filter(filtre))) break;
     Replique r;
-    r.texte = texte(l["texte"]);
     r.voix = texte(l["voix"]);
     r.casque = texte(l["sortie"]) == "casque";
+    r.pos = pos;
     cible[l["n"].as<int>()] = r;
   }
+}
+
+const std::string& Moteur::cheminDe(const std::map<int, Replique>& source) const {
+  return &source == &repliquesPupitre_ ? cheminRepliquesPupitre_ : cheminRepliques_;
+}
+
+std::string Moteur::texteReplique(int dossier, int numero) const {
+  const std::map<int, Replique>& source = dossier == DOSSIER_VOIX_PUPITRE ? repliquesPupitre_ : repliques_;
+  auto it = source.find(numero);
+  if (it == source.end()) return "";
+  std::unique_ptr<FichierLu> f = ouvrirFichier(cheminDe(source));
+  if (!f) return "";
+  Parcours lu(*f);
+  char tampon[128];
+  for (uint32_t reste = it->second.pos; reste > 0;) {
+    size_t n = lu.readBytes(tampon, std::min<uint32_t>(reste, sizeof tampon));
+    if (n == 0) return "";
+    reste -= n;
+  }
+  JsonDocument filtre;
+  filtre["texte"] = true;
+  JsonDocument l;
+  if (deserializeJson(l, lu, DeserializationOption::Filter(filtre))) return "";
+  return texte(l["texte"]);
+}
+
+std::map<int, std::string> Moteur::textesRepliques(const std::map<int, Replique>& source, const std::set<int>& voulues) const {
+  std::map<int, std::string> textes;
+  std::unique_ptr<FichierLu> f = ouvrirFichier(cheminDe(source));
+  if (!f) return textes;
+  Parcours lu(*f);
+  if (!lu.allerAuxLignes()) return textes;
+  JsonDocument filtre;
+  filtre["n"] = filtre["texte"] = true;
+  JsonDocument l;
+  while (lu.elementSuivant()) {
+    if (deserializeJson(l, lu, DeserializationOption::Filter(filtre))) break;
+    int n = l["n"].as<int>();
+    if (voulues.empty() || voulues.count(n)) textes[n] = texte(l["texte"]);
+  }
+  return textes;
 }
 
 // Repère toutes les cartes Monde connues, pour reconnaître celle qu'on pose à l'accueil.
@@ -1793,6 +1925,7 @@ void Moteur::dire(int dossier, int numero, bool casqueForce, bool sansTexte, boo
   Replique r = it == source.end() ? Replique() : it->second;
   if (it == source.end()) p_.journal("Réplique absente : " + std::to_string(dossier) + "/" + std::to_string(numero));
   bool casque = r.casque || casqueForce;
+  const std::string t = casque ? "" : texteReplique(dossier, numero);
   if (casque) {
     // Annonce au haut-parleur, attente d'un joueur au casque, message, puis fin.
     empilerInterne(Action::de(Action::CASQUE_FIN));
@@ -1800,11 +1933,11 @@ void Moteur::dire(int dossier, int numero, bool casqueForce, bool sansTexte, boo
     empilerInterne(Action::de(Action::CASQUE_ANNONCE));
     return;
   }
-  if (dossier != DOSSIER_VOIX_PUPITRE && !r.texte.empty()) noter("🔊 " + std::to_string(numero) + " · " + r.texte);
-  if (!sansTexte && !r.texte.empty()) {
+  if (dossier != DOSSIER_VOIX_PUPITRE && !t.empty()) noter("🔊 " + std::to_string(numero) + " · " + t);
+  if (!sansTexte && !t.empty()) {
     std::string auteur = texte(script_["voix"][r.voix]);
     if (dossier == DOSSIER_VOIX_PUPITRE) auteur.clear();
-    afficherTexte("", r.texte, auteur);
+    afficherTexte("", t, auteur);
   }
   p_.jouer(dossier, numero, false);
   ambianceEnCours_ = false;
@@ -1813,7 +1946,7 @@ void Moteur::dire(int dossier, int numero, bool casqueForce, bool sansTexte, boo
   attente_ = Attente::AUDIO;
   debutAttente_ = maintenant();
   // Sans lecteur audio, on laisse le temps de lire le sous-titre.
-  uint32_t minimum = p_.audioPresent() ? 600 : 900 + 45 * static_cast<uint32_t>(r.texte.size());
+  uint32_t minimum = p_.audioPresent() ? 600 : 900 + 45 * static_cast<uint32_t>(t.size());
   finAttente_ = debutAttente_ + minimum;
 }
 
@@ -1859,7 +1992,7 @@ void Moteur::executerInterne(const Action& a) {
       vue_.texte = "🎧 Écoute en cours…";
       rafraichir();
       if (a.a != DOSSIER_VOIX_PUPITRE && repliques_.count(a.b))
-        noter("🎧 " + std::to_string(a.b) + " · " + repliques_[a.b].texte);
+        noter("🎧 " + std::to_string(a.b) + " · " + texteReplique(a.a, a.b));
       p_.jouer(a.a, a.b, true);
       attente_ = Attente::CASQUE;
       debutAttente_ = maintenant();
@@ -2101,9 +2234,8 @@ void Moteur::executerSimple(JsonVariantConst act) {
   if (!act["dire"].isNull()) {
     int dossier = act["pupitre"].as<bool>() ? DOSSIER_VOIX_PUPITRE : dossierVoix_;
     dire(dossier, act["dire"].as<int>(), false, true, false);
-    const std::map<int, Replique>& source = dossier == DOSSIER_VOIX_PUPITRE ? repliquesPupitre_ : repliques_;
-    auto it = source.find(act["dire"].as<int>());
-    if (it != source.end()) vue_.info = it->second.texte;
+    const std::string t = texteReplique(dossier, act["dire"].as<int>());
+    if (!t.empty()) vue_.info = t;
     rafraichir();
   } else if (!act["son"].isNull()) {
     int dossier = act["pupitre"].as<bool>() ? DOSSIER_SONS_PUPITRE : dossierSons_;
@@ -3636,6 +3768,10 @@ std::string Moteur::indicesJson() {
   d["gratuits"] = std::max(0, a["gratuits"].as<int>() - indicesDonnes_);
   d["carte"] = nomCarte(texte(a["carte"]));
   bool enJeu = phase_ == Phase::JEU && chronoActif_;
+  std::set<int> voulues;
+  for (JsonVariantConst b : a["blocages"].as<JsonArrayConst>())
+    for (JsonVariantConst n : b["niveaux"].as<JsonArrayConst>()) voulues.insert(n.as<int>());
+  const std::map<int, std::string> textes = textesRepliques(repliques_, voulues);
   int i = 0;
   bool premierActif = true;
   for (JsonVariantConst b : a["blocages"].as<JsonArrayConst>()) {
@@ -3650,8 +3786,8 @@ std::string Moteur::indicesJson() {
       JsonObject niveau = o["niveaux"].add<JsonObject>();
       int num = n.as<int>();
       niveau["n"] = num;
-      auto r = repliques_.find(num);
-      niveau["texte"] = r != repliques_.end() ? r->second.texte : "";
+      auto r = textes.find(num);
+      niveau["texte"] = r != textes.end() ? r->second : "";
     }
     i++;
   }
@@ -3694,10 +3830,12 @@ std::string Moteur::journalJson(int depuis) const {
 
 std::string Moteur::repliquesJson() const {
   JsonDocument d;
+  const std::map<int, std::string> textes = textesRepliques(repliques_, {});
   for (const auto& kv : repliques_) {
     JsonArray a = d.add<JsonArray>();
     a.add(kv.first);
-    a.add(kv.second.texte);
+    auto t = textes.find(kv.first);
+    a.add(t != textes.end() ? t->second : "");
     a.add(texte(script_["voix"][kv.second.voix]));
   }
   std::string json;

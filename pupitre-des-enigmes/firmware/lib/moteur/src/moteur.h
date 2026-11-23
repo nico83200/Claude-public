@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <deque>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -98,9 +99,12 @@ class Moteur {
   enum class Phase { ACCUEIL, CHOIX_MONDE, MENU, ROLES, JEU, FIN, ENROLEMENT, REGLAGES, RANGEMENT, ETAT, EQUIPE };
   enum class Attente { RIEN, AUDIO, CASQUE, DELAI, MOLETTE, VERT_ROUGE };
 
+  // Une réplique : son texte reste sur la carte SD (il sert aux sous-titres, au journal et au
+  // panneau) ; on ne garde que l'endroit où le relire, pour ménager la mémoire de l'ESP32.
   struct Replique {
-    std::string texte, voix;
+    std::string voix;
     bool casque = false;
+    uint32_t pos = 0;  // la position de la ligne dans le fichier des répliques
   };
 
   struct Evenement {
@@ -153,6 +157,11 @@ class Moteur {
   bool chargerMonde(const std::string& id);
   bool chargerMission(int numero);
   bool chargerMissionSansGarde(int numero);
+  std::unique_ptr<FichierLu> ouvrirFichier(const std::string& chemin) const;
+  const std::string& cheminDe(const std::map<int, Replique>& source) const;
+  std::string texteReplique(int dossier, int numero) const;
+  // Les textes de plusieurs répliques d'un coup (une seule lecture du fichier) ; vide : toutes.
+  std::map<int, std::string> textesRepliques(const std::map<int, Replique>& source, const std::set<int>& voulues) const;
   void chargerRepliques(const std::string& chemin, std::map<int, Replique>& cible);
   void chargerCartes();
   std::string idCarte(const std::string& uid) const;
@@ -255,6 +264,7 @@ class Moteur {
 
   JsonDocument index_, monde_, script_, cartesDoc_;
   std::map<int, Replique> repliques_, repliquesPupitre_;
+  std::string cheminRepliques_, cheminRepliquesPupitre_;
   std::map<std::string, std::string> uidVersId_, mondeParUid_;
   std::vector<std::string> mondes_;
   std::string mondeId_;

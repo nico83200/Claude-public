@@ -200,7 +200,7 @@ void setup() {
     moteur.cle(tournee);
   };
 
-  Serial.printf("Démarrage des modules : %lu ms (le logo reste au moins %lu ms)\n", millis() - debutLogo, dureeLogo);
+  Serial.printf("Démarrage des modules : %lu ms (le logo reste au moins %lu ms)\n", millis() - debutLogo, static_cast<unsigned long>(dureeLogo));
   // Le logo reste le temps choisi dans les réglages (de 0 à 15 s ; 7 s au départ). C'est un
   // minimum : il couvre aussi le démarrage des modules, plus long quand un module manque.
   while (millis() - debutLogo < dureeLogo) delay(10);
