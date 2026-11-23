@@ -24,6 +24,7 @@ const char* const CHEMIN_DIPLOME = "/diplome.json";
 constexpr uint32_t DUREE_FEU_ARTIFICE = 15000;  // le spectacle de lumière de la victoire, en ms
 constexpr uint32_t DEMO_APRES = 120000;          // le mode démonstration : 2 min sans personne à l'accueil
 constexpr uint32_t DEMO_DIAPO = 8000;            // chaque monde reste 8 s à l'écran
+constexpr int NB_REGLAGES = 5;                   // les lignes de l'écran des réglages
 constexpr uint32_t DEMO_APPEL = 300000;          // sonore : « Glissez une carte Monde » toutes les 5 min
 
 std::string texte(JsonVariantConst v, const char* defaut = "") {
@@ -996,7 +997,7 @@ void Moteur::appuiMolette() {
     return;
   }
   if (phase_ == Phase::REGLAGES) {
-    ligneReglage_ = (ligneReglage_ + 1) % 4;
+    ligneReglage_ = (ligneReglage_ + 1) % NB_REGLAGES;
     vueReglages();
     return;
   }
@@ -1274,11 +1275,12 @@ struct LigneReglage {
   bool pourcent;
 };
 
-const LigneReglage LIGNES_REGLAGES[4] = {
+const LigneReglage LIGNES_REGLAGES[NB_REGLAGES] = {
     {"Luminosité de l'écran", &Reglages::ecran, 10, 100, 10, true},
     {"Volume du haut-parleur", &Reglages::hp, 0, 30, 1, false},
     {"Volume du casque", &Reglages::casque, 0, 30, 1, false},
     {"Luminosité des LED", &Reglages::led, 10, 100, 10, true},
+    {"Logo au démarrage", &Reglages::logo, 0, 15, 1, false},
 };
 
 int borner(int v, const LigneReglage& l) { return std::max(l.min, std::min(l.max, v)); }
@@ -1294,6 +1296,7 @@ void Moteur::chargerReglages() {
     reglages_.casque = d["casque"] | reglages_.casque;
     reglages_.led = d["led"] | reglages_.led;
     reglages_.demo = std::max(0, std::min(2, d["demo"] | reglages_.demo));
+    reglages_.logo = d["logo"] | reglages_.logo;
     for (const auto& l : LIGNES_REGLAGES) reglages_.*l.valeur = borner(reglages_.*l.valeur, l);
   }
   p_.appliquer(reglages_);
@@ -1345,7 +1348,9 @@ void Moteur::vueReglages() {
     vue_.modules.push_back(l.nom);
     vue_.valeurs.push_back(v);
     vue_.maximums.push_back(l.max);
-    vue_.etiquettes.push_back(l.pourcent ? std::to_string(v) + " %" : std::to_string(v) + " / " + std::to_string(l.max));
+    vue_.etiquettes.push_back(l.pourcent                       ? std::to_string(v) + " %"
+                              : l.valeur == &Reglages::logo ? std::to_string(v) + " s"
+                                                            : std::to_string(v) + " / " + std::to_string(l.max));
   }
   vue_.curseur = ligneReglage_;
   rafraichir();
@@ -1359,6 +1364,7 @@ void Moteur::fermerReglages(bool enregistrer) {
     d["casque"] = reglages_.casque;
     d["led"] = reglages_.led;
     d["demo"] = reglages_.demo;
+    d["logo"] = reglages_.logo;
     std::string json;
     serializeJsonPretty(d, json);
     p_.ecrireFichier(CHEMIN_REGLAGES, json);
@@ -1442,7 +1448,7 @@ void Moteur::toucher(const Toucher& t) {
       allerMenu(false);
       return;
     case Phase::REGLAGES:
-      if ((t.type == Toucher::LIGNE || t.type == Toucher::MOINS || t.type == Toucher::PLUS) && t.ligne >= 0 && t.ligne < 4) {
+      if ((t.type == Toucher::LIGNE || t.type == Toucher::MOINS || t.type == Toucher::PLUS) && t.ligne >= 0 && t.ligne < NB_REGLAGES) {
         ligneReglage_ = t.ligne;
         if (t.type == Toucher::LIGNE) vueReglages();
         else reglerValeur(t.type == Toucher::PLUS ? 1 : -1);

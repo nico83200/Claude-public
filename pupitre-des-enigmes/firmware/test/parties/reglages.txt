@@ -21,6 +21,12 @@ verifie reglage hp 20
 appui
 molette 20
 verifie reglage casque 30
+# Le logo au démarrage : 7 s → 3 s (la ligne après les LED)
+appui
+appui
+molette -4
+verifie reglage logo 3
+capture reglages-logo
 bouton VERT
 verifie phase choix_monde
 
@@ -29,6 +35,7 @@ redemarre
 verifie reglage ecran 70
 verifie reglage hp 20
 verifie reglage casque 30
+verifie reglage logo 3
 
 # Depuis le menu d'un monde : on change, puis Rouge annule
 pose QUI M1

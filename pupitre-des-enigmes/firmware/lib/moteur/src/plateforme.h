@@ -82,6 +82,7 @@ struct Reglages {
   int casque = 18;   // volume du casque, 0 à 30
   int led = 30;      // luminosité des LED, en %
   int demo = 1;      // le mode démonstration, à l'accueil : 0 arrêt, 1 muet, 2 sonore (panneau Wi-Fi)
+  int logo = 7;      // durée du logo au démarrage, en secondes (0 à 15)
 };
 
 // Les LED. Sur le pupitre, elles sont chaînées dans cet ordre : l'anneau, une LED par lecteur,

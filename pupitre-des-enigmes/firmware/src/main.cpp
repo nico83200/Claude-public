@@ -4,6 +4,7 @@
 // de jeu (lib/moteur), qui exécute les scripts des missions rangés sur la carte SD
 // de l'écran. Voir firmware/README.md.
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <FastLED.h>
 #include <SD.h>
 #include <SPI.h>
@@ -116,6 +117,14 @@ void setup() {
     for (;;) delay(1000);
   }
 
+  // La durée du logo : le réglage « Logo au démarrage » (/reglages.json), sinon DUREE_LOGO_MS.
+  uint32_t dureeLogo = reglages::DUREE_LOGO_MS;
+  if (File f = SD.open("/reglages.json")) {
+    JsonDocument d;
+    if (!deserializeJson(d, f) && d["logo"].is<int>()) dureeLogo = static_cast<uint32_t>(constrain(d["logo"].as<int>(), 0, 15)) * 1000;
+    f.close();
+  }
+
   chargerEtalonnage();
   lecteurs.demarrer();
   commandes.demarrer();  // démarre aussi le bus I2C
@@ -143,8 +152,8 @@ void setup() {
     moteur.cle(tournee);
   };
 
-  // Le logo reste au moins 2,5 secondes, le temps que tout démarre.
-  while (millis() - debutLogo < reglages::DUREE_LOGO_MS) delay(10);
+  // Le logo reste le temps choisi dans les réglages (de 0 à 15 s ; 7 s au départ).
+  while (millis() - debutLogo < dureeLogo) delay(10);
   int tx, ty;
   if (ecran.touche(tx, ty)) etalonnerTactile();  // le doigt posé sur l'écran pendant le logo
   plateforme.etat = [] {

@@ -19,7 +19,7 @@
 //   redemarre                 (coupure de courant : le pupitre redémarre, la carte SD reste)
 //   restant <minutes>         (fait passer le temps jusqu'à ce qu'il reste <minutes> au chrono)
 //   verifie drapeau <nom> | sans <nom> | compteur <nom> <v> | phase <p> | epreuve <type> | ecran <titre>
-//            reglage ecran|hp|casque|led <v> | lumiere noir|allumee|<minimum> | afficheur <texte>
+//            reglage ecran|hp|casque|led|logo <v> | lumiere noir|allumee|<minimum> | afficheur <texte>
 //   geste haut|bas|gauche|droite   (la main au-dessus de l'œil du pupitre)
 //   souffle <s> · eclaire <s>      (souffler sur la grille, ou braquer une lampe, pendant <s> secondes)
 //   aimant pose|-                  (le fer aimanté posé sur l'enclume, ou retiré)
@@ -545,7 +545,7 @@ int main(int argc, char** argv) {
       else if (a == "epreuve") verifier(m.epreuveType() == b, "épreuve " + b + " (est « " + m.epreuveType() + " »)", numero);
       else if (a == "reglage") {
         const Reglages& r = m.reglages();
-        int v = b == "ecran" ? r.ecran : b == "hp" ? r.hp : b == "casque" ? r.casque : r.led;
+        int v = b == "ecran" ? r.ecran : b == "hp" ? r.hp : b == "casque" ? r.casque : b == "logo" ? r.logo : r.led;
         verifier(v == atoi(c.c_str()), "réglage " + b + " = " + c + " (vaut " + std::to_string(v) + ")", numero);
       } else if (a == "lumiere") {
         int l = m.lumiere();

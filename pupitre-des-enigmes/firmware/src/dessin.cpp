@@ -12,6 +12,12 @@ namespace {
 
 constexpr int L = 480, H = 320;
 constexpr int Y_CORPS = 48, Y_INFO = 248, Y_ZONES = 272;
+
+// Les lignes de l'écran des réglages : plus serrées au-delà de quatre, pour tenir au-dessus de Y_INFO.
+struct LignesReglages {
+  int debut, pas, haut, texte;
+};
+LignesReglages lignesReglages(size_t n) { return n > 4 ? LignesReglages{32, 34, 31, 1} : LignesReglages{40, 39, 35, 3}; }
 // Les menus : 4 lignes qui tiennent entières au-dessus de la ligne d'information (Y_INFO).
 constexpr int MENU_H = 33, MENU_ECART = 5, MENU_Y0 = Y_CORPS + 44, MENU_VISIBLES = 4;
 constexpr int HAUT_CORPS = Y_INFO - Y_CORPS;
@@ -818,28 +824,29 @@ void Dessin::corpsEtat(const Vue& v) {
 
 void Dessin::corpsReglages(const Vue& v) {
   ecrire(v.titre, 20, Y_CORPS + 4, &polices::titre, pal_.accent, pal_.fond);
-  int y = Y_CORPS + 40;
+  const LignesReglages g = lignesReglages(v.modules.size());
+  int y = Y_CORPS + g.debut;
   // Avec le tactile, chaque ligne a ses boutons − et + aux deux bouts.
   const int marge = v.tactile ? 56 : 26;
-  for (size_t i = 0; i < v.modules.size(); i++, y += 39) {
+  for (size_t i = 0; i < v.modules.size(); i++, y += g.pas) {
     bool actif = static_cast<int>(i) == v.curseur;
     uint32_t fond = actif ? pal_.accentDoux : pal_.surface;
-    g_->fillRoundRect(10, y, L - 20, 35, 10, c(fond));
-    if (actif && !v.tactile) g_->fillRoundRect(10, y + 7, 5, 21, 2, c(pal_.accent));
+    g_->fillRoundRect(10, y, L - 20, g.haut, 10, c(fond));
+    if (actif && !v.tactile) g_->fillRoundRect(10, y + g.haut / 2 - 10, 5, 21, 2, c(pal_.accent));
     if (v.tactile) {
       for (int cote = 0; cote < 2; cote++) {
         int cx = cote ? L - 32 : 32;
-        g_->fillCircle(cx, y + 17, 14, c(actif ? pal_.accent : pal_.surface2));
-        ecrire(cote ? "+" : "-", cx, y + 6, &polices::texteGras, actif ? pal_.fond : pal_.texte, actif ? pal_.accent : pal_.surface2, 1);
+        g_->fillCircle(cx, y + g.haut / 2, g.haut / 2 - 3, c(actif ? pal_.accent : pal_.surface2));
+        ecrire(cote ? "+" : "-", cx, y + g.haut / 2 - 11, &polices::texteGras, actif ? pal_.fond : pal_.texte, actif ? pal_.accent : pal_.surface2, 1);
       }
     }
-    ecrire(v.modules[i], marge, y + 3, actif ? &polices::texteGras : &polices::compact, actif ? pal_.texte : pal_.doux, fond);
+    ecrire(v.modules[i], marge, y + g.texte, actif ? &polices::texteGras : &polices::compact, actif ? pal_.texte : pal_.doux, fond);
     std::string e = i < v.etiquettes.size() ? v.etiquettes[i] : "";
-    ecrire(e, L - marge, y + 3, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
+    ecrire(e, L - marge, y + g.texte, &polices::texteGras, actif ? pal_.accent : pal_.texte, fond, 2);
     int max = i < v.maximums.size() && v.maximums[i] > 0 ? v.maximums[i] : 1;
     int valeur = i < v.valeurs.size() ? v.valeurs[i] : 0;
-    g_->fillRoundRect(marge, y + 26, L - 2 * marge, 5, 2, c(pal_.trait));
-    g_->fillRoundRect(marge, y + 26, std::max(6, (L - 2 * marge) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
+    g_->fillRoundRect(marge, y + g.haut - 9, L - 2 * marge, 5, 2, c(pal_.trait));
+    g_->fillRoundRect(marge, y + g.haut - 9, std::max(6, (L - 2 * marge) * valeur / max), 5, 2, c(actif ? pal_.accent : pal_.doux));
   }
 }
 
@@ -1061,8 +1068,9 @@ Toucher Dessin::cible(const Vue& v, int x, int y) const {
       return t;
     }
     case Vue::REGLAGES: {
-      int i = (y - (Y_CORPS + 40)) / 39;
-      if (y < Y_CORPS + 40 || i >= static_cast<int>(v.modules.size())) return t;
+      const LignesReglages g = lignesReglages(v.modules.size());
+      int i = (y - (Y_CORPS + g.debut)) / g.pas;
+      if (y < Y_CORPS + g.debut || i >= static_cast<int>(v.modules.size())) return t;
       t.ligne = i;
       t.type = x < 70 ? Toucher::MOINS : x >= L - 70 ? Toucher::PLUS : Toucher::LIGNE;
       return t;
