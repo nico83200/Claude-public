@@ -694,6 +694,8 @@ def main():
         rendre(ICI / "installer-esp32-mac.html", SORTIE / "installer-esp32-mac.pdf", pied="Le Pupitre des Énigmes · Installer le programme depuis un Mac")
         rendre(ICI / "checklist-premiere-partie.html", SORTIE / "checklist-premiere-partie.pdf", pied="Le Pupitre des Énigmes · Checklist de la première partie")
         rendre(ICI / "plan-cablage.html", SORTIE / "plan-cablage.pdf", pied="Le Pupitre des Énigmes · Plan de câblage")
+        subprocess.run([sys.executable, str(ICI / "branchements.py")], check=True)
+        rendre(ICI / "branchements.html", SORTIE / "branchements.pdf", pied="Le Pupitre des Énigmes · Les branchements, dans l'ordre")
         subprocess.run([sys.executable, str(ICI / "plaque_a.py")], check=True)
         rendre(ICI / "plaque-a.html", SORTIE / "plaque-a.pdf", paysage=True, pied="Le Pupitre des Énigmes · Plaque A")
         subprocess.run([sys.executable, str(ICI / "plaque_b.py")], check=True)
