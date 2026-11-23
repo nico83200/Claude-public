@@ -112,6 +112,24 @@ class PlateformeSimulee : public Plateforme {
     return true;
   }
 
+  // Comme sur le pupitre : les fichiers de la carte se lisent au fil de l'eau (sauf ceux écrits
+  // pendant la partie, gardés en mémoire, que le moteur relit par lireFichier()).
+  struct FichierFlux : pupitre::FichierLu {
+    std::ifstream f;
+    int read() override { return f.get(); }
+    size_t readBytes(char* tampon, size_t taille) override {
+      f.read(tampon, static_cast<std::streamsize>(taille));
+      return static_cast<size_t>(f.gcount());
+    }
+  };
+  std::unique_ptr<pupitre::FichierLu> ouvrir(const std::string& chemin) override {
+    if (ecrits_.count(chemin)) return nullptr;
+    auto r = std::make_unique<FichierFlux>();
+    r->f.open(racine_ + chemin, std::ios::binary);
+    if (!r->f) return nullptr;
+    return r;
+  }
+
   // Les écritures restent en mémoire : la carte SD de test n'est pas modifiée.
   bool ecrireFichier(const std::string& chemin, const std::string& contenu) override {
     ecrits_[chemin] = contenu;

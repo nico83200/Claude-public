@@ -2,7 +2,9 @@
 // Le pupitre ESP32 et le simulateur PC en fournissent chacun une implémentation.
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -104,11 +106,22 @@ struct EtatElement {
   int etat;         // 1 : présent ; 0 : absent ; -1 : impossible à vérifier (écran, LED, boutons directs)
 };
 
+// Un fichier lu au fil de l'eau : le moteur y analyse un gros JSON (un script de mission) sans
+// en garder une copie entière en mémoire. Les deux méthodes sont celles qu'attend ArduinoJson.
+class FichierLu {
+ public:
+  virtual ~FichierLu() = default;
+  virtual int read() = 0;                                   // un octet, ou -1 à la fin
+  virtual size_t readBytes(char* tampon, size_t taille) = 0;
+};
+
 class Plateforme {
  public:
   virtual ~Plateforme() = default;
   virtual uint32_t maintenant() = 0;                                   // millisecondes
   virtual bool lireFichier(const std::string& chemin, std::string& contenu) = 0;
+  // Ouvre un fichier à lire au fil de l'eau ; nullptr : le moteur passe par lireFichier().
+  virtual std::unique_ptr<FichierLu> ouvrir(const std::string& /*chemin*/) { return nullptr; }
   virtual bool ecrireFichier(const std::string& chemin, const std::string& contenu) = 0;
   virtual void jouer(int dossier, int numero, bool casque) = 0;        // interrompt la piste en cours
   virtual bool joue(bool casque) = 0;                                  // une piste est-elle en cours ?

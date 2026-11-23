@@ -18,6 +18,7 @@ class PlateformeESP32 : public pupitre::Plateforme {
 
   uint32_t maintenant() override { return millis(); }
   bool lireFichier(const std::string& chemin, std::string& contenu) override;
+  std::unique_ptr<pupitre::FichierLu> ouvrir(const std::string& chemin) override;
   bool ecrireFichier(const std::string& chemin, const std::string& contenu) override;
   void jouer(int dossier, int numero, bool casque) override { (casque ? casque_ : hp_).jouer(dossier, numero); }
   bool joue(bool casque) override { return (casque ? casque_ : hp_).joue(); }

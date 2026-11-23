@@ -22,6 +22,48 @@ bool PlateformeESP32::lireFichier(const std::string& chemin, std::string& conten
   return true;
 }
 
+namespace {
+
+// Un fichier de la carte SD lu par morceaux de 512 octets.
+class FichierSD : public pupitre::FichierLu {
+ public:
+  explicit FichierSD(File f) : f_(f) {}
+  ~FichierSD() override { f_.close(); }
+  int read() override {
+    if (pos_ >= n_) {
+      n_ = f_.read(reinterpret_cast<uint8_t*>(tampon_), sizeof(tampon_));
+      pos_ = 0;
+      if (n_ <= 0) {
+        n_ = 0;
+        return -1;
+      }
+    }
+    return static_cast<uint8_t>(tampon_[pos_++]);
+  }
+  size_t readBytes(char* dest, size_t taille) override {
+    size_t lus = 0;
+    while (lus < taille) {
+      int c = read();
+      if (c < 0) break;
+      dest[lus++] = static_cast<char>(c);
+    }
+    return lus;
+  }
+
+ private:
+  File f_;
+  char tampon_[512];
+  int n_ = 0, pos_ = 0;
+};
+
+}  // namespace
+
+std::unique_ptr<pupitre::FichierLu> PlateformeESP32::ouvrir(const std::string& chemin) {
+  File f = SD.open(chemin.c_str(), FILE_READ);
+  if (!f) return nullptr;  // lireFichier() essaiera le « .tmp »
+  return std::unique_ptr<pupitre::FichierLu>(new FichierSD(f));
+}
+
 // Écriture dans un fichier temporaire, puis remplacement : une coupure de courant
 // pendant l'écriture ne laisse pas de fichier à moitié écrit.
 bool PlateformeESP32::ecrireFichier(const std::string& chemin, const std::string& contenu) {

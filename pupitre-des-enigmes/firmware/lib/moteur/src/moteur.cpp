@@ -1,6 +1,7 @@
 #include "moteur.h"
 
 #include <algorithm>
+#include <new>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -74,14 +75,24 @@ Moteur::Moteur(Plateforme& plateforme) : p_(plateforme) {}
 // Chargement
 // ======================================================================
 
-bool Moteur::chargerJson(const std::string& chemin, JsonDocument& doc) {
-  std::string contenu;
-  if (!p_.lireFichier(chemin, contenu)) {
-    p_.journal("Fichier introuvable : " + chemin);
-    return false;
-  }
+bool Moteur::chargerJson(const std::string& chemin, JsonDocument& doc, const JsonDocument* filtre) {
   // Les scripts imbriquent conditions, épreuves et actions : on autorise 32 niveaux.
-  DeserializationError err = deserializeJson(doc, contenu, DeserializationOption::NestingLimit(32));
+  const auto niveaux = DeserializationOption::NestingLimit(32);
+  DeserializationError err;
+  // Sur le pupitre, le fichier est analysé au fil de la lecture : pas de copie entière en
+  // mémoire, qui manquait pour les grosses missions une fois le Wi-Fi démarré.
+  if (std::unique_ptr<FichierLu> f = p_.ouvrir(chemin)) {
+    err = filtre ? deserializeJson(doc, *f, DeserializationOption::Filter(*filtre), niveaux)
+                 : deserializeJson(doc, *f, niveaux);
+  } else {
+    std::string contenu;
+    if (!p_.lireFichier(chemin, contenu)) {
+      p_.journal("Fichier introuvable : " + chemin);
+      return false;
+    }
+    err = filtre ? deserializeJson(doc, contenu, DeserializationOption::Filter(*filtre), niveaux)
+                 : deserializeJson(doc, contenu, niveaux);
+  }
   if (err) {
     p_.journal("JSON invalide dans " + chemin + " : " + err.c_str());
     return false;
@@ -91,8 +102,12 @@ bool Moteur::chargerJson(const std::string& chemin, JsonDocument& doc) {
 
 void Moteur::chargerRepliques(const std::string& chemin, std::map<int, Replique>& cible) {
   cible.clear();
+  // Seuls le numéro, le texte, la voix et la sortie servent au pupitre (pas l'« usage »).
+  JsonDocument filtre;
+  JsonObject ligne = filtre["lignes"].add<JsonObject>();
+  ligne["n"] = ligne["texte"] = ligne["voix"] = ligne["sortie"] = true;
   JsonDocument doc;
-  if (!chargerJson(chemin, doc)) return;
+  if (!chargerJson(chemin, doc, &filtre)) return;
   for (JsonVariantConst l : doc["lignes"].as<JsonArrayConst>()) {
     Replique r;
     r.texte = texte(l["texte"]);
@@ -145,6 +160,20 @@ void Moteur::chargerCartes() {
 }
 
 bool Moteur::chargerMission(int numero) {
+  // Un manque de mémoire ne doit pas faire redémarrer le pupitre : on le dit à l'écran.
+  try {
+    return chargerMissionSansGarde(numero);
+  } catch (const std::bad_alloc&) {
+    script_.clear();
+    repliques_.clear();
+    p_.journal("Mémoire insuffisante pour charger la mission " + std::to_string(numero));
+    afficherTexte("MÉMOIRE INSUFFISANTE",
+                  "La mission n'a pas pu se charger. Éteignez puis rallumez le pupitre, et relancez-la.");
+    return false;
+  }
+}
+
+bool Moteur::chargerMissionSansGarde(int numero) {
   for (JsonVariantConst m : monde_["missions"].as<JsonArrayConst>()) {
     if (m["numero"].as<int>() != numero) continue;
     script_.clear();

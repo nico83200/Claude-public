@@ -148,10 +148,11 @@ class Moteur {
   };
 
   // ---------- Chargement ----------
-  bool chargerJson(const std::string& chemin, JsonDocument& doc);
+  bool chargerJson(const std::string& chemin, JsonDocument& doc, const JsonDocument* filtre = nullptr);
   void chargerIndex();
   bool chargerMonde(const std::string& id);
   bool chargerMission(int numero);
+  bool chargerMissionSansGarde(int numero);
   void chargerRepliques(const std::string& chemin, std::map<int, Replique>& cible);
   void chargerCartes();
   std::string idCarte(const std::string& uid) const;
