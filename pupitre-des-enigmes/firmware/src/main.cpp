@@ -20,7 +20,37 @@
 #include "panneau_web.h"
 #include "plateforme_esp32.h"
 
+// La boucle du pupitre (moteur, dessin, JSON) a besoin de plus que les 8 Ko par défaut.
+SET_LOOP_TASK_STACK_SIZE(16 * 1024);
+
 namespace {
+
+// Pourquoi l'ESP32 a redémarré la dernière fois : affiché au démarrage si ce n'était pas normal,
+// pour qu'on le sache même sans journal série.
+const char* causeRedemarrage() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_PANIC: return "un plantage du programme (panic)";
+    case ESP_RST_INT_WDT: return "un blocage du programme (chien de garde des interruptions)";
+    case ESP_RST_TASK_WDT: return "un blocage du programme (chien de garde des tâches)";
+    case ESP_RST_WDT: return "un blocage du programme (chien de garde)";
+    case ESP_RST_BROWNOUT: return "une chute de tension de l'alimentation (brownout)";
+    default: return nullptr;
+  }
+}
+
+// Le journal série note chaque nouveau minimum de mémoire libre et de pile restante.
+void surveillerMemoire() {
+  static uint32_t tasMin = UINT32_MAX, pileMin = UINT32_MAX, dernier = 0;
+  if (millis() - dernier < 500) return;
+  dernier = millis();
+  const uint32_t tas = ESP.getMinFreeHeap(), pile = uxTaskGetStackHighWaterMark(nullptr);
+  if (tas < tasMin || pile < pileMin) {
+    tasMin = std::min(tasMin, tas);
+    pileMin = std::min(pileMin, pile);
+    Serial.printf("Mémoire : tas libre au plus bas %u octets (plus grand bloc %u) · pile restante %u octets\n", tasMin,
+                  ESP.getMaxAllocHeap(), pileMin);
+  }
+}
 
 Ecran ecran;
 LecteurAudio hp(Serial2);
@@ -101,6 +131,13 @@ void setup() {
   }
   SPI.begin(broches::SCK, broches::MISO, broches::MOSI);
   ecran.demarrer();
+  if (const char* cause = causeRedemarrage()) {
+    Serial.printf("Redémarrage précédent : %s\n", cause);
+    std::string texte = std::string("Le pupitre a redémarré à cause d'") + cause +
+                        ". Notez ce message (ou prenez-le en photo) pour le dépannage.";
+    ecran.message("REDÉMARRAGE INATTENDU", texte.c_str());
+    delay(6000);
+  }
   ecran.logo();
   const uint32_t debutLogo = millis();
 
@@ -235,5 +272,6 @@ void loop() {
   }
   moteur.miseAJour();
   panneau::maj();
+  surveillerMemoire();
   delay(2);
 }
