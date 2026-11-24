@@ -2,7 +2,7 @@
  * Village de Noël - Arduino Nano
  * ---------------------------------------------------------------
  * Matériel :
- *   - 8 lampadaires (3,3 V)  -> relais 3 sur D3 (alimentés en 5 V via résistance)
+ *   - 8 lampadaires (3,3 V)  -> relais 3 sur D9 (alimentés en 3,3 V)
  *   - Buvette (LED 5 V)      -> D5 (PWM : lumière de lanterne qui vacille)
  *   - 3 cabanes WS2812B      -> D6 (une animation différente par cabane)
  *   - Sapin 9 V              -> relais 1 sur D7
@@ -23,7 +23,7 @@
 
 // ------------------------- Brochage -------------------------
 const uint8_t PIN_BOUTON          = 2;
-const uint8_t PIN_RELAIS_LAMPADAIRES = 3;
+const uint8_t PIN_RELAIS_LAMPADAIRES = 9;
 const uint8_t PIN_BUVETTE         = 5;   // PWM
 const uint8_t PIN_WS2812          = 6;
 const uint8_t PIN_RELAIS_SAPIN    = 7;

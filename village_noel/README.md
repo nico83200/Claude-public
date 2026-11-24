@@ -6,7 +6,7 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 
 | Élément | Commande | Effet |
 |---|---|---|
-| 8 lampadaires (3,3 V) | Relais 3 sur **D3** | S'allument en premier à la tombée de la nuit |
+| 8 lampadaires (3,3 V) | Relais 3 sur **D9** | S'allument en premier à la tombée de la nuit |
 | Buvette (LED 5 V) | **D5** (PWM) | Lumière chaude qui vacille comme une lanterne |
 | 3 cabanes WS2812B | **D6** | Cabane 1 : bougie / blanc chaud · Cabane 2 : guirlande multicolore · Cabane 3 : rouge ↔ vert. Elles s'allument une par une au crépuscule |
 | Sapin 9 V | Relais 1 sur **D7** | S'allume à la nuit tombée |
@@ -75,13 +75,82 @@ Calcul de **R** : mesurez le courant des lampadaires sous 3 V (2 piles AA font t
 - Modifiez `LEDS_PAR_CABANE` dans le sketch selon votre nombre de LED par cabane.
 
 ### Relais (sapin, voitures, lampadaires)
-- Modules relais : VCC → 5 V, GND → GND, IN1 → D7 (sapin), IN2 → D8 (voitures), IN du 3ᵉ relais → D3 (lampadaires).
+- Modules relais : VCC → 5 V, GND → GND, IN1 → D7 (sapin), IN2 → D8 (voitures), IN du 3ᵉ relais → D9 (lampadaires).
 - Côté puissance : le **+9 V** passe par COM → NO ; le (−) des éléments retourne au GND.
 - Si les relais fonctionnent « à l'envers », passez `RELAIS_ACTIF_BAS` à `false`.
 
 ### Interrupteurs & photorésistance (option)
 - Chaque interrupteur ON/OFF a 2 pattes utiles : l'une sur D2 (ou D4), l'autre sur GND. Pas de résistance nécessaire (tirage interne activé). S'il a 3 pattes : celle du milieu sur GND, une des deux autres sur la broche.
 - LDR entre 5 V et A0, résistance 10 kΩ entre A0 et GND, puis `UTILISER_LDR = true`. Ajustez les seuils 600/300 dans `niveauNuit()` en regardant `analogRead(A0)`.
+
+## Montage sur plaque à pastilles
+
+![Plan d'implantation](plaque_pastilles.svg)
+
+Plan vu **de dessus** (côté composants). Repères : colonne 1→30 de gauche à droite, rangée 1→21 de haut en bas ; « c10 r3 » = colonne 10, rangée 3.
+
+### Matériel
+- Plaque à pastilles 7×9 cm (on utilise 30 × 21 trous)
+- 2 barrettes **femelles** 15 broches (le Nano s'enfiche dessus, il reste démontable)
+- 1 barrette **mâle** 11 broches (J2) + câbles Dupont femelle-femelle
+- 5 borniers à vis 2 plots, pas 5,08 mm (J1, J3, J4, J5, J6)
+- R1 330 Ω, R2 220 Ω, C1 1000 µF 16 V
+- Fil nu (queue de résistance ou fil rigide dénudé) et fil isolé fin (0,25–0,5 mm²)
+
+### Ordre de soudure (du plus bas au plus haut)
+1. **Rails en fil nu** côté soudures : 5V rangée 4 (c3→c18), GND rangée 5 (c1→c29), 9V rangée 17 (c18→c24), GND rangée 18 (c7→c29), et la liaison GND verticale colonne 29 (r5→r18).
+2. **Résistances** debout ou couchées, pattes en rangées 3 et 7 : R1 330 Ω en colonne 10, R2 220 Ω en colonne 11.
+3. **Barrettes femelles** du Nano : rangée 8 et rangée 14, colonnes 4→18, USB vers le bord gauche.
+4. **Barrette J2** (rangée 2, c5→c15) puis les **borniers**, vis tournées vers l'extérieur.
+5. **C1** entre le rail 5V (patte +, c16 r4) et le rail GND (patte −, c16 r5).
+6. **Ponts et fils** selon le tableau ci-dessous.
+
+### Liste des liaisons
+
+| Liaison | De | Vers | Type |
+|---|---|---|---|
+| J1 GND | c1 r2 | rail GND (c1 r5) | fil nu |
+| J1 +5V | c3 r2 | rail 5V (c3 r4) | fil nu |
+| J2 « 5V relais » | c5 r2 | rail 5V (c5 r4) | fil nu |
+| J2 « GND » (×3) | c6, c13, c15 r2 | rail GND (r5) | pont r2-r3 + fil isolé noir |
+| D9 → LAMPADAIRES | c7 r8 | c7 r2 | ponts r8-r7 et r3-r2 + fil isolé |
+| D8 → VOITURES | c8 r8 | c8 r2 | idem |
+| D7 → SAPIN | c9 r8 | c9 r2 | idem |
+| D6 → R1 → WS DATA | c10 r8 | c10 r2 | ponts r8-r7 et r3-r2, R1 entre r7 et r3 |
+| D5 → R2 → BUVETTE + | c11 r8 | c11 r2 | ponts r8-r7 et r3-r2, R2 entre r7 et r3 |
+| D4 → INTER 2 | c12 r8 | c12 r2 | ponts + fil isolé |
+| D2 → INTER 1 | c14 r8 | c14 r2 | ponts + fil isolé |
+| J3 +5V | c18 r2 | rail 5V (c18 r4) | fil nu |
+| J3 GND | c20 r2 | rail GND (c20 r5) | fil nu |
+| 3V3 Nano → J4 + | c5 r14 | c5 r20 | fil nu |
+| J4 GND | c7 r20 | rail GND bas (c7 r18) | fil nu |
+| GND Nano | c17 r14 | rail GND bas (c17 r18) | fil nu |
+| VIN Nano | c18 r14 | rail 9V (c18 r17) | fil nu |
+| J5 GND | c20 r20 | rail GND bas | fil nu |
+| J5 +9V | c22 r20 | rail 9V (c22 r17) | pont r20-r19 + fil isolé rouge (passe au-dessus du rail GND) |
+| J6 +9V | c24 r20 | rail 9V (c24 r17) | idem |
+| J6 GND | c26 r20 | rail GND bas | fil nu |
+
+> ⚠️ La broche **5V du Nano** (c15 r14) reste **libre**. Le Nano est alimenté en 9 V par VIN.
+
+### Ce qui se branche sur la plaque
+
+| Connecteur | Va vers |
+|---|---|
+| J1 | Sortie du convertisseur 9V→5V (OUT+ / OUT−) |
+| J2 « 5V/GND relais », « LAMPADAIRES/VOITURES/SAPIN » | VCC, GND, IN des modules relais (câbles Dupont) |
+| J2 « WS DATA » + J3 | DIN des cabanes WS2812B + leur 5V/GND |
+| J2 « BUVETTE + » + un « GND » | LED de la buvette |
+| J2 « INTER 1/2 » + « GND » | Les 2 interrupteurs ON/OFF |
+| J4 | COM du relais 3 (lampadaires) et GND des lampadaires |
+| J5 | Alimentation 9 V, **avec fusible 2 A** sur le + |
+| J6 | Entrée du convertisseur (IN+ / IN−) et COM des relais 1 et 2 ; GND des sapin et voitures |
+
+### Avant la première mise sous tension
+1. **Nano retiré**, multimètre en mode bip : aucun bip entre 9V et GND, entre 5V et GND, ni entre 3V3 et GND.
+2. Vérifiez au bip chaque liaison du tableau.
+3. Alimentez sans le Nano : 9 V sur J6, puis réglez le convertisseur pour avoir 5,0 V sur J3.
+4. Coupez, enfichez le Nano, puis rallumez.
 
 ## Pour aller plus loin
 - **MOSFET** (IRLZ44N, ~1 €) à la place des relais → lampadaires qui crépitent puis s'allument en fondu, sapin qui « respire », sans claquement.
