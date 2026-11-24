@@ -146,12 +146,28 @@ void setup() {
   FastLED.setBrightness(static_cast<uint8_t>(defaut.led * 255 / 100));
   FastLED.clear(true);
 
-  if (!SD.begin(broches::SD_CS, SPI, 20000000)) {
+  // À la mise sous tension, la carte SD de l'écran met parfois plus de temps que l'ESP32 à
+  // s'éveiller : on réessaie pendant 5 s (en ralentissant le bus après 3 essais) avant de
+  // parler de carte absente. Ensuite, on continue d'essayer : une carte insérée après coup
+  // est prise sans avoir à appuyer sur RESET.
+  auto monterSD = [](int essai) {
+    if (SD.begin(broches::SD_CS, SPI, essai < 3 ? 20000000 : 4000000)) return true;
+    SD.end();
+    return false;
+  };
+  bool carteSD = false;
+  for (int essai = 0; essai < 10 && !(carteSD = monterSD(essai)); essai++) {
+    Serial.printf("Carte SD : pas encore prête (essai %d)\n", essai + 1);
+    delay(500);
+  }
+  if (!carteSD) {
     ecran.message("CARTE SD ABSENTE",
-                  "Insérez la carte micro-SD dans le lecteur de l'écran (préparée avec outils/preparer_sd.py), "
-                  "puis redémarrez le pupitre.");
+                  "Insérez la carte micro-SD dans le lecteur de l'écran (préparée avec outils/preparer_sd.py). "
+                  "Le pupitre démarre dès qu'il la trouve.");
     Serial.println("Carte SD introuvable.");
-    for (;;) delay(1000);
+    while (!monterSD(10)) delay(1000);
+    Serial.println("Carte SD trouvée.");
+    ecran.logo();
   }
 
   // La durée du logo : le réglage « Logo au démarrage » (/reglages.json), sinon DUREE_LOGO_MS.
