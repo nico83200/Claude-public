@@ -56,6 +56,7 @@ class Dessin {
   void corpsSaisie(const pupitre::Vue& v);
   void corpsLettresClavier(const pupitre::Vue& v);
   void clavierAzerty(const pupitre::Vue& v);
+  void iconeClavier();
   void boutonsTactiles(const pupitre::Vue& v);
 
   // Texte.

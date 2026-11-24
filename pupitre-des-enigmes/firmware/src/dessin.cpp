@@ -23,6 +23,8 @@ constexpr int MENU_H = 33, MENU_ECART = 5, MENU_Y0 = Y_CORPS + 44, MENU_VISIBLES
 constexpr int HAUT_CORPS = Y_INFO - Y_CORPS;
 // Le minuteur des épreuves, en haut à droite du corps.
 constexpr int MIN_X = 438, MIN_Y = 84, MIN_R = 26;
+// L'icône du clavier, à gauche de la consigne d'une épreuve « code » ou « lettres ».
+constexpr int ICONE_X = 8, ICONE_DY = 44, ICONE_W = 46, ICONE_H = 36;
 
 // Les quatre boutons de couleur, teintes modernes.
 constexpr uint32_t BOUTONS[4] = {0xe5484d, 0x3e7bfa, 0xf5b83d, 0x30a46c};
@@ -565,6 +567,17 @@ void Dessin::corpsCode(const Vue& v) {
     }
     x += w + ecart;
   }
+  if (v.tactile) iconeClavier();
+}
+
+// Un petit clavier dessiné : le toucher ouvre le pavé numérique (ou le clavier AZERTY).
+void Dessin::iconeClavier() {
+  const int x = ICONE_X, y = Y_CORPS + ICONE_DY, w = ICONE_W, h = ICONE_H;
+  g_->fillRoundRect(x, y, w, h, 7, c(pal_.accent));
+  g_->fillRoundRect(x + 2, y + 2, w - 4, h - 4, 6, c(pal_.surface2));
+  for (int r = 0; r < 2; r++)
+    for (int k = 0; k < 5; k++) g_->fillRoundRect(x + 6 + k * 7, y + 7 + r * 7, 5, 5, 1, c(pal_.texte));
+  g_->fillRoundRect(x + 13, y + 22, w - 26, 5, 1, c(pal_.texte));  // la barre d'espace
 }
 
 void Dessin::corpsChoix(const Vue& v) {
@@ -942,9 +955,22 @@ const Touche RANGEES[4][10] = {
      {nullptr, 0, CAR, 0}},
 };
 
+// Le pavé numérique d'une épreuve « code » : les chiffres en deux rangées, puis fermer,
+// effacer, valider. La 4ᵉ rangée reste vide.
+const Touche PAVE[4][10] = {
+    {{"1", '1', CAR, 2}, {"2", '2', CAR, 2}, {"3", '3', CAR, 2}, {"4", '4', CAR, 2}, {"5", '5', CAR, 2}, {nullptr, 0, CAR, 0}},
+    {{"6", '6', CAR, 2}, {"7", '7', CAR, 2}, {"8", '8', CAR, 2}, {"9", '9', CAR, 2}, {"0", '0', CAR, 2}, {nullptr, 0, CAR, 0}},
+    {{"‹", 0, pupitre::Toucher::RETOUR, 3}, {"← Effacer", 0, pupitre::Toucher::EFFACER, 3}, {"✓", 0, pupitre::Toucher::VALIDER, 4},
+     {nullptr, 0, CAR, 0}},
+    {{nullptr, 0, CAR, 0}},
+};
+
+const Touche (&clavierDe(const pupitre::Vue& v))[4][10] { return v.pave ? PAVE : RANGEES; }
+
+
 // Une touche sert-elle ici ? Les épreuves « lettres » ne prennent que A à Z.
 bool toucheUtile(const Touche& t, const pupitre::Vue& v) {
-  if (t.type != CAR) return true;
+  if (t.type != CAR || v.pave) return true;
   return v.ecran == pupitre::Vue::SAISIE || (t.caractere >= 'A' && t.caractere <= 'Z');
 }
 
@@ -953,7 +979,7 @@ bool toucheUtile(const Touche& t, const pupitre::Vue& v) {
 void Dessin::clavierAzerty(const Vue& v) {
   for (int r = 0; r < 4; r++) {
     int x = 2, y = KB_Y + r * (KB_H + KB_ECART);
-    for (const Touche& t : RANGEES[r]) {
+    for (const Touche& t : clavierDe(v)[r]) {
       if (!t.etiquette) break;
       int w = t.unites * KB_UNITE - KB_ECART;
       bool utile = toucheUtile(t, v);
@@ -1023,7 +1049,7 @@ Toucher Dessin::cible(const Vue& v, int x, int y) const {
     int r = (y - KB_Y) / (KB_H + KB_ECART);
     if (r > 3) return t;
     int u = x / KB_UNITE, debut = 0;
-    for (const Touche& k : RANGEES[r]) {
+    for (const Touche& k : clavierDe(v)[r]) {
       if (!k.etiquette) break;
       if (u < debut + k.unites) {
         if (!toucheUtile(k, v)) return t;
@@ -1075,8 +1101,11 @@ Toucher Dessin::cible(const Vue& v, int x, int y) const {
       t.type = x < 70 ? Toucher::MOINS : x >= L - 70 ? Toucher::PLUS : Toucher::LIGNE;
       return t;
     }
-    case Vue::CODE:  // une épreuve « lettres » : un toucher ouvre le clavier
-      if (y >= Y_CORPS && y < Y_INFO) t.type = Toucher::CLAVIER;
+    case Vue::CODE:  // un toucher sur l'icône ouvre le clavier ; pour des lettres, n'importe où
+      if (y >= Y_CORPS && y < Y_INFO) {
+        bool icone = x < ICONE_X + ICONE_W + 10 && y >= Y_CORPS + ICONE_DY - 6 && y < Y_CORPS + ICONE_DY + ICONE_H + 6;
+        if (icone || !v.chiffres) t.type = Toucher::CLAVIER;  // des lettres : n'importe où
+      }
       return t;
     default:
       return t;

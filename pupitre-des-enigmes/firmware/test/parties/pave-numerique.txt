@@ -1,0 +1,31 @@
+# Le pavé numérique de l'écran tactile : une épreuve « code » (le poste de contrôle du Banc
+# d'essai, 2580) se tape entièrement à l'écran, sans clavier 4×4 ni molette.
+tactile
+fente M5
+fente -
+verifie phase menu
+touches 1
+calme
+verifie phase jeu
+fente L1
+verifie epreuve code
+verifie info icône du clavier
+capture pave-icone
+# L'icône du clavier ouvre le pavé
+ecran clavier
+verifie clavier oui
+capture pave-ouvert
+# Une erreur, effacée
+ecran texte 9
+ecran efface
+ecran texte 25
+verifie afficheur 25--
+capture pave-saisie
+# Fermer le pavé garde les chiffres ; on le rouvre et on finit
+ecran retour
+verifie clavier non
+verifie afficheur 25--
+ecran clavier
+ecran texte 80
+verifie drapeau T_ecran
+verifie clavier non

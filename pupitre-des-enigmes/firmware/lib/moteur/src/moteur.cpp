@@ -1555,9 +1555,10 @@ void Moteur::fermerReglages(bool enregistrer) {
 
 void Moteur::rafraichir() {
   bool tactile = p_.tactile();
-  if (!(ep_.active && ep_.type == "lettres")) clavierOuvert_ = false;
+  if (!(ep_.active && (ep_.type == "lettres" || ep_.type == "code"))) clavierOuvert_ = false;
   vue_.tactile = tactile;
   vue_.clavier = tactile && (phase_ == Phase::EQUIPE || (phase_ == Phase::JEU && clavierOuvert_ && !accusationOuverte_));
+  vue_.pave = vue_.clavier && phase_ == Phase::JEU && ep_.type == "code";
   vue_.saisie = phase_ == Phase::EQUIPE ? saisie_ : std::string();
   vue_.boutons[0].clear();
   vue_.boutons[1].clear();
@@ -1634,7 +1635,25 @@ void Moteur::toucher(const Toucher& t) {
     default:
       return;
   }
-  // En jeu : seulement le texte d'une épreuve « lettres ».
+  // En jeu : le pavé numérique d'une épreuve « code » (ouvert par l'icône du clavier).
+  if (ep_.active && ep_.type == "code" && !accusationOuverte_) {
+    if (t.type == Toucher::CLAVIER && !clavierOuvert_) {
+      clavierOuvert_ = true;
+      vueEpreuve();
+    } else if (t.type == Toucher::RETOUR) {  // referme le pavé ; les chiffres restent
+      clavierOuvert_ = false;
+      vueEpreuve();
+    } else if (t.type == Toucher::CARACTERE && t.caractere >= '0' && t.caractere <= '9') {
+      p_.jouer(DOSSIER_SONS_PUPITRE, 2, false);
+      epreuveTouche(t.caractere);
+    } else if (t.type == Toucher::EFFACER) {
+      epreuveTouche('*');
+    } else if (t.type == Toucher::VALIDER) {
+      epreuveTouche('#');
+    }
+    return;
+  }
+  // En jeu : le texte d'une épreuve « lettres ».
   if (!ep_.active || ep_.type != "lettres" || accusationOuverte_) return;
   int n = static_cast<int>(ep_.valeurs.size());
   ep_.multi = 0;
@@ -2919,6 +2938,7 @@ void Moteur::vueEpreuve() {
   vue_.barre = ep_.barre;
   if (ep_.type == "code" || ep_.type == "lettres") {
     vue_.ecran = Vue::CODE;
+    vue_.chiffres = ep_.type == "code";
     for (size_t i = 0; i < ep_.valeurs.size(); i++) {
       int v = ep_.valeurs[i], w = ep_.largeurs[i];
       if (v < 0) vue_.champs.push_back(std::string(w, '_'));
@@ -2935,6 +2955,7 @@ void Moteur::vueEpreuve() {
       else vue_.info = ep_.type == "code" ? "Clavier ou molette · * ou rouge : effacer · # : valider"
                                           : "Clavier (2 = ABC…) ou molette · * : effacer · # : valider";
       if (ep_.type == "lettres" && p_.tactile() && !clavierOuvert_) vue_.info = "Touchez l'écran : clavier AZERTY · molette ou clavier aussi";
+      if (ep_.type == "code" && p_.tactile() && !clavierOuvert_) vue_.info = "Touchez l'icône du clavier pour taper le code · ou molette";
     }
   } else if (ep_.type == "choix") {
     vue_.ecran = Vue::CHOIX;

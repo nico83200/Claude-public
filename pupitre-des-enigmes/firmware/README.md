@@ -180,7 +180,8 @@ du pupitre et le diplôme de l'équipe (http://192.168.4.1/diplome). Avant la pa
 ligne de menu pour la choisir, les boutons − et + des réglages, « Retour », « Passer cette
 carte »… Le menu du monde a une ligne **« Nom de l'équipe »** : un clavier AZERTY s'affiche
 à l'écran. Dans une épreuve où l'on tape des **lettres**, toucher l'écran ouvre le même
-clavier. Le reste du jeu ne se joue pas au doigt. Étalonnage : le doigt sur l'écran pendant
+clavier ; dans une épreuve où l'on tape un **code**, l'icône du clavier (à gauche de la consigne)
+ouvre un **pavé numérique** (0 à 9, Effacer, Valider, Fermer). Le reste du jeu ne se joue pas au doigt. Étalonnage : le doigt sur l'écran pendant
 le logo du démarrage, ou l'onglet Atelier du panneau Wi-Fi (`/tactile.json` sur la carte SD).
 
 ## 6. Réglages

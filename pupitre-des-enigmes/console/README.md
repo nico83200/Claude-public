@@ -200,7 +200,8 @@ réglages sont dans `firmware/src/broches.h` :
 sa sélection, T_CS, a sa broche (GPIO 14). Sa sortie T_DO se met en haute impédance quand elle
 n'est pas sélectionnée : elle peut rejoindre le MISO commun, contrairement au SDO de l'écran.
 Elle ne sert qu'aux **menus**, aux **réglages**, à l'enregistrement des cartes, au **nom de
-l'équipe** (un clavier AZERTY à l'écran) et aux épreuves où l'on tape des **lettres** : le jeu
+l'équipe** (un clavier AZERTY à l'écran), aux épreuves où l'on tape des **lettres**, et aux
+**codes** (un pavé numérique, ouvert par l'icône du clavier) : le jeu
 reste aux commandes du pupitre, et tout se fait aussi à la molette et au clavier. À la première
 mise en route, **étalonnez-la** : gardez le doigt sur l'écran pendant le logo du démarrage, ou
 bouton « Étalonner l'écran tactile » de l'onglet Atelier, puis touchez les quatre cibles (la

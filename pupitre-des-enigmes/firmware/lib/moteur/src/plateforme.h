@@ -63,6 +63,8 @@ struct Vue {
   // L'écran tactile (menus, réglages, saisie de texte seulement : le jeu reste aux commandes).
   bool tactile = false;                  // le pupitre a une dalle tactile
   bool clavier = false;                  // le clavier AZERTY occupe le bas de l'écran
+  bool pave = false;                     // … ou le pavé numérique (une épreuve « code »)
+  bool chiffres = false;                 // l'écran CODE attend des chiffres (sinon des lettres)
   std::string saisie;                    // le texte en cours de saisie (nom de l'équipe)
   std::string boutons[2];                // boutons tactiles du bas : [0] retour, [1] valider ("" : absent)
   // La fin de film : deux QR codes sur l'écran de victoire (le Wi-Fi du pupitre, puis le diplôme).
