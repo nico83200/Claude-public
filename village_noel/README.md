@@ -149,7 +149,7 @@ Plan vu **de dessus** (côté composants). Repères : colonne 1→30 de gauche �
 ### Avant la première mise sous tension
 1. **Nano retiré**, multimètre en mode bip : aucun bip entre 9V et GND, entre 5V et GND, ni entre 3V3 et GND.
 2. Vérifiez au bip chaque liaison du tableau.
-3. Alimentez sans le Nano : 9 V sur J6, puis réglez le convertisseur pour avoir 5,0 V sur J3.
+3. Alimentez sans le Nano : 9 V sur J5, puis réglez le convertisseur pour avoir 5,0 V sur J3.
 4. Coupez, enfichez le Nano, puis rallumez.
 
 ## Pour aller plus loin
