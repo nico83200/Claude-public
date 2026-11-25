@@ -380,6 +380,7 @@ void setup() {
   FastLED.clear(true);
 
   IrReceiver.begin(PIN_IR, DISABLE_LED_FEEDBACK);
+  pinMode(PIN_IR, INPUT_PULLUP);           // broche au repos (HIGH) même si le récepteur est débranché
 
   initCabanes();
   Serial.println(F("Marche de Noel : demarrage"));
@@ -410,6 +411,11 @@ void loop() {
   appliquerFete(now);
   FastLED.setBrightness(luminosite);
   // Envoyer les couleurs aux LED bloque les interruptions un court instant :
-  // on attend que la télécommande ne soit pas en train d'émettre.
-  if (IrReceiver.isIdle()) FastLED.show();
+  // on évite de le faire pendant la réception d'une touche, MAIS on ne bloque
+  // jamais les LED plus de 100 ms (récepteur absent, débranché ou parasité).
+  static uint32_t dernierEnvoi = 0;
+  if (IrReceiver.isIdle() || now - dernierEnvoi >= 100) {
+    FastLED.show();
+    dernierEnvoi = now;
+  }
 }
