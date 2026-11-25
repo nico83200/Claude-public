@@ -10,7 +10,7 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 | Buvette (LED 5 V) | **D5** directement | Lumière chaude qui vacille comme une lanterne |
 | 8 LED 3 V (lampadaires) | Relais 2 sur **D9** | S'allument en premier à la tombée de la nuit |
 | 4 voitures 12 V | Relais 1 sur **D8** | Les phares s'allument de temps en temps la nuit (20–40 s), clignotent en mode FÊTE |
-| Relais 3 | **D7** | Libre (réserve, par exemple pour un sapin plus tard) |
+| Sapin 12 V | Relais 3 sur **D7** | S'allume en pleine nuit |
 | 2 interrupteurs ON/OFF (option) | **D2** et **D4** → GND | Choisissent le mode |
 
 Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, module 3 relais, Wago.
@@ -33,14 +33,15 @@ Sans interrupteur, le village est en mode **AUTO**.
  ALIM 12 V (+) ──┘                             ▼
                                         [WAGO +12V]──► VIN du Nano
                                              │    ├──► IN+ du convertisseur 12V→5V
-                                             │    └──► COM relais 1 ──NO──► (+) des 4 voitures
+                                             │    ├──► COM relais 1 ──NO──► (+) des 4 voitures
+                                             │    └──► COM relais 3 ──NO──► (+) du sapin
                                              │
                      convertisseur OUT+ ──► [WAGO +5V]──► VCC module relais
                                                      ├──► 5V des WS2812B
                                                      └──► COM relais 2 ──NO──► lampadaires (via résistances)
 
  ALIM 12 V (−) ──► [WAGO GND] ◄── tout le reste : GND Nano, IN−/OUT− convertisseur, GND relais,
-                                  GND WS2812B, (−) voitures, (−) lampadaires, (−) buvette, interrupteurs
+                                  GND WS2812B, (−) voitures, (−) sapin, (−) lampadaires, (−) buvette, interrupteurs
 ```
 
 Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'il manque des places.
@@ -55,7 +56,7 @@ Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'
 - ⚠️ Ne branchez **rien** sur la borne **5V** du Nano : il est alimenté par VIN.
 
 ### 2. Module 3 relais
-- Côté commande : **VCC** → Wago +5V, **GND** → Wago GND, **IN1 → D8** (voitures), **IN2 → D9** (lampadaires), **IN3 → D7** (réserve).
+- Côté commande : **VCC** → Wago +5V, **GND** → Wago GND, **IN1 → D8** (voitures), **IN2 → D9** (lampadaires), **IN3 → D7** (sapin).
 - ⚠️ Lisez l'inscription sur les relais bleus. **SRD-05VDC** : VCC sur 5 V. **SRD-12VDC** : VCC sur **12 V** (les IN restent sur les broches du Nano).
 - Si les relais fonctionnent « à l'envers », passez `RELAIS_ACTIF_BAS` à `false` dans le programme.
 
@@ -63,6 +64,10 @@ Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'
 - Wago +12V → **COM relais 1** ; **NO relais 1** → un Wago qui réunit les (+) des 4 voitures.
 - Les (−) des 4 voitures → Wago GND.
 - Les 4 voitures sont branchées **en parallèle** (chacune reçoit 12 V).
+
+### 3 bis. Le sapin (12 V), sur le relais 3
+- Wago +12V → **COM relais 3** ; **NO relais 3** → (+) du sapin.
+- (−) du sapin → Wago GND.
 
 ### 4. Les 8 lampadaires (LED 3 V), sur le relais 2
 Une LED « 3 V » ne supporte ni le 5 V ni le 12 V en direct : il faut **une résistance par LED** (une résistance commune fonctionne mal avec des LED en parallèle).
@@ -104,13 +109,13 @@ Wago +5V ──► COM relais 2
 | D4 | Interrupteur 2 (option) |
 | D5 | (+) buvette |
 | D6 | 330 Ω → DIN des WS2812B |
-| D7 | IN3 relais (réserve) |
+| D7 | IN3 relais (sapin) |
 | D8 | IN1 relais (voitures) |
 | D9 | IN2 relais (lampadaires) |
 
 ## Bilan électrique
 - 5 V : WS2812B (max 240 mA) + lampadaires (environ 105 mA) + relais (environ 210 mA) + buvette (environ 20 mA), soit **environ 0,6 A**. Un convertisseur de 2 A ou plus est confortable.
-- 12 V : voitures + convertisseur, soit **moins de 1 A**. Une alimentation 12 V de 1,5 à 2 A suffit.
+- 12 V : voitures + sapin + convertisseur, soit **environ 1 A** selon le sapin. Une alimentation 12 V de 2 A est confortable.
 
 ## Avant la première mise sous tension
 1. Nano débranché, multimètre en mode bip : **aucun bip** entre +12V et GND, ni entre +5V et GND.
@@ -120,5 +125,4 @@ Wago +5V ──► COM relais 2
 
 ## Pour aller plus loin
 - **Photorésistance** sur A0 (+ 10 kΩ vers GND) et `UTILISER_LDR = true` : le marché s'allume tout seul quand la pièce s'assombrit.
-- **Sapin** sur le relais 3 (D7) : il est déjà prévu dans le programme.
 - **Module MP3 DFPlayer Mini** (environ 3 €) : musique de Noël en mode FÊTE.

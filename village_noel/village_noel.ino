@@ -6,7 +6,7 @@
  *   - Buvette (LED 5 V)                 -> D5 (PWM : lumière de lanterne qui vacille)
  *   - 4 voitures 12 V                   -> relais 1 sur D8
  *   - 8 LED 3 V des lampadaires         -> relais 2 sur D9 (5 V + 1 résistance par LED)
- *   - Relais 3 (réserve, ex. sapin)     -> D7 (s'allume en pleine nuit)
+ *   - Sapin 12 V                        -> relais 3 sur D7 (s'allume en pleine nuit)
  *   - 2 interrupteurs ON/OFF (option)   -> D2 et D4 vers GND (sans interrupteur : mode AUTO)
  *   - Photorésistance (option)          -> A0 (allumage automatique à la tombée de la nuit)
  *   - Alimentation 12 V : Nano sur VIN, convertisseur 12 V -> 5 V pour le reste
@@ -27,7 +27,7 @@ const uint8_t PIN_BOUTON          = 2;
 const uint8_t PIN_RELAIS_LAMPADAIRES = 9;
 const uint8_t PIN_BUVETTE         = 5;   // PWM
 const uint8_t PIN_WS2812          = 6;
-const uint8_t PIN_RELAIS_SAPIN    = 7;   // relais 3 : réserve (sapin plus tard)
+const uint8_t PIN_RELAIS_SAPIN    = 7;   // relais 3
 const uint8_t PIN_RELAIS_VOITURES = 8;
 const uint8_t PIN_LDR             = A0;
 const uint8_t PIN_INTER2          = 4;   // 2e interrupteur ON/OFF (si NB_INTERRUPTEURS = 2)
