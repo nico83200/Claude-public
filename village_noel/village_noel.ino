@@ -2,13 +2,14 @@
  * Village de Noël - Arduino Nano
  * ---------------------------------------------------------------
  * Matériel :
- *   - 8 lampadaires (3,3 V)  -> relais 3 sur D9 (alimentés en 3,3 V)
- *   - Buvette (LED 5 V)      -> D5 (PWM : lumière de lanterne qui vacille)
- *   - 3 cabanes WS2812B      -> D6 (une animation différente par cabane)
- *   - Sapin 9 V              -> relais 1 sur D7
- *   - Feux des 3 voitures 9 V-> relais 2 sur D8
- *   - Bouton poussoir        -> D2 vers GND (changement de mode)
- *   - Photorésistance (opt.) -> A0 (allumage automatique à la tombée de la nuit)
+ *   - 4 cabanes WS2812B (1 LED chacune) -> D6 (une animation différente par cabane)
+ *   - Buvette (LED 5 V)                 -> D5 (PWM : lumière de lanterne qui vacille)
+ *   - 4 voitures 12 V                   -> relais 1 sur D8
+ *   - 8 LED 3 V des lampadaires         -> relais 2 sur D9 (5 V + 1 résistance par LED)
+ *   - Relais 3 (réserve, ex. sapin)     -> D7 (s'allume en pleine nuit)
+ *   - 2 interrupteurs ON/OFF (option)   -> D2 et D4 vers GND (sans interrupteur : mode AUTO)
+ *   - Photorésistance (option)          -> A0 (allumage automatique à la tombée de la nuit)
+ *   - Alimentation 12 V : Nano sur VIN, convertisseur 12 V -> 5 V pour le reste
  *
  * Modes (bouton) :
  *   0 AUTO  : cycle jour / crépuscule / nuit / aube simulé (ou piloté par la LDR)
@@ -26,7 +27,7 @@ const uint8_t PIN_BOUTON          = 2;
 const uint8_t PIN_RELAIS_LAMPADAIRES = 9;
 const uint8_t PIN_BUVETTE         = 5;   // PWM
 const uint8_t PIN_WS2812          = 6;
-const uint8_t PIN_RELAIS_SAPIN    = 7;
+const uint8_t PIN_RELAIS_SAPIN    = 7;   // relais 3 : réserve (sapin plus tard)
 const uint8_t PIN_RELAIS_VOITURES = 8;
 const uint8_t PIN_LDR             = A0;
 const uint8_t PIN_INTER2          = 4;   // 2e interrupteur ON/OFF (si NB_INTERRUPTEURS = 2)
@@ -41,11 +42,11 @@ const bool TYPE_INTERRUPTEUR = true;     // (avec 1 seul) true = interrupteur ON
 const bool     RELAIS_ACTIF_BAS = true;   // la plupart des modules relais chinois s'activent avec LOW
 const bool     UTILISER_LDR     = false;  // true = le mode AUTO suit la lumière ambiante
 
-const uint8_t  NB_CABANES       = 3;
-const uint8_t  LEDS_PAR_CABANE  = 3;      // <-- à adapter au nombre de WS2812B par cabane
+const uint8_t  NB_CABANES       = 4;
+const uint8_t  LEDS_PAR_CABANE  = 1;      // <-- à adapter au nombre de WS2812B par cabane
 const uint8_t  NB_LEDS          = NB_CABANES * LEDS_PAR_CABANE;
 const uint8_t  LUMINOSITE_WS    = 140;    // 0..255
-const uint16_t COURANT_MAX_WS   = 1500;   // mA, limite de sécurité pour le convertisseur 5 V
+const uint16_t COURANT_MAX_WS   = 500;    // mA, limite de sécurité pour le convertisseur 5 V
 
 // Durées du cycle automatique (millisecondes)
 const uint32_t DUREE_JOUR       = 2UL * 60UL * 1000UL;   // 2 min
@@ -163,6 +164,13 @@ void animRougeVert(CRGB* p, uint32_t now) {         // rouge et vert qui se fond
   }
 }
 
+void animDore(CRGB* p, uint32_t now) {             // doré qui respire doucement
+  for (uint8_t i = 0; i < LEDS_PAR_CABANE; i++) {
+    p[i] = CRGB(255, 170, 30);
+    p[i].nscale8_video(120 + scale8(sin8(now / 16 + i * 50), 135));
+  }
+}
+
 void animFete(CRGB* p, uint8_t c, uint32_t now) {   // arc-en-ciel + paillettes
   for (uint8_t i = 0; i < LEDS_PAR_CABANE; i++) {
     p[i] = CHSV(now / 8 + (c * LEDS_PAR_CABANE + i) * 25, 255, 255);
@@ -180,10 +188,11 @@ void majCabanes(uint8_t nuit, uint32_t now) {
     if (mode == MODE_FETE) {
       animFete(p, c, now);
     } else {
-      switch (c % 3) {
+      switch (c % 4) {
         case 0: animBougie(p, now);    break;
         case 1: animGuirlande(p, now); break;
         case 2: animRougeVert(p, now); break;
+        case 3: animDore(p, now);      break;
       }
     }
     for (uint8_t i = 0; i < LEDS_PAR_CABANE; i++) p[i].nscale8_video(lumCabane[c]);
