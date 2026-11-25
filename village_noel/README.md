@@ -46,7 +46,55 @@ Sans interrupteur, le village est en mode **AUTO**.
 
 Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'il manque des places.
 
-## Câblage pas à pas
+## Montage propre : carte de distribution sur plaque à pastilles
+
+![Carte de distribution](carte_distribution.svg)
+
+La carte remplace tous les Wago. Elle regroupe les rails +12V, +5V et GND, les 8 résistances des lampadaires, la résistance des WS2812B et le condensateur. Chaque élément du marché arrive sur **son propre bornier à vis**. Le Nano reste sur son bornier et se relie à la carte par 4 fils (J4). Les 3 fils IN des relais vont directement du Nano au module relais (D8 → IN1, D9 → IN2, D7 → IN3).
+
+Plan vu **de dessus**. Repères : colonne 1→56 de gauche à droite, rangée 1→28 de haut en bas.
+
+### Matériel
+- Plaque à pastilles **9×15 cm**
+- Borniers à vis au pas de 5,08 mm, emboîtables : **23 × 2 plots + 1 × 3 plots**
+- 8 résistances de **150 Ω** (lampadaires), 1 de **330 Ω** (R1), 1 condensateur **1000 µF 16 V** (C1)
+- Fil rigide nu de 0,5 mm² minimum pour les rails, et du fil isolé fin
+
+### Les rails (fil nu, côté soudures)
+
+| Rail | Rangée | Colonnes |
+|---|---|---|
+| +12V | 5 | 2 → 44 |
+| +5V | 7 | 3 → 51 |
+| GND (haut) | 9 | 2 → 56 |
+| LAMPADAIRES + (5 V commuté par le relais 2) | 21 | 2 → 30 |
+| GND (bas) | 23 | 2 → 56 |
+| VOITURES + (12 V commuté par le relais 1) | 25 | 36 → 48 |
+| Liaison GND haut ↔ bas | colonne 56 | rangées 9 → 23 |
+
+### Ordre de soudure
+1. Les **rails** en fil nu.
+2. Les **8 résistances de 150 Ω**, debout entre le rail LAMPADAIRES+ (r21) et la rangée 25, colonnes 2, 6, 10 … 30.
+3. **R1 330 Ω** couchée en rangée 13, entre les colonnes 40 et 44. **C1** en colonne 50 : + sur le rail +5V (r7), − sur le rail GND (r9).
+4. Les **borniers**, vis vers l'extérieur.
+5. Les **fils nus courts** et les **fils isolés**, comme sur le plan.
+
+### Liaisons qui croisent un autre rail : en fil isolé
+- **+5V** de J3, J5 (VCC) et J7 (COM2) → rail +5V
+- **GND** de J1, J2, J3, J4, J5 et J12 → rail GND
+- **GND** des voitures V1 à V3 → rail GND bas
+- **D5** (J4) → BUVETTE + (J12)
+- **D6** (J4) → R1 → DATA (J13)
+- **NO1** → rail VOITURES+, **NO2** → rail LAMPADAIRES+, **NO3** → SAPIN + (J11)
+
+Toutes les autres liaisons sont des fils nus courts dans la même colonne, qui ne croisent rien.
+
+### Contrôle avant de brancher
+1. Multimètre en mode bip, rien de branché : **aucun bip** entre +12V et GND, +5V et GND, +12V et +5V.
+2. Bip entre chaque borne « GND » et le bornier J1 GND : il doit biper partout.
+3. Alimentez avec seulement le convertisseur branché, réglez-le à **5,0 V** (mesuré sur J13 +5V et GND).
+
+## Câblage pas à pas (version Wago, ou pour comprendre la carte)
 
 ### 1. Alimentation
 - **+12 V** (avec fusible 2 A) → Wago +12V → **VIN** du Nano et **IN+** du convertisseur.
@@ -57,7 +105,7 @@ Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'
 
 ### 2. Module 3 relais
 - Côté commande : **VCC** → Wago +5V, **GND** → Wago GND, **IN1 → D8** (voitures), **IN2 → D9** (lampadaires), **IN3 → D7** (sapin).
-- ⚠️ Lisez l'inscription sur les relais bleus. **SRD-05VDC** : VCC sur 5 V. **SRD-12VDC** : VCC sur **12 V** (les IN restent sur les broches du Nano).
+- Les relais sont des modèles **5 V** : VCC sur le 5 V.
 - Si les relais fonctionnent « à l'envers », passez `RELAIS_ACTIF_BAS` à `false` dans le programme.
 
 ### 3. Les 4 voitures (12 V), sur le relais 1
