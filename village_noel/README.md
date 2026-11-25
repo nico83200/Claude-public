@@ -1,6 +1,6 @@
 # 🎄 Marché de Noël miniature – Arduino Nano
 
-Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requise).
+Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèques **FastLED** et **IRremote** requises).
 
 ## Matériel
 
@@ -12,6 +12,7 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 | Buvette (LED jaune 5 mm) | **D5** via 220 Ω | S'allume en douceur, puis vacille comme une lanterne |
 | 4 voitures 12 V | Relais 1 sur **D8** | Phares allumés |
 | Sapin 12 V | Relais 3 sur **D7** | Dernier à s'allumer |
+| Récepteur infrarouge KY-022 + télécommande Elegoo | **D2** | Allumer / éteindre chaque élément à distance |
 
 Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, module 3 relais.
 
@@ -31,6 +32,32 @@ Réglages en haut de `village_noel.ino` :
 - `DUREE_FONDU_COULEUR`, `TENUE_COULEUR_MIN/MAX` et `PALETTE_CABANES` : couleurs des cabanes.
 - `DUREE_MARCHE_OUVERT`, `DUREE_MARCHE_FERME` et `DECALAGE_CABANES` : fin du marché.
 - `EGLISE_ALLUMEE_MIN/MAX` et `EGLISE_ETEINTE_MIN/MAX` : bougie de l'église.
+
+## Télécommande
+
+| Touche | Action |
+|---|---|
+| ⏻ (rouge) | **Tout éteindre**. Si tout est déjà éteint : **tout rallumer un par un**, comme au démarrage |
+| **1** | Lampadaires (allumer / éteindre) |
+| **2** / **3** / **4** | Cabane 1 / cabane 2 / cabane 3 |
+| **5** | Église |
+| **6** | Buvette |
+| **7** | Voitures |
+| **8** | Sapin |
+| **9** | Fermer / rouvrir le marché tout de suite (les 3 cabanes, une par une) |
+| **0** | Rejouer la séquence d'allumage |
+| **VOL+ / VOL−** | Luminosité des cabanes, de l'église et de la buvette (on peut maintenir la touche) |
+
+Les LED s'allument et s'éteignent toujours en fondu, les relais d'un coup. La fermeture automatique du marché (toutes les 10 min) continue de fonctionner.
+
+**Branchement du récepteur KY-022** (3 broches) :
+- **S** (signal) → **D2** du Nano
+- **broche du milieu (+)** → **5V** du Nano
+- **−** → **GND** du Nano
+
+Placez le récepteur (la petite bulle noire) **visible depuis l'avant du décor**, par exemple derrière une fenêtre de l'église ou sous le toit de la buvette.
+
+Si une touche ne réagit pas, ouvrez le moniteur série de l'IDE Arduino (115200 bauds) : le code de chaque touche reçue s'y affiche. Il suffit alors de le reporter dans `TOUCHES_1_A_9` ou `TOUCHE_…` en haut du programme.
 
 ## Schéma d'ensemble
 
@@ -107,7 +134,7 @@ Toutes les autres liaisons sont des fils nus courts dans la même colonne, qui n
 - **−** de l'alim → Wago GND → **GND** du Nano et **IN−** du convertisseur.
 - **Réglez le convertisseur à 5,0 V au multimètre** avant de brancher quoi que ce soit sur sa sortie.
 - Convertisseur **OUT+** → Wago +5V ; **OUT−** → Wago GND.
-- ⚠️ Ne branchez **rien** sur la borne **5V** du Nano : il est alimenté par VIN.
+- ⚠️ N'injectez **jamais** le 5 V du convertisseur dans la borne **5V** du Nano : il est alimenté par VIN. Cette borne sert seulement à alimenter le petit récepteur infrarouge.
 
 ### 2. Module 3 relais
 - Côté commande : **VCC** → Wago +5V, **GND** → Wago GND, **IN1 → D8** (voitures), **IN2 → D9** (lampadaires), **IN3 → D7** (sapin).
@@ -155,7 +182,8 @@ Wago +5V ──► COM relais 2
 |---|---|
 | VIN | Wago +12V |
 | GND | Wago GND |
-| 5V | **rien** |
+| 5V | + du récepteur infrarouge **uniquement** (jamais le 5 V du convertisseur) |
+| D2 | S du récepteur infrarouge |
 | D5 | 220 Ω → (+) buvette |
 | D6 | 330 Ω → DIN des WS2812B |
 | D7 | IN3 relais (sapin) |
@@ -168,7 +196,7 @@ Wago +5V ──► COM relais 2
 
 ## Installer le programme sur le Nano
 
-Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 11 ko (34 % de la mémoire) et a été compilé avec FastLED 3.6.0.
+Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 13,9 ko (42 % de la mémoire) et a été compilé avec FastLED 3.6.0 et IRremote 4.4.1.
 
 ### Méthode 1 : sans IDE, avec le fichier .hex (Windows)
 1. Téléchargez **XLoader** (petit logiciel gratuit, aucune installation).
@@ -190,7 +218,7 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noe
 
 ### Méthode 2 : avec l'IDE Arduino (si vous voulez modifier des réglages)
 1. Ouvrez `village_noel.ino`.
-2. Ouvrez le gestionnaire de bibliothèques (Outils → Gérer les bibliothèques) et installez **FastLED**.
+2. Ouvrez le gestionnaire de bibliothèques (Outils → Gérer les bibliothèques) et installez **FastLED** et **IRremote** (version 4.x, par Armin Joachimsmeyer).
 3. Choisissez **Outils → Type de carte → Arduino Nano**.
 4. Choisissez **Outils → Processeur → ATmega328P (Old Bootloader)** pour la plupart des clones, ou **ATmega328P** sinon.
 5. Choisissez le port, puis cliquez sur **Téléverser**.
@@ -200,6 +228,7 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noe
 - Cabanes : bougies colorées en fondu, fermeture du marché 1 min toutes les 11 min ; église : bougie aléatoire
 - Relais actifs à l'état bas : voitures D8, lampadaires D9, sapin D7
 - Allumage un par un : départ après 2 s, puis un élément toutes les 3 s
+- Télécommande Elegoo sur D2 (codes NEC du kit Elegoo)
 
 Pour changer un réglage (relais actifs à l'état haut, pauses, ordre…), utilisez la méthode 2.
 

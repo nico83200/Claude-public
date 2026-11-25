@@ -2,7 +2,16 @@
  * Marché de Noël miniature - Arduino Nano
  * ---------------------------------------------------------------
  * Au démarrage, les éléments s'allument UN PAR UN, avec une pause entre
- * chacun, puis tout reste allumé. Aucun bouton, pas de mode jour.
+ * chacun, puis tout reste allumé. Pas de mode jour.
+ *
+ * Télécommande infrarouge (kit Elegoo, récepteur KY-022 sur D2) :
+ *   ⏻        : tout éteindre / tout rallumer (rallumage un par un)
+ *   1 à 8    : allumer / éteindre un élément
+ *              1 lampadaires · 2 cabane 1 · 3 cabane 2 · 4 cabane 3
+ *              5 église · 6 buvette · 7 voitures · 8 sapin
+ *   9        : fermer / rouvrir le marché tout de suite (les 3 cabanes)
+ *   0        : rejouer la séquence d'allumage
+ *   VOL+/VOL- : luminosité des cabanes, de l'église et de la buvette
  *
  * Les 4 LED WS2812B sont des bougies :
  *   - 3 cabanes : flamme de bougie dont la couleur change TRÈS lentement
@@ -18,14 +27,19 @@
  *   - Buvette (LED jaune 5 mm)           -> D5 via 220 Ω (lumière de lanterne qui vacille)
  *   - 4 voitures 12 V                    -> relais 1 sur D8
  *   - Sapin 12 V                         -> relais 3 sur D7
+ *   - Récepteur infrarouge KY-022        -> S sur D2, + sur 5V du Nano, - sur GND
  *   - Alimentation 12 V : Nano sur VIN, convertisseur 12 V -> 5 V pour le reste
  *
- * Bibliothèque nécessaire : FastLED (Gestionnaire de bibliothèques de l'IDE Arduino)
+ * Bibliothèques nécessaires (Gestionnaire de bibliothèques de l'IDE Arduino) :
+ *   FastLED  et  IRremote (version 4.x, par Armin Joachimsmeyer)
  */
 
+#define DECODE_NEC            // la télécommande Elegoo utilise le protocole NEC
+#include <IRremote.hpp>
 #include <FastLED.h>
 
 // ------------------------- Brochage -------------------------
+const uint8_t PIN_IR                 = 2;   // récepteur infrarouge
 const uint8_t PIN_BUVETTE            = 5;   // PWM
 const uint8_t PIN_WS2812             = 6;
 const uint8_t PIN_RELAIS_SAPIN       = 7;   // relais 3
@@ -34,11 +48,14 @@ const uint8_t PIN_RELAIS_LAMPADAIRES = 9;   // relais 2
 
 // ------------------------- Réglages généraux -------------------------
 const bool     RELAIS_ACTIF_BAS = true;     // la plupart des modules relais s'activent avec LOW
-const uint8_t  LUMINOSITE_WS    = 160;      // 0..255
+const uint8_t  LUMINOSITE_WS    = 160;      // luminosité de départ 0..255 (réglable avec VOL+/VOL-)
+const uint8_t  PAS_LUMINOSITE   = 20;
+const uint8_t  LUMINOSITE_MIN   = 20;
 const uint16_t COURANT_MAX_WS   = 500;      // mA, limite de sécurité pour le convertisseur 5 V
 
 // Séquence de démarrage
-const uint32_t PAUSE_DEPART     = 2000;     // ms avant le premier élément
+const uint32_t PAUSE_DEPART     = 2000;     // ms avant le premier élément (à la mise sous tension)
+const uint32_t PAUSE_DEPART_TELECOMMANDE = 500;   // ms avant le premier élément (touche ⏻ ou 0)
 const uint32_t PAUSE_ELEMENTS   = 3000;     // ms entre deux éléments
 
 // Couleur des cabanes : durée d'un fondu et temps passé sur chaque couleur
@@ -73,6 +90,15 @@ const Element ORDRE[] = {
 };
 const uint8_t NB_ETAPES = sizeof(ORDRE) / sizeof(ORDRE[0]);
 
+// Codes des touches de la télécommande Elegoo (protocole NEC, adresse 0x00).
+// Si une touche ne réagit pas, ouvrez le moniteur série (115200 bauds) :
+// le code de chaque touche reçue y est affiché.
+const uint8_t TOUCHE_POWER = 0x45;
+const uint8_t TOUCHE_VOLP  = 0x46;
+const uint8_t TOUCHE_VOLM  = 0x15;
+const uint8_t TOUCHE_0     = 0x16;
+const uint8_t TOUCHES_1_A_9[9] = { 0x0C, 0x18, 0x5E, 0x08, 0x1C, 0x5A, 0x42, 0x52, 0x4A };
+
 // ------------------------- LED -------------------------
 const uint8_t NB_CABANES = 3;
 const uint8_t LED_EGLISE = 3;              // position de l'église sur la chaîne (0 = 1re LED)
@@ -93,8 +119,14 @@ const uint8_t NB_COULEURS = sizeof(PALETTE_CABANES) / sizeof(PALETTE_CABANES[0])
 
 // ------------------------- Variables -------------------------
 CRGB     leds[NB_LEDS];
-bool     allume[NB_ELEMENTS] = { false };  // éléments déjà allumés par la séquence
-uint32_t finSequence = 0;                  // 0 tant que la séquence n'est pas terminée
+bool     allume[NB_ELEMENTS] = { false };  // état de chaque élément (séquence ou télécommande)
+uint8_t  etape = 0;                        // étape en cours de la séquence d'allumage
+uint32_t debutSequence = 0;
+uint32_t pauseDepart = PAUSE_DEPART;
+uint8_t  luminosite = LUMINOSITE_WS;
+
+bool     marcheOuvert = true;              // fin du marché : fermeture / réouverture des cabanes
+uint32_t basculeMarche = 0;                // moment de la dernière ouverture ou fermeture
 
 struct Cabane {
   uint8_t  depart, cible;      // index dans la palette
@@ -111,15 +143,27 @@ void commanderRelais(uint8_t pin, bool on) {
 
 // ------------------------- Séquence de démarrage -------------------------
 void majSequence(uint32_t now) {
-  static uint8_t etape = 0;
   if (etape >= NB_ETAPES) return;
-  if (now >= PAUSE_DEPART + (uint32_t)etape * PAUSE_ELEMENTS) {
+  if (now - debutSequence >= pauseDepart + (uint32_t)etape * PAUSE_ELEMENTS) {
     allume[ORDRE[etape]] = true;
     Serial.print(F("Allumage etape "));
     Serial.println(etape + 1);
     etape++;
-    if (etape == NB_ETAPES) finSequence = now;
   }
+}
+
+void relancerSequence(uint32_t now) {
+  for (uint8_t i = 0; i < NB_ELEMENTS; i++) allume[i] = false;
+  etape = 0;
+  debutSequence = now;
+  pauseDepart = PAUSE_DEPART_TELECOMMANDE;
+  marcheOuvert = true;
+  basculeMarche = now;
+}
+
+void toutEteindre() {
+  etape = NB_ETAPES;                        // arrête une séquence en cours
+  for (uint8_t i = 0; i < NB_ELEMENTS; i++) allume[i] = false;
 }
 
 // ------------------------- Flamme de bougie -------------------------
@@ -154,13 +198,20 @@ void initCabanes() {
   }
 }
 
-// La cabane doit-elle être allumée ? (séquence de démarrage puis cycle ouvert / fermé)
+// Ouverture / fermeture automatique du marché
+void majMarche(uint32_t now) {
+  uint32_t duree = marcheOuvert ? DUREE_MARCHE_OUVERT : DUREE_MARCHE_FERME;
+  if (now - basculeMarche >= duree) {
+    marcheOuvert = !marcheOuvert;
+    basculeMarche = now;
+  }
+}
+
+// La cabane doit-elle être allumée ? Les cabanes ferment et rouvrent l'une après l'autre.
 bool cabaneOuverte(uint8_t c, uint32_t now) {
-  if (finSequence == 0) return allume[CABANE_1 + c];
-  // Le cycle démarre comme si toutes les cabanes venaient d'ouvrir
-  const uint32_t cycle = DUREE_MARCHE_OUVERT + DUREE_MARCHE_FERME;
-  uint32_t t = (now - finSequence + (NB_CABANES - 1) * DECALAGE_CABANES) % cycle;
-  return t >= c * DECALAGE_CABANES && t < DUREE_MARCHE_OUVERT + c * DECALAGE_CABANES;
+  if (!allume[CABANE_1 + c]) return false;
+  bool apresDecalage = (now - basculeMarche) >= (uint32_t)c * DECALAGE_CABANES;
+  return marcheOuvert ? apresDecalage : !apresDecalage;
 }
 
 void majCabane(uint8_t c, uint32_t now) {
@@ -193,8 +244,6 @@ void majEglise(uint32_t now) {
   static uint32_t prochain = 0;
   static uint8_t  lum = 0;
 
-  if (!allume[EGLISE]) { leds[LED_EGLISE] = CRGB::Black; return; }
-
   if (prochain == 0) prochain = now + random(EGLISE_ALLUMEE_MIN, EGLISE_ALLUMEE_MAX);
   if ((int32_t)(now - prochain) >= 0) {
     flammeAllumee = !flammeAllumee;
@@ -203,7 +252,7 @@ void majEglise(uint32_t now) {
   }
 
   // S'éteint vite (comme une bougie soufflée), se rallume plus doucement
-  lum = flammeAllumee ? qadd8(lum, 3) : qsub8(lum, 8);
+  lum = (flammeAllumee && allume[EGLISE]) ? qadd8(lum, 3) : qsub8(lum, 8);
 
   leds[LED_EGLISE] = couleurBougie(CRGB(255, 140, 40), 7, now);
   leds[LED_EGLISE].nscale8_video(lum);
@@ -216,8 +265,50 @@ void majBuvette() {
   if (allume[BUVETTE]) {
     uint8_t cible = random8(170, 255);
     niveau = (uint8_t)(((uint16_t)niveau * 7 + cible) / 8);
+  } else {
+    niveau = qsub8(niveau, 6);              // s'éteint en douceur
   }
-  analogWrite(PIN_BUVETTE, niveau);
+  analogWrite(PIN_BUVETTE, scale8(niveau, qadd8(luminosite, 255 - LUMINOSITE_WS)));
+}
+
+// ------------------------- Télécommande -------------------------
+void basculer(Element e) {
+  etape = NB_ETAPES;                        // la télécommande prend la main sur la séquence
+  allume[e] = !allume[e];
+}
+
+void lireTelecommande(uint32_t now) {
+  if (!IrReceiver.decode()) return;
+  IRData& d = IrReceiver.decodedIRData;
+  bool repetition = d.flags & IRDATA_FLAGS_IS_REPEAT;
+
+  if (d.protocol == NEC) {
+    uint8_t code = d.command;
+    Serial.print(F("Touche recue : 0x"));
+    Serial.println(code, HEX);
+
+    if (code == TOUCHE_VOLP) {                        // VOL+ / VOL- : maintien possible
+      luminosite = qadd8(luminosite, PAS_LUMINOSITE);
+    } else if (code == TOUCHE_VOLM) {
+      luminosite = max((int)LUMINOSITE_MIN, (int)luminosite - PAS_LUMINOSITE);
+    } else if (!repetition) {                          // les autres touches : un appui = une action
+      if (code == TOUCHE_POWER) {
+        bool unAllume = false;
+        for (uint8_t i = 0; i < NB_ELEMENTS; i++) unAllume |= allume[i];
+        if (unAllume) toutEteindre(); else relancerSequence(now);
+      } else if (code == TOUCHE_0) {
+        relancerSequence(now);
+      } else if (code == TOUCHES_1_A_9[8]) {           // 9 : fermer / rouvrir le marché
+        marcheOuvert = !marcheOuvert;
+        basculeMarche = now;
+      } else {
+        for (uint8_t i = 0; i < 8; i++) {              // 1 à 8 : un élément chacun
+          if (code == TOUCHES_1_A_9[i]) basculer((Element)i);
+        }
+      }
+    }
+  }
+  IrReceiver.resume();
 }
 
 // ------------------------- Programme principal -------------------------
@@ -242,18 +333,22 @@ void setup() {
   FastLED.setMaxPowerInVoltsAndMilliamps(5, COURANT_MAX_WS);
   FastLED.clear(true);
 
+  IrReceiver.begin(PIN_IR, DISABLE_LED_FEEDBACK);
+
   initCabanes();
   Serial.println(F("Marche de Noel : demarrage"));
 }
 
 void loop() {
   uint32_t now = millis();
+  lireTelecommande(now);
 
   static uint32_t derniereImage = 0;
   if (now - derniereImage < 20) return;  // ~50 images / seconde
   derniereImage = now;
 
   majSequence(now);
+  majMarche(now);
   commanderRelais(PIN_RELAIS_LAMPADAIRES, allume[LAMPADAIRES]);
   commanderRelais(PIN_RELAIS_VOITURES,    allume[VOITURES]);
   commanderRelais(PIN_RELAIS_SAPIN,       allume[SAPIN]);
@@ -261,5 +356,8 @@ void loop() {
 
   for (uint8_t c = 0; c < NB_CABANES; c++) majCabane(c, now);
   majEglise(now);
-  FastLED.show();
+  FastLED.setBrightness(luminosite);
+  // Envoyer les couleurs aux LED bloque les interruptions un court instant :
+  // on attend que la télécommande ne soit pas en train d'émettre.
+  if (IrReceiver.isIdle()) FastLED.show();
 }
