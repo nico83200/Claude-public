@@ -7,7 +7,8 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 | Élément | Commande | Effet |
 |---|---|---|
 | 8 LED 3 V (lampadaires) | Relais 2 sur **D9** | 1ᵉʳ à s'allumer |
-| 4 LED WS2812B (cabanes) | **D6** | S'allument une par une en fondu : bougie · guirlande multicolore · rouge↔vert · doré qui respire |
+| 3 LED WS2812B (cabanes) | **D6** | Bougies colorées : la couleur change très lentement, en fondu. De temps en temps le marché « ferme » : elles s'éteignent doucement, puis se rallument |
+| 1 LED WS2812B (église) | **D6** (4ᵉ de la chaîne) | Bougie blanc chaud qui s'éteint et se rallume au hasard |
 | Buvette (LED jaune 5 mm) | **D5** via 220 Ω | S'allume en douceur, puis vacille comme une lanterne |
 | 4 voitures 12 V | Relais 1 sur **D8** | Phares allumés |
 | Sapin 12 V | Relais 3 sur **D7** | Dernier à s'allumer |
@@ -16,11 +17,20 @@ Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, m
 
 **Fonctionnement** : aucun bouton. À la mise sous tension, après 2 s, les éléments s'allument **un par un toutes les 3 s** :
 
-1. Lampadaires → 2. Cabane 1 → 3. Cabane 2 → 4. Cabane 3 → 5. Cabane 4 → 6. Buvette → 7. Voitures → 8. Sapin
+1. Lampadaires → 2. Cabane 1 → 3. Cabane 2 → 4. Cabane 3 → 5. Église → 6. Buvette → 7. Voitures → 8. Sapin
 
-Ensuite tout reste allumé, et les cabanes et la buvette continuent leurs animations. La séquence complète dure environ 23 s. Pour la rejouer, coupez puis remettez l'alimentation.
+Ensuite tout reste allumé (pas de mode jour). La séquence complète dure environ 23 s. Pour la rejouer, coupez puis remettez l'alimentation.
 
-Réglages en haut de `village_noel.ino` : `PAUSE_ELEMENTS` (pause entre deux éléments), `PAUSE_DEPART`, et le tableau `ORDRE` pour changer l'ordre d'allumage.
+**Les 4 LED en bougies** :
+- **Cabanes** : chaque flamme vacille avec sa propre couleur, prise parmi orange, doré, rouge, vert, rose, violet, bleu nuit et blanc chaud. Elle garde sa couleur 10 à 25 s, puis passe à la suivante par un **fondu de 8 s**. Il n'y a jamais de changement brutal.
+- **Fin du marché** : après 10 min, les 3 cabanes s'éteignent doucement l'une après l'autre (4 s d'écart). Elles restent éteintes 1 min, puis se rallument une par une. Le cycle recommence ensuite.
+- **Église** : bougie blanc chaud qui reste allumée 20 à 90 s, s'éteint comme une bougie soufflée, reste éteinte 4 à 20 s, puis se rallume doucement. Tout est tiré au hasard.
+
+Réglages en haut de `village_noel.ino` :
+- `PAUSE_ELEMENTS` et `PAUSE_DEPART` : rythme de la séquence de démarrage ; le tableau `ORDRE` : ordre d'allumage.
+- `DUREE_FONDU_COULEUR`, `TENUE_COULEUR_MIN/MAX` et `PALETTE_CABANES` : couleurs des cabanes.
+- `DUREE_MARCHE_OUVERT`, `DUREE_MARCHE_FERME` et `DECALAGE_CABANES` : fin du marché.
+- `EGLISE_ALLUMEE_MIN/MAX` et `EGLISE_ETEINTE_MIN/MAX` : bougie de l'église.
 
 ## Schéma d'ensemble
 
@@ -133,9 +143,9 @@ Wago +5V ──► COM relais 2
 - La résistance est **obligatoire** : sans elle, la LED et la broche D5 risquent de griller.
 - Sur la carte de distribution, c'est R2 (rangée 11, colonnes 25 → 29).
 
-### 6. Les 4 WS2812B (cabanes)
+### 6. Les 4 WS2812B (3 cabanes + église)
 - **5V** → Wago +5V, **GND** → Wago GND.
-- **D6 → résistance 330 Ω → DIN** de la 1ʳᵉ LED. Puis **DOUT → DIN** de la suivante, et ainsi de suite.
+- **D6 → résistance 330 Ω → DIN** de la 1ʳᵉ LED. Puis **DOUT → DIN** de la suivante, dans l'ordre : cabane 1 → cabane 2 → cabane 3 → **église en dernier**.
 - Conseillé : un condensateur **1000 µF** entre 5V et GND près de la 1ʳᵉ LED (bande « − » sur le GND).
 - Respectez le sens des flèches sur les LED (DIN → DOUT).
 
@@ -158,7 +168,7 @@ Wago +5V ──► COM relais 2
 
 ## Installer le programme sur le Nano
 
-Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 10 ko (31 % de la mémoire) et a été compilé avec FastLED 3.6.0.
+Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 11 ko (34 % de la mémoire) et a été compilé avec FastLED 3.6.0.
 
 ### Méthode 1 : sans IDE, avec le fichier .hex (Windows)
 1. Téléchargez **XLoader** (petit logiciel gratuit, aucune installation).
@@ -186,7 +196,8 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noe
 5. Choisissez le port, puis cliquez sur **Téléverser**.
 
 ### Réglages compilés dans le .hex
-- 4 cabanes de 1 LED WS2812B sur D6, buvette sur D5
+- 3 cabanes + 1 église (WS2812B, 1 LED chacune) sur D6, buvette sur D5
+- Cabanes : bougies colorées en fondu, fermeture du marché 1 min toutes les 11 min ; église : bougie aléatoire
 - Relais actifs à l'état bas : voitures D8, lampadaires D9, sapin D7
 - Allumage un par un : départ après 2 s, puis un élément toutes les 3 s
 
