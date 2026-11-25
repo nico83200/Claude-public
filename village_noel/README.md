@@ -8,7 +8,7 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 |---|---|---|
 | 8 LED 3 V (lampadaires) | Relais 2 sur **D9** | 1ᵉʳ à s'allumer |
 | 4 LED WS2812B (cabanes) | **D6** | S'allument une par une en fondu : bougie · guirlande multicolore · rouge↔vert · doré qui respire |
-| Buvette (LED 5 V) | **D5** directement | S'allume en douceur, puis vacille comme une lanterne |
+| Buvette (LED jaune 5 mm) | **D5** via 220 Ω | S'allume en douceur, puis vacille comme une lanterne |
 | 4 voitures 12 V | Relais 1 sur **D8** | Phares allumés |
 | Sapin 12 V | Relais 3 sur **D7** | Dernier à s'allumer |
 
@@ -53,7 +53,7 @@ Plan vu **de dessus**. Repères : colonne 1→56 de gauche à droite, rangée 1�
 ### Matériel
 - Plaque à pastilles **9×15 cm**
 - Borniers à vis au pas de 5,08 mm, emboîtables : **23 × 2 plots + 1 × 3 plots**
-- 8 résistances de **150 Ω** (lampadaires), 1 de **330 Ω** (R1), 1 condensateur **1000 µF 16 V** (C1)
+- 8 résistances de **150 Ω** (lampadaires), 1 de **330 Ω** (R1), 1 de **220 Ω** (R2, buvette), 1 condensateur **1000 µF 16 V** (C1)
 - Fil rigide nu de 0,5 mm² minimum pour les rails, et du fil isolé fin
 
 ### Les rails (fil nu, côté soudures)
@@ -79,7 +79,7 @@ Plan vu **de dessus**. Repères : colonne 1→56 de gauche à droite, rangée 1�
 - **+5V** de J3, J5 (VCC) et J7 (COM2) → rail +5V
 - **GND** de J1, J2, J3, J4, J5 et J12 → rail GND
 - **GND** des voitures V1 à V3 → rail GND bas
-- **D5** (J4) → BUVETTE + (J12)
+- **D5** (J4) → R2 220 Ω (rangée 11, c25→c29) → BUVETTE + (J12)
 - **D6** (J4) → R1 → DATA (J13)
 - **NO1** → rail VOITURES+, **NO2** → rail LAMPADAIRES+, **NO3** → SAPIN + (J11)
 
@@ -128,9 +128,10 @@ Wago +5V ──► COM relais 2
 - Repérez le (+) de chaque LED : patte longue, ou fil rouge.
 - *Sans résistance* : vous pouvez faire 2 groupes de 4 LED **en série** sur le 12 V (4 × 3 V = 12 V), mais c'est limite. Elles risquent de chauffer, de vieillir vite ou d'être faibles. Ajoutez au moins 47 Ω par groupe.
 
-### 5. La buvette (LED 5 V)
-- **(+) → D5**, **(−) → GND**. Elle vacille comme une lanterne.
-- Une LED vendue « 5 V » a normalement sa résistance intégrée. Si c'est une LED nue, ajoutez **220 Ω** en série.
+### 5. La buvette (LED jaune 5 mm, sans résistance intégrée)
+- **D5 → résistance 220 Ω → patte longue (+)** de la LED ; **patte courte (−)**, côté méplat du boîtier → GND.
+- La résistance est **obligatoire** : sans elle, la LED et la broche D5 risquent de griller.
+- Sur la carte de distribution, c'est R2 (rangée 11, colonnes 25 → 29).
 
 ### 6. Les 4 WS2812B (cabanes)
 - **5V** → Wago +5V, **GND** → Wago GND.
@@ -145,7 +146,7 @@ Wago +5V ──► COM relais 2
 | VIN | Wago +12V |
 | GND | Wago GND |
 | 5V | **rien** |
-| D5 | (+) buvette |
+| D5 | 220 Ω → (+) buvette |
 | D6 | 330 Ω → DIN des WS2812B |
 | D7 | IN3 relais (sapin) |
 | D8 | IN1 relais (voitures) |
