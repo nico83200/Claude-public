@@ -11,6 +11,8 @@
  *              5 église · 6 buvette · 7 voitures · 8 sapin
  *   9        : fermer / rouvrir le marché tout de suite (les 3 cabanes)
  *   0        : rejouer la séquence d'allumage
+ *   ⏯ (play) : MODE FÊTE marche / arrêt (tout s'allume, couleurs arc-en-ciel
+ *              qui défilent, paillettes, buvette qui pulse, phares qui clignotent)
  *   VOL+/VOL- : luminosité des cabanes, de l'église et de la buvette
  *
  * Les 4 LED WS2812B sont des bougies :
@@ -68,6 +70,11 @@ const uint32_t DUREE_MARCHE_OUVERT = 10UL * 60UL * 1000UL;  // 10 min ouvert
 const uint32_t DUREE_MARCHE_FERME  = 60UL * 1000UL;         // 1 min fermé
 const uint32_t DECALAGE_CABANES    = 4000;                  // ms entre deux cabanes qui ferment / ouvrent
 
+// Mode fête (touche ⏯)
+const uint32_t DUREE_FETE_MAX     = 5UL * 60UL * 1000UL;  // retour automatique au mode normal après 5 min
+const uint32_t CLIGNO_VOITURES    = 2000;                 // ms : phares allumés / éteints (pas trop vite pour les relais)
+const uint8_t  VITESSE_ARC_EN_CIEL = 12;                  // plus petit = défile plus vite
+
 // Église : la bougie s'éteint et se rallume au hasard
 const uint32_t EGLISE_ALLUMEE_MIN = 20000;  // ms
 const uint32_t EGLISE_ALLUMEE_MAX = 90000;
@@ -97,6 +104,7 @@ const uint8_t TOUCHE_POWER = 0x45;
 const uint8_t TOUCHE_VOLP  = 0x46;
 const uint8_t TOUCHE_VOLM  = 0x15;
 const uint8_t TOUCHE_0     = 0x16;
+const uint8_t TOUCHE_PLAY  = 0x40;
 const uint8_t TOUCHES_1_A_9[9] = { 0x0C, 0x18, 0x5E, 0x08, 0x1C, 0x5A, 0x42, 0x52, 0x4A };
 
 // ------------------------- LED -------------------------
@@ -119,6 +127,11 @@ uint8_t  etape = 0;                        // étape en cours de la séquence d'
 uint32_t debutSequence = 0;
 uint32_t pauseDepart = PAUSE_DEPART;
 uint8_t  luminosite = LUMINOSITE_WS;
+
+bool     fete = false;                     // mode fête en cours ?
+uint8_t  mixFete = 0;                      // 0 = normal, 255 = fête (fondu entre les deux)
+uint32_t debutFete = 0;
+bool     avantFete[NB_ELEMENTS];           // état des éléments avant la fête, restauré ensuite
 
 bool     marcheOuvert = true;              // fin du marché : fermeture / réouverture des cabanes
 uint32_t basculeMarche = 0;                // moment de la dernière ouverture ou fermeture
@@ -263,7 +276,41 @@ void majBuvette() {
   } else {
     niveau = qsub8(niveau, 6);              // s'éteint en douceur
   }
-  analogWrite(PIN_BUVETTE, scale8(niveau, qadd8(luminosite, 255 - LUMINOSITE_WS)));
+  uint8_t sortie = niveau;
+  if (mixFete && allume[BUVETTE]) {
+    uint8_t pulse = beatsin8(100, 30, 255);   // pulsation rapide pendant la fête
+    sortie = lerp8by8(niveau, pulse, mixFete);
+  }
+  analogWrite(PIN_BUVETTE, scale8(sortie, qadd8(luminosite, 255 - LUMINOSITE_WS)));
+}
+
+// ------------------------- Mode fête -------------------------
+void demarrerFete(uint32_t now) {
+  for (uint8_t i = 0; i < NB_ELEMENTS; i++) { avantFete[i] = allume[i]; allume[i] = true; }
+  etape = NB_ETAPES;                        // arrête une séquence en cours
+  fete = true;
+  debutFete = now;
+  Serial.println(F("Mode fete !"));
+}
+
+void arreterFete() {
+  if (!fete) return;
+  for (uint8_t i = 0; i < NB_ELEMENTS; i++) allume[i] = avantFete[i];
+  fete = false;
+  Serial.println(F("Fin de la fete"));
+}
+
+// Couleurs arc-en-ciel qui défilent en douceur, avec quelques paillettes,
+// mélangées aux bougies selon mixFete (fondu d'entrée et de sortie).
+void appliquerFete(uint32_t now) {
+  if (mixFete == 0) return;
+  for (uint8_t i = 0; i < NB_LEDS; i++) {
+    Element e = (i == LED_EGLISE) ? EGLISE : (Element)(CABANE_1 + i);
+    if (!allume[e]) continue;
+    CRGB c = CHSV(now / VITESSE_ARC_EN_CIEL + i * 64, 230, 255);
+    if (random8() < 5) c = CRGB::White;     // paillette
+    leds[i] = blend(leds[i], c, mixFete);
+  }
 }
 
 // ------------------------- Télécommande -------------------------
@@ -287,11 +334,15 @@ void lireTelecommande(uint32_t now) {
     } else if (code == TOUCHE_VOLM) {
       luminosite = max((int)LUMINOSITE_MIN, (int)luminosite - PAS_LUMINOSITE);
     } else if (!repetition) {                          // les autres touches : un appui = une action
-      if (code == TOUCHE_POWER) {
+      if (code == TOUCHE_PLAY) {
+        if (fete) arreterFete(); else demarrerFete(now);
+      } else if (code == TOUCHE_POWER) {
+        arreterFete();
         bool unAllume = false;
         for (uint8_t i = 0; i < NB_ELEMENTS; i++) unAllume |= allume[i];
         if (unAllume) toutEteindre(); else relancerSequence(now);
       } else if (code == TOUCHE_0) {
+        arreterFete();
         relancerSequence(now);
       } else if (code == TOUCHES_1_A_9[8]) {           // 9 : fermer / rouvrir le marché
         marcheOuvert = !marcheOuvert;
@@ -344,13 +395,19 @@ void loop() {
 
   majSequence(now);
   majMarche(now);
+  if (fete && now - debutFete >= DUREE_FETE_MAX) arreterFete();
+  mixFete = fete ? qadd8(mixFete, 4) : qsub8(mixFete, 4);   // fondu d'environ 1,3 s
+
+  bool phares = allume[VOITURES];
+  if (fete) phares = phares && ((now - debutFete) / CLIGNO_VOITURES) % 2 == 0;
   commanderRelais(PIN_RELAIS_LAMPADAIRES, allume[LAMPADAIRES]);
-  commanderRelais(PIN_RELAIS_VOITURES,    allume[VOITURES]);
+  commanderRelais(PIN_RELAIS_VOITURES,    phares);
   commanderRelais(PIN_RELAIS_SAPIN,       allume[SAPIN]);
   majBuvette();
 
   for (uint8_t c = 0; c < NB_CABANES; c++) majCabane(c, now);
   majEglise(now);
+  appliquerFete(now);
   FastLED.setBrightness(luminosite);
   // Envoyer les couleurs aux LED bloque les interruptions un court instant :
   // on attend que la télécommande ne soit pas en train d'émettre.

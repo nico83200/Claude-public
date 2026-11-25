@@ -46,7 +46,16 @@ Réglages en haut de `village_noel.ino` :
 | **8** | Sapin |
 | **9** | Fermer / rouvrir le marché tout de suite (les 3 cabanes, une par une) |
 | **0** | Rejouer la séquence d'allumage |
+| **⏯** (play) | 🎉 **Mode fête** marche / arrêt (voir ci-dessous) |
 | **VOL+ / VOL−** | Luminosité des cabanes, de l'église et de la buvette (on peut maintenir la touche) |
+
+**Mode fête (⏯)** :
+- Tout s'allume.
+- Les 3 cabanes et l'église passent en **arc-en-ciel qui défile en douceur**, avec des **paillettes** blanches.
+- La **buvette pulse**, et les **phares des voitures clignotent** (2 s allumés / 2 s éteints).
+- Lampadaires et sapin restent allumés.
+- Un 2ᵉ appui sur ⏯ revient au mode normal, en fondu, et **chaque élément retrouve l'état qu'il avait avant la fête**. Sans 2ᵉ appui, la fête s'arrête toute seule après **5 min**.
+- Les touches ⏻ et 0 arrêtent aussi la fête.
 
 Les LED s'allument et s'éteignent toujours en fondu, les relais d'un coup. La fermeture automatique du marché (toutes les 10 min) continue de fonctionner.
 
@@ -196,7 +205,7 @@ Wago +5V ──► COM relais 2
 
 ## Installer le programme sur le Nano
 
-Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 13,9 ko (42 % de la mémoire) et a été compilé avec FastLED 3.6.0 et IRremote 4.4.1.
+Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 14,8 ko (45 % de la mémoire) et a été compilé avec FastLED 3.6.0 et IRremote 4.4.1.
 
 ### Méthode 1 : sans IDE, avec le fichier .hex (Windows)
 1. Téléchargez **XLoader** (petit logiciel gratuit, aucune installation).
