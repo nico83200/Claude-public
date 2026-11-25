@@ -6,25 +6,21 @@ Sketch : [`village_noel.ino`](village_noel.ino) (bibliothèque **FastLED** requi
 
 | Élément | Commande | Effet |
 |---|---|---|
-| 4 LED WS2812B (cabanes) | **D6** | Bougie · guirlande multicolore · rouge↔vert · doré qui respire ; elles s'allument une par une au crépuscule |
-| Buvette (LED 5 V) | **D5** directement | Lumière chaude qui vacille comme une lanterne |
-| 8 LED 3 V (lampadaires) | Relais 2 sur **D9** | S'allument en premier à la tombée de la nuit |
-| 4 voitures 12 V | Relais 1 sur **D8** | Les phares s'allument de temps en temps la nuit (20–40 s), clignotent en mode FÊTE |
-| Sapin 12 V | Relais 3 sur **D7** | S'allume en pleine nuit |
-| 2 interrupteurs ON/OFF (option) | **D2** et **D4** → GND | Choisissent le mode |
+| 8 LED 3 V (lampadaires) | Relais 2 sur **D9** | 1ᵉʳ à s'allumer |
+| 4 LED WS2812B (cabanes) | **D6** | S'allument une par une en fondu : bougie · guirlande multicolore · rouge↔vert · doré qui respire |
+| Buvette (LED 5 V) | **D5** directement | S'allume en douceur, puis vacille comme une lanterne |
+| 4 voitures 12 V | Relais 1 sur **D8** | Phares allumés |
+| Sapin 12 V | Relais 3 sur **D7** | Dernier à s'allumer |
 
-Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, module 3 relais, Wago.
+Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, module 3 relais.
 
-**Modes** (1 à 4 flashs bleus sur la 1ʳᵉ LED pour confirmer) :
+**Fonctionnement** : aucun bouton. À la mise sous tension, après 2 s, les éléments s'allument **un par un toutes les 3 s** :
 
-| Inter D2 | Inter D4 | Mode |
-|---|---|---|
-| OFF | OFF | **AUTO** : cycle jour (2 min) → crépuscule → nuit (8 min) → aube |
-| ON | OFF | **NUIT** : tout allumé |
-| OFF | ON | **FÊTE** : arc-en-ciel dans les cabanes, voitures qui clignotent |
-| ON | ON | **ARRÊT** |
+1. Lampadaires → 2. Cabane 1 → 3. Cabane 2 → 4. Cabane 3 → 5. Cabane 4 → 6. Buvette → 7. Voitures → 8. Sapin
 
-Sans interrupteur, le village est en mode **AUTO**.
+Ensuite tout reste allumé, et les cabanes et la buvette continuent leurs animations. La séquence complète dure environ 23 s. Pour la rejouer, coupez puis remettez l'alimentation.
+
+Réglages en haut de `village_noel.ino` : `PAUSE_ELEMENTS` (pause entre deux éléments), `PAUSE_DEPART`, et le tableau `ORDRE` pour changer l'ordre d'allumage.
 
 ## Schéma d'ensemble
 
@@ -41,7 +37,7 @@ Sans interrupteur, le village est en mode **AUTO**.
                                                      └──► COM relais 2 ──NO──► lampadaires (via résistances)
 
  ALIM 12 V (−) ──► [WAGO GND] ◄── tout le reste : GND Nano, IN−/OUT− convertisseur, GND relais,
-                                  GND WS2812B, (−) voitures, (−) sapin, (−) lampadaires, (−) buvette, interrupteurs
+                                  GND WS2812B, (−) voitures, (−) sapin, (−) lampadaires, (−) buvette
 ```
 
 Il faut 3 Wago de 5 entrées (+12V, +5V, GND). Ajoutez-en un 2ᵉ pour le GND s'il manque des places.
@@ -142,10 +138,6 @@ Wago +5V ──► COM relais 2
 - Conseillé : un condensateur **1000 µF** entre 5V et GND près de la 1ʳᵉ LED (bande « − » sur le GND).
 - Respectez le sens des flèches sur les LED (DIN → DOUT).
 
-### 7. Interrupteurs (option)
-- Interrupteur 1 : une patte → **D2**, l'autre → GND.
-- Interrupteur 2 : une patte → **D4**, l'autre → GND.
-
 ## Récapitulatif du bornier du Nano
 
 | Borne Nano | Branché sur |
@@ -153,8 +145,6 @@ Wago +5V ──► COM relais 2
 | VIN | Wago +12V |
 | GND | Wago GND |
 | 5V | **rien** |
-| D2 | Interrupteur 1 (option) |
-| D4 | Interrupteur 2 (option) |
 | D5 | (+) buvette |
 | D6 | 330 Ω → DIN des WS2812B |
 | D7 | IN3 relais (sapin) |
@@ -167,7 +157,7 @@ Wago +5V ──► COM relais 2
 
 ## Installer le programme sur le Nano
 
-Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 11,4 ko (35 % de la mémoire) et a été compilé avec FastLED 3.6.0.
+Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 10 ko (31 % de la mémoire) et a été compilé avec FastLED 3.6.0.
 
 ### Méthode 1 : sans IDE, avec le fichier .hex (Windows)
 1. Téléchargez **XLoader** (petit logiciel gratuit, aucune installation).
@@ -197,10 +187,9 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noe
 ### Réglages compilés dans le .hex
 - 4 cabanes de 1 LED WS2812B sur D6, buvette sur D5
 - Relais actifs à l'état bas : voitures D8, lampadaires D9, sapin D7
-- 2 interrupteurs sur D2 et D4 ; sans interrupteur, le mode est AUTO
-- Cycle AUTO : 2 min de jour, 20 s de crépuscule, 8 min de nuit
+- Allumage un par un : départ après 2 s, puis un élément toutes les 3 s
 
-Pour changer un réglage (relais actifs à l'état haut, durées…), utilisez la méthode 2.
+Pour changer un réglage (relais actifs à l'état haut, pauses, ordre…), utilisez la méthode 2.
 
 ## Avant la première mise sous tension
 1. Nano débranché, multimètre en mode bip : **aucun bip** entre +12V et GND, ni entre +5V et GND.
@@ -209,5 +198,5 @@ Pour changer un réglage (relais actifs à l'état haut, durées…), utilisez l
 4. Testez les relais un par un (ils doivent claquer) avant de fermer le décor.
 
 ## Pour aller plus loin
-- **Photorésistance** sur A0 (+ 10 kΩ vers GND) et `UTILISER_LDR = true` : le marché s'allume tout seul quand la pièce s'assombrit.
-- **Module MP3 DFPlayer Mini** (environ 3 €) : musique de Noël en mode FÊTE.
+- **Photorésistance** sur A0 (+ 10 kΩ vers GND) : le marché pourrait s'allumer tout seul quand la pièce s'assombrit.
+- **Module MP3 DFPlayer Mini** (environ 3 €) : musique de Noël pendant la séquence d'allumage.
