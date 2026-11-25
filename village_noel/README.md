@@ -165,6 +165,43 @@ Wago +5V ──► COM relais 2
 - 5 V : WS2812B (max 240 mA) + lampadaires (environ 105 mA) + relais (environ 210 mA) + buvette (environ 20 mA), soit **environ 0,6 A**. Un convertisseur de 2 A ou plus est confortable.
 - 12 V : voitures + sapin + convertisseur, soit **environ 1 A** selon le sapin. Une alimentation 12 V de 2 A est confortable.
 
+## Installer le programme sur le Nano
+
+Le programme est déjà compilé : [`firmware/village_noel_nano.hex`](firmware/village_noel_nano.hex). Il pèse 11,4 ko (35 % de la mémoire) et a été compilé avec FastLED 3.6.0.
+
+### Méthode 1 : sans IDE, avec le fichier .hex (Windows)
+1. Téléchargez **XLoader** (petit logiciel gratuit, aucune installation).
+2. Branchez le Nano en USB et notez son port COM dans le Gestionnaire de périphériques. Si le Nano n'apparaît pas, installez le pilote **CH340**.
+3. Dans XLoader :
+   - **Hex file** : `village_noel_nano.hex`
+   - **Device** : `Duemilanove/Nano(ATmega328)`
+   - **COM port** : celui du Nano
+   - **Baud rate** : **57600**
+4. Cliquez sur **Upload**. Au bout d'une dizaine de secondes, le message « … bytes uploaded » s'affiche.
+
+> Si ça échoue, essayez **115200** bauds : les Nano récents ont le « nouveau bootloader ».
+
+Sous Linux ou macOS, avec avrdude :
+```
+avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noel_nano.hex:i
+```
+(Mettez `-b 115200` pour un nouveau bootloader, et `/dev/cu.wchusbserial…` sur Mac.)
+
+### Méthode 2 : avec l'IDE Arduino (si vous voulez modifier des réglages)
+1. Ouvrez `village_noel.ino`.
+2. Ouvrez le gestionnaire de bibliothèques (Outils → Gérer les bibliothèques) et installez **FastLED**.
+3. Choisissez **Outils → Type de carte → Arduino Nano**.
+4. Choisissez **Outils → Processeur → ATmega328P (Old Bootloader)** pour la plupart des clones, ou **ATmega328P** sinon.
+5. Choisissez le port, puis cliquez sur **Téléverser**.
+
+### Réglages compilés dans le .hex
+- 4 cabanes de 1 LED WS2812B sur D6, buvette sur D5
+- Relais actifs à l'état bas : voitures D8, lampadaires D9, sapin D7
+- 2 interrupteurs sur D2 et D4 ; sans interrupteur, le mode est AUTO
+- Cycle AUTO : 2 min de jour, 20 s de crépuscule, 8 min de nuit
+
+Pour changer un réglage (relais actifs à l'état haut, durées…), utilisez la méthode 2.
+
 ## Avant la première mise sous tension
 1. Nano débranché, multimètre en mode bip : **aucun bip** entre +12V et GND, ni entre +5V et GND.
 2. Alimentez **sans le Nano ni les LED**, réglez le convertisseur à 5,0 V.
