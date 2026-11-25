@@ -23,7 +23,7 @@ Plus : alimentation 12 V, convertisseur 12 V → 5 V, Nano sur bornier à vis, m
 Ensuite tout reste allumé (pas de mode jour). La séquence complète dure environ 23 s. Pour la rejouer, coupez puis remettez l'alimentation.
 
 **Les 4 LED en bougies** :
-- **Cabanes** : chaque flamme vacille avec sa propre couleur, prise parmi orange, doré, rouge, vert, rose, violet, bleu nuit et blanc chaud. Elle garde sa couleur 10 à 25 s, puis passe à la suivante par un **fondu de 8 s**. Il n'y a jamais de changement brutal.
+- **Cabanes** : chaque flamme vacille dans l'une de ces 3 teintes : **bougie** (orange), **doré** ou **blanc chaud**. Elle garde sa couleur **au moins 2 min** (2 à 4 min, au hasard), puis passe à une autre par un **fondu de 10 s**. Il n'y a jamais de changement brutal.
 - **Fin du marché** : après 10 min, les 3 cabanes s'éteignent doucement l'une après l'autre (4 s d'écart). Elles restent éteintes 1 min, puis se rallument une par une. Le cycle recommence ensuite.
 - **Église** : bougie blanc chaud qui reste allumée 20 à 90 s, s'éteint comme une bougie soufflée, reste éteinte 4 à 20 s, puis se rallume doucement. Tout est tiré au hasard.
 
@@ -226,7 +226,8 @@ avrdude -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -U flash:w:village_noe
 ### Réglages compilés dans le .hex
 - 3 cabanes + 1 église (WS2812B, 1 LED chacune) sur D6, buvette sur D5
 - Cabanes : bougies colorées en fondu, fermeture du marché 1 min toutes les 11 min ; église : bougie aléatoire
-- Relais actifs à l'état bas : voitures D8, lampadaires D9, sapin D7
+- Relais actifs à l'état bas (LOW) : voitures D8, lampadaires D9, sapin D7
+- Cabanes : bougie / doré / blanc chaud, changement de couleur au plus toutes les 2 min
 - Allumage un par un : départ après 2 s, puis un élément toutes les 3 s
 - Télécommande Elegoo sur D2 (codes NEC du kit Elegoo)
 

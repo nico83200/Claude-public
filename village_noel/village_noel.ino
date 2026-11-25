@@ -14,8 +14,8 @@
  *   VOL+/VOL- : luminosité des cabanes, de l'église et de la buvette
  *
  * Les 4 LED WS2812B sont des bougies :
- *   - 3 cabanes : flamme de bougie dont la couleur change TRÈS lentement
- *     (fondus de plusieurs secondes, jamais de changement brutal).
+ *   - 3 cabanes : flamme de bougie en bougie, doré ou blanc chaud. La couleur
+ *     change au plus toutes les 2 minutes, par un fondu de 10 s.
  *     De temps en temps, le marché « ferme » : les cabanes s'éteignent
  *     doucement l'une après l'autre, restent éteintes un moment, puis
  *     se rallument l'une après l'autre.
@@ -59,9 +59,9 @@ const uint32_t PAUSE_DEPART_TELECOMMANDE = 500;   // ms avant le premier éléme
 const uint32_t PAUSE_ELEMENTS   = 3000;     // ms entre deux éléments
 
 // Couleur des cabanes : durée d'un fondu et temps passé sur chaque couleur
-const uint16_t DUREE_FONDU_COULEUR = 8000;  // ms pour passer d'une couleur à l'autre
-const uint16_t TENUE_COULEUR_MIN   = 10000; // ms
-const uint16_t TENUE_COULEUR_MAX   = 25000; // ms
+const uint32_t DUREE_FONDU_COULEUR = 10000UL;        // ms pour passer d'une couleur à l'autre
+const uint32_t TENUE_COULEUR_MIN   = 2UL * 60UL * 1000UL;  // au moins 2 min sur chaque couleur
+const uint32_t TENUE_COULEUR_MAX   = 4UL * 60UL * 1000UL;  // au plus 4 min
 
 // Fin du marché (les 3 cabanes)
 const uint32_t DUREE_MARCHE_OUVERT = 10UL * 60UL * 1000UL;  // 10 min ouvert
@@ -104,16 +104,11 @@ const uint8_t NB_CABANES = 3;
 const uint8_t LED_EGLISE = 3;              // position de l'église sur la chaîne (0 = 1re LED)
 const uint8_t NB_LEDS    = 4;
 
-// Couleurs possibles des cabanes (des tons « bougie » et des couleurs de Noël)
+// Couleurs possibles des cabanes : bougie, doré, blanc
 const CRGB PALETTE_CABANES[] = {
-  CRGB(255, 120,  30),   // flamme orange
+  CRGB(255, 120,  30),   // bougie (flamme orange)
   CRGB(255, 170,  50),   // doré
-  CRGB(255,  45,  10),   // rouge
-  CRGB( 60, 255,  40),   // vert sapin
-  CRGB(255,  60, 120),   // rose
-  CRGB(150,  50, 255),   // violet
-  CRGB( 60, 110, 255),   // bleu nuit
-  CRGB(255, 200, 130),   // blanc chaud
+  CRGB(255, 210, 150),   // blanc chaud
 };
 const uint8_t NB_COULEURS = sizeof(PALETTE_CABANES) / sizeof(PALETTE_CABANES[0]);
 
@@ -191,9 +186,9 @@ uint8_t couleurAuHasard(uint8_t sauf) {
 
 void initCabanes() {
   for (uint8_t c = 0; c < NB_CABANES; c++) {
-    cabanes[c].depart = cabanes[c].cible = c;          // chaque cabane démarre sur une couleur différente
+    cabanes[c].depart = cabanes[c].cible = c % NB_COULEURS;  // chaque cabane démarre sur une couleur différente
     cabanes[c].debutFondu = 0;
-    cabanes[c].prochainChangement = random16(TENUE_COULEUR_MIN, TENUE_COULEUR_MAX);
+    cabanes[c].prochainChangement = random(TENUE_COULEUR_MIN, TENUE_COULEUR_MAX);
     cabanes[c].lum = 0;
   }
 }
@@ -225,7 +220,7 @@ void majCabane(uint8_t c, uint32_t now) {
     k.depart = k.cible;
     k.cible = couleurAuHasard(k.cible);
     k.debutFondu = now;
-    k.prochainChangement = now + DUREE_FONDU_COULEUR + random16(TENUE_COULEUR_MIN, TENUE_COULEUR_MAX);
+    k.prochainChangement = now + DUREE_FONDU_COULEUR + random(TENUE_COULEUR_MIN, TENUE_COULEUR_MAX);
   }
 
   // Fondu progressif entre l'ancienne et la nouvelle couleur
